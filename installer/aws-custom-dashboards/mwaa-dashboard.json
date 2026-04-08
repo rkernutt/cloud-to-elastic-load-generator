@@ -1,0 +1,160 @@
+{
+  "title": "AWS MWAA — Managed Airflow",
+  "time_range": { "from": "now-24h", "to": "now" },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "mwaa-kpi-total-dag-runs",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mwaa* | STATS `Total DAG Runs` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total DAG Runs" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "mwaa-kpi-failed-runs",
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mwaa* | WHERE `aws.mwaa.run_state` == \"failed\" | STATS `Failed Runs` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failed Runs" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "mwaa-kpi-avg-duration",
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mwaa* | STATS avg_d = AVG(`aws.mwaa.duration_seconds`) | EVAL `Avg Duration (s)` = ROUND(avg_d, 1)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Duration (s)" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "mwaa-kpi-active-workers",
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mwaa* | STATS `Active Workers` = MAX(`aws.mwaa.worker_count`)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Active Workers" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "mwaa-donut-by-dag",
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Runs by DAG ID",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mwaa* | STATS count = COUNT() BY dag = `aws.mwaa.dag_id` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "dag" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "mwaa-donut-by-state",
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Runs by Run State",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mwaa* | STATS count = COUNT() BY state = `aws.mwaa.run_state` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "state" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "mwaa-runs-over-time",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "DAG Runs Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.mwaa* | STATS count = COUNT(), avg_duration = AVG(`aws.mwaa.duration_seconds`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [
+                { "operation": "value", "column": "count", "label": "DAG Runs" },
+                { "operation": "value", "column": "avg_duration", "label": "Avg Duration (s)" }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "mwaa-recent-runs",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "config": {
+        "title": "Recent DAG Runs",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mwaa* | KEEP @timestamp, `aws.mwaa.dag_id`, `aws.mwaa.run_state`, `aws.mwaa.duration_seconds`, `aws.mwaa.worker_count` | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            { "operation": "value", "column": "aws.mwaa.dag_id", "label": "DAG ID" },
+            { "operation": "value", "column": "aws.mwaa.run_state", "label": "Run State" },
+            {
+              "operation": "value",
+              "column": "aws.mwaa.duration_seconds",
+              "label": "Duration (s)"
+            },
+            { "operation": "value", "column": "aws.mwaa.worker_count", "label": "Worker Count" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

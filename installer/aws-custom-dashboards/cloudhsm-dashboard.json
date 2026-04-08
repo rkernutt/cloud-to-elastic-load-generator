@@ -1,0 +1,157 @@
+{
+  "title": "AWS CloudHSM — Hardware Security Module",
+  "time_range": { "from": "now-24h", "to": "now" },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "cloudhsm-kpi-total-operations",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudhsm* | STATS `Total Operations` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Operations" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cloudhsm-kpi-failed-operations",
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudhsm* | WHERE event.outcome == \"failure\" | STATS `Failed Operations` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failed Operations" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cloudhsm-kpi-active-hsms",
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudhsm* | WHERE `aws.cloudhsm.hsm_state` == \"ACTIVE\" | STATS `Active HSMs` = COUNT_DISTINCT(`aws.cloudhsm.cluster_id`)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Active HSMs" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cloudhsm-kpi-key-operations",
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudhsm* | WHERE `aws.cloudhsm.operation_type` LIKE \"*key*\" | STATS `Key Operations` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Key Operations" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cloudhsm-donut-by-hsm-state",
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Operations by HSM State",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudhsm* | STATS count = COUNT() BY hsm_state = `aws.cloudhsm.hsm_state` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "hsm_state" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cloudhsm-donut-by-operation-type",
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Operations by Type",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudhsm* | STATS count = COUNT() BY op_type = `aws.cloudhsm.operation_type` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "op_type" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cloudhsm-operations-over-time",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Operations Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.cloudhsm* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "count", "label": "Operations" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cloudhsm-recent-operations",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "config": {
+        "title": "Recent Operations",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudhsm* | KEEP @timestamp, `aws.cloudhsm.cluster_id`, `aws.cloudhsm.hsm_state`, `aws.cloudhsm.operation_type`, event.outcome | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            { "operation": "value", "column": "aws.cloudhsm.cluster_id", "label": "Cluster ID" },
+            { "operation": "value", "column": "aws.cloudhsm.hsm_state", "label": "HSM State" },
+            {
+              "operation": "value",
+              "column": "aws.cloudhsm.operation_type",
+              "label": "Operation Type"
+            },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

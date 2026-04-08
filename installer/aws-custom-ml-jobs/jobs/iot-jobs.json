@@ -1,0 +1,161 @@
+{
+  "group": "iot",
+  "description": "IoT anomaly detection — IoT Core connection failures, message volume anomalies, rule engine errors",
+  "jobs": [
+    {
+      "id": "aws-iotcore-connection-failure-spike",
+      "description": "Detects unusual spikes in IoT Core device connection failures — compromised devices, fleet misconfiguration, or network issues",
+      "job": {
+        "description": "Detects unusual spikes in IoT Core device connection failures — compromised devices, fleet misconfiguration, or network issues",
+        "groups": ["aws", "iot"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count",
+              "function": "high_count",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.iotcore.client_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.iotcore" } },
+              { "term": { "event.outcome": "failure" } },
+              { "term": { "event.action": "Connect" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-iotcore-message-volume-anomaly",
+      "description": "Detects unusual changes in IoT Core message volume — device fleet anomalies, unexpected silence, or traffic spikes",
+      "job": {
+        "description": "Detects unusual changes in IoT Core message volume — device fleet anomalies, unexpected silence, or traffic spikes",
+        "groups": ["aws", "iot"],
+        "analysis_config": {
+          "bucket_span": "30m",
+          "detectors": [
+            {
+              "detector_description": "count",
+              "function": "count",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "16mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.iotcore" } },
+              { "term": { "event.action": "Publish" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-iotcore-rule-error-spike",
+      "description": "Detects unusual spikes in IoT Core rule engine action errors — broken integrations or downstream service failures",
+      "job": {
+        "description": "Detects unusual spikes in IoT Core rule engine action errors — broken integrations or downstream service failures",
+        "groups": ["aws", "iot"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.iotcore.topic",
+              "function": "high_count",
+              "partition_field_name": "aws.iotcore.topic",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.iotcore.topic", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.iotcore" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-iotcore-rare-client",
+      "description": "Detects rare or previously unseen IoT device client IDs connecting — potentially unauthorised devices",
+      "job": {
+        "description": "Detects rare or previously unseen IoT device client IDs connecting — potentially unauthorised devices",
+        "groups": ["aws", "iot"],
+        "analysis_config": {
+          "bucket_span": "60m",
+          "detectors": [
+            {
+              "detector_description": "rare by=aws.iotcore.client_id",
+              "function": "rare",
+              "by_field_name": "aws.iotcore.client_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.iotcore.client_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "64mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.iotcore" } },
+              { "term": { "event.action": "Connect" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

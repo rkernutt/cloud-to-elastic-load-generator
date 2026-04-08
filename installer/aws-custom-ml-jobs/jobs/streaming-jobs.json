@@ -1,0 +1,228 @@
+{
+  "group": "streaming",
+  "description": "Streaming & messaging anomaly detection — Kinesis Streams, Kinesis Analytics, SQS",
+  "jobs": [
+    {
+      "id": "aws-kinesisanalytics-kpu-spike",
+      "description": "Detects unusual spikes in Kinesis Analytics KPU utilization by application",
+      "job": {
+        "description": "Detects unusual spikes in Kinesis Analytics KPU utilization by application",
+        "groups": ["aws", "streaming"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "High mean KPU utilization by application",
+              "function": "high_mean",
+              "field_name": "aws.kinesisanalytics.metrics.kpu_utilization_pct",
+              "partition_field_name": "aws.kinesisanalytics.application_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.kinesisanalytics.application_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.kinesisanalytics" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-kinesisanalytics-checkpoint-anomaly",
+      "description": "Detects unusual checkpoint durations indicating Kinesis Analytics application stress",
+      "job": {
+        "description": "Detects unusual checkpoint durations indicating Kinesis Analytics application stress",
+        "groups": ["aws", "streaming"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "High mean checkpoint duration by application",
+              "function": "high_mean",
+              "field_name": "aws.kinesisanalytics.last_checkpoint_duration_ms",
+              "partition_field_name": "aws.kinesisanalytics.application_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.kinesisanalytics.application_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.kinesisanalytics" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-kinesis-iterator-age-anomaly",
+      "description": "Detects unusual Kinesis shard iterator age indicating consumer lag",
+      "job": {
+        "description": "Detects unusual Kinesis shard iterator age indicating consumer lag",
+        "groups": ["aws", "streaming"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "High mean iterator age by Kinesis stream",
+              "function": "high_mean",
+              "field_name": "aws.kinesis.metrics.GetRecords_IteratorAgeMilliseconds.avg",
+              "partition_field_name": "aws.dimensions.StreamName",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.dimensions.StreamName"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.kinesis" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-kinesis-throughput-anomaly",
+      "description": "Detects unusual spikes or drops in Kinesis incoming records per stream",
+      "job": {
+        "description": "Detects unusual spikes or drops in Kinesis incoming records per stream",
+        "groups": ["aws", "streaming"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "High mean incoming records by Kinesis stream",
+              "function": "high_mean",
+              "field_name": "aws.kinesis.metrics.IncomingRecords.avg",
+              "partition_field_name": "aws.dimensions.StreamName",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.dimensions.StreamName"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.kinesis" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-sqs-message-age-anomaly",
+      "description": "Detects unusual SQS message age indicating consumer lag or processing failure",
+      "job": {
+        "description": "Detects unusual SQS message age indicating consumer lag or processing failure",
+        "groups": ["aws", "streaming"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "High mean age of oldest SQS message by queue",
+              "function": "high_mean",
+              "field_name": "aws.sqs.oldest_message_age.sec",
+              "partition_field_name": "aws.sqs.queue.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.sqs.queue.name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.sqs" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-sqs-not-visible-spike",
+      "description": "Detects unusual spikes in SQS messages not visible indicating in-flight processing issues",
+      "job": {
+        "description": "Detects unusual spikes in SQS messages not visible indicating in-flight processing issues",
+        "groups": ["aws", "streaming"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "High mean SQS messages not visible by queue",
+              "function": "high_mean",
+              "field_name": "aws.sqs.messages.not_visible",
+              "partition_field_name": "aws.sqs.queue.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.sqs.queue.name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.sqs" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

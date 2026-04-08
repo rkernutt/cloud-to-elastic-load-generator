@@ -1,0 +1,161 @@
+{
+  "title": "AWS Supply Chain — Planning & Integration",
+  "time_range": { "from": "now-24h", "to": "now" },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "supplychain-kpi-total-events",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.supplychain* | STATS `Total Events` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Events" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "supplychain-kpi-failed-jobs",
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.supplychain* | WHERE `aws.supplychain.job_status` == \"FAILED\" | STATS `Failed Jobs` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failed Jobs" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "supplychain-kpi-total-records",
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.supplychain* | STATS `Total Records Processed` = SUM(`aws.supplychain.record_count`)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Total Records Processed" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "supplychain-kpi-active-instances",
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.supplychain* | WHERE `aws.supplychain.job_status` == \"RUNNING\" | STATS `Active Instances` = COUNT_DISTINCT(`aws.supplychain.instance_id`)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Active Instances" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "supplychain-donut-by-event-type",
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Events by Event Type",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.supplychain* | STATS count = COUNT() BY event_type = `aws.supplychain.event_type` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "event_type" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "supplychain-donut-by-job-status",
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Events by Job Status",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.supplychain* | STATS count = COUNT() BY job_status = `aws.supplychain.job_status` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "job_status" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "supplychain-events-over-time",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Events Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.supplychain* | STATS count = COUNT(), total_records = SUM(`aws.supplychain.record_count`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [
+                { "operation": "value", "column": "count", "label": "Events" },
+                { "operation": "value", "column": "total_records", "label": "Records Processed" }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "supplychain-recent-events",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "config": {
+        "title": "Recent Events",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.supplychain* | KEEP @timestamp, `aws.supplychain.event_type`, `aws.supplychain.job_status`, `aws.supplychain.record_count` | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            { "operation": "value", "column": "aws.supplychain.event_type", "label": "Event Type" },
+            { "operation": "value", "column": "aws.supplychain.job_status", "label": "Job Status" },
+            {
+              "operation": "value",
+              "column": "aws.supplychain.record_count",
+              "label": "Record Count"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

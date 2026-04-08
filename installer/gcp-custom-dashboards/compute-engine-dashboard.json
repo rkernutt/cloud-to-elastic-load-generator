@@ -1,0 +1,174 @@
+{
+  "title": "GCP Compute Engine — Instance Events",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "gcp-ce-k1",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.compute* | STATS c = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-ce-d1",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Event type",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.compute* | STATS c = COUNT() BY t = `gcp.compute_engine.event_type` | SORT c DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "t"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-ce-l1",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Events",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-gcp.compute* | STATS c = COUNT() BY b = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-ce-t1",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Recent",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.compute* | KEEP @timestamp, `gcp.compute_engine.instance_name`, `gcp.compute_engine.zone`, `gcp.compute_engine.machine_type`, `gcp.compute_engine.event_type`, event.outcome, message | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "@timestamp",
+              "label": "Time"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.compute_engine.instance_name",
+              "label": "Instance"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.compute_engine.zone",
+              "label": "Zone"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.compute_engine.machine_type",
+              "label": "Type"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.compute_engine.event_type",
+              "label": "Event"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
+            },
+            {
+              "operation": "value",
+              "column": "message",
+              "label": "Message"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

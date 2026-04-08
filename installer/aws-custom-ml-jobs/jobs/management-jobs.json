@@ -1,0 +1,157 @@
+{
+  "group": "management",
+  "description": "Management & governance anomaly detection — CloudWatch alarm storms, CloudFormation rollbacks, billing cost spikes, SSM unusual commands",
+  "jobs": [
+    {
+      "id": "aws-cloudwatch-alarm-storm",
+      "description": "Detects correlated CloudWatch alarm storms — unusually many alarms firing at once (meta-monitoring for infrastructure-wide incidents)",
+      "job": {
+        "description": "Detects correlated CloudWatch alarm storms — unusually many alarms firing at once (meta-monitoring for infrastructure-wide incidents)",
+        "groups": ["aws", "management"],
+        "analysis_config": {
+          "bucket_span": "5m",
+          "detectors": [
+            {
+              "detector_description": "high_count",
+              "function": "high_count",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "16mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.cloudwatch" } },
+              { "term": { "aws.cloudwatch.alarm_state": "ALARM" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-cloudformation-rollback-spike",
+      "description": "Detects unusual CloudFormation stack rollback and failure rates — signals infrastructure deployment instability or repeated bad deploys",
+      "job": {
+        "description": "Detects unusual CloudFormation stack rollback and failure rates — signals infrastructure deployment instability or repeated bad deploys",
+        "groups": ["aws", "management"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count",
+              "function": "high_count",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "16mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.cloudformation" } }],
+            "should": [
+              { "wildcard": { "aws.cloudformation.stack_status": "*ROLLBACK*" } },
+              { "wildcard": { "aws.cloudformation.stack_status": "*FAILED*" } }
+            ],
+            "minimum_should_match": 1
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-billing-cost-anomaly",
+      "description": "Detects unusual AWS billing cost spikes per account and region — ML-based cost anomaly detection using estimated charges",
+      "job": {
+        "description": "Detects unusual AWS billing cost spikes per account and region — ML-based cost anomaly detection using estimated charges",
+        "groups": ["aws", "management"],
+        "analysis_config": {
+          "bucket_span": "60m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.billing.estimated_charges)",
+              "function": "high_mean",
+              "field_name": "aws.billing.estimated_charges",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.account.id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "16mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.billing" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-ssm-rare-command",
+      "description": "Detects rare or unusual Systems Manager commands per instance — indicates lateral movement, privilege abuse, or unauthorised admin activity",
+      "job": {
+        "description": "Detects rare or unusual Systems Manager commands per instance — indicates lateral movement, privilege abuse, or unauthorised admin activity",
+        "groups": ["aws", "management"],
+        "analysis_config": {
+          "bucket_span": "60m",
+          "detectors": [
+            {
+              "detector_description": "rare byfield=event.action partitionfield=cloud.instance.id",
+              "function": "rare",
+              "by_field_name": "event.action",
+              "partition_field_name": "cloud.instance.id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["event.action", "cloud.instance.id", "user.name"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "64mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.ssm" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

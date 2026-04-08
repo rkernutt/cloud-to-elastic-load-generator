@@ -1,0 +1,86 @@
+{
+  "group": "azure-devtools",
+  "description": "Azure DevOps — Pipelines (synthetic)",
+  "jobs": [
+    {
+      "id": "azure-devops-pipeline-failure-spike",
+      "description": "Spikes in failed pipeline runs per pipeline resource",
+      "job": {
+        "description": "Spikes in failed pipeline runs per pipeline resource",
+        "groups": ["azure", "devtools"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.devops_pipeline.resource_name",
+              "function": "high_count",
+              "partition_field_name": "azure.devops_pipeline.resource_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.devops_pipeline.resource_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "exists": { "field": "azure.devops_pipeline.resource_name" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-devops-pipeline-duration-anomaly",
+      "description": "Unusual pipeline run duration",
+      "job": {
+        "description": "Unusual pipeline run duration",
+        "groups": ["azure", "devtools"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(azure.devops_pipeline.duration_ms) partitionfield=azure.devops_pipeline.resource_name",
+              "function": "high_mean",
+              "field_name": "azure.devops_pipeline.duration_ms",
+              "partition_field_name": "azure.devops_pipeline.resource_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.devops_pipeline.resource_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "exists": { "field": "azure.devops_pipeline.resource_name" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

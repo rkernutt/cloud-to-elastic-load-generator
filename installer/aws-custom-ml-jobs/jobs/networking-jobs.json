@@ -1,0 +1,201 @@
+{
+  "group": "networking",
+  "description": "Networking & load balancer anomaly detection — ALB, API Gateway",
+  "jobs": [
+    {
+      "id": "aws-alb-5xx-spike",
+      "description": "Detects spikes in ALB 5xx error responses per target group",
+      "job": {
+        "description": "Detects spikes in ALB 5xx error responses per target group",
+        "groups": ["aws", "networking"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "High count of ALB 5xx responses by target group",
+              "function": "high_count",
+              "partition_field_name": "aws.elb.target_group.arn",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.elb.target_group.arn", "client.ip"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.elb_logs" } }],
+            "must": [
+              {
+                "range": {
+                  "http.response.status_code": { "gte": 500 }
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-alb-response-time-anomaly",
+      "description": "Detects unusual backend response times in ALB",
+      "job": {
+        "description": "Detects unusual backend response times in ALB",
+        "groups": ["aws", "networking"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "High mean ALB backend processing time",
+              "function": "high_mean",
+              "field_name": "aws.elb.backend_processing_time.sec",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.elb.target_group.arn", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "16mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.elb_logs" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-alb-rare-user-agent",
+      "description": "Detects rare or unusual user agent strings hitting the ALB",
+      "job": {
+        "description": "Detects rare or unusual user agent strings hitting the ALB",
+        "groups": ["aws", "networking"],
+        "analysis_config": {
+          "bucket_span": "60m",
+          "detectors": [
+            {
+              "detector_description": "Rare user agent strings on ALB",
+              "function": "rare",
+              "by_field_name": "user_agent.original",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["client.ip", "user_agent.original"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "16mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.elb_logs" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-apigateway-latency-anomaly",
+      "description": "Detects unusual API Gateway latency per stage",
+      "job": {
+        "description": "Detects unusual API Gateway latency per stage",
+        "groups": ["aws", "networking"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "High mean API Gateway latency by stage",
+              "function": "high_mean",
+              "field_name": "aws.apigateway.metrics.Latency.avg",
+              "partition_field_name": "aws.apigateway.stage",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.apigateway.stage", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.apigateway_logs" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-apigateway-error-spike",
+      "description": "Detects spikes in API Gateway 4xx/5xx errors per stage",
+      "job": {
+        "description": "Detects spikes in API Gateway 4xx/5xx errors per stage",
+        "groups": ["aws", "networking"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "High count of API Gateway 4xx/5xx errors by stage",
+              "function": "high_count",
+              "partition_field_name": "aws.apigateway.stage",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.apigateway.stage", "client.ip"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.apigateway_logs" } }],
+            "must": [
+              {
+                "range": {
+                  "http.response.status_code": { "gte": 400 }
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

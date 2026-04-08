@@ -1,0 +1,86 @@
+{
+  "group": "azure-aiml",
+  "description": "Azure AI — OpenAI (Cognitive Services)",
+  "jobs": [
+    {
+      "id": "azure-openai-latency-anomaly",
+      "description": "Unusual OpenAI request duration per deployment",
+      "job": {
+        "description": "Unusual OpenAI request duration per deployment",
+        "groups": ["azure", "aiml"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=azure.openai.deployment",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "azure.openai.deployment",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.openai.deployment", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "exists": { "field": "azure.openai.deployment" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-openai-failure-spike",
+      "description": "Spikes in OpenAI failures per deployment",
+      "job": {
+        "description": "Spikes in OpenAI failures per deployment",
+        "groups": ["azure", "aiml"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.openai.deployment",
+              "function": "high_count",
+              "partition_field_name": "azure.openai.deployment",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.openai.deployment", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "exists": { "field": "azure.openai.deployment" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

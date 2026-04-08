@@ -1,0 +1,156 @@
+{
+  "title": "AWS Data Exchange — Data Marketplace",
+  "time_range": { "from": "now-24h", "to": "now" },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "dataexchange-kpi-total-jobs",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.dataexchange* | STATS `Total Jobs` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Jobs" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dataexchange-kpi-failed-jobs",
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.dataexchange* | WHERE `aws.dataexchange.job_status` == \"ERROR\" | STATS `Failed Jobs` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failed Jobs" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dataexchange-kpi-total-assets",
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.dataexchange* | STATS `Total Assets` = COUNT_DISTINCT(`aws.dataexchange.asset_id`)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Assets" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dataexchange-kpi-active-subscriptions",
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.dataexchange* | WHERE `aws.dataexchange.subscription_status` == \"ACTIVE\" | STATS `Active Subscriptions` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Active Subscriptions" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dataexchange-donut-by-dataset",
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Jobs by Dataset",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.dataexchange* | STATS count = COUNT() BY dataset = `aws.dataexchange.dataset_name` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "dataset" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dataexchange-donut-by-job-type",
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Jobs by Type",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.dataexchange* | STATS count = COUNT() BY job_type = `aws.dataexchange.job_type` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "job_type" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dataexchange-jobs-over-time",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Jobs Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.dataexchange* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "count", "label": "Jobs" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dataexchange-recent-jobs",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "config": {
+        "title": "Recent Jobs",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.dataexchange* | KEEP @timestamp, `aws.dataexchange.dataset_name`, `aws.dataexchange.job_type`, `aws.dataexchange.job_status` | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            {
+              "operation": "value",
+              "column": "aws.dataexchange.dataset_name",
+              "label": "Dataset Name"
+            },
+            { "operation": "value", "column": "aws.dataexchange.job_type", "label": "Job Type" },
+            { "operation": "value", "column": "aws.dataexchange.job_status", "label": "Job Status" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

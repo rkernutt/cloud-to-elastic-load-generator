@@ -1,0 +1,285 @@
+{
+  "title": "AWS Lambda — Invocations & Performance",
+  "time_range": { "from": "now-24h", "to": "now" },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "lambda-kpi-total-invocations",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.lambda* | STATS `Total Invocations` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Invocations" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lambda-kpi-error-rate",
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.lambda* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS avg_e = AVG(is_err) | EVAL `Error Rate %` = ROUND(avg_e * 100, 1)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Error Rate %" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lambda-kpi-avg-duration",
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.lambda* | STATS avg_ns = AVG(event.duration) | EVAL `Avg Duration (ms)` = ROUND(avg_ns / 1000000.0, 1)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Duration (ms)" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lambda-kpi-throttled",
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.lambda* | STATS `Throttled` = SUM(`aws.lambda.metrics.Throttles.sum`)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Throttled" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lambda-donut-event-type",
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
+      "config": {
+        "title": "Event Type Breakdown",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.lambda* | STATS count = COUNT() BY event_type = `aws.lambda.event_type`"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "event_type" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lambda-donut-top-functions",
+      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
+      "config": {
+        "title": "Top Functions by Invocations",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.lambda* | STATS count = COUNT() BY fn = `aws.lambda.function.name` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "fn" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lambda-donut-outcome",
+      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
+      "config": {
+        "title": "Outcome Split",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.lambda* | STATS count = COUNT() BY outcome = event.outcome"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "outcome" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lambda-invocations-over-time",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Invocations Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.lambda* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "count", "label": "Invocations" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lambda-errors-throttles-over-time",
+      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
+      "config": {
+        "title": "Errors & Throttles Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.lambda* | STATS errors = SUM(`aws.lambda.metrics.Errors.sum`), throttles = SUM(`aws.lambda.metrics.Throttles.sum`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [
+                { "operation": "value", "column": "errors", "label": "Errors" },
+                { "operation": "value", "column": "throttles", "label": "Throttles" }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lambda-avg-duration-over-time",
+      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
+      "config": {
+        "title": "Avg Duration Over Time (ms)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.lambda* | STATS avg_dur = AVG(`aws.lambda.metrics.Duration.avg`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "avg_dur", "label": "Avg Duration (ms)" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lambda-avg-duration-by-function",
+      "grid": { "x": 0, "y": 35, "w": 24, "h": 10 },
+      "config": {
+        "title": "Avg Duration by Function (ms)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.lambda* | STATS avg_d = AVG(`aws.lambda.metrics.Duration.avg`) BY fn = `aws.lambda.function.name` | SORT avg_d DESC | LIMIT 10"
+              },
+              "x": { "operation": "value", "column": "fn" },
+              "y": [{ "operation": "value", "column": "avg_d", "label": "Avg Duration (ms)" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lambda-concurrent-executions-over-time",
+      "grid": { "x": 24, "y": 35, "w": 24, "h": 10 },
+      "config": {
+        "title": "Concurrent Executions Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.lambda* | STATS avg_conc = AVG(`aws.lambda.metrics.ConcurrentExecutions.avg`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [
+                { "operation": "value", "column": "avg_conc", "label": "Concurrent Executions" }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lambda-log-table",
+      "grid": { "x": 0, "y": 45, "w": 48, "h": 12 },
+      "config": {
+        "title": "Recent Invocations",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.lambda* | KEEP @timestamp, `aws.lambda.function.name`, `aws.lambda.event_type`, event.outcome, `aws.lambda.metrics.Duration.avg`, `aws.lambda.metrics.Errors.sum`, `aws.lambda.request_id` | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            { "operation": "value", "column": "aws.lambda.function.name", "label": "Function" },
+            { "operation": "value", "column": "aws.lambda.event_type", "label": "Event Type" },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" },
+            {
+              "operation": "value",
+              "column": "aws.lambda.metrics.Duration.avg",
+              "label": "Duration (ms)"
+            },
+            { "operation": "value", "column": "aws.lambda.metrics.Errors.sum", "label": "Errors" },
+            { "operation": "value", "column": "aws.lambda.request_id", "label": "Request ID" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,201 @@
+{
+  "title": "GCP Pub/Sub — Publish & Subscribe",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "gcp-ps-k1",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.pubsub* | STATS c = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-ps-k2",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.pubsub* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Fail %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-ps-d1",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Action",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.pubsub* | STATS c = COUNT() BY a = `gcp.pubsub.action`"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-ps-l1",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Events",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-gcp.pubsub* | STATS c = COUNT() BY b = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-ps-t1",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Recent",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.pubsub* | KEEP @timestamp, `gcp.pubsub.topic_name`, `gcp.pubsub.subscription_name`, `gcp.pubsub.action`, `gcp.pubsub.message_size_bytes`, event.outcome, message | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "@timestamp",
+              "label": "Time"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.pubsub.topic_name",
+              "label": "Topic"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.pubsub.subscription_name",
+              "label": "Sub"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.pubsub.action",
+              "label": "Action"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.pubsub.message_size_bytes",
+              "label": "Bytes"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
+            },
+            {
+              "operation": "value",
+              "column": "message",
+              "label": "Message"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "@timestamp": "2026-04-07T15:26:36.815Z",
+  "cloud": {
+    "provider": "aws",
+    "region": "me-south-1",
+    "account": {
+      "id": "164820739518",
+      "name": "globex-shared-services"
+    },
+    "service": {
+      "name": "macie"
+    }
+  },
+  "aws": {
+    "dimensions": {
+      "BucketName": "analytics-output-me-south-1"
+    },
+    "macie": {
+      "finding_id": "ktgpmh91-bci9-8zqw",
+      "finding_type": "SensitiveData:S3Object/Multiple",
+      "severity": "LOW",
+      "s3_bucket": {
+        "name": "analytics-output-me-south-1",
+        "arn": "arn:aws:s3:::analytics-output-me-south-1"
+      },
+      "s3_bucket_full": {
+        "name": "analytics-output-me-south-1",
+        "arn": "arn:aws:s3:::analytics-output-me-south-1",
+        "owner_id": "7fgs93m6tbe",
+        "default_server_side_encryption": {
+          "encryption_type": "NONE"
+        },
+        "tags": [
+          {
+            "key": "Environment",
+            "value": "prod"
+          }
+        ],
+        "public_access": {
+          "effective_permission": "NOT_PUBLIC",
+          "block_public_acls": true,
+          "block_public_policy": true,
+          "ignore_public_acls": true,
+          "restrict_public_buckets": true
+        }
+      },
+      "occurrences": 29099,
+      "sensitive_data_categories": [
+        "MEDICAL"
+      ],
+      "data_identifiers": [
+        "DRIVER_LICENSE_US"
+      ]
+    },
+    "s3": {
+      "bucket": {
+        "name": "aws-macie-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-macie-logs-164820739518"
+      },
+      "object": {
+        "key": "AWSLogs/164820739518/macie/me-south-1/2026/04/07/macie_IZUEN7OL9NF.log.gz"
+      }
+    },
+    "cloudwatch": {
+      "log_group": "/aws/macie/logs",
+      "log_stream": "me-south-1/z9v7f7y0",
+      "ingestion_time": "2026-04-07T15:26:37.104Z"
+    }
+  },
+  "event": {
+    "kind": "alert",
+    "outcome": "failure",
+    "category": [
+      "vulnerability"
+    ],
+    "dataset": "aws.macie",
+    "provider": "macie2.amazonaws.com",
+    "module": "aws"
+  },
+  "message": "Macie detected sensitive data in s3://analytics-output-me-south-1: SensitiveData:S3Object/Multiple",
+  "log": {
+    "level": "warn"
+  },
+  "error": {
+    "code": "SensitiveDataFound",
+    "message": "Sensitive data in s3://analytics-output-me-south-1",
+    "type": "data"
+  },
+  "service": {
+    "name": "macie",
+    "type": "aws"
+  },
+  "ecs": {
+    "version": "8.11.0"
+  },
+  "data_stream": {
+    "type": "logs",
+    "dataset": "aws.macie",
+    "namespace": "default"
+  },
+  "agent": {
+    "type": "filebeat",
+    "version": "8.18.0",
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "dp46fppp0qg"
+  },
+  "input": {
+    "type": "http_endpoint"
+  }
+}

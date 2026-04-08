@@ -1,0 +1,294 @@
+{
+  "title": "AWS Step Functions — Execution & State Performance",
+  "time_range": { "from": "now-24h", "to": "now" },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "sf-kpi-total-executions",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.stepfunctions* | STATS `Total Executions` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Executions" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "sf-kpi-success-rate",
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.stepfunctions* | EVAL s = CASE(event.outcome == \"success\", 1, 0) | STATS r = AVG(s) | EVAL `Success Rate %` = ROUND(r * 100, 1)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Success Rate %" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "sf-kpi-avg-duration",
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.stepfunctions* | STATS avg_d = AVG(`aws.stepfunctions.duration_seconds`) | EVAL `Avg Duration (s)` = ROUND(avg_d, 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Duration (s)" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "sf-kpi-failed-executions",
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.stepfunctions* | STATS `Failed Executions` = SUM(`aws.stepfunctions.metrics.ExecutionsFailed.sum`)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failed Executions" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "sf-donut-status",
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
+      "config": {
+        "title": "Execution Status",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.stepfunctions* | STATS count = COUNT() BY status = `aws.stepfunctions.status`"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "status" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "sf-donut-workflow-type",
+      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
+      "config": {
+        "title": "Standard vs Express",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.stepfunctions* | STATS count = COUNT() BY wtype = `aws.stepfunctions.workflow_type`"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "wtype" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "sf-donut-state-machines",
+      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
+      "config": {
+        "title": "Top State Machines",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.stepfunctions* | STATS count = COUNT() BY sm = `aws.stepfunctions.state_machine_name` | SORT count DESC | LIMIT 8"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "sm" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "sf-executions-over-time",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Executions Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.stepfunctions* | STATS started = SUM(`aws.stepfunctions.metrics.ExecutionsStarted.sum`), succeeded = SUM(`aws.stepfunctions.metrics.ExecutionsSucceeded.sum`), failed = SUM(`aws.stepfunctions.metrics.ExecutionsFailed.sum`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [
+                { "operation": "value", "column": "started", "label": "Started" },
+                { "operation": "value", "column": "succeeded", "label": "Succeeded" },
+                { "operation": "value", "column": "failed", "label": "Failed" }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "sf-avg-exec-duration",
+      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
+      "config": {
+        "title": "Avg Execution Duration (s)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.stepfunctions* | STATS avg_d = AVG(`aws.stepfunctions.metrics.ExecutionTime.avg`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "avg_d", "label": "Avg Duration (s)" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "sf-p99-exec-duration",
+      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
+      "config": {
+        "title": "P99 Execution Duration (s)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.stepfunctions* | STATS p99_d = AVG(`aws.stepfunctions.metrics.ExecutionTime.p99`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "p99_d", "label": "P99 Duration (s)" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "sf-avg-duration-by-sm",
+      "grid": { "x": 0, "y": 35, "w": 24, "h": 10 },
+      "config": {
+        "title": "Avg Duration by State Machine (s)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.stepfunctions* | STATS avg_d = AVG(`aws.stepfunctions.duration_seconds`) BY sm = `aws.stepfunctions.state_machine_name` | SORT avg_d DESC | LIMIT 10"
+              },
+              "x": { "operation": "value", "column": "sm" },
+              "y": [{ "operation": "value", "column": "avg_d", "label": "Avg Duration (s)" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "sf-throttled-timedout",
+      "grid": { "x": 24, "y": 35, "w": 24, "h": 10 },
+      "config": {
+        "title": "Throttled & Timed Out Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.stepfunctions* | STATS throttled = SUM(`aws.stepfunctions.metrics.ExecutionThrottled.sum`), timedout = SUM(`aws.stepfunctions.metrics.ExecutionsTimedOut.sum`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [
+                { "operation": "value", "column": "throttled", "label": "Throttled" },
+                { "operation": "value", "column": "timedout", "label": "Timed Out" }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "sf-recent-executions",
+      "grid": { "x": 0, "y": 45, "w": 48, "h": 12 },
+      "config": {
+        "title": "Recent Executions",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.stepfunctions* | KEEP @timestamp, `aws.stepfunctions.state_machine_name`, `aws.stepfunctions.workflow_type`, `aws.stepfunctions.status`, `aws.stepfunctions.duration_seconds`, event.outcome | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            {
+              "operation": "value",
+              "column": "aws.stepfunctions.state_machine_name",
+              "label": "State Machine"
+            },
+            {
+              "operation": "value",
+              "column": "aws.stepfunctions.workflow_type",
+              "label": "Workflow Type"
+            },
+            { "operation": "value", "column": "aws.stepfunctions.status", "label": "Status" },
+            {
+              "operation": "value",
+              "column": "aws.stepfunctions.duration_seconds",
+              "label": "Duration (s)"
+            },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

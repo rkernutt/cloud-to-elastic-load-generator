@@ -1,0 +1,267 @@
+{
+  "group": "security",
+  "description": "Security & compliance anomaly detection — VPC Flow, GuardDuty, WAF, CloudTrail",
+  "jobs": [
+    {
+      "id": "aws-vpcflow-high-bytes-tx",
+      "description": "Detects unusual spikes in outbound network bytes from a single source IP (potential data exfiltration)",
+      "job": {
+        "description": "Detects unusual spikes in outbound network bytes from a single source IP (potential data exfiltration)",
+        "groups": ["aws", "security"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_sum(network.bytes) partitionfield=source.ip",
+              "function": "high_sum",
+              "field_name": "network.bytes",
+              "partition_field_name": "source.ip",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["source.ip", "destination.port"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.vpcflow" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-vpcflow-rare-dest-port",
+      "description": "Detects rare destination ports being accessed from a source IP (port scanning or unusual lateral movement)",
+      "job": {
+        "description": "Detects rare destination ports being accessed from a source IP (port scanning or unusual lateral movement)",
+        "groups": ["aws", "security"],
+        "analysis_config": {
+          "bucket_span": "60m",
+          "detectors": [
+            {
+              "detector_description": "rare by=destination.port partitionfield=source.ip",
+              "function": "rare",
+              "by_field_name": "destination.port",
+              "partition_field_name": "source.ip",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["source.ip", "destination.port", "source.geo.country_iso_code"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "64mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.vpcflow" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-vpcflow-high-denied-count",
+      "description": "Detects spikes in REJECT/denied traffic from a source IP (reconnaissance or brute force)",
+      "job": {
+        "description": "Detects spikes in REJECT/denied traffic from a source IP (reconnaissance or brute force)",
+        "groups": ["aws", "security"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=source.ip",
+              "function": "high_count",
+              "partition_field_name": "source.ip",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["source.ip", "destination.port"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.vpcflow" } },
+              { "term": { "event.action": "REJECT" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-guardduty-finding-spike",
+      "description": "Detects unusual spikes in GuardDuty finding counts partitioned by severity level",
+      "job": {
+        "description": "Detects unusual spikes in GuardDuty finding counts partitioned by severity level",
+        "groups": ["aws", "security"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.guardduty.severity.value",
+              "function": "high_count",
+              "partition_field_name": "aws.guardduty.severity.value",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.guardduty.severity.value", "aws.guardduty.type"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "16mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.guardduty" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-guardduty-rare-finding-type",
+      "description": "Detects rare or previously unseen GuardDuty finding types (novel attack patterns)",
+      "job": {
+        "description": "Detects rare or previously unseen GuardDuty finding types (novel attack patterns)",
+        "groups": ["aws", "security"],
+        "analysis_config": {
+          "bucket_span": "60m",
+          "detectors": [
+            {
+              "detector_description": "rare by=aws.guardduty.type",
+              "function": "rare",
+              "by_field_name": "aws.guardduty.type",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.guardduty.type", "aws.guardduty.severity.value", "source.ip"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "16mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.guardduty" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-waf-high-block-rate",
+      "description": "Detects unusual spikes in WAF block events from a source IP (attack campaigns or bot activity)",
+      "job": {
+        "description": "Detects unusual spikes in WAF block events from a source IP (attack campaigns or bot activity)",
+        "groups": ["aws", "security"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=source.ip",
+              "function": "high_count",
+              "partition_field_name": "source.ip",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["source.ip", "http.request.method"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.waf" } },
+              { "term": { "event.action": "block" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-cloudtrail-rare-user-action",
+      "description": "Detects unusual or rare AWS API actions for a specific IAM user (compromised credentials or insider threat)",
+      "job": {
+        "description": "Detects unusual or rare AWS API actions for a specific IAM user (compromised credentials or insider threat)",
+        "groups": ["aws", "security"],
+        "analysis_config": {
+          "bucket_span": "60m",
+          "detectors": [
+            {
+              "detector_description": "rare by=event.action partitionfield=user.name",
+              "function": "rare",
+              "by_field_name": "event.action",
+              "partition_field_name": "user.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["user.name", "source.ip", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "128mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.cloudtrail" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

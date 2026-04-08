@@ -1,0 +1,162 @@
+{
+  "@timestamp": "2026-04-07T15:26:36.815Z",
+  "cloud": {
+    "provider": "aws",
+    "region": "ap-southeast-2",
+    "account": {
+      "id": "293847561023",
+      "name": "globex-staging"
+    },
+    "service": {
+      "name": "redshift"
+    }
+  },
+  "aws": {
+    "dimensions": {
+      "ClusterIdentifier": "prod-dw-ap-southeast-2",
+      "NodeID": "Compute-1"
+    },
+    "redshift": {
+      "cluster_id": "prod-dw-ap-southeast-2",
+      "database": "analytics",
+      "user": "analyst",
+      "pid": 37890,
+      "query_id": 6123296,
+      "duration_seconds": 69.64628072980214,
+      "rows_returned": 0,
+      "error_code": "LimitExceededException",
+      "query_type": "ANALYZE",
+      "wlm": {
+        "queue_name": "etl_queue",
+        "queue_wait_seconds": 139.51858074334262
+      },
+      "metrics": {
+        "CPUUtilization": {
+          "avg": 42.305412041262144
+        },
+        "PercentageDiskSpaceUsed": {
+          "avg": 46.00178889645502
+        },
+        "DatabaseConnections": {
+          "avg": 30
+        },
+        "HealthStatus": {
+          "avg": 0
+        },
+        "MaintenanceMode": {
+          "avg": 0
+        },
+        "NetworkReceiveThroughput": {
+          "avg": 645915001
+        },
+        "NetworkTransmitThroughput": {
+          "avg": 879528321
+        },
+        "QueriesCompletedPerSecond": {
+          "avg": 305.67601710665576
+        },
+        "QueryDuration": {
+          "avg": 118110.51597791511
+        },
+        "QueryRuntimeBreakdown": {
+          "avg": 7996.681211809225
+        },
+        "ReadIOPS": {
+          "avg": 450
+        },
+        "ReadLatency": {
+          "avg": 0.7181768965056889
+        },
+        "ReadThroughput": {
+          "avg": 688142863
+        },
+        "WLMQueriesCompletedPerSecond": {
+          "avg": 206.75461484450722
+        },
+        "WLMQueryDuration": {
+          "avg": 59339.82776289851
+        },
+        "WLMRunningSlotCount": {
+          "avg": 37
+        },
+        "WLMQueueLength": {
+          "avg": 34
+        },
+        "WLMQueueWaitTime": {
+          "avg": 41154.251533530914
+        },
+        "WriteIOPS": {
+          "avg": 2925
+        },
+        "WriteLatency": {
+          "avg": 0.194003700817237
+        },
+        "WriteThroughput": {
+          "avg": 279370731
+        }
+      }
+    },
+    "s3": {
+      "bucket": {
+        "name": "aws-redshift-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-redshift-logs-293847561023"
+      },
+      "object": {
+        "key": "AWSLogs/293847561023/redshift/ap-southeast-2/2026/04/07/redshift_E1KE7L97AEC.log.gz"
+      }
+    },
+    "cloudwatch": {
+      "log_group": "/aws/redshift/logs",
+      "log_stream": "ap-southeast-2/3mdhmob8",
+      "ingestion_time": "2026-04-07T15:26:37.123Z"
+    }
+  },
+  "db": {
+    "user": {
+      "name": "analyst"
+    },
+    "name": "analytics",
+    "statement": "COPY events FROM 's3://data-lake/events/2024/' IAM_ROLE 'arn:aws:iam::123456789:role/RedshiftS3' FORMAT AS PARQUET",
+    "type": "sql"
+  },
+  "event": {
+    "duration": 69646280729.80214,
+    "outcome": "failure",
+    "category": [
+      "database"
+    ],
+    "dataset": "aws.redshift",
+    "provider": "redshift.amazonaws.com",
+    "module": "aws"
+  },
+  "message": "Redshift query failed after 69.64628072980214s",
+  "log": {
+    "level": "error"
+  },
+  "error": {
+    "code": "ClusterParameterGroupNotFound",
+    "message": "Redshift query failed",
+    "type": "db"
+  },
+  "service": {
+    "name": "redshift",
+    "type": "aws"
+  },
+  "ecs": {
+    "version": "8.11.0"
+  },
+  "data_stream": {
+    "type": "logs",
+    "dataset": "aws.redshift",
+    "namespace": "default"
+  },
+  "agent": {
+    "type": "filebeat",
+    "version": "8.18.0",
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "794x4k1kunm"
+  },
+  "input": {
+    "type": "aws-cloudwatch"
+  }
+}

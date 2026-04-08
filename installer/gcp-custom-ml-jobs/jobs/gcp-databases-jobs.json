@@ -1,0 +1,126 @@
+{
+  "group": "gcp-databases",
+  "description": "GCP databases — Cloud SQL, Spanner, Firestore",
+  "jobs": [
+    {
+      "id": "gcp-cloud-sql-slow-query-spike",
+      "description": "Unusual Cloud SQL query duration per instance",
+      "job": {
+        "description": "Unusual Cloud SQL query duration per instance",
+        "groups": ["gcp", "databases"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(gcp.cloud_sql.query_duration_ms) partitionfield=gcp.cloud_sql.instance_name",
+              "function": "high_mean",
+              "field_name": "gcp.cloud_sql.query_duration_ms",
+              "partition_field_name": "gcp.cloud_sql.instance_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.cloud_sql.instance_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*cloud-sql*" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "gcp-cloud-sql-connection-spike",
+      "description": "Unusual active connection counts on Cloud SQL",
+      "job": {
+        "description": "Unusual active connection counts on Cloud SQL",
+        "groups": ["gcp", "databases"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(gcp.cloud_sql.connections_active) partitionfield=gcp.cloud_sql.instance_name",
+              "function": "high_mean",
+              "field_name": "gcp.cloud_sql.connections_active",
+              "partition_field_name": "gcp.cloud_sql.instance_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.cloud_sql.instance_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*cloud-sql*" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "gcp-spanner-failure-spike",
+      "description": "Spikes in Cloud Spanner failures per database",
+      "job": {
+        "description": "Spikes in Cloud Spanner failures per database",
+        "groups": ["gcp", "databases"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.cloud_spanner.database",
+              "function": "high_count",
+              "partition_field_name": "gcp.cloud_spanner.database",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.cloud_spanner.database", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*spanner*" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

@@ -1,0 +1,172 @@
+/**
+ * Trace service metadata used by the UI.
+ * Kept in a separate file so the static import stays lightweight —
+ * the heavy generator functions live in index.ts and are lazy-loaded.
+ */
+export const TRACE_SERVICES = [
+  // ── Single-service ────────────────────────────────────────────────────────
+  {
+    id: "lambda",
+    label: "Lambda",
+    desc: "Function invocations — SDK calls via EDOT/ADOT OTel layer",
+    icon: "AWS-Lambda",
+    group: "Single-Service",
+  },
+  {
+    id: "emr",
+    label: "EMR Spark",
+    desc: "Spark job stages — instrumented via EDOT Java agent bootstrap action",
+    icon: "Amazon-EMR",
+    group: "Single-Service",
+  },
+  // ── Multi-service workflows ───────────────────────────────────────────────
+  {
+    id: "workflow-ecommerce",
+    label: "E-commerce Order Flow",
+    desc: "API Gateway → Lambda (order-processor) → DynamoDB + SQS → Lambda (notification) → SES",
+    icon: "AWS-Lambda",
+    group: "Multi-Service Workflow",
+  },
+  {
+    id: "workflow-ml",
+    label: "ML Inference Pipeline",
+    desc: "API Gateway → Lambda (inference-router) → S3 + Bedrock InvokeModel → DynamoDB (results cache)",
+    icon: "Amazon-Bedrock",
+    group: "Multi-Service Workflow",
+  },
+  {
+    id: "workflow-ingestion",
+    label: "Data Ingestion Pipeline",
+    desc: "Kinesis → Lambda (stream-processor) → S3 + Glue → EMR Spark ETL job",
+    icon: "Amazon-Kinesis",
+    group: "Multi-Service Workflow",
+  },
+  {
+    id: "workflow-stepfunctions",
+    label: "Step Functions Orchestration",
+    desc: "EventBridge → Step Functions → Lambda (validate) → DynamoDB → Lambda (payment) → RDS → Lambda (notify) → SES",
+    icon: "AWS-Step-Functions",
+    group: "Multi-Service Workflow",
+  },
+  {
+    id: "workflow-cascading",
+    label: "Cascading Failure",
+    desc: "API Gateway → Lambda → DynamoDB throttle → DLQ → Lambda recovery — always an error scenario",
+    icon: "AWS-Lambda",
+    group: "Multi-Service Workflow",
+  },
+  {
+    id: "workflow-sns-fanout",
+    label: "SNS Event Fan-out",
+    desc: "API Gateway → Lambda (publisher) → SNS Publish → 3× concurrent Lambda subscribers (DynamoDB, SES, S3)",
+    icon: "Amazon-Simple-Notification-Service",
+    group: "Multi-Service Workflow",
+  },
+  // ── Data pipelines ────────────────────────────────────────────────────────
+  {
+    id: "workflow-pipeline-s3sqs",
+    label: "Data pipeline (S3 → SQS chain)",
+    desc: "S3 event notification → SQS → Lambda → Glue Spark → S3 curated + Redshift COPY + SageMaker Processing (Unified Studio–oriented)",
+    icon: "Amazon-Simple-Storage-Service",
+    group: "Data Pipeline",
+  },
+  {
+    id: "workflow-pipeline-sfn",
+    label: "Data pipeline (EventBridge + Step Functions)",
+    desc: "EventBridge schedule → Step Functions → Glue ETL + parallel S3 archive & Redshift staging + SageMaker feature prep",
+    icon: "AWS-Step-Functions",
+    group: "Data Pipeline",
+  },
+  // ── Single-service (continued) ────────────────────────────────────────────
+  {
+    id: "apigateway",
+    label: "API Gateway",
+    desc: "REST/HTTP/WebSocket API requests — instrumented via Lambda Powertools or ADOT layer",
+    icon: "Amazon-API-Gateway",
+    group: "Single-Service",
+  },
+  {
+    id: "ecs",
+    label: "ECS / Fargate",
+    desc: "Containerised microservices — instrumented via EDOT sidecar or language agent",
+    icon: "Amazon-Elastic-Container-Service",
+    group: "Single-Service",
+  },
+  {
+    id: "stepfunctions",
+    label: "Step Functions",
+    desc: "State machine executions — X-Ray or OTel SDK with Lambda state instrumentation",
+    icon: "AWS-Step-Functions",
+    group: "Single-Service",
+  },
+  {
+    id: "eks",
+    label: "EKS / Kubernetes",
+    desc: "K8s workloads — auto-instrumented via EDOT operator or OTel collector DaemonSet",
+    icon: "Amazon-Elastic-Kubernetes-Service",
+    group: "Single-Service",
+  },
+  {
+    id: "sqs",
+    label: "SQS Consumer",
+    desc: "Message queue consumers — traceparent propagated via message attributes",
+    icon: "Amazon-Simple-Queue-Service",
+    group: "Single-Service",
+  },
+  {
+    id: "kinesis",
+    label: "Kinesis Consumer",
+    desc: "Stream shard consumers — spans covering record batches per shard",
+    icon: "Amazon-Kinesis",
+    group: "Single-Service",
+  },
+  {
+    id: "dynamodb",
+    label: "DynamoDB",
+    desc: "Direct DynamoDB service traces — read/write operations on named tables",
+    icon: "Amazon-DynamoDB",
+    group: "Single-Service",
+  },
+  {
+    id: "rds",
+    label: "RDS / Aurora",
+    desc: "PostgreSQL/MySQL queries — instrumented via EDOT or upstream OTel DB spans",
+    icon: "Amazon-RDS",
+    group: "Single-Service",
+  },
+  {
+    id: "bedrock",
+    label: "Amazon Bedrock",
+    desc: "GenAI invocations — token usage, RAG retrieval, and guardrail spans",
+    icon: "Amazon-Bedrock",
+    group: "Single-Service",
+  },
+  {
+    id: "s3",
+    label: "S3",
+    desc: "Direct S3 operation traces — GetObject, PutObject, CopyObject with latency spans",
+    icon: "Amazon-Simple-Storage-Service",
+    group: "Single-Service",
+  },
+  {
+    id: "glue",
+    label: "AWS Glue",
+    desc: "ETL job execution phases — extract, transform, load spans via EDOT Java agent",
+    icon: "AWS-Glue",
+    group: "Single-Service",
+  },
+  {
+    id: "eventbridge",
+    label: "EventBridge",
+    desc: "Rule evaluation and target invocation spans — Lambda, SQS, SNS fan-out",
+    icon: "Amazon-EventBridge",
+    group: "Single-Service",
+  },
+  {
+    id: "sagemaker",
+    label: "SageMaker Inference",
+    desc: "Real-time endpoint invocations — InvokeEndpoint spans with optional S3 pre-fetch and DynamoDB caching",
+    icon: "Amazon-SageMaker",
+    group: "Single-Service",
+  },
+];

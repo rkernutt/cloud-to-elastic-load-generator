@@ -1,0 +1,210 @@
+{
+  "group": "v11-1-services",
+  "description": "ML anomaly detection jobs for v11.1 new services: Wavelength, Nova, Lookout for Vision",
+  "jobs": [
+    {
+      "id": "aws-wavelength-latency-anomaly",
+      "description": "Detects anomalous edge latency spikes in Wavelength zones (expected <10ms; spikes indicate carrier network issues)",
+      "job": {
+        "job_id": "aws-wavelength-latency-anomaly",
+        "description": "Detects anomalous edge latency spikes in Wavelength zones",
+        "groups": ["aws", "v11-1-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.wavelength.network.latency_ms) by aws.wavelength.zone",
+              "function": "high_mean",
+              "field_name": "aws.wavelength.network.latency_ms",
+              "by_field_name": "aws.wavelength.zone"
+            }
+          ],
+          "influencers": ["aws.wavelength.zone", "aws.wavelength.carrier", "cloud.account.id"]
+        },
+        "data_description": { "time_field": "@timestamp" },
+        "model_plot_config": { "enabled": false },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "allow_lazy_open": true
+      },
+      "datafeed": {
+        "datafeed_id": "datafeed-aws-wavelength-latency-anomaly",
+        "job_id": "aws-wavelength-latency-anomaly",
+        "indices": ["logs-aws.wavelength*"],
+        "query": { "bool": { "filter": [{ "term": { "event.dataset": "aws.wavelength" } }] } },
+        "scroll_size": 1000,
+        "query_delay": "60s"
+      }
+    },
+    {
+      "id": "aws-wavelength-failure-spike",
+      "description": "Detects spikes in Wavelength zone failures (InsufficientCapacity, BandwidthLimitExceeded) by carrier",
+      "job": {
+        "job_id": "aws-wavelength-failure-spike",
+        "description": "Detects spikes in Wavelength zone failures by carrier",
+        "groups": ["aws", "v11-1-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.wavelength.carrier",
+              "function": "high_count",
+              "partition_field_name": "aws.wavelength.carrier"
+            }
+          ],
+          "influencers": ["aws.wavelength.carrier", "aws.wavelength.zone", "cloud.account.id"]
+        },
+        "data_description": { "time_field": "@timestamp" },
+        "model_plot_config": { "enabled": false },
+        "analysis_limits": { "model_memory_limit": "16mb" },
+        "allow_lazy_open": true
+      },
+      "datafeed": {
+        "datafeed_id": "datafeed-aws-wavelength-failure-spike",
+        "job_id": "aws-wavelength-failure-spike",
+        "indices": ["logs-aws.wavelength*"],
+        "query": { "bool": { "filter": [{ "term": { "event.outcome": "failure" } }] } },
+        "scroll_size": 1000,
+        "query_delay": "60s"
+      }
+    },
+    {
+      "id": "aws-nova-latency-spike",
+      "description": "Detects invocation latency spikes per Nova model tier (micro/lite/pro/premier)",
+      "job": {
+        "job_id": "aws-nova-latency-spike",
+        "description": "Detects invocation latency spikes per Nova model tier",
+        "groups": ["aws", "v11-1-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.nova.invocation_latency_ms) by aws.nova.model_tier",
+              "function": "high_mean",
+              "field_name": "aws.nova.invocation_latency_ms",
+              "by_field_name": "aws.nova.model_tier"
+            }
+          ],
+          "influencers": ["aws.nova.model_tier", "aws.nova.model_id", "cloud.region"]
+        },
+        "data_description": { "time_field": "@timestamp" },
+        "model_plot_config": { "enabled": false },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "allow_lazy_open": true
+      },
+      "datafeed": {
+        "datafeed_id": "datafeed-aws-nova-latency-spike",
+        "job_id": "aws-nova-latency-spike",
+        "indices": ["logs-aws.nova*"],
+        "query": { "bool": { "filter": [{ "term": { "event.dataset": "aws.nova" } }] } },
+        "scroll_size": 1000,
+        "query_delay": "60s"
+      }
+    },
+    {
+      "id": "aws-nova-throttle-spike",
+      "description": "Detects ThrottlingException spikes for Nova invocations indicating capacity pressure",
+      "job": {
+        "job_id": "aws-nova-throttle-spike",
+        "description": "Detects ThrottlingException spikes for Nova invocations",
+        "groups": ["aws", "v11-1-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count",
+              "function": "high_count"
+            }
+          ],
+          "influencers": ["aws.nova.model_id", "aws.nova.model_tier", "cloud.account.id"]
+        },
+        "data_description": { "time_field": "@timestamp" },
+        "model_plot_config": { "enabled": false },
+        "analysis_limits": { "model_memory_limit": "16mb" },
+        "allow_lazy_open": true
+      },
+      "datafeed": {
+        "datafeed_id": "datafeed-aws-nova-throttle-spike",
+        "job_id": "aws-nova-throttle-spike",
+        "indices": ["logs-aws.nova*"],
+        "query": {
+          "bool": { "filter": [{ "term": { "aws.nova.error_code": "ThrottlingException" } }] }
+        },
+        "scroll_size": 1000,
+        "query_delay": "60s"
+      }
+    },
+    {
+      "id": "aws-lookoutvision-anomaly-rate-spike",
+      "description": "Detects unusual spikes in defect detection rate per project (may indicate camera/process issues)",
+      "job": {
+        "job_id": "aws-lookoutvision-anomaly-rate-spike",
+        "description": "Detects unusual spikes in defect detection rate per project",
+        "groups": ["aws", "v11-1-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.lookoutvision.project_name",
+              "function": "high_count",
+              "partition_field_name": "aws.lookoutvision.project_name"
+            }
+          ],
+          "influencers": [
+            "aws.lookoutvision.project_name",
+            "aws.lookoutvision.anomaly_label",
+            "cloud.account.id"
+          ]
+        },
+        "data_description": { "time_field": "@timestamp" },
+        "model_plot_config": { "enabled": false },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "allow_lazy_open": true
+      },
+      "datafeed": {
+        "datafeed_id": "datafeed-aws-lookoutvision-anomaly-rate-spike",
+        "job_id": "aws-lookoutvision-anomaly-rate-spike",
+        "indices": ["logs-aws.lookoutvision*"],
+        "query": { "bool": { "filter": [{ "term": { "aws.lookoutvision.is_anomalous": true } }] } },
+        "scroll_size": 1000,
+        "query_delay": "60s"
+      }
+    },
+    {
+      "id": "aws-lookoutvision-confidence-drop",
+      "description": "Detects drops in model confidence that indicate model drift or image quality degradation",
+      "job": {
+        "job_id": "aws-lookoutvision-confidence-drop",
+        "description": "Detects drops in model confidence per Lookout for Vision project",
+        "groups": ["aws", "v11-1-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "low_mean(aws.lookoutvision.confidence) by aws.lookoutvision.project_name",
+              "function": "low_mean",
+              "field_name": "aws.lookoutvision.confidence",
+              "by_field_name": "aws.lookoutvision.project_name"
+            }
+          ],
+          "influencers": [
+            "aws.lookoutvision.project_name",
+            "aws.lookoutvision.model_version",
+            "cloud.account.id"
+          ]
+        },
+        "data_description": { "time_field": "@timestamp" },
+        "model_plot_config": { "enabled": false },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "allow_lazy_open": true
+      },
+      "datafeed": {
+        "datafeed_id": "datafeed-aws-lookoutvision-confidence-drop",
+        "job_id": "aws-lookoutvision-confidence-drop",
+        "indices": ["logs-aws.lookoutvision*"],
+        "query": { "bool": { "filter": [{ "term": { "event.dataset": "aws.lookoutvision" } }] } },
+        "scroll_size": 1000,
+        "query_delay": "60s"
+      }
+    }
+  ]
+}

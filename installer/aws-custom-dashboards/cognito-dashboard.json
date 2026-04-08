@@ -1,0 +1,288 @@
+{
+  "title": "AWS Cognito — Authentication & Risk Events",
+  "time_range": { "from": "now-24h", "to": "now" },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "cognito-kpi-total-signins",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cognito* | STATS `Total Sign-Ins` = SUM(`aws.cognito.metrics.SignInSuccesses.sum`)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Sign-Ins" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cognito-kpi-success-rate",
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cognito* | EVAL s = CASE(event.outcome == \"success\", 1, 0) | STATS r = AVG(s) | EVAL `Sign-In Success Rate %` = ROUND(r * 100, 1)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Sign-In Success Rate %" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cognito-kpi-throttle-count",
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cognito* | STATS `Throttle Count` = SUM(`aws.cognito.metrics.ThrottleCount.sum`)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Throttle Count" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cognito-kpi-risk-events",
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cognito* | STATS `Risk Events` = SUM(`aws.cognito.metrics.AccountTakeoverRisk.sum`) + SUM(`aws.cognito.metrics.CompromisedCredentialsRisk.sum`)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Risk Events" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cognito-donut-event-types",
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
+      "config": {
+        "title": "Event Types",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cognito* | STATS count = COUNT() BY etype = `aws.cognito.event_type`"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "etype" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cognito-donut-outcomes",
+      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
+      "config": {
+        "title": "Event Outcomes",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cognito* | STATS count = COUNT() BY outcome = event.outcome"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "outcome" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cognito-donut-error-codes",
+      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
+      "config": {
+        "title": "Top Error Codes",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cognito* | WHERE event.outcome == \"failure\" | STATS count = COUNT() BY err = `aws.cognito.error_code` | SORT count DESC | LIMIT 8"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "err" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cognito-auth-events-over-time",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Auth Events Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.cognito* | STATS sign_ins = SUM(`aws.cognito.metrics.SignInSuccesses.sum`), sign_ups = SUM(`aws.cognito.metrics.SignUpSuccesses.sum`), refreshes = SUM(`aws.cognito.metrics.TokenRefreshSuccesses.sum`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [
+                { "operation": "value", "column": "sign_ins", "label": "Sign-Ins" },
+                { "operation": "value", "column": "sign_ups", "label": "Sign-Ups" },
+                { "operation": "value", "column": "refreshes", "label": "Token Refreshes" }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cognito-throttle-over-time",
+      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
+      "config": {
+        "title": "Throttle Count Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.cognito* | STATS throttles = SUM(`aws.cognito.metrics.ThrottleCount.sum`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "throttles", "label": "Throttle Count" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cognito-risk-over-time",
+      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
+      "config": {
+        "title": "Risk Events Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.cognito* | STATS takeover = SUM(`aws.cognito.metrics.AccountTakeoverRisk.sum`), compromised = SUM(`aws.cognito.metrics.CompromisedCredentialsRisk.sum`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [
+                { "operation": "value", "column": "takeover", "label": "Account Takeover Risk" },
+                {
+                  "operation": "value",
+                  "column": "compromised",
+                  "label": "Compromised Credentials Risk"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cognito-top-error-codes-bar",
+      "grid": { "x": 0, "y": 35, "w": 24, "h": 10 },
+      "config": {
+        "title": "Top Error Codes",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.cognito* | WHERE event.outcome == \"failure\" | STATS count = COUNT() BY err_code = `aws.cognito.error_code` | SORT count DESC | LIMIT 10"
+              },
+              "x": { "operation": "value", "column": "err_code" },
+              "y": [{ "operation": "value", "column": "count", "label": "Failures" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cognito-signins-by-pool",
+      "grid": { "x": 24, "y": 35, "w": 24, "h": 10 },
+      "config": {
+        "title": "Sign-Ins by User Pool",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.cognito* | STATS signins = SUM(`aws.cognito.metrics.SignInSuccesses.sum`) BY pool = `aws.cognito.user_pool_name` | SORT signins DESC | LIMIT 10"
+              },
+              "x": { "operation": "value", "column": "pool" },
+              "y": [{ "operation": "value", "column": "signins", "label": "Sign-Ins" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cognito-log-table",
+      "grid": { "x": 0, "y": 45, "w": 48, "h": 12 },
+      "config": {
+        "title": "Recent Auth Events",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cognito* | KEEP @timestamp, `aws.cognito.user_pool_name`, `aws.cognito.event_type`, `aws.cognito.source_ip`, `aws.cognito.error_code`, event.outcome | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            { "operation": "value", "column": "aws.cognito.user_pool_name", "label": "User Pool" },
+            { "operation": "value", "column": "aws.cognito.event_type", "label": "Event Type" },
+            { "operation": "value", "column": "aws.cognito.source_ip", "label": "Source IP" },
+            { "operation": "value", "column": "aws.cognito.error_code", "label": "Error Code" },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

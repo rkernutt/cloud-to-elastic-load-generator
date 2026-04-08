@@ -1,0 +1,86 @@
+{
+  "group": "gcp-networking",
+  "description": "GCP networking — VPC flow, load balancing",
+  "jobs": [
+    {
+      "id": "gcp-vpc-flow-deny-spike",
+      "description": "Spikes in VPC flow DENY events per rule",
+      "job": {
+        "description": "Spikes in VPC flow DENY events per rule",
+        "groups": ["gcp", "networking"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.vpc_flow.rule_name",
+              "function": "high_count",
+              "partition_field_name": "gcp.vpc_flow.rule_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.vpc_flow.rule_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*vpc-flow*" } },
+              { "term": { "gcp.vpc_flow.action": "DENY" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "gcp-load-balancer-latency",
+      "description": "Unusual Cloud Load Balancing latency",
+      "job": {
+        "description": "Unusual Cloud Load Balancing latency",
+        "groups": ["gcp", "networking"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=gcp.cloud_lb.forwarding_rule",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "gcp.cloud_lb.forwarding_rule",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.cloud_lb.forwarding_rule", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "term": { "cloud.service.name": "cloud-lb" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

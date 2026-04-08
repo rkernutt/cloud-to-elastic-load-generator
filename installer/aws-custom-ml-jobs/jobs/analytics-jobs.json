@@ -1,0 +1,193 @@
+{
+  "group": "analytics",
+  "description": "Analytics anomaly detection — Glue job failures, Athena cost & performance, EMR task failures",
+  "jobs": [
+    {
+      "id": "aws-glue-job-duration-anomaly",
+      "description": "Detects unusual ETL job durations per Glue job — catches jobs silently getting slower",
+      "job": {
+        "description": "Detects unusual ETL job durations per Glue job — catches jobs silently getting slower",
+        "groups": ["aws", "analytics"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.glue.metrics.driver.aggregate.elapsedTime) partitionfield=aws.glue.job.name",
+              "function": "high_mean",
+              "field_name": "aws.glue.metrics.driver.aggregate.elapsedTime",
+              "partition_field_name": "aws.glue.job.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.glue.job.name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.glue" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-glue-failure-spike",
+      "description": "Detects spikes in Glue job failures",
+      "job": {
+        "description": "Detects spikes in Glue job failures",
+        "groups": ["aws", "analytics"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.glue.job.name",
+              "function": "high_count",
+              "partition_field_name": "aws.glue.job.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.glue.job.name", "aws.glue.error_category"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.glue" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-athena-data-scanned-spike",
+      "description": "Detects unusual data scan volumes — primary cost anomaly signal for Athena",
+      "job": {
+        "description": "Detects unusual data scan volumes — primary cost anomaly signal for Athena",
+        "groups": ["aws", "analytics"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_sum(aws.athena.data_scanned_bytes) partitionfield=aws.athena.workgroup",
+              "function": "high_sum",
+              "field_name": "aws.athena.data_scanned_bytes",
+              "partition_field_name": "aws.athena.workgroup",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.athena.workgroup", "aws.athena.database"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.athena" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-athena-query-duration-anomaly",
+      "description": "Detects unusual Athena query execution times — performance regression detection",
+      "job": {
+        "description": "Detects unusual Athena query execution times — performance regression detection",
+        "groups": ["aws", "analytics"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.athena.metrics.EngineExecutionTimeInMillis.avg) partitionfield=aws.athena.workgroup",
+              "function": "high_mean",
+              "field_name": "aws.athena.metrics.EngineExecutionTimeInMillis.avg",
+              "partition_field_name": "aws.athena.workgroup",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.athena.workgroup", "aws.athena.database"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.athena" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-emr-task-failure-spike",
+      "description": "Detects unusual task failure rates in EMR clusters",
+      "job": {
+        "description": "Detects unusual task failure rates in EMR clusters",
+        "groups": ["aws", "analytics"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.emr.metrics.numFailedTasks) partitionfield=aws.emr.cluster.id",
+              "function": "high_mean",
+              "field_name": "aws.emr.metrics.numFailedTasks",
+              "partition_field_name": "aws.emr.cluster_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.emr.cluster_id", "aws.emr.application"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.emr_logs" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

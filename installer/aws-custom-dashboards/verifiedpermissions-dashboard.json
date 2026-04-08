@@ -1,0 +1,169 @@
+{
+  "title": "Amazon Verified Permissions — Cedar Authorization",
+  "time_range": { "from": "now-24h", "to": "now" },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "verifiedpermissions-kpi-total-decisions",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.verifiedpermissions* | STATS `Total Auth Decisions` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Auth Decisions" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "verifiedpermissions-kpi-deny-count",
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.verifiedpermissions* | WHERE `aws.verifiedpermissions.decision` == \"DENY\" | STATS `DENY Count` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "DENY Count" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "verifiedpermissions-kpi-allow-count",
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.verifiedpermissions* | WHERE `aws.verifiedpermissions.decision` == \"ALLOW\" | STATS `ALLOW Count` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "ALLOW Count" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "verifiedpermissions-kpi-avg-eval-time",
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.verifiedpermissions* | STATS avg_e = AVG(`aws.verifiedpermissions.evaluation_time_ms`) | EVAL `Avg Eval Time (ms)` = ROUND(avg_e, 0)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Eval Time (ms)" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "verifiedpermissions-donut-decision",
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Decision Breakdown",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.verifiedpermissions* | STATS count = COUNT() BY decision = `aws.verifiedpermissions.decision` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "decision" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "verifiedpermissions-donut-principal-type",
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Principal Type",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.verifiedpermissions* | STATS count = COUNT() BY principal_type = `aws.verifiedpermissions.principal_entity_type` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "principal_type" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "verifiedpermissions-decisions-over-time",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Authorization Decisions Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.verifiedpermissions* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "count", "label": "Decisions" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "verifiedpermissions-recent-decisions",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "config": {
+        "title": "Recent Decisions",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.verifiedpermissions* | KEEP @timestamp, `aws.verifiedpermissions.principal_entity_type`, `aws.verifiedpermissions.action_id`, `aws.verifiedpermissions.decision`, `aws.verifiedpermissions.evaluation_time_ms` | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            {
+              "operation": "value",
+              "column": "aws.verifiedpermissions.principal_entity_type",
+              "label": "Principal Type"
+            },
+            {
+              "operation": "value",
+              "column": "aws.verifiedpermissions.action_id",
+              "label": "Action ID"
+            },
+            {
+              "operation": "value",
+              "column": "aws.verifiedpermissions.decision",
+              "label": "Decision"
+            },
+            {
+              "operation": "value",
+              "column": "aws.verifiedpermissions.evaluation_time_ms",
+              "label": "Eval Time (ms)"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

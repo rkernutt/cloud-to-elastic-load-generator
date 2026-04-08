@@ -1,0 +1,86 @@
+{
+  "group": "gcp-devtools",
+  "description": "GCP developer tools — Cloud Build",
+  "jobs": [
+    {
+      "id": "gcp-cloud-build-failure-spike",
+      "description": "Spikes in failed Cloud Build steps per trigger",
+      "job": {
+        "description": "Spikes in failed Cloud Build steps per trigger",
+        "groups": ["gcp", "devtools"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.cloud_build.trigger_name",
+              "function": "high_count",
+              "partition_field_name": "gcp.cloud_build.trigger_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.cloud_build.trigger_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*cloudbuild*" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "gcp-cloud-build-duration",
+      "description": "Unusual Cloud Build duration per build",
+      "job": {
+        "description": "Unusual Cloud Build duration per build",
+        "groups": ["gcp", "devtools"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(gcp.cloud_build.build_duration_seconds) partitionfield=gcp.cloud_build.build_id",
+              "function": "high_mean",
+              "field_name": "gcp.cloud_build.build_duration_seconds",
+              "partition_field_name": "gcp.cloud_build.build_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.cloud_build.trigger_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*cloudbuild*" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

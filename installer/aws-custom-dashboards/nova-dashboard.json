@@ -1,0 +1,167 @@
+{
+  "title": "Amazon Nova — Foundation Model Invocations",
+  "time_range": { "from": "now-24h", "to": "now" },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "nova-kpi-total-invocations",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.nova* | STATS `Total Invocations` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Invocations" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "nova-kpi-failures",
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.nova* | WHERE `event.outcome` == \"failure\" | STATS `Failed Invocations` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failed Invocations" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "nova-kpi-avg-latency",
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.nova* | STATS avg_lat = AVG(`aws.nova.invocation_latency_ms`) | EVAL `Avg Latency (ms)` = ROUND(avg_lat, 0)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Latency (ms)" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "nova-kpi-total-tokens",
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.nova* | STATS `Total Tokens` = SUM(`aws.nova.total_token_count`)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Tokens" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "nova-donut-model-tier",
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Invocations by Model Tier",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.nova* | STATS count = COUNT() BY tier = `aws.nova.model_tier` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "tier" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "nova-donut-use-case",
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Use Case Breakdown",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.nova* | STATS count = COUNT() BY use_case = `aws.nova.use_case` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "use_case" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "nova-invocations-over-time",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Invocation Rate Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.nova* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "count", "label": "Invocations" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "nova-recent-invocations",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "config": {
+        "title": "Recent Invocations",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.nova* | KEEP @timestamp, `aws.nova.model_id`, `aws.nova.model_tier`, `aws.nova.input_token_count`, `aws.nova.output_token_count`, `aws.nova.invocation_latency_ms`, `event.outcome` | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            { "operation": "value", "column": "aws.nova.model_id", "label": "Model" },
+            { "operation": "value", "column": "aws.nova.model_tier", "label": "Tier" },
+            {
+              "operation": "value",
+              "column": "aws.nova.input_token_count",
+              "label": "Input Tokens"
+            },
+            {
+              "operation": "value",
+              "column": "aws.nova.output_token_count",
+              "label": "Output Tokens"
+            },
+            {
+              "operation": "value",
+              "column": "aws.nova.invocation_latency_ms",
+              "label": "Latency (ms)"
+            },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

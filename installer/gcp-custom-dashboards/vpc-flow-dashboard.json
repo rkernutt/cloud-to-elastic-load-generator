@@ -1,0 +1,238 @@
+{
+  "title": "GCP VPC Flow — Traffic & Denials",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "gcp-vpc-k1",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.vpcflow* | STATS c = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-vpc-k2",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.vpcflow* | EVAL is_deny = CASE(`gcp.vpc_flow.action` == \"DENY\", 1, 0) | STATS d = AVG(is_deny) | EVAL `Deny %` = ROUND(d * 100, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Deny %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-vpc-d1",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Action",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.vpcflow* | STATS c = COUNT() BY a = `gcp.vpc_flow.action`"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-vpc-d2",
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Direction",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.vpcflow* | STATS c = COUNT() BY d = `gcp.vpc_flow.direction`"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "d"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-vpc-l1",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Flows",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-gcp.vpcflow* | STATS c = COUNT() BY b = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c",
+                  "label": "Flows"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-vpc-t1",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Recent",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.vpcflow* | KEEP @timestamp, `gcp.vpc_flow.src_ip`, `gcp.vpc_flow.dst_ip`, `gcp.vpc_flow.dst_port`, `gcp.vpc_flow.protocol`, `gcp.vpc_flow.action`, event.outcome, message | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "@timestamp",
+              "label": "Time"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.vpc_flow.src_ip",
+              "label": "Src"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.vpc_flow.dst_ip",
+              "label": "Dst"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.vpc_flow.dst_port",
+              "label": "Port"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.vpc_flow.protocol",
+              "label": "Proto"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.vpc_flow.action",
+              "label": "Action"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
+            },
+            {
+              "operation": "value",
+              "column": "message",
+              "label": "Message"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

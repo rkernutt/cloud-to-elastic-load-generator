@@ -1,0 +1,123 @@
+{
+  "group": "gcp-streaming",
+  "description": "GCP streaming — Pub/Sub, Dataflow",
+  "jobs": [
+    {
+      "id": "gcp-pubsub-failure-spike",
+      "description": "Spikes in Pub/Sub failures per subscription",
+      "job": {
+        "description": "Spikes in Pub/Sub failures per subscription",
+        "groups": ["gcp", "streaming"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.pubsub.subscription_name",
+              "function": "high_count",
+              "partition_field_name": "gcp.pubsub.subscription_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.pubsub.subscription_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*pubsub*" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "gcp-dataflow-watermark-lag",
+      "description": "Unusual Dataflow watermark lag",
+      "job": {
+        "description": "Unusual Dataflow watermark lag",
+        "groups": ["gcp", "streaming"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(gcp.dataflow.watermark_lag_seconds) partitionfield=gcp.dataflow.job_name",
+              "function": "high_mean",
+              "field_name": "gcp.dataflow.watermark_lag_seconds",
+              "partition_field_name": "gcp.dataflow.job_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.dataflow.job_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*dataflow*" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "gcp-dataflow-elements-throughput",
+      "description": "Unusual Dataflow elements produced",
+      "job": {
+        "description": "Unusual Dataflow elements produced",
+        "groups": ["gcp", "streaming"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_sum(gcp.dataflow.elements_produced) partitionfield=gcp.dataflow.job_name",
+              "function": "high_sum",
+              "field_name": "gcp.dataflow.elements_produced",
+              "partition_field_name": "gcp.dataflow.job_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.dataflow.job_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "cloud.provider": "gcp" } }, { "wildcard": { "cloud.service.name": "*dataflow*" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

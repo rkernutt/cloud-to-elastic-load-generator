@@ -1,0 +1,175 @@
+{
+  "title": "Amazon Lookout for Vision — Industrial Defect Detection",
+  "time_range": { "from": "now-24h", "to": "now" },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "lookoutvision-kpi-total-inspections",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.lookoutvision* | STATS `Total Inspections` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Inspections" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lookoutvision-kpi-anomalies",
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.lookoutvision* | WHERE `aws.lookoutvision.is_anomalous` == true | STATS `Anomalies Detected` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Anomalies Detected" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lookoutvision-kpi-avg-confidence",
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.lookoutvision* | STATS avg_conf = AVG(`aws.lookoutvision.confidence`) | EVAL `Avg Confidence` = ROUND(avg_conf, 3)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Confidence" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lookoutvision-kpi-projects",
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.lookoutvision* | STATS `Active Projects` = COUNT_DISTINCT(`aws.lookoutvision.project_name`)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Active Projects" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lookoutvision-donut-project",
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Inspections by Project",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.lookoutvision* | STATS count = COUNT() BY project = `aws.lookoutvision.project_name` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "project" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lookoutvision-donut-anomaly-label",
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Anomaly Type Breakdown",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.lookoutvision* | WHERE `aws.lookoutvision.is_anomalous` == true | STATS count = COUNT() BY label = `aws.lookoutvision.anomaly_label` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "label" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lookoutvision-anomalies-over-time",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Defect Detection Rate Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.lookoutvision* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "count", "label": "Inspections" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "lookoutvision-recent-results",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "config": {
+        "title": "Recent Inspection Results",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.lookoutvision* | KEEP @timestamp, `aws.lookoutvision.project_name`, `aws.lookoutvision.model_version`, `aws.lookoutvision.is_anomalous`, `aws.lookoutvision.anomaly_label`, `aws.lookoutvision.confidence`, `event.outcome` | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            {
+              "operation": "value",
+              "column": "aws.lookoutvision.project_name",
+              "label": "Project"
+            },
+            {
+              "operation": "value",
+              "column": "aws.lookoutvision.model_version",
+              "label": "Model Version"
+            },
+            {
+              "operation": "value",
+              "column": "aws.lookoutvision.is_anomalous",
+              "label": "Anomalous"
+            },
+            {
+              "operation": "value",
+              "column": "aws.lookoutvision.anomaly_label",
+              "label": "Defect Type"
+            },
+            {
+              "operation": "value",
+              "column": "aws.lookoutvision.confidence",
+              "label": "Confidence"
+            },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

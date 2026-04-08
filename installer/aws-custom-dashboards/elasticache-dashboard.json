@@ -1,0 +1,295 @@
+{
+  "title": "AWS ElastiCache — Cache Performance & Replication",
+  "time_range": { "from": "now-24h", "to": "now" },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "elasticache-kpi-hit-rate",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elasticache* | STATS avg_h = AVG(`aws.elasticache.metrics.CacheHitRate.avg`) | EVAL `Avg Cache Hit Rate %` = ROUND(avg_h * 100, 1)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Cache Hit Rate %" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "elasticache-kpi-connections",
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elasticache* | STATS `Avg Connections` = ROUND(AVG(`aws.elasticache.metrics.CurrConnections.avg`), 0)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Connections" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "elasticache-kpi-evictions",
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elasticache* | STATS `Total Evictions` = SUM(`aws.elasticache.metrics.Evictions.sum`)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Evictions" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "elasticache-kpi-replication-lag",
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elasticache* | STATS avg_lag = AVG(`aws.elasticache.metrics.ReplicationLag.avg`) | EVAL `Avg Replication Lag (ms)` = ROUND(avg_lag, 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Avg Replication Lag (ms)" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "elasticache-cache-hit-vs-miss",
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
+      "config": {
+        "title": "Cache Hit vs Miss",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elasticache* | STATS count = COUNT() BY hit = `aws.elasticache.cache_hit`"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "hit" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "elasticache-top-clusters",
+      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
+      "config": {
+        "title": "Top Clusters",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elasticache* | STATS count = COUNT() BY cluster = `aws.elasticache.cluster_id` | SORT count DESC | LIMIT 8"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "cluster" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "elasticache-top-commands",
+      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
+      "config": {
+        "title": "Top Commands",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elasticache* | STATS count = COUNT() BY cmd = `aws.elasticache.command` | SORT count DESC | LIMIT 8"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "cmd" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "elasticache-hit-rate-cpu-over-time",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Cache Hit Rate & CPU Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.elasticache* | STATS hit_rate = AVG(`aws.elasticache.metrics.CacheHitRate.avg`), cpu = AVG(`aws.elasticache.metrics.CPUUtilization.avg`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [
+                { "operation": "value", "column": "hit_rate", "label": "Cache Hit Rate" },
+                { "operation": "value", "column": "cpu", "label": "CPU Utilization" }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "elasticache-connections-over-time",
+      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
+      "config": {
+        "title": "Connections Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.elasticache* | STATS curr_conn = AVG(`aws.elasticache.metrics.CurrConnections.avg`), new_conn = SUM(`aws.elasticache.metrics.NewConnections.sum`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [
+                { "operation": "value", "column": "curr_conn", "label": "Current Connections" },
+                { "operation": "value", "column": "new_conn", "label": "New Connections" }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "elasticache-memory-usage-over-time",
+      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
+      "config": {
+        "title": "Memory Usage Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.elasticache* | STATS mem_pct = AVG(`aws.elasticache.metrics.DatabaseMemoryUsagePercentage.avg`), bytes_used = AVG(`aws.elasticache.metrics.BytesUsedForCache.avg`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [
+                { "operation": "value", "column": "mem_pct", "label": "Memory Usage %" },
+                { "operation": "value", "column": "bytes_used", "label": "Bytes Used for Cache" }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "elasticache-avg-latency-by-cluster",
+      "grid": { "x": 0, "y": 35, "w": 24, "h": 10 },
+      "config": {
+        "title": "Avg Latency by Cluster (µs)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.elasticache* | STATS avg_lat = AVG(`aws.elasticache.latency_us`) BY cluster = `aws.elasticache.cluster_id` | SORT avg_lat DESC | LIMIT 10"
+              },
+              "x": { "operation": "value", "column": "cluster" },
+              "y": [{ "operation": "value", "column": "avg_lat", "label": "Avg Latency (µs)" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "elasticache-evictions-over-time",
+      "grid": { "x": 24, "y": 35, "w": 24, "h": 10 },
+      "config": {
+        "title": "Evictions Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.elasticache* | STATS evictions = SUM(`aws.elasticache.metrics.Evictions.sum`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "evictions", "label": "Evictions" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "elasticache-log-table",
+      "grid": { "x": 0, "y": 45, "w": 48, "h": 12 },
+      "config": {
+        "title": "Recent Events",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elasticache* | KEEP @timestamp, `aws.elasticache.cluster_id`, `aws.elasticache.command`, `aws.elasticache.cache_hit`, `aws.elasticache.latency_us`, `aws.elasticache.metrics.CacheHitRate.avg`, event.outcome | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            { "operation": "value", "column": "aws.elasticache.cluster_id", "label": "Cluster ID" },
+            { "operation": "value", "column": "aws.elasticache.command", "label": "Command" },
+            { "operation": "value", "column": "aws.elasticache.cache_hit", "label": "Cache Hit" },
+            {
+              "operation": "value",
+              "column": "aws.elasticache.latency_us",
+              "label": "Latency (µs)"
+            },
+            {
+              "operation": "value",
+              "column": "aws.elasticache.metrics.CacheHitRate.avg",
+              "label": "Cache Hit Rate"
+            },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

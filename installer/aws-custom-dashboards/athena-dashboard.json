@@ -1,0 +1,329 @@
+{
+  "title": "AWS Athena — Query Performance & Cost",
+  "time_range": { "from": "now-24h", "to": "now" },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "athena-kpi-total",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.athena* | STATS `Total Queries` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Queries" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "athena-kpi-success-rate",
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.athena* | EVAL is_success = CASE(event.outcome == \"success\", 1, 0) | STATS avg_rate = AVG(is_success) | EVAL `Success Rate %` = ROUND(avg_rate * 100, 1)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Success Rate %" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "athena-kpi-avg-duration",
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.athena* | STATS avg_ns = AVG(event.duration) | EVAL `Avg Duration (s)` = ROUND(avg_ns / 1000000000.0, 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Duration (s)" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "athena-kpi-scanned",
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.athena* | STATS total_bytes = SUM(`aws.athena.data_scanned_bytes`) | EVAL `Total Scanned (GB)` = ROUND(total_bytes / 1073741824.0, 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Scanned (GB)" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "athena-outcomes",
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
+      "config": {
+        "title": "Query Outcomes",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.athena* | STATS count = COUNT() BY outcome = event.outcome"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "outcome" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "athena-by-workgroup",
+      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
+      "config": {
+        "title": "Queries by Workgroup",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.athena* | STATS count = COUNT() BY workgroup = `aws.athena.workgroup`"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "workgroup" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "athena-by-database",
+      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
+      "config": {
+        "title": "Queries by Database",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.athena* | STATS count = COUNT() BY database = `aws.athena.database`"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "database" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "athena-query-volume",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Query Volume Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.athena* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "count", "label": "Queries" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "athena-engine-exec-time",
+      "grid": { "x": 0, "y": 25, "w": 16, "h": 10 },
+      "config": {
+        "title": "Avg Engine Execution Time (ms)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.athena* | STATS avg_engine = AVG(`aws.athena.metrics.EngineExecutionTimeInMillis.avg`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [
+                { "operation": "value", "column": "avg_engine", "label": "Engine Exec Time (ms)" }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "athena-queue-time",
+      "grid": { "x": 16, "y": 25, "w": 16, "h": 10 },
+      "config": {
+        "title": "Avg Query Queue Time (ms)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.athena* | STATS avg_queue = AVG(`aws.athena.metrics.QueryQueueTimeInMillis.avg`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "avg_queue", "label": "Queue Time (ms)" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "athena-planning-time",
+      "grid": { "x": 32, "y": 25, "w": 16, "h": 10 },
+      "config": {
+        "title": "Avg Query Planning Time (ms)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.athena* | STATS avg_plan = AVG(`aws.athena.metrics.QueryPlanningTimeInMillis.avg`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "avg_plan", "label": "Planning Time (ms)" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "athena-scanned-by-workgroup",
+      "grid": { "x": 0, "y": 35, "w": 16, "h": 10 },
+      "config": {
+        "title": "Data Scanned by Workgroup (GB)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.athena* | STATS total_gb = SUM(`aws.athena.data_scanned_bytes`) / 1073741824 BY workgroup = `aws.athena.workgroup` | SORT total_gb DESC"
+              },
+              "x": { "operation": "value", "column": "workgroup" },
+              "y": [{ "operation": "value", "column": "total_gb", "label": "Scanned (GB)" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "athena-error-codes",
+      "grid": { "x": 16, "y": 35, "w": 16, "h": 10 },
+      "config": {
+        "title": "Top Error Codes",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.athena* | WHERE event.outcome == \"failure\" | STATS count = COUNT() BY error_code = `aws.athena.error_code` | SORT count DESC | LIMIT 10"
+              },
+              "x": { "operation": "value", "column": "error_code" },
+              "y": [{ "operation": "value", "column": "count", "label": "Failures" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "athena-engine-version",
+      "grid": { "x": 32, "y": 35, "w": 16, "h": 10 },
+      "config": {
+        "title": "Engine Version Split",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.athena* | STATS count = COUNT() BY version = `aws.athena.engine_version`"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "version" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "athena-log-table",
+      "grid": { "x": 0, "y": 45, "w": 48, "h": 12 },
+      "config": {
+        "title": "Recent Queries",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.athena* | KEEP @timestamp, `aws.athena.workgroup`, `aws.athena.database`, `aws.athena.state`, `aws.athena.duration_seconds`, `aws.athena.data_scanned_mb`, `aws.athena.error_code` | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            { "operation": "value", "column": "aws.athena.workgroup", "label": "Workgroup" },
+            { "operation": "value", "column": "aws.athena.database", "label": "Database" },
+            { "operation": "value", "column": "aws.athena.state", "label": "State" },
+            {
+              "operation": "value",
+              "column": "aws.athena.duration_seconds",
+              "label": "Duration (s)"
+            },
+            {
+              "operation": "value",
+              "column": "aws.athena.data_scanned_mb",
+              "label": "Scanned (MB)"
+            },
+            { "operation": "value", "column": "aws.athena.error_code", "label": "Error Code" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

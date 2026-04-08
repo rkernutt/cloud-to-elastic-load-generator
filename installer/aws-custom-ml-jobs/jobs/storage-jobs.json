@@ -1,0 +1,160 @@
+{
+  "group": "storage",
+  "description": "Storage anomaly detection — S3 bandwidth, errors, and rare operations",
+  "jobs": [
+    {
+      "id": "aws-s3-bandwidth-anomaly",
+      "description": "Detects unusual data transfer volumes from S3 buckets",
+      "job": {
+        "description": "Detects unusual data transfer volumes from S3 buckets",
+        "groups": ["aws", "storage"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "High sum of bytes sent by S3 bucket",
+              "function": "high_sum",
+              "field_name": "aws.s3access.bytes_sent",
+              "partition_field_name": "aws.s3.bucket.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.s3.bucket.name", "client.ip"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.s3" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-s3-error-spike",
+      "description": "Detects spikes in S3 client errors (4xx) per bucket",
+      "job": {
+        "description": "Detects spikes in S3 client errors (4xx) per bucket",
+        "groups": ["aws", "storage"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "High count of S3 4xx client errors by bucket",
+              "function": "high_count",
+              "partition_field_name": "aws.s3.bucket.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.s3.bucket.name", "client.ip"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.s3" } }],
+            "must": [
+              {
+                "range": {
+                  "aws.s3access.http_status": { "gte": 400, "lt": 500 }
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-s3-rare-operation",
+      "description": "Detects rare or unusual S3 operations per bucket such as unexpected DELETE or ACL changes",
+      "job": {
+        "description": "Detects rare or unusual S3 operations per bucket such as unexpected DELETE or ACL changes",
+        "groups": ["aws", "storage"],
+        "analysis_config": {
+          "bucket_span": "60m",
+          "detectors": [
+            {
+              "detector_description": "Rare S3 operation type by bucket",
+              "function": "rare",
+              "by_field_name": "aws.s3access.operation",
+              "partition_field_name": "aws.s3.bucket.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.s3.bucket.name", "client.ip", "aws.s3access.operation"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.s3" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-s3-rare-requester",
+      "description": "Detects rare or unusual requesters accessing an S3 bucket",
+      "job": {
+        "description": "Detects rare or unusual requesters accessing an S3 bucket",
+        "groups": ["aws", "storage"],
+        "analysis_config": {
+          "bucket_span": "60m",
+          "detectors": [
+            {
+              "detector_description": "Rare requester IP by S3 bucket",
+              "function": "rare",
+              "by_field_name": "client.ip",
+              "partition_field_name": "aws.s3.bucket.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.s3.bucket.name", "client.ip"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "64mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.s3" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

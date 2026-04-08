@@ -1,0 +1,597 @@
+{
+  "group": "v114-services",
+  "description": "v11.4 new service anomaly detection (200-service milestone) — VPC IPAM exhaustion, Private 5G outages, Neptune Analytics timeouts, Aurora DSQL conflicts, Mainframe Modernization failures, HPC job failures, EVS host failures, SimSpace Weaver crashes, HealthOmics pipeline errors, Bedrock Data Automation failures, Ground Station contact losses, WorkMail bounces, Wickr compliance failures, Q Developer degradation, End User Messaging delivery failures",
+  "jobs": [
+    {
+      "id": "aws-vpcipam-allocation-failure-spike",
+      "description": "Detects spikes in VPC IPAM allocation failures per pool (CIDR exhaustion or overlap conflict)",
+      "job": {
+        "description": "Detects spikes in VPC IPAM allocation failures per pool (CIDR exhaustion or overlap conflict)",
+        "groups": ["aws", "v114-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.vpcipam.pool_id",
+              "function": "high_count",
+              "partition_field_name": "aws.vpcipam.pool_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.vpcipam.pool_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.vpcipam" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-private5g-radio-unit-offline-spike",
+      "description": "Detects spikes in Private 5G radio unit offline events per site (coverage outage)",
+      "job": {
+        "description": "Detects spikes in Private 5G radio unit offline events per site (coverage outage)",
+        "groups": ["aws", "v114-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.private5g.network_site_id",
+              "function": "high_count",
+              "partition_field_name": "aws.private5g.network_site_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.private5g.network_site_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.private5g" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-neptuneanalytics-query-timeout-spike",
+      "description": "Detects spikes in Neptune Analytics graph algorithm timeouts per graph (capacity or query complexity issues)",
+      "job": {
+        "description": "Detects spikes in Neptune Analytics graph algorithm timeouts per graph (capacity or query complexity issues)",
+        "groups": ["aws", "v114-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.neptuneanalytics.graph_id",
+              "function": "high_count",
+              "partition_field_name": "aws.neptuneanalytics.graph_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.neptuneanalytics.graph_id", "aws.neptuneanalytics.algorithm"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.neptuneanalytics" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-auroradsql-transaction-conflict-spike",
+      "description": "Detects spikes in Aurora DSQL transaction conflicts per cluster (hot-row contention or replication lag)",
+      "job": {
+        "description": "Detects spikes in Aurora DSQL transaction conflicts per cluster (hot-row contention or replication lag)",
+        "groups": ["aws", "v114-services"],
+        "analysis_config": {
+          "bucket_span": "5m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.auroradsql.cluster_id",
+              "function": "high_count",
+              "partition_field_name": "aws.auroradsql.cluster_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.auroradsql.cluster_id", "aws.auroradsql.region_mode"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.auroradsql" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-m2-batch-job-failure-spike",
+      "description": "Detects spikes in Mainframe Modernization batch job failures per application (misconfigured JCL or resource exhaustion)",
+      "job": {
+        "description": "Detects spikes in Mainframe Modernization batch job failures per application (misconfigured JCL or resource exhaustion)",
+        "groups": ["aws", "v114-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.m2.application_id",
+              "function": "high_count",
+              "partition_field_name": "aws.m2.application_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.m2.application_id", "aws.m2.engine_type"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.m2" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-pcs-job-failure-rate",
+      "description": "Detects unusual HPC job failure rates per queue (scheduler misconfig or node capacity issues)",
+      "job": {
+        "description": "Detects unusual HPC job failure rates per queue (scheduler misconfig or node capacity issues)",
+        "groups": ["aws", "v114-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.pcs.queue_name",
+              "function": "high_count",
+              "partition_field_name": "aws.pcs.queue_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.pcs.queue_name", "aws.pcs.cluster_id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.pcs" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-evs-host-failure-spike",
+      "description": "Detects spikes in EVS ESXi host failures per environment (hardware or vSAN degradation)",
+      "job": {
+        "description": "Detects spikes in EVS ESXi host failures per environment (hardware or vSAN degradation)",
+        "groups": ["aws", "v114-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.evs.environment_id",
+              "function": "high_count",
+              "partition_field_name": "aws.evs.environment_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.evs.environment_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.evs" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-simspaceweaver-simulation-failure-spike",
+      "description": "Detects spikes in SimSpace Weaver simulation failures per app (clock desync or partition crash)",
+      "job": {
+        "description": "Detects spikes in SimSpace Weaver simulation failures per app (clock desync or partition crash)",
+        "groups": ["aws", "v114-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.simspaceweaver.app_name",
+              "function": "high_count",
+              "partition_field_name": "aws.simspaceweaver.app_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.simspaceweaver.app_name", "aws.simspaceweaver.domain_name"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.simspaceweaver" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-healthomics-workflow-failure-spike",
+      "description": "Detects spikes in HealthOmics workflow run failures per workflow (bioinformatics pipeline errors or storage overruns)",
+      "job": {
+        "description": "Detects spikes in HealthOmics workflow run failures per workflow (bioinformatics pipeline errors or storage overruns)",
+        "groups": ["aws", "v114-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.healthomics.workflow_id",
+              "function": "high_count",
+              "partition_field_name": "aws.healthomics.workflow_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.healthomics.workflow_id", "aws.healthomics.engine"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.healthomics" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-bedrockdataautomation-extraction-failure-spike",
+      "description": "Detects spikes in Bedrock Data Automation extraction failures per project (blueprint mismatches or unsupported document types)",
+      "job": {
+        "description": "Detects spikes in Bedrock Data Automation extraction failures per project (blueprint mismatches or unsupported document types)",
+        "groups": ["aws", "v114-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.bedrockdataautomation.project_id",
+              "function": "high_count",
+              "partition_field_name": "aws.bedrockdataautomation.project_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "aws.bedrockdataautomation.project_id",
+            "aws.bedrockdataautomation.input_type"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.bedrockdataautomation" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-groundstation-contact-failure-spike",
+      "description": "Detects spikes in Ground Station contact failures per site (antenna depointing or signal loss)",
+      "job": {
+        "description": "Detects spikes in Ground Station contact failures per site (antenna depointing or signal loss)",
+        "groups": ["aws", "v114-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.groundstation.ground_station_id",
+              "function": "high_count",
+              "partition_field_name": "aws.groundstation.ground_station_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.groundstation.ground_station_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.groundstation" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-workmail-email-bounce-spike",
+      "description": "Detects spikes in WorkMail email bounces per organization (misconfigured routing or recipient quota issues)",
+      "job": {
+        "description": "Detects spikes in WorkMail email bounces per organization (misconfigured routing or recipient quota issues)",
+        "groups": ["aws", "v114-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.workmail.organization_id",
+              "function": "high_count",
+              "partition_field_name": "aws.workmail.organization_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.workmail.organization_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.workmail" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-wickr-compliance-failure-spike",
+      "description": "Detects spikes in Wickr compliance export failures per network (retention policy violations)",
+      "job": {
+        "description": "Detects spikes in Wickr compliance export failures per network (retention policy violations)",
+        "groups": ["aws", "v114-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.wickr.network_id",
+              "function": "high_count",
+              "partition_field_name": "aws.wickr.network_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.wickr.network_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.wickr" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-qdeveloper-suggestion-rejection-spike",
+      "description": "Detects spikes in Q Developer suggestion rejections per IDE (model degradation or low-quality completions)",
+      "job": {
+        "description": "Detects spikes in Q Developer suggestion rejections per IDE (model degradation or low-quality completions)",
+        "groups": ["aws", "v114-services"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.qdeveloper.ide",
+              "function": "high_count",
+              "partition_field_name": "aws.qdeveloper.ide",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.qdeveloper.ide", "aws.qdeveloper.language"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.qdeveloper" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-endusermessaging-delivery-failure-spike",
+      "description": "Detects spikes in End User Messaging delivery failures per channel (carrier blocks or number throttling)",
+      "job": {
+        "description": "Detects spikes in End User Messaging delivery failures per channel (carrier blocks or number throttling)",
+        "groups": ["aws", "v114-services"],
+        "analysis_config": {
+          "bucket_span": "5m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.endusermessaging.channel",
+              "function": "high_count",
+              "partition_field_name": "aws.endusermessaging.channel",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "aws.endusermessaging.channel",
+            "aws.endusermessaging.destination_country"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.endusermessaging" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

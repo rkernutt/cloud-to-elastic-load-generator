@@ -1,0 +1,86 @@
+{
+  "group": "gcp-aiml",
+  "description": "GCP AI/ML — Vertex AI",
+  "jobs": [
+    {
+      "id": "gcp-vertex-ai-latency-anomaly",
+      "description": "Unusual Vertex AI prediction latency per model",
+      "job": {
+        "description": "Unusual Vertex AI prediction latency per model",
+        "groups": ["gcp", "aiml"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(gcp.vertex_ai.latency_ms) partitionfield=gcp.vertex_ai.model_name",
+              "function": "high_mean",
+              "field_name": "gcp.vertex_ai.latency_ms",
+              "partition_field_name": "gcp.vertex_ai.model_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.vertex_ai.model_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*aiplatform*" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "gcp-vertex-ai-failure-spike",
+      "description": "Spikes in Vertex AI failures per endpoint",
+      "job": {
+        "description": "Spikes in Vertex AI failures per endpoint",
+        "groups": ["gcp", "aiml"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.vertex_ai.endpoint_id",
+              "function": "high_count",
+              "partition_field_name": "gcp.vertex_ai.endpoint_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.vertex_ai.endpoint_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*aiplatform*" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

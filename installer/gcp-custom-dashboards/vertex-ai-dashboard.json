@@ -1,0 +1,201 @@
+{
+  "title": "GCP Vertex AI — Predictions & Latency",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "gcp-vx-k1",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.vertexai* | STATS c = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-vx-k2",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.vertexai* | STATS m = AVG(`gcp.vertex_ai.latency_ms`) | EVAL `Avg latency (ms)` = ROUND(m, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg latency (ms)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-vx-d1",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Model",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.vertexai* | STATS c = COUNT() BY m = `gcp.vertex_ai.model_name` | SORT c DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "m"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-vx-l1",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Events",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-gcp.vertexai* | STATS c = COUNT() BY b = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-vx-t1",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Recent",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.vertexai* | KEEP @timestamp, `gcp.vertex_ai.endpoint_id`, `gcp.vertex_ai.model_name`, `gcp.vertex_ai.prediction_type`, `gcp.vertex_ai.latency_ms`, event.outcome, message | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "@timestamp",
+              "label": "Time"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.vertex_ai.endpoint_id",
+              "label": "Endpoint"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.vertex_ai.model_name",
+              "label": "Model"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.vertex_ai.prediction_type",
+              "label": "Type"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.vertex_ai.latency_ms",
+              "label": "Latency ms"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
+            },
+            {
+              "operation": "value",
+              "column": "message",
+              "label": "Message"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+/**
+ * Trace scenario metadata for the GCP load generator UI.
+ */
+
+export const GCP_TRACE_SERVICES = [
+  {
+    id: "cloud-functions",
+    label: "Cloud Functions",
+    desc: "HTTP-triggered function with downstream calls",
+    icon: "ƒ",
+    group: "Serverless",
+  },
+  {
+    id: "cloud-run",
+    label: "Cloud Run",
+    desc: "Container service handling HTTP requests",
+    icon: "▷",
+    group: "Serverless",
+  },
+  { id: "gke", label: "GKE", desc: "Kubernetes pod-to-pod service mesh", icon: "☸", group: "Containers" },
+  {
+    id: "app-engine",
+    label: "App Engine",
+    desc: "Web app request with datastore calls",
+    icon: "⊙",
+    group: "Serverless",
+  },
+  {
+    id: "cloud-spanner",
+    label: "Cloud Spanner",
+    desc: "Distributed transaction across regions",
+    icon: "⟐",
+    group: "Database",
+  },
+  {
+    id: "pubsub",
+    label: "Pub/Sub",
+    desc: "Async message publish and process pipeline",
+    icon: "◉",
+    group: "Messaging",
+  },
+  {
+    id: "bigquery",
+    label: "BigQuery",
+    desc: "Analytical query with stage execution",
+    icon: "◇",
+    group: "Analytics",
+  },
+  {
+    id: "workflow-ecommerce",
+    label: "E-Commerce Order",
+    desc: "Cloud Run → Spanner → Pub/Sub → Cloud Functions pipeline",
+    icon: "⛓",
+    group: "Workflows",
+  },
+  {
+    id: "workflow-ml",
+    label: "ML Inference",
+    desc: "Cloud Run → Vertex AI → BigQuery pipeline",
+    icon: "✦",
+    group: "Workflows",
+  },
+  {
+    id: "workflow-data",
+    label: "Data Pipeline",
+    desc: "Pub/Sub → Dataflow → BigQuery → Cloud Storage export",
+    icon: "⟿",
+    group: "Workflows",
+  },
+  {
+    id: "cloud-sql",
+    label: "Cloud SQL",
+    desc: "Multi-step SQL query with connection pooling",
+    icon: "⊞",
+    group: "Database",
+  },
+  {
+    id: "dataflow",
+    label: "Dataflow",
+    desc: "Beam pipeline stage with source/transform/sink",
+    icon: "⟿",
+    group: "Analytics",
+  },
+  {
+    id: "vertex-ai",
+    label: "Vertex AI",
+    desc: "Model inference with preprocessing and GPU execution",
+    icon: "✦",
+    group: "AI/ML",
+  },
+  {
+    id: "firestore",
+    label: "Firestore",
+    desc: "Multi-document transaction with reads and writes",
+    icon: "⊙",
+    group: "Database",
+  },
+  {
+    id: "workflow-cascading",
+    label: "Cascading Failure",
+    desc: "API Gateway → Cloud Run → SQL timeout → DLQ chain",
+    icon: "⚡",
+    group: "Workflows",
+  },
+];

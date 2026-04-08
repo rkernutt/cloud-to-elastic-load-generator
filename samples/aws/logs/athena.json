@@ -1,0 +1,102 @@
+{
+  "@timestamp": "2026-04-07T15:26:36.815Z",
+  "cloud": {
+    "provider": "aws",
+    "region": "ca-west-1",
+    "account": {
+      "id": "164820739518",
+      "name": "globex-shared-services"
+    },
+    "service": {
+      "name": "athena"
+    }
+  },
+  "aws": {
+    "athena": {
+      "query_id": "430dk9zn-l14k-94v5-1hpx",
+      "workgroup": "primary",
+      "database": "staging",
+      "state": "SUCCEEDED",
+      "duration_seconds": 26.439874925405235,
+      "data_scanned_bytes": 1846229807,
+      "data_scanned_mb": 1761,
+      "engine_version": "DuckDB 0.9.1",
+      "structured_logging": true,
+      "metrics": {
+        "DataScannedInBytes": {
+          "sum": 1846229807
+        },
+        "EngineExecutionTimeInMillis": {
+          "avg": 26440,
+          "max": 39660
+        },
+        "ProcessedBytes": {
+          "sum": 1846229807
+        },
+        "QueryQueueTimeInMillis": {
+          "avg": 463
+        },
+        "TotalExecutionTimeInMillis": {
+          "avg": 26440
+        },
+        "QueryPlanningTimeInMillis": {
+          "avg": 73
+        }
+      }
+    },
+    "s3": {
+      "bucket": {
+        "name": "aws-athena-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-athena-logs-164820739518"
+      },
+      "object": {
+        "key": "AWSLogs/164820739518/athena/ca-west-1/2026/04/07/athena_XFV4ULQZXV.log.gz"
+      }
+    },
+    "cloudwatch": {
+      "log_group": "/aws/athena/logs",
+      "log_stream": "ca-west-1/6ny5pmd6",
+      "ingestion_time": "2026-04-07T15:26:37.135Z"
+    }
+  },
+  "db": {
+    "statement": "SELECT user_id, sum(revenue) FROM transactions WHERE dt >= '2024-01-01' GROUP BY 1",
+    "type": "sql"
+  },
+  "event": {
+    "duration": 26439874925.405235,
+    "outcome": "success",
+    "category": [
+      "database",
+      "process"
+    ],
+    "dataset": "aws.athena",
+    "provider": "athena.amazonaws.com",
+    "module": "aws"
+  },
+  "message": "{\"queryId\":\"430dk9zn-l14k-94v5-1hpx\",\"workgroup\":\"primary\",\"database\":\"staging\",\"state\":\"SUCCEEDED\",\"durationSeconds\":26.439874925405235,\"dataScannedBytes\":1846229807,\"timestamp\":\"2026-04-07T15:26:36.815Z\"}",
+  "log": {
+    "level": "info"
+  },
+  "service": {
+    "name": "athena",
+    "type": "aws"
+  },
+  "ecs": {
+    "version": "8.11.0"
+  },
+  "data_stream": {
+    "type": "logs",
+    "dataset": "aws.athena",
+    "namespace": "default"
+  },
+  "agent": {
+    "type": "filebeat",
+    "version": "8.18.0",
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "3j5ma9r6vmu"
+  },
+  "input": {
+    "type": "aws-cloudwatch"
+  }
+}

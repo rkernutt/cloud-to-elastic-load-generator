@@ -1,0 +1,156 @@
+{
+  "title": "AWS Deadline Cloud — Render Farm",
+  "time_range": { "from": "now-24h", "to": "now" },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "deadlinecloud-kpi-total-tasks",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.deadlinecloud* | STATS `Total Tasks` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Tasks" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "deadlinecloud-kpi-failed-tasks",
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.deadlinecloud* | WHERE `aws.deadlinecloud.task_status` == \"FAILED\" | STATS `Failed Tasks` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failed Tasks" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "deadlinecloud-kpi-succeeded-tasks",
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.deadlinecloud* | WHERE `aws.deadlinecloud.task_status` == \"SUCCEEDED\" | STATS `Succeeded Tasks` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Succeeded Tasks" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "deadlinecloud-kpi-active-farms",
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.deadlinecloud* | STATS `Active Farms` = COUNT_DISTINCT(`aws.deadlinecloud.farm_name`)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Active Farms" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "deadlinecloud-donut-by-farm",
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Tasks by Farm",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.deadlinecloud* | STATS count = COUNT() BY farm = `aws.deadlinecloud.farm_name` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "farm" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "deadlinecloud-donut-by-renderer",
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Tasks by Renderer",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.deadlinecloud* | STATS count = COUNT() BY renderer = `aws.deadlinecloud.renderer` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "renderer" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "deadlinecloud-tasks-over-time",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Render Tasks Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.deadlinecloud* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "count", "label": "Tasks" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "deadlinecloud-recent-tasks",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "config": {
+        "title": "Recent Render Tasks",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.deadlinecloud* | KEEP @timestamp, `aws.deadlinecloud.farm_name`, `aws.deadlinecloud.task_status`, `aws.deadlinecloud.renderer` | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            { "operation": "value", "column": "aws.deadlinecloud.farm_name", "label": "Farm Name" },
+            {
+              "operation": "value",
+              "column": "aws.deadlinecloud.task_status",
+              "label": "Task Status"
+            },
+            { "operation": "value", "column": "aws.deadlinecloud.renderer", "label": "Renderer" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

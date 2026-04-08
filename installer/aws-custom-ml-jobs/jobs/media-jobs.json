@@ -1,0 +1,162 @@
+{
+  "group": "media",
+  "description": "Media & end-user computing anomaly detection — MediaConvert job failures, Connect contact anomalies, WorkSpaces session issues",
+  "jobs": [
+    {
+      "id": "aws-mediaconvert-failure-spike",
+      "description": "Detects unusual spikes in MediaConvert transcoding job failures per queue — encoding errors or resource exhaustion",
+      "job": {
+        "description": "Detects unusual spikes in MediaConvert transcoding job failures per queue — encoding errors or resource exhaustion",
+        "groups": ["aws", "media"],
+        "analysis_config": {
+          "bucket_span": "30m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.mediaconvert.queue",
+              "function": "high_count",
+              "partition_field_name": "aws.mediaconvert.queue_arn",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.mediaconvert.queue_arn", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.mediaconvert" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-connect-contact-abandonment-spike",
+      "description": "Detects unusual spikes in abandoned contacts per Connect queue — understaffing, outages, or UX problems",
+      "job": {
+        "description": "Detects unusual spikes in abandoned contacts per Connect queue — understaffing, outages, or UX problems",
+        "groups": ["aws", "media"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.connect.queue.name",
+              "function": "high_count",
+              "partition_field_name": "aws.connect.queue_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.connect.queue_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.connect" } },
+              { "term": { "aws.connect.contact.disconnect_reason": "CUSTOMER_DISCONNECT" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-connect-handle-time-anomaly",
+      "description": "Detects unusual agent handle time per Connect queue — training gaps, system slowness, or complex call types",
+      "job": {
+        "description": "Detects unusual agent handle time per Connect queue — training gaps, system slowness, or complex call types",
+        "groups": ["aws", "media"],
+        "analysis_config": {
+          "bucket_span": "30m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=aws.connect.queue.name",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "aws.connect.queue_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.connect.queue_name", "aws.connect.agent_id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.connect" } },
+              { "exists": { "field": "event.duration" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-workspaces-session-failure-spike",
+      "description": "Detects unusual spikes in WorkSpaces session failures — VDI connectivity issues or unhealthy desktops",
+      "job": {
+        "description": "Detects unusual spikes in WorkSpaces session failures — VDI connectivity issues or unhealthy desktops",
+        "groups": ["aws", "media"],
+        "analysis_config": {
+          "bucket_span": "30m",
+          "detectors": [
+            {
+              "detector_description": "high_count",
+              "function": "high_count",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.dimensions.DirectoryId", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "16mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.workspaces" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

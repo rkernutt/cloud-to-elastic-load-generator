@@ -1,0 +1,189 @@
+{
+  "group": "messaging",
+  "description": "Messaging & streaming anomaly detection — SNS delivery failures, MSK consumer lag, EventBridge failures, Step Functions execution failures",
+  "jobs": [
+    {
+      "id": "aws-sns-delivery-failure-spike",
+      "description": "Detects unusual spikes in SNS notification delivery failures",
+      "job": {
+        "description": "Detects unusual spikes in SNS notification delivery failures",
+        "groups": ["aws", "messaging"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.sns.metrics.NumberOfNotificationsFailed.sum)",
+              "function": "high_mean",
+              "field_name": "aws.sns.metrics.NumberOfNotificationsFailed.sum",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "16mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.sns" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-msk-consumer-lag-anomaly",
+      "description": "Detects unusual Kafka consumer lag in MSK — indicates consumers falling behind producers",
+      "job": {
+        "description": "Detects unusual Kafka consumer lag in MSK — indicates consumers falling behind producers",
+        "groups": ["aws", "messaging"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.msk.lag) partitionfield=aws.msk.cluster.name",
+              "function": "high_mean",
+              "field_name": "aws.msk.lag",
+              "partition_field_name": "aws.msk.cluster_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.msk.cluster_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.msk" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-msk-under-replicated-partitions",
+      "description": "Detects unusual number of under-replicated Kafka partitions — indicates broker health issues",
+      "job": {
+        "description": "Detects unusual number of under-replicated Kafka partitions — indicates broker health issues",
+        "groups": ["aws", "messaging"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.msk.under_replicated_partitions) partitionfield=aws.msk.cluster.name",
+              "function": "high_mean",
+              "field_name": "aws.msk.under_replicated_partitions",
+              "partition_field_name": "aws.msk.cluster_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.msk.cluster_name"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.msk" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-eventbridge-failed-invocations",
+      "description": "Detects unusual spikes in EventBridge target invocation failures",
+      "job": {
+        "description": "Detects unusual spikes in EventBridge target invocation failures",
+        "groups": ["aws", "messaging"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.eventbridge.targets_failed) partitionfield=aws.eventbridge.rule.name",
+              "function": "high_mean",
+              "field_name": "aws.eventbridge.targets_failed",
+              "partition_field_name": "aws.eventbridge.rule",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.eventbridge.rule", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.eventbridge" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-stepfunctions-execution-failure-spike",
+      "description": "Detects unusual Step Functions execution failure rates per state machine",
+      "job": {
+        "description": "Detects unusual Step Functions execution failure rates per state machine",
+        "groups": ["aws", "messaging"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.stepfunctions.state_machine_name",
+              "function": "high_count",
+              "partition_field_name": "aws.stepfunctions.state_machine_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.stepfunctions.state_machine_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "event.dataset": "aws.stepfunctions" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

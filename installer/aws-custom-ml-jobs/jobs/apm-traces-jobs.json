@@ -1,0 +1,239 @@
+{
+  "group": "apm-traces",
+  "description": "APM / OTel trace anomaly detection — transaction latency, error rates, throughput, cold starts, slow spans",
+  "jobs": [
+    {
+      "id": "apm-transaction-duration-anomaly",
+      "description": "Detects unusual transaction latency per service — latency regressions and performance degradations",
+      "job": {
+        "description": "Detects unusual transaction latency per service — latency regressions and performance degradations",
+        "groups": ["apm", "traces"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(transaction.duration.us) partitionfield=service.name",
+              "function": "high_mean",
+              "field_name": "transaction.duration.us",
+              "partition_field_name": "service.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["service.name", "service.environment", "transaction.name"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "64mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["traces-apm-*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "processor.event": "transaction" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "apm-error-rate-spike",
+      "description": "Detects spikes in transaction error rate per service — deployment failures and upstream dependency issues",
+      "job": {
+        "description": "Detects spikes in transaction error rate per service — deployment failures and upstream dependency issues",
+        "groups": ["apm", "traces"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=service.name",
+              "function": "high_count",
+              "partition_field_name": "service.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["service.name", "service.environment", "transaction.name"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["traces-apm-*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "processor.event": "transaction" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "apm-service-throughput-drop",
+      "description": "Detects drops in transaction throughput per service — upstream failure, routing change, or traffic loss",
+      "job": {
+        "description": "Detects drops in transaction throughput per service — upstream failure, routing change, or traffic loss",
+        "groups": ["apm", "traces"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "low_count partitionfield=service.name",
+              "function": "low_count",
+              "partition_field_name": "service.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["service.name", "service.environment"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["traces-apm-*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "processor.event": "transaction" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "apm-slow-span-by-type",
+      "description": "Detects unusually slow downstream spans by type — slow DB queries, slow external calls, slow cache operations",
+      "job": {
+        "description": "Detects unusually slow downstream spans by type — slow DB queries, slow external calls, slow cache operations",
+        "groups": ["apm", "traces"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(span.duration.us) partitionfield=span.subtype",
+              "function": "high_mean",
+              "field_name": "span.duration.us",
+              "partition_field_name": "span.subtype",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "service.name",
+            "span.type",
+            "span.subtype",
+            "span.destination.service.resource"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "64mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["traces-apm-*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [{ "term": { "processor.event": "span" } }]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "apm-lambda-cold-start-spike",
+      "description": "Detects spikes in Lambda cold start rate per function — scaling events, VPC warming issues, or new deployments",
+      "job": {
+        "description": "Detects spikes in Lambda cold start rate per function — scaling events, VPC warming issues, or new deployments",
+        "groups": ["apm", "traces", "lambda"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=service.name",
+              "function": "high_count",
+              "partition_field_name": "service.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["service.name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["traces-apm-*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "processor.event": "transaction" } },
+              { "term": { "transaction.faas.coldstart": true } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "apm-emr-stage-duration-anomaly",
+      "description": "Detects unusually slow EMR Spark stages — data skew, shuffle bottlenecks, or executor resource contention",
+      "job": {
+        "description": "Detects unusually slow EMR Spark stages — data skew, shuffle bottlenecks, or executor resource contention",
+        "groups": ["apm", "traces", "emr"],
+        "analysis_config": {
+          "bucket_span": "30m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(span.duration.us) partitionfield=labels.spark_stage_id",
+              "function": "high_mean",
+              "field_name": "span.duration.us",
+              "partition_field_name": "labels.spark_stage_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["service.name", "labels.spark_stage_id", "labels.emr_cluster_id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["traces-apm-*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "processor.event": "span" } },
+              { "term": { "span.subtype": "spark" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}
