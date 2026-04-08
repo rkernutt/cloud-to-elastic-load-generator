@@ -42,7 +42,7 @@ export function unifiedVendorCard(id: CloudId) {
   return found;
 }
 
-/** Neutral cloud (header, left of pipeline) — same artwork as repo-root `cloud-svgrepo-com.svg`. */
+/** Neutral cloud (header, left of pipeline) — `public/cloud-svgrepo-com.svg`. */
 export const UNIFIED_HEADER_CLOUD_MARK_SRC = publicUrl("cloud-svgrepo-com.svg");
 
 /** Official Elastic horizontal wordmark (color-reverse for dark `EuiHeader`). */

@@ -3,14 +3,13 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Install dependencies first (layer cache friendly); copy scripts so postinstall (copy-icons) can run
+# Install deps without lifecycle scripts — postinstall runs `copy-icons`, which imports `src/data/iconMap.ts`
 COPY package.json package-lock.json ./
-COPY scripts ./scripts
-RUN npm ci
+RUN npm ci --ignore-scripts
 
-# Copy source and build
+# Full tree, then sync AWS icons (vite-node + iconMap) and build
 COPY . .
-RUN npm run build
+RUN npm run copy-icons && npm run build
 
 # ── Stage 2: Serve ────────────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
