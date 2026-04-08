@@ -1,48 +1,48 @@
 {
-  "@timestamp": "2026-04-08T12:27:26.854Z",
+  "@timestamp": "2026-04-08T15:12:15.029Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-south-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "kms" }
   },
   "aws": {
     "kms": {
-      "key_id": "b26gh37z-go1r-i7lc-jmg6-2rm3feriyu8",
+      "key_id": "htumfp35-d9q2-atgy-sh52-loxp502dr4r",
       "key_alias": "alias/rds-encryption",
-      "operation": "GenerateDataKey",
-      "principal_arn": "arn:aws:iam::814726593401:user/alice",
+      "operation": "Encrypt",
+      "principal_arn": "arn:aws:iam::293847561023:role/lambda-role",
       "key_state": "Enabled",
-      "encryption_algorithm": "SYMMETRIC_DEFAULT",
+      "encryption_algorithm": "RSAES_OAEP_SHA_256",
       "metrics": {
         "SecretsManagerCrossAccountBlocking": { "sum": 0 },
-        "KeysCount": { "avg": 243 },
+        "KeysCount": { "avg": 850 },
         "KeysPendingDeletion": { "avg": 4 },
         "KeysDisabled": { "avg": 2 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-kms-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-kms-logs-814726593401"
+        "name": "aws-kms-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-kms-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/814726593401/kms/eu-central-2/2026/04/08/kms_H14J22E20L4.log.gz" }
+      "object": { "key": "AWSLogs/293847561023/kms/eu-south-1/2026/04/08/kms_Q744GUBWGOC.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/kms/logs",
-      "log_stream": "eu-central-2/i9hug1fw",
-      "ingestion_time": "2026-04-08T12:27:27.268Z"
+      "log_stream": "eu-south-1/jrz9tt65",
+      "ingestion_time": "2026-04-08T15:12:15.385Z"
     }
   },
   "event": {
-    "action": "GenerateDataKey",
+    "action": "Encrypt",
     "outcome": "success",
     "category": ["authentication", "configuration"],
     "dataset": "aws.kms",
     "provider": "kms.amazonaws.com",
     "module": "aws"
   },
-  "message": "KMS GenerateDataKey: alias/rds-encryption",
+  "message": "KMS Encrypt: alias/rds-encryption",
   "log": { "level": "info" },
   "service": { "name": "kms", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -50,8 +50,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "635v76jvuij"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "qpx5srlou5f"
   },
   "input": { "type": "aws-cloudwatch" }
 }

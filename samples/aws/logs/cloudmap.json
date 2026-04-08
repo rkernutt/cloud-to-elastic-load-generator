@@ -1,57 +1,62 @@
 {
-  "@timestamp": "2026-04-08T12:27:26.854Z",
+  "@timestamp": "2026-04-08T15:12:15.029Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-south-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "cloudmap" }
   },
   "aws": {
-    "dimensions": { "Namespace": "staging-namespace", "ServiceName": "notification" },
+    "dimensions": { "Namespace": "internal-services", "ServiceName": "checkout" },
     "cloudmap": {
-      "namespace": "staging-namespace",
-      "service_name": "notification",
-      "instance_id": "i-f62a5unjv7f",
+      "namespace": "internal-services",
+      "service_name": "checkout",
+      "instance_id": "i-0jm78dve4n0c",
       "operation": "GetInstancesHealthStatus",
-      "health_status": "HEALTHY",
-      "instances_returned": 6,
+      "health_status": "UNHEALTHY",
+      "instances_returned": 3,
       "query_type": "HTTP",
       "ttl": 30
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudmap-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-cloudmap-logs-814726593401"
+        "name": "aws-cloudmap-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-cloudmap-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/cloudmap/af-south-1/2026/04/08/cloudmap_XY86KMCERF.log.gz"
+        "key": "AWSLogs/164820739518/cloudmap/ap-south-1/2026/04/08/cloudmap_H4O4FNV20ER.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloudmap/logs",
-      "log_stream": "af-south-1/rod4ar4d",
-      "ingestion_time": "2026-04-08T12:27:27.252Z"
+      "log_stream": "ap-south-1/twx3jp9r",
+      "ingestion_time": "2026-04-08T15:12:15.376Z"
     }
   },
   "event": {
-    "action": "DiscoverInstances",
-    "outcome": "success",
+    "action": "RegisterInstance",
+    "outcome": "failure",
     "category": ["network"],
     "dataset": "aws.cloudmap",
     "provider": "cloudmap.amazonaws.com",
-    "duration": 317000000,
+    "duration": 48000000,
     "module": "aws"
   },
-  "message": "Cloud Map notification: GetInstancesHealthStatus returned 6 instances",
-  "log": { "level": "info" },
+  "message": "Cloud Map checkout: instance i-0jm78dve4n0c unhealthy",
+  "log": { "level": "error" },
+  "error": {
+    "code": "HealthCheckFailed",
+    "message": "Instance i-0jm78dve4n0c health status: UNHEALTHY",
+    "type": "network"
+  },
   "service": { "name": "cloudmap", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudmap", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "cle98tvgxmd"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "9wpcp4bwgy8"
   },
   "input": { "type": "aws-cloudwatch" }
 }

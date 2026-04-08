@@ -1,92 +1,86 @@
 {
-  "@timestamp": "2026-04-08T12:27:26.854Z",
+  "@timestamp": "2026-04-08T15:12:15.029Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-east-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "redshift" }
   },
   "aws": {
-    "dimensions": { "ClusterIdentifier": "prod-dw-eu-south-1", "NodeID": "Compute-1" },
+    "dimensions": { "ClusterIdentifier": "prod-dw-ap-east-1", "NodeID": "Leader" },
     "redshift": {
-      "cluster_id": "prod-dw-eu-south-1",
+      "cluster_id": "prod-dw-ap-east-1",
       "database": "analytics",
-      "user": "etl_user",
-      "pid": 75048,
-      "query_id": 9629849,
-      "duration_seconds": 123.03434802205342,
-      "rows_returned": 0,
-      "error_code": "HsmClientCertificateNotFound",
-      "query_type": "SELECT",
-      "wlm": { "queue_name": "superuser", "queue_wait_seconds": 187.57387656820785 },
+      "user": "bi_service",
+      "pid": 93827,
+      "query_id": 2303029,
+      "duration_seconds": 9.562300332636571,
+      "rows_returned": 1084865,
+      "query_type": "UNLOAD",
+      "wlm": { "queue_name": "default_queue", "queue_wait_seconds": 0.7498600403297978 },
       "metrics": {
-        "CPUUtilization": { "avg": 78.75324121735036 },
-        "PercentageDiskSpaceUsed": { "avg": 79.62552443718887 },
-        "DatabaseConnections": { "avg": 81 },
-        "HealthStatus": { "avg": 0 },
+        "CPUUtilization": { "avg": 15.04120155681368 },
+        "PercentageDiskSpaceUsed": { "avg": 50.507504857218635 },
+        "DatabaseConnections": { "avg": 165 },
+        "HealthStatus": { "avg": 1 },
         "MaintenanceMode": { "avg": 0 },
-        "NetworkReceiveThroughput": { "avg": 733069122 },
-        "NetworkTransmitThroughput": { "avg": 606708448 },
-        "QueriesCompletedPerSecond": { "avg": 94.25696660207166 },
-        "QueryDuration": { "avg": 85528.30733658474 },
-        "QueryRuntimeBreakdown": { "avg": 26010.58361784311 },
-        "ReadIOPS": { "avg": 7932 },
-        "ReadLatency": { "avg": 0.12956515110456224 },
-        "ReadThroughput": { "avg": 270707078 },
-        "WLMQueriesCompletedPerSecond": { "avg": 297.06513617115934 },
-        "WLMQueryDuration": { "avg": 18724.390879723793 },
-        "WLMRunningSlotCount": { "avg": 48 },
-        "WLMQueueLength": { "avg": 23 },
-        "WLMQueueWaitTime": { "avg": 42137.01689699706 },
-        "WriteIOPS": { "avg": 4379 },
-        "WriteLatency": { "avg": 0.7620748933634741 },
-        "WriteThroughput": { "avg": 494249596 }
+        "NetworkReceiveThroughput": { "avg": 575450021 },
+        "NetworkTransmitThroughput": { "avg": 515997942 },
+        "QueriesCompletedPerSecond": { "avg": 43.61187358644871 },
+        "QueryDuration": { "avg": 13936.925820002809 },
+        "QueryRuntimeBreakdown": { "avg": 28674.68100883325 },
+        "ReadIOPS": { "avg": 5375 },
+        "ReadLatency": { "avg": 0.06936456261911801 },
+        "ReadThroughput": { "avg": 979821349 },
+        "WLMQueriesCompletedPerSecond": { "avg": 13.591002454707322 },
+        "WLMQueryDuration": { "avg": 13652.19084777787 },
+        "WLMRunningSlotCount": { "avg": 31 },
+        "WLMQueueLength": { "avg": 1 },
+        "WLMQueueWaitTime": { "avg": 919.8114118777485 },
+        "WriteIOPS": { "avg": 4929 },
+        "WriteLatency": { "avg": 0.020270604958275377 },
+        "WriteThroughput": { "avg": 152467199 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-redshift-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-redshift-logs-164820739518"
+        "name": "aws-redshift-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-redshift-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/redshift/eu-south-1/2026/04/08/redshift_VEDEU9Z3HQ.log.gz"
+        "key": "AWSLogs/293847561023/redshift/ap-east-1/2026/04/08/redshift_PLU82OZUEE.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/redshift/logs",
-      "log_stream": "eu-south-1/5fhydizj",
-      "ingestion_time": "2026-04-08T12:27:27.318Z"
+      "log_stream": "ap-east-1/jpb8htsf",
+      "ingestion_time": "2026-04-08T15:12:15.428Z"
     }
   },
   "db": {
-    "user": { "name": "etl_user" },
+    "user": { "name": "bi_service" },
     "name": "analytics",
-    "statement": "UNLOAD ('SELECT * FROM fact_sales WHERE sale_date = CURRENT_DATE') TO 's3://exports/sales/' IAM_ROLE 'arn:aws:iam::123456789:role/RedshiftS3' PARQUET ALLOWOVERWRITE",
+    "statement": "SELECT COUNT(*) FROM fact_events WHERE event_date >= CURRENT_DATE - 7",
     "type": "sql"
   },
   "event": {
-    "duration": 123034348022.05342,
-    "outcome": "failure",
+    "duration": 9562300332.636572,
+    "outcome": "success",
     "category": ["database"],
     "dataset": "aws.redshift",
     "provider": "redshift.amazonaws.com",
     "module": "aws"
   },
-  "message": "Redshift query failed after 123.03434802205342s",
-  "log": { "level": "error" },
-  "error": {
-    "code": "HsmClientCertificateNotFound",
-    "message": "Redshift query failed",
-    "type": "db"
-  },
+  "message": "Redshift query completed in 9.56s",
+  "log": { "level": "info" },
   "service": { "name": "redshift", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.redshift", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "yjucb6dp0rh"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "e35oq7od33"
   },
   "input": { "type": "aws-cloudwatch" }
 }

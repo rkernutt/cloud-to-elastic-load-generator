@@ -25,6 +25,7 @@ import {
   generateEventHubsLog,
   generateKeyVaultLog,
   generateEntraIdLog,
+  generateM365Log,
 } from "./platform.js";
 import { generateOpenAiLog } from "./aiml.js";
 import { mergeAzureLogVariants } from "./mergeHelpers.js";
@@ -51,6 +52,7 @@ const DEDICATED: Record<string, Gen> = {
   "event-hubs": generateEventHubsLog,
   "key-vault": generateKeyVaultLog,
   "entra-id": generateEntraIdLog,
+  m365: generateM365Log,
   openai: generateOpenAiLog,
 };
 

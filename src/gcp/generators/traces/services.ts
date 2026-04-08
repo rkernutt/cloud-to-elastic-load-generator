@@ -108,4 +108,25 @@ export const GCP_TRACE_SERVICES = [
     icon: "⚡",
     group: "Workflows",
   },
+  {
+    id: "workflow-pubsub-fanout",
+    label: "Pub/Sub fan-out",
+    desc: "Cloud Run → Pub/Sub publish → parallel Cloud Functions, Cloud Run, and BigQuery consumers",
+    icon: "◎",
+    group: "Workflows",
+  },
+  {
+    id: "workflow-gcs-pipeline",
+    label: "GCS → Functions → BigQuery",
+    desc: "GCS object notification → Pub/Sub → Cloud Function → BigQuery load (data lake promote)",
+    icon: "⬦",
+    group: "Workflows",
+  },
+  {
+    id: "workflow-eventarc-orchestration",
+    label: "Eventarc → Workflows → Cloud Run",
+    desc: "Eventarc audit trigger → Cloud Workflows execution → stepped Cloud Run (Spanner, Cloud SQL, Pub/Sub)",
+    icon: "⎈",
+    group: "Workflows",
+  },
 ];

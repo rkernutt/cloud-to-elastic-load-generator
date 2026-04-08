@@ -28,6 +28,8 @@ import {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LooseDoc = Record<string, any>;
 
+type MetricsIntegrationKind = "azure_monitor" | "o365_metrics";
+
 /** When parent generators blend flavors, derive the actual gcp.* block for cloud-native envelopes. */
 function inferGcpFlavorServiceId(doc: LooseDoc, selectedId: string): string {
   if (!doc.gcp || typeof doc.gcp !== "object") return selectedId;
@@ -57,15 +59,45 @@ export interface GcpAzureEnrichContext {
   regions: readonly string[];
   /** Default ingestion when service not in defaults */
   defaultIngestion: string;
+  /**
+   * When `o365_metrics`, synthetic metric docs use the Office 365 Metrics integration shape
+   * (filebeat / CEL, `event.module` o365_metrics) instead of Azure Monitor metricbeat.
+   * Prefer `metricsIntegrationByServiceId` for mixed Azure Monitor + o365_metrics in one config.
+   */
+  metricsIntegration?: "azure_monitor" | "o365_metrics";
+  /** Per–service-id override for metrics integration (takes precedence over `metricsIntegration`). */
+  metricsIntegrationByServiceId?: Record<string, "o365_metrics">;
 }
 
-function resolveDataset(ctx: GcpAzureEnrichContext, serviceId: string, eventType: string): string {
+function resolveMetricsIntegration(
+  ctx: GcpAzureEnrichContext,
+  eventType: string,
+  flavorId: string,
+  serviceId: string
+): MetricsIntegrationKind {
+  if (eventType !== "metrics") return "azure_monitor";
+  const mapped =
+    ctx.metricsIntegrationByServiceId?.[flavorId] ??
+    ctx.metricsIntegrationByServiceId?.[serviceId];
+  if (mapped === "o365_metrics") return "o365_metrics";
+  if (ctx.metricsIntegration === "o365_metrics") return "o365_metrics";
+  return "azure_monitor";
+}
+
+function resolveDataset(
+  ctx: GcpAzureEnrichContext,
+  serviceId: string,
+  eventType: string,
+  metricsKind: MetricsIntegrationKind
+): string {
   if (eventType === "metrics") {
-    return (
-      ctx.elasticMetricsDatasetMap[serviceId] ??
-      ctx.elasticDatasetMap[serviceId] ??
-      `${ctx.cloudModule}.${serviceId.replace(/-/g, "_")}`
-    );
+    const fromMap =
+      ctx.elasticMetricsDatasetMap[serviceId] ?? ctx.elasticDatasetMap[serviceId];
+    if (fromMap) return fromMap;
+    if (metricsKind === "o365_metrics") {
+      return `o365_metrics.${serviceId.replace(/-/g, "_")}`;
+    }
+    return `${ctx.cloudModule}.${serviceId.replace(/-/g, "_")}`;
   }
   return ctx.elasticDatasetMap[serviceId] ?? `${ctx.cloudModule}.${serviceId.replace(/-/g, "_")}`;
 }
@@ -92,10 +124,21 @@ function buildAgentMeta(
   ctx: GcpAzureEnrichContext,
   source: string,
   eventType: string,
-  region: string
+  region: string,
+  metricsKind: MetricsIntegrationKind
 ): LooseDoc {
   if (eventType === "traces") return {};
   if (eventType === "metrics") {
+    if (metricsKind === "o365_metrics") {
+      const agentId = randId(36).toLowerCase();
+      return {
+        type: "filebeat",
+        version: AGENT_VERSION,
+        name: `elastic-agent-o365-${region}`,
+        id: agentId,
+        ephemeral_id: randId(36).toLowerCase(),
+      };
+    }
     return {
       type: "metricbeat",
       version: AGENT_VERSION,
@@ -131,9 +174,10 @@ export function enrichGcpAzureDocument(
     ctx.cloudModule === "gcp"
       ? inferGcpFlavorServiceId(doc, serviceId)
       : inferAzureFlavorServiceId(doc, serviceId);
+  const metricsKind = resolveMetricsIntegration(ctx, eventType, flavorId, serviceId);
   const source = resolveSource(ctx, flavorId, serviceId, opts.ingestionSource);
   const region = doc.cloud?.region ?? ctx.regions[Math.floor(Math.random() * ctx.regions.length)];
-  const dataset = resolveDataset(ctx, flavorId, eventType);
+  const dataset = resolveDataset(ctx, flavorId, eventType, metricsKind);
 
   const ecs = doc.ecs ?? { version: ECS_VERSION };
   const dsType = eventType === "metrics" ? "metrics" : eventType === "traces" ? "traces" : "logs";
@@ -143,16 +187,19 @@ export function enrichGcpAzureDocument(
     namespace: "default",
   };
 
-  const agentMeta = doc.agent ?? buildAgentMeta(ctx, source, eventType, region);
+  const agentMeta = doc.agent ?? buildAgentMeta(ctx, source, eventType, region, metricsKind);
   const inputType = buildInputType(
     ctx,
     eventType === "traces" ? (isOtelPipelineSource(source) ? source : "otel") : source
   );
   const input = doc.input ?? (inputType ? { type: inputType } : undefined);
 
+  const eventModule =
+    doc.event?.module ??
+    (eventType === "metrics" && metricsKind === "o365_metrics" ? "o365_metrics" : ctx.cloudModule);
   const event = {
     ...doc.event,
-    module: doc.event?.module || ctx.cloudModule,
+    module: eventModule,
     dataset: doc.event?.dataset || dataset,
   };
 
@@ -187,6 +234,19 @@ export function enrichGcpAzureDocument(
   if (Object.keys(agentMeta).length > 0) enriched.agent = agentMeta;
   if (input) enriched.input = input;
 
+  if (
+    eventType === "metrics" &&
+    metricsKind === "o365_metrics" &&
+    enriched.agent?.id &&
+    !enriched.elastic_agent
+  ) {
+    enriched.elastic_agent = {
+      id: enriched.agent.id,
+      version: AGENT_VERSION,
+      snapshot: false,
+    };
+  }
+
   if (eventType === "logs") {
     const projectId = enriched.cloud?.project?.id ?? "project-unknown";
     const logRegion =
@@ -210,7 +270,7 @@ export function enrichGcpAzureDocument(
     }
   }
 
-  if (eventType === "metrics") {
+  if (eventType === "metrics" && metricsKind !== "o365_metrics") {
     if (ctx.cloudModule === "gcp") {
       const projectId = enriched.cloud?.project?.id ?? "project-unknown";
       const metricRegion =

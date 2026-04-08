@@ -1,5 +1,7 @@
 export interface PipelineEntry {
   id: string;
+  /** Present on generated Azure / M365 ingest pipeline entries */
+  dataset?: string;
   group: string;
   description: string;
   processors: unknown[];

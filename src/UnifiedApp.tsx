@@ -21,7 +21,8 @@ function readInitialVendor(): CloudId {
 }
 
 /**
- * Single UI for AWS, GCP, and Azure. Vendor is chosen on **Start**; changing vendor remounts the app.
+ * Single UI for AWS, GCP, and Azure (including Microsoft 365 audit + Graph metrics). Vendor is
+ * chosen on **Start**; changing vendor remounts the app.
  */
 export function UnifiedApp() {
   const [vendor, setVendor] = useState<CloudId>(readInitialVendor);

@@ -22,6 +22,11 @@ import { generateDataflowTrace } from "./dataflow.js";
 import { generateVertexAiTrace } from "./vertexai.js";
 import { generateFirestoreTrace } from "./firestore.js";
 import { generateCascadingFailureTrace } from "./workflow-cascading.js";
+import {
+  generatePubSubFanoutTrace,
+  generateGcsObjectPipelineTrace,
+  generateEventarcWorkflowOrchestrationTrace,
+} from "./workflow-chains.js";
 
 const GCP_TRACE_GENERATORS: Record<string, (ts: string, er: number) => Record<string, unknown>[]> =
   {
@@ -40,6 +45,9 @@ const GCP_TRACE_GENERATORS: Record<string, (ts: string, er: number) => Record<st
     "vertex-ai": generateVertexAiTrace,
     firestore: generateFirestoreTrace,
     "workflow-cascading": generateCascadingFailureTrace,
+    "workflow-pubsub-fanout": generatePubSubFanoutTrace,
+    "workflow-gcs-pipeline": generateGcsObjectPipelineTrace,
+    "workflow-eventarc-orchestration": generateEventarcWorkflowOrchestrationTrace,
   };
 
 export { GCP_TRACE_GENERATORS };

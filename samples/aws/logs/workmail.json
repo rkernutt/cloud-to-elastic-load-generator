@@ -1,57 +1,63 @@
 {
-  "@timestamp": "2026-04-08T12:27:26.854Z",
+  "@timestamp": "2026-04-08T15:12:15.029Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-south-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "workmail" }
   },
   "aws": {
-    "dimensions": { "OrganizationId": "m-is9y03" },
+    "dimensions": { "OrganizationId": "m-zh8ntk" },
     "workmail": {
-      "organization_id": "m-is9y03",
-      "mailbox_id": "mailbox-gfd1k0zdxn",
-      "action": "Login",
-      "metrics": { "emails_delivered": 303, "emails_bounced": 0, "active_users": 114 }
+      "organization_id": "m-zh8ntk",
+      "mailbox_id": "mailbox-fibff5vh2z",
+      "action": "EmailBounced",
+      "metrics": { "emails_delivered": 0, "emails_bounced": 18, "active_users": 252 },
+      "error_code": "MailboxQuotaExceeded"
     },
     "s3": {
       "bucket": {
-        "name": "aws-workmail-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-workmail-logs-738291046572"
+        "name": "aws-workmail-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-workmail-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/workmail/ap-northeast-2/2026/04/08/workmail_65ZA5S0ZL4C.log.gz"
+        "key": "AWSLogs/501938274650/workmail/eu-south-2/2026/04/08/workmail_16T8C8HUKAH.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/workmail/logs",
-      "log_stream": "ap-northeast-2/adpp6778",
-      "ingestion_time": "2026-04-08T12:27:27.444Z"
+      "log_stream": "eu-south-2/6rxultdq",
+      "ingestion_time": "2026-04-08T15:12:15.522Z"
     }
   },
   "email": {
-    "from": { "address": "bob@globex.example.com" },
-    "to": { "address": "alice@globex.example.com" }
+    "from": { "address": "eva@globex.example.com" },
+    "to": { "address": "david@globex.example.com" }
   },
   "event": {
-    "action": "Login",
-    "outcome": "success",
+    "action": "EmailBounced",
+    "outcome": "failure",
     "category": ["email"],
     "dataset": "aws.workmail",
     "provider": "workmail.amazonaws.com",
-    "duration": 322000000,
+    "duration": 418000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.workmail", "namespace": "default" },
-  "message": "WorkMail org m-is9y03: Login from bob@globex.example.com to alice@globex.example.com",
-  "log": { "level": "info" },
+  "message": "WorkMail org m-zh8ntk: MailboxQuotaExceeded for EmailBounced",
+  "log": { "level": "error" },
+  "error": {
+    "code": "MailboxQuotaExceeded",
+    "message": "WorkMail email delivery failed in organization m-zh8ntk",
+    "type": "email"
+  },
   "service": { "name": "workmail", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "wi86iviyk8e"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "2a78s3aavs7"
   },
   "input": { "type": "aws-cloudwatch" }
 }

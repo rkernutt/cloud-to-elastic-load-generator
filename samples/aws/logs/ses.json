@@ -1,75 +1,76 @@
 {
-  "@timestamp": "2026-04-08T12:27:26.854Z",
+  "@timestamp": "2026-04-08T15:12:15.029Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-north-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "ses" }
   },
   "aws": {
     "dimensions": {
-      "ses:configuration-set": "default",
+      "ses:configuration-set": "marketing",
       "ses:from-domain": "company.com",
-      "ses:to-country": "AU",
-      "ses:to-isp": "Hotmail"
+      "ses:to-country": "DE",
+      "ses:to-isp": "Yahoo"
     },
     "ses": {
-      "message_id": "20vlgyng9m3.k8ouf0qa96@ap-east-1.amazonses.com",
-      "event_type": "Complaint",
-      "from_address": "alerts@company.com",
-      "destination": "user_fhoow4@yahoo.com",
+      "message_id": "03uwgk6mzj2m.3ght214i93@eu-north-1.amazonses.com",
+      "event_type": "Open",
+      "from_address": "noreply@company.com",
+      "destination": "user_4z06ef@company.org",
+      "configuration_set": "marketing",
       "bounce": {},
-      "complaint": { "feedback_type": "not-spam" },
-      "sending_account_id": "501938274650",
+      "complaint": {},
+      "sending_account_id": "293847561023",
       "delivery": {
-        "recipients": ["user_fhoow4@yahoo.com"],
-        "timestamp": "2026-04-08T12:27:26.854Z",
-        "processing_time_ms": 1168
+        "recipients": ["user_4z06ef@company.org"],
+        "timestamp": "2026-04-08T15:12:15.029Z",
+        "processing_time_ms": 1372,
+        "smtp_response": "250 2.0.0 OK"
       },
       "metrics": {
         "Send": { "sum": 1 },
-        "Delivery": { "sum": 0 },
-        "Bounce": { "sum": 1 },
+        "Delivery": { "sum": 1 },
+        "Bounce": { "sum": 0 },
         "Complaint": { "sum": 0 },
         "Reject": { "sum": 0 },
         "Open": { "sum": 0 },
-        "Click": { "sum": 1 },
+        "Click": { "sum": 0 },
         "RenderingFailure": { "sum": 0 },
         "DeliveryDelay": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-ses-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-ses-logs-501938274650"
+        "name": "aws-ses-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-ses-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/501938274650/ses/ap-east-1/2026/04/08/ses_DXU4MFB2XA.log.gz" }
+      "object": { "key": "AWSLogs/293847561023/ses/eu-north-1/2026/04/08/ses_BN5WIEQ3CCR.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/ses/logs",
-      "log_stream": "ap-east-1/1u97f885",
-      "ingestion_time": "2026-04-08T12:27:27.446Z"
+      "log_stream": "eu-north-1/p1zj3to5",
+      "ingestion_time": "2026-04-08T15:12:15.524Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["email", "process"],
     "dataset": "aws.ses",
     "provider": "email.amazonaws.com",
-    "duration": 3133000000,
+    "duration": 1531000000,
     "module": "aws"
   },
-  "message": "SES Complaint FAILED for user_fhoow4@yahoo.com: Rate limit exceeded",
-  "log": { "level": "warn" },
-  "error": { "code": "SESDeliveryFailure", "message": "SES delivery failed", "type": "email" },
+  "message": "SES Open: noreply@company.com -> user_4z06ef@company.org",
+  "log": { "level": "info" },
   "service": { "name": "ses", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.ses", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "jze9adlz059"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "ux35257oid"
   },
   "input": { "type": "aws-cloudwatch" }
 }

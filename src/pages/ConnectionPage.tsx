@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from "react";
+import { Fragment, useMemo, type ReactNode } from "react";
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -116,12 +116,16 @@ export function ConnectionPage({
   ingestionOverrideOptions,
   unifiedCloudPicker,
 }: ConnectionPageProps) {
-  const { ingestionRow1, ingestionRow2 } = useMemo(() => {
-    const split = Math.min(4, ingestionOverrideOptions.length);
-    return {
-      ingestionRow1: ingestionOverrideOptions.slice(0, split),
-      ingestionRow2: ingestionOverrideOptions.slice(split),
-    };
+  /** Max 3 buttons per row so long labels (e.g. Azure Monitor Distro → EDOT GW) stay readable. */
+  const ingestionRows = useMemo(() => {
+    const opts = ingestionOverrideOptions;
+    if (opts.length === 0) return [];
+    const maxPerRow = 3;
+    const rows: (typeof opts)[] = [];
+    for (let i = 0; i < opts.length; i += maxPerRow) {
+      rows.push(opts.slice(i, i + maxPerRow));
+    }
+    return rows;
   }, [ingestionOverrideOptions]);
 
   const prefixLabel = isTracesMode
@@ -142,8 +146,8 @@ export function ConnectionPage({
           <ConnectionSubheading>Cloud Vendor</ConnectionSubheading>
           <EuiText size="s" color="subdued">
             <p>
-              Choose which hyperscaler you are simulating. This reloads the app to that cloud&apos;s
-              services and defaults.
+              Choose AWS, GCP, or Azure. This reloads the app with that cloud&apos;s services and
+              defaults.
             </p>
           </EuiText>
           <EuiSpacer size="m" />
@@ -161,7 +165,7 @@ export function ConnectionPage({
                             src={c.logoSrcLightBg}
                             alt={c.logoAlt}
                             style={{
-                              height: 28,
+                              height: c.id === "gcp" ? 36 : 28,
                               width: "auto",
                               display: "block",
                               objectFit: "contain",
@@ -329,32 +333,25 @@ export function ConnectionPage({
 
       <EuiSpacer size="l" />
 
-      {/* Ingestion source — 4 on top row, 3 on bottom row */}
+      {/* Ingestion source — max 3 options per row so wide labels stay legible */}
       <EuiFormRow
         label={<ConnectionSubheading>Ingestion Source</ConnectionSubheading>}
         helpText="Override default per-service ingestion path"
         fullWidth
       >
         <>
-          <EuiButtonGroup
-            legend="Ingestion source selection (row 1)"
-            options={ingestionRow1}
-            idSelected={ingestionSource}
-            onChange={(id) => onIngestionSourceChange(id)}
-            isFullWidth
-          />
-          {ingestionRow2.length > 0 && (
-            <>
-              <EuiSpacer size="xs" />
+          {ingestionRows.map((row, idx) => (
+            <Fragment key={idx}>
+              {idx > 0 && <EuiSpacer size="xs" />}
               <EuiButtonGroup
-                legend="Ingestion source selection (row 2)"
-                options={ingestionRow2}
+                legend={`Ingestion source selection (row ${idx + 1})`}
+                options={row}
                 idSelected={ingestionSource}
                 onChange={(id) => onIngestionSourceChange(id)}
                 isFullWidth
               />
-            </>
-          )}
+            </Fragment>
+          ))}
         </>
       </EuiFormRow>
 

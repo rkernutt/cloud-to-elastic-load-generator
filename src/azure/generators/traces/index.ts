@@ -13,6 +13,11 @@ import {
   generateApiManagementTrace,
   generateWorkflowCascadingTrace,
 } from "./simple.js";
+import {
+  generateServiceBusTopicFanoutTrace,
+  generateEventGridBlobPipelineTrace,
+  generateDurableFunctionsOrchestrationTrace,
+} from "./workflow-chains.js";
 
 const AZURE_TRACE_GENERATORS: Record<
   string,
@@ -26,6 +31,9 @@ const AZURE_TRACE_GENERATORS: Record<
   "data-factory-etl": generateDataFactoryEtlTrace,
   "api-management": generateApiManagementTrace,
   "workflow-cascading": generateWorkflowCascadingTrace,
+  "workflow-servicebus-fanout": generateServiceBusTopicFanoutTrace,
+  "workflow-eventgrid-blob": generateEventGridBlobPipelineTrace,
+  "workflow-durable-orchestration": generateDurableFunctionsOrchestrationTrace,
 };
 
 export { AZURE_TRACE_SERVICES, AZURE_TRACE_GENERATORS };

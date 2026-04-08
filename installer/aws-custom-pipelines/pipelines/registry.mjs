@@ -14,7 +14,7 @@
  * cloudtrail, vpcflow, alb/nlb, guardduty, s3access, apigateway, cloudfront,
  * networkfirewall, securityhub, waf, rds (official), route53, emr (official),
  * ec2 (official), ecs, config, inspector, dynamodb, redshift, ebs, kinesis,
- * msk/kafka, sns, sqs, transitgateway, vpn, awshealth, bedrockagent, billing, natgateway.
+ * msk/kafka, sns, sqs, transitgateway, vpn, awshealth, billing, natgateway.
  */
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -280,6 +280,13 @@ export const PIPELINE_REGISTRY = [
     group: "ml",
     description: "Parse Bedrock model invocation JSON",
     processors: json("bedrock"),
+  },
+  {
+    id: "logs-aws.bedrockagent-default",
+    dataset: "aws.bedrockagent",
+    group: "ml",
+    description: "Parse Bedrock Agent runtime and action group JSON",
+    processors: json("bedrockagent"),
   },
   {
     id: "logs-aws.rekognition-default",

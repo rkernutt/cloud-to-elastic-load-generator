@@ -1,0 +1,149 @@
+{
+  "title": "Azure Sentinel — overview",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "asentinelk1",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.sentinel* | STATS c = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "asentineld1",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Outcome",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.sentinel* | STATS c = COUNT() BY o = event.outcome"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "o"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "asentinell1",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Event volume",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-azure.sentinel* | STATS c = COUNT() BY b = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "asentinelt1",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "By region",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.sentinel* | STATS c = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT c DESC | LIMIT 15"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "region",
+              "label": "Region"
+            },
+            {
+              "operation": "value",
+              "column": "c",
+              "label": "Count"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

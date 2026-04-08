@@ -1,47 +1,47 @@
 {
-  "@timestamp": "2026-04-08T12:27:26.854Z",
+  "@timestamp": "2026-04-08T15:12:15.029Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "me-south-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "mwaa" }
   },
   "aws": {
-    "dimensions": { "EnvironmentName": "prod-airflow" },
+    "dimensions": { "EnvironmentName": "ml-pipelines" },
     "mwaa": {
-      "environment_name": "prod-airflow",
-      "dag_id": "ml_training_pipeline",
-      "run_id": "scheduled__2026-04-08T12:10:21.854Z",
-      "task_id": "load",
-      "run_state": "running",
-      "duration_seconds": 153,
-      "worker_count": 2,
-      "queue_name": "ml_queue",
-      "airflow_version": "2.8.1"
+      "environment_name": "ml-pipelines",
+      "dag_id": "data_quality_check",
+      "run_id": "scheduled__2026-04-08T14:12:32.029Z",
+      "task_id": "validate",
+      "run_state": "success",
+      "duration_seconds": 24,
+      "worker_count": 5,
+      "queue_name": "default",
+      "airflow_version": "2.9.3"
     },
     "s3": {
       "bucket": {
-        "name": "aws-mwaa-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-mwaa-logs-738291046572"
+        "name": "aws-mwaa-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-mwaa-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/738291046572/mwaa/eu-north-1/2026/04/08/mwaa_QIVTAY6F6WG.log.gz" }
+      "object": { "key": "AWSLogs/164820739518/mwaa/me-south-1/2026/04/08/mwaa_MEWAOLV7TE.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/mwaa/logs",
-      "log_stream": "eu-north-1/qrkt1qwo",
-      "ingestion_time": "2026-04-08T12:27:27.372Z"
+      "log_stream": "me-south-1/ou7v1lhi",
+      "ingestion_time": "2026-04-08T15:12:15.466Z"
     }
   },
   "event": {
-    "action": "WorkerScaleDown",
+    "action": "SchedulerHeartbeat",
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.mwaa",
     "provider": "airflow.amazonaws.com",
-    "duration": 153000000000,
+    "duration": 24000000000,
     "module": "aws"
   },
-  "message": "MWAA prod-airflow: DAG ml_training_pipeline task load running (153s)",
+  "message": "MWAA ml-pipelines: DAG data_quality_check task validate success (24s)",
   "log": { "level": "info" },
   "service": { "name": "mwaa", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -49,8 +49,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "s9xpga26m6e"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "0kcln4qmlzn"
   },
   "input": { "type": "aws-cloudwatch" }
 }

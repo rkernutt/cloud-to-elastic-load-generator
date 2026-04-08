@@ -2,55 +2,63 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "me-central1",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
-    "service": { "name": "serverless-neg" }
+    "region": "asia-northeast3",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" },
+    "service": { "name": "cloud-lb" }
   },
   "gcp": {
-    "serverless_neg": {
-      "neg_name": "neg-6pyxo2fr",
-      "backend_service": "bes-run-y7wz",
-      "target_type": "app-engine",
-      "health_status": "DRAINING",
-      "request_count": 1352738,
-      "error_rate": 0.021
+    "cloud_lb": {
+      "backend_service": "bes-api-anna",
+      "url_map": "um-965808",
+      "forwarding_rule": "fr-asia-northeast3-k4de",
+      "request_method": "PATCH",
+      "url_path": "/v2/checkout",
+      "response_code": 200,
+      "latency_ms": 93,
+      "client_ip": "130.177.17.113",
+      "backend_ip": "75.175.29.46",
+      "protocol": "HTTP2"
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 161000000,
+    "duration": 93000000,
     "module": "gcp",
-    "dataset": "gcp.serverless_neg"
+    "dataset": "gcp.loadbalancing"
   },
-  "message": "Serverless NEG neg-6pyxo2fr health=DRAINING requests=1352738 err=2.098%",
-  "service": { "name": "serverless-neg", "type": "gcp" },
+  "message": "HTTP(S) LB PATCH /v2/checkout 200 93.0ms HTTP2",
+  "service": { "name": "cloud-lb", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.serverless_neg", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.loadbalancing", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-me-central1",
-    "id": "for97jzqmkj"
+    "name": "elastic-agent-gcp-asia-northeast3",
+    "id": "l9gt16gvr8"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-m3n4o5/logs/serverless-neg",
+  "logName": "projects/globex-security-j0k1l2/logs/cloud-lb",
   "resource": {
-    "type": "global",
-    "labels": { "project_id": "globex-shared-m3n4o5", "region": "me-central1" }
+    "type": "http_load_balancer",
+    "labels": { "project_id": "globex-security-j0k1l2", "region": "asia-northeast3" }
   },
   "severity": "INFO",
-  "insertId": "SF8QC5PN3",
+  "insertId": "KKOGB0BUU4",
   "jsonPayload": {
-    "serverless_neg": {
-      "neg_name": "neg-6pyxo2fr",
-      "backend_service": "bes-run-y7wz",
-      "target_type": "app-engine",
-      "health_status": "DRAINING",
-      "request_count": 1352738,
-      "error_rate": 0.021
+    "cloud_lb": {
+      "backend_service": "bes-api-anna",
+      "url_map": "um-965808",
+      "forwarding_rule": "fr-asia-northeast3-k4de",
+      "request_method": "PATCH",
+      "url_path": "/v2/checkout",
+      "response_code": 200,
+      "latency_ms": 93,
+      "client_ip": "130.177.17.113",
+      "backend_ip": "75.175.29.46",
+      "protocol": "HTTP2"
     },
-    "message": "Serverless NEG neg-6pyxo2fr health=DRAINING requests=1352738 err=2.098%"
+    "message": "HTTP(S) LB PATCH /v2/checkout 200 93.0ms HTTP2"
   }
 }

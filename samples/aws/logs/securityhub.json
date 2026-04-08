@@ -1,35 +1,36 @@
 {
-  "@timestamp": "2026-04-08T12:27:26.854Z",
+  "@timestamp": "2026-04-08T15:12:15.029Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
+    "region": "me-south-1",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "securityhub" }
   },
   "aws": {
-    "dimensions": { "ComplianceStandard": "pci-dss", "ControlId": "CIS.1.4" },
+    "dimensions": {
+      "ComplianceStandard": "aws-foundational-security-best-practices",
+      "ControlId": "CIS.2.2"
+    },
     "securityhub_findings": {
-      "id": "5V0DP63N-O9ZO-12W1-VJE9-1L8RNQM96A5",
+      "id": "XFTI1LLZ-XHA6-8DAF-WCVJ-2DSPZ1RHB2D",
       "aws_account_id": "501938274650",
-      "region": "eu-west-1",
-      "description": "Control passed.",
-      "created_at": "2026-04-08T02:29:42.204Z",
-      "first_observed_at": "2026-04-08T02:29:42.204Z",
-      "last_observed_at": "2026-04-08T12:27:26.854Z",
-      "generator": { "id": "CIS.1.4" },
-      "types": [
-        "Software and Configuration Checks/Industry and Regulatory Standards/CIS AWS Foundations Benchmark"
-      ],
-      "compliance": { "security_control_id": "CIS.1.4", "status": "PASSED" },
-      "severity": { "label": "INFORMATIONAL", "normalized": 0 },
-      "workflow": { "status": "NOTIFIED" },
-      "record_state": "ARCHIVED",
+      "region": "me-south-1",
+      "description": "Security check failed: CIS.2.2 - Default security group allows all traffic",
+      "created_at": "2026-04-07T18:32:00.435Z",
+      "first_observed_at": "2026-04-07T18:32:00.435Z",
+      "last_observed_at": "2026-04-08T15:12:15.029Z",
+      "generator": { "id": "CIS.2.2" },
+      "types": ["Effects/Data Exposure"],
+      "compliance": { "security_control_id": "CIS.2.2", "status": "FAILED" },
+      "severity": { "label": "HIGH", "normalized": 70 },
+      "workflow": { "status": "NEW" },
+      "record_state": "ACTIVE",
       "product": {
-        "arn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+        "arn": "arn:aws:securityhub:me-south-1::product/aws/securityhub",
         "name": "Security Hub"
       },
-      "criticality": 4,
-      "confidence": 83
+      "criticality": 7,
+      "confidence": 82
     },
     "s3": {
       "bucket": {
@@ -37,36 +38,41 @@
         "arn": "arn:aws:s3:::aws-securityhub-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/securityhub/eu-west-1/2026/04/08/securityhub_BK86XXUX6Y.log.gz"
+        "key": "AWSLogs/501938274650/securityhub/me-south-1/2026/04/08/securityhub_49TF9XLZZSV.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securityhub/logs",
-      "log_stream": "eu-west-1/jc0xn2jx",
-      "ingestion_time": "2026-04-08T12:27:27.257Z"
+      "log_stream": "me-south-1/v1dazdam",
+      "ingestion_time": "2026-04-08T15:12:15.379Z"
     }
   },
-  "rule": { "id": "CIS.1.4", "name": "CIS.1.4 — MFA not enabled for root" },
+  "rule": { "id": "CIS.2.2", "name": "CIS.2.2 — Security group allows all traffic" },
   "event": {
     "kind": "alert",
-    "severity": 4,
-    "outcome": "success",
-    "category": ["compliance"],
-    "type": ["info"],
+    "severity": 7,
+    "outcome": "failure",
+    "category": ["vulnerability"],
+    "type": ["indicator"],
     "dataset": "aws.securityhub_findings",
     "provider": "securityhub.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security Hub: control passed",
-  "log": { "level": "info" },
+  "message": "Security Hub [HIGH]: Compliance check failed",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "ComplianceFailed",
+    "message": "Control CIS.2.2 failed",
+    "type": "compliance"
+  },
   "service": { "name": "securityhub", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.securityhub_findings", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "woknxjp9wq"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "ptiydzdfg7"
   },
   "input": { "type": "http_endpoint" }
 }

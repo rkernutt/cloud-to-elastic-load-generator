@@ -1,49 +1,82 @@
 {
-  "@timestamp": "2026-04-08T12:27:26.854Z",
+  "@timestamp": "2026-04-08T15:12:15.029Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
-    "service": { "name": "rds-proxy" }
+    "region": "us-west-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
+    "service": { "name": "rds" }
   },
   "aws": {
-    "rdsproxy": {
-      "proxy_name": "read-proxy",
-      "target_group": "writer",
-      "db_user": "readonly_user",
-      "connection_id": 55160,
-      "action": "Connect",
-      "active_connections": 78,
-      "max_connections": 200,
-      "borrow_timeout_ms": 176,
-      "client_connections": 43
+    "dimensions": {
+      "DBInstanceIdentifier": "prod-db-replica",
+      "DatabaseClass": "db.r6g.xlarge",
+      "EngineName": "postgres",
+      "SourceRegion": "us-west-2"
+    },
+    "rds": {
+      "db_instance": {
+        "identifier": "prod-db-replica",
+        "class": "db.t3.medium",
+        "engine_name": "postgres",
+        "arn": "arn:aws:rds:us-west-2:293847561023:db:prod-db-replica",
+        "status": "available",
+        "role": "read-replica"
+      },
+      "cpu": { "total": { "pct": 0.5232 } },
+      "freeable_memory": { "bytes": 3088610101 },
+      "free_storage": { "bytes": 322182752355 },
+      "database_connections": 183,
+      "read_io": { "ops_per_sec": 2365.131564621482 },
+      "write_io": { "ops_per_sec": 2498.8982158739605 },
+      "latency": { "read": 0.001912367119237163, "write": 0.005666471159163956 },
+      "throughput": {
+        "read": 71378175,
+        "write": 579268,
+        "network_receive": 43700112,
+        "network_transmit": 86230997
+      },
+      "replica_lag": { "sec": 36.0088340560258 },
+      "swap_usage": { "bytes": 91989833 },
+      "disk_usage": { "bin_log": { "bytes": 572547573 } }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-rds-logs-738291046572"
+        "name": "aws-rds-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-rds-logs-293847561023"
       },
-      "object": {
-        "key": "AWSLogs/738291046572/rds/ap-northeast-1/2026/04/08/rds_ZSNXVQM6HJ.log.gz"
-      }
+      "object": { "key": "AWSLogs/293847561023/rds/us-west-2/2026/04/08/rds_L9K2VWUA6HR.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/rds/logs",
-      "log_stream": "ap-northeast-1/4zht2gx9",
-      "ingestion_time": "2026-04-08T12:27:27.193Z"
+      "log_stream": "us-west-2/sakfd7bc",
+      "ingestion_time": "2026-04-08T15:12:15.329Z"
     }
   },
-  "event": { "outcome": "success", "duration": 1865282, "module": "aws", "dataset": "aws.rds" },
-  "message": "RDS Proxy read-proxy: Connect on writer (conn 55160)",
-  "service": { "name": "rds", "type": "aws" },
+  "db": {
+    "user": { "name": "appuser" },
+    "name": "analytics",
+    "statement": "INSERT INTO orders VALUES JHKG15",
+    "type": "sql"
+  },
+  "event": {
+    "duration": 1457579315.6083512,
+    "outcome": "success",
+    "category": ["database"],
+    "type": ["info", "access"],
+    "dataset": "aws.rds",
+    "provider": "rds.amazonaws.com",
+    "module": "aws"
+  },
+  "message": "LOG: duration: 1457.579 ms statement: SELECT * FROM users WHERE id = 437911",
   "log": { "level": "info" },
+  "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "ngw1dp2cdvq"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "4y842x95784"
   },
   "input": { "type": "aws-cloudwatch" }
 }

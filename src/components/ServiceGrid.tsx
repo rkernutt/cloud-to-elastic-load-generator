@@ -262,27 +262,28 @@ const ServiceGrid = memo(function ServiceGrid({
                     const sel = selectedServices.includes(svc.id);
                     const metricsDisabled =
                       eventType === "metrics" && !metricsSupportedServiceIds.has(svc.id);
+                    const svcDisabled = metricsDisabled;
                     const src = getEffectiveSource(svc.id);
                     const meta = ingestionMeta[src];
                     return (
                       <button
                         key={svc.id}
-                        onClick={() => !metricsDisabled && toggleService(svc.id)}
+                        onClick={() => !svcDisabled && toggleService(svc.id)}
                         style={{
-                          border: `1px solid ${sel ? group.color + "99" : metricsDisabled ? K.border : K.borderPlain}`,
+                          border: `1px solid ${sel ? group.color + "99" : svcDisabled ? K.border : K.borderPlain}`,
                           borderRadius: K.radiusSm,
                           padding: "8px",
                           background: sel
                             ? `${group.color}18`
-                            : metricsDisabled
+                            : svcDisabled
                               ? K.controlDisabled
                               : K.subdued,
-                          cursor: metricsDisabled ? "not-allowed" : "pointer",
+                          cursor: svcDisabled ? "not-allowed" : "pointer",
                           textAlign: "left",
                           transition: "all 0.15s",
                           position: "relative",
                           overflow: "hidden",
-                          opacity: metricsDisabled ? 0.7 : 1,
+                          opacity: svcDisabled ? 0.7 : 1,
                         }}
                       >
                         {sel && (
@@ -320,7 +321,7 @@ const ServiceGrid = memo(function ServiceGrid({
                           style={{
                             fontSize: 11,
                             fontWeight: 700,
-                            color: sel ? group.color : metricsDisabled ? "#94a3b8" : "#475569",
+                            color: sel ? group.color : svcDisabled ? "#94a3b8" : "#475569",
                             marginBottom: 2,
                           }}
                         >
@@ -329,7 +330,7 @@ const ServiceGrid = memo(function ServiceGrid({
                         <div
                           style={{
                             fontSize: 10,
-                            color: metricsDisabled ? "#94a3b8" : "#64748b",
+                            color: svcDisabled ? "#94a3b8" : "#64748b",
                             lineHeight: 1.3,
                             marginBottom: 5,
                           }}

@@ -222,9 +222,9 @@ The custom pipelines were designed to cover services **not** included in the off
 
 **Services intentionally excluded from the custom pipelines** (already covered by the official integration):
 
-CloudTrail, VPC Flow, ALB/NLB, GuardDuty, S3 Access, API Gateway, CloudFront, Network Firewall, Security Hub, WAF, Route 53, EC2 (metrics), ECS, Config, Inspector, DynamoDB, Redshift, EBS, Kinesis, MSK/Kafka, SNS, SQS, Transit Gateway, VPN, AWS Health, Bedrock Agent, Billing, NAT Gateway.
+CloudTrail, VPC Flow, ALB/NLB, GuardDuty, S3 Access, API Gateway, CloudFront, Network Firewall, Security Hub, WAF, Route 53, EC2 (metrics), ECS, Config, Inspector, DynamoDB, Redshift, EBS, Kinesis, MSK/Kafka, SNS, SQS, Transit Gateway, VPN, AWS Health, Billing, NAT Gateway.
 
-None of these have a custom pipeline — there is nothing to conflict with.
+None of these have a custom **logs** pipeline entry in the registry — there is nothing to conflict with for those datasets. (Bedrock Agent logs use `aws.bedrockagent`, which is not a standalone data stream in the current Elastic AWS package; a custom `logs-aws.bedrockagent-default` pipeline is included for the load generator.)
 
 **Services where different dataset names are used to avoid conflicts:**
 

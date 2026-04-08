@@ -1,58 +1,65 @@
 {
-  "@timestamp": "2026-04-08T12:27:26.854Z",
+  "@timestamp": "2026-04-08T15:12:15.029Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-southeast-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "securitylake" }
   },
   "aws": {
-    "dimensions": { "OcsfClass": "Security Finding", "SourceType": "LAMBDA:SecurityHub" },
+    "dimensions": { "OcsfClass": "API Activity", "SourceType": "LAMBDA:CloudTrail" },
     "securitylake": {
-      "source_type": "LAMBDA:SecurityHub",
-      "class_uid": 2001,
-      "class_name": "Security Finding",
-      "category_uid": 2,
-      "category_name": "Findings",
-      "activity_id": 2,
-      "activity_name": "Create",
+      "source_type": "LAMBDA:CloudTrail",
+      "class_uid": 6003,
+      "class_name": "API Activity",
+      "category_uid": 6,
+      "category_name": "Application Activity",
+      "activity_id": 4,
+      "activity_name": "Delete",
       "severity_id": 2,
       "severity": "Low",
       "status_id": 1,
       "status": "Success",
-      "time": 1775651246854,
+      "time": 1775661135029,
       "metadata": {
         "version": "1.1.0",
-        "product": { "name": "SecurityHub", "vendor_name": "AWS" },
-        "uid": "v40jtw24-u5mk-1muv-kltt-z9famrmrol8"
+        "product": { "name": "CloudTrail", "vendor_name": "AWS" },
+        "uid": "1zbwimxc-r35h-bwi1-ey1r-arn5bgcyhc"
       },
       "ocsf_cloud": {
         "provider": "AWS",
-        "account": { "uid": "164820739518" },
-        "region": "ap-south-1"
+        "account": { "uid": "814726593401" },
+        "region": "ap-southeast-2"
       },
-      "finding": {
-        "uid": "5g0ob97b-1zge-8rqc-7sry-ft0gmxjhhum",
-        "title": "UnauthorizedAccess:IAMUser/MaliciousIPCaller",
-        "types": ["Effects/DataExposure"],
-        "first_seen_time": 1775464046854,
-        "last_seen_time": 1775651246854,
-        "confidence_score": 23
-      }
+      "api": {
+        "operation": "AttachRolePolicy",
+        "service": { "name": "ec2.amazonaws.com" },
+        "request": { "uid": "kd6054gp-686j-z64q-d3xl-q0ywt5arfc" },
+        "response": { "code": 200 }
+      },
+      "actor": {
+        "user": {
+          "uid": "arn:aws:iam::814726593401:user/svc-account",
+          "name": "svc-account",
+          "type": "IAMUser"
+        },
+        "session": { "uid": "ASIAUEY1YL67M5S", "is_mfa": true }
+      },
+      "src_endpoint": { "ip": "65.116.5.56" }
     },
     "s3": {
       "bucket": {
-        "name": "aws-securitylake-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-securitylake-logs-164820739518"
+        "name": "aws-securitylake-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-securitylake-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/securitylake/ap-south-1/2026/04/08/securitylake_O84NBD8LYD9.log.gz"
+        "key": "AWSLogs/814726593401/securitylake/ap-southeast-2/2026/04/08/securitylake_QBA1UJWVKG.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securitylake/logs",
-      "log_stream": "ap-south-1/rm8qd3eq",
-      "ingestion_time": "2026-04-08T12:27:27.275Z"
+      "log_stream": "ap-southeast-2/r07m6ujf",
+      "ingestion_time": "2026-04-08T15:12:15.390Z"
     }
   },
   "event": {
@@ -62,7 +69,7 @@
     "provider": "securitylake.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security Lake [Security Finding/Create] Low: SecurityHub success",
+  "message": "Security Lake [API Activity/Delete] Low: CloudTrail success",
   "log": { "level": "info" },
   "service": { "name": "securitylake", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -70,8 +77,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "5td5vwzecl"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "418bxn5e8ov"
   },
   "input": { "type": "http_endpoint" }
 }

@@ -83,6 +83,8 @@ const AZURE_ELASTIC_DATASET_MAP: Record<string, string> = {
   "document-intelligence": "azure.document_intelligence",
   // Identity / security
   "entra-id": "azure.entra_id",
+  /** Single combined audit stream; `workload` / `record_type` distinguish Exchange, Teams, etc. */
+  m365: "azure.microsoft_365",
   "key-vault": "azure.key_vault",
   "managed-identity": "azure.managed_identity",
   "defender-for-cloud": "azure.defender",
@@ -175,6 +177,10 @@ const AZURE_METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "stream-analytics",
   "acr",
   "defender-for-cloud",
+  "active-users-services",
+  "teams-user-activity",
+  "outlook-activity",
+  "onedrive-usage-storage",
 ]);
 
 const AZURE_METRICS_DATASET_MAP: Record<string, string> = {
@@ -209,6 +215,11 @@ const AZURE_METRICS_DATASET_MAP: Record<string, string> = {
   "stream-analytics": "azure.stream_analytics_metrics",
   acr: "azure.container_registry_metrics",
   "defender-for-cloud": "azure.defender_metrics",
+  // Microsoft 365 Graph reports (Elastic o365_metrics integration — separate from Azure Monitor)
+  "active-users-services": "o365_metrics.active_users_services_user_counts",
+  "teams-user-activity": "o365_metrics.teams_user_activity_user_counts",
+  "outlook-activity": "o365_metrics.outlook_activity",
+  "onedrive-usage-storage": "o365_metrics.onedrive_usage_storage",
 };
 
 export {

@@ -237,11 +237,11 @@ const INGESTION_META = {
   otel: { label: "OTel", color: "#93C90E", inputType: "opentelemetry" },
   "otel-edot-collector": { label: "EDOT Collector", color: "#93C90E", inputType: "opentelemetry" },
   "otel-csp-edot-gateway": {
-    label: "CSP distro → EDOT GW",
+    label: "ADOT → EDOT GW",
     color: "#FEC514",
     inputType: "opentelemetry",
   },
-  agent: { label: "Agent", color: "#8144CC", inputType: "logfile" },
+  agent: { label: "Elastic Agent", color: "#8144CC", inputType: "logfile" },
 };
 
 export { SERVICE_INGESTION_DEFAULTS, INGESTION_META };

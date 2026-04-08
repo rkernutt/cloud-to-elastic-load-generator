@@ -145,3 +145,44 @@ export function generateEntraIdLog(ts: string, er: number): EcsDocument {
     message: isErr ? `Entra sign-in failed for ${user}` : `Entra audit: user ${user}`,
   };
 }
+
+const M365_WORKLOADS = [
+  "Exchange",
+  "SharePoint",
+  "MicrosoftTeams",
+  "OneDrive",
+  "AzureActiveDirectory",
+] as const;
+
+const M365_RECORD_BY_WORKLOAD: Record<(typeof M365_WORKLOADS)[number], readonly string[]> = {
+  Exchange: ["MailItemsAccessed", "Send", "SearchQueryPerformed"],
+  SharePoint: ["FileDownloaded", "FileUploaded", "SharingSet"],
+  MicrosoftTeams: ["TeamsSessionStarted", "MessageSent", "MemberAdded"],
+  OneDrive: ["FileDownloaded", "FileSynced", "SharingSet"],
+  AzureActiveDirectory: ["UserLoggedIn", "AddedToGroup", "Add member to role"],
+};
+
+export function generateM365Log(ts: string, er: number): EcsDocument {
+  const { region, subscription, isErr } = makeAzureSetup(er);
+  const user = `user${randInt(100, 999)}@${rand(["contoso", "fabrikam"])}.onmicrosoft.com`;
+  const workload = rand(M365_WORKLOADS);
+  const recordType = rand(M365_RECORD_BY_WORKLOAD[workload]);
+  return {
+    "@timestamp": ts,
+    cloud: azureCloud(region, subscription, "Microsoft.Office365"),
+    azure: {
+      microsoft_365: {
+        workload,
+        record_type: recordType,
+        user_id: user,
+        client_ip: `198.51.100.${randInt(2, 250)}`,
+        organization_id: randId(8).toUpperCase(),
+        result: isErr ? rand(["Failed", "PartiallySucceeded"]) : "Succeeded",
+      },
+    },
+    event: { outcome: isErr ? "failure" : "success", duration: randInt(5e5, 2e8) },
+    message: isErr
+      ? `Microsoft 365 ${workload}: ${recordType} failed for ${user}`
+      : `Microsoft 365 ${workload}: ${recordType} by ${user}`,
+  };
+}

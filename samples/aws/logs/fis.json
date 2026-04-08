@@ -1,34 +1,36 @@
 {
-  "@timestamp": "2026-04-08T12:27:26.854Z",
+  "@timestamp": "2026-04-08T15:12:15.029Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-southeast-3",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "fis" }
   },
   "aws": {
-    "dimensions": { "ExperimentTemplateId": "EXTAFNDEQ44" },
+    "dimensions": { "ExperimentTemplateId": "EXT3HRXE0CC" },
     "fis": {
-      "experiment_id": "EXPHXLGPFCZ",
-      "experiment_template_id": "EXTAFNDEQ44",
-      "experiment_name": "database-failover",
-      "experiment_state": "running",
-      "target_resource_type": "ECS tasks",
-      "action_type": "aws:ssm:send-command",
-      "stop_condition": "none",
-      "role_arn": "arn:aws:iam::164820739518:role/FISRole-database-failover"
+      "experiment_id": "EXPX4CNLUJ8",
+      "experiment_template_id": "EXT3HRXE0CC",
+      "experiment_name": "cpu-stress-test",
+      "experiment_state": "pending",
+      "target_resource_type": "Lambda functions",
+      "action_type": "aws:network-acl:replace-entries",
+      "stop_condition": "aws:cloudwatch:alarm",
+      "role_arn": "arn:aws:iam::501938274650:role/FISRole-cpu-stress-test"
     },
     "s3": {
       "bucket": {
-        "name": "aws-fis-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-fis-logs-164820739518"
+        "name": "aws-fis-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-fis-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/164820739518/fis/me-central-1/2026/04/08/fis_FLWKBXHF4ML.log.gz" }
+      "object": {
+        "key": "AWSLogs/501938274650/fis/ap-southeast-3/2026/04/08/fis_GGF3CIFLPCE.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/fis/logs",
-      "log_stream": "me-central-1/4zxxk65n",
-      "ingestion_time": "2026-04-08T12:27:27.430Z"
+      "log_stream": "ap-southeast-3/svkl3t63",
+      "ingestion_time": "2026-04-08T15:12:15.510Z"
     }
   },
   "event": {
@@ -39,7 +41,7 @@
     "provider": "fis.amazonaws.com",
     "module": "aws"
   },
-  "message": "FIS StartExperiment: exp=EXPHXLGPFCZ (database-failover) state=running, target=ECS tasks",
+  "message": "FIS StartExperiment: exp=EXPX4CNLUJ8 (cpu-stress-test) state=pending, target=Lambda functions",
   "log": { "level": "info" },
   "service": { "name": "fis", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -47,8 +49,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "whyr0v4r9es"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "2srn6r3c3gu"
   },
   "input": { "type": "aws-cloudwatch" }
 }

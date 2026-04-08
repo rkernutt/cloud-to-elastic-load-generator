@@ -2,62 +2,50 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "asia-east1",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" },
-    "service": { "name": "cloudtrace.googleapis.com" }
+    "region": "australia-southeast1",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
+    "service": { "name": "cloudprofiler.googleapis.com" }
   },
   "gcp": {
-    "cloud_trace": {
-      "trace_id": "59c4aed96612597411280ccc6f96eabf",
-      "span_id": "a34cc74def554341",
-      "display_name": "tasks.enqueue",
-      "kind": "PRODUCER",
-      "status_code": 0,
-      "latency_ms": 311,
-      "attributes_count": 36,
-      "labels": {
-        "g.co/r/gcp.project.id": "globex-security-j0k1l2",
-        "service.name": "search-bff",
-        "http.route": "/internal/jobs"
-      }
+    "cloud_profiler": {
+      "profile_type": "HEAP",
+      "service_name": "batch-worker",
+      "service_version": "v1.22.44",
+      "deployment_target": "gce",
+      "duration_seconds": 152,
+      "zone": "australia-southeast1-a"
     }
   },
-  "event": { "outcome": "success", "duration": 311, "module": "gcp", "dataset": "gcp.cloudtrace" },
-  "message": "Trace span OK: tasks.enqueue (PRODUCER) 311ms, attrs=36",
-  "service": { "name": "cloud-trace", "type": "gcp" },
+  "event": { "outcome": "success", "duration": 152000, "module": "gcp", "dataset": "gcp.profiler" },
+  "message": "Cloud Profiler collected HEAP profile for batch-worker@v1.22.44 on gce (152s, australia-southeast1-a)",
+  "service": { "name": "cloud-profiler", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.cloudtrace", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.profiler", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-east1",
-    "id": "0ml1x60z2gw"
+    "name": "elastic-agent-gcp-australia-southeast1",
+    "id": "gnp1tmny4qi"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-security-j0k1l2/logs/cloud-trace",
+  "logName": "projects/globex-prod-a1b2c3/logs/cloud-profiler",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-security-j0k1l2", "region": "asia-east1" }
+    "labels": { "project_id": "globex-prod-a1b2c3", "region": "australia-southeast1" }
   },
   "severity": "INFO",
-  "insertId": "ZXNMZP6GIVS",
+  "insertId": "RB7231VPMPJ",
   "jsonPayload": {
-    "cloud_trace": {
-      "trace_id": "59c4aed96612597411280ccc6f96eabf",
-      "span_id": "a34cc74def554341",
-      "display_name": "tasks.enqueue",
-      "kind": "PRODUCER",
-      "status_code": 0,
-      "latency_ms": 311,
-      "attributes_count": 36,
-      "labels": {
-        "g.co/r/gcp.project.id": "globex-security-j0k1l2",
-        "service.name": "search-bff",
-        "http.route": "/internal/jobs"
-      }
+    "cloud_profiler": {
+      "profile_type": "HEAP",
+      "service_name": "batch-worker",
+      "service_version": "v1.22.44",
+      "deployment_target": "gce",
+      "duration_seconds": 152,
+      "zone": "australia-southeast1-a"
     },
-    "message": "Trace span OK: tasks.enqueue (PRODUCER) 311ms, attrs=36"
+    "message": "Cloud Profiler collected HEAP profile for batch-worker@v1.22.44 on gce (152s, australia-southeast1-a)"
   }
 }

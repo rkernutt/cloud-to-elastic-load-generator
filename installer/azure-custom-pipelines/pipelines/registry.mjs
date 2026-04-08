@@ -180,7 +180,7 @@ export const PIPELINE_REGISTRY = [
   {
     id: "logs-azure.capacity_reservation-default",
     dataset: "azure.capacity_reservation",
-    group: "compute",
+    group: "misc",
     description: "Parse JSON from message for azure.capacity_reservation (capacity-reservation)",
     processors: [
       { json: { field: "message", target_field: "azure.parsed", ignore_failure: true } },
@@ -189,7 +189,7 @@ export const PIPELINE_REGISTRY = [
   {
     id: "logs-azure.cdn-default",
     dataset: "azure.cdn",
-    group: "networking",
+    group: "misc",
     description: "Parse JSON from message for azure.cdn (cdn)",
     processors: [
       { json: { field: "message", target_field: "azure.parsed", ignore_failure: true } },
@@ -208,8 +208,7 @@ export const PIPELINE_REGISTRY = [
     id: "logs-azure.communication_services-default",
     dataset: "azure.communication_services",
     group: "iot-media",
-    description:
-      "Parse JSON from message for azure.communication_services (communication-services)",
+    description: "Parse JSON from message for azure.communication_services (communication-services)",
     processors: [
       { json: { field: "message", target_field: "azure.parsed", ignore_failure: true } },
     ],
@@ -235,7 +234,7 @@ export const PIPELINE_REGISTRY = [
   {
     id: "logs-azure.confidential_vm-default",
     dataset: "azure.confidential_vm",
-    group: "compute",
+    group: "misc",
     description: "Parse JSON from message for azure.confidential_vm (confidential-vm)",
     processors: [
       { json: { field: "message", target_field: "azure.parsed", ignore_failure: true } },
@@ -334,7 +333,7 @@ export const PIPELINE_REGISTRY = [
   {
     id: "logs-azure.dedicated_host-default",
     dataset: "azure.dedicated_host",
-    group: "compute",
+    group: "misc",
     description: "Parse JSON from message for azure.dedicated_host (dedicated-host)",
     processors: [
       { json: { field: "message", target_field: "azure.parsed", ignore_failure: true } },
@@ -353,8 +352,7 @@ export const PIPELINE_REGISTRY = [
     id: "logs-azure.deployment_environments-default",
     dataset: "azure.deployment_environments",
     group: "management",
-    description:
-      "Parse JSON from message for azure.deployment_environments (deployment-environments)",
+    description: "Parse JSON from message for azure.deployment_environments (deployment-environments)",
     processors: [
       { json: { field: "message", target_field: "azure.parsed", ignore_failure: true } },
     ],
@@ -657,6 +655,15 @@ export const PIPELINE_REGISTRY = [
     ],
   },
   {
+    id: "logs-azure.microsoft_365-default",
+    dataset: "azure.microsoft_365",
+    group: "identity-security",
+    description: "Parse JSON from message for azure.microsoft_365 (m365)",
+    processors: [
+      { json: { field: "message", target_field: "azure.parsed", ignore_failure: true } },
+    ],
+  },
+  {
     id: "logs-azure.migrate-default",
     dataset: "azure.migrate",
     group: "resilience-migration",
@@ -705,8 +712,7 @@ export const PIPELINE_REGISTRY = [
     id: "logs-azure.network_security_groups-default",
     dataset: "azure.network_security_groups",
     group: "networking",
-    description:
-      "Parse JSON from message for azure.network_security_groups (network-security-groups)",
+    description: "Parse JSON from message for azure.network_security_groups (network-security-groups)",
     processors: [
       { json: { field: "message", target_field: "azure.parsed", ignore_failure: true } },
     ],
@@ -795,9 +801,8 @@ export const PIPELINE_REGISTRY = [
   {
     id: "logs-azure.proximity_placement_groups-default",
     dataset: "azure.proximity_placement_groups",
-    group: "compute",
-    description:
-      "Parse JSON from message for azure.proximity_placement_groups (proximity-placement)",
+    group: "misc",
+    description: "Parse JSON from message for azure.proximity_placement_groups (proximity-placement)",
     processors: [
       { json: { field: "message", target_field: "azure.parsed", ignore_failure: true } },
     ],

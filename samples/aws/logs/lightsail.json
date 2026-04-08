@@ -1,57 +1,59 @@
 {
-  "@timestamp": "2026-04-08T12:27:26.854Z",
+  "@timestamp": "2026-04-08T15:12:15.029Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-south-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "lightsail" }
   },
   "aws": {
     "lightsail": {
       "resource_name": "portfolio-site",
-      "resource_type": "Instance",
-      "bundle_id": "large_2_0",
-      "blueprint": "django",
-      "state": "running",
-      "event_type": "ALERT_TRIGGERED",
-      "public_ip": "69.71.179.93",
-      "monthly_transfer": { "used_gb": 1148, "limit_gb": 12288 },
-      "alert": { "name": "StatusCheckFailed", "threshold": 97 }
+      "resource_type": "ContainerService",
+      "bundle_id": "micro_2_0",
+      "blueprint": "wordpress",
+      "state": "ERROR",
+      "event_type": "SNAPSHOT_CREATED",
+      "public_ip": "250.132.111.42",
+      "snapshot_name": "portfolio-site-snap-66",
+      "monthly_transfer": { "used_gb": 1589, "limit_gb": 12288 },
+      "alert": {}
     },
     "s3": {
       "bucket": {
-        "name": "aws-lightsail-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-lightsail-logs-501938274650"
+        "name": "aws-lightsail-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-lightsail-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/501938274650/lightsail/ca-central-1/2026/04/08/lightsail_GGH9FGM1YGL.log.gz"
+        "key": "AWSLogs/738291046572/lightsail/eu-south-2/2026/04/08/lightsail_DKHHN1PCGOF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lightsail/logs",
-      "log_stream": "ca-central-1/t5e68208",
-      "ingestion_time": "2026-04-08T12:27:27.449Z"
+      "log_stream": "eu-south-2/o8mhp4t1",
+      "ingestion_time": "2026-04-08T15:12:15.526Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["host", "network"],
     "dataset": "aws.lightsail",
     "provider": "lightsail.amazonaws.com",
-    "duration": 782000000,
+    "duration": 513000000,
     "module": "aws"
   },
-  "message": "Lightsail portfolio-site: ALERT_TRIGGERED [running]",
-  "log": { "level": "info" },
-  "host": { "name": "ip-77-230-176-60.ec2.internal", "hostname": "lightsail-3hkp9tkj" },
+  "message": "Lightsail portfolio-site ERROR: SSL renewal error:",
+  "log": { "level": "error" },
+  "error": { "code": "LightsailError", "message": "Lightsail instance error", "type": "host" },
+  "host": { "name": "ip-148-197-246-21.ec2.internal", "hostname": "lightsail-gbh9nj0i" },
   "service": { "name": "lightsail", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lightsail", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "ribi1cgqqqf"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "34tvwllsprv"
   },
   "input": { "type": "aws-cloudwatch" }
 }

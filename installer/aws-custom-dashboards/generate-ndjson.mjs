@@ -39,7 +39,13 @@ function seededUUID(seed) {
 function inferXType(col, query) {
   if (!query) return "string";
   const re = new RegExp(`\\b${col}\\s*=\\s*BUCKET\\s*\\(\\s*@timestamp`, "i");
-  return re.test(query) ? "date" : "string";
+  if (re.test(query)) return "date";
+  const trunc = new RegExp(
+    `\\b${col}\\s*=\\s*DATE_TRUNC\\s*\\([^)]+@timestamp`,
+    "i"
+  );
+  if (trunc.test(query)) return "date";
+  return "string";
 }
 
 /** Infers ES field type for datatable columns by field name. */
@@ -303,12 +309,37 @@ function buildDatatableLens(attrs, panelTitle) {
   };
 }
 
+/** Simplified bar_stacked panels (xAxis + breakdown + one metric column). */
+function buildStackedBarLens(attrs, panelTitle) {
+  const { dataset, xAxis, metrics } = attrs;
+  const y =
+    metrics?.map((m) => ({
+      column: m.column,
+      label: attrs.breakdown?.column ? String(attrs.breakdown.column) : "",
+    })) ?? [];
+  return buildXYLens(
+    {
+      type: "xy",
+      layers: [
+        {
+          type: "bar_stacked",
+          dataset,
+          x: { column: xAxis.column },
+          y,
+        },
+      ],
+    },
+    panelTitle
+  );
+}
+
 function buildLensAttributes(config) {
   const attrs = config.attributes ?? config;
   const title = config.title || "";
   if (attrs.type === "metric") return buildMetricLens(attrs, title);
   if (attrs.type === "donut" || attrs.type === "pie") return buildPartitionLens(attrs, title);
   if (attrs.type === "xy") return buildXYLens(attrs, title);
+  if (attrs.type === "bar_stacked") return buildStackedBarLens(attrs, title);
   if (attrs.type === "datatable") return buildDatatableLens(attrs, title);
   throw new Error(`Unsupported chart type: ${attrs.type}`);
 }

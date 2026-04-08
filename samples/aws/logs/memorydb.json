@@ -1,48 +1,50 @@
 {
-  "@timestamp": "2026-04-08T12:27:26.854Z",
+  "@timestamp": "2026-04-08T15:12:15.029Z",
   "cloud": {
     "provider": "aws",
     "region": "ap-southeast-4",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "memorydb" }
   },
   "aws": {
     "memorydb": {
-      "cluster_name": "session-store",
-      "node_name": "session-store-0001-001",
+      "cluster_name": "prod-memorydb",
+      "node_name": "prod-memorydb-0001-001",
       "engine_version": "7.1",
-      "command": "XADD",
-      "latency_us": 23.121128189836316,
-      "cache_hit_rate": 86.2633874047756,
-      "connected_clients": 402,
-      "used_memory_mb": 46864,
-      "replication_lag_ms": 9
+      "command": "GET",
+      "latency_us": 1307.3511499106678,
+      "cache_hit_rate": 0,
+      "connected_clients": 370,
+      "used_memory_mb": 22575,
+      "replication_lag_ms": 3774,
+      "error_code": "WRONGTYPE"
     },
     "s3": {
       "bucket": {
-        "name": "aws-memorydb-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-memorydb-logs-293847561023"
+        "name": "aws-memorydb-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-memorydb-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/memorydb/ap-southeast-4/2026/04/08/memorydb_UHAB0OFY0Z.log.gz"
+        "key": "AWSLogs/501938274650/memorydb/ap-southeast-4/2026/04/08/memorydb_Q42C770MJC.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/memorydb/logs",
-      "log_stream": "ap-southeast-4/gzrn8ph2",
-      "ingestion_time": "2026-04-08T12:27:27.329Z"
+      "log_stream": "ap-southeast-4/dyfsaagn",
+      "ingestion_time": "2026-04-08T15:12:15.436Z"
     }
   },
   "event": {
-    "duration": 23121.128189836316,
-    "outcome": "success",
+    "duration": 1307351.149910668,
+    "outcome": "failure",
     "category": "database",
     "dataset": "aws.memorydb",
     "provider": "memory-db.amazonaws.com",
     "module": "aws"
   },
-  "message": "MemoryDB session-store XADD: 23.12us",
-  "log": { "level": "info" },
+  "message": "MemoryDB prod-memorydb GET FAILED: WRONGTYPE",
+  "log": { "level": "error" },
+  "error": { "code": "READONLY", "message": "MemoryDB command failed", "type": "db" },
   "service": { "name": "memorydb", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.memorydb", "namespace": "default" },
@@ -50,7 +52,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-ap-southeast-4",
-    "ephemeral_id": "n3zk579053"
+    "ephemeral_id": "ks6knffpoi"
   },
   "input": { "type": "aws-cloudwatch" }
 }

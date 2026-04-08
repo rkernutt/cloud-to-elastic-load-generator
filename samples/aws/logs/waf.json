@@ -1,30 +1,24 @@
 {
-  "@timestamp": "2026-04-08T12:27:26.854Z",
+  "@timestamp": "2026-04-08T15:12:15.029Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "me-south-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "waf" }
   },
   "aws": {
-    "dimensions": {
-      "WebACL": "admin-waf",
-      "Rule": "AWSManagedRulesCommonRuleSet",
-      "Region": "eu-south-1"
-    },
+    "dimensions": { "WebACL": "prod-waf", "Rule": "CustomSQLiRule", "Region": "me-south-1" },
     "waf": {
-      "id": "adp4o6nert7",
-      "arn": "arn:aws:wafv2:eu-south-1:164820739518:regional/webacl/admin-waf/qv718u6v-l8ys-3gu9-3u1c-7j40xmwwt1",
+      "id": "nwyxdijwaas",
+      "arn": "arn:aws:wafv2:me-south-1:738291046572:regional/webacl/prod-waf/b7odg8bw-osll-a0eq-ctuf-jlmmr7gfng",
       "format_version": "1",
-      "source": { "name": "ALB", "id": "164820739518-app/admin-waf/807z22gu1tn" },
-      "rule_group_list": [
-        { "ruleGroupId": "AWSManagedRulesCommonRuleSet", "nonTerminatingMatchingRules": [] }
-      ],
+      "source": { "name": "ALB", "id": "738291046572-app/prod-waf/zsolco4chdn" },
+      "rule_group_list": [{ "ruleGroupId": "CustomSQLiRule", "nonTerminatingMatchingRules": [] }],
       "non_terminating_matching_rules": [],
       "terminating_rule_match_details": [],
       "request": {
         "headers": [
-          { "name": "User-Agent", "value": "python-requests/2.27.1" },
+          { "name": "User-Agent", "value": "Go-http-client/1.1" },
           { "name": "Host", "value": "api.example.com" }
         ]
       },
@@ -41,49 +35,49 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-waf-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-waf-logs-164820739518"
+        "name": "aws-waf-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-waf-logs-738291046572"
       },
-      "object": { "key": "AWSLogs/164820739518/waf/eu-south-1/2026/04/08/waf_KIMQ32FRL7.log.gz" }
+      "object": { "key": "AWSLogs/738291046572/waf/me-south-1/2026/04/08/waf_F96TQGP34V6.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/waf/logs",
-      "log_stream": "eu-south-1/cfv5ovs3",
-      "ingestion_time": "2026-04-08T12:27:27.226Z"
+      "log_stream": "me-south-1/kcy4yo3q",
+      "ingestion_time": "2026-04-08T15:12:15.359Z"
     }
   },
-  "rule": { "id": "RateLimit_IP", "ruleset": "AWSManagedRulesCommonRuleSet" },
-  "http": { "request": { "method": "DELETE", "bytes": 7572 } },
+  "rule": { "id": "GeoBlockRule", "ruleset": "CustomSQLiRule" },
+  "http": { "request": { "method": "PUT", "bytes": 9065 } },
   "url": { "path": "/api/v1/search" },
   "source": {
-    "ip": "181.79.137.207",
+    "ip": "127.116.215.116",
     "geo": {
-      "country_iso_code": "DE",
-      "country_name": "Germany",
-      "city_name": "Frankfurt",
-      "location": { "lat": 50.1109, "lon": 8.6821 }
+      "country_iso_code": "US",
+      "country_name": "United States",
+      "city_name": "Seattle",
+      "location": { "lat": 47.6062, "lon": -122.3321 }
     }
   },
   "client": {
-    "ip": "181.79.137.207",
+    "ip": "127.116.215.116",
     "geo": {
-      "country_iso_code": "DE",
-      "country_name": "Germany",
-      "city_name": "Frankfurt",
-      "location": { "lat": 50.1109, "lon": 8.6821 }
+      "country_iso_code": "US",
+      "country_name": "United States",
+      "city_name": "Seattle",
+      "location": { "lat": 47.6062, "lon": -122.3321 }
     }
   },
-  "user_agent": { "original": "python-requests/2.27.1" },
+  "user_agent": { "original": "Go-http-client/1.1" },
   "event": {
     "action": "allow",
     "outcome": "success",
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
-    "duration": 24000000,
+    "duration": 38000000,
     "module": "aws"
   },
-  "message": "WAF ALLOWED request - Rule: AWSManagedRulesCommonRuleSet",
+  "message": "WAF ALLOWED request - Rule: CustomSQLiRule",
   "log": { "level": "info" },
   "service": { "name": "waf", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -91,8 +85,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "vykzpis32d"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "1dplbusgka5"
   },
   "input": { "type": "aws-s3" }
 }

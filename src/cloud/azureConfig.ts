@@ -10,7 +10,7 @@ import { AZURE_REGIONS } from "../azure/generators/helpers.js";
 import { AZURE_SETUP_BUNDLE } from "../setup/azureAssets";
 import type { CloudAppConfig, TraceServiceMeta } from "./types";
 import type { ServiceGroup } from "../data/serviceGroups";
-import { genericVendorBulkIndex, genericVendorDocDataset } from "./indexNaming";
+import { genericVendorBulkIndex, genericVendorDocDataset, o365MetricsBulkIndex } from "./indexNaming";
 import { publicUrl } from "../utils/publicUrl";
 import {
   AZURE_VENDOR_CATEGORY_ICONS,
@@ -87,6 +87,12 @@ export const AZURE_CONFIG: CloudAppConfig = {
       >,
       regions: AZURE_REGIONS,
       defaultIngestion: "default",
+      metricsIntegrationByServiceId: {
+        "active-users-services": "o365_metrics",
+        "teams-user-activity": "o365_metrics",
+        "outlook-activity": "o365_metrics",
+        "onedrive-usage-storage": "o365_metrics",
+      },
     },
   },
   setupBundle: AZURE_SETUP_BUNDLE,
@@ -96,7 +102,10 @@ export const AZURE_CONFIG: CloudAppConfig = {
     categoryFiles: azureVendorCategoryFiles,
     iconBaseUrl: AZURE_ICON_BASE,
   },
-  formatBulkIndexName: (prefix, dataset) => genericVendorBulkIndex(prefix, dataset, "azure"),
+  formatBulkIndexName: (prefix, dataset) =>
+    dataset.startsWith("o365_metrics.")
+      ? o365MetricsBulkIndex(dataset)
+      : genericVendorBulkIndex(prefix, dataset, "azure"),
   formatDocDatasetIndex: (prefix, ds) => genericVendorDocDataset(prefix, ds, "azure"),
   fallbackDatasetForService: (serviceId: string) => `azure.${serviceId.replace(/-/g, "_")}`,
 };

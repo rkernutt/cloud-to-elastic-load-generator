@@ -1,75 +1,71 @@
 {
-  "@timestamp": "2026-04-08T12:27:26.854Z",
-  "trace": { "id": "1-69d649ae-3ups47w1zre" },
-  "span": { "id": "9wyq6xvmqut" },
+  "@timestamp": "2026-04-08T15:12:15.029Z",
+  "trace": { "id": "1-69d6704f-u15eg6cngv" },
+  "span": { "id": "06nr2a4clvv" },
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "il-central-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "xray" }
   },
   "aws": {
-    "dimensions": { "GroupName": "Default", "ServiceType": "remote" },
+    "dimensions": { "GroupName": "Default", "ServiceType": "AWS::DynamoDB::Table" },
     "xray": {
-      "trace_id": "1-69d649ae-3ups47w1zre",
-      "segment_id": "9wyq6xvmqut",
-      "parent_id": "jyai1m92cfp",
-      "service": { "name": "cache-layer", "type": "remote" },
-      "duration": 1.002486139014554,
+      "trace_id": "1-69d6704f-u15eg6cngv",
+      "segment_id": "06nr2a4clvv",
+      "parent_id": "ro2v3ey2a2",
+      "service": { "name": "dynamodb-client", "type": "AWS::DynamoDB::Table" },
+      "duration": 1.33138167413026,
       "fault": false,
       "error": false,
       "throttle": false,
-      "http": { "request": { "method": "PUT", "url": "/health" }, "response": { "status": 200 } },
-      "annotations": { "env": "prod", "version": "v13" },
+      "http": {
+        "request": { "method": "POST", "url": "/api/v1/users" },
+        "response": { "status": 201 }
+      },
+      "annotations": { "env": "prod", "version": "v20" },
       "subsegments": [
         {
-          "id": "6kkn034hf2i",
-          "name": "SNS.Publish",
+          "id": "pljm402k3c9",
+          "name": "DynamoDB.PutItem",
           "namespace": "remote",
-          "duration": 0.10913620882646895,
+          "duration": 0.3713870940208451,
           "fault": false
         },
         {
-          "id": "xd7u9m88ppb",
-          "name": "DynamoDB.GetItem",
+          "id": "91eq2h25lxt",
+          "name": "ElastiCache.set",
           "namespace": "aws",
-          "duration": 0.13131183889586434,
-          "fault": false
-        },
-        {
-          "id": "aubz8s21iva",
-          "name": "ElastiCache.get",
-          "namespace": "aws",
-          "duration": 0.28242654204732626,
+          "duration": 0.40611171867381196,
           "fault": false
         }
       ],
       "metrics": {
-        "ErrorRate": { "avg": 0.41383090013600565 },
-        "FaultRate": { "avg": 0.4688752894332811 },
-        "ThrottleRate": { "avg": 0.3578503240940838 },
-        "TotalCount": { "sum": 1880 },
-        "Latency": { "avg": 1002.486139014554, "p99": 3007.4584170436624 }
+        "ErrorRate": { "avg": 0.8548205071897172 },
+        "FaultRate": { "avg": 0.22466941855701228 },
+        "ThrottleRate": { "avg": 0.04031239390484659 },
+        "TotalCount": { "sum": 7984 },
+        "Latency": { "avg": 1331.38167413026, "p99": 3994.14502239078 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-xray-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-xray-logs-738291046572"
+        "name": "aws-xray-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-xray-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/xray/ap-southeast-1/2026/04/08/xray_8761FAN4B9C.log.gz"
+        "key": "AWSLogs/501938274650/xray/il-central-1/2026/04/08/xray_GWQMY9BI0NG.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/xray/logs",
-      "log_stream": "ap-southeast-1/h8aft70u",
-      "ingestion_time": "2026-04-08T12:27:27.351Z"
+      "log_stream": "il-central-1/0r3vu198",
+      "ingestion_time": "2026-04-08T15:12:15.451Z"
     }
   },
-  "http": { "request": { "method": "PUT" }, "response": { "status_code": 200 } },
+  "http": { "request": { "method": "POST" }, "response": { "status_code": 201 } },
   "event": {
-    "duration": 1002486139,
+    "duration": 1331381674,
     "outcome": "success",
     "category": ["network"],
     "type": ["connection"],
@@ -77,7 +73,7 @@
     "provider": "xray.amazonaws.com",
     "module": "aws"
   },
-  "message": "X-Ray: cache-layer PUT → 200 (1.002s)",
+  "message": "X-Ray: dynamodb-client POST → 201 (1.331s)",
   "log": { "level": "info" },
   "service": { "name": "xray", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -85,8 +81,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "totczf3lowf"
+    "name": "filebeat-aws-il-central-1",
+    "ephemeral_id": "fr01xmhym1q"
   },
   "input": { "type": "http_endpoint" }
 }
