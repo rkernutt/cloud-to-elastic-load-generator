@@ -1,7 +1,7 @@
 /**
- * Scans repo-root `Cloud Icons/`, generates `src/cloud/generated/vendorFileIcons.ts`, and copies
+ * Scans `local/cloud-icons/` (or `CLOUD_ICONS_DIR`), generates `src/cloud/generated/vendorFileIcons.ts`, and copies
  * referenced GCP/Azure assets into `public/gcp-icons/` and `public/azure-icons/` (flat names, like `public/aws-icons/`).
- * Run: `npm run icons:vendor` (maintainers only — defaults are committed so clones work without this).
+ * `local/` is gitignored — only flattened outputs are committed. Run: `npm run icons:vendor` (maintainers only).
  */
 
 import fs from "node:fs";
@@ -10,14 +10,16 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, "..");
-const CLOUD_ICONS = path.join(REPO_ROOT, "Cloud Icons");
+const CLOUD_ICONS = process.env.CLOUD_ICONS_DIR
+  ? path.resolve(process.env.CLOUD_ICONS_DIR)
+  : path.join(REPO_ROOT, "local", "cloud-icons");
 const GCP_ICONS_ROOT = path.join(CLOUD_ICONS, "GCP icons");
 const AZURE_ICONS_ROOT = path.join(CLOUD_ICONS, "Azure_Public_Service_Icons");
 const OUT_FILE = path.join(REPO_ROOT, "src/cloud/generated/vendorFileIcons.ts");
 const MISSING_ICONS_REPORT = path.join(REPO_ROOT, "missing-vendor-icons.report.txt");
 
 /** Only used when `OUT_FILE` is missing (broken checkout); normal clones ship a real generated file. */
-const VENDOR_ICONS_EMPTY_TS = `/** Empty — add repo-root Cloud Icons/ and run npm run icons:vendor */
+const VENDOR_ICONS_EMPTY_TS = `/** Empty — add local/cloud-icons/ (see docs/development.md) and run npm run icons:vendor */
 export const GCP_VENDOR_SERVICE_ICONS: Record<string, string> = {};
 export const GCP_VENDOR_CATEGORY_ICONS: Record<string, string> = {};
 export const GCP_VENDOR_FALLBACK = "";
@@ -49,7 +51,13 @@ function relAzureIcons(p) {
  * @param {string} fallbackDeep
  * @returns {{ serviceMap: Record<string,string>; categoryMap: Record<string,string>; fallback: string }}
  */
-function flattenVendorIconsToPublic(sourceRoot, destDir, serviceMapDeep, categoryMapDeep, fallbackDeep) {
+function flattenVendorIconsToPublic(
+  sourceRoot,
+  destDir,
+  serviceMapDeep,
+  categoryMapDeep,
+  fallbackDeep
+) {
   fs.rmSync(destDir, { recursive: true, force: true });
   fs.mkdirSync(destDir, { recursive: true });
 
@@ -93,7 +101,10 @@ function folderNameToGcpServiceId(folderTitle) {
  * Fill gaps in `out` from each `Unique Icons/<title>/SVG/` folder (prefers a `*512-color*` svg).
  * Only adds keys present in `validIds` so product folders without a matching service id stay out of the map.
  */
-function mergeGcpUniqueIcons(/** @type {Record<string,string>} */ out, /** @type {ReadonlySet<string>} */ validIds) {
+function mergeGcpUniqueIcons(
+  /** @type {Record<string,string>} */ out,
+  /** @type {ReadonlySet<string>} */ validIds
+) {
   const uniqueRoot = path.join(GCP_ICONS_ROOT, "Unique Icons");
   if (!fs.existsSync(uniqueRoot)) return;
   for (const ent of fs.readdirSync(uniqueRoot, { withFileTypes: true })) {
@@ -103,9 +114,7 @@ function mergeGcpUniqueIcons(/** @type {Record<string,string>} */ out, /** @type
     const files = fs.readdirSync(svgDir).filter((f) => f.toLowerCase().endsWith(".svg"));
     if (files.length === 0) continue;
     const preferred =
-      files.find((f) => /512-color/i.test(f)) ??
-      files.find((f) => /-color/i.test(f)) ??
-      files[0];
+      files.find((f) => /512-color/i.test(f)) ?? files.find((f) => /-color/i.test(f)) ?? files[0];
     const full = path.join(svgDir, preferred);
     const serviceId = folderNameToGcpServiceId(ent.name);
     if (!validIds.has(serviceId) || out[serviceId]) continue;
@@ -122,7 +131,10 @@ const GCP_LOOSE_ROOT_ICONS = {
   "recaptcha-enterprise": "recaptcha.png",
 };
 
-function applyGcpLooseRootIcons(/** @type {Record<string,string>} */ out, /** @type {ReadonlySet<string>} */ validIds) {
+function applyGcpLooseRootIcons(
+  /** @type {Record<string,string>} */ out,
+  /** @type {ReadonlySet<string>} */ validIds
+) {
   for (const [serviceId, file] of Object.entries(GCP_LOOSE_ROOT_ICONS)) {
     if (!validIds.has(serviceId)) continue;
     const full = path.join(GCP_ICONS_ROOT, file);
@@ -134,7 +146,8 @@ function applyGcpLooseRootIcons(/** @type {Record<string,string>} */ out, /** @t
 function buildGcpServiceMap(/** @type {readonly string[]} */ validServiceIds) {
   const validSet = new Set(validServiceIds);
   const legacy = path.join(GCP_ICONS_ROOT, "google-cloud-legacy-icons");
-  if (!fs.existsSync(legacy)) return { map: /** @type {Record<string,string>} */ ({}), fallback: "" };
+  if (!fs.existsSync(legacy))
+    return { map: /** @type {Record<string,string>} */ ({}), fallback: "" };
 
   const dirs = fs.readdirSync(legacy, { withFileTypes: true }).filter((d) => d.isDirectory());
   /** @type {Record<string,string>} */
@@ -389,11 +402,14 @@ const AZURE_ICON_ALIASES = {
 
 function buildAzureServiceMap(allIds) {
   const files = listAzureSvgs();
-  const fallbackEntry = files.find((f) => f.stem.includes("subscriptions") && f.stem.includes("10002"));
+  const fallbackEntry = files.find(
+    (f) => f.stem.includes("subscriptions") && f.stem.includes("10002")
+  );
   const fallback =
     fallbackEntry?.rel ??
     files.find((f) => f.stem.includes("resource-groups"))?.rel ??
-    (files[0]?.rel ?? "");
+    files[0]?.rel ??
+    "";
 
   /** @type {Record<string,string>} */
   const out = {};
@@ -462,12 +478,14 @@ function extractServiceIds(tsPath) {
 function main() {
   if (!fs.existsSync(CLOUD_ICONS)) {
     console.warn(
-      "Cloud Icons/ not found — skipping vendor icon regeneration (using committed src/cloud/generated/vendorFileIcons.ts and public/{gcp,azure}-icons/)."
+      "local/cloud-icons/ not found (set CLOUD_ICONS_DIR to override) — skipping vendor icon regeneration (using committed src/cloud/generated/vendorFileIcons.ts and public/{gcp,azure}-icons/)."
     );
     if (!fs.existsSync(OUT_FILE)) {
       fs.mkdirSync(path.dirname(OUT_FILE), { recursive: true });
       fs.writeFileSync(OUT_FILE, VENDOR_ICONS_EMPTY_TS);
-      console.warn(`Wrote placeholder ${OUT_FILE} — run npm run icons:vendor with Cloud Icons/ for a full map.`);
+      console.warn(
+        `Wrote placeholder ${OUT_FILE} — run npm run icons:vendor with local/cloud-icons/ for a full map.`
+      );
     }
     return;
   }
@@ -498,8 +516,20 @@ function main() {
 
   const gcpPublic = path.join(REPO_ROOT, "public", "gcp-icons");
   const azurePublic = path.join(REPO_ROOT, "public", "azure-icons");
-  const gcpOut = flattenVendorIconsToPublic(GCP_ICONS_ROOT, gcpPublic, gcp.map, gcpCats, gcp.fallback);
-  const azureOut = flattenVendorIconsToPublic(AZURE_ICONS_ROOT, azurePublic, azure.map, azureCats, azure.fallback);
+  const gcpOut = flattenVendorIconsToPublic(
+    GCP_ICONS_ROOT,
+    gcpPublic,
+    gcp.map,
+    gcpCats,
+    gcp.fallback
+  );
+  const azureOut = flattenVendorIconsToPublic(
+    AZURE_ICONS_ROOT,
+    azurePublic,
+    azure.map,
+    azureCats,
+    azure.fallback
+  );
 
   const body = `/** Generated by scripts/build-vendor-icon-maps.mjs — flat filenames under \`/gcp-icons/\` and \`/azure-icons/\` (copied to \`public/\`, same pattern as \`/aws-icons/\`). */
 
@@ -522,7 +552,9 @@ export const AZURE_VENDOR_CATEGORY_ICONS: Record<string, string> = ${JSON.string
     `Flat icons: public/gcp-icons (${Object.keys(gcpOut.serviceMap).length} services), public/azure-icons (${Object.keys(azureOut.serviceMap).length} services)`
   );
   console.log(`Missing-icon report: ${MISSING_ICONS_REPORT}`);
-  console.log(`GCP missing dedicated icon: ${gcpMissingIcons.length}, Azure weak match: ${azure.fallbackIds.length}`);
+  console.log(
+    `GCP missing dedicated icon: ${gcpMissingIcons.length}, Azure weak match: ${azure.fallbackIds.length}`
+  );
 }
 
 main();

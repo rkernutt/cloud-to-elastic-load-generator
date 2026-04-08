@@ -1,4 +1,12 @@
-import { type EcsDocument, rand, randInt, randId, randIp, azureCloud, makeAzureSetup } from "./helpers.js";
+import {
+  type EcsDocument,
+  rand,
+  randInt,
+  randId,
+  randIp,
+  azureCloud,
+  makeAzureSetup,
+} from "./helpers.js";
 
 export function generateVirtualNetworkLog(ts: string, er: number): EcsDocument {
   const { region, subscription, resourceGroup, isErr } = makeAzureSetup(er);
@@ -11,7 +19,9 @@ export function generateVirtualNetworkLog(ts: string, er: number): EcsDocument {
         name: vnet,
         resource_group: resourceGroup,
         subnet: `snet-${rand(["app", "data", "edge"])}`,
-        operation: isErr ? "subnet-delete-failed" : rand(["subnet-create", "peering-update", "route-change"]),
+        operation: isErr
+          ? "subnet-delete-failed"
+          : rand(["subnet-create", "peering-update", "route-change"]),
       },
     },
     event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 3e9) },
@@ -35,9 +45,7 @@ export function generateLoadBalancerLog(ts: string, er: number): EcsDocument {
       },
     },
     event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 2e8) },
-    message: isErr
-      ? `LB ${lb}: probe failure on backend pool`
-      : `LB ${lb}: traffic distributed`,
+    message: isErr ? `LB ${lb}: probe failure on backend pool` : `LB ${lb}: traffic distributed`,
   };
 }
 

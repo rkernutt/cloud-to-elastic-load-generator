@@ -27,7 +27,9 @@ export function generateCloudBuildLog(ts: string, er: number): EcsDocument {
   const branch = rand(["main", "develop", "release/1.4", `feature/${randId(4).toLowerCase()}`]);
   const commitSha = hexSha8();
   const stepName = rand(["fetch", "docker_build", "run_tests", "push_images", "deploy_manifest"]);
-  const status = isErr ? rand(["FAILURE", "TIMEOUT", "QUEUED"]) : rand(["QUEUED", "WORKING", "SUCCESS"]);
+  const status = isErr
+    ? rand(["FAILURE", "TIMEOUT", "QUEUED"])
+    : rand(["QUEUED", "WORKING", "SUCCESS"]);
   const buildDurationSeconds = isErr ? randInt(30, 2400) : randInt(120, 3600);
   const imagesBuilt = isErr ? randInt(0, 1) : randInt(1, 6);
   const machineType = rand(["E2_MEDIUM", "E2_HIGHCPU_8", "N1_HIGHCPU_32"] as const);
@@ -102,7 +104,12 @@ export function generateSourceRepositoriesLog(ts: string, er: number): EcsDocume
   const { region, project, isErr } = makeGcpSetup(er);
   const repoName = `${rand(["api", "frontend", "terraform", "libs"])}-repo`;
   const eventType = rand(["PUSH", "PULL", "CREATE_BRANCH", "DELETE_BRANCH", "CREATE_TAG"] as const);
-  const refName = rand(["refs/heads/main", "refs/heads/develop", `refs/heads/feature/${randId(4)}`, `refs/tags/v${randInt(1, 9)}.${randInt(0, 20)}.${randInt(0, 9)}`]);
+  const refName = rand([
+    "refs/heads/main",
+    "refs/heads/develop",
+    `refs/heads/feature/${randId(4)}`,
+    `refs/tags/v${randInt(1, 9)}.${randInt(0, 20)}.${randInt(0, 9)}`,
+  ]);
   const authorEmail = rand([`dev@${project.id}.example.com`, `ci@${project.id}.example.com`]);
   const commitCount = randInt(1, isErr ? 1 : 25);
   const filesChanged = isErr ? 0 : randInt(1, 200);
@@ -224,8 +231,21 @@ export function generateApigeeLog(ts: string, er: number): EcsDocument {
   const responseCode = randHttpStatus(isErr);
   const latencyMs = randLatencyMs(randInt(20, 900), isErr);
   const developerApp = `app-${randId(6).toLowerCase()}`;
-  const policyName = rand(["SpikeArrest", "VerifyJWT", "JSONThreatProtection", "Quota", "AssignMessage"]);
-  const policyFault = isErr ? rand(["JWT expired", "Spike arrest violated", "JSONThreatProtection.BodyTooLarge", "Invalid client_id"]) : "";
+  const policyName = rand([
+    "SpikeArrest",
+    "VerifyJWT",
+    "JSONThreatProtection",
+    "Quota",
+    "AssignMessage",
+  ]);
+  const policyFault = isErr
+    ? rand([
+        "JWT expired",
+        "Spike arrest violated",
+        "JSONThreatProtection.BodyTooLarge",
+        "Invalid client_id",
+      ])
+    : "";
   const message = isErr
     ? `Apigee proxy ${apiProxy} r${revision} fault on ${policyName}: ${policyFault} (${responseCode}, ${latencyMs}ms)`
     : `Apigee ${verb} ${path} via ${apiProxy} (${environment}) ${responseCode} in ${latencyMs}ms [${developerApp}]`;

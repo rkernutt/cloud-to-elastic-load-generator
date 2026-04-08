@@ -17,7 +17,13 @@ export const GCP_TRACE_SERVICES = [
     icon: "▷",
     group: "Serverless",
   },
-  { id: "gke", label: "GKE", desc: "Kubernetes pod-to-pod service mesh", icon: "☸", group: "Containers" },
+  {
+    id: "gke",
+    label: "GKE",
+    desc: "Kubernetes pod-to-pod service mesh",
+    icon: "☸",
+    group: "Containers",
+  },
   {
     id: "app-engine",
     label: "App Engine",

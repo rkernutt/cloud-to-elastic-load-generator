@@ -106,10 +106,18 @@ export function generateComposerLog(ts: string, er: number): EcsDocument {
   const environmentName = rand(["composer-prod", "composer-data", "composer-dev"]);
   const dagId = rand(["daily_etl", "hourly_sync", "ml_feature_refresh"]);
   const taskId = rand(["extract", "transform_load", "validate", "notify_slack"]);
-  const executionDate = new Date(Date.now() - randInt(0, 86400_000)).toISOString().slice(0, 19).replace("T", " ");
+  const executionDate = new Date(Date.now() - randInt(0, 86400_000))
+    .toISOString()
+    .slice(0, 19)
+    .replace("T", " ");
   const state = isErr ? "failed" : rand(["running", "success", "up_for_retry"]);
   const tryNumber = isErr ? randInt(2, 5) : randInt(1, 2);
-  const operator = rand(["BashOperator", "PythonOperator", "BigQueryInsertJobOperator", "KubernetesPodOperator"]);
+  const operator = rand([
+    "BashOperator",
+    "PythonOperator",
+    "BigQueryInsertJobOperator",
+    "KubernetesPodOperator",
+  ]);
   const durationSeconds = isErr ? randInt(5, 120) : randInt(30, 3600);
   const durationNs = durationSeconds * 1e9;
   return {
@@ -328,7 +336,9 @@ export function generateDataprepLog(ts: string, er: number): EcsDocument {
   const jobId = `wrangle-${randId(8)}`;
   const recipeSteps = randInt(5, 40);
   const inputRows = isErr ? randInt(1000, 50_000) : randInt(100_000, 20_000_000);
-  const outputRows = isErr ? randInt(0, Math.min(500, inputRows)) : Math.round(inputRows * randFloat(0.95, 1.0));
+  const outputRows = isErr
+    ? randInt(0, Math.min(500, inputRows))
+    : Math.round(inputRows * randFloat(0.95, 1.0));
   const status = isErr ? "Failed" : rand(["Completed", "Running", "Completed"]);
   const dataSource = rand(["BigQuery", "GCS", "Datastore"]);
   const profileColumnsCount = isErr ? randInt(0, 3) : randInt(8, 200);

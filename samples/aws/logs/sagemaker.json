@@ -1,129 +1,79 @@
 {
-  "@timestamp": "2026-04-07T15:26:36.815Z",
+  "@timestamp": "2026-04-08T12:27:26.854Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": {
-      "id": "293847561023",
-      "name": "globex-staging"
-    },
-    "service": {
-      "name": "sagemaker"
-    }
+    "region": "eu-west-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
+    "service": { "name": "sagemaker" }
   },
   "aws": {
-    "dimensions": {
-      "TrainingJobName": "bert-finetuned-pipeline-8nytyo",
-      "JobType": "Pipeline"
-    },
+    "dimensions": { "TrainingJobName": "llama-finetuned-training-ey03k2", "JobType": "Training" },
     "sagemaker": {
-      "domain_id": "d-tepsgrpuye",
-      "domain_name": "cv-team",
+      "domain_id": "d-lf0yfix6rw",
+      "domain_name": "ds-platform",
       "user_profile": "alice-ds",
       "job": {
-        "name": "bert-finetuned-pipeline-8nytyo",
-        "type": "Pipeline",
-        "arn": "arn:aws:sagemaker:ap-southeast-1:293847561023:training-job/bert-finetuned-pipeline-8nytyo"
+        "name": "llama-finetuned-training-ey03k2",
+        "type": "Training",
+        "arn": "arn:aws:sagemaker:eu-west-1:814726593401:training-job/llama-finetuned-training-ey03k2"
       },
-      "model": {
-        "name": "bert-finetuned",
-        "version": 10
-      },
-      "pipeline": {
-        "name": "feature-engineering-pipeline",
-        "execution_id": "pipe-2ozfdtcaftf"
-      },
-      "instance": {
-        "type": "ml.g4dn.xlarge",
-        "count": 4
-      },
+      "model": { "name": "llama-finetuned", "version": 25 },
+      "pipeline": { "name": "feature-engineering-pipeline", "execution_id": "pipe-t6y7auh378" },
+      "instance": { "type": "ml.m5.xlarge", "count": 1 },
       "metrics": {
-        "gpu_utilization_pct": 20,
-        "cpu_utilization_pct": 34
+        "training_loss": 0.2878,
+        "accuracy": 0.8365,
+        "epoch": 41,
+        "gpu_utilization_pct": 71,
+        "cpu_utilization_pct": 60
       },
-      "studio": {
-        "lifecycle_config": false,
-        "continuous_logging": false
-      },
+      "studio": { "lifecycle_config": false, "continuous_logging": false },
       "cloudwatch_metrics": {
-        "Invocations": {
-          "sum": 3967
-        },
-        "ModelLatency": {
-          "avg": 197
-        },
-        "GPUUtilization": {
-          "avg": 70
-        },
-        "CPUUtilization": {
-          "avg": 63
-        },
-        "DiskUtilization": {
-          "avg": 10
-        },
-        "MemoryUtilization": {
-          "avg": 51
-        },
-        "Invocations4XXError": {
-          "sum": 0
-        },
-        "Invocations5XXError": {
-          "sum": 0
-        }
+        "Invocations": { "sum": 178 },
+        "ModelLatency": { "avg": 59 },
+        "GPUUtilization": { "avg": 46 },
+        "CPUUtilization": { "avg": 52 },
+        "DiskUtilization": { "avg": 26 },
+        "MemoryUtilization": { "avg": 55 },
+        "Invocations4XXError": { "sum": 0 },
+        "Invocations5XXError": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sagemaker-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-sagemaker-logs-293847561023"
+        "name": "aws-sagemaker-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-sagemaker-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/sagemaker/ap-southeast-1/2026/04/07/sagemaker_DUJ76DSK7IL.log.gz"
+        "key": "AWSLogs/814726593401/sagemaker/eu-west-1/2026/04/08/sagemaker_XM6PUO7H8W.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/sagemaker/logs",
-      "log_stream": "ap-southeast-1/qb0thkkr",
-      "ingestion_time": "2026-04-07T15:26:37.139Z"
+      "log_stream": "eu-west-1/e4rmq5sp",
+      "ingestion_time": "2026-04-08T12:27:27.378Z"
     }
   },
-  "log": {
-    "level": "info"
-  },
-  "user": {
-    "name": "alice-ds"
-  },
+  "log": { "level": "info" },
+  "user": { "name": "alice-ds" },
   "event": {
-    "action": "ModelRegistered",
-    "duration": 3136663480059.921,
+    "action": "EndpointInService",
+    "duration": 7797942503042.383,
     "outcome": "success",
-    "category": [
-      "process"
-    ],
+    "category": ["process"],
     "dataset": "aws.sagemaker",
     "provider": "sagemaker.amazonaws.com",
     "module": "aws"
   },
-  "message": "Pipeline execution completed successfully",
-  "service": {
-    "name": "sagemaker",
-    "type": "aws"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
-  "data_stream": {
-    "type": "logs",
-    "dataset": "aws.sagemaker",
-    "namespace": "default"
-  },
+  "message": "Training job started",
+  "service": { "name": "sagemaker", "type": "aws" },
+  "ecs": { "version": "8.11.0" },
+  "data_stream": { "type": "logs", "dataset": "aws.sagemaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "56u5xx63czo"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "oubc05y669r"
   },
-  "input": {
-    "type": "aws-cloudwatch"
-  }
+  "input": { "type": "aws-cloudwatch" }
 }

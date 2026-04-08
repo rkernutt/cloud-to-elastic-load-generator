@@ -82,7 +82,13 @@ import {
   generateOsLoginLog,
   generateSecurityOperationsLog,
 } from "./security.js";
-import { generateCloudStorageLog, generatePersistentDiskLog, generateFilestoreLog, generateStorageTransferLog, generateBackupDrLog } from "./storage.js";
+import {
+  generateCloudStorageLog,
+  generatePersistentDiskLog,
+  generateFilestoreLog,
+  generateStorageTransferLog,
+  generateBackupDrLog,
+} from "./storage.js";
 import {
   generateCloudSqlLog,
   generateCloudSpannerLog,
@@ -96,7 +102,17 @@ import {
 } from "./databases.js";
 import { generateBigQueryLog } from "./datawarehouse.js";
 import { generatePubSubLog, generateDataflowLog, generatePubSubLiteLog } from "./streaming.js";
-import { generateDataprocLog, generateDataFusionLog, generateComposerLog, generateLookerLog, generateDataplexLog, generateDataCatalogLog, generateAnalyticsHubLog, generateDataprepLog, generateDatastreamLog } from "./analytics.js";
+import {
+  generateDataprocLog,
+  generateDataFusionLog,
+  generateComposerLog,
+  generateLookerLog,
+  generateDataplexLog,
+  generateDataCatalogLog,
+  generateAnalyticsHubLog,
+  generateDataprepLog,
+  generateDatastreamLog,
+} from "./analytics.js";
 import {
   generateVertexAiLog,
   generateGeminiLog,
@@ -148,10 +164,22 @@ import {
   generateTagsLog,
   generateCarbonFootprintLog,
 } from "./management.js";
-import { generateIntegrationConnectorsLog, generateApplicationIntegrationLog, generateApiHubLog } from "./integration.js";
-import { generateCloudTraceLog, generateCloudProfilerLog, generateErrorReportingLog } from "./operations.js";
+import {
+  generateIntegrationConnectorsLog,
+  generateApplicationIntegrationLog,
+  generateApiHubLog,
+} from "./integration.js";
+import {
+  generateCloudTraceLog,
+  generateCloudProfilerLog,
+  generateErrorReportingLog,
+} from "./operations.js";
 import { generateIotCoreLog } from "./iot.js";
-import { generateTranscoderLog, generateLiveStreamLog, generateVideoIntelligenceLog } from "./media.js";
+import {
+  generateTranscoderLog,
+  generateLiveStreamLog,
+  generateVideoIntelligenceLog,
+} from "./media.js";
 import { mergeGcpLogVariants } from "./mergeHelpers.js";
 
 const GCP_GENERATORS: Record<string, (ts: string, er: number) => Record<string, unknown>> = {

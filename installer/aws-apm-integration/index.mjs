@@ -6,7 +6,7 @@
  * creating the APM data streams required to receive OpenTelemetry trace data.
  *
  * Run with:  node installer/aws-apm-integration/index.mjs
- *            or: npm run setup:apm-integration
+ *            or: npm run setup:aws-apm-integration
  *
  * No external dependencies — uses Node.js built-ins only (Node 18+).
  */

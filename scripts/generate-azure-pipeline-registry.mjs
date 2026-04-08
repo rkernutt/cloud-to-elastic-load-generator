@@ -13,7 +13,9 @@ const outDir = path.join(root, "installer/azure-custom-pipelines/pipelines");
 const outPath = path.join(outDir, "registry.mjs");
 mkdirSync(outDir, { recursive: true });
 
-const { AZURE_ELASTIC_DATASET_MAP } = await import(path.join(root, "src/azure/data/elasticMaps.ts"));
+const { AZURE_ELASTIC_DATASET_MAP } = await import(
+  path.join(root, "src/azure/data/elasticMaps.ts")
+);
 const { AZURE_SERVICE_GROUPS } = await import(path.join(root, "src/azure/data/serviceGroups.ts"));
 
 const sidToGroup = {};

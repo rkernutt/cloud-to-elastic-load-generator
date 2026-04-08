@@ -1118,16 +1118,16 @@ The ADOT Lambda layer on each invoked Lambda will pick up the X-Ray trace contex
 
 ## Related documentation
 
-| Doc                                                                                                | Description                             |
-| -------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| [Elastic EDOT Java](https://www.elastic.co/docs/reference/opentelemetry/edot-java)                 | Full EDOT Java agent reference          |
-| [Elastic EDOT Lambda layers](https://www.elastic.co/docs/reference/opentelemetry/edot-lambda)      | Layer ARNs for all regions and runtimes |
-| [AWS ADOT Lambda layers](https://aws-otel.github.io/docs/getting-started/lambda)                   | AWS-managed OTel Lambda layers          |
-| [EDOT Kubernetes Operator](https://www.elastic.co/docs/reference/opentelemetry/edot-collector/k8s) | Auto-inject OTel agents into pods       |
-| [OTel AWS SDK instrumentation](https://opentelemetry.io/docs/zero-code/js/aws-sdk/)                | Auto-instrument AWS SDK calls           |
-| [OTel GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/)             | GenAI span attribute reference          |
-| [OTel Semantic Conventions — FaaS](https://opentelemetry.io/docs/specs/semconv/faas/faas-spans/)   | Lambda span attribute reference         |
-| [OTel Semantic Conventions — Spark](https://opentelemetry.io/docs/specs/semconv/database/spark/)   | Spark span attribute reference          |
-| [OTel Semantic Conventions — DB](https://opentelemetry.io/docs/specs/semconv/database/)            | Database span attribute reference       |
-| [OTel Semantic Conventions — Messaging](https://opentelemetry.io/docs/specs/semconv/messaging/)    | SQS/Kinesis span attribute reference    |
+| Doc                                                                                                | Description                              |
+| -------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| [Elastic EDOT Java](https://www.elastic.co/docs/reference/opentelemetry/edot-java)                 | Full EDOT Java agent reference           |
+| [Elastic EDOT Lambda layers](https://www.elastic.co/docs/reference/opentelemetry/edot-lambda)      | Layer ARNs for all regions and runtimes  |
+| [AWS ADOT Lambda layers](https://aws-otel.github.io/docs/getting-started/lambda)                   | AWS-managed OTel Lambda layers           |
+| [EDOT Kubernetes Operator](https://www.elastic.co/docs/reference/opentelemetry/edot-collector/k8s) | Auto-inject OTel agents into pods        |
+| [OTel AWS SDK instrumentation](https://opentelemetry.io/docs/zero-code/js/aws-sdk/)                | Auto-instrument AWS SDK calls            |
+| [OTel GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/)             | GenAI span attribute reference           |
+| [OTel Semantic Conventions — FaaS](https://opentelemetry.io/docs/specs/semconv/faas/faas-spans/)   | Lambda span attribute reference          |
+| [OTel Semantic Conventions — Spark](https://opentelemetry.io/docs/specs/semconv/database/spark/)   | Spark span attribute reference           |
+| [OTel Semantic Conventions — DB](https://opentelemetry.io/docs/specs/semconv/database/)            | Database span attribute reference        |
+| [OTel Semantic Conventions — Messaging](https://opentelemetry.io/docs/specs/semconv/messaging/)    | SQS/Kinesis span attribute reference     |
 | [README.md](../README.md)                                                                          | Cloud to Elastic Load Generator overview |

@@ -25,7 +25,9 @@ export function generateCloudMonitoringLog(ts: string, er: number): EcsDocument 
     "kubernetes.io/container/cpu/core_usage_time",
   ] as const);
   const thresholdValue = randFloat(0.6, 0.95);
-  const currentValue = isErr ? randFloat(thresholdValue, thresholdValue + 0.25) : randFloat(0.1, thresholdValue - 0.05);
+  const currentValue = isErr
+    ? randFloat(thresholdValue, thresholdValue + 0.25)
+    : randFloat(0.1, thresholdValue - 0.05);
   const state = isErr ? rand(["FIRING", "NO_DATA"]) : rand(["OK", "FIRING"]);
   const notificationChannelType = rand(["email", "pagerduty", "slack", "pubsub"] as const);
   const policyKind = rand(["high-cpu", "error-rate", "disk", "latency"] as const);
@@ -98,7 +100,10 @@ export function generateResourceManagerLog(ts: string, er: number): EcsDocument 
   const { region, project, isErr } = makeGcpSetup(er);
   const resourceType = rand(["project", "folder", "organization"] as const);
   const action = rand(["CREATE", "DELETE", "MOVE", "SET_IAM_POLICY"] as const);
-  const resourceName = resourceType === "project" ? `projects/${project.id}` : `folders/${randInt(100000000000, 999999999999)}`;
+  const resourceName =
+    resourceType === "project"
+      ? `projects/${project.id}`
+      : `folders/${randInt(100000000000, 999999999999)}`;
   const parent = `organizations/${randInt(100000000000, 999999999999)}`;
   const actor = randPrincipal(project);
   const message = isErr
@@ -215,7 +220,11 @@ export function generateOrgPolicyLog(ts: string, er: number): EcsDocument {
   const policyType = rand(["boolean", "list"] as const);
   const enforcement = isErr ? rand(["DRY_RUN", "OFF"]) : rand(["ON", "ENFORCED"]);
   const resource = `projects/${project.id}`;
-  const inheritedFrom = rand([`folders/${randInt(100000000000, 999999999999)}`, "organization policy root", ""]);
+  const inheritedFrom = rand([
+    `folders/${randInt(100000000000, 999999999999)}`,
+    "organization policy root",
+    "",
+  ]);
   const message = isErr
     ? `Org policy update rejected for ${constraintName} on ${resource}: ${rand(["Invalid constraint value", "Not authorized", "Conflicting policy"])}`
     : `Org policy ${constraintName} (${policyType}) set to ${enforcement} on ${resource}${inheritedFrom ? `, inherited_from=${inheritedFrom}` : ""}`;
@@ -242,7 +251,13 @@ export function generateOrgPolicyLog(ts: string, er: number): EcsDocument {
 
 export function generateAccessTransparencyLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const product = rand(["BigQuery", "Compute Engine", "Cloud Storage", "Cloud KMS", "Cloud SQL"] as const);
+  const product = rand([
+    "BigQuery",
+    "Compute Engine",
+    "Cloud Storage",
+    "Cloud KMS",
+    "Cloud SQL",
+  ] as const);
   const accessReason = rand([
     "CUSTOMER_INITIATED_SUPPORT",
     "GOOGLE_INITIATED_REVIEW",
@@ -319,8 +334,19 @@ export function generateRecommenderLog(ts: string, er: number): EcsDocument {
 export function generateBillingLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const billingAccountId = `01${randId(6)}-${randId(4)}-${randId(4)}`;
-  const serviceDescription = rand(["Compute Engine", "Cloud Storage", "BigQuery", "Cloud SQL", "Kubernetes Engine"]);
-  const skuDescription = rand(["N1 Preemptible Instance Core", "Standard Storage US Multi-region", "Analysis TB", "vCPU Time"]);
+  const serviceDescription = rand([
+    "Compute Engine",
+    "Cloud Storage",
+    "BigQuery",
+    "Cloud SQL",
+    "Kubernetes Engine",
+  ]);
+  const skuDescription = rand([
+    "N1 Preemptible Instance Core",
+    "Standard Storage US Multi-region",
+    "Analysis TB",
+    "vCPU Time",
+  ]);
   const costAmount = isErr ? 0 : randFloat(0.02, 12_500);
   const currency = "USD";
   const usageAmount = randFloat(0.5, 500_000);
@@ -394,11 +420,19 @@ export function generateServiceDirectoryLog(ts: string, er: number): EcsDocument
 
 export function generateConfigConnectorLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const resourceKind = rand(["ComputeInstance", "SQLInstance", "StorageBucket", "IAMServiceAccount", "PubSubTopic"] as const);
+  const resourceKind = rand([
+    "ComputeInstance",
+    "SQLInstance",
+    "StorageBucket",
+    "IAMServiceAccount",
+    "PubSubTopic",
+  ] as const);
   const resourceName = `${resourceKind.toLowerCase()}-${randId(6).toLowerCase()}`;
   const action = rand(["CREATE", "UPDATE", "DELETE", "RECONCILE"] as const);
   const namespace = rand(["config-connector-system", "workloads", "platform"]);
-  const status = isErr ? rand(["ERROR", "PENDING"] as const) : rand(["READY", "IN_PROGRESS", "SYNCED"] as const);
+  const status = isErr
+    ? rand(["ERROR", "PENDING"] as const)
+    : rand(["READY", "IN_PROGRESS", "SYNCED"] as const);
   const reconcileDurationMs = randLatencyMs(randInt(50, 2000), isErr);
   const message = isErr
     ? `Config Connector ${action} ${resourceKind}/${resourceName} in ${namespace} failed (${status})`
@@ -427,7 +461,12 @@ export function generateConfigConnectorLog(ts: string, er: number): EcsDocument 
 
 export function generateCloudAuditLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const serviceName = rand(["compute.googleapis.com", "storage.googleapis.com", "iam.googleapis.com", "bigquery.googleapis.com"]);
+  const serviceName = rand([
+    "compute.googleapis.com",
+    "storage.googleapis.com",
+    "iam.googleapis.com",
+    "bigquery.googleapis.com",
+  ]);
   const methodName = rand(["v1.instances.insert", "objects.get", "SetIamPolicy", "jobs.insert"]);
   const resourceName = rand([
     `projects/${project.id}/zones/${region}-a/instances/vm-${randId(4)}`,
@@ -480,7 +519,9 @@ export function generateActiveAssistLog(ts: string, er: number): EcsDocument {
   const resource = `projects/${project.id}/zones/${region}-a/instances/${randId(6)}`;
   const impactCategory = rand(["COST", "LATENCY", "CARBON", "RELIABILITY"] as const);
   const estimatedSavingsMonthlyUsd = isErr ? 0 : randFloat(5, 2500);
-  const state = isErr ? rand(["ACTIVE", "CLAIMED"] as const) : rand(["ACTIVE", "CLAIMED", "SUCCEEDED"] as const);
+  const state = isErr
+    ? rand(["ACTIVE", "CLAIMED"] as const)
+    : rand(["ACTIVE", "CLAIMED", "SUCCEEDED"] as const);
   const message = isErr
     ? `Active Assist ${recommender} insight failed for ${resource}`
     : `Active Assist ${recommendationType} on ${resource}: ~$${estimatedSavingsMonthlyUsd.toFixed(0)}/mo (${impactCategory}, ${state})`;
@@ -508,10 +549,21 @@ export function generateActiveAssistLog(ts: string, er: number): EcsDocument {
 
 export function generateEssentialContactsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const contactEmail = rand([`security@${project.id.split("-")[0]}.example.com`, `billing-admin@${project.id}.example.com`]);
-  const notificationCategory = rand(["TECHNICAL", "SECURITY", "BILLING", "LEGAL", "PRODUCT_UPDATES"] as const);
+  const contactEmail = rand([
+    `security@${project.id.split("-")[0]}.example.com`,
+    `billing-admin@${project.id}.example.com`,
+  ]);
+  const notificationCategory = rand([
+    "TECHNICAL",
+    "SECURITY",
+    "BILLING",
+    "LEGAL",
+    "PRODUCT_UPDATES",
+  ] as const);
   const resource = `projects/${project.id}`;
-  const action = isErr ? rand(["BOUNCE", "SEND"] as const) : rand(["SEND", "BOUNCE", "SUBSCRIBE", "UNSUBSCRIBE"] as const);
+  const action = isErr
+    ? rand(["BOUNCE", "SEND"] as const)
+    : rand(["SEND", "BOUNCE", "SUBSCRIBE", "UNSUBSCRIBE"] as const);
   const message = isErr
     ? `Essential Contacts ${action} failed for ${contactEmail} (${notificationCategory})`
     : `Essential Contacts ${action}: ${notificationCategory} -> ${contactEmail} (${resource})`;

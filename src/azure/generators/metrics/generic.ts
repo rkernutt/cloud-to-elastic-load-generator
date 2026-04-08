@@ -116,10 +116,10 @@ const AZURE_METRIC_TEMPLATES: Record<string, TemplatePart[]> = {
 const AZURE_TEMPLATE_MAP: Record<string, string> = {
   "virtual-machines": "compute",
   "vm-scale-sets": "compute",
-  "aks": "kubernetes",
+  aks: "kubernetes",
   "container-apps": "kubernetes",
   "app-service": "compute",
-  "functions": "compute",
+  functions: "compute",
   "load-balancer": "networking",
   "application-gateway": "networking",
   "virtual-network": "networking",
@@ -135,18 +135,21 @@ const AZURE_TEMPLATE_MAP: Record<string, string> = {
   "service-bus": "messaging",
   "data-factory": "default",
   "synapse-workspace": "default",
-  "monitor": "observability",
+  monitor: "observability",
   "key-vault": "security",
-  "openai": "ml",
+  openai: "ml",
   "machine-learning": "ml",
   "stream-analytics": "default",
-  "acr": "default",
+  acr: "default",
   "defender-for-cloud": "security",
   "storage-sync": "storage",
-  "databricks": "default",
+  databricks: "default",
 };
 
-export function makeAzureGenericMetricGenerator(serviceId: string, dataset: string): MetricGenerator {
+export function makeAzureGenericMetricGenerator(
+  serviceId: string,
+  dataset: string
+): MetricGenerator {
   const templateKey = AZURE_TEMPLATE_MAP[serviceId] ?? "default";
   const template = AZURE_METRIC_TEMPLATES[templateKey] ?? AZURE_METRIC_TEMPLATES.default;
   const dimEntry = template.find((t): t is { dim: string; vals: string[] } => "dim" in t);

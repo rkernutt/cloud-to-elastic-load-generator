@@ -32,7 +32,7 @@ export const GCP_CONFIG: CloudAppConfig = {
   id: "gcp",
   htmlTitle: "GCP → Elastic Load Generator",
   branding: {
-    headerLogoSrc: publicUrl("gcp-logo-header.svg"),
+    headerLogoSrc: publicUrl("icons/gcp-vendor.svg"),
     headerLogoAlt: "Google Cloud",
   },
   lsKey: "gcpElasticConfig",
@@ -54,7 +54,8 @@ export const GCP_CONFIG: CloudAppConfig = {
   ],
   traceServices: GCP_TRACE_SERVICES as TraceServiceMeta[],
   loadLogGenerators: () => import("../gcp/generators").then((m) => m.GCP_GENERATORS),
-  loadMetricsGenerators: () => import("../gcp/generators/metrics").then((m) => m.GCP_METRICS_GENERATORS),
+  loadMetricsGenerators: () =>
+    import("../gcp/generators/metrics").then((m) => m.GCP_METRICS_GENERATORS),
   loadTraceGenerators: () => import("../gcp/generators/traces").then((m) => m.GCP_TRACE_GENERATORS),
   enrichContext: {
     kind: "gcp-azure",
@@ -63,7 +64,10 @@ export const GCP_CONFIG: CloudAppConfig = {
       elasticDatasetMap: GCP_ELASTIC_DATASET_MAP as Record<string, string>,
       elasticMetricsDatasetMap: GCP_METRICS_DATASET_MAP,
       serviceIngestionDefaults: GCP_SERVICE_INGESTION_DEFAULTS,
-      ingestionMeta: GCP_INGESTION_META as Record<string, { label: string; color: string; inputType?: string }>,
+      ingestionMeta: GCP_INGESTION_META as Record<
+        string,
+        { label: string; color: string; inputType?: string }
+      >,
       regions: GCP_REGIONS,
       defaultIngestion: "cloud-logging",
     },

@@ -74,10 +74,7 @@ const METRIC_MERGE_VARIANTS: Record<string, string[]> = {
 };
 
 const BASE: Record<string, MetricGenerator> = Object.fromEntries(
-  [...GCP_METRICS_SUPPORTED_SERVICE_IDS].sort().map((id) => [
-    id,
-    metricGenForId(id),
-  ])
+  [...GCP_METRICS_SUPPORTED_SERVICE_IDS].sort().map((id) => [id, metricGenForId(id)])
 );
 
 export const GCP_METRICS_GENERATORS: Record<string, MetricGenerator> = { ...BASE };

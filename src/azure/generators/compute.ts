@@ -8,12 +8,19 @@ import {
   randCorrelationId,
 } from "./helpers.js";
 
-const VM_SIZES = ["Standard_D2s_v5", "Standard_E4s_v5", "Standard_B2ms", "Standard_F4s_v2"] as const;
+const VM_SIZES = [
+  "Standard_D2s_v5",
+  "Standard_E4s_v5",
+  "Standard_B2ms",
+  "Standard_F4s_v2",
+] as const;
 
 export function generateVirtualMachinesLog(ts: string, er: number): EcsDocument {
   const { region, subscription, resourceGroup, isErr } = makeAzureSetup(er);
   const vmName = `vm-${rand(["web", "app", "db", "batch"])}-${randId(4).toLowerCase()}`;
-  const op = isErr ? rand(["PowerOff", "Deallocate", "Restart"]) : rand(["Start", "Create", "Redeploy"]);
+  const op = isErr
+    ? rand(["PowerOff", "Deallocate", "Restart"])
+    : rand(["Start", "Create", "Redeploy"]);
   const status = isErr ? rand(["PowerState/unknown", "VMExtensionProvisioningError"]) : "Succeeded";
   return {
     "@timestamp": ts,
@@ -52,9 +59,7 @@ export function generateVmScaleSetsLog(ts: string, er: number): EcsDocument {
       },
     },
     event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 8e9) },
-    message: isErr
-      ? `VMSS ${name}: rolling upgrade failed`
-      : `VMSS ${name}: ${op} applied`,
+    message: isErr ? `VMSS ${name}: rolling upgrade failed` : `VMSS ${name}: ${op} applied`,
   };
 }
 
@@ -74,7 +79,10 @@ export function generateBatchLog(ts: string, er: number): EcsDocument {
         exit_code: isErr ? randInt(-1, 255) : 0,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e9, isErr ? 7.2e12 : 3.6e11) },
+    event: {
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e9, isErr ? 7.2e12 : 3.6e11),
+    },
     message: isErr
       ? `Batch task ${task} on pool ${pool} failed`
       : `Batch task ${task} completed on ${pool}`,

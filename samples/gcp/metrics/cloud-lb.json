@@ -1,89 +1,49 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "ecs": {
-    "version": "8.11.0"
-  },
+  "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "me-west1",
-    "project": {
-      "id": "globex-staging-d4e5f6",
-      "name": "Globex Staging"
-    },
-    "account": {
-      "id": "271828182845",
-      "name": "Globex Staging"
-    }
+    "region": "me-central1",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-me-west1",
-    "ephemeral_id": "cctmk9b4074"
+    "name": "metricbeat-gcp-me-central1",
+    "ephemeral_id": "x8dh80rsfqf"
   },
   "gcp": {
-    "serverless-neg": {
+    "cloud-lb": {
       "metrics": {
-        "request_count": {
-          "avg": 87369,
-          "sum": 87369,
-          "count": 1
-        },
-        "error_count": {
-          "avg": 0,
-          "sum": 0,
-          "count": 1
-        },
-        "latency": {
-          "avg": 95.87,
-          "sum": 95.87,
-          "count": 1
-        }
+        "request_count": { "avg": 1704248, "sum": 1704248, "count": 1 },
+        "total_latencies": { "avg": 319.99, "sum": 319.99, "count": 1 },
+        "backend_latencies": { "avg": 556.43, "sum": 556.43, "count": 1 }
       },
-      "labels": {
-        "resource_id": "resource-a"
-      }
+      "labels": { "url_map": "api-map", "backend_service": "api-bs" }
     }
   },
-  "metricset": {
-    "name": "serverless-neg",
-    "period": 60000
-  },
+  "metricset": { "name": "cloud-lb", "period": 60000 },
   "data_stream": {
     "type": "metrics",
-    "dataset": "gcp.serverless_neg",
+    "dataset": "gcp.loadbalancing_metrics",
     "namespace": "default"
   },
-  "input": {
-    "type": "gcp-monitoring"
-  },
-  "event": {
-    "dataset": "gcp.serverless_neg",
-    "module": "gcp"
-  },
+  "input": { "type": "gcp-monitoring" },
+  "event": { "dataset": "gcp.loadbalancing_metrics", "module": "gcp" },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/serverless-neg/request_count",
+      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-lb/request_count",
       "labels": {}
     },
     "resource": {
       "type": "global",
-      "labels": {
-        "project_id": "globex-staging-d4e5f6",
-        "region": "me-west1"
-      }
+      "labels": { "project_id": "globex-prod-a1b2c3", "region": "me-central1" }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      {
-        "interval": {
-          "endTime": "2026-04-04T12:00:00.000Z"
-        },
-        "value": {
-          "doubleValue": 87369
-        }
-      }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 1704248 } }
     ]
   }
 }

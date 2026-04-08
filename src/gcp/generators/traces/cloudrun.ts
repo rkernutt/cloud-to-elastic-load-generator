@@ -83,7 +83,10 @@ export function generateCloudRunTrace(ts: string, er: number): EcsDocument[] {
       name: `Redis ${rand(["GET", "SET", "HGET", "ZADD"])}`,
       duration: { us: redisUs },
       action: "query",
-      db: { type: "redis", statement: rand(["GET cart:session", "SET rate:limit", "HGETALL session"]) },
+      db: {
+        type: "redis",
+        statement: rand(["GET cart:session", "SET rate:limit", "HGETALL session"]),
+      },
       destination: { service: { resource: "memorystore", type: "db", name: "redis" } },
     },
     service: {

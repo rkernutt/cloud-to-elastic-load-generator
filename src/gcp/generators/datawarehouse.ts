@@ -22,7 +22,9 @@ export function generateBigQueryLog(ts: string, er: number): EcsDocument {
   const dataset = randBigQueryDataset();
   const table = randBigQueryTable();
   const statementType = rand(["SELECT", "INSERT", "CREATE_TABLE", "MERGE"] as const);
-  const totalBytesProcessed = isErr ? randInt(0, 1_000_000) : randInt(50_000_000, 50_000_000_000_000);
+  const totalBytesProcessed = isErr
+    ? randInt(0, 1_000_000)
+    : randInt(50_000_000, 50_000_000_000_000);
   const totalSlotMs = isErr ? randInt(0, 5000) : randInt(50_000, 900_000_000);
   const billingTier = rand(["STANDARD", "ENTERPRISE_PLUS"] as const);
   const cacheHit = !isErr && Math.random() > 0.55;

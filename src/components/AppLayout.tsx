@@ -19,8 +19,8 @@ interface AppLayoutProps {
   branding: { headerLogoSrc: string; headerLogoAlt: string };
   /** When set (multi-cloud UI), replaces the default “Load Generator” title */
   headerAppTitle?: string;
-  /** Active hyperscaler badge next to the title */
-  headerVendorBadge?: { logoSrc: string; logoAlt: string; label: string };
+  /** Active hyperscaler mark next to the title (icon only; text label optional for badges) */
+  headerVendorBadge?: { logoSrc: string; logoAlt: string; label?: string };
   /** Default `/elastic-logo.svg`; optional neutral wordmark for dark header */
   headerWordmarkSrc?: string;
   activePage: string;
@@ -189,16 +189,19 @@ export function AppLayout({
                             src={headerVendorBadge.logoSrc}
                             alt={headerVendorBadge.logoAlt}
                             style={{
-                              height: 22,
+                              height: 28,
                               width: "auto",
+                              maxWidth: 120,
                               display: "block",
                               objectFit: "contain",
                             }}
                           />
                         </EuiFlexItem>
-                        <EuiFlexItem grow={false}>
-                          <EuiBadge color="hollow">{headerVendorBadge.label}</EuiBadge>
-                        </EuiFlexItem>
+                        {headerVendorBadge.label != null && headerVendorBadge.label !== "" && (
+                          <EuiFlexItem grow={false}>
+                            <EuiBadge color="hollow">{headerVendorBadge.label}</EuiBadge>
+                          </EuiFlexItem>
+                        )}
                       </EuiFlexGroup>
                     </EuiFlexItem>
                   )}

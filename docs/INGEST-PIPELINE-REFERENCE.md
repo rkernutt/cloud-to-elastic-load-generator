@@ -4,7 +4,7 @@ This document lists pipeline IDs, target fields, index patterns, and example par
 
 The pattern is simple: one `json` processor on `message` → target field, with `ignore_failure: true` so plain-text messages are left unchanged.
 
-> **Easy install:** `npm run setup:pipelines` installs all 106 pipelines interactively — no manual JSON needed. This document is a reference for understanding what each pipeline does and which fields are available after parsing.
+> **Easy install:** `npm run setup:aws-pipelines` installs all 106 pipelines interactively — no manual JSON needed. This document is a reference for understanding what each pipeline does and which fields are available after parsing.
 
 ---
 
@@ -41,7 +41,7 @@ The pattern is simple: one `json` processor on `message` → target field, with 
 
 ## Apply and attach (all pipelines)
 
-- **Easy way:** `npm run setup:pipelines` — interactive CLI installs all 106 pipelines; skips already-installed ones.
+- **Easy way:** `npm run setup:aws-pipelines` — interactive CLI installs all 106 pipelines; skips already-installed ones.
 
 - **Manual (API):**
   `PUT _ingest/pipeline/<pipeline-id>` with the body below (replace `<target_field>` with the value from the table).

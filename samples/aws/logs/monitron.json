@@ -1,73 +1,50 @@
 {
-  "@timestamp": "2026-04-07T15:26:36.815Z",
+  "@timestamp": "2026-04-08T12:27:26.854Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": {
-      "id": "814726593401",
-      "name": "globex-production"
-    },
-    "service": {
-      "name": "monitron"
-    }
+    "region": "eu-central-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "service": { "name": "monitron" }
   },
   "aws": {
     "monitron": {
-      "project_name": "motor-bank",
-      "sensor_id": "sensor-001",
-      "position": "motor_drive_end",
-      "machine_condition": "WARNING",
-      "vibration_iso_rms": 3.272679244191154,
-      "temperature_celsius": 58.680628463045814,
-      "vibration_x_peak": 3.287318280406706,
-      "vibration_z_peak": 3.6737782164800237,
-      "gateway_id": "gw-mkybw8",
-      "battery_level_pct": 70
+      "project_name": "warehouse-hvac",
+      "sensor_id": "sensor-004",
+      "position": "bearing_2",
+      "machine_condition": "ALARM",
+      "vibration_iso_rms": 16.049683255404318,
+      "temperature_celsius": 45.52368268885715,
+      "vibration_x_peak": 20.761133496092878,
+      "vibration_z_peak": 5.970802705881176,
+      "gateway_id": "gw-s6iczo",
+      "battery_level_pct": 92
     },
     "s3": {
       "bucket": {
-        "name": "aws-monitron-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-monitron-logs-814726593401"
+        "name": "aws-monitron-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-monitron-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/monitron/ap-northeast-2/2026/04/07/monitron_3HQ5GKQMSPV.log.gz"
+        "key": "AWSLogs/164820739518/monitron/eu-central-2/2026/04/08/monitron_1CS2ZZRWYCH.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/monitron/logs",
-      "log_stream": "ap-northeast-2/30p7ylrk",
-      "ingestion_time": "2026-04-07T15:26:37.145Z"
+      "log_stream": "eu-central-2/mqh5pbxc",
+      "ingestion_time": "2026-04-08T12:27:27.403Z"
     }
   },
-  "event": {
-    "outcome": "success",
-    "duration": 93813,
-    "module": "aws",
-    "dataset": "aws.monitron"
-  },
-  "message": "Monitron motor-bank/sensor-001: WARNING (temp 24.6°C)",
-  "service": {
-    "name": "monitron",
-    "type": "aws"
-  },
-  "log": {
-    "level": "info"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
-  "data_stream": {
-    "type": "logs",
-    "dataset": "aws.monitron",
-    "namespace": "default"
-  },
+  "event": { "outcome": "failure", "duration": 36366, "module": "aws", "dataset": "aws.monitron" },
+  "message": "Monitron warehouse-hvac/sensor-004: ALARM — vibration/temperature anomaly",
+  "service": { "name": "monitron", "type": "aws" },
+  "log": { "level": "info" },
+  "ecs": { "version": "8.11.0" },
+  "data_stream": { "type": "logs", "dataset": "aws.monitron", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "cbd3egk0frb"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "7zcu5k6pvk7"
   },
-  "input": {
-    "type": "aws-cloudwatch"
-  }
+  "input": { "type": "aws-cloudwatch" }
 }

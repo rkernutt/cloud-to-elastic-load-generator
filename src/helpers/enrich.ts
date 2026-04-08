@@ -9,6 +9,14 @@
 import { rand, randId, randIp, REGIONS } from "./index";
 import { ELASTIC_DATASET_MAP, ELASTIC_METRICS_DATASET_MAP } from "../data/elasticMaps";
 import { SERVICE_INGESTION_DEFAULTS, INGESTION_META } from "../data/ingestion";
+import {
+  applyOtelTraceIngestionPatch,
+  buildOtelLogTelemetry,
+  isOtelPipelineSource,
+  otelCollectorAgentName,
+  otelCollectorAgentVersion,
+  patchOtelIngestionLabels,
+} from "./otelPipeline";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -84,6 +92,13 @@ function buildAgentMeta(source: string, eventType: string, region: string): Loos
     };
   }
   // Logs — varies by ingestion source
+  if (isOtelPipelineSource(source)) {
+    return {
+      type: "otel",
+      version: otelCollectorAgentVersion(),
+      name: otelCollectorAgentName("aws", source, region),
+    };
+  }
   switch (source) {
     case "agent":
       return {
@@ -91,12 +106,6 @@ function buildAgentMeta(source: string, eventType: string, region: string): Loos
         version: AGENT_VERSION,
         name: `elastic-agent-${region}`,
         id: randId(36).toLowerCase(),
-      };
-    case "otel":
-      return {
-        type: "otel",
-        version: "0.115.0",
-        name: `otel-collector-${region}`,
       };
     default:
       return {
@@ -140,7 +149,9 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
   const agentMeta = doc.agent ?? buildAgentMeta(source, eventType, region);
 
   // ── input.type ─────────────────────────────────────────────────────────────
-  const inputType = buildInputType(eventType === "traces" ? "otel" : source);
+  const inputType = buildInputType(
+    eventType === "traces" ? (isOtelPipelineSource(source) ? source : "otel") : source
+  );
   const input = doc.input ?? (inputType ? { type: inputType } : undefined);
 
   // ── event enrichment ───────────────────────────────────────────────────────
@@ -150,32 +161,36 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
     dataset: doc.event?.dataset || dataset,
   };
 
-  // ── S3 / CloudWatch context (logs only) ────────────────────────────────────
+  // ── S3 / CloudWatch context (logs only) — skip synthetic pull-path fields for OTLP pipelines
   let awsContext: LooseDoc | undefined;
   if (eventType === "logs") {
-    const bucket = `aws-${serviceId}-logs-${accountId}`;
-    const key = `AWSLogs/${accountId}/${serviceId}/${region}/${new Date().toISOString().slice(0, 10).replace(/-/g, "/")}/${serviceId}_${randId(20)}.log.gz`;
-    const logGroup = `/aws/${serviceId}/logs`;
-    const logStream = `${region}/${randId(8).toLowerCase()}`;
+    if (isOtelPipelineSource(source)) {
+      awsContext = doc.aws && typeof doc.aws === "object" ? { ...doc.aws } : undefined;
+    } else {
+      const bucket = `aws-${serviceId}-logs-${accountId}`;
+      const key = `AWSLogs/${accountId}/${serviceId}/${region}/${new Date().toISOString().slice(0, 10).replace(/-/g, "/")}/${serviceId}_${randId(20)}.log.gz`;
+      const logGroup = `/aws/${serviceId}/logs`;
+      const logStream = `${region}/${randId(8).toLowerCase()}`;
 
-    awsContext = {
-      ...doc.aws,
-      s3: doc.aws?.s3 ?? {
-        bucket: { name: bucket, arn: `arn:aws:s3:::${bucket}` },
-        object: { key },
-      },
-      cloudwatch: doc.aws?.cloudwatch ?? {
-        log_group: logGroup,
-        log_stream: logStream,
-        ingestion_time: new Date().toISOString(),
-      },
-    };
-
-    if (source === "firehose") {
-      awsContext!.firehose = doc.aws?.firehose ?? {
-        arn: `arn:aws:firehose:${region}:${accountId}:deliverystream/aws-${serviceId}-stream`,
-        request_id: randId(36).toLowerCase(),
+      awsContext = {
+        ...doc.aws,
+        s3: doc.aws?.s3 ?? {
+          bucket: { name: bucket, arn: `arn:aws:s3:::${bucket}` },
+          object: { key },
+        },
+        cloudwatch: doc.aws?.cloudwatch ?? {
+          log_group: logGroup,
+          log_stream: logStream,
+          ingestion_time: new Date().toISOString(),
+        },
       };
+
+      if (source === "firehose") {
+        awsContext!.firehose = doc.aws?.firehose ?? {
+          arn: `arn:aws:firehose:${region}:${accountId}:deliverystream/aws-${serviceId}-stream`,
+          request_id: randId(36).toLowerCase(),
+        };
+      }
     }
   }
 
@@ -203,12 +218,9 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
 
   // ── OTel fields for otel-sourced logs ──────────────────────────────────────
   let otelFields: LooseDoc = {};
-  if (source === "otel" && eventType === "logs") {
+  if (isOtelPipelineSource(source) && eventType === "logs") {
     otelFields = {
-      telemetry: doc.telemetry ?? {
-        sdk: { name: "opentelemetry", language: "go", version: "1.31.0" },
-        distro: { name: "elastic", version: AGENT_VERSION },
-      },
+      telemetry: buildOtelLogTelemetry(doc, "aws", source, AGENT_VERSION),
     };
   }
 
@@ -225,6 +237,14 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
   if (Object.keys(agentMeta).length > 0) enriched.agent = agentMeta;
   if (input) enriched.input = input;
   if (awsContext) enriched.aws = awsContext;
+
+  if (eventType === "logs" && isOtelPipelineSource(source)) {
+    patchOtelIngestionLabels(enriched, "aws", source);
+  }
+
+  if (eventType === "traces" && isOtelPipelineSource(source)) {
+    applyOtelTraceIngestionPatch(enriched, "aws", source, AGENT_VERSION);
+  }
 
   return enriched;
 }

@@ -2,13 +2,37 @@
  * GCP integration and API platform log generators (Integration Connectors, Application Integration, API Hub).
  */
 
-import { type EcsDocument, rand, randInt, randId, gcpCloud, makeGcpSetup, randOperationId } from "./helpers.js";
+import {
+  type EcsDocument,
+  rand,
+  randInt,
+  randId,
+  gcpCloud,
+  makeGcpSetup,
+  randOperationId,
+} from "./helpers.js";
 
 export function generateIntegrationConnectorsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const connectors = ["salesforce", "servicenow", "jira", "hubspot", "zendesk", "sap", "oracle-db", "mysql"];
+  const connectors = [
+    "salesforce",
+    "servicenow",
+    "jira",
+    "hubspot",
+    "zendesk",
+    "sap",
+    "oracle-db",
+    "mysql",
+  ];
   const connector = rand(connectors);
-  const actions = ["EXECUTE_ACTION", "LIST_ENTITIES", "GET_ENTITY", "CREATE_ENTITY", "UPDATE_ENTITY", "DELETE_ENTITY"];
+  const actions = [
+    "EXECUTE_ACTION",
+    "LIST_ENTITIES",
+    "GET_ENTITY",
+    "CREATE_ENTITY",
+    "UPDATE_ENTITY",
+    "DELETE_ENTITY",
+  ];
   const action = rand(actions);
   return {
     "@timestamp": ts,
@@ -33,7 +57,13 @@ export function generateIntegrationConnectorsLog(ts: string, er: number): EcsDoc
 
 export function generateApplicationIntegrationLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const integrations = ["order-sync", "user-provisioning", "inventory-update", "payment-process", "notification-router"];
+  const integrations = [
+    "order-sync",
+    "user-provisioning",
+    "inventory-update",
+    "payment-process",
+    "notification-router",
+  ];
   const integration = rand(integrations);
   const triggers = ["API", "CLOUD_SCHEDULER", "PUBSUB", "CLOUD_FUNCTIONS"];
   return {

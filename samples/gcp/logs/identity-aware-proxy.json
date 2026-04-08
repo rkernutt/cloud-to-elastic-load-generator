@@ -2,81 +2,52 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast3",
-    "project": {
-      "id": "globex-shared-m3n4o5",
-      "name": "Globex Shared Services"
-    },
-    "account": {
-      "id": "173205080756",
-      "name": "Globex Shared Services"
-    },
-    "service": {
-      "name": "identity-aware-proxy"
-    }
+    "region": "us-west2",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" },
+    "service": { "name": "identity-aware-proxy" }
   },
   "gcp": {
     "identity_aware_proxy": {
-      "resource": "//compute.googleapis.com/projects/globex-shared-m3n4o5/zones/asia-northeast3-a/instances/iap-TY3D",
-      "user_email": "contractor@partner.example.com",
+      "resource": "//compute.googleapis.com/projects/globex-security-j0k1l2/zones/us-west2-a/instances/iap-INJ5",
+      "user_email": "user@globex.example.com",
       "device_state": "UNKNOWN",
-      "access_decision": "ALLOW",
-      "policy_name": "admin-breakglass",
-      "context_level": "LEVEL_1",
-      "client_ip": "48.40.149.159"
+      "access_decision": "DENY",
+      "policy_name": "iap-baseline",
+      "context_level": "LEVEL_2",
+      "client_ip": "104.167.231.38"
     }
   },
-  "event": {
-    "outcome": "success",
-    "duration": 29000000,
-    "module": "gcp",
-    "dataset": "gcp.iap"
-  },
-  "message": "IAP ALLOW: contractor@partner.example.com from 48.40.149.159 (UNKNOWN, LEVEL_1)",
-  "log": {
-    "level": "info"
-  },
-  "service": {
-    "name": "identity-aware-proxy",
-    "type": "gcp"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
-  "data_stream": {
-    "type": "logs",
-    "dataset": "gcp.iap",
-    "namespace": "default"
-  },
+  "event": { "outcome": "failure", "duration": 37000000, "module": "gcp", "dataset": "gcp.iap" },
+  "message": "IAP DENY: user@globex.example.com from 104.167.231.38 (UNKNOWN, LEVEL_2)",
+  "log": { "level": "warning" },
+  "service": { "name": "identity-aware-proxy", "type": "gcp" },
+  "ecs": { "version": "8.11.0" },
+  "data_stream": { "type": "logs", "dataset": "gcp.iap", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-northeast3",
-    "id": "d0zo05blhg6"
+    "name": "elastic-agent-gcp-us-west2",
+    "id": "4x024l48vtt"
   },
-  "input": {
-    "type": "http_endpoint"
-  },
-  "logName": "projects/globex-shared-m3n4o5/logs/identity-aware-proxy",
+  "input": { "type": "http_endpoint" },
+  "logName": "projects/globex-security-j0k1l2/logs/identity-aware-proxy",
   "resource": {
     "type": "global",
-    "labels": {
-      "project_id": "globex-shared-m3n4o5",
-      "region": "asia-northeast3"
-    }
+    "labels": { "project_id": "globex-security-j0k1l2", "region": "us-west2" }
   },
-  "severity": "INFO",
-  "insertId": "6LNPRHWRRRX",
+  "severity": "WARNING",
+  "insertId": "BARL39GFKQB",
   "jsonPayload": {
     "identity_aware_proxy": {
-      "resource": "//compute.googleapis.com/projects/globex-shared-m3n4o5/zones/asia-northeast3-a/instances/iap-TY3D",
-      "user_email": "contractor@partner.example.com",
+      "resource": "//compute.googleapis.com/projects/globex-security-j0k1l2/zones/us-west2-a/instances/iap-INJ5",
+      "user_email": "user@globex.example.com",
       "device_state": "UNKNOWN",
-      "access_decision": "ALLOW",
-      "policy_name": "admin-breakglass",
-      "context_level": "LEVEL_1",
-      "client_ip": "48.40.149.159"
+      "access_decision": "DENY",
+      "policy_name": "iap-baseline",
+      "context_level": "LEVEL_2",
+      "client_ip": "104.167.231.38"
     },
-    "message": "IAP ALLOW: contractor@partner.example.com from 48.40.149.159 (UNKNOWN, LEVEL_1)"
+    "message": "IAP DENY: user@globex.example.com from 104.167.231.38 (UNKNOWN, LEVEL_2)"
   }
 }

@@ -2,81 +2,53 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "us-east5",
-    "project": {
-      "id": "globex-prod-a1b2c3",
-      "name": "Globex Production"
-    },
-    "account": {
-      "id": "314159265358",
-      "name": "Globex Production"
-    },
-    "service": {
-      "name": "iam"
-    }
+    "region": "europe-central2",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" },
+    "service": { "name": "os-login" }
   },
   "gcp": {
-    "iam": {
-      "principal": "serviceAccount:gke-node-sa@globex-prod-a1b2c3.iam.gserviceaccount.com",
-      "action": "AddIamBinding",
-      "resource": "projects/globex-prod-a1b2c3",
-      "permission_granted": false,
-      "policy_delta_action": "REMOVE",
-      "role": "roles/storage.admin",
-      "request_id": "hpg162np7lo"
+    "os_login": {
+      "user": "dev@globex.example.com",
+      "action": "LOGIN",
+      "instance": "vm-bastion-0cvt",
+      "ssh_key_fingerprint": "SHA256:b67f287253c1b45855f875ca9a26e3663327edbae39b",
+      "login_method": "OS_LOGIN_2FA"
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 23000000,
+    "duration": 39000000,
     "module": "gcp",
-    "dataset": "gcp.iam"
+    "dataset": "gcp.oslogin"
   },
-  "message": "IAM AddIamBinding by serviceAccount:gke-node-sa@globex-prod-a1b2c3.iam.gserviceaccount.com on projects/globex-prod-a1b2c3: REMOVE binding roles/storage.admin",
-  "log": {
-    "level": "info"
-  },
-  "service": {
-    "name": "iam",
-    "type": "gcp"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
-  "data_stream": {
-    "type": "logs",
-    "dataset": "gcp.iam",
-    "namespace": "default"
-  },
+  "message": "OS Login LOGIN: dev@globex.example.com on vm-bastion-0cvt via OS_LOGIN_2FA",
+  "log": { "level": "info" },
+  "service": { "name": "os-login", "type": "gcp" },
+  "ecs": { "version": "8.11.0" },
+  "data_stream": { "type": "logs", "dataset": "gcp.oslogin", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-east5",
-    "id": "5dk67bgy57w"
+    "name": "elastic-agent-gcp-europe-central2",
+    "id": "056ogb2zs9ku"
   },
-  "input": {
-    "type": "http_endpoint"
-  },
-  "logName": "projects/globex-prod-a1b2c3/logs/iam",
+  "input": { "type": "http_endpoint" },
+  "logName": "projects/globex-security-j0k1l2/logs/os-login",
   "resource": {
     "type": "global",
-    "labels": {
-      "project_id": "globex-prod-a1b2c3",
-      "region": "us-east5"
-    }
+    "labels": { "project_id": "globex-security-j0k1l2", "region": "europe-central2" }
   },
   "severity": "INFO",
-  "insertId": "JRJ8FRT9QYJ",
+  "insertId": "UPKDGD6ON",
   "jsonPayload": {
-    "iam": {
-      "principal": "serviceAccount:gke-node-sa@globex-prod-a1b2c3.iam.gserviceaccount.com",
-      "action": "AddIamBinding",
-      "resource": "projects/globex-prod-a1b2c3",
-      "permission_granted": false,
-      "policy_delta_action": "REMOVE",
-      "role": "roles/storage.admin",
-      "request_id": "hpg162np7lo"
+    "os_login": {
+      "user": "dev@globex.example.com",
+      "action": "LOGIN",
+      "instance": "vm-bastion-0cvt",
+      "ssh_key_fingerprint": "SHA256:b67f287253c1b45855f875ca9a26e3663327edbae39b",
+      "login_method": "OS_LOGIN_2FA"
     },
-    "message": "IAM AddIamBinding by serviceAccount:gke-node-sa@globex-prod-a1b2c3.iam.gserviceaccount.com on projects/globex-prod-a1b2c3: REMOVE binding roles/storage.admin"
+    "message": "OS Login LOGIN: dev@globex.example.com on vm-bastion-0cvt via OS_LOGIN_2FA"
   }
 }

@@ -162,6 +162,12 @@ const GCP_INGESTION_META: Record<string, { label: string; color: string; inputTy
   gcs: { label: "Cloud Storage", color: "#FBBC04", inputType: "gcs-input" },
   api: { label: "API", color: "#0F9D58", inputType: "http_endpoint" },
   otel: { label: "OTel", color: "#93C90E", inputType: "opentelemetry" },
+  "otel-edot-collector": { label: "EDOT Collector", color: "#93C90E", inputType: "opentelemetry" },
+  "otel-csp-edot-gateway": {
+    label: "CSP distro → EDOT GW",
+    color: "#FEC514",
+    inputType: "opentelemetry",
+  },
   agent: { label: "Agent", color: "#8144CC", inputType: "logfile" },
 };
 

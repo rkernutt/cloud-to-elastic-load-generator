@@ -1,141 +1,81 @@
 {
-  "@timestamp": "2026-04-07T15:26:36.815Z",
+  "@timestamp": "2026-04-08T12:27:26.854Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
-    "account": {
-      "id": "501938274650",
-      "name": "globex-security-tooling"
-    },
-    "service": {
-      "name": "autoscaling"
-    }
+    "region": "ap-south-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
+    "service": { "name": "autoscaling" }
   },
   "aws": {
-    "dimensions": {
-      "AutoScalingGroupName": "batch-asg"
-    },
+    "dimensions": { "AutoScalingGroupName": "spot-fleet" },
     "autoscaling": {
-      "group_name": "batch-asg",
-      "activity_id": "gqa0ax5n-mjmx-ohb3",
+      "group_name": "spot-fleet",
+      "activity_id": "txud707q-kilu-n2j2",
       "action_type": "Launch",
-      "instance_id": "i-6fm5l487g24",
+      "instance_id": "i-m2bv8590eo",
       "instance_type": "c5.2xlarge",
-      "desired_capacity": 3,
+      "desired_capacity": 15,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 2,
-      "cause": "Unhealthy instance replaced",
+      "current_capacity": 14,
+      "cause": "Scale out triggered: capacity below desired",
       "status_code": "Successful",
-      "launch_template": "worker-lt:8",
+      "launch_template": "api-lt:3",
       "metrics": {
-        "GroupMinSize": {
-          "avg": 2
-        },
-        "GroupMaxSize": {
-          "avg": 50
-        },
-        "GroupDesiredCapacity": {
-          "avg": 3
-        },
-        "GroupInServiceInstances": {
-          "avg": 2
-        },
-        "GroupPendingInstances": {
-          "avg": 0
-        },
-        "GroupStandbyInstances": {
-          "avg": 1
-        },
-        "GroupTerminatingInstances": {
-          "avg": 0
-        },
-        "GroupTotalInstances": {
-          "avg": 3
-        },
-        "GroupInServiceCapacity": {
-          "avg": 2
-        },
-        "GroupPendingCapacity": {
-          "avg": 0
-        },
-        "GroupStandbyCapacity": {
-          "avg": 1
-        },
-        "GroupTerminatingCapacity": {
-          "avg": 0
-        },
-        "GroupTotalCapacity": {
-          "avg": 3
-        },
-        "WarmPoolMinSize": {
-          "avg": 0
-        },
-        "WarmPoolDesiredCapacity": {
-          "avg": 0
-        },
-        "WarmPoolPendingCapacity": {
-          "avg": 0
-        },
-        "WarmPoolTerminatingCapacity": {
-          "avg": 0
-        },
-        "WarmPoolTotalCapacity": {
-          "avg": 0
-        },
-        "WarmPoolWarmedCapacity": {
-          "avg": 0
-        }
+        "GroupMinSize": { "avg": 2 },
+        "GroupMaxSize": { "avg": 50 },
+        "GroupDesiredCapacity": { "avg": 15 },
+        "GroupInServiceInstances": { "avg": 14 },
+        "GroupPendingInstances": { "avg": 0 },
+        "GroupStandbyInstances": { "avg": 1 },
+        "GroupTerminatingInstances": { "avg": 0 },
+        "GroupTotalInstances": { "avg": 15 },
+        "GroupInServiceCapacity": { "avg": 14 },
+        "GroupPendingCapacity": { "avg": 0 },
+        "GroupStandbyCapacity": { "avg": 1 },
+        "GroupTerminatingCapacity": { "avg": 0 },
+        "GroupTotalCapacity": { "avg": 15 },
+        "WarmPoolMinSize": { "avg": 0 },
+        "WarmPoolDesiredCapacity": { "avg": 0 },
+        "WarmPoolPendingCapacity": { "avg": 0 },
+        "WarmPoolTerminatingCapacity": { "avg": 0 },
+        "WarmPoolTotalCapacity": { "avg": 0 },
+        "WarmPoolWarmedCapacity": { "avg": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-autoscaling-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-autoscaling-logs-501938274650"
+        "name": "aws-autoscaling-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-autoscaling-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/autoscaling/us-west-2/2026/04/07/autoscaling_0ITMIVYYRKS.log.gz"
+        "key": "AWSLogs/293847561023/autoscaling/ap-south-1/2026/04/08/autoscaling_RO5GR18B9OP.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "us-west-2/gdcrtqig",
-      "ingestion_time": "2026-04-07T15:26:37.097Z"
+      "log_stream": "ap-south-1/n4wj7qpw",
+      "ingestion_time": "2026-04-08T12:27:27.214Z"
     }
   },
   "event": {
-    "category": [
-      "host"
-    ],
+    "category": ["host"],
     "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 446000000000,
+    "duration": 475000000000,
     "module": "aws"
   },
-  "message": "AutoScaling batch-asg: Launch instance",
-  "log": {
-    "level": "info"
-  },
-  "service": {
-    "name": "autoscaling",
-    "type": "aws"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
-  "data_stream": {
-    "type": "logs",
-    "dataset": "aws.autoscaling",
-    "namespace": "default"
-  },
+  "message": "AutoScaling spot-fleet: Launch instance",
+  "log": { "level": "info" },
+  "service": { "name": "autoscaling", "type": "aws" },
+  "ecs": { "version": "8.11.0" },
+  "data_stream": { "type": "logs", "dataset": "aws.autoscaling", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "s9b6xvpo99"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "p98az7brbg"
   },
-  "input": {
-    "type": "aws-cloudwatch"
-  }
+  "input": { "type": "aws-cloudwatch" }
 }

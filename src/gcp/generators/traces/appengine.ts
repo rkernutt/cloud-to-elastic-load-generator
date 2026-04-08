@@ -79,7 +79,10 @@ export function generateAppEngineTrace(ts: string, er: number): EcsDocument[] {
       name: `Memcache ${rand(["get", "set", "delete", "incr"])}`,
       duration: { us: mcUs },
       action: "query",
-      db: { type: "memcached", statement: rand(["GET session:id", "SET rate:user", "DELETE cart:tmp"]) },
+      db: {
+        type: "memcached",
+        statement: rand(["GET session:id", "SET rate:user", "DELETE cart:tmp"]),
+      },
       destination: { service: { resource: "memcache", type: "db", name: "memcache" } },
     },
     service: {

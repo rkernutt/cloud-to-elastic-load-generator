@@ -1,86 +1,50 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
-  "processor": {
-    "name": "transaction",
-    "event": "span"
-  },
-  "trace": {
-    "id": "dc096f0aee2ed88e783db70c7688ff00"
-  },
-  "transaction": {
-    "id": "d8a964f4196fba1d"
-  },
-  "parent": {
-    "id": "d8a964f4196fba1d"
-  },
+  "processor": { "name": "transaction", "event": "span" },
+  "trace": { "id": "1adeb74e5be57ab9f8eccc5110ecca83" },
+  "transaction": { "id": "9fe1a31b422b616f" },
+  "parent": { "id": "9fe1a31b422b616f" },
   "span": {
-    "id": "f669ff43e114cdd6",
+    "id": "1f94935de4209e92",
     "type": "db",
     "subtype": "mssql",
     "name": "SQL SELECT orders",
-    "duration": {
-      "us": 47411
-    },
+    "duration": { "us": 38374 },
     "action": "query",
-    "db": {
-      "type": "sql",
-      "statement": "SELECT TOP 50 * FROM Orders WHERE Status=@s"
-    },
-    "destination": {
-      "service": {
-        "resource": "sql",
-        "type": "db",
-        "name": "azure-sql"
-      }
-    }
+    "db": { "type": "sql", "statement": "SELECT TOP 50 * FROM Orders WHERE Status=@s" },
+    "destination": { "service": { "resource": "sql", "type": "db", "name": "azure-sql" } }
   },
   "service": {
-    "name": "checkout-api",
-    "environment": "production",
-    "language": {
-      "name": "dotnet"
-    },
-    "framework": {
-      "name": "ASP.NET Core"
-    }
+    "name": "inventory-api",
+    "environment": "staging",
+    "language": { "name": "dotnet" },
+    "framework": { "name": "ASP.NET Core" }
   },
   "cloud": {
     "provider": "azure",
-    "region": "eastasia",
-    "account": {
-      "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98",
-      "name": "Contoso-Platform"
-    },
-    "service": {
-      "name": "Microsoft.Web/sites"
-    }
+    "region": "mexicocentral",
+    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" },
+    "service": { "name": "Microsoft.Web/sites" }
   },
-  "agent": {
-    "name": "opentelemetry/dotnet",
-    "version": "1.x"
-  },
-  "data_stream": {
-    "type": "traces",
-    "dataset": "apm",
-    "namespace": "default"
-  },
-  "event": {
-    "outcome": "success",
-    "module": "azure",
-    "dataset": "azure.trace"
-  },
-  "azure": {
-    "trace": {
-      "component": "app_service_sql"
-    }
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
+  "agent": { "name": "opentelemetry/dotnet", "version": "1.x" },
+  "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
+  "event": { "outcome": "failure", "module": "azure", "dataset": "azure.trace" },
+  "azure": { "trace": { "component": "app_service_sql" } },
+  "ecs": { "version": "8.11.0" },
+  "input": { "type": "opentelemetry" },
   "applicationInsights": {
-    "operation_Id": "dc096f0aee2ed88e783db70c7688ff00",
-    "operation_ParentId": "d8a964f4196fba1d",
-    "id": "f669ff43e114cdd6",
+    "operation_Id": "1adeb74e5be57ab9f8eccc5110ecca83",
+    "operation_ParentId": "9fe1a31b422b616f",
+    "id": "1f94935de4209e92",
     "name": "SQL SELECT orders"
+  },
+  "telemetry": {
+    "sdk": { "name": "opentelemetry", "language": "dotnet", "version": "1.31.0" },
+    "distro": { "name": "elastic", "version": "8.18.0" },
+    "otel_pipeline": {
+      "hop": "otel_collector",
+      "export_protocol": "otlp",
+      "destination": "elastic_managed"
+    }
   }
 }

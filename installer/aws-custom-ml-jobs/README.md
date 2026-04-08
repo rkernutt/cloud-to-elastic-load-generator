@@ -26,7 +26,7 @@ To create a suitable API key in Kibana:
 
 ```bash
 # From the repo root:
-npm run setup:ml-jobs
+npm run setup:aws-ml-jobs
 
 # Or directly:
 node installer/aws-custom-ml-jobs/index.mjs
@@ -218,7 +218,7 @@ You can install individual groups or all groups at once.
 
 ### apm-traces (6 jobs)
 
-Jobs in this group target the `traces-apm-*` data streams produced by the load generator's OTel trace generators. Requires the **Elastic APM integration** to be installed first (see `npm run setup:apm-integration`).
+Jobs in this group target the `traces-apm-*` data streams produced by the load generator's OTel trace generators. Requires the **Elastic APM integration** to be installed first (see `npm run setup:aws-apm-integration`).
 
 | Job ID                             | Service | Detector                          | What it detects                                                                 |
 | ---------------------------------- | ------- | --------------------------------- | ------------------------------------------------------------------------------- |

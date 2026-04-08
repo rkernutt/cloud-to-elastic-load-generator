@@ -3,10 +3,22 @@
  */
 
 import { GCP_METRICS_DATASET_MAP } from "../../data/elasticMaps.js";
-import { randInt, jitter, dp, stat, counter, gcpMetricDoc, pickGcpCloudContext } from "./helpers.js";
+import {
+  randInt,
+  jitter,
+  dp,
+  stat,
+  counter,
+  gcpMetricDoc,
+  pickGcpCloudContext,
+} from "./helpers.js";
 import type { EcsDocument } from "../../../aws/generators/types.js";
 
-const SQL_IDS = ["globex-prod-a1b2c3:sql-primary", "globex-prod-a1b2c3:sql-replica", "globex-staging-d4e5f6:sql-1"];
+const SQL_IDS = [
+  "globex-prod-a1b2c3:sql-primary",
+  "globex-prod-a1b2c3:sql-replica",
+  "globex-staging-d4e5f6:sql-1",
+];
 const SPANNER_INSTANCES = ["spanner-prod", "spanner-staging", "spanner-analytics"];
 const SPANNER_DBS = ["inventory", "orders", "reporting"];
 const BT_CLUSTERS = ["bt-events", "bt-sessions", "bt-telemetry"];
@@ -19,13 +31,21 @@ export function generateCloudSqlMetrics(ts: string, er: number): EcsDocument[] {
   return Array.from({ length: n }, (_, i) => {
     const database_id = SQL_IDS[i % SQL_IDS.length];
     const hot = Math.random() < er;
-    return gcpMetricDoc(ts, "cloud-sql", dataset, region, project, { database_id }, {
-      cpu_utilization: stat(dp(hot ? jitter(92, 5, 80, 100) : jitter(38, 25, 5, 90))),
-      memory_utilization: stat(dp(jitter(62, 18, 20, 95))),
-      disk_utilization: stat(dp(jitter(55, 20, 15, 92))),
-      connections: counter(randInt(5, 800)),
-      queries: counter(randInt(1_000, 2_000_000)),
-    });
+    return gcpMetricDoc(
+      ts,
+      "cloud-sql",
+      dataset,
+      region,
+      project,
+      { database_id },
+      {
+        cpu_utilization: stat(dp(hot ? jitter(92, 5, 80, 100) : jitter(38, 25, 5, 90))),
+        memory_utilization: stat(dp(jitter(62, 18, 20, 95))),
+        disk_utilization: stat(dp(jitter(55, 20, 15, 92))),
+        connections: counter(randInt(5, 800)),
+        queries: counter(randInt(1_000, 2_000_000)),
+      }
+    );
   });
 }
 
@@ -62,10 +82,18 @@ export function generateBigtableMetrics(ts: string, er: number): EcsDocument[] {
     const cluster = BT_CLUSTERS[i % BT_CLUSTERS.length];
     const table = BT_TABLES[i % BT_TABLES.length];
     const slow = Math.random() < er;
-    return gcpMetricDoc(ts, "bigtable", dataset, region, project, { cluster, table }, {
-      server_latencies: stat(dp(jitter(slow ? 95 : 18, slow ? 60 : 12, 1, 2_000))),
-      request_count: counter(randInt(10_000, 50_000_000)),
-      storage_utilization: stat(dp(jitter(68, 15, 20, 95))),
-    });
+    return gcpMetricDoc(
+      ts,
+      "bigtable",
+      dataset,
+      region,
+      project,
+      { cluster, table },
+      {
+        server_latencies: stat(dp(jitter(slow ? 95 : 18, slow ? 60 : 12, 1, 2_000))),
+        request_count: counter(randInt(10_000, 50_000_000)),
+        storage_utilization: stat(dp(jitter(68, 15, 20, 95))),
+      }
+    );
   });
 }

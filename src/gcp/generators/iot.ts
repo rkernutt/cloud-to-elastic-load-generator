@@ -2,14 +2,7 @@
  * GCP IoT Core log generator.
  */
 
-import {
-  type EcsDocument,
-  rand,
-  randInt,
-  randId,
-  gcpCloud,
-  makeGcpSetup,
-} from "./helpers.js";
+import { type EcsDocument, rand, randInt, randId, gcpCloud, makeGcpSetup } from "./helpers.js";
 
 export function generateIotCoreLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);

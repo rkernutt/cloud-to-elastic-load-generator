@@ -6,7 +6,7 @@
  * Compatible with Kibana 8.11+ (ES|QL support via textBased datasource).
  * The ndjson files can be imported via:
  *   - Kibana UI: Stack Management → Saved Objects → Import
- *   - npm run setup:dashboards:legacy  (uses /api/saved_objects/_import)
+ *   - npm run setup:aws-dashboards:legacy  (uses /api/saved_objects/_import)
  *
  * Usage:
  *   node generate-ndjson.mjs
@@ -391,4 +391,4 @@ for (const file of files) {
 
 console.log(`\nGenerated ${files.length} ndjson file(s) in ndjson/`);
 console.log("Import via Kibana: Stack Management → Saved Objects → Import");
-console.log("Import via CLI:    npm run setup:dashboards:legacy");
+console.log("Import via CLI:    npm run setup:aws-dashboards:legacy");

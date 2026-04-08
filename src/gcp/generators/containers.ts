@@ -98,8 +98,13 @@ export function generateArtifactRegistryLog(ts: string, er: number): EcsDocument
     format === "docker"
       ? `${region}-docker.pkg.dev/${project.id}/${repository}/api`
       : rand(["@corp/api-client", "internal-tools", "ml-inference", "billing-core"]);
-  const tagOrVersion = format === "docker" ? rand(["latest", `v${randInt(1, 9)}.${randInt(0, 20)}.${randInt(0, 99)}`]) : rand(["1.4.2", "2.0.0-rc1", "0.0.0-sha." + randId(7).toLowerCase()]);
-  const action = isErr ? rand(["scan", "push", "pull"] as const) : rand(["push", "pull", "delete", "scan"] as const);
+  const tagOrVersion =
+    format === "docker"
+      ? rand(["latest", `v${randInt(1, 9)}.${randInt(0, 20)}.${randInt(0, 99)}`])
+      : rand(["1.4.2", "2.0.0-rc1", "0.0.0-sha." + randId(7).toLowerCase()]);
+  const action = isErr
+    ? rand(["scan", "push", "pull"] as const)
+    : rand(["push", "pull", "delete", "scan"] as const);
   const vulnerabilityCount = action === "scan" ? (isErr ? randInt(1, 50) : randInt(0, 3)) : 0;
   const message =
     action === "scan"
@@ -134,7 +139,11 @@ export function generateArtifactRegistryLog(ts: string, er: number): EcsDocument
 export function generateContainerRegistryLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const imageName = `gcr.io/${project.id}/${rand(["api", "worker", "batch", "cron"])}-${randId(4).toLowerCase()}`;
-  const tag = rand(["latest", `build-${randId(8).toLowerCase()}`, `v${randInt(1, 5)}.${randInt(0, 30)}`]);
+  const tag = rand([
+    "latest",
+    `build-${randId(8).toLowerCase()}`,
+    `v${randInt(1, 5)}.${randInt(0, 30)}`,
+  ]);
   const digest = `sha256:${Array.from({ length: 64 }, () => randInt(0, 15).toString(16)).join("")}`;
   const action = rand(["push", "pull", "delete"] as const);
   const sizeBytes = randInt(5_000_000, 900_000_000);
@@ -240,7 +249,9 @@ export function generateAnthosConfigMgmtLog(ts: string, er: number): EcsDocument
   const { region, project, isErr } = makeGcpSetup(er);
   const cluster = randGkeCluster();
   const repoUrl = `https://source.developers.google.com/p/${project.id}/r/config-${randId(4)}`;
-  const syncStatus = isErr ? rand(["ERROR", "PENDING"] as const) : rand(["SYNCED", "ERROR", "PENDING"] as const);
+  const syncStatus = isErr
+    ? rand(["ERROR", "PENDING"] as const)
+    : rand(["SYNCED", "ERROR", "PENDING"] as const);
   const commitSha = Array.from({ length: 7 }, () => randInt(0, 15).toString(16)).join("");
   const policyViolations = isErr ? randInt(3, 40) : randInt(0, 5);
   const lastSyncTime = new Date(new Date(ts).getTime() - randInt(60_000, 3_600_000)).toISOString();
@@ -274,7 +285,9 @@ export function generateGkeEnterpriseLog(ts: string, er: number): EcsDocument {
   const fleetName = `fleet-${rand(["prod", "platform", "edge"])}-${randId(4).toLowerCase()}`;
   const membership = `projects/${project.id}/locations/global/memberships/${randGkeCluster()}`;
   const feature = rand(["policyController", "configSync", "serviceDirectory"] as const);
-  const complianceState = isErr ? rand(["NON_COMPLIANT", "UNKNOWN"] as const) : rand(["COMPLIANT", "PARTIAL", "NON_COMPLIANT"] as const);
+  const complianceState = isErr
+    ? rand(["NON_COMPLIANT", "UNKNOWN"] as const)
+    : rand(["COMPLIANT", "PARTIAL", "NON_COMPLIANT"] as const);
   const violationCount = isErr ? randInt(5, 200) : randInt(0, 12);
   const message = isErr
     ? `GKE Enterprise fleet ${fleetName}: feature ${feature} ${complianceState} (${violationCount} violations)`
@@ -306,7 +319,9 @@ export function generateMigrateToContainersLog(ts: string, er: number): EcsDocum
   const targetImage = `gcr.io/${project.id}/migrated/${rand(["api", "worker"])}:${randId(6).toLowerCase()}`;
   const migrationPlan = `plan-${randId(8).toLowerCase()}`;
   const phase = rand(["DISCOVER", "GENERATE_ARTIFACTS", "DEPLOY"] as const);
-  const status = isErr ? rand(["FAILED", "RUNNING"] as const) : rand(["SUCCEEDED", "RUNNING", "PENDING"] as const);
+  const status = isErr
+    ? rand(["FAILED", "RUNNING"] as const)
+    : rand(["SUCCEEDED", "RUNNING", "PENDING"] as const);
   const fitScore = isErr ? randFloat(0.2, 0.55) : randFloat(0.65, 0.98);
   const message = isErr
     ? `Migrate to Containers ${migrationPlan} phase ${phase} ${status}: fit score ${(fitScore * 100).toFixed(0)}`

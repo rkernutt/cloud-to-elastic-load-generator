@@ -8,7 +8,7 @@
  * CI/CD, Cognito, Kinesis Streams).
  *
  * Run with:  node index.mjs
- *            npm run setup:dashboards
+ *            npm run setup:aws-dashboards
  *
  * No external dependencies — uses Node.js built-ins only.
  *
@@ -376,7 +376,7 @@ async function installOne(client, title, definition, ndjson, kibanaVersion = "")
   if (!ndjson) {
     throw new Error(
       "Dashboards API unavailable on this deployment and no pre-generated ndjson found.\n" +
-        "       Run 'npm run generate:dashboards:ndjson' then retry."
+        "       Run 'npm run generate:aws-dashboards:ndjson' then retry."
     );
   }
 

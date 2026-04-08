@@ -3,14 +3,7 @@
  */
 
 import type { EcsDocument } from "../helpers.js";
-import {
-  rand,
-  randInt,
-  gcpCloud,
-  makeGcpSetup,
-  randTraceId,
-  randSpanId,
-} from "../helpers.js";
+import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
 
 const APM_AGENT = { name: "opentelemetry/nodejs", version: "1.x" } as const;
@@ -60,7 +53,8 @@ export function generateCloudFunctionsTrace(ts: string, er: number): EcsDocument
     {
       type: "external" as const,
       subtype: "http",
-      name: () => `HTTP ${rand(["GET", "POST"])} ${rand(["payments.example", "auth.example", "shipping.example"])}`,
+      name: () =>
+        `HTTP ${rand(["GET", "POST"])} ${rand(["payments.example", "auth.example", "shipping.example"])}`,
       db: undefined,
       dest: "external",
     },
@@ -77,7 +71,8 @@ export function generateCloudFunctionsTrace(ts: string, er: number): EcsDocument
 
   for (let i = 0; i < activeSpans.length; i++) {
     const tpl = activeSpans[i];
-    const spanUs = randInt(800, 120_000) * (isErr && i === activeSpans.length - 1 ? randInt(2, 5) : 1);
+    const spanUs =
+      randInt(800, 120_000) * (isErr && i === activeSpans.length - 1 ? randInt(2, 5) : 1);
     const spanErr = isErr && i === activeSpans.length - 1;
     const sid = randSpanId();
     totalUs += spanUs;

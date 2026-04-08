@@ -169,7 +169,9 @@ async function main() {
 
   let installed = null;
   try {
-    console.log(`Checking whether the ${PACKAGE_NAME.toUpperCase()} integration is already installed...`);
+    console.log(
+      `Checking whether the ${PACKAGE_NAME.toUpperCase()} integration is already installed...`
+    );
     installed = await client.getInstalledPackage(PACKAGE_NAME);
   } catch (err) {
     console.error(`✗ Failed to query Kibana: ${err.message}`);

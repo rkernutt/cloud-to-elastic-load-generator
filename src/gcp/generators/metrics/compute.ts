@@ -22,13 +22,21 @@ export function generateComputeEngineMetrics(ts: string, er: number): EcsDocumen
   return Array.from({ length: n }, () => {
     const { name } = randGceInstance();
     const cpu = Math.random() < er ? jitter(88, 8, 75, 100) : jitter(32, 22, 2, 95);
-    return gcpMetricDoc(ts, "compute-engine", dataset, region, project, { instance_name: name }, {
-      cpu_utilization: stat(dp(cpu)),
-      disk_read_bytes: counter(randInt(0, 60_000_000)),
-      disk_write_bytes: counter(randInt(0, 90_000_000)),
-      network_received_bytes: counter(randInt(5_000, 500_000_000)),
-      network_sent_bytes: counter(randInt(3_000, 300_000_000)),
-    });
+    return gcpMetricDoc(
+      ts,
+      "compute-engine",
+      dataset,
+      region,
+      project,
+      { instance_name: name },
+      {
+        cpu_utilization: stat(dp(cpu)),
+        disk_read_bytes: counter(randInt(0, 60_000_000)),
+        disk_write_bytes: counter(randInt(0, 90_000_000)),
+        network_received_bytes: counter(randInt(5_000, 500_000_000)),
+        network_sent_bytes: counter(randInt(3_000, 300_000_000)),
+      }
+    );
   });
 }
 
@@ -48,7 +56,9 @@ export function generateGkeMetrics(ts: string, er: number): EcsDocument[] {
       project,
       { cluster_name, namespace },
       {
-        container_cpu_usage: stat(dp(podStress ? jitter(0.85, 0.12, 0.5, 1.2) : jitter(0.35, 0.2, 0.05, 0.95))),
+        container_cpu_usage: stat(
+          dp(podStress ? jitter(0.85, 0.12, 0.5, 1.2) : jitter(0.35, 0.2, 0.05, 0.95))
+        ),
         container_memory_usage: stat(
           dp(podStress ? jitter(1.8e9, 4e8, 5e8, 3e9) : jitter(6e8, 3e8, 1e8, 2e9))
         ),

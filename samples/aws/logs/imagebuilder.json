@@ -1,93 +1,62 @@
 {
-  "@timestamp": "2026-04-07T15:26:36.815Z",
+  "@timestamp": "2026-04-08T12:27:26.854Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": {
-      "id": "293847561023",
-      "name": "globex-staging"
-    },
-    "service": {
-      "name": "imagebuilder"
-    }
+    "region": "eu-west-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
+    "service": { "name": "imagebuilder" }
   },
   "aws": {
-    "dimensions": {
-      "PipelineName": "amazon-linux-cis",
-      "Phase": "DISTRIBUTE"
-    },
+    "dimensions": { "PipelineName": "golden-ami-pipeline", "Phase": "DISTRIBUTE" },
     "imagebuilder": {
-      "pipeline_name": "amazon-linux-cis",
-      "image_version": "5.2.10/1",
+      "pipeline_name": "golden-ami-pipeline",
+      "image_version": "3.13.5/1",
       "phase": "DISTRIBUTE",
       "phase_status": "COMPLETED",
-      "duration_seconds": 750,
-      "os": "Ubuntu 22.04",
-      "recipe_name": "docker-host",
-      "ami_id": "ami-vlai0ij3",
+      "duration_seconds": 361,
+      "os": "Windows Server 2022",
+      "recipe_name": "web-server-recipe",
+      "ami_id": "ami-jldjvtsq",
       "metrics": {
-        "BuildDuration": {
-          "avg": 750
-        },
-        "ImageBuildSuccessCount": {
-          "sum": 1
-        },
-        "ImageBuildFailureCount": {
-          "sum": 0
-        },
-        "ComponentBuildDuration": {
-          "avg": 369
-        }
+        "BuildDuration": { "avg": 361 },
+        "ImageBuildSuccessCount": { "sum": 1 },
+        "ImageBuildFailureCount": { "sum": 0 },
+        "ComponentBuildDuration": { "avg": 308 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-imagebuilder-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-imagebuilder-logs-293847561023"
+        "name": "aws-imagebuilder-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-imagebuilder-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/imagebuilder/me-central-1/2026/04/07/imagebuilder_0LU777QH4L7A.log.gz"
+        "key": "AWSLogs/738291046572/imagebuilder/eu-west-2/2026/04/08/imagebuilder_RH7FXG788E.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/imagebuilder/logs",
-      "log_stream": "me-central-1/boo15j2b",
-      "ingestion_time": "2026-04-07T15:26:37.097Z"
+      "log_stream": "eu-west-2/8ggjuj4t",
+      "ingestion_time": "2026-04-08T12:27:27.216Z"
     }
   },
   "event": {
-    "category": [
-      "process"
-    ],
-    "duration": 750000000000,
+    "category": ["process"],
+    "duration": 361000000000,
     "outcome": "success",
     "dataset": "aws.imagebuilder",
     "provider": "imagebuilder.amazonaws.com",
     "module": "aws"
   },
-  "message": "Testing image: ami-vlai0ij3 with test component aws:TestInfrastructureAssociation",
-  "log": {
-    "level": "info"
-  },
-  "service": {
-    "name": "imagebuilder",
-    "type": "aws"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
-  "data_stream": {
-    "type": "logs",
-    "dataset": "aws.imagebuilder",
-    "namespace": "default"
-  },
+  "message": "EC2 Image Builder: golden-ami-pipeline - DISTRIBUTE phase STARTED",
+  "log": { "level": "info" },
+  "service": { "name": "imagebuilder", "type": "aws" },
+  "ecs": { "version": "8.11.0" },
+  "data_stream": { "type": "logs", "dataset": "aws.imagebuilder", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "2yzmbvrz26f"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "y5i503s3oum"
   },
-  "input": {
-    "type": "aws-cloudwatch"
-  }
+  "input": { "type": "aws-cloudwatch" }
 }

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -61,6 +61,15 @@ const EVENT_TYPE_OPTIONS = [
   { id: "metrics", label: "Metrics" },
   { id: "traces", label: "Traces" },
 ];
+
+/** Same typography for every subsection title on Start. */
+function ConnectionSubheading({ children }: { children: ReactNode }) {
+  return (
+    <EuiTitle size="xs">
+      <h3>{children}</h3>
+    </EuiTitle>
+  );
+}
 
 function esUrlPlaceholder(deploymentType: DeploymentType): string {
   if (deploymentType === "serverless")
@@ -130,9 +139,7 @@ export function ConnectionPage({
 
       {unifiedCloudPicker && (
         <>
-          <EuiTitle size="xs">
-            <h3>Cloud vendor</h3>
-          </EuiTitle>
+          <ConnectionSubheading>Cloud Vendor</ConnectionSubheading>
           <EuiText size="s" color="subdued">
             <p>
               Choose which hyperscaler you are simulating. This reloads the app to that cloud&apos;s
@@ -149,9 +156,9 @@ export function ConnectionPage({
                     id={`unified-vendor-${c.id}`}
                     label={
                       <EuiFlexGroup gutterSize="s" alignItems="center" responsive={false}>
-                        <EuiFlexItem grow={false}>
+                        <EuiFlexItem grow={false} style={{ marginLeft: -20 }}>
                           <img
-                            src={c.logoSrc}
+                            src={c.logoSrcLightBg}
                             alt={c.logoAlt}
                             style={{
                               height: 28,
@@ -161,7 +168,7 @@ export function ConnectionPage({
                             }}
                           />
                         </EuiFlexItem>
-                        <EuiFlexItem>
+                        <EuiFlexItem grow style={{ paddingLeft: 24 }}>
                           <strong>{c.shortLabel}</strong>
                           <br />
                           <EuiText size="xs" color="subdued">
@@ -183,7 +190,7 @@ export function ConnectionPage({
 
       {/* Deployment type */}
       <EuiFormRow
-        label="Deployment Type"
+        label={<ConnectionSubheading>Deployment Type</ConnectionSubheading>}
         helpText="Determines how Kibana URL is derived and which features are available"
       >
         <EuiButtonGroup
@@ -197,7 +204,10 @@ export function ConnectionPage({
       <EuiSpacer size="l" />
 
       {/* Event type */}
-      <EuiFormRow label="Event Type" helpText="Choose what type of data to generate">
+      <EuiFormRow
+        label={<ConnectionSubheading>Event Type</ConnectionSubheading>}
+        helpText="Choose what type of data to generate"
+      >
         <EuiButtonGroup
           legend="Event type selection"
           options={EVENT_TYPE_OPTIONS}
@@ -209,7 +219,7 @@ export function ConnectionPage({
       <EuiSpacer size="l" />
 
       <EuiFormRow
-        label="Elasticsearch URL"
+        label={<ConnectionSubheading>Elasticsearch URL</ConnectionSubheading>}
         error={validationErrors.elasticUrl || undefined}
         isInvalid={!!validationErrors.elasticUrl}
         helpText={`e.g. ${esUrlPlaceholder(deploymentType)}`}
@@ -225,7 +235,7 @@ export function ConnectionPage({
 
       {/* Kibana URL — auto-derived for cloud, manual for self-managed */}
       <EuiFormRow
-        label="Kibana URL"
+        label={<ConnectionSubheading>Kibana URL</ConnectionSubheading>}
         helpText={
           deploymentType !== "self-managed"
             ? "Auto-derived from ES URL — edit to override. Required for Dashboard and Integration installs."
@@ -240,7 +250,7 @@ export function ConnectionPage({
       </EuiFormRow>
 
       <EuiFormRow
-        label="API Key"
+        label={<ConnectionSubheading>API Key</ConnectionSubheading>}
         error={validationErrors.apiKey || undefined}
         isInvalid={!!validationErrors.apiKey}
       >
@@ -290,7 +300,7 @@ export function ConnectionPage({
       {/* Index prefix */}
       {!isTracesMode && (
         <EuiFormRow
-          label={prefixLabel}
+          label={<ConnectionSubheading>{prefixLabel}</ConnectionSubheading>}
           error={validationErrors.indexPrefix || undefined}
           isInvalid={!!validationErrors.indexPrefix}
         >
@@ -306,11 +316,12 @@ export function ConnectionPage({
       {/* APM index display for traces mode */}
       {isTracesMode && (
         <EuiPanel color="subdued">
+          <ConnectionSubheading>APM Indices</ConnectionSubheading>
+          <EuiSpacer size="s" />
           <EuiText size="s">
             <p>
-              <strong>APM Indices:</strong> Traces are sent to the APM intake endpoint. Data appears
-              in <code>traces-apm*</code>, <code>logs-apm*</code>, and <code>metrics-apm*</code>{" "}
-              data streams.
+              Traces are sent to the APM intake endpoint. Data appears in <code>traces-apm*</code>,{" "}
+              <code>logs-apm*</code>, and <code>metrics-apm*</code> data streams.
             </p>
           </EuiText>
         </EuiPanel>
@@ -320,7 +331,7 @@ export function ConnectionPage({
 
       {/* Ingestion source — 4 on top row, 3 on bottom row */}
       <EuiFormRow
-        label="Ingestion Source"
+        label={<ConnectionSubheading>Ingestion Source</ConnectionSubheading>}
         helpText="Override default per-service ingestion path"
         fullWidth
       >

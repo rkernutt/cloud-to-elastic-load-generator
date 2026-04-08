@@ -3,7 +3,15 @@
  */
 
 import { GCP_METRICS_DATASET_MAP } from "../../data/elasticMaps.js";
-import { randInt, jitter, dp, stat, counter, gcpMetricDoc, pickGcpCloudContext } from "./helpers.js";
+import {
+  randInt,
+  jitter,
+  dp,
+  stat,
+  counter,
+  gcpMetricDoc,
+  pickGcpCloudContext,
+} from "./helpers.js";
 import type { EcsDocument } from "../../../aws/generators/types.js";
 
 const URL_MAPS = ["api-map", "web-frontend-map", "grpc-services-map", "static-assets-map"];

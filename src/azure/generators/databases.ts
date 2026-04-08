@@ -1,4 +1,12 @@
-import { type EcsDocument, rand, randInt, randFloat, randId, azureCloud, makeAzureSetup } from "./helpers.js";
+import {
+  type EcsDocument,
+  rand,
+  randInt,
+  randFloat,
+  randId,
+  azureCloud,
+  makeAzureSetup,
+} from "./helpers.js";
 
 export function generateSqlDatabaseLog(ts: string, er: number): EcsDocument {
   const { region, subscription, resourceGroup, isErr } = makeAzureSetup(er);
@@ -43,8 +51,6 @@ export function generateCosmosDbLog(ts: string, er: number): EcsDocument {
       },
     },
     event: { outcome: isErr ? "failure" : "success", duration: randInt(2e6, isErr ? 5e9 : 2e8) },
-    message: isErr
-      ? `Cosmos ${account}: throttled (429)`
-      : `Cosmos ${account}: request OK`,
+    message: isErr ? `Cosmos ${account}: throttled (429)` : `Cosmos ${account}: request OK`,
   };
 }

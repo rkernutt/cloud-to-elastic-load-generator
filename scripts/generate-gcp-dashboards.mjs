@@ -129,7 +129,10 @@ writeDash("cloud-functions-dashboard.json", "GCP Cloud Functions — Invocations
   lensMetric(
     "gcp-cf-k2",
     { x: 12, y: 0, w: 12, h: 5 },
-    q(I_CF, 'EVAL is_err = CASE(event.outcome == "failure", 1, 0) | STATS e = AVG(is_err) | EVAL `Err %` = ROUND(e * 100, 1)'),
+    q(
+      I_CF,
+      'EVAL is_err = CASE(event.outcome == "failure", 1, 0) | STATS e = AVG(is_err) | EVAL `Err %` = ROUND(e * 100, 1)'
+    ),
     "Err %"
   ),
   lensMetric(
@@ -208,11 +211,19 @@ writeDash("cloud-functions-dashboard.json", "GCP Cloud Functions — Invocations
 // ── Cloud Run ─────────────────────────────────────────────────────────────────
 const I_CR = "logs-gcp.cloudrun*";
 writeDash("cloud-run-dashboard.json", "GCP Cloud Run — Requests & Latency", [
-  lensMetric("gcp-cr-k1", { x: 0, y: 0, w: 12, h: 5 }, q(I_CR, "STATS `Requests` = COUNT()"), "Requests"),
+  lensMetric(
+    "gcp-cr-k1",
+    { x: 0, y: 0, w: 12, h: 5 },
+    q(I_CR, "STATS `Requests` = COUNT()"),
+    "Requests"
+  ),
   lensMetric(
     "gcp-cr-k2",
     { x: 12, y: 0, w: 12, h: 5 },
-    q(I_CR, 'EVAL is_err = CASE(event.outcome == "failure", 1, 0) | STATS e = AVG(is_err) | EVAL `Err %` = ROUND(e * 100, 1)'),
+    q(
+      I_CR,
+      'EVAL is_err = CASE(event.outcome == "failure", 1, 0) | STATS e = AVG(is_err) | EVAL `Err %` = ROUND(e * 100, 1)'
+    ),
     "Err %"
   ),
   lensMetric(
@@ -233,10 +244,7 @@ writeDash("cloud-run-dashboard.json", "GCP Cloud Run — Requests & Latency", [
     "gcp-cr-d2",
     { x: 16, y: 5, w: 16, h: 10 },
     "Top services",
-    q(
-      I_CR,
-      "STATS c = COUNT() BY svc = `gcp.cloud_run.service_name` | SORT c DESC | LIMIT 10"
-    ),
+    q(I_CR, "STATS c = COUNT() BY svc = `gcp.cloud_run.service_name` | SORT c DESC | LIMIT 10"),
     "c",
     "svc"
   ),
@@ -272,11 +280,19 @@ writeDash("cloud-run-dashboard.json", "GCP Cloud Run — Requests & Latency", [
 // ── GKE ──────────────────────────────────────────────────────────────────────
 const I_GKE = "logs-gcp.gke*";
 writeDash("gke-dashboard.json", "GCP GKE — Pod & Cluster Events", [
-  lensMetric("gcp-gke-k1", { x: 0, y: 0, w: 12, h: 5 }, q(I_GKE, "STATS `Events` = COUNT()"), "Events"),
+  lensMetric(
+    "gcp-gke-k1",
+    { x: 0, y: 0, w: 12, h: 5 },
+    q(I_GKE, "STATS `Events` = COUNT()"),
+    "Events"
+  ),
   lensMetric(
     "gcp-gke-k2",
     { x: 12, y: 0, w: 12, h: 5 },
-    q(I_GKE, 'EVAL is_err = CASE(event.outcome == "failure", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)'),
+    q(
+      I_GKE,
+      'EVAL is_err = CASE(event.outcome == "failure", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)'
+    ),
     "Fail %"
   ),
   lensDonut(
@@ -331,7 +347,10 @@ writeDash("bigquery-dashboard.json", "GCP BigQuery — Jobs & Slot Usage", [
   lensMetric(
     "gcp-bq-k2",
     { x: 12, y: 0, w: 12, h: 5 },
-    q(I_BQ, 'EVAL is_err = CASE(event.outcome == "failure", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)'),
+    q(
+      I_BQ,
+      'EVAL is_err = CASE(event.outcome == "failure", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)'
+    ),
     "Fail %"
   ),
   lensMetric(
@@ -355,10 +374,7 @@ writeDash("bigquery-dashboard.json", "GCP BigQuery — Jobs & Slot Usage", [
     "gcp-bq-d2",
     { x: 16, y: 5, w: 16, h: 10 },
     "Statement",
-    q(
-      I_BQ,
-      "STATS c = COUNT() BY s = `gcp.bigquery.statement_type` | SORT c DESC | LIMIT 10"
-    ),
+    q(I_BQ, "STATS c = COUNT() BY s = `gcp.bigquery.statement_type` | SORT c DESC | LIMIT 10"),
     "c",
     "s"
   ),
@@ -394,17 +410,28 @@ writeDash("bigquery-dashboard.json", "GCP BigQuery — Jobs & Slot Usage", [
 // ── Cloud SQL ─────────────────────────────────────────────────────────────────
 const I_SQL = "logs-gcp.cloudsql*";
 writeDash("cloud-sql-dashboard.json", "GCP Cloud SQL — Queries & Connections", [
-  lensMetric("gcp-sql-k1", { x: 0, y: 0, w: 12, h: 5 }, q(I_SQL, "STATS `Queries` = COUNT()"), "Queries"),
+  lensMetric(
+    "gcp-sql-k1",
+    { x: 0, y: 0, w: 12, h: 5 },
+    q(I_SQL, "STATS `Queries` = COUNT()"),
+    "Queries"
+  ),
   lensMetric(
     "gcp-sql-k2",
     { x: 12, y: 0, w: 12, h: 5 },
-    q(I_SQL, 'EVAL is_err = CASE(event.outcome == "failure", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)'),
+    q(
+      I_SQL,
+      'EVAL is_err = CASE(event.outcome == "failure", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)'
+    ),
     "Fail %"
   ),
   lensMetric(
     "gcp-sql-k3",
     { x: 24, y: 0, w: 12, h: 5 },
-    q(I_SQL, "STATS m = AVG(`gcp.cloud_sql.query_duration_ms`) | EVAL `Avg query (ms)` = ROUND(m, 2)"),
+    q(
+      I_SQL,
+      "STATS m = AVG(`gcp.cloud_sql.query_duration_ms`) | EVAL `Avg query (ms)` = ROUND(m, 2)"
+    ),
     "Avg query (ms)"
   ),
   lensDonut(
@@ -458,7 +485,10 @@ writeDash("pubsub-dashboard.json", "GCP Pub/Sub — Publish & Subscribe", [
   lensMetric(
     "gcp-ps-k2",
     { x: 12, y: 0, w: 12, h: 5 },
-    q(I_PS, 'EVAL is_err = CASE(event.outcome == "failure", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)'),
+    q(
+      I_PS,
+      'EVAL is_err = CASE(event.outcome == "failure", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)'
+    ),
     "Fail %"
   ),
   lensDonut(
@@ -504,7 +534,10 @@ writeDash("dataflow-dashboard.json", "GCP Dataflow — Jobs & Lag", [
   lensMetric(
     "gcp-df-k2",
     { x: 12, y: 0, w: 12, h: 5 },
-    q(I_DF, "STATS m = AVG(`gcp.dataflow.watermark_lag_seconds`) | EVAL `Avg watermark lag (s)` = ROUND(m, 1)"),
+    q(
+      I_DF,
+      "STATS m = AVG(`gcp.dataflow.watermark_lag_seconds`) | EVAL `Avg watermark lag (s)` = ROUND(m, 1)"
+    ),
     "Avg watermark lag (s)"
   ),
   lensDonut(
@@ -557,10 +590,7 @@ writeDash("vertex-ai-dashboard.json", "GCP Vertex AI — Predictions & Latency",
     "gcp-vx-d1",
     { x: 0, y: 5, w: 16, h: 10 },
     "Model",
-    q(
-      I_VX,
-      "STATS c = COUNT() BY m = `gcp.vertex_ai.model_name` | SORT c DESC | LIMIT 10"
-    ),
+    q(I_VX, "STATS c = COUNT() BY m = `gcp.vertex_ai.model_name` | SORT c DESC | LIMIT 10"),
     "c",
     "m"
   ),
@@ -600,10 +630,7 @@ writeDash("compute-engine-dashboard.json", "GCP Compute Engine — Instance Even
     "gcp-ce-d1",
     { x: 0, y: 5, w: 16, h: 10 },
     "Event type",
-    q(
-      I_CE,
-      "STATS c = COUNT() BY t = `gcp.compute_engine.event_type` | SORT c DESC | LIMIT 10"
-    ),
+    q(I_CE, "STATS c = COUNT() BY t = `gcp.compute_engine.event_type` | SORT c DESC | LIMIT 10"),
     "c",
     "t"
   ),
@@ -700,7 +727,10 @@ writeDash("cloud-build-dashboard.json", "GCP Cloud Build — Pipeline Steps", [
   lensMetric(
     "gcp-cb-k2",
     { x: 12, y: 0, w: 12, h: 5 },
-    q(I_CB, 'EVAL is_err = CASE(event.outcome == "failure", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)'),
+    q(
+      I_CB,
+      'EVAL is_err = CASE(event.outcome == "failure", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)'
+    ),
     "Fail %"
   ),
   lensDonut(

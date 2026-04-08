@@ -3,7 +3,15 @@
  * without a dedicated dimensional generator.
  */
 
-import { randInt, dp, stat, counter, gcpMetricDoc, pickGcpCloudContext, jitter } from "./helpers.js";
+import {
+  randInt,
+  dp,
+  stat,
+  counter,
+  gcpMetricDoc,
+  pickGcpCloudContext,
+  jitter,
+} from "./helpers.js";
 import type { MetricGenerator } from "../../../aws/generators/types.js";
 
 export type { MetricGenerator } from "../../../aws/generators/types.js";
@@ -29,7 +37,9 @@ export const GCP_METRIC_TEMPLATES: Record<string, TemplatePart[]> = {
     { dim: "instance_name", vals: ["vm-web-1", "vm-app-2", "vm-batch-3"] },
     {
       metrics: (er) => ({
-        cpu_utilization: stat(dp(Math.random() < er ? jitter(85, 10, 70, 100) : jitter(35, 25, 5, 95))),
+        cpu_utilization: stat(
+          dp(Math.random() < er ? jitter(85, 10, 70, 100) : jitter(35, 25, 5, 95))
+        ),
         disk_read_bytes: counter(randInt(0, 80_000_000)),
         disk_write_bytes: counter(randInt(0, 120_000_000)),
         network_received_bytes: counter(randInt(0, 400_000_000)),
@@ -55,7 +65,9 @@ export const GCP_METRIC_TEMPLATES: Record<string, TemplatePart[]> = {
       metrics: (er) => ({
         request_count: counter(randInt(0, 1_000_000)),
         latency: stat(dp(jitter(45, 40, 2, 5_000))),
-        error_rate: stat(dp(Math.random() < er ? jitter(0.05, 0.04, 0, 0.5) : jitter(0.002, 0.002, 0, 0.02))),
+        error_rate: stat(
+          dp(Math.random() < er ? jitter(0.05, 0.04, 0, 0.5) : jitter(0.002, 0.002, 0, 0.02))
+        ),
       }),
     },
   ],

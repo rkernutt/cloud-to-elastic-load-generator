@@ -300,7 +300,7 @@ mindmap
 
 ```mermaid
 flowchart TD
-    START(["npm run setup:*\nor node installer/*/index.mjs"]) --> AUTH
+    START(["npm run setup:{aws,gcp,azure}-*\nor node installer/*/index.mjs"]) --> AUTH
 
     AUTH["Enter credentials\nDeployment URL + API key"]
     AUTH --> TEST{"Connection\ntest"}
@@ -309,25 +309,25 @@ flowchart TD
 
     MENU --> I1 & I2 & I3 & I4
 
-    subgraph I1["setup:integration"]
+    subgraph I1["setup:aws-integration"]
         direction TB
         A1["Kibana Fleet API"]
         A2["AWS integration package\nILM policy · index templates\ndatastream setup"]
     end
 
-    subgraph I2["setup:pipelines"]
+    subgraph I2["setup:aws-pipelines"]
         direction TB
         B1["Elasticsearch Ingest API"]
         B2["187 custom pipelines\n15 groups\nlogs-aws.service-default"]
     end
 
-    subgraph I3["setup:dashboards"]
+    subgraph I3["setup:aws-dashboards"]
         direction TB
         C1["Kibana Saved Objects API\nor legacy NDJSON import"]
         C2["77 Kibana dashboards\nLens + ES|QL panels\nper-service visualisations"]
     end
 
-    subgraph I4["setup:ml-jobs"]
+    subgraph I4["setup:aws-ml-jobs"]
         direction TB
         D1["Elasticsearch ML API"]
         D2["180 anomaly detection jobs\n25 groups\ndatafeeds auto-started"]
@@ -815,10 +815,10 @@ flowchart LR
 flowchart TD
     subgraph SETUP["One-Time Setup"]
         direction LR
-        I1["npm run\nsetup:integration\n(Fleet API)"]
-        I2["npm run\nsetup:pipelines\n(187 pipelines)"]
-        I3["npm run\nsetup:dashboards\n(77 dashboards)"]
-        I4["npm run\nsetup:ml-jobs\n(180 ML jobs)"]
+        I1["npm run\nsetup:aws-integration\n(Fleet API)"]
+        I2["npm run\nsetup:aws-pipelines\n(ingest pipelines)"]
+        I3["npm run\nsetup:aws-dashboards\n(Kibana)"]
+        I4["npm run\nsetup:aws-ml-jobs\n(ML jobs)"]
     end
 
     SETUP --> BASELINE

@@ -32,7 +32,9 @@ export function generateVpcFlowLog(ts: string, er: number): EcsDocument {
   const bytesSent = randInt(64, isErr ? 512 : 1_500_000);
   const packetsSent = Math.max(1, Math.floor(bytesSent / randInt(512, 1500)));
   const latencyNs = randLatencyMs(randInt(1, 5), isErr) * 1e6;
-  const ruleName = isErr ? `deny-suspicious-${randId(4).toLowerCase()}` : `allow-internal-${randId(4).toLowerCase()}`;
+  const ruleName = isErr
+    ? `deny-suspicious-${randId(4).toLowerCase()}`
+    : `allow-internal-${randId(4).toLowerCase()}`;
   const message = isErr
     ? `VPC flow DENY ${direction} ${randIp()} -> ${randIp()}:${dstPort} matched ${ruleName}`
     : `VPC flow ${action} ${direction} ${bytesSent}b ${packetsSent}pkts proto ${protocol}`;
@@ -96,7 +98,12 @@ export function generateCloudLbLog(ts: string, er: number): EcsDocument {
 
 export function generateCloudCdnLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const urlPath = rand(["/assets/logo.png", "/video/segment.ts", "/api/config.json", "/fonts.woff2"]);
+  const urlPath = rand([
+    "/assets/logo.png",
+    "/video/segment.ts",
+    "/api/config.json",
+    "/fonts.woff2",
+  ]);
   const cacheHit = !isErr && Math.random() > 0.35;
   const responseCode = randHttpStatus(isErr);
   const servedBytes = randInt(1024, 8_000_000);
@@ -157,14 +164,18 @@ export function generateCloudDnsLog(ts: string, er: number): EcsDocument {
 
 export function generateCloudArmorLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const action = isErr ? rand(["DENY", "REDIRECT", "THROTTLE"] as const) : rand(["ALLOW", "ALLOW", "THROTTLE"] as const);
+  const action = isErr
+    ? rand(["DENY", "REDIRECT", "THROTTLE"] as const)
+    : rand(["ALLOW", "ALLOW", "THROTTLE"] as const);
   const priority = randInt(100, 9000);
   const previewMode = Math.random() > 0.85;
   const matchedExpr = isErr
     ? `evaluatePreconfiguredExpr('xss-v33-stable')`
     : `inIpRange(origin.ip, '${randIp()}/32')`;
   const policyName = `armor-${rand(["edge", "api", "corp"])}-${randId(4).toLowerCase()}`;
-  const ruleName = isErr ? `block-tor-${randId(4).toLowerCase()}` : `allow-corp-${randId(4).toLowerCase()}`;
+  const ruleName = isErr
+    ? `block-tor-${randId(4).toLowerCase()}`
+    : `allow-corp-${randId(4).toLowerCase()}`;
   const durationNs = randLatencyMs(randInt(1, 12), false) * 1e6;
   const message = previewMode
     ? `Cloud Armor [preview] would ${action} ${randIp()} — ${ruleName}`
@@ -537,9 +548,13 @@ export function generateCloudDomainsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const domainName = `${rand(["app", "shop", "corp"])}-${randId(4).toLowerCase()}.example.com`;
   const action = rand(["REGISTER", "RENEW", "TRANSFER", "CONFIGURE_DNS", "DELETE"] as const);
-  const registrarStatus = isErr ? rand(["PENDING", "FAILED"] as const) : rand(["ACTIVE", "OK", "LOCKED"] as const);
+  const registrarStatus = isErr
+    ? rand(["PENDING", "FAILED"] as const)
+    : rand(["ACTIVE", "OK", "LOCKED"] as const);
   const base = new Date(ts);
-  const expirationDate = new Date(base.getTime() + randInt(30, 730) * 86400_000).toISOString().slice(0, 10);
+  const expirationDate = new Date(base.getTime() + randInt(30, 730) * 86400_000)
+    .toISOString()
+    .slice(0, 10);
   const dnssecEnabled = !isErr && Math.random() > 0.4;
   const durationNs = randLatencyMs(randInt(20, 300), isErr) * 1e6;
   const message = isErr
@@ -567,7 +582,9 @@ export function generateMediaCdnLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const serviceName = `media-cdn-${randId(5).toLowerCase()}`;
   const edgeLocation = rand([`${region}-edge`, "global-edge", `cdn-${randId(4)}`]);
-  const cacheResult = isErr ? rand(["PASS", "MISS"] as const) : rand(["HIT", "MISS", "PASS"] as const);
+  const cacheResult = isErr
+    ? rand(["PASS", "MISS"] as const)
+    : rand(["HIT", "MISS", "PASS"] as const);
   const responseCode = randHttpStatus(isErr);
   const servedBytes = isErr ? randInt(0, 2000) : randInt(10_000, 120_000_000);
   const ttfbMs = randLatencyMs(randInt(8, 200), isErr);
@@ -601,7 +618,9 @@ export function generateServerlessNegLog(ts: string, er: number): EcsDocument {
   const negName = `neg-${randId(8).toLowerCase()}`;
   const backendService = `bes-${rand(["run", "fn", "gae"])}-${randId(4).toLowerCase()}`;
   const targetType = rand(["cloud-run", "cloud-functions", "app-engine"] as const);
-  const healthStatus = isErr ? rand(["UNHEALTHY", "UNKNOWN"] as const) : rand(["HEALTHY", "DRAINING"] as const);
+  const healthStatus = isErr
+    ? rand(["UNHEALTHY", "UNKNOWN"] as const)
+    : rand(["HEALTHY", "DRAINING"] as const);
   const requestCount = isErr ? randInt(5, 500) : randInt(1000, 2_000_000);
   const errorRate = isErr ? randFloat(0.05, 0.5) : randFloat(0, 0.03);
   const durationNs = randLatencyMs(randInt(15, 250), isErr) * 1e6;

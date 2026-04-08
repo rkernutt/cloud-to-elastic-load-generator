@@ -4,9 +4,9 @@ A single web UI for bulk-generating realistic **AWS**, **Google Cloud**, and **M
 
 The header uses a vendor-neutral cloud mark; AWS, GCP, and Azure logos appear in the wizard when choosing a cloud.
 
-**Icons:** Service artwork for GCP and Azure is committed under `public/gcp-icons/` and `public/azure-icons/` (with `src/cloud/generated/vendorFileIcons.ts`). Clones and Docker builds work without running `npm run icons:vendor`; that command is only for maintainers refreshing maps from a local `Cloud Icons/` tree.
+**Icons:** GCP/Azure flat SVGs and maps are committed under `public/gcp-icons/`, `public/azure-icons/`, and `src/cloud/generated/vendorFileIcons.ts`. AWS icons in `public/aws-icons/` are committed so clones work offline; `npm install` re-syncs that folder from the `aws-icons` package to match `src/data/iconMap.ts` and prunes unused files. A handful of AWS SVGs (and PNG findings artwork) are package-extras and remain committed only—see [docs/development.md](docs/development.md). Maintainers refresh GCP/Azure maps with `npm run icons:vendor` and sources in `local/cloud-icons/` (gitignored).
 
-**Documentation:** [docs/README.md](docs/README.md) (index) · [docs/development.md](docs/development.md) (build, test, samples)
+**Documentation:** [docs/README.md](docs/README.md) — index of guides, AWS routing docs, pipeline reference, and diagrams. Day-to-day dev: [docs/development.md](docs/development.md).
 
 ---
 

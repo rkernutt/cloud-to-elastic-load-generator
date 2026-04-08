@@ -1,33 +1,37 @@
 import type { CloudId } from "./types";
 import { publicUrl } from "../utils/publicUrl";
 
-/** Vendor artwork under `public/icons/` (replace with your brand files as needed). */
+/** Vendor artwork under `public/icons/` — path-based SVGs (light vs dark header). */
 export const UNIFIED_VENDOR_CARDS: {
   id: CloudId;
   label: string;
   shortLabel: string;
-  logoSrc: string;
+  logoSrcLightBg: string;
+  logoSrcDarkBg: string;
   logoAlt: string;
 }[] = [
   {
     id: "aws",
     label: "Amazon Web Services",
     shortLabel: "AWS",
-    logoSrc: publicUrl("icons/aws-header.svg"),
+    logoSrcLightBg: publicUrl("icons/aws-on-light.svg"),
+    logoSrcDarkBg: publicUrl("icons/aws-on-dark.svg"),
     logoAlt: "AWS",
   },
   {
     id: "gcp",
     label: "Google Cloud Platform",
     shortLabel: "GCP",
-    logoSrc: publicUrl("icons/gcp-header.svg"),
+    logoSrcLightBg: publicUrl("icons/gcp-vendor.svg"),
+    logoSrcDarkBg: publicUrl("icons/gcp-vendor.svg"),
     logoAlt: "Google Cloud",
   },
   {
     id: "azure",
     label: "Microsoft Azure",
     shortLabel: "Azure",
-    logoSrc: publicUrl("icons/azure-header.svg"),
+    logoSrcLightBg: publicUrl("icons/azure-vendor.svg"),
+    logoSrcDarkBg: publicUrl("icons/azure-vendor.svg"),
     logoAlt: "Microsoft Azure",
   },
 ];
@@ -38,8 +42,8 @@ export function unifiedVendorCard(id: CloudId) {
   return found;
 }
 
-/** Neutral cloud (header, left of pipeline). */
-export const UNIFIED_HEADER_CLOUD_MARK_SRC = publicUrl("icons/cloud-mark.svg");
+/** Neutral cloud (header, left of pipeline) — same artwork as repo-root `cloud-svgrepo-com.svg`. */
+export const UNIFIED_HEADER_CLOUD_MARK_SRC = publicUrl("cloud-svgrepo-com.svg");
 
 /** Official Elastic horizontal wordmark (color-reverse for dark `EuiHeader`). */
 export const UNIFIED_HEADER_WORDMARK_SRC = publicUrl("elastic-logo.svg");

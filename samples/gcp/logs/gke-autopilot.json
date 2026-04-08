@@ -2,85 +2,64 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "australia-southeast1",
-    "project": {
-      "id": "globex-prod-a1b2c3",
-      "name": "Globex Production"
-    },
-    "account": {
-      "id": "314159265358",
-      "name": "Globex Production"
-    },
-    "service": {
-      "name": "container.googleapis.com"
-    }
+    "region": "asia-south1",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "service": { "name": "container.googleapis.com" }
   },
   "gcp": {
     "gke_autopilot": {
       "cluster": "ml-cluster-autopilot",
-      "namespace": "production",
-      "pod": "worker-i374s-xzyvx",
+      "namespace": "kube-system",
+      "pod": "redis-0jzlr-drctu",
       "workload_type": "Job",
-      "resource_request_cpu": "2m",
-      "resource_request_memory": "5377Mi",
-      "scaling_event": "POD_SCHEDULED"
+      "resource_request_cpu": "4",
+      "resource_request_memory": "7016Mi",
+      "scaling_event": "SCALE_DOWN"
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 20029,
+    "duration": 40991,
     "module": "gcp",
     "dataset": "gcp.gke_autopilot"
   },
-  "message": "GKE Autopilot ml-cluster-autopilot POD_SCHEDULED: Job worker-i374s-xzyvx (production) sized to 2m CPU, 5377Mi RAM",
-  "service": {
-    "name": "gke-autopilot",
-    "type": "gcp"
-  },
-  "log": {
-    "level": "info"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
-  "data_stream": {
-    "type": "logs",
-    "dataset": "gcp.gke_autopilot",
-    "namespace": "default"
-  },
+  "message": "GKE Autopilot ml-cluster-autopilot SCALE_DOWN: Job redis-0jzlr-drctu (kube-system) sized to 4 CPU, 7016Mi RAM",
+  "service": { "name": "gke-autopilot", "type": "gcp" },
+  "log": { "level": "info" },
+  "ecs": { "version": "8.11.0" },
+  "data_stream": { "type": "logs", "dataset": "gcp.gke_autopilot", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-australia-southeast1",
-    "id": "165her6hlqtj"
+    "name": "elastic-agent-gcp-asia-south1",
+    "id": "9qvf1cjbelf"
   },
-  "input": {
-    "type": "gcp-pubsub"
-  },
-  "logName": "projects/globex-prod-a1b2c3/logs/gke-autopilot",
+  "input": { "type": "gcp-pubsub" },
+  "logName": "projects/globex-staging-d4e5f6/logs/gke-autopilot",
   "resource": {
     "type": "k8s_container",
     "labels": {
-      "project_id": "globex-prod-a1b2c3",
+      "project_id": "globex-staging-d4e5f6",
       "cluster_name": "cluster",
-      "location": "australia-southeast1",
+      "location": "asia-south1",
       "namespace_name": "default",
       "pod_name": "pod",
       "container_name": "app"
     }
   },
   "severity": "INFO",
-  "insertId": "9OHGU6EZV9Q",
+  "insertId": "421J7OE8Q21",
   "jsonPayload": {
     "gke_autopilot": {
       "cluster": "ml-cluster-autopilot",
-      "namespace": "production",
-      "pod": "worker-i374s-xzyvx",
+      "namespace": "kube-system",
+      "pod": "redis-0jzlr-drctu",
       "workload_type": "Job",
-      "resource_request_cpu": "2m",
-      "resource_request_memory": "5377Mi",
-      "scaling_event": "POD_SCHEDULED"
+      "resource_request_cpu": "4",
+      "resource_request_memory": "7016Mi",
+      "scaling_event": "SCALE_DOWN"
     },
-    "message": "GKE Autopilot ml-cluster-autopilot POD_SCHEDULED: Job worker-i374s-xzyvx (production) sized to 2m CPU, 5377Mi RAM"
+    "message": "GKE Autopilot ml-cluster-autopilot SCALE_DOWN: Job redis-0jzlr-drctu (kube-system) sized to 4 CPU, 7016Mi RAM"
   }
 }

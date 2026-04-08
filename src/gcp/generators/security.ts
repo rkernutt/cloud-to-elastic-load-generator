@@ -35,7 +35,11 @@ export function generateSecurityCommandCenterLog(ts: string, er: number): EcsDoc
     `//storage.googleapis.com/projects/_/buckets/${randBucket()}`,
     `//cloudsql.googleapis.com/projects/${project.id}/instances/db-${randId(4)}`,
   ]);
-  const resourceType = rand(["compute.googleapis.com/Instance", "storage.googleapis.com/Bucket", "sqladmin.googleapis.com/Instance"]);
+  const resourceType = rand([
+    "compute.googleapis.com/Instance",
+    "storage.googleapis.com/Bucket",
+    "sqladmin.googleapis.com/Instance",
+  ]);
   const state = rand(["ACTIVE", "INACTIVE", "MUTED"]);
   const source = rand([
     "SECURITY_HEALTH_ANALYTICS",
@@ -85,7 +89,13 @@ function randUUIDLike(): string {
 export function generateIamLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const principal = randPrincipal(project);
-  const action = rand(["SetIamPolicy", "CreateServiceAccountKey", "roles.create", "DeleteServiceAccount", "AddIamBinding"]);
+  const action = rand([
+    "SetIamPolicy",
+    "CreateServiceAccountKey",
+    "roles.create",
+    "DeleteServiceAccount",
+    "AddIamBinding",
+  ]);
   const resource = rand([
     `projects/${project.id}`,
     `projects/${project.id}/serviceAccounts/sa@${project.id}.iam.gserviceaccount.com`,
@@ -93,7 +103,13 @@ export function generateIamLog(ts: string, er: number): EcsDocument {
   ]);
   const permissionGranted = !isErr && Math.random() > 0.35;
   const policyDeltaAction = rand(["ADD", "REMOVE"]);
-  const role = rand(["roles/owner", "roles/editor", "roles/storage.admin", "roles/iam.serviceAccountTokenCreator", "roles/bigquery.dataEditor"]);
+  const role = rand([
+    "roles/owner",
+    "roles/editor",
+    "roles/storage.admin",
+    "roles/iam.serviceAccountTokenCreator",
+    "roles/bigquery.dataEditor",
+  ]);
   const durationNs = randLatencyMs(45, isErr) * 1e6;
   return {
     "@timestamp": ts,
@@ -258,8 +274,17 @@ export function generateCertificateAuthorityLog(ts: string, er: number): EcsDocu
 export function generateBeyondCorpLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const appConnector = rand(["connector-use1-a", "connector-ew1-b", "corp-edge-1"]);
-  const application = rand(["erp.globex.internal", "gitlab.globex.io", "jira.globex.io", "wiki.globex.io"]);
-  const userEmail = rand(["alice@globex.example.com", "bob@globex.example.com", "contractor@partner.example.com"]);
+  const application = rand([
+    "erp.globex.internal",
+    "gitlab.globex.io",
+    "jira.globex.io",
+    "wiki.globex.io",
+  ]);
+  const userEmail = rand([
+    "alice@globex.example.com",
+    "bob@globex.example.com",
+    "contractor@partner.example.com",
+  ]);
   const deviceTrustLevel = rand(["TRUST", "UNTRUST"]);
   const accessDecision = isErr ? "DENY" : rand(["ALLOW", "DENY"]);
   const policyName = rand(["corp-baseline", "vendor-restricted", "break-glass-admin"]);
@@ -435,10 +460,18 @@ export function generateAccessContextManagerLog(ts: string, er: number): EcsDocu
 
 export function generateAssuredWorkloadsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const workloadName = rand(["fedramp-moderate-workload", "il4-data-plane", "cjis-criminal-justice"]);
+  const workloadName = rand([
+    "fedramp-moderate-workload",
+    "il4-data-plane",
+    "cjis-criminal-justice",
+  ]);
   const complianceRegime = rand(["FEDRAMP_MODERATE", "IL4", "CJIS", "HIPAA"]);
   const resourceType = rand(["FOLDER", "PROJECT", "KEYRING"]);
-  const violationType = rand(["RESOURCE_OUTSIDE_COMPLIANCE_BOUNDS", "FORBIDDEN_SERVICE", "INVALID_ENCRYPTION"]);
+  const violationType = rand([
+    "RESOURCE_OUTSIDE_COMPLIANCE_BOUNDS",
+    "FORBIDDEN_SERVICE",
+    "INVALID_ENCRYPTION",
+  ]);
   const remediationStatus = isErr ? "OPEN" : rand(["OPEN", "IN_PROGRESS", "RESOLVED"]);
   const durationNs = randLatencyMs(500, isErr) * 1e6;
   return {
@@ -475,7 +508,12 @@ export function generateAssuredWorkloadsLog(ts: string, er: number): EcsDocument
 
 export function generateChronicleLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const ruleName = rand(["suspicious_login_geo", "lateral_movement_rdp", "gcp_iam_priv_esc", "dns_tunneling"]);
+  const ruleName = rand([
+    "suspicious_login_geo",
+    "lateral_movement_rdp",
+    "gcp_iam_priv_esc",
+    "dns_tunneling",
+  ]);
   const detectionType = rand(["RULE_DETECTION", "CURATED_DETECTION", "ALERT"]);
   const severity = randSeverity(isErr);
   const alertState = isErr ? "NEW" : rand(["NEW", "ACKNOWLEDGED", "DISMISSED"]);
@@ -521,11 +559,7 @@ export function generateRecaptchaEnterpriseLog(ts: string, er: number): EcsDocum
   const action = rand(["login", "signup", "checkout", "password_reset", "contact_form"]);
   const score = isErr ? randFloat(0, 0.29) : randFloat(0.3, 1.0);
   const tokenValid = !isErr && score > 0.4;
-  const riskAnalysisReasons = rand([
-    "AUTOMATION",
-    "TOO_MUCH_TRAFFIC",
-    "UNEXPECTED_ENVIRONMENT",
-  ]);
+  const riskAnalysisReasons = rand(["AUTOMATION", "TOO_MUCH_TRAFFIC", "UNEXPECTED_ENVIRONMENT"]);
   const durationNs = randLatencyMs(18, isErr) * 1e6;
   return {
     "@timestamp": ts,
@@ -562,7 +596,13 @@ export function generateRecaptchaEnterpriseLog(ts: string, er: number): EcsDocum
 export function generateWebSecurityScannerLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const scanConfig = `projects/${project.id}/scanConfigs/${randId(8)}`;
-  const findingType = rand(["XSS", "SQL_INJECTION", "MIXED_CONTENT", "CLEAR_TEXT_PASSWORD", "OUTDATED_LIBRARY"]);
+  const findingType = rand([
+    "XSS",
+    "SQL_INJECTION",
+    "MIXED_CONTENT",
+    "CLEAR_TEXT_PASSWORD",
+    "OUTDATED_LIBRARY",
+  ]);
   const severity = rand(["CRITICAL", "HIGH", "MEDIUM", "LOW"]);
   const url = rand([
     `https://app.${project.id.split("-")[0]}.example.com/search?q=test`,
@@ -607,7 +647,10 @@ export function generateWebSecurityScannerLog(ts: string, er: number): EcsDocume
 export function generateIdentityAwareProxyLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const resource = `//compute.googleapis.com/projects/${project.id}/zones/${region}-a/instances/iap-${randId(4)}`;
-  const userEmail = rand([`user@${project.id.split("-")[0]}.example.com`, `contractor@partner.example.com`]);
+  const userEmail = rand([
+    `user@${project.id.split("-")[0]}.example.com`,
+    `contractor@partner.example.com`,
+  ]);
   const deviceState = rand(["COMPLIANT", "NON_COMPLIANT", "UNKNOWN"] as const);
   const accessDecision = isErr ? "DENY" : rand(["ALLOW", "DENY"] as const);
   const policyName = rand(["iap-baseline", "vendor-restricted", "admin-breakglass"]);
@@ -726,7 +769,10 @@ export function generateCloudIdentityLog(ts: string, er: number): EcsDocument {
     "2SV_ENABLED",
     "SSO_LOGIN",
   ] as const);
-  const userEmail = rand([`user@${project.id.split("-")[0]}.example.com`, `admin@${project.id.split("-")[0]}.example.com`]);
+  const userEmail = rand([
+    `user@${project.id.split("-")[0]}.example.com`,
+    `admin@${project.id.split("-")[0]}.example.com`,
+  ]);
   const groupName = rand(["engineering", "security", "contractors", "all-staff"]);
   const deviceType = rand(["CHROME_OS", "ANDROID", "IOS", "WINDOWS"] as const);
   const adminActor = rand([`admin@${project.id.split("-")[0]}.example.com`, "system@google.com"]);
@@ -758,9 +804,16 @@ export function generateManagedAdLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const domainName = `${rand(["corp", "globex", "prod"])}.internal`;
   const forestTrust = rand(["INBOUND", "OUTBOUND", "BIDIRECTIONAL", "NONE"] as const);
-  const operation = rand(["CREATE_DOMAIN", "EXTEND_SCHEMA", "RESET_PASSWORD", "CREATE_BACKUP"] as const);
+  const operation = rand([
+    "CREATE_DOMAIN",
+    "EXTEND_SCHEMA",
+    "RESET_PASSWORD",
+    "CREATE_BACKUP",
+  ] as const);
   const domainControllerIp = `10.${randInt(1, 200)}.${randInt(1, 250)}.${randInt(2, 250)}`;
-  const replicationStatus = isErr ? rand(["FAILED", "LAGGING"] as const) : rand(["HEALTHY", "SYNCED", "IN_PROGRESS"] as const);
+  const replicationStatus = isErr
+    ? rand(["FAILED", "LAGGING"] as const)
+    : rand(["HEALTHY", "SYNCED", "IN_PROGRESS"] as const);
   const durationNs = randLatencyMs(500, isErr) * 1e6;
   return {
     "@timestamp": ts,
@@ -787,8 +840,17 @@ export function generateManagedAdLog(ts: string, er: number): EcsDocument {
 
 export function generateOsLoginLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const user = rand([`dev@${project.id.split("-")[0]}.example.com`, `sre@${project.id}.example.com`]);
-  const action = rand(["LOGIN", "LOGOUT", "SSH_KEY_ADD", "SSH_KEY_REMOVE", "POSIX_ACCOUNT_UPDATE"] as const);
+  const user = rand([
+    `dev@${project.id.split("-")[0]}.example.com`,
+    `sre@${project.id}.example.com`,
+  ]);
+  const action = rand([
+    "LOGIN",
+    "LOGOUT",
+    "SSH_KEY_ADD",
+    "SSH_KEY_REMOVE",
+    "POSIX_ACCOUNT_UPDATE",
+  ] as const);
   const instance = `vm-${rand(["bastion", "build"])}-${randId(4).toLowerCase()}`;
   const sshKeyFingerprint = `SHA256:${Array.from({ length: 44 }, () => randInt(0, 15).toString(16)).join("")}`;
   const loginMethod = rand(["SSH_KEY", "OS_LOGIN_2FA"] as const);

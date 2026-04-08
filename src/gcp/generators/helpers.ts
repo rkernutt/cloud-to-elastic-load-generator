@@ -148,14 +148,7 @@ export function randGkeNamespace(): string {
 }
 
 export function randNetworkTag(): string {
-  return rand([
-    "allow-http",
-    "allow-https",
-    "allow-ssh",
-    "internal-only",
-    "bastion",
-    "egress-nat",
-  ]);
+  return rand(["allow-http", "allow-https", "allow-ssh", "internal-only", "bastion", "egress-nat"]);
 }
 
 export function randSubnet(region?: string): string {

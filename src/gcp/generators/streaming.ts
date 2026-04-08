@@ -65,7 +65,13 @@ export function generateDataflowLog(ts: string, er: number): EcsDocument {
   const jobName = rand(["clickstream-sessions", "etl-orders", "log-parser", "metrics-rollups"]);
   const jobId = `${new Date().getFullYear()}-${randInt(1, 12)}-${randInt(10, 28)}_${randInt(0, 23)}_${randInt(10, 59)}_${randInt(10, 59)}-${randId(6)}`;
   const jobType = rand(["STREAMING", "BATCH"]);
-  const stepName = rand(["ReadFromPubSub", "ParseJson", "GroupByKey", "WriteToBigQuery", "WindowIntoSessions"]);
+  const stepName = rand([
+    "ReadFromPubSub",
+    "ParseJson",
+    "GroupByKey",
+    "WriteToBigQuery",
+    "WindowIntoSessions",
+  ]);
   const workerCount = isErr ? randInt(1, 4) : randInt(4, 80);
   const elementsProduced = isErr ? randInt(0, 1000) : randInt(50_000, 50_000_000);
   const bytesProduced = isErr ? randInt(0, 1_000_000) : randInt(10_000_000, 8_000_000_000);

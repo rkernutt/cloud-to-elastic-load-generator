@@ -83,7 +83,10 @@ export function generateBigQueryTrace(ts: string, er: number): EcsDocument[] {
         name: `BigQuery stage ${i + 1} ${rand(["shuffle", "aggregate", "join", "scan"])}`,
         duration: { us },
         action: "execute",
-        db: { type: "sql", statement: `/* stage ${i + 1} */ EXECUTE ON ${rand(["slot-pool", "reservation"])}` },
+        db: {
+          type: "sql",
+          statement: `/* stage ${i + 1} */ EXECUTE ON ${rand(["slot-pool", "reservation"])}`,
+        },
         destination: { service: { resource: "bigquery", type: "db", name: "bigquery" } },
       },
       service: { name: "analytics-queries", environment: env, language: { name: "sql" } },

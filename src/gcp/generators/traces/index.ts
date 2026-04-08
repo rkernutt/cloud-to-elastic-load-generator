@@ -23,22 +23,23 @@ import { generateVertexAiTrace } from "./vertexai.js";
 import { generateFirestoreTrace } from "./firestore.js";
 import { generateCascadingFailureTrace } from "./workflow-cascading.js";
 
-const GCP_TRACE_GENERATORS: Record<string, (ts: string, er: number) => Record<string, unknown>[]> = {
-  "cloud-functions": generateCloudFunctionsTrace,
-  "cloud-run": generateCloudRunTrace,
-  gke: generateGkeTrace,
-  "app-engine": generateAppEngineTrace,
-  "cloud-spanner": generateCloudSpannerTrace,
-  pubsub: generatePubSubTrace,
-  bigquery: generateBigQueryTrace,
-  "workflow-ecommerce": generateEcommerceOrderTrace,
-  "workflow-ml": generateMlInferenceTrace,
-  "workflow-data": generateDataPipelineTrace,
-  "cloud-sql": generateCloudSqlTrace,
-  dataflow: generateDataflowTrace,
-  "vertex-ai": generateVertexAiTrace,
-  firestore: generateFirestoreTrace,
-  "workflow-cascading": generateCascadingFailureTrace,
-};
+const GCP_TRACE_GENERATORS: Record<string, (ts: string, er: number) => Record<string, unknown>[]> =
+  {
+    "cloud-functions": generateCloudFunctionsTrace,
+    "cloud-run": generateCloudRunTrace,
+    gke: generateGkeTrace,
+    "app-engine": generateAppEngineTrace,
+    "cloud-spanner": generateCloudSpannerTrace,
+    pubsub: generatePubSubTrace,
+    bigquery: generateBigQueryTrace,
+    "workflow-ecommerce": generateEcommerceOrderTrace,
+    "workflow-ml": generateMlInferenceTrace,
+    "workflow-data": generateDataPipelineTrace,
+    "cloud-sql": generateCloudSqlTrace,
+    dataflow: generateDataflowTrace,
+    "vertex-ai": generateVertexAiTrace,
+    firestore: generateFirestoreTrace,
+    "workflow-cascading": generateCascadingFailureTrace,
+  };
 
 export { GCP_TRACE_GENERATORS };

@@ -1,48 +1,30 @@
 {
-  "@timestamp": "2026-04-07T15:26:36.815Z",
+  "@timestamp": "2026-04-08T12:27:26.854Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": {
-      "id": "164820739518",
-      "name": "globex-shared-services"
-    },
-    "service": {
-      "name": "lakeformation"
-    }
+    "region": "me-central-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "service": { "name": "lakeformation" }
   },
   "aws": {
     "dimensions": {
-      "ResourceArn": "arn:aws:glue:ca-central-1:164820739518:table/curated/transactions",
+      "ResourceArn": "arn:aws:glue:me-central-1:164820739518:table/curated/products",
       "Principal": "arn:aws:iam::164820739518:role/analyst-role"
     },
     "lakeformation": {
       "database": "curated",
-      "table": "transactions",
-      "action": "CreateLakeFormationTag",
+      "table": "products",
+      "action": "GetDataAccess",
       "principal_arn": "arn:aws:iam::164820739518:role/analyst-role",
-      "resource_arn": "arn:aws:glue:ca-central-1:164820739518:table/curated/transactions",
-      "permissions": [
-        "ALL"
-      ],
+      "resource_arn": "arn:aws:glue:me-central-1:164820739518:table/curated/products",
+      "permissions": ["DESCRIBE"],
       "lf_tag_key": "environment",
-      "lf_tag_values": [
-        "dev",
-        "staging"
-      ],
+      "lf_tag_values": ["pii"],
       "metrics": {
-        "GrantCount": {
-          "sum": 18
-        },
-        "DatabaseCount": {
-          "avg": 7
-        },
-        "TableCount": {
-          "avg": 66
-        },
-        "DataLakeSettings": {
-          "avg": 1
-        }
+        "GrantCount": { "sum": 38 },
+        "DatabaseCount": { "avg": 16 },
+        "TableCount": { "avg": 195 },
+        "DataLakeSettings": { "avg": 1 }
       }
     },
     "s3": {
@@ -51,50 +33,34 @@
         "arn": "arn:aws:s3:::aws-lakeformation-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/lakeformation/ca-central-1/2026/04/07/lakeformation_1B2K4MPCCW1.log.gz"
+        "key": "AWSLogs/164820739518/lakeformation/me-central-1/2026/04/08/lakeformation_EF3YSJDHW9E.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lakeformation/logs",
-      "log_stream": "ca-central-1/bdvw9jqj",
-      "ingestion_time": "2026-04-07T15:26:37.135Z"
+      "log_stream": "me-central-1/v6c3q212",
+      "ingestion_time": "2026-04-08T12:27:27.367Z"
     }
   },
   "event": {
-    "action": "CreateLakeFormationTag",
-    "duration": 845000000,
+    "action": "GetDataAccess",
+    "duration": 373000000,
     "outcome": "success",
-    "category": [
-      "database",
-      "iam"
-    ],
+    "category": ["database", "iam"],
     "dataset": "aws.lakeformation",
     "provider": "lakeformation.amazonaws.com",
     "module": "aws"
   },
-  "message": "Lake Formation CreateLakeFormationTag: ALL on curated.transactions",
-  "log": {
-    "level": "info"
-  },
-  "service": {
-    "name": "lakeformation",
-    "type": "aws"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
-  "data_stream": {
-    "type": "logs",
-    "dataset": "aws.lakeformation",
-    "namespace": "default"
-  },
+  "message": "Lake Formation GetDataAccess: DESCRIBE on curated.products",
+  "log": { "level": "info" },
+  "service": { "name": "lakeformation", "type": "aws" },
+  "ecs": { "version": "8.11.0" },
+  "data_stream": { "type": "logs", "dataset": "aws.lakeformation", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "rkixrkdfth"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "efy1ac2q4y"
   },
-  "input": {
-    "type": "aws-cloudwatch"
-  }
+  "input": { "type": "aws-cloudwatch" }
 }

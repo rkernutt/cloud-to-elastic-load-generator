@@ -1,100 +1,45 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "ecs": {
-    "version": "8.11.0"
-  },
+  "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-southeast2",
-    "project": {
-      "id": "globex-staging-d4e5f6",
-      "name": "Globex Staging"
-    },
-    "account": {
-      "id": "271828182845",
-      "name": "Globex Staging"
-    }
+    "region": "europe-west3",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-southeast2",
-    "ephemeral_id": "vef6ct97z8"
+    "name": "metricbeat-gcp-europe-west3",
+    "ephemeral_id": "nfr7dio7o1"
   },
   "gcp": {
-    "compute-engine": {
+    "shielded-vms": {
       "metrics": {
-        "cpu_utilization": {
-          "avg": 23.19,
-          "sum": 23.19,
-          "count": 1
-        },
-        "disk_read_bytes": {
-          "avg": 57193899,
-          "sum": 57193899,
-          "count": 1
-        },
-        "disk_write_bytes": {
-          "avg": 86125295,
-          "sum": 86125295,
-          "count": 1
-        },
-        "network_received_bytes": {
-          "avg": 327202195,
-          "sum": 327202195,
-          "count": 1
-        },
-        "network_sent_bytes": {
-          "avg": 175880880,
-          "sum": 175880880,
-          "count": 1
-        }
+        "request_count": { "avg": 11880, "sum": 11880, "count": 1 },
+        "error_count": { "avg": 0, "sum": 0, "count": 1 },
+        "latency": { "avg": 68.75, "sum": 68.75, "count": 1 }
       },
-      "labels": {
-        "instance_name": "web-bjhg"
-      }
+      "labels": { "resource_id": "resource-a" }
     }
   },
-  "metricset": {
-    "name": "compute-engine",
-    "period": 60000
-  },
-  "data_stream": {
-    "type": "metrics",
-    "dataset": "gcp.compute_metrics",
-    "namespace": "default"
-  },
-  "input": {
-    "type": "gcp-monitoring"
-  },
-  "event": {
-    "dataset": "gcp.compute_metrics",
-    "module": "gcp"
-  },
+  "metricset": { "name": "shielded-vms", "period": 60000 },
+  "data_stream": { "type": "metrics", "dataset": "gcp.shielded_vms", "namespace": "default" },
+  "input": { "type": "gcp-monitoring" },
+  "event": { "dataset": "gcp.shielded_vms", "module": "gcp" },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/compute-engine/cpu_utilization",
+      "type": "custom.googleapis.com/opentelemetry/elastic/samples/shielded-vms/request_count",
       "labels": {}
     },
     "resource": {
-      "type": "gce_instance",
-      "labels": {
-        "project_id": "globex-staging-d4e5f6",
-        "instance_id": "563447815075",
-        "zone": "asia-southeast2-a"
-      }
+      "type": "global",
+      "labels": { "project_id": "globex-security-j0k1l2", "region": "europe-west3" }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      {
-        "interval": {
-          "endTime": "2026-04-04T12:00:00.000Z"
-        },
-        "value": {
-          "doubleValue": 23.19
-        }
-      }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 11880 } }
     ]
   }
 }

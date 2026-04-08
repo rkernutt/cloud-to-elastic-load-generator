@@ -1,84 +1,61 @@
 {
-  "@timestamp": "2026-04-07T15:26:36.815Z",
+  "@timestamp": "2026-04-08T12:27:26.854Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": {
-      "id": "164820739518",
-      "name": "globex-shared-services"
-    },
-    "service": {
-      "name": "vpclattice"
-    }
+    "region": "me-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
+    "service": { "name": "vpclattice" }
   },
   "aws": {
-    "dimensions": {
-      "ServiceName": "inventory-svc",
-      "ServiceNetworkName": "prod-service-network"
-    },
+    "dimensions": { "ServiceName": "auth-svc", "ServiceNetworkName": "shared-services-network" },
     "vpclattice": {
-      "service_name": "inventory-svc",
-      "service_arn": "arn:aws:vpc-lattice:ap-east-1:164820739518:service/inventory-svc-lmt8wk9i",
-      "service_network_name": "prod-service-network",
-      "target_group_id": "tg-y07y3t9b0d",
-      "source_vpc_id": "vpc-5gnp6lh6",
-      "destination_vpc_id": "vpc-mh41rcf6",
-      "request_method": "GET",
-      "response_code": 301,
-      "response_time_ms": 132,
-      "bytes_received": 46117,
-      "bytes_sent": 113948,
-      "tls_cipher_suite": "ECDHE-RSA-AES128-GCM-SHA256"
+      "service_name": "auth-svc",
+      "service_arn": "arn:aws:vpc-lattice:me-south-1:814726593401:service/auth-svc-dq7vw53l",
+      "service_network_name": "shared-services-network",
+      "target_group_id": "tg-23tisk0wyxt",
+      "source_vpc_id": "vpc-hzyu42sj",
+      "destination_vpc_id": "vpc-qy21pyjk",
+      "request_method": "PUT",
+      "response_code": 200,
+      "response_time_ms": 188,
+      "bytes_received": 44260,
+      "bytes_sent": 21984,
+      "tls_cipher_suite": "TLS_AES_256_GCM_SHA384"
     },
     "s3": {
       "bucket": {
-        "name": "aws-vpclattice-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-vpclattice-logs-164820739518"
+        "name": "aws-vpclattice-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-vpclattice-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/vpclattice/ap-east-1/2026/04/07/vpclattice_01TBO5JYV43J.log.gz"
+        "key": "AWSLogs/814726593401/vpclattice/me-south-1/2026/04/08/vpclattice_5T6DFL0Y13.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/vpclattice/logs",
-      "log_stream": "ap-east-1/tk1soaov",
-      "ingestion_time": "2026-04-07T15:26:37.102Z"
+      "log_stream": "me-south-1/ebrbouri",
+      "ingestion_time": "2026-04-08T12:27:27.248Z"
     }
   },
   "event": {
-    "action": "ForwardRule",
+    "action": "RequestRejected",
     "outcome": "success",
-    "category": [
-      "network"
-    ],
+    "category": ["network"],
     "dataset": "aws.vpclattice",
     "provider": "vpc-lattice.amazonaws.com",
-    "duration": 132000000,
+    "duration": 188000000,
     "module": "aws"
   },
-  "message": "VPC Lattice inventory-svc: GET 301 132ms",
-  "log": {
-    "level": "info"
-  },
-  "service": {
-    "name": "vpclattice",
-    "type": "aws"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
-  "data_stream": {
-    "type": "logs",
-    "dataset": "aws.vpclattice",
-    "namespace": "default"
-  },
+  "message": "VPC Lattice auth-svc: PUT 200 188ms",
+  "log": { "level": "info" },
+  "service": { "name": "vpclattice", "type": "aws" },
+  "ecs": { "version": "8.11.0" },
+  "data_stream": { "type": "logs", "dataset": "aws.vpclattice", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "b4ep6xi907q"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "py6up54xthh"
   },
-  "input": {
-    "type": "aws-cloudwatch"
-  }
+  "input": { "type": "aws-cloudwatch" }
 }

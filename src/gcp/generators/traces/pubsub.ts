@@ -47,7 +47,12 @@ export function generatePubSubTrace(ts: string, er: number): EcsDocument[] {
       action: "send",
       destination: { service: { resource: "pubsub", type: "messaging", name: "pubsub" } },
     },
-    service: { name: "checkout-publisher", environment: env, language: { name: "nodejs" }, runtime: { name: "nodejs", version: "20.x" } },
+    service: {
+      name: "checkout-publisher",
+      environment: env,
+      language: { name: "nodejs" },
+      runtime: { name: "nodejs", version: "20.x" },
+    },
     cloud: gcpCloud(region, project, "pubsub.googleapis.com"),
     agent: APM_AGENT,
     data_stream: APM_DS,
@@ -114,7 +119,9 @@ export function generatePubSubTrace(ts: string, er: number): EcsDocument[] {
       name: `functions.process_${topic.replace(/-/g, "_")}`,
       duration: { us: fnUs },
       action: "invoke",
-      destination: { service: { resource: "cloudfunctions", type: "request", name: "cloudfunctions" } },
+      destination: {
+        service: { resource: "cloudfunctions", type: "request", name: "cloudfunctions" },
+      },
     },
     service: {
       name: `${topic}-handler`,
@@ -145,7 +152,12 @@ export function generatePubSubTrace(ts: string, er: number): EcsDocument[] {
       sampled: true,
       span_count: { started: 4, dropped: 0 },
     },
-    service: { name: "checkout-publisher", environment: env, language: { name: "nodejs" }, runtime: { name: "nodejs", version: "20.x" } },
+    service: {
+      name: "checkout-publisher",
+      environment: env,
+      language: { name: "nodejs" },
+      runtime: { name: "nodejs", version: "20.x" },
+    },
     cloud: gcpCloud(region, project, "pubsub.googleapis.com"),
     agent: APM_AGENT,
     data_stream: APM_DS,

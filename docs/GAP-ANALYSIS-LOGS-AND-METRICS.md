@@ -227,6 +227,6 @@ Items marked ✅ are now addressed.
 
 - **Implementing a service:** Check its row in §3 and §1.1; add missing log fields, message types, and metrics from AWS and Elastic docs.
 - **Adding a new service:** Ensure logs + metrics (if in Elastic table), dimensions, and at least one realistic message type.
-- **Ingest pipelines:** When adding JSON in `message`, update [INGEST-PIPELINE-REFERENCE.md](INGEST-PIPELINE-REFERENCE.md) and run `npm run setup:pipelines` to install the updated pipeline.
+- **Ingest pipelines:** When adding JSON in `message`, update [INGEST-PIPELINE-REFERENCE.md](INGEST-PIPELINE-REFERENCE.md) and run `npm run setup:aws-pipelines` to install the updated pipeline.
 
 After changes, regenerate samples with `npm run samples`.

@@ -235,6 +235,12 @@ const INGESTION_META = {
   firehose: { label: "Firehose", color: "#F04E98", inputType: "aws-firehose" },
   api: { label: "API", color: "#00BFB3", inputType: "http_endpoint" },
   otel: { label: "OTel", color: "#93C90E", inputType: "opentelemetry" },
+  "otel-edot-collector": { label: "EDOT Collector", color: "#93C90E", inputType: "opentelemetry" },
+  "otel-csp-edot-gateway": {
+    label: "CSP distro → EDOT GW",
+    color: "#FEC514",
+    inputType: "opentelemetry",
+  },
   agent: { label: "Agent", color: "#8144CC", inputType: "logfile" },
 };
 

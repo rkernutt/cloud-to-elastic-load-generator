@@ -25,7 +25,7 @@ interface ServiceGridProps {
   getEffectiveSource: (id: string) => string;
 }
 
-/** Public URL for a file under `iconBaseUrl`: AWS flat names or encoded `Cloud Icons/...` paths. */
+/** Public URL for a file under `iconBaseUrl` (flat names under public/, paths URL-encoded). */
 function fileIconUrl(base: string, file: string): string {
   const b = base.replace(/\/$/, "");
   if (file.includes("/")) {
@@ -165,7 +165,10 @@ const ServiceGrid = memo(function ServiceGrid({
                 {serviceIcons.mode === "file-icons" ? (
                   serviceIcons.categoryFiles[group.id] ? (
                     <img
-                      src={fileIconUrl(serviceIcons.iconBaseUrl, serviceIcons.categoryFiles[group.id])}
+                      src={fileIconUrl(
+                        serviceIcons.iconBaseUrl,
+                        serviceIcons.categoryFiles[group.id]
+                      )}
                       alt=""
                       style={{ width: 22, height: 22, objectFit: "contain" }}
                     />
@@ -298,7 +301,10 @@ const ServiceGrid = memo(function ServiceGrid({
                         {serviceIcons.mode === "file-icons" ? (
                           serviceIcons.serviceFiles[svc.id] ? (
                             <img
-                              src={fileIconUrl(serviceIcons.iconBaseUrl, serviceIcons.serviceFiles[svc.id])}
+                              src={fileIconUrl(
+                                serviceIcons.iconBaseUrl,
+                                serviceIcons.serviceFiles[svc.id]
+                              )}
                               alt=""
                               style={{ width: 28, height: 28, objectFit: "contain" }}
                             />

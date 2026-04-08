@@ -51,9 +51,7 @@ export interface CloudAppConfig {
   /** Connection page “override ingestion” button group (includes Default first). */
   ingestionOverrideOptions: { id: string; label: string }[];
   traceServices: TraceServiceMeta[];
-  loadLogGenerators: () => Promise<
-    Record<string, (ts: string, er: number) => unknown | unknown[]>
-  >;
+  loadLogGenerators: () => Promise<Record<string, (ts: string, er: number) => unknown | unknown[]>>;
   loadMetricsGenerators: () => Promise<
     Record<string, (ts: string, er: number) => unknown | unknown[]>
   >;

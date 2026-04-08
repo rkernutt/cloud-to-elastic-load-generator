@@ -156,7 +156,9 @@ export function generateDataflowTrace(ts: string, er: number): EcsDocument[] {
             },
           }
         : {}),
-      destination: { service: { resource: writeResource, type: writeSpanType, name: writeResource } },
+      destination: {
+        service: { resource: writeResource, type: writeSpanType, name: writeResource },
+      },
     },
     service: {
       name: "event-pipeline",
@@ -165,7 +167,11 @@ export function generateDataflowTrace(ts: string, er: number): EcsDocument[] {
       runtime: { name: "java", version: "17" },
       framework: { name: "Apache Beam / Dataflow" },
     },
-    cloud: gcpCloud(region, project, sinkKind === "bigquery" ? "bigquery.googleapis.com" : "storage.googleapis.com"),
+    cloud: gcpCloud(
+      region,
+      project,
+      sinkKind === "bigquery" ? "bigquery.googleapis.com" : "storage.googleapis.com"
+    ),
     agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: failIdx === 3 ? "failure" : "success" },

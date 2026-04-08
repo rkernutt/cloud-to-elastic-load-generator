@@ -1,85 +1,56 @@
 {
-  "@timestamp": "2026-04-07T15:26:36.815Z",
+  "@timestamp": "2026-04-08T12:27:26.854Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": {
-      "id": "164820739518",
-      "name": "globex-shared-services"
-    },
-    "service": {
-      "name": "mwaa"
-    }
+    "region": "eu-north-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
+    "service": { "name": "mwaa" }
   },
   "aws": {
-    "dimensions": {
-      "EnvironmentName": "data-platform"
-    },
+    "dimensions": { "EnvironmentName": "prod-airflow" },
     "mwaa": {
-      "environment_name": "data-platform",
-      "dag_id": "report_generation",
-      "run_id": "scheduled__2026-04-07T14:48:22.815Z",
-      "task_id": "validate",
-      "run_state": "upstream_failed",
-      "duration_seconds": 1334,
-      "worker_count": 8,
+      "environment_name": "prod-airflow",
+      "dag_id": "ml_training_pipeline",
+      "run_id": "scheduled__2026-04-08T12:10:21.854Z",
+      "task_id": "load",
+      "run_state": "running",
+      "duration_seconds": 153,
+      "worker_count": 2,
       "queue_name": "ml_queue",
-      "airflow_version": "2.7.3"
+      "airflow_version": "2.8.1"
     },
     "s3": {
       "bucket": {
-        "name": "aws-mwaa-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-mwaa-logs-164820739518"
+        "name": "aws-mwaa-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-mwaa-logs-738291046572"
       },
-      "object": {
-        "key": "AWSLogs/164820739518/mwaa/eu-central-2/2026/04/07/mwaa_2KV60OUPBW5.log.gz"
-      }
+      "object": { "key": "AWSLogs/738291046572/mwaa/eu-north-1/2026/04/08/mwaa_QIVTAY6F6WG.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/mwaa/logs",
-      "log_stream": "eu-central-2/fl03bwic",
-      "ingestion_time": "2026-04-07T15:26:37.136Z"
+      "log_stream": "eu-north-1/qrkt1qwo",
+      "ingestion_time": "2026-04-08T12:27:27.372Z"
     }
   },
   "event": {
-    "action": "DagRunStateChanged",
-    "outcome": "failure",
-    "category": [
-      "process"
-    ],
+    "action": "WorkerScaleDown",
+    "outcome": "success",
+    "category": ["process"],
     "dataset": "aws.mwaa",
     "provider": "airflow.amazonaws.com",
-    "duration": 1334000000000,
+    "duration": 153000000000,
     "module": "aws"
   },
-  "message": "MWAA data-platform: DAG report_generation task validate upstream_failed",
-  "log": {
-    "level": "error"
-  },
-  "error": {
-    "code": "TaskFailed",
-    "message": "Airflow task validate failed in DAG report_generation",
-    "type": "process"
-  },
-  "service": {
-    "name": "mwaa",
-    "type": "aws"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
-  "data_stream": {
-    "type": "logs",
-    "dataset": "aws.mwaa",
-    "namespace": "default"
-  },
+  "message": "MWAA prod-airflow: DAG ml_training_pipeline task load running (153s)",
+  "log": { "level": "info" },
+  "service": { "name": "mwaa", "type": "aws" },
+  "ecs": { "version": "8.11.0" },
+  "data_stream": { "type": "logs", "dataset": "aws.mwaa", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "04u2pbrb34k3"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "s9xpga26m6e"
   },
-  "input": {
-    "type": "aws-cloudwatch"
-  }
+  "input": { "type": "aws-cloudwatch" }
 }

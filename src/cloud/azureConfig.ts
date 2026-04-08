@@ -25,7 +25,10 @@ const azureVendorServiceFiles = Object.fromEntries(
 );
 
 const azureVendorCategoryFiles = Object.fromEntries(
-  AZURE_SERVICE_GROUPS.map((g) => [g.id, AZURE_VENDOR_CATEGORY_ICONS[g.id] ?? AZURE_VENDOR_FALLBACK])
+  AZURE_SERVICE_GROUPS.map((g) => [
+    g.id,
+    AZURE_VENDOR_CATEGORY_ICONS[g.id] ?? AZURE_VENDOR_FALLBACK,
+  ])
 );
 
 const AZURE_TRACE_UI: TraceServiceMeta[] = AZURE_TRACE_SERVICES.map((s) => ({
@@ -40,7 +43,7 @@ export const AZURE_CONFIG: CloudAppConfig = {
   id: "azure",
   htmlTitle: "Azure → Elastic Load Generator",
   branding: {
-    headerLogoSrc: publicUrl("azure-logo-header.svg"),
+    headerLogoSrc: publicUrl("icons/azure-vendor.svg"),
     headerLogoAlt: "Microsoft Azure",
   },
   lsKey: "azureElasticConfig",
@@ -55,7 +58,10 @@ export const AZURE_CONFIG: CloudAppConfig = {
   metricsSupportedServiceIds: AZURE_METRICS_SUPPORTED_SERVICE_IDS,
   serviceIngestionDefaults: AZURE_SERVICE_INGESTION_DEFAULTS,
   fallbackIngestionSource: "default",
-  ingestionMeta: AZURE_INGESTION_META as Record<string, { label: string; color: string; inputType?: string }>,
+  ingestionMeta: AZURE_INGESTION_META as Record<
+    string,
+    { label: string; color: string; inputType?: string }
+  >,
   ingestionOverrideOptions: [
     { id: "default", label: "Default" },
     ...Object.entries(AZURE_INGESTION_META)
@@ -64,8 +70,10 @@ export const AZURE_CONFIG: CloudAppConfig = {
   ],
   traceServices: AZURE_TRACE_UI,
   loadLogGenerators: () => import("../azure/generators").then((m) => m.AZURE_GENERATORS),
-  loadMetricsGenerators: () => import("../azure/generators/metrics").then((m) => m.AZURE_METRICS_GENERATORS),
-  loadTraceGenerators: () => import("../azure/generators/traces").then((m) => m.AZURE_TRACE_GENERATORS),
+  loadMetricsGenerators: () =>
+    import("../azure/generators/metrics").then((m) => m.AZURE_METRICS_GENERATORS),
+  loadTraceGenerators: () =>
+    import("../azure/generators/traces").then((m) => m.AZURE_TRACE_GENERATORS),
   enrichContext: {
     kind: "gcp-azure",
     ctx: {
@@ -73,7 +81,10 @@ export const AZURE_CONFIG: CloudAppConfig = {
       elasticDatasetMap: AZURE_ELASTIC_DATASET_MAP as Record<string, string>,
       elasticMetricsDatasetMap: AZURE_METRICS_DATASET_MAP,
       serviceIngestionDefaults: AZURE_SERVICE_INGESTION_DEFAULTS,
-      ingestionMeta: AZURE_INGESTION_META as Record<string, { label: string; color: string; inputType?: string }>,
+      ingestionMeta: AZURE_INGESTION_META as Record<
+        string,
+        { label: string; color: string; inputType?: string }
+      >,
       regions: AZURE_REGIONS,
       defaultIngestion: "default",
     },
@@ -87,6 +98,5 @@ export const AZURE_CONFIG: CloudAppConfig = {
   },
   formatBulkIndexName: (prefix, dataset) => genericVendorBulkIndex(prefix, dataset, "azure"),
   formatDocDatasetIndex: (prefix, ds) => genericVendorDocDataset(prefix, ds, "azure"),
-  fallbackDatasetForService: (serviceId: string) =>
-    `azure.${serviceId.replace(/-/g, "_")}`,
+  fallbackDatasetForService: (serviceId: string) => `azure.${serviceId.replace(/-/g, "_")}`,
 };

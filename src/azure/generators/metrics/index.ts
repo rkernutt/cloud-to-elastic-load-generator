@@ -35,10 +35,7 @@ const METRIC_MERGE_VARIANTS: Record<string, string[]> = {
 };
 
 const BASE: Record<string, MetricGenerator> = Object.fromEntries(
-  [...AZURE_METRICS_SUPPORTED_SERVICE_IDS].sort().map((id) => [
-    id,
-    metricGenForId(id),
-  ])
+  [...AZURE_METRICS_SUPPORTED_SERVICE_IDS].sort().map((id) => [id, metricGenForId(id)])
 );
 
 export const AZURE_METRICS_GENERATORS: Record<string, MetricGenerator> = { ...BASE };

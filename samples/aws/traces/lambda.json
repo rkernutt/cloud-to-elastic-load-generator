@@ -1,98 +1,55 @@
 {
-  "@timestamp": "2026-04-07T15:26:36.815Z",
-  "processor": {
-    "name": "transaction",
-    "event": "transaction"
-  },
-  "trace": {
-    "id": "424cc8d3cb04ea4eeec5240f325fd844"
-  },
+  "@timestamp": "2026-04-08T12:27:26.854Z",
+  "processor": { "name": "transaction", "event": "transaction" },
+  "trace": { "id": "b807e8bf66aa4f6b136b8d7304923dcb" },
   "transaction": {
-    "id": "14db701bc84d7c15",
-    "name": "image-resizer",
+    "id": "dbd2150254b39151",
+    "name": "stream-processor",
     "type": "lambda",
-    "duration": {
-      "us": 3847000
-    },
+    "duration": { "us": 3790000 },
     "result": "success",
     "sampled": true,
-    "span_count": {
-      "started": 2,
-      "dropped": 0
-    },
+    "span_count": { "started": 3, "dropped": 0 },
     "faas": {
       "coldstart": false,
-      "execution": "9971377c-8937-4543-b80d-df7ddb251006",
-      "trigger": {
-        "type": "datastore"
-      }
+      "execution": "5a6d2e10-69dc-8ec1-0835-b95a6bac8094",
+      "trigger": { "type": "pubsub" }
     }
   },
   "faas": {
-    "name": "image-resizer",
-    "id": "arn:aws:lambda:us-east-2:123456789012:function:image-resizer",
+    "name": "stream-processor",
+    "id": "arn:aws:lambda:ap-northeast-2:234567890123:function:stream-processor",
     "version": "$LATEST",
     "coldstart": false,
-    "execution": "9971377c-8937-4543-b80d-df7ddb251006",
-    "trigger": {
-      "type": "datastore"
-    }
+    "execution": "5a6d2e10-69dc-8ec1-0835-b95a6bac8094",
+    "trigger": { "type": "pubsub" }
   },
   "service": {
-    "name": "image-resizer",
+    "name": "stream-processor",
     "environment": "production",
     "version": "1.0.0",
-    "language": {
-      "name": "nodejs"
-    },
-    "runtime": {
-      "name": "nodejs18.x",
-      "version": "18.20.4"
-    },
-    "framework": {
-      "name": "AWS Lambda"
-    }
+    "language": { "name": "nodejs" },
+    "runtime": { "name": "nodejs20.x", "version": "20.15.1" },
+    "framework": { "name": "AWS Lambda" }
   },
-  "agent": {
-    "name": "otlp",
-    "version": "1.4.0"
-  },
+  "agent": { "name": "otlp", "version": "1.30.1" },
   "telemetry": {
-    "sdk": {
-      "name": "opentelemetry",
-      "language": "nodejs",
-      "version": "1.30.1"
-    },
-    "distro": {
-      "name": "elastic",
-      "version": "1.4.0"
+    "sdk": { "name": "opentelemetry", "language": "nodejs", "version": "1.30.1" },
+    "distro": { "name": "aws-otel", "version": "1.30.1" },
+    "otel_pipeline": {
+      "hop": "otel_collector",
+      "export_protocol": "otlp",
+      "destination": "elastic_managed"
     }
   },
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": {
-      "id": "123456789012",
-      "name": "prod-aws"
-    },
-    "service": {
-      "name": "lambda"
-    }
+    "region": "ap-northeast-2",
+    "account": { "id": "234567890123", "name": "staging-aws" },
+    "service": { "name": "lambda" }
   },
-  "event": {
-    "outcome": "success",
-    "module": "aws",
-    "dataset": "aws.lambda_logs"
-  },
-  "data_stream": {
-    "type": "traces",
-    "dataset": "apm",
-    "namespace": "default"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
-  "input": {
-    "type": "opentelemetry"
-  }
+  "event": { "outcome": "success", "module": "aws", "dataset": "aws.lambda_logs" },
+  "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
+  "ecs": { "version": "8.11.0" },
+  "input": { "type": "opentelemetry" }
 }

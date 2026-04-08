@@ -171,7 +171,10 @@ writeDash("app-service-dashboard.json", "Azure App Service — Requests", [
     "az-as-d1",
     { x: 0, y: 5, w: 16, h: 10 },
     "Status",
-    q(I_APPSVC, "STATS c = COUNT() BY s = `azure.app_service.status_code` | SORT c DESC | LIMIT 12"),
+    q(
+      I_APPSVC,
+      "STATS c = COUNT() BY s = `azure.app_service.status_code` | SORT c DESC | LIMIT 12"
+    ),
     "c",
     "s"
   ),

@@ -64,9 +64,11 @@ Service name: **`cloud-to-elastic-load-generator`**. App on **8765** → contain
 
 ## Icons
 
-- **AWS:** `postinstall` runs `npm run copy-icons` (from `aws-icons` package).
-- **GCP / Azure:** Flat SVGs ship in **`public/gcp-icons/`** and **`public/azure-icons/`** with **`src/cloud/generated/vendorFileIcons.ts`**. Contributors do not need `Cloud Icons/` for day-to-day work.
-- **Regenerating vendor maps (maintainers):** With repo-root **`Cloud Icons/`** present, run **`npm run icons:vendor`**. If that folder is missing, the script leaves committed files untouched (it no longer overwrites them with empty maps).
+- **AWS:** `postinstall` runs **`npm run copy-icons`** (`scripts/sync-aws-icons.mjs`): copies every SVG referenced in **`src/data/iconMap.ts`** from the **`aws-icons`** package into **`public/aws-icons/`**, then deletes files there that are no longer referenced. A few service icons are not published under predictable names in the package and stay **committed only** (currently see warnings for `AmazonQLDB`, `AmazonLookoutforMetrics`, `AWSPrivate5G`, `AWSRoboMaker`). PNG category/findings artwork is committed as-is. **`npm run icons:audit`** compares on-disk files to `iconMap` + GCP/Azure vendor maps.
+- **GCP / Azure:** Flat SVGs ship in **`public/gcp-icons/`** and **`public/azure-icons/`** with **`src/cloud/generated/vendorFileIcons.ts`**. Normal clones need nothing else.
+- **Regenerating vendor maps (maintainers):** Put vendor source trees under **`local/cloud-icons/`** (same layout as before: `GCP icons/`, `Azure_Public_Service_Icons/`, etc.). That directory is gitignored. Run **`npm run icons:vendor`**. Optional: set **`CLOUD_ICONS_DIR`** to an absolute path if sources live outside the repo. If `local/cloud-icons/` is missing, the script does not overwrite committed maps.
+
+**Optional local files:** Use **`local/`** for any large or private maintainer-only assets so the repo stays limited to committed **`public/`** / **`src/`** artifacts.
 
 ## Code quality
 
@@ -75,3 +77,7 @@ npm run format:check
 npm run lint
 npm run typecheck
 ```
+
+## Documentation index
+
+Guides (AWS CloudWatch routing, OTel, ingest reference, diagrams): [docs/README.md](./README.md).

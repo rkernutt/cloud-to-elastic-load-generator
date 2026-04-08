@@ -20,7 +20,12 @@ function eventBlock(isErr: boolean, durationNs: number) {
 export function generateCloudSqlLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const databaseEngine = rand(["MYSQL", "POSTGRES", "SQLSERVER"] as const);
-  const tier = rand(["db-f1-micro", "db-g1-small", "db-n1-standard-4", "db-custom-8-32768"] as const);
+  const tier = rand([
+    "db-f1-micro",
+    "db-g1-small",
+    "db-n1-standard-4",
+    "db-custom-8-32768",
+  ] as const);
   const databaseName = rand(["app", "reporting", "auth", "inventory"]);
   const queryType = rand(["SELECT", "INSERT", "UPDATE", "DELETE"] as const);
   const queryDurationMs = randLatencyMs(randInt(2, 400), isErr);
@@ -90,7 +95,10 @@ export function generateFirestoreLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const dbOp = rand(["CREATE", "READ", "UPDATE", "DELETE", "QUERY"] as const);
   const documentsReturned = isErr ? 0 : randInt(1, 500);
-  const indexUsed = dbOp === "QUERY" && !isErr ? rand(["composite_idx_users_email", "single_field_created_at"]) : null;
+  const indexUsed =
+    dbOp === "QUERY" && !isErr
+      ? rand(["composite_idx_users_email", "single_field_created_at"])
+      : null;
   const readConsistency = rand(["strong", "eventual"] as const);
   const durationNs = randLatencyMs(randInt(3, 150), isErr) * 1e6;
   const databaseId = `(default)`;
@@ -123,7 +131,8 @@ export function generateBigtableLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const operation = rand(["ReadRows", "MutateRow", "CheckAndMutateRow", "SampleRowKeys"] as const);
   const rowsRead = isErr ? randInt(0, 5) : randInt(10, 500_000);
-  const cellsModified = operation === "MutateRow" || operation === "CheckAndMutateRow" ? randInt(1, 10_000) : 0;
+  const cellsModified =
+    operation === "MutateRow" || operation === "CheckAndMutateRow" ? randInt(1, 10_000) : 0;
   const latencyMs = randLatencyMs(randInt(4, 120), isErr);
   const zone = randZone(region);
   const instanceId = `bt-${randId(5).toLowerCase()}`;
@@ -193,7 +202,8 @@ export function generateMemorystoreLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const tier = rand(["BASIC", "STANDARD_HA"] as const);
   const engine = rand(["REDIS", "MEMCACHED"] as const);
-  const version = engine === "REDIS" ? rand(["6.2", "7.0", "7.2"] as const) : rand(["1.6"] as const);
+  const version =
+    engine === "REDIS" ? rand(["6.2", "7.0", "7.2"] as const) : rand(["1.6"] as const);
   const operation = rand(["GET", "SET", "DEL", "EXPIRE"] as const);
   const memoryUsedMb = randInt(128, 26_000);
   const connectedClients = isErr ? randInt(2000, 8000) : randInt(5, 800);

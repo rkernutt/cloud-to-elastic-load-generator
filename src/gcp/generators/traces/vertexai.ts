@@ -16,7 +16,12 @@ export function generateVertexAiTrace(ts: string, er: number): EcsDocument[] {
   const base = new Date(ts);
   const env = rand(["production", "staging"]);
 
-  const modelName = rand(["textembedding-gecko@003", "gemini-pro", "churn-xgb-v2", "image-classifier-resnet"]);
+  const modelName = rand([
+    "textembedding-gecko@003",
+    "gemini-pro",
+    "churn-xgb-v2",
+    "image-classifier-resnet",
+  ]);
   const endpointId = rand(["1234567890123456789", "9876543210987654321"]);
   const accelerator = rand(["NVIDIA_TESLA_T4", "NVIDIA_L4", "NVIDIA_A100_40GB", "TPU_V5E"]);
 

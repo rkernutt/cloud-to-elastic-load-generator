@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-07T15:26:36.815Z",
+  "@timestamp": "2026-04-08T12:27:26.854Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,83 +7,70 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": {
-      "id": "814726593401",
-      "name": "globex-production"
-    }
+    "region": "ap-southeast-4",
+    "account": { "id": "164820739518", "name": "globex-shared-services" }
   },
   "resource": {
-    "id": "arn:aws:ec2:ap-southeast-1:814726593401:security-group/sg-8rhyzw4b",
-    "name": "sg-8rhyzw4b",
-    "sub_type": "security-group",
-    "type": "cloud-network"
+    "id": "arn:aws:iam::164820739518:root",
+    "name": "arn:aws:iam::164820739518:root",
+    "sub_type": "iam-root",
+    "type": "cloud-identity-management"
   },
   "rule": {
-    "id": "cis_4_2",
-    "name": "Ensure no security group allows unrestricted RDP inbound",
-    "section": "4.2",
-    "tags": [
-      "Networking"
-    ],
+    "id": "cis_1_1",
+    "name": "Avoid use of the root account",
+    "section": "1.1",
+    "tags": ["IAM"],
     "benchmark": {
       "id": "cis_aws",
       "version": "v1.5.0",
-      "rule_number": "4.2",
+      "rule_number": "1.1",
       "posture_type": "cspm"
-    }
+    },
+    "impact": "Non-compliance with CIS AWS 1.1 may expose account to unauthorized access.",
+    "remediation": "Remediate per CIS AWS Foundations Benchmark v1.5.0 section 1.1."
   },
-  "result": {
-    "evaluation": "passed"
-  },
-  "severity": "none",
+  "result": { "evaluation": "failed" },
+  "severity": "critical",
   "event": {
     "kind": "state",
-    "category": [
-      "configuration"
-    ],
-    "type": [
-      "info"
-    ],
-    "outcome": "success",
+    "category": ["configuration"],
+    "type": ["info"],
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_cspm",
     "module": "aws"
   },
-  "message": "CSPM [CIS AWS 1.5 / 4.2] passed: Ensure no security group allows unrestricted RDP inbound",
-  "log": {
-    "level": "info"
+  "message": "CSPM [CIS AWS 1.5 / 1.1] failed: Avoid use of the root account",
+  "log": { "level": "error" },
+  "error": {
+    "code": "CIS_CIS_1_1",
+    "message": "CSPM check failed: Avoid use of the root account",
+    "type": "compliance"
   },
-  "service": {
-    "name": "cspm",
-    "type": "aws"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
+  "service": { "name": "cspm", "type": "aws" },
+  "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "cjlqqz7cge"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "1p9retj604w"
   },
-  "input": {
-    "type": "http_endpoint"
-  },
+  "input": { "type": "http_endpoint" },
   "aws": {
     "s3": {
       "bucket": {
-        "name": "aws-cspm-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-cspm-logs-814726593401"
+        "name": "aws-cspm-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-cspm-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/cspm/ap-southeast-1/2026/04/07/cspm_1OZ9OX33A2T.log.gz"
+        "key": "AWSLogs/164820739518/cspm/ap-southeast-4/2026/04/08/cspm_3P4X8RI0Q2Q.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cspm/logs",
-      "log_stream": "ap-southeast-1/rkptlgzo",
-      "ingestion_time": "2026-04-07T15:26:37.108Z"
+      "log_stream": "ap-southeast-4/lqkkf00b",
+      "ingestion_time": "2026-04-08T12:27:27.277Z"
     }
   }
 }

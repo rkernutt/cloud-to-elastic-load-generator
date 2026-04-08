@@ -364,7 +364,7 @@ async function installOne(client, title, definition, ndjson, kibanaVersion = "")
   if (!ndjson) {
     throw new Error(
       "Dashboards API unavailable on this deployment and no pre-generated ndjson found.\n" +
-        "       Run 'npm run generate:dashboards:ndjson' then retry."
+        "       Run 'npm run gen:azure-dashboards' (or regenerate ndjson) then retry."
     );
   }
 

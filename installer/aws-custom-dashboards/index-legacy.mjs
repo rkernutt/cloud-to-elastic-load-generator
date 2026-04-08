@@ -6,7 +6,7 @@
  * .ndjson files. Compatible with Kibana 8.11+ (earlier than 9.4).
  *
  * Run with:  node index-legacy.mjs
- *            npm run setup:dashboards:legacy
+ *            npm run setup:aws-dashboards:legacy
  *
  * No external dependencies — uses Node.js built-ins only.
  */

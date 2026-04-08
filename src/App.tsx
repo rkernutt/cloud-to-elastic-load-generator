@@ -15,6 +15,7 @@ import {
   testConnection,
 } from "./utils/validation";
 import { loadAndScrubSavedConfig, toPersistedStorageObject } from "./utils/persistedConfig";
+import { isOtelPipelineSource } from "./helpers/otelPipeline";
 import { AppLayout } from "./components/AppLayout";
 import { WizardFooter } from "./components/WizardFooter";
 import { ShipPage } from "./pages/ShipPage";
@@ -93,9 +94,15 @@ export function LoadGeneratorApp({
   const [batchSize, setBatchSize] = useState(savedConfig.batchSize ?? 250);
   const [deploymentType, setDeploymentType] = useState<
     "self-managed" | "cloud-hosted" | "serverless"
-  >(
-    (savedConfig.deploymentType as "self-managed" | "cloud-hosted" | "serverless") ?? "cloud-hosted"
-  );
+  >(() => {
+    if (unifiedMode) return "serverless";
+    const d = savedConfig.deploymentType as
+      | "self-managed"
+      | "cloud-hosted"
+      | "serverless"
+      | undefined;
+    return d ?? "serverless";
+  });
   const [elasticUrl, setElasticUrl] = useState("");
   const [kibanaUrl, setKibanaUrl] = useState("");
   const [apiKey, setApiKey] = useState("");
@@ -106,8 +113,12 @@ export function LoadGeneratorApp({
   const [metricsIndexPrefix, setMetricsIndexPrefix] = useState(
     savedConfig.metricsIndexPrefix ?? config.defaultMetricsIndexPrefix
   );
-  const [eventType, setEventType] = useState(savedConfig.eventType ?? "logs");
-  const [ingestionSource, setIngestionSource] = useState(savedConfig.ingestionSource ?? "default");
+  const [eventType, setEventType] = useState(() =>
+    unifiedMode ? "logs" : (savedConfig.eventType ?? "logs")
+  );
+  const [ingestionSource, setIngestionSource] = useState(() =>
+    unifiedMode ? "default" : (savedConfig.ingestionSource ?? "default")
+  );
   const [batchDelayMs, setBatchDelayMs] = useState(savedConfig.batchDelayMs ?? 20);
   const [injectAnomalies, setInjectAnomalies] = useState(savedConfig.injectAnomalies ?? false);
   const [scheduleEnabled, setScheduleEnabled] = useState(savedConfig.scheduleEnabled ?? false);
@@ -131,6 +142,13 @@ export function LoadGeneratorApp({
   const [dryRun, setDryRun] = useState(false);
 
   const isTracesMode = eventType === "traces";
+  /** Traces ship via OTLP; honor OTel pipeline override when user selected one. */
+  const traceIngestionSource = useMemo(() => {
+    if (ingestionSource !== "default" && isOtelPipelineSource(ingestionSource)) {
+      return ingestionSource;
+    }
+    return "otel";
+  }, [ingestionSource]);
   const indexPrefix = eventType === "metrics" ? metricsIndexPrefix : logsIndexPrefix;
   const setIndexPrefix = eventType === "metrics" ? setMetricsIndexPrefix : setLogsIndexPrefix;
 
@@ -229,7 +247,7 @@ export function LoadGeneratorApp({
     setScheduleEnabled(false);
     setScheduleTotalRuns(12);
     setScheduleIntervalMin(15);
-    setDeploymentType("cloud-hosted");
+    setDeploymentType("serverless");
   };
 
   // ─── Scheduled mode countdown ────────────────────────────────────────────────
@@ -388,7 +406,7 @@ export function LoadGeneratorApp({
       const traceDocs = TRACE_GENERATORS[svc](new Date().toISOString(), errorRate);
       setPreview(
         JSON.stringify(
-          enrichDoc(stripNulls(traceDocs[0]) as LooseDoc, svc, "otel", "traces"),
+          enrichDoc(stripNulls(traceDocs[0]) as LooseDoc, svc, traceIngestionSource, "traces"),
           null,
           2
         )
@@ -536,7 +554,7 @@ export function LoadGeneratorApp({
           addLog(`▶ ${svc} → ${APM_INDEX} [OTel / OTLP]`, "info");
           const traceChunks = Array.from({ length: tracesPerService }, () =>
             TRACE_GENERATORS[svc](randTs(startDate, endDate), errorRate).map((d) =>
-              enrichDoc(stripNulls(d) as LooseDoc, svc, "otel", "traces")
+              enrichDoc(stripNulls(d) as LooseDoc, svc, traceIngestionSource, "traces")
             )
           );
           const prefixEnd: number[] = [];
@@ -629,7 +647,12 @@ export function LoadGeneratorApp({
             if (!TRACE_GENERATORS[svc]) continue;
             const docs = Array.from({ length: injCount }, () =>
               TRACE_GENERATORS[svc](randTs(injStart, injEnd), 1.0).map((d) => {
-                const out = enrichDoc(stripNulls(d) as LooseDoc, svc, "otel", "traces");
+                const out = enrichDoc(
+                  stripNulls(d) as LooseDoc,
+                  svc,
+                  traceIngestionSource,
+                  "traces"
+                );
                 if (out["transaction.duration.us"]) out["transaction.duration.us"] *= 15;
                 if (out["span.duration.us"]) out["span.duration.us"] *= 15;
                 return out;
@@ -728,9 +751,9 @@ export function LoadGeneratorApp({
         const dataset =
           eventType === "metrics"
             ? (config.elasticMetricsDatasetMap[svc] ??
-                config.elasticDatasetMap[svc] ??
-                config.fallbackDatasetForService(svc))
-            : config.elasticDatasetMap[svc] ?? config.fallbackDatasetForService(svc);
+              config.elasticDatasetMap[svc] ??
+              config.fallbackDatasetForService(svc))
+            : (config.elasticDatasetMap[svc] ?? config.fallbackDatasetForService(svc));
         const indexName = config.formatBulkIndexName(indexPrefix, dataset);
         const src = getEffectiveSource(svc);
         addLog(`▶ ${svc} → ${indexName} [${config.ingestionMeta[src]?.label || src}]`, "info");
@@ -765,7 +788,9 @@ export function LoadGeneratorApp({
           let ndjson = "";
           for (const doc of batch) {
             const { __dataset, ...cleanDoc } = doc as LooseDoc;
-            const idx = __dataset ? config.formatDocDatasetIndex(indexPrefix, __dataset) : indexName;
+            const idx = __dataset
+              ? config.formatDocDatasetIndex(indexPrefix, __dataset)
+              : indexName;
             ndjson +=
               JSON.stringify({ create: { _index: idx } }) + "\n" + JSON.stringify(cleanDoc) + "\n";
           }
@@ -846,9 +871,9 @@ export function LoadGeneratorApp({
           const dataset =
             eventType === "metrics"
               ? (config.elasticMetricsDatasetMap[svc] ??
-                  config.elasticDatasetMap[svc] ??
-                  config.fallbackDatasetForService(svc))
-              : config.elasticDatasetMap[svc] ?? config.fallbackDatasetForService(svc);
+                config.elasticDatasetMap[svc] ??
+                config.fallbackDatasetForService(svc))
+              : (config.elasticDatasetMap[svc] ?? config.fallbackDatasetForService(svc));
           const indexName = config.formatBulkIndexName(indexPrefix, dataset);
           const isDimensional = METRICS_GENERATORS?.[svc] != null;
           let injDocs: LooseDoc[] | undefined;
@@ -871,7 +896,11 @@ export function LoadGeneratorApp({
               return (
                 Array.isArray(result)
                   ? result
-                  : [stripNulls(enrichDoc(result as LooseDoc, svc, getEffectiveSource(svc), eventType))]
+                  : [
+                      stripNulls(
+                        enrichDoc(result as LooseDoc, svc, getEffectiveSource(svc), eventType)
+                      ),
+                    ]
               ).map((d) => stripNulls(d as LooseDoc));
             }).flat() as LooseDoc[];
           }
@@ -896,7 +925,9 @@ export function LoadGeneratorApp({
               let ndjsonInj = "";
               for (const doc of batch) {
                 const { __dataset, ...cleanDoc } = doc;
-                const idx = __dataset ? config.formatDocDatasetIndex(indexPrefix, __dataset) : indexName;
+                const idx = __dataset
+                  ? config.formatDocDatasetIndex(indexPrefix, __dataset)
+                  : indexName;
                 ndjsonInj +=
                   JSON.stringify({ create: { _index: idx } }) +
                   "\n" +
@@ -987,6 +1018,7 @@ export function LoadGeneratorApp({
     getEffectiveSource,
     eventType,
     isTracesMode,
+    traceIngestionSource,
     runConnectionValidation,
     injectAnomalies,
     dryRun,
@@ -1092,9 +1124,8 @@ export function LoadGeneratorApp({
       headerVendorBadge={
         unifiedMode && vendorCard
           ? {
-              logoSrc: vendorCard.logoSrc,
+              logoSrc: vendorCard.logoSrcDarkBg,
               logoAlt: vendorCard.logoAlt,
-              label: vendorCard.shortLabel,
             }
           : undefined
       }

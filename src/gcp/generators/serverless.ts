@@ -167,7 +167,9 @@ export function generateCloudSchedulerLog(ts: string, er: number): EcsDocument {
   const jobName = `${rand(["nightly", "hourly", "sync", "purge"])}-${randId(4).toLowerCase()}`;
   const schedule = rand(["0 * * * *", "0 3 * * *", "*/15 * * * *", "30 9 * * 1-5"]);
   const targetType = rand(["http", "pubsub", "app-engine"] as const);
-  const status = isErr ? rand(["FAILED", "DEADLINE_EXCEEDED", "PERMISSION_DENIED"]) : rand(["SUCCESS", "OK", "COMPLETED"]);
+  const status = isErr
+    ? rand(["FAILED", "DEADLINE_EXCEEDED", "PERMISSION_DENIED"])
+    : rand(["SUCCESS", "OK", "COMPLETED"]);
   const attemptCount = isErr ? randInt(2, 5) : 1;
   const message = isErr
     ? `Cloud Scheduler job ${jobName} (${schedule}) targeting ${targetType} failed after ${attemptCount} attempt(s): ${status}`
@@ -197,8 +199,16 @@ export function generateWorkflowsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const workflowName = `${rand(["orders", "onboarding", "etl", "approval"])}-workflow`;
   const executionId = `projects/${project.id}/locations/${region}/workflows/${workflowName}/executions/${randId(10).toLowerCase()}`;
-  const state = isErr ? rand(["FAILED", "CANCELLED", "TIMEOUT"]) : rand(["ACTIVE", "SUCCEEDED", "COMPLETED"]);
-  const stepName = rand(["validateInput", "callPaymentApi", "notifyUser", "transformPayload", "waitHuman"]);
+  const state = isErr
+    ? rand(["FAILED", "CANCELLED", "TIMEOUT"])
+    : rand(["ACTIVE", "SUCCEEDED", "COMPLETED"]);
+  const stepName = rand([
+    "validateInput",
+    "callPaymentApi",
+    "notifyUser",
+    "transformPayload",
+    "waitHuman",
+  ]);
   const startTime = new Date(new Date(ts).getTime() - randInt(1000, 600_000)).toISOString();
   const durationMs = randLatencyMs(randInt(500, 8000), isErr);
   const message = isErr
@@ -237,7 +247,9 @@ export function generateEventarcLog(ts: string, er: number): EcsDocument {
   ]);
   const channel = `projects/${project.id}/locations/${region}/channels/${randId(8).toLowerCase()}`;
   const destination = rand(["cloud-run", "workflows", "cloud-functions"] as const);
-  const deliveryStatus = isErr ? rand(["FAILED", "INVALID_PAYLOAD", "DESTINATION_UNAVAILABLE"]) : rand(["DELIVERED", "ACKNOWLEDGED", "SUCCESS"]);
+  const deliveryStatus = isErr
+    ? rand(["FAILED", "INVALID_PAYLOAD", "DESTINATION_UNAVAILABLE"])
+    : rand(["DELIVERED", "ACKNOWLEDGED", "SUCCESS"]);
   const message = isErr
     ? `Eventarc delivery to ${destination} failed for ${eventType} (${deliveryStatus}, trigger ${triggerName})`
     : `Eventarc routed ${eventType} to ${destination} via ${triggerName} (${deliveryStatus})`;
@@ -268,7 +280,9 @@ export function generateCloudRunJobsLog(ts: string, er: number): EcsDocument {
   const executionId = `exec-${randId(12).toLowerCase()}`;
   const taskCount = randInt(1, 32);
   const taskIndex = randInt(0, Math.max(0, taskCount - 1));
-  const status = isErr ? rand(["FAILED", "RUNNING"] as const) : rand(["PENDING", "RUNNING", "SUCCEEDED", "FAILED"] as const);
+  const status = isErr
+    ? rand(["FAILED", "RUNNING"] as const)
+    : rand(["PENDING", "RUNNING", "SUCCEEDED", "FAILED"] as const);
   const timeoutSeconds = randInt(300, 86400);
   const parallelism = randInt(1, Math.min(10, taskCount));
   const containerImage = `${region}-docker.pkg.dev/${project.id}/jobs/${jobName}:${rand(["latest", `v${randInt(1, 3)}.${randInt(0, 9)}`])}`;
@@ -305,7 +319,9 @@ export function generateServerlessVpcAccessLog(ts: string, er: number): EcsDocum
   const network = rand(["default", "prod-vpc", "serverless-net", "shared-vpc"]);
   const ipRange = `10.${randInt(8, 31)}.${randInt(0, 255)}.0/28`;
   const throughput = rand(["MIN", "DEFAULT", "MAX"] as const);
-  const status = isErr ? rand(["ERROR", "DEGRADED"] as const) : rand(["READY", "RUNNING", "UPDATING"] as const);
+  const status = isErr
+    ? rand(["ERROR", "DEGRADED"] as const)
+    : rand(["READY", "RUNNING", "UPDATING"] as const);
   const instancesActive = isErr ? randInt(0, 2) : randInt(2, 100);
   const packetsForwarded = isErr ? randInt(0, 5000) : randInt(10_000, 50_000_000);
   const message = isErr

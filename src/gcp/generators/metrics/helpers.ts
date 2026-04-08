@@ -3,14 +3,7 @@
  * Each metric doc matches an Elastic GCP integration–style shape.
  */
 
-export {
-  GCP_REGIONS,
-  GCP_PROJECTS,
-  rand,
-  randInt,
-  randFloat,
-  randId,
-} from "../helpers.js";
+export { GCP_REGIONS, GCP_PROJECTS, rand, randInt, randFloat, randId } from "../helpers.js";
 import { rand, randId, GCP_REGIONS, randProject } from "../helpers.js";
 import type { GcpProject } from "../helpers.js";
 import type { EcsDocument } from "../../../aws/generators/types.js";

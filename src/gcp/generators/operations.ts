@@ -19,7 +19,13 @@ export function generateCloudTraceLog(ts: string, er: number): EcsDocument {
   const traceId = randTraceId();
   const spanId = randSpanId();
   const parentSpanId = Math.random() < 0.65 ? randSpanId() : "";
-  const displayName = rand(["grpc.io.server.call", "HTTP GET", "pubsub.subscribe", "run.googleapis.com/request", "tasks.enqueue"]);
+  const displayName = rand([
+    "grpc.io.server.call",
+    "HTTP GET",
+    "pubsub.subscribe",
+    "run.googleapis.com/request",
+    "tasks.enqueue",
+  ]);
   const kind = rand(["SERVER", "CLIENT", "PRODUCER", "CONSUMER"] as const);
   const statusCode = isErr ? 2 : 0;
   const latencyMs = randLatencyMs(randInt(5, 800), isErr);
@@ -92,7 +98,9 @@ export function generateCloudProfilerLog(ts: string, er: number): EcsDocument {
 
 export function generateErrorReportingLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const errorGroupId = Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
+  const errorGroupId = Array.from({ length: 32 }, () =>
+    Math.floor(Math.random() * 16).toString(16)
+  ).join("");
   const serviceName = rand(["checkout-api", "render-ssr", "etl-worker", "mobile-bff"]);
   const version = `${randInt(1, 9)}.${randInt(0, 50)}.${randInt(0, 99)}`;
   const exceptionType = rand([

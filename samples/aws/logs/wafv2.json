@@ -1,148 +1,85 @@
 {
-  "@timestamp": "2026-04-07T15:26:36.815Z",
+  "@timestamp": "2026-04-08T12:27:26.854Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": {
-      "id": "738291046572",
-      "name": "globex-development"
-    },
-    "service": {
-      "name": "wafv2"
-    }
+    "region": "ca-central-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
+    "service": { "name": "wafv2" }
   },
   "aws": {
-    "dimensions": {
-      "WebACL": "cdn-waf",
-      "Rule": "SQLi_Args",
-      "Region": "ap-southeast-1"
-    },
+    "dimensions": { "WebACL": "cdn-waf", "Rule": "BadBot", "Region": "ca-central-1" },
     "waf": {
-      "id": "f6td18p7k3r",
-      "arn": "arn:aws:wafv2:ap-southeast-1:738291046572:regional/webacl/cdn-waf/53za8mjx-z87a-4zjj-lrt5-bfsbi2wdtbt",
+      "id": "aria3o9r03v",
+      "arn": "arn:aws:wafv2:ca-central-1:814726593401:regional/webacl/cdn-waf/rpuucnul-b3u1-ijcg-yr64-gf9nh1r0xf",
       "format_version": "1",
-      "source": {
-        "name": "CF",
-        "id": "738291046572-app/cdn-waf/2u30pyd5fc9"
-      },
+      "source": { "name": "ALB", "id": "814726593401-app/cdn-waf/l1nsv3o2uxm" },
       "rule_group_list": [
-        {
-          "ruleGroupId": "AWSManagedRulesPHPRuleSet",
-          "nonTerminatingMatchingRules": []
-        }
+        { "ruleGroupId": "AWSManagedRulesLinuxRuleSet", "nonTerminatingMatchingRules": [] }
       ],
       "non_terminating_matching_rules": [],
       "terminating_rule_match_details": [],
       "request": {
         "headers": [
-          {
-            "name": "User-Agent",
-            "value": "python-requests/2.27.1"
-          },
-          {
-            "name": "Host",
-            "value": "api.example.com"
-          }
+          { "name": "User-Agent", "value": "python-requests/2.27.1" },
+          { "name": "Host", "value": "api.example.com" }
         ]
       },
       "labels": [],
       "metrics": {
-        "AllowedRequests": {
-          "sum": 1
-        },
-        "BlockedRequests": {
-          "sum": 0
-        },
-        "CountedRequests": {
-          "sum": 0
-        },
-        "PassedRequests": {
-          "sum": 1
-        },
-        "RequestsWithValidCaptchaToken": {
-          "sum": 0
-        },
-        "ChallengeRequests": {
-          "sum": 0
-        },
-        "FailedCaptcha": {
-          "sum": 0
-        }
+        "AllowedRequests": { "sum": 1 },
+        "BlockedRequests": { "sum": 0 },
+        "CountedRequests": { "sum": 0 },
+        "PassedRequests": { "sum": 1 },
+        "RequestsWithValidCaptchaToken": { "sum": 0 },
+        "ChallengeRequests": { "sum": 0 },
+        "FailedCaptcha": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-wafv2-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-wafv2-logs-738291046572"
+        "name": "aws-wafv2-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-wafv2-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/wafv2/ap-southeast-1/2026/04/07/wafv2_DMXT8OCLBI6.log.gz"
+        "key": "AWSLogs/814726593401/wafv2/ca-central-1/2026/04/08/wafv2_N3J90GMAXWK.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/wafv2/logs",
-      "log_stream": "ap-southeast-1/ylqkd4mb",
-      "ingestion_time": "2026-04-07T15:26:37.162Z"
+      "log_stream": "ca-central-1/0a29fzyp",
+      "ingestion_time": "2026-04-08T12:27:27.459Z"
     }
   },
   "source": {
-    "ip": "205.184.141.195",
+    "ip": "242.19.184.80",
     "geo": {
-      "country_iso_code": "FR",
-      "country_name": "France",
-      "city_name": "Paris",
-      "location": {
-        "lat": 48.8566,
-        "lon": 2.3522
-      }
+      "country_iso_code": "BR",
+      "country_name": "Brazil",
+      "city_name": "São Paulo",
+      "location": { "lat": -23.5505, "lon": -46.6333 }
     }
   },
-  "http": {
-    "request": {
-      "method": "DELETE",
-      "bytes": 7778
-    }
-  },
-  "url": {
-    "path": "/api/v1/orders"
-  },
-  "user_agent": {
-    "original": "python-requests/2.27.1"
-  },
+  "http": { "request": { "method": "DELETE", "bytes": 117 } },
+  "url": { "path": "/api/v1/orders" },
+  "user_agent": { "original": "python-requests/2.27.1" },
   "event": {
     "action": "allow",
     "outcome": "success",
-    "category": [
-      "intrusion_detection",
-      "network"
-    ],
+    "category": ["intrusion_detection", "network"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
     "module": "aws"
   },
-  "message": "WAFv2 ALLOW [cdn-waf] 205.184.141.195 DELETE /api/v1/orders",
-  "log": {
-    "level": "info"
-  },
-  "service": {
-    "name": "wafv2",
-    "type": "aws"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
-  "data_stream": {
-    "type": "logs",
-    "dataset": "aws.waf",
-    "namespace": "default"
-  },
+  "message": "WAFv2 ALLOW [cdn-waf] 242.19.184.80 DELETE /api/v1/orders",
+  "log": { "level": "info" },
+  "service": { "name": "wafv2", "type": "aws" },
+  "ecs": { "version": "8.11.0" },
+  "data_stream": { "type": "logs", "dataset": "aws.waf", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "qmffnecmv"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "17jmz319tyu"
   },
-  "input": {
-    "type": "aws-s3"
-  }
+  "input": { "type": "aws-s3" }
 }

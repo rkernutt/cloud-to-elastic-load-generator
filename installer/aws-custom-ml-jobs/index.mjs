@@ -6,7 +6,7 @@
  * for AWS services not covered by the official Elastic AWS integration.
  *
  * Run with:  node installer/aws-custom-ml-jobs/index.mjs
- *            or: npm run setup:ml-jobs
+ *            or: npm run setup:aws-ml-jobs
  *
  * No external dependencies — uses Node.js built-ins only (Node 18+).
  */

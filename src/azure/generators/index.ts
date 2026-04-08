@@ -36,8 +36,8 @@ type Gen = (ts: string, er: number) => EcsDocument;
 const DEDICATED: Record<string, Gen> = {
   "virtual-machines": generateVirtualMachinesLog,
   "vm-scale-sets": generateVmScaleSetsLog,
-  "batch": generateBatchLog,
-  "aks": generateAksLog,
+  batch: generateBatchLog,
+  aks: generateAksLog,
   "virtual-network": generateVirtualNetworkLog,
   "load-balancer": generateLoadBalancerLog,
   "application-gateway": generateApplicationGatewayLog,
@@ -46,12 +46,12 @@ const DEDICATED: Record<string, Gen> = {
   "sql-database": generateSqlDatabaseLog,
   "cosmos-db": generateCosmosDbLog,
   "app-service": generateAppServiceLog,
-  "functions": generateFunctionsLog,
+  functions: generateFunctionsLog,
   "service-bus": generateServiceBusLog,
   "event-hubs": generateEventHubsLog,
   "key-vault": generateKeyVaultLog,
   "entra-id": generateEntraIdLog,
-  "openai": generateOpenAiLog,
+  openai: generateOpenAiLog,
 };
 
 const AZURE_LOG_MERGE_CHILDREN: Record<string, readonly string[]> = {

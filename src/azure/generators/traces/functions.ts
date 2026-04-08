@@ -32,7 +32,11 @@ export function generateFunctionsTrace(ts: string, er: number): EcsDocument[] {
       action: "send",
       destination: { service: { resource: "eventhubs", type: "messaging", name: "telemetry" } },
     },
-    service: { name: "ingest-fn", language: { name: "nodejs" }, framework: { name: "Azure Functions" } },
+    service: {
+      name: "ingest-fn",
+      language: { name: "nodejs" },
+      framework: { name: "Azure Functions" },
+    },
     cloud: azureCloud(region, subscription, "Microsoft.Web/sites"),
     agent: APM_AGENT,
     data_stream: APM_DS,

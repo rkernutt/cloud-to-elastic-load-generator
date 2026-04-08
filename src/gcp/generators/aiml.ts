@@ -248,7 +248,12 @@ export function generateSpeechToTextLog(ts: string, er: number): EcsDocument {
 export function generateTextToSpeechLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const textLength = randInt(20, 8000);
-  const voiceName = rand(["en-US-Wavenet-D", "en-GB-Neural2-A", "es-ES-Neural2-C", "de-DE-Wavenet-B"]);
+  const voiceName = rand([
+    "en-US-Wavenet-D",
+    "en-GB-Neural2-A",
+    "es-ES-Neural2-C",
+    "de-DE-Wavenet-B",
+  ]);
   const audioEncoding = rand(["MP3", "LINEAR16", "OGG_OPUS"] as const);
   const speakingRate = Math.round((0.85 + Math.random() * 0.5) * 100) / 100;
   const pitch = randInt(-6, 6);
@@ -282,9 +287,19 @@ export function generateDialogflowLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const agentName = `agent-${rand(["support", "sales", "faq", "booking"])}-${randId(4).toLowerCase()}`;
   const sessionId = `sess-${randId(12).toLowerCase()}`;
-  const intentName = rand(["Default Welcome Intent", "Order.Status", "Handoff.Agent", "SmallTalk.Hello"]);
+  const intentName = rand([
+    "Default Welcome Intent",
+    "Order.Status",
+    "Handoff.Agent",
+    "SmallTalk.Hello",
+  ]);
   const intentConfidence = isErr ? randFloat(0.1, 0.45) : randFloat(0.65, 0.99);
-  const queryText = rand(["Track my order", "I need a human", "What are your hours?", "Cancel subscription"]);
+  const queryText = rand([
+    "Track my order",
+    "I need a human",
+    "What are your hours?",
+    "Cancel subscription",
+  ]);
   const responseTextLength = randInt(isErr ? 0 : 40, 2000);
   const fulfillmentWebhookCalled = Math.random() < 0.55;
   const sentimentScore = randFloat(-0.4, 0.9);
@@ -319,7 +334,13 @@ export function generateDialogflowLog(ts: string, er: number): EcsDocument {
 
 export function generateDocumentAiLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const processorType = rand(["FORM_PARSER", "OCR", "INVOICE_PARSER", "ID_PROOFING", "EXPENSE_PARSER"] as const);
+  const processorType = rand([
+    "FORM_PARSER",
+    "OCR",
+    "INVOICE_PARSER",
+    "ID_PROOFING",
+    "EXPENSE_PARSER",
+  ] as const);
   const processorName = `${processorType.toLowerCase()}-${randId(6).toLowerCase()}`;
   const documentPages = randInt(1, 120);
   const entitiesExtracted = isErr ? randInt(0, 4) : randInt(5, 400);
@@ -353,7 +374,12 @@ export function generateDocumentAiLog(ts: string, er: number): EcsDocument {
 export function generateRecommendationsAiLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const catalogName = `catalog-${rand(["prod", "media", "fashion"])}-${randId(4).toLowerCase()}`;
-  const eventType = rand(["detail-page-view", "add-to-cart", "purchase-complete", "search"] as const);
+  const eventType = rand([
+    "detail-page-view",
+    "add-to-cart",
+    "purchase-complete",
+    "search",
+  ] as const);
   const userId = `user_${randId(10)}`;
   const recommendationCount = isErr ? 0 : randInt(4, 24);
   const servingConfig = `servingConfigs/${rand(["default", "trending", "similar-items"])}`;
@@ -424,7 +450,8 @@ export function generateAutoMlLog(ts: string, er: number): EcsDocument {
   const modelName = `model-${randId(8).toLowerCase()}`;
   const operation = rand(["TRAINING", "EVALUATING", "DEPLOYING", "PREDICTING"] as const);
   const status = isErr ? rand(["FAILED", "CANCELLED"]) : rand(["RUNNING", "SUCCEEDED", "QUEUED"]);
-  const trainingHours = operation === "TRAINING" || operation === "EVALUATING" ? randFloat(0.5, 48) : 0;
+  const trainingHours =
+    operation === "TRAINING" || operation === "EVALUATING" ? randFloat(0.5, 48) : 0;
   const evaluationMetricName = rand(["accuracy", "auPRC", "f1_score", "mean_absolute_error"]);
   const evaluationMetricValue = isErr ? randFloat(0.2, 0.55) : randFloat(0.72, 0.98);
   const nodeCount = randInt(1, 32);
@@ -461,9 +488,14 @@ export function generateVertexAiWorkbenchLog(ts: string, er: number): EcsDocumen
   const machineType = rand(VERTEX_MACHINE_TYPES);
   const framework = rand(["tensorflow", "pytorch", "jax"] as const);
   const gpuType = rand(["NVIDIA_TESLA_T4", "NVIDIA_L4", "NVIDIA_A100", "NONE"] as const);
-  const status = isErr ? rand(["PROVISIONING", "STOPPED"] as const) : rand(["ACTIVE", "STOPPED", "PROVISIONING"] as const);
+  const status = isErr
+    ? rand(["PROVISIONING", "STOPPED"] as const)
+    : rand(["ACTIVE", "STOPPED", "PROVISIONING"] as const);
   const idleTimeoutMin = randInt(15, 240);
-  const userEmail = rand([`analyst@${project.id.split("-")[0]}.example.com`, `ds@${project.id}.example.com`]);
+  const userEmail = rand([
+    `analyst@${project.id.split("-")[0]}.example.com`,
+    `ds@${project.id}.example.com`,
+  ]);
   const message = isErr
     ? `Vertex AI Workbench ${instanceName} ${status}: ${framework} on ${machineType} failed to start`
     : `Vertex AI Workbench ${instanceName} ${status} (${machineType}, ${gpuType}, ${framework}, idle ${idleTimeoutMin}m)`;
@@ -495,7 +527,9 @@ export function generateVertexAiPipelinesLog(ts: string, er: number): EcsDocumen
   const pipelineName = `pipeline-${rand(["train", "batch", "deploy"])}-${randId(5).toLowerCase()}`;
   const runId = `run-${randId(12).toLowerCase()}`;
   const componentName = rand(["preprocess", "train", "evaluate", "export_model", "deploy"]);
-  const state = isErr ? rand(["FAILED", "RUNNING"] as const) : rand(["PENDING", "RUNNING", "SUCCEEDED", "FAILED", "CANCELLED"] as const);
+  const state = isErr
+    ? rand(["FAILED", "RUNNING"] as const)
+    : rand(["PENDING", "RUNNING", "SUCCEEDED", "FAILED", "CANCELLED"] as const);
   const inputArtifacts = randInt(1, 12);
   const outputArtifacts = isErr ? randInt(0, 2) : randInt(1, 20);
   const executionTimeSeconds = randInt(isErr ? 30 : 60, isErr ? 7200 : 14_400);

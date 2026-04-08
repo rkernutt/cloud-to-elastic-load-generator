@@ -5,6 +5,7 @@
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import { writePrettierJson } from "./write-prettier-json.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.join(__dirname, "..");
@@ -57,7 +58,7 @@ for (const [id, fn] of Object.entries(AZURE_GENERATORS)) {
     { serviceId: id, eventType: "logs", ingestionSource: azureIngestion(id) },
     AZURE_CONFIG.enrichContext
   );
-  fs.writeFileSync(path.join(logsDir, `${id}.json`), JSON.stringify(enriched, null, 2), "utf8");
+  await writePrettierJson(path.join(logsDir, `${id}.json`), enriched);
   logCount++;
 }
 
@@ -70,7 +71,7 @@ for (const [id, fn] of Object.entries(AZURE_METRICS_GENERATORS)) {
     { serviceId: id, eventType: "metrics", ingestionSource: azureIngestion(id) },
     AZURE_CONFIG.enrichContext
   );
-  fs.writeFileSync(path.join(metricsDir, `${id}.json`), JSON.stringify(enriched, null, 2), "utf8");
+  await writePrettierJson(path.join(metricsDir, `${id}.json`), enriched);
   metricsCount++;
 }
 
@@ -83,7 +84,7 @@ for (const [id, fn] of Object.entries(AZURE_TRACE_GENERATORS)) {
     { serviceId: id, eventType: "traces", ingestionSource: "otel" },
     AZURE_CONFIG.enrichContext
   );
-  fs.writeFileSync(path.join(tracesDir, `${id}.json`), JSON.stringify(enriched, null, 2), "utf8");
+  await writePrettierJson(path.join(tracesDir, `${id}.json`), enriched);
   tracesCount++;
 }
 

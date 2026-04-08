@@ -44,14 +44,20 @@ function gcpSeverity(doc: LooseDoc): string {
   return "INFO";
 }
 
-function gcpResourceLabels(serviceId: string, doc: LooseDoc, projectId: string, region: string): LooseDoc {
+function gcpResourceLabels(
+  serviceId: string,
+  doc: LooseDoc,
+  projectId: string,
+  region: string
+): LooseDoc {
   const zone = doc.gcp?.compute_engine?.zone ?? `${region}-a`;
   const base = { project_id: projectId };
   switch (GCP_LOG_RESOURCE_TYPE[serviceId] ?? "") {
     case "gce_instance":
       return {
         ...base,
-        instance_id: doc.gcp?.compute_engine?.instance_id ?? String(Math.floor(Math.random() * 1e12)),
+        instance_id:
+          doc.gcp?.compute_engine?.instance_id ?? String(Math.floor(Math.random() * 1e12)),
         zone,
       };
     case "cloud_function":
@@ -96,8 +102,7 @@ export function attachGcpLoggingApiEnvelope(
 ): void {
   const resourceType = GCP_LOG_RESOURCE_TYPE[serviceId] ?? DEFAULT_GCP_RESOURCE;
   const safeLogId = serviceId.replace(/\//g, "_");
-  doc.logName =
-    doc.logName ?? `projects/${projectId}/logs/${encodeURIComponent(safeLogId)}`;
+  doc.logName = doc.logName ?? `projects/${projectId}/logs/${encodeURIComponent(safeLogId)}`;
   doc.resource = doc.resource ?? {
     type: resourceType,
     labels: gcpResourceLabels(serviceId, doc, projectId, region),

@@ -6,6 +6,7 @@
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import { writePrettierJson } from "./write-prettier-json.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.join(__dirname, "..");
@@ -40,11 +41,9 @@ fs.mkdirSync(logsDir, { recursive: true });
 fs.mkdirSync(metricsDir, { recursive: true });
 fs.mkdirSync(tracesDir, { recursive: true });
 
-// ── Log samples ───────────────────────────────────────────────────────────────
 let logCount = 0;
 for (const [id, fn] of Object.entries(GENERATORS)) {
   const result = fn(ts, errorRate);
-  // Chain generators return arrays — write first doc; strip __dataset routing key
   const raw = Array.isArray(result) ? result[0] : result;
   const { __dataset: _omitDataset, ...cleaned } = stripNulls(raw);
   const doc = enrichDocument(cleaned, {
@@ -52,11 +51,10 @@ for (const [id, fn] of Object.entries(GENERATORS)) {
     ingestionSource: getSource(id),
     eventType: "logs",
   });
-  fs.writeFileSync(path.join(logsDir, `${id}.json`), JSON.stringify(doc, null, 2), "utf8");
+  await writePrettierJson(path.join(logsDir, `${id}.json`), doc);
   logCount++;
 }
 
-// ── Metrics samples — use dimensional generators for true CloudWatch shape ────
 let metricsCount = 0;
 for (const [id, fn] of Object.entries(METRICS_GENERATORS)) {
   const docs = fn(ts, errorRate);
@@ -66,17 +64,16 @@ for (const [id, fn] of Object.entries(METRICS_GENERATORS)) {
     ingestionSource: getSource(id),
     eventType: "metrics",
   });
-  fs.writeFileSync(path.join(metricsDir, `${id}.json`), JSON.stringify(doc, null, 2), "utf8");
+  await writePrettierJson(path.join(metricsDir, `${id}.json`), doc);
   metricsCount++;
 }
 
-// ── Traces samples — write first span doc from each trace generator ───────────
 let tracesCount = 0;
 for (const [id, fn] of Object.entries(TRACE_GENERATORS)) {
   const docs = fn(ts, errorRate);
   const raw = stripNulls(Array.isArray(docs) ? docs[0] : docs);
   const doc = enrichDocument(raw, { serviceId: id, ingestionSource: "otel", eventType: "traces" });
-  fs.writeFileSync(path.join(tracesDir, `${id}.json`), JSON.stringify(doc, null, 2), "utf8");
+  await writePrettierJson(path.join(tracesDir, `${id}.json`), doc);
   tracesCount++;
 }
 

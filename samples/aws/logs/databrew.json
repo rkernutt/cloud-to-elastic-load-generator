@@ -1,99 +1,66 @@
 {
-  "@timestamp": "2026-04-07T15:26:36.815Z",
+  "@timestamp": "2026-04-08T12:27:26.854Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-2",
-    "account": {
-      "id": "814726593401",
-      "name": "globex-production"
-    },
-    "service": {
-      "name": "databrew"
-    }
+    "region": "eu-south-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "service": { "name": "databrew" }
   },
   "aws": {
-    "dimensions": {
-      "JobName": "fix-encoding-job",
-      "DatasetName": "sales-csv"
-    },
+    "dimensions": { "JobName": "remove-pii-job", "DatasetName": "event-logs" },
     "databrew": {
-      "project_name": "sales-csv-project",
-      "recipe_name": "fix-encoding",
-      "job_name": "fix-encoding-job",
+      "project_name": "event-logs-project",
+      "recipe_name": "remove-pii",
+      "job_name": "remove-pii-job",
       "job_type": "RECIPE",
-      "dataset_name": "sales-csv",
+      "dataset_name": "event-logs",
       "job_status": "SUCCEEDED",
       "run_state": "SUCCEEDED",
-      "duration_seconds": 499,
-      "rows_processed": 2493310,
-      "transform_steps": 24,
-      "output_location": "s3://databrew-output/sales-csv/",
+      "duration_seconds": 372,
+      "rows_processed": 8975135,
+      "transform_steps": 19,
+      "output_location": "s3://databrew-output/event-logs/",
       "metrics": {
-        "RowsProcessed": {
-          "sum": 2493310
-        },
-        "DurationSeconds": {
-          "avg": 499
-        },
-        "TransformSteps": {
-          "avg": 24
-        },
-        "JobSuccessCount": {
-          "sum": 1
-        },
-        "JobFailureCount": {
-          "sum": 0
-        }
+        "RowsProcessed": { "sum": 8975135 },
+        "DurationSeconds": { "avg": 372 },
+        "TransformSteps": { "avg": 19 },
+        "JobSuccessCount": { "sum": 1 },
+        "JobFailureCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-databrew-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-databrew-logs-814726593401"
+        "name": "aws-databrew-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-databrew-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/databrew/ap-southeast-2/2026/04/07/databrew_1W32GJVV85F.log.gz"
+        "key": "AWSLogs/501938274650/databrew/eu-south-1/2026/04/08/databrew_OX0BM00QN.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/databrew/logs",
-      "log_stream": "ap-southeast-2/ut9mabth",
-      "ingestion_time": "2026-04-07T15:26:37.135Z"
+      "log_stream": "eu-south-1/4x4y7y0f",
+      "ingestion_time": "2026-04-08T12:27:27.370Z"
     }
   },
   "event": {
-    "duration": 499000000000,
+    "duration": 372000000000,
     "outcome": "success",
-    "category": [
-      "process"
-    ],
+    "category": ["process"],
     "dataset": "aws.databrew",
     "provider": "databrew.amazonaws.com",
     "module": "aws"
   },
-  "message": "Job run started",
-  "log": {
-    "level": "info"
-  },
-  "service": {
-    "name": "databrew",
-    "type": "aws"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
-  "data_stream": {
-    "type": "logs",
-    "dataset": "aws.databrew",
-    "namespace": "default"
-  },
+  "message": "Job run succeeded",
+  "log": { "level": "info" },
+  "service": { "name": "databrew", "type": "aws" },
+  "ecs": { "version": "8.11.0" },
+  "data_stream": { "type": "logs", "dataset": "aws.databrew", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-2",
-    "ephemeral_id": "w72vgh9uvjg"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "x5uagnn97p"
   },
-  "input": {
-    "type": "aws-cloudwatch"
-  }
+  "input": { "type": "aws-cloudwatch" }
 }

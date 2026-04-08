@@ -1,79 +1,50 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "processor": {
-    "name": "transaction",
-    "event": "transaction"
-  },
-  "trace": {
-    "id": "c57d849ebacb1fa69de178aa25869b87"
-  },
+  "processor": { "name": "transaction", "event": "transaction" },
+  "trace": { "id": "53ce6f4f31367ef5bde92757d425f844" },
   "transaction": {
-    "id": "747dfe67b1e43352",
-    "name": "POST /v1/projects/globex-prod-a1b2c3/locations/us-east4/endpoints/1234567890123456789:predict",
+    "id": "ecb69ea92232354f",
+    "name": "POST /v1/projects/globex-dev-g7h8i9/locations/asia-south1/endpoints/1234567890123456789:predict",
     "type": "request",
-    "duration": {
-      "us": 2754715
-    },
+    "duration": { "us": 4632283 },
     "result": "HTTP 2xx",
     "sampled": true,
-    "span_count": {
-      "started": 5,
-      "dropped": 0
-    }
+    "span_count": { "started": 5, "dropped": 0 }
   },
   "service": {
     "name": "vertex-inference",
-    "environment": "production",
-    "language": {
-      "name": "python"
-    },
-    "runtime": {
-      "name": "python",
-      "version": "3.12"
-    },
+    "environment": "staging",
+    "language": { "name": "python" },
+    "runtime": { "name": "python", "version": "3.12" },
     "labels": {
-      "gcp.vertex_ai.model": "textembedding-gecko@003",
+      "gcp.vertex_ai.model": "gemini-pro",
       "gcp.vertex_ai.endpoint": "1234567890123456789",
-      "gcp.vertex_ai.accelerator": "TPU_V5E"
+      "gcp.vertex_ai.accelerator": "NVIDIA_A100_40GB"
     }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-east4",
-    "project": {
-      "id": "globex-prod-a1b2c3",
-      "name": "Globex Production"
-    },
-    "account": {
-      "id": "314159265358",
-      "name": "Globex Production"
-    },
-    "service": {
-      "name": "aiplatform.googleapis.com"
-    }
+    "region": "asia-south1",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" },
+    "service": { "name": "aiplatform.googleapis.com" }
   },
-  "agent": {
-    "name": "opentelemetry/nodejs",
-    "version": "1.x"
-  },
-  "data_stream": {
-    "type": "traces",
-    "dataset": "apm",
-    "namespace": "default"
-  },
-  "event": {
-    "outcome": "success",
-    "module": "gcp",
-    "dataset": "gcp.vertexai"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
-  "input": {
-    "type": "opentelemetry"
-  },
+  "agent": { "name": "opentelemetry/nodejs", "version": "1.x" },
+  "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
+  "event": { "outcome": "success", "module": "gcp", "dataset": "gcp.vertexai" },
+  "ecs": { "version": "8.11.0" },
+  "input": { "type": "opentelemetry" },
   "gcpCloudTrace": {
-    "trace": "projects/globex-prod-a1b2c3/traces/c57d849ebacb1fa69de178aa25869b87",
-    "spanId": "747dfe67b1e43352"
+    "trace": "projects/globex-dev-g7h8i9/traces/53ce6f4f31367ef5bde92757d425f844",
+    "spanId": "ecb69ea92232354f"
+  },
+  "telemetry": {
+    "sdk": { "name": "opentelemetry", "language": "python", "version": "1.29.0" },
+    "distro": { "name": "elastic", "version": "8.18.0" },
+    "otel_pipeline": {
+      "hop": "otel_collector",
+      "export_protocol": "otlp",
+      "destination": "elastic_managed"
+    }
   }
 }

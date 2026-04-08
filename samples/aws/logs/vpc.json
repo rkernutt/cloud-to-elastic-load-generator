@@ -1,123 +1,81 @@
 {
-  "@timestamp": "2026-04-07T15:26:36.815Z",
+  "@timestamp": "2026-04-08T12:27:26.854Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
-    "account": {
-      "id": "293847561023",
-      "name": "globex-staging"
-    },
-    "service": {
-      "name": "vpc"
-    }
+    "region": "ap-southeast-4",
+    "account": { "id": "814726593401", "name": "globex-production" },
+    "service": { "name": "vpc" }
   },
   "aws": {
-    "dimensions": {
-      "VpcId": "vpc-5k7ead2w"
-    },
+    "dimensions": { "VpcId": "vpc-zizjhgrk" },
     "vpcflow": {
       "version": "2",
-      "account_id": "293847561023",
-      "interface_id": "eni-2smeb277",
-      "action": "REJECT",
+      "account_id": "814726593401",
+      "interface_id": "eni-mnheci8z",
+      "action": "ACCEPT",
       "log_status": "OK",
-      "instance_id": "i-etg6oencfa6",
-      "pkt_srcaddr": "30.162.72.69",
-      "pkt_dstaddr": "39.37.229.119",
-      "vpc_id": "vpc-5k7ead2w",
-      "subnet_id": "subnet-8d1xvcmp",
+      "pkt_srcaddr": "248.41.74.229",
+      "pkt_dstaddr": "58.166.156.15",
+      "vpc_id": "vpc-zizjhgrk",
+      "subnet_id": "subnet-14210sn1",
       "type": "IPv4"
     },
     "s3": {
       "bucket": {
-        "name": "aws-vpc-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-vpc-logs-293847561023"
+        "name": "aws-vpc-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-vpc-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/vpc/af-south-1/2026/04/07/vpc_4Y02QJ9DBUX.log.gz"
+        "key": "AWSLogs/814726593401/vpc/ap-southeast-4/2026/04/08/vpc_DROH2MGJWRK.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/vpc/logs",
-      "log_stream": "af-south-1/gwlpygu9",
-      "ingestion_time": "2026-04-07T15:26:37.092Z"
+      "log_stream": "ap-southeast-4/t0j8iuo6",
+      "ingestion_time": "2026-04-08T12:27:27.188Z"
     }
   },
   "source": {
-    "ip": "30.162.72.69",
-    "port": 8183,
+    "ip": "248.41.74.229",
+    "port": 18864,
     "geo": {
-      "country_iso_code": "US",
-      "country_name": "United States",
-      "city_name": "San Francisco",
-      "location": {
-        "lat": 37.7749,
-        "lon": -122.4194
-      }
+      "country_iso_code": "RU",
+      "country_name": "Russia",
+      "city_name": "Moscow",
+      "location": { "lat": 55.7558, "lon": 37.6173 }
     }
   },
   "destination": {
-    "ip": "39.37.229.119",
-    "port": 80,
+    "ip": "58.166.156.15",
+    "port": 22,
     "geo": {
-      "country_iso_code": "US",
-      "country_name": "United States",
-      "city_name": "Dallas",
-      "location": {
-        "lat": 32.7767,
-        "lon": -96.797
-      }
+      "country_iso_code": "ZA",
+      "country_name": "South Africa",
+      "city_name": "Johannesburg",
+      "location": { "lat": -26.2041, "lon": 28.0473 }
     }
   },
-  "network": {
-    "transport": "tcp",
-    "bytes": 132768,
-    "packets": 96,
-    "direction": "outbound"
-  },
+  "network": { "transport": "udp", "bytes": 14976, "packets": 96, "direction": "outbound" },
   "event": {
-    "action": "reject",
-    "outcome": "failure",
-    "category": [
-      "network"
-    ],
-    "type": [
-      "connection",
-      "denied"
-    ],
+    "action": "accept",
+    "outcome": "success",
+    "category": ["network"],
+    "type": ["connection"],
     "dataset": "aws.vpcflow",
     "provider": "ec2.amazonaws.com",
-    "duration": 240000000,
+    "duration": 90000000,
     "module": "aws"
   },
-  "message": "2 293847561023 eni-2smeb277 30.162.72.69 39.37.229.119 8183 80 6 96 132768 1775575596 1775575611 REJECT OK",
-  "log": {
-    "level": "warn"
-  },
-  "error": {
-    "code": "FlowRejected",
-    "message": "Security group or ACL rejected flow",
-    "type": "network"
-  },
-  "service": {
-    "name": "vpc",
-    "type": "aws"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
-  "data_stream": {
-    "type": "logs",
-    "dataset": "aws.vpcflow",
-    "namespace": "default"
-  },
+  "message": "2 814726593401 eni-mnheci8z 248.41.74.229 58.166.156.15 18864 22 17 96 14976 1775651246 1775651278 ACCEPT OK",
+  "log": { "level": "info" },
+  "service": { "name": "vpc", "type": "aws" },
+  "ecs": { "version": "8.11.0" },
+  "data_stream": { "type": "logs", "dataset": "aws.vpcflow", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "vs4x37id6qk"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "tjufclzzp8c"
   },
-  "input": {
-    "type": "aws-s3"
-  }
+  "input": { "type": "aws-s3" }
 }

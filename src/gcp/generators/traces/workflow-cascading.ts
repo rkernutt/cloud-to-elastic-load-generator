@@ -138,7 +138,9 @@ export function generateCascadingFailureTrace(ts: string, er: number): EcsDocume
       name: errName,
       duration: { us: errUs },
       action: "call",
-      destination: { service: { resource: "clouderrorreporting", type: "external", name: "clouderrorreporting" } },
+      destination: {
+        service: { resource: "clouderrorreporting", type: "external", name: "clouderrorreporting" },
+      },
     },
     service: {
       name: "orders-api",

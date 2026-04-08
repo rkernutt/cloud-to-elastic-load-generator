@@ -1,104 +1,66 @@
 {
-  "@timestamp": "2026-04-07T15:26:36.815Z",
+  "@timestamp": "2026-04-08T12:27:26.854Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": {
-      "id": "164820739518",
-      "name": "globex-shared-services"
-    },
-    "service": {
-      "name": "codedeploy"
-    }
+    "region": "ap-east-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
+    "service": { "name": "codedeploy" }
   },
   "aws": {
-    "dimensions": {
-      "DeploymentGroupName": "staging",
-      "ApplicationName": "web-app"
-    },
+    "dimensions": { "DeploymentGroupName": "canary", "ApplicationName": "api-service" },
     "codedeploy": {
-      "application_name": "web-app",
-      "deployment_group": "staging",
-      "deployment_id": "d-ELJOUJMIF",
+      "application_name": "api-service",
+      "deployment_group": "canary",
+      "deployment_id": "d-CGGEM35FY",
       "deployment_type": "IN_PLACE",
-      "lifecycle_event": "AfterAllowTraffic",
+      "lifecycle_event": "BeforeAllowTraffic",
       "event_status": "Succeeded",
-      "duration_seconds": 110,
-      "instances_succeeded": 5,
+      "duration_seconds": 82,
+      "instances_succeeded": 1,
       "instances_failed": 0,
       "metrics": {
-        "DeploymentAttempts": {
-          "sum": 1
-        },
-        "DeploymentSuccesses": {
-          "sum": 1
-        },
-        "DeploymentFailures": {
-          "sum": 0
-        },
-        "RollbackAttempts": {
-          "sum": 0
-        },
-        "DeploymentDuration": {
-          "avg": 110
-        },
-        "InstanceSuccesses": {
-          "sum": 7
-        },
-        "InstanceFailures": {
-          "sum": 0
-        }
+        "DeploymentAttempts": { "sum": 1 },
+        "DeploymentSuccesses": { "sum": 1 },
+        "DeploymentFailures": { "sum": 0 },
+        "RollbackAttempts": { "sum": 0 },
+        "DeploymentDuration": { "avg": 82 },
+        "InstanceSuccesses": { "sum": 8 },
+        "InstanceFailures": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-codedeploy-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-codedeploy-logs-164820739518"
+        "name": "aws-codedeploy-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-codedeploy-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/codedeploy/ca-central-1/2026/04/07/codedeploy_Z4N1XKHWTTF.log.gz"
+        "key": "AWSLogs/814726593401/codedeploy/ap-east-1/2026/04/08/codedeploy_C6MM8B8QR3W.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codedeploy/logs",
-      "log_stream": "ca-central-1/op1jjvzi",
-      "ingestion_time": "2026-04-07T15:26:37.130Z"
+      "log_stream": "ap-east-1/q3wu6p7d",
+      "ingestion_time": "2026-04-08T12:27:27.350Z"
     }
   },
   "event": {
-    "duration": 110000000000,
+    "duration": 82000000000,
     "outcome": "success",
-    "category": [
-      "process",
-      "configuration"
-    ],
+    "category": ["process", "configuration"],
     "dataset": "aws.codedeploy",
     "provider": "codedeploy.amazonaws.com",
     "module": "aws"
   },
-  "message": "Deployment succeeded",
-  "log": {
-    "level": "info"
-  },
-  "service": {
-    "name": "codedeploy",
-    "type": "aws"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
-  "data_stream": {
-    "type": "logs",
-    "dataset": "aws.codedeploy",
-    "namespace": "default"
-  },
+  "message": "CodeDeploy api-service deployment SUCCEEDED in 82s",
+  "log": { "level": "info" },
+  "service": { "name": "codedeploy", "type": "aws" },
+  "ecs": { "version": "8.11.0" },
+  "data_stream": { "type": "logs", "dataset": "aws.codedeploy", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "9xru36l667u"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "m7b4roazpw"
   },
-  "input": {
-    "type": "aws-cloudwatch"
-  }
+  "input": { "type": "aws-cloudwatch" }
 }

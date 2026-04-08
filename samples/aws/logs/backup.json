@@ -1,74 +1,56 @@
 {
-  "@timestamp": "2026-04-07T15:26:36.815Z",
+  "@timestamp": "2026-04-08T12:27:26.854Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
-    "account": {
-      "id": "738291046572",
-      "name": "globex-development"
-    },
-    "service": {
-      "name": "backup"
-    }
+    "region": "us-west-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "service": { "name": "backup" }
   },
   "aws": {
     "backup": {
-      "backup_job_id": "c4kiqa8c-jmz3-cxg0",
+      "backup_job_id": "crju8r26-3aqh-o3md",
       "backup_plan_name": "critical-data-plan",
-      "resource_type": "RDS",
-      "backup_vault_name": "prod-vault",
-      "status": "RUNNING",
-      "backup_size_gb": 1865.0538319824057,
-      "lifecycle_delete_after_days": 90
+      "resource_type": "EFS",
+      "backup_vault_name": "Default",
+      "status": "EXPIRED",
+      "backup_size_gb": 0,
+      "lifecycle_delete_after_days": 365,
+      "error_code": "RESOURCE_NOT_FOUND"
     },
     "s3": {
       "bucket": {
-        "name": "aws-backup-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-backup-logs-738291046572"
+        "name": "aws-backup-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-backup-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/backup/sa-east-1/2026/04/07/backup_VWMJMGNAYYH.log.gz"
+        "key": "AWSLogs/501938274650/backup/us-west-2/2026/04/08/backup_RCEYFEOF8D.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/backup/logs",
-      "log_stream": "sa-east-1/a83q7z9l",
-      "ingestion_time": "2026-04-07T15:26:37.122Z"
+      "log_stream": "us-west-2/v9bhzle4",
+      "ingestion_time": "2026-04-08T12:27:27.312Z"
     }
   },
   "event": {
-    "outcome": "success",
-    "category": [
-      "process"
-    ],
+    "outcome": "failure",
+    "category": ["process"],
     "dataset": "aws.backup",
     "provider": "backup.amazonaws.com",
-    "duration": 2351000000000,
+    "duration": 96000000000,
     "module": "aws"
   },
-  "message": "AWS Backup RUNNING: rds/prod-db -> prod-vault (1865.1GB)",
-  "log": {
-    "level": "info"
-  },
-  "service": {
-    "name": "backup",
-    "type": "aws"
-  },
-  "ecs": {
-    "version": "8.11.0"
-  },
-  "data_stream": {
-    "type": "logs",
-    "dataset": "aws.backup",
-    "namespace": "default"
-  },
+  "message": "AWS Backup FAILED for ec2/i-prod: Resource locked",
+  "log": { "level": "error" },
+  "error": { "code": "RESOURCE_NOT_FOUND", "message": "Backup job failed", "type": "storage" },
+  "service": { "name": "backup", "type": "aws" },
+  "ecs": { "version": "8.11.0" },
+  "data_stream": { "type": "logs", "dataset": "aws.backup", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "fmxsy2urq3"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "hw2nw7jf53"
   },
-  "input": {
-    "type": "aws-cloudwatch"
-  }
+  "input": { "type": "aws-cloudwatch" }
 }

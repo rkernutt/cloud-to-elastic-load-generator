@@ -63,7 +63,19 @@ export function ServicesPage({
   getEffectiveSource,
 }: ServicesPageProps) {
   const traceServiceGroups = useMemo(() => {
-    const order = ["Single-Service", "Multi-Service Workflow", "Data Pipeline", "Serverless", "Containers", "Database", "Messaging", "Analytics", "AI/ML", "Workflows", "Scenarios"];
+    const order = [
+      "Single-Service",
+      "Multi-Service Workflow",
+      "Data Pipeline",
+      "Serverless",
+      "Containers",
+      "Database",
+      "Messaging",
+      "Analytics",
+      "AI/ML",
+      "Workflows",
+      "Scenarios",
+    ];
     const m = new Map<string, TraceServiceMeta[]>();
     for (const s of traceServices) {
       const g = s.group;

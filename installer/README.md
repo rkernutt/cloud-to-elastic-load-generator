@@ -1,6 +1,6 @@
 # Elastic onboarding installers
 
-Standalone Node.js scripts to configure Elastic before you ship data with the **Cloud Load Generator** (AWS, GCP, or Azure). Run them once — all are idempotent and safe to re-run at any time.
+Standalone Node.js scripts to configure Elastic before you ship data with the **Cloud to Elastic Load Generator** (AWS, GCP, or Azure). Run them once — all are idempotent and safe to re-run at any time.
 
 **Requirements:** Node.js 18+ (native `fetch`, ES modules). No `npm install` needed — zero external dependencies.
 
@@ -56,7 +56,7 @@ On self-managed Kibana, Fleet must be enabled and initialised before running Ins
 ## Installer 1 — Official Elastic AWS Integration
 
 **File:** `installer/aws-elastic-integration/`
-**Command:** `npm run setup:integration`
+**Command:** `npm run setup:aws-integration`
 
 ### What it installs
 
@@ -70,7 +70,7 @@ The official Elastic AWS integration package via the Kibana Fleet API. You get:
 ### How to run
 
 ```bash
-npm run setup:integration
+npm run setup:aws-integration
 # or directly:
 node installer/aws-elastic-integration/index.mjs
 ```
@@ -115,7 +115,7 @@ Done.
 ## Installer 2 — Custom Ingest Pipelines
 
 **File:** `installer/aws-custom-pipelines/`
-**Command:** `npm run setup:pipelines`
+**Command:** `npm run setup:aws-pipelines`
 
 ### What it installs
 
@@ -124,7 +124,7 @@ Custom Elasticsearch ingest pipelines for the ~187 AWS services not covered by t
 ### How to run
 
 ```bash
-npm run setup:pipelines
+npm run setup:aws-pipelines
 # or directly:
 node installer/aws-custom-pipelines/index.mjs
 ```
@@ -278,7 +278,7 @@ These match the index names the load generator writes to, so pipelines are appli
 ## Installer 3 — Custom Dashboards
 
 **File:** `installer/aws-custom-dashboards/`
-**Command:** `npm run setup:dashboards`
+**Command:** `npm run setup:aws-dashboards`
 
 ### What it installs
 
@@ -388,7 +388,7 @@ the `logs-aws.*` data streams written by the app.
 ### How to run
 
 ```bash
-npm run setup:dashboards
+npm run setup:aws-dashboards
 # or directly:
 node installer/aws-custom-dashboards/index.mjs
 ```
@@ -405,7 +405,7 @@ node installer/aws-custom-dashboards/index.mjs
 - **Kibana 9.4+** — uses the Dashboards API (`Elastic-Api-Version: 1`) as primary, falls back to Saved Objects import if unavailable
 - **Kibana 8.11–9.3** — uses Saved Objects ndjson import as primary, falls back to Dashboards API
 
-Both methods are handled by the same `npm run setup:dashboards` command. You can also use the dedicated legacy installer (`npm run setup:dashboards:legacy`) to force ndjson import on older versions.
+Both methods are handled by the same `npm run setup:aws-dashboards` command. You can also use the dedicated legacy installer (`npm run setup:aws-dashboards:legacy`) to force ndjson import on older versions.
 
 ### What happens
 
@@ -423,7 +423,7 @@ Both methods are handled by the same `npm run setup:dashboards` command. You can
 ╚══════════════════════════════════════════════════════╝
 
 Installs Kibana dashboards for AWS services monitored
-by the Cloud Load Generator (AWS path).
+by the Cloud to Elastic Load Generator (AWS path).
 
 Kibana URL (e.g. https://my-deployment.kb.us-east-1.aws.elastic-cloud.com:9243):
 > https://my-deployment.kb.us-east-1.aws.elastic-cloud.com:9243
@@ -500,7 +500,7 @@ selection menu. The JSON format is the Kibana Dashboards API format — see the 
 For Kibana versions before 9.4, use the Saved Objects `.ndjson` installer instead:
 
 ```bash
-npm run setup:dashboards:legacy
+npm run setup:aws-dashboards:legacy
 # or directly:
 node installer/aws-custom-dashboards/index-legacy.mjs
 ```
@@ -511,7 +511,7 @@ The ndjson files are pre-generated and committed under `installer/aws-custom-das
 `*-dashboard.json` file, regenerate them:
 
 ```bash
-npm run generate:dashboards:ndjson
+npm run generate:aws-dashboards:ndjson
 # or directly:
 node installer/aws-custom-dashboards/generate-ndjson.mjs
 ```
@@ -521,8 +521,8 @@ You can also import the `.ndjson` files manually via the Kibana UI:
 
 | Method               | Kibana version | Command                                   |
 | -------------------- | -------------- | ----------------------------------------- |
-| Dashboards API       | 9.4+           | `npm run setup:dashboards`                |
-| Saved Objects import | 8.11 – 9.3     | `npm run setup:dashboards:legacy`         |
+| Dashboards API       | 9.4+           | `npm run setup:aws-dashboards`            |
+| Saved Objects import | 8.11 – 9.3     | `npm run setup:aws-dashboards:legacy`     |
 | Manual UI import     | 8.11+          | Stack Management → Saved Objects → Import |
 
 ---
@@ -532,7 +532,7 @@ You can also import the `.ndjson` files manually via the Kibana UI:
 ## Installer 4 — ML Anomaly Detection Jobs
 
 **File:** `installer/aws-custom-ml-jobs/`
-**Command:** `npm run setup:ml-jobs`
+**Command:** `npm run setup:aws-ml-jobs`
 
 ### What it installs
 
@@ -561,7 +561,7 @@ See [`installer/aws-custom-ml-jobs/README.md`](aws-custom-ml-jobs/README.md) for
 ### How to run
 
 ```bash
-npm run setup:ml-jobs
+npm run setup:aws-ml-jobs
 # or directly:
 node installer/aws-custom-ml-jobs/index.mjs
 ```
@@ -602,7 +602,7 @@ node installer/aws-custom-ml-jobs/index.mjs
 
 ## Why four separate installers?
 
-|                        | `setup:integration`                             | `setup:pipelines`              | `setup:dashboards`            | `setup:ml-jobs`            |
+|                        | `setup:aws-integration`                         | `setup:aws-pipelines`          | `setup:aws-dashboards`        | `setup:aws-ml-jobs`        |
 | ---------------------- | ----------------------------------------------- | ------------------------------ | ----------------------------- | -------------------------- |
 | **API**                | Kibana Fleet API                                | Elasticsearch Ingest API       | Kibana Dashboards API         | Elasticsearch ML API       |
 | **URL needed**         | Kibana URL                                      | Elasticsearch URL              | Kibana URL                    | Elasticsearch URL          |
@@ -613,13 +613,13 @@ node installer/aws-custom-ml-jobs/index.mjs
 
 Running all four gives you full coverage across all 144 services. Paths use the same `installer/aws-*` prefix as GCP (`installer/gcp-*`) and Azure (`installer/azure-*`).
 
-| Command                                                       | Path                                 |
-| ------------------------------------------------------------- | ------------------------------------ |
-| `npm run setup:integration` / `setup:aws-integration`         | `installer/aws-elastic-integration/` |
-| `npm run setup:pipelines` / `setup:aws-pipelines`             | `installer/aws-custom-pipelines/`    |
-| `npm run setup:dashboards` / `setup:aws-dashboards`           | `installer/aws-custom-dashboards/`   |
-| `npm run setup:ml-jobs` / `setup:aws-ml-jobs`                 | `installer/aws-custom-ml-jobs/`      |
-| `npm run setup:apm-integration` / `setup:aws-apm-integration` | `installer/aws-apm-integration/`     |
+| Command                             | Path                                 |
+| ----------------------------------- | ------------------------------------ |
+| `npm run setup:aws-integration`     | `installer/aws-elastic-integration/` |
+| `npm run setup:aws-pipelines`       | `installer/aws-custom-pipelines/`    |
+| `npm run setup:aws-dashboards`      | `installer/aws-custom-dashboards/`   |
+| `npm run setup:aws-ml-jobs`         | `installer/aws-custom-ml-jobs/`      |
+| `npm run setup:aws-apm-integration` | `installer/aws-apm-integration/`     |
 
 ---
 
@@ -628,10 +628,10 @@ Running all four gives you full coverage across all 144 services. Paths use the 
 The same four installer **patterns** exist under standalone paths for Google Cloud. They target the official Elastic **`gcp`** integration package, **`logs-gcp.*`** data streams, and synthetic documents from the GCP generator module (`src/gcp/`).
 
 | Command                         | Path                                 | Purpose                                                                                |
-| ------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------- | ------------------- |
+| ------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------- |
 | `npm run setup:gcp-integration` | `installer/gcp-elastic-integration/` | Install Fleet package **`gcp`**                                                        |
 | `npm run setup:gcp-pipelines`   | `installer/gcp-custom-pipelines/`    | Ingest pipelines `logs-gcp.{dataset}-default` (registry generated from `src/gcp/data`) |
-| `npm run setup:gcp-dashboards`  | `installer/gcp-custom-dashboards/`   | Kibana dashboards (ES                                                                  | QL on `logs-gcp.*`) |
+| `npm run setup:gcp-dashboards`  | `installer/gcp-custom-dashboards/`   | Kibana dashboards (ES\|QL on `logs-gcp.*`)                                             |
 | `npm run setup:gcp-ml-jobs`     | `installer/gcp-custom-ml-jobs/`      | ML jobs over `logs-gcp.*`                                                              |
 
 Regenerate assets when GCP dataset maps change:
@@ -646,10 +646,10 @@ Regenerate assets when GCP dataset maps change:
 Same four installer **patterns** for Microsoft Azure: synthetic data in `src/azure/`, data streams **`logs-azure.*`**. The Elastic Fleet package **`azure`** covers **Azure Logs**; resource metrics from Azure Monitor are a separate package **`azure_metrics`** if you ingest platform metrics the same way as production.
 
 | Command                           | Path                                   | Purpose                                                                                                            |
-| --------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | --------------------- |
+| --------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `npm run setup:azure-integration` | `installer/azure-elastic-integration/` | Install Fleet package **`azure`** (Azure Logs)                                                                     |
 | `npm run setup:azure-pipelines`   | `installer/azure-custom-pipelines/`    | Ingest pipelines for `logs-azure.{dataset}-default` (registry from `scripts/generate-azure-pipeline-registry.mjs`) |
-| `npm run setup:azure-dashboards`  | `installer/azure-custom-dashboards/`   | Kibana dashboards (ES                                                                                              | QL on `logs-azure.*`) |
+| `npm run setup:azure-dashboards`  | `installer/azure-custom-dashboards/`   | Kibana dashboards (ES\|QL on `logs-azure.*`)                                                                       |
 | `npm run setup:azure-ml-jobs`     | `installer/azure-custom-ml-jobs/`      | ML jobs over `logs-azure.*`                                                                                        |
 
 Regenerate assets when Azure dataset maps change:

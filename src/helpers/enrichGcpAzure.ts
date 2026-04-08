@@ -6,7 +6,18 @@
 import { randId } from "./index";
 import type { EnrichOptions } from "./enrich";
 import { enrichDocument as enrichAwsDocument } from "./enrich";
-import { attachAzureResourceLogEnvelope, attachGcpLoggingApiEnvelope } from "./cloudNativeLogEnvelope";
+import {
+  applyOtelTraceIngestionPatch,
+  buildOtelLogTelemetry,
+  isOtelPipelineSource,
+  otelCollectorAgentName,
+  otelCollectorAgentVersion,
+  patchOtelIngestionLabels,
+} from "./otelPipeline";
+import {
+  attachAzureResourceLogEnvelope,
+  attachGcpLoggingApiEnvelope,
+} from "./cloudNativeLogEnvelope";
 import {
   attachAzureApplicationInsightsFragment,
   attachAzureMonitorMetricFragment,
@@ -48,11 +59,7 @@ export interface GcpAzureEnrichContext {
   defaultIngestion: string;
 }
 
-function resolveDataset(
-  ctx: GcpAzureEnrichContext,
-  serviceId: string,
-  eventType: string
-): string {
+function resolveDataset(ctx: GcpAzureEnrichContext, serviceId: string, eventType: string): string {
   if (eventType === "metrics") {
     return (
       ctx.elasticMetricsDatasetMap[serviceId] ??
@@ -60,9 +67,7 @@ function resolveDataset(
       `${ctx.cloudModule}.${serviceId.replace(/-/g, "_")}`
     );
   }
-  return (
-    ctx.elasticDatasetMap[serviceId] ?? `${ctx.cloudModule}.${serviceId.replace(/-/g, "_")}`
-  );
+  return ctx.elasticDatasetMap[serviceId] ?? `${ctx.cloudModule}.${serviceId.replace(/-/g, "_")}`;
 }
 
 function resolveSource(
@@ -98,11 +103,11 @@ function buildAgentMeta(
       ephemeral_id: randId(36).toLowerCase(),
     };
   }
-  if (source === "otel") {
+  if (isOtelPipelineSource(source)) {
     return {
       type: "otel",
-      version: "0.115.0",
-      name: `otel-collector-${region}`,
+      version: otelCollectorAgentVersion(),
+      name: otelCollectorAgentName(ctx.cloudModule, source, region),
     };
   }
   return {
@@ -127,8 +132,7 @@ export function enrichGcpAzureDocument(
       ? inferGcpFlavorServiceId(doc, serviceId)
       : inferAzureFlavorServiceId(doc, serviceId);
   const source = resolveSource(ctx, flavorId, serviceId, opts.ingestionSource);
-  const region =
-    doc.cloud?.region ?? ctx.regions[Math.floor(Math.random() * ctx.regions.length)];
+  const region = doc.cloud?.region ?? ctx.regions[Math.floor(Math.random() * ctx.regions.length)];
   const dataset = resolveDataset(ctx, flavorId, eventType);
 
   const ecs = doc.ecs ?? { version: ECS_VERSION };
@@ -140,7 +144,10 @@ export function enrichGcpAzureDocument(
   };
 
   const agentMeta = doc.agent ?? buildAgentMeta(ctx, source, eventType, region);
-  const inputType = buildInputType(ctx, eventType === "traces" ? "otel" : source);
+  const inputType = buildInputType(
+    ctx,
+    eventType === "traces" ? (isOtelPipelineSource(source) ? source : "otel") : source
+  );
   const input = doc.input ?? (inputType ? { type: inputType } : undefined);
 
   const event = {
@@ -162,12 +169,9 @@ export function enrichGcpAzureDocument(
   }
 
   let otelFields: LooseDoc = {};
-  if (source === "otel" && eventType === "logs") {
+  if (isOtelPipelineSource(source) && eventType === "logs") {
     otelFields = {
-      telemetry: doc.telemetry ?? {
-        sdk: { name: "opentelemetry", language: "go", version: "1.31.0" },
-        distro: { name: "elastic", version: AGENT_VERSION },
-      },
+      telemetry: buildOtelLogTelemetry(doc, ctx.cloudModule, source, AGENT_VERSION),
     };
   }
 
@@ -187,16 +191,22 @@ export function enrichGcpAzureDocument(
     const projectId = enriched.cloud?.project?.id ?? "project-unknown";
     const logRegion =
       enriched.cloud?.region ?? ctx.regions[Math.floor(Math.random() * ctx.regions.length)];
-    if (ctx.cloudModule === "gcp") {
-      attachGcpLoggingApiEnvelope(
-        enriched,
-        inferGcpFlavorServiceId(enriched, serviceId),
-        projectId,
-        logRegion
-      );
-    } else {
-      const subId = enriched.cloud?.account?.id ?? "00000000-0000-0000-0000-000000000000";
-      attachAzureResourceLogEnvelope(enriched, inferAzureFlavorServiceId(enriched, serviceId), subId);
+    if (!isOtelPipelineSource(source)) {
+      if (ctx.cloudModule === "gcp") {
+        attachGcpLoggingApiEnvelope(
+          enriched,
+          inferGcpFlavorServiceId(enriched, serviceId),
+          projectId,
+          logRegion
+        );
+      } else {
+        const subId = enriched.cloud?.account?.id ?? "00000000-0000-0000-0000-000000000000";
+        attachAzureResourceLogEnvelope(
+          enriched,
+          inferAzureFlavorServiceId(enriched, serviceId),
+          subId
+        );
+      }
     }
   }
 
@@ -213,7 +223,11 @@ export function enrichGcpAzureDocument(
       );
     } else {
       const subId = enriched.cloud?.account?.id ?? "00000000-0000-0000-0000-000000000000";
-      attachAzureMonitorMetricFragment(enriched, inferAzureFlavorServiceId(enriched, serviceId), subId);
+      attachAzureMonitorMetricFragment(
+        enriched,
+        inferAzureFlavorServiceId(enriched, serviceId),
+        subId
+      );
     }
   }
 
@@ -224,6 +238,14 @@ export function enrichGcpAzureDocument(
     } else {
       attachAzureApplicationInsightsFragment(enriched);
     }
+  }
+
+  if (eventType === "logs" && isOtelPipelineSource(source)) {
+    patchOtelIngestionLabels(enriched, ctx.cloudModule, source);
+  }
+
+  if (eventType === "traces" && isOtelPipelineSource(source)) {
+    applyOtelTraceIngestionPatch(enriched, ctx.cloudModule, source, AGENT_VERSION);
   }
 
   return enriched;

@@ -53,9 +53,7 @@ export function generateFunctionsLog(ts: string, er: number): EcsDocument {
       },
     },
     event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 9e9) },
-    message: isErr
-      ? `Function ${fn}: uncaught exception`
-      : `Function ${fn}: completed`,
+    message: isErr ? `Function ${fn}: uncaught exception` : `Function ${fn}: completed`,
   };
 }
 
@@ -101,7 +99,9 @@ export function generateEventHubsLog(ts: string, er: number): EcsDocument {
       },
     },
     event: { outcome: isErr ? "failure" : "success", duration: randInt(5e5, 4e8) },
-    message: isErr ? `Event Hubs ${hub}: throttling on ${partition}` : `Event Hubs ${hub}: ingress OK`,
+    message: isErr
+      ? `Event Hubs ${hub}: throttling on ${partition}`
+      : `Event Hubs ${hub}: ingress OK`,
   };
 }
 

@@ -29,7 +29,8 @@ function gcpMetricResourceLabels(
     case "gce_instance":
       return {
         ...base,
-        instance_id: doc.gcp?.compute_engine?.instance_id ?? String(Math.floor(Math.random() * 1e12)),
+        instance_id:
+          doc.gcp?.compute_engine?.instance_id ?? String(Math.floor(Math.random() * 1e12)),
         zone,
       };
     case "cloud_function":
@@ -49,7 +50,10 @@ function gcpMetricResourceLabels(
   }
 }
 
-function firstGcpMetricPoint(doc: LooseDoc, serviceId: string): { metricTypeSuffix: string; value: number } | null {
+function firstGcpMetricPoint(
+  doc: LooseDoc,
+  serviceId: string
+): { metricTypeSuffix: string; value: number } | null {
   const block = doc.gcp?.[serviceId];
   if (!block?.metrics || typeof block.metrics !== "object") return null;
   const entries = Object.entries(block.metrics as Record<string, unknown>);

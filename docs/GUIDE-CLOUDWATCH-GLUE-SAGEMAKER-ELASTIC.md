@@ -178,7 +178,7 @@ These pipelines copy the **parsed JSON** from the `message` field into `glue.par
 **Easy way — use the installer (recommended)**
 
 ```bash
-npm run setup:pipelines
+npm run setup:aws-pipelines
 # select: serverless (for Lambda/API Gateway) and ml (for SageMaker), or "all"
 ```
 
@@ -270,7 +270,7 @@ After this, documents ingested into those indices will have `message` parsed int
 | 4   | Elastic: Add AWS (or Custom Logs) integration; add inputs for Glue and SageMaker log groups with dataset `aws.glue` and `aws.sagemaker`             | ☐    |
 | 5   | Elastic: Deploy/reload Agent so it starts collecting those log groups                                                                               | ☐    |
 | 6   | Elastic: (Optional) Create index templates for `logs-aws.glue*` and `logs-aws.sagemaker*`                                                           | ☐    |
-| 7   | Elastic: Create ingest pipelines — run `npm run setup:pipelines` or use manual curl commands                                                        | ☐    |
+| 7   | Elastic: Create ingest pipelines — run `npm run setup:aws-pipelines` or use manual curl commands                                                    | ☐    |
 | 8   | Elastic: Attach pipelines to `logs-aws.glue*` and `logs-aws.sagemaker*` (template or integration UI)                                                | ☐    |
 | 9   | Verify: Generate Glue/SageMaker logs, then see them in Discover in the correct indices with optional `*.parsed` fields                              | ☐    |
 
@@ -280,5 +280,5 @@ After this, documents ingested into those indices will have `message` parsed int
 
 - [CLOUDWATCH-TO-INDEX-ROUTING.md](CLOUDWATCH-TO-INDEX-ROUTING.md) — How index/dataset is chosen when ingesting from CloudWatch; custom sender option.
 - [INGEST-PIPELINE-REFERENCE.md](INGEST-PIPELINE-REFERENCE.md) — Pipeline IDs, target fields, and example parsed keys for all 106 services.
-- [installer/README.md](../installer/README.md) — Automated pipeline installer (`npm run setup:pipelines`).
+- [installer/README.md](../installer/README.md) — Automated pipeline installer (`npm run setup:aws-pipelines`).
 - [GLUE-METRICS-COVERAGE.md](GLUE-METRICS-COVERAGE.md) — Glue metrics and log coverage vs AWS docs (for reference; this guide is about log ingestion only).
