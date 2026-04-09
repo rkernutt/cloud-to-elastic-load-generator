@@ -2,27 +2,28 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "me-central2",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "region": "asia-east1",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" },
     "service": { "name": "apigee.googleapis.com" }
   },
   "gcp": {
     "apigee": {
       "org_name": "globex-apigee",
-      "environment": "test",
+      "environment": "prod",
       "api_proxy": "payments-api",
-      "revision": "9",
+      "revision": "89",
       "verb": "PUT",
       "path": "/webhooks/stripe",
-      "response_code": 301,
-      "latency_ms": 982,
-      "developer_app": "app-cewkb4",
-      "policy_name": "Quota"
+      "response_code": 401,
+      "latency_ms": 6285,
+      "developer_app": "app-pm9npy",
+      "policy_name": "VerifyJWT",
+      "policy_fault": "Spike arrest violated"
     }
   },
-  "event": { "outcome": "success", "duration": 982, "module": "gcp", "dataset": "gcp.apigee" },
-  "message": "Apigee PUT /webhooks/stripe via payments-api (test) 301 in 982ms [app-cewkb4]",
+  "event": { "outcome": "failure", "duration": 6285, "module": "gcp", "dataset": "gcp.apigee" },
+  "message": "Apigee proxy payments-api r89 fault on VerifyJWT: Spike arrest violated (401, 6285ms)",
   "service": { "name": "apigee", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -30,30 +31,31 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-me-central2",
-    "id": "jim6psnjba"
+    "name": "elastic-agent-gcp-asia-east1",
+    "id": "44cwpa34efm"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-staging-d4e5f6/logs/apigee",
+  "logName": "projects/globex-shared-m3n4o5/logs/apigee",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-staging-d4e5f6", "region": "me-central2" }
+    "labels": { "project_id": "globex-shared-m3n4o5", "region": "asia-east1" }
   },
   "severity": "INFO",
-  "insertId": "15GMUMRU9U6",
+  "insertId": "81L9H1D1P0M",
   "jsonPayload": {
     "apigee": {
       "org_name": "globex-apigee",
-      "environment": "test",
+      "environment": "prod",
       "api_proxy": "payments-api",
-      "revision": "9",
+      "revision": "89",
       "verb": "PUT",
       "path": "/webhooks/stripe",
-      "response_code": 301,
-      "latency_ms": 982,
-      "developer_app": "app-cewkb4",
-      "policy_name": "Quota"
+      "response_code": 401,
+      "latency_ms": 6285,
+      "developer_app": "app-pm9npy",
+      "policy_name": "VerifyJWT",
+      "policy_fault": "Spike arrest violated"
     },
-    "message": "Apigee PUT /webhooks/stripe via payments-api (test) 301 in 982ms [app-cewkb4]"
+    "message": "Apigee proxy payments-api r89 fault on VerifyJWT: Spike arrest violated (401, 6285ms)"
   }
 }

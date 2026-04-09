@@ -1,12 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   EuiTitle,
   EuiSpacer,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiSwitch,
   EuiText,
-  EuiBadge,
   EuiButton,
   EuiCallOut,
   EuiCheckbox,
@@ -15,38 +13,10 @@ import {
   EuiHorizontalRule,
 } from "@elastic/eui";
 
-import type { CloudSetupBundle, DashboardDef, MlJobFile, PipelineEntry } from "../setup/types";
-
-// ─── Proxy helper ─────────────────────────────────────────────────────────────
-
-async function proxyCall(opts: {
-  baseUrl: string;
-  apiKey: string;
-  path: string;
-  method?: "GET" | "POST" | "PUT";
-  body?: Record<string, unknown>;
-}): Promise<unknown> {
-  const { baseUrl, apiKey, path, method = "PUT", body } = opts;
-  const res = await fetch("/proxy", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-elastic-url": baseUrl.replace(/\/$/, ""),
-      "x-elastic-key": apiKey,
-      "x-elastic-path": path,
-      "x-elastic-method": method,
-    },
-    body: body !== undefined ? JSON.stringify(body) : "{}",
-  });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    // 409 from Fleet means already installed — treat as success
-    if (res.status === 409) return { alreadyInstalled: true };
-    throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`);
-  }
-  return res.json().catch(() => ({}));
-}
+import type { CloudSetupBundle, MlJobFile, PipelineEntry } from "../setup/types";
+import { stableDashboardKey } from "../setup/stableDashboardKey";
+import { runSetupInstall } from "../setup/runSetupInstall";
+import { InstallerRow } from "../components/InstallerRow";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -71,7 +41,7 @@ export function SetupPage({
 }: SetupPageProps) {
   const PIPELINES: PipelineEntry[] = setupBundle.pipelines;
   const ML_JOB_FILES: MlJobFile[] = setupBundle.mlJobFiles;
-  const DASHBOARDS: DashboardDef[] = setupBundle.dashboards;
+  const DASHBOARDS = setupBundle.dashboards;
   // ── Top-level toggles ──────────────────────────────────────────────────────
   const [enableIntegration, setEnableIntegration] = useState(false);
   const [enableApm, setEnableApm] = useState(false);
@@ -88,6 +58,19 @@ export function SetupPage({
     () => new Set(pipelineGroups)
   );
 
+  const dashboardKeys = useMemo(
+    () =>
+      DASHBOARDS.map((d, i) => ({
+        key: stableDashboardKey(d, i),
+        title: d.title ?? `Dashboard ${i + 1}`,
+      })),
+    [DASHBOARDS]
+  );
+
+  const [selectedDashboardKeys, setSelectedDashboardKeys] = useState<Set<string>>(
+    () => new Set(dashboardKeys.map((x) => x.key))
+  );
+
   const mlJobGroups = useMemo(
     () => ML_JOB_FILES.map((f) => ({ group: f.group, description: f.description })),
     [ML_JOB_FILES]
@@ -95,6 +78,15 @@ export function SetupPage({
   const [selectedMlGroups, setSelectedMlGroups] = useState<Set<string>>(
     () => new Set(ML_JOB_FILES.map((f) => f.group))
   );
+
+  // Resync sub-selections when the cloud bundle or list sizes change (avoids empty checks after stale first paint).
+  useEffect(() => {
+    setSelectedDashboardKeys(new Set(dashboardKeys.map((x) => x.key)));
+  }, [setupBundle.fleetPackage, DASHBOARDS.length, dashboardKeys]);
+
+  useEffect(() => {
+    setSelectedMlGroups(new Set(ML_JOB_FILES.map((f) => f.group)));
+  }, [setupBundle.fleetPackage, ML_JOB_FILES.length, ML_JOB_FILES]);
 
   // ── Install state ──────────────────────────────────────────────────────────
   const [isInstalling, setIsInstalling] = useState(false);
@@ -112,160 +104,31 @@ export function SetupPage({
     enableIntegration || enableApm || enablePipelines || enableDashboards || enableMlJobs;
   const canInstall = anyEnabled && hasEs && (!needsKb || hasKb);
 
-  // ── Install handlers ───────────────────────────────────────────────────────
-
-  const installIntegration = async (pkgName: string) => {
-    const label = pkgName === "apm" ? "APM Integration" : `${setupBundle.fleetPackageLabel}`;
-    addLog(`Installing ${label}…`);
-    const kb = kibanaUrl.replace(/\/$/, "");
-    // Fetch latest version from Kibana Fleet
-    let version: string | null = null;
-    try {
-      const data = (await proxyCall({
-        baseUrl: kb,
-        apiKey,
-        path: `/api/fleet/epm/packages/${pkgName}`,
-        method: "GET",
-      })) as { item?: { latestVersion?: string } };
-      version = data?.item?.latestVersion ?? null;
-    } catch {
-      // Fall through to EPR
-    }
-
-    if (!version) {
-      // Fall back to public EPR
-      try {
-        const epr = await fetch(`https://epr.elastic.co/search?package=${pkgName}`);
-        const data = (await epr.json()) as Array<{ version?: string }>;
-        version = data?.[0]?.version ?? null;
-      } catch (e) {
-        addLog(`  ✗ ${label}: could not resolve version — ${e}`, "error");
-        return;
-      }
-    }
-
-    if (!version) {
-      addLog(`  ✗ ${label}: no version found`, "error");
-      return;
-    }
-
-    try {
-      const result = (await proxyCall({
-        baseUrl: kb,
-        apiKey,
-        path: `/api/fleet/epm/packages/${pkgName}/${version}`,
-        method: "POST",
-        body: { force: false },
-      })) as { alreadyInstalled?: boolean };
-      if (result?.alreadyInstalled) {
-        addLog(`  ✓ ${label} already installed (v${version})`, "ok");
-      } else {
-        addLog(`  ✓ ${label} installed successfully (v${version})`, "ok");
-      }
-    } catch (e) {
-      addLog(`  ✗ ${label}: ${e}`, "error");
-    }
-  };
-
-  const installPipelines = async () => {
-    const toInstall = PIPELINES.filter((p) => selectedPipelineGroups.has(p.group));
-    addLog(`Installing ${toInstall.length} ingest pipelines…`);
-    let ok = 0;
-    let fail = 0;
-    for (const pipeline of toInstall) {
-      try {
-        await proxyCall({
-          baseUrl: elasticUrl,
-          apiKey,
-          path: `/_ingest/pipeline/${encodeURIComponent(pipeline.id)}`,
-          method: "PUT",
-          body: { processors: pipeline.processors },
-        });
-        ok++;
-      } catch (e) {
-        fail++;
-        addLog(`  ✗ Pipeline ${pipeline.id}: ${e}`, "error");
-      }
-    }
-    addLog(
-      `  ✓ Pipelines: ${ok} installed${fail > 0 ? `, ${fail} failed` : ""}`,
-      fail > 0 ? "warn" : "ok"
-    );
-  };
-
-  const installDashboards = async () => {
-    addLog(`Installing ${DASHBOARDS.length} dashboards…`);
-    const kb = kibanaUrl.replace(/\/$/, "");
-    let ok = 0;
-    let fail = 0;
-    for (const dash of DASHBOARDS) {
-      const { id: _id, spaces: _spaces, ...body } = dash;
-      try {
-        await proxyCall({
-          baseUrl: kb,
-          apiKey,
-          path: "/api/dashboards",
-          method: "POST",
-          body,
-        });
-        ok++;
-      } catch (e) {
-        fail++;
-        addLog(`  ✗ Dashboard "${dash.title}": ${e}`, "error");
-      }
-    }
-    addLog(
-      `  ✓ Dashboards: ${ok} installed${fail > 0 ? `, ${fail} failed` : ""}`,
-      fail > 0 ? "warn" : "ok"
-    );
-  };
-
-  const installMlJobs = async () => {
-    const files = ML_JOB_FILES.filter((f) => selectedMlGroups.has(f.group));
-    const totalJobs = files.reduce((n, f) => n + f.jobs.length, 0);
-    addLog(`Installing ${totalJobs} ML jobs across ${files.length} groups…`);
-    let ok = 0;
-    let fail = 0;
-    for (const file of files) {
-      for (const entry of file.jobs) {
-        try {
-          await proxyCall({
-            baseUrl: elasticUrl,
-            apiKey,
-            path: `/_ml/anomaly_detectors/${encodeURIComponent(entry.id)}`,
-            method: "PUT",
-            body: entry.job,
-          });
-          await proxyCall({
-            baseUrl: elasticUrl,
-            apiKey,
-            path: `/_ml/datafeeds/datafeed-${encodeURIComponent(entry.id)}`,
-            method: "PUT",
-            body: entry.datafeed,
-          });
-          ok++;
-        } catch (e) {
-          fail++;
-          addLog(`  ✗ ML job ${entry.id}: ${e}`, "error");
-        }
-      }
-    }
-    addLog(
-      `  ✓ ML jobs: ${ok} installed${fail > 0 ? `, ${fail} failed` : ""}`,
-      fail > 0 ? "warn" : "ok"
-    );
-  };
-
   const handleInstall = async () => {
     setIsInstalling(true);
     setIsDone(false);
     setLog([]);
     try {
-      if (enableIntegration) await installIntegration(setupBundle.fleetPackage);
-      if (enableApm) await installIntegration("apm");
-      if (enablePipelines) await installPipelines();
-      if (enableDashboards) await installDashboards();
-      if (enableMlJobs) await installMlJobs();
+      const pipelinesToInstall = PIPELINES.filter((p) => selectedPipelineGroups.has(p.group));
+      const dashboardsToInstall = DASHBOARDS.filter((d, i) =>
+        selectedDashboardKeys.has(stableDashboardKey(d, i))
+      );
+      const mlFilesToInstall = ML_JOB_FILES.filter((f) => selectedMlGroups.has(f.group));
+      await runSetupInstall({
+        setupBundle,
+        elasticUrl,
+        kibanaUrl,
+        apiKey,
+        enableIntegration,
+        enableApm,
+        enablePipelines,
+        enableDashboards,
+        enableMlJobs,
+        pipelines: pipelinesToInstall,
+        dashboards: dashboardsToInstall,
+        mlJobFiles: mlFilesToInstall,
+        addLog,
+      });
       addLog("All selected installers complete.", "ok");
       setIsDone(true);
       onInstallComplete();
@@ -377,14 +240,32 @@ export function SetupPage({
       <InstallerRow
         label="Custom Dashboards"
         badge="Kibana"
-        description={`Installs ${DASHBOARDS.length} pre-built Kibana dashboards for ${setupBundle.fleetPackageLabel} monitoring. Requires Kibana 9.4+ (Dashboards API).`}
+        description={`Installs pre-built Kibana dashboards for ${setupBundle.fleetPackageLabel} monitoring (${DASHBOARDS.length} available). Uses the Dashboards API when available; otherwise falls back to saved object import (e.g. Serverless).`}
         enabled={enableDashboards}
         onToggle={setEnableDashboards}
       >
         <EuiSpacer size="s" />
         <EuiText size="xs" color="subdued">
-          All {DASHBOARDS.length} dashboards will be installed. Requires Kibana 9.4+.
+          <strong>Select dashboards to install:</strong> {selectedDashboardKeys.size} of{" "}
+          {DASHBOARDS.length} selected.
         </EuiText>
+        <EuiSpacer size="xs" />
+        <EuiFlexGroup gutterSize="s" wrap responsive={false}>
+          {dashboardKeys.map(({ key, title }) => (
+            <EuiFlexItem grow={false} key={key}>
+              <EuiCheckbox
+                id={`dashboard-${key}`}
+                label={
+                  <span title={title}>
+                    <EuiCode>{title}</EuiCode>
+                  </span>
+                }
+                checked={selectedDashboardKeys.has(key)}
+                onChange={() => setSelectedDashboardKeys((prev) => toggleGroup(prev, key))}
+              />
+            </EuiFlexItem>
+          ))}
+        </EuiFlexGroup>
       </InstallerRow>
 
       <EuiSpacer size="m" />
@@ -473,57 +354,5 @@ export function SetupPage({
         </>
       )}
     </>
-  );
-}
-
-// ─── InstallerRow sub-component ───────────────────────────────────────────────
-
-interface InstallerRowProps {
-  label: string;
-  badge: "Kibana" | "Elasticsearch";
-  description: string;
-  enabled: boolean;
-  onToggle: (val: boolean) => void;
-  children?: React.ReactNode;
-}
-
-function InstallerRow({
-  label,
-  badge,
-  description,
-  enabled,
-  onToggle,
-  children,
-}: InstallerRowProps) {
-  return (
-    <EuiPanel paddingSize="m" hasBorder>
-      <EuiFlexGroup alignItems="flexStart" gutterSize="m" responsive={false}>
-        <EuiFlexItem grow={false} style={{ paddingTop: 2 }}>
-          <EuiSwitch
-            label=""
-            checked={enabled}
-            onChange={(e) => onToggle(e.target.checked)}
-            showLabel={false}
-          />
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiFlexGroup alignItems="center" gutterSize="s" responsive={false}>
-            <EuiFlexItem grow={false}>
-              <EuiText size="s">
-                <strong>{label}</strong>
-              </EuiText>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiBadge color={badge === "Kibana" ? "primary" : "hollow"}>{badge}</EuiBadge>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-          <EuiSpacer size="xs" />
-          <EuiText size="xs" color="subdued">
-            <p>{description}</p>
-          </EuiText>
-          {enabled && children}
-        </EuiFlexItem>
-      </EuiFlexGroup>
-    </EuiPanel>
   );
 }

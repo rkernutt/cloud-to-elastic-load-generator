@@ -1,70 +1,72 @@
 {
-  "@timestamp": "2026-04-08T15:12:15.029Z",
+  "@timestamp": "2026-04-09T08:13:01.702Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-central-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "efs" }
   },
   "aws": {
-    "dimensions": { "FileSystemId": "fs-84aummfr", "StorageClass": "Standard" },
+    "dimensions": { "FileSystemId": "fs-roa1ehdy", "StorageClass": "Standard" },
     "efs": {
-      "file_system_id": "fs-84aummfr",
-      "file_system_name": "prod-shared",
-      "mount_target_id": "fsmt-yq0d8v85",
-      "availability_zone": "sa-east-1a",
-      "throughput_mode": "elastic",
-      "performance_mode": "generalPurpose",
-      "throughput_mbps": 124.95896935845137,
-      "iops": 2087,
-      "client_connections": 18,
-      "percent_io_limit": 47,
+      "file_system_id": "fs-roa1ehdy",
+      "file_system_name": "wordpress-content",
+      "mount_target_id": "fsmt-eu1hb01q",
+      "availability_zone": "eu-central-2b",
+      "throughput_mode": "provisioned",
+      "performance_mode": "maxIO",
+      "throughput_mbps": 284.6529766623471,
+      "iops": 41638,
+      "client_connections": 167,
+      "percent_io_limit": 91,
+      "error_code": "FileLimitExceeded",
       "metrics": {
-        "BurstCreditBalance": { "avg": 1490896510340 },
-        "ClientConnections": { "avg": 152 },
-        "DataReadIOBytes": { "sum": 432518646 },
-        "DataWriteIOBytes": { "sum": 942079700 },
-        "MetadataIOBytes": { "sum": 9047792 },
-        "TotalIOBytes": { "sum": 80872263 },
-        "PermittedThroughput": { "avg": 2106.3685852149715 },
-        "MeteredIOBytes": { "sum": 676808447 },
-        "StorageBytes": { "avg": 770521853355 },
-        "PercentIOLimit": { "avg": 4.003956180297623 },
-        "DataReadIOBytesWithQuota": { "sum": 651349707 },
-        "DataWriteIOBytesWithQuota": { "sum": 156031329 }
+        "BurstCreditBalance": { "avg": 1920031800344 },
+        "ClientConnections": { "avg": 453 },
+        "DataReadIOBytes": { "sum": 148697059 },
+        "DataWriteIOBytes": { "sum": 14541748 },
+        "MetadataIOBytes": { "sum": 5093856 },
+        "TotalIOBytes": { "sum": 206390186 },
+        "PermittedThroughput": { "avg": 995.1646862753779 },
+        "MeteredIOBytes": { "sum": 742088203 },
+        "StorageBytes": { "avg": 508276288955 },
+        "PercentIOLimit": { "avg": 90.69115862554014 },
+        "DataReadIOBytesWithQuota": { "sum": 23396330 },
+        "DataWriteIOBytesWithQuota": { "sum": 885845308 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-efs-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-efs-logs-164820739518"
+        "name": "aws-efs-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-efs-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/164820739518/efs/sa-east-1/2026/04/08/efs_VTDBW0QCWQ.log.gz" }
+      "object": { "key": "AWSLogs/293847561023/efs/eu-central-2/2026/04/09/efs_2HFGHN2OZK1.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/efs/logs",
-      "log_stream": "sa-east-1/nkec4wgy",
-      "ingestion_time": "2026-04-08T15:12:15.410Z"
+      "log_stream": "eu-central-2/dyd35iyv",
+      "ingestion_time": "2026-04-09T08:13:02.093Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["host", "file"],
     "dataset": "aws.efs",
     "provider": "elasticfilesystem.amazonaws.com",
-    "duration": 30000000,
+    "duration": 3045000000,
     "module": "aws"
   },
-  "message": "EFS fs-84aummfr: 125.0 MB/s, 480 connections",
-  "log": { "level": "info" },
+  "message": "EFS fs-roa1ehdy: ThroughputLimitExceeded",
+  "log": { "level": "error" },
+  "error": { "code": "FileLimitExceeded", "message": "EFS operation failed", "type": "storage" },
   "service": { "name": "efs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.efs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "b41223uq1g9"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "dapl9f3cnwc"
   },
   "input": { "type": "aws-cloudwatch" }
 }

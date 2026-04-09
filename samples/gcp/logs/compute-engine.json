@@ -2,58 +2,51 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west9",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
-    "service": { "name": "compute.googleapis.com" }
+    "region": "southamerica-west1",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" },
+    "service": { "name": "shielded-vms" }
   },
   "gcp": {
-    "compute_engine": {
-      "instance_name": "api-9vyc",
-      "instance_id": "4858827667806",
-      "zone": "europe-west9-c",
-      "machine_type": "n2-standard-8",
-      "event_type": "DELETE",
-      "status": "DONE",
-      "network_tags": ["egress-nat"],
-      "disk_size_gb": 759
+    "shielded_vms": {
+      "instance_name": "node-e1rk",
+      "event_type": "INTEGRITY_VIOLATION",
+      "integrity_status": "TRUSTED",
+      "policy_update": "NONE"
     }
   },
-  "event": { "outcome": "success", "duration": 5168, "module": "gcp", "dataset": "gcp.compute" },
-  "message": "Compute Engine DELETE completed for api-9vyc in europe-west9-c (n2-standard-8, 759GB disk)",
-  "service": { "name": "compute-engine", "type": "gcp" },
+  "event": {
+    "outcome": "success",
+    "duration": 3033,
+    "module": "gcp",
+    "dataset": "gcp.shielded_vms"
+  },
+  "message": "Shielded VM node-e1rk: INTEGRITY_VIOLATION OK (TRUSTED, policy NONE)",
+  "service": { "name": "shielded-vms", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.compute", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.shielded_vms", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west9",
-    "id": "9eykvh2hakv"
+    "name": "elastic-agent-gcp-southamerica-west1",
+    "id": "5kk0p07vsuo"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-prod-a1b2c3/logs/compute-engine",
+  "logName": "projects/globex-shared-m3n4o5/logs/shielded-vms",
   "resource": {
-    "type": "gce_instance",
-    "labels": {
-      "project_id": "globex-prod-a1b2c3",
-      "instance_id": "4858827667806",
-      "zone": "europe-west9-c"
-    }
+    "type": "global",
+    "labels": { "project_id": "globex-shared-m3n4o5", "region": "southamerica-west1" }
   },
   "severity": "INFO",
-  "insertId": "0J8NZVHO17IR",
+  "insertId": "9WN8PHM77N9",
   "jsonPayload": {
-    "compute_engine": {
-      "instance_name": "api-9vyc",
-      "instance_id": "4858827667806",
-      "zone": "europe-west9-c",
-      "machine_type": "n2-standard-8",
-      "event_type": "DELETE",
-      "status": "DONE",
-      "network_tags": ["egress-nat"],
-      "disk_size_gb": 759
+    "shielded_vms": {
+      "instance_name": "node-e1rk",
+      "event_type": "INTEGRITY_VIOLATION",
+      "integrity_status": "TRUSTED",
+      "policy_update": "NONE"
     },
-    "message": "Compute Engine DELETE completed for api-9vyc in europe-west9-c (n2-standard-8, 759GB disk)"
+    "message": "Shielded VM node-e1rk: INTEGRITY_VIOLATION OK (TRUSTED, policy NONE)"
   }
 }

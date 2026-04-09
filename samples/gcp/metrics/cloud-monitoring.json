@@ -3,46 +3,43 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "southamerica-west1",
+    "region": "us-east1",
     "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
     "account": { "id": "271828182845", "name": "Globex Staging" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-southamerica-west1",
-    "ephemeral_id": "fvlz82yg29"
+    "name": "metricbeat-gcp-us-east1",
+    "ephemeral_id": "hp972j8z28m"
   },
   "gcp": {
-    "cloud-monitoring": {
+    "cloud-profiler": {
       "metrics": {
-        "ingestion_volume": { "avg": 9359389702, "sum": 9359389702, "count": 1 },
-        "query_count": { "avg": 169941, "sum": 169941, "count": 1 },
-        "dropped_entries": { "avg": 0, "sum": 0, "count": 1 }
+        "request_count": { "avg": 79515, "sum": 79515, "count": 1 },
+        "error_count": { "avg": 0, "sum": 0, "count": 1 },
+        "latency": { "avg": 162.24, "sum": 162.24, "count": 1 }
       },
-      "labels": { "resource_type": "global" }
+      "labels": { "resource_id": "resource-a" }
     }
   },
-  "metricset": { "name": "cloud-monitoring", "period": 60000 },
-  "data_stream": { "type": "metrics", "dataset": "gcp.monitoring_metrics", "namespace": "default" },
+  "metricset": { "name": "cloud-profiler", "period": 60000 },
+  "data_stream": { "type": "metrics", "dataset": "gcp.profiler", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.monitoring_metrics", "module": "gcp" },
+  "event": { "dataset": "gcp.profiler", "module": "gcp" },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-monitoring/ingestion_volume",
+      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-profiler/request_count",
       "labels": {}
     },
     "resource": {
       "type": "global",
-      "labels": { "project_id": "globex-staging-d4e5f6", "region": "southamerica-west1" }
+      "labels": { "project_id": "globex-staging-d4e5f6", "region": "us-east1" }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      {
-        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "doubleValue": 9359389702 }
-      }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 79515 } }
     ]
   }
 }

@@ -15,6 +15,8 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const NDJSON_DIR = join(__dirname, "ndjson");
 
+const KIBANA_ELASTIC_API_VERSION = process.env.ELASTIC_KIBANA_API_VERSION || "2023-10-31";
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function createReadline() {
@@ -109,6 +111,7 @@ function createKibanaClient(baseUrl, apiKey) {
   const authHeaders = {
     Authorization: `ApiKey ${apiKey}`,
     "kbn-xsrf": "true",
+    "Elastic-Api-Version": KIBANA_ELASTIC_API_VERSION,
   };
 
   async function request(method, path, body, extraHeaders = {}) {
@@ -186,7 +189,7 @@ function createKibanaClient(baseUrl, apiKey) {
     /** Create via Kibana Dashboards API (9.4+). */
     async createDashboard(definition) {
       const { id, spaces, ...body } = definition;
-      return request("POST", "/api/dashboards", body, { "Elastic-Api-Version": "1" });
+      return request("POST", "/api/dashboards", body);
     },
 
     /** Delete a dashboard by saved-object ID. Returns null if not found. */

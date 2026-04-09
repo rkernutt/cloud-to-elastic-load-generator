@@ -8,7 +8,8 @@
 
 import { rand, randId, randIp, REGIONS } from "./index";
 import { ELASTIC_DATASET_MAP, ELASTIC_METRICS_DATASET_MAP } from "../data/elasticMaps";
-import { SERVICE_INGESTION_DEFAULTS, INGESTION_META } from "../data/ingestion";
+import { INGESTION_META } from "../data/ingestion";
+import { clampGlobalIngestionOverride } from "./ingestionCompatibility";
 import {
   applyOtelTraceIngestionPatch,
   buildOtelLogTelemetry,
@@ -25,7 +26,7 @@ type LooseDoc = Record<string, any>;
 
 export interface EnrichOptions {
   serviceId: string;
-  /** Override ingestion source; if omitted uses SERVICE_INGESTION_DEFAULTS */
+  /** Override ingestion source; clamped per service when incompatible */
   ingestionSource?: string;
   eventType: "logs" | "metrics" | "traces";
 }
@@ -74,8 +75,7 @@ function resolveDataset(serviceId: string, eventType: string): string {
 }
 
 function resolveSource(serviceId: string, override?: string): string {
-  if (override && override !== "default") return override;
-  return (SERVICE_INGESTION_DEFAULTS as LooseDoc)[serviceId] || "cloudwatch";
+  return clampGlobalIngestionOverride("aws", serviceId, serviceId, override, null).source;
 }
 
 function buildAgentMeta(source: string, eventType: string, region: string): LooseDoc {

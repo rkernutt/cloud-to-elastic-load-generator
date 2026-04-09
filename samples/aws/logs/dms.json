@@ -1,36 +1,43 @@
 {
-  "@timestamp": "2026-04-08T15:12:15.029Z",
+  "@timestamp": "2026-04-09T08:13:01.702Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
+    "region": "ap-southeast-1",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "dms" }
   },
   "aws": {
-    "dimensions": { "ReplicationInstanceIdentifier": "dms-prod-4rr56xvl" },
+    "dimensions": { "ReplicationInstanceIdentifier": "dms-prod-rh3w0s5p" },
     "dms": {
-      "replication_task_id": "mongodb-to-documentdb",
-      "migration_type": "full-load",
-      "replication_instance_identifier": "dms-prod-4rr56xvl",
-      "source_engine": "sqlserver",
-      "target_engine": "dynamodb",
-      "replication_instance_class": "dms.t3.medium",
+      "replication_task_id": "prod-mysql-to-aurora",
+      "migration_type": "full-load-and-cdc",
+      "replication_instance_identifier": "dms-prod-rh3w0s5p",
+      "source_engine": "mongodb",
+      "target_engine": "aurora-postgresql",
+      "replication_instance_class": "dms.r5.xlarge",
       "task_status": "Load complete",
-      "full_load_rows_transferred": 6138195,
-      "cdc_incoming_changes": 0,
-      "latency_ms": 0,
-      "tables_loaded": 244,
+      "full_load_rows_transferred": 9784983,
+      "cdc_incoming_changes": 64060,
+      "latency_ms": 1309,
+      "tables_loaded": 304,
       "tables_errored": 0,
       "metrics": {
-        "FullLoadThroughputRowsSource": { "avg": 86820 },
-        "FullLoadThroughputRowsTarget": { "avg": 9189 },
-        "CPUUtilization": { "avg": 9.903838874945489 },
-        "FreeableMemory": { "avg": 3504583890 },
-        "FreeStorageSpace": { "avg": 36758280176 },
-        "NetworkReceiveThroughput": { "avg": 39466990 },
-        "NetworkTransmitThroughput": { "avg": 8032039 },
-        "ReadIOPS": { "avg": 2962 },
-        "WriteIOPS": { "avg": 675 }
+        "FullLoadThroughputRowsSource": { "avg": 79555 },
+        "FullLoadThroughputRowsTarget": { "avg": 12293 },
+        "CDCIncomingChanges": { "avg": 2814 },
+        "CDCChangesMemorySource": { "avg": 408 },
+        "CDCChangesMemoryTarget": { "avg": 977 },
+        "CDCChangesDiskSource": { "avg": 77 },
+        "CDCChangesDiskTarget": { "avg": 30 },
+        "CDCLatencySource": { "avg": 3 },
+        "CDCLatencyTarget": { "avg": 7 },
+        "CPUUtilization": { "avg": 26.634753492044602 },
+        "FreeableMemory": { "avg": 488435418 },
+        "FreeStorageSpace": { "avg": 38591747257 },
+        "NetworkReceiveThroughput": { "avg": 28311804 },
+        "NetworkTransmitThroughput": { "avg": 69464114 },
+        "ReadIOPS": { "avg": 2915 },
+        "WriteIOPS": { "avg": 2471 }
       }
     },
     "s3": {
@@ -39,13 +46,13 @@
         "arn": "arn:aws:s3:::aws-dms-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/dms/ap-northeast-3/2026/04/08/dms_0IRSCLI7O6U.log.gz"
+        "key": "AWSLogs/164820739518/dms/ap-southeast-1/2026/04/09/dms_T5EFXSMY9ZM.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/dms/logs",
-      "log_stream": "ap-northeast-3/puzlzbr1",
-      "ingestion_time": "2026-04-08T15:12:15.504Z"
+      "log_stream": "ap-southeast-1/bseqdg6k",
+      "ingestion_time": "2026-04-09T08:13:02.180Z"
     }
   },
   "event": {
@@ -53,10 +60,10 @@
     "category": ["database", "process"],
     "dataset": "aws.dms",
     "provider": "dms.amazonaws.com",
-    "duration": 17273000000000,
+    "duration": 19773000000000,
     "module": "aws"
   },
-  "message": "DMS mongodb-to-documentdb: 6,138,195 rows (sqlserver->dynamodb full-load)",
+  "message": "DMS prod-mysql-to-aurora: 9,784,983 rows (mongodb->aurora-postgresql full-load-and-cdc)",
   "log": { "level": "info" },
   "service": { "name": "dms", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -64,8 +71,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "3bgicxn9zma"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "mh7n0x0tob"
   },
   "input": { "type": "aws-cloudwatch" }
 }

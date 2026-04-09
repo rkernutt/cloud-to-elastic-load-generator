@@ -70,14 +70,21 @@ function datasetsForPackage(repoRoot, pkgName) {
       const ty = mt.match(/^type:\s*(\S+)/m);
       if (ty && !dataStreamType) dataStreamType = ty[1];
     }
-    dataStreams.push({ folder, dataset, dataStreamType: dataStreamType || "unknown", title: title || folder });
+    dataStreams.push({
+      folder,
+      dataset,
+      dataStreamType: dataStreamType || "unknown",
+      title: title || folder,
+    });
   }
   return { version, dataStreams };
 }
 
 const repoPath = process.env.ELASTIC_INTEGRATIONS_PATH || defaultCache;
 if (!existsSync(path.join(repoPath, ".git")) && process.env.ELASTIC_INTEGRATIONS_PATH) {
-  throw new Error(`ELASTIC_INTEGRATIONS_PATH must be a git checkout of elastic/integrations: ${repoPath}`);
+  throw new Error(
+    `ELASTIC_INTEGRATIONS_PATH must be a git checkout of elastic/integrations: ${repoPath}`
+  );
 }
 ensureRepo(repoPath);
 

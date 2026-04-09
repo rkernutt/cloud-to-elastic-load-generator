@@ -402,7 +402,7 @@ node installer/aws-custom-dashboards/index.mjs
 
 **Note:** The dashboard installer automatically selects the best import method for your Kibana version:
 
-- **Kibana 9.4+** — uses the Dashboards API (`Elastic-Api-Version: 1`) as primary, falls back to Saved Objects import if unavailable
+- **Kibana 9.4+** — uses the Dashboards API (dated `Elastic-Api-Version`, default `2023-10-31`; override via `ELASTIC_KIBANA_API_VERSION`) as primary, falls back to Saved Objects import if unavailable
 - **Kibana 8.11–9.3** — uses Saved Objects ndjson import as primary, falls back to Dashboards API
 
 Both methods are handled by the same `npm run setup:aws-dashboards` command. You can also use the dedicated legacy installer (`npm run setup:aws-dashboards:legacy`) to force ndjson import on older versions.

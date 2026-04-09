@@ -1,48 +1,37 @@
 {
-  "@timestamp": "2026-04-08T15:12:15.029Z",
+  "@timestamp": "2026-04-09T08:13:01.702Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
+    "region": "us-west-2",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "wafv2" }
   },
   "aws": {
     "dimensions": {
-      "WebACL": "cdn-waf",
-      "Rule": "UserAgent_BadBots_HEADER",
-      "Region": "eu-central-2"
+      "WebACL": "admin-portal-waf",
+      "Rule": "IPRateBasedRule",
+      "Region": "us-west-2"
     },
     "waf": {
-      "id": "lvzme85c1be",
-      "arn": "arn:aws:wafv2:eu-central-2:293847561023:regional/webacl/cdn-waf/c2lmk1hj-a2yc-sv99-3rpy-jeurlwy2hd",
+      "id": "5yi7mkgkwz",
+      "arn": "arn:aws:wafv2:us-west-2:293847561023:regional/webacl/admin-portal-waf/7ueuy5yc-qhg0-tom2-0kvr-4b5e576yeqd",
       "format_version": "1",
-      "source": { "name": "CF", "id": "293847561023-app/cdn-waf/x733euzmki" },
-      "rule_group_list": [
-        {
-          "ruleGroupId": "AWSManagedRulesPHPRuleSet",
-          "terminatingRule": {
-            "action": "BLOCK",
-            "ruleId": "UserAgent_BadBots_HEADER",
-            "ruleMatchDetails": []
-          },
-          "nonTerminatingMatchingRules": []
-        }
-      ],
+      "source": { "name": "APIGW", "id": "293847561023-app/admin-portal-waf/wkzn2bmt5d8" },
+      "rule_group_list": [{ "ruleGroupId": "GeoBlockRule", "nonTerminatingMatchingRules": [] }],
       "non_terminating_matching_rules": [],
       "terminating_rule_match_details": [],
       "request": {
         "headers": [
-          { "name": "User-Agent", "value": "curl/7.68.0" },
+          { "name": "User-Agent", "value": "Go-http-client/1.1" },
           { "name": "Host", "value": "api.example.com" }
         ]
       },
-      "labels": [{ "name": "awswaf:managed:aws:core-rule-set:CrossSiteScripting" }],
-      "response_code_sent": 403,
+      "labels": [],
       "metrics": {
-        "AllowedRequests": { "sum": 0 },
-        "BlockedRequests": { "sum": 1 },
+        "AllowedRequests": { "sum": 1 },
+        "BlockedRequests": { "sum": 0 },
         "CountedRequests": { "sum": 0 },
-        "PassedRequests": { "sum": 0 },
+        "PassedRequests": { "sum": 1 },
         "RequestsWithValidCaptchaToken": { "sum": 0 },
         "ChallengeRequests": { "sum": 0 },
         "FailedCaptcha": { "sum": 0 }
@@ -54,46 +43,45 @@
         "arn": "arn:aws:s3:::aws-wafv2-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/wafv2/eu-central-2/2026/04/08/wafv2_GWFASRAK9U6.log.gz"
+        "key": "AWSLogs/293847561023/wafv2/us-west-2/2026/04/09/wafv2_7BD8NDMX81L.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/wafv2/logs",
-      "log_stream": "eu-central-2/5n0tt7wq",
-      "ingestion_time": "2026-04-08T15:12:15.542Z"
+      "log_stream": "us-west-2/wokl6o86",
+      "ingestion_time": "2026-04-09T08:13:02.209Z"
     }
   },
   "source": {
-    "ip": "219.50.75.244",
+    "ip": "114.123.86.107",
     "geo": {
-      "country_iso_code": "AU",
-      "country_name": "Australia",
-      "city_name": "Sydney",
-      "location": { "lat": -33.8688, "lon": 151.2093 }
+      "country_iso_code": "IN",
+      "country_name": "India",
+      "city_name": "Mumbai",
+      "location": { "lat": 19.076, "lon": 72.8777 }
     }
   },
-  "http": { "request": { "method": "POST", "bytes": 1943 } },
-  "url": { "path": "/api/v1/auth/login" },
-  "user_agent": { "original": "curl/7.68.0" },
+  "http": { "request": { "method": "PATCH", "bytes": 2652 } },
+  "url": { "path": "/api/v2/events" },
+  "user_agent": { "original": "Go-http-client/1.1" },
   "event": {
-    "action": "block",
+    "action": "count",
     "outcome": "failure",
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
     "module": "aws"
   },
-  "message": "WAFv2 BLOCK [cdn-waf] 219.50.75.244: AWSManagedRulesPHPRuleSet/UserAgent_BadBots_HEADER",
-  "log": { "level": "warn" },
-  "error": { "code": "WAFBlock", "message": "WAFv2 request blocked", "type": "security" },
+  "message": "WAFv2 COUNT [admin-portal-waf] 114.123.86.107 PATCH /api/v2/events",
+  "log": { "level": "info" },
   "service": { "name": "wafv2", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.waf", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "f8f2djqfy3h"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "2xk1fm5yelz"
   },
   "input": { "type": "aws-s3" }
 }

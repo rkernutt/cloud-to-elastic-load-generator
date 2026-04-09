@@ -24,6 +24,12 @@ const BACKOFF_JITTER_MS = 500;
 /** Set `PROXY_QUIET=1` to disable stderr access logs (metadata only; never logs API keys or bodies). */
 const QUIET = process.env.PROXY_QUIET === "1";
 
+/**
+ * Kibana /api/* expects Elastic-Api-Version as YYYY-MM-DD. The legacy value "1" is rejected on 8.13+ / 9.x.
+ * Override when your stack requires a different contract date (see Kibana release notes).
+ */
+const KIBANA_ELASTIC_API_VERSION = process.env.ELASTIC_KIBANA_API_VERSION || "2023-10-31";
+
 /** Compute exponential backoff with random jitter to avoid thundering-herd retries. */
 function backoffDelay(retryCount) {
   return BACKOFF_BASE_MS * Math.pow(2, retryCount) + Math.random() * BACKOFF_JITTER_MS;
@@ -215,20 +221,56 @@ const server = http.createServer((req, res) => {
     const targetPath = req.headers["x-elastic-path"] || "/_bulk";
     const isBulk = !req.headers["x-elastic-path"];
     const targetMethod = req.headers["x-elastic-method"] || (isBulk ? "POST" : "PUT");
-    const isGet = targetMethod.toUpperCase() === "GET";
-    const contentType = isBulk ? "application/x-ndjson" : "application/json";
+    const upperMethod = targetMethod.toUpperCase();
+    const isGet = upperMethod === "GET";
+    const omitUpstreamBody =
+      upperMethod === "GET" || upperMethod === "DELETE" || upperMethod === "HEAD";
+
+    let forwardBody = body;
+    let requestContentType = isBulk ? "application/x-ndjson" : "application/json";
+
+    if (!isBulk && !omitUpstreamBody) {
+      try {
+        const parsedBody = JSON.parse(body.toString("utf8"));
+        if (
+          parsedBody &&
+          parsedBody.__proxyMultipart === "kibana_saved_objects_import" &&
+          typeof parsedBody.ndjson === "string"
+        ) {
+          const boundary = `----FormBoundary${crypto.randomBytes(16).toString("hex")}`;
+          const crlf = "\r\n";
+          const encoded = Buffer.from(parsedBody.ndjson, "utf8");
+          forwardBody = Buffer.concat([
+            Buffer.from(
+              `--${boundary}${crlf}` +
+                `Content-Disposition: form-data; name="file"; filename="import.ndjson"${crlf}` +
+                `Content-Type: application/ndjson${crlf}${crlf}`
+            ),
+            encoded,
+            Buffer.from(`${crlf}--${boundary}--${crlf}`),
+          ]);
+          requestContentType = `multipart/form-data; boundary=${boundary}`;
+        }
+      } catch {
+        /* normal JSON body */
+      }
+    }
 
     const outHeaders = {
       Authorization: "ApiKey " + apiKey,
     };
-    if (!isGet) {
-      outHeaders["Content-Type"] = contentType;
-      outHeaders["Content-Length"] = String(body.length);
+    if (!omitUpstreamBody) {
+      outHeaders["Content-Type"] = requestContentType;
+      outHeaders["Content-Length"] = String(forwardBody.length);
     }
-    // Kibana requires kbn-xsrf for write operations; harmless for ES.
-    if (!isBulk && !isGet) {
-      outHeaders["kbn-xsrf"] = "true";
-      outHeaders["Elastic-Api-Version"] = "1";
+    const pathStr = String(targetPath);
+    const isKibanaApi = pathStr.startsWith("/api/");
+    // Elasticsearch rejects Elastic-Api-Version: 1 — only send dated version to Kibana /api/*.
+    if (!isBulk && isKibanaApi) {
+      outHeaders["Elastic-Api-Version"] = KIBANA_ELASTIC_API_VERSION;
+      if (!isGet) {
+        outHeaders["kbn-xsrf"] = "true";
+      }
     }
 
     const options = {
@@ -240,11 +282,25 @@ const server = http.createServer((req, res) => {
     };
 
     const transport = parsed.protocol === "https:" ? https : http;
-    proxyRequest(transport, options, isGet ? Buffer.alloc(0) : body, 0, res, requestId);
+    proxyRequest(
+      transport,
+      options,
+      omitUpstreamBody ? Buffer.alloc(0) : forwardBody,
+      0,
+      res,
+      requestId
+    );
   });
 });
 
 server.listen(PORT, HOST, () => {
+  if (!QUIET) {
+    console.error(
+      "[proxy] Kibana API version header: " +
+        KIBANA_ELASTIC_API_VERSION +
+        " (set ELASTIC_KIBANA_API_VERSION to override)"
+    );
+  }
   console.log(
     "Elastic proxy listening on " +
       HOST +

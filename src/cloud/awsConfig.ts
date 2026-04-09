@@ -1,3 +1,4 @@
+import { AWS_SETUP_BUNDLE } from "../setup/awsAssets";
 import {
   ELASTIC_DATASET_MAP,
   ELASTIC_METRICS_DATASET_MAP,
@@ -6,7 +7,6 @@ import {
 import { SERVICE_INGESTION_DEFAULTS, INGESTION_META } from "../data/ingestion";
 import { SERVICE_GROUPS, ALL_SERVICE_IDS, type ServiceGroup } from "../data/serviceGroups";
 import { TRACE_SERVICES } from "../aws/generators/traces/services";
-import { AWS_SETUP_BUNDLE } from "../setup/awsAssets";
 import { CATEGORY_ICON_MAP, AWS_SERVICE_ICON_MAP } from "../data/iconMap";
 import type { CloudAppConfig, TraceServiceMeta } from "./types";
 import { awsBulkIndexName, awsDocDatasetIndex } from "./indexNaming";

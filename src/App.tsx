@@ -16,6 +16,11 @@ import {
 } from "./utils/validation";
 import { loadAndScrubSavedConfig, toPersistedStorageObject } from "./utils/persistedConfig";
 import { isOtelPipelineSource } from "./helpers/otelPipeline";
+import {
+  analyzeIngestionConflicts,
+  clampGlobalIngestionOverride,
+  type IngestionClampGcpAzureCtx,
+} from "./helpers/ingestionCompatibility";
 import { AppLayout } from "./components/AppLayout";
 import { WizardFooter } from "./components/WizardFooter";
 import { ShipPage } from "./pages/ShipPage";
@@ -25,6 +30,7 @@ import { ConfigPage } from "./pages/ConfigPage";
 import { AnomaliesPage } from "./pages/AnomaliesPage";
 import { ActivityPage } from "./pages/ActivityPage";
 import { SetupPage } from "./pages/SetupPage";
+import { UninstallPage } from "./pages/UninstallPage";
 
 type LogEntry = { id: number; msg: string; type: string; ts: string };
 type ShipStatus = "running" | "done" | "aborted" | null;
@@ -140,6 +146,7 @@ export function LoadGeneratorApp({
   );
   const [connectionMsg, setConnectionMsg] = useState("");
   const [dryRun, setDryRun] = useState(false);
+  const [ingestionResetNotice, setIngestionResetNotice] = useState<string | null>(null);
 
   const isTracesMode = eventType === "traces";
   /** Traces ship via OTLP; honor OTel pipeline override when user selected one. */
@@ -376,13 +383,78 @@ export function LoadGeneratorApp({
 
   // Service selection helpers — used by ServicesPage via inline props
 
+  const ingestionClampCtx = useMemo<IngestionClampGcpAzureCtx | null>(() => {
+    if (config.enrichContext.kind !== "gcp-azure") return null;
+    const c = config.enrichContext.ctx;
+    return {
+      serviceIngestionDefaults: c.serviceIngestionDefaults,
+      defaultIngestion: c.defaultIngestion,
+      ingestionUiFallback: c.ingestionUiFallback,
+    };
+  }, [config.enrichContext]);
+
   const getEffectiveSource = useCallback(
-    (svcId: string) => {
-      if (ingestionSource !== "default") return ingestionSource;
-      return config.serviceIngestionDefaults[svcId] || config.fallbackIngestionSource;
-    },
-    [ingestionSource, config.serviceIngestionDefaults, config.fallbackIngestionSource]
+    (svcId: string) =>
+      clampGlobalIngestionOverride(
+        config.id,
+        svcId,
+        svcId,
+        ingestionSource === "default" ? undefined : ingestionSource,
+        config.id === "aws" ? null : ingestionClampCtx
+      ).source,
+    [config.id, ingestionClampCtx, ingestionSource]
   );
+
+  const getIngestionClampDetail = useCallback(
+    (svcId: string) =>
+      clampGlobalIngestionOverride(
+        config.id,
+        svcId,
+        svcId,
+        ingestionSource === "default" ? undefined : ingestionSource,
+        config.id === "aws" ? null : ingestionClampCtx
+      ),
+    [config.id, ingestionClampCtx, ingestionSource]
+  );
+
+  /** Reset impossible global overrides (e.g. Entra + AKS) before generate/ship. */
+  useEffect(() => {
+    if (ingestionSource === "default" || isTracesMode) {
+      return;
+    }
+    const selected = selectedServices;
+    const { hasConflict, incompatibleServiceIds } = analyzeIngestionConflicts(
+      config.id,
+      ingestionSource,
+      selected,
+      config.id === "aws" ? null : ingestionClampCtx
+    );
+    if (!hasConflict) return;
+    const label = config.ingestionMeta[ingestionSource]?.label ?? ingestionSource;
+    setIngestionResetNotice(
+      `Ingestion override "${label}" does not apply to: ${incompatibleServiceIds.join(", ")}. Reset to Default.`
+    );
+    setIngestionSource("default");
+  }, [ingestionSource, selectedServices, isTracesMode, config, ingestionClampCtx]);
+
+  const ingestionOverrideCompatibleHint = useMemo(() => {
+    if (ingestionSource === "default" || isTracesMode) return null;
+    const { hasConflict } = analyzeIngestionConflicts(
+      config.id,
+      ingestionSource,
+      selectedServices,
+      config.id === "aws" ? null : ingestionClampCtx
+    );
+    if (hasConflict) return null;
+    const label = config.ingestionMeta[ingestionSource]?.label ?? ingestionSource;
+    return `Override "${label}" is compatible with all ${selectedServices.length} selected service(s).`;
+  }, [ingestionSource, isTracesMode, selectedServices, config, ingestionClampCtx]);
+
+  useEffect(() => {
+    if (!ingestionResetNotice) return;
+    const t = setTimeout(() => setIngestionResetNotice(null), 12000);
+    return () => clearTimeout(t);
+  }, [ingestionResetNotice]);
 
   const enrichDoc = useCallback(
     (doc: LooseDoc, svc: string, source: string, evType: string): LooseDoc =>
@@ -746,6 +818,7 @@ export function LoadGeneratorApp({
         totalErrors = 0;
 
       const docCountByIdx: number[] = new Array(activeServices.length);
+      const servicesWithIngestionClamp: string[] = [];
 
       const shipService = async (svc: string, svcIndex: number) => {
         const dataset =
@@ -755,7 +828,9 @@ export function LoadGeneratorApp({
               config.fallbackDatasetForService(svc))
             : (config.elasticDatasetMap[svc] ?? config.fallbackDatasetForService(svc));
         const indexName = config.formatBulkIndexName(indexPrefix, dataset);
-        const src = getEffectiveSource(svc);
+        const ingestDetail = getIngestionClampDetail(svc);
+        if (ingestDetail.clampedFrom) servicesWithIngestionClamp.push(svc);
+        const src = ingestDetail.source;
         addLog(`▶ ${svc} → ${indexName} [${config.ingestionMeta[src]?.label || src}]`, "info");
         // In metrics mode, prefer dimensional generators that produce per-resource docs
         const isDimensionalMetrics = METRICS_GENERATORS?.[svc] != null;
@@ -858,6 +933,13 @@ export function LoadGeneratorApp({
           totalSent += r.sent;
           totalErrors += r.errors;
         }
+      }
+
+      if (servicesWithIngestionClamp.length > 0) {
+        addLog(
+          `Ingestion: global override was adjusted to per-service defaults for: ${[...new Set(servicesWithIngestionClamp)].join(", ")}.`,
+          "warn"
+        );
       }
 
       // ── Anomaly injection pass (logs / metrics) ──────────────────────────
@@ -1016,6 +1098,7 @@ export function LoadGeneratorApp({
     indexPrefix,
     enrichDoc,
     getEffectiveSource,
+    getIngestionClampDetail,
     eventType,
     isTracesMode,
     traceIngestionSource,
@@ -1247,16 +1330,31 @@ export function LoadGeneratorApp({
             }))
           }
           ingestionOverrideOptions={config.ingestionOverrideOptions}
+          ingestionResetNotice={ingestionResetNotice}
+          ingestionOverrideCompatibleHint={ingestionOverrideCompatibleHint}
         />
       )}
 
       {activePage === "setup" && (
         <SetupPage
+          key={config.setupBundle.fleetPackage}
           setupBundle={config.setupBundle}
           elasticUrl={elasticUrl}
           kibanaUrl={effectiveKibanaUrl}
           apiKey={apiKey}
           onInstallComplete={() => setSetupHasInstalled(true)}
+        />
+      )}
+
+      {activePage === "uninstall" && (
+        <UninstallPage
+          key={`uninstall-${config.setupBundle.fleetPackage}`}
+          setupBundle={config.setupBundle}
+          elasticUrl={elasticUrl}
+          kibanaUrl={effectiveKibanaUrl}
+          apiKey={apiKey}
+          onUninstallComplete={() => setSetupHasInstalled(false)}
+          onReinstallComplete={() => setSetupHasInstalled(true)}
         />
       )}
 

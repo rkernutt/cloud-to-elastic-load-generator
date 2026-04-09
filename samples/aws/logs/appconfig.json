@@ -1,47 +1,47 @@
 {
-  "@timestamp": "2026-04-08T15:12:15.029Z",
+  "@timestamp": "2026-04-09T08:13:01.702Z",
   "cloud": {
     "provider": "aws",
     "region": "eu-central-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "appconfig" }
   },
   "aws": {
-    "dimensions": { "Application": "WebApp", "Environment": "qa" },
+    "dimensions": { "Application": "DataPipeline", "Environment": "staging" },
     "appconfig": {
-      "application_name": "WebApp",
-      "environment_name": "qa",
-      "configuration_profile": "FeatureFlags",
-      "deployment_number": 498,
-      "deployment_strategy": "Canary10Percent20Minutes",
-      "growth_factor": 100,
+      "application_name": "DataPipeline",
+      "environment_name": "staging",
+      "configuration_profile": "RateLimits",
+      "deployment_number": 281,
+      "deployment_strategy": "Linear50PercentEvery30Seconds",
+      "growth_factor": 10,
       "percentage_complete": 100,
-      "state": "COMPLETE"
+      "state": "VALIDATING"
     },
     "s3": {
       "bucket": {
-        "name": "aws-appconfig-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-appconfig-logs-164820739518"
+        "name": "aws-appconfig-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-appconfig-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/appconfig/eu-central-1/2026/04/08/appconfig_0KWGWBVLLDJN.log.gz"
+        "key": "AWSLogs/293847561023/appconfig/eu-central-1/2026/04/09/appconfig_REEVXW5OZTD.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/appconfig/logs",
-      "log_stream": "eu-central-1/o7228ht2",
-      "ingestion_time": "2026-04-08T15:12:15.513Z"
+      "log_stream": "eu-central-1/pyx6ixo4",
+      "ingestion_time": "2026-04-09T08:13:02.188Z"
     }
   },
   "event": {
-    "action": "RetrieveConfiguration",
+    "action": "RollbackDeployment",
     "outcome": "success",
     "category": ["configuration"],
     "dataset": "aws.appconfig",
     "provider": "appconfig.amazonaws.com",
     "module": "aws"
   },
-  "message": "AppConfig WebApp/qa: FeatureFlags deployment #498 COMPLETE",
+  "message": "AppConfig DataPipeline/staging: RateLimits deployment #281 VALIDATING",
   "log": { "level": "info" },
   "service": { "name": "appconfig", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -50,7 +50,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "a0h2trx339k"
+    "ephemeral_id": "w8lfac7lk5s"
   },
   "input": { "type": "aws-cloudwatch" }
 }

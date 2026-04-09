@@ -143,7 +143,7 @@ function minimalDashboard(vendor, sid, dataset) {
         { x: 0, y: 25, w: 48, h: 12 },
         "By region",
         q(
-          "STATS c = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT c DESC | LIMIT 15"
+          'STATS c = COUNT() BY region = COALESCE(cloud.region, "unknown") | SORT c DESC | LIMIT 15'
         ),
         [
           ["region", "Region"],
@@ -183,7 +183,10 @@ function loadOfficialLogDatasets(vendor) {
 function mlJob(vendor, sid, dataset) {
   const prefix = vendor === "aws" ? "aws" : vendor === "gcp" ? "gcp" : "azure";
   const indices = [`logs-${prefix}.*`];
-  const safeId = `${prefix}-${sid}`.replace(/[^a-z0-9-]+/gi, "-").replace(/-+/g, "-").toLowerCase();
+  const safeId = `${prefix}-${sid}`
+    .replace(/[^a-z0-9-]+/gi, "-")
+    .replace(/-+/g, "-")
+    .toLowerCase();
   const jobId = `${safeId}-failure-spike`.slice(0, 100);
   return {
     id: jobId,
@@ -213,7 +216,10 @@ function mlJob(vendor, sid, dataset) {
       max_empty_searches: 10,
       query: {
         bool: {
-          filter: [{ term: { "event.dataset": dataset } }, { term: { "event.outcome": "failure" } }],
+          filter: [
+            { term: { "event.dataset": dataset } },
+            { term: { "event.outcome": "failure" } },
+          ],
         },
       },
       chunking_config: { mode: "auto" },

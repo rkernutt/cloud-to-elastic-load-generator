@@ -24,6 +24,7 @@ import {
   attachGcpCloudTraceFragment,
   attachGcpMonitoringTimeSeriesFragment,
 } from "./cloudNativeMetricsTraces";
+import { clampGlobalIngestionOverride } from "./ingestionCompatibility";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LooseDoc = Record<string, any>;
@@ -60,6 +61,11 @@ export interface GcpAzureEnrichContext {
   /** Default ingestion when service not in defaults */
   defaultIngestion: string;
   /**
+   * Matches {@link CloudAppConfig.fallbackIngestionSource} for Azure — unknown services use
+   * Monitor-style metadata on the Start page; enrich uses this before `defaultIngestion`.
+   */
+  ingestionUiFallback?: string;
+  /**
    * When `o365_metrics`, synthetic metric docs use the Office 365 Metrics integration shape
    * (filebeat / CEL, `event.module` o365_metrics) instead of Azure Monitor metricbeat.
    * Prefer `metricsIntegrationByServiceId` for mixed Azure Monitor + o365_metrics in one config.
@@ -77,8 +83,7 @@ function resolveMetricsIntegration(
 ): MetricsIntegrationKind {
   if (eventType !== "metrics") return "azure_monitor";
   const mapped =
-    ctx.metricsIntegrationByServiceId?.[flavorId] ??
-    ctx.metricsIntegrationByServiceId?.[serviceId];
+    ctx.metricsIntegrationByServiceId?.[flavorId] ?? ctx.metricsIntegrationByServiceId?.[serviceId];
   if (mapped === "o365_metrics") return "o365_metrics";
   if (ctx.metricsIntegration === "o365_metrics") return "o365_metrics";
   return "azure_monitor";
@@ -91,8 +96,7 @@ function resolveDataset(
   metricsKind: MetricsIntegrationKind
 ): string {
   if (eventType === "metrics") {
-    const fromMap =
-      ctx.elasticMetricsDatasetMap[serviceId] ?? ctx.elasticDatasetMap[serviceId];
+    const fromMap = ctx.elasticMetricsDatasetMap[serviceId] ?? ctx.elasticDatasetMap[serviceId];
     if (fromMap) return fromMap;
     if (metricsKind === "o365_metrics") {
       return `o365_metrics.${serviceId.replace(/-/g, "_")}`;
@@ -108,12 +112,12 @@ function resolveSource(
   uiServiceId: string,
   override?: string
 ): string {
-  if (override && override !== "default") return override;
-  return (
-    ctx.serviceIngestionDefaults[flavorId] ??
-    ctx.serviceIngestionDefaults[uiServiceId] ??
-    ctx.defaultIngestion
-  );
+  const cloudId = ctx.cloudModule === "gcp" ? "gcp" : "azure";
+  return clampGlobalIngestionOverride(cloudId, flavorId, uiServiceId, override, {
+    serviceIngestionDefaults: ctx.serviceIngestionDefaults,
+    defaultIngestion: ctx.defaultIngestion,
+    ingestionUiFallback: ctx.ingestionUiFallback,
+  }).source;
 }
 
 function buildInputType(ctx: GcpAzureEnrichContext, source: string): string | undefined {

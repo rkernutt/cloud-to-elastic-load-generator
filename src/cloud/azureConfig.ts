@@ -10,7 +10,11 @@ import { AZURE_REGIONS } from "../azure/generators/helpers.js";
 import { AZURE_SETUP_BUNDLE } from "../setup/azureAssets";
 import type { CloudAppConfig, TraceServiceMeta } from "./types";
 import type { ServiceGroup } from "../data/serviceGroups";
-import { genericVendorBulkIndex, genericVendorDocDataset, o365MetricsBulkIndex } from "./indexNaming";
+import {
+  genericVendorBulkIndex,
+  genericVendorDocDataset,
+  o365MetricsBulkIndex,
+} from "./indexNaming";
 import { publicUrl } from "../utils/publicUrl";
 import {
   AZURE_VENDOR_CATEGORY_ICONS,
@@ -87,6 +91,7 @@ export const AZURE_CONFIG: CloudAppConfig = {
       >,
       regions: AZURE_REGIONS,
       defaultIngestion: "default",
+      ingestionUiFallback: "azure-monitor",
       metricsIntegrationByServiceId: {
         "active-users-services": "o365_metrics",
         "teams-user-activity": "o365_metrics",

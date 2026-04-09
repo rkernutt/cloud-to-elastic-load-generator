@@ -14,6 +14,17 @@ export default defineConfig({
       },
     },
   },
+  // `npm run preview` serves dist/ without dev middleware unless proxy is set here too.
+  preview: {
+    port: 4173,
+    host: true,
+    proxy: {
+      "/proxy": {
+        target: `http://${process.env.PROXY_HOST || "127.0.0.1"}:${process.env.PROXY_PORT || 3001}`,
+        changeOrigin: true,
+      },
+    },
+  },
   build: {
     outDir: "dist",
     sourcemap: false,

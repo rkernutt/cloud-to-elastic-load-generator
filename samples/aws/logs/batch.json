@@ -1,63 +1,65 @@
 {
-  "@timestamp": "2026-04-08T15:12:15.029Z",
+  "@timestamp": "2026-04-09T08:13:01.702Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-west-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "batch" }
   },
   "aws": {
-    "dimensions": { "JobQueue": "report-generation-queue" },
+    "dimensions": { "JobQueue": "cleanup-job-queue" },
     "batch": {
-      "job": { "name": "report-generation", "id": "dr9k9kk7-13zi", "status": "SUCCEEDED" },
-      "job_queue": "report-generation-queue",
-      "compute_environment": "ce-spot",
+      "job": { "name": "cleanup-job", "id": "cr2x76w1-nmjy", "status": "SUCCEEDED" },
+      "job_queue": "cleanup-job-queue",
+      "compute_environment": "ce-ondemand",
       "structured_logging": true,
       "metrics": {
-        "PendingJobCount": { "avg": 72 },
-        "RunnableJobCount": { "avg": 0 },
-        "StartingJobCount": { "avg": 2 },
-        "RunningJobCount": { "avg": 17 },
+        "PendingJobCount": { "avg": 38 },
+        "RunnableJobCount": { "avg": 5 },
+        "StartingJobCount": { "avg": 14 },
+        "RunningJobCount": { "avg": 73 },
         "SucceededJobCount": { "sum": 1 },
         "FailedJobCount": { "sum": 0 },
-        "CPUReserved": { "avg": 49.90787131423948 },
+        "CPUReserved": { "avg": 75.89392407655053 },
         "GPUReserved": { "avg": 0 },
-        "MemoryReserved": { "avg": 55.63654027631738 }
+        "MemoryReserved": { "avg": 60.909605585699765 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-batch-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-batch-logs-814726593401"
+        "name": "aws-batch-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-batch-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/814726593401/batch/us-west-1/2026/04/08/batch_NNZRHG7LNX.log.gz" }
+      "object": {
+        "key": "AWSLogs/501938274650/batch/eu-west-1/2026/04/09/batch_ZJ3FFYHSZ3P.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/batch/logs",
-      "log_stream": "us-west-1/r8ndeifp",
-      "ingestion_time": "2026-04-08T15:12:15.341Z"
+      "log_stream": "eu-west-1/xrg21oqp",
+      "ingestion_time": "2026-04-09T08:13:02.022Z"
     }
   },
-  "process": { "pid": 31428, "name": "spark-submit", "exit_code": 0 },
-  "log": { "level": "info" },
+  "process": { "pid": 55896, "name": "bash", "exit_code": 0 },
+  "log": { "level": "warn" },
   "event": {
     "category": ["process"],
     "outcome": "success",
     "dataset": "aws.batch",
     "provider": "batch.amazonaws.com",
-    "duration": 1022000000000,
+    "duration": 2611000000000,
     "module": "aws"
   },
-  "message": "{\"jobId\":\"dr9k9kk7-13zi\",\"jobName\":\"report-generation\",\"jobQueue\":\"report-generation-queue\",\"level\":\"info\",\"message\":\"Job run started\",\"timestamp\":\"2026-04-08T15:12:15.029Z\",\"arrayIndex\":69}",
-  "host": { "name": "ip-142-67-235-51.ec2.internal", "hostname": "batch-bdrm2omc" },
+  "message": "{\"jobId\":\"cr2x76w1-nmjy\",\"jobName\":\"cleanup-job\",\"jobQueue\":\"cleanup-job-queue\",\"level\":\"warn\",\"message\":\"Job timeout warning: 80% elapsed\",\"timestamp\":\"2026-04-09T08:13:01.702Z\",\"arrayIndex\":12}",
+  "host": { "name": "ip-199-41-246-86.ec2.internal", "hostname": "batch-dcn7dcna" },
   "service": { "name": "batch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.batch", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "n6hana99n6"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "yk8eb3bekl"
   },
   "input": { "type": "aws-cloudwatch" }
 }

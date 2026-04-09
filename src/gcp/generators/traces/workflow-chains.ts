@@ -4,7 +4,15 @@
  */
 
 import type { EcsDocument } from "../helpers.js";
-import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId, randBucket } from "../helpers.js";
+import {
+  rand,
+  randInt,
+  gcpCloud,
+  makeGcpSetup,
+  randTraceId,
+  randSpanId,
+  randBucket,
+} from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
 
 const APM_AGENT = { name: "opentelemetry/nodejs", version: "1.x" } as const;
@@ -487,7 +495,11 @@ export function generateEventarcWorkflowOrchestrationTrace(ts: string, er: numbe
       subtype: "cloudsql",
       name: "Cloud SQL INSERT payments_ledger",
       duration: { us: usSql2 },
-      db: { type: "sql", statement: "INSERT INTO payments_ledger (order_id, amount, status) VALUES ($1,$2,'captured')" },
+      db: {
+        type: "sql",
+        statement:
+          "INSERT INTO payments_ledger (order_id, amount, status) VALUES ($1,$2,'captured')",
+      },
     },
     service: { name: "payments-api", environment: env },
     cloud: gcpCloud(region, project, "sqladmin.googleapis.com"),

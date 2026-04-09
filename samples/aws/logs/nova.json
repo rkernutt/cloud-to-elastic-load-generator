@@ -1,68 +1,72 @@
 {
-  "@timestamp": "2026-04-08T15:12:15.029Z",
+  "@timestamp": "2026-04-09T08:13:01.702Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "us-west-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "bedrock" }
   },
   "aws": {
-    "dimensions": { "ModelId": "amazon.nova-pro-v1:0", "ModelTier": "pro" },
+    "dimensions": { "ModelId": "amazon.nova-micro-v1:0", "ModelTier": "micro" },
     "nova": {
-      "model_id": "amazon.nova-pro-v1:0",
-      "model_tier": "pro",
+      "model_id": "amazon.nova-micro-v1:0",
+      "model_tier": "micro",
       "modality": "text",
-      "input_token_count": 8336,
-      "output_token_count": 1712,
+      "input_token_count": 6469,
+      "output_token_count": 0,
       "cache_read_input_token_count": 0,
-      "total_token_count": 10048,
-      "invocation_latency_ms": 1873,
-      "streaming": false,
-      "use_case": "summarization",
+      "total_token_count": 6469,
+      "invocation_latency_ms": 2481,
+      "time_to_first_token_ms": 287,
+      "streaming": true,
+      "use_case": "document-qa",
       "guardrail_action": "NONE",
-      "stop_reason": "end_turn",
+      "error_code": "ContextWindowExceededException",
       "metrics": {
-        "Invocations": { "sum": 997 },
-        "InvocationLatency": { "avg": 1873, "p99": 4683 },
-        "InputTokenCount": { "sum": 8336 },
-        "OutputTokenCount": { "sum": 1712 },
+        "Invocations": { "sum": 602 },
+        "InvocationLatency": { "avg": 2481, "p99": 6203 },
+        "InputTokenCount": { "sum": 6469 },
+        "OutputTokenCount": { "sum": 0 },
         "CacheReadInputTokenCount": { "sum": 0 },
-        "Throttles": { "sum": 0 }
+        "Throttles": { "sum": 49 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-nova-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-nova-logs-814726593401"
+        "name": "aws-nova-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-nova-logs-738291046572"
       },
-      "object": {
-        "key": "AWSLogs/814726593401/nova/eu-central-1/2026/04/08/nova_KVIE5KKFBFQ.log.gz"
-      }
+      "object": { "key": "AWSLogs/738291046572/nova/us-west-1/2026/04/09/nova_0Y8LT5WORBMR.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/nova/logs",
-      "log_stream": "eu-central-1/h51eorsq",
-      "ingestion_time": "2026-04-08T15:12:15.486Z"
+      "log_stream": "us-west-1/so9xpcwf",
+      "ingestion_time": "2026-04-09T08:13:02.165Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.nova",
     "provider": "bedrock.amazonaws.com",
-    "duration": 1873000000,
+    "duration": 2481000000,
     "module": "aws"
   },
-  "message": "Nova pro 8336->1712 tokens 1.87s",
-  "log": { "level": "info" },
+  "message": "Nova micro [amazon.nova-micro-v1:0] FAILED: ContextWindowExceededException",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ContextWindowExceededException",
+    "message": "Nova model invocation failed",
+    "type": "ml"
+  },
   "service": { "name": "nova", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.nova", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "c0hmxixqjzt"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "6xnyt47g53k"
   },
   "input": { "type": "aws-cloudwatch" }
 }

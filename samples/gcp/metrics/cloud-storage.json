@@ -3,43 +3,47 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-east2",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "us-west2",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-east2",
-    "ephemeral_id": "pjbil7xwn4l"
+    "name": "metricbeat-gcp-us-west2",
+    "ephemeral_id": "zsq5r1t4yoj"
   },
   "gcp": {
-    "storage-transfer": {
+    "cloud-storage": {
       "metrics": {
-        "request_count": { "avg": 74905, "sum": 74905, "count": 1 },
-        "error_count": { "avg": 0, "sum": 0, "count": 1 },
-        "latency": { "avg": 175.37, "sum": 175.37, "count": 1 }
+        "storage_bytes": { "avg": 15300629834, "sum": 15300629834, "count": 1 },
+        "object_count": { "avg": 5952996, "sum": 5952996, "count": 1 },
+        "api_request_count": { "avg": 288612, "sum": 288612, "count": 1 },
+        "errors": { "avg": 0, "sum": 0, "count": 1 }
       },
-      "labels": { "resource_id": "resource-a" }
+      "labels": { "bucket_name": "data-lake" }
     }
   },
-  "metricset": { "name": "storage-transfer", "period": 60000 },
-  "data_stream": { "type": "metrics", "dataset": "gcp.storagetransfer", "namespace": "default" },
+  "metricset": { "name": "cloud-storage", "period": 60000 },
+  "data_stream": { "type": "metrics", "dataset": "gcp.gcs_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.storagetransfer", "module": "gcp" },
+  "event": { "dataset": "gcp.gcs_metrics", "module": "gcp" },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/storage-transfer/request_count",
+      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-storage/storage_bytes",
       "labels": {}
     },
     "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-security-j0k1l2", "region": "asia-east2" }
+      "type": "gcs_bucket",
+      "labels": { "project_id": "globex-staging-d4e5f6", "region": "us-west2" }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 74905 } }
+      {
+        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
+        "value": { "doubleValue": 15300629834 }
+      }
     ]
   }
 }

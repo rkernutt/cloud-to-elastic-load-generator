@@ -52,6 +52,7 @@ const STEP_IDS = STEPS.map((s) => s.id);
 
 /** Secondary nav items below the wizard */
 const EXTRA_NAV = [
+  { id: "uninstall", label: "Uninstall / reinstall", icon: "refresh" },
   { id: "anomalies", label: "Anomalies", icon: "bug" },
   { id: "log", label: "Activity Log", icon: "list" },
 ] as const;

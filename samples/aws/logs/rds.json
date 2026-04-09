@@ -1,9 +1,9 @@
 {
-  "@timestamp": "2026-04-08T15:12:15.029Z",
+  "@timestamp": "2026-04-09T08:13:01.702Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-south-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "rds" }
   },
   "aws": {
@@ -11,55 +11,55 @@
       "DBInstanceIdentifier": "prod-db-replica",
       "DatabaseClass": "db.r6g.xlarge",
       "EngineName": "postgres",
-      "SourceRegion": "us-west-2"
+      "SourceRegion": "eu-south-2"
     },
     "rds": {
       "db_instance": {
         "identifier": "prod-db-replica",
-        "class": "db.t3.medium",
+        "class": "db.r6g.xlarge",
         "engine_name": "postgres",
-        "arn": "arn:aws:rds:us-west-2:293847561023:db:prod-db-replica",
+        "arn": "arn:aws:rds:eu-south-2:814726593401:db:prod-db-replica",
         "status": "available",
         "role": "read-replica"
       },
-      "cpu": { "total": { "pct": 0.5232 } },
-      "freeable_memory": { "bytes": 3088610101 },
-      "free_storage": { "bytes": 322182752355 },
-      "database_connections": 183,
-      "read_io": { "ops_per_sec": 2365.131564621482 },
-      "write_io": { "ops_per_sec": 2498.8982158739605 },
-      "latency": { "read": 0.001912367119237163, "write": 0.005666471159163956 },
+      "cpu": { "total": { "pct": 0.1762 } },
+      "freeable_memory": { "bytes": 3685293929 },
+      "free_storage": { "bytes": 236235549790 },
+      "database_connections": 388,
+      "read_io": { "ops_per_sec": 1674.5771841842427 },
+      "write_io": { "ops_per_sec": 2344.7687038869108 },
+      "latency": { "read": 0.014047784246350895, "write": 0.002379468951442165 },
       "throughput": {
-        "read": 71378175,
-        "write": 579268,
-        "network_receive": 43700112,
-        "network_transmit": 86230997
+        "read": 68930820,
+        "write": 73094580,
+        "network_receive": 96805927,
+        "network_transmit": 2632224
       },
-      "replica_lag": { "sec": 36.0088340560258 },
-      "swap_usage": { "bytes": 91989833 },
-      "disk_usage": { "bin_log": { "bytes": 572547573 } }
+      "replica_lag": { "sec": 29.22721783343055 },
+      "swap_usage": { "bytes": 11543647 },
+      "disk_usage": { "bin_log": { "bytes": 910104841 } }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-rds-logs-293847561023"
+        "name": "aws-rds-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-rds-logs-814726593401"
       },
-      "object": { "key": "AWSLogs/293847561023/rds/us-west-2/2026/04/08/rds_L9K2VWUA6HR.log.gz" }
+      "object": { "key": "AWSLogs/814726593401/rds/eu-south-2/2026/04/09/rds_DQHLMKIF30M.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/rds/logs",
-      "log_stream": "us-west-2/sakfd7bc",
-      "ingestion_time": "2026-04-08T15:12:15.329Z"
+      "log_stream": "eu-south-2/9foxtkgq",
+      "ingestion_time": "2026-04-09T08:13:02.010Z"
     }
   },
   "db": {
     "user": { "name": "appuser" },
-    "name": "analytics",
-    "statement": "INSERT INTO orders VALUES JHKG15",
+    "name": "users",
+    "statement": "DELETE FROM sessions WHERE 3E3W5G",
     "type": "sql"
   },
   "event": {
-    "duration": 1457579315.6083512,
+    "duration": 308508958.0845644,
     "outcome": "success",
     "category": ["database"],
     "type": ["info", "access"],
@@ -67,16 +67,18 @@
     "provider": "rds.amazonaws.com",
     "module": "aws"
   },
-  "message": "LOG: duration: 1457.579 ms statement: SELECT * FROM users WHERE id = 437911",
+  "message": "{\"instanceId\":\"prod-db-replica\",\"engine\":\"postgres\",\"userId\":\"appuser\",\"queryTime\":0.3085089580845644,\"error\":null,\"timestamp\":\"2026-04-09T08:13:01.702Z\",\"osMetrics\":{\"cpuUtilization\":{\"guest\":0.8191001340257189,\"irq\":0.6870986148742027,\"system\":3.960590330723066,\"wait\":3.8480831487746765,\"idle\":87.4,\"user\":3.305117853141107,\"total\":12.6},\"memory\":{\"total\":38677989608,\"free\":4826396899,\"cached\":5575421370,\"active\":10852103398,\"inactive\":3401938840,\"buffers\":491651170},\"disk\":{\"readIOsPS\":857.3954340585856,\"writeIOsPS\":654.1058501215088,\"readKbPS\":142040.05288903415,\"writeKbPS\":18980.925002833603,\"avgQueueLen\":1.588291632648251,\"await\":4.811498374890492},\"network\":{\"rx\":84581600,\"tx\":67331437},\"numVCPUs\":8,\"uptime\":\"48 days, 10:45:33\"}}",
   "log": { "level": "info" },
+  "trace": { "id": "F6WIKMSVW35" },
+  "transaction": { "id": "8M419QBKG5P" },
   "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "4y842x95784"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "al7kb7wc39t"
   },
   "input": { "type": "aws-cloudwatch" }
 }

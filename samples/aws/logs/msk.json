@@ -1,78 +1,83 @@
 {
-  "@timestamp": "2026-04-08T15:12:15.029Z",
+  "@timestamp": "2026-04-09T08:13:01.702Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "me-south-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "msk" }
   },
   "aws": {
     "dimensions": {
-      "Cluster Name": "prod-kafka-me-central-1",
-      "Broker ID": "5",
+      "Cluster Name": "prod-kafka-me-south-1",
+      "Broker ID": "2",
       "Topic": "order-updates"
     },
     "msk": {
-      "cluster_name": "prod-kafka-me-central-1",
-      "broker_id": 5,
+      "cluster_name": "prod-kafka-me-south-1",
+      "broker_id": 2,
       "kafka_version": "3.5.1",
       "topic": "order-updates",
-      "partition": 17,
-      "offset": 24472489,
-      "consumer_group": "alerting-service",
-      "lag": 12,
-      "under_replicated_partitions": 0,
+      "partition": 9,
+      "offset": 90906583,
+      "consumer_group": "etl-pipeline",
+      "lag": 521928,
+      "under_replicated_partitions": 17,
       "metrics": {
-        "BytesInPerSec": { "avg": 6174797 },
-        "BytesOutPerSec": { "avg": 9675133 },
-        "MessagesInPerSec": { "avg": 7763 },
-        "FetchConsumerTotalTimeMsMean": { "avg": 87 },
-        "ProduceTotalTimeMsMean": { "avg": 38 },
-        "UnderReplicatedPartitions": { "avg": 0 },
-        "UnderMinIsrPartitionCount": { "avg": 0 },
-        "OfflinePartitionsCount": { "avg": 0 },
+        "BytesInPerSec": { "avg": 6139683 },
+        "BytesOutPerSec": { "avg": 6235347 },
+        "MessagesInPerSec": { "avg": 3670 },
+        "FetchConsumerTotalTimeMsMean": { "avg": 60 },
+        "ProduceTotalTimeMsMean": { "avg": 44 },
+        "UnderReplicatedPartitions": { "avg": 1 },
+        "UnderMinIsrPartitionCount": { "avg": 1 },
+        "OfflinePartitionsCount": { "avg": 2 },
         "ActiveControllerCount": { "avg": 1 },
-        "GlobalPartitionCount": { "avg": 245 },
-        "GlobalTopicCount": { "avg": 19 },
-        "KafkaDataLogsDiskUsed": { "avg": 63.536812347844894 },
-        "CPUUser": { "avg": 75.38472483113853 },
-        "CPUSystem": { "avg": 14.471579528005444 },
+        "GlobalPartitionCount": { "avg": 933 },
+        "GlobalTopicCount": { "avg": 32 },
+        "KafkaDataLogsDiskUsed": { "avg": 77.35969031199419 },
+        "CPUUser": { "avg": 36.63937540885678 },
+        "CPUSystem": { "avg": 2.9794824276177705 },
         "NetworkRxDropped": { "sum": 0 },
         "NetworkTxDropped": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-msk-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-msk-logs-164820739518"
+        "name": "aws-msk-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-msk-logs-738291046572"
       },
-      "object": { "key": "AWSLogs/164820739518/msk/me-central-1/2026/04/08/msk_490PZPK6P8T.log.gz" }
+      "object": { "key": "AWSLogs/738291046572/msk/me-south-1/2026/04/09/msk_D8WVNLV62GQ.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/msk/logs",
-      "log_stream": "me-central-1/r2pr9n5s",
-      "ingestion_time": "2026-04-08T15:12:15.440Z"
+      "log_stream": "me-south-1/s2lbfobu",
+      "ingestion_time": "2026-04-09T08:13:02.122Z"
     }
   },
-  "kafka": { "topic": "order-updates", "partition": 17 },
+  "kafka": { "topic": "order-updates", "partition": 9 },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process", "network"],
     "dataset": "aws.msk",
     "provider": "kafka.amazonaws.com",
-    "duration": 58000000,
+    "duration": 2066000000,
     "module": "aws"
   },
-  "message": "MSK order-updates[17] offset=16364980",
-  "log": { "level": "info" },
+  "message": "MSK broker issue: under-replicated partitions on order-updates",
+  "log": { "level": "error" },
+  "error": {
+    "code": "UnderReplicatedPartitions",
+    "message": "MSK partition replication lag",
+    "type": "stream"
+  },
   "service": { "name": "msk", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.kafka_metrics", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "ml2rpw9hpqj"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "j1b7bv7nfj9"
   },
   "input": { "type": "aws-cloudwatch" }
 }

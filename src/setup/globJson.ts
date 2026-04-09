@@ -1,0 +1,23 @@
+/**
+ * Normalize eager JSON modules from import.meta.glob.
+ * Vite may return either the parsed JSON object or an ESM interop object
+ * `{ default: ParsedJson, __esModule?: true }`. Blindly reading `.default`
+ * breaks the common case where the module *is* the JSON (multi-key object),
+ * producing `undefined` for every entry and empty AWS/GCP/Azure setup lists.
+ *
+ * Only unwrap when the object looks like an ESM default export namespace,
+ * not when `default` is just another field on real JSON (multiple top-level keys).
+ */
+export function valuesFromEagerJsonGlob<T>(modules: Record<string, unknown>): T[] {
+  return Object.values(modules).map((mod) => {
+    if (mod == null || typeof mod !== "object") return mod as T;
+    const o = mod as Record<string, unknown>;
+    if (!("default" in o) || o.default === undefined) return mod as T;
+    const keys = Object.keys(o);
+    const looksLikeEsmDefaultExport =
+      (keys.length === 1 && keys[0] === "default") ||
+      (keys.length === 2 && keys.includes("default") && keys.includes("__esModule"));
+    if (looksLikeEsmDefaultExport) return o.default as T;
+    return mod as T;
+  });
+}

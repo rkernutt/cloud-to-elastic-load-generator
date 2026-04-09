@@ -24,7 +24,9 @@ export function genericVendorBulkIndex(
 
 /** Bulk index for Elastic `o365_metrics` data streams (package prefix is fixed by the integration). */
 export function o365MetricsBulkIndex(dataset: string): string {
-  const suffix = dataset.startsWith("o365_metrics.") ? dataset.slice("o365_metrics.".length) : dataset;
+  const suffix = dataset.startsWith("o365_metrics.")
+    ? dataset.slice("o365_metrics.".length)
+    : dataset;
   return `metrics-o365_metrics.${suffix}-default`;
 }
 

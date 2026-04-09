@@ -47,6 +47,10 @@ interface ConnectionPageProps {
   onBlurApiKey: () => void;
   onBlurIndexPrefix: () => void;
   ingestionOverrideOptions: { id: string; label: string }[];
+  /** Shown after auto-reset when override conflicted with selected services */
+  ingestionResetNotice?: string | null;
+  /** Shown when a non-default override fits every selected service (logs/metrics) */
+  ingestionOverrideCompatibleHint?: string | null;
   unifiedCloudPicker?: { vendor: CloudId; onChange: (id: CloudId) => void };
 }
 
@@ -114,6 +118,8 @@ export function ConnectionPage({
   onBlurApiKey,
   onBlurIndexPrefix,
   ingestionOverrideOptions,
+  ingestionResetNotice,
+  ingestionOverrideCompatibleHint,
   unifiedCloudPicker,
 }: ConnectionPageProps) {
   /** Max 3 buttons per row so long labels (e.g. Azure Monitor Distro → EDOT GW) stay readable. */
@@ -354,6 +360,24 @@ export function ConnectionPage({
           ))}
         </>
       </EuiFormRow>
+
+      {ingestionOverrideCompatibleHint && (
+        <>
+          <EuiSpacer size="m" />
+          <EuiCallOut title="Ingestion override" color="success" iconType="check" size="s">
+            <p>{ingestionOverrideCompatibleHint}</p>
+          </EuiCallOut>
+        </>
+      )}
+
+      {ingestionResetNotice && (
+        <>
+          <EuiSpacer size="m" />
+          <EuiCallOut title="Ingestion source adjusted" color="warning" iconType="alert" size="s">
+            <p>{ingestionResetNotice}</p>
+          </EuiCallOut>
+        </>
+      )}
 
       <EuiSpacer size="l" />
 

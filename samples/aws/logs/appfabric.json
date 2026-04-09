@@ -1,58 +1,63 @@
 {
-  "@timestamp": "2026-04-08T15:12:15.029Z",
+  "@timestamp": "2026-04-09T08:13:01.702Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-west-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "appfabric" }
   },
   "aws": {
-    "dimensions": { "AppBundle": "security-bundle", "Application": "Salesforce" },
+    "dimensions": { "AppBundle": "saas-audit-bundle", "Application": "Microsoft365" },
     "appfabric": {
-      "app_bundle_arn": "arn:aws:appfabric:us-east-1:293847561023:appbundle/security-bundle",
-      "application": "Salesforce",
-      "event_type": "apiAccess",
-      "normalized_user": "user-RXN9MJAQ@example.com",
-      "source_ip": "169.45.78.122",
-      "ingestion_status": "ACTIVE",
-      "tenant_id": "tenant-Z5DPSMJZ",
-      "ocsf_class": "NETWORK_ACTIVITY"
+      "app_bundle_arn": "arn:aws:appfabric:eu-west-3:814726593401:appbundle/saas-audit-bundle",
+      "application": "Microsoft365",
+      "event_type": "userSignOut",
+      "normalized_user": "user-ZFUF4FWX@example.com",
+      "source_ip": "135.37.104.104",
+      "ingestion_status": "FAILED",
+      "tenant_id": "tenant-6X91GZNJ",
+      "ocsf_class": "FILE_ACTIVITY"
     },
     "s3": {
       "bucket": {
-        "name": "aws-appfabric-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-appfabric-logs-293847561023"
+        "name": "aws-appfabric-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-appfabric-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/appfabric/us-east-1/2026/04/08/appfabric_ZOE7V06JUXF.log.gz"
+        "key": "AWSLogs/814726593401/appfabric/eu-west-3/2026/04/09/appfabric_DQ3U8E7D4L5.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/appfabric/logs",
-      "log_stream": "us-east-1/1pag682z",
-      "ingestion_time": "2026-04-08T15:12:15.470Z"
+      "log_stream": "eu-west-3/2mffsqh1",
+      "ingestion_time": "2026-04-09T08:13:02.151Z"
     }
   },
   "event": {
-    "action": "NormalizeEvent",
-    "outcome": "success",
+    "action": "IngestAuditLog",
+    "outcome": "failure",
     "category": ["audit"],
     "dataset": "aws.appfabric",
     "provider": "appfabric.amazonaws.com",
     "module": "aws"
   },
-  "message": "AppFabric Salesforce: apiAccess by user-RXN9MJAQ@example.com normalized as OCSF NETWORK_ACTIVITY",
-  "log": { "level": "info" },
-  "user": { "email": "user-RXN9MJAQ@example.com" },
-  "source": { "ip": "169.45.78.122" },
+  "message": "AppFabric Microsoft365: ingestion FAILED for userSignOut",
+  "log": { "level": "error" },
+  "user": { "email": "user-ZFUF4FWX@example.com" },
+  "source": { "ip": "135.37.104.104" },
+  "error": {
+    "code": "ResourceNotFoundException",
+    "message": "AppFabric ingestion failed",
+    "type": "audit"
+  },
   "service": { "name": "appfabric", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.appfabric", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "3wv413lcb56"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "o28f5728pj"
   },
   "input": { "type": "http_endpoint" }
 }

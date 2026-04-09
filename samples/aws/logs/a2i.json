@@ -1,66 +1,59 @@
 {
-  "@timestamp": "2026-04-08T15:12:15.029Z",
+  "@timestamp": "2026-04-09T08:13:01.702Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "me-central-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "a2i" }
   },
   "aws": {
     "dimensions": {
-      "FlowDefinitionArn": "arn:aws:sagemaker:ap-northeast-2:164820739518:flow-definition/medical-review",
+      "FlowDefinitionArn": "arn:aws:sagemaker:me-central-1:501938274650:flow-definition/fraud-review",
       "Operation": "HumanLoopCompleted"
     },
     "a2i": {
-      "flow_definition_arn": "arn:aws:sagemaker:ap-northeast-2:164820739518:flow-definition/medical-review",
-      "human_loop_name": "loop-6x0lr6sbvqw",
-      "human_loop_status": "Failed",
-      "input_content_type": "image/jpeg",
+      "flow_definition_arn": "arn:aws:sagemaker:me-central-1:501938274650:flow-definition/fraud-review",
+      "human_loop_name": "loop-techf33pmu",
+      "human_loop_status": "Completed",
+      "input_content_type": "image/png",
       "condition_threshold": 0.85,
-      "human_review_required": true,
-      "reviewer_count": 1,
+      "human_review_required": false,
+      "reviewer_count": 4,
       "task_count": 1,
-      "task_completed": 0,
-      "confidence_threshold_breach": true
+      "task_completed": 1,
+      "confidence_threshold_breach": false
     },
     "s3": {
       "bucket": {
-        "name": "aws-a2i-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-a2i-logs-164820739518"
+        "name": "aws-a2i-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-a2i-logs-501938274650"
       },
-      "object": {
-        "key": "AWSLogs/164820739518/a2i/ap-northeast-2/2026/04/08/a2i_E234HGW9PXK.log.gz"
-      }
+      "object": { "key": "AWSLogs/501938274650/a2i/me-central-1/2026/04/09/a2i_MYI97AWCKQ.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/a2i/logs",
-      "log_stream": "ap-northeast-2/233cvbsa",
-      "ingestion_time": "2026-04-08T15:12:15.484Z"
+      "log_stream": "me-central-1/b8othrnn",
+      "ingestion_time": "2026-04-09T08:13:02.163Z"
     }
   },
-  "log": { "level": "error" },
+  "log": { "level": "info" },
   "event": {
     "action": "HumanLoopCompleted",
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.a2i",
     "provider": "sagemaker.amazonaws.com",
     "module": "aws"
   },
-  "message": "A2I HumanLoopCompleted FAILED [loop-6x0lr6sbvqw]: Access denied",
-  "error": {
-    "code": "ResourceNotFoundException",
-    "message": "A2I human loop failed",
-    "type": "process"
-  },
+  "message": "A2I HumanLoopCompleted: loop=loop-techf33pmu, status=Completed",
   "service": { "name": "a2i", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.a2i", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "wo5362u13"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "bb4g9ma7ig"
   },
   "input": { "type": "aws-cloudwatch" }
 }
