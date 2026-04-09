@@ -1,59 +1,61 @@
 {
-  "@timestamp": "2026-04-09T08:13:01.702Z",
+  "@timestamp": "2026-04-09T10:32:55.502Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "us-west-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "chatbot" }
   },
   "aws": {
-    "dimensions": {
-      "ChannelConfiguration": "deploy-notifications",
-      "ChannelType": "MicrosoftTeams"
-    },
+    "dimensions": { "ChannelConfiguration": "security-alerts", "ChannelType": "Chime" },
     "chatbot": {
-      "channel_configuration_name": "deploy-notifications",
-      "channel_type": "MicrosoftTeams",
-      "notification_type": "SNSNotification",
-      "workspace_id": "TQXISZDAO",
-      "channel_id": "CMS4GT0B2",
-      "delivery_status": "Delivered",
-      "message_id": "fp4qyhza-jjtq-gxtg-j0nw-zznyb7ij9ke",
-      "sns_topic_arn": "arn:aws:sns:eu-south-1:501938274650:snsnotification-topic"
+      "channel_configuration_name": "security-alerts",
+      "channel_type": "Chime",
+      "notification_type": "CloudWatchAlarm",
+      "workspace_id": "T86E2J3H0",
+      "channel_id": "C0M7JO54P",
+      "delivery_status": "Failed",
+      "message_id": "54v6ufl4-qrnm-3run-jqdo-nihayoxb87a",
+      "sns_topic_arn": "arn:aws:sns:us-west-2:164820739518:cloudwatchalarm-topic"
     },
     "s3": {
       "bucket": {
-        "name": "aws-chatbot-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-chatbot-logs-501938274650"
+        "name": "aws-chatbot-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-chatbot-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/chatbot/eu-south-1/2026/04/09/chatbot_2UTTIPD5LZQ.log.gz"
+        "key": "AWSLogs/164820739518/chatbot/us-west-2/2026/04/09/chatbot_3C4V8AZZRUG.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/chatbot/logs",
-      "log_stream": "eu-south-1/r4gbjq0d",
-      "ingestion_time": "2026-04-09T08:13:02.190Z"
+      "log_stream": "us-west-2/dnbnvogu",
+      "ingestion_time": "2026-04-09T10:32:56.158Z"
     }
   },
   "event": {
-    "action": "NotificationDelivery",
-    "outcome": "success",
+    "action": "CommandExecution",
+    "outcome": "failure",
     "category": ["configuration"],
     "dataset": "aws.chatbot",
     "provider": "chatbot.amazonaws.com",
     "module": "aws"
   },
-  "message": "Chatbot deploy-notifications: SNSNotification delivered to MicrosoftTeams",
-  "log": { "level": "info" },
+  "message": "Chatbot security-alerts (Chime): CloudWatchAlarm delivery Failed",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InvalidParameterException",
+    "message": "Chatbot notification delivery failed",
+    "type": "configuration"
+  },
   "service": { "name": "chatbot", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.chatbot", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "w3zoo14l4hm"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "1mjwatzcczl"
   },
   "input": { "type": "aws-cloudwatch" }
 }

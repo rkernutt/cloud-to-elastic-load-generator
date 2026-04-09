@@ -1,58 +1,64 @@
 {
-  "@timestamp": "2026-04-09T08:13:01.702Z",
+  "@timestamp": "2026-04-09T10:32:55.502Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "us-east-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "appstream" }
   },
   "aws": {
     "appstream": {
       "stack_name": "secure-access",
       "fleet_name": "elastic-fleet",
-      "user_id": "user_pxm79l09@company.com",
-      "session_id": "nure8chtvr",
-      "event_type": "CLIPBOARD_COPY",
+      "user_id": "user_a5ulukgv@company.com",
+      "session_id": "8bw3g2dvfi6",
+      "event_type": "SESSION_STARTED",
       "instance_type": "stream.compute.large",
-      "storage_connector": "GoogleDrive",
-      "idle_disconnect_timeout_minutes": 60,
-      "max_user_duration_hours": 12
+      "storage_connector": "HomeFolder",
+      "idle_disconnect_timeout_minutes": 30,
+      "max_user_duration_hours": 12,
+      "error_code": "IAM_SERVICE_ROLE_ERROR"
     },
     "s3": {
       "bucket": {
-        "name": "aws-appstream-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-appstream-logs-501938274650"
+        "name": "aws-appstream-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-appstream-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/appstream/ca-central-1/2026/04/09/appstream_4XLPF2QM6DR.log.gz"
+        "key": "AWSLogs/164820739518/appstream/us-east-1/2026/04/09/appstream_994EXECZLSR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/appstream/logs",
-      "log_stream": "ca-central-1/1t4atxqq",
-      "ingestion_time": "2026-04-09T08:13:02.194Z"
+      "log_stream": "us-east-1/dfkii317",
+      "ingestion_time": "2026-04-09T10:32:56.166Z"
     }
   },
-  "user": { "name": "user_pxm79l09@company.com" },
+  "user": { "name": "user_a5ulukgv@company.com" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["host", "session"],
     "dataset": "aws.appstream",
     "provider": "appstream2.amazonaws.com",
-    "duration": 1238000000,
+    "duration": 7188000000,
     "module": "aws"
   },
-  "message": "AppStream CLIPBOARD_COPY: user_pxm79l09@company.com [secure-access]",
-  "log": { "level": "info" },
-  "host": { "name": "ip-229-170-75-201.ec2.internal", "hostname": "appstream-nsrh6te4" },
+  "message": "AppStream secure-access SESSION_STARTED FAILED: IAM role error:",
+  "log": { "level": "error" },
+  "error": {
+    "code": "USER_NOT_AUTHORIZED",
+    "message": "AppStream operation failed",
+    "type": "session"
+  },
+  "host": { "name": "ip-23-163-203-194.ec2.internal", "hostname": "appstream-sik93w0a" },
   "service": { "name": "appstream", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.appstream", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "37jen1uc0r"
+    "name": "filebeat-aws-us-east-1",
+    "ephemeral_id": "cvnwz6n2jib"
   },
   "input": { "type": "aws-cloudwatch" }
 }

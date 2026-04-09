@@ -1,45 +1,45 @@
 {
-  "@timestamp": "2026-04-09T08:13:01.702Z",
+  "@timestamp": "2026-04-09T10:32:55.502Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
+    "region": "ap-northeast-3",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "redshift" }
   },
   "aws": {
-    "dimensions": { "ClusterIdentifier": "prod-dw-ap-south-2", "NodeID": "Leader" },
+    "dimensions": { "ClusterIdentifier": "prod-dw-ap-northeast-3", "NodeID": "Leader" },
     "redshift": {
-      "cluster_id": "prod-dw-ap-south-2",
+      "cluster_id": "prod-dw-ap-northeast-3",
       "database": "analytics",
-      "user": "analyst",
-      "pid": 82253,
-      "query_id": 9760423,
-      "duration_seconds": 9.471369302482836,
-      "rows_returned": 2060795,
-      "query_type": "VACUUM",
-      "wlm": { "queue_name": "analyst_queue", "queue_wait_seconds": 0.6510931595314445 },
+      "user": "etl_user",
+      "pid": 30578,
+      "query_id": 4618942,
+      "duration_seconds": 36.142695595865504,
+      "rows_returned": 1889302,
+      "query_type": "ANALYZE",
+      "wlm": { "queue_name": "superuser", "queue_wait_seconds": 0.5019372390671067 },
       "metrics": {
-        "CPUUtilization": { "avg": 1.0529369501073593 },
-        "PercentageDiskSpaceUsed": { "avg": 15.090349801074751 },
-        "DatabaseConnections": { "avg": 159 },
+        "CPUUtilization": { "avg": 24.682502418575424 },
+        "PercentageDiskSpaceUsed": { "avg": 14.656708845482898 },
+        "DatabaseConnections": { "avg": 454 },
         "HealthStatus": { "avg": 1 },
         "MaintenanceMode": { "avg": 0 },
-        "NetworkReceiveThroughput": { "avg": 358311117 },
-        "NetworkTransmitThroughput": { "avg": 829617894 },
-        "QueriesCompletedPerSecond": { "avg": 833.5666531556033 },
-        "QueryDuration": { "avg": 29046.819322216692 },
-        "QueryRuntimeBreakdown": { "avg": 9387.31704186894 },
-        "ReadIOPS": { "avg": 1380 },
-        "ReadLatency": { "avg": 0.06421870608601277 },
-        "ReadThroughput": { "avg": 996629452 },
-        "WLMQueriesCompletedPerSecond": { "avg": 284.6063195305768 },
-        "WLMQueryDuration": { "avg": 43509.22027875949 },
-        "WLMRunningSlotCount": { "avg": 40 },
-        "WLMQueueLength": { "avg": 3 },
-        "WLMQueueWaitTime": { "avg": 650.8160816191692 },
-        "WriteIOPS": { "avg": 2376 },
-        "WriteLatency": { "avg": 0.012134259245269948 },
-        "WriteThroughput": { "avg": 52120738 }
+        "NetworkReceiveThroughput": { "avg": 397053084 },
+        "NetworkTransmitThroughput": { "avg": 990335646 },
+        "QueriesCompletedPerSecond": { "avg": 885.9133084424852 },
+        "QueryDuration": { "avg": 2565.6339298152125 },
+        "QueryRuntimeBreakdown": { "avg": 4252.654397315603 },
+        "ReadIOPS": { "avg": 4205 },
+        "ReadLatency": { "avg": 0.028659277971257162 },
+        "ReadThroughput": { "avg": 705395984 },
+        "WLMQueriesCompletedPerSecond": { "avg": 400.1999315416603 },
+        "WLMQueryDuration": { "avg": 40524.76976275722 },
+        "WLMRunningSlotCount": { "avg": 44 },
+        "WLMQueueLength": { "avg": 0 },
+        "WLMQueueWaitTime": { "avg": 447.80595932660117 },
+        "WriteIOPS": { "avg": 3983 },
+        "WriteLatency": { "avg": 0.015234202926446776 },
+        "WriteThroughput": { "avg": 453764233 }
       }
     },
     "s3": {
@@ -48,30 +48,30 @@
         "arn": "arn:aws:s3:::aws-redshift-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/redshift/ap-south-2/2026/04/09/redshift_KME752IDFL.log.gz"
+        "key": "AWSLogs/164820739518/redshift/ap-northeast-3/2026/04/09/redshift_0SJJM2Y9RH2O.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/redshift/logs",
-      "log_stream": "ap-south-2/vbv58h58",
-      "ingestion_time": "2026-04-09T08:13:02.111Z"
+      "log_stream": "ap-northeast-3/ophabs4p",
+      "ingestion_time": "2026-04-09T10:32:56.027Z"
     }
   },
   "db": {
-    "user": { "name": "analyst" },
+    "user": { "name": "etl_user" },
     "name": "analytics",
-    "statement": "SELECT COUNT(*) FROM fact_events WHERE event_date >= CURRENT_DATE - 7",
+    "statement": "COPY events FROM 's3://data-lake/events/2024/' IAM_ROLE 'arn:aws:iam::123456789:role/RedshiftS3' FORMAT AS PARQUET",
     "type": "sql"
   },
   "event": {
-    "duration": 9471369302.482836,
+    "duration": 36142695595.8655,
     "outcome": "success",
     "category": ["database"],
     "dataset": "aws.redshift",
     "provider": "redshift.amazonaws.com",
     "module": "aws"
   },
-  "message": "Redshift query completed in 9.47s",
+  "message": "Redshift query completed in 36.14s",
   "log": { "level": "info" },
   "service": { "name": "redshift", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -79,8 +79,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "b7d0v0czn4q"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "2vc5rrq4s9q"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,22 +1,22 @@
 {
-  "@timestamp": "2026-04-09T08:13:01.702Z",
+  "@timestamp": "2026-04-09T10:32:55.502Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
+    "region": "eu-central-1",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "globalaccelerator" }
   },
   "aws": {
     "globalaccelerator": {
-      "accelerator_arn": "arn:aws:globalaccelerator::814726593401:accelerator/c0tw5dk7",
+      "accelerator_arn": "arn:aws:globalaccelerator::814726593401:accelerator/acd1hm0p",
       "listener_port": 443,
-      "protocol": "UDP",
-      "endpoint_group_region": "ap-south-1",
+      "protocol": "TCP",
+      "endpoint_group_region": "sa-east-1",
       "endpoint_id": "us-east-1-alb",
-      "endpoint_health": "HEALTHY",
-      "client_ip": "88.75.5.237",
-      "rtt_ms": 9,
-      "processing_time_ms": 15
+      "endpoint_health": "UNHEALTHY",
+      "client_ip": "69.216.176.24",
+      "rtt_ms": 330,
+      "processing_time_ms": 12
     },
     "s3": {
       "bucket": {
@@ -24,33 +24,38 @@
         "arn": "arn:aws:s3:::aws-globalaccelerator-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/globalaccelerator/ap-southeast-1/2026/04/09/globalaccelerator_74SDRV6DC6D.log.gz"
+        "key": "AWSLogs/814726593401/globalaccelerator/eu-central-1/2026/04/09/globalaccelerator_JQ810S4HPZ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/globalaccelerator/logs",
-      "log_stream": "ap-southeast-1/9iedhbtu",
-      "ingestion_time": "2026-04-09T08:13:02.046Z"
+      "log_stream": "eu-central-1/yz2o2n97",
+      "ingestion_time": "2026-04-09T10:32:55.928Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": "network",
     "dataset": "aws.globalaccelerator",
     "provider": "globalaccelerator.amazonaws.com",
-    "duration": 9000000,
+    "duration": 330000000,
     "module": "aws"
   },
-  "message": "Global Accelerator: us-east-1-alb healthy, RTT 9ms",
-  "log": { "level": "info" },
+  "message": "Global Accelerator: us-east-1-alb UNHEALTHY - traffic rerouting",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "EndpointUnhealthy",
+    "message": "Endpoint us-east-1-alb UNHEALTHY - traffic rerouting",
+    "type": "network"
+  },
   "service": { "name": "globalaccelerator", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.globalaccelerator", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "mgwrcz04mb"
+    "name": "filebeat-aws-eu-central-1",
+    "ephemeral_id": "affmqqx712m"
   },
   "input": { "type": "aws-cloudwatch" }
 }

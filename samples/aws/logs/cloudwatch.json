@@ -1,55 +1,54 @@
 {
-  "@timestamp": "2026-04-09T08:13:01.702Z",
+  "@timestamp": "2026-04-09T10:32:55.502Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-south-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "cloudwatchalarms" }
   },
   "aws": {
     "cloudwatch": {
-      "alarm_name": "ecs-memory",
-      "alarm_state": "ALARM",
-      "previous_state": "INSUFFICIENT_DATA",
-      "namespace": "AWS/Lambda",
-      "metric_name": "RequestCount",
-      "threshold": 80,
+      "alarm_name": "api-latency",
+      "alarm_state": "OK",
+      "previous_state": "ALARM",
+      "namespace": "AWS/ApplicationELB",
+      "metric_name": "QueueDepth",
+      "threshold": 90,
       "evaluation_periods": 3,
-      "metric_value": 84.7730391476598,
+      "metric_value": 7.325373251693939,
       "statistic": "Average",
       "period_seconds": 60,
       "treat_missing_data": "missing"
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudwatch-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-cloudwatch-logs-501938274650"
+        "name": "aws-cloudwatch-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-cloudwatch-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/cloudwatch/me-central-1/2026/04/09/cloudwatch_9E7N5X6IMQG.log.gz"
+        "key": "AWSLogs/293847561023/cloudwatch/eu-south-1/2026/04/09/cloudwatch_MEX64G83QBO.log.gz"
       }
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["configuration", "process"],
     "dataset": "aws.cloudwatch",
     "provider": "monitoring.amazonaws.com",
-    "duration": 3600000000000,
+    "duration": 60000000000,
     "module": "aws"
   },
-  "message": "CloudWatch alarm \"ecs-memory\": ALARM (AWS/Lambda/RequestCount=84.8)",
-  "log": { "level": "warn" },
-  "error": { "code": "AlarmTriggered", "message": "Alarm ecs-memory: ALARM", "type": "monitoring" },
+  "message": "CloudWatch alarm \"api-latency\": OK (AWS/ApplicationELB/QueueDepth=7.3)",
+  "log": { "level": "info" },
   "service": { "name": "cloudwatch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "dyb2jlzbthf"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "iovyhbrpbdh"
   },
   "input": { "type": "aws-cloudwatch" }
 }

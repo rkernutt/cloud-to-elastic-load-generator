@@ -12,7 +12,7 @@ import {
 export interface InstallerRowProps {
   label: string;
   badge: "Kibana" | "Elasticsearch";
-  description: string;
+  description: ReactNode;
   enabled: boolean;
   onToggle: (val: boolean) => void;
   children?: ReactNode;

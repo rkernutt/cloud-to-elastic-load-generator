@@ -50,12 +50,13 @@ const STEPS = [
 
 const STEP_IDS = STEPS.map((s) => s.id);
 
-/** Secondary nav items below the wizard */
+/** Secondary nav items. */
 const EXTRA_NAV = [
-  { id: "uninstall", label: "Uninstall / reinstall", icon: "refresh" },
   { id: "anomalies", label: "Anomalies", icon: "bug" },
   { id: "log", label: "Activity Log", icon: "list" },
 ] as const;
+
+const OVERVIEW_NAV = [{ id: "welcome", label: "Welcome", icon: "home" }] as const;
 
 export function AppLayout({
   branding,
@@ -78,10 +79,10 @@ export function AppLayout({
 }: AppLayoutProps) {
   /** Determine step status for the horizontal stepper */
   const activeStepIdx = STEP_IDS.indexOf(activePage as (typeof STEP_IDS)[number]);
+  const onWizardStep = activeStepIdx >= 0;
 
   const stepStatuses = STEPS.map((step, idx) => {
-    // A step can only be complete if the user has moved past it
-    const isPast = activeStepIdx === -1 || idx < activeStepIdx;
+    const isPast = onWizardStep && idx < activeStepIdx;
     let isComplete = false;
     if (isPast) {
       if (step.id === "connection") isComplete = isConnected;
@@ -92,7 +93,7 @@ export function AppLayout({
     }
 
     let stepStatus: "complete" | "current" | "incomplete" | "disabled";
-    if (idx === activeStepIdx) {
+    if (onWizardStep && idx === activeStepIdx) {
       stepStatus = "current";
     } else if (isComplete) {
       stepStatus = "complete";
@@ -108,6 +109,17 @@ export function AppLayout({
   });
 
   const sideNavItems = [
+    {
+      name: "Overview",
+      id: "nav-overview",
+      items: OVERVIEW_NAV.map((item) => ({
+        id: item.id,
+        name: item.label,
+        icon: <EuiIcon type={item.icon} />,
+        isSelected: activePage === item.id,
+        onClick: () => onNavigate(item.id),
+      })),
+    },
     {
       name: "More",
       id: "nav-extra",

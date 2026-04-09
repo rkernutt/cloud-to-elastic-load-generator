@@ -22,7 +22,8 @@ function readInitialVendor(): CloudId {
 
 /**
  * Single UI for AWS, GCP, and Azure (including Microsoft 365 audit + Graph metrics). Vendor is
- * chosen on **Start**; changing vendor remounts the app.
+ * chosen on **Start**; changing vendor swaps config in-place so the current page (e.g. Start)
+ * is preserved while cloud-specific selections reset.
  */
 export function UnifiedApp() {
   const [vendor, setVendor] = useState<CloudId>(readInitialVendor);
@@ -35,7 +36,6 @@ export function UnifiedApp() {
 
   return (
     <LoadGeneratorApp
-      key={vendor}
       config={config}
       unifiedMode={{ cloudVendor: vendor, onCloudVendorChange: setVendor }}
     />

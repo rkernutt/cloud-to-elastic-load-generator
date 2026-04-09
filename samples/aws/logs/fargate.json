@@ -1,67 +1,72 @@
 {
-  "@timestamp": "2026-04-09T08:13:01.702Z",
+  "@timestamp": "2026-04-09T10:32:55.502Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-south-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "fargate" }
   },
   "aws": {
     "dimensions": {
-      "ServiceName": "data-processor",
-      "ClusterName": "staging-cluster",
-      "TaskDefinitionFamily": "data-processor"
+      "ServiceName": "worker",
+      "ClusterName": "prod-cluster",
+      "TaskDefinitionFamily": "worker"
     },
     "ecs": {
       "metrics": {
-        "CPUUtilization": { "avg": 19 },
-        "CPUReservation": { "avg": 27.001997323056553 },
-        "MemoryUtilization": { "avg": 34.0011630130209 },
-        "MemoryReservation": { "avg": 37.83085022814808 },
+        "CPUUtilization": { "avg": 94 },
+        "CPUReservation": { "avg": 47.255363388966124 },
+        "MemoryUtilization": { "avg": 17.51130088993452 },
+        "MemoryReservation": { "avg": 34.199369236307106 },
         "GPUReservation": { "avg": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-fargate-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-fargate-logs-501938274650"
+        "name": "aws-fargate-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-fargate-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/501938274650/fargate/ap-southeast-2/2026/04/09/fargate_M06VZD2VDS.log.gz"
+        "key": "AWSLogs/738291046572/fargate/ap-south-1/2026/04/09/fargate_6DA6NUWTLXF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/fargate/logs",
-      "log_stream": "ap-southeast-2/leftvqts",
-      "ingestion_time": "2026-04-09T08:13:02.026Z"
+      "log_stream": "ap-south-1/xq9ouaam",
+      "ingestion_time": "2026-04-09T10:32:55.904Z"
     }
   },
   "container": {
-    "id": "26n3qkx5ner",
-    "name": "data-processor",
-    "image": { "name": "myrepo/data-processor:latest", "tag": "latest" },
+    "id": "z0h7iy2hznf",
+    "name": "worker",
+    "image": { "name": "myrepo/worker:latest", "tag": "latest" },
     "runtime": "docker"
   },
-  "process": { "pid": 968, "name": "data-processor" },
-  "log": { "level": "info" },
+  "process": { "pid": 174, "name": "worker" },
+  "log": { "level": "error" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process", "container"],
     "dataset": "aws.ecs_fargate",
     "provider": "ecs.amazonaws.com",
-    "duration": 666000000000,
+    "duration": 79000000000,
     "module": "aws"
   },
-  "message": "{\"cluster\":\"staging-cluster\",\"taskId\":\"i61bsmfooxt\",\"taskDefinition\":\"data-processor:22\",\"container\":\"data-processor\",\"level\":\"info\",\"message\":\"Task started successfully\",\"timestamp\":\"2026-04-09T08:13:01.702Z\"}",
-  "host": { "name": "ip-233-39-233-192.ec2.internal", "hostname": "fargate-671yndd0" },
+  "message": "Failed to pull image: rate limit exceeded",
+  "error": {
+    "code": "TaskStopped",
+    "message": "Task failed to reach RUNNING state",
+    "type": "container"
+  },
+  "host": { "name": "ip-98-56-42-68.ec2.internal", "hostname": "fargate-dwveqxpn" },
   "service": { "name": "fargate", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.fargate", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-2",
-    "ephemeral_id": "jzt0v2ifdb"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "b28qv1np2da"
   },
   "input": { "type": "aws-cloudwatch" }
 }

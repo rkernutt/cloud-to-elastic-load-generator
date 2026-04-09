@@ -2,56 +2,63 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "europe-central2",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "region": "asia-southeast1",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" },
     "service": { "name": "pubsub" }
   },
   "gcp": {
     "pubsub": {
-      "topic_name": "projects/globex-staging-d4e5f6/topics/audit-ESPX",
-      "subscription_name": "projects/globex-staging-d4e5f6/subscriptions/indexer-8U8F",
-      "message_id": "2VPLQRNQ82O",
-      "action": "acknowledge",
-      "message_size_bytes": 65260,
-      "ordering_key": "partition-a",
-      "delivery_attempt": 3,
-      "ack_deadline_seconds": 25,
+      "topic_name": "projects/globex-dev-g7h8i9/topics/telemetry-CZKJ",
+      "subscription_name": "projects/globex-dev-g7h8i9/subscriptions/worker-QTVC",
+      "message_id": "LH7NAY3QJ7",
+      "action": "publish",
+      "message_size_bytes": 643203,
+      "delivery_attempt": 6,
+      "ack_deadline_seconds": 444,
       "dead_letter": false
     }
   },
-  "event": { "outcome": "success", "duration": 58000000, "module": "gcp", "dataset": "gcp.pubsub" },
-  "message": "Pub/Sub acknowledge: msg 2VPLQRNQ82O (65260 B) on audit-ESPX",
-  "log": { "level": "info" },
+  "event": {
+    "outcome": "failure",
+    "duration": 204000000,
+    "module": "gcp",
+    "dataset": "gcp.pubsub"
+  },
+  "message": "Pub/Sub publish failed: deadline expired for subscription worker-QTVC",
+  "log": { "level": "error" },
+  "error": {
+    "type": "DeadlineExceeded",
+    "message": "Ack deadline elapsed before subscriber acknowledged"
+  },
   "service": { "name": "pubsub", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.pubsub", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-central2",
-    "id": "5iuynxgax03"
+    "name": "elastic-agent-gcp-asia-southeast1",
+    "id": "mfu76za65lt"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-staging-d4e5f6/logs/pubsub",
+  "logName": "projects/globex-dev-g7h8i9/logs/pubsub",
   "resource": {
     "type": "pubsub_topic",
-    "labels": { "project_id": "globex-staging-d4e5f6", "region": "europe-central2" }
+    "labels": { "project_id": "globex-dev-g7h8i9", "region": "asia-southeast1" }
   },
-  "severity": "INFO",
-  "insertId": "LXH6HLKT4PL",
+  "severity": "ERROR",
+  "insertId": "S7IV0FDZZC",
   "jsonPayload": {
     "pubsub": {
-      "topic_name": "projects/globex-staging-d4e5f6/topics/audit-ESPX",
-      "subscription_name": "projects/globex-staging-d4e5f6/subscriptions/indexer-8U8F",
-      "message_id": "2VPLQRNQ82O",
-      "action": "acknowledge",
-      "message_size_bytes": 65260,
-      "ordering_key": "partition-a",
-      "delivery_attempt": 3,
-      "ack_deadline_seconds": 25,
+      "topic_name": "projects/globex-dev-g7h8i9/topics/telemetry-CZKJ",
+      "subscription_name": "projects/globex-dev-g7h8i9/subscriptions/worker-QTVC",
+      "message_id": "LH7NAY3QJ7",
+      "action": "publish",
+      "message_size_bytes": 643203,
+      "delivery_attempt": 6,
+      "ack_deadline_seconds": 444,
       "dead_letter": false
     },
-    "message": "Pub/Sub acknowledge: msg 2VPLQRNQ82O (65260 B) on audit-ESPX"
+    "message": "Pub/Sub publish failed: deadline expired for subscription worker-QTVC"
   }
 }

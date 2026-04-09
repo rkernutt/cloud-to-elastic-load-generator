@@ -1,56 +1,61 @@
 {
-  "@timestamp": "2026-04-09T08:13:01.702Z",
+  "@timestamp": "2026-04-09T10:32:55.502Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-south-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "paymentcryptography" }
   },
   "aws": {
-    "dimensions": { "KeyAlgorithm": "AES_128", "Operation": "VerifyMac" },
+    "dimensions": { "KeyAlgorithm": "AES_128", "Operation": "GeneratePinData" },
     "paymentcryptography": {
-      "key_arn": "arn:aws:payment-cryptography:sa-east-1:501938274650:key/OGKSYIRKEZ8",
-      "key_alias": "alias/payment-mac-key",
+      "key_arn": "arn:aws:payment-cryptography:eu-south-2:738291046572:key/25AK9QPD3SK",
+      "key_alias": "alias/payment-pin-key",
       "key_algorithm": "AES_128",
       "key_usage": "TR31_M3_ISO_9797_3_MAC_KEY",
-      "operation": "VerifyMac",
-      "key_state": "CREATE_COMPLETE",
+      "operation": "GeneratePinData",
+      "key_state": "DELETE_PENDING",
       "exportable": false,
-      "key_check_value": "2GLS16"
+      "key_check_value": "RZYVEZ"
     },
     "s3": {
       "bucket": {
-        "name": "aws-paymentcryptography-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-paymentcryptography-logs-501938274650"
+        "name": "aws-paymentcryptography-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-paymentcryptography-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/501938274650/paymentcryptography/sa-east-1/2026/04/09/paymentcryptography_601NDW7IPO9.log.gz"
+        "key": "AWSLogs/738291046572/paymentcryptography/eu-south-2/2026/04/09/paymentcryptography_1MGNN0A69BX.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/paymentcryptography/logs",
-      "log_stream": "sa-east-1/41wcn1c7",
-      "ingestion_time": "2026-04-09T08:13:02.086Z"
+      "log_stream": "eu-south-2/mdtfuyxp",
+      "ingestion_time": "2026-04-09T10:32:55.988Z"
     }
   },
   "event": {
-    "action": "VerifyMac",
-    "outcome": "success",
+    "action": "DeleteKey",
+    "outcome": "failure",
     "category": ["authentication"],
     "dataset": "aws.paymentcryptography",
     "provider": "payment-cryptography.amazonaws.com",
     "module": "aws"
   },
-  "message": "Payment Cryptography VerifyMac using AES_128 (M3)",
-  "log": { "level": "info" },
+  "message": "Payment Cryptography GeneratePinData failed — key AES_128 state DELETE_PENDING",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ValidationException",
+    "message": "Payment Cryptography operation failed",
+    "type": "authentication"
+  },
   "service": { "name": "paymentcryptography", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.paymentcryptography", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "u66j0lah1cp"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "ah6hd3knwld"
   },
   "input": { "type": "aws-cloudwatch" }
 }

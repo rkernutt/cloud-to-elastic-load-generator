@@ -1,37 +1,37 @@
 {
-  "@timestamp": "2026-04-09T08:13:01.702Z",
+  "@timestamp": "2026-04-09T10:32:55.502Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-south-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "motor-health-detector", "KeyValue": "unit-02" },
+    "dimensions": { "DetectorModelName": "temperature-alert-model", "KeyValue": "machine-prod-1" },
     "iotevents": {
-      "detector_model_name": "motor-health-detector",
-      "detector_id": "unit-02",
-      "key_value": "unit-02",
-      "event_name": "TriggerFired",
+      "detector_model_name": "temperature-alert-model",
+      "detector_id": "machine-prod-1",
+      "key_value": "machine-prod-1",
+      "event_name": "AlarmReset",
       "from_state": "Alarm",
       "to_state": "Alarm",
-      "input_name": "CommandInput",
-      "action_type": "Lambda",
-      "condition_expression": "$input.data.value < threshold"
+      "input_name": "SensorInput",
+      "action_type": "SNS",
+      "timer_name": "idleTimer"
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotevents-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-iotevents-logs-738291046572"
+        "name": "aws-iotevents-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-iotevents-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/iotevents/me-central-1/2026/04/09/iotevents_V4IRRRMS6AH.log.gz"
+        "key": "AWSLogs/164820739518/iotevents/ap-south-2/2026/04/09/iotevents_UN1Z85HHV5.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "me-central-1/k3trraqk",
-      "ingestion_time": "2026-04-09T08:13:02.206Z"
+      "log_stream": "ap-south-2/hydh45f1",
+      "ingestion_time": "2026-04-09T10:32:56.185Z"
     }
   },
   "event": {
@@ -39,10 +39,10 @@
     "category": ["process"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 146000000,
+    "duration": 139000000,
     "module": "aws"
   },
-  "message": "IoT Events motor-health-detector/unit-02: Alarm → Alarm [TriggerFired]",
+  "message": "IoT Events temperature-alert-model/machine-prod-1: Alarm → Alarm [AlarmReset]",
   "log": { "level": "warn" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -50,8 +50,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "simrb3p4sjh"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "tqeksmtik4"
   },
   "input": { "type": "aws-cloudwatch" }
 }

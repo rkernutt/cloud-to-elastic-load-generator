@@ -1,45 +1,45 @@
 {
-  "@timestamp": "2026-04-09T08:13:01.702Z",
+  "@timestamp": "2026-04-09T10:32:55.502Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "me-central-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "fis" }
   },
   "aws": {
-    "dimensions": { "ExperimentTemplateId": "EXTVBEWBKHI" },
+    "dimensions": { "ExperimentTemplateId": "EXTSOF0VJNT" },
     "fis": {
-      "experiment_id": "EXPXNFGR6PB",
-      "experiment_template_id": "EXTVBEWBKHI",
-      "experiment_name": "network-latency-inject",
+      "experiment_id": "EXP5SE9JXRT",
+      "experiment_template_id": "EXTSOF0VJNT",
+      "experiment_name": "az-failure-simulation",
       "experiment_state": "completed",
-      "target_resource_type": "EC2 instances",
-      "action_type": "aws:ecs:drain-container-instances",
+      "target_resource_type": "EKS nodes",
+      "action_type": "aws:rds:failover-db-cluster",
       "stop_condition": "none",
-      "role_arn": "arn:aws:iam::738291046572:role/FISRole-network-latency-inject"
+      "role_arn": "arn:aws:iam::293847561023:role/FISRole-az-failure-simulation"
     },
     "s3": {
       "bucket": {
-        "name": "aws-fis-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-fis-logs-738291046572"
+        "name": "aws-fis-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-fis-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/738291046572/fis/eu-central-1/2026/04/09/fis_V3ZLLAEMW5.log.gz" }
+      "object": { "key": "AWSLogs/293847561023/fis/me-central-1/2026/04/09/fis_P3T2LKGQ6OA.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/fis/logs",
-      "log_stream": "eu-central-1/oap2ra1t",
-      "ingestion_time": "2026-04-09T08:13:02.186Z"
+      "log_stream": "me-central-1/tcivqwf4",
+      "ingestion_time": "2026-04-09T10:32:56.149Z"
     }
   },
   "event": {
-    "action": "GetExperiment",
+    "action": "StopExperiment",
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.fis",
     "provider": "fis.amazonaws.com",
     "module": "aws"
   },
-  "message": "FIS GetExperiment: exp=EXPXNFGR6PB (network-latency-inject) state=completed, target=EC2 instances",
+  "message": "FIS StopExperiment: exp=EXP5SE9JXRT (az-failure-simulation) state=completed, target=EKS nodes",
   "log": { "level": "info" },
   "service": { "name": "fis", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -47,8 +47,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "i0v08tor5t"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "le6y3uycp3i"
   },
   "input": { "type": "aws-cloudwatch" }
 }

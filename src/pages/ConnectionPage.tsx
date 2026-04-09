@@ -166,7 +166,7 @@ export function ConnectionPage({
                     id={`unified-vendor-${c.id}`}
                     label={
                       <EuiFlexGroup gutterSize="s" alignItems="center" responsive={false}>
-                        <EuiFlexItem grow={false} style={{ marginLeft: -20 }}>
+                        <EuiFlexItem grow={false} style={{ marginLeft: -10 }}>
                           <img
                             src={c.logoSrcLightBg}
                             alt={c.logoAlt}
@@ -178,7 +178,7 @@ export function ConnectionPage({
                             }}
                           />
                         </EuiFlexItem>
-                        <EuiFlexItem grow style={{ paddingLeft: 24 }}>
+                        <EuiFlexItem grow style={{ paddingLeft: 12 }}>
                           <strong>{c.shortLabel}</strong>
                           <br />
                           <EuiText size="xs" color="subdued">

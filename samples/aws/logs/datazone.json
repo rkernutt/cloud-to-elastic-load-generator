@@ -1,22 +1,22 @@
 {
-  "@timestamp": "2026-04-09T08:13:01.702Z",
+  "@timestamp": "2026-04-09T10:32:55.502Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
+    "region": "ap-south-1",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "datazone" }
   },
   "aws": {
-    "dimensions": { "DomainId": "dzd_k1xaf1eyp7a" },
+    "dimensions": { "DomainId": "dzd_h7j6xq45alb" },
     "datazone": {
-      "domain_id": "dzd_k1xaf1eyp7a",
-      "domain_name": "analytics-domain",
-      "project_name": "marketing-analytics",
+      "domain_id": "dzd_h7j6xq45alb",
+      "domain_name": "data-mesh-prod",
+      "project_name": "risk-modeling",
       "asset_name": "revenue_data",
-      "asset_type": "S3ObjectViewType",
-      "subscription_status": "ACTIVE",
+      "asset_type": "RedshiftTableViewType",
+      "subscription_status": "REJECTED",
       "glossary_term": "Internal",
-      "environment_id": "env-uzb0sm41rld"
+      "environment_id": "env-2apt9cpiwmy"
     },
     "s3": {
       "bucket": {
@@ -24,33 +24,38 @@
         "arn": "arn:aws:s3:::aws-datazone-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/datazone/eu-south-2/2026/04/09/datazone_AJ4M4F1E5MF.log.gz"
+        "key": "AWSLogs/164820739518/datazone/ap-south-1/2026/04/09/datazone_5SGZYH3AGAA.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/datazone/logs",
-      "log_stream": "eu-south-2/vk9otukc",
-      "ingestion_time": "2026-04-09T08:13:02.149Z"
+      "log_stream": "ap-south-1/g63jap2k",
+      "ingestion_time": "2026-04-09T10:32:56.086Z"
     }
   },
   "event": {
-    "action": "SubscribeToAsset",
-    "outcome": "success",
+    "action": "RevokeSubscription",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.datazone",
     "provider": "datazone.amazonaws.com",
     "module": "aws"
   },
-  "message": "DataZone SubscribeToAsset: domain=analytics-domain, project=marketing-analytics, asset=revenue_data",
-  "log": { "level": "info" },
+  "message": "DataZone RevokeSubscription FAILED [data-mesh-prod]: Subscription rejected",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ResourceNotFoundException",
+    "message": "DataZone operation failed",
+    "type": "process"
+  },
   "service": { "name": "datazone", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.datazone", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "58i2mitelqr"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "gycaaq73oll"
   },
   "input": { "type": "aws-cloudwatch" }
 }

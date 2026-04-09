@@ -30,7 +30,7 @@ import { ConfigPage } from "./pages/ConfigPage";
 import { AnomaliesPage } from "./pages/AnomaliesPage";
 import { ActivityPage } from "./pages/ActivityPage";
 import { SetupPage } from "./pages/SetupPage";
-import { UninstallPage } from "./pages/UninstallPage";
+import { LandingPage } from "./pages/LandingPage";
 
 type LogEntry = { id: number; msg: string; type: string; ts: string };
 type ShipStatus = "running" | "done" | "aborted" | null;
@@ -183,12 +183,41 @@ export function LoadGeneratorApp({
   const [log, setLog] = useState<LogEntry[]>([]);
   const [preview, setPreview] = useState<string | null>(null);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
-  const [activePage, setActivePage] = useState("connection");
+  const [activePage, setActivePage] = useState("welcome");
   const abortRef = useRef(false);
   const scheduleLoopRef = useRef<AbortController | null>(null);
   const logSeqRef = useRef(0);
+  /** Tracks cloud config so we can reset vendor-specific state without remounting (unified mode). */
+  const prevCloudIdRef = useRef<CloudId | undefined>(undefined);
 
   // traceServiceGroups moved to ServicesPage
+
+  // When vendor/config changes in unified mode, keep navigation (e.g. Stay on Start) but reload cloud defaults.
+  useEffect(() => {
+    if (prevCloudIdRef.current === undefined) {
+      prevCloudIdRef.current = config.id;
+      return;
+    }
+    if (prevCloudIdRef.current === config.id) return;
+    prevCloudIdRef.current = config.id;
+
+    const sc = loadAndScrubSavedConfig(config.lsKey);
+    setSelectedServices(config.defaultSelectedLogServices);
+    setSelectedTraceServices(config.defaultSelectedTraceServices);
+    setLogsIndexPrefix(sc.logsIndexPrefix ?? config.defaultLogsIndexPrefix);
+    setMetricsIndexPrefix(sc.metricsIndexPrefix ?? config.defaultMetricsIndexPrefix);
+    setSetupHasInstalled(false);
+    setCollapsedGroups({});
+    setStatus(null);
+    setProgress({ sent: 0, total: 0, errors: 0, phase: "main" });
+    setPreview(null);
+    setIngestionResetNotice(null);
+    if (unifiedMode) {
+      setEventType("logs");
+      setIngestionSource("default");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only when `config.id` changes; read latest `config` / `unifiedMode` from closure
+  }, [config.id]);
 
   // ─── Persist config to localStorage (allowlisted keys only — no URL/API key) ─
   useEffect(() => {
@@ -1232,6 +1261,13 @@ export function LoadGeneratorApp({
       hasServicesSelected={totalSelected > 0}
       isSetupDone={setupHasInstalled}
     >
+      {activePage === "welcome" && (
+        <LandingPage
+          isUnifiedCloud={!!unifiedMode}
+          onGetStarted={() => setActivePage("connection")}
+        />
+      )}
+
       {activePage === "ship" && (
         <ShipPage
           status={status}
@@ -1343,16 +1379,6 @@ export function LoadGeneratorApp({
           kibanaUrl={effectiveKibanaUrl}
           apiKey={apiKey}
           onInstallComplete={() => setSetupHasInstalled(true)}
-        />
-      )}
-
-      {activePage === "uninstall" && (
-        <UninstallPage
-          key={`uninstall-${config.setupBundle.fleetPackage}`}
-          setupBundle={config.setupBundle}
-          elasticUrl={elasticUrl}
-          kibanaUrl={effectiveKibanaUrl}
-          apiKey={apiKey}
           onUninstallComplete={() => setSetupHasInstalled(false)}
           onReinstallComplete={() => setSetupHasInstalled(true)}
         />

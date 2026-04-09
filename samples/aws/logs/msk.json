@@ -1,75 +1,70 @@
 {
-  "@timestamp": "2026-04-09T08:13:01.702Z",
+  "@timestamp": "2026-04-09T10:32:55.502Z",
   "cloud": {
     "provider": "aws",
     "region": "me-south-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "msk" }
   },
   "aws": {
     "dimensions": {
       "Cluster Name": "prod-kafka-me-south-1",
-      "Broker ID": "2",
-      "Topic": "order-updates"
+      "Broker ID": "1",
+      "Topic": "notifications"
     },
     "msk": {
       "cluster_name": "prod-kafka-me-south-1",
-      "broker_id": 2,
+      "broker_id": 1,
       "kafka_version": "3.5.1",
-      "topic": "order-updates",
-      "partition": 9,
-      "offset": 90906583,
-      "consumer_group": "etl-pipeline",
-      "lag": 521928,
-      "under_replicated_partitions": 17,
+      "topic": "notifications",
+      "partition": 20,
+      "offset": 50121407,
+      "consumer_group": "analytics-consumer",
+      "lag": 22,
+      "under_replicated_partitions": 0,
       "metrics": {
-        "BytesInPerSec": { "avg": 6139683 },
-        "BytesOutPerSec": { "avg": 6235347 },
-        "MessagesInPerSec": { "avg": 3670 },
+        "BytesInPerSec": { "avg": 5333466 },
+        "BytesOutPerSec": { "avg": 3310758 },
+        "MessagesInPerSec": { "avg": 428 },
         "FetchConsumerTotalTimeMsMean": { "avg": 60 },
-        "ProduceTotalTimeMsMean": { "avg": 44 },
-        "UnderReplicatedPartitions": { "avg": 1 },
-        "UnderMinIsrPartitionCount": { "avg": 1 },
-        "OfflinePartitionsCount": { "avg": 2 },
+        "ProduceTotalTimeMsMean": { "avg": 12 },
+        "UnderReplicatedPartitions": { "avg": 0 },
+        "UnderMinIsrPartitionCount": { "avg": 0 },
+        "OfflinePartitionsCount": { "avg": 0 },
         "ActiveControllerCount": { "avg": 1 },
-        "GlobalPartitionCount": { "avg": 933 },
-        "GlobalTopicCount": { "avg": 32 },
-        "KafkaDataLogsDiskUsed": { "avg": 77.35969031199419 },
-        "CPUUser": { "avg": 36.63937540885678 },
-        "CPUSystem": { "avg": 2.9794824276177705 },
+        "GlobalPartitionCount": { "avg": 176 },
+        "GlobalTopicCount": { "avg": 37 },
+        "KafkaDataLogsDiskUsed": { "avg": 37.20984582269969 },
+        "CPUUser": { "avg": 8.377687719111995 },
+        "CPUSystem": { "avg": 2.3759943388009375 },
         "NetworkRxDropped": { "sum": 0 },
         "NetworkTxDropped": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-msk-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-msk-logs-738291046572"
+        "name": "aws-msk-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-msk-logs-814726593401"
       },
-      "object": { "key": "AWSLogs/738291046572/msk/me-south-1/2026/04/09/msk_D8WVNLV62GQ.log.gz" }
+      "object": { "key": "AWSLogs/814726593401/msk/me-south-1/2026/04/09/msk_T1LLTOVFQLE.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/msk/logs",
-      "log_stream": "me-south-1/s2lbfobu",
-      "ingestion_time": "2026-04-09T08:13:02.122Z"
+      "log_stream": "me-south-1/ul489554",
+      "ingestion_time": "2026-04-09T10:32:56.045Z"
     }
   },
-  "kafka": { "topic": "order-updates", "partition": 9 },
+  "kafka": { "topic": "notifications", "partition": 20 },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process", "network"],
     "dataset": "aws.msk",
     "provider": "kafka.amazonaws.com",
-    "duration": 2066000000,
+    "duration": 26000000,
     "module": "aws"
   },
-  "message": "MSK broker issue: under-replicated partitions on order-updates",
-  "log": { "level": "error" },
-  "error": {
-    "code": "UnderReplicatedPartitions",
-    "message": "MSK partition replication lag",
-    "type": "stream"
-  },
+  "message": "MSK notifications[20] offset=46080758",
+  "log": { "level": "info" },
   "service": { "name": "msk", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.kafka_metrics", "namespace": "default" },
@@ -77,7 +72,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "j1b7bv7nfj9"
+    "ephemeral_id": "k78ikh7wl9"
   },
   "input": { "type": "aws-cloudwatch" }
 }

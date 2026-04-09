@@ -2,57 +2,63 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west9",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
-    "service": { "name": "livestream.googleapis.com" }
+    "region": "europe-central2",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" },
+    "service": { "name": "transcoder.googleapis.com" }
   },
   "gcp": {
-    "live_stream": {
-      "channel_id": "ch-events-4S4MY",
-      "input_name": "input-srt-ingest",
-      "event_type": "FAILOVER",
-      "stream_protocol": "SRT",
-      "resolution": "1280x720",
-      "bitrate_mbps": 4.2,
-      "frame_rate": 30
+    "transcoder": {
+      "job_id": "transcoder-job-xracrarxykk",
+      "template_id": "preset-720p-W7BG",
+      "input_uri": "gs://globex-security-j0k1l2-media/raw/JUAP46IR.mp4",
+      "output_uri": "gs://globex-security-j0k1l2-media/out/F4EVSCDX/",
+      "state": "PENDING",
+      "progress_percent": 3,
+      "codec": "av1",
+      "resolution": "854x480",
+      "bitrate_kbps": 14363,
+      "duration_seconds": 0
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 360592,
+    "outcome": "failure",
+    "duration": 724605,
     "module": "gcp",
-    "dataset": "gcp.livestream"
+    "dataset": "gcp.transcoder"
   },
-  "message": "Live Stream FAILOVER — ch-events-4S4MY/input-srt-ingest (SRT, 1280x720@30fps, 4.2 Mbps)",
-  "service": { "name": "live-stream", "type": "gcp" },
+  "message": "Transcoder job transcoder-job-xracrarxykk PENDING: Output bucket not writable",
+  "service": { "name": "transcoder", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.livestream", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.transcoder", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west9",
-    "id": "20nbtxayplo"
+    "name": "elastic-agent-gcp-europe-central2",
+    "id": "0o7s2ollh35"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-m3n4o5/logs/live-stream",
+  "logName": "projects/globex-security-j0k1l2/logs/transcoder",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-shared-m3n4o5", "region": "europe-west9" }
+    "labels": { "project_id": "globex-security-j0k1l2", "region": "europe-central2" }
   },
   "severity": "INFO",
-  "insertId": "DRTE53FBCTV",
+  "insertId": "JDL00XWEEG",
   "jsonPayload": {
-    "live_stream": {
-      "channel_id": "ch-events-4S4MY",
-      "input_name": "input-srt-ingest",
-      "event_type": "FAILOVER",
-      "stream_protocol": "SRT",
-      "resolution": "1280x720",
-      "bitrate_mbps": 4.2,
-      "frame_rate": 30
+    "transcoder": {
+      "job_id": "transcoder-job-xracrarxykk",
+      "template_id": "preset-720p-W7BG",
+      "input_uri": "gs://globex-security-j0k1l2-media/raw/JUAP46IR.mp4",
+      "output_uri": "gs://globex-security-j0k1l2-media/out/F4EVSCDX/",
+      "state": "PENDING",
+      "progress_percent": 3,
+      "codec": "av1",
+      "resolution": "854x480",
+      "bitrate_kbps": 14363,
+      "duration_seconds": 0
     },
-    "message": "Live Stream FAILOVER — ch-events-4S4MY/input-srt-ingest (SRT, 1280x720@30fps, 4.2 Mbps)"
+    "message": "Transcoder job transcoder-job-xracrarxykk PENDING: Output bucket not writable"
   }
 }

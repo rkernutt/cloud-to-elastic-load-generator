@@ -1,42 +1,39 @@
 {
-  "@timestamp": "2026-04-09T08:13:01.702Z",
+  "@timestamp": "2026-04-09T10:32:55.502Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-east-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "config" }
   },
   "aws": {
-    "dimensions": {
-      "ConfigRuleName": "s3-bucket-ssl-requests-only",
-      "ResourceType": "AWS::IAM::User"
-    },
+    "dimensions": { "ConfigRuleName": "restricted-ssh", "ResourceType": "AWS::EC2::SecurityGroup" },
     "config": {
-      "rule_name": "s3-bucket-ssl-requests-only",
-      "compliance_type": "INSUFFICIENT_DATA",
-      "resource_type": "AWS::IAM::User",
-      "resource_id": "sg-o3kj5m50",
-      "annotation": "Encryption not enabled",
+      "rule_name": "restricted-ssh",
+      "compliance_type": "NON_COMPLIANT",
+      "resource_type": "AWS::EC2::SecurityGroup",
+      "resource_id": "db-wgd0hi27",
+      "annotation": "Resource is not compliant",
       "metrics": {
         "ComplianceByConfigRule": { "avg": 0 },
         "NonCompliantRules": { "sum": 1 },
         "CompliantRules": { "sum": 0 },
-        "ConfigurationItemsRecorded": { "sum": 88 }
+        "ConfigurationItemsRecorded": { "sum": 48 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-config-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-config-logs-814726593401"
+        "name": "aws-config-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-config-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/config/eu-central-2/2026/04/09/config_HA735S66D1J.log.gz"
+        "key": "AWSLogs/164820739518/config/ap-east-1/2026/04/09/config_RS219GXQA9R.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/config/logs",
-      "log_stream": "eu-central-2/a1h04m2i",
-      "ingestion_time": "2026-04-09T08:13:02.066Z"
+      "log_stream": "ap-east-1/oyvem628",
+      "ingestion_time": "2026-04-09T10:32:55.955Z"
     }
   },
   "event": {
@@ -46,11 +43,11 @@
     "provider": "config.amazonaws.com",
     "module": "aws"
   },
-  "message": "Config rule FAILED: s3-bucket-ssl-requests-only",
+  "message": "Config rule FAILED: restricted-ssh",
   "log": { "level": "warn" },
   "error": {
     "code": "NonCompliant",
-    "message": "Config rule s3-bucket-ssl-requests-only failed",
+    "message": "Config rule restricted-ssh failed",
     "type": "compliance"
   },
   "service": { "name": "config", "type": "aws" },
@@ -59,8 +56,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "z2bzbeg6i4"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "zu7lhfcf6za"
   },
   "input": { "type": "http_endpoint" }
 }

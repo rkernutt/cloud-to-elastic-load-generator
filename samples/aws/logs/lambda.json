@@ -1,80 +1,91 @@
 {
-  "@timestamp": "2026-04-09T08:13:01.702Z",
+  "@timestamp": "2026-04-09T10:32:55.502Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-east-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "lambda" }
   },
-  "trace": { "id": "1-ztu4it88-80h31x572gl" },
   "aws": {
     "dimensions": {
-      "FunctionName": "image-resizer",
-      "Resource": "image-resizer:$LATEST",
-      "ExecutedVersion": "$LATEST"
+      "FunctionName": "payment-processor",
+      "Resource": "payment-processor:$LATEST",
+      "ExecutedVersion": "$LATEST",
+      "EventSourceMappingUUID": "hy0w10q6-4p4f-tz67-688a-z5hx7q4pe6n"
     },
     "cloudwatch": {
-      "log_group": "/aws/lambda/image-resizer",
-      "log_stream": "2026-04-09/[$LATEST]gvsvqz9wxun"
+      "log_group": "/aws/lambda/payment-processor",
+      "log_stream": "2026-04-09/[$LATEST]g6k51dxapum"
     },
     "lambda": {
       "function": {
-        "name": "image-resizer",
+        "name": "payment-processor",
         "version": "$LATEST",
-        "arn": "arn:aws:lambda:ap-south-2:293847561023:function:image-resizer"
+        "arn": "arn:aws:lambda:ap-east-1:814726593401:function:payment-processor"
       },
-      "request_id": "v2sqamha-bgiq-dadp-36ej-mi57e5phip",
-      "trace_id": "1-ztu4it88-80h31x572gl",
-      "event_type": "report",
-      "cold_start": false,
+      "request_id": "wr5vz7kj-ik6r-zht1-6acd-b2mf02fms3c",
+      "event_type": "start",
+      "error": {
+        "message": "DB connection refused",
+        "stack_trace": "Error: Unhandled exception\n    at handler (index.js:93:9)\n    at Runtime.handler"
+      },
       "metrics": {
         "Invocations": { "sum": 1, "avg": 1 },
-        "Errors": { "sum": 0, "avg": 0 },
+        "Errors": { "sum": 1, "avg": 1 },
         "Throttles": { "sum": 0, "avg": 0 },
-        "Duration": { "avg": 786.8261842096563, "max": 944.1914210515874 },
-        "ConcurrentExecutions": { "avg": 157 },
-        "UnreservedConcurrentExecutions": { "avg": 129 },
+        "Duration": { "avg": 1685.0927781648484, "max": 2022.111333797818 },
+        "ConcurrentExecutions": { "avg": 274 },
+        "UnreservedConcurrentExecutions": { "avg": 730 },
         "DeadLetterErrors": { "sum": 0, "avg": 0 },
-        "IteratorAge": { "avg": 0 },
-        "AsyncEventsReceived": { "sum": 73 },
-        "AsyncEventAge": { "avg": 2552 },
-        "duration_ms": 786.8261842096563,
-        "billed_duration_ms": 800,
-        "memory_size_mb": 512,
-        "max_memory_used_mb": 369,
-        "instance_max_memory": 512
+        "IteratorAge": { "avg": 93806 },
+        "AsyncEventsReceived": { "sum": 15 },
+        "AsyncEventAge": { "avg": 1109 },
+        "memory_size_mb": 256,
+        "max_memory_used_mb": 168,
+        "instance_max_memory": 256,
+        "PolledEventCount": { "sum": 489 },
+        "InvokedEventCount": { "sum": 833 },
+        "FilteredOutEventCount": { "sum": 36 },
+        "FailedInvokeEventCount": { "sum": 4 },
+        "DeletedEventCount": { "sum": 2 },
+        "OnFailureDestinationDeliveredEventCount": { "sum": 5 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-lambda-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-lambda-logs-293847561023"
+        "name": "aws-lambda-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-lambda-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/lambda/ap-south-2/2026/04/09/lambda_HYXVWKIL9EP.log.gz"
+        "key": "AWSLogs/814726593401/lambda/ap-east-1/2026/04/09/lambda_U4I9IZZXKB.log.gz"
       }
     }
   },
-  "log": { "level": "info" },
-  "message": "REPORT RequestId: v2sqamha-bgiq-dadp-36ej-mi57e5phip\tDuration: 786.83 ms\tBilled Duration: 800 ms\tMemory Size: 512 MB\tMax Memory Used: 369 MB",
+  "log": { "level": "error" },
+  "message": "START RequestId: wr5vz7kj-ik6r-zht1-6acd-b2mf02fms3c Version: $LATEST",
   "event": {
-    "duration": 786826184.2096562,
-    "outcome": "success",
+    "duration": 1685092778.1648483,
+    "outcome": "failure",
     "category": ["process"],
-    "type": ["info"],
+    "type": ["error"],
     "dataset": "aws.lambda",
     "provider": "lambda.amazonaws.com",
     "module": "aws"
   },
-  "service": { "name": "image-resizer", "type": "lambda" },
-  "host": { "name": "ip-173-142-141-44.ec2.internal", "hostname": "lambda-0j7heipy" },
+  "service": { "name": "payment-processor", "type": "lambda" },
+  "error": {
+    "code": "InvalidParameterValueException",
+    "message": "DB connection refused",
+    "type": "lambda"
+  },
+  "host": { "name": "ip-48-96-177-213.ec2.internal", "hostname": "lambda-l9u18clk" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lambda_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "qxlhshdb5og"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "ycsevtsf78m"
   },
   "input": { "type": "aws-cloudwatch" }
 }

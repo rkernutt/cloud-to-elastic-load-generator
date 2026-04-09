@@ -1,66 +1,77 @@
 {
-  "@timestamp": "2026-04-09T08:13:01.702Z",
+  "@timestamp": "2026-04-09T10:32:55.502Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-northeast-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "qbusiness" }
   },
   "aws": {
-    "dimensions": { "ApplicationId": "qmrgotnq-0ay3-bg97-rlgz-477vqx0t4wj" },
+    "dimensions": { "ApplicationId": "yaa41x05-fgi4-xz58-2e6j-wk35vo22yq" },
     "qbusiness": {
-      "application_id": "qmrgotnq-0ay3-bg97-rlgz-477vqx0t4wj",
+      "application_id": "yaa41x05-fgi4-xz58-2e6j-wk35vo22yq",
       "application_name": "support-assistant",
-      "conversation_id": "xdsb1ep6-8j1s-8sg8-f2mc-p8j6t4bhmni",
-      "message_id": "w4lbv1rn-dr1q-xfc8-cdqt-g1mn45bvyc4",
-      "user_id": "dan",
-      "event_type": "PLUGIN_INVOCATION",
-      "response_latency_ms": 1597,
-      "plugin": { "name": "Salesforce", "action": "UpdateRecord", "success": true },
+      "conversation_id": "2sckvfmk-1z0e-9naq-epnp-8cle7ebl1yd",
+      "message_id": "3v1mrs6o-xkkq-qt1r-izuk-psa47fgwi4a",
+      "user_id": "svc-account",
+      "event_type": "QUERY",
+      "response_latency_ms": 29482,
+      "query": {
+        "input_token_count": 281,
+        "output_token_count": 0,
+        "retrieved_documents": 2,
+        "source_attributions": 2,
+        "guardrail_action": "NONE"
+      },
       "metrics": {
         "ConversationCount": { "sum": 1 },
         "MessageCount": { "sum": 1 },
-        "InputTokenCount": { "sum": 158 },
+        "InputTokenCount": { "sum": 281 },
         "OutputTokenCount": { "sum": 0 },
-        "FailedResponses": { "sum": 0 },
+        "FailedResponses": { "sum": 1 },
         "GuardrailIntervened": { "sum": 0 },
-        "DocumentsRetrieved": { "sum": 0 }
+        "DocumentsRetrieved": { "sum": 2 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-qbusiness-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-qbusiness-logs-814726593401"
+        "name": "aws-qbusiness-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-qbusiness-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/qbusiness/ca-west-1/2026/04/09/qbusiness_77P0Z7O57YJ.log.gz"
+        "key": "AWSLogs/501938274650/qbusiness/ap-northeast-2/2026/04/09/qbusiness_9JDSDQZT6UF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/qbusiness/logs",
-      "log_stream": "ca-west-1/b7jzhm1a",
-      "ingestion_time": "2026-04-09T08:13:02.162Z"
+      "log_stream": "ap-northeast-2/xlvuvowz",
+      "ingestion_time": "2026-04-09T10:32:56.110Z"
     }
   },
-  "user": { "name": "dan" },
+  "user": { "name": "svc-account" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.qbusiness",
     "provider": "qbusiness.amazonaws.com",
-    "duration": 1597000000,
+    "duration": 29482000000,
     "module": "aws"
   },
-  "message": "Q Business support-assistant: dan plugin_invocation (0 docs retrieved)",
-  "log": { "level": "info" },
+  "message": "Q Business support-assistant: QUERY FAILED for svc-account",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InternalServerException",
+    "message": "Q Business operation failed",
+    "type": "ai"
+  },
   "service": { "name": "qbusiness", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.qbusiness", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "hnaz60b5zmj"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "e2cmb0iruva"
   },
   "input": { "type": "aws-cloudwatch" }
 }
