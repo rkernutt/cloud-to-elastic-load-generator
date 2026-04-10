@@ -1,66 +1,68 @@
 {
-  "@timestamp": "2026-04-10T11:57:57.329Z",
+  "@timestamp": "2026-04-10T13:54:21.951Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-southeast-4",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "ecs" }
   },
   "aws": {
-    "dimensions": { "ClusterName": "staging", "ServiceName": "web-frontend" },
+    "dimensions": { "ClusterName": "staging", "ServiceName": "auth-service" },
     "ecs": {
       "metrics": {
-        "CPUUtilization": { "avg": 8.08753011656434 },
-        "CPUReservation": { "avg": 59.797478650870794 },
-        "MemoryUtilization": { "avg": 44.429398679439 },
-        "MemoryReservation": { "avg": 59.70627101610922 },
+        "CPUUtilization": { "avg": 97.79599503050444 },
+        "CPUReservation": { "avg": 17.45709042853342 },
+        "MemoryUtilization": { "avg": 20.608631434233352 },
+        "MemoryReservation": { "avg": 26.03113101983533 },
         "GPUReservation": { "avg": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-ecs-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-ecs-logs-738291046572"
+        "name": "aws-ecs-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-ecs-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/738291046572/ecs/eu-central-1/2026/04/10/ecs_E5O4IMBHZL.log.gz" }
+      "object": {
+        "key": "AWSLogs/501938274650/ecs/ap-southeast-4/2026/04/10/ecs_9D41VY5KTT.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/ecs/logs",
-      "log_stream": "eu-central-1/ybqf1kn6",
-      "ingestion_time": "2026-04-10T11:57:57.663Z"
+      "log_stream": "ap-southeast-4/5wzgue7r",
+      "ingestion_time": "2026-04-10T13:54:24.545Z"
     }
   },
   "container": {
-    "id": "i1szcvcerfh",
-    "name": "web-frontend",
-    "image": { "name": "node:3.11", "tag": "latest" },
+    "id": "q0zzwodlrla",
+    "name": "auth-service",
+    "image": { "name": "python:latest", "tag": "latest" },
     "runtime": "docker"
   },
-  "process": { "pid": 56052, "name": "web-frontend" },
+  "process": { "pid": 58751, "name": "auth-service" },
   "log": { "level": "error" },
   "event": {
     "category": ["process", "container"],
     "outcome": "failure",
     "dataset": "aws.ecs",
     "provider": "ecs.amazonaws.com",
-    "duration": 198000000000,
+    "duration": 11000000000,
     "module": "aws"
   },
-  "message": "OOMKilled",
-  "service": { "name": "web-frontend", "type": "ecs" },
+  "message": "Health check failed",
+  "service": { "name": "auth-service", "type": "ecs" },
   "error": {
-    "code": "PlatformTaskDefinitionIncompatibilityException",
-    "message": "Failed to pull image",
+    "code": "ClusterContainsContainerInstances",
+    "message": "Container exited with code 1",
     "type": "container"
   },
-  "host": { "name": "ip-225-19-190-189.ec2.internal", "hostname": "ecs-11xj1rf1" },
+  "host": { "name": "ip-85-25-214-229.ec2.internal", "hostname": "ecs-a1arewtu" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.ecs_metrics", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "8pzphadmci"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "zr3rrpwnnvl"
   },
   "input": { "type": "aws-cloudwatch" }
 }

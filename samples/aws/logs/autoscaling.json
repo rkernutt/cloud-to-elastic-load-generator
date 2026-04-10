@@ -1,40 +1,40 @@
 {
-  "@timestamp": "2026-04-10T11:57:57.329Z",
+  "@timestamp": "2026-04-10T13:54:21.951Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-central-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "autoscaling" }
   },
   "aws": {
-    "dimensions": { "AutoScalingGroupName": "spot-fleet" },
+    "dimensions": { "AutoScalingGroupName": "batch-asg" },
     "autoscaling": {
-      "group_name": "spot-fleet",
-      "activity_id": "o2c4xe07-p033-c9kv",
-      "action_type": "HealthCheck",
-      "instance_id": "i-46jr22mb5ex",
+      "group_name": "batch-asg",
+      "activity_id": "eukqjpkz-9ipl-tpiq",
+      "action_type": "Terminate",
+      "instance_id": "i-crd786oh5vc",
       "instance_type": "c5.2xlarge",
-      "desired_capacity": 15,
+      "desired_capacity": 16,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 14,
-      "cause": "ELB health check: InService",
+      "current_capacity": 12,
+      "cause": "Scale in: reducing to desired",
       "status_code": "Successful",
-      "launch_template": "web-lt:5",
+      "launch_template": "worker-lt:8",
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 15 },
-        "GroupInServiceInstances": { "avg": 14 },
+        "GroupDesiredCapacity": { "avg": 16 },
+        "GroupInServiceInstances": { "avg": 12 },
         "GroupPendingInstances": { "avg": 0 },
-        "GroupStandbyInstances": { "avg": 1 },
-        "GroupTerminatingInstances": { "avg": 0 },
-        "GroupTotalInstances": { "avg": 15 },
-        "GroupInServiceCapacity": { "avg": 14 },
+        "GroupStandbyInstances": { "avg": 2 },
+        "GroupTerminatingInstances": { "avg": 2 },
+        "GroupTotalInstances": { "avg": 16 },
+        "GroupInServiceCapacity": { "avg": 12 },
         "GroupPendingCapacity": { "avg": 0 },
-        "GroupStandbyCapacity": { "avg": 1 },
-        "GroupTerminatingCapacity": { "avg": 0 },
-        "GroupTotalCapacity": { "avg": 15 },
+        "GroupStandbyCapacity": { "avg": 2 },
+        "GroupTerminatingCapacity": { "avg": 2 },
+        "GroupTotalCapacity": { "avg": 16 },
         "WarmPoolMinSize": { "avg": 0 },
         "WarmPoolDesiredCapacity": { "avg": 0 },
         "WarmPoolPendingCapacity": { "avg": 0 },
@@ -45,17 +45,17 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-autoscaling-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-autoscaling-logs-814726593401"
+        "name": "aws-autoscaling-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-autoscaling-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/autoscaling/me-south-1/2026/04/10/autoscaling_GMX2AY6VVDD.log.gz"
+        "key": "AWSLogs/501938274650/autoscaling/eu-central-2/2026/04/10/autoscaling_FI89S3HWJ9Q.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "me-south-1/o999d7mb",
-      "ingestion_time": "2026-04-10T11:57:57.681Z"
+      "log_stream": "eu-central-2/ojblboq1",
+      "ingestion_time": "2026-04-10T13:54:25.032Z"
     }
   },
   "event": {
@@ -63,10 +63,10 @@
     "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 488000000000,
+    "duration": 337000000000,
     "module": "aws"
   },
-  "message": "AutoScaling spot-fleet: HealthCheck instance",
+  "message": "AutoScaling batch-asg: Terminate instance",
   "log": { "level": "info" },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -74,8 +74,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "cg1uhrobafh"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "hld4kz3i50w"
   },
   "input": { "type": "aws-cloudwatch" }
 }

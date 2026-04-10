@@ -1,24 +1,24 @@
 {
-  "@timestamp": "2026-04-10T11:57:57.329Z",
+  "@timestamp": "2026-04-10T13:54:21.951Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-east-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "wafv2" }
   },
   "aws": {
-    "dimensions": { "WebACL": "admin-portal-waf", "Rule": "NoUserAgent", "Region": "eu-west-1" },
+    "dimensions": { "WebACL": "regional-waf", "Rule": "IPRateBasedRule", "Region": "ap-east-1" },
     "waf": {
-      "id": "zcayuebg4a9",
-      "arn": "arn:aws:wafv2:eu-west-1:738291046572:regional/webacl/admin-portal-waf/d8e657db-n035-iplc-zc50-wbgqe2v52s",
+      "id": "gbahxj53le",
+      "arn": "arn:aws:wafv2:ap-east-1:501938274650:regional/webacl/regional-waf/iv9p9thz-dwjg-ple1-wa45-o8t2t2ubp6",
       "format_version": "1",
-      "source": { "name": "CF", "id": "738291046572-app/admin-portal-waf/65mm9cze53s" },
+      "source": { "name": "APIGW", "id": "501938274650-app/regional-waf/4ykrsm9wlnk" },
       "rule_group_list": [
         {
-          "ruleGroupId": "IPRateBasedRule",
+          "ruleGroupId": "AWSManagedRulesLinuxRuleSet",
           "terminatingRule": {
-            "action": "CAPTCHA",
-            "ruleId": "NoUserAgent",
+            "action": "BLOCK",
+            "ruleId": "IPRateBasedRule",
             "ruleMatchDetails": []
           },
           "nonTerminatingMatchingRules": []
@@ -32,7 +32,7 @@
           { "name": "Host", "value": "api.example.com" }
         ]
       },
-      "labels": [{ "name": "awswaf:managed:aws:core-rule-set:CrossSiteScripting" }],
+      "labels": [{ "name": "awswaf:managed:aws:sql-database:SQLi_Args" }],
       "response_code_sent": 403,
       "metrics": {
         "AllowedRequests": { "sum": 0 },
@@ -46,40 +46,40 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-wafv2-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-wafv2-logs-738291046572"
+        "name": "aws-wafv2-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-wafv2-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/wafv2/eu-west-1/2026/04/10/wafv2_HKPZPWU2WLG.log.gz"
+        "key": "AWSLogs/501938274650/wafv2/ap-east-1/2026/04/10/wafv2_9LMP1UBJQMM.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/wafv2/logs",
-      "log_stream": "eu-west-1/cthad0wc",
-      "ingestion_time": "2026-04-10T11:57:57.926Z"
+      "log_stream": "ap-east-1/o6edr15l",
+      "ingestion_time": "2026-04-10T13:54:29.348Z"
     }
   },
   "source": {
-    "ip": "165.100.240.58",
+    "ip": "149.241.33.163",
     "geo": {
-      "country_iso_code": "CA",
-      "country_name": "Canada",
-      "city_name": "Toronto",
-      "location": { "lat": 43.6532, "lon": -79.3832 }
+      "country_iso_code": "GB",
+      "country_name": "United Kingdom",
+      "city_name": "London",
+      "location": { "lat": 51.5074, "lon": -0.1278 }
     }
   },
-  "http": { "request": { "method": "DELETE", "bytes": 1121 } },
-  "url": { "path": "/api/v1/orders" },
+  "http": { "request": { "method": "DELETE", "bytes": 8209 } },
+  "url": { "path": "/api/v2/events" },
   "user_agent": { "original": "python-requests/2.27.1" },
   "event": {
-    "action": "captcha",
+    "action": "block",
     "outcome": "failure",
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
     "module": "aws"
   },
-  "message": "WAFv2 CAPTCHA [admin-portal-waf] 165.100.240.58: IPRateBasedRule/NoUserAgent",
+  "message": "WAFv2 BLOCK [regional-waf] 149.241.33.163: AWSManagedRulesLinuxRuleSet/IPRateBasedRule",
   "log": { "level": "warn" },
   "error": { "code": "WAFBlock", "message": "WAFv2 request blocked", "type": "security" },
   "service": { "name": "wafv2", "type": "aws" },
@@ -88,8 +88,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "53iautr9jkd"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "qwb49jq9dj"
   },
   "input": { "type": "aws-s3" }
 }

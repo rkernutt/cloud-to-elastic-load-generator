@@ -1,38 +1,37 @@
 {
-  "@timestamp": "2026-04-10T11:57:57.329Z",
+  "@timestamp": "2026-04-10T13:54:21.951Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "ses" }
   },
   "aws": {
     "dimensions": {
       "ses:configuration-set": "marketing",
       "ses:from-domain": "company.com",
-      "ses:to-country": "AU",
-      "ses:to-isp": "Yahoo"
+      "ses:to-country": "GB",
+      "ses:to-isp": "AOL"
     },
     "ses": {
-      "message_id": "my55ilgxrg.uco2tiy5jw@eu-west-2.amazonses.com",
-      "event_type": "Open",
+      "message_id": "7e6o2wclyg.qgwx9znfkf@ap-south-1.amazonses.com",
+      "event_type": "Complaint",
       "from_address": "noreply@company.com",
-      "destination": "user_4emrto@company.org",
+      "destination": "user_6mafzc@yahoo.com",
       "configuration_set": "marketing",
       "bounce": {},
-      "complaint": {},
-      "sending_account_id": "293847561023",
+      "complaint": { "feedback_type": "not-spam" },
+      "sending_account_id": "814726593401",
       "delivery": {
-        "recipients": ["user_4emrto@company.org"],
-        "timestamp": "2026-04-10T11:57:57.329Z",
-        "processing_time_ms": 2932,
-        "smtp_response": "250 2.0.0 OK"
+        "recipients": ["user_6mafzc@yahoo.com"],
+        "timestamp": "2026-04-10T13:54:21.951Z",
+        "processing_time_ms": 2789
       },
       "metrics": {
         "Send": { "sum": 1 },
-        "Delivery": { "sum": 1 },
-        "Bounce": { "sum": 0 },
-        "Complaint": { "sum": 0 },
+        "Delivery": { "sum": 0 },
+        "Bounce": { "sum": 1 },
+        "Complaint": { "sum": 1 },
         "Reject": { "sum": 0 },
         "Open": { "sum": 0 },
         "Click": { "sum": 0 },
@@ -42,35 +41,36 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-ses-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-ses-logs-293847561023"
+        "name": "aws-ses-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-ses-logs-814726593401"
       },
-      "object": { "key": "AWSLogs/293847561023/ses/eu-west-2/2026/04/10/ses_F3322VIE8HU.log.gz" }
+      "object": { "key": "AWSLogs/814726593401/ses/ap-south-1/2026/04/10/ses_CK9WVRDZJ7V.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/ses/logs",
-      "log_stream": "eu-west-2/4vlgfrpq",
-      "ingestion_time": "2026-04-10T11:57:57.906Z"
+      "log_stream": "ap-south-1/7l0hdqtk",
+      "ingestion_time": "2026-04-10T13:54:29.112Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["email", "process"],
     "dataset": "aws.ses",
     "provider": "email.amazonaws.com",
-    "duration": 2624000000,
+    "duration": 2998000000,
     "module": "aws"
   },
-  "message": "SES Open: noreply@company.com -> user_4emrto@company.org",
-  "log": { "level": "info" },
+  "message": "SES Complaint FAILED for user_6mafzc@yahoo.com: Account suspended",
+  "log": { "level": "warn" },
+  "error": { "code": "SESDeliveryFailure", "message": "SES delivery failed", "type": "email" },
   "service": { "name": "ses", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.ses", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "lvhd8yu31u"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "vpow2l8iklb"
   },
   "input": { "type": "aws-cloudwatch" }
 }

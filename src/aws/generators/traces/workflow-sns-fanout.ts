@@ -198,7 +198,11 @@ function spanDoc({
 }
 
 /** Build the standard AWS cloud block. */
-function cloudBlock(region: string, account: { id: string; name: string }, awsService: string): WorkflowCloudBlock {
+function cloudBlock(
+  region: string,
+  account: { id: string; name: string },
+  awsService: string
+): WorkflowCloudBlock {
   return {
     provider: "aws",
     region: region,
@@ -400,7 +404,10 @@ function workflowSnsEventFanout(ts: string, er: number) {
   const apigwCloud = cloudBlock(region, account, "apigateway");
   const lambdaCloud = cloudBlock(region, account, "lambda");
 
-  type SnsFanoutTraceDoc = ReturnType<typeof txDoc> | ReturnType<typeof spanDoc> | ReturnType<typeof errorDoc>;
+  type SnsFanoutTraceDoc =
+    | ReturnType<typeof txDoc>
+    | ReturnType<typeof spanDoc>
+    | ReturnType<typeof errorDoc>;
   const docs: SnsFanoutTraceDoc[] = [];
 
   // ── 1. TX — api-events root (API Gateway, nodejs20.x) ────────────────────────

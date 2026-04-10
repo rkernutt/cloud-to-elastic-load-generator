@@ -2,7 +2,7 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "europe-north1",
+    "region": "northamerica-northeast2",
     "project": {
       "id": "globex-dev-g7h8i9",
       "name": "Globex Development"
@@ -17,23 +17,23 @@
   },
   "gcp": {
     "composer": {
-      "environment_name": "composer-data",
-      "dag_id": "daily_etl",
-      "task_id": "validate",
-      "execution_date": "2026-04-09 13:45:30",
-      "state": "success",
+      "environment_name": "composer-prod",
+      "dag_id": "hourly_sync",
+      "task_id": "extract",
+      "execution_date": "2026-04-10 08:25:01",
+      "state": "running",
       "try_number": 2,
-      "operator": "BigQueryInsertJobOperator",
-      "duration_seconds": 1091
+      "operator": "KubernetesPodOperator",
+      "duration_seconds": 2495
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 1091000000000,
+    "outcome": "failure",
+    "duration": 2495000000000,
     "module": "gcp",
     "dataset": "gcp.composer"
   },
-  "message": "Composer composer-data: daily_etl.validate success in 1091s",
+  "message": "Composer composer-prod: hourly_sync.extract running in 2495s",
   "log": {
     "level": "info"
   },
@@ -52,8 +52,8 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-north1",
-    "id": "uj9wvf4dkt"
+    "name": "elastic-agent-gcp-northamerica-northeast2",
+    "id": "9fva0tt5a5n"
   },
   "input": {
     "type": "gcp-pubsub"
@@ -63,22 +63,22 @@
     "type": "cloud_composer_environment",
     "labels": {
       "project_id": "globex-dev-g7h8i9",
-      "region": "europe-north1"
+      "region": "northamerica-northeast2"
     }
   },
   "severity": "INFO",
-  "insertId": "AYKAWXHRZ3C",
+  "insertId": "3PJHZFTSS67",
   "jsonPayload": {
     "composer": {
-      "environment_name": "composer-data",
-      "dag_id": "daily_etl",
-      "task_id": "validate",
-      "execution_date": "2026-04-09 13:45:30",
-      "state": "success",
+      "environment_name": "composer-prod",
+      "dag_id": "hourly_sync",
+      "task_id": "extract",
+      "execution_date": "2026-04-10 08:25:01",
+      "state": "running",
       "try_number": 2,
-      "operator": "BigQueryInsertJobOperator",
-      "duration_seconds": 1091
+      "operator": "KubernetesPodOperator",
+      "duration_seconds": 2495
     },
-    "message": "Composer composer-data: daily_etl.validate success in 1091s"
+    "message": "Composer composer-prod: hourly_sync.extract running in 2495s"
   }
 }

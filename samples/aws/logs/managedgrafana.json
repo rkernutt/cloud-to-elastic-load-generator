@@ -1,57 +1,62 @@
 {
-  "@timestamp": "2026-04-10T11:57:57.329Z",
+  "@timestamp": "2026-04-10T13:54:21.951Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-central-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "managedgrafana" }
   },
   "aws": {
-    "dimensions": { "WorkspaceId": "g-hr5ptrysl9" },
+    "dimensions": { "WorkspaceId": "g-fcw3v4a2mq" },
     "managedgrafana": {
-      "workspace_id": "g-hr5ptrysl9",
-      "workspace_name": "business-metrics",
-      "workspace_status": "CREATING",
-      "grafana_version": "9.4",
-      "alert_state": "ok",
+      "workspace_id": "g-fcw3v4a2mq",
+      "workspace_name": "ops-dashboards",
+      "workspace_status": "FAILED",
+      "grafana_version": "10.4",
+      "alert_state": "alerting",
       "dashboard_title": "Lambda Performance",
-      "datasource_type": "elasticsearch",
-      "authentication_providers": "SAML",
+      "datasource_type": "cloudwatch",
+      "authentication_providers": "AWS_SSO",
       "notification_destinations": "SLACK"
     },
     "s3": {
       "bucket": {
-        "name": "aws-managedgrafana-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-managedgrafana-logs-501938274650"
+        "name": "aws-managedgrafana-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-managedgrafana-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/managedgrafana/ap-southeast-2/2026/04/10/managedgrafana_9UPWQITWMBM.log.gz"
+        "key": "AWSLogs/814726593401/managedgrafana/eu-central-2/2026/04/10/managedgrafana_YTELQ5UT3DB.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/managedgrafana/logs",
-      "log_stream": "ap-southeast-2/9jmk2b5q",
-      "ingestion_time": "2026-04-10T11:57:57.890Z"
+      "log_stream": "eu-central-2/jkzphf1y",
+      "ingestion_time": "2026-04-10T13:54:28.968Z"
     }
   },
   "event": {
-    "action": "CreateWorkspace",
-    "outcome": "success",
+    "action": "DeleteApiKey",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.managedgrafana",
     "provider": "grafana.amazonaws.com",
     "module": "aws"
   },
-  "message": "Managed Grafana CreateWorkspace: workspace=business-metrics alert=ok dashboard=\"Lambda Performance\"",
-  "log": { "level": "info" },
+  "message": "Managed Grafana DeleteApiKey FAILED [ops-dashboards]: Workspace not active",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ValidationException",
+    "message": "Managed Grafana operation failed",
+    "type": "process"
+  },
   "service": { "name": "managedgrafana", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.managedgrafana", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-2",
-    "ephemeral_id": "w9ovtvf8ngq"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "m8gmosfxrn"
   },
   "input": { "type": "aws-cloudwatch" }
 }

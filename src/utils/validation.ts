@@ -45,7 +45,8 @@ export function validateElasticUrl(value: unknown): ValidationResult {
     if (u.protocol === "http:" && !isLocalDevHost(u.hostname)) {
       return {
         valid: false,
-        message: "HTTP is only allowed for local development (e.g. http://localhost:9200). Use HTTPS elsewhere.",
+        message:
+          "HTTP is only allowed for local development (e.g. http://localhost:9200). Use HTTPS elsewhere.",
       };
     }
     if (!u.hostname || u.hostname.length < 2) {

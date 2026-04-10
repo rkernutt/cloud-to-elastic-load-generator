@@ -9,10 +9,9 @@ function assertLogDocument(serviceId: string, raw: unknown) {
   const doc = Array.isArray(raw) ? raw[0] : raw;
   expect.soft(doc, serviceId).toBeTruthy();
   expect.soft(typeof doc, serviceId).toBe("object");
-  expect.soft(
-    doc && typeof (doc as Record<string, unknown>)["@timestamp"],
-    serviceId
-  ).toBe("string");
+  expect
+    .soft(doc && typeof (doc as Record<string, unknown>)["@timestamp"], serviceId)
+    .toBe("string");
 }
 
 function assertMetricDocuments(serviceId: string, raw: unknown) {

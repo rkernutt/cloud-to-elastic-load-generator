@@ -1,62 +1,68 @@
 {
-  "@timestamp": "2026-04-10T11:57:57.329Z",
+  "@timestamp": "2026-04-10T13:54:21.951Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "me-south-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "appflow" }
   },
   "aws": {
-    "dimensions": { "FlowName": "salesforce-to-s3" },
+    "dimensions": { "FlowName": "zendesk-export" },
     "appflow": {
-      "flow_name": "salesforce-to-s3",
-      "flow_arn": "arn:aws:appflow:eu-central-2:164820739518:flow/salesforce-to-s3",
-      "source_connector_type": "Salesforce",
-      "destination_connector_type": "EventBridge",
-      "trigger_type": "OnDemand",
-      "execution_status": "ExecutionSuccessful",
-      "records_processed": 724663,
-      "duration_ms": 8803,
+      "flow_name": "zendesk-export",
+      "flow_arn": "arn:aws:appflow:me-south-1:293847561023:flow/zendesk-export",
+      "source_connector_type": "ServiceNow",
+      "destination_connector_type": "Snowflake",
+      "trigger_type": "Event",
+      "execution_status": "ExecutionFailed",
+      "records_processed": 0,
+      "duration_ms": 10894,
+      "error_message": "Rate limit exceeded",
       "metrics": {
-        "RecordsProcessed": { "sum": 724663 },
-        "DurationMs": { "avg": 8803 },
-        "ExecutionSuccessCount": { "sum": 1 },
-        "ExecutionFailureCount": { "sum": 0 }
+        "RecordsProcessed": { "sum": 0 },
+        "DurationMs": { "avg": 10894 },
+        "ExecutionSuccessCount": { "sum": 0 },
+        "ExecutionFailureCount": { "sum": 1 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-appflow-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-appflow-logs-164820739518"
+        "name": "aws-appflow-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-appflow-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/appflow/eu-central-2/2026/04/10/appflow_FVW6NCT4UGG.log.gz"
+        "key": "AWSLogs/293847561023/appflow/me-south-1/2026/04/10/appflow_T1T6ZVT2AMO.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/appflow/logs",
-      "log_stream": "eu-central-2/2e571gg7",
-      "ingestion_time": "2026-04-10T11:57:57.826Z"
+      "log_stream": "me-south-1/jqayyy61",
+      "ingestion_time": "2026-04-10T13:54:28.223Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.appflow",
     "provider": "appflow.amazonaws.com",
-    "duration": 8803000000,
+    "duration": 10894000000,
     "module": "aws"
   },
-  "message": "Flow run started",
-  "log": { "level": "info" },
+  "message": "AppFlow zendesk-export (ServiceNow->Snowflake) FAILED: Rate limit",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ExecutionFailed",
+    "message": "AppFlow execution failed",
+    "type": "integration"
+  },
   "service": { "name": "appflow", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.appflow", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "zc2h2j4vjk"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "8x7icl57zhu"
   },
   "input": { "type": "aws-cloudwatch" }
 }

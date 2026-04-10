@@ -1,73 +1,79 @@
 {
-  "@timestamp": "2026-04-10T11:57:57.329Z",
+  "@timestamp": "2026-04-10T13:54:21.951Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-west-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "wavelength" },
-    "availability_zone": "ap-northeast-1-wl1-nrt-wlz-1",
-    "instance": { "id": "i-7g1g2ylbh8v" }
+    "availability_zone": "eu-west-2-wl1-lon-wlz-1",
+    "instance": { "id": "i-ostu3hqzvja" }
   },
   "aws": {
     "dimensions": {
-      "WavelengthZone": "ap-northeast-1-wl1-nrt-wlz-1",
-      "InstanceId": "i-7g1g2ylbh8v",
-      "CarrierGatewayId": "cagw-x555vhjaw7m"
+      "WavelengthZone": "eu-west-2-wl1-lon-wlz-1",
+      "InstanceId": "i-ostu3hqzvja",
+      "CarrierGatewayId": "cagw-60d4qdfiw4j"
     },
     "wavelength": {
-      "zone": "ap-northeast-1-wl1-nrt-wlz-1",
-      "carrier": "KDDI",
-      "city": "Tokyo",
-      "instance_id": "i-7g1g2ylbh8v",
-      "instance_type": "r5.large",
-      "carrier_gateway_id": "cagw-x555vhjaw7m",
-      "subnet_id": "subnet-qpjdtnvkn28",
-      "carrier_ip": "99.229.146.92",
-      "ue_ip": "144.42.235.227",
-      "bandwidth_allowance_gbps": 6,
+      "zone": "eu-west-2-wl1-lon-wlz-1",
+      "carrier": "Vodafone",
+      "city": "London",
+      "instance_id": "i-ostu3hqzvja",
+      "instance_type": "c5.2xlarge",
+      "carrier_gateway_id": "cagw-60d4qdfiw4j",
+      "subnet_id": "subnet-sbed4bmlcnd",
+      "carrier_ip": "25.15.49.139",
+      "ue_ip": "117.135.19.56",
+      "bandwidth_allowance_gbps": 7,
       "network": {
-        "uplink_mbps": 427.73220450872077,
-        "downlink_mbps": 768.2412945481354,
-        "latency_ms": 7.448734992220722,
-        "packet_loss_pct": 0.09536176271113989
-      }
+        "uplink_mbps": 8.67037426935965,
+        "downlink_mbps": 5.078689981547965,
+        "latency_ms": 15.191515761657756,
+        "packet_loss_pct": 4.9549097448989645
+      },
+      "error_code": "InvalidWavelengthZone"
     },
     "s3": {
       "bucket": {
-        "name": "aws-wavelength-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-wavelength-logs-293847561023"
+        "name": "aws-wavelength-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-wavelength-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/wavelength/ap-northeast-1/2026/04/10/wavelength_FVZZ2EENCV.log.gz"
+        "key": "AWSLogs/814726593401/wavelength/eu-west-2/2026/04/10/wavelength_CQKESXPQUMR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/wavelength/logs",
-      "log_stream": "ap-northeast-1/kk2j0kil",
-      "ingestion_time": "2026-04-10T11:57:57.669Z"
+      "log_stream": "eu-west-2/870mfwuj",
+      "ingestion_time": "2026-04-10T13:54:24.612Z"
     }
   },
-  "source": { "ip": "144.42.235.227" },
+  "source": { "ip": "117.135.19.56" },
   "event": {
-    "action": "CarrierGatewayCreated",
-    "outcome": "success",
+    "action": "RunInstances",
+    "outcome": "failure",
     "category": ["network", "host"],
     "dataset": "aws.wavelength",
     "provider": "ec2.amazonaws.com",
-    "duration": 229000000,
+    "duration": 360000000,
     "module": "aws"
   },
-  "message": "Wavelength [Tokyo/KDDI] i-7g1g2ylbh8v (r5.large) UL=428Mbps DL=768Mbps lat=7.4ms",
-  "log": { "level": "info" },
-  "host": { "name": "ip-53-155-66-59.ec2.internal", "hostname": "wavelength-46lfeo6y" },
+  "message": "Wavelength [London/Vodafone] RunInstances FAILED on i-ostu3hqzvja: InvalidWavelengthZone",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InvalidWavelengthZone",
+    "message": "Wavelength zone operation failed in eu-west-2-wl1-lon-wlz-1",
+    "type": "network"
+  },
+  "host": { "name": "ip-139-63-17-158.ec2.internal", "hostname": "wavelength-d54zd4m6" },
   "service": { "name": "wavelength", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.wavelength", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "sbnnbna8co"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "eooq441aq8"
   },
   "input": { "type": "aws-cloudwatch" }
 }

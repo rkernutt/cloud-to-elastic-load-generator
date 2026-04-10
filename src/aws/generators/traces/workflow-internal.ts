@@ -262,7 +262,11 @@ function spanDoc(args: WorkflowSpanDocArgs) {
 }
 
 /** Build the standard AWS cloud block. */
-function cloudBlock(region: string, account: { id: string; name: string }, awsService: string): WorkflowCloudBlock {
+function cloudBlock(
+  region: string,
+  account: { id: string; name: string },
+  awsService: string
+): WorkflowCloudBlock {
   return {
     provider: "aws",
     region: region,

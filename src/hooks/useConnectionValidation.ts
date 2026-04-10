@@ -1,5 +1,10 @@
 import { useState, useCallback, type Dispatch, type SetStateAction } from "react";
-import { validateElasticUrl, validateApiKey, validateIndexPrefix, testConnection } from "../utils/validation";
+import {
+  validateElasticUrl,
+  validateApiKey,
+  validateIndexPrefix,
+  testConnection,
+} from "../utils/validation";
 
 export type ConnectionStatus = "idle" | "testing" | "ok" | "fail";
 

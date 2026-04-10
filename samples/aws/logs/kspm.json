@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-10T11:57:57.329Z",
+  "@timestamp": "2026-04-10T13:54:21.951Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,73 +7,68 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" }
+    "region": "eu-central-2",
+    "account": { "id": "814726593401", "name": "globex-production" }
   },
   "orchestrator": {
-    "cluster": { "id": "staging-eks", "name": "staging-eks" },
+    "cluster": { "id": "prod-eks-cluster", "name": "prod-eks-cluster" },
     "type": "kubernetes",
-    "namespace": "kube-system"
+    "namespace": "default"
   },
   "resource": {
-    "id": "staging-eks/kube-system/api-server/staging-eks",
-    "name": "api-server/staging-eks",
+    "id": "prod-eks-cluster/default/api-server/prod-eks-cluster",
+    "name": "api-server/prod-eks-cluster",
     "sub_type": "api-server",
     "type": "k8s_object"
   },
   "rule": {
-    "id": "cis_eks_2_1",
-    "name": "Enable audit logging",
-    "section": "2.1",
-    "tags": ["Logging"],
+    "id": "cis_eks_5_4",
+    "name": "Restrict access to the control plane endpoint",
+    "section": "5.4",
+    "tags": ["Managed Services"],
     "benchmark": {
       "id": "cis_eks",
       "version": "v1.4.0",
-      "rule_number": "2.1",
+      "rule_number": "5.4",
       "posture_type": "kspm"
-    },
-    "impact": "Enable audit logging — non-compliant configuration may allow container escape or lateral movement.",
-    "remediation": "Review and remediate per CIS EKS Benchmark v1.4.0 section 2.1."
+    }
   },
-  "result": { "evaluation": "failed" },
-  "severity": "high",
+  "result": { "evaluation": "passed" },
+  "severity": "none",
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "aws"
   },
-  "message": "KSPM [CIS EKS / 2.1] failed: Enable audit logging [staging-eks]",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "CIS_CIS_EKS_2_1",
-    "message": "KSPM check failed: Enable audit logging",
-    "type": "compliance"
-  },
+  "message": "KSPM [CIS EKS / 5.4] passed: Restrict access to the control plane endpoint [prod-eks-cluster]",
+  "log": { "level": "info" },
   "service": { "name": "kspm", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "fxltbj3wzxn"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "zurlf1vsi6"
   },
   "input": { "type": "http_endpoint" },
   "aws": {
     "s3": {
       "bucket": {
-        "name": "aws-kspm-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-kspm-logs-164820739518"
+        "name": "aws-kspm-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-kspm-logs-814726593401"
       },
-      "object": { "key": "AWSLogs/164820739518/kspm/us-east-1/2026/04/10/kspm_AZWYJZDZOQ4.log.gz" }
+      "object": {
+        "key": "AWSLogs/814726593401/kspm/eu-central-2/2026/04/10/kspm_MK03PJRPILH.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/kspm/logs",
-      "log_stream": "us-east-1/43m7ehnq",
-      "ingestion_time": "2026-04-10T11:57:57.743Z"
+      "log_stream": "eu-central-2/lvzcdaq9",
+      "ingestion_time": "2026-04-10T13:54:26.878Z"
     }
   }
 }

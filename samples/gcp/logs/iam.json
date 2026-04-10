@@ -2,53 +2,52 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "us-east5",
+    "region": "europe-north1",
     "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
     "account": { "id": "141421356237", "name": "Globex Security" },
-    "service": { "name": "os-login" }
+    "service": { "name": "iam" }
   },
   "gcp": {
-    "os_login": {
-      "user": "sre@globex-security-j0k1l2.example.com",
-      "action": "SSH_KEY_REMOVE",
-      "instance": "vm-bastion-17dl",
-      "ssh_key_fingerprint": "SHA256:64720ddc1793959228c0ad48d06ac9697f28332c8d68",
-      "login_method": "OS_LOGIN_2FA"
+    "iam": {
+      "principal": "group:engineering@globex.example.com",
+      "action": "CreateServiceAccountKey",
+      "resource": "projects/globex-security-j0k1l2",
+      "permission_granted": true,
+      "policy_delta_action": "REMOVE",
+      "role": "roles/bigquery.dataEditor",
+      "request_id": "rwuspdtq8eg"
     }
   },
-  "event": {
-    "outcome": "success",
-    "duration": 29000000,
-    "module": "gcp",
-    "dataset": "gcp.oslogin"
-  },
-  "message": "OS Login SSH_KEY_REMOVE: sre@globex-security-j0k1l2.example.com on vm-bastion-17dl via OS_LOGIN_2FA",
+  "event": { "outcome": "success", "duration": 34000000, "module": "gcp", "dataset": "gcp.iam" },
+  "message": "IAM CreateServiceAccountKey by group:engineering@globex.example.com on projects/globex-security-j0k1l2: REMOVE binding roles/bigquery.dataEditor",
   "log": { "level": "info" },
-  "service": { "name": "os-login", "type": "gcp" },
+  "service": { "name": "iam", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.oslogin", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.iam", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-east5",
-    "id": "m8mrk42ilde"
+    "name": "elastic-agent-gcp-europe-north1",
+    "id": "xo6056gwfz"
   },
-  "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-security-j0k1l2/logs/os-login",
+  "input": { "type": "http_endpoint" },
+  "logName": "projects/globex-security-j0k1l2/logs/iam",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-security-j0k1l2", "region": "us-east5" }
+    "labels": { "project_id": "globex-security-j0k1l2", "region": "europe-north1" }
   },
   "severity": "INFO",
-  "insertId": "635H3PCUIF6",
+  "insertId": "MMSWBT75E79",
   "jsonPayload": {
-    "os_login": {
-      "user": "sre@globex-security-j0k1l2.example.com",
-      "action": "SSH_KEY_REMOVE",
-      "instance": "vm-bastion-17dl",
-      "ssh_key_fingerprint": "SHA256:64720ddc1793959228c0ad48d06ac9697f28332c8d68",
-      "login_method": "OS_LOGIN_2FA"
+    "iam": {
+      "principal": "group:engineering@globex.example.com",
+      "action": "CreateServiceAccountKey",
+      "resource": "projects/globex-security-j0k1l2",
+      "permission_granted": true,
+      "policy_delta_action": "REMOVE",
+      "role": "roles/bigquery.dataEditor",
+      "request_id": "rwuspdtq8eg"
     },
-    "message": "OS Login SSH_KEY_REMOVE: sre@globex-security-j0k1l2.example.com on vm-bastion-17dl via OS_LOGIN_2FA"
+    "message": "IAM CreateServiceAccountKey by group:engineering@globex.example.com on projects/globex-security-j0k1l2: REMOVE binding roles/bigquery.dataEditor"
   }
 }

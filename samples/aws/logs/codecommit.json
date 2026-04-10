@@ -1,63 +1,57 @@
 {
-  "@timestamp": "2026-04-10T11:57:57.329Z",
+  "@timestamp": "2026-04-10T13:54:21.951Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "us-west-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "codecommit" }
   },
   "aws": {
     "codecommit": {
-      "repository_name": "api-service",
-      "repository_arn": "arn:aws:codecommit:us-east-1:164820739518:api-service",
-      "event_type": "ReferenceCreated",
-      "reference_name": "hotfix/payment-bug",
-      "commit_id": "z09rm95vde",
-      "author": "bob",
-      "files_changed": 30,
-      "lines_added": 245,
-      "lines_deleted": 86,
-      "error_code": "InvalidBranchNameException"
+      "repository_name": "infrastructure",
+      "repository_arn": "arn:aws:codecommit:us-west-1:293847561023:infrastructure",
+      "event_type": "ReferenceDeleted",
+      "reference_name": "develop",
+      "commit_id": "r42tpzn6ogr",
+      "author": "alice",
+      "files_changed": 28,
+      "lines_added": 395,
+      "lines_deleted": 156
     },
     "s3": {
       "bucket": {
-        "name": "aws-codecommit-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-codecommit-logs-164820739518"
+        "name": "aws-codecommit-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-codecommit-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/codecommit/us-east-1/2026/04/10/codecommit_AD4HSF0CZPS.log.gz"
+        "key": "AWSLogs/293847561023/codecommit/us-west-1/2026/04/10/codecommit_0CYPSKJ9J4P.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codecommit/logs",
-      "log_stream": "us-east-1/l56ly98n",
-      "ingestion_time": "2026-04-10T11:57:57.809Z"
+      "log_stream": "us-west-1/hsls6ga0",
+      "ingestion_time": "2026-04-10T13:54:27.641Z"
     }
   },
   "user": { "name": "carol" },
   "event": {
-    "action": "ReferenceCreated",
-    "outcome": "failure",
+    "action": "ReferenceDeleted",
+    "outcome": "success",
     "category": ["configuration", "file"],
     "dataset": "aws.codecommit",
     "provider": "codecommit.amazonaws.com",
     "module": "aws"
   },
-  "message": "CodeCommit ReferenceCreated FAILED on api-service: Encryption key unavailable",
-  "log": { "level": "error" },
-  "error": {
-    "code": "InvalidBranchNameException",
-    "message": "CodeCommit operation failed",
-    "type": "vcs"
-  },
+  "message": "CodeCommit ReferenceDeleted: infrastructure/develop",
+  "log": { "level": "info" },
   "service": { "name": "codecommit", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.codecommit", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "c37cw3dzygr"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "jvrfu7zk5sg"
   },
   "input": { "type": "aws-cloudwatch" }
 }

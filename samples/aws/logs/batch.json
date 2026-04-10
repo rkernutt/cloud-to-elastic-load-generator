@@ -1,28 +1,28 @@
 {
-  "@timestamp": "2026-04-10T11:57:57.329Z",
+  "@timestamp": "2026-04-10T13:54:21.951Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
+    "region": "me-south-1",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "batch" }
   },
   "aws": {
-    "dimensions": { "JobQueue": "nightly-etl-queue" },
+    "dimensions": { "JobQueue": "ml-training-prep-queue" },
     "batch": {
-      "job": { "name": "nightly-etl", "id": "5dodqdbs-y2z4", "status": "FAILED" },
-      "job_queue": "nightly-etl-queue",
+      "job": { "name": "ml-training-prep", "id": "4jf4sr96-filg", "status": "FAILED" },
+      "job_queue": "ml-training-prep-queue",
       "compute_environment": "ce-spot",
-      "structured_logging": false,
+      "structured_logging": true,
       "metrics": {
-        "PendingJobCount": { "avg": 62 },
-        "RunnableJobCount": { "avg": 6 },
-        "StartingJobCount": { "avg": 15 },
-        "RunningJobCount": { "avg": 143 },
+        "PendingJobCount": { "avg": 69 },
+        "RunnableJobCount": { "avg": 32 },
+        "StartingJobCount": { "avg": 17 },
+        "RunningJobCount": { "avg": 142 },
         "SucceededJobCount": { "sum": 0 },
         "FailedJobCount": { "sum": 1 },
-        "CPUReserved": { "avg": 73.73630436187722 },
+        "CPUReserved": { "avg": 20.4319750701192 },
         "GPUReserved": { "avg": 0 },
-        "MemoryReserved": { "avg": 27.37267883358672 }
+        "MemoryReserved": { "avg": 25.840975098359227 }
       }
     },
     "s3": {
@@ -31,36 +31,40 @@
         "arn": "arn:aws:s3:::aws-batch-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/batch/me-central-1/2026/04/10/batch_P0Y6RU4F3L.log.gz"
+        "key": "AWSLogs/501938274650/batch/me-south-1/2026/04/10/batch_POS1FEYGPT9.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/batch/logs",
-      "log_stream": "me-central-1/zananh88",
-      "ingestion_time": "2026-04-10T11:57:57.674Z"
+      "log_stream": "me-south-1/ga9c7kem",
+      "ingestion_time": "2026-04-10T13:54:24.658Z"
     }
   },
-  "process": { "pid": 42166, "name": "python", "exit_code": 137 },
+  "process": { "pid": 47971, "name": "spark-submit", "exit_code": 137 },
   "log": { "level": "error" },
   "event": {
     "category": ["process"],
     "outcome": "failure",
     "dataset": "aws.batch",
     "provider": "batch.amazonaws.com",
-    "duration": 5200000000000,
+    "duration": 1166000000000,
     "module": "aws"
   },
-  "message": "IAM role permission denied",
-  "error": { "code": "JQ_DELETED", "message": "Job failed with exit code 1", "type": "process" },
-  "host": { "name": "ip-20-9-23-227.ec2.internal", "hostname": "batch-fec8tgsd" },
+  "message": "{\"jobId\":\"4jf4sr96-filg\",\"jobName\":\"ml-training-prep\",\"jobQueue\":\"ml-training-prep-queue\",\"level\":\"error\",\"message\":\"IAM role permission denied\",\"timestamp\":\"2026-04-10T13:54:21.951Z\",\"arrayIndex\":71}",
+  "error": {
+    "code": "JobDependencyError",
+    "message": "Container instance terminated unexpectedly",
+    "type": "process"
+  },
+  "host": { "name": "ip-184-91-211-46.ec2.internal", "hostname": "batch-cr56vie2" },
   "service": { "name": "batch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.batch", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "rqzm2vxet8k"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "k46ql4uupb8"
   },
   "input": { "type": "aws-cloudwatch" }
 }

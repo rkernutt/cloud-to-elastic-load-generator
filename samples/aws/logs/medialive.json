@@ -1,69 +1,64 @@
 {
-  "@timestamp": "2026-04-10T11:57:57.329Z",
+  "@timestamp": "2026-04-10T13:54:21.951Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-south-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "medialive" }
   },
   "aws": {
-    "dimensions": { "ChannelId": "SNGDPU1EP7I", "Pipeline": "PIPELINE_1" },
+    "dimensions": { "ChannelId": "KA6CQJVTSZ", "Pipeline": "PIPELINE_0" },
     "medialive": {
-      "channel_id": "SNGDPU1EP7I",
-      "channel_name": "corporate-broadcast",
-      "channel_state": "ERROR",
-      "pipeline": "PIPELINE_1",
-      "input_type": "UDP_PUSH",
-      "output_type": "HLS",
-      "video_bitrate_kbps": 1448,
-      "input_loss_frames": 624,
-      "encoder_fps": 12,
+      "channel_id": "KA6CQJVTSZ",
+      "channel_name": "concert-stream",
+      "channel_state": "RUNNING",
+      "pipeline": "PIPELINE_0",
+      "input_type": "RTP_PUSH",
+      "output_type": "RTMP",
+      "video_bitrate_kbps": 6449,
+      "input_loss_frames": 0,
+      "encoder_fps": 30,
       "metrics": {
-        "ActiveAlerts": { "sum": 3 },
-        "ChannelInputErrorSeconds": { "sum": 137 },
-        "NetworkOut": { "avg": 41445991 },
-        "OutputLossSeconds": { "sum": 38 },
-        "FillMsec": { "sum": 3023 }
+        "ActiveAlerts": { "sum": 0 },
+        "ChannelInputErrorSeconds": { "sum": 0 },
+        "NetworkOut": { "avg": 44744933 },
+        "OutputLossSeconds": { "sum": 0 },
+        "FillMsec": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-medialive-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-medialive-logs-738291046572"
+        "name": "aws-medialive-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-medialive-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/medialive/ap-southeast-3/2026/04/10/medialive_GLNWMFEIC5.log.gz"
+        "key": "AWSLogs/814726593401/medialive/ap-south-2/2026/04/10/medialive_9EYNPNM41.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/medialive/logs",
-      "log_stream": "ap-southeast-3/xa8p34a3",
-      "ingestion_time": "2026-04-10T11:57:57.898Z"
+      "log_stream": "ap-south-2/ifp9rcx0",
+      "ingestion_time": "2026-04-10T13:54:29.036Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.medialive",
     "provider": "medialive.amazonaws.com",
-    "duration": 27703000000,
+    "duration": 1195000000,
     "module": "aws"
   },
-  "message": "Output error: CDN origin unreachable",
-  "log": { "level": "error" },
-  "error": {
-    "code": "MediaLiveError",
-    "message": "Input loss detected: primary input failed",
-    "type": "media"
-  },
+  "message": "Pipeline A running, Pipeline B standby",
+  "log": { "level": "info" },
   "service": { "name": "medialive", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.medialive", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "fu9nrqt346a"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "snlnetb4ye"
   },
   "input": { "type": "aws-cloudwatch" }
 }

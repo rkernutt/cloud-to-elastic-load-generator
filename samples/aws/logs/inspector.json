@@ -1,83 +1,64 @@
 {
-  "@timestamp": "2026-04-10T11:57:57.329Z",
+  "@timestamp": "2026-04-10T13:54:21.951Z",
   "cloud": {
     "provider": "aws",
     "region": "eu-south-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "inspector2" }
   },
   "aws": {
-    "dimensions": { "Severity": "HIGH" },
+    "dimensions": { "Severity": "LOW" },
     "inspector2": {
-      "finding_id": "arn:aws:inspector2:eu-south-1:738291046572:finding/69xjtdyk-ctnm-h3m0-6q4i-1dnfnfif76z",
-      "finding_type": "PACKAGE_VULNERABILITY",
-      "finding_status": "SUPPRESSED",
-      "severity": "HIGH",
-      "severity_score": 7.2,
-      "exploitability": "NOT_DEFINED",
-      "resource_type": "AWS_ECR_CONTAINER_IMAGE",
-      "resource_id": "738291046572.dkr.ecr.eu-south-1.amazonaws.com/my-repo:latest",
-      "first_observed_at": "2026-03-26T11:57:57.329Z",
-      "last_observed_at": "2026-04-10T11:57:57.329Z",
-      "package_vulnerability": {
-        "cve_id": "CVE-2021-41496",
-        "source": "NVD",
-        "cvss3_score": 7.225981171941041,
-        "vulnerable_packages": [
-          {
-            "name": "axios",
-            "version": "3.10.4",
-            "fixed_in_version": "1.14.11",
-            "package_manager": "NPM"
-          }
-        ],
-        "related_vulnerabilities": ["CVE-2024-25016"]
+      "finding_id": "arn:aws:inspector2:eu-south-1:164820739518:finding/mhj0ko5w-3vs8-8x93-p5vc-85yefcvkidw",
+      "finding_type": "NETWORK_REACHABILITY",
+      "finding_status": "ACTIVE",
+      "severity": "LOW",
+      "severity_score": 0.9,
+      "exploitability": "PROOF_OF_CONCEPT",
+      "resource_type": "AWS_LAMBDA_FUNCTION",
+      "resource_id": "arn:aws:lambda:eu-south-1:164820739518:function:my-fn",
+      "first_observed_at": "2026-03-25T13:54:21.951Z",
+      "last_observed_at": "2026-04-10T13:54:21.951Z",
+      "network_reachability": {
+        "protocol": "UDP",
+        "open_port_range": { "begin": 80, "end": 3306 },
+        "network_path": "sg -> vpc-peering"
       },
       "metrics": {
-        "TotalFindings": { "sum": 6 },
+        "TotalFindings": { "sum": 227 },
         "CriticalFindings": { "sum": 0 },
-        "HighFindings": { "sum": 12 },
+        "HighFindings": { "sum": 0 },
         "MediumFindings": { "sum": 0 },
-        "LowFindings": { "sum": 0 },
-        "CoveredResources": { "avg": 2939 }
+        "LowFindings": { "sum": 193 },
+        "CoveredResources": { "avg": 3600 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-inspector-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-inspector-logs-738291046572"
+        "name": "aws-inspector-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-inspector-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/inspector/eu-south-1/2026/04/10/inspector_XCNMI2NGCOG.log.gz"
+        "key": "AWSLogs/164820739518/inspector/eu-south-1/2026/04/10/inspector_8KSTO64A97F.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/inspector/logs",
-      "log_stream": "eu-south-1/byyvobui",
-      "ingestion_time": "2026-04-10T11:57:57.727Z"
+      "log_stream": "eu-south-1/csf9xhur",
+      "ingestion_time": "2026-04-10T13:54:26.649Z"
     }
   },
-  "vulnerability": {
-    "severity": "HIGH",
-    "id": "CVE-2021-41496",
-    "score": { "base": 7.225981171941041 }
-  },
-  "package": { "name": "axios", "version": "3.10.4" },
+  "vulnerability": { "severity": "LOW", "score": { "base": 0.8959145001103418 } },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["vulnerability"],
     "type": ["info"],
     "dataset": "aws.inspector2",
     "provider": "inspector2.amazonaws.com",
     "module": "aws"
   },
-  "message": "Inspector2 [HIGH]: CVE-2021-41496 in axios 3.10.4 on AWS_ECR_CONTAINER_IMAGE (fix: 1.14.11)",
-  "log": { "level": "error" },
-  "error": {
-    "code": "CVE-2021-41496",
-    "message": "HIGH vulnerability: axios",
-    "type": "vulnerability"
-  },
+  "message": "Inspector2 [LOW]: NETWORK_REACHABILITY detected on AWS_LAMBDA_FUNCTION",
+  "log": { "level": "info" },
   "service": { "name": "inspector", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.inspector", "namespace": "default" },
@@ -85,7 +66,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "6bawziesoa6"
+    "ephemeral_id": "yhwmpsc8wno"
   },
   "input": { "type": "http_endpoint" }
 }
