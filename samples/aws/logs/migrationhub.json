@@ -1,60 +1,66 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-west-3",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "migrationhub" }
   },
   "aws": {
     "migrationhub": {
-      "application_id": "app-fhuhlsuc2be",
+      "application_id": "app-3e0vxkfan4r",
       "application_name": "database-rehost",
-      "server_id": "d-server-Y7MT6MSQ6LK",
-      "server_name": "server-9u8533sz",
-      "migration_status": "MIGRATION_IN_PROGRESS",
-      "migration_tool": "Carbonite",
-      "progress_update_stream": "MGN-stream",
+      "server_id": "d-server-TVI8SUY5MY8",
+      "server_name": "server-ilc92gn7",
+      "migration_status": "NOT_STARTED",
+      "migration_tool": "DatabaseMigrationService",
+      "progress_update_stream": "SMS-stream",
       "task": {
-        "status": "IN_PROGRESS",
-        "progress_percent": 87,
-        "total_objects": 596,
-        "replicated_objects": 138
-      }
+        "status": "FAILED",
+        "progress_percent": 22,
+        "total_objects": 235,
+        "replicated_objects": 209
+      },
+      "error_code": "UnauthorizedOperation"
     },
     "s3": {
       "bucket": {
-        "name": "aws-migrationhub-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-migrationhub-logs-814726593401"
+        "name": "aws-migrationhub-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-migrationhub-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/814726593401/migrationhub/ca-west-1/2026/04/10/migrationhub_27G1RYQVG5I.log.gz"
+        "key": "AWSLogs/738291046572/migrationhub/eu-west-3/2026/04/10/migrationhub_6MOETV33V23.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/migrationhub/logs",
-      "log_stream": "ca-west-1/wtrpodyj",
-      "ingestion_time": "2026-04-10T08:43:16.395Z"
+      "log_stream": "eu-west-3/xwht5frx",
+      "ingestion_time": "2026-04-10T11:57:57.885Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process", "configuration"],
     "dataset": "aws.migrationhub",
     "provider": "mgh.amazonaws.com",
-    "duration": 52254000000000,
+    "duration": 203018000000000,
     "module": "aws"
   },
-  "message": "Migration Hub database-rehost [Carbonite]: MIGRATION_IN_PROGRESS — server-9u8533sz",
-  "log": { "level": "info" },
+  "message": "Migration Hub database-rehost FAILED [DatabaseMigrationService]: Insufficient permissions:",
+  "log": { "level": "error" },
+  "error": {
+    "code": "MigrationFailed",
+    "message": "Migration Hub task failed",
+    "type": "migration"
+  },
   "service": { "name": "migrationhub", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.migrationhub", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "nm390koj4im"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "9xhhh89l9e5"
   },
   "input": { "type": "aws-cloudwatch" }
 }

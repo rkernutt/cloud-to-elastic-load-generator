@@ -3,34 +3,38 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "southcentralus",
+    "region": "westus3",
     "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-southcentralus",
-    "ephemeral_id": "adk2sa07dhr"
+    "name": "metricbeat-azure-westus3",
+    "ephemeral_id": "olxd79b121"
   },
   "azure": {
-    "dedicated_host": {
+    "capacity_reservation": {
       "metrics": {
-        "request_count": { "avg": 423283, "sum": 423283, "count": 1 },
+        "request_count": { "avg": 233828, "sum": 233828, "count": 1 },
         "error_count": { "avg": 0, "sum": 0, "count": 1 },
-        "duration_ms": { "avg": 112.43, "sum": 112.43, "count": 1 }
+        "duration_ms": { "avg": 62.07, "sum": 62.07, "count": 1 }
       },
-      "labels": { "resource_group": "rg-shared-3495j", "resource_id": "res-a" }
+      "labels": { "resource_group": "rg-prod-weszx", "resource_id": "res-a" }
     }
   },
-  "metricset": { "name": "dedicated_host", "period": 60000 },
-  "data_stream": { "type": "metrics", "dataset": "azure.dedicated_host", "namespace": "default" },
+  "metricset": { "name": "capacity_reservation", "period": 60000 },
+  "data_stream": {
+    "type": "metrics",
+    "dataset": "azure.capacity_reservation",
+    "namespace": "default"
+  },
   "input": { "type": "azure-monitor" },
-  "event": { "dataset": "azure.dedicated_host", "module": "azure" },
+  "event": { "dataset": "azure.capacity_reservation", "module": "azure" },
   "azureMonitorMetric": {
     "time": "2026-04-07T12:00:00.000Z",
     "metricName": "request_count",
-    "resourceGroup": "rg-dedicated-host",
+    "resourceGroup": "rg-capacity-reservation",
     "subscriptionId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-    "timeseries": [{ "data": [{ "average": 423283, "count": 1 }] }]
+    "timeseries": [{ "data": [{ "average": 233828, "count": 1 }] }]
   }
 }

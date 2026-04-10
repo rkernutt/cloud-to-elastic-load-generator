@@ -35,6 +35,8 @@ interface ShipPageProps {
   scheduleCurrentRun: number;
   nextRunAt: Date | null;
   countdown: number;
+  /** Shown after a page refresh restored or failed to restore an in-progress schedule */
+  scheduleResumeNotice?: string | null;
   canShip: boolean;
   onShip: () => void;
   onStop: () => void;
@@ -68,6 +70,7 @@ export function ShipPage({
   scheduleCurrentRun,
   nextRunAt,
   countdown,
+  scheduleResumeNotice,
   canShip,
   onShip,
   onStop,
@@ -112,6 +115,15 @@ export function ShipPage({
       </EuiPanel>
 
       <EuiSpacer size="l" />
+
+      {scheduleResumeNotice && (
+        <>
+          <EuiCallOut title="Schedule" color="warning" iconType="clock">
+            <p>{scheduleResumeNotice}</p>
+          </EuiCallOut>
+          <EuiSpacer size="m" />
+        </>
+      )}
 
       {/* Action buttons */}
       <EuiFlexGroup gutterSize="m" alignItems="center" responsive={false} wrap>

@@ -1,22 +1,22 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "af-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "waf" }
   },
   "aws": {
     "dimensions": {
-      "WebACL": "admin-waf",
+      "WebACL": "api-waf",
       "Rule": "AWSManagedRulesCommonRuleSet",
-      "Region": "ca-central-1"
+      "Region": "af-south-1"
     },
     "waf": {
-      "id": "otr70yitys",
-      "arn": "arn:aws:wafv2:ca-central-1:164820739518:regional/webacl/admin-waf/9bkffoj7-siav-v5ka-4jst-oir3lyofco",
+      "id": "1iuvp9j7kwsj",
+      "arn": "arn:aws:wafv2:af-south-1:814726593401:regional/webacl/api-waf/fml6xiev-tiyo-3a4j-8ijp-ij3ynxyh1m9",
       "format_version": "1",
-      "source": { "name": "ALB", "id": "164820739518-app/admin-waf/45v10gsbu2g" },
+      "source": { "name": "ALB", "id": "814726593401-app/api-waf/57pzp9wqnka" },
       "rule_group_list": [
         { "ruleGroupId": "AWSManagedRulesCommonRuleSet", "nonTerminatingMatchingRules": [] }
       ],
@@ -24,7 +24,7 @@
       "terminating_rule_match_details": [],
       "request": {
         "headers": [
-          { "name": "User-Agent", "value": "python-requests/2.27.1" },
+          { "name": "User-Agent", "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
           { "name": "Host", "value": "api.example.com" }
         ]
       },
@@ -41,46 +41,46 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-waf-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-waf-logs-164820739518"
+        "name": "aws-waf-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-waf-logs-814726593401"
       },
-      "object": { "key": "AWSLogs/164820739518/waf/ca-central-1/2026/04/10/waf_EBG1PIKQINA.log.gz" }
+      "object": { "key": "AWSLogs/814726593401/waf/af-south-1/2026/04/10/waf_7B9RYF2MH.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/waf/logs",
-      "log_stream": "ca-central-1/qp12mwcp",
-      "ingestion_time": "2026-04-10T08:43:15.997Z"
+      "log_stream": "af-south-1/vp02i8go",
+      "ingestion_time": "2026-04-10T11:57:57.692Z"
     }
   },
-  "rule": { "id": "NoUserAgent_HEADER", "ruleset": "AWSManagedRulesCommonRuleSet" },
-  "http": { "request": { "method": "PATCH", "bytes": 8177 } },
-  "url": { "path": "/api/v1/search" },
+  "rule": { "id": "GenericLFI_URIPATH", "ruleset": "AWSManagedRulesCommonRuleSet" },
+  "http": { "request": { "method": "PATCH", "bytes": 4652 } },
+  "url": { "path": "/api/v1/auth/login" },
   "source": {
-    "ip": "174.110.128.188",
+    "ip": "20.30.63.57",
     "geo": {
-      "country_iso_code": "DE",
-      "country_name": "Germany",
-      "city_name": "Frankfurt",
-      "location": { "lat": 50.1109, "lon": 8.6821 }
+      "country_iso_code": "CN",
+      "country_name": "China",
+      "city_name": "Beijing",
+      "location": { "lat": 39.9042, "lon": 116.4074 }
     }
   },
   "client": {
-    "ip": "174.110.128.188",
+    "ip": "20.30.63.57",
     "geo": {
-      "country_iso_code": "DE",
-      "country_name": "Germany",
-      "city_name": "Frankfurt",
-      "location": { "lat": 50.1109, "lon": 8.6821 }
+      "country_iso_code": "CN",
+      "country_name": "China",
+      "city_name": "Beijing",
+      "location": { "lat": 39.9042, "lon": 116.4074 }
     }
   },
-  "user_agent": { "original": "python-requests/2.27.1" },
+  "user_agent": { "original": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
   "event": {
     "action": "allow",
     "outcome": "success",
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
-    "duration": 36000000,
+    "duration": 8000000,
     "module": "aws"
   },
   "message": "WAF ALLOWED request - Rule: AWSManagedRulesCommonRuleSet",
@@ -91,8 +91,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "ihywuc01fue"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "k2r6g1gydqe"
   },
   "input": { "type": "aws-s3" }
 }

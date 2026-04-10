@@ -3,43 +3,47 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west2",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" }
+    "region": "europe-west6",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west2",
-    "ephemeral_id": "qbdbawfszo"
+    "name": "metricbeat-gcp-europe-west6",
+    "ephemeral_id": "g0f14ucvaiv"
   },
   "gcp": {
-    "shielded-vms": {
+    "sole-tenant-nodes": {
       "metrics": {
-        "request_count": { "avg": 39614, "sum": 39614, "count": 1 },
+        "request_count": { "avg": 83475, "sum": 83475, "count": 1 },
         "error_count": { "avg": 0, "sum": 0, "count": 1 },
-        "latency": { "avg": 74.05, "sum": 74.05, "count": 1 }
+        "latency": { "avg": 46.84, "sum": 46.84, "count": 1 }
       },
       "labels": { "resource_id": "resource-a" }
     }
   },
-  "metricset": { "name": "shielded-vms", "period": 60000 },
-  "data_stream": { "type": "metrics", "dataset": "gcp.shielded_vms", "namespace": "default" },
+  "metricset": { "name": "sole-tenant-nodes", "period": 60000 },
+  "data_stream": {
+    "type": "metrics",
+    "dataset": "gcp.compute_sole_tenant",
+    "namespace": "default"
+  },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.shielded_vms", "module": "gcp" },
+  "event": { "dataset": "gcp.compute_sole_tenant", "module": "gcp" },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/shielded-vms/request_count",
+      "type": "custom.googleapis.com/opentelemetry/elastic/samples/sole-tenant-nodes/request_count",
       "labels": {}
     },
     "resource": {
       "type": "global",
-      "labels": { "project_id": "globex-shared-m3n4o5", "region": "europe-west2" }
+      "labels": { "project_id": "globex-prod-a1b2c3", "region": "europe-west6" }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 39614 } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 83475 } }
     ]
   }
 }

@@ -1,65 +1,65 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-west-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "rds" }
   },
   "aws": {
     "dimensions": {
-      "DBInstanceIdentifier": "prod-db-replica",
-      "DatabaseClass": "db.r6g.xlarge",
-      "EngineName": "postgres",
-      "SourceRegion": "eu-south-1"
+      "DBInstanceIdentifier": "prod-db-primary",
+      "DatabaseClass": "db.t3.medium",
+      "EngineName": "aurora-mysql",
+      "SourceRegion": "eu-west-1"
     },
     "rds": {
       "db_instance": {
-        "identifier": "prod-db-replica",
-        "class": "db.t3.medium",
-        "engine_name": "postgres",
-        "arn": "arn:aws:rds:eu-south-1:738291046572:db:prod-db-replica",
+        "identifier": "prod-db-primary",
+        "class": "db.r6g.xlarge",
+        "engine_name": "aurora-mysql",
+        "arn": "arn:aws:rds:eu-west-1:164820739518:db:prod-db-primary",
         "status": "available",
         "role": "instance"
       },
-      "cpu": { "total": { "pct": 0.1176 } },
-      "freeable_memory": { "bytes": 6593663426 },
-      "free_storage": { "bytes": 307457624424 },
-      "database_connections": 487,
-      "read_io": { "ops_per_sec": 369.6078578641003 },
-      "write_io": { "ops_per_sec": 1088.335180175491 },
-      "latency": { "read": 0.006854212405384407, "write": 0.0016545834567710171 },
+      "cpu": { "total": { "pct": 0.0572 } },
+      "freeable_memory": { "bytes": 3001520174 },
+      "free_storage": { "bytes": 344225845255 },
+      "database_connections": 205,
+      "read_io": { "ops_per_sec": 2038.5115595456602 },
+      "write_io": { "ops_per_sec": 2568.8714212811287 },
+      "latency": { "read": 0.01785647512928927, "write": 0.006725146823808491 },
       "throughput": {
-        "read": 86953217,
-        "write": 82825619,
-        "network_receive": 98104853,
-        "network_transmit": 59250485
+        "read": 12851113,
+        "write": 30778919,
+        "network_receive": 10321136,
+        "network_transmit": 28818581
       },
-      "replica_lag": { "sec": 11.102228652470147 },
-      "swap_usage": { "bytes": 81641547 },
-      "disk_usage": { "bin_log": { "bytes": 830798877 } }
+      "replica_lag": { "sec": 61.1816621875324 },
+      "swap_usage": { "bytes": 64938932 },
+      "disk_usage": { "bin_log": { "bytes": 342814377 } }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-rds-logs-738291046572"
+        "name": "aws-rds-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-rds-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/738291046572/rds/eu-south-1/2026/04/10/rds_OR3MW285OHC.log.gz" }
+      "object": { "key": "AWSLogs/164820739518/rds/eu-west-1/2026/04/10/rds_ZLRL04TZQIP.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/rds/logs",
-      "log_stream": "eu-south-1/l1or6mwl",
-      "ingestion_time": "2026-04-10T08:43:15.950Z"
+      "log_stream": "eu-west-1/9hj93ig2",
+      "ingestion_time": "2026-04-10T11:57:57.661Z"
     }
   },
   "db": {
-    "user": { "name": "appuser" },
-    "name": "analytics",
-    "statement": "DELETE FROM sessions WHERE E0NYUD",
+    "user": { "name": "readonly" },
+    "name": "appdb",
+    "statement": "INSERT INTO orders VALUES TU7WR3",
     "type": "sql"
   },
   "event": {
-    "duration": 590473342.9062674,
+    "duration": 1475570161.0475395,
     "outcome": "success",
     "category": ["database"],
     "type": ["info", "access"],
@@ -67,16 +67,18 @@
     "provider": "rds.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"instanceId\":\"prod-db-replica\",\"engine\":\"postgres\",\"userId\":\"appuser\",\"queryTime\":0.5904733429062674,\"error\":null,\"timestamp\":\"2026-04-10T08:43:15.441Z\",\"osMetrics\":{\"cpuUtilization\":{\"guest\":1.368938851828466,\"irq\":0.8504610048168328,\"system\":0.9732798384093143,\"wait\":1.931903193750374,\"idle\":84.1,\"user\":10.822425491315617,\"total\":15.9},\"memory\":{\"total\":14542040274,\"free\":7477597775,\"cached\":578020775,\"active\":10357571802,\"inactive\":2811783637,\"buffers\":164458628},\"disk\":{\"readIOsPS\":942.4802256762464,\"writeIOsPS\":509.7696412517635,\"readKbPS\":11057.586293427505,\"writeKbPS\":437068.47871803754,\"avgQueueLen\":0.5768287683979016,\"await\":5.799251291779169},\"network\":{\"rx\":51572774,\"tx\":28118235},\"numVCPUs\":4,\"uptime\":\"38 days, 17:54:20\"}}",
+  "message": "{\"instanceId\":\"prod-db-primary\",\"engine\":\"aurora-mysql\",\"userId\":\"readonly\",\"queryTime\":1.4755701610475396,\"error\":null,\"timestamp\":\"2026-04-10T11:57:57.329Z\",\"osMetrics\":{\"cpuUtilization\":{\"guest\":0.9222208898282669,\"irq\":0.9524780277289183,\"system\":2.2849506432591777,\"wait\":2.595142291570041,\"idle\":80.3,\"user\":12.971713678329552,\"total\":19.7},\"memory\":{\"total\":46406729422,\"free\":7676527190,\"cached\":3943912752,\"active\":5736414226,\"inactive\":1040583555,\"buffers\":190419554},\"disk\":{\"readIOsPS\":2646.05267202546,\"writeIOsPS\":2108.3261190253165,\"readKbPS\":23128.683494988367,\"writeKbPS\":421464.93023884384,\"avgQueueLen\":0.17401491376321498,\"await\":5.876940851423544},\"network\":{\"rx\":57176040,\"tx\":39722201},\"numVCPUs\":8,\"uptime\":\"66 days, 22:08:01\"}}",
   "log": { "level": "info" },
+  "trace": { "id": "JMHBQRW9X9" },
+  "transaction": { "id": "3O4J2VV6GLW" },
   "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "e5lwo6ownxk"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "x352cpzxs4"
   },
   "input": { "type": "aws-cloudwatch" }
 }

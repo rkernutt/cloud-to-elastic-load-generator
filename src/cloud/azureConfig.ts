@@ -15,6 +15,7 @@ import {
   genericVendorDocDataset,
   o365MetricsBulkIndex,
 } from "./indexNaming";
+import { M365_AZURE_METRICS_INTEGRATION_BY_SERVICE_ID } from "./m365Config";
 import { publicUrl } from "../utils/publicUrl";
 import {
   AZURE_VENDOR_CATEGORY_ICONS,
@@ -92,12 +93,7 @@ export const AZURE_CONFIG: CloudAppConfig = {
       regions: AZURE_REGIONS,
       defaultIngestion: "default",
       ingestionUiFallback: "azure-monitor",
-      metricsIntegrationByServiceId: {
-        "active-users-services": "o365_metrics",
-        "teams-user-activity": "o365_metrics",
-        "outlook-activity": "o365_metrics",
-        "onedrive-usage-storage": "o365_metrics",
-      },
+      metricsIntegrationByServiceId: { ...M365_AZURE_METRICS_INTEGRATION_BY_SERVICE_ID },
     },
   },
   setupBundle: AZURE_SETUP_BUNDLE,

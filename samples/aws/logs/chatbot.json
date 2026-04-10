@@ -1,56 +1,61 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "sa-east-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "chatbot" }
   },
   "aws": {
-    "dimensions": { "ChannelConfiguration": "ops-alerts", "ChannelType": "MicrosoftTeams" },
+    "dimensions": { "ChannelConfiguration": "security-alerts", "ChannelType": "Chime" },
     "chatbot": {
-      "channel_configuration_name": "ops-alerts",
-      "channel_type": "MicrosoftTeams",
+      "channel_configuration_name": "security-alerts",
+      "channel_type": "Chime",
       "notification_type": "CloudWatchAlarm",
-      "workspace_id": "TQAMNL57V",
-      "channel_id": "CL2O1JD64",
-      "delivery_status": "Delivered",
-      "message_id": "n5y8pw1p-sdhz-pbcb-ngwp-aelqu9cznbb",
-      "sns_topic_arn": "arn:aws:sns:ca-west-1:501938274650:cloudwatchalarm-topic"
+      "workspace_id": "T98DNRS65",
+      "channel_id": "COQH8QWD9",
+      "delivery_status": "Unauthorized",
+      "message_id": "1dy87194-gt4s-0617-76fq-63y74kegrcg",
+      "sns_topic_arn": "arn:aws:sns:sa-east-1:293847561023:cloudwatchalarm-topic"
     },
     "s3": {
       "bucket": {
-        "name": "aws-chatbot-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-chatbot-logs-501938274650"
+        "name": "aws-chatbot-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-chatbot-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/chatbot/ca-west-1/2026/04/10/chatbot_66130QIDD86.log.gz"
+        "key": "AWSLogs/293847561023/chatbot/sa-east-1/2026/04/10/chatbot_POAP2SHWMWK.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/chatbot/logs",
-      "log_stream": "ca-west-1/kk1tghrh",
-      "ingestion_time": "2026-04-10T08:43:16.429Z"
+      "log_stream": "sa-east-1/9j61tczx",
+      "ingestion_time": "2026-04-10T11:57:57.895Z"
     }
   },
   "event": {
-    "action": "BotInvitation",
-    "outcome": "success",
+    "action": "CommandExecution",
+    "outcome": "failure",
     "category": ["configuration"],
     "dataset": "aws.chatbot",
     "provider": "chatbot.amazonaws.com",
     "module": "aws"
   },
-  "message": "Chatbot ops-alerts: CloudWatchAlarm delivered to MicrosoftTeams",
-  "log": { "level": "info" },
+  "message": "Chatbot security-alerts (Chime): CloudWatchAlarm delivery Unauthorized",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ConflictException",
+    "message": "Chatbot notification delivery failed",
+    "type": "configuration"
+  },
   "service": { "name": "chatbot", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.chatbot", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "8w6cdfrmuvs"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "1a3ki67g4s6"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,67 +1,68 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-southeast-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "kinesis" }
   },
   "aws": {
-    "dimensions": { "StreamName": "clickstream" },
+    "dimensions": { "StreamName": "audit-trail" },
     "kinesis": {
       "metrics": {
-        "GetRecords_Bytes": { "avg": 825398 },
-        "GetRecords_IteratorAgeMilliseconds": { "avg": 168 },
-        "GetRecords_Latency": { "avg": 37 },
-        "GetRecords_Records": { "avg": 449, "sum": 876 },
-        "GetRecords_Success": { "sum": 1 },
-        "IncomingBytes": { "avg": 3529627 },
-        "IncomingRecords": { "avg": 8704 },
-        "PutRecord_Bytes": { "avg": 342808 },
-        "PutRecord_Latency": { "avg": 82 },
-        "PutRecords_Latency": { "avg": 185 },
-        "PutRecord_Success": { "avg": 1 },
-        "PutRecords_Bytes": { "avg": 7174939 },
-        "PutRecords_FailedRecords": { "sum": 0 },
-        "PutRecords_SuccessfulRecords": { "sum": 448 },
-        "PutRecords_ThrottledRecords": { "sum": 0 },
-        "ReadProvisionedThroughputExceeded": { "avg": 0 },
-        "WriteProvisionedThroughputExceeded": { "avg": 0 }
+        "GetRecords_Bytes": { "avg": 54993 },
+        "GetRecords_IteratorAgeMilliseconds": { "avg": 918170 },
+        "GetRecords_Latency": { "avg": 30 },
+        "GetRecords_Records": { "avg": 85, "sum": 471 },
+        "GetRecords_Success": { "sum": 0 },
+        "IncomingBytes": { "avg": 9499499 },
+        "IncomingRecords": { "avg": 3430 },
+        "PutRecord_Bytes": { "avg": 465007 },
+        "PutRecord_Latency": { "avg": 87 },
+        "PutRecords_Latency": { "avg": 181 },
+        "PutRecord_Success": { "avg": 0 },
+        "PutRecords_Bytes": { "avg": 9484102 },
+        "PutRecords_FailedRecords": { "sum": 86 },
+        "PutRecords_SuccessfulRecords": { "sum": 879 },
+        "PutRecords_ThrottledRecords": { "sum": 5 },
+        "ReadProvisionedThroughputExceeded": { "avg": 3 },
+        "WriteProvisionedThroughputExceeded": { "avg": 5 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-kinesis-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-kinesis-logs-164820739518"
+        "name": "aws-kinesis-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-kinesis-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/kinesis/ap-east-1/2026/04/10/kinesis_C0VJCGVJCRO.log.gz"
+        "key": "AWSLogs/814726593401/kinesis/ap-southeast-2/2026/04/10/kinesis_94RV7F5LKP.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/kinesis/logs",
-      "log_stream": "ap-east-1/6nvu3t1o",
-      "ingestion_time": "2026-04-10T08:43:16.163Z"
+      "log_stream": "ap-southeast-2/555ryhae",
+      "ingestion_time": "2026-04-10T11:57:57.792Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["network"],
     "dataset": "aws.kinesis",
     "provider": "kinesis.amazonaws.com",
-    "duration": 2760000000,
+    "duration": 45270000000,
     "module": "aws"
   },
-  "message": "Kinesis clickstream: 6144 records ingested",
-  "log": { "level": "info" },
+  "message": "Kinesis WriteProvisionedThroughputExceeded on audit-trail",
+  "log": { "level": "error" },
+  "error": { "code": "KMSOptInRequired", "message": "Kinesis stream error", "type": "stream" },
   "service": { "name": "kinesis", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.kinesis", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "7m7111bm45l"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "vig3dp6sim"
   },
   "input": { "type": "aws-cloudwatch" }
 }

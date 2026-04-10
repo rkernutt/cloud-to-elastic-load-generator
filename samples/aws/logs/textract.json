@@ -1,65 +1,66 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ca-west-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "textract" }
   },
   "aws": {
-    "dimensions": { "Operation": "GetExpenseAnalysis" },
+    "dimensions": { "Operation": "StartExpenseAnalysis" },
     "textract": {
-      "operation": "GetExpenseAnalysis",
-      "document_type": "tax-form",
-      "job_id": "inskw43ej",
-      "job_status": "SUCCEEDED",
-      "pages_processed": 14,
-      "blocks_detected": 644,
-      "words_detected": 6608,
+      "operation": "StartExpenseAnalysis",
+      "document_type": "receipt",
+      "job_id": "zzed1nwgwt",
+      "pages_processed": 0,
+      "blocks_detected": 0,
+      "words_detected": 0,
       "form_key_value_pairs": 0,
       "tables_detected": 0,
-      "confidence_mean": 89.55038710569433,
+      "confidence_mean": 89.82531542042902,
+      "error_code": "UnsupportedDocumentException",
       "metrics": {
         "DocumentsProcessed": { "sum": 1 },
-        "ThrottledRequests": { "sum": 0 },
-        "ResponseTime": { "avg": 2604.856440192538 },
-        "SuccessfulRequests": { "sum": 1 },
-        "UserErrorRequests": { "sum": 0 },
+        "ThrottledRequests": { "sum": 1 },
+        "ResponseTime": { "avg": 19489.81363570944 },
+        "SuccessfulRequests": { "sum": 0 },
+        "UserErrorRequests": { "sum": 3 },
         "ServerErrorRequests": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-textract-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-textract-logs-814726593401"
+        "name": "aws-textract-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-textract-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/textract/us-west-1/2026/04/10/textract_72BB1ZJQMIM.log.gz"
+        "key": "AWSLogs/501938274650/textract/ca-west-1/2026/04/10/textract_ZF9WL8P74Y.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/textract/logs",
-      "log_stream": "us-west-1/zu3otr5j",
-      "ingestion_time": "2026-04-10T08:43:16.253Z"
+      "log_stream": "ca-west-1/fg1nzn99",
+      "ingestion_time": "2026-04-10T11:57:57.838Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process", "file"],
     "dataset": "aws.textract",
     "provider": "textract.amazonaws.com",
     "module": "aws"
   },
-  "message": "Textract GetExpenseAnalysis: tax-form, 14 pages, 2842 words",
-  "log": { "level": "info" },
+  "message": "Textract StartExpenseAnalysis FAILED on receipt: Unsupported format",
+  "log": { "level": "error" },
+  "error": { "code": "TextractError", "message": "Textract operation failed", "type": "ml" },
   "service": { "name": "textract", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.textract", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "xv96s6hbrfr"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "lc8mk7hndhg"
   },
   "input": { "type": "aws-cloudwatch" }
 }

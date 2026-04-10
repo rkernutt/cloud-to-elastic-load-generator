@@ -1,51 +1,44 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
+    "region": "ap-southeast-3",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "securitylake" }
   },
   "aws": {
-    "dimensions": { "OcsfClass": "API Activity", "SourceType": "LAMBDA:CloudTrail" },
+    "dimensions": { "OcsfClass": "HTTP Activity", "SourceType": "LAMBDA:ALB" },
     "securitylake": {
-      "source_type": "LAMBDA:CloudTrail",
-      "class_uid": 6003,
-      "class_name": "API Activity",
-      "category_uid": 6,
-      "category_name": "Application Activity",
-      "activity_id": 4,
+      "source_type": "LAMBDA:ALB",
+      "class_uid": 4002,
+      "class_name": "HTTP Activity",
+      "category_uid": 4,
+      "category_name": "Network Activity",
+      "activity_id": 5,
       "activity_name": "Read",
-      "severity_id": 3,
-      "severity": "Medium",
+      "severity_id": 2,
+      "severity": "Low",
       "status_id": 1,
       "status": "Success",
-      "time": 1775810595441,
+      "time": 1775822277329,
       "metadata": {
         "version": "1.1.0",
-        "product": { "name": "CloudTrail", "vendor_name": "AWS" },
-        "uid": "lcc23fbj-etup-7lbj-mbkj-txuaesrnenq"
+        "product": { "name": "ALB", "vendor_name": "AWS" },
+        "uid": "frrry9a6-6o4g-ehg4-5fkd-jyt29dv9erh"
       },
       "ocsf_cloud": {
         "provider": "AWS",
         "account": { "uid": "814726593401" },
-        "region": "eu-south-2"
+        "region": "ap-southeast-3"
       },
-      "api": {
-        "operation": "AssumeRole",
-        "service": { "name": "s3.amazonaws.com" },
-        "request": { "uid": "2gzbvnda-a02t-z69b-b05y-5wmz55f3y7k" },
-        "response": { "code": 200 }
+      "http_request": {
+        "method": "GET",
+        "url": { "path": "/api/v1/orders", "hostname": "api.example.com" },
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
       },
-      "actor": {
-        "user": {
-          "uid": "arn:aws:iam::814726593401:user/alice",
-          "name": "alice",
-          "type": "IAMUser"
-        },
-        "session": { "uid": "ASIAG4CJ4NEGI7T", "is_mfa": true }
-      },
-      "src_endpoint": { "ip": "198.9.128.8" }
+      "http_response": { "code": 200 },
+      "src_endpoint": { "ip": "36.127.132.71" },
+      "dst_endpoint": { "ip": "91.209.150.46" }
     },
     "s3": {
       "bucket": {
@@ -53,13 +46,13 @@
         "arn": "arn:aws:s3:::aws-securitylake-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/securitylake/eu-south-2/2026/04/10/securitylake_GEN69IBCGI.log.gz"
+        "key": "AWSLogs/814726593401/securitylake/ap-southeast-3/2026/04/10/securitylake_N9BKE8WTHSG.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securitylake/logs",
-      "log_stream": "eu-south-2/c42kf89m",
-      "ingestion_time": "2026-04-10T08:43:16.062Z"
+      "log_stream": "ap-southeast-3/eheohjaf",
+      "ingestion_time": "2026-04-10T11:57:57.738Z"
     }
   },
   "event": {
@@ -69,16 +62,16 @@
     "provider": "securitylake.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security Lake [API Activity/Read] Medium: CloudTrail success",
-  "log": { "level": "warn" },
+  "message": "Security Lake [HTTP Activity/Read] Low: ALB success",
+  "log": { "level": "info" },
   "service": { "name": "securitylake", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.securitylake", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "530zf7m9a7d"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "e4udcq95ra"
   },
   "input": { "type": "http_endpoint" }
 }

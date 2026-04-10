@@ -3,43 +3,47 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "australia-southeast1",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "australia-southeast2",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-australia-southeast1",
-    "ephemeral_id": "yvnbyxyy3bq"
+    "name": "metricbeat-gcp-australia-southeast2",
+    "ephemeral_id": "47k2l2hht8i"
   },
   "gcp": {
-    "storage-transfer": {
+    "cloud-storage": {
       "metrics": {
-        "request_count": { "avg": 96386, "sum": 96386, "count": 1 },
-        "error_count": { "avg": 0, "sum": 0, "count": 1 },
-        "latency": { "avg": 70.85, "sum": 70.85, "count": 1 }
+        "storage_bytes": { "avg": 33325940675, "sum": 33325940675, "count": 1 },
+        "object_count": { "avg": 6550942, "sum": 6550942, "count": 1 },
+        "api_request_count": { "avg": 3293, "sum": 3293, "count": 1 },
+        "errors": { "avg": 0, "sum": 0, "count": 1 }
       },
-      "labels": { "resource_id": "resource-a" }
+      "labels": { "bucket_name": "data-lake" }
     }
   },
-  "metricset": { "name": "storage-transfer", "period": 60000 },
-  "data_stream": { "type": "metrics", "dataset": "gcp.storagetransfer", "namespace": "default" },
+  "metricset": { "name": "cloud-storage", "period": 60000 },
+  "data_stream": { "type": "metrics", "dataset": "gcp.gcs_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.storagetransfer", "module": "gcp" },
+  "event": { "dataset": "gcp.gcs_metrics", "module": "gcp" },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/storage-transfer/request_count",
+      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-storage/storage_bytes",
       "labels": {}
     },
     "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-prod-a1b2c3", "region": "australia-southeast1" }
+      "type": "gcs_bucket",
+      "labels": { "project_id": "globex-shared-m3n4o5", "region": "australia-southeast2" }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 96386 } }
+      {
+        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
+        "value": { "doubleValue": 33325940675 }
+      }
     ]
   }
 }

@@ -12,8 +12,22 @@ export interface ValidationResult {
   message?: string;
 }
 
+/** Hostnames where HTTP is allowed (local Elasticsearch). */
+function isLocalDevHost(hostname: string): boolean {
+  const h = hostname.toLowerCase();
+  return (
+    h === "localhost" ||
+    h === "127.0.0.1" ||
+    h === "0.0.0.0" ||
+    h === "::1" ||
+    h.startsWith("[::1]") ||
+    h === "[::1]"
+  );
+}
+
 /**
  * Validates Elasticsearch / Elastic Cloud URL.
+ * HTTPS is required except on localhost-style hosts, where HTTP is allowed for local clusters.
  */
 export function validateElasticUrl(value: unknown): ValidationResult {
   if (!value || typeof value !== "string") {
@@ -25,13 +39,23 @@ export function validateElasticUrl(value: unknown): ValidationResult {
   }
   try {
     const u = new URL(trimmed.startsWith("http") ? trimmed : `https://${trimmed}`);
-    if (u.protocol !== "https:") {
-      return { valid: false, message: "URL must use HTTPS." };
+    if (u.protocol !== "https:" && u.protocol !== "http:") {
+      return { valid: false, message: "URL must use HTTP or HTTPS." };
     }
-    if (!u.hostname || u.hostname.length < 4) {
+    if (u.protocol === "http:" && !isLocalDevHost(u.hostname)) {
+      return {
+        valid: false,
+        message: "HTTP is only allowed for local development (e.g. http://localhost:9200). Use HTTPS elsewhere.",
+      };
+    }
+    if (!u.hostname || u.hostname.length < 2) {
       return { valid: false, message: "Invalid hostname." };
     }
-    if (!u.hostname.includes(".")) {
+    const relaxedLocal = isLocalDevHost(u.hostname);
+    if (!relaxedLocal && u.hostname.length < 4) {
+      return { valid: false, message: "Invalid hostname." };
+    }
+    if (!relaxedLocal && !u.hostname.includes(".")) {
       return {
         valid: false,
         message: "Enter a valid Elasticsearch URL (hostname should contain a domain).",
@@ -68,8 +92,7 @@ export function validateApiKey(value: unknown): ValidationResult {
 
 /**
  * Tests connectivity to an Elasticsearch cluster via the proxy.
- * Sends a lightweight GET / request and validates the response.
- * Returns { valid: true, version } on success or { valid: false, message } on failure.
+ * Uses GET / on the cluster (read-only, no index footprint).
  */
 export async function testConnection(
   elasticUrl: string,
@@ -77,15 +100,16 @@ export async function testConnection(
 ): Promise<ValidationResult & { version?: string }> {
   try {
     const url = elasticUrl.replace(/\/$/, "");
-    const res = await fetch(`/proxy/_bulk`, {
+    const res = await fetch(`/proxy`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/x-ndjson",
+        "Content-Type": "application/json",
         "x-elastic-url": url,
         "x-elastic-key": apiKey,
+        "x-elastic-path": "/",
+        "x-elastic-method": "GET",
       },
-      // Send empty body — Elasticsearch responds with an error but proves connectivity + auth
-      body: '{"index":{"_index":"_test_connection_probe"}}\n{"@timestamp":"2024-01-01T00:00:00Z"}\n',
+      body: "",
     });
     if (res.status === 401 || res.status === 403) {
       return { valid: false, message: "Authentication failed — check your API key." };
@@ -97,8 +121,21 @@ export async function testConnection(
         message: `Cannot reach Elasticsearch — ${(json as Record<string, string>).error || res.statusText}`,
       };
     }
-    // Any 2xx or even a 400 (bad index) means the cluster is reachable and auth works
-    return { valid: true };
+    if (res.status < 200 || res.status >= 300) {
+      return {
+        valid: false,
+        message: `Unexpected response (${res.status}) — check the URL and cluster availability.`,
+      };
+    }
+    let version: string | undefined;
+    try {
+      const data = (await res.json()) as { version?: { number?: string } };
+      const n = data?.version?.number;
+      if (typeof n === "string" && n.length > 0) version = n;
+    } catch {
+      /* non-JSON body — still connected */
+    }
+    return { valid: true, ...(version ? { version } : {}) };
   } catch (e) {
     return {
       valid: false,

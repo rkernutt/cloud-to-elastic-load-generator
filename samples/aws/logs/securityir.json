@@ -1,23 +1,23 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
+    "region": "ca-west-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "securityir" }
   },
   "aws": {
-    "dimensions": { "CaseId": "case-ggh9ipk4", "Severity": "MEDIUM" },
+    "dimensions": { "CaseId": "case-aotpidg6", "Severity": "LOW" },
     "securityir": {
-      "case_id": "case-ggh9ipk4",
-      "case_title": "Insider threat",
-      "case_status": "ERADICATION",
-      "severity": "MEDIUM",
-      "impacted_account_count": 10,
-      "impacted_services": "ECS,ECR",
-      "resolver_type": "AWS",
-      "engagement_type": "INVESTIGATION",
-      "case_arn": "arn:aws:security-ir:eu-central-2:293847561023:case/case-ggh9ipk4"
+      "case_id": "case-aotpidg6",
+      "case_title": "Credential compromise",
+      "case_status": "CLOSED_WITH_UNRESOLVED_ITEMS",
+      "severity": "LOW",
+      "impacted_account_count": 9,
+      "impacted_services": "Lambda,DynamoDB",
+      "resolver_type": "THIRD_PARTY",
+      "engagement_type": "COMPROMISE_ASSESSMENT",
+      "case_arn": "arn:aws:security-ir:ca-west-1:293847561023:case/case-aotpidg6"
     },
     "s3": {
       "bucket": {
@@ -25,33 +25,38 @@
         "arn": "arn:aws:s3:::aws-securityir-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/securityir/eu-central-2/2026/04/10/securityir_GJ6IGURU8MF.log.gz"
+        "key": "AWSLogs/293847561023/securityir/ca-west-1/2026/04/10/securityir_O5J1FJ1Z8HR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securityir/logs",
-      "log_stream": "eu-central-2/vyn8wli7",
-      "ingestion_time": "2026-04-10T08:43:16.078Z"
+      "log_stream": "ca-west-1/he4xwor4",
+      "ingestion_time": "2026-04-10T11:57:57.748Z"
     }
   },
   "event": {
     "action": "CreateCase",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["intrusion_detection", "process"],
     "dataset": "aws.securityir",
     "provider": "security-ir.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security IR CreateCase: case=case-ggh9ipk4 severity=MEDIUM status=ERADICATION",
-  "log": { "level": "warn" },
+  "message": "Security IR CreateCase FAILED [case-aotpidg6]: Invalid state transition",
+  "log": { "level": "error" },
+  "error": {
+    "code": "AccessDeniedException",
+    "message": "Security IR operation failed",
+    "type": "security"
+  },
   "service": { "name": "securityir", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.securityir", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "a5ryvic76ri"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "ij7pyzinsrk"
   },
   "input": { "type": "http_endpoint" }
 }

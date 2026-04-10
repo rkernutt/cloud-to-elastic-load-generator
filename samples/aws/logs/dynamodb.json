@@ -1,39 +1,40 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
+    "region": "ap-south-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "dynamodb" }
   },
   "aws": {
-    "dimensions": { "TableName": "products", "Operation": "Scan" },
+    "dimensions": { "TableName": "sessions", "Operation": "UpdateItem" },
     "dynamodb": {
-      "table_name": "products",
-      "operation": "Scan",
-      "consumed_read_capacity_units": 28.384162591781273,
-      "consumed_write_capacity_units": 8.520572094859352,
-      "items_count": 687,
+      "table_name": "sessions",
+      "operation": "UpdateItem",
+      "consumed_read_capacity_units": 14.332513224548363,
+      "consumed_write_capacity_units": 46.02350809097027,
+      "items_count": 27,
       "structured_logging": false,
+      "error_code": "TransactionCanceledException",
       "metrics": {
-        "AccountMaxReads": { "max": 779898 },
-        "AccountMaxWrites": { "max": 521340 },
-        "AccountMaxTableLevelReads": { "max": 15528 },
-        "AccountMaxTableLevelWrites": { "max": 74792 },
-        "AccountProvisionedReadCapacityUtilization": { "avg": 20.32497800192146 },
-        "ConsumedReadCapacityUnits": { "sum": 936 },
-        "ConsumedWriteCapacityUnits": { "sum": 74 },
-        "ProvisionedReadCapacityUnits": { "avg": 7081 },
-        "ProvisionedWriteCapacityUnits": { "avg": 4062 },
-        "ReadThrottleEvents": { "sum": 0 },
-        "WriteThrottleEvents": { "sum": 0 },
-        "SystemErrors": { "sum": 0 },
-        "UserErrors": { "sum": 0 },
-        "SuccessfulRequestLatency": { "avg": 1.368145976505211, "max": 1.7247551473268836 },
-        "ThrottledRequests": { "sum": 0 },
+        "AccountMaxReads": { "max": 72318 },
+        "AccountMaxWrites": { "max": 480275 },
+        "AccountMaxTableLevelReads": { "max": 5588 },
+        "AccountMaxTableLevelWrites": { "max": 7914 },
+        "AccountProvisionedReadCapacityUtilization": { "avg": 94.15243165338447 },
+        "ConsumedReadCapacityUnits": { "sum": 747 },
+        "ConsumedWriteCapacityUnits": { "sum": 269 },
+        "ProvisionedReadCapacityUnits": { "avg": 1973 },
+        "ProvisionedWriteCapacityUnits": { "avg": 3358 },
+        "ReadThrottleEvents": { "sum": 94 },
+        "WriteThrottleEvents": { "sum": 71 },
+        "SystemErrors": { "sum": 1 },
+        "UserErrors": { "sum": 3 },
+        "SuccessfulRequestLatency": { "avg": 44.97385038280108, "max": 171.06110390968362 },
+        "ThrottledRequests": { "sum": 45 },
         "TransactionConflict": { "sum": 0 },
-        "ReturnedItemCount": { "avg": 549 },
-        "ReturnedBytes": { "avg": 319050 }
+        "ReturnedItemCount": { "avg": 368 },
+        "ReturnedBytes": { "avg": 468387 }
       }
     },
     "s3": {
@@ -42,37 +43,40 @@
         "arn": "arn:aws:s3:::aws-dynamodb-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/dynamodb/eu-south-1/2026/04/10/dynamodb_R4ZA7CSDNSS.log.gz"
+        "key": "AWSLogs/293847561023/dynamodb/ap-south-1/2026/04/10/dynamodb_BUGXR2EDU0A.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/dynamodb/logs",
-      "log_stream": "eu-south-1/yw5lf6g6",
-      "ingestion_time": "2026-04-10T08:43:16.122Z"
+      "log_stream": "ap-south-1/l9cx1gs1",
+      "ingestion_time": "2026-04-10T11:57:57.777Z"
     }
   },
-  "db": { "name": "products", "operation": "Scan", "type": "nosql" },
+  "db": { "name": "sessions", "operation": "UpdateItem", "type": "nosql" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["database"],
-    "type": ["access"],
+    "type": ["error"],
     "dataset": "aws.dynamodb",
     "provider": "dynamodb.amazonaws.com",
-    "duration": 47000000,
+    "duration": 105000000,
     "module": "aws"
   },
-  "message": "DynamoDB Scan products: consumed 28.384162591781273 RCU, 8.520572094859352 WCU",
-  "log": { "level": "info" },
-  "trace": { "id": "PYXP0VZRXBD" },
-  "transaction": { "id": "7QCV797HF49" },
+  "message": "DynamoDB UpdateItem sessions: ItemCollectionSizeLimitExceededException",
+  "log": { "level": "error" },
+  "error": {
+    "code": "LimitExceededException",
+    "message": "DynamoDB UpdateItem failed",
+    "type": "db"
+  },
   "service": { "name": "dynamodb", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.dynamodb", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "ev3iaymrzms"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "qciw88phpor"
   },
   "input": { "type": "aws-cloudwatch" }
 }

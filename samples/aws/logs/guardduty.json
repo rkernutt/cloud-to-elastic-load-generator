@@ -1,93 +1,104 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-southeast-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "8g3oqzcubva" },
+    "dimensions": { "DetectorId": "v5avx3icyi9" },
     "guardduty": {
       "schema_version": "2.0",
-      "account_id": "293847561023",
-      "region": "eu-central-2",
+      "account_id": "164820739518",
+      "region": "ap-southeast-1",
       "partition": "aws",
-      "id": "tce84h3pt",
-      "arn": "arn:aws:guardduty:eu-central-2:293847561023:detector/8g3oqzcubva/finding/tce84h3pt",
-      "type": "InitialAccess:IAMUser/AnomalousBehavior",
-      "title": "IAMUser AnomalousBehavior",
-      "description": "GuardDuty detected suspicious activity: InitialAccess:IAMUser/AnomalousBehavior",
-      "created_at": "2026-04-10T08:43:15.441Z",
-      "updated_at": "2026-04-10T08:43:15.441Z",
-      "severity": { "code": 7, "value": "High" },
-      "confidence": 67.85558350674363,
+      "id": "9zo4xbcfq7t",
+      "arn": "arn:aws:guardduty:ap-southeast-1:164820739518:detector/v5avx3icyi9/finding/9zo4xbcfq7t",
+      "type": "Trojan:EC2/DNSDataExfiltration",
+      "title": "EC2 DNSDataExfiltration",
+      "description": "GuardDuty detected suspicious activity: Trojan:EC2/DNSDataExfiltration",
+      "created_at": "2026-04-10T11:57:57.329Z",
+      "updated_at": "2026-04-10T11:57:57.329Z",
+      "severity": { "code": 8, "value": "High" },
+      "confidence": 76.5337207641146,
       "resource": {
-        "type": "Instance",
+        "type": "EKSCluster",
         "instance_details": {
-          "availability_zone": "eu-central-2a",
-          "instance": { "id": "i-v3oj3x1zgu", "type": "m5.large", "state": "running" },
-          "image": { "id": "ami-rcpq7nyf", "description": "Amazon Linux 2" },
+          "availability_zone": "ap-southeast-1c",
+          "instance": { "id": "i-l9izlq9iile", "type": "t3.medium", "state": "running" },
+          "image": { "id": "ami-8bme3h82", "description": "Amazon Linux 2" },
           "network_interfaces": [
             {
-              "network_interface_id": "eni-f7y3k64d",
-              "private_ip_address": "202.106.112.95",
-              "subnet_id": "subnet-x2ixs1nz",
-              "vpc_id": "vpc-agkzuzqe",
-              "security_groups": [{ "group_id": "sg-7co4lbrm", "group_name": "default" }]
+              "network_interface_id": "eni-7799l7l5",
+              "private_ip_address": "43.199.8.173",
+              "subnet_id": "subnet-2nmhx5nc",
+              "vpc_id": "vpc-otsba9me",
+              "security_groups": [{ "group_id": "sg-12o3gbuo", "group_name": "default" }]
             }
           ]
         }
       },
       "service": {
-        "detector_id": "8g3oqzcubva",
-        "count": 82,
+        "detector_id": "v5avx3icyi9",
+        "count": 427,
         "archived": false,
-        "action": { "action_type": "DNS_REQUEST" }
+        "action": { "action_type": "AWS_API_CALL" },
+        "evidence": {
+          "threat_intelligence_details": [
+            { "threat_names": ["DenialOfService"], "threat_list_name": "ProofPoint" }
+          ]
+        }
       },
       "metrics": {
-        "FindingCount": { "sum": 28 },
-        "HighSeverityFindingCount": { "sum": 1 },
+        "FindingCount": { "sum": 13 },
+        "HighSeverityFindingCount": { "sum": 3 },
         "MediumSeverityFindingCount": { "sum": 0 },
         "LowSeverityFindingCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-guardduty-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-guardduty-logs-293847561023"
+        "name": "aws-guardduty-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-guardduty-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/guardduty/eu-central-2/2026/04/10/guardduty_O19XHXCOQN.log.gz"
+        "key": "AWSLogs/164820739518/guardduty/ap-southeast-1/2026/04/10/guardduty_OJD97V6MFE.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/guardduty/logs",
-      "log_stream": "eu-central-2/ekmeh3xe",
-      "ingestion_time": "2026-04-10T08:43:16.040Z"
+      "log_stream": "ap-southeast-1/sbf4mshs",
+      "ingestion_time": "2026-04-10T11:57:57.722Z"
     }
   },
-  "rule": {
-    "category": "intrusion_detection",
-    "ruleset": "InitialAccess",
-    "name": "InitialAccess:IAMUser/AnomalousBehavior"
+  "rule": { "category": "malware", "ruleset": "Trojan", "name": "Trojan:EC2/DNSDataExfiltration" },
+  "threat": { "indicator": [{ "type": "domain", "value": "suspicious-i590z8cg.example.com" }] },
+  "source": {
+    "ip": "62.250.182.12",
+    "geo": {
+      "country_iso_code": "GB",
+      "country_name": "United Kingdom",
+      "city_name": "London",
+      "location": { "lat": 51.5074, "lon": -0.1278 }
+    }
   },
-  "threat": { "indicator": [{ "type": "ip", "value": "154.174.204.29" }] },
+  "destination": { "ip": "62.35.160.82" },
   "event": {
     "kind": "alert",
-    "severity": 7,
+    "severity": 8,
     "outcome": "failure",
-    "category": ["intrusion_detection"],
+    "category": ["malware"],
     "type": ["indicator"],
     "dataset": "aws.guardduty",
     "provider": "guardduty.amazonaws.com",
     "module": "aws"
   },
-  "message": "GuardDuty finding [High]: InitialAccess:IAMUser/AnomalousBehavior",
+  "message": "GuardDuty finding [High]: Trojan:EC2/DNSDataExfiltration",
   "log": { "level": "error" },
   "error": {
     "code": "ThreatFinding",
-    "message": "GuardDuty finding: InitialAccess:IAMUser/AnomalousBehavior",
+    "message": "GuardDuty finding: Trojan:EC2/DNSDataExfiltration",
     "type": "security"
   },
   "service": { "name": "guardduty", "type": "aws" },
@@ -96,8 +107,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "tx5mkv9muz"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "xz9kxa0jeji"
   },
   "input": { "type": "http_endpoint" }
 }

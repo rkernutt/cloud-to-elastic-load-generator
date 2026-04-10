@@ -1,48 +1,61 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
     "region": "us-east-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "lookoutvision" }
   },
   "aws": {
-    "dimensions": { "ProjectName": "circuit-board-inspection", "ModelVersion": "4.0" },
+    "dimensions": { "ProjectName": "pcb-solder-inspection", "ModelVersion": "4.0" },
     "lookoutvision": {
-      "project_name": "circuit-board-inspection",
+      "project_name": "pcb-solder-inspection",
       "model_version": "4.0",
-      "model_arn": "arn:aws:lookoutvision:us-east-1:738291046572:model/circuit-board-inspection/4.0",
-      "event_type": "DescribeModelPackagingJob",
-      "image_source": "s3",
-      "image_key": "inspections/circuit-board-inspection/wmf3wgj0i3m.jpg",
-      "is_anomalous": false,
-      "confidence": 0.8828360773524875
+      "model_arn": "arn:aws:lookoutvision:us-east-1:501938274650:model/pcb-solder-inspection/4.0",
+      "event_type": "StartModelTrainingJob",
+      "image_source": "camera-stream",
+      "is_anomalous": true,
+      "confidence": 0.9727726783021319,
+      "anomaly_label": "dent",
+      "anomaly_mask_uri": "s3://lookoutvision-masks-501938274650/pcb-solder-inspection/evmhdhm9.png",
+      "training": {
+        "status": "TRAINED",
+        "f1_score": 0.9967322653904561,
+        "recall": 0.9918906809206104,
+        "precision": 0.9204195450600114
+      },
+      "error_code": "ThrottlingException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-lookoutvision-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-lookoutvision-logs-738291046572"
+        "name": "aws-lookoutvision-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-lookoutvision-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/lookoutvision/us-east-1/2026/04/10/lookoutvision_GWBT312UTQL.log.gz"
+        "key": "AWSLogs/501938274650/lookoutvision/us-east-1/2026/04/10/lookoutvision_HJ2DKFHI8SE.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lookoutvision/logs",
-      "log_stream": "us-east-1/4grs4up4",
-      "ingestion_time": "2026-04-10T08:43:16.272Z"
+      "log_stream": "us-east-1/id1wf8op",
+      "ingestion_time": "2026-04-10T11:57:57.852Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.lookoutvision",
     "provider": "lookoutvision.amazonaws.com",
-    "duration": 230000000,
+    "duration": 1563000000,
     "module": "aws"
   },
-  "message": "Lookout for Vision [circuit-board-inspection] OK confidence=0.883 230ms",
-  "log": { "level": "info" },
+  "message": "Lookout for Vision [pcb-solder-inspection v4.0] StartModelTrainingJob FAILED: Quota exceeded",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ServiceQuotaExceededException",
+    "message": "Lookout for Vision operation failed",
+    "type": "process"
+  },
   "service": { "name": "lookoutvision", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lookoutvision", "namespace": "default" },
@@ -50,7 +63,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "r6swf97ma2"
+    "ephemeral_id": "adlcji0esy"
   },
   "input": { "type": "aws-cloudwatch" }
 }

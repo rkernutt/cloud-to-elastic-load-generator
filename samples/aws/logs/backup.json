@@ -1,54 +1,56 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-southeast-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "backup" }
   },
   "aws": {
     "backup": {
-      "backup_job_id": "y4mwdvv9-awi5-m24f",
-      "backup_plan_name": "weekly-cold",
-      "resource_type": "EC2",
+      "backup_job_id": "4v2sv2u6-84u0-dn8m",
+      "backup_plan_name": "compliance-backup",
+      "resource_type": "EFS",
       "backup_vault_name": "Default",
-      "status": "COMPLETED",
-      "backup_size_gb": 1491.351876684544,
-      "lifecycle_delete_after_days": 90
+      "status": "EXPIRED",
+      "backup_size_gb": 0,
+      "lifecycle_delete_after_days": 365,
+      "error_code": "IAM_ROLE_ERROR"
     },
     "s3": {
       "bucket": {
-        "name": "aws-backup-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-backup-logs-293847561023"
+        "name": "aws-backup-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-backup-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/backup/eu-north-1/2026/04/10/backup_4R6EK3872WS.log.gz"
+        "key": "AWSLogs/814726593401/backup/ap-southeast-2/2026/04/10/backup_RDEM6775D5S.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/backup/logs",
-      "log_stream": "eu-north-1/nh2u65yv",
-      "ingestion_time": "2026-04-10T08:43:16.118Z"
+      "log_stream": "ap-southeast-2/q9yf6meg",
+      "ingestion_time": "2026-04-10T11:57:57.775Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.backup",
     "provider": "backup.amazonaws.com",
-    "duration": 288000000000,
+    "duration": 1165000000000,
     "module": "aws"
   },
-  "message": "AWS Backup COMPLETED: efs/fs-prod -> Default (1491.4GB)",
-  "log": { "level": "info" },
+  "message": "AWS Backup FAILED for efs/fs-prod: Resource locked",
+  "log": { "level": "error" },
+  "error": { "code": "LIMIT_EXCEEDED", "message": "Backup job failed", "type": "storage" },
   "service": { "name": "backup", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.backup", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "zn5mgvu9gm"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "8e8cj1227mn"
   },
   "input": { "type": "aws-cloudwatch" }
 }

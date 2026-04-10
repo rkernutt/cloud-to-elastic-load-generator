@@ -1,61 +1,56 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-east-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "proton" }
   },
   "aws": {
-    "dimensions": { "EnvironmentName": "sandbox-env", "ServiceName": "api-service" },
+    "dimensions": { "EnvironmentName": "prod-env", "ServiceName": "api-service" },
     "proton": {
-      "environment_name": "sandbox-env",
+      "environment_name": "prod-env",
       "service_name": "api-service",
-      "service_instance_name": "staging-instance",
-      "template_name": "k8s-env-template",
-      "template_major_version": "3",
-      "deployment_status": "FAILED",
-      "component": "component"
+      "service_instance_name": "prod-instance",
+      "template_name": "lambda-service-template",
+      "template_major_version": "1",
+      "deployment_status": "SUCCEEDED",
+      "component": "service_instance"
     },
     "s3": {
       "bucket": {
-        "name": "aws-proton-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-proton-logs-293847561023"
+        "name": "aws-proton-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-proton-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/proton/ap-southeast-3/2026/04/10/proton_F611OQTK2JT.log.gz"
+        "key": "AWSLogs/814726593401/proton/ap-east-1/2026/04/10/proton_VY9VZ6EZ8D.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/proton/logs",
-      "log_stream": "ap-southeast-3/vtu7d92r",
-      "ingestion_time": "2026-04-10T08:43:16.470Z"
+      "log_stream": "ap-east-1/sj4z5j05",
+      "ingestion_time": "2026-04-10T11:57:57.918Z"
     }
   },
   "event": {
-    "action": "UpdateEnvironment",
-    "outcome": "failure",
+    "action": "UpdateService",
+    "outcome": "success",
     "category": ["configuration"],
     "dataset": "aws.proton",
     "provider": "proton.amazonaws.com",
-    "duration": 25000000000,
+    "duration": 115000000000,
     "module": "aws"
   },
-  "message": "Proton component api-service deployment FAILED on k8s-env-template",
-  "log": { "level": "error" },
-  "error": {
-    "code": "FAILED",
-    "message": "Proton deployment failed for api-service",
-    "type": "configuration"
-  },
+  "message": "Proton service_instance api-service UpdateService SUCCEEDED",
+  "log": { "level": "info" },
   "service": { "name": "proton", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.proton", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "um2xbrbhgc"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "vrnufgcjq8"
   },
   "input": { "type": "aws-cloudwatch" }
 }

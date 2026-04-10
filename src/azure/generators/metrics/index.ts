@@ -11,13 +11,7 @@ import type { MetricGenerator } from "../../../aws/generators/types.js";
 import { makeAzureGenericMetricGenerator } from "./generic.js";
 import { mergeAzureMetricVariants } from "../mergeHelpers.js";
 import { M365_METRICS_GENERATORS } from "../../../m365/generators/metrics/index.js";
-
-const O365_METRIC_SERVICE_IDS = new Set([
-  "active-users-services",
-  "teams-user-activity",
-  "outlook-activity",
-  "onedrive-usage-storage",
-]);
+import { M365_METRIC_SERVICE_IDS_FOR_AZURE } from "../../../cloud/m365Config.js";
 
 function azureMetricsDataset(svcId: string): string {
   return (
@@ -47,7 +41,7 @@ const BASE: Record<string, MetricGenerator> = Object.fromEntries(
     .sort()
     .map((id) => [
       id,
-      O365_METRIC_SERVICE_IDS.has(id) ? M365_METRICS_GENERATORS[id]! : metricGenForId(id),
+      M365_METRIC_SERVICE_IDS_FOR_AZURE.has(id) ? M365_METRICS_GENERATORS[id]! : metricGenForId(id),
     ])
 );
 

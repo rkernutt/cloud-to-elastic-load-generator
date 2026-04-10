@@ -1,62 +1,69 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
-  "trace": { "id": "1-69d8b823-cfwvy1sslt4" },
-  "span": { "id": "ccqbe5zn45e" },
+  "@timestamp": "2026-04-10T11:57:57.329Z",
+  "trace": { "id": "1-69d8e5c5-pbfild9hukm" },
+  "span": { "id": "frjbjebadab" },
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "sa-east-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "xray" }
   },
   "aws": {
-    "dimensions": { "GroupName": "Default", "ServiceType": "AWS::Lambda::Function" },
+    "dimensions": { "GroupName": "Default", "ServiceType": "AWS::ApiGateway::Stage" },
     "xray": {
-      "trace_id": "1-69d8b823-cfwvy1sslt4",
-      "segment_id": "ccqbe5zn45e",
-      "parent_id": "etdfuo07of7",
-      "service": { "name": "lambda-function", "type": "AWS::Lambda::Function" },
-      "duration": 1.1776650754775722,
+      "trace_id": "1-69d8e5c5-pbfild9hukm",
+      "segment_id": "frjbjebadab",
+      "parent_id": "u7lnjxykbl",
+      "service": { "name": "api-gateway", "type": "AWS::ApiGateway::Stage" },
+      "duration": 0.4414954714253904,
       "fault": false,
       "error": false,
       "throttle": false,
       "http": {
-        "request": { "method": "DELETE", "url": "/health" },
-        "response": { "status": 201 }
+        "request": { "method": "PUT", "url": "/api/v2/events" },
+        "response": { "status": 204 }
       },
       "annotations": { "env": "prod", "version": "v9" },
       "subsegments": [
         {
-          "id": "glvinidobsd",
-          "name": "DynamoDB.PutItem",
+          "id": "9uxtkk9j0i6",
+          "name": "DynamoDB.Query",
           "namespace": "remote",
-          "duration": 0.11607623709001262,
+          "duration": 0.39819253378366626,
+          "fault": false
+        },
+        {
+          "id": "swrup0p87fi",
+          "name": "ElastiCache.set",
+          "namespace": "remote",
+          "duration": 0.13860528273680567,
           "fault": false
         }
       ],
       "metrics": {
-        "ErrorRate": { "avg": 0.12015102040601411 },
-        "FaultRate": { "avg": 0.34498809395040936 },
-        "ThrottleRate": { "avg": 0.44131578867746973 },
-        "TotalCount": { "sum": 3324 },
-        "Latency": { "avg": 1177.6650754775721, "p99": 3532.9952264327167 }
+        "ErrorRate": { "avg": 0.13943346725857353 },
+        "FaultRate": { "avg": 0.19180090431932245 },
+        "ThrottleRate": { "avg": 0.0482523649034029 },
+        "TotalCount": { "sum": 6698 },
+        "Latency": { "avg": 441.4954714253904, "p99": 1324.4864142761712 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-xray-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-xray-logs-164820739518"
+        "name": "aws-xray-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-xray-logs-738291046572"
       },
-      "object": { "key": "AWSLogs/164820739518/xray/us-east-2/2026/04/10/xray_53RDN4NOOBM.log.gz" }
+      "object": { "key": "AWSLogs/738291046572/xray/sa-east-1/2026/04/10/xray_2UVMLI17FC9.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/xray/logs",
-      "log_stream": "us-east-2/7zemrf6v",
-      "ingestion_time": "2026-04-10T08:43:16.200Z"
+      "log_stream": "sa-east-1/zp20utky",
+      "ingestion_time": "2026-04-10T11:57:57.808Z"
     }
   },
-  "http": { "request": { "method": "DELETE" }, "response": { "status_code": 201 } },
+  "http": { "request": { "method": "PUT" }, "response": { "status_code": 204 } },
   "event": {
-    "duration": 1177665075,
+    "duration": 441495471,
     "outcome": "success",
     "category": ["network"],
     "type": ["connection"],
@@ -64,7 +71,7 @@
     "provider": "xray.amazonaws.com",
     "module": "aws"
   },
-  "message": "X-Ray: lambda-function DELETE → 201 (1.178s)",
+  "message": "X-Ray: api-gateway PUT → 204 (0.441s)",
   "log": { "level": "info" },
   "service": { "name": "xray", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -72,8 +79,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "d52fh8cyzh"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "ny8y6ygitic"
   },
   "input": { "type": "http_endpoint" }
 }

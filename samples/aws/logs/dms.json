@@ -1,69 +1,49 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
-    "service": { "name": "dms" }
+    "region": "eu-south-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
+    "service": { "name": "dms-serverless" }
   },
   "aws": {
-    "dimensions": { "ReplicationInstanceIdentifier": "dms-analytics-91w0sw9d" },
-    "dms": {
-      "replication_task_id": "on-prem-to-rds",
-      "migration_type": "full-load",
-      "replication_instance_identifier": "dms-analytics-91w0sw9d",
-      "source_engine": "mysql",
-      "target_engine": "aurora-postgresql",
-      "replication_instance_class": "dms.r5.large",
-      "task_status": "Load complete",
-      "full_load_rows_transferred": 7381448,
-      "cdc_incoming_changes": 0,
-      "latency_ms": 0,
-      "tables_loaded": 75,
+    "dmsserverless": {
+      "replication_config": "mongo-to-dynamodb",
+      "replication_type": "full-load",
+      "provisioned_capacity": 36,
+      "min_capacity": 1,
+      "max_capacity": 64,
+      "tables_loaded": 151,
+      "tables_loading": 3,
       "tables_errored": 0,
-      "metrics": {
-        "FullLoadThroughputRowsSource": { "avg": 47534 },
-        "FullLoadThroughputRowsTarget": { "avg": 66036 },
-        "CPUUtilization": { "avg": 40.9753436138609 },
-        "FreeableMemory": { "avg": 4305780147 },
-        "FreeStorageSpace": { "avg": 7611445337 },
-        "NetworkReceiveThroughput": { "avg": 35073283 },
-        "NetworkTransmitThroughput": { "avg": 95922854 },
-        "ReadIOPS": { "avg": 2314 },
-        "WriteIOPS": { "avg": 1552 }
-      }
+      "cdc_latency_seconds": 0,
+      "rows_applied": 952640,
+      "bytes_transferred": 518701354
     },
     "s3": {
       "bucket": {
-        "name": "aws-dms-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-dms-logs-814726593401"
+        "name": "aws-dms-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-dms-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/814726593401/dms/il-central-1/2026/04/10/dms_FA2GY510V2E.log.gz" }
+      "object": { "key": "AWSLogs/293847561023/dms/eu-south-2/2026/04/10/dms_JOJM7EJKWXC.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/dms/logs",
-      "log_stream": "il-central-1/ik0qdqzb",
-      "ingestion_time": "2026-04-10T08:43:16.299Z"
+      "log_stream": "eu-south-2/zf83hup5",
+      "ingestion_time": "2026-04-10T11:57:57.880Z"
     }
   },
-  "event": {
-    "outcome": "success",
-    "category": ["database", "process"],
-    "dataset": "aws.dms",
-    "provider": "dms.amazonaws.com",
-    "duration": 11944000000000,
-    "module": "aws"
-  },
-  "message": "DMS on-prem-to-rds: 7,381,448 rows (mysql->aurora-postgresql full-load)",
-  "log": { "level": "info" },
+  "event": { "outcome": "success", "duration": 197244479, "module": "aws", "dataset": "aws.dms" },
+  "message": "DMS Serverless mongo-to-dynamodb: full-load active (36 DCU, 1808 rows/s)",
   "service": { "name": "dms", "type": "aws" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.dms", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "h4w41lr6l0d"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "4nqzh81n7qi"
   },
   "input": { "type": "aws-cloudwatch" }
 }

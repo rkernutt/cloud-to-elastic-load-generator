@@ -2,57 +2,54 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west2",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
-    "service": { "name": "discoveryengine.googleapis.com" }
+    "region": "europe-southwest1",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" },
+    "service": { "name": "aiplatform.googleapis.com" }
   },
   "gcp": {
-    "vertex_ai_search": {
-      "engine_name": "search-commerce-kzes",
-      "query": "running shoes",
-      "results_count": 30,
-      "search_type": "SEARCH",
-      "serving_config": "projects/globex-prod-a1b2c3/locations/global/collections/default_collection/engines/search-commerce-kzes/servingConfigs/default_search",
-      "latency_ms": 163,
-      "session_id": "search-ka4zc5smzj"
+    "vertex_ai": {
+      "endpoint_id": "ep-hdvc4k07",
+      "model_name": "tabular-classifier",
+      "model_version": "v10",
+      "prediction_type": "batch",
+      "instances_count": 52,
+      "latency_ms": 599,
+      "accelerator_type": "NVIDIA_H100",
+      "machine_type": "n1-highmem-8"
     }
   },
-  "event": {
-    "outcome": "success",
-    "duration": 163,
-    "module": "gcp",
-    "dataset": "gcp.vertexaisearch"
-  },
-  "message": "Vertex AI Search SEARCH returned 30 results for \"running shoes\" (163ms)",
-  "service": { "name": "vertex-ai-search", "type": "gcp" },
+  "event": { "outcome": "success", "duration": 2396, "module": "gcp", "dataset": "gcp.vertexai" },
+  "message": "Vertex AI batch prediction completed (29 instances, 599ms)",
+  "service": { "name": "vertex-ai", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.vertexaisearch", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.vertexai", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west2",
-    "id": "45mf42td1se"
+    "name": "elastic-agent-gcp-europe-southwest1",
+    "id": "ooex8r94vs"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-prod-a1b2c3/logs/vertex-ai-search",
+  "logName": "projects/globex-shared-m3n4o5/logs/vertex-ai",
   "resource": {
-    "type": "global",
-    "labels": { "project_id": "globex-prod-a1b2c3", "region": "europe-west2" }
+    "type": "aiplatform.googleapis.com/Endpoint",
+    "labels": { "project_id": "globex-shared-m3n4o5", "region": "europe-southwest1" }
   },
   "severity": "INFO",
-  "insertId": "0M1JQ8B7OSWD",
+  "insertId": "5TTEE5ASC5C",
   "jsonPayload": {
-    "vertex_ai_search": {
-      "engine_name": "search-commerce-kzes",
-      "query": "running shoes",
-      "results_count": 30,
-      "search_type": "SEARCH",
-      "serving_config": "projects/globex-prod-a1b2c3/locations/global/collections/default_collection/engines/search-commerce-kzes/servingConfigs/default_search",
-      "latency_ms": 163,
-      "session_id": "search-ka4zc5smzj"
+    "vertex_ai": {
+      "endpoint_id": "ep-hdvc4k07",
+      "model_name": "tabular-classifier",
+      "model_version": "v10",
+      "prediction_type": "batch",
+      "instances_count": 52,
+      "latency_ms": 599,
+      "accelerator_type": "NVIDIA_H100",
+      "machine_type": "n1-highmem-8"
     },
-    "message": "Vertex AI Search SEARCH returned 30 results for \"running shoes\" (163ms)"
+    "message": "Vertex AI batch prediction completed (29 instances, 599ms)"
   }
 }

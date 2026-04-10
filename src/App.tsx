@@ -8,12 +8,9 @@ import {
   UNIFIED_HEADER_CLOUD_MARK_SRC,
   UNIFIED_HEADER_WORDMARK_SRC,
 } from "./cloud/unifiedVendorMeta";
-import {
-  validateElasticUrl,
-  validateApiKey,
-  validateIndexPrefix,
-  testConnection,
-} from "./utils/validation";
+import { validateElasticUrl, validateApiKey, validateIndexPrefix } from "./utils/validation";
+import { useConnectionValidation } from "./hooks/useConnectionValidation";
+import { useScheduleLoop } from "./hooks/useScheduleLoop";
 import { loadAndScrubSavedConfig, toPersistedStorageObject } from "./utils/persistedConfig";
 import { isOtelPipelineSource } from "./helpers/otelPipeline";
 import {
@@ -132,19 +129,6 @@ export function LoadGeneratorApp({
   const [scheduleIntervalMin, setScheduleIntervalMin] = useState(
     savedConfig.scheduleIntervalMin ?? 15
   );
-  const [scheduleActive, setScheduleActive] = useState(false);
-  const [scheduleCurrentRun, setScheduleCurrentRun] = useState(0);
-  const [nextRunAt, setNextRunAt] = useState<Date | null>(null);
-  const [countdown, setCountdown] = useState(0);
-  const [validationErrors, setValidationErrors] = useState({
-    elasticUrl: "",
-    apiKey: "",
-    indexPrefix: "",
-  });
-  const [connectionStatus, setConnectionStatus] = useState<"idle" | "testing" | "ok" | "fail">(
-    "idle"
-  );
-  const [connectionMsg, setConnectionMsg] = useState("");
   const [dryRun, setDryRun] = useState(false);
   const [ingestionResetNotice, setIngestionResetNotice] = useState<string | null>(null);
 
@@ -158,6 +142,15 @@ export function LoadGeneratorApp({
   }, [ingestionSource]);
   const indexPrefix = eventType === "metrics" ? metricsIndexPrefix : logsIndexPrefix;
   const setIndexPrefix = eventType === "metrics" ? setMetricsIndexPrefix : setLogsIndexPrefix;
+
+  const {
+    validationErrors,
+    setValidationErrors,
+    connectionStatus,
+    connectionMsg,
+    runConnectionValidation,
+    handleTestConnection,
+  } = useConnectionValidation(elasticUrl, apiKey, indexPrefix);
 
   const connectionStepComplete = useMemo(() => {
     const urlOk = validateElasticUrl(elasticUrl).valid;
@@ -196,7 +189,6 @@ export function LoadGeneratorApp({
     [LS_KEY]
   );
   const abortRef = useRef(false);
-  const scheduleLoopRef = useRef<AbortController | null>(null);
   const logSeqRef = useRef(0);
   /** Tracks cloud config so we can reset vendor-specific state without remounting (unified mode). */
   const prevCloudIdRef = useRef<CloudId | undefined>(undefined);
@@ -297,19 +289,6 @@ export function LoadGeneratorApp({
     setDeploymentType("serverless");
   };
 
-  // ─── Scheduled mode countdown ────────────────────────────────────────────────
-  useEffect(() => {
-    if (!nextRunAt) {
-      setCountdown(0);
-      return;
-    }
-    const tick = () =>
-      setCountdown(Math.max(0, Math.ceil((nextRunAt.getTime() - Date.now()) / 1000)));
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [nextRunAt]);
-
   // toggleTraceService, selectAllTraces, selectNoneTraces moved to ServicesPage inline handlers
 
   const addLog = (msg: string, type = "info") =>
@@ -341,23 +320,6 @@ export function LoadGeneratorApp({
     setEventType(val);
     if (val === "metrics") {
       setSelectedServices((prev) => prev.filter((id) => config.metricsSupportedServiceIds.has(id)));
-    }
-  };
-
-  const handleTestConnection = async () => {
-    if (!validateElasticUrl(elasticUrl).valid || !validateApiKey(apiKey).valid) {
-      runConnectionValidation();
-      return;
-    }
-    setConnectionStatus("testing");
-    setConnectionMsg("");
-    const result = await testConnection(elasticUrl, apiKey);
-    if (result.valid) {
-      setConnectionStatus("ok");
-      setConnectionMsg("Connected successfully");
-    } else {
-      setConnectionStatus("fail");
-      setConnectionMsg(result.message ?? "Connection failed");
     }
   };
 
@@ -566,18 +528,6 @@ export function LoadGeneratorApp({
     }
   };
 
-  const runConnectionValidation = useCallback(() => {
-    const urlResult = validateElasticUrl(elasticUrl);
-    const keyResult = validateApiKey(apiKey);
-    const prefixResult = validateIndexPrefix(indexPrefix);
-    setValidationErrors({
-      elasticUrl: urlResult.valid ? "" : (urlResult.message ?? ""),
-      apiKey: keyResult.valid ? "" : (keyResult.message ?? ""),
-      indexPrefix: prefixResult.valid ? "" : (prefixResult.message ?? ""),
-    });
-    return urlResult.valid && keyResult.valid && prefixResult.valid;
-  }, [elasticUrl, apiKey, indexPrefix]);
-
   const ship = useCallback(async () => {
     await runShipWorkload({
       config,
@@ -629,41 +579,15 @@ export function LoadGeneratorApp({
     config,
   ]);
 
-  // ─── Scheduled mode loop ─────────────────────────────────────────────────────
-  const startSchedule = useCallback(async () => {
-    const controller = new AbortController();
-    scheduleLoopRef.current = controller;
-    setScheduleActive(true);
-
-    for (let run = 1; run <= scheduleTotalRuns; run++) {
-      if (controller.signal.aborted) break;
-      setScheduleCurrentRun(run);
-      setNextRunAt(null);
-      await ship();
-      // If the user stopped the current run, cancel the whole schedule too
-      if (abortRef.current) controller.abort();
-      if (controller.signal.aborted || run === scheduleTotalRuns) break;
-
-      const nextTime = new Date(Date.now() + scheduleIntervalMin * 60 * 1000);
-      setNextRunAt(nextTime);
-      await new Promise<void>((resolve) => {
-        const id = setTimeout(resolve, scheduleIntervalMin * 60 * 1000);
-        controller.signal.addEventListener(
-          "abort",
-          () => {
-            clearTimeout(id);
-            resolve();
-          },
-          { once: true }
-        );
-      });
-    }
-
-    scheduleLoopRef.current = null;
-    setScheduleActive(false);
-    setScheduleCurrentRun(0);
-    setNextRunAt(null);
-  }, [ship, scheduleTotalRuns, scheduleIntervalMin]);
+  const {
+    scheduleActive,
+    scheduleCurrentRun,
+    nextRunAt,
+    countdown,
+    scheduleResumeNotice,
+    startSchedule,
+    scheduleLoopRef,
+  } = useScheduleLoop(LS_KEY, scheduleTotalRuns, scheduleIntervalMin, ship, abortRef);
 
   const pct = progress.total > 0 ? Math.round((progress.sent / progress.total) * 100) : 0;
   const totalSelected = isTracesMode ? selectedTraceServices.length : selectedServices.length;
@@ -794,6 +718,7 @@ export function LoadGeneratorApp({
             scheduleCurrentRun={scheduleCurrentRun}
             nextRunAt={nextRunAt}
             countdown={countdown}
+            scheduleResumeNotice={scheduleResumeNotice}
             canShip={canShip}
             onShip={scheduleEnabled ? startSchedule : ship}
             onStop={() => {

@@ -1,60 +1,66 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-northeast-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "iotdefender" }
   },
   "aws": {
-    "dimensions": { "CheckName": "UNAUTHENTICATED_COGNITO_ROLE_OVERLY_PERMISSIVE" },
+    "dimensions": { "CheckName": "AUTHENTICATION_FAILURES" },
     "iotdefender": {
       "thing_name": "camera-lobby",
-      "audit_check_name": "UNAUTHENTICATED_COGNITO_ROLE_OVERLY_PERMISSIVE",
-      "finding_id": "grp6ttlwse",
-      "severity": "MEDIUM",
-      "violation_id": "4gulexaaqsn",
+      "audit_check_name": "AUTHENTICATION_FAILURES",
+      "finding_id": "z2vpigbmik9",
+      "severity": "HIGH",
+      "violation_id": "nn0k0ipdii",
       "violation_type": "large-msg-size",
       "security_profile_name": "factory-floor-profile",
       "behavior_name": "data-bytes-out",
-      "current_value": 435,
-      "threshold_value": 10,
-      "consecutive_datapoints_to_alarm": 4
+      "current_value": 939,
+      "threshold_value": 100,
+      "consecutive_datapoints_to_alarm": 4,
+      "error_code": "ThrottlingException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotdefender-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-iotdefender-logs-164820739518"
+        "name": "aws-iotdefender-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-iotdefender-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/iotdefender/eu-south-1/2026/04/10/iotdefender_CQIZ0SGCCH.log.gz"
+        "key": "AWSLogs/501938274650/iotdefender/ap-northeast-1/2026/04/10/iotdefender_6AYYDYSHLK9.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotdefender/logs",
-      "log_stream": "eu-south-1/19pp8vm7",
-      "ingestion_time": "2026-04-10T08:43:16.475Z"
+      "log_stream": "ap-northeast-1/t8vb8xc6",
+      "ingestion_time": "2026-04-10T11:57:57.924Z"
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["intrusion_detection", "vulnerability"],
     "dataset": "aws.iotdefender",
     "provider": "iot.amazonaws.com",
-    "duration": 249000000000,
+    "duration": 311000000000,
     "module": "aws"
   },
-  "message": "IoT Defender MEDIUM [camera-lobby]: UNAUTHENTICATED_COGNITO_ROLE_OVERLY_PERMISSIVE",
-  "log": { "level": "info" },
+  "message": "IoT Defender audit ERROR [camera-lobby]: Internal failure",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InternalFailureException",
+    "message": "IoT Defender audit error",
+    "type": "iot"
+  },
   "service": { "name": "iotdefender", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iotdefender", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "gaad1ecvxvj"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "ugb1qo0ja4b"
   },
   "input": { "type": "aws-cloudwatch" }
 }

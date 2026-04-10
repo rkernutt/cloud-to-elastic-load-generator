@@ -1,45 +1,45 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "us-west-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "lookoutequipment" }
   },
   "aws": {
     "lookoutequipment": {
-      "model_name": "compressor-health",
-      "event_type": "ImportDataset",
-      "inference_scheduler": "compressor-health-scheduler",
-      "anomaly_detected": false,
-      "anomalous_sensors": [],
-      "diagnostics_score": 0.42697424801067196,
-      "data_points_ingested": 49849,
-      "inference_latency_ms": 161,
-      "dataset_arn": "arn:aws:lookoutequipment:sa-east-1:164820739518:dataset/compressor-health-data"
+      "model_name": "turbine-vibration-model",
+      "event_type": "InferenceExecution",
+      "inference_scheduler": "turbine-vibration-model-scheduler",
+      "anomaly_detected": true,
+      "anomalous_sensors": ["vibration_x", "flow_rate"],
+      "diagnostics_score": 0.6530234189389568,
+      "data_points_ingested": 8532,
+      "inference_latency_ms": 218,
+      "dataset_arn": "arn:aws:lookoutequipment:us-west-1:293847561023:dataset/turbine-vibration-model-data"
     },
     "s3": {
       "bucket": {
-        "name": "aws-lookoutequipment-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-lookoutequipment-logs-164820739518"
+        "name": "aws-lookoutequipment-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-lookoutequipment-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/lookoutequipment/sa-east-1/2026/04/10/lookoutequipment_CJA54R5NTKD.log.gz"
+        "key": "AWSLogs/293847561023/lookoutequipment/us-west-1/2026/04/10/lookoutequipment_BZQQH96JZYK.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lookoutequipment/logs",
-      "log_stream": "sa-east-1/5xo5djmj",
-      "ingestion_time": "2026-04-10T08:43:16.275Z"
+      "log_stream": "us-west-1/rqzdsfu4",
+      "ingestion_time": "2026-04-10T11:57:57.855Z"
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 2249234,
+    "outcome": "failure",
+    "duration": 3267907,
     "module": "aws",
     "dataset": "aws.lookoutequipment"
   },
-  "message": "Lookout Equipment compressor-health: ImportDataset completed normally",
+  "message": "Lookout Equipment turbine-vibration-model: anomaly detected in pressure",
   "service": { "name": "lookoutequipment", "type": "aws" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -47,8 +47,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "b81oeopmmzu"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "6gl3s2s2ugj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

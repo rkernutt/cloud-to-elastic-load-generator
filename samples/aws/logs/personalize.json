@@ -1,56 +1,58 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "me-central-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "personalize" }
   },
   "aws": {
-    "dimensions": { "CampaignArn": "similar-items", "Operation": "GetPersonalizedRanking" },
+    "dimensions": { "CampaignArn": "personalized-ranking", "Operation": "CreateCampaign" },
     "personalize": {
-      "campaign_name": "similar-items",
-      "action": "GetPersonalizedRanking",
-      "user_id": "user-30znqo7z",
-      "num_results_returned": 7,
+      "campaign_name": "personalized-ranking",
+      "action": "CreateCampaign",
+      "user_id": "user-kyu91smy",
+      "num_results_returned": 0,
       "recipe": "aws-hrnn",
       "solution_version": "1.0.0",
-      "duration_ms": 250
+      "duration_ms": 430,
+      "error_code": "InvalidInputException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-personalize-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-personalize-logs-814726593401"
+        "name": "aws-personalize-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-personalize-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/814726593401/personalize/ap-south-2/2026/04/10/personalize_NAC3K3HY9IB.log.gz"
+        "key": "AWSLogs/738291046572/personalize/me-central-1/2026/04/10/personalize_BJ7FNTN08MH.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/personalize/logs",
-      "log_stream": "ap-south-2/f66gbo19",
-      "ingestion_time": "2026-04-10T08:43:16.261Z"
+      "log_stream": "me-central-1/rery70rg",
+      "ingestion_time": "2026-04-10T11:57:57.845Z"
     }
   },
-  "user": { "name": "user-30znqo7z" },
+  "user": { "name": "user-kyu91smy" },
   "event": {
-    "duration": 249580079.41065145,
-    "outcome": "success",
+    "duration": 430230384.80554456,
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.personalize",
     "provider": "personalize.amazonaws.com",
     "module": "aws"
   },
-  "message": "Personalize GetPersonalizedRanking: 7 recs for user-30znqo7z in 250ms",
-  "log": { "level": "info" },
+  "message": "Personalize CreateCampaign FAILED for personalized-ranking",
+  "log": { "level": "error" },
+  "error": { "code": "PersonalizeError", "message": "Personalize operation failed", "type": "ml" },
   "service": { "name": "personalize", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.personalize", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "0ocosnovkon"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "exqzedxlos6"
   },
   "input": { "type": "aws-cloudwatch" }
 }

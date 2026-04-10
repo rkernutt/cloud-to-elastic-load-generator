@@ -2,57 +2,52 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "us-east5",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
-    "service": { "name": "storage-transfer-service" }
+    "region": "us-west4",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
+    "service": { "name": "cloud-storage" }
   },
   "gcp": {
-    "storage_transfer": {
-      "job_name": "transferJobs/8KSGL15IB4",
-      "source_bucket": "s3://source-EHYT76",
-      "destination_bucket": "gs://globex-prod-a1b2c3-data",
-      "bytes_transferred": 812113170606,
-      "objects_transferred": 12241750,
-      "status": "SUCCESS",
-      "transfer_type": "aws-to-gcs"
+    "cloud_storage": {
+      "bucket": "globex-shared-m3n4o5-exports",
+      "object_name": "exports/mz45mmix.bin",
+      "operation": "LIST",
+      "size_bytes": 401023596,
+      "storage_class": "COLDLINE",
+      "requester_ip": "181.50.48.96",
+      "response_code": 200
     }
   },
-  "event": {
-    "outcome": "success",
-    "duration": 38863000000,
-    "module": "gcp",
-    "dataset": "gcp.storagetransfer"
-  },
-  "message": "Storage Transfer transferJobs/8KSGL15IB4 SUCCESS aws-to-gcs 812113170606B 12241750 objects",
-  "service": { "name": "storage-transfer", "type": "gcp" },
+  "event": { "outcome": "success", "duration": 105000000, "module": "gcp", "dataset": "gcp.gcs" },
+  "message": "GCS LIST gs://globex-shared-m3n4o5-exports/exports/mz45mmix.bin 401023596B class=COLDLINE 200",
+  "service": { "name": "cloud-storage", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.storagetransfer", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.gcs", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-east5",
-    "id": "x0qwt5bbnr"
+    "name": "elastic-agent-gcp-us-west4",
+    "id": "easl4ptciph"
   },
-  "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-m3n4o5/logs/storage-transfer",
+  "input": { "type": "gcs-input" },
+  "logName": "projects/globex-prod-a1b2c3/logs/cloud-storage",
   "resource": {
-    "type": "global",
-    "labels": { "project_id": "globex-shared-m3n4o5", "region": "us-east5" }
+    "type": "gcs_bucket",
+    "labels": { "project_id": "globex-prod-a1b2c3", "region": "us-west4" }
   },
   "severity": "INFO",
-  "insertId": "21JLAL2JWYB",
+  "insertId": "VPHV4WHOO7",
   "jsonPayload": {
-    "storage_transfer": {
-      "job_name": "transferJobs/8KSGL15IB4",
-      "source_bucket": "s3://source-EHYT76",
-      "destination_bucket": "gs://globex-prod-a1b2c3-data",
-      "bytes_transferred": 812113170606,
-      "objects_transferred": 12241750,
-      "status": "SUCCESS",
-      "transfer_type": "aws-to-gcs"
+    "cloud_storage": {
+      "bucket": "globex-shared-m3n4o5-exports",
+      "object_name": "exports/mz45mmix.bin",
+      "operation": "LIST",
+      "size_bytes": 401023596,
+      "storage_class": "COLDLINE",
+      "requester_ip": "181.50.48.96",
+      "response_code": 200
     },
-    "message": "Storage Transfer transferJobs/8KSGL15IB4 SUCCESS aws-to-gcs 812113170606B 12241750 objects"
+    "message": "GCS LIST gs://globex-shared-m3n4o5-exports/exports/mz45mmix.bin 401023596B class=COLDLINE 200"
   }
 }

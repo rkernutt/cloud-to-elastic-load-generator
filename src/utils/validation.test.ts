@@ -16,13 +16,22 @@ describe("validateElasticUrl", () => {
     );
   });
 
-  it("rejects HTTP", () => {
+  it("rejects HTTP for non-local hosts", () => {
     const r = validateElasticUrl("http://example.com");
     expect(r.valid).toBe(false);
-    expect(r.message).toMatch(/HTTPS/);
+    expect(r.message).toMatch(/HTTP is only allowed|local development/i);
   });
 
-  it("rejects hostname without domain", () => {
+  it("allows HTTP for localhost", () => {
+    expect(validateElasticUrl("http://localhost:9200").valid).toBe(true);
+    expect(validateElasticUrl("http://127.0.0.1:9200").valid).toBe(true);
+  });
+
+  it("allows HTTPS for localhost without a multi-part domain", () => {
+    expect(validateElasticUrl("https://localhost:9200").valid).toBe(true);
+  });
+
+  it("rejects hostname without domain (non-local)", () => {
     expect(validateElasticUrl("https://not-a-host").valid).toBe(false);
   });
 });

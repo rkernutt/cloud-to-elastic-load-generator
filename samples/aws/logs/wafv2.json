@@ -1,20 +1,28 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-west-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "wafv2" }
   },
   "aws": {
-    "dimensions": { "WebACL": "prod-api-acl", "Rule": "IPRateBasedRule", "Region": "eu-south-2" },
+    "dimensions": { "WebACL": "admin-portal-waf", "Rule": "NoUserAgent", "Region": "eu-west-1" },
     "waf": {
-      "id": "k6eke9vu0nl",
-      "arn": "arn:aws:wafv2:eu-south-2:501938274650:regional/webacl/prod-api-acl/e8qw9ha9-6zuj-93to-oc00-0icfsvvysi1n",
+      "id": "zcayuebg4a9",
+      "arn": "arn:aws:wafv2:eu-west-1:738291046572:regional/webacl/admin-portal-waf/d8e657db-n035-iplc-zc50-wbgqe2v52s",
       "format_version": "1",
-      "source": { "name": "CF", "id": "501938274650-app/prod-api-acl/lm5ms3d3d1b" },
+      "source": { "name": "CF", "id": "738291046572-app/admin-portal-waf/65mm9cze53s" },
       "rule_group_list": [
-        { "ruleGroupId": "AWSManagedRulesWordPressRuleSet", "nonTerminatingMatchingRules": [] }
+        {
+          "ruleGroupId": "IPRateBasedRule",
+          "terminatingRule": {
+            "action": "CAPTCHA",
+            "ruleId": "NoUserAgent",
+            "ruleMatchDetails": []
+          },
+          "nonTerminatingMatchingRules": []
+        }
       ],
       "non_terminating_matching_rules": [],
       "terminating_rule_match_details": [],
@@ -24,12 +32,13 @@
           { "name": "Host", "value": "api.example.com" }
         ]
       },
-      "labels": [],
+      "labels": [{ "name": "awswaf:managed:aws:core-rule-set:CrossSiteScripting" }],
+      "response_code_sent": 403,
       "metrics": {
-        "AllowedRequests": { "sum": 1 },
-        "BlockedRequests": { "sum": 0 },
+        "AllowedRequests": { "sum": 0 },
+        "BlockedRequests": { "sum": 1 },
         "CountedRequests": { "sum": 0 },
-        "PassedRequests": { "sum": 1 },
+        "PassedRequests": { "sum": 0 },
         "RequestsWithValidCaptchaToken": { "sum": 0 },
         "ChallengeRequests": { "sum": 0 },
         "FailedCaptcha": { "sum": 0 }
@@ -37,49 +46,50 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-wafv2-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-wafv2-logs-501938274650"
+        "name": "aws-wafv2-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-wafv2-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/501938274650/wafv2/eu-south-2/2026/04/10/wafv2_STUFEHXX2S.log.gz"
+        "key": "AWSLogs/738291046572/wafv2/eu-west-1/2026/04/10/wafv2_HKPZPWU2WLG.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/wafv2/logs",
-      "log_stream": "eu-south-2/ims0vxf9",
-      "ingestion_time": "2026-04-10T08:43:16.477Z"
+      "log_stream": "eu-west-1/cthad0wc",
+      "ingestion_time": "2026-04-10T11:57:57.926Z"
     }
   },
   "source": {
-    "ip": "108.48.73.182",
+    "ip": "165.100.240.58",
     "geo": {
-      "country_iso_code": "KR",
-      "country_name": "South Korea",
-      "city_name": "Seoul",
-      "location": { "lat": 37.5665, "lon": 126.978 }
+      "country_iso_code": "CA",
+      "country_name": "Canada",
+      "city_name": "Toronto",
+      "location": { "lat": 43.6532, "lon": -79.3832 }
     }
   },
-  "http": { "request": { "method": "DELETE", "bytes": 7149 } },
-  "url": { "path": "/api/v1/users" },
+  "http": { "request": { "method": "DELETE", "bytes": 1121 } },
+  "url": { "path": "/api/v1/orders" },
   "user_agent": { "original": "python-requests/2.27.1" },
   "event": {
-    "action": "allow",
-    "outcome": "success",
+    "action": "captcha",
+    "outcome": "failure",
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
     "module": "aws"
   },
-  "message": "WAFv2 ALLOW [prod-api-acl] 108.48.73.182 DELETE /api/v1/users",
-  "log": { "level": "info" },
+  "message": "WAFv2 CAPTCHA [admin-portal-waf] 165.100.240.58: IPRateBasedRule/NoUserAgent",
+  "log": { "level": "warn" },
+  "error": { "code": "WAFBlock", "message": "WAFv2 request blocked", "type": "security" },
   "service": { "name": "wafv2", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.waf", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "ql2rp8yivo"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "53iautr9jkd"
   },
   "input": { "type": "aws-s3" }
 }

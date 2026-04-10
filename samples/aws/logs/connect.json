@@ -1,72 +1,74 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "il-central-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "connect" }
   },
   "aws": {
-    "dimensions": { "InstanceId": "ptfx1osa-rsw9-qtwy-ykjh-almydgyhv0l", "MetricGroup": "Queue" },
+    "dimensions": { "InstanceId": "aqkzbl37-qwmj-rrf9-61kz-yvuabf59wx", "MetricGroup": "Queue" },
     "connect": {
-      "instance_id": "ptfx1osa-rsw9-qtwy-ykjh-almydgyhv0l",
-      "contact_id": "drd9wrmn-zkw6-yrl1",
+      "instance_id": "aqkzbl37-qwmj-rrf9-61kz-yvuabf59wx",
+      "contact_id": "xqcwq1tm-xcol-1win",
       "channel": "CHAT",
-      "initiation_method": "TRANSFER",
-      "queue_name": "Sales",
-      "agent_id": "agent-bob",
-      "duration_seconds": 85,
-      "hold_duration_seconds": 117,
-      "queue_wait_time_seconds": 261,
-      "disconnect_reason": "EXPIRED",
-      "sentiment_overall": "NEUTRAL",
-      "contact_lens_enabled": true,
+      "initiation_method": "INBOUND_CALL",
+      "queue_name": "BasicQueue",
+      "agent_id": "agent-alice",
+      "duration_seconds": 1069,
+      "hold_duration_seconds": 112,
+      "queue_wait_time_seconds": 264,
+      "disconnect_reason": "CUSTOMER_DISCONNECT",
+      "sentiment_overall": "POSITIVE",
+      "contact_lens_enabled": false,
       "lex_bot_interacted": false,
+      "error_code": "ContactNotFoundException",
       "metrics": {
         "ContactsQueued": { "sum": 1 },
-        "ContactsHandled": { "sum": 1 },
+        "ContactsHandled": { "sum": 0 },
         "ContactsAbandoned": { "sum": 0 },
         "ContactsHoldAbandonment": { "sum": 0 },
-        "AverageHandleTime": { "avg": 85 },
-        "AverageAfterContactWorkTime": { "avg": 170 },
-        "AverageQueueAnswerTime": { "avg": 78 },
-        "ServiceLevel": { "avg": 62.07724176076213 },
-        "OccupancyTime": { "avg": 60.158090838898254 }
+        "AverageHandleTime": { "avg": 1069 },
+        "AverageAfterContactWorkTime": { "avg": 125 },
+        "AverageQueueAnswerTime": { "avg": 63 },
+        "ServiceLevel": { "avg": 99.73784037163014 },
+        "OccupancyTime": { "avg": 85.55214424072663 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-connect-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-connect-logs-293847561023"
+        "name": "aws-connect-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-connect-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/connect/us-east-2/2026/04/10/connect_1KF9QGSZ66V.log.gz"
+        "key": "AWSLogs/738291046572/connect/il-central-1/2026/04/10/connect_B2Q81HT0Y69.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/connect/logs",
-      "log_stream": "us-east-2/9ir22qim",
-      "ingestion_time": "2026-04-10T08:43:16.439Z"
+      "log_stream": "il-central-1/zzgu8s3l",
+      "ingestion_time": "2026-04-10T11:57:57.900Z"
     }
   },
   "event": {
-    "duration": 85000000000,
-    "outcome": "success",
+    "duration": 1069000000000,
+    "outcome": "failure",
     "category": ["host", "session"],
     "dataset": "aws.connect",
     "provider": "connect.amazonaws.com",
     "module": "aws"
   },
-  "message": "Connect TRANSFER: Sales agent=agent-bob, 85s, NEUTRAL",
-  "log": { "level": "info" },
+  "message": "Connect INBOUND_CALL FAILED: Agent unavailable",
+  "error": { "code": "ConnectError", "message": "Connect operation failed", "type": "session" },
+  "log": { "level": "error" },
   "service": { "name": "connect", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.connect", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "3z3c0t99jiv"
+    "name": "filebeat-aws-il-central-1",
+    "ephemeral_id": "o0yz9mhu93"
   },
   "input": { "type": "aws-cloudwatch" }
 }

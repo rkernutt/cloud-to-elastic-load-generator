@@ -1,22 +1,23 @@
 {
-  "@timestamp": "2026-04-10T08:43:15.441Z",
+  "@timestamp": "2026-04-10T11:57:57.329Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-2",
+    "region": "us-east-1",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "codecommit" }
   },
   "aws": {
     "codecommit": {
-      "repository_name": "shared-libs",
-      "repository_arn": "arn:aws:codecommit:ap-southeast-2:164820739518:shared-libs",
+      "repository_name": "api-service",
+      "repository_arn": "arn:aws:codecommit:us-east-1:164820739518:api-service",
       "event_type": "ReferenceCreated",
-      "reference_name": "release/v2.1",
-      "commit_id": "8mk2hdv3zeu",
-      "author": "alice",
-      "files_changed": 15,
-      "lines_added": 174,
-      "lines_deleted": 92
+      "reference_name": "hotfix/payment-bug",
+      "commit_id": "z09rm95vde",
+      "author": "bob",
+      "files_changed": 30,
+      "lines_added": 245,
+      "lines_deleted": 86,
+      "error_code": "InvalidBranchNameException"
     },
     "s3": {
       "bucket": {
@@ -24,34 +25,39 @@
         "arn": "arn:aws:s3:::aws-codecommit-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/codecommit/ap-southeast-2/2026/04/10/codecommit_BURRGINIPBP.log.gz"
+        "key": "AWSLogs/164820739518/codecommit/us-east-1/2026/04/10/codecommit_AD4HSF0CZPS.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codecommit/logs",
-      "log_stream": "ap-southeast-2/a2dcjjz6",
-      "ingestion_time": "2026-04-10T08:43:16.202Z"
+      "log_stream": "us-east-1/l56ly98n",
+      "ingestion_time": "2026-04-10T11:57:57.809Z"
     }
   },
-  "user": { "name": "alice" },
+  "user": { "name": "carol" },
   "event": {
     "action": "ReferenceCreated",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["configuration", "file"],
     "dataset": "aws.codecommit",
     "provider": "codecommit.amazonaws.com",
     "module": "aws"
   },
-  "message": "CodeCommit ReferenceCreated: shared-libs/release/v2.1",
-  "log": { "level": "info" },
+  "message": "CodeCommit ReferenceCreated FAILED on api-service: Encryption key unavailable",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InvalidBranchNameException",
+    "message": "CodeCommit operation failed",
+    "type": "vcs"
+  },
   "service": { "name": "codecommit", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.codecommit", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-2",
-    "ephemeral_id": "bx7dzoutcku"
+    "name": "filebeat-aws-us-east-1",
+    "ephemeral_id": "c37cw3dzygr"
   },
   "input": { "type": "aws-cloudwatch" }
 }
