@@ -98,9 +98,17 @@ const TARGET_PROPS = {
   sns: { durationMs: [2, 40] },
 };
 
-function buildTargetSpan(traceId, txId, parentId, ts, target, isErr, spanOffsetMs) {
+function buildTargetSpan(
+  traceId: string,
+  txId: string,
+  parentId: string,
+  ts: string,
+  target: { name: string; targetType: string },
+  isErr: boolean,
+  spanOffsetMs: number
+) {
   const id = newSpanId();
-  const props = TARGET_PROPS[target.targetType] || TARGET_PROPS.lambda;
+  const props = TARGET_PROPS[target.targetType as keyof typeof TARGET_PROPS] || TARGET_PROPS.lambda;
   const durationUs = randInt(props.durationMs[0], props.durationMs[1]) * 1000;
 
   const isMessaging = target.targetType === "sqs" || target.targetType === "sns";
@@ -141,7 +149,7 @@ function buildTargetSpan(traceId, txId, parentId, ts, target, isErr, spanOffsetM
  * @param {number} er  - error rate 0.0–1.0
  * @returns {Object[]} array of APM documents (transaction first, then spans)
  */
-export function generateEventBridgeTrace(ts, er) {
+export function generateEventBridgeTrace(ts: string, er: number) {
   const cfg = rand(RULE_CONFIGS);
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);
@@ -205,7 +213,8 @@ export function generateEventBridgeTrace(ts, er) {
   for (let i = 0; i < cfg.targets.length; i++) {
     const target = cfg.targets[i];
     const spanIsErr = isErr && i === cfg.targets.length - 1;
-    const props = TARGET_PROPS[target.targetType] || TARGET_PROPS.lambda;
+    const props =
+      TARGET_PROPS[target.targetType as keyof typeof TARGET_PROPS] || TARGET_PROPS.lambda;
     const durationUs = randInt(props.durationMs[0], props.durationMs[1]) * 1000;
 
     spans.push(buildTargetSpan(traceId, txId, txId, ts, target, spanIsErr, spanOffsetMs));

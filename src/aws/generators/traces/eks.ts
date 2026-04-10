@@ -98,7 +98,14 @@ const SERVICE_CONFIGS = [
 ];
 
 // ─── Downstream span shapes ───────────────────────────────────────────────────
-function buildDownstreamSpan(traceId, txId, ts, spanKey, isErr, offsetMs) {
+function buildDownstreamSpan(
+  traceId: string,
+  txId: string,
+  ts: string,
+  spanKey: string,
+  isErr: boolean,
+  offsetMs: number
+) {
   const spanId = newSpanId();
 
   const shapes = {
@@ -206,7 +213,7 @@ function buildDownstreamSpan(traceId, txId, ts, spanKey, isErr, offsetMs) {
     },
   };
 
-  const shape = shapes[spanKey] || shapes.dynamodb;
+  const shape = shapes[spanKey as keyof typeof shapes] || shapes.dynamodb;
   const spanName = shape.name();
   const dbBlock = shape.db ? shape.db() : undefined;
   const spanUs = randInt(2_000, 150_000); // 2ms – 150ms in µs
@@ -239,7 +246,7 @@ function buildDownstreamSpan(traceId, txId, ts, spanKey, isErr, offsetMs) {
  * @param {number} er  - error rate 0.0–1.0
  * @returns {Object[]} array of APM documents (transaction first, then spans)
  */
-export function generateEksTrace(ts, er) {
+export function generateEksTrace(ts: string, er: number) {
   const cfg = rand(SERVICE_CONFIGS);
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);
@@ -284,8 +291,9 @@ export function generateEksTrace(ts, er) {
   let txDoc;
 
   if (cfg.txType === "request") {
-    const method = cfg.http.method;
-    const path = rand(cfg.http.paths);
+    const http = cfg.http!;
+    const method = http.method;
+    const path = rand(http.paths);
     const statusCode = isErr ? rand([500, 502, 503, 504]) : rand([200, 200, 200, 201]);
 
     txDoc = {
@@ -316,7 +324,7 @@ export function generateEksTrace(ts, er) {
     };
   } else {
     // messaging (Kafka consumer)
-    const topic = rand(cfg.kafka.topics);
+    const topic = rand(cfg.kafka!.topics);
     const partition = randInt(0, 11);
     const offset = randInt(0, 999_999);
 

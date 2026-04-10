@@ -1,56 +1,61 @@
 {
-  "@timestamp": "2026-04-09T10:32:55.502Z",
+  "@timestamp": "2026-04-10T08:43:15.441Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-northeast-3",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "cleanrooms" }
   },
   "aws": {
-    "dimensions": { "CollaborationId": "xcgz6qbz-adqt-vh6b-twup-681jpxv7d5k" },
+    "dimensions": { "CollaborationId": "8amv379n-yfgi-2nh2-xmho-fa1cbh1nlk" },
     "cleanrooms": {
-      "collaboration_id": "xcgz6qbz-adqt-vh6b-twup-681jpxv7d5k",
-      "collaboration_name": "healthcare-insights-collab",
-      "configured_table_name": "loyalty_events",
-      "protected_query_id": "pq-d2e2b6zr4ks",
-      "query_status": "RUNNING",
+      "collaboration_id": "8amv379n-yfgi-2nh2-xmho-fa1cbh1nlk",
+      "collaboration_name": "ad-measurement-collab",
+      "configured_table_name": "product_catalog",
+      "protected_query_id": "pq-aj9rkbvygu",
+      "query_status": "CANCELLED",
       "protected_query_type": "SELECT",
-      "rows_returned": 67540,
-      "member_account_id": "164820739518"
+      "rows_returned": 0,
+      "member_account_id": "501938274650"
     },
     "s3": {
       "bucket": {
-        "name": "aws-cleanrooms-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-cleanrooms-logs-814726593401"
+        "name": "aws-cleanrooms-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-cleanrooms-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/cleanrooms/eu-south-2/2026/04/09/cleanrooms_PBRGZH9P5HD.log.gz"
+        "key": "AWSLogs/164820739518/cleanrooms/ap-northeast-3/2026/04/10/cleanrooms_9ZTD3ESWTR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cleanrooms/logs",
-      "log_stream": "eu-south-2/1008jxde",
-      "ingestion_time": "2026-04-09T10:32:56.085Z"
+      "log_stream": "ap-northeast-3/xser521p",
+      "ingestion_time": "2026-04-10T08:43:16.238Z"
     }
   },
   "event": {
-    "action": "GetProtectedQuery",
-    "outcome": "success",
+    "action": "StartProtectedQuery",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.cleanrooms",
     "provider": "cleanrooms.amazonaws.com",
     "module": "aws"
   },
-  "message": "Clean Rooms healthcare-insights-collab: SELECT on loyalty_events returned 67540 rows",
-  "log": { "level": "info" },
+  "message": "Clean Rooms ad-measurement-collab: query CANCELLED on product_catalog",
+  "log": { "level": "error" },
+  "error": {
+    "code": "AccessDeniedException",
+    "message": "Clean Rooms protected query failed",
+    "type": "process"
+  },
   "service": { "name": "cleanrooms", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cleanrooms", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "20b87vul6oz"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "tmh2uhle9rh"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -12,7 +12,7 @@ import {
 import type { EcsDocument } from "./types.js";
 
 // ─── X-Ray trace pool — links multiple segments to the same trace ─────────────
-const _xrayTracePool = {};
+const _xrayTracePool: Record<string, { id: string; rootSegmentId: string }> = {};
 
 function generateCodeBuildLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);

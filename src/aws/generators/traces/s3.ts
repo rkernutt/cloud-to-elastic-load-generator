@@ -126,18 +126,18 @@ const S3_OP_PROPS = {
 };
 
 function buildS3Span(
-  traceId,
-  txId,
-  parentId,
-  ts,
-  operation,
-  bucketName,
-  contentType,
-  isErr,
-  spanOffsetMs
+  traceId: string,
+  txId: string,
+  parentId: string,
+  ts: string,
+  operation: string,
+  bucketName: string,
+  contentType: string,
+  isErr: boolean,
+  spanOffsetMs: number
 ) {
   const id = newSpanId();
-  const props = S3_OP_PROPS[operation] || S3_OP_PROPS.GetObject;
+  const props = S3_OP_PROPS[operation as keyof typeof S3_OP_PROPS] || S3_OP_PROPS.GetObject;
   const durationUs = randInt(props.durationMs[0], props.durationMs[1]) * 1000;
   const objectSizeBytes = randInt(1024, 104857600); // 1 KB – 100 MB
 
@@ -172,7 +172,7 @@ function buildS3Span(
  * @param {number} er  - error rate 0.0–1.0
  * @returns {Object[]} array of APM documents (transaction first, then spans)
  */
-export function generateS3Trace(ts, er) {
+export function generateS3Trace(ts: string, er: number) {
   const cfg = rand(SERVICE_CONFIGS);
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);
@@ -234,7 +234,7 @@ export function generateS3Trace(ts, er) {
   for (let i = 0; i < opList.length; i++) {
     const operation = opList[i];
     const spanIsErr = isErr && i === opList.length - 1;
-    const props = S3_OP_PROPS[operation] || S3_OP_PROPS.GetObject;
+    const props = S3_OP_PROPS[operation as keyof typeof S3_OP_PROPS] || S3_OP_PROPS.GetObject;
     const durationUs = randInt(props.durationMs[0], props.durationMs[1]) * 1000;
 
     spans.push(

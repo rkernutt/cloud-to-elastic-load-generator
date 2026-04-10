@@ -88,9 +88,11 @@ const MACHINE_CONFIGS = [
 ];
 
 // Convert PascalCase machine name to kebab-case service name.
-function toKebabCase(name) {
+function toKebabCase(name: string) {
   return name
-    .replace(/([A-Z])/g, (_m, c, i) => (i === 0 ? c : "-" + c).toLowerCase())
+    .replace(/([A-Z])/g, (_m: string, c: string, i: number) =>
+      (i === 0 ? c : "-" + c).toLowerCase()
+    )
     .toLowerCase();
 }
 
@@ -100,7 +102,7 @@ function toKebabCase(name) {
  * @param {number} er  - error rate 0.0–1.0
  * @returns {Object[]} array of APM documents (transaction first, then spans)
  */
-export function generateStepFunctionsTrace(ts, er) {
+export function generateStepFunctionsTrace(ts: string, er: number) {
   const cfg = rand(MACHINE_CONFIGS);
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);

@@ -1,29 +1,29 @@
 {
-  "@timestamp": "2026-04-09T10:32:55.502Z",
+  "@timestamp": "2026-04-10T08:43:15.441Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
+    "region": "me-central-1",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "lakeformation" }
   },
   "aws": {
     "dimensions": {
-      "ResourceArn": "arn:aws:glue:ap-southeast-3:501938274650:table/raw_data/users",
+      "ResourceArn": "arn:aws:glue:me-central-1:501938274650:table/raw_data/users",
       "Principal": "arn:aws:iam::501938274650:role/analyst-role"
     },
     "lakeformation": {
       "database": "raw_data",
       "table": "users",
-      "action": "Revoke",
+      "action": "GetDataAccess",
       "principal_arn": "arn:aws:iam::501938274650:role/analyst-role",
-      "resource_arn": "arn:aws:glue:ap-southeast-3:501938274650:table/raw_data/users",
-      "permissions": ["DESCRIBE"],
-      "lf_tag_key": "team",
+      "resource_arn": "arn:aws:glue:me-central-1:501938274650:table/raw_data/users",
+      "permissions": ["SELECT", "INSERT"],
+      "lf_tag_key": "pii",
       "lf_tag_values": ["pii"],
       "metrics": {
-        "GrantCount": { "sum": 34 },
-        "DatabaseCount": { "avg": 1 },
-        "TableCount": { "avg": 170 },
+        "GrantCount": { "sum": 17 },
+        "DatabaseCount": { "avg": 18 },
+        "TableCount": { "avg": 99 },
         "DataLakeSettings": { "avg": 1 }
       }
     },
@@ -33,25 +33,25 @@
         "arn": "arn:aws:s3:::aws-lakeformation-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/lakeformation/ap-southeast-3/2026/04/09/lakeformation_NHBWON67EM.log.gz"
+        "key": "AWSLogs/501938274650/lakeformation/me-central-1/2026/04/10/lakeformation_IIQ2OIR4HDQ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lakeformation/logs",
-      "log_stream": "ap-southeast-3/ko5xntsc",
-      "ingestion_time": "2026-04-09T10:32:56.079Z"
+      "log_stream": "me-central-1/6qo031ti",
+      "ingestion_time": "2026-04-10T08:43:16.228Z"
     }
   },
   "event": {
-    "action": "Revoke",
-    "duration": 521000000,
+    "action": "GetDataAccess",
+    "duration": 301000000,
     "outcome": "success",
     "category": ["database", "iam"],
     "dataset": "aws.lakeformation",
     "provider": "lakeformation.amazonaws.com",
     "module": "aws"
   },
-  "message": "Lake Formation Revoke: DESCRIBE on raw_data.users",
+  "message": "Lake Formation GetDataAccess: SELECT,INSERT on raw_data.users",
   "log": { "level": "info" },
   "service": { "name": "lakeformation", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -59,8 +59,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "awj2vxfmz8s"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "fsvf3oai9sq"
   },
   "input": { "type": "aws-cloudwatch" }
 }

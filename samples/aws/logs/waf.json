@@ -1,19 +1,25 @@
 {
-  "@timestamp": "2026-04-09T10:32:55.502Z",
+  "@timestamp": "2026-04-10T08:43:15.441Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ca-central-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "waf" }
   },
   "aws": {
-    "dimensions": { "WebACL": "api-waf", "Rule": "CustomSQLiRule", "Region": "ca-west-1" },
+    "dimensions": {
+      "WebACL": "admin-waf",
+      "Rule": "AWSManagedRulesCommonRuleSet",
+      "Region": "ca-central-1"
+    },
     "waf": {
-      "id": "ttndfa8vpl",
-      "arn": "arn:aws:wafv2:ca-west-1:501938274650:regional/webacl/api-waf/rarp0712-xa0f-ehya-e8lx-jdwgngp61z",
+      "id": "otr70yitys",
+      "arn": "arn:aws:wafv2:ca-central-1:164820739518:regional/webacl/admin-waf/9bkffoj7-siav-v5ka-4jst-oir3lyofco",
       "format_version": "1",
-      "source": { "name": "ALB", "id": "501938274650-app/api-waf/qei4guhs5en" },
-      "rule_group_list": [{ "ruleGroupId": "CustomSQLiRule", "nonTerminatingMatchingRules": [] }],
+      "source": { "name": "ALB", "id": "164820739518-app/admin-waf/45v10gsbu2g" },
+      "rule_group_list": [
+        { "ruleGroupId": "AWSManagedRulesCommonRuleSet", "nonTerminatingMatchingRules": [] }
+      ],
       "non_terminating_matching_rules": [],
       "terminating_rule_match_details": [],
       "request": {
@@ -35,36 +41,36 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-waf-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-waf-logs-501938274650"
+        "name": "aws-waf-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-waf-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/501938274650/waf/ca-west-1/2026/04/09/waf_RPFKQI3VSY.log.gz" }
+      "object": { "key": "AWSLogs/164820739518/waf/ca-central-1/2026/04/10/waf_EBG1PIKQINA.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/waf/logs",
-      "log_stream": "ca-west-1/2sexjdp7",
-      "ingestion_time": "2026-04-09T10:32:55.917Z"
+      "log_stream": "ca-central-1/qp12mwcp",
+      "ingestion_time": "2026-04-10T08:43:15.997Z"
     }
   },
-  "rule": { "id": "GenericRFI_BODY", "ruleset": "CustomSQLiRule" },
-  "http": { "request": { "method": "PUT", "bytes": 8253 } },
-  "url": { "path": "/api/v1/auth/login" },
+  "rule": { "id": "NoUserAgent_HEADER", "ruleset": "AWSManagedRulesCommonRuleSet" },
+  "http": { "request": { "method": "PATCH", "bytes": 8177 } },
+  "url": { "path": "/api/v1/search" },
   "source": {
-    "ip": "9.233.167.151",
+    "ip": "174.110.128.188",
     "geo": {
-      "country_iso_code": "FR",
-      "country_name": "France",
-      "city_name": "Paris",
-      "location": { "lat": 48.8566, "lon": 2.3522 }
+      "country_iso_code": "DE",
+      "country_name": "Germany",
+      "city_name": "Frankfurt",
+      "location": { "lat": 50.1109, "lon": 8.6821 }
     }
   },
   "client": {
-    "ip": "9.233.167.151",
+    "ip": "174.110.128.188",
     "geo": {
-      "country_iso_code": "FR",
-      "country_name": "France",
-      "city_name": "Paris",
-      "location": { "lat": 48.8566, "lon": 2.3522 }
+      "country_iso_code": "DE",
+      "country_name": "Germany",
+      "city_name": "Frankfurt",
+      "location": { "lat": 50.1109, "lon": 8.6821 }
     }
   },
   "user_agent": { "original": "python-requests/2.27.1" },
@@ -74,10 +80,10 @@
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
-    "duration": 5000000,
+    "duration": 36000000,
     "module": "aws"
   },
-  "message": "WAF ALLOWED request - Rule: CustomSQLiRule",
+  "message": "WAF ALLOWED request - Rule: AWSManagedRulesCommonRuleSet",
   "log": { "level": "info" },
   "service": { "name": "waf", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -85,8 +91,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "42v18rcvy4p"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "ihywuc01fue"
   },
   "input": { "type": "aws-s3" }
 }

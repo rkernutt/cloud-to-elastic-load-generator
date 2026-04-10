@@ -1,62 +1,65 @@
 {
-  "@timestamp": "2026-04-09T10:32:55.502Z",
+  "@timestamp": "2026-04-10T08:43:15.441Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "us-east-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "transcribe" }
   },
   "aws": {
-    "dimensions": { "Operation": "TranscriptionJob", "LanguageCode": "es-US" },
+    "dimensions": { "Operation": "TranscriptionJob", "LanguageCode": "de-DE" },
     "transcribe": {
-      "transcription_job_name": "transcribe-bjkh6853",
-      "transcription_job_status": "COMPLETED",
-      "language_code": "es-US",
-      "media_format": "flac",
-      "media_uri": "s3://audio-bucket/transcribe-bjkh6853.mp3",
-      "audio_duration_minutes": 82.42519675314755,
-      "word_count": 12364,
-      "speaker_count": 3,
+      "transcription_job_name": "transcribe-n687dlkt",
+      "transcription_job_status": "FAILED",
+      "language_code": "de-DE",
+      "media_format": "mp3",
+      "media_uri": "s3://audio-bucket/transcribe-n687dlkt.mp3",
+      "audio_duration_minutes": 0.274634853354171,
+      "word_count": 0,
+      "vocabulary_name": "custom-medical-terms",
+      "speaker_count": 1,
       "content_redaction_enabled": false,
+      "error_code": "InternalFailure",
       "metrics": {
-        "TranscriptionJobsCompleted": { "sum": 1 },
-        "TranscriptionJobsFailed": { "sum": 0 },
-        "TranscriptionJobsPending": { "avg": 2 },
+        "TranscriptionJobsCompleted": { "sum": 0 },
+        "TranscriptionJobsFailed": { "sum": 1 },
+        "TranscriptionJobsPending": { "avg": 6 },
         "TranscriptionJobsRunning": { "avg": 4 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-transcribe-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-transcribe-logs-164820739518"
+        "name": "aws-transcribe-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-transcribe-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/transcribe/ap-northeast-2/2026/04/09/transcribe_GGVTFXM5JIW.log.gz"
+        "key": "AWSLogs/293847561023/transcribe/us-east-2/2026/04/10/transcribe_YKUXCSIVOZF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/transcribe/logs",
-      "log_stream": "ap-northeast-2/dyqot2ui",
-      "ingestion_time": "2026-04-09T10:32:56.104Z"
+      "log_stream": "us-east-2/tvflq0vq",
+      "ingestion_time": "2026-04-10T08:43:16.257Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.transcribe",
     "provider": "transcribe.amazonaws.com",
     "module": "aws"
   },
-  "message": "Transcribe job transcribe-bjkh6853: 82.4 min audio (es-US)",
-  "log": { "level": "info" },
+  "message": "Transcribe job transcribe-n687dlkt FAILED (de-DE): Access denied",
+  "log": { "level": "error" },
+  "error": { "code": "TranscribeError", "message": "Transcribe job failed", "type": "ml" },
   "service": { "name": "transcribe", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.transcribe", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "q0ac9adqwmf"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "jchdmwuzjy8"
   },
   "input": { "type": "aws-cloudwatch" }
 }

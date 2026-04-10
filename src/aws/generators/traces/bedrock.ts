@@ -147,7 +147,12 @@ const APP_CONFIGS = [
   },
 ];
 
-function genAiLabels(modelId, inputTokens, outputTokens, finishReason) {
+function genAiLabels(
+  modelId: string,
+  inputTokens: number,
+  outputTokens: number,
+  finishReason: string
+): Record<string, string> {
   return {
     gen_ai_system: "aws.bedrock",
     gen_ai_request_model: modelId,
@@ -157,7 +162,13 @@ function genAiLabels(modelId, inputTokens, outputTokens, finishReason) {
   };
 }
 
-function buildRetrievalSpan(traceId, txId, parentId, ts, spanOffsetMs) {
+function buildRetrievalSpan(
+  traceId: string,
+  txId: string,
+  parentId: string,
+  ts: string,
+  spanOffsetMs: number
+) {
   const id = newSpanId();
   const durationUs = randInt(50, 500) * 1000;
 
@@ -183,17 +194,17 @@ function buildRetrievalSpan(traceId, txId, parentId, ts, spanOffsetMs) {
 }
 
 function buildLlmSpan(
-  traceId,
-  txId,
-  parentId,
-  ts,
-  modelId,
-  inputTokens,
-  outputTokens,
-  finishReason,
-  isErr,
-  spanOffsetMs,
-  llmMs
+  traceId: string,
+  txId: string,
+  parentId: string,
+  ts: string,
+  modelId: string,
+  inputTokens: number,
+  outputTokens: number,
+  finishReason: string,
+  isErr: boolean,
+  spanOffsetMs: number,
+  llmMs: number
 ) {
   const id = newSpanId();
   const durationUs = llmMs * 1000;
@@ -224,7 +235,13 @@ function buildLlmSpan(
   };
 }
 
-function buildGuardrailsSpan(traceId, txId, parentId, ts, spanOffsetMs) {
+function buildGuardrailsSpan(
+  traceId: string,
+  txId: string,
+  parentId: string,
+  ts: string,
+  spanOffsetMs: number
+) {
   const id = newSpanId();
   const durationUs = randInt(50, 200) * 1000;
 
@@ -254,7 +271,7 @@ function buildGuardrailsSpan(traceId, txId, parentId, ts, spanOffsetMs) {
  * @param {number} er  - error rate 0.0–1.0
  * @returns {Object[]} array of APM documents (transaction first, then spans)
  */
-export function generateBedrockTrace(ts, er) {
+export function generateBedrockTrace(ts: string, er: number) {
   const cfg = rand(APP_CONFIGS);
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);

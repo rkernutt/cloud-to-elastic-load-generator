@@ -324,17 +324,26 @@ const SERVICE_CONFIGS = [
   },
 ];
 
+/** Span step from SERVICE_CONFIGS (literal type widens to string when mapped). */
+type RdsSqlSpanDef = {
+  type: string;
+  name?: string;
+  stmt?: string;
+  table?: string;
+  action?: string;
+};
+
 function buildSqlSpan(
-  traceId,
-  txId,
-  parentId,
-  ts,
-  spanDef,
-  dbName,
-  dbHost,
-  isErr,
-  spanOffsetMs,
-  isSlow
+  traceId: string,
+  txId: string,
+  parentId: string,
+  ts: string,
+  spanDef: RdsSqlSpanDef,
+  dbName: string,
+  dbHost: string,
+  isErr: boolean,
+  spanOffsetMs: number,
+  isSlow: boolean
 ) {
   const id = newSpanId();
 
@@ -369,8 +378,10 @@ function buildSqlSpan(
   const durationUs = randInt(minMs, maxMs) * 1000;
 
   // Derive a short span name: "SELECT orders", "INSERT users", etc.
-  const statementType = spanDef.stmt.trim().split(/\s+/)[0].toUpperCase();
-  const spanName = `${statementType} ${spanDef.table}`;
+  const stmt = spanDef.stmt ?? "";
+  const table = spanDef.table ?? "";
+  const statementType = stmt.trim().split(/\s+/)[0].toUpperCase();
+  const spanName = `${statementType} ${table}`;
 
   return {
     "@timestamp": offsetTs(new Date(ts), spanOffsetMs),
@@ -384,8 +395,8 @@ function buildSqlSpan(
       subtype: "postgresql",
       name: spanName,
       duration: { us: durationUs },
-      action: spanDef.action,
-      db: { type: "sql", statement: spanDef.stmt },
+      action: spanDef.action ?? "query",
+      db: { type: "sql", statement: stmt },
       destination: { service: { resource: "postgresql", type: "db", name: "postgresql" } },
     },
     labels: { db_name: dbName, db_host: dbHost },
@@ -400,7 +411,7 @@ function buildSqlSpan(
  * @param {number} er  - error rate 0.0–1.0
  * @returns {Object[]} array of APM documents (transaction first, then spans)
  */
-export function generateRdsTrace(ts, er) {
+export function generateRdsTrace(ts: string, er: number) {
   const cfg = rand(SERVICE_CONFIGS);
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);

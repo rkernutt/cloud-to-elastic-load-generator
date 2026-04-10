@@ -40,7 +40,7 @@ import {
 //                        └── SPAN: Redshift COPY
 //                             └── TX: sm-pipeline-feature-prep (SageMaker Processing)
 
-function workflowPipelineS3SqsChained(ts, er) {
+function workflowPipelineS3SqsChained(ts: string, er: number) {
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);
   const env = rand(ENVS);
@@ -737,7 +737,7 @@ function workflowPipelineS3SqsChained(ts, er) {
 //         └── SPAN: SageMakerFeaturePrep (Task)
 //              └── TX: sm-unified-prep (SageMaker Processing)
 
-function workflowPipelineSfnData(ts, er) {
+function workflowPipelineSfnData(ts: string, er: number) {
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);
   const env = rand(ENVS);
@@ -1337,11 +1337,11 @@ function workflowPipelineSfnData(ts, er) {
 }
 
 /** S3 notification → SQS → Lambda → Glue → S3 curated + Redshift + SageMaker Processing */
-export function generatePipelineS3SqsChainedTrace(ts, er) {
+export function generatePipelineS3SqsChainedTrace(ts: string, er: number) {
   return workflowPipelineS3SqsChained(ts, er);
 }
 
 /** EventBridge → Step Functions → Glue + parallel S3/Redshift + SageMaker (data lake pipeline) */
-export function generatePipelineStepFunctionsOrchestratedTrace(ts, er) {
+export function generatePipelineStepFunctionsOrchestratedTrace(ts: string, er: number) {
   return workflowPipelineSfnData(ts, er);
 }

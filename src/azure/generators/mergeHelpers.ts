@@ -8,9 +8,9 @@ import type { MetricGenerator } from "../../aws/generators/types.js";
 export function mergeAzureLogVariants(
   variants: Array<(ts: string, er: number) => EcsDocument>
 ): (ts: string, er: number) => EcsDocument {
-  return (ts, er) => rand(variants)(ts, er);
+  return (ts: string, er: number) => rand(variants)(ts, er);
 }
 
 export function mergeAzureMetricVariants(variants: MetricGenerator[]): MetricGenerator {
-  return (ts, er) => rand(variants)(ts, er);
+  return (ts: string, er: number) => rand(variants)(ts, er);
 }

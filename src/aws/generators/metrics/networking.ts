@@ -32,7 +32,7 @@ const LB_NAMES = [
   "tcp-nlb",
 ];
 
-export function generateAlbMetrics(ts, er) {
+export function generateAlbMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(
     LB_NAMES.filter((n) => n.includes("alb")),
@@ -71,7 +71,7 @@ export function generateAlbMetrics(ts, er) {
   });
 }
 
-export function generateNlbMetrics(ts, er) {
+export function generateNlbMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(
     LB_NAMES.filter((n) => n.includes("nlb")),
@@ -111,7 +111,7 @@ const APIGW_APIS = [
 ];
 const APIGW_STAGES = ["prod", "v1", "v2", "staging", "dev"];
 
-export function generateApigatewayMetrics(ts, er) {
+export function generateApigatewayMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const api = rand(APIGW_APIS);
   const stage = rand(APIGW_STAGES);
@@ -148,7 +148,7 @@ export function generateApigatewayMetrics(ts, er) {
 
 const CF_DISTRIBUTIONS = ["E1ABCDEF123456", "E2BCDEFG234567", "E3CDEFGH345678", "E4DEFGHI456789"];
 
-export function generateCloudfrontMetrics(ts, er) {
+export function generateCloudfrontMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(CF_DISTRIBUTIONS, randInt(1, 3)).map((distId) => {
     const req = randInt(5_000, 10_000_000);
@@ -177,7 +177,7 @@ export function generateCloudfrontMetrics(ts, er) {
 
 // ─── NAT Gateway ──────────────────────────────────────────────────────────────
 
-export function generateNatgatewayMetrics(ts, er) {
+export function generateNatgatewayMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return Array.from({ length: randInt(1, 3) }, (_, _i) => {
     const natId = `nat-${randInt(100000000, 999999999)}`;
@@ -205,7 +205,7 @@ export function generateNatgatewayMetrics(ts, er) {
 
 // ─── Transit Gateway ──────────────────────────────────────────────────────────
 
-export function generateTransitgatewayMetrics(ts, er) {
+export function generateTransitgatewayMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const tgwId = `tgw-${randInt(100000000, 999999999)}`;
   return [
@@ -229,7 +229,7 @@ export function generateTransitgatewayMetrics(ts, er) {
 
 // ─── VPN ──────────────────────────────────────────────────────────────────────
 
-export function generateVpnMetrics(ts, er) {
+export function generateVpnMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return Array.from({ length: randInt(1, 2) }, () => {
     const vpnId = `vpn-${randInt(100000000, 999999999)}`;
@@ -252,7 +252,7 @@ export function generateVpnMetrics(ts, er) {
 
 // ─── Network Firewall ─────────────────────────────────────────────────────────
 
-export function generateNetworkfirewallMetrics(ts, er) {
+export function generateNetworkfirewallMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const fwName = rand(["prod-firewall", "egress-fw", "inspection-fw", "perimeter-fw"]);
   return [
@@ -274,7 +274,7 @@ export function generateNetworkfirewallMetrics(ts, er) {
 
 // ─── Global Accelerator ───────────────────────────────────────────────────────
 
-export function generateGlobalacceleratorMetrics(ts, er) {
+export function generateGlobalacceleratorMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -296,7 +296,7 @@ export function generateGlobalacceleratorMetrics(ts, er) {
 
 // ─── Direct Connect ───────────────────────────────────────────────────────────
 
-export function generateDirectconnectMetrics(ts, er) {
+export function generateDirectconnectMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -320,7 +320,7 @@ export function generateDirectconnectMetrics(ts, er) {
 
 // ─── VPC ──────────────────────────────────────────────────────────────────────
 
-export function generateVpcMetrics(ts, er) {
+export function generateVpcMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -343,7 +343,7 @@ export function generateVpcMetrics(ts, er) {
 
 // ─── PrivateLink ──────────────────────────────────────────────────────────────
 
-export function generatePrivatelinkMetrics(ts, er) {
+export function generatePrivatelinkMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(

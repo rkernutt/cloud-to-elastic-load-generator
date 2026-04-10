@@ -10,15 +10,15 @@ import { describe, it, expect } from "vitest";
 const MAX_RETRIES = 3;
 const BACKOFF_BASE_MS = 1000;
 
-function getRetryDelay(retryCount) {
+function getRetryDelay(retryCount: number) {
   return BACKOFF_BASE_MS * Math.pow(2, retryCount);
 }
 
-function isRetryableStatusCode(statusCode, retryCount) {
+function isRetryableStatusCode(statusCode: number, retryCount: number) {
   return statusCode >= 500 && retryCount < MAX_RETRIES;
 }
 
-function isRetryableError(code, retryCount) {
+function isRetryableError(code: string, retryCount: number) {
   return (
     (code === "ECONNRESET" || code === "ETIMEDOUT" || code === "ECONNREFUSED") &&
     retryCount < MAX_RETRIES

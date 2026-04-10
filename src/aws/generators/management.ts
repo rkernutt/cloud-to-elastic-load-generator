@@ -349,7 +349,7 @@ function generateTrustedAdvisorLog(ts: string, er: number): EcsDocument {
     fault_tolerance: ["Amazon S3 Bucket Versioning", "Multi-AZ for RDS", "Amazon RDS Backups"],
     service_limits: ["EC2 On-Demand Instances", "RDS DB Instances", "VPCs"],
   };
-  const check = rand(checks[cat]);
+  const check = rand(checks[cat as keyof typeof checks]);
   const status = isFinding ? rand(["error", "warning"]) : "ok";
   return {
     "@timestamp": ts,

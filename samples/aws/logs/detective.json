@@ -1,52 +1,57 @@
 {
-  "@timestamp": "2026-04-09T10:32:55.502Z",
+  "@timestamp": "2026-04-10T08:43:15.441Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-southeast-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "detective" }
   },
   "aws": {
     "detective": {
-      "entity_type": "AwsAccount",
-      "entity_id": "arn:aws:iam::501938274650:user/suspicious",
-      "behavior_type": "Normal",
-      "severity_score": 1.6252037857202495,
-      "finding_count": 0
+      "entity_type": "AwsIamRole",
+      "entity_id": "i-guim3a7rnbh",
+      "behavior_type": "Credential Compromise",
+      "severity_score": 79.18492662908456,
+      "finding_count": 11
     },
     "s3": {
       "bucket": {
-        "name": "aws-detective-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-detective-logs-501938274650"
+        "name": "aws-detective-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-detective-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/501938274650/detective/il-central-1/2026/04/09/detective_Z5W0O5FHCE.log.gz"
+        "key": "AWSLogs/738291046572/detective/ap-southeast-2/2026/04/10/detective_SAFPHVC0VC9.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/detective/logs",
-      "log_stream": "il-central-1/2tusdglz",
-      "ingestion_time": "2026-04-09T10:32:55.967Z"
+      "log_stream": "ap-southeast-2/vvkjr1au",
+      "ingestion_time": "2026-04-10T08:43:16.059Z"
     }
   },
   "event": {
-    "kind": "event",
-    "outcome": "success",
+    "kind": "alert",
+    "outcome": "failure",
     "category": "intrusion_detection",
     "dataset": "aws.detective",
     "provider": "detective.amazonaws.com",
     "module": "aws"
   },
-  "message": "Detective: entity behavior within normal baseline",
-  "log": { "level": "info" },
+  "message": "Detective [HIGH]: Credential Compromise detected - 9 related findings",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "AnomalousBehavior",
+    "message": "Credential Compromise detected",
+    "type": "security"
+  },
   "service": { "name": "detective", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.detective", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "lynzh0z7w7h"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "q3xpe6r7rgr"
   },
   "input": { "type": "http_endpoint" }
 }

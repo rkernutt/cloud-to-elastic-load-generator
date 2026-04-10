@@ -47,7 +47,7 @@ export const TRACE_ACCOUNTS = [
 ];
 
 /** Lowercase hex string of `len` characters (len = 2× byte count). */
-export function randHex(len) {
+export function randHex(len: number) {
   let h = "";
   for (let i = 0; i < len; i++) h += Math.floor(Math.random() * 16).toString(16);
   return h;
@@ -63,18 +63,18 @@ export function newSpanId() {
   return randHex(16);
 }
 
-export function rand(arr) {
+export function rand<T>(arr: readonly T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
-export function randInt(min, max) {
+export function randInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-export function randFloat(min, max, dp = 2) {
+export function randFloat(min: number, max: number, dp = 2) {
   return parseFloat((Math.random() * (max - min) + min).toFixed(dp));
 }
 
 /** Offset a Date by +ms and return ISO string. */
-export function offsetTs(baseDate, offsetMs) {
+export function offsetTs(baseDate: Date, offsetMs: number) {
   return new Date(baseDate.getTime() + offsetMs).toISOString();
 }
 
@@ -82,7 +82,14 @@ export function offsetTs(baseDate, offsetMs) {
  * Build the common service block for all APM docs in a trace.
  * language: "python" | "nodejs" | "java" | "go"
  */
-export function serviceBlock(name, environment, language, framework, runtimeName, runtimeVersion) {
+export function serviceBlock(
+  name: string,
+  environment: string,
+  language: string,
+  framework: string | null | undefined,
+  runtimeName: string,
+  runtimeVersion: string
+) {
   return {
     name,
     environment,
@@ -97,21 +104,26 @@ export function serviceBlock(name, environment, language, framework, runtimeName
  * Build the agent + telemetry blocks for OTel (OTLP) ingestion via EDOT.
  * distro: "elastic" (EDOT) | "aws" (ADOT)
  */
-export function otelBlocks(language, distro = "elastic") {
-  const sdkVersions = { python: "1.29.0", nodejs: "1.30.1", java: "2.12.0", go: "1.32.0" };
+export type OtelLang = "python" | "nodejs" | "java" | "go";
+type OtelDistro = "elastic" | "aws";
+
+export function otelBlocks(language: string, distro: string = "elastic") {
+  const sdkVersions = { python: "1.29.0", nodejs: "1.30.1", java: "2.12.0", go: "1.32.0" } as const;
   const distroVersions = {
     elastic: { python: "0.6.0", nodejs: "1.4.0", java: "1.6.0", go: "0.5.0" },
     aws: { python: "1.0.4", nodejs: "1.30.1", java: "1.32.2", go: "1.32.0" },
-  };
+  } as const;
+  const d: OtelDistro = distro === "aws" ? "aws" : "elastic";
+  const lang = language as OtelLang;
   return {
     ecs: { version: "8.11.0" },
-    agent: { name: "otlp", version: distroVersions[distro]?.[language] ?? "1.0.0" },
+    agent: { name: "otlp", version: distroVersions[d][lang] ?? "1.0.0" },
     input: { type: "opentelemetry" },
     telemetry: {
-      sdk: { name: "opentelemetry", language, version: sdkVersions[language] ?? "1.0.0" },
+      sdk: { name: "opentelemetry", language, version: sdkVersions[lang] ?? "1.0.0" },
       distro: {
-        name: distro === "elastic" ? "elastic" : "aws-otel",
-        version: distroVersions[distro]?.[language] ?? "1.0.0",
+        name: d === "elastic" ? "elastic" : "aws-otel",
+        version: distroVersions[d][lang] ?? "1.0.0",
       },
     },
   };

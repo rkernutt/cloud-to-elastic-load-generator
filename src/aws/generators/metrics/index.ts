@@ -157,8 +157,12 @@ import {
 import { makeGenericGenerator } from "./generic.js";
 import { ELASTIC_METRICS_DATASET_MAP, ELASTIC_DATASET_MAP } from "../../../data/elasticMaps";
 
-function dataset(svcId) {
-  return ELASTIC_METRICS_DATASET_MAP[svcId] ?? ELASTIC_DATASET_MAP[svcId] ?? `aws.${svcId}`;
+function dataset(
+  svcId: keyof typeof ELASTIC_METRICS_DATASET_MAP | keyof typeof ELASTIC_DATASET_MAP | string
+) {
+  const m = ELASTIC_METRICS_DATASET_MAP[svcId as keyof typeof ELASTIC_METRICS_DATASET_MAP];
+  const d = ELASTIC_DATASET_MAP[svcId as keyof typeof ELASTIC_DATASET_MAP];
+  return m ?? d ?? `aws.${svcId}`;
 }
 
 const GENERIC_SERVICE_IDS = [

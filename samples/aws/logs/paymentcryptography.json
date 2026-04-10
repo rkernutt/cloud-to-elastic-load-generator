@@ -1,22 +1,22 @@
 {
-  "@timestamp": "2026-04-09T10:32:55.502Z",
+  "@timestamp": "2026-04-10T08:43:15.441Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
+    "region": "ap-southeast-3",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "paymentcryptography" }
   },
   "aws": {
-    "dimensions": { "KeyAlgorithm": "AES_128", "Operation": "GeneratePinData" },
+    "dimensions": { "KeyAlgorithm": "RSA_2048", "Operation": "DecryptData" },
     "paymentcryptography": {
-      "key_arn": "arn:aws:payment-cryptography:eu-south-2:738291046572:key/25AK9QPD3SK",
+      "key_arn": "arn:aws:payment-cryptography:ap-southeast-3:738291046572:key/O7I7D4WO93",
       "key_alias": "alias/payment-pin-key",
-      "key_algorithm": "AES_128",
-      "key_usage": "TR31_M3_ISO_9797_3_MAC_KEY",
-      "operation": "GeneratePinData",
-      "key_state": "DELETE_PENDING",
+      "key_algorithm": "RSA_2048",
+      "key_usage": "TR31_P0_PIN_ENCRYPTION_KEY",
+      "operation": "DecryptData",
+      "key_state": "CREATE_COMPLETE",
       "exportable": false,
-      "key_check_value": "RZYVEZ"
+      "key_check_value": "87VRZF"
     },
     "s3": {
       "bucket": {
@@ -24,38 +24,33 @@
         "arn": "arn:aws:s3:::aws-paymentcryptography-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/738291046572/paymentcryptography/eu-south-2/2026/04/09/paymentcryptography_1MGNN0A69BX.log.gz"
+        "key": "AWSLogs/738291046572/paymentcryptography/ap-southeast-3/2026/04/10/paymentcryptography_XORC24KQE5I.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/paymentcryptography/logs",
-      "log_stream": "eu-south-2/mdtfuyxp",
-      "ingestion_time": "2026-04-09T10:32:55.988Z"
+      "log_stream": "ap-southeast-3/s93vszo3",
+      "ingestion_time": "2026-04-10T08:43:16.082Z"
     }
   },
   "event": {
-    "action": "DeleteKey",
-    "outcome": "failure",
+    "action": "VerifyPinData",
+    "outcome": "success",
     "category": ["authentication"],
     "dataset": "aws.paymentcryptography",
     "provider": "payment-cryptography.amazonaws.com",
     "module": "aws"
   },
-  "message": "Payment Cryptography GeneratePinData failed — key AES_128 state DELETE_PENDING",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ValidationException",
-    "message": "Payment Cryptography operation failed",
-    "type": "authentication"
-  },
+  "message": "Payment Cryptography DecryptData using RSA_2048 (P0)",
+  "log": { "level": "info" },
   "service": { "name": "paymentcryptography", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.paymentcryptography", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "ah6hd3knwld"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "hpxnynvf5r5"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -22,7 +22,7 @@ import type { EcsDocument } from "./types.js";
  * @param {number} er - Error rate in [0,1]; influences http_status and error block.
  * @returns {Object} ECS-style document with cloud, aws.s3access, aws.s3, http, event, message.
  */
-function generateS3Log(ts, er) {
+function generateS3Log(ts: string, er: number) {
   // ~10% chance of generating an Intelligent-Tiering event
   if (Math.random() < 0.1) {
     const r = rand(REGIONS);
@@ -866,7 +866,7 @@ function generateStorageGatewayLog(ts: string, er: number): EcsDocument {
  * @param {number} er - Error rate in [0,1]; influences outcome and message.
  * @returns {Object} ECS-style document with cloud, aws.s3storagelens, event, message.
  */
-function generateS3StorageLensLog(ts, er) {
+function generateS3StorageLensLog(ts: string, er: number) {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;

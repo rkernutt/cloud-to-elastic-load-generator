@@ -555,7 +555,7 @@ function generateWafLog(ts: string, er: number): EcsDocument {
   };
 }
 
-function generateWafv2Log(ts, er) {
+function generateWafv2Log(ts: string, er: number) {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;
@@ -677,7 +677,7 @@ function generateWafv2Log(ts, er) {
   };
 }
 
-function generateRoute53Log(ts, er) {
+function generateRoute53Log(ts: string, er: number) {
   const acct = randAccount();
   const isErr = Math.random() < er;
   const domains = [
@@ -1716,7 +1716,7 @@ function generateVpcIpamLog(ts: string, er: number): EcsDocument {
   };
 }
 
-function generatePrivate5gLog(ts, er) {
+function generatePrivate5gLog(ts: string, er: number) {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;

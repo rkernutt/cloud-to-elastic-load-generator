@@ -18,7 +18,108 @@ const RUNTIME_VERSION = {
   "nodejs18.x": "18.20.4",
   "nodejs20.x": "20.15.1",
   java21: "21.0.3",
-};
+} as const;
+
+/** AWS cloud block as produced by `cloudBlock`. */
+export interface WorkflowCloudBlock {
+  provider: string;
+  region: string;
+  account: { id: string; name: string };
+  service: { name: string };
+}
+
+/** FaaS (Lambda) block as produced by `faasBlock`. */
+export interface WorkflowFaasBlock {
+  name: string;
+  id: string;
+  version: string;
+  coldstart: boolean;
+  execution: string;
+  trigger: { type: string };
+}
+
+export interface WorkflowTxDocArgs {
+  ts: string;
+  traceId: string;
+  txId: string;
+  /** Omitted for the trace root; otherwise the invoking span id. */
+  parentId?: string;
+  serviceName: string;
+  environment: string;
+  language: string;
+  runtime: string;
+  framework?: string | null;
+  txType: string;
+  txName: string;
+  durationUs: number;
+  isErr: boolean;
+  spanCount?: number;
+  cloud: WorkflowCloudBlock;
+  faas?: WorkflowFaasBlock;
+  labels?: Record<string, string>;
+  distro?: string;
+}
+
+export interface WorkflowSpanDb {
+  type: string;
+  statement: string;
+}
+
+export interface WorkflowSpanDocArgs {
+  ts: string;
+  traceId: string;
+  txId: string;
+  parentId: string;
+  spanId: string;
+  spanType: string;
+  spanSubtype: string;
+  spanName: string;
+  spanAction: string;
+  durationUs: number;
+  isErr: boolean;
+  db?: WorkflowSpanDb;
+  destination?: string;
+  labels?: Record<string, string>;
+  serviceName: string;
+  environment: string;
+  language: string;
+  runtime: string;
+  distro?: string;
+}
+
+/** Stack frame shapes passed to `errorDoc` (Python-style or Java-style). */
+export type WorkflowErrorStackFrame =
+  | {
+      function: string;
+      filename: string;
+      lineno: number;
+      library_frame: boolean;
+    }
+  | {
+      classname: string;
+      function: string;
+      filename: string;
+      lineno: number;
+      library_frame: boolean;
+    };
+
+export interface WorkflowErrorDocArgs {
+  ts: string;
+  traceId: string;
+  txId: string;
+  txType: string;
+  parentId: string;
+  exceptionType: string;
+  exceptionMessage: string;
+  culprit: string;
+  handled?: boolean;
+  frames?: readonly WorkflowErrorStackFrame[];
+  serviceName: string;
+  environment: string;
+  language: string;
+  runtime: string;
+  distro?: string;
+}
 
 // ─── Low-level document builders ─────────────────────────────────────────────
 
@@ -27,7 +128,7 @@ const RUNTIME_VERSION = {
  * `parentId` is undefined for the root service; set it to the invoking span ID
  * for downstream services so APM can stitch the distributed trace.
  */
-function txDoc(args: any) {
+function txDoc(args: WorkflowTxDocArgs) {
   const {
     ts,
     traceId,
@@ -54,7 +155,7 @@ function txDoc(args: any) {
     language,
     framework ?? null,
     runtime,
-    RUNTIME_VERSION[runtime] ?? "1.0.0"
+    RUNTIME_VERSION[runtime as keyof typeof RUNTIME_VERSION] ?? "1.0.0"
   );
   const { agent, telemetry } = otelBlocks(language, distro);
 
@@ -101,7 +202,7 @@ function txDoc(args: any) {
  * `txId`     = the transaction this span belongs to (for grouping in APM).
  * `parentId` = the immediate parent (could be txId or another span's id).
  */
-function spanDoc(args: any) {
+function spanDoc(args: WorkflowSpanDocArgs) {
   const {
     ts,
     traceId,
@@ -129,7 +230,7 @@ function spanDoc(args: any) {
     language,
     null,
     runtime,
-    RUNTIME_VERSION[runtime] ?? "1.0.0"
+    RUNTIME_VERSION[runtime as keyof typeof RUNTIME_VERSION] ?? "1.0.0"
   );
   const { agent, telemetry } = otelBlocks(language, distro);
 
@@ -161,7 +262,7 @@ function spanDoc(args: any) {
 }
 
 /** Build the standard AWS cloud block. */
-function cloudBlock(region, account, awsService) {
+function cloudBlock(region: string, account: { id: string; name: string }, awsService: string): WorkflowCloudBlock {
   return {
     provider: "aws",
     region: region,
@@ -175,7 +276,7 @@ function cloudBlock(region, account, awsService) {
  * Errors land in logs-apm.error-* (data_stream.type = "logs").
  * The parent.id ties the error to the tx or span where it occurred.
  */
-function errorDoc(args: any) {
+function errorDoc(args: WorkflowErrorDocArgs) {
   const {
     ts,
     traceId,
@@ -199,7 +300,7 @@ function errorDoc(args: any) {
     language,
     null,
     runtime,
-    RUNTIME_VERSION[runtime] ?? "1.0.0"
+    RUNTIME_VERSION[runtime as keyof typeof RUNTIME_VERSION] ?? "1.0.0"
   );
   const { agent, telemetry } = otelBlocks(language, distro);
   return {
@@ -233,13 +334,13 @@ function errorDoc(args: any) {
 
 const FRAMES = {
   // Python Lambda — task timeout (Runtime.ExitError)
-  python_timeout: (fn) => [
+  python_timeout: (fn: string) => [
     { function: "handler", filename: `${fn}.py`, lineno: 47, library_frame: false },
     { function: "_execute", filename: `${fn}.py`, lineno: 31, library_frame: false },
     { function: "invoke", filename: "botocore/endpoint.py", lineno: 174, library_frame: true },
   ],
   // Python — DynamoDB ProvisionedThroughputExceededException
-  python_dynamo_throttle: (fn) => [
+  python_dynamo_throttle: (fn: string) => [
     {
       function: "_make_api_call",
       filename: "botocore/client.py",
@@ -256,7 +357,7 @@ const FRAMES = {
     { function: "handler", filename: `${fn}.py`, lineno: 14, library_frame: false },
   ],
   // Python — Bedrock ThrottlingException
-  python_bedrock_throttle: (fn) => [
+  python_bedrock_throttle: (fn: string) => [
     {
       function: "_make_api_call",
       filename: "botocore/client.py",
@@ -267,7 +368,7 @@ const FRAMES = {
     { function: "handler", filename: `${fn}.py`, lineno: 19, library_frame: false },
   ],
   // Python — SageMaker ResourceLimitExceeded (throttle)
-  python_sagemaker_throttle: (fn) => [
+  python_sagemaker_throttle: (fn: string) => [
     {
       function: "create_processing_job",
       filename: "botocore/client.py",
@@ -284,7 +385,7 @@ const FRAMES = {
     { function: "handler", filename: `${fn}.py`, lineno: 15, library_frame: false },
   ],
   // Python — Redshift COPY S3ServiceException
-  python_redshift: (fn) => [
+  python_redshift: (fn: string) => [
     { function: "execute", filename: "psycopg2/cursor.py", lineno: 122, library_frame: true },
     { function: "fetchall", filename: "psycopg2/cursor.py", lineno: 136, library_frame: true },
     { function: "run_copy", filename: `${fn}.py`, lineno: 61, library_frame: false },
@@ -383,7 +484,7 @@ const FRAMES = {
  * or partition skew. ~7% of calls produce a 2.5–4× spike; the rest pass through.
  * Only applied to long-running stages (Glue, Redshift, SageMaker) — not API calls.
  */
-function spike(baseUs, prob = 0.07, lo = 2.5, hi = 4.0) {
+function spike(baseUs: number, prob = 0.07, lo = 2.5, hi = 4.0) {
   return Math.random() < prob ? Math.round(baseUs * randFloat(lo, hi)) : baseUs;
 }
 
@@ -392,14 +493,14 @@ function spike(baseUs, prob = 0.07, lo = 2.5, hi = 4.0) {
  * Python and Node cold starts are 300 ms–2.5 s and 150 ms–1.2 s respectively.
  * Only called when faas.coldstart is true (~8 % of invocations).
  */
-function coldStartInitUs(runtime) {
+function coldStartInitUs(runtime: string) {
   if (runtime === "java21") return randInt(2000, 8000) * 1000;
   if (runtime === "nodejs18.x" || runtime === "nodejs20.x") return randInt(150, 1200) * 1000;
   return randInt(300, 2500) * 1000; // Python default
 }
 
 /** Build a FaaS block for Lambda transactions. */
-function faasBlock(funcName, region, accountId, trigger = "other") {
+function faasBlock(funcName: string, region: string, accountId: string, trigger = "other") {
   const executionId = `${randHex(8)}-${randHex(4)}-${randHex(4)}-${randHex(4)}-${randHex(12)}`;
   const coldStart = Math.random() < 0.08;
   return {

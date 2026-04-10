@@ -102,7 +102,7 @@ const RUNTIME_LANG = {
   "nodejs20.x": "nodejs",
   java21: "java",
   "go1.x": "go",
-};
+} as const;
 
 const RUNTIME_VERSION = {
   "python3.11": "3.11.9",
@@ -111,10 +111,21 @@ const RUNTIME_VERSION = {
   "nodejs20.x": "20.15.1",
   java21: "21.0.3",
   "go1.x": "1.22.5",
-};
+} as const;
+
+type LambdaRuntime = keyof typeof RUNTIME_VERSION;
 
 // ─── Per-SDK-call span shape ──────────────────────────────────────────────────
-function buildSpan(traceId, txId, parentId, ts, sdkKey, isErr, spanOffset, spanDuration) {
+function buildSpan(
+  traceId: string,
+  txId: string,
+  parentId: string,
+  ts: string,
+  sdkKey: string,
+  isErr: boolean,
+  spanOffset: number,
+  spanDuration: number
+) {
   const id = newSpanId();
 
   const shapes = {
@@ -245,7 +256,7 @@ function buildSpan(traceId, txId, parentId, ts, sdkKey, isErr, spanOffset, spanD
     },
   };
 
-  const shape = shapes[sdkKey] || shapes.dynamodb;
+  const shape = shapes[sdkKey as keyof typeof shapes] || shapes.dynamodb;
   const spanName = shape.name();
   const spanAction = shape.action();
   const dbBlock = shape.db ? shape.db() : undefined;
@@ -277,13 +288,14 @@ function buildSpan(traceId, txId, parentId, ts, sdkKey, isErr, spanOffset, spanD
  * @param {number} er  - error rate 0.0–1.0
  * @returns {Object[]} array of APM documents (transaction first, then spans)
  */
-export function generateLambdaTrace(ts, er) {
+export function generateLambdaTrace(ts: string, er: number) {
   const cfg = rand(FUNCTION_CONFIGS);
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);
   const traceId = newTraceId();
   const txId = newSpanId();
-  const lang = RUNTIME_LANG[cfg.runtime] || "python";
+  const rt = cfg.runtime as LambdaRuntime;
+  const lang = RUNTIME_LANG[rt] || "python";
   const env = rand(["production", "production", "staging", "dev"]);
   const isErr = Math.random() < er;
   const coldStart = Math.random() < 0.08;
@@ -303,7 +315,7 @@ export function generateLambdaTrace(ts, er) {
     s3: "datastore",
     scheduled: "timer",
     eventbridge: "pubsub",
-  };
+  } as const;
 
   const svcBlock = serviceBlock(
     cfg.name,
@@ -311,7 +323,7 @@ export function generateLambdaTrace(ts, er) {
     lang,
     "AWS Lambda",
     cfg.runtime,
-    RUNTIME_VERSION[cfg.runtime] || "unknown"
+    RUNTIME_VERSION[rt] || "unknown"
   );
 
   const distro = rand(["elastic", "aws"]);
@@ -333,7 +345,9 @@ export function generateLambdaTrace(ts, er) {
       faas: {
         coldstart: coldStart,
         execution: executionId,
-        trigger: { type: triggerTypeMap[cfg.trigger] || "other" },
+        trigger: {
+          type: triggerTypeMap[cfg.trigger as keyof typeof triggerTypeMap] || "other",
+        },
       },
     },
     faas: {
@@ -342,7 +356,9 @@ export function generateLambdaTrace(ts, er) {
       version: "$LATEST",
       coldstart: coldStart,
       execution: executionId,
-      trigger: { type: triggerTypeMap[cfg.trigger] || "other" },
+      trigger: {
+        type: triggerTypeMap[cfg.trigger as keyof typeof triggerTypeMap] || "other",
+      },
     },
     service: svcBlock,
     agent: agent,

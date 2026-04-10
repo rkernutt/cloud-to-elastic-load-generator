@@ -116,14 +116,14 @@ const STAGE_TYPE_MAP = {
   messaging: { spanType: "messaging", subtype: "kinesis" },
 };
 
-const EMR_VERSIONS = ["7.1.0", "7.0.0", "6.15.0", "6.14.0", "6.13.0"];
+const EMR_VERSIONS = ["7.1.0", "7.0.0", "6.15.0", "6.14.0", "6.13.0"] as const;
 const SPARK_VERSIONS = {
   "7.1.0": "3.5.1",
   "7.0.0": "3.5.0",
   "6.15.0": "3.4.1",
   "6.14.0": "3.4.0",
   "6.13.0": "3.3.2",
-};
+} as const;
 
 /**
  * Generates an EMR Spark OTel trace: 1 transaction + 3–10 stage/query spans.
@@ -131,7 +131,7 @@ const SPARK_VERSIONS = {
  * @param {number} er  - error rate 0.0–1.0
  * @returns {Object[]} array of APM documents (transaction first, then spans)
  */
-export function generateEmrTrace(ts, er) {
+export function generateEmrTrace(ts: string, er: number) {
   const cfg = rand(JOB_CONFIGS);
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);
@@ -202,7 +202,8 @@ export function generateEmrTrace(ts, er) {
   cfg.stages.forEach((stage, i) => {
     const stageUs = Math.floor(totalUs * stageShare * randFloat(0.5, 1.4));
     const stageIsErr = isErr && i === cfg.stages.length - 1;
-    const stageMap = STAGE_TYPE_MAP[stage.type] || STAGE_TYPE_MAP.compute;
+    const stageMap =
+      STAGE_TYPE_MAP[stage.type as keyof typeof STAGE_TYPE_MAP] || STAGE_TYPE_MAP.compute;
     const inputRecs = randInt(stage.inputRecords[0], stage.inputRecords[1]);
     const shuffleBytes = stage.type === "compute" ? randInt(50, 2000) * 1024 * 1024 : 0; // MB → bytes
 

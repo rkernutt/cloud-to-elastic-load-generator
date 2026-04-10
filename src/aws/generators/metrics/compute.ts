@@ -43,7 +43,7 @@ const LAMBDA_NAMES = [
   "rate-limiter",
 ];
 
-export function generateLambdaMetrics(ts, er) {
+export function generateLambdaMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(LAMBDA_NAMES, randInt(3, 8)).map((name) => {
     const inv = randInt(0, 8000);
@@ -90,7 +90,7 @@ const EC2_INSTANCE_TYPES = [
   "r5.large",
 ];
 
-export function generateEc2Metrics(ts, er) {
+export function generateEc2Metrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(EC2_INSTANCE_TYPES, randInt(3, 10)).map((itype, idx) => {
     const instanceId = `i-${randId(17).toLowerCase()}`;
@@ -139,7 +139,7 @@ const ECS_SERVICES = [
   "inventory-service",
 ];
 
-export function generateEcsMetrics(ts, er) {
+export function generateEcsMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const cluster = rand(ECS_CLUSTERS);
   return sample(ECS_SERVICES, randInt(2, 5)).map((svc) => {
@@ -165,7 +165,7 @@ export function generateEcsMetrics(ts, er) {
   });
 }
 
-export function generateFargateMetrics(ts, er) {
+export function generateFargateMetrics(ts: string, er: number) {
   return generateEcsMetrics(ts, er).map((doc) => {
     const d = doc as Record<string, any>;
     return {
@@ -189,7 +189,7 @@ const EKS_NAMESPACES = [
   "applications",
 ];
 
-export function generateEksMetrics(ts, er) {
+export function generateEksMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const cluster = rand(EKS_CLUSTERS);
   return sample(EKS_NAMESPACES, randInt(2, 4)).map((ns) => {
@@ -218,7 +218,7 @@ export function generateEksMetrics(ts, er) {
 
 const APPRUNNER_SERVICES = ["web-app", "api-service", "backend-service", "frontend", "mobile-api"];
 
-export function generateApprunnerMetrics(ts, er) {
+export function generateApprunnerMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(APPRUNNER_SERVICES, randInt(1, 3)).map((svc) => {
     const req = randInt(100, 50_000);
@@ -249,7 +249,7 @@ export function generateApprunnerMetrics(ts, er) {
 
 const BATCH_QUEUES = ["high-priority", "standard", "low-priority", "spot-queue", "on-demand-queue"];
 
-export function generateBatchMetrics(ts, er) {
+export function generateBatchMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(BATCH_QUEUES, randInt(2, 4)).map((q) => {
     return metricDoc(
@@ -280,7 +280,7 @@ export function generateBatchMetrics(ts, er) {
 
 const EB_ENVS = ["production", "staging", "dev", "testing", "canary"];
 
-export function generateElasticbeanstalkMetrics(ts, er) {
+export function generateElasticbeanstalkMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(EB_ENVS, randInt(1, 3)).map((env) => {
     const req = randInt(100, 20_000);
@@ -319,7 +319,7 @@ const ECR_REPOS = [
   "ml/inference",
 ];
 
-export function generateEcrMetrics(ts, er) {
+export function generateEcrMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(ECR_REPOS, randInt(2, 5)).map((repo) => {
     return metricDoc(

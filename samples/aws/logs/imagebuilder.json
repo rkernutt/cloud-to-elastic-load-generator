@@ -1,62 +1,66 @@
 {
-  "@timestamp": "2026-04-09T10:32:55.502Z",
+  "@timestamp": "2026-04-10T08:43:15.441Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "us-west-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "imagebuilder" }
   },
   "aws": {
-    "dimensions": { "PipelineName": "windows-hardened", "Phase": "DEPROVISION" },
+    "dimensions": { "PipelineName": "container-base-pipeline", "Phase": "BUILD" },
     "imagebuilder": {
-      "pipeline_name": "windows-hardened",
-      "image_version": "2.0.5/1",
-      "phase": "DEPROVISION",
-      "phase_status": "COMPLETED",
-      "duration_seconds": 1797,
-      "os": "RHEL 9",
-      "recipe_name": "web-server-recipe",
-      "ami_id": "ami-r4122pk8",
+      "pipeline_name": "container-base-pipeline",
+      "image_version": "4.14.9/1",
+      "phase": "BUILD",
+      "phase_status": "FAILED",
+      "duration_seconds": 1385,
+      "os": "Ubuntu 22.04",
+      "recipe_name": "hardened-base",
       "metrics": {
-        "BuildDuration": { "avg": 1797 },
-        "ImageBuildSuccessCount": { "sum": 1 },
-        "ImageBuildFailureCount": { "sum": 0 },
-        "ComponentBuildDuration": { "avg": 268 }
+        "BuildDuration": { "avg": 1385 },
+        "ImageBuildSuccessCount": { "sum": 0 },
+        "ImageBuildFailureCount": { "sum": 1 },
+        "ComponentBuildDuration": { "avg": 378 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-imagebuilder-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-imagebuilder-logs-738291046572"
+        "name": "aws-imagebuilder-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-imagebuilder-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/imagebuilder/ap-southeast-1/2026/04/09/imagebuilder_8VEMXPPZV4.log.gz"
+        "key": "AWSLogs/501938274650/imagebuilder/us-west-2/2026/04/10/imagebuilder_EVYMS47Q9DN.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/imagebuilder/logs",
-      "log_stream": "ap-southeast-1/6017frhv",
-      "ingestion_time": "2026-04-09T10:32:55.907Z"
+      "log_stream": "us-west-2/vapd8tb9",
+      "ingestion_time": "2026-04-10T08:43:15.981Z"
     }
   },
   "event": {
     "category": ["process"],
-    "duration": 1797000000000,
-    "outcome": "success",
+    "duration": 1385000000000,
+    "outcome": "failure",
     "dataset": "aws.imagebuilder",
     "provider": "imagebuilder.amazonaws.com",
     "module": "aws"
   },
-  "message": "Running component: aws:UpdateOS",
-  "log": { "level": "info" },
+  "message": "Build failed in BUILD phase: Component execution failed",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ValidationFailed",
+    "message": "Build failed in BUILD phase: Component execution failed",
+    "type": "process"
+  },
   "service": { "name": "imagebuilder", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.imagebuilder", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "bmfamf3vrp"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "8hm3pldrsoy"
   },
   "input": { "type": "aws-cloudwatch" }
 }

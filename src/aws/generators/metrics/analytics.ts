@@ -31,7 +31,7 @@ const GLUE_JOBS = [
   "ml-feature-prep",
 ];
 
-export function generateGlueMetrics(ts, er) {
+export function generateGlueMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(GLUE_JOBS, randInt(1, 3)).map((job) => {
     const runId = `jr_${Math.random().toString(36).substring(2)}`;
@@ -66,7 +66,7 @@ const EMR_CLUSTERS = [
   { id: "j-DEF123456789", name: "flink-streaming", apps: ["Flink"] },
 ];
 
-export function generateEmrMetrics(ts, er) {
+export function generateEmrMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const cluster = rand(EMR_CLUSTERS);
   const coreNodes = randInt(2, 50);
@@ -105,7 +105,7 @@ export function generateEmrMetrics(ts, er) {
 
 const ATHENA_WORKGROUPS = ["primary", "analytics", "reporting", "data-science", "etl"];
 
-export function generateAthenaMetrics(ts, er) {
+export function generateAthenaMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(ATHENA_WORKGROUPS, randInt(1, 3)).map((wg) => {
     const queries = randInt(0, 5_000);
@@ -143,7 +143,7 @@ const SAGEMAKER_ENDPOINTS = [
   { name: "forecasting-prod", model: "deepar-forecast-v4", instance: "ml.m5.2xlarge" },
 ];
 
-export function generateSagemakerMetrics(ts, er) {
+export function generateSagemakerMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(SAGEMAKER_ENDPOINTS, randInt(1, 3)).map((ep) => {
     const invocations = randInt(0, 100_000);
@@ -189,7 +189,7 @@ const BEDROCK_MODELS = [
   "amazon.nova-pro-v1:0",
 ];
 
-export function generateBedrockMetrics(ts, er) {
+export function generateBedrockMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(BEDROCK_MODELS, randInt(1, 3)).map((modelId) => {
     const invocations = randInt(0, 10_000);
@@ -227,7 +227,7 @@ const BEDROCK_AGENTS = [
   "data-analyst",
 ];
 
-export function generateBedrockagentMetrics(ts, er) {
+export function generateBedrockagentMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(BEDROCK_AGENTS, randInt(1, 2)).map((agentName) => {
     const sessions = randInt(0, 1_000);
@@ -256,7 +256,7 @@ export function generateBedrockagentMetrics(ts, er) {
 
 // ─── Rekognition ──────────────────────────────────────────────────────────────
 
-export function generateRekognitionMetrics(ts, er) {
+export function generateRekognitionMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const ops = [
     "DetectLabels",
@@ -286,7 +286,7 @@ export function generateRekognitionMetrics(ts, er) {
 
 // ─── Transcribe ───────────────────────────────────────────────────────────────
 
-export function generateTranscribeMetrics(ts, er) {
+export function generateTranscribeMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -309,7 +309,7 @@ export function generateTranscribeMetrics(ts, er) {
 
 // ─── Translate ────────────────────────────────────────────────────────────────
 
-export function generateTranslateMetrics(ts, er) {
+export function generateTranslateMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -336,7 +336,7 @@ export function generateTranslateMetrics(ts, er) {
 
 // ─── Polly ────────────────────────────────────────────────────────────────────
 
-export function generatePollyMetrics(ts, er) {
+export function generatePollyMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -358,7 +358,7 @@ export function generatePollyMetrics(ts, er) {
 
 // ─── Comprehend ───────────────────────────────────────────────────────────────
 
-export function generateComprehendMetrics(ts, er) {
+export function generateComprehendMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const ops = [
     "DetectSentiment",
@@ -387,7 +387,7 @@ export function generateComprehendMetrics(ts, er) {
 
 // ─── Lex ──────────────────────────────────────────────────────────────────────
 
-export function generateLexMetrics(ts, er) {
+export function generateLexMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const bots = ["BookHotelBot", "OrderPizzaBot", "SupportBot", "ScheduleMeetingBot"];
   return sample(bots, randInt(1, 2)).map((bot) => {
@@ -416,7 +416,7 @@ export function generateLexMetrics(ts, er) {
 
 // ─── Forecast ─────────────────────────────────────────────────────────────────
 
-export function generateForecastMetrics(ts, er) {
+export function generateForecastMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -440,7 +440,7 @@ export function generateForecastMetrics(ts, er) {
 
 // ─── Personalize ──────────────────────────────────────────────────────────────
 
-export function generatePersonalizeMetrics(ts, er) {
+export function generatePersonalizeMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -462,7 +462,7 @@ export function generatePersonalizeMetrics(ts, er) {
 
 // ─── LookoutMetrics ───────────────────────────────────────────────────────────
 
-export function generateLookoutmetricsMetrics(ts, er) {
+export function generateLookoutmetricsMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -489,7 +489,7 @@ export function generateLookoutmetricsMetrics(ts, er) {
 
 // ─── Textract ─────────────────────────────────────────────────────────────────
 
-export function generateTextractMetrics(ts, er) {
+export function generateTextractMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const ops = [
     "DetectDocumentText",
@@ -517,7 +517,7 @@ export function generateTextractMetrics(ts, er) {
 
 // ─── LakeFormation ────────────────────────────────────────────────────────────
 
-export function generateLakeformationMetrics(ts, er) {
+export function generateLakeformationMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -539,7 +539,7 @@ export function generateLakeformationMetrics(ts, er) {
 
 // ─── QuickSight ───────────────────────────────────────────────────────────────
 
-export function generateQuicksightMetrics(ts, er) {
+export function generateQuicksightMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -564,7 +564,7 @@ export function generateQuicksightMetrics(ts, er) {
 
 // ─── AppFlow ──────────────────────────────────────────────────────────────────
 
-export function generateAppflowMetrics(ts, er) {
+export function generateAppflowMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -587,7 +587,7 @@ export function generateAppflowMetrics(ts, er) {
 
 // ─── DataBrew ─────────────────────────────────────────────────────────────────
 
-export function generateDatabrewMetrics(ts, er) {
+export function generateDatabrewMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -611,7 +611,7 @@ export function generateDatabrewMetrics(ts, er) {
 
 // ─── XRay ─────────────────────────────────────────────────────────────────────
 
-export function generateXrayMetrics(ts, _er) {
+export function generateXrayMetrics(ts: string, _er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -633,7 +633,7 @@ export function generateXrayMetrics(ts, _er) {
 
 // ─── SES ──────────────────────────────────────────────────────────────────────
 
-export function generateSesMetrics(ts, er) {
+export function generateSesMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const sent = randInt(0, 100_000);
   return [

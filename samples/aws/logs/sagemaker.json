@@ -1,37 +1,23 @@
 {
-  "@timestamp": "2026-04-09T10:32:55.502Z",
+  "@timestamp": "2026-04-10T08:43:15.441Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
+    "region": "il-central-1",
     "account": { "id": "814726593401", "name": "globex-production" },
-    "service": { "name": "sagemaker" }
+    "service": { "name": "sagemaker-model-monitor" }
   },
   "aws": {
-    "dimensions": { "TrainingJobName": "llama-finetuned-endpoint-k08gpv", "JobType": "Endpoint" },
-    "sagemaker": {
-      "domain_id": "d-d9dhky7wkw",
-      "domain_name": "nlp-experiments",
-      "user_profile": "bob-ml",
-      "job": {
-        "name": "llama-finetuned-endpoint-k08gpv",
-        "type": "Endpoint",
-        "arn": "arn:aws:sagemaker:us-east-2:814726593401:training-job/llama-finetuned-endpoint-k08gpv"
-      },
-      "model": { "name": "llama-finetuned", "version": 17 },
-      "pipeline": { "name": "feature-engineering-pipeline", "execution_id": "pipe-0s2hda7dx35r" },
-      "instance": { "type": "ml.p3.2xlarge", "count": 1 },
-      "metrics": { "gpu_utilization_pct": 80, "cpu_utilization_pct": 36 },
-      "studio": { "lifecycle_config": false, "continuous_logging": false },
-      "cloudwatch_metrics": {
-        "Invocations": { "sum": 2864 },
-        "ModelLatency": { "avg": 8 },
-        "GPUUtilization": { "avg": 71 },
-        "CPUUtilization": { "avg": 37 },
-        "DiskUtilization": { "avg": 57 },
-        "MemoryUtilization": { "avg": 56 },
-        "Invocations4XXError": { "sum": 0 },
-        "Invocations5XXError": { "sum": 0 }
-      }
+    "sagemaker_model_monitor": {
+      "endpoint_name": "fraud-detector-v2",
+      "monitoring_type": "ModelQuality",
+      "monitoring_schedule": "fraud-detector-v2-modelquality-schedule",
+      "execution_status": "Completed",
+      "violation_count": 0,
+      "violation_types": [],
+      "baseline_statistics_uri": "s3://sagemaker-il-central-1/baselines/fraud-detector-v2/statistics.json",
+      "constraints_uri": "s3://sagemaker-il-central-1/baselines/fraud-detector-v2/constraints.json",
+      "data_captured_count": 1659,
+      "features_analyzed": 90
     },
     "s3": {
       "bucket": {
@@ -39,35 +25,31 @@
         "arn": "arn:aws:s3:::aws-sagemaker-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/sagemaker/us-east-2/2026/04/09/sagemaker_54UE1ZZBAZC.log.gz"
+        "key": "AWSLogs/814726593401/sagemaker/il-central-1/2026/04/10/sagemaker_BXZZCXWS9F.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/sagemaker/logs",
-      "log_stream": "us-east-2/zybpvfqi",
-      "ingestion_time": "2026-04-09T10:32:56.093Z"
+      "log_stream": "il-central-1/dwbfnch6",
+      "ingestion_time": "2026-04-10T08:43:16.247Z"
     }
   },
-  "log": { "level": "info" },
-  "user": { "name": "bob-ml" },
   "event": {
-    "action": "EndpointInService",
-    "duration": 7210131072550.877,
     "outcome": "success",
-    "category": ["process"],
-    "dataset": "aws.sagemaker",
-    "provider": "sagemaker.amazonaws.com",
-    "module": "aws"
+    "duration": 812693214,
+    "module": "aws",
+    "dataset": "aws.sagemaker"
   },
-  "message": "Endpoint creation started",
+  "message": "Model Monitor fraud-detector-v2: ModelQuality passed (9331 samples)",
   "service": { "name": "sagemaker", "type": "aws" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sagemaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "980277r5iiw"
+    "name": "filebeat-aws-il-central-1",
+    "ephemeral_id": "oolvfizhpag"
   },
   "input": { "type": "aws-cloudwatch" }
 }

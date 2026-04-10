@@ -1,67 +1,71 @@
 {
-  "@timestamp": "2026-04-09T10:32:55.502Z",
+  "@timestamp": "2026-04-10T08:43:15.441Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "us-east-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "cognito" }
   },
   "aws": {
-    "dimensions": { "UserPool": "eu-central-1_MPNP017HX", "UserPoolClient": "b2b-customers-web" },
+    "dimensions": { "UserPool": "us-east-1_EUJDOP8JX", "UserPoolClient": "b2b-customers-web" },
     "cognito": {
-      "user_pool_id": "eu-central-1_MPNP017HX",
+      "user_pool_id": "us-east-1_EUJDOP8JX",
       "user_pool_name": "b2b-customers",
-      "event_type": "SignIn",
-      "username": "user-y1kvxyfw@example.com",
-      "source_ip": "107.23.21.120",
-      "mfa_type": "SOFTWARE_TOKEN_MFA",
+      "event_type": "TokenRefresh",
+      "error_code": "UserNotFoundException",
+      "source_ip": "216.1.190.178",
       "metrics": {
-        "SignInSuccesses": { "sum": 861 },
-        "SignInAttempts": { "sum": 861 },
-        "TokenRefreshSuccesses": { "sum": 15056 },
+        "SignInSuccesses": { "sum": 0 },
+        "SignInAttempts": { "sum": 4903 },
+        "TokenRefreshSuccesses": { "sum": 0 },
         "SignUpSuccesses": { "sum": 0 },
         "FederationSuccesses": { "sum": 0 },
-        "CallCount": { "sum": 26635 },
-        "ThrottleCount": { "sum": 0 },
-        "AccountTakeoverRisk": { "sum": 0 },
-        "CompromisedCredentialsRisk": { "sum": 0 }
+        "CallCount": { "sum": 57933 },
+        "ThrottleCount": { "sum": 73 },
+        "AccountTakeoverRisk": { "sum": 2 },
+        "CompromisedCredentialsRisk": { "sum": 1 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-cognito-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-cognito-logs-738291046572"
+        "name": "aws-cognito-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-cognito-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/cognito/eu-central-1/2026/04/09/cognito_U84IBXWZGN.log.gz"
+        "key": "AWSLogs/164820739518/cognito/us-east-1/2026/04/10/cognito_GLZ177KGPRD.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cognito/logs",
-      "log_stream": "eu-central-1/oaxbxaoi",
-      "ingestion_time": "2026-04-09T10:32:55.958Z"
+      "log_stream": "us-east-1/mjntv2kk",
+      "ingestion_time": "2026-04-10T08:43:16.051Z"
     }
   },
-  "user": { "name": "user-y1kvxyfw@example.com" },
-  "source": { "ip": "196.189.183.71" },
+  "user": {},
+  "source": { "ip": "199.111.202.175" },
   "event": {
-    "action": "SignIn",
-    "outcome": "success",
+    "action": "TokenRefresh",
+    "outcome": "failure",
     "category": ["authentication"],
     "dataset": "aws.cognito",
     "provider": "cognito-idp.amazonaws.com",
     "module": "aws"
   },
-  "message": "Cognito SignIn success [b2b-customers]",
-  "log": { "level": "info" },
+  "message": "Cognito TokenRefresh FAILED: Incorrect password",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "UserNotFoundException",
+    "message": "Authentication failed",
+    "type": "authentication"
+  },
   "service": { "name": "cognito", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cognito", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "dmnibcp6prn"
+    "name": "filebeat-aws-us-east-1",
+    "ephemeral_id": "zl3ubnzpq8h"
   },
   "input": { "type": "aws-cloudwatch" }
 }

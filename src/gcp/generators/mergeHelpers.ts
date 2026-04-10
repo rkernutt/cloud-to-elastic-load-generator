@@ -8,15 +8,15 @@ import type { MetricGenerator } from "../../aws/generators/types.js";
 export function mergeGcpLogVariants(
   variants: Array<(ts: string, er: number) => Record<string, unknown>>
 ): (ts: string, er: number) => Record<string, unknown> {
-  return (ts, er) => rand(variants)(ts, er);
+  return (ts: string, er: number) => rand(variants)(ts, er);
 }
 
 export function mergeGcpTraceVariants(
   variants: Array<(ts: string, er: number) => Record<string, unknown>[]>
 ): (ts: string, er: number) => Record<string, unknown>[] {
-  return (ts, er) => rand(variants)(ts, er);
+  return (ts: string, er: number) => rand(variants)(ts, er);
 }
 
 export function mergeGcpMetricVariants(variants: MetricGenerator[]): MetricGenerator {
-  return (ts, er) => rand(variants)(ts, er);
+  return (ts: string, er: number) => rand(variants)(ts, er);
 }

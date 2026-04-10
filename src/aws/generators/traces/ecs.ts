@@ -137,12 +137,12 @@ const SERVICE_CONFIGS = [
 ];
 
 // ─── HTTP status helpers ──────────────────────────────────────────────────────
-function pickStatusCode(isErr) {
+function pickStatusCode(isErr: boolean) {
   if (!isErr) return rand([200, 200, 200, 201, 204]);
   return rand([400, 401, 403, 404, 422, 500, 502, 503]);
 }
 
-function httpResult(code) {
+function httpResult(code: number) {
   if (code < 300) return "HTTP 2xx";
   if (code < 400) return "HTTP 3xx";
   if (code < 500) return "HTTP 4xx";
@@ -151,15 +151,15 @@ function httpResult(code) {
 
 // ─── Span builder ─────────────────────────────────────────────────────────────
 function buildEcsSpan(
-  traceId,
-  txId,
-  parentId,
-  ts,
-  spanKey,
-  isErr,
-  spanOffsetMs,
-  spanUs,
-  ecsLabels
+  traceId: string,
+  txId: string,
+  parentId: string,
+  ts: string,
+  spanKey: string,
+  isErr: boolean,
+  spanOffsetMs: number,
+  spanUs: number,
+  ecsLabels: Record<string, string>
 ) {
   const id = newSpanId();
 
@@ -264,7 +264,7 @@ function buildEcsSpan(
     },
   };
 
-  const shape = shapes[spanKey] || shapes.dynamodb;
+  const shape = shapes[spanKey as keyof typeof shapes] || shapes.dynamodb;
   const spanName = shape.name();
   const action = shape.action();
   const dbBlock = shape.db ? shape.db() : undefined;
@@ -297,7 +297,7 @@ function buildEcsSpan(
  * @param {number} er  - error rate 0.0–1.0
  * @returns {Object[]} array of APM documents (transaction first, then spans)
  */
-export function generateEcsTrace(ts, er) {
+export function generateEcsTrace(ts: string, er: number) {
   const cfg = rand(SERVICE_CONFIGS);
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);

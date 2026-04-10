@@ -1,18 +1,18 @@
 {
-  "@timestamp": "2026-04-09T10:32:55.502Z",
+  "@timestamp": "2026-04-10T08:43:15.441Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-south-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "wafv2" }
   },
   "aws": {
-    "dimensions": { "WebACL": "prod-api-acl", "Rule": "BadBot", "Region": "ap-south-1" },
+    "dimensions": { "WebACL": "prod-api-acl", "Rule": "IPRateBasedRule", "Region": "eu-south-2" },
     "waf": {
-      "id": "chshk49q9x8",
-      "arn": "arn:aws:wafv2:ap-south-1:738291046572:regional/webacl/prod-api-acl/65syw9eg-qzwn-u062-wlog-c0uddpvo7ok",
+      "id": "k6eke9vu0nl",
+      "arn": "arn:aws:wafv2:eu-south-2:501938274650:regional/webacl/prod-api-acl/e8qw9ha9-6zuj-93to-oc00-0icfsvvysi1n",
       "format_version": "1",
-      "source": { "name": "APIGW", "id": "738291046572-app/prod-api-acl/aqunlcz483u" },
+      "source": { "name": "CF", "id": "501938274650-app/prod-api-acl/lm5ms3d3d1b" },
       "rule_group_list": [
         { "ruleGroupId": "AWSManagedRulesWordPressRuleSet", "nonTerminatingMatchingRules": [] }
       ],
@@ -20,7 +20,7 @@
       "terminating_rule_match_details": [],
       "request": {
         "headers": [
-          { "name": "User-Agent", "value": "Go-http-client/1.1" },
+          { "name": "User-Agent", "value": "python-requests/2.27.1" },
           { "name": "Host", "value": "api.example.com" }
         ]
       },
@@ -37,21 +37,21 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-wafv2-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-wafv2-logs-738291046572"
+        "name": "aws-wafv2-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-wafv2-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/wafv2/ap-south-1/2026/04/09/wafv2_DTOLJ3VF4QC.log.gz"
+        "key": "AWSLogs/501938274650/wafv2/eu-south-2/2026/04/10/wafv2_STUFEHXX2S.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/wafv2/logs",
-      "log_stream": "ap-south-1/4i27ai59",
-      "ingestion_time": "2026-04-09T10:32:56.189Z"
+      "log_stream": "eu-south-2/ims0vxf9",
+      "ingestion_time": "2026-04-10T08:43:16.477Z"
     }
   },
   "source": {
-    "ip": "195.22.8.187",
+    "ip": "108.48.73.182",
     "geo": {
       "country_iso_code": "KR",
       "country_name": "South Korea",
@@ -59,9 +59,9 @@
       "location": { "lat": 37.5665, "lon": 126.978 }
     }
   },
-  "http": { "request": { "method": "POST", "bytes": 3844 } },
-  "url": { "path": "/api/v1/products" },
-  "user_agent": { "original": "Go-http-client/1.1" },
+  "http": { "request": { "method": "DELETE", "bytes": 7149 } },
+  "url": { "path": "/api/v1/users" },
+  "user_agent": { "original": "python-requests/2.27.1" },
   "event": {
     "action": "allow",
     "outcome": "success",
@@ -70,7 +70,7 @@
     "provider": "wafv2.amazonaws.com",
     "module": "aws"
   },
-  "message": "WAFv2 ALLOW [prod-api-acl] 195.22.8.187 POST /api/v1/products",
+  "message": "WAFv2 ALLOW [prod-api-acl] 108.48.73.182 DELETE /api/v1/users",
   "log": { "level": "info" },
   "service": { "name": "wafv2", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -78,8 +78,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "96kt3n44yy5"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "ql2rp8yivo"
   },
   "input": { "type": "aws-s3" }
 }

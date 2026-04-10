@@ -9,15 +9,18 @@ import { ELASTIC_DATASET_MAP } from "../data/elasticMaps";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
-function buildNdjson(indexName, docs) {
+function buildNdjson(indexName: string, docs: unknown[]) {
   return (
     docs
-      .flatMap((doc) => [JSON.stringify({ create: { _index: indexName } }), JSON.stringify(doc)])
+      .flatMap((doc: unknown) => [
+        JSON.stringify({ create: { _index: indexName } }),
+        JSON.stringify(doc),
+      ])
       .join("\n") + "\n"
   );
 }
 
-function mockBulkOk(count) {
+function mockBulkOk(count: number) {
   return {
     ok: true,
     status: 200,
@@ -28,7 +31,7 @@ function mockBulkOk(count) {
   };
 }
 
-function mockBulkPartialError(count, errCount) {
+function mockBulkPartialError(count: number, errCount: number) {
   return {
     ok: true,
     status: 200,
@@ -97,7 +100,11 @@ describe("Fetch response handling", () => {
     const json = await res.json();
 
     expect(res.ok).toBe(true);
-    const failedItems = json.items?.filter((i) => i.create?.error || i.index?.error) || [];
+    const failedItems =
+      json.items?.filter(
+        (i: { create?: { error?: unknown }; index?: { error?: unknown } }) =>
+          i.create?.error || i.index?.error
+      ) || [];
     expect(failedItems).toHaveLength(0);
     const sent = batchSize - failedItems.length;
     expect(sent).toBe(10);
@@ -111,7 +118,11 @@ describe("Fetch response handling", () => {
     const res = await fetch("/proxy/_bulk", { method: "POST", body: "" });
     const json = await res.json();
 
-    const failedItems = json.items?.filter((i) => i.create?.error || i.index?.error) || [];
+    const failedItems =
+      json.items?.filter(
+        (i: { create?: { error?: unknown }; index?: { error?: unknown } }) =>
+          i.create?.error || i.index?.error
+      ) || [];
     expect(failedItems).toHaveLength(errCount);
     const sent = batchSize - failedItems.length;
     expect(sent).toBe(7);
@@ -156,7 +167,8 @@ describe("Index name construction", () => {
   it("handles service not in dataset map with fallback", () => {
     const prefix = "logs-aws";
     const svc = "unknownservice";
-    const dataset = ELASTIC_DATASET_MAP[svc] || `aws.${svc}`;
+    const dataset =
+      (ELASTIC_DATASET_MAP as Record<string, string | undefined>)[svc] ?? `aws.${svc}`;
     const indexName = `${prefix}.${dataset.replace(/^aws\./, "")}`;
     expect(indexName).toBe("logs-aws.unknownservice");
   });
@@ -167,7 +179,7 @@ describe("stripNulls in doc assembly", () => {
     const raw = generateLambdaLog(new Date().toISOString(), 0);
     const clean = stripNulls(raw);
 
-    function hasNull(obj) {
+    function hasNull(obj: unknown) {
       if (obj === null) return true;
       if (typeof obj === "object" && !Array.isArray(obj)) {
         return Object.values(obj).some(hasNull);

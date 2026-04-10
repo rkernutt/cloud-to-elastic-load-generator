@@ -40,6 +40,12 @@ import {
   serviceBlock,
   otelBlocks,
 } from "./helpers.js";
+import type {
+  WorkflowCloudBlock,
+  WorkflowTxDocArgs,
+  WorkflowSpanDocArgs,
+  WorkflowErrorDocArgs,
+} from "./workflow-internal.js";
 
 // ─── Shared constants ─────────────────────────────────────────────────────────
 
@@ -51,7 +57,7 @@ const RUNTIME_VERSION = {
   "nodejs18.x": "18.20.4",
   "nodejs20.x": "20.15.1",
   java21: "21.0.3",
-};
+} as const;
 
 // ─── Low-level document builders ─────────────────────────────────────────────
 
@@ -79,14 +85,14 @@ function txDoc({
   faas,
   labels,
   distro = "elastic",
-}: Record<string, any>) {
+}: WorkflowTxDocArgs) {
   const svcBlock = serviceBlock(
     serviceName,
     environment,
     language,
     framework ?? null,
     runtime,
-    RUNTIME_VERSION[runtime] ?? "1.0.0"
+    RUNTIME_VERSION[runtime as keyof typeof RUNTIME_VERSION] ?? "1.0.0"
   );
   const { agent, telemetry } = otelBlocks(language, distro);
 
@@ -133,35 +139,34 @@ function txDoc({
  * `txId`     = the transaction this span belongs to (for grouping in APM).
  * `parentId` = the immediate parent (could be txId or another span's id).
  */
-function spanDoc(args: any) {
-  const {
-    ts,
-    traceId,
-    txId,
-    parentId,
-    spanId,
-    spanType,
-    spanSubtype,
-    spanName,
-    spanAction,
-    durationUs,
-    isErr,
-    db,
-    destination,
-    labels,
-    serviceName,
-    environment,
-    language,
-    runtime,
-    distro = "elastic",
-  } = args;
+function spanDoc({
+  ts,
+  traceId,
+  txId,
+  parentId,
+  spanId,
+  spanType,
+  spanSubtype,
+  spanName,
+  spanAction,
+  durationUs,
+  isErr,
+  db,
+  destination,
+  labels,
+  serviceName,
+  environment,
+  language,
+  runtime,
+  distro = "elastic",
+}: WorkflowSpanDocArgs) {
   const svcBlock = serviceBlock(
     serviceName,
     environment,
     language,
     null,
     runtime,
-    RUNTIME_VERSION[runtime] ?? "1.0.0"
+    RUNTIME_VERSION[runtime as keyof typeof RUNTIME_VERSION] ?? "1.0.0"
   );
   const { agent, telemetry } = otelBlocks(language, distro);
 
@@ -193,7 +198,7 @@ function spanDoc(args: any) {
 }
 
 /** Build the standard AWS cloud block. */
-function cloudBlock(region, account, awsService) {
+function cloudBlock(region: string, account: { id: string; name: string }, awsService: string): WorkflowCloudBlock {
   return {
     provider: "aws",
     region: region,
@@ -207,31 +212,30 @@ function cloudBlock(region, account, awsService) {
  * Errors land in logs-apm.error-* (data_stream.type = "logs").
  * The parent.id ties the error to the tx or span where it occurred.
  */
-function errorDoc(args: any) {
-  const {
-    ts,
-    traceId,
-    txId,
-    txType,
-    parentId,
-    exceptionType,
-    exceptionMessage,
-    culprit,
-    handled = false,
-    frames = [],
-    serviceName,
-    environment,
-    language,
-    runtime,
-    distro = "elastic",
-  } = args;
+function errorDoc({
+  ts,
+  traceId,
+  txId,
+  txType,
+  parentId,
+  exceptionType,
+  exceptionMessage,
+  culprit,
+  handled = false,
+  frames = [],
+  serviceName,
+  environment,
+  language,
+  runtime,
+  distro = "elastic",
+}: WorkflowErrorDocArgs) {
   const svcBlock = serviceBlock(
     serviceName,
     environment,
     language,
     null,
     runtime,
-    RUNTIME_VERSION[runtime] ?? "1.0.0"
+    RUNTIME_VERSION[runtime as keyof typeof RUNTIME_VERSION] ?? "1.0.0"
   );
   const { agent, telemetry } = otelBlocks(language, distro);
   return {
@@ -264,13 +268,13 @@ function errorDoc(args: any) {
 
 const FRAMES = {
   // Python Lambda — task timeout (Runtime.ExitError)
-  python_timeout: (fn) => [
+  python_timeout: (fn: string) => [
     { function: "handler", filename: `${fn}.py`, lineno: 47, library_frame: false },
     { function: "_execute", filename: `${fn}.py`, lineno: 31, library_frame: false },
     { function: "invoke", filename: "botocore/endpoint.py", lineno: 174, library_frame: true },
   ],
   // Python — DynamoDB ProvisionedThroughputExceededException
-  python_dynamo_throttle: (fn) => [
+  python_dynamo_throttle: (fn: string) => [
     {
       function: "_make_api_call",
       filename: "botocore/client.py",
@@ -295,14 +299,14 @@ const FRAMES = {
  * Python and Node cold starts are 300 ms–2.5 s and 150 ms–1.2 s respectively.
  * Only called when faas.coldstart is true (~8 % of invocations).
  */
-function coldStartInitUs(runtime) {
+function coldStartInitUs(runtime: string) {
   if (runtime === "java21") return randInt(2000, 8000) * 1000;
   if (runtime === "nodejs18.x" || runtime === "nodejs20.x") return randInt(150, 1200) * 1000;
   return randInt(300, 2500) * 1000; // Python default
 }
 
 /** Build a FaaS block for Lambda transactions. */
-function faasBlock(funcName, region, accountId, trigger = "other") {
+function faasBlock(funcName: string, region: string, accountId: string, trigger = "other") {
   const executionId = `${randHex(8)}-${randHex(4)}-${randHex(4)}-${randHex(4)}-${randHex(12)}`;
   const coldStart = Math.random() < 0.08;
   return {
@@ -328,7 +332,7 @@ function faasBlock(funcName, region, accountId, trigger = "other") {
 //                   └── TX: audit-archiver-subscriber (Lambda / nodejs20.x, pubsub trigger)
 //                        └── SPAN: S3.PutObject audit-logs
 
-function workflowSnsEventFanout(ts, er) {
+function workflowSnsEventFanout(ts: string, er: number) {
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);
   const env = rand(ENVS);
@@ -341,7 +345,7 @@ function workflowSnsEventFanout(ts, er) {
   const snsTopicName = `events-notifications-${snsTopic}`;
 
   // Helper to generate an SNS subscription ARN
-  const snsSubscriptionArn = (_subscriberName) =>
+  const snsSubscriptionArn = (_subscriberName: string) =>
     `arn:aws:sns:${region}:${account.id}:${snsTopicName}:${randHex(8)}-${randHex(4)}-${randHex(4)}-${randHex(4)}-${randHex(12)}`;
 
   // Helper to generate an SQS-style message ID (used on SNS-triggered Lambdas)
@@ -396,7 +400,8 @@ function workflowSnsEventFanout(ts, er) {
   const apigwCloud = cloudBlock(region, account, "apigateway");
   const lambdaCloud = cloudBlock(region, account, "lambda");
 
-  const docs: any[] = [];
+  type SnsFanoutTraceDoc = ReturnType<typeof txDoc> | ReturnType<typeof spanDoc> | ReturnType<typeof errorDoc>;
+  const docs: SnsFanoutTraceDoc[] = [];
 
   // ── 1. TX — api-events root (API Gateway, nodejs20.x) ────────────────────────
   docs.push(
@@ -768,6 +773,6 @@ function workflowSnsEventFanout(ts, er) {
 // ─── Public exports ───────────────────────────────────────────────────────────
 
 /** SNS fan-out: API Gateway → Lambda → SNS Publish → 3× Lambda subscribers (concurrent) */
-export function generateSnsEventFanoutTrace(ts, er) {
+export function generateSnsEventFanoutTrace(ts: string, er: number) {
   return workflowSnsEventFanout(ts, er);
 }

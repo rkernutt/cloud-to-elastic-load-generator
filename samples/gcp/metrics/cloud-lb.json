@@ -3,43 +3,47 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "me-west1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" }
+    "region": "asia-southeast2",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-me-west1",
-    "ephemeral_id": "ge30kog3fev"
+    "name": "metricbeat-gcp-asia-southeast2",
+    "ephemeral_id": "7mh8gru6l9u"
   },
   "gcp": {
-    "serverless-neg": {
+    "cloud-lb": {
       "metrics": {
-        "request_count": { "avg": 14804, "sum": 14804, "count": 1 },
-        "error_count": { "avg": 0, "sum": 0, "count": 1 },
-        "latency": { "avg": 84.91, "sum": 84.91, "count": 1 }
+        "request_count": { "avg": 4679422, "sum": 4679422, "count": 1 },
+        "total_latencies": { "avg": 623.81, "sum": 623.81, "count": 1 },
+        "backend_latencies": { "avg": 416.85, "sum": 416.85, "count": 1 }
       },
-      "labels": { "resource_id": "resource-a" }
+      "labels": { "url_map": "api-map", "backend_service": "api-bs" }
     }
   },
-  "metricset": { "name": "serverless-neg", "period": 60000 },
-  "data_stream": { "type": "metrics", "dataset": "gcp.serverless_neg", "namespace": "default" },
+  "metricset": { "name": "cloud-lb", "period": 60000 },
+  "data_stream": {
+    "type": "metrics",
+    "dataset": "gcp.loadbalancing_metrics",
+    "namespace": "default"
+  },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.serverless_neg", "module": "gcp" },
+  "event": { "dataset": "gcp.loadbalancing_metrics", "module": "gcp" },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/serverless-neg/request_count",
+      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-lb/request_count",
       "labels": {}
     },
     "resource": {
       "type": "global",
-      "labels": { "project_id": "globex-staging-d4e5f6", "region": "me-west1" }
+      "labels": { "project_id": "globex-security-j0k1l2", "region": "asia-southeast2" }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 14804 } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 4679422 } }
     ]
   }
 }

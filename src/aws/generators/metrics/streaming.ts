@@ -32,7 +32,7 @@ const SQS_QUEUES = [
   "webhook-delivery",
 ];
 
-export function generateSqsMetrics(ts, er) {
+export function generateSqsMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(SQS_QUEUES, randInt(2, 6)).map((queue) => {
     const sent = randInt(0, 100_000);
@@ -75,7 +75,7 @@ const KINESIS_STREAMS = [
   "payment-stream",
 ];
 
-export function generateKinesisMetrics(ts, er) {
+export function generateKinesisMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(KINESIS_STREAMS, randInt(2, 4)).map((stream) => {
     const shards = randInt(1, 20);
@@ -127,7 +127,7 @@ const MSK_TOPICS = [
   "logs",
 ];
 
-export function generateMskMetrics(ts, er) {
+export function generateMskMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const cluster = rand(MSK_CLUSTERS);
   const broker = randInt(1, 3);
@@ -170,7 +170,7 @@ const SNS_TOPICS = [
   "sms-delivery",
 ];
 
-export function generateSnsMetrics(ts, er) {
+export function generateSnsMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(SNS_TOPICS, randInt(2, 5)).map((topic) => {
     const published = randInt(0, 100_000);
@@ -208,7 +208,7 @@ const FIREHOSE_STREAMS = [
   "traces-to-s3",
 ];
 
-export function generateFirehoseMetrics(ts, er) {
+export function generateFirehoseMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(FIREHOSE_STREAMS, randInt(1, 3)).map((stream) => {
     const bytesIn = randInt(1_000_000, 50_000_000_000);
@@ -245,7 +245,7 @@ export function generateFirehoseMetrics(ts, er) {
 
 const EB_BUSES = ["default", "orders-bus", "payments-bus", "notifications-bus", "custom-events"];
 
-export function generateEventbridgeMetrics(ts, er) {
+export function generateEventbridgeMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(EB_BUSES, randInt(1, 3)).map((bus) => {
     const events = randInt(100, 1_000_000);
@@ -271,7 +271,7 @@ export function generateEventbridgeMetrics(ts, er) {
 
 // ─── AmazonMQ ─────────────────────────────────────────────────────────────────
 
-export function generateAmazonmqMetrics(ts, er) {
+export function generateAmazonmqMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const brokerId = `b-${rand(["1a2b3c4d", "5e6f7a8b", "9c0d1e2f"])}-${randInt(1, 3)}`;
   return [
@@ -305,7 +305,7 @@ export function generateAmazonmqMetrics(ts, er) {
 
 // ─── Kinesis Analytics ────────────────────────────────────────────────────────
 
-export function generateKinesisanalyticsMetrics(ts, er) {
+export function generateKinesisanalyticsMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(

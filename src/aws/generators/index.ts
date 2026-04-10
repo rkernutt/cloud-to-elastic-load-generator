@@ -1,6 +1,6 @@
 /**
  * Central registry of all AWS service log generators.
- * Each key is a service id (e.g. "lambda", "s3"); each value is a function (ts, er) => doc.
+ * Each key is a service id (e.g. "lambda", "s3"); each value is a function (ts: string, er: number) => doc.
  * Used by the UI and by scripts/export-samples.mjs.
  * @module aws/generators/index
  */

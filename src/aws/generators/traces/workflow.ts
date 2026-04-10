@@ -83,7 +83,7 @@ import {
 //                   └── TX: notification-sender (Lambda)
 //                        └── SPAN: SES.SendEmail
 
-function workflowEcommerceOrder(ts, er) {
+function workflowEcommerceOrder(ts: string, er: number) {
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);
   const env = rand(ENVS);
@@ -374,7 +374,7 @@ function workflowEcommerceOrder(ts, er) {
 //              ├── SPAN: Bedrock.InvokeModel (Claude)
 //              └── SPAN: DynamoDB.PutItem (cache result)
 
-function workflowMlInference(ts, er) {
+function workflowMlInference(ts: string, er: number) {
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);
   const env = rand(ENVS);
@@ -625,7 +625,7 @@ function workflowMlInference(ts, er) {
 //                   ├── SPAN: Stage 1 (Parse & Validate)
 //                   └── SPAN: Stage 2 (Write to S3)
 
-function workflowDataIngestion(ts, er) {
+function workflowDataIngestion(ts: string, er: number) {
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);
   const env = rand(ENVS);
@@ -934,7 +934,7 @@ function workflowDataIngestion(ts, er) {
 //              └── TX: notification-sender (Lambda)
 //                   └── SPAN: SES.SendEmail
 
-function workflowStepFunctions(ts, er) {
+function workflowStepFunctions(ts: string, er: number) {
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);
   const env = rand(ENVS);
@@ -1363,7 +1363,7 @@ function workflowStepFunctions(ts, er) {
 //                   └── TX: dlq-processor (Lambda)
 //                        └── SPAN: DynamoDB.PutItem (3rd attempt) [SUCCESS]
 
-function workflowCascadingFailure(ts, _er) {
+function workflowCascadingFailure(ts: string, _er: number) {
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);
   const env = rand(ENVS);
@@ -1704,26 +1704,26 @@ function workflowCascadingFailure(ts, _er) {
 // ─── Public exports ───────────────────────────────────────────────────────────
 
 /** E-commerce Order Flow: API Gateway → Lambda → DynamoDB + SQS → Lambda → SES */
-export function generateEcommerceOrderTrace(ts, er) {
+export function generateEcommerceOrderTrace(ts: string, er: number) {
   return workflowEcommerceOrder(ts, er);
 }
 
 /** ML Inference Pipeline: API Gateway → Lambda → S3 + Bedrock → DynamoDB */
-export function generateMlInferenceTrace(ts, er) {
+export function generateMlInferenceTrace(ts: string, er: number) {
   return workflowMlInference(ts, er);
 }
 
 /** Data Ingestion Pipeline: Kinesis → Lambda → S3 + Glue → EMR Spark */
-export function generateDataIngestionTrace(ts, er) {
+export function generateDataIngestionTrace(ts: string, er: number) {
   return workflowDataIngestion(ts, er);
 }
 
 /** Step Functions Orchestration: EventBridge → Step Functions → Lambda (×3) → DynamoDB + RDS + SES */
-export function generateStepFunctionsWorkflowTrace(ts, er) {
+export function generateStepFunctionsWorkflowTrace(ts: string, er: number) {
   return workflowStepFunctions(ts, er);
 }
 
 /** Cascading Failure: API Gateway → Lambda → DynamoDB throttle → DLQ → Lambda recovery */
-export function generateCascadingFailureTrace(ts, er) {
+export function generateCascadingFailureTrace(ts: string, er: number) {
   return workflowCascadingFailure(ts, er);
 }

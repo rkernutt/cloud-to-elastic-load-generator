@@ -147,6 +147,19 @@ export function ConnectionPage({
       </EuiTitle>
       <EuiSpacer size="m" />
 
+      {import.meta.env.DEV && (
+        <>
+          <EuiCallOut title="Bulk proxy (local development)" color="primary" iconType="iInCircle">
+            <p>
+              Shipping uses <code>/proxy/_bulk</code>, which Vite forwards to the bulk proxy (by
+              default <code>proxy.cjs</code> on port 3001). Run that proxy alongside{" "}
+              <code>npm run dev</code> or bulk requests will fail from the browser.
+            </p>
+          </EuiCallOut>
+          <EuiSpacer size="m" />
+        </>
+      )}
+
       {unifiedCloudPicker && (
         <>
           <ConnectionSubheading>Cloud Vendor</ConnectionSubheading>

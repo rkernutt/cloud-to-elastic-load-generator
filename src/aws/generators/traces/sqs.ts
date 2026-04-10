@@ -85,7 +85,17 @@ const CONSUMER_CONFIGS = [
 ];
 
 // ─── Per-SDK-call span shape ──────────────────────────────────────────────────
-function buildSpan(traceId, txId, parentId, ts, sdkKey, isErr, spanOffset, spanDuration, labels) {
+function buildSpan(
+  traceId: string,
+  txId: string,
+  parentId: string,
+  ts: string,
+  sdkKey: string,
+  isErr: boolean,
+  spanOffset: number,
+  spanDuration: number,
+  labels: Record<string, string | number | boolean>
+) {
   const id = newSpanId();
 
   const shapes = {
@@ -161,7 +171,7 @@ function buildSpan(traceId, txId, parentId, ts, sdkKey, isErr, spanOffset, spanD
     },
   };
 
-  const shape = shapes[sdkKey] || shapes.dynamodb;
+  const shape = shapes[sdkKey as keyof typeof shapes] || shapes.dynamodb;
   const spanName = shape.name();
   const spanAction = shape.action();
   const dbBlock = shape.db ? shape.db() : undefined;
@@ -195,7 +205,7 @@ function buildSpan(traceId, txId, parentId, ts, sdkKey, isErr, spanOffset, spanD
  * @param {number} er  - error rate 0.0–1.0
  * @returns {Object[]} array of APM documents (transaction first, then spans)
  */
-export function generateSqsTrace(ts, er) {
+export function generateSqsTrace(ts: string, er: number) {
   const cfg = rand(CONSUMER_CONFIGS);
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);

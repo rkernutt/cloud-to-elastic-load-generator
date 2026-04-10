@@ -147,12 +147,12 @@ const RUNTIME_NAME = "nodejs20.x";
 const RUNTIME_VERSION = "20.15.1";
 
 // HTTP status code buckets
-function pickStatusCode(isErr) {
+function pickStatusCode(isErr: boolean) {
   if (!isErr) return rand([200, 200, 200, 201, 204]);
   return rand([400, 401, 403, 404, 422, 500, 502, 503]);
 }
 
-function httpResult(code) {
+function httpResult(code: number) {
   if (code < 300) return "HTTP 2xx";
   if (code < 400) return "HTTP 3xx";
   if (code < 500) return "HTTP 4xx";
@@ -160,7 +160,16 @@ function httpResult(code) {
 }
 
 // ─── Per-SDK-call span builder ────────────────────────────────────────────────
-function buildDownstreamSpan(traceId, txId, parentId, ts, sdkKey, isErr, spanOffsetMs, spanUs) {
+function buildDownstreamSpan(
+  traceId: string,
+  txId: string,
+  parentId: string,
+  ts: string,
+  sdkKey: string,
+  isErr: boolean,
+  spanOffsetMs: number,
+  spanUs: number
+) {
   const id = newSpanId();
 
   const shapes = {
@@ -243,7 +252,7 @@ function buildDownstreamSpan(traceId, txId, parentId, ts, sdkKey, isErr, spanOff
     },
   };
 
-  const shape = shapes[sdkKey] || shapes.dynamodb;
+  const shape = shapes[sdkKey as keyof typeof shapes] || shapes.dynamodb;
   const spanName = shape.name();
   const spanAction = shape.action();
   const dbBlock = shape.db ? shape.db() : undefined;
@@ -275,7 +284,7 @@ function buildDownstreamSpan(traceId, txId, parentId, ts, sdkKey, isErr, spanOff
  * @param {number} er  - error rate 0.0–1.0
  * @returns {Object[]} array of APM documents (transaction first, then spans)
  */
-export function generateApiGatewayTrace(ts, er) {
+export function generateApiGatewayTrace(ts: string, er: number) {
   const cfg = rand(FUNCTION_CONFIGS);
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);

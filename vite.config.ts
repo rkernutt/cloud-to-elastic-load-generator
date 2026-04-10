@@ -27,11 +27,18 @@ export default defineConfig({
   },
   build: {
     outDir: "dist",
-    sourcemap: false,
+    sourcemap: "hidden",
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes("node_modules")) return "vendor";
+          if (id.includes("node_modules")) {
+            if (id.includes("@elastic/eui")) return "vendor-eui";
+            if (id.includes("@emotion")) return "vendor-emotion";
+            if (id.includes("/moment/")) return "vendor-moment";
+            // React core + scheduler together avoids prior vendor ↔ vendor-react cycles.
+            if (/node_modules\/(react-dom|react\/|scheduler\/)/.test(id)) return "vendor-react";
+            return "vendor";
+          }
           if (id.includes("/azure/generators/traces/")) return "gen-azure-traces";
           if (id.includes("/azure/generators/metrics/")) return "gen-azure-metrics";
           if (id.includes("/azure/")) return "gen-azure-logs";

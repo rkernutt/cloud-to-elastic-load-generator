@@ -1293,7 +1293,7 @@ function generateAppFabricLog(ts: string, er: number): EcsDocument {
   };
 }
 
-function generateB2biLog(ts, er) {
+function generateB2biLog(ts: string, er: number) {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;

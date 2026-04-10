@@ -1,13 +1,14 @@
 import { rand, randInt, randFloat, randId, randIp, randAccount, REGIONS } from "../../helpers";
 import type { EcsDocument } from "./types.js";
 
-function generateEc2Log(ts, er) {
+function generateEc2Log(ts: string, er: number) {
   const region = rand(REGIONS);
   const acct = randAccount();
   const level = Math.random() < er ? "error" : Math.random() < 0.1 ? "warn" : "info";
   const instanceId = `i-${randId(17).toLowerCase()}`;
-  const instanceType = rand(["t3.medium", "m5.xlarge", "c5.2xlarge", "r5.large"]);
-  const CPU_CORES = { "t3.medium": 2, "m5.xlarge": 4, "c5.2xlarge": 8, "r5.large": 2 };
+  const CPU_CORES = { "t3.medium": 2, "m5.xlarge": 4, "c5.2xlarge": 8, "r5.large": 2 } as const;
+  const INSTANCE_TYPES = ["t3.medium", "m5.xlarge", "c5.2xlarge", "r5.large"] as const;
+  const instanceType = rand(INSTANCE_TYPES);
   const cpuCores = CPU_CORES[instanceType];
   const MSGS = {
     error: [

@@ -2,62 +2,48 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "us-east1",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
-    "service": { "name": "vpc-flow" }
+    "region": "europe-west9",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "service": { "name": "network-service-tiers" }
   },
   "gcp": {
-    "vpc_flow": {
-      "src_ip": "25.148.86.213",
-      "dst_ip": "77.199.201.205",
-      "src_port": 16063,
-      "dst_port": 8080,
-      "protocol": "TCP",
-      "bytes_sent": 1379500,
-      "packets_sent": 1221,
-      "direction": "egress",
-      "subnet": "projects/globex-prod-a1b2c3/regions/us-east1/subnetworks/gke-pods",
-      "vpc_name": "prod-vpc",
-      "action": "ALLOW",
-      "rule_name": "allow-internal-4am1"
+    "network_service_tiers": {
+      "tier": "PREMIUM",
+      "resource_type": "CLOUD_STORAGE",
+      "region": "europe-west9",
+      "egress_bytes": 680271589,
+      "routing_type": "REGIONAL"
     }
   },
-  "event": { "outcome": "success", "duration": 3000000, "module": "gcp", "dataset": "gcp.vpcflow" },
-  "message": "VPC flow ALLOW egress 1379500b 1221pkts proto TCP",
-  "service": { "name": "vpc-flow", "type": "gcp" },
+  "event": { "outcome": "success", "duration": 8000000, "module": "gcp", "dataset": "gcp.nst" },
+  "message": "Network Service Tiers PREMIUM egress 680271589B for CLOUD_STORAGE (REGIONAL)",
+  "service": { "name": "network-service-tiers", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.vpcflow", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.nst", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-east1",
-    "id": "c2fvczh46tt"
+    "name": "elastic-agent-gcp-europe-west9",
+    "id": "kxr77dxjt0e"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-m3n4o5/logs/vpc-flow",
+  "logName": "projects/globex-staging-d4e5f6/logs/network-service-tiers",
   "resource": {
-    "type": "gce_subnetwork",
-    "labels": { "project_id": "globex-shared-m3n4o5", "region": "us-east1" }
+    "type": "global",
+    "labels": { "project_id": "globex-staging-d4e5f6", "region": "europe-west9" }
   },
   "severity": "INFO",
-  "insertId": "766V7H6Y316",
+  "insertId": "QKZMD0BU94L",
   "jsonPayload": {
-    "vpc_flow": {
-      "src_ip": "25.148.86.213",
-      "dst_ip": "77.199.201.205",
-      "src_port": 16063,
-      "dst_port": 8080,
-      "protocol": "TCP",
-      "bytes_sent": 1379500,
-      "packets_sent": 1221,
-      "direction": "egress",
-      "subnet": "projects/globex-prod-a1b2c3/regions/us-east1/subnetworks/gke-pods",
-      "vpc_name": "prod-vpc",
-      "action": "ALLOW",
-      "rule_name": "allow-internal-4am1"
+    "network_service_tiers": {
+      "tier": "PREMIUM",
+      "resource_type": "CLOUD_STORAGE",
+      "region": "europe-west9",
+      "egress_bytes": 680271589,
+      "routing_type": "REGIONAL"
     },
-    "message": "VPC flow ALLOW egress 1379500b 1221pkts proto TCP"
+    "message": "Network Service Tiers PREMIUM egress 680271589B for CLOUD_STORAGE (REGIONAL)"
   }
 }

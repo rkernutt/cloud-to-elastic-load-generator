@@ -1413,7 +1413,7 @@ function generateSecurityLakeLog(ts: string, er: number): EcsDocument {
       source_type: "LAMBDA:SecurityHub",
     },
   };
-  const cls = classMap[ocsfClass];
+  const cls = classMap[ocsfClass as keyof typeof classMap];
   const activityId = rand([1, 2, 3, 4, 5]);
   const activityName = rand(["Create", "Read", "Update", "Delete", "Other"]);
   const severityId = isErr ? rand([5, 6]) : rand([1, 2, 3]);
@@ -1630,7 +1630,7 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
     lambda: { name: lambdaEvents, svc: "lambda.amazonaws.com" },
     sts: { name: "AssumeRole", svc: "sts.amazonaws.com" },
   };
-  const ev = svcMap[svcDistribution];
+  const ev = svcMap[svcDistribution as keyof typeof svcMap];
   const eventName = ev.name;
   const sourceIPAddress = randIp();
   const userAgent = rand(USER_AGENTS);
@@ -1714,7 +1714,7 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
     DeleteFunction20150331: ["deletion"],
     ListFunctions20150331: ["access", "info"],
   };
-  const evType = eventTypeMap[eventName] || ["info"];
+  const evType = eventTypeMap[eventName as keyof typeof eventTypeMap] || (["info"] as string[]);
 
   // Identity — arn, access key, session context
   const userArn = `arn:aws:iam::${acct.id}:user/${user}`;
@@ -1774,7 +1774,7 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
       },
     ],
   };
-  const resources = resourceMap[eventName];
+  const resources = resourceMap[eventName as keyof typeof resourceMap];
 
   // Request parameters as JSON string (keyword field in official schema)
   const reqParamsBucket = `${acct.name}-${randId(8).toLowerCase()}`;
@@ -2534,11 +2534,11 @@ function generateIamPrivEscChain(ts: string, _er: number): EcsDocument[] {
   const sessionName = `session-${randId(8).toLowerCase()}`;
 
   const ctBase = (
-    eventName,
-    requestId,
-    readOnly,
-    reqParams,
-    respElements,
+    eventName: string,
+    requestId: string,
+    readOnly: boolean,
+    reqParams: string | null,
+    respElements: string | null,
     svc = "iam.amazonaws.com"
   ) => ({
     __dataset: "aws.cloudtrail",

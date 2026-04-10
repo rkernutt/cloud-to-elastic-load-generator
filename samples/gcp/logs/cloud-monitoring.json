@@ -2,64 +2,57 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "us-west2",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
-    "service": { "name": "cloudtrace.googleapis.com" }
+    "region": "asia-south1",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
+    "service": { "name": "monitoring.googleapis.com" }
   },
   "gcp": {
-    "cloud_trace": {
-      "trace_id": "e0bcb1821a6646495971806d5ca47995",
-      "span_id": "6ef6e7f8e88e2e04",
-      "parent_span_id": "fcad14abbaa3dd0c",
-      "display_name": "pubsub.subscribe",
-      "kind": "CLIENT",
-      "status_code": 0,
-      "latency_ms": 188,
-      "attributes_count": 9,
-      "labels": {
-        "g.co/r/gcp.project.id": "globex-shared-m3n4o5",
-        "service.name": "gateway",
-        "http.route": "/internal/jobs"
-      }
+    "cloud_monitoring": {
+      "alert_policy_name": "policy-error-rate-3MV5",
+      "condition_name": "condition-BDVYRS",
+      "metric_type": "cloudsql.googleapis.com/database/cpu/utilization",
+      "threshold_value": 0.916,
+      "current_value": 0.333,
+      "state": "OK",
+      "notification_channel_type": "pagerduty"
     }
   },
-  "event": { "outcome": "success", "duration": 188, "module": "gcp", "dataset": "gcp.cloudtrace" },
-  "message": "Trace span OK: pubsub.subscribe (CLIENT) 188ms, attrs=9",
-  "service": { "name": "cloud-trace", "type": "gcp" },
+  "event": {
+    "outcome": "success",
+    "duration": 12082,
+    "module": "gcp",
+    "dataset": "gcp.monitoring"
+  },
+  "message": "Monitoring condition \"condition-BDVYRS\" evaluated: cloudsql.googleapis.com/database/cpu/utilization=0.333 vs 0.916 (OK, notify=pagerduty)",
+  "service": { "name": "cloud-monitoring", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.cloudtrace", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.monitoring", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-west2",
-    "id": "p52coipbxk"
+    "name": "elastic-agent-gcp-asia-south1",
+    "id": "8f18a7vm0e3"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-m3n4o5/logs/cloud-trace",
+  "logName": "projects/globex-prod-a1b2c3/logs/cloud-monitoring",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-shared-m3n4o5", "region": "us-west2" }
+    "labels": { "project_id": "globex-prod-a1b2c3", "region": "asia-south1" }
   },
   "severity": "INFO",
-  "insertId": "0OXRR15UMQ8",
+  "insertId": "NBW1CTV5B5",
   "jsonPayload": {
-    "cloud_trace": {
-      "trace_id": "e0bcb1821a6646495971806d5ca47995",
-      "span_id": "6ef6e7f8e88e2e04",
-      "parent_span_id": "fcad14abbaa3dd0c",
-      "display_name": "pubsub.subscribe",
-      "kind": "CLIENT",
-      "status_code": 0,
-      "latency_ms": 188,
-      "attributes_count": 9,
-      "labels": {
-        "g.co/r/gcp.project.id": "globex-shared-m3n4o5",
-        "service.name": "gateway",
-        "http.route": "/internal/jobs"
-      }
+    "cloud_monitoring": {
+      "alert_policy_name": "policy-error-rate-3MV5",
+      "condition_name": "condition-BDVYRS",
+      "metric_type": "cloudsql.googleapis.com/database/cpu/utilization",
+      "threshold_value": 0.916,
+      "current_value": 0.333,
+      "state": "OK",
+      "notification_channel_type": "pagerduty"
     },
-    "message": "Trace span OK: pubsub.subscribe (CLIENT) 188ms, attrs=9"
+    "message": "Monitoring condition \"condition-BDVYRS\" evaluated: cloudsql.googleapis.com/database/cpu/utilization=0.333 vs 0.916 (OK, notify=pagerduty)"
   }
 }

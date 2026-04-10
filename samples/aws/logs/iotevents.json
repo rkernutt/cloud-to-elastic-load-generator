@@ -1,37 +1,38 @@
 {
-  "@timestamp": "2026-04-09T10:32:55.502Z",
+  "@timestamp": "2026-04-10T08:43:15.441Z",
   "cloud": {
     "provider": "aws",
     "region": "ap-south-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "temperature-alert-model", "KeyValue": "machine-prod-1" },
+    "dimensions": { "DetectorModelName": "pressure-monitor", "KeyValue": "unit-01" },
     "iotevents": {
-      "detector_model_name": "temperature-alert-model",
-      "detector_id": "machine-prod-1",
-      "key_value": "machine-prod-1",
-      "event_name": "AlarmReset",
-      "from_state": "Alarm",
+      "detector_model_name": "pressure-monitor",
+      "detector_id": "unit-01",
+      "key_value": "unit-01",
+      "event_name": "AlarmAcknowledged",
+      "from_state": "Warning",
       "to_state": "Alarm",
-      "input_name": "SensorInput",
-      "action_type": "SNS",
-      "timer_name": "idleTimer"
+      "input_name": "HealthCheck",
+      "action_type": "SetTimer",
+      "timer_name": "alarmTimer",
+      "condition_expression": "$input.data.value < threshold"
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotevents-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-iotevents-logs-164820739518"
+        "name": "aws-iotevents-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-iotevents-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/iotevents/ap-south-2/2026/04/09/iotevents_UN1Z85HHV5.log.gz"
+        "key": "AWSLogs/501938274650/iotevents/ap-south-2/2026/04/10/iotevents_SWW7UYCN2I.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "ap-south-2/hydh45f1",
-      "ingestion_time": "2026-04-09T10:32:56.185Z"
+      "log_stream": "ap-south-2/qy5a5qrh",
+      "ingestion_time": "2026-04-10T08:43:16.472Z"
     }
   },
   "event": {
@@ -39,10 +40,10 @@
     "category": ["process"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 139000000,
+    "duration": 89000000,
     "module": "aws"
   },
-  "message": "IoT Events temperature-alert-model/machine-prod-1: Alarm → Alarm [AlarmReset]",
+  "message": "IoT Events pressure-monitor/unit-01: Warning → Alarm [AlarmAcknowledged]",
   "log": { "level": "warn" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -51,7 +52,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "tqeksmtik4"
+    "ephemeral_id": "5a3xg9o8zt9"
   },
   "input": { "type": "aws-cloudwatch" }
 }

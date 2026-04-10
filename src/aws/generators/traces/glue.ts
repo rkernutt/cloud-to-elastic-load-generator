@@ -111,13 +111,25 @@ const PHASE_PROPS = {
 
 const LOAD_SUBTYPES = { s3: "s3", dynamodb: "dynamodb", redshift: "redshift" };
 
-function buildGluePhaseSpan(traceId, txId, parentId, ts, phase, isErr, spanOffsetMs) {
+type GluePhase = (typeof JOB_CONFIGS)[number]["phases"][number];
+
+function buildGluePhaseSpan(
+  traceId: string,
+  txId: string,
+  parentId: string,
+  ts: string,
+  phase: GluePhase,
+  isErr: boolean,
+  spanOffsetMs: number
+) {
   const id = newSpanId();
-  const baseProps = PHASE_PROPS[phase.type] || PHASE_PROPS.transform;
+  const baseProps = PHASE_PROPS[phase.type as keyof typeof PHASE_PROPS] || PHASE_PROPS.transform;
   const durationUs = randInt(baseProps.durationMs[0], baseProps.durationMs[1]) * 1000;
 
   const subtype =
-    phase.type === "load" ? LOAD_SUBTYPES[phase.loadSubtype] || "s3" : baseProps.subtype;
+    phase.type === "load"
+      ? LOAD_SUBTYPES[phase.loadSubtype as keyof typeof LOAD_SUBTYPES] || "s3"
+      : baseProps.subtype;
 
   return {
     "@timestamp": offsetTs(new Date(ts), spanOffsetMs),
@@ -145,7 +157,7 @@ function buildGluePhaseSpan(traceId, txId, parentId, ts, phase, isErr, spanOffse
  * @param {number} er  - error rate 0.0–1.0
  * @returns {Object[]} array of APM documents (transaction first, then spans)
  */
-export function generateGlueTrace(ts, er) {
+export function generateGlueTrace(ts: string, er: number) {
   const cfg = rand(JOB_CONFIGS);
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);
@@ -209,7 +221,7 @@ export function generateGlueTrace(ts, er) {
   for (let i = 0; i < cfg.phases.length; i++) {
     const phase = cfg.phases[i];
     const spanIsErr = isErr && i === cfg.phases.length - 1;
-    const baseProps = PHASE_PROPS[phase.type] || PHASE_PROPS.transform;
+    const baseProps = PHASE_PROPS[phase.type as keyof typeof PHASE_PROPS] || PHASE_PROPS.transform;
     const durationUs = randInt(baseProps.durationMs[0], baseProps.durationMs[1]) * 1000;
 
     spans.push(buildGluePhaseSpan(traceId, txId, txId, ts, phase, spanIsErr, spanOffsetMs));

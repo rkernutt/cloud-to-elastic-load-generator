@@ -40,7 +40,13 @@ const AURORA_INSTANCES = [
   { id: "aurora-global-cluster", engine: "aurora-postgresql", cls: "db.r6g.4xlarge" },
 ];
 
-function rdsMetrics(ts, er, instances: readonly RdsInstanceRow[], engine: string | null, dataset) {
+function rdsMetrics(
+  ts: string,
+  er: number,
+  instances: readonly RdsInstanceRow[],
+  engine: string | null,
+  dataset: string
+) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample([...instances], randInt(2, 4)).map((inst) => {
     const cpu = Math.random() < er ? jitter(80, 12, 60, 100) : jitter(30, 20, 5, 90);
@@ -80,10 +86,10 @@ function rdsMetrics(ts, er, instances: readonly RdsInstanceRow[], engine: string
   });
 }
 
-export function generateRdsMetrics(ts, er) {
+export function generateRdsMetrics(ts: string, er: number) {
   return rdsMetrics(ts, er, RDS_INSTANCES, "rds", "aws.rds");
 }
-export function generateAuroraMetrics(ts, er) {
+export function generateAuroraMetrics(ts: string, er: number) {
   return rdsMetrics(ts, er, AURORA_INSTANCES, "aurora", "aws.rds");
 }
 
@@ -105,7 +111,7 @@ const DYNAMO_TABLES = [
   "payments",
 ];
 
-export function generateDynamodbMetrics(ts, er) {
+export function generateDynamodbMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(DYNAMO_TABLES, randInt(3, 7)).map((table) => {
     const rcuConsumed = randInt(0, 10_000);
@@ -147,7 +153,7 @@ const CACHE_CLUSTERS = [
   { id: "memcached-app", engine: "memcached" },
 ];
 
-export function generateElasticacheMetrics(ts, er) {
+export function generateElasticacheMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(CACHE_CLUSTERS, randInt(1, 3)).map((cluster) => {
     const hits = randInt(1_000, 500_000);
@@ -188,7 +194,7 @@ export function generateElasticacheMetrics(ts, er) {
 
 const REDSHIFT_CLUSTERS = ["analytics-cluster", "reporting-dw", "bi-cluster", "data-warehouse"];
 
-export function generateRedshiftMetrics(ts, er) {
+export function generateRedshiftMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(REDSHIFT_CLUSTERS, randInt(1, 2)).map((clusterId) => {
     const cpu = Math.random() < er ? jitter(75, 15, 50, 100) : jitter(30, 20, 5, 80);
@@ -232,7 +238,7 @@ const S3_BUCKETS = [
   "raw-events",
 ];
 
-export function generateS3Metrics(ts, er) {
+export function generateS3Metrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(S3_BUCKETS, randInt(3, 7)).map((bucket) => {
     const storageGb = randInt(1, 50_000);
@@ -270,7 +276,7 @@ export function generateS3Metrics(ts, er) {
 
 // ─── DocumentDB ───────────────────────────────────────────────────────────────
 
-export function generateDocdbMetrics(ts, er) {
+export function generateDocdbMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -305,7 +311,7 @@ export function generateDocdbMetrics(ts, er) {
 
 // ─── OpenSearch / Elasticsearch ───────────────────────────────────────────────
 
-export function generateOpensearchMetrics(ts, er) {
+export function generateOpensearchMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const domain = rand(["search-prod", "logs-cluster", "analytics-os", "observability-os"]);
   return [
@@ -341,7 +347,7 @@ export function generateOpensearchMetrics(ts, er) {
 
 // ─── Neptune ──────────────────────────────────────────────────────────────────
 
-export function generateNeptuneMetrics(ts, er) {
+export function generateNeptuneMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -372,7 +378,7 @@ export function generateNeptuneMetrics(ts, er) {
 
 // ─── Keyspaces (Managed Cassandra) ────────────────────────────────────────────
 
-export function generateKeyspacesMetrics(ts, er) {
+export function generateKeyspacesMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const ks = rand(["prod_keyspace", "analytics", "sessions", "events"]);
   return [
@@ -396,7 +402,7 @@ export function generateKeyspacesMetrics(ts, er) {
 
 // ─── MemoryDB ─────────────────────────────────────────────────────────────────
 
-export function generateMemorydbMetrics(ts, er) {
+export function generateMemorydbMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -425,7 +431,7 @@ export function generateMemorydbMetrics(ts, er) {
 
 // ─── EBS ──────────────────────────────────────────────────────────────────────
 
-export function generateEbsMetrics(ts, er) {
+export function generateEbsMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return Array.from({ length: randInt(2, 6) }, () => {
     const volId = `vol-${randId(17).toLowerCase()}`;
@@ -454,7 +460,7 @@ export function generateEbsMetrics(ts, er) {
 
 // ─── EFS ──────────────────────────────────────────────────────────────────────
 
-export function generateEfsMetrics(ts, er) {
+export function generateEfsMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -486,7 +492,7 @@ export function generateEfsMetrics(ts, er) {
 
 // ─── Timestream ───────────────────────────────────────────────────────────────
 
-export function generateTimestreamMetrics(ts, er) {
+export function generateTimestreamMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -511,7 +517,7 @@ export function generateTimestreamMetrics(ts, er) {
 
 // ─── Backup ───────────────────────────────────────────────────────────────────
 
-export function generateBackupMetrics(ts, er) {
+export function generateBackupMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -533,7 +539,7 @@ export function generateBackupMetrics(ts, er) {
 
 // ─── FSx ──────────────────────────────────────────────────────────────────────
 
-export function generateFsxMetrics(ts, _er) {
+export function generateFsxMetrics(ts: string, _er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -558,7 +564,7 @@ export function generateFsxMetrics(ts, _er) {
 
 // ─── StorageLens ──────────────────────────────────────────────────────────────
 
-export function generateStoragelensMetrics(ts, er) {
+export function generateStoragelensMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -585,7 +591,7 @@ export function generateStoragelensMetrics(ts, er) {
 
 // ─── DataSync ─────────────────────────────────────────────────────────────────
 
-export function generateDatasyncMetrics(ts, _er) {
+export function generateDatasyncMetrics(ts: string, _er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -609,7 +615,7 @@ export function generateDatasyncMetrics(ts, _er) {
 
 // ─── Storage Gateway ──────────────────────────────────────────────────────────
 
-export function generateStoragegatewayMetrics(ts, er) {
+export function generateStoragegatewayMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -637,7 +643,7 @@ export function generateStoragegatewayMetrics(ts, er) {
 
 // ─── QLDB ─────────────────────────────────────────────────────────────────────
 
-export function generateQldbMetrics(ts, er) {
+export function generateQldbMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(

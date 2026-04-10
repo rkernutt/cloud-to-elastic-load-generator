@@ -2,52 +2,53 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "asia-south1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
-    "service": { "name": "iam" }
+    "region": "us-south1",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" },
+    "service": { "name": "os-login" }
   },
   "gcp": {
-    "iam": {
-      "principal": "user:admin@globex.example.com",
-      "action": "CreateServiceAccountKey",
-      "resource": "projects/globex-staging-d4e5f6",
-      "permission_granted": true,
-      "policy_delta_action": "ADD",
-      "role": "roles/iam.serviceAccountTokenCreator",
-      "request_id": "xuy3jyr3x1"
+    "os_login": {
+      "user": "sre@globex-shared-m3n4o5.example.com",
+      "action": "LOGOUT",
+      "instance": "vm-build-ztva",
+      "ssh_key_fingerprint": "SHA256:ab3345a19dbd3cff77f6451fa3a652999d19fd6aeeea",
+      "login_method": "SSH_KEY"
     }
   },
-  "event": { "outcome": "success", "duration": 60000000, "module": "gcp", "dataset": "gcp.iam" },
-  "message": "IAM CreateServiceAccountKey by user:admin@globex.example.com on projects/globex-staging-d4e5f6: ADD binding roles/iam.serviceAccountTokenCreator",
+  "event": {
+    "outcome": "success",
+    "duration": 32000000,
+    "module": "gcp",
+    "dataset": "gcp.oslogin"
+  },
+  "message": "OS Login LOGOUT: sre@globex-shared-m3n4o5.example.com on vm-build-ztva via SSH_KEY",
   "log": { "level": "info" },
-  "service": { "name": "iam", "type": "gcp" },
+  "service": { "name": "os-login", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.iam", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.oslogin", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-south1",
-    "id": "bgb0yy7v0yn"
+    "name": "elastic-agent-gcp-us-south1",
+    "id": "espefoko8zo"
   },
-  "input": { "type": "http_endpoint" },
-  "logName": "projects/globex-staging-d4e5f6/logs/iam",
+  "input": { "type": "gcp-pubsub" },
+  "logName": "projects/globex-shared-m3n4o5/logs/os-login",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-staging-d4e5f6", "region": "asia-south1" }
+    "labels": { "project_id": "globex-shared-m3n4o5", "region": "us-south1" }
   },
   "severity": "INFO",
-  "insertId": "K92VR7KYGV",
+  "insertId": "FZ3XD13MVVB",
   "jsonPayload": {
-    "iam": {
-      "principal": "user:admin@globex.example.com",
-      "action": "CreateServiceAccountKey",
-      "resource": "projects/globex-staging-d4e5f6",
-      "permission_granted": true,
-      "policy_delta_action": "ADD",
-      "role": "roles/iam.serviceAccountTokenCreator",
-      "request_id": "xuy3jyr3x1"
+    "os_login": {
+      "user": "sre@globex-shared-m3n4o5.example.com",
+      "action": "LOGOUT",
+      "instance": "vm-build-ztva",
+      "ssh_key_fingerprint": "SHA256:ab3345a19dbd3cff77f6451fa3a652999d19fd6aeeea",
+      "login_method": "SSH_KEY"
     },
-    "message": "IAM CreateServiceAccountKey by user:admin@globex.example.com on projects/globex-staging-d4e5f6: ADD binding roles/iam.serviceAccountTokenCreator"
+    "message": "OS Login LOGOUT: sre@globex-shared-m3n4o5.example.com on vm-build-ztva via SSH_KEY"
   }
 }

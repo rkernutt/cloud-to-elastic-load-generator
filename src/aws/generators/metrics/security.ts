@@ -23,7 +23,7 @@ import {
 
 const WAF_ACLS = ["prod-waf", "api-waf", "staging-waf", "global-waf"];
 
-export function generateWafMetrics(ts, er) {
+export function generateWafMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const waf = rand(WAF_ACLS);
   const rule = rand([
@@ -61,7 +61,7 @@ export const generateWafv2Metrics = generateWafMetrics;
 
 // ─── Shield ───────────────────────────────────────────────────────────────────
 
-export function generateShieldMetrics(ts, er) {
+export function generateShieldMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -98,7 +98,7 @@ const KMS_KEY_IDS = [
   "key-aabbccddeeff1122",
 ];
 
-export function generateKmsMetrics(ts, _er) {
+export function generateKmsMetrics(ts: string, _er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(KMS_KEY_IDS, randInt(1, 3)).map((keyId) => {
     return metricDoc(
@@ -125,7 +125,7 @@ export function generateKmsMetrics(ts, _er) {
 
 const COGNITO_POOLS = ["us-pool-prod", "eu-pool-prod", "mobile-user-pool", "b2b-pool"];
 
-export function generateCognitoMetrics(ts, er) {
+export function generateCognitoMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(COGNITO_POOLS, randInt(1, 2)).map((pool) => {
     const signIns = randInt(0, 50_000);
@@ -160,7 +160,7 @@ export function generateCognitoMetrics(ts, er) {
 
 // ─── GuardDuty ────────────────────────────────────────────────────────────────
 
-export function generateGuarddutyMetrics(ts, er) {
+export function generateGuarddutyMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -193,7 +193,7 @@ const CW_NAMESPACES = [
   "Custom/App",
 ];
 
-export function generateCloudwatchMetrics(ts, er) {
+export function generateCloudwatchMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(CW_NAMESPACES, randInt(2, 4)).map((ns) => {
     return metricDoc(
@@ -229,7 +229,7 @@ const SF_MACHINES = [
   "approval-workflow",
 ];
 
-export function generateStepfunctionsMetrics(ts, er) {
+export function generateStepfunctionsMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(SF_MACHINES, randInt(1, 3)).map((machine) => {
     const started = randInt(0, 10_000);
@@ -262,7 +262,7 @@ export function generateStepfunctionsMetrics(ts, er) {
 
 // ─── SSM ──────────────────────────────────────────────────────────────────────
 
-export function generateSsmMetrics(ts, er) {
+export function generateSsmMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -287,7 +287,7 @@ export function generateSsmMetrics(ts, er) {
 
 // ─── CloudFormation ───────────────────────────────────────────────────────────
 
-export function generateCloudformationMetrics(ts, er) {
+export function generateCloudformationMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -319,7 +319,7 @@ const CODEBUILD_PROJECTS = [
   "terraform-validate",
 ];
 
-export function generateCodebuildMetrics(ts, er) {
+export function generateCodebuildMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(CODEBUILD_PROJECTS, randInt(1, 3)).map((project) => {
     const builds = randInt(0, 200);
@@ -354,7 +354,7 @@ const PIPELINES = [
   "ml-deploy",
 ];
 
-export function generateCodepipelineMetrics(ts, er) {
+export function generateCodepipelineMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(PIPELINES, randInt(1, 2)).map((pipeline) => {
     const execs = randInt(0, 50);
@@ -381,7 +381,7 @@ export function generateCodepipelineMetrics(ts, er) {
 
 // ─── CodeDeploy ───────────────────────────────────────────────────────────────
 
-export function generateCodedeployMetrics(ts, er) {
+export function generateCodedeployMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const appName = rand(["web-app", "api-service", "worker-service", "mobile-backend"]);
   const deploys = randInt(0, 20);
@@ -408,7 +408,7 @@ export function generateCodedeployMetrics(ts, er) {
 
 // ─── Amplify ──────────────────────────────────────────────────────────────────
 
-export function generateAmplifyMetrics(ts, er) {
+export function generateAmplifyMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const req = randInt(0, 1_000_000);
   return [
@@ -434,7 +434,7 @@ export function generateAmplifyMetrics(ts, er) {
 
 const ASG_NAMES = ["web-asg", "api-asg", "worker-asg", "batch-asg", "ml-asg"];
 
-export function generateAutoscalingMetrics(ts, er) {
+export function generateAutoscalingMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(ASG_NAMES, randInt(1, 3)).map((asg) => {
     const desired = randInt(2, 30);
@@ -465,7 +465,7 @@ export function generateAutoscalingMetrics(ts, er) {
 
 const HOSTED_ZONES = ["example.com", "api.example.com", "internal.corp", "my-app.io"];
 
-export function generateRoute53Metrics(ts, er) {
+export function generateRoute53Metrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(HOSTED_ZONES, randInt(1, 3)).map((_zone) => {
     return metricDoc(
@@ -489,7 +489,7 @@ export function generateRoute53Metrics(ts, er) {
 
 // ─── Billing ──────────────────────────────────────────────────────────────────
 
-export function generateBillingMetrics(ts, _er) {
+export function generateBillingMetrics(ts: string, _er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -519,7 +519,7 @@ export function generateBillingMetrics(ts, _er) {
 
 // ─── Health ───────────────────────────────────────────────────────────────────
 
-export function generateHealthMetrics(ts, er) {
+export function generateHealthMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -540,7 +540,7 @@ export function generateHealthMetrics(ts, er) {
 
 // ─── Security-adjacent: Inspector, Macie, Config, AccessAnalyzer ──────────────
 
-export function generateInspectorMetrics(ts, er) {
+export function generateInspectorMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -563,7 +563,7 @@ export function generateInspectorMetrics(ts, er) {
   ];
 }
 
-export function generateMacieMetrics(ts, er) {
+export function generateMacieMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -584,7 +584,7 @@ export function generateMacieMetrics(ts, er) {
   ];
 }
 
-export function generateConfigMetrics(ts, er) {
+export function generateConfigMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -605,7 +605,7 @@ export function generateConfigMetrics(ts, er) {
   ];
 }
 
-export function generateAccessanalyzerMetrics(ts, er) {
+export function generateAccessanalyzerMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -626,7 +626,7 @@ export function generateAccessanalyzerMetrics(ts, er) {
 
 // ─── IoT Core ─────────────────────────────────────────────────────────────────
 
-export function generateIotcoreMetrics(ts, er) {
+export function generateIotcoreMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -653,7 +653,7 @@ export function generateIotcoreMetrics(ts, er) {
 
 // ─── Workspaces ───────────────────────────────────────────────────────────────
 
-export function generateWorkspacesMetrics(ts, er) {
+export function generateWorkspacesMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -679,7 +679,7 @@ export function generateWorkspacesMetrics(ts, er) {
 
 // ─── Connect ──────────────────────────────────────────────────────────────────
 
-export function generateConnectMetrics(ts, er) {
+export function generateConnectMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -704,7 +704,7 @@ export function generateConnectMetrics(ts, er) {
 
 // ─── GameLift ─────────────────────────────────────────────────────────────────
 
-export function generateGameliftMetrics(ts, er) {
+export function generateGameliftMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -733,7 +733,7 @@ export function generateGameliftMetrics(ts, er) {
 
 // ─── SecretsManger ────────────────────────────────────────────────────────────
 
-export function generateSecretsmanagerMetrics(ts, er) {
+export function generateSecretsmanagerMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -756,7 +756,7 @@ export function generateSecretsmanagerMetrics(ts, er) {
 
 // ─── ACM ──────────────────────────────────────────────────────────────────────
 
-export function generateAcmMetrics(ts, er) {
+export function generateAcmMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -779,7 +779,7 @@ export function generateAcmMetrics(ts, er) {
 
 // ─── CloudTrail ───────────────────────────────────────────────────────────────
 
-export function generateCloudtrailMetrics(ts, er) {
+export function generateCloudtrailMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -801,7 +801,7 @@ export function generateCloudtrailMetrics(ts, er) {
 
 // ─── Additional management / observability ────────────────────────────────────
 
-export function generateAppsyncMetrics(ts, er) {
+export function generateAppsyncMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const req = randInt(0, 500_000);
   return [
@@ -823,7 +823,7 @@ export function generateAppsyncMetrics(ts, er) {
   ];
 }
 
-export function generateTrustedadvisorMetrics(ts, er) {
+export function generateTrustedadvisorMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -843,7 +843,7 @@ export function generateTrustedadvisorMetrics(ts, er) {
   ];
 }
 
-export function generateImagebuilderMetrics(ts, er) {
+export function generateImagebuilderMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -862,7 +862,7 @@ export function generateImagebuilderMetrics(ts, er) {
   ];
 }
 
-export function generateDevopsgouruMetrics(ts, er) {
+export function generateDevopsgouruMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -883,7 +883,7 @@ export function generateDevopsgouruMetrics(ts, er) {
   ];
 }
 
-export function generatePinpointMetrics(ts, er) {
+export function generatePinpointMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -904,7 +904,7 @@ export function generatePinpointMetrics(ts, er) {
   ];
 }
 
-export function generateTransferfamilyMetrics(ts, er) {
+export function generateTransferfamilyMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -927,7 +927,7 @@ export function generateTransferfamilyMetrics(ts, er) {
   ];
 }
 
-export function generateLightsailMetrics(ts, er) {
+export function generateLightsailMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -950,7 +950,7 @@ export function generateLightsailMetrics(ts, er) {
   ];
 }
 
-export function generateRamMetrics(ts, _er) {
+export function generateRamMetrics(ts: string, _er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -969,7 +969,7 @@ export function generateRamMetrics(ts, _er) {
   ];
 }
 
-export function generateDmsMetrics(ts, er) {
+export function generateDmsMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -1007,7 +1007,7 @@ export function generateDmsMetrics(ts, er) {
 
 // ─── Codecommit ───────────────────────────────────────────────────────────────
 
-export function generateCodecommitMetrics(ts, _er) {
+export function generateCodecommitMetrics(ts: string, _er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -1036,7 +1036,7 @@ export function generateCodecommitMetrics(ts, _er) {
   ];
 }
 
-export function generateCodeartifactMetrics(ts, _er) {
+export function generateCodeartifactMetrics(ts: string, _er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [
     metricDoc(
@@ -1068,7 +1068,7 @@ const SH_STANDARDS = [
   "nist-800-53",
 ];
 
-export function generateSecurityhubMetrics(ts, er) {
+export function generateSecurityhubMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const standard = rand(SH_STANDARDS);
   const isFailing = Math.random() < er;

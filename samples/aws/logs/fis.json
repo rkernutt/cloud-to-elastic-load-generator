@@ -1,45 +1,45 @@
 {
-  "@timestamp": "2026-04-09T10:32:55.502Z",
+  "@timestamp": "2026-04-10T08:43:15.441Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-west-3",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "fis" }
   },
   "aws": {
-    "dimensions": { "ExperimentTemplateId": "EXTSOF0VJNT" },
+    "dimensions": { "ExperimentTemplateId": "EXTYUEM4CMX" },
     "fis": {
-      "experiment_id": "EXP5SE9JXRT",
-      "experiment_template_id": "EXTSOF0VJNT",
+      "experiment_id": "EXPN69816EE",
+      "experiment_template_id": "EXTYUEM4CMX",
       "experiment_name": "az-failure-simulation",
-      "experiment_state": "completed",
-      "target_resource_type": "EKS nodes",
-      "action_type": "aws:rds:failover-db-cluster",
-      "stop_condition": "none",
-      "role_arn": "arn:aws:iam::293847561023:role/FISRole-az-failure-simulation"
+      "experiment_state": "pending",
+      "target_resource_type": "RDS clusters",
+      "action_type": "aws:ecs:drain-container-instances",
+      "stop_condition": "aws:cloudwatch:alarm",
+      "role_arn": "arn:aws:iam::164820739518:role/FISRole-az-failure-simulation"
     },
     "s3": {
       "bucket": {
-        "name": "aws-fis-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-fis-logs-293847561023"
+        "name": "aws-fis-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-fis-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/293847561023/fis/me-central-1/2026/04/09/fis_P3T2LKGQ6OA.log.gz" }
+      "object": { "key": "AWSLogs/164820739518/fis/eu-west-3/2026/04/10/fis_3TZD28RSEMG.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/fis/logs",
-      "log_stream": "me-central-1/tcivqwf4",
-      "ingestion_time": "2026-04-09T10:32:56.149Z"
+      "log_stream": "eu-west-3/4yyza985",
+      "ingestion_time": "2026-04-10T08:43:16.402Z"
     }
   },
   "event": {
-    "action": "StopExperiment",
+    "action": "CreateExperimentTemplate",
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.fis",
     "provider": "fis.amazonaws.com",
     "module": "aws"
   },
-  "message": "FIS StopExperiment: exp=EXP5SE9JXRT (az-failure-simulation) state=completed, target=EKS nodes",
+  "message": "FIS CreateExperimentTemplate: exp=EXPN69816EE (az-failure-simulation) state=pending, target=RDS clusters",
   "log": { "level": "info" },
   "service": { "name": "fis", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -47,8 +47,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "le6y3uycp3i"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "cpsn3437irv"
   },
   "input": { "type": "aws-cloudwatch" }
 }

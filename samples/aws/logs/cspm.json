@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-09T10:32:55.502Z",
+  "@timestamp": "2026-04-10T08:43:15.441Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,63 +7,68 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" }
+    "region": "ap-east-1",
+    "account": { "id": "814726593401", "name": "globex-production" }
   },
   "resource": {
-    "id": "arn:aws:cloudtrail:ca-central-1:164820739518:trail/management-events",
-    "name": "management-events",
-    "sub_type": "cloudtrail",
-    "type": "cloud-audit"
+    "id": "arn:aws:iam::814726593401:policy/password-policy",
+    "name": "password-policy",
+    "sub_type": "iam-policy",
+    "type": "cloud-identity-management"
   },
   "rule": {
-    "id": "cis_2_4",
-    "name": "Ensure CloudTrail trails are encrypted with KMS CMK",
-    "section": "2.4",
-    "tags": ["Logging"],
+    "id": "cis_1_8",
+    "name": "Ensure IAM password policy requires minimum length of 14",
+    "section": "1.8",
+    "tags": ["IAM"],
     "benchmark": {
       "id": "cis_aws",
       "version": "v1.5.0",
-      "rule_number": "2.4",
+      "rule_number": "1.8",
       "posture_type": "cspm"
-    }
+    },
+    "impact": "Non-compliance with CIS AWS 1.8 may expose account to unauthorized access.",
+    "remediation": "Remediate per CIS AWS Foundations Benchmark v1.5.0 section 1.8."
   },
-  "result": { "evaluation": "passed" },
-  "severity": "none",
+  "result": { "evaluation": "failed" },
+  "severity": "medium",
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_cspm",
     "module": "aws"
   },
-  "message": "CSPM [CIS AWS 1.5 / 2.4] passed: Ensure CloudTrail trails are encrypted with KMS CMK",
-  "log": { "level": "info" },
+  "message": "CSPM [CIS AWS 1.5 / 1.8] failed: Ensure IAM password policy requires minimum length of 14",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "CIS_CIS_1_8",
+    "message": "CSPM check failed: Ensure IAM password policy requires minimum length of 14",
+    "type": "compliance"
+  },
   "service": { "name": "cspm", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "d18yzcpuht"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "z00n6odjgk"
   },
   "input": { "type": "http_endpoint" },
   "aws": {
     "s3": {
       "bucket": {
-        "name": "aws-cspm-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-cspm-logs-164820739518"
+        "name": "aws-cspm-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-cspm-logs-814726593401"
       },
-      "object": {
-        "key": "AWSLogs/164820739518/cspm/ca-central-1/2026/04/09/cspm_0EQC3MYTFRW8.log.gz"
-      }
+      "object": { "key": "AWSLogs/814726593401/cspm/ap-east-1/2026/04/10/cspm_SBM5F8Y4R2N.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/cspm/logs",
-      "log_stream": "ca-central-1/z9g3455y",
-      "ingestion_time": "2026-04-09T10:32:55.974Z"
+      "log_stream": "ap-east-1/tdh1bbwb",
+      "ingestion_time": "2026-04-10T08:43:16.068Z"
     }
   }
 }

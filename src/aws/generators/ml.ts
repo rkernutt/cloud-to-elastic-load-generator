@@ -255,7 +255,7 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
       fail: ["Endpoint creation failed", "Endpoint deployment failed"],
     },
   };
-  const life = lifecycleByType[jobType] || lifecycleByType.Training;
+  const life = lifecycleByType[jobType as keyof typeof lifecycleByType] || lifecycleByType.Training;
   const infoLifecycle = [...life.start, ...life.success];
   const infoOther = [
     "Epoch 12/50 - loss: 0.2341, val_loss: 0.2518, accuracy: 0.9124",
@@ -393,7 +393,7 @@ function generateBedrockLog(ts: string, er: number): EcsDocument {
   const modelFamily = model.split(".")[0]; // anthropic, amazon, meta, mistral
   // Token ratios vary by model family: claude tends verbose, titan is concise
   const maxOutputByFamily = { anthropic: 8192, amazon: 4096, meta: 8192, mistral: 32768 };
-  const maxOut = maxOutputByFamily[modelFamily] || 4096;
+  const maxOut = maxOutputByFamily[modelFamily as keyof typeof maxOutputByFamily] || 4096;
   const inputTokens = randInt(50, 8000);
   const outputTokens = isErr ? 0 : Math.min(randInt(50, 2000), maxOut);
   const isStreaming = Math.random() < 0.6;
@@ -1428,7 +1428,7 @@ function generateKendraLog(ts: string, er: number): EcsDocument {
   };
 }
 
-function generateA2iLog(ts, er) {
+function generateA2iLog(ts: string, er: number) {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;
@@ -1459,7 +1459,7 @@ function generateA2iLog(ts, er) {
     ConditionThresholdBreached: "InProgress",
     TaskTimedOut: "Failed",
   };
-  const loopStatus = isErr ? "Failed" : statusMap[action] || "InProgress";
+  const loopStatus = isErr ? "Failed" : statusMap[action as keyof typeof statusMap] || "InProgress";
   return {
     "@timestamp": ts,
     cloud: {

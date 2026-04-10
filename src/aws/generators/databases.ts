@@ -635,7 +635,7 @@ function generateNeptuneLog(ts: string, er: number): EcsDocument {
       neptune: {
         cluster_id: cluster,
         query_language: queryLang,
-        query: rand(QUERIES[queryLang]),
+        query: rand(QUERIES[queryLang as keyof typeof QUERIES]),
         duration_ms: Math.round(dur),
         http_status: isErr ? rand([400, 429, 500]) : 200,
         db_connections: randInt(1, isErr ? 500 : 200),

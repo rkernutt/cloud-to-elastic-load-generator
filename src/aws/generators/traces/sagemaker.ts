@@ -94,7 +94,18 @@ const ENDPOINT_CONFIGS = [
   },
 ];
 
-function buildInvokeEndpointSpan(traceId, txId, parentId, ts, cfg, _account, isErr, spanOffsetMs) {
+type EndpointCfg = (typeof ENDPOINT_CONFIGS)[number];
+
+function buildInvokeEndpointSpan(
+  traceId: string,
+  txId: string,
+  parentId: string,
+  ts: string,
+  cfg: EndpointCfg,
+  _account: (typeof TRACE_ACCOUNTS)[number],
+  isErr: boolean,
+  spanOffsetMs: number
+) {
   const id = newSpanId();
   const inferenceLatencyMs = randInt(20, 800);
   const durationUs = inferenceLatencyMs * 1000;
@@ -126,7 +137,15 @@ function buildInvokeEndpointSpan(traceId, txId, parentId, ts, cfg, _account, isE
   };
 }
 
-function buildS3PreProcessSpan(traceId, txId, parentId, ts, account, isErr, spanOffsetMs) {
+function buildS3PreProcessSpan(
+  traceId: string,
+  txId: string,
+  parentId: string,
+  ts: string,
+  account: (typeof TRACE_ACCOUNTS)[number],
+  isErr: boolean,
+  spanOffsetMs: number
+) {
   const id = newSpanId();
   const durationUs = randInt(5, 120) * 1000;
   const bucketName = `${account.name}-feature-store`;
@@ -155,7 +174,14 @@ function buildS3PreProcessSpan(traceId, txId, parentId, ts, account, isErr, span
   };
 }
 
-function buildDynamoPostProcessSpan(traceId, txId, parentId, ts, isErr, spanOffsetMs) {
+function buildDynamoPostProcessSpan(
+  traceId: string,
+  txId: string,
+  parentId: string,
+  ts: string,
+  isErr: boolean,
+  spanOffsetMs: number
+) {
   const id = newSpanId();
   const durationUs = randInt(2, 50) * 1000;
 
@@ -192,7 +218,7 @@ function buildDynamoPostProcessSpan(traceId, txId, parentId, ts, isErr, spanOffs
  * @param {number} er  - error rate 0.0–1.0
  * @returns {Object[]} array of APM documents (transaction first, then spans)
  */
-export function generateSageMakerTrace(ts, er) {
+export function generateSageMakerTrace(ts: string, er: number) {
   const cfg = rand(ENDPOINT_CONFIGS);
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);

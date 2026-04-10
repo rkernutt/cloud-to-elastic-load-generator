@@ -113,9 +113,19 @@ const DYNAMO_OP_PROPS = {
   TransactWriteItems: { readCu: [1, 5], writeCu: [2, 10], durationMs: [5, 120] },
 };
 
-function buildDynamoSpan(traceId, txId, parentId, ts, operation, tableName, isErr, spanOffsetMs) {
+function buildDynamoSpan(
+  traceId: string,
+  txId: string,
+  parentId: string,
+  ts: string,
+  operation: string,
+  tableName: string,
+  isErr: boolean,
+  spanOffsetMs: number
+) {
   const id = newSpanId();
-  const props = DYNAMO_OP_PROPS[operation] || DYNAMO_OP_PROPS.GetItem;
+  const props =
+    DYNAMO_OP_PROPS[operation as keyof typeof DYNAMO_OP_PROPS] || DYNAMO_OP_PROPS.GetItem;
   const durationUs = randInt(props.durationMs[0], props.durationMs[1]) * 1000;
   const readCu = randFloat(props.readCu[0], props.readCu[1], 1);
   const writeCu = randFloat(props.writeCu[0], props.writeCu[1], 1);
@@ -152,7 +162,7 @@ function buildDynamoSpan(traceId, txId, parentId, ts, operation, tableName, isEr
  * @param {number} er  - error rate 0.0–1.0
  * @returns {Object[]} array of APM documents (transaction first, then spans)
  */
-export function generateDynamoDbTrace(ts, er) {
+export function generateDynamoDbTrace(ts: string, er: number) {
   const cfg = rand(SERVICE_CONFIGS);
   const region = rand(TRACE_REGIONS);
   const account = rand(TRACE_ACCOUNTS);
@@ -213,7 +223,8 @@ export function generateDynamoDbTrace(ts, er) {
   for (let i = 0; i < opList.length; i++) {
     const operation = opList[i];
     const spanIsErr = isErr && i === opList.length - 1;
-    const props = DYNAMO_OP_PROPS[operation] || DYNAMO_OP_PROPS.GetItem;
+    const props =
+      DYNAMO_OP_PROPS[operation as keyof typeof DYNAMO_OP_PROPS] || DYNAMO_OP_PROPS.GetItem;
     const durationUs = randInt(props.durationMs[0], props.durationMs[1]) * 1000;
 
     spans.push(
