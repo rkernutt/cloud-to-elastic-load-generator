@@ -20,9 +20,15 @@ The **Setup** step in the web UI installs or removes Elastic assets (Fleet integ
 You do **not** have to install everything.
 
 - **Filter** — One search box narrows pipelines, dashboards, and ML groups together.
-- **Per-pipeline choice** — Pipelines are grouped in accordions (e.g. analytics, compute). Expand a group and tick individual pipeline IDs, or use **All in group** / **None in group**.
+- **Per-pipeline choice** — Pipelines are grouped in accordions by pipeline `group` (e.g. analytics, compute). Expand a group and tick individual pipeline IDs, or use **All in group** / **None in group**. Human-readable headings use polish helpers (e.g. GCP **Data Warehouse** for the `datawarehouse` group slug).
+- **Dashboards (AWS)** — When the app has loaded the AWS **Services** catalog, dashboard accordions use the **same category titles** as the Services step (_Networking & CDN_, _Developer & CI/CD_, _Storage & Databases_, etc.). Dashboards that cannot be mapped show under **Uncategorized**. Titles that need extra hints (e.g. combined **CI/CD** dashboards, **Augmented AI**, **App Recovery Controller**) are aligned via full-title matching. If the catalog is empty (edge case), grouping falls back to polished title fragments.
+- **ML jobs**
+  - **AWS** — Jobs are grouped in **one accordion per Services category** (merged across all ML JSON bundles, including jobs that ship in `new-services` and similar files). Use **All in group** / **None in group** per category. Matching uses job id, descriptions, and `event.dataset` / `aws.*` fields, with aliases where the dataset name differs from the catalog id (e.g. `aws.vpcflow` → VPC Flow under Networking).
+  - **GCP / Azure** — Jobs stay grouped **per installer file** (each `*-jobs.json` group), with **All in file** / **None in file**.
 - **Select visible / Clear visible** — Applies to whatever the filter currently shows (dashboards and ML groups included).
-- **Align with Services step** — Uses the services you selected on the **Services** page (log/metrics services, or trace services when the app is in traces mode) to pre-select matching pipelines, dashboards, and ML job groups. Matching uses dataset IDs, pipeline naming (`logs-*.{suffix}-default`), dashboard titles (`AWS Lambda — …`, `GCP Alloydb — …`, etc.), and ML metadata — it is **heuristic**. If nothing matches, adjust Services or pick assets manually.
+- **Align with Services step** — Uses the services you selected on the **Services** page (log/metrics services, or trace services when the app is in traces mode) to pre-select matching pipelines, dashboards, and ML jobs. Matching uses dataset IDs, pipeline naming (`logs-*.{suffix}-default`), dashboard titles (`AWS Lambda — …`, `GCP Alloydb — …`, etc.), and ML job metadata — it is **heuristic**. If nothing matches, adjust Services or pick assets manually.
+
+The **Services** catalog (order and labels) for each cloud lives in `src/data/serviceGroups.ts` (AWS) and the corresponding `src/gcp/data/serviceGroups.ts` / `src/azure/data/serviceGroups.ts` files.
 
 When you switch cloud vendor on **Start**, the Setup page **remounts** and selections reset to “all selected” for that cloud’s bundle so AWS/GCP/Azure lists do not get out of sync.
 

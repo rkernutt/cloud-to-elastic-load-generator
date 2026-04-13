@@ -31,7 +31,7 @@ Your selection controls the URL format shown in the prompts and the validation r
 
 ### Web UI Setup step (same assets)
 
-The load generator’s **Setup** wizard installs and uninstalls integrations, custom pipelines, dashboards, and ML jobs for the selected cloud. It supports **filtering**, **per-pipeline** selection, **Align with Services** (matches the Services step), and a **persisted Setup log** (sessionStorage). **Dashboard uninstall** may fail on **Elastic Cloud Serverless** when Kibana disables saved-object delete APIs — use Kibana UI to remove dashboards or see **[docs/SETUP-WIZARD-AND-UNINSTALL.md](../docs/SETUP-WIZARD-AND-UNINSTALL.md)**.
+The load generator’s **Setup** wizard installs and uninstalls integrations, custom pipelines, dashboards, and ML jobs for the selected cloud. It supports **filtering**, **per-pipeline** selection, **Align with Services** (matches the Services step), and a **persisted Setup log** (sessionStorage). On **AWS**, dashboards and ML jobs are grouped under the same **Services** category headings as the wizard; on **GCP/Azure**, ML jobs remain grouped by installer JSON file. **Dashboard uninstall** may fail on **Elastic Cloud Serverless** when Kibana disables saved-object delete APIs — use Kibana UI to remove dashboards or see **[docs/SETUP-WIZARD-AND-UNINSTALL.md](../docs/SETUP-WIZARD-AND-UNINSTALL.md)**.
 
 ### Self-Managed notes
 

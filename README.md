@@ -81,7 +81,11 @@ Credentials stay in the browser session; the proxy forwards requests and may log
 
 Idempotent installers (integrations, ingest pipelines, dashboards, ML jobs) live under **`installer/`**. See **[installer/README.md](installer/README.md)** for AWS, GCP, and Azure entrypoints.
 
-The **same assets** can be installed or removed from the **Setup** step in the web UI (after **Start** and **Connection**). You can filter pipelines/dashboards/ML, **Align with Services** with your Services-step selection, and the Setup log can persist across refresh (sessionStorage). **Important:** on some **Elastic Cloud Serverless** projects, Kibana does **not** allow saved-object **delete** APIs, so **dashboard uninstall from the UI will not work** there — remove dashboards manually in Kibana or use a stack where those APIs are enabled. Details: [docs/SETUP-WIZARD-AND-UNINSTALL.md](docs/SETUP-WIZARD-AND-UNINSTALL.md).
+The **same assets** can be installed or removed from the **Setup** step in the web UI (after **Start** and **Connection**). You can filter pipelines/dashboards/ML, **Align with Services** with your Services-step selection, and the Setup log can persist across refresh (sessionStorage).
+
+On **AWS**, **dashboards** and **ML anomaly jobs** are grouped under the same high-level **Services** categories as the wizard (for example _Networking & CDN_, _Storage & Databases_, _Compute & Containers_) so Setup matches what you chose on the Services step. **GCP** and **Azure** ML jobs stay grouped by installer JSON file; pipeline accordion labels use readable polish (for example GCP `datawarehouse` → **Data Warehouse**). See [docs/SETUP-WIZARD-AND-UNINSTALL.md](docs/SETUP-WIZARD-AND-UNINSTALL.md).
+
+**Important:** on some **Elastic Cloud Serverless** projects, Kibana does **not** allow saved-object **delete** APIs, so **dashboard uninstall from the UI will not work** there — remove dashboards manually in Kibana or use a stack where those APIs are enabled. Details: [docs/SETUP-WIZARD-AND-UNINSTALL.md](docs/SETUP-WIZARD-AND-UNINSTALL.md).
 
 ---
 

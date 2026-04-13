@@ -25,6 +25,8 @@ Open **http://localhost:3000**. Configure Elasticsearch URL and API key in the U
 
 The **Setup** wizard (integrations, pipelines, dashboards, ML) supports filtering, **Align with Services**, and session-persisted logs. **Dashboard uninstall** may be blocked on Elastic Serverless Kibana — see [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md).
 
+**Setup UI implementation (for contributors):** Service-type grouping for AWS dashboards and ML jobs is driven by `src/setup/dashboardServiceGroup.ts` (labels from the Services catalog) and matching helpers in `src/setup/setupAssetMatch.ts`. Pipeline / ML **accordion titles** use `src/setup/setupDisplayPolish.ts` (`polishSetupCategoryLabel`, dashboard title polish). Behavior is documented in [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md).
+
 ## Build and preview
 
 ```bash
