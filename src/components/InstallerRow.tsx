@@ -52,7 +52,7 @@ export function InstallerRow({
           <EuiText size="xs" color="subdued">
             <p>{description}</p>
           </EuiText>
-          {enabled && children}
+          {children}
         </EuiFlexItem>
       </EuiFlexGroup>
     </EuiPanel>

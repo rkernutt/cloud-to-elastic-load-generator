@@ -12,7 +12,14 @@ export function valuesFromEagerJsonGlob<T>(modules: Record<string, unknown>): T[
   return Object.values(modules).map((mod) => {
     if (mod == null || typeof mod !== "object") return mod as T;
     const o = mod as Record<string, unknown>;
-    if (!("default" in o) || o.default === undefined) return mod as T;
+    if (!("default" in o) || o.default === undefined || typeof o.default !== "object") {
+      return mod as T;
+    }
+    const inner = o.default as Record<string, unknown>;
+    /** Vite/Rollup JSON modules: `default` holds the doc; extra keys mirror named exports. */
+    if (Array.isArray(inner.panels) || Array.isArray(inner.jobs)) {
+      return o.default as T;
+    }
     const keys = Object.keys(o);
     const looksLikeEsmDefaultExport =
       (keys.length === 1 && keys[0] === "default") ||

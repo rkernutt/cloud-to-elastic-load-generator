@@ -44,7 +44,8 @@ export async function proxyCall(opts: {
   apiKey: string;
   path: string;
   method?: "GET" | "POST" | "PUT" | "DELETE";
-  body?: Record<string, unknown>;
+  /** JSON object or array (e.g. saved_objects bulk_delete expects an array body). */
+  body?: Record<string, unknown> | Array<Record<string, unknown>>;
   /** Wraps as multipart file upload for POST /api/saved_objects/_import (handled by proxy.cjs). */
   kibanaSavedObjectsNdjson?: string;
   /** For Elasticsearch/Kibana GET/DELETE: return null on 404 instead of throwing. */
@@ -87,4 +88,55 @@ export async function proxyCall(opts: {
     throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`);
   }
   return res.json().catch(() => ({}));
+}
+
+type BulkDeleteStatus = { success?: boolean; error?: { statusCode?: number; message?: string } };
+
+/**
+ * Remove a dashboard saved object. Stateful Kibana accepts DELETE /api/saved_objects/dashboard/:id;
+ * Serverless often rejects that route and requires POST /api/saved_objects/_bulk_delete instead.
+ */
+export async function deleteKibanaDashboard(
+  baseUrl: string,
+  apiKey: string,
+  dashboardId: string
+): Promise<{ result: "deleted" | "not_found" } | { result: "error"; message: string }> {
+  const kb = baseUrl.replace(/\/$/, "");
+  const enc = encodeURIComponent(dashboardId);
+
+  try {
+    const r = await proxyCall({
+      baseUrl: kb,
+      apiKey,
+      path: `/api/saved_objects/dashboard/${enc}?force=true`,
+      method: "DELETE",
+      allow404: true,
+    });
+    if (r === null) return { result: "not_found" };
+    return { result: "deleted" };
+  } catch (e) {
+    const msg = String(e);
+    if (!isKibanaFeatureUnavailable(msg)) {
+      return { result: "error", message: msg };
+    }
+  }
+
+  try {
+    const raw = (await proxyCall({
+      baseUrl: kb,
+      apiKey,
+      path: `/api/saved_objects/_bulk_delete?force=true`,
+      method: "POST",
+      body: [{ type: "dashboard", id: dashboardId }],
+    })) as { statuses?: BulkDeleteStatus[] };
+    const st = raw?.statuses?.[0];
+    if (st?.success) return { result: "deleted" };
+    if (st?.error?.statusCode === 404) return { result: "not_found" };
+    return {
+      result: "error",
+      message: (st?.error?.message ?? JSON.stringify(st?.error ?? raw)).slice(0, 320),
+    };
+  } catch (e2) {
+    return { result: "error", message: String(e2) };
+  }
 }

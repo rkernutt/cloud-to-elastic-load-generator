@@ -22,6 +22,11 @@ import { AppLayout } from "./components/AppLayout";
 import { WizardFooter } from "./components/WizardFooter";
 import { runShipWorkload } from "./ship/runShipWorkload";
 import type { LooseDoc } from "./ship/types";
+import {
+  loadActivityLog,
+  saveActivityLog,
+  MAX_ACTIVITY_LOG_ENTRIES,
+} from "./utils/sessionActivityLog";
 
 const LandingPage = lazy(() =>
   import("./pages/LandingPage").then((m) => ({ default: m.LandingPage }))
@@ -44,7 +49,7 @@ const ActivityPage = lazy(() =>
 );
 const SetupPage = lazy(() => import("./pages/SetupPage").then((m) => ({ default: m.SetupPage })));
 
-type LogEntry = { id: number; msg: string; type: string; ts: string };
+type LogEntry = { id: number; msg: string; type: string; ts: string; at?: string };
 type ShipStatus = "running" | "done" | "aborted" | null;
 type ShipProgressPhase = "main" | "injection";
 type ShipProgress = { sent: number; total: number; errors: number; phase: ShipProgressPhase };
@@ -173,7 +178,18 @@ export function LoadGeneratorApp({
     errors: 0,
     phase: "main",
   });
-  const [log, setLog] = useState<LogEntry[]>([]);
+  const [log, setLog] = useState<LogEntry[]>(() => {
+    const s = loadActivityLog(`${LS_KEY}:activityLog`);
+    if (!s?.entries?.length) return [];
+    logSeqRef.current = Math.max(...s.entries.map((e) => e.id)) + 1;
+    return s.entries.map((e) => ({
+      id: e.id,
+      msg: e.msg,
+      type: e.type,
+      ts: e.ts,
+      at: e.at,
+    }));
+  });
   const [preview, setPreview] = useState<string | null>(null);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
   const [activePage, setActivePageState] = useState(() => readStoredWizardPage(LS_KEY));
@@ -218,6 +234,23 @@ export function LoadGeneratorApp({
     if (unifiedMode) {
       setEventType("logs");
       setIngestionSource("default");
+    }
+    const actKey = `${config.lsKey}:activityLog`;
+    const act = loadActivityLog(actKey);
+    if (act?.entries?.length) {
+      logSeqRef.current = Math.max(...act.entries.map((e) => e.id)) + 1;
+      setLog(
+        act.entries.map((e) => ({
+          id: e.id,
+          msg: e.msg,
+          type: e.type,
+          ts: e.ts,
+          at: e.at,
+        }))
+      );
+    } else {
+      logSeqRef.current = 0;
+      setLog([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only when `config.id` changes; read latest `config` / `unifiedMode` from closure
   }, [config.id]);
@@ -291,16 +324,29 @@ export function LoadGeneratorApp({
 
   // toggleTraceService, selectAllTraces, selectNoneTraces moved to ServicesPage inline handlers
 
-  const addLog = (msg: string, type = "info") =>
-    setLog((prev) => [
-      ...prev.slice(-5000),
-      {
-        id: logSeqRef.current++,
-        msg,
-        type,
-        ts: new Date().toLocaleTimeString(),
-      },
-    ]);
+  const addLog = useCallback(
+    (msg: string, type = "info") => {
+      const key = `${LS_KEY}:activityLog`;
+      setLog((prev) => {
+        const id = logSeqRef.current++;
+        const ts = new Date().toLocaleTimeString();
+        const at = new Date().toISOString();
+        const next = [...prev.slice(-(MAX_ACTIVITY_LOG_ENTRIES - 1)), { id, msg, type, ts, at }];
+        saveActivityLog(key, {
+          v: 1,
+          entries: next.map((e) => ({
+            id: e.id,
+            msg: e.msg,
+            type: e.type,
+            ts: e.ts,
+            at: e.at ?? new Date().toISOString(),
+          })),
+        });
+        return next;
+      });
+    },
+    [LS_KEY]
+  );
 
   const downloadLog = () => {
     const lines = log
@@ -808,6 +854,7 @@ export function LoadGeneratorApp({
             elasticUrl={elasticUrl}
             kibanaUrl={effectiveKibanaUrl}
             apiKey={apiKey}
+            setupLogPersistenceKey={`${LS_KEY}:setupActivity`}
             onInstallComplete={() => setSetupHasInstalled(true)}
             onUninstallComplete={() => setSetupHasInstalled(false)}
             onReinstallComplete={() => setSetupHasInstalled(true)}

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, type ReactNode } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback, type ReactNode } from "react";
 import {
   EuiTitle,
   EuiSpacer,
@@ -6,6 +6,7 @@ import {
   EuiFlexItem,
   EuiText,
   EuiButton,
+  EuiButtonEmpty,
   EuiCallOut,
   EuiCheckbox,
   EuiPanel,
@@ -19,8 +20,14 @@ import type { CloudSetupBundle, MlJobFile, PipelineEntry } from "../setup/types"
 import { dashboardDefToSavedObjectId } from "../setup/dashboardToImportNdjson";
 import { stableDashboardKey } from "../setup/stableDashboardKey";
 import { runSetupInstall } from "../setup/runSetupInstall";
-import { proxyCall, resolveFleetPackageVersion } from "../setup/setupProxy";
+import { proxyCall, resolveFleetPackageVersion, deleteKibanaDashboard } from "../setup/setupProxy";
 import { InstallerRow } from "../components/InstallerRow";
+import {
+  loadSetupLog,
+  saveSetupLog,
+  clearSetupLog,
+  MAX_SETUP_LOG_ENTRIES,
+} from "../utils/sessionActivityLog";
 
 interface SetupPageProps {
   setupBundle: CloudSetupBundle;
@@ -30,9 +37,11 @@ interface SetupPageProps {
   onInstallComplete: () => void;
   onUninstallComplete?: () => void;
   onReinstallComplete?: () => void;
+  /** sessionStorage key — survives refresh; omit to disable persistence (tests). */
+  setupLogPersistenceKey?: string;
 }
 
-type LogLine = { text: string; type: "info" | "ok" | "error" | "warn" };
+type LogLine = { text: string; type: "info" | "ok" | "error" | "warn"; at?: string };
 
 export function SetupPage({
   setupBundle,
@@ -42,6 +51,7 @@ export function SetupPage({
   onInstallComplete,
   onUninstallComplete,
   onReinstallComplete,
+  setupLogPersistenceKey,
 }: SetupPageProps) {
   const PIPELINES: PipelineEntry[] = setupBundle.pipelines;
   const ML_JOB_FILES: MlJobFile[] = setupBundle.mlJobFiles;
@@ -98,10 +108,28 @@ export function SetupPage({
 
   const [isRunning, setIsRunning] = useState(false);
   const [isDone, setIsDone] = useState(false);
-  const [log, setLog] = useState<LogLine[]>([]);
+  const initialSetupSnap = setupLogPersistenceKey ? loadSetupLog(setupLogPersistenceKey) : null;
+  const [log, setLog] = useState<LogLine[]>(
+    () => initialSetupSnap?.entries.map((e) => ({ text: e.text, type: e.type, at: e.at })) ?? []
+  );
+  const [showInterruptedBanner, setShowInterruptedBanner] = useState(
+    () => !!(initialSetupSnap?.installRunActive && (initialSetupSnap.entries?.length ?? 0) > 0)
+  );
   const [confirmUninstallOpen, setConfirmUninstallOpen] = useState(false);
   const [confirmReinstallOpen, setConfirmReinstallOpen] = useState(false);
   const [confirmResetOpen, setConfirmResetOpen] = useState(false);
+
+  const installRunActiveRef = useRef(false);
+  const logRef = useRef<LogLine[]>(log);
+  logRef.current = log;
+
+  useEffect(() => {
+    if (!setupLogPersistenceKey) return;
+    const s = loadSetupLog(setupLogPersistenceKey);
+    if (s?.installRunActive) {
+      saveSetupLog(setupLogPersistenceKey, { ...s, installRunActive: false });
+    }
+  }, [setupLogPersistenceKey]);
 
   useEffect(() => {
     setLog([]);
@@ -109,10 +137,52 @@ export function SetupPage({
     setConfirmUninstallOpen(false);
     setConfirmReinstallOpen(false);
     setConfirmResetOpen(false);
-  }, [removeMode]);
+    if (setupLogPersistenceKey) clearSetupLog(setupLogPersistenceKey);
+  }, [removeMode, setupLogPersistenceKey]);
 
-  const addLog = (text: string, type: LogLine["type"] = "info") =>
-    setLog((prev) => [...prev, { text, type }]);
+  const flushSetupSnapshot = useCallback(() => {
+    if (!setupLogPersistenceKey) return;
+    const entries = logRef.current.map((e) => ({
+      text: e.text,
+      type: e.type,
+      at: e.at ?? new Date().toISOString(),
+    }));
+    saveSetupLog(setupLogPersistenceKey, {
+      v: 1,
+      installRunActive: installRunActiveRef.current,
+      entries,
+    });
+  }, [setupLogPersistenceKey]);
+
+  const addLog = useCallback(
+    (text: string, type: LogLine["type"] = "info") => {
+      const at = new Date().toISOString();
+      setLog((prev) => {
+        const next = [...prev, { text, type, at }].slice(-MAX_SETUP_LOG_ENTRIES);
+        logRef.current = next;
+        if (setupLogPersistenceKey) {
+          saveSetupLog(setupLogPersistenceKey, {
+            v: 1,
+            installRunActive: installRunActiveRef.current,
+            entries: next.map((e) => ({
+              text: e.text,
+              type: e.type,
+              at: e.at ?? at,
+            })),
+          });
+        }
+        return next;
+      });
+    },
+    [setupLogPersistenceKey]
+  );
+
+  const clearSetupActivityLog = () => {
+    setLog([]);
+    logRef.current = [];
+    setShowInterruptedBanner(false);
+    if (setupLogPersistenceKey) clearSetupLog(setupLogPersistenceKey);
+  };
 
   const hasEs = !!elasticUrl.trim() && !!apiKey.trim();
   const hasKb = !!kibanaUrl.trim() && !!apiKey.trim();
@@ -199,7 +269,8 @@ export function SetupPage({
   const handleInstall = async () => {
     setIsRunning(true);
     setIsDone(false);
-    setLog([]);
+    installRunActiveRef.current = true;
+    addLog(`── Install run started ${new Date().toLocaleString()} ──`, "info");
     try {
       await runSetupInstall({
         setupBundle,
@@ -222,6 +293,20 @@ export function SetupPage({
     } catch (e) {
       addLog(`Unexpected error: ${e}`, "error");
     } finally {
+      installRunActiveRef.current = false;
+      queueMicrotask(() => {
+        if (setupLogPersistenceKey) {
+          saveSetupLog(setupLogPersistenceKey, {
+            v: 1,
+            installRunActive: false,
+            entries: logRef.current.map((e) => ({
+              text: e.text,
+              type: e.type,
+              at: e.at ?? new Date().toISOString(),
+            })),
+          });
+        }
+      });
       setIsRunning(false);
     }
   };
@@ -294,22 +379,20 @@ export function SetupPage({
     for (const dash of toRemove) {
       try {
         const dashId = await dashboardDefToSavedObjectId(dash);
-        const del = await proxyCall({
-          baseUrl: kb,
-          apiKey,
-          path: `/api/saved_objects/dashboard/${encodeURIComponent(dashId)}`,
-          method: "DELETE",
-          allow404: true,
-        });
-        if (del == null) {
+        const outcome = await deleteKibanaDashboard(kb, apiKey, dashId);
+        if (outcome.result === "not_found") {
           addLog(
             `  – Dashboard "${dash.title}" — not found (may use a different id if created via Dashboards API only)`,
             "warn"
           );
-        } else {
+          ok++;
+        } else if (outcome.result === "deleted") {
           addLog(`  ✓ Dashboard "${dash.title}"`, "ok");
+          ok++;
+        } else if (outcome.result === "error") {
+          fail++;
+          addLog(`  ✗ Dashboard "${dash.title}": ${outcome.message}`, "error");
         }
-        ok++;
       } catch (e) {
         fail++;
         addLog(`  ✗ Dashboard "${dash.title}": ${e}`, "error");
@@ -399,7 +482,12 @@ export function SetupPage({
     setConfirmUninstallOpen(false);
     setIsRunning(true);
     setIsDone(false);
+    installRunActiveRef.current = false;
     setLog([]);
+    logRef.current = [];
+    if (setupLogPersistenceKey) {
+      saveSetupLog(setupLogPersistenceKey, { v: 1, installRunActive: false, entries: [] });
+    }
     try {
       await performUninstallSteps();
       addLog("Uninstall finished.", "ok");
@@ -408,6 +496,7 @@ export function SetupPage({
     } catch (e) {
       addLog(`Unexpected error: ${e}`, "error");
     } finally {
+      queueMicrotask(flushSetupSnapshot);
       setIsRunning(false);
     }
   };
@@ -416,8 +505,14 @@ export function SetupPage({
     setConfirmReinstallOpen(false);
     setIsRunning(true);
     setIsDone(false);
+    installRunActiveRef.current = true;
     setLog([]);
+    logRef.current = [];
+    if (setupLogPersistenceKey) {
+      saveSetupLog(setupLogPersistenceKey, { v: 1, installRunActive: true, entries: [] });
+    }
     try {
+      addLog(`── Reinstall run started ${new Date().toLocaleString()} ──`, "info");
       await runSetupInstall({
         setupBundle,
         elasticUrl,
@@ -439,6 +534,20 @@ export function SetupPage({
     } catch (e) {
       addLog(`Unexpected error: ${e}`, "error");
     } finally {
+      installRunActiveRef.current = false;
+      queueMicrotask(() => {
+        if (setupLogPersistenceKey) {
+          saveSetupLog(setupLogPersistenceKey, {
+            v: 1,
+            installRunActive: false,
+            entries: logRef.current.map((e) => ({
+              text: e.text,
+              type: e.type,
+              at: e.at ?? new Date().toISOString(),
+            })),
+          });
+        }
+      });
       setIsRunning(false);
     }
   };
@@ -447,7 +556,12 @@ export function SetupPage({
     setConfirmResetOpen(false);
     setIsRunning(true);
     setIsDone(false);
+    installRunActiveRef.current = true;
     setLog([]);
+    logRef.current = [];
+    if (setupLogPersistenceKey) {
+      saveSetupLog(setupLogPersistenceKey, { v: 1, installRunActive: true, entries: [] });
+    }
     try {
       await performUninstallSteps();
       addLog("--- Reinstalling selected components ---", "info");
@@ -472,6 +586,20 @@ export function SetupPage({
     } catch (e) {
       addLog(`Unexpected error: ${e}`, "error");
     } finally {
+      installRunActiveRef.current = false;
+      queueMicrotask(() => {
+        if (setupLogPersistenceKey) {
+          saveSetupLog(setupLogPersistenceKey, {
+            v: 1,
+            installRunActive: false,
+            entries: logRef.current.map((e) => ({
+              text: e.text,
+              type: e.type,
+              at: e.at ?? new Date().toISOString(),
+            })),
+          });
+        }
+      });
       setIsRunning(false);
     }
   };
@@ -578,6 +706,25 @@ export function SetupPage({
       {missingEsWarning}
       {missingKbWarning}
 
+      {showInterruptedBanner && (
+        <>
+          <EuiSpacer size="s" />
+          <EuiCallOut
+            title="Setup may have been interrupted"
+            color="warning"
+            iconType="alert"
+            size="s"
+            onDismiss={() => setShowInterruptedBanner(false)}
+          >
+            <p>
+              This tab was closed or reloaded while an install was in progress. The log below shows
+              everything recorded up to that point. Work may still be running on the cluster—confirm
+              in Kibana or Elasticsearch.
+            </p>
+          </EuiCallOut>
+        </>
+      )}
+
       <EuiSpacer size="l" />
 
       <InstallerRow
@@ -626,6 +773,7 @@ export function SetupPage({
                 id={`pipeline-group-${g}-${uid}`}
                 label={<EuiCode>{g}</EuiCode>}
                 checked={selectedPipelineGroups.has(g)}
+                disabled={!enablePipelines}
                 onChange={() => setSelectedPipelineGroups((prev) => toggleGroup(prev, g))}
               />
             </EuiFlexItem>
@@ -646,6 +794,12 @@ export function SetupPage({
         <EuiText size="xs" color="subdued">
           <strong>Select dashboards{removeMode ? " to uninstall" : " to install"}:</strong>{" "}
           {selectedDashboardKeys.size} of {DASHBOARDS.length} selected.
+          {!enableDashboards && DASHBOARDS.length > 0 && (
+            <>
+              {" "}
+              Turn on <strong>Custom Dashboards</strong> above to include them in Install Selected.
+            </>
+          )}
         </EuiText>
         <EuiSpacer size="xs" />
         <EuiFlexGroup gutterSize="s" wrap responsive={false}>
@@ -659,6 +813,7 @@ export function SetupPage({
                   </span>
                 }
                 checked={selectedDashboardKeys.has(key)}
+                disabled={!enableDashboards}
                 onChange={() => setSelectedDashboardKeys((prev) => toggleGroup(prev, key))}
               />
             </EuiFlexItem>
@@ -680,6 +835,12 @@ export function SetupPage({
           <strong>
             {removeMode ? "Select job groups to uninstall:" : "Select job groups to install:"}
           </strong>
+          {!enableMlJobs && mlJobGroups.length > 0 && (
+            <>
+              {" "}
+              Turn on <strong>ML Anomaly Jobs</strong> above to include them in Install Selected.
+            </>
+          )}
         </EuiText>
         <EuiSpacer size="xs" />
         <EuiFlexGroup gutterSize="s" wrap responsive={false}>
@@ -693,6 +854,7 @@ export function SetupPage({
                   </span>
                 }
                 checked={selectedMlGroups.has(group)}
+                disabled={!enableMlJobs}
                 onChange={() => setSelectedMlGroups((prev) => toggleGroup(prev, group))}
               />
             </EuiFlexItem>
@@ -770,28 +932,58 @@ export function SetupPage({
       {log.length > 0 && (
         <>
           <EuiSpacer size="m" />
-          <EuiPanel
-            paddingSize="s"
-            color="subdued"
-            style={{ fontFamily: "monospace", fontSize: 12, maxHeight: 300, overflowY: "auto" }}
-          >
-            {log.map((line, i) => (
-              <div
-                key={i}
-                style={{
-                  color:
-                    line.type === "ok"
-                      ? "#00bfa5"
-                      : line.type === "error"
-                        ? "#ff4040"
-                        : line.type === "warn"
-                          ? "#f5a623"
-                          : "inherit",
-                }}
-              >
-                {line.text}
-              </div>
-            ))}
+          <EuiPanel paddingSize="s" color="subdued">
+            <EuiFlexGroup justifyContent="spaceBetween" alignItems="center" responsive={false}>
+              <EuiFlexItem grow={false}>
+                <EuiText size="xs" color="subdued">
+                  Setup log ({log.length} lines, kept for this browser session)
+                </EuiText>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiButtonEmpty size="xs" iconType="trash" onClick={clearSetupActivityLog}>
+                  Clear log
+                </EuiButtonEmpty>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+            <EuiSpacer size="xs" />
+            <div
+              style={{
+                fontFamily: "monospace",
+                fontSize: 12,
+                maxHeight: 300,
+                overflowY: "auto",
+              }}
+            >
+              {log.map((line, i) => {
+                const timeLabel = line.at
+                  ? new Date(line.at).toLocaleTimeString(undefined, {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    })
+                  : "";
+                return (
+                  <div
+                    key={`${line.at ?? ""}-${i}-${line.text.slice(0, 24)}`}
+                    style={{
+                      color:
+                        line.type === "ok"
+                          ? "#00bfa5"
+                          : line.type === "error"
+                            ? "#ff4040"
+                            : line.type === "warn"
+                              ? "#f5a623"
+                              : "inherit",
+                    }}
+                  >
+                    {timeLabel && (
+                      <span style={{ opacity: 0.65, marginRight: 8 }}>{timeLabel}</span>
+                    )}
+                    {line.text}
+                  </div>
+                );
+              })}
+            </div>
           </EuiPanel>
         </>
       )}
