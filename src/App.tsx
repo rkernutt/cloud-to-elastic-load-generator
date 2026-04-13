@@ -897,6 +897,7 @@ export function LoadGeneratorApp({
             key={config.id}
             setupBundle={config.setupBundle}
             cloudId={config.id}
+            serviceGroups={config.serviceGroups}
             selectedShipServiceIds={isTracesMode ? selectedTraceServices : selectedServices}
             elasticUrl={elasticUrl}
             kibanaUrl={effectiveKibanaUrl}

@@ -4,38 +4,37 @@
   "cloud": {
     "provider": "azure",
     "region": "centralindia",
-    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" }
+    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
     "name": "metricbeat-azure-centralindia",
-    "ephemeral_id": "r2uikd1bvod"
+    "ephemeral_id": "qg8sje0p18r"
   },
   "azure": {
-    "virtual_machines": {
+    "proximity_placement": {
       "metrics": {
-        "cpu_percent": { "avg": 9.07, "sum": 9.07, "count": 1 },
-        "network_in": { "avg": 375684080, "sum": 375684080, "count": 1 },
-        "network_out": { "avg": 156266402, "sum": 156266402, "count": 1 },
-        "disk_ops": { "avg": 96, "sum": 96, "count": 1 }
+        "request_count": { "avg": 178890, "sum": 178890, "count": 1 },
+        "error_count": { "avg": 0, "sum": 0, "count": 1 },
+        "duration_ms": { "avg": 70.96, "sum": 70.96, "count": 1 }
       },
-      "labels": { "resource_group": "rg-prod-sd0n6", "instance_id": "vm-1" }
+      "labels": { "resource_group": "rg-prod-bni58", "resource_id": "res-a" }
     }
   },
-  "metricset": { "name": "virtual_machines", "period": 60000 },
+  "metricset": { "name": "proximity_placement", "period": 60000 },
   "data_stream": {
     "type": "metrics",
-    "dataset": "azure.virtual_machines_metrics",
+    "dataset": "azure.proximity_placement_groups",
     "namespace": "default"
   },
   "input": { "type": "azure-monitor" },
-  "event": { "dataset": "azure.virtual_machines_metrics", "module": "azure" },
+  "event": { "dataset": "azure.proximity_placement_groups", "module": "azure" },
   "azureMonitorMetric": {
     "time": "2026-04-07T12:00:00.000Z",
-    "metricName": "cpu_percent",
-    "resourceGroup": "rg-virtual-machines",
-    "subscriptionId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-    "timeseries": [{ "data": [{ "average": 9.07, "count": 1 }] }]
+    "metricName": "request_count",
+    "resourceGroup": "rg-proximity-placement",
+    "subscriptionId": "8f6b5c4d-3e2a-1098-7654-3210fedcba98",
+    "timeseries": [{ "data": [{ "average": 178890, "count": 1 }] }]
   }
 }

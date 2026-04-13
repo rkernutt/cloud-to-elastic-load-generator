@@ -1,24 +1,27 @@
 {
-  "@timestamp": "2026-04-13T15:46:43.100Z",
+  "@timestamp": "2026-04-13T16:49:56.865Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
+    "region": "ca-central-1",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "config" }
   },
   "aws": {
-    "dimensions": { "ConfigRuleName": "eip-attached", "ResourceType": "AWS::EC2::Instance" },
+    "dimensions": {
+      "ConfigRuleName": "root-account-mfa-enabled",
+      "ResourceType": "AWS::RDS::DBInstance"
+    },
     "config": {
-      "rule_name": "eip-attached",
-      "compliance_type": "COMPLIANT",
-      "resource_type": "AWS::EC2::Instance",
-      "resource_id": "s3-xh410kyp",
-      "annotation": "Resource is compliant",
+      "rule_name": "root-account-mfa-enabled",
+      "compliance_type": "NON_COMPLIANT",
+      "resource_type": "AWS::RDS::DBInstance",
+      "resource_id": "sg-awazm19j",
+      "annotation": "Missing required tag",
       "metrics": {
-        "ComplianceByConfigRule": { "avg": 1 },
-        "NonCompliantRules": { "sum": 0 },
-        "CompliantRules": { "sum": 1 },
-        "ConfigurationItemsRecorded": { "sum": 71 }
+        "ComplianceByConfigRule": { "avg": 0 },
+        "NonCompliantRules": { "sum": 1 },
+        "CompliantRules": { "sum": 0 },
+        "ConfigurationItemsRecorded": { "sum": 56 }
       }
     },
     "s3": {
@@ -27,32 +30,37 @@
         "arn": "arn:aws:s3:::aws-config-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/config/sa-east-1/2026/04/13/config_I5KSX4AJKL.log.gz"
+        "key": "AWSLogs/501938274650/config/ca-central-1/2026/04/13/config_IIIJ5TDAZE.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/config/logs",
-      "log_stream": "sa-east-1/9yaz64j7",
-      "ingestion_time": "2026-04-13T15:46:43.491Z"
+      "log_stream": "ca-central-1/g8wn9ziw",
+      "ingestion_time": "2026-04-13T16:49:57.244Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["configuration", "compliance"],
     "dataset": "aws.config",
     "provider": "config.amazonaws.com",
     "module": "aws"
   },
-  "message": "Config rule PASSED: eip-attached",
-  "log": { "level": "info" },
+  "message": "Config rule FAILED: root-account-mfa-enabled",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "NonCompliant",
+    "message": "Config rule root-account-mfa-enabled failed",
+    "type": "compliance"
+  },
   "service": { "name": "config", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.config", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "wik0dowfah9"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "g6cexjiqmgb"
   },
   "input": { "type": "http_endpoint" }
 }

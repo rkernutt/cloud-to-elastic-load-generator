@@ -1,56 +1,61 @@
 {
-  "@timestamp": "2026-04-13T15:46:43.100Z",
+  "@timestamp": "2026-04-13T16:49:56.865Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-west-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "proton" }
   },
   "aws": {
-    "dimensions": { "EnvironmentName": "dev-env", "ServiceName": "api-service" },
+    "dimensions": { "EnvironmentName": "sandbox-env", "ServiceName": "worker-service" },
     "proton": {
-      "environment_name": "dev-env",
-      "service_name": "api-service",
+      "environment_name": "sandbox-env",
+      "service_name": "worker-service",
       "service_instance_name": "prod-instance",
-      "template_name": "fargate-env-template",
-      "template_major_version": "1",
-      "deployment_status": "SUCCEEDED",
+      "template_name": "ecs-service-template",
+      "template_major_version": "3",
+      "deployment_status": "DELETE_FAILED",
       "component": "component"
     },
     "s3": {
       "bucket": {
-        "name": "aws-proton-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-proton-logs-293847561023"
+        "name": "aws-proton-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-proton-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/proton/eu-central-2/2026/04/13/proton_8GH8JATLA0B.log.gz"
+        "key": "AWSLogs/164820739518/proton/eu-west-1/2026/04/13/proton_3K3RQH8WTZP.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/proton/logs",
-      "log_stream": "eu-central-2/ufbbzc0q",
-      "ingestion_time": "2026-04-13T15:46:43.653Z"
+      "log_stream": "eu-west-1/o7hig69f",
+      "ingestion_time": "2026-04-13T16:49:57.407Z"
     }
   },
   "event": {
     "action": "DeployServiceInstance",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["configuration"],
     "dataset": "aws.proton",
     "provider": "proton.amazonaws.com",
-    "duration": 26000000000,
+    "duration": 62000000000,
     "module": "aws"
   },
-  "message": "Proton component api-service DeployServiceInstance SUCCEEDED",
-  "log": { "level": "info" },
+  "message": "Proton component worker-service deployment FAILED on ecs-service-template",
+  "log": { "level": "error" },
+  "error": {
+    "code": "DELETE_FAILED",
+    "message": "Proton deployment failed for worker-service",
+    "type": "configuration"
+  },
   "service": { "name": "proton", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.proton", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "93ixhpeeso8"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "eo1m6x7gad6"
   },
   "input": { "type": "aws-cloudwatch" }
 }

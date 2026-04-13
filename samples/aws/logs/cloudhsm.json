@@ -1,57 +1,63 @@
 {
-  "@timestamp": "2026-04-13T15:46:43.100Z",
+  "@timestamp": "2026-04-13T16:49:56.865Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-west-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "cloudhsm" },
-    "availability_zone": "ap-south-2b"
+    "availability_zone": "eu-west-2a"
   },
   "aws": {
-    "dimensions": { "ClusterId": "cluster-1x2cbbaixn" },
+    "dimensions": { "ClusterId": "cluster-u2gsmedv3r" },
     "cloudhsm": {
-      "cluster_id": "cluster-1x2cbbaixn",
-      "hsm_id": "hsm-2chbbb2fpc",
-      "hsm_state": "CREATE_IN_PROGRESS",
-      "availability_zone": "ap-south-2b",
-      "subnet_id": "subnet-xzvp6myp",
-      "eni_ip": "10.229.112.49",
-      "key_type": "RSA_4096",
-      "operation_type": "backup"
+      "cluster_id": "cluster-u2gsmedv3r",
+      "hsm_id": "hsm-a1kffkd7lr",
+      "hsm_state": "DELETED",
+      "availability_zone": "eu-west-2a",
+      "subnet_id": "subnet-h9077fj5",
+      "eni_ip": "10.52.196.20",
+      "key_type": "RSA_2048",
+      "operation_type": "key_usage",
+      "backup_id": "backup-lsacyu6m15"
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudhsm-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-cloudhsm-logs-164820739518"
+        "name": "aws-cloudhsm-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-cloudhsm-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/cloudhsm/ap-south-2/2026/04/13/cloudhsm_P487OKQJHM.log.gz"
+        "key": "AWSLogs/814726593401/cloudhsm/eu-west-2/2026/04/13/cloudhsm_0FOAPCOS2SWN.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloudhsm/logs",
-      "log_stream": "ap-south-2/1jaquhw0",
-      "ingestion_time": "2026-04-13T15:46:43.508Z"
+      "log_stream": "eu-west-2/6wiof1av",
+      "ingestion_time": "2026-04-13T16:49:57.262Z"
     }
   },
   "event": {
-    "action": "CreateHsm",
-    "outcome": "success",
+    "action": "DescribeBackups",
+    "outcome": "failure",
     "category": ["process", "authentication"],
     "dataset": "aws.cloudhsm",
     "provider": "cloudhsm.amazonaws.com",
     "module": "aws"
   },
-  "message": "CloudHSM CreateHsm: cluster=cluster-1x2cbbaixn, hsm=hsm-2chbbb2fpc, state=CREATE_IN_PROGRESS",
-  "log": { "level": "info" },
+  "message": "CloudHSM DescribeBackups FAILED [cluster-u2gsmedv3r]: Cluster not initialized",
+  "log": { "level": "error" },
+  "error": {
+    "code": "CloudHsmAccessDeniedException",
+    "message": "CloudHSM operation failed",
+    "type": "security"
+  },
   "service": { "name": "cloudhsm", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudhsm", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "o8k1oosn6w"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "y4zg5by51ud"
   },
   "input": { "type": "aws-cloudwatch" }
 }

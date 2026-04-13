@@ -1,59 +1,60 @@
 {
-  "@timestamp": "2026-04-13T15:46:43.100Z",
+  "@timestamp": "2026-04-13T16:49:56.865Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-northeast-3",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "appmesh" }
   },
   "aws": {
-    "dimensions": { "MeshName": "staging-mesh", "VirtualNodeName": "payment-vn" },
+    "dimensions": { "MeshName": "staging-mesh", "VirtualNodeName": "checkout-vn" },
     "appmesh": {
       "mesh_name": "staging-mesh",
-      "virtual_node": "payment-vn",
-      "virtual_service": "checkout.svc",
-      "listener_port": 8080,
-      "protocol": "http2",
-      "response_code": 200,
-      "response_time_ms": 106,
-      "bytes_received": 6332,
-      "bytes_sent": 6869,
-      "envoy_response_code_details": "via_upstream"
+      "virtual_node": "checkout-vn",
+      "virtual_service": "payment.svc",
+      "listener_port": 3000,
+      "protocol": "grpc",
+      "response_code": 502,
+      "response_time_ms": 3401,
+      "bytes_received": 1020,
+      "bytes_sent": 9336,
+      "envoy_response_code_details": "no_healthy_upstreams"
     },
     "s3": {
       "bucket": {
-        "name": "aws-appmesh-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-appmesh-logs-814726593401"
+        "name": "aws-appmesh-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-appmesh-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/appmesh/me-south-1/2026/04/13/appmesh_R73MW8Q8A3N.log.gz"
+        "key": "AWSLogs/501938274650/appmesh/ap-northeast-3/2026/04/13/appmesh_XAULQPAGP2O.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/appmesh/logs",
-      "log_stream": "me-south-1/7ucize4u",
-      "ingestion_time": "2026-04-13T15:46:43.482Z"
+      "log_stream": "ap-northeast-3/xvj1l83h",
+      "ingestion_time": "2026-04-13T16:49:57.234Z"
     }
   },
   "event": {
-    "action": "HealthCheckFailed",
-    "outcome": "success",
+    "action": "CircuitBreakerOpen",
+    "outcome": "failure",
     "category": ["network"],
     "dataset": "aws.appmesh",
     "provider": "appmesh.amazonaws.com",
-    "duration": 106000000,
+    "duration": 3401000000,
     "module": "aws"
   },
-  "message": "App Mesh payment-vn: http2 200 106ms",
-  "log": { "level": "info" },
+  "message": "App Mesh checkout-vn: 502 upstream_reset after 3401ms",
+  "log": { "level": "error" },
+  "error": { "code": "502", "message": "no_healthy_upstreams", "type": "network" },
   "service": { "name": "appmesh", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.appmesh", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "mzludsxvgif"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "rp9dpkjwlt"
   },
   "input": { "type": "aws-cloudwatch" }
 }

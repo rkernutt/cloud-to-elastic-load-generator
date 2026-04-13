@@ -1,72 +1,66 @@
 {
-  "@timestamp": "2026-04-13T15:46:43.100Z",
+  "@timestamp": "2026-04-13T16:49:56.865Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-southeast-4",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "verified-access" }
   },
   "aws": {
-    "dimensions": { "ApplicationId": "va-app-akhvz0qv" },
+    "dimensions": { "ApplicationId": "va-app-8ts91av9" },
     "verifiedaccess": {
-      "endpoint_id": "vae-juzwlytx0t",
-      "group_id": "vag-sxhszorg5jf",
-      "instance_id": "vai-pxd0ik0zvjs",
-      "policy_name": "require-mfa",
+      "endpoint_id": "vae-8jkjbs036pm",
+      "group_id": "vag-sbx2lpj6vf",
+      "instance_id": "vai-qebul0zc45",
+      "policy_name": "corporate-device",
       "trust_provider_type": "oidc-okta",
       "device_posture": "UNKNOWN",
-      "verdict": "deny",
-      "deny_reason": "mfa_required",
-      "http_method": "PUT",
+      "verdict": "allow",
+      "http_method": "GET",
       "http_path": "/api/v1/users",
-      "http_status": 403,
-      "request_id": "q6zf74qy-1ihx-0jf2-kd65-qppz7netnai",
-      "connection_id": "O5FDDD5JM",
-      "session_id": "IXBFNV6ELTM",
+      "http_status": 201,
+      "request_id": "9qgbdqqc-9x9q-la7y-ukuw-n1gkmqndmcs",
+      "connection_id": "R3IO36UQZ1B",
+      "session_id": "9GG42F1J77W",
       "sni_hostname": "internal-dashboard.internal.example.com",
       "application_name": "internal-dashboard"
     },
     "s3": {
       "bucket": {
-        "name": "aws-verifiedaccess-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-verifiedaccess-logs-814726593401"
+        "name": "aws-verifiedaccess-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-verifiedaccess-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/verifiedaccess/eu-north-1/2026/04/13/verifiedaccess_GPPABHISQ9T.log.gz"
+        "key": "AWSLogs/501938274650/verifiedaccess/ap-southeast-4/2026/04/13/verifiedaccess_A2IX9Z06O78.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/verifiedaccess/logs",
-      "log_stream": "eu-north-1/5ffr4i3m",
-      "ingestion_time": "2026-04-13T15:46:43.499Z"
+      "log_stream": "ap-southeast-4/5a22htiv",
+      "ingestion_time": "2026-04-13T16:49:57.253Z"
     }
   },
-  "user": { "email": "alice@example.com", "name": "alice" },
-  "source": { "ip": "90.140.19.92" },
+  "user": { "email": "contractor@partner.com", "name": "contractor" },
+  "source": { "ip": "73.151.24.139" },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["authentication", "network"],
-    "type": ["denied"],
+    "type": ["allowed"],
     "dataset": "aws.verifiedaccess",
     "provider": "verified-access.amazonaws.com",
-    "duration": 185000000,
+    "duration": 123000000,
     "module": "aws"
   },
-  "message": "Verified Access DENIED: alice@example.com -> internal-dashboard [mfa_required]",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "AccessDenied",
-    "message": "Verified Access policy denied: mfa_required",
-    "type": "authentication"
-  },
+  "message": "Verified Access allowed: contractor@partner.com -> internal-dashboard (UNKNOWN)",
+  "log": { "level": "info" },
   "service": { "name": "verifiedaccess", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.verifiedaccess", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "ffbni6kie46"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "1mv92kxvio3"
   },
   "input": { "type": "aws-cloudwatch" }
 }

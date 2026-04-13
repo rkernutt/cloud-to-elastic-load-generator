@@ -1,54 +1,88 @@
 {
-  "@timestamp": "2026-04-13T15:46:43.100Z",
+  "@timestamp": "2026-04-13T16:49:56.865Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
-    "service": { "name": "sagemaker-pipelines" }
+    "region": "eu-central-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "service": { "name": "sagemaker" }
   },
   "aws": {
-    "sagemaker_pipelines": {
-      "pipeline_name": "model-retraining",
-      "pipeline_execution_id": "exec-8lkd4q0r2w5",
-      "step_name": "Callback-4",
-      "step_type": "Callback",
-      "status": "Executing",
-      "execution_duration_seconds": 1937,
-      "parallelism": 1,
-      "retry_count": 0,
-      "cache_hit": true
+    "dimensions": {
+      "TrainingJobName": "xgboost-classifier-training-wvbquo",
+      "JobType": "Training"
+    },
+    "sagemaker": {
+      "domain_id": "d-e1yik2meko",
+      "domain_name": "risk-models",
+      "user_profile": "alice-ds",
+      "job": {
+        "name": "xgboost-classifier-training-wvbquo",
+        "type": "Training",
+        "arn": "arn:aws:sagemaker:eu-central-2:501938274650:training-job/xgboost-classifier-training-wvbquo"
+      },
+      "model": { "name": "xgboost-classifier", "version": 19 },
+      "pipeline": { "name": "feature-engineering-pipeline", "execution_id": "pipe-tjdsajypibn" },
+      "instance": { "type": "ml.m5.xlarge", "count": 4 },
+      "metrics": {
+        "training_loss": 0.686,
+        "accuracy": 0.8879,
+        "epoch": 81,
+        "gpu_utilization_pct": 69,
+        "cpu_utilization_pct": 79
+      },
+      "studio": {
+        "space_name": "nlp-experiments",
+        "app_type": "JupyterServer",
+        "app_name": "default",
+        "lifecycle_config": true,
+        "continuous_logging": false
+      },
+      "cloudwatch_metrics": {
+        "Invocations": { "sum": 466 },
+        "ModelLatency": { "avg": 80 },
+        "GPUUtilization": { "avg": 56 },
+        "CPUUtilization": { "avg": 69 },
+        "DiskUtilization": { "avg": 17 },
+        "MemoryUtilization": { "avg": 80 },
+        "Invocations4XXError": { "sum": 0 },
+        "Invocations5XXError": { "sum": 0 }
+      }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sagemaker-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-sagemaker-logs-293847561023"
+        "name": "aws-sagemaker-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-sagemaker-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/sagemaker/ca-central-1/2026/04/13/sagemaker_FDCJA3NCT8I.log.gz"
+        "key": "AWSLogs/501938274650/sagemaker/eu-central-2/2026/04/13/sagemaker_1SPYZZUGBW3.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/sagemaker/logs",
-      "log_stream": "ca-central-1/ghjw6kly",
-      "ingestion_time": "2026-04-13T15:46:43.590Z"
+      "log_stream": "eu-central-2/owlb4830",
+      "ingestion_time": "2026-04-13T16:49:57.342Z"
     }
   },
-  "event": {
-    "outcome": "success",
-    "duration": 3647214375,
-    "module": "aws",
-    "dataset": "aws.sagemaker"
-  },
-  "message": "SageMaker Pipeline model-retraining: step Callback Executing",
-  "service": { "name": "sagemaker", "type": "aws" },
   "log": { "level": "info" },
+  "user": { "name": "alice-ds" },
+  "event": {
+    "action": "LifecycleConfigOnStart",
+    "duration": 10100351369674.809,
+    "outcome": "success",
+    "category": ["process"],
+    "dataset": "aws.sagemaker",
+    "provider": "sagemaker.amazonaws.com",
+    "module": "aws"
+  },
+  "message": "Training job succeeded",
+  "service": { "name": "sagemaker", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sagemaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "r5o5z8uc65m"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "1h10a0b1l5k"
   },
   "input": { "type": "aws-cloudwatch" }
 }

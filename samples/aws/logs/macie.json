@@ -1,27 +1,27 @@
 {
-  "@timestamp": "2026-04-13T15:46:43.100Z",
+  "@timestamp": "2026-04-13T16:49:56.865Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-4",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-central-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "macie" }
   },
   "aws": {
-    "dimensions": { "BucketName": "customer-exports-ap-southeast-4" },
+    "dimensions": { "BucketName": "analytics-output-eu-central-1" },
     "macie": {
-      "finding_id": "cokahpn1-spf5-e0nm",
-      "finding_type": "SensitiveData:S3Object/Financial",
-      "severity": "MEDIUM",
+      "finding_id": "npmlx8vh-nlif-evyi",
+      "finding_type": "none",
+      "severity": "INFORMATIONAL",
       "s3_bucket": {
-        "name": "customer-exports-ap-southeast-4",
-        "arn": "arn:aws:s3:::customer-exports-ap-southeast-4"
+        "name": "analytics-output-eu-central-1",
+        "arn": "arn:aws:s3:::analytics-output-eu-central-1"
       },
       "s3_bucket_full": {
-        "name": "customer-exports-ap-southeast-4",
-        "arn": "arn:aws:s3:::customer-exports-ap-southeast-4",
-        "owner_id": "7r6nit57s3c",
+        "name": "analytics-output-eu-central-1",
+        "arn": "arn:aws:s3:::analytics-output-eu-central-1",
+        "owner_id": "dz26p6t3hz",
         "default_server_side_encryption": { "encryption_type": "aws:kms" },
-        "tags": [{ "key": "Environment", "value": "dev" }],
+        "tags": [{ "key": "Environment", "value": "staging" }],
         "public_access": {
           "effective_permission": "NOT_PUBLIC",
           "block_public_acls": true,
@@ -30,48 +30,43 @@
           "restrict_public_buckets": true
         }
       },
-      "occurrences": 713,
-      "sensitive_data_categories": ["MEDICAL"],
-      "data_identifiers": ["DRIVER_LICENSE_US"]
+      "occurrences": 0,
+      "sensitive_data_categories": [],
+      "data_identifiers": []
     },
     "s3": {
       "bucket": {
-        "name": "aws-macie-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-macie-logs-501938274650"
+        "name": "aws-macie-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-macie-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/macie/ap-southeast-4/2026/04/13/macie_C15K69JONEJ.log.gz"
+        "key": "AWSLogs/814726593401/macie/eu-central-1/2026/04/13/macie_E4VPH1K0L2.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/macie/logs",
-      "log_stream": "ap-southeast-4/yczzk61t",
-      "ingestion_time": "2026-04-13T15:46:43.489Z"
+      "log_stream": "eu-central-1/wrm9qixu",
+      "ingestion_time": "2026-04-13T16:49:57.242Z"
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["vulnerability"],
     "dataset": "aws.macie",
     "provider": "macie2.amazonaws.com",
     "module": "aws"
   },
-  "message": "Macie detected sensitive data in s3://customer-exports-ap-southeast-4: SensitiveData:S3Object/Financial",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "SensitiveDataFound",
-    "message": "Sensitive data in s3://customer-exports-ap-southeast-4",
-    "type": "data"
-  },
+  "message": "Macie scan complete: no sensitive data found",
+  "log": { "level": "info" },
   "service": { "name": "macie", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.macie", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-4",
-    "ephemeral_id": "mvdm7tme53"
+    "name": "filebeat-aws-eu-central-1",
+    "ephemeral_id": "smxg3djw8ni"
   },
   "input": { "type": "http_endpoint" }
 }

@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-13T15:46:43.100Z",
+  "@timestamp": "2026-04-13T16:49:56.865Z",
   "cloud": {
     "provider": "aws",
     "region": "af-south-1",
@@ -8,22 +8,23 @@
   },
   "aws": {
     "dimensions": {
-      "ResourceArn": "arn:aws:glue:af-south-1:814726593401:table/data_lake/users",
+      "ResourceArn": "arn:aws:glue:af-south-1:814726593401:table/analytics/products",
       "Principal": "arn:aws:iam::814726593401:user/alice"
     },
     "lakeformation": {
-      "database": "data_lake",
-      "table": "users",
-      "action": "GetDataAccess",
+      "database": "analytics",
+      "table": "products",
+      "action": "CreateLakeFormationTag",
       "principal_arn": "arn:aws:iam::814726593401:user/alice",
-      "resource_arn": "arn:aws:glue:af-south-1:814726593401:table/data_lake/users",
-      "permissions": ["SELECT", "INSERT"],
+      "resource_arn": "arn:aws:glue:af-south-1:814726593401:table/analytics/products",
+      "permissions": ["SELECT"],
       "lf_tag_key": "classification",
-      "lf_tag_values": ["dev", "staging"],
+      "lf_tag_values": ["prod"],
+      "error_code": "EntityNotFoundException",
       "metrics": {
-        "GrantCount": { "sum": 12 },
-        "DatabaseCount": { "avg": 3 },
-        "TableCount": { "avg": 33 },
+        "GrantCount": { "sum": 0 },
+        "DatabaseCount": { "avg": 8 },
+        "TableCount": { "avg": 122 },
         "DataLakeSettings": { "avg": 1 }
       }
     },
@@ -33,26 +34,31 @@
         "arn": "arn:aws:s3:::aws-lakeformation-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/lakeformation/af-south-1/2026/04/13/lakeformation_VIBWXFA47S.log.gz"
+        "key": "AWSLogs/814726593401/lakeformation/af-south-1/2026/04/13/lakeformation_IE9U5FJYU0P.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lakeformation/logs",
-      "log_stream": "af-south-1/0pqr8vmj",
-      "ingestion_time": "2026-04-13T15:46:43.581Z"
+      "log_stream": "af-south-1/ayqzgr1f",
+      "ingestion_time": "2026-04-13T16:49:57.333Z"
     }
   },
   "event": {
-    "action": "GetDataAccess",
-    "duration": 679000000,
-    "outcome": "success",
+    "action": "CreateLakeFormationTag",
+    "duration": 3869000000,
+    "outcome": "failure",
     "category": ["database", "iam"],
     "dataset": "aws.lakeformation",
     "provider": "lakeformation.amazonaws.com",
     "module": "aws"
   },
-  "message": "Lake Formation GetDataAccess: SELECT,INSERT on data_lake.users",
-  "log": { "level": "info" },
+  "message": "Lake Formation CreateLakeFormationTag FAILED on analytics.products: Entity not found",
+  "log": { "level": "error" },
+  "error": {
+    "code": "AccessDeniedException",
+    "message": "Lake Formation operation failed",
+    "type": "access"
+  },
   "service": { "name": "lakeformation", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lakeformation", "namespace": "default" },
@@ -60,7 +66,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "xuoulastx3"
+    "ephemeral_id": "xwhx3fbcgjd"
   },
   "input": { "type": "aws-cloudwatch" }
 }

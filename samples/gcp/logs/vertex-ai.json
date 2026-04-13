@@ -2,54 +2,57 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "asia-east2",
+    "region": "europe-west1",
     "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
     "account": { "id": "161803398874", "name": "Globex Development" },
-    "service": { "name": "aiplatform.googleapis.com" }
+    "service": { "name": "discoveryengine.googleapis.com" }
   },
   "gcp": {
-    "vertex_ai": {
-      "endpoint_id": "ep-n2m5t5yg",
-      "model_name": "text-bison",
-      "model_version": "v10",
-      "prediction_type": "batch",
-      "instances_count": 78,
-      "latency_ms": 421,
-      "accelerator_type": "NVIDIA_TESLA_T4",
-      "machine_type": "e2-standard-8"
+    "vertex_ai_search": {
+      "engine_name": "search-prod-pnhe",
+      "query": "return policy",
+      "results_count": 9,
+      "search_type": "SEARCH",
+      "serving_config": "projects/globex-dev-g7h8i9/locations/global/collections/default_collection/engines/search-prod-pnhe/servingConfigs/default_search",
+      "latency_ms": 516,
+      "session_id": "search-srdne4om6kf"
     }
   },
-  "event": { "outcome": "success", "duration": 421, "module": "gcp", "dataset": "gcp.vertexai" },
-  "message": "Vertex AI batch prediction completed (23 instances, 421ms)",
-  "service": { "name": "vertex-ai", "type": "gcp" },
+  "event": {
+    "outcome": "success",
+    "duration": 516,
+    "module": "gcp",
+    "dataset": "gcp.vertexaisearch"
+  },
+  "message": "Vertex AI Search SEARCH returned 9 results for \"return policy\" (516ms)",
+  "service": { "name": "vertex-ai-search", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.vertexai", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.vertexaisearch", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-east2",
-    "id": "r1kppbcqioc"
+    "name": "elastic-agent-gcp-europe-west1",
+    "id": "vbnj9u5netg"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-dev-g7h8i9/logs/vertex-ai",
+  "logName": "projects/globex-dev-g7h8i9/logs/vertex-ai-search",
   "resource": {
-    "type": "aiplatform.googleapis.com/Endpoint",
-    "labels": { "project_id": "globex-dev-g7h8i9", "region": "asia-east2" }
+    "type": "global",
+    "labels": { "project_id": "globex-dev-g7h8i9", "region": "europe-west1" }
   },
   "severity": "INFO",
-  "insertId": "U0NE27YEM8",
+  "insertId": "9HWQN4RTSEV",
   "jsonPayload": {
-    "vertex_ai": {
-      "endpoint_id": "ep-n2m5t5yg",
-      "model_name": "text-bison",
-      "model_version": "v10",
-      "prediction_type": "batch",
-      "instances_count": 78,
-      "latency_ms": 421,
-      "accelerator_type": "NVIDIA_TESLA_T4",
-      "machine_type": "e2-standard-8"
+    "vertex_ai_search": {
+      "engine_name": "search-prod-pnhe",
+      "query": "return policy",
+      "results_count": 9,
+      "search_type": "SEARCH",
+      "serving_config": "projects/globex-dev-g7h8i9/locations/global/collections/default_collection/engines/search-prod-pnhe/servingConfigs/default_search",
+      "latency_ms": 516,
+      "session_id": "search-srdne4om6kf"
     },
-    "message": "Vertex AI batch prediction completed (23 instances, 421ms)"
+    "message": "Vertex AI Search SEARCH returned 9 results for \"return policy\" (516ms)"
   }
 }

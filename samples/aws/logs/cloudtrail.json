@@ -1,72 +1,75 @@
 {
-  "@timestamp": "2026-04-13T15:46:43.100Z",
+  "@timestamp": "2026-04-13T16:49:56.865Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-northeast-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "cloudtrail" }
   },
   "aws": {
-    "dimensions": { "EventName": "DescribeInstances", "EventSource": "ec2.amazonaws.com" },
+    "dimensions": { "EventName": "AssumeRole", "EventSource": "sts.amazonaws.com" },
     "cloudtrail": {
       "event_version": "1.09",
       "event_category": "Management",
       "event_type": "AwsApiCall",
-      "request_id": "u5bvpkk4-tg8d-z44s-y7ze-j6elvyhp8x",
+      "request_id": "5w1l1h4v-j728-zsgi-zict-hkl3d8xqpa8",
       "api_version": "2012-10-17",
       "management_event": true,
-      "read_only": true,
-      "recipient_account_id": "293847561023",
-      "aws_region": "us-east-2",
+      "read_only": false,
+      "recipient_account_id": "164820739518",
+      "aws_region": "ap-northeast-1",
       "user_identity": {
-        "type": "AssumedRole",
-        "principal_id": "AROANLTBAQQUWF:carol-session",
-        "arn": "arn:aws:iam::293847561023:user/carol",
-        "account_id": "293847561023",
-        "access_key_id": "AKIA425YXOZ3OND",
+        "type": "AWSService",
+        "principal_id": "164820739518:alice",
+        "arn": "arn:aws:iam::164820739518:user/alice",
+        "account_id": "164820739518",
+        "access_key_id": "AKIA9IQZ5QKW9AF",
         "session_context": {
           "session_issuer": {
             "type": "Role",
-            "principal_id": "AROANLTBAQQUWF",
-            "arn": "arn:aws:iam::293847561023:role/service-role/execution-role",
-            "account_id": "293847561023",
+            "principal_id": "AROAB6IEBFI8EQV",
+            "arn": "arn:aws:iam::164820739518:role/service-role/execution-role",
+            "account_id": "164820739518",
             "user_name": "execution-role"
           },
           "web_id_federation_data": {},
-          "attributes": { "creation_date": "2026-04-13T14:59:44.100Z", "mfa_authenticated": "true" }
+          "attributes": {
+            "creation_date": "2026-04-13T16:18:55.865Z",
+            "mfa_authenticated": "false"
+          }
         }
       },
-      "request_parameters": "null",
+      "request_parameters": "{\"roleArn\":\"arn:aws:iam::164820739518:role/CrossAccountRole\",\"roleSessionName\":\"session-ggp08vrg\"}",
       "response_elements": "null"
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudtrail-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-cloudtrail-logs-293847561023"
+        "name": "aws-cloudtrail-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-cloudtrail-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/cloudtrail/us-east-2/2026/04/13/cloudtrail_803NZO5K98P.log.gz"
+        "key": "AWSLogs/164820739518/cloudtrail/ap-northeast-1/2026/04/13/cloudtrail_EZ6RBTRT1ID.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloudtrail/logs",
-      "log_stream": "us-east-2/r4mlxzqv",
-      "ingestion_time": "2026-04-13T15:46:43.428Z"
+      "log_stream": "ap-northeast-1/tgoysa0g",
+      "ingestion_time": "2026-04-13T16:49:57.184Z"
     }
   },
-  "user": { "name": "carol" },
-  "source": { "ip": "251.246.5.38", "geo": { "country_iso_code": "AU", "city_name": "Frankfurt" } },
-  "user_agent": { "original": "python-requests/2.27.1" },
+  "user": { "name": "alice" },
+  "source": { "ip": "87.114.75.133", "geo": { "country_iso_code": "DE", "city_name": "Tokyo" } },
+  "user_agent": { "original": "Go-http-client/1.1" },
   "event": {
-    "action": "DescribeInstances",
+    "action": "AssumeRole",
     "outcome": "success",
-    "category": ["configuration"],
-    "type": ["access", "info"],
+    "category": ["authentication", "iam"],
+    "type": ["access"],
     "dataset": "aws.cloudtrail",
     "provider": "cloudtrail.amazonaws.com",
     "module": "aws"
   },
-  "message": "CloudTrail: DescribeInstances by carol from 251.246.5.38 - Success",
+  "message": "CloudTrail: AssumeRole by alice from 87.114.75.133 - Success",
   "log": { "level": "info" },
   "service": { "name": "cloudtrail", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -74,8 +77,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "45dlpfzy69o"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "1dj2r1ixxh5"
   },
   "input": { "type": "aws-s3" }
 }

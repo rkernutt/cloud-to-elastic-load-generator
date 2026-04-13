@@ -28,6 +28,7 @@ import {
 } from "@elastic/eui";
 
 import type { CloudId } from "../cloud/types";
+import type { ServiceGroup } from "../data/serviceGroups";
 import type { CloudSetupBundle, MlJobFile, PipelineEntry } from "../setup/types";
 import { dashboardDefToSavedObjectId } from "../setup/dashboardToImportNdjson";
 import { stableDashboardKey } from "../setup/stableDashboardKey";
@@ -55,6 +56,17 @@ import {
   mlJobFileMatchesSelectedServices,
   mlJobEntryMatchesQuery,
 } from "../setup/setupAssetMatch";
+import {
+  groupMlJobRefsByServiceType,
+  inferDashboardServiceGroupLabel,
+  sortDashboardServiceGroupLabels,
+  type MlJobRef,
+} from "../setup/dashboardServiceGroup";
+import {
+  polishDashboardFragmentForGrouping,
+  polishSetupCategoryLabel,
+  polishSetupDashboardTitle,
+} from "../setup/setupDisplayPolish";
 
 interface SetupPageProps {
   setupBundle: CloudSetupBundle;
@@ -70,6 +82,11 @@ interface SetupPageProps {
   onReinstallComplete?: () => void;
   /** sessionStorage key — survives refresh; omit to disable persistence (tests). */
   setupLogPersistenceKey?: string;
+  /**
+   * Same groups as the Services step — dashboard lists are grouped under these labels.
+   * When empty, grouping falls back to polished dashboard title fragments.
+   */
+  serviceGroups?: ServiceGroup[];
 }
 
 type LogLine = { text: string; type: "info" | "ok" | "error" | "warn"; at?: string };
@@ -151,6 +168,7 @@ export function SetupPage({
   onUninstallComplete,
   onReinstallComplete,
   setupLogPersistenceKey,
+  serviceGroups = [],
 }: SetupPageProps) {
   const PIPELINES: PipelineEntry[] = setupBundle.pipelines;
   const ML_JOB_FILES: MlJobFile[] = setupBundle.mlJobFiles;
@@ -366,34 +384,59 @@ export function SetupPage({
     [DASHBOARDS, assetFilterQuery]
   );
 
+  const dashboardIndexToGroup = useMemo(() => {
+    const m = new Map<number, string>();
+    for (const i of visibleDashboardIndices) {
+      if (serviceGroups.length > 0) {
+        m.set(i, inferDashboardServiceGroupLabel(DASHBOARDS[i], cloudId, serviceGroups));
+      } else {
+        const frag = dashboardTitleServiceFragment(DASHBOARDS[i], cloudId);
+        const trimmed = frag?.trim() ?? "";
+        m.set(i, trimmed ? polishDashboardFragmentForGrouping(trimmed, cloudId) : "Other");
+      }
+    }
+    return m;
+  }, [visibleDashboardIndices, DASHBOARDS, cloudId, serviceGroups]);
+
   const dashboardGroupKeys = useMemo(() => {
     const keys = new Set<string>();
     for (const i of visibleDashboardIndices) {
-      const frag = dashboardTitleServiceFragment(DASHBOARDS[i], cloudId);
-      const key = frag?.trim().split(/\s+/)[0] ?? "Other";
-      keys.add(key || "Other");
+      keys.add(dashboardIndexToGroup.get(i) ?? "Uncategorized");
     }
-    return [...keys].sort((a, b) => {
-      if (a === "Other") return 1;
-      if (b === "Other") return -1;
-      return a.localeCompare(b);
-    });
-  }, [visibleDashboardIndices, DASHBOARDS, cloudId]);
+    return sortDashboardServiceGroupLabels([...keys], serviceGroups);
+  }, [visibleDashboardIndices, dashboardIndexToGroup, serviceGroups]);
 
   const dashboardIndicesInGroup = useCallback(
     (groupKey: string) =>
-      visibleDashboardIndices.filter((i) => {
-        const frag = dashboardTitleServiceFragment(DASHBOARDS[i], cloudId);
-        const key = frag?.trim().split(/\s+/)[0] ?? "Other";
-        return (key || "Other") === groupKey;
-      }),
-    [visibleDashboardIndices, DASHBOARDS, cloudId]
+      visibleDashboardIndices
+        .filter((i) => (dashboardIndexToGroup.get(i) ?? "Uncategorized") === groupKey)
+        .sort((ia, ib) => (DASHBOARDS[ia].title ?? "").localeCompare(DASHBOARDS[ib].title ?? "")),
+    [visibleDashboardIndices, dashboardIndexToGroup, DASHBOARDS]
   );
 
   const visibleMlFiles = useMemo(
     () => ML_JOB_FILES.filter((f) => mlJobFileMatchesQuery(f, assetFilterQuery)),
     [ML_JOB_FILES, assetFilterQuery]
   );
+
+  const visibleMlJobRefs = useMemo((): MlJobRef[] => {
+    const out: MlJobRef[] = [];
+    for (const f of visibleMlFiles) {
+      for (const j of f.jobs) {
+        if (mlJobEntryMatchesQuery(j, assetFilterQuery)) {
+          out.push({ file: f, job: j });
+        }
+      }
+    }
+    return out;
+  }, [visibleMlFiles, assetFilterQuery]);
+
+  const useAwsMlUnifiedByServiceType = cloudId === "aws" && serviceGroups.length > 0;
+
+  const mlJobSectionsByServiceType = useMemo(() => {
+    if (!useAwsMlUnifiedByServiceType) return null;
+    return groupMlJobRefsByServiceType(visibleMlJobRefs, cloudId, serviceGroups);
+  }, [useAwsMlUnifiedByServiceType, visibleMlJobRefs, cloudId, serviceGroups]);
 
   const alignSelectionsToShipServices = useCallback(() => {
     const sel = new Set(selectedShipServiceIds.map((s) => s.trim()).filter(Boolean));
@@ -525,6 +568,23 @@ export function SetupPage({
       return next;
     });
   };
+
+  const setAllJobsInMlServiceGroup = useCallback(
+    (groupLabel: string, checked: boolean) => {
+      if (!mlJobSectionsByServiceType) return;
+      const section = mlJobSectionsByServiceType.find((s) => s.label === groupLabel);
+      if (!section) return;
+      setSelectedMlJobIds((prev) => {
+        const next = new Set(prev);
+        for (const { job } of section.refs) {
+          if (checked) next.add(job.id);
+          else next.delete(job.id);
+        }
+        return next;
+      });
+    },
+    [mlJobSectionsByServiceType]
+  );
 
   const handleInstall = async () => {
     setIsRunning(true);
@@ -1109,7 +1169,7 @@ export function SetupPage({
               setExpandedMap={setSetupAssetExpanded}
               header={
                 <EuiText size="s">
-                  <strong>{g}</strong>{" "}
+                  <strong>{polishSetupCategoryLabel(g)}</strong>{" "}
                   <EuiBadge color="hollow">
                     {nSel}/{inGroup.length}
                   </EuiBadge>
@@ -1247,7 +1307,7 @@ export function SetupPage({
                 {idxs.map((i) => {
                   const d = DASHBOARDS[i];
                   const key = stableDashboardKey(d, i);
-                  const title = d.title ?? `Dashboard ${i + 1}`;
+                  const title = polishSetupDashboardTitle(d.title ?? `Dashboard ${i + 1}`, cloudId);
                   return (
                     <EuiFlexItem
                       grow={false}
@@ -1289,7 +1349,17 @@ export function SetupPage({
             {removeMode ? "Select ML jobs to uninstall:" : "Select ML jobs to install:"}
           </strong>{" "}
           {selectedMlJobIds.size} of {totalMlJobsAll} jobs
-          {assetFilterQuery.trim() ? <> ({visibleMlFiles.length} file(s) visible)</> : null}.
+          {assetFilterQuery.trim() ? (
+            <>
+              {" "}
+              (
+              {useAwsMlUnifiedByServiceType && mlJobSectionsByServiceType
+                ? `${mlJobSectionsByServiceType.length} group(s)`
+                : `${visibleMlFiles.length} file(s)`}{" "}
+              visible)
+            </>
+          ) : null}
+          .
           {!enableMlJobs && ML_JOB_FILES.length > 0 && (
             <>
               {" "}
@@ -1311,77 +1381,145 @@ export function SetupPage({
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiSpacer size="xs" />
-        {visibleMlFiles.map((file) => {
-          const visibleJobs = file.jobs.filter((j) => mlJobEntryMatchesQuery(j, assetFilterQuery));
-          if (visibleJobs.length === 0) return null;
-          const nSel = visibleJobs.filter((j) => selectedMlJobIds.has(j.id)).length;
-          return (
-            <SetupCollapsible
-              key={`ml-${file.group}-${uid}`}
-              sectionKey={`ml:${file.group}:${uid}`}
-              expandedMap={setupAssetExpanded}
-              setExpandedMap={setSetupAssetExpanded}
-              header={
-                <EuiText size="s">
-                  <strong>{file.group}</strong>{" "}
-                  <EuiBadge color="hollow">
-                    {nSel}/{visibleJobs.length}
-                  </EuiBadge>
-                </EuiText>
-              }
-            >
-              <EuiText size="xs" color="subdued">
-                {file.description}
-              </EuiText>
-              <EuiSpacer size="s" />
-              <EuiFlexGroup gutterSize="s" wrap responsive={false} alignItems="center">
-                <EuiFlexItem grow={false}>
-                  <EuiButtonEmpty
-                    size="xs"
-                    onClick={() => setAllJobsInMlFile(file, true)}
-                    disabled={!enableMlJobs}
-                  >
-                    All in file
-                  </EuiButtonEmpty>
-                </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  <EuiButtonEmpty
-                    size="xs"
-                    onClick={() => setAllJobsInMlFile(file, false)}
-                    disabled={!enableMlJobs}
-                  >
-                    None in file
-                  </EuiButtonEmpty>
-                </EuiFlexItem>
-              </EuiFlexGroup>
-              <EuiSpacer size="s" />
-              <EuiFlexGroup gutterSize="s" wrap responsive={false}>
-                {visibleJobs.map((j) => (
-                  <EuiFlexItem
-                    grow={false}
-                    key={`${file.group}:${j.id}`}
-                    style={{ minWidth: 260, maxWidth: 420 }}
-                  >
-                    <EuiCheckbox
-                      id={`ml-job-${file.group}-${j.id}-${uid}`}
-                      label={
-                        <span title={j.description}>
-                          <EuiCode>{j.id}</EuiCode>
-                          <EuiText size="xs" color="subdued">
-                            {j.description}
-                          </EuiText>
-                        </span>
-                      }
-                      checked={selectedMlJobIds.has(j.id)}
-                      disabled={!enableMlJobs}
-                      onChange={() => setSelectedMlJobIds((prev) => toggleGroup(prev, j.id))}
-                    />
-                  </EuiFlexItem>
-                ))}
-              </EuiFlexGroup>
-            </SetupCollapsible>
-          );
-        })}
+        {useAwsMlUnifiedByServiceType && mlJobSectionsByServiceType
+          ? mlJobSectionsByServiceType.map((section) => {
+              const nSel = section.refs.filter((r) => selectedMlJobIds.has(r.job.id)).length;
+              return (
+                <SetupCollapsible
+                  key={`ml-srv-${section.label}-${uid}`}
+                  sectionKey={`ml:srv:${section.label}:${uid}`}
+                  expandedMap={setupAssetExpanded}
+                  setExpandedMap={setSetupAssetExpanded}
+                  header={
+                    <EuiText size="s">
+                      <strong>{section.label}</strong>{" "}
+                      <EuiBadge color="hollow">
+                        {nSel}/{section.refs.length}
+                      </EuiBadge>
+                    </EuiText>
+                  }
+                >
+                  <EuiFlexGroup gutterSize="s" wrap responsive={false} alignItems="center">
+                    <EuiFlexItem grow={false}>
+                      <EuiButtonEmpty
+                        size="xs"
+                        onClick={() => setAllJobsInMlServiceGroup(section.label, true)}
+                        disabled={!enableMlJobs}
+                      >
+                        All in group
+                      </EuiButtonEmpty>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiButtonEmpty
+                        size="xs"
+                        onClick={() => setAllJobsInMlServiceGroup(section.label, false)}
+                        disabled={!enableMlJobs}
+                      >
+                        None in group
+                      </EuiButtonEmpty>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                  <EuiSpacer size="s" />
+                  <EuiFlexGroup gutterSize="s" wrap responsive={false}>
+                    {section.refs.map(({ file, job }) => (
+                      <EuiFlexItem
+                        grow={false}
+                        key={job.id}
+                        style={{ minWidth: 260, maxWidth: 420 }}
+                      >
+                        <EuiCheckbox
+                          id={`ml-job-${file.group}-${job.id}-${uid}`}
+                          label={
+                            <span title={job.description}>
+                              <EuiCode>{job.id}</EuiCode>
+                              <EuiText size="xs" color="subdued">
+                                {job.description}
+                              </EuiText>
+                            </span>
+                          }
+                          checked={selectedMlJobIds.has(job.id)}
+                          disabled={!enableMlJobs}
+                          onChange={() => setSelectedMlJobIds((prev) => toggleGroup(prev, job.id))}
+                        />
+                      </EuiFlexItem>
+                    ))}
+                  </EuiFlexGroup>
+                </SetupCollapsible>
+              );
+            })
+          : visibleMlFiles.map((file) => {
+              const visibleJobs = file.jobs.filter((j) =>
+                mlJobEntryMatchesQuery(j, assetFilterQuery)
+              );
+              if (visibleJobs.length === 0) return null;
+              const nSel = visibleJobs.filter((j) => selectedMlJobIds.has(j.id)).length;
+              return (
+                <SetupCollapsible
+                  key={`ml-${file.group}-${uid}`}
+                  sectionKey={`ml:${file.group}:${uid}`}
+                  expandedMap={setupAssetExpanded}
+                  setExpandedMap={setSetupAssetExpanded}
+                  header={
+                    <EuiText size="s">
+                      <strong>{polishSetupCategoryLabel(file.group)}</strong>{" "}
+                      <EuiBadge color="hollow">
+                        {nSel}/{visibleJobs.length}
+                      </EuiBadge>
+                    </EuiText>
+                  }
+                >
+                  <EuiText size="xs" color="subdued">
+                    {file.description}
+                  </EuiText>
+                  <EuiSpacer size="s" />
+                  <EuiFlexGroup gutterSize="s" wrap responsive={false} alignItems="center">
+                    <EuiFlexItem grow={false}>
+                      <EuiButtonEmpty
+                        size="xs"
+                        onClick={() => setAllJobsInMlFile(file, true)}
+                        disabled={!enableMlJobs}
+                      >
+                        All in file
+                      </EuiButtonEmpty>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiButtonEmpty
+                        size="xs"
+                        onClick={() => setAllJobsInMlFile(file, false)}
+                        disabled={!enableMlJobs}
+                      >
+                        None in file
+                      </EuiButtonEmpty>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                  <EuiSpacer size="s" />
+                  <EuiFlexGroup gutterSize="s" wrap responsive={false}>
+                    {visibleJobs.map((j) => (
+                      <EuiFlexItem
+                        grow={false}
+                        key={`${file.group}:${j.id}`}
+                        style={{ minWidth: 260, maxWidth: 420 }}
+                      >
+                        <EuiCheckbox
+                          id={`ml-job-${file.group}-${j.id}-${uid}`}
+                          label={
+                            <span title={j.description}>
+                              <EuiCode>{j.id}</EuiCode>
+                              <EuiText size="xs" color="subdued">
+                                {j.description}
+                              </EuiText>
+                            </span>
+                          }
+                          checked={selectedMlJobIds.has(j.id)}
+                          disabled={!enableMlJobs}
+                          onChange={() => setSelectedMlJobIds((prev) => toggleGroup(prev, j.id))}
+                        />
+                      </EuiFlexItem>
+                    ))}
+                  </EuiFlexGroup>
+                </SetupCollapsible>
+              );
+            })}
       </InstallerRow>
 
       <EuiSpacer size="xl" />

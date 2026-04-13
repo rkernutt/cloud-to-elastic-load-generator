@@ -23,9 +23,7 @@ const SERVICE_GROUPS: ServiceGroup[] = [
     services: [
       { id: "lambda", label: "Lambda", icon: "λ", desc: "Function execution logs" },
       { id: "apigateway", label: "API Gateway", icon: "⇌", desc: "HTTP access logs" },
-      { id: "vpc", label: "VPC Flow", icon: "⟳", desc: "Network flow records" },
       { id: "cloudtrail", label: "CloudTrail", icon: "☁", desc: "API audit events" },
-      { id: "rds", label: "RDS", icon: "⊞", desc: "Database query logs" },
       { id: "ecs", label: "ECS", icon: "▣", desc: "Container task logs" },
     ],
   },
@@ -84,6 +82,7 @@ const SERVICE_GROUPS: ServiceGroup[] = [
     icon: "⇆",
     services: [
       { id: "alb", label: "ALB", icon: "⚖", desc: "Load balancer access logs" },
+      { id: "vpc", label: "VPC Flow", icon: "⟳", desc: "Network flow records" },
       { id: "nlb", label: "NLB", icon: "⚡", desc: "TCP/TLS load balancer logs" },
       { id: "cloudfront", label: "CloudFront", icon: "◌", desc: "CDN access & cache logs" },
       { id: "waf", label: "WAF", icon: "◈", desc: "Web ACL block/allow events" },
@@ -265,6 +264,7 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         icon: "◎",
         desc: "Storage analytics & metrics",
       },
+      { id: "rds", label: "RDS", icon: "⊞", desc: "Database query logs" },
       { id: "efs", label: "EFS", icon: "◫", desc: "NFS throughput & I/O logs" },
       { id: "fsx", label: "FSx", icon: "⊟", desc: "File system ops & backups" },
       { id: "ebs", label: "EBS", icon: "◫", desc: "Volume perf, state & snapshots" },
@@ -575,12 +575,6 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         desc: "Supply planning & forecast logs",
       },
       {
-        id: "arc",
-        label: "App Recovery Controller",
-        icon: "⊛",
-        desc: "Zonal shift & routing control logs",
-      },
-      {
         id: "appconfig",
         label: "AppConfig",
         icon: "⚙",
@@ -651,6 +645,12 @@ const SERVICE_GROUPS: ServiceGroup[] = [
     color: "#7C3AED",
     icon: "⊛",
     services: [
+      {
+        id: "arc",
+        label: "App Recovery Controller",
+        icon: "⊛",
+        desc: "Zonal shift & routing control logs",
+      },
       {
         id: "transferfamily",
         label: "Transfer Family",

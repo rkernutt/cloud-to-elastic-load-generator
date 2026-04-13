@@ -1,5 +1,5 @@
 import type { CloudId } from "../cloud/types";
-import type { DashboardDef, MlJobFile, PipelineEntry } from "./types";
+import type { DashboardDef, MlJobEntry, MlJobFile, PipelineEntry } from "./types";
 
 /** Normalize for fuzzy comparison (e.g. "API Gateway" vs apigateway). */
 export function squishId(s: string): string {
@@ -49,16 +49,48 @@ export function dashboardTitleServiceFragment(d: DashboardDef, cloudId: CloudId)
   return m ? m[1].trim() : null;
 }
 
+/**
+ * AWS dashboard titles whose em-dash fragment is not a service slug (e.g. "CI/CD" vs codebuild).
+ * Full-title hints align Setup grouping with the Services catalog.
+ */
+function awsDashboardTitleExtraMatchKeys(fullTitle: string): string[] {
+  const t = fullTitle.toLowerCase();
+  const keys: string[] = [];
+  if (
+    t.includes("codepipeline") ||
+    t.includes("codebuild") ||
+    /\bcicd\b/.test(t) ||
+    t.includes("ci/cd")
+  ) {
+    keys.push("codepipeline", "codebuild", "cicd");
+  }
+  if (t.includes("augmented ai") || t.includes("augmentedai") || /\ba2i\b/.test(t)) {
+    keys.push("a2i");
+  }
+  if (t.includes("app recovery controller") || t.includes("recovery controller")) {
+    keys.push("arc");
+  }
+  return keys;
+}
+
 /** Candidate strings to match against `serviceIds` (exact or squish). */
 export function dashboardInferredMatchKeys(d: DashboardDef, cloudId: CloudId): string[] {
-  const frag = dashboardTitleServiceFragment(d, cloudId);
-  if (!frag) return [];
   const keys = new Set<string>();
-  keys.add(frag.toLowerCase());
-  keys.add(frag.toLowerCase().replace(/\s+/g, "-"));
-  keys.add(squishId(frag));
-  for (const w of frag.toLowerCase().split(/\s+/)) {
-    if (w.length > 1) keys.add(w);
+  const frag = dashboardTitleServiceFragment(d, cloudId);
+  if (frag) {
+    keys.add(frag.toLowerCase());
+    keys.add(frag.toLowerCase().replace(/\s+/g, "-"));
+    keys.add(squishId(frag));
+    for (const w of frag.toLowerCase().split(/\s+/)) {
+      if (w.length > 1) keys.add(w);
+    }
+  }
+  const title = d.title?.trim() ?? "";
+  if (cloudId === "aws" && title) {
+    for (const k of awsDashboardTitleExtraMatchKeys(title)) {
+      keys.add(k);
+      keys.add(squishId(k));
+    }
   }
   return [...keys].filter(Boolean);
 }
@@ -71,6 +103,23 @@ function selectedHasSlug(selected: Set<string>, slug: string): boolean {
     const l = s.toLowerCase();
     if (l === sl) return true;
     if (squishId(s) === sq && sq.length >= 3) return true;
+  }
+  return false;
+}
+
+function inferredKeysMatchSelectedServices(
+  keys: string[],
+  selectedServiceIds: Set<string>
+): boolean {
+  if (selectedServiceIds.size === 0) return false;
+  for (const key of keys) {
+    if (selectedHasSlug(selectedServiceIds, key)) return true;
+    const sk = squishId(key);
+    for (const s of selectedServiceIds) {
+      if (sk && (sk === squishId(s) || sk.includes(squishId(s)) || squishId(s).includes(sk))) {
+        if (Math.min(sk.length, squishId(s).length) >= 4) return true;
+      }
+    }
   }
   return false;
 }
@@ -93,17 +142,68 @@ export function dashboardMatchesSelectedServices(
   cloudId: CloudId,
   selectedServiceIds: Set<string>
 ): boolean {
-  if (selectedServiceIds.size === 0) return false;
-  for (const key of dashboardInferredMatchKeys(d, cloudId)) {
-    if (selectedHasSlug(selectedServiceIds, key)) return true;
-    const sk = squishId(key);
-    for (const s of selectedServiceIds) {
-      if (sk && (sk === squishId(s) || sk.includes(squishId(s)) || squishId(s).includes(sk))) {
-        if (Math.min(sk.length, squishId(s).length) >= 4) return true;
-      }
+  return inferredKeysMatchSelectedServices(
+    dashboardInferredMatchKeys(d, cloudId),
+    selectedServiceIds
+  );
+}
+
+/**
+ * `event.dataset`-style segments that do not match catalog ids (e.g. vpcflow vs vpc, rdscustom vs rds).
+ */
+const AWS_ML_DATASET_SEGMENT_ALIASES: Record<string, string[]> = {
+  vpcflow: ["vpc"],
+  rdscustom: ["rds"],
+  s3_intelligent_tiering: ["s3"],
+  pcs: ["parallelcomputing"],
+};
+
+function addKeysFromAwsMlSegment(seg: string, keys: Set<string>): void {
+  keys.add(seg);
+  keys.add(squishId(seg));
+  if (seg.includes("_")) keys.add(seg.replace(/_/g, ""));
+  const aliases = AWS_ML_DATASET_SEGMENT_ALIASES[seg];
+  if (!aliases) return;
+  for (const a of aliases) {
+    keys.add(a);
+    keys.add(squishId(a));
+  }
+}
+
+/**
+ * Candidate slugs from an ML job (id, description, datafeed query, job config) for service alignment.
+ * AWS: `aws.<service>` segments in serialized config (e.g. event.dataset aws.kendra → kendra).
+ */
+export function mlJobInferredMatchKeys(j: MlJobEntry, cloudId: CloudId): string[] {
+  const keys = new Set<string>();
+  const idPart = (j.id ?? "").toLowerCase();
+  const desc = (j.description ?? "").toLowerCase();
+  const feed = JSON.stringify(j.datafeed ?? {}).toLowerCase();
+  const jobSpec = JSON.stringify(j.job ?? {}).toLowerCase();
+  const blob = `${idPart} ${desc} ${feed} ${jobSpec}`;
+
+  const cloudPrefix =
+    cloudId === "azure" ? "azure" : cloudId === "gcp" ? "gcp" : cloudId === "aws" ? "aws" : null;
+  if (cloudPrefix) {
+    const re = new RegExp(`\\b${cloudPrefix}\\.([a-z0-9_]+)`, "g");
+    for (const m of blob.matchAll(re)) {
+      addKeysFromAwsMlSegment(m[1], keys);
     }
   }
-  return false;
+
+  for (const part of idPart.split(/[^a-z0-9]+/)) {
+    if (part.length >= 2 && part !== "aws" && part !== "gcp" && part !== "azure") keys.add(part);
+  }
+  return [...keys].filter(Boolean);
+}
+
+/** Single ML job aligns with at least one selected service id (same fuzzy rules as dashboards). */
+export function mlJobEntryMatchesSelectedServices(
+  j: MlJobEntry,
+  cloudId: CloudId,
+  selectedServiceIds: Set<string>
+): boolean {
+  return inferredKeysMatchSelectedServices(mlJobInferredMatchKeys(j, cloudId), selectedServiceIds);
 }
 
 /** ML job file mentions selected services in ids, descriptions, or group. */

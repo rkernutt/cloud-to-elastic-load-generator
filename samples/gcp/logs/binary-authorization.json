@@ -2,57 +2,57 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "asia-south2",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" },
+    "region": "europe-north1",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" },
     "service": { "name": "binary-authorization" }
   },
   "gcp": {
     "binary_authorization": {
       "cluster": "ml-cluster",
-      "namespace": "monitoring",
-      "pod": "checkout-6mur5-u3lf6",
-      "image": "us-docker.pkg.dev/globex-security-j0k1l2/apps/checkout:v4.11",
+      "namespace": "staging",
+      "pod": "checkout-7846o-huqhw",
+      "image": "us-docker.pkg.dev/globex-shared-m3n4o5/apps/checkout:v1.9",
       "attestor": "prod-security",
-      "verdict": "ALLOWED",
-      "policy_name": "dev-permissive"
+      "verdict": "DENIED",
+      "policy_name": "globex-prod-policy"
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 18000000,
+    "outcome": "failure",
+    "duration": 10000000,
     "module": "gcp",
     "dataset": "gcp.binaryauthorization"
   },
-  "message": "Binary Authorization ALLOWED for us-docker.pkg.dev/globex-security-j0k1l2/apps/checkout:v4.11 on ml-cluster/monitoring/checkout-6mur5-u3lf6",
-  "log": { "level": "info" },
+  "message": "Binary Authorization DENIED for us-docker.pkg.dev/globex-shared-m3n4o5/apps/checkout:v1.9 on ml-cluster/staging/checkout-7846o-huqhw",
+  "log": { "level": "error" },
   "service": { "name": "binary-authorization", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.binaryauthorization", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-south2",
-    "id": "75l8l7uktb"
+    "name": "elastic-agent-gcp-europe-north1",
+    "id": "5z0kiyqwfyv"
   },
   "input": { "type": "http_endpoint" },
-  "logName": "projects/globex-security-j0k1l2/logs/binary-authorization",
+  "logName": "projects/globex-shared-m3n4o5/logs/binary-authorization",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-security-j0k1l2", "region": "asia-south2" }
+    "labels": { "project_id": "globex-shared-m3n4o5", "region": "europe-north1" }
   },
-  "severity": "INFO",
-  "insertId": "Z3FRA0JKBQ",
+  "severity": "ERROR",
+  "insertId": "BSBSBQZR3M",
   "jsonPayload": {
     "binary_authorization": {
       "cluster": "ml-cluster",
-      "namespace": "monitoring",
-      "pod": "checkout-6mur5-u3lf6",
-      "image": "us-docker.pkg.dev/globex-security-j0k1l2/apps/checkout:v4.11",
+      "namespace": "staging",
+      "pod": "checkout-7846o-huqhw",
+      "image": "us-docker.pkg.dev/globex-shared-m3n4o5/apps/checkout:v1.9",
       "attestor": "prod-security",
-      "verdict": "ALLOWED",
-      "policy_name": "dev-permissive"
+      "verdict": "DENIED",
+      "policy_name": "globex-prod-policy"
     },
-    "message": "Binary Authorization ALLOWED for us-docker.pkg.dev/globex-security-j0k1l2/apps/checkout:v4.11 on ml-cluster/monitoring/checkout-6mur5-u3lf6"
+    "message": "Binary Authorization DENIED for us-docker.pkg.dev/globex-shared-m3n4o5/apps/checkout:v1.9 on ml-cluster/staging/checkout-7846o-huqhw"
   }
 }

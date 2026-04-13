@@ -1,61 +1,60 @@
 {
-  "@timestamp": "2026-04-13T15:46:43.100Z",
+  "@timestamp": "2026-04-13T16:49:56.865Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-west-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "sqs" }
   },
   "aws": {
-    "dimensions": { "QueueName": "webhook-events" },
+    "dimensions": { "QueueName": "order-processing" },
     "sqs": {
-      "queue": { "name": "webhook-events" },
-      "oldest_message_age": { "sec": 80896 },
+      "queue": { "name": "order-processing" },
+      "oldest_message_age": { "sec": 138 },
       "messages": {
-        "delayed": 295,
-        "not_visible": 869,
-        "visible": 55498,
-        "deleted": 72,
-        "received": 9514,
-        "sent": 9737
+        "delayed": 286,
+        "not_visible": 134,
+        "visible": 644,
+        "deleted": 229,
+        "received": 1452,
+        "sent": 2165
       },
-      "empty_receives": 61,
-      "sent_message_size": { "bytes": 22034 }
+      "empty_receives": 58,
+      "sent_message_size": { "bytes": 200684 }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sqs-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-sqs-logs-738291046572"
+        "name": "aws-sqs-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-sqs-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/738291046572/sqs/ap-south-2/2026/04/13/sqs_JLQCBKJQOH.log.gz" }
+      "object": { "key": "AWSLogs/293847561023/sqs/eu-west-1/2026/04/13/sqs_13FL3ATKYJZ.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/sqs/logs",
-      "log_stream": "ap-south-2/9xqz111d",
-      "ingestion_time": "2026-04-13T15:46:43.556Z"
+      "log_stream": "eu-west-1/079l096x",
+      "ingestion_time": "2026-04-13T16:49:57.306Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.sqs",
     "provider": "sqs.amazonaws.com",
-    "duration": 27406000000,
+    "duration": 382000000,
     "module": "aws"
   },
-  "message": "SQS webhook-events: 696 messages dead-lettered after max retries",
-  "log": { "level": "warn" },
-  "error": { "code": "QueueAlreadyExists", "message": "SQS operation failed", "type": "queue" },
-  "trace": { "id": "CNJ52ML0MIW" },
-  "transaction": { "id": "LA8N3GQFLVI" },
+  "message": "SQS order-processing: 2165 sent, 1452 received",
+  "log": { "level": "info" },
+  "trace": { "id": "I19458W7POJ" },
+  "transaction": { "id": "ODGNJIL44SF" },
   "service": { "name": "sqs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sqs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "poh76yf44o"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "x379imycxt"
   },
   "input": { "type": "aws-cloudwatch" }
 }

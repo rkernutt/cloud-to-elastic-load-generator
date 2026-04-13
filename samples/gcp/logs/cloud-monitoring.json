@@ -2,57 +2,64 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west2",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
-    "service": { "name": "monitoring.googleapis.com" }
+    "region": "asia-northeast2",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
+    "service": { "name": "cloudtrace.googleapis.com" }
   },
   "gcp": {
-    "cloud_monitoring": {
-      "alert_policy_name": "policy-error-rate-9R5F",
-      "condition_name": "condition-IC3DT4",
-      "metric_type": "cloudsql.googleapis.com/database/cpu/utilization",
-      "threshold_value": 0.864,
-      "current_value": 0.129,
-      "state": "FIRING",
-      "notification_channel_type": "pagerduty"
+    "cloud_trace": {
+      "trace_id": "67a23aac7a89a5db2e65558d0e48c43e",
+      "span_id": "24cf6a8fb2edda59",
+      "parent_span_id": "e21a3e495e71a859",
+      "display_name": "run.googleapis.com/request",
+      "kind": "PRODUCER",
+      "status_code": 0,
+      "latency_ms": 977,
+      "attributes_count": 3,
+      "labels": {
+        "g.co/r/gcp.project.id": "globex-prod-a1b2c3",
+        "service.name": "search-bff",
+        "http.route": "/v1/cart"
+      }
     }
   },
-  "event": {
-    "outcome": "success",
-    "duration": 11982,
-    "module": "gcp",
-    "dataset": "gcp.monitoring"
-  },
-  "message": "Monitoring condition \"condition-IC3DT4\" evaluated: cloudsql.googleapis.com/database/cpu/utilization=0.129 vs 0.864 (FIRING, notify=pagerduty)",
-  "service": { "name": "cloud-monitoring", "type": "gcp" },
+  "event": { "outcome": "success", "duration": 977, "module": "gcp", "dataset": "gcp.cloudtrace" },
+  "message": "Trace span OK: run.googleapis.com/request (PRODUCER) 977ms, attrs=3",
+  "service": { "name": "cloud-trace", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.monitoring", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.cloudtrace", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west2",
-    "id": "378jiq4keb6"
+    "name": "elastic-agent-gcp-asia-northeast2",
+    "id": "0s0h1jevm61g"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-staging-d4e5f6/logs/cloud-monitoring",
+  "logName": "projects/globex-prod-a1b2c3/logs/cloud-trace",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-staging-d4e5f6", "region": "europe-west2" }
+    "labels": { "project_id": "globex-prod-a1b2c3", "region": "asia-northeast2" }
   },
   "severity": "INFO",
-  "insertId": "1VMMM82ZKYH",
+  "insertId": "6W841L4QN3F",
   "jsonPayload": {
-    "cloud_monitoring": {
-      "alert_policy_name": "policy-error-rate-9R5F",
-      "condition_name": "condition-IC3DT4",
-      "metric_type": "cloudsql.googleapis.com/database/cpu/utilization",
-      "threshold_value": 0.864,
-      "current_value": 0.129,
-      "state": "FIRING",
-      "notification_channel_type": "pagerduty"
+    "cloud_trace": {
+      "trace_id": "67a23aac7a89a5db2e65558d0e48c43e",
+      "span_id": "24cf6a8fb2edda59",
+      "parent_span_id": "e21a3e495e71a859",
+      "display_name": "run.googleapis.com/request",
+      "kind": "PRODUCER",
+      "status_code": 0,
+      "latency_ms": 977,
+      "attributes_count": 3,
+      "labels": {
+        "g.co/r/gcp.project.id": "globex-prod-a1b2c3",
+        "service.name": "search-bff",
+        "http.route": "/v1/cart"
+      }
     },
-    "message": "Monitoring condition \"condition-IC3DT4\" evaluated: cloudsql.googleapis.com/database/cpu/utilization=0.129 vs 0.864 (FIRING, notify=pagerduty)"
+    "message": "Trace span OK: run.googleapis.com/request (PRODUCER) 977ms, attrs=3"
   }
 }

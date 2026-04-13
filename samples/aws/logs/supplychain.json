@@ -1,22 +1,22 @@
 {
-  "@timestamp": "2026-04-13T15:46:43.100Z",
+  "@timestamp": "2026-04-13T16:49:56.865Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
+    "region": "ap-southeast-3",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "supplychain" }
   },
   "aws": {
-    "dimensions": { "InstanceId": "arn:aws:scn:ca-central-1:814726593401:instance/ugzb1kf1akj" },
+    "dimensions": { "InstanceId": "arn:aws:scn:ap-southeast-3:814726593401:instance/x719n9ykh0b" },
     "supplychain": {
-      "instance_id": "arn:aws:scn:ca-central-1:814726593401:instance/ugzb1kf1akj",
-      "instance_name": "global-supply-chain",
-      "namespace": "aws.supply_chain.plan",
-      "event_type": "scn.data.shipment",
-      "job_status": "FAILED",
-      "record_count": 104962,
-      "forecast_horizon_days": 12,
-      "data_lake_dataset": "demand_forecast"
+      "instance_id": "arn:aws:scn:ap-southeast-3:814726593401:instance/x719n9ykh0b",
+      "instance_name": "north-america-ops",
+      "namespace": "aws.supply_chain.insight",
+      "event_type": "scn.data.purchase_order",
+      "job_status": "QUEUED",
+      "record_count": 569191,
+      "forecast_horizon_days": 160,
+      "data_lake_dataset": "supplier_lead_times"
     },
     "s3": {
       "bucket": {
@@ -24,38 +24,33 @@
         "arn": "arn:aws:s3:::aws-supplychain-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/supplychain/ca-central-1/2026/04/13/supplychain_R97XOXMICJ.log.gz"
+        "key": "AWSLogs/814726593401/supplychain/ap-southeast-3/2026/04/13/supplychain_C708K38ELIS.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/supplychain/logs",
-      "log_stream": "ca-central-1/ppvcwh2z",
-      "ingestion_time": "2026-04-13T15:46:43.631Z"
+      "log_stream": "ap-southeast-3/2zld0ce4",
+      "ingestion_time": "2026-04-13T16:49:57.385Z"
     }
   },
   "event": {
-    "action": "SendDataIntegrationEvent",
-    "outcome": "failure",
+    "action": "CreateInstance",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.supplychain",
     "provider": "scn.amazonaws.com",
     "module": "aws"
   },
-  "message": "Supply Chain SendDataIntegrationEvent FAILED [global-supply-chain]: Integration timeout",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ResourceNotFoundException",
-    "message": "Supply Chain operation failed",
-    "type": "process"
-  },
+  "message": "Supply Chain CreateInstance: instance=north-america-ops event=scn.data.purchase_order status=QUEUED",
+  "log": { "level": "info" },
   "service": { "name": "supplychain", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.supplychain", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "tffh3uztmn"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "x81sen7jn8"
   },
   "input": { "type": "aws-cloudwatch" }
 }

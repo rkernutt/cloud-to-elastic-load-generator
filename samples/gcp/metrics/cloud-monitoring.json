@@ -3,43 +3,46 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west8",
+    "region": "us-south1",
     "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
     "account": { "id": "141421356237", "name": "Globex Security" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west8",
-    "ephemeral_id": "aag25cnfcfj"
+    "name": "metricbeat-gcp-us-south1",
+    "ephemeral_id": "1j0cz02tqio"
   },
   "gcp": {
-    "cloud-profiler": {
+    "cloud-monitoring": {
       "metrics": {
-        "request_count": { "avg": 37759, "sum": 37759, "count": 1 },
-        "error_count": { "avg": 0, "sum": 0, "count": 1 },
-        "latency": { "avg": 156.47, "sum": 156.47, "count": 1 }
+        "ingestion_volume": { "avg": 2188205234, "sum": 2188205234, "count": 1 },
+        "query_count": { "avg": 223915, "sum": 223915, "count": 1 },
+        "dropped_entries": { "avg": 0, "sum": 0, "count": 1 }
       },
-      "labels": { "resource_id": "resource-a" }
+      "labels": { "resource_type": "global" }
     }
   },
-  "metricset": { "name": "cloud-profiler", "period": 60000 },
-  "data_stream": { "type": "metrics", "dataset": "gcp.profiler", "namespace": "default" },
+  "metricset": { "name": "cloud-monitoring", "period": 60000 },
+  "data_stream": { "type": "metrics", "dataset": "gcp.monitoring_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.profiler", "module": "gcp" },
+  "event": { "dataset": "gcp.monitoring_metrics", "module": "gcp" },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-profiler/request_count",
+      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-monitoring/ingestion_volume",
       "labels": {}
     },
     "resource": {
       "type": "global",
-      "labels": { "project_id": "globex-security-j0k1l2", "region": "europe-west8" }
+      "labels": { "project_id": "globex-security-j0k1l2", "region": "us-south1" }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 37759 } }
+      {
+        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
+        "value": { "doubleValue": 2188205234 }
+      }
     ]
   }
 }

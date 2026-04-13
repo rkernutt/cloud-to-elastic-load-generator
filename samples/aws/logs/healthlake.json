@@ -1,24 +1,23 @@
 {
-  "@timestamp": "2026-04-13T15:46:43.100Z",
+  "@timestamp": "2026-04-13T16:49:56.865Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
+    "region": "us-west-2",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "healthlake" }
   },
   "aws": {
     "dimensions": {
-      "DatastoreId": "5iyrzull-l9rp-plnn-ie6r-80m636x02ru",
-      "ResourceType": "Observation"
+      "DatastoreId": "mtaoy1bl-ggne-0c7j-s9mj-qgnbelcohm",
+      "ResourceType": "Patient"
     },
     "healthlake": {
-      "datastore_id": "5iyrzull-l9rp-plnn-ie6r-80m636x02ru",
-      "datastore_name": "pharmacy-db",
-      "resource_type": "Observation",
-      "operation": "StartFHIRExportJob",
-      "request_id": "SEO06R9Q-Z09W-EB24-UTR5-DGSFT28ETUD",
-      "response_code": 200,
-      "export_job_id": "export-dg7kyeni3sh",
+      "datastore_id": "mtaoy1bl-ggne-0c7j-s9mj-qgnbelcohm",
+      "datastore_name": "clinical-trials",
+      "resource_type": "Patient",
+      "operation": "ReadResource",
+      "request_id": "EFAN9ZFF-P2L7-RPRO-JQHY-EB2JJ0W6V5",
+      "response_code": 500,
       "fhir_version": "R4"
     },
     "s3": {
@@ -27,34 +26,39 @@
         "arn": "arn:aws:s3:::aws-healthlake-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/738291046572/healthlake/ap-south-2/2026/04/13/healthlake_QV2WEPD69U.log.gz"
+        "key": "AWSLogs/738291046572/healthlake/us-west-2/2026/04/13/healthlake_5K7DU3SPPG4.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/healthlake/logs",
-      "log_stream": "ap-south-2/txmnoxad",
-      "ingestion_time": "2026-04-13T15:46:43.604Z"
+      "log_stream": "us-west-2/yhpgcaij",
+      "ingestion_time": "2026-04-13T16:49:57.356Z"
     }
   },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "event": {
-    "action": "StartFHIRExportJob",
-    "outcome": "success",
+    "action": "ReadResource",
+    "outcome": "failure",
     "category": ["process", "database"],
     "dataset": "aws.healthlake",
     "provider": "healthlake.amazonaws.com",
-    "duration": 390000000,
+    "duration": 3764000000,
     "module": "aws"
   },
-  "message": "HealthLake StartFHIRExportJob: datastore=pharmacy-db, resource=Observation, 390ms",
+  "message": "HealthLake ReadResource FAILED [clinical-trials/Patient]: HTTP 500 - Service unavailable",
+  "error": {
+    "code": "ValidationException",
+    "message": "HealthLake FHIR operation failed",
+    "type": "database"
+  },
   "service": { "name": "healthlake", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.healthlake", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "4fo6tl8aano"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "benwymqq2sm"
   },
   "input": { "type": "aws-cloudwatch" }
 }

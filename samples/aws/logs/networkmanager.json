@@ -1,24 +1,25 @@
 {
-  "@timestamp": "2026-04-13T15:46:43.100Z",
+  "@timestamp": "2026-04-13T16:49:56.865Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-4",
+    "region": "eu-west-3",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "networkmanager" }
   },
   "aws": {
     "networkmanager": {
-      "global_network_id": "network-yo7f1vx9eqm",
-      "global_network_name": "global-network-prod",
-      "event_type": "LINK_STATUS_DOWN",
-      "device_id": "device-epb5n7ahl9l",
-      "link_id": "link-rrz8khdky29",
-      "site_id": "site-aymbei5gmp4",
-      "site_name": "colo-frankfurt",
-      "bandwidth_mbps": 10000,
-      "provider": "BT",
-      "type": "broadband",
-      "state": "UP"
+      "global_network_id": "network-x6e6fifq6z",
+      "global_network_name": "enterprise-wan",
+      "event_type": "CONNECTION_STATUS_UP",
+      "device_id": "device-4en3pr7sks4",
+      "link_id": "link-q5unsjiprm",
+      "site_id": "site-rfmsqc260ro",
+      "site_name": "branch-tokyo",
+      "bandwidth_mbps": 100,
+      "provider": "Zayo",
+      "type": "mpls",
+      "state": "DOWN",
+      "error_code": "ResourceNotFoundException"
     },
     "s3": {
       "bucket": {
@@ -26,32 +27,37 @@
         "arn": "arn:aws:s3:::aws-networkmanager-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/networkmanager/ap-southeast-4/2026/04/13/networkmanager_KFEKLICRSY.log.gz"
+        "key": "AWSLogs/293847561023/networkmanager/eu-west-3/2026/04/13/networkmanager_6CKY38BC98D.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/networkmanager/logs",
-      "log_stream": "ap-southeast-4/gwi224fz",
-      "ingestion_time": "2026-04-13T15:46:43.477Z"
+      "log_stream": "eu-west-3/qmrt6p4h",
+      "ingestion_time": "2026-04-13T16:49:57.228Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": "network",
     "dataset": "aws.networkmanager",
     "provider": "networkmanager.amazonaws.com",
     "module": "aws"
   },
-  "message": "Network Manager LINK_STATUS_DOWN [global-network-prod]: branch-tokyo link UP",
-  "log": { "level": "warn" },
+  "message": "Network Manager CONNECTION_STATUS_UP [enterprise-wan]: connection degraded",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ResourceNotFoundException",
+    "message": "Network Manager connection degraded",
+    "type": "network"
+  },
   "service": { "name": "networkmanager", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.networkmanager", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-4",
-    "ephemeral_id": "2dszkfvvl9z"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "1hysm1jskxch"
   },
   "input": { "type": "aws-cloudwatch" }
 }

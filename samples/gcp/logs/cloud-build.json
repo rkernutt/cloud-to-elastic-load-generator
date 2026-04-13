@@ -2,50 +2,63 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west3",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
-    "service": { "name": "sourcerepo.googleapis.com" }
+    "region": "us-west3",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
+    "service": { "name": "cloudbuild.googleapis.com" }
   },
   "gcp": {
-    "source_repositories": {
-      "repo_name": "api-repo",
-      "event_type": "DELETE_BRANCH",
-      "ref_name": "refs/heads/develop",
-      "author_email": "dev@globex-shared-m3n4o5.example.com",
-      "commit_count": 16,
-      "files_changed": 176
+    "cloud_build": {
+      "build_id": "y23umk58-fk2j-10a1",
+      "trigger_name": "trigger-pr",
+      "source_repo": "github.com/globex/web",
+      "branch": "develop",
+      "commit_sha": "f37af4cc",
+      "step_name": "deploy_manifest",
+      "status": "WORKING",
+      "build_duration_seconds": 3358,
+      "images_built": 1,
+      "machine_type": "N1_HIGHCPU_32"
     }
   },
-  "event": { "outcome": "success", "duration": 2900, "module": "gcp", "dataset": "gcp.sourcerepo" },
-  "message": "Source Repositories DELETE_BRANCH on refs/heads/develop by dev@globex-shared-m3n4o5.example.com (16 commits, 176 files)",
-  "service": { "name": "source-repositories", "type": "gcp" },
+  "event": {
+    "outcome": "success",
+    "duration": 3358000,
+    "module": "gcp",
+    "dataset": "gcp.cloudbuild"
+  },
+  "message": "Cloud Build y23umk58-fk2j-10a1 WORKING for develop@f37af4cc (1 images, 3358s on N1_HIGHCPU_32)",
+  "service": { "name": "cloud-build", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.sourcerepo", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.cloudbuild", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west3",
-    "id": "4am5xnbft2e"
+    "name": "elastic-agent-gcp-us-west3",
+    "id": "ps8jbfuccbr"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-m3n4o5/logs/source-repositories",
+  "logName": "projects/globex-prod-a1b2c3/logs/cloud-build",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-shared-m3n4o5", "region": "europe-west3" }
+    "labels": { "project_id": "globex-prod-a1b2c3", "region": "us-west3" }
   },
   "severity": "INFO",
-  "insertId": "5IMU865SXNM",
+  "insertId": "54QCAGLDAY6",
   "jsonPayload": {
-    "source_repositories": {
-      "repo_name": "api-repo",
-      "event_type": "DELETE_BRANCH",
-      "ref_name": "refs/heads/develop",
-      "author_email": "dev@globex-shared-m3n4o5.example.com",
-      "commit_count": 16,
-      "files_changed": 176
+    "cloud_build": {
+      "build_id": "y23umk58-fk2j-10a1",
+      "trigger_name": "trigger-pr",
+      "source_repo": "github.com/globex/web",
+      "branch": "develop",
+      "commit_sha": "f37af4cc",
+      "step_name": "deploy_manifest",
+      "status": "WORKING",
+      "build_duration_seconds": 3358,
+      "images_built": 1,
+      "machine_type": "N1_HIGHCPU_32"
     },
-    "message": "Source Repositories DELETE_BRANCH on refs/heads/develop by dev@globex-shared-m3n4o5.example.com (16 commits, 176 files)"
+    "message": "Cloud Build y23umk58-fk2j-10a1 WORKING for develop@f37af4cc (1 images, 3358s on N1_HIGHCPU_32)"
   }
 }

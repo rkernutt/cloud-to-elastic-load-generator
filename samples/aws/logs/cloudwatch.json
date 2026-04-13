@@ -1,59 +1,54 @@
 {
-  "@timestamp": "2026-04-13T15:46:43.100Z",
+  "@timestamp": "2026-04-13T16:49:56.865Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "me-central-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "cloudwatchalarms" }
   },
   "aws": {
     "cloudwatch": {
-      "alarm_name": "lambda-errors",
-      "alarm_state": "ALARM",
-      "previous_state": "ALARM",
-      "namespace": "AWS/ApplicationELB",
-      "metric_name": "Duration",
+      "alarm_name": "rds-connections",
+      "alarm_state": "OK",
+      "previous_state": "OK",
+      "namespace": "AWS/EC2",
+      "metric_name": "RequestCount",
       "threshold": 80,
-      "evaluation_periods": 2,
-      "metric_value": 99.24114981610404,
-      "statistic": "Maximum",
+      "evaluation_periods": 3,
+      "metric_value": 52.29128789575434,
+      "statistic": "Sum",
       "period_seconds": 3600,
       "treat_missing_data": "notBreaching"
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudwatch-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-cloudwatch-logs-738291046572"
+        "name": "aws-cloudwatch-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-cloudwatch-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/cloudwatch/ap-northeast-2/2026/04/13/cloudwatch_TUD6KJQ7OX.log.gz"
+        "key": "AWSLogs/814726593401/cloudwatch/me-central-1/2026/04/13/cloudwatch_3LK2CET126.log.gz"
       }
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["configuration", "process"],
     "dataset": "aws.cloudwatch",
     "provider": "monitoring.amazonaws.com",
-    "duration": 300000000000,
+    "duration": 60000000000,
     "module": "aws"
   },
-  "message": "CloudWatch alarm \"lambda-errors\": ALARM (AWS/ApplicationELB/Duration=99.2)",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "AlarmTriggered",
-    "message": "Alarm lambda-errors: ALARM",
-    "type": "monitoring"
-  },
+  "message": "CloudWatch alarm \"rds-connections\": OK (AWS/EC2/RequestCount=52.3)",
+  "log": { "level": "info" },
   "service": { "name": "cloudwatch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "43rzgfe3zv4"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "zm01a12az1j"
   },
   "input": { "type": "aws-cloudwatch" }
 }

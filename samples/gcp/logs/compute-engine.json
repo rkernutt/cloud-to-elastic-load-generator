@@ -2,58 +2,55 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast1",
+    "region": "me-central1",
     "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
     "account": { "id": "271828182845", "name": "Globex Staging" },
     "service": { "name": "compute.googleapis.com" }
   },
   "gcp": {
-    "compute_engine": {
-      "instance_name": "worker-k2fk",
-      "instance_id": "8579064490813",
-      "zone": "asia-northeast1-c",
-      "machine_type": "n2-standard-4",
-      "event_type": "INSERT",
-      "status": "STAGING",
-      "network_tags": ["allow-http", "allow-ssh"],
-      "disk_size_gb": 296
+    "sole_tenant_nodes": {
+      "node_group": "sole-data-sr6w",
+      "node_type": "m2-node-416-11776",
+      "node_id": "node-d8i145eede",
+      "status": "READY",
+      "vms_count": 37,
+      "cpu_overcommit_ratio": 1
     }
   },
-  "event": { "outcome": "success", "duration": 7314, "module": "gcp", "dataset": "gcp.compute" },
-  "message": "Compute Engine INSERT completed for worker-k2fk in asia-northeast1-c (n2-standard-4, 296GB disk)",
-  "service": { "name": "compute-engine", "type": "gcp" },
+  "event": {
+    "outcome": "success",
+    "duration": 20369,
+    "module": "gcp",
+    "dataset": "gcp.compute_sole_tenant"
+  },
+  "message": "Sole-tenant node group sole-data-sr6w: node node-d8i145eede m2-node-416-11776 healthy (37 VMs, CPU overcommit 1x)",
+  "service": { "name": "sole-tenant-nodes", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.compute", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.compute_sole_tenant", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-northeast1",
-    "id": "hhwwuvyz4w7"
+    "name": "elastic-agent-gcp-me-central1",
+    "id": "7mmz24tgwc7"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-staging-d4e5f6/logs/compute-engine",
+  "logName": "projects/globex-staging-d4e5f6/logs/sole-tenant-nodes",
   "resource": {
-    "type": "gce_instance",
-    "labels": {
-      "project_id": "globex-staging-d4e5f6",
-      "instance_id": "8579064490813",
-      "zone": "asia-northeast1-c"
-    }
+    "type": "global",
+    "labels": { "project_id": "globex-staging-d4e5f6", "region": "me-central1" }
   },
   "severity": "INFO",
-  "insertId": "41XBYK27BG6",
+  "insertId": "KEXP07IBUJ",
   "jsonPayload": {
-    "compute_engine": {
-      "instance_name": "worker-k2fk",
-      "instance_id": "8579064490813",
-      "zone": "asia-northeast1-c",
-      "machine_type": "n2-standard-4",
-      "event_type": "INSERT",
-      "status": "STAGING",
-      "network_tags": ["allow-http", "allow-ssh"],
-      "disk_size_gb": 296
+    "sole_tenant_nodes": {
+      "node_group": "sole-data-sr6w",
+      "node_type": "m2-node-416-11776",
+      "node_id": "node-d8i145eede",
+      "status": "READY",
+      "vms_count": 37,
+      "cpu_overcommit_ratio": 1
     },
-    "message": "Compute Engine INSERT completed for worker-k2fk in asia-northeast1-c (n2-standard-4, 296GB disk)"
+    "message": "Sole-tenant node group sole-data-sr6w: node node-d8i145eede m2-node-416-11776 healthy (37 VMs, CPU overcommit 1x)"
   }
 }
