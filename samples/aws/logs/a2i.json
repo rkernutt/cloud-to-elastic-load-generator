@@ -1,19 +1,19 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-west-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "a2i" }
   },
   "aws": {
     "dimensions": {
-      "FlowDefinitionArn": "arn:aws:sagemaker:ap-northeast-3:738291046572:flow-definition/medical-review",
-      "Operation": "ConditionThresholdBreached"
+      "FlowDefinitionArn": "arn:aws:sagemaker:eu-west-1:814726593401:flow-definition/medical-review",
+      "Operation": "CreateHumanLoop"
     },
     "a2i": {
-      "flow_definition_arn": "arn:aws:sagemaker:ap-northeast-3:738291046572:flow-definition/medical-review",
-      "human_loop_name": "loop-0dk9nqu8ldev",
+      "flow_definition_arn": "arn:aws:sagemaker:eu-west-1:814726593401:flow-definition/medical-review",
+      "human_loop_name": "loop-pojc3oozdw",
       "human_loop_status": "InProgress",
       "input_content_type": "image/jpeg",
       "condition_threshold": 0.85,
@@ -21,41 +21,39 @@
       "reviewer_count": 4,
       "task_count": 4,
       "task_completed": 4,
-      "confidence_threshold_breach": false
+      "confidence_threshold_breach": true
     },
     "s3": {
       "bucket": {
-        "name": "aws-a2i-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-a2i-logs-738291046572"
+        "name": "aws-a2i-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-a2i-logs-814726593401"
       },
-      "object": {
-        "key": "AWSLogs/738291046572/a2i/ap-northeast-3/2026/04/13/a2i_LLSJGHCSB2Q.log.gz"
-      }
+      "object": { "key": "AWSLogs/814726593401/a2i/eu-west-1/2026/04/13/a2i_98S6KDTSDTI.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/a2i/logs",
-      "log_stream": "ap-northeast-3/zlxqeww0",
-      "ingestion_time": "2026-04-13T13:40:12.738Z"
+      "log_stream": "eu-west-1/58hrxfiz",
+      "ingestion_time": "2026-04-13T15:46:43.603Z"
     }
   },
-  "log": { "level": "info" },
+  "log": { "level": "warn" },
   "event": {
-    "action": "ConditionThresholdBreached",
+    "action": "CreateHumanLoop",
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.a2i",
     "provider": "sagemaker.amazonaws.com",
     "module": "aws"
   },
-  "message": "A2I ConditionThresholdBreached: loop=loop-0dk9nqu8ldev, status=InProgress",
+  "message": "A2I CreateHumanLoop: loop=loop-pojc3oozdw, status=InProgress, confidence=0.66<0.85 REVIEW REQUIRED",
   "service": { "name": "a2i", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.a2i", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "qta4ja8s2p"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "ehbg1gqwnj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

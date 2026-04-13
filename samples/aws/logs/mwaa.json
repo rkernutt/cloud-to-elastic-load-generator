@@ -1,61 +1,56 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-north-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "mwaa" }
   },
   "aws": {
     "dimensions": { "EnvironmentName": "ml-pipelines" },
     "mwaa": {
       "environment_name": "ml-pipelines",
-      "dag_id": "etl_daily_load",
-      "run_id": "scheduled__2026-04-13T12:57:31.254Z",
-      "task_id": "cleanup",
-      "run_state": "upstream_failed",
-      "duration_seconds": 3449,
-      "worker_count": 2,
+      "dag_id": "ml_training_pipeline",
+      "run_id": "scheduled__2026-04-13T15:32:01.100Z",
+      "task_id": "load",
+      "run_state": "running",
+      "duration_seconds": 205,
+      "worker_count": 4,
       "queue_name": "high_priority",
       "airflow_version": "2.9.3"
     },
     "s3": {
       "bucket": {
-        "name": "aws-mwaa-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-mwaa-logs-501938274650"
+        "name": "aws-mwaa-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-mwaa-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/501938274650/mwaa/me-south-1/2026/04/13/mwaa_SD9HJIPE37J.log.gz" }
+      "object": { "key": "AWSLogs/164820739518/mwaa/eu-north-1/2026/04/13/mwaa_VO4FRETT6SJ.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/mwaa/logs",
-      "log_stream": "me-south-1/hoznozj4",
-      "ingestion_time": "2026-04-13T13:40:12.720Z"
+      "log_stream": "eu-north-1/ja2qsv7b",
+      "ingestion_time": "2026-04-13T15:46:43.584Z"
     }
   },
   "event": {
-    "action": "DagRunStateChanged",
-    "outcome": "failure",
+    "action": "WorkerScaleUp",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.mwaa",
     "provider": "airflow.amazonaws.com",
-    "duration": 3449000000000,
+    "duration": 205000000000,
     "module": "aws"
   },
-  "message": "MWAA ml-pipelines: DAG etl_daily_load task cleanup upstream_failed",
-  "log": { "level": "error" },
-  "error": {
-    "code": "TaskFailed",
-    "message": "Airflow task cleanup failed in DAG etl_daily_load",
-    "type": "process"
-  },
+  "message": "MWAA ml-pipelines: DAG ml_training_pipeline task load running (205s)",
+  "log": { "level": "info" },
   "service": { "name": "mwaa", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.mwaa", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "ctvatw2aji"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "5rp503hrp8u"
   },
   "input": { "type": "aws-cloudwatch" }
 }

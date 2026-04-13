@@ -1,33 +1,34 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "0e8be145e704a660bbf698088ece3140" },
+  "trace": { "id": "c0225e4dd4af527256655b76f11d0f83" },
   "transaction": {
-    "id": "91e1b3000afd5c83",
-    "name": "SNS Publish user-notifications",
+    "id": "8c6291942691d8c5",
+    "name": "SNS Publish critical-alerts.fifo",
     "type": "messaging",
-    "duration": { "us": 131000 },
+    "duration": { "us": 43000 },
     "result": "success",
     "sampled": true,
-    "span_count": { "started": 2, "dropped": 0 }
+    "span_count": { "started": 1, "dropped": 0 }
   },
   "labels": {
-    "topic_arn": "arn:aws:sns:ap-southeast-2:345678901234:user-notifications",
-    "message_count": "8",
-    "subject": "user.signup"
+    "topic_arn": "arn:aws:sns:ap-southeast-2:123456789012:critical-alerts.fifo",
+    "message_count": "1",
+    "subject": "payment.processed",
+    "message_group_id": "group-d"
   },
   "service": {
-    "name": "notification-service",
-    "environment": "production",
+    "name": "alert-dispatcher",
+    "environment": "staging",
     "version": "1.0.0",
-    "language": { "name": "python" },
-    "runtime": { "name": "CPython", "version": "3.12.3" },
-    "framework": { "name": "Flask" }
+    "language": { "name": "java" },
+    "runtime": { "name": "OpenJDK", "version": "21.0.3" },
+    "framework": { "name": "Spring Boot" }
   },
-  "agent": { "name": "otlp", "version": "0.6.0" },
+  "agent": { "name": "otlp", "version": "1.6.0" },
   "telemetry": {
-    "sdk": { "name": "opentelemetry", "language": "python", "version": "1.29.0" },
-    "distro": { "name": "elastic", "version": "0.6.0" },
+    "sdk": { "name": "opentelemetry", "language": "java", "version": "2.12.0" },
+    "distro": { "name": "elastic", "version": "1.6.0" },
     "otel_pipeline": {
       "hop": "otel_collector",
       "export_protocol": "otlp",
@@ -37,7 +38,7 @@
   "cloud": {
     "provider": "aws",
     "region": "ap-southeast-2",
-    "account": { "id": "345678901234", "name": "dev-aws" },
+    "account": { "id": "123456789012", "name": "prod-aws" },
     "service": { "name": "sns" }
   },
   "event": { "outcome": "success", "module": "aws", "dataset": "aws.sns" },

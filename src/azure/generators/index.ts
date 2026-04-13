@@ -47,7 +47,8 @@ import { mergeAzureLogVariants } from "./mergeHelpers.js";
 
 import type { EcsDocument } from "./helpers.js";
 
-type Gen = (ts: string, er: number) => EcsDocument;
+/** Most generators return one doc; security-chain generators return correlated multi-doc bursts. */
+type Gen = (ts: string, er: number) => EcsDocument | EcsDocument[];
 
 const DEDICATED: Record<string, Gen> = {
   "virtual-machines": generateVirtualMachinesLog,

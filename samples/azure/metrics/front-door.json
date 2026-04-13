@@ -3,34 +3,38 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "switzerlandnorth",
-    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
+    "region": "mexicocentral",
+    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-switzerlandnorth",
-    "ephemeral_id": "9679u5wrmab"
+    "name": "metricbeat-azure-mexicocentral",
+    "ephemeral_id": "swtpu8xkfkd"
   },
   "azure": {
-    "cdn": {
+    "front_door": {
       "metrics": {
-        "request_count": { "avg": 468067, "sum": 468067, "count": 1 },
+        "request_count": { "avg": 319329, "sum": 319329, "count": 1 },
         "error_count": { "avg": 0, "sum": 0, "count": 1 },
-        "duration_ms": { "avg": 41.03, "sum": 41.03, "count": 1 }
+        "duration_ms": { "avg": 63.43, "sum": 63.43, "count": 1 }
       },
-      "labels": { "resource_group": "rg-prod-ugfly", "resource_id": "res-a" }
+      "labels": { "resource_group": "rg-prod-jhbp7", "resource_id": "res-a" }
     }
   },
-  "metricset": { "name": "cdn", "period": 60000 },
-  "data_stream": { "type": "metrics", "dataset": "azure.cdn", "namespace": "default" },
+  "metricset": { "name": "front_door", "period": 60000 },
+  "data_stream": {
+    "type": "metrics",
+    "dataset": "azure.front_door_metrics",
+    "namespace": "default"
+  },
   "input": { "type": "azure-monitor" },
-  "event": { "dataset": "azure.cdn", "module": "azure" },
+  "event": { "dataset": "azure.front_door_metrics", "module": "azure" },
   "azureMonitorMetric": {
     "time": "2026-04-07T12:00:00.000Z",
     "metricName": "request_count",
-    "resourceGroup": "rg-cdn",
-    "subscriptionId": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
-    "timeseries": [{ "data": [{ "average": 468067, "count": 1 }] }]
+    "resourceGroup": "rg-front-door",
+    "subscriptionId": "8f6b5c4d-3e2a-1098-7654-3210fedcba98",
+    "timeseries": [{ "data": [{ "average": 319329, "count": 1 }] }]
   }
 }

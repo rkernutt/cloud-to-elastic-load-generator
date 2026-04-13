@@ -1,30 +1,24 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-west-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "waf" }
   },
   "aws": {
-    "dimensions": {
-      "WebACL": "api-waf",
-      "Rule": "AWSManagedRulesCommonRuleSet",
-      "Region": "ap-south-1"
-    },
+    "dimensions": { "WebACL": "api-waf", "Rule": "GeoBlockRule", "Region": "eu-west-1" },
     "waf": {
-      "id": "fkjsnxzxa9i",
-      "arn": "arn:aws:wafv2:ap-south-1:501938274650:regional/webacl/api-waf/r7grgdjs-h0bg-pgyc-yao4-k1x90gk439j",
+      "id": "2w6mlcldtm",
+      "arn": "arn:aws:wafv2:eu-west-1:164820739518:regional/webacl/api-waf/drpceqzc-is45-te51-b89i-rjly4x5l83o",
       "format_version": "1",
-      "source": { "name": "ALB", "id": "501938274650-app/api-waf/84gthnssapl" },
-      "rule_group_list": [
-        { "ruleGroupId": "AWSManagedRulesCommonRuleSet", "nonTerminatingMatchingRules": [] }
-      ],
+      "source": { "name": "ALB", "id": "164820739518-app/api-waf/mn332w6aeka" },
+      "rule_group_list": [{ "ruleGroupId": "GeoBlockRule", "nonTerminatingMatchingRules": [] }],
       "non_terminating_matching_rules": [],
       "terminating_rule_match_details": [],
       "request": {
         "headers": [
-          { "name": "User-Agent", "value": "Go-http-client/1.1" },
+          { "name": "User-Agent", "value": "python-requests/2.27.1" },
           { "name": "Host", "value": "api.example.com" }
         ]
       },
@@ -41,49 +35,49 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-waf-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-waf-logs-501938274650"
+        "name": "aws-waf-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-waf-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/501938274650/waf/ap-south-1/2026/04/13/waf_H7PP45PZKIJ.log.gz" }
+      "object": { "key": "AWSLogs/164820739518/waf/eu-west-1/2026/04/13/waf_C7J01ZXGKE7.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/waf/logs",
-      "log_stream": "ap-south-1/70njf1w0",
-      "ingestion_time": "2026-04-13T13:40:12.599Z"
+      "log_stream": "eu-west-1/6twvn1mh",
+      "ingestion_time": "2026-04-13T15:46:43.463Z"
     }
   },
-  "rule": { "id": "GenericLFI_URIPATH", "ruleset": "AWSManagedRulesCommonRuleSet" },
-  "http": { "request": { "method": "GET", "bytes": 1495 } },
-  "url": { "path": "/api/v2/events" },
+  "rule": { "id": "GeoBlockRule", "ruleset": "GeoBlockRule" },
+  "http": { "request": { "method": "PUT", "bytes": 4017 } },
+  "url": { "path": "/api/v1/products" },
   "source": {
-    "ip": "10.38.185.126",
+    "ip": "74.193.181.75",
     "geo": {
       "country_iso_code": "US",
       "country_name": "United States",
-      "city_name": "New York",
-      "location": { "lat": 40.7128, "lon": -74.006 }
+      "city_name": "Dallas",
+      "location": { "lat": 32.7767, "lon": -96.797 }
     }
   },
   "client": {
-    "ip": "10.38.185.126",
+    "ip": "74.193.181.75",
     "geo": {
       "country_iso_code": "US",
       "country_name": "United States",
-      "city_name": "New York",
-      "location": { "lat": 40.7128, "lon": -74.006 }
+      "city_name": "Dallas",
+      "location": { "lat": 32.7767, "lon": -96.797 }
     }
   },
-  "user_agent": { "original": "Go-http-client/1.1" },
+  "user_agent": { "original": "python-requests/2.27.1" },
   "event": {
     "action": "allow",
     "outcome": "success",
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
-    "duration": 49000000,
+    "duration": 11000000,
     "module": "aws"
   },
-  "message": "WAF ALLOWED request - Rule: AWSManagedRulesCommonRuleSet",
+  "message": "WAF ALLOWED request - Rule: GeoBlockRule",
   "log": { "level": "info" },
   "service": { "name": "waf", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -91,8 +85,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "rg40rj91hch"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "k2wz2wi6axn"
   },
   "input": { "type": "aws-s3" }
 }

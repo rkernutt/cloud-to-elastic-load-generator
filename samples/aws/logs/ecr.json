@@ -1,70 +1,74 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-central-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "ecr" }
   },
   "aws": {
-    "dimensions": { "RepositoryName": "api-service", "RegistryId": "814726593401" },
+    "dimensions": { "RepositoryName": "nginx-custom", "RegistryId": "738291046572" },
     "ecr": {
-      "repository_name": "api-service",
-      "registry_id": "814726593401",
-      "image_tag": "v1.2.3",
-      "image_digest": "sha256:cwr7feokqj",
-      "action": "push",
-      "image_size_bytes": 1008190574,
+      "repository_name": "nginx-custom",
+      "registry_id": "738291046572",
+      "image_tag": "release-42",
+      "image_digest": "sha256:u45vifg4cw9",
+      "action": "pull",
+      "image_size_bytes": 1799042904,
       "pushed_by": "github-actions",
-      "scan_status": "NOT_STARTED",
-      "finding_count": 0,
+      "scan_status": "COMPLETE_WITH_FINDINGS",
+      "finding_severity": "CRITICAL",
+      "finding_count": 15,
       "vulnerability_scan_enabled": true,
       "metrics": {
-        "ImageCount": { "avg": 423 },
-        "RepositorySizeInBytes": { "avg": 14727263301 },
-        "LifecyclePolicyRuleEvaluationCount": { "sum": 0 },
-        "PullCount": { "sum": 0 },
-        "PushCount": { "sum": 1 },
+        "ImageCount": { "avg": 108 },
+        "RepositorySizeInBytes": { "avg": 12729874492 },
+        "LifecyclePolicyRuleEvaluationCount": { "sum": 55 },
+        "PullCount": { "sum": 836 },
+        "PushCount": { "sum": 0 },
         "ScanFindingsSeverityCritical": { "sum": 0 },
-        "ScanFindingsSeverityHigh": { "sum": 0 },
-        "ScanFindingsSeverityMedium": { "sum": 0 },
-        "ScanFindingsSeverityLow": { "sum": 23 },
-        "ScanFindingsSeverityInformational": { "sum": 189 }
+        "ScanFindingsSeverityHigh": { "sum": 3 },
+        "ScanFindingsSeverityMedium": { "sum": 12 },
+        "ScanFindingsSeverityLow": { "sum": 87 },
+        "ScanFindingsSeverityInformational": { "sum": 52 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-ecr-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-ecr-logs-814726593401"
+        "name": "aws-ecr-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-ecr-logs-738291046572"
       },
-      "object": {
-        "key": "AWSLogs/814726593401/ecr/ap-northeast-2/2026/04/13/ecr_944KDBM5APT.log.gz"
-      }
+      "object": { "key": "AWSLogs/738291046572/ecr/eu-central-1/2026/04/13/ecr_TDMN6ZSFSU.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/ecr/logs",
-      "log_stream": "ap-northeast-2/4bhfhk4e",
-      "ingestion_time": "2026-04-13T13:40:12.585Z"
+      "log_stream": "eu-central-1/h43t05da",
+      "ingestion_time": "2026-04-13T15:46:43.447Z"
     }
   },
   "event": {
     "category": ["package"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "aws.ecr",
     "provider": "ecr.amazonaws.com",
-    "duration": 3190000000,
+    "duration": 17858000000,
     "module": "aws"
   },
-  "message": "ECR push: api-service:v1.2.3",
-  "log": { "level": "info" },
+  "message": "ECR scan: nginx-custom:release-42 found 15 vulnerabilities [CRITICAL]",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "ImageNotFound",
+    "message": "ECR scan: nginx-custom:release-42 found 15 vulnerabilities [CRITICAL]",
+    "type": "package"
+  },
   "service": { "name": "ecr", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.ecr", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "bil6ezl543j"
+    "name": "filebeat-aws-eu-central-1",
+    "ephemeral_id": "povrt6t6ap"
   },
   "input": { "type": "aws-cloudwatch" }
 }

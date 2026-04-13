@@ -2,55 +2,58 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "us-central1",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" },
+    "region": "asia-northeast1",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" },
     "service": { "name": "compute.googleapis.com" }
   },
   "gcp": {
-    "spot_vms": {
-      "instance_name": "db-lq2q",
-      "instance_id": "9790898270467",
-      "zone": "us-central1-b",
-      "machine_type": "n2d-standard-16",
-      "uptime_seconds": 485149,
-      "spot_price": 0.0088
+    "compute_engine": {
+      "instance_name": "worker-k2fk",
+      "instance_id": "8579064490813",
+      "zone": "asia-northeast1-c",
+      "machine_type": "n2-standard-4",
+      "event_type": "INSERT",
+      "status": "STAGING",
+      "network_tags": ["allow-http", "allow-ssh"],
+      "disk_size_gb": 296
     }
   },
-  "event": {
-    "outcome": "success",
-    "duration": 84596632,
-    "module": "gcp",
-    "dataset": "gcp.compute_spot"
-  },
-  "message": "Spot VM db-lq2q running in us-central1-b on n2d-standard-16; uptime 485149s, price $0.0088/hr",
-  "service": { "name": "spot-vms", "type": "gcp" },
+  "event": { "outcome": "success", "duration": 7314, "module": "gcp", "dataset": "gcp.compute" },
+  "message": "Compute Engine INSERT completed for worker-k2fk in asia-northeast1-c (n2-standard-4, 296GB disk)",
+  "service": { "name": "compute-engine", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.compute_spot", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.compute", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-central1",
-    "id": "gcavboqq8e"
+    "name": "elastic-agent-gcp-asia-northeast1",
+    "id": "hhwwuvyz4w7"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-security-j0k1l2/logs/spot-vms",
+  "logName": "projects/globex-staging-d4e5f6/logs/compute-engine",
   "resource": {
-    "type": "global",
-    "labels": { "project_id": "globex-security-j0k1l2", "region": "us-central1" }
+    "type": "gce_instance",
+    "labels": {
+      "project_id": "globex-staging-d4e5f6",
+      "instance_id": "8579064490813",
+      "zone": "asia-northeast1-c"
+    }
   },
   "severity": "INFO",
-  "insertId": "J9HTV4G8Q88",
+  "insertId": "41XBYK27BG6",
   "jsonPayload": {
-    "spot_vms": {
-      "instance_name": "db-lq2q",
-      "instance_id": "9790898270467",
-      "zone": "us-central1-b",
-      "machine_type": "n2d-standard-16",
-      "uptime_seconds": 485149,
-      "spot_price": 0.0088
+    "compute_engine": {
+      "instance_name": "worker-k2fk",
+      "instance_id": "8579064490813",
+      "zone": "asia-northeast1-c",
+      "machine_type": "n2-standard-4",
+      "event_type": "INSERT",
+      "status": "STAGING",
+      "network_tags": ["allow-http", "allow-ssh"],
+      "disk_size_gb": 296
     },
-    "message": "Spot VM db-lq2q running in us-central1-b on n2d-standard-16; uptime 485149s, price $0.0088/hr"
+    "message": "Compute Engine INSERT completed for worker-k2fk in asia-northeast1-c (n2-standard-4, 296GB disk)"
   }
 }

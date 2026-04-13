@@ -1,76 +1,71 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-west-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "cognito" }
   },
   "aws": {
-    "dimensions": { "UserPool": "ap-south-1_UXBHEJK71", "UserPoolClient": "mobile-users-web" },
+    "dimensions": { "UserPool": "us-west-2_7ML67KW1E", "UserPoolClient": "us-users-web" },
     "cognito": {
-      "user_pool_id": "ap-south-1_UXBHEJK71",
-      "user_pool_name": "mobile-users",
-      "event_type": "ImpossibleTravel",
-      "username": "user-t9vjn37w@example.com",
-      "source_ip": "112.66.191.221",
-      "risk_type": "ImpossibleTravel",
-      "advanced_security": {
-        "risk_level": "LOW",
-        "risk_decision": "ALLOW",
-        "compromised_credentials_detected": false,
-        "impossible_travel": true,
-        "previous_location": { "ip": "168.159.75.124", "country": "DE" },
-        "current_location": { "ip": "66.15.204.66", "country": "RU" },
-        "time_between_events_seconds": 33
-      },
+      "user_pool_id": "us-west-2_7ML67KW1E",
+      "user_pool_name": "us-users",
+      "event_type": "UserMigration",
+      "error_code": "NotAuthorizedException",
+      "source_ip": "125.72.201.227",
       "metrics": {
-        "SignInSuccesses": { "sum": 6726 },
-        "SignInAttempts": { "sum": 6726 },
-        "TokenRefreshSuccesses": { "sum": 2633 },
+        "SignInSuccesses": { "sum": 0 },
+        "SignInAttempts": { "sum": 2433 },
+        "TokenRefreshSuccesses": { "sum": 0 },
         "SignUpSuccesses": { "sum": 0 },
         "FederationSuccesses": { "sum": 0 },
-        "CallCount": { "sum": 23009 },
-        "ThrottleCount": { "sum": 0 },
+        "CallCount": { "sum": 58474 },
+        "ThrottleCount": { "sum": 81 },
         "AccountTakeoverRisk": { "sum": 0 },
-        "CompromisedCredentialsRisk": { "sum": 0 }
+        "CompromisedCredentialsRisk": { "sum": 1 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-cognito-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-cognito-logs-293847561023"
+        "name": "aws-cognito-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-cognito-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/cognito/ap-south-1/2026/04/13/cognito_BDTRKUF1I3.log.gz"
+        "key": "AWSLogs/814726593401/cognito/us-west-2/2026/04/13/cognito_LQIRU55WFQ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cognito/logs",
-      "log_stream": "ap-south-1/a0ls40jn",
-      "ingestion_time": "2026-04-13T13:40:12.632Z"
+      "log_stream": "us-west-2/643xza83",
+      "ingestion_time": "2026-04-13T15:46:43.493Z"
     }
   },
-  "user": { "name": "user-t9vjn37w@example.com" },
-  "source": { "ip": "190.240.243.222" },
+  "user": {},
+  "source": { "ip": "60.198.60.14" },
   "event": {
-    "action": "ImpossibleTravel",
-    "outcome": "success",
+    "action": "UserMigration",
+    "outcome": "failure",
     "category": ["authentication"],
     "dataset": "aws.cognito",
     "provider": "cognito-idp.amazonaws.com",
     "module": "aws"
   },
-  "message": "Cognito ImpossibleTravel detected [LOW]: decision=ALLOW pool=mobile-users",
+  "message": "Cognito UserMigration FAILED: Incorrect password",
   "log": { "level": "warn" },
+  "error": {
+    "code": "NotAuthorizedException",
+    "message": "Authentication failed",
+    "type": "authentication"
+  },
   "service": { "name": "cognito", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cognito", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "2glhr3xxm1f"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "ig6l64qco7q"
   },
   "input": { "type": "aws-cloudwatch" }
 }

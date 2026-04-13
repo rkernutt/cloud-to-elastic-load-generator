@@ -1,78 +1,83 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "me-south-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "network-firewall" }
   },
   "aws": {
     "dimensions": {
-      "FirewallName": "fw-eu-west-2",
-      "AvailabilityZone": "eu-west-2b",
-      "CustomAction": "CustomPassAction"
+      "FirewallName": "fw-me-south-1",
+      "AvailabilityZone": "me-south-1a",
+      "CustomAction": "CustomBlockAction"
     },
     "firewall_logs": {
-      "flow_id": 451690,
-      "event_timestamp": "2026-04-13T13:40:12.254Z",
-      "action": "PASS",
-      "src_ip": "68.180.33.7",
-      "dest_ip": "224.33.53.221",
-      "src_port": 17761,
-      "dest_port": 22,
+      "flow_id": 590468,
+      "event_timestamp": "2026-04-13T15:46:43.100Z",
+      "action": "DROP",
+      "src_ip": "68.55.60.97",
+      "dest_ip": "47.236.174.204",
+      "src_port": 59524,
+      "dest_port": 443,
       "protocol": "UDP",
-      "firewall_name": "fw-eu-west-2",
-      "availability_zone": "eu-west-2b"
+      "firewall_name": "fw-me-south-1",
+      "availability_zone": "me-south-1a"
     },
     "network_firewall": {
-      "firewall_name": "fw-eu-west-2",
-      "availability_zone": "eu-west-2b",
+      "firewall_name": "fw-me-south-1",
+      "availability_zone": "me-south-1a",
       "policy_name": "prod-fw-policy",
       "metrics": {
-        "DroppedPackets": { "sum": 0 },
-        "PassedPackets": { "sum": 71489 },
+        "DroppedPackets": { "sum": 29 },
+        "PassedPackets": { "sum": 0 },
         "RejectedPackets": { "sum": 0 },
-        "Packets": { "sum": 51119 },
-        "DroppedBytes": { "sum": 0 }
+        "Packets": { "sum": 1560 },
+        "DroppedBytes": { "sum": 11153 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-networkfirewall-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-networkfirewall-logs-501938274650"
+        "name": "aws-networkfirewall-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-networkfirewall-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/networkfirewall/eu-west-2/2026/04/13/networkfirewall_R25KDOHHOH.log.gz"
+        "key": "AWSLogs/164820739518/networkfirewall/me-south-1/2026/04/13/networkfirewall_HE4R80Y719I.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/networkfirewall/logs",
-      "log_stream": "eu-west-2/s3yg3hyp",
-      "ingestion_time": "2026-04-13T13:40:12.603Z"
+      "log_stream": "me-south-1/dkkk39mq",
+      "ingestion_time": "2026-04-13T15:46:43.467Z"
     }
   },
-  "source": { "ip": "68.180.33.7", "port": 17761 },
-  "destination": { "ip": "224.33.53.221", "port": 22 },
-  "network": { "transport": "udp", "bytes": 59706, "packets": 37 },
+  "source": { "ip": "68.55.60.97", "port": 59524 },
+  "destination": { "ip": "47.236.174.204", "port": 443 },
+  "network": { "transport": "udp", "bytes": 14809, "packets": 36 },
   "event": {
-    "action": "pass",
-    "outcome": "success",
+    "action": "drop",
+    "outcome": "failure",
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.firewall_logs",
     "provider": "network-firewall.amazonaws.com",
-    "duration": 29000000,
+    "duration": 45000000,
     "module": "aws"
   },
-  "message": "PASS UDP flow",
-  "log": { "level": "info" },
+  "message": "DROP UDP flow",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "FlowDropped",
+    "message": "Packet dropped by firewall rule",
+    "type": "network"
+  },
   "service": { "name": "networkfirewall", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.firewall_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "g6n955j5vb8"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "p49e879eg9"
   },
   "input": { "type": "aws-s3" }
 }

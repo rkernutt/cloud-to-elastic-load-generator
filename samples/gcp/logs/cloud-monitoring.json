@@ -2,50 +2,57 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west8",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
-    "service": { "name": "cloudprofiler.googleapis.com" }
+    "region": "europe-west2",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "service": { "name": "monitoring.googleapis.com" }
   },
   "gcp": {
-    "cloud_profiler": {
-      "profile_type": "CONTENTION",
-      "service_name": "indexer",
-      "service_version": "v9.13.23",
-      "deployment_target": "gke",
-      "duration_seconds": 228,
-      "zone": "europe-west8-c"
+    "cloud_monitoring": {
+      "alert_policy_name": "policy-error-rate-9R5F",
+      "condition_name": "condition-IC3DT4",
+      "metric_type": "cloudsql.googleapis.com/database/cpu/utilization",
+      "threshold_value": 0.864,
+      "current_value": 0.129,
+      "state": "FIRING",
+      "notification_channel_type": "pagerduty"
     }
   },
-  "event": { "outcome": "success", "duration": 228000, "module": "gcp", "dataset": "gcp.profiler" },
-  "message": "Cloud Profiler collected CONTENTION profile for indexer@v9.13.23 on gke (228s, europe-west8-c)",
-  "service": { "name": "cloud-profiler", "type": "gcp" },
+  "event": {
+    "outcome": "success",
+    "duration": 11982,
+    "module": "gcp",
+    "dataset": "gcp.monitoring"
+  },
+  "message": "Monitoring condition \"condition-IC3DT4\" evaluated: cloudsql.googleapis.com/database/cpu/utilization=0.129 vs 0.864 (FIRING, notify=pagerduty)",
+  "service": { "name": "cloud-monitoring", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.profiler", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.monitoring", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west8",
-    "id": "v7t2nf1eaqd"
+    "name": "elastic-agent-gcp-europe-west2",
+    "id": "378jiq4keb6"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-prod-a1b2c3/logs/cloud-profiler",
+  "logName": "projects/globex-staging-d4e5f6/logs/cloud-monitoring",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-prod-a1b2c3", "region": "europe-west8" }
+    "labels": { "project_id": "globex-staging-d4e5f6", "region": "europe-west2" }
   },
   "severity": "INFO",
-  "insertId": "CPOETVCIHA6",
+  "insertId": "1VMMM82ZKYH",
   "jsonPayload": {
-    "cloud_profiler": {
-      "profile_type": "CONTENTION",
-      "service_name": "indexer",
-      "service_version": "v9.13.23",
-      "deployment_target": "gke",
-      "duration_seconds": 228,
-      "zone": "europe-west8-c"
+    "cloud_monitoring": {
+      "alert_policy_name": "policy-error-rate-9R5F",
+      "condition_name": "condition-IC3DT4",
+      "metric_type": "cloudsql.googleapis.com/database/cpu/utilization",
+      "threshold_value": 0.864,
+      "current_value": 0.129,
+      "state": "FIRING",
+      "notification_channel_type": "pagerduty"
     },
-    "message": "Cloud Profiler collected CONTENTION profile for indexer@v9.13.23 on gke (228s, europe-west8-c)"
+    "message": "Monitoring condition \"condition-IC3DT4\" evaluated: cloudsql.googleapis.com/database/cpu/utilization=0.129 vs 0.864 (FIRING, notify=pagerduty)"
   }
 }

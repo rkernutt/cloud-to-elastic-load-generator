@@ -5,6 +5,7 @@ import {
   pipelineMatchesSelectedServices,
   squishId,
   dashboardMatchesSelectedServices,
+  dashboardTitleServiceFragment,
 } from "./setupAssetMatch";
 
 describe("setupAssetMatch", () => {
@@ -38,5 +39,11 @@ describe("setupAssetMatch", () => {
   it("matches AWS Lambda dashboard title to lambda", () => {
     const d = { title: "AWS Lambda — Invocations & Performance" };
     expect(dashboardMatchesSelectedServices(d, "aws", new Set(["lambda"]))).toBe(true);
+  });
+
+  it("parses Amazon-prefixed AWS dashboard titles for grouping and service match", () => {
+    const d = { title: "Amazon Nova — Foundation Model Invocations" };
+    expect(dashboardTitleServiceFragment(d, "aws")).toBe("Nova");
+    expect(dashboardMatchesSelectedServices(d, "aws", new Set(["nova"]))).toBe(true);
   });
 });

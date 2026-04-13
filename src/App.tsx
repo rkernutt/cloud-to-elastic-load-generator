@@ -658,6 +658,7 @@ export function LoadGeneratorApp({
     injectAnomalies,
     dryRun,
     config,
+    addLog,
   ]);
 
   const {
@@ -692,7 +693,13 @@ export function LoadGeneratorApp({
     if (isTracesMode) return config.traceServices.length;
     if (eventType === "metrics") return config.metricsSupportedServiceIds.size;
     return serviceGroupsForLogsWizard.flatMap((g) => serviceIdsInGroup(g)).length;
-  }, [isTracesMode, eventType, config.traceServices.length, config.metricsSupportedServiceIds, serviceGroupsForLogsWizard]);
+  }, [
+    isTracesMode,
+    eventType,
+    config.traceServices.length,
+    config.metricsSupportedServiceIds,
+    serviceGroupsForLogsWizard,
+  ]);
 
   // ─── Estimated volume ──────────────────────────────────────────────────────
   const estimatedDocs = isTracesMode

@@ -189,7 +189,9 @@ import {
 } from "./media.js";
 import { mergeGcpLogVariants } from "./mergeHelpers.js";
 
-const GCP_GENERATORS: Record<string, (ts: string, er: number) => Record<string, unknown>> = {
+type GcpLogGen = (ts: string, er: number) => Record<string, unknown> | Record<string, unknown>[];
+
+const GCP_GENERATORS: Record<string, GcpLogGen> = {
   // Serverless & Functions
   "cloud-functions": generateCloudFunctionsLog,
   "cloud-run": generateCloudRunLog,

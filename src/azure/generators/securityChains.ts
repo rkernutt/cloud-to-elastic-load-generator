@@ -136,7 +136,11 @@ export function generateAzureCspmFindings(ts: string, er: number): EcsDocument[]
         namespace: "default",
         type: "logs",
       },
-      cloud: { provider: "azure", region, account: { id: subscription.id, name: subscription.name } },
+      cloud: {
+        provider: "azure",
+        region,
+        account: { id: subscription.id, name: subscription.name },
+      },
       resource: {
         id: resourceId,
         name: resourceId.split("/").pop(),
@@ -154,8 +158,12 @@ export function generateAzureCspmFindings(ts: string, er: number): EcsDocument[]
           rule_number: rule.section,
           posture_type: "cspm",
         },
-        impact: isFailed ? `CIS Azure ${rule.section} increases exposure in ${subscription.name}.` : null,
-        remediation: isFailed ? `Remediate per CIS Microsoft Azure Foundations Benchmark ${rule.section}.` : null,
+        impact: isFailed
+          ? `CIS Azure ${rule.section} increases exposure in ${subscription.name}.`
+          : null,
+        remediation: isFailed
+          ? `Remediate per CIS Microsoft Azure Foundations Benchmark ${rule.section}.`
+          : null,
       },
       result: { evaluation },
       severity: isFailed ? rule.severity : "none",
@@ -207,7 +215,11 @@ export function generateAzureKspmFindings(ts: string, er: number): EcsDocument[]
         namespace: "default",
         type: "logs",
       },
-      cloud: { provider: "azure", region, account: { id: subscription.id, name: subscription.name } },
+      cloud: {
+        provider: "azure",
+        region,
+        account: { id: subscription.id, name: subscription.name },
+      },
       orchestrator: { cluster: { name: cluster } },
       resource: {
         id: `/subscriptions/${subscription.id}/resourceGroups/rg-aks/providers/Microsoft.ContainerService/managedClusters/${cluster}`,

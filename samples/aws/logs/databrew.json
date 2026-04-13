@@ -1,31 +1,32 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
+    "region": "eu-west-1",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "databrew" }
   },
   "aws": {
-    "dimensions": { "JobName": "clean-customer-data-job", "DatasetName": "customer-data" },
+    "dimensions": { "JobName": "remove-pii-job", "DatasetName": "event-logs" },
     "databrew": {
-      "project_name": "customer-data-project",
-      "recipe_name": "clean-customer-data",
-      "job_name": "clean-customer-data-job",
-      "job_type": "PROFILE",
-      "dataset_name": "customer-data",
-      "job_status": "SUCCEEDED",
-      "run_state": "RUNNING",
-      "duration_seconds": 260,
-      "rows_processed": 7333203,
+      "project_name": "event-logs-project",
+      "recipe_name": "remove-pii",
+      "job_name": "remove-pii-job",
+      "job_type": "RECIPE",
+      "dataset_name": "event-logs",
+      "job_status": "FAILED",
+      "run_state": "FAILED",
+      "duration_seconds": 1127,
+      "rows_processed": 0,
       "transform_steps": 14,
-      "output_location": "s3://databrew-output/customer-data/",
+      "output_location": "s3://databrew-output/event-logs/",
+      "error_message": "Access denied",
       "metrics": {
-        "RowsProcessed": { "sum": 7333203 },
-        "DurationSeconds": { "avg": 260 },
+        "RowsProcessed": { "sum": 0 },
+        "DurationSeconds": { "avg": 1127 },
         "TransformSteps": { "avg": 14 },
-        "JobSuccessCount": { "sum": 1 },
-        "JobFailureCount": { "sum": 0 }
+        "JobSuccessCount": { "sum": 0 },
+        "JobFailureCount": { "sum": 1 }
       }
     },
     "s3": {
@@ -34,33 +35,34 @@
         "arn": "arn:aws:s3:::aws-databrew-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/databrew/eu-west-2/2026/04/13/databrew_DQ66AQ06BIE.log.gz"
+        "key": "AWSLogs/501938274650/databrew/eu-west-1/2026/04/13/databrew_8G6GGPOIY1.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/databrew/logs",
-      "log_stream": "eu-west-2/fbdvgk9a",
-      "ingestion_time": "2026-04-13T13:40:12.718Z"
+      "log_stream": "eu-west-1/56xj03b3",
+      "ingestion_time": "2026-04-13T15:46:43.582Z"
     }
   },
   "event": {
-    "duration": 260000000000,
-    "outcome": "success",
+    "duration": 1127000000000,
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.databrew",
     "provider": "databrew.amazonaws.com",
     "module": "aws"
   },
-  "message": "Job run succeeded",
-  "log": { "level": "info" },
+  "message": "Job run failed",
+  "log": { "level": "error" },
+  "error": { "code": "JobFailed", "message": "DataBrew job failed", "type": "process" },
   "service": { "name": "databrew", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.databrew", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "dpkqb34mior"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "tvxzs3pb2do"
   },
   "input": { "type": "aws-cloudwatch" }
 }

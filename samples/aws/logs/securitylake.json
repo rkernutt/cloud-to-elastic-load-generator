@@ -1,65 +1,58 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-southeast-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "securitylake" }
   },
   "aws": {
-    "dimensions": { "OcsfClass": "API Activity", "SourceType": "LAMBDA:CloudTrail" },
+    "dimensions": { "OcsfClass": "HTTP Activity", "SourceType": "LAMBDA:ALB" },
     "securitylake": {
-      "source_type": "LAMBDA:CloudTrail",
-      "class_uid": 6003,
-      "class_name": "API Activity",
-      "category_uid": 6,
-      "category_name": "Application Activity",
-      "activity_id": 4,
+      "source_type": "LAMBDA:ALB",
+      "class_uid": 4002,
+      "class_name": "HTTP Activity",
+      "category_uid": 4,
+      "category_name": "Network Activity",
+      "activity_id": 1,
       "activity_name": "Delete",
       "severity_id": 5,
       "severity": "High",
       "status_id": 2,
       "status": "Failure",
-      "time": 1776087612254,
+      "time": 1776095203100,
       "metadata": {
         "version": "1.1.0",
-        "product": { "name": "CloudTrail", "vendor_name": "AWS" },
-        "uid": "2drwzzlx-zp88-fnq1-8dxq-oru6sypaxn"
+        "product": { "name": "ALB", "vendor_name": "AWS" },
+        "uid": "nk88nktt-3gj6-qgbt-zteg-uihdlqq1eb"
       },
       "ocsf_cloud": {
         "provider": "AWS",
-        "account": { "uid": "738291046572" },
-        "region": "ap-east-1"
+        "account": { "uid": "164820739518" },
+        "region": "ap-southeast-2"
       },
-      "api": {
-        "operation": "RunInstances",
-        "service": { "name": "iam.amazonaws.com" },
-        "request": { "uid": "uiehu0mj-9q32-fspc-mm22-uo5psdue3ik" },
-        "response": { "code": 403 }
+      "http_request": {
+        "method": "DELETE",
+        "url": { "path": "/api/v1/users", "hostname": "api.example.com" },
+        "user_agent": "curl/7.68.0"
       },
-      "actor": {
-        "user": {
-          "uid": "arn:aws:iam::738291046572:user/alice",
-          "name": "alice",
-          "type": "IAMUser"
-        },
-        "session": { "uid": "ASIA8AGPD01VB8C", "is_mfa": true }
-      },
-      "src_endpoint": { "ip": "201.152.196.238" }
+      "http_response": { "code": 400 },
+      "src_endpoint": { "ip": "34.157.103.217" },
+      "dst_endpoint": { "ip": "123.242.215.173" }
     },
     "s3": {
       "bucket": {
-        "name": "aws-securitylake-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-securitylake-logs-738291046572"
+        "name": "aws-securitylake-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-securitylake-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/securitylake/ap-east-1/2026/04/13/securitylake_6PEICE7AL7D.log.gz"
+        "key": "AWSLogs/164820739518/securitylake/ap-southeast-2/2026/04/13/securitylake_HEMRGLCAIF5.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securitylake/logs",
-      "log_stream": "ap-east-1/ux7mmij7",
-      "ingestion_time": "2026-04-13T13:40:12.639Z"
+      "log_stream": "ap-southeast-2/w3okqy1c",
+      "ingestion_time": "2026-04-13T15:46:43.500Z"
     }
   },
   "event": {
@@ -69,11 +62,11 @@
     "provider": "securitylake.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security Lake [API Activity/Delete] High: CloudTrail failure",
+  "message": "Security Lake [HTTP Activity/Delete] High: ALB failure",
   "log": { "level": "error" },
   "error": {
     "code": "SecurityEvent",
-    "message": "Security Lake API Activity failure",
+    "message": "Security Lake HTTP Activity failure",
     "type": "security"
   },
   "service": { "name": "securitylake", "type": "aws" },
@@ -82,8 +75,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "zb8mp0xyzob"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "unx5mo700j"
   },
   "input": { "type": "http_endpoint" }
 }

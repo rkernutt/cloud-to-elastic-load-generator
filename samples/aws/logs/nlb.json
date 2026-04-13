@@ -1,61 +1,65 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-southeast-4",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "nlb" }
   },
   "aws": {
     "dimensions": {
-      "LoadBalancer": "net/prod-nlb-eu-central-1/w31nokdtfn",
-      "TargetGroup": "targetgroup/tg-web/1c5xf6e1fqe",
-      "AvailabilityZone": "eu-central-1a"
+      "LoadBalancer": "net/prod-nlb-ap-southeast-4/yqzwu65usno",
+      "TargetGroup": "targetgroup/tg-api/q1n89gv3tek",
+      "AvailabilityZone": "ap-southeast-4c"
     },
     "elb": {
-      "name": "net/prod-nlb-eu-central-1/w31nokdtfn",
+      "name": "net/prod-nlb-ap-southeast-4/yqzwu65usno",
       "type": "network",
-      "listener": "arn:aws:elasticloadbalancing:eu-central-1:293847561023:listener/net/prod-nlb/5lyxgigpymx/v10xdyl3gsq",
-      "protocol": "UDP",
-      "connection_time.ms": 66,
-      "backend.ip": "136.219.215.221",
-      "backend.port": "6379",
-      "received_bytes": 826473,
-      "sent_bytes": 442996
+      "listener": "arn:aws:elasticloadbalancing:ap-southeast-4:814726593401:listener/net/prod-nlb/xsb5pm7ut4t/4bpuw1525tm",
+      "protocol": "TLS",
+      "connection_time.ms": 470,
+      "ssl_cipher": "ECDHE-RSA-AES128-GCM-SHA256",
+      "ssl_protocol": "TLSv1.3",
+      "backend.ip": "198.189.241.56",
+      "backend.port": "22",
+      "received_bytes": 881708,
+      "sent_bytes": 18589
     },
     "s3": {
       "bucket": {
-        "name": "aws-nlb-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-nlb-logs-293847561023"
+        "name": "aws-nlb-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-nlb-logs-814726593401"
       },
-      "object": { "key": "AWSLogs/293847561023/nlb/eu-central-1/2026/04/13/nlb_THOLA9XXLIA.log.gz" }
+      "object": {
+        "key": "AWSLogs/814726593401/nlb/ap-southeast-4/2026/04/13/nlb_5JVLZ0TL32I.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/nlb/logs",
-      "log_stream": "eu-central-1/qvmu9jh4",
-      "ingestion_time": "2026-04-13T13:40:12.608Z"
+      "log_stream": "ap-southeast-4/5lon8yy1",
+      "ingestion_time": "2026-04-13T15:46:43.470Z"
     }
   },
   "source": {
-    "ip": "59.202.121.130",
-    "port": 30038,
+    "ip": "230.192.3.91",
+    "port": 6482,
     "geo": {
-      "country_iso_code": "US",
-      "country_name": "United States",
-      "city_name": "Seattle",
-      "location": { "lat": 47.6062, "lon": -122.3321 }
+      "country_iso_code": "GB",
+      "country_name": "United Kingdom",
+      "city_name": "London",
+      "location": { "lat": 51.5074, "lon": -0.1278 }
     }
   },
-  "network": { "transport": "udp", "bytes": 826473 },
+  "network": { "transport": "tls", "bytes": 881708 },
   "event": {
     "outcome": "success",
     "category": ["network"],
     "dataset": "aws.elb_logs",
     "provider": "elasticloadbalancing.amazonaws.com",
-    "duration": 66000000,
+    "duration": 470000000,
     "module": "aws"
   },
-  "message": "NLB UDP:6379 826473B in 66ms",
+  "message": "NLB TLS:22 881708B in 470ms",
   "log": { "level": "info" },
   "service": { "name": "nlb", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -63,8 +67,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "c1i5le3xjfp"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "7cidc6wyc4a"
   },
   "input": { "type": "aws-s3" }
 }

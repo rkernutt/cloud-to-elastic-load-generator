@@ -1,62 +1,64 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "af-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "polly" }
   },
   "aws": {
-    "dimensions": { "Operation": "StartSpeechSynthesisTask" },
+    "dimensions": { "Operation": "ListSpeechSynthesisTasks" },
     "polly": {
-      "voice_id": "Joanna",
-      "engine": "long-form",
-      "operation": "StartSpeechSynthesisTask",
-      "language_code": "en-US",
-      "output_format": "mp3",
-      "text_type": "ssml",
-      "characters_synthesized": 18445,
-      "sample_rate": "24000",
+      "voice_id": "Matthew",
+      "engine": "standard",
+      "operation": "ListSpeechSynthesisTasks",
+      "language_code": "en-GB",
+      "output_format": "pcm",
+      "text_type": "text",
+      "characters_synthesized": 0,
+      "sample_rate": "8000",
+      "error_code": "TextLengthExceededException",
       "metrics": {
-        "RequestCharacters": { "sum": 1098 },
-        "ResponseLatency": { "avg": 476.215470702234 },
-        "2XXCount": { "sum": 1 },
-        "4XXCount": { "sum": 0 },
+        "RequestCharacters": { "sum": 1473 },
+        "ResponseLatency": { "avg": 1358.6561851220395 },
+        "2XXCount": { "sum": 0 },
+        "4XXCount": { "sum": 4 },
         "5XXCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-polly-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-polly-logs-738291046572"
+        "name": "aws-polly-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-polly-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/polly/ca-west-1/2026/04/13/polly_29YUMYVFNFW.log.gz"
+        "key": "AWSLogs/814726593401/polly/af-south-1/2026/04/13/polly_YIIBKQSLBF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/polly/logs",
-      "log_stream": "ca-west-1/5hru14no",
-      "ingestion_time": "2026-04-13T13:40:12.733Z"
+      "log_stream": "af-south-1/w8xdk5om",
+      "ingestion_time": "2026-04-13T15:46:43.598Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.polly",
     "provider": "polly.amazonaws.com",
     "module": "aws"
   },
-  "message": "Polly SynthesizeSpeech: Joanna (long-form), 18445 chars",
-  "log": { "level": "info" },
+  "message": "Polly SynthesizeSpeech FAILED (Matthew): Language not supported",
+  "log": { "level": "error" },
+  "error": { "code": "PollyError", "message": "Polly synthesis failed", "type": "ml" },
   "service": { "name": "polly", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.polly", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "2noqm9e0etg"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "xokg5xwdsv"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -7,52 +7,54 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-north1",
-    "account": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" }
+    "region": "us-central1",
+    "account": { "id": "globex-dev-g7h8i9", "name": "Globex Development" }
   },
   "resource": {
-    "id": "//compute.googleapis.com/projects/globex-staging-d4e5f6/global/iam-policy-8VT66B",
-    "name": "iam-policy-8VT66B",
-    "sub_type": "iam-policy",
+    "id": "//compute.googleapis.com/projects/globex-dev-g7h8i9/global/iam-user-C9T4N8",
+    "name": "iam-user-C9T4N8",
+    "sub_type": "iam-user",
     "type": "cloud-identity-management"
   },
   "rule": {
-    "id": "cis_gcp_2_4",
-    "name": "Ensure that IAM password policy enforces minimum password length",
-    "section": "2.4",
+    "id": "cis_gcp_2_5",
+    "name": "Ensure that MFA is enabled for all non-service accounts",
+    "section": "2.5",
     "tags": ["IAM"],
     "benchmark": {
       "id": "cis_gcp",
       "version": "v2.0.0",
-      "rule_number": "2.4",
+      "rule_number": "2.5",
       "posture_type": "cspm"
-    }
+    },
+    "impact": "CIS GCP 2.5 gap may widen blast radius in globex-dev-g7h8i9.",
+    "remediation": "Remediate per CIS GCP Foundations Benchmark section 2.5."
   },
-  "result": { "evaluation": "passed" },
-  "severity": "none",
+  "result": { "evaluation": "failed" },
+  "severity": "critical",
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_cspm",
     "module": "gcp"
   },
-  "message": "CSPM [CIS GCP / 2.4] passed: Ensure that IAM password policy enforces minimum password length",
-  "log": { "level": "info" },
+  "message": "CSPM [CIS GCP / 2.5] failed: Ensure that MFA is enabled for all non-service accounts",
+  "log": { "level": "error" },
   "service": { "name": "gcp-cspm", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-north1",
-    "id": "cwg9pekvyae"
+    "name": "elastic-agent-gcp-us-central1",
+    "id": "te6wwvm352"
   },
   "input": { "type": "http_endpoint" },
   "logName": "projects/project-unknown/logs/gcp-cspm",
-  "insertId": "ICBVEIMGJNM",
+  "insertId": "O4X6RHO2RIJ",
   "jsonPayload": {
-    "message": "CSPM [CIS GCP / 2.4] passed: Ensure that IAM password policy enforces minimum password length"
+    "message": "CSPM [CIS GCP / 2.5] failed: Ensure that MFA is enabled for all non-service accounts"
   }
 }

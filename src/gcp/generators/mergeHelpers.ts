@@ -6,8 +6,8 @@ import { rand } from "../../helpers";
 import type { MetricGenerator } from "../../aws/generators/types.js";
 
 export function mergeGcpLogVariants(
-  variants: Array<(ts: string, er: number) => Record<string, unknown>>
-): (ts: string, er: number) => Record<string, unknown> {
+  variants: Array<(ts: string, er: number) => Record<string, unknown> | Record<string, unknown>[]>
+): (ts: string, er: number) => Record<string, unknown> | Record<string, unknown>[] {
   return (ts: string, er: number) => rand(variants)(ts, er);
 }
 

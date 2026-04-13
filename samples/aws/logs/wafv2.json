@@ -1,44 +1,35 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
+    "region": "us-east-1",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "wafv2" }
   },
   "aws": {
-    "dimensions": { "WebACL": "cdn-waf", "Rule": "GenericLFI_URIPATH", "Region": "ap-south-2" },
+    "dimensions": { "WebACL": "prod-api-acl", "Rule": "GenericLFI_URIPATH", "Region": "us-east-1" },
     "waf": {
-      "id": "g3p4p36kjqa",
-      "arn": "arn:aws:wafv2:ap-south-2:501938274650:regional/webacl/cdn-waf/6d9qejes-b472-khl6-d3c8-re2hdjntj4",
+      "id": "mvvzwbvhvy",
+      "arn": "arn:aws:wafv2:us-east-1:501938274650:regional/webacl/prod-api-acl/tbbioa6s-rs1r-o5gu-zeye-cd634ebjuok",
       "format_version": "1",
-      "source": { "name": "CF", "id": "501938274650-app/cdn-waf/v0afkscl51k" },
+      "source": { "name": "APIGW", "id": "501938274650-app/prod-api-acl/mmjzyz1ijis" },
       "rule_group_list": [
-        {
-          "ruleGroupId": "AWSManagedRulesSQLiRuleSet",
-          "terminatingRule": {
-            "action": "BLOCK",
-            "ruleId": "GenericLFI_URIPATH",
-            "ruleMatchDetails": []
-          },
-          "nonTerminatingMatchingRules": []
-        }
+        { "ruleGroupId": "AWSManagedRulesKnownBadInputsRuleSet", "nonTerminatingMatchingRules": [] }
       ],
       "non_terminating_matching_rules": [],
       "terminating_rule_match_details": [],
       "request": {
         "headers": [
-          { "name": "User-Agent", "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
+          { "name": "User-Agent", "value": "python-requests/2.27.1" },
           { "name": "Host", "value": "api.example.com" }
         ]
       },
-      "labels": [{ "name": "awswaf:managed:aws:sql-database:SQLi_Args" }],
-      "response_code_sent": 403,
+      "labels": [],
       "metrics": {
-        "AllowedRequests": { "sum": 0 },
-        "BlockedRequests": { "sum": 1 },
+        "AllowedRequests": { "sum": 1 },
+        "BlockedRequests": { "sum": 0 },
         "CountedRequests": { "sum": 0 },
-        "PassedRequests": { "sum": 0 },
+        "PassedRequests": { "sum": 1 },
         "RequestsWithValidCaptchaToken": { "sum": 0 },
         "ChallengeRequests": { "sum": 0 },
         "FailedCaptcha": { "sum": 0 }
@@ -49,47 +40,44 @@
         "name": "aws-wafv2-logs-501938274650",
         "arn": "arn:aws:s3:::aws-wafv2-logs-501938274650"
       },
-      "object": {
-        "key": "AWSLogs/501938274650/wafv2/ap-south-2/2026/04/13/wafv2_EGVKT3DGRBM.log.gz"
-      }
+      "object": { "key": "AWSLogs/501938274650/wafv2/us-east-1/2026/04/13/wafv2_SH9J2ZK8A1.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/wafv2/logs",
-      "log_stream": "ap-south-2/vx53imve",
-      "ingestion_time": "2026-04-13T13:40:12.792Z"
+      "log_stream": "us-east-1/oiyoyytu",
+      "ingestion_time": "2026-04-13T15:46:43.656Z"
     }
   },
   "source": {
-    "ip": "176.154.126.177",
+    "ip": "130.203.250.29",
     "geo": {
-      "country_iso_code": "DE",
-      "country_name": "Germany",
-      "city_name": "Frankfurt",
-      "location": { "lat": 50.1109, "lon": 8.6821 }
+      "country_iso_code": "SE",
+      "country_name": "Sweden",
+      "city_name": "Stockholm",
+      "location": { "lat": 59.3293, "lon": 18.0686 }
     }
   },
-  "http": { "request": { "method": "DELETE", "bytes": 1815 } },
-  "url": { "path": "/api/v1/search" },
-  "user_agent": { "original": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
+  "http": { "request": { "method": "DELETE", "bytes": 1585 } },
+  "url": { "path": "/api/v1/products" },
+  "user_agent": { "original": "python-requests/2.27.1" },
   "event": {
-    "action": "block",
-    "outcome": "failure",
+    "action": "allow",
+    "outcome": "success",
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
     "module": "aws"
   },
-  "message": "WAFv2 BLOCK [cdn-waf] 176.154.126.177: AWSManagedRulesSQLiRuleSet/GenericLFI_URIPATH",
-  "log": { "level": "warn" },
-  "error": { "code": "WAFBlock", "message": "WAFv2 request blocked", "type": "security" },
+  "message": "WAFv2 ALLOW [prod-api-acl] 130.203.250.29 DELETE /api/v1/products",
+  "log": { "level": "info" },
   "service": { "name": "wafv2", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.waf", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "eokhjkpmvfo"
+    "name": "filebeat-aws-us-east-1",
+    "ephemeral_id": "y9ki19f2xx"
   },
   "input": { "type": "aws-s3" }
 }

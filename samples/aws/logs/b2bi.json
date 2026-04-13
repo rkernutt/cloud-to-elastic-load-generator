@@ -1,55 +1,60 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
+    "region": "us-west-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "b2bi" }
   },
   "aws": {
-    "dimensions": { "PartnerName": "HealthcareProvider-LLC", "DocumentType": "X12_210" },
+    "dimensions": { "PartnerName": "RetailChain-Inc", "DocumentType": "X12_856" },
     "b2bi": {
-      "partnership_id": "ps-6UJ8JQBIOW8",
-      "partner_name": "HealthcareProvider-LLC",
-      "transaction_id": "txn-I6M0TDCS2G",
-      "document_type": "X12_210",
-      "processing_status": "DELIVERED",
-      "transformer_id": "tr-6KW01S5POJ",
-      "input_file_size_bytes": 241815,
-      "transaction_count": 93,
-      "interchange_control_number": 406575637
+      "partnership_id": "ps-6KFAOTLDRV6",
+      "partner_name": "RetailChain-Inc",
+      "transaction_id": "txn-IG221V3WXS",
+      "document_type": "X12_856",
+      "processing_status": "FAILED",
+      "transformer_id": "tr-P2WWAL7QYNS",
+      "input_file_size_bytes": 514465,
+      "transaction_count": 171,
+      "interchange_control_number": 136956791
     },
     "s3": {
       "bucket": {
         "name": "aws-b2bi-logs-293847561023",
         "arn": "arn:aws:s3:::aws-b2bi-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/293847561023/b2bi/eu-west-2/2026/04/13/b2bi_IA0HEEP4ZC9.log.gz" }
+      "object": { "key": "AWSLogs/293847561023/b2bi/us-west-1/2026/04/13/b2bi_ENJ5ERC7GKU.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/b2bi/logs",
-      "log_stream": "eu-west-2/x9s0pk0v",
-      "ingestion_time": "2026-04-13T13:40:12.725Z"
+      "log_stream": "us-west-1/sptd4sz4",
+      "ingestion_time": "2026-04-13T15:46:43.589Z"
     }
   },
   "event": {
     "action": "CreateTransformer",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.b2bi",
     "provider": "b2bi.amazonaws.com",
     "module": "aws"
   },
-  "message": "B2B Data Interchange X12_210 from HealthcareProvider-LLC: DELIVERED (93 transactions)",
-  "log": { "level": "info" },
+  "message": "B2B Data Interchange X12_856 from RetailChain-Inc: FAILED",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InternalServerException",
+    "message": "B2B Data Interchange transformation failed",
+    "type": "process"
+  },
   "service": { "name": "b2bi", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.b2bi", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "13abnlr9202r"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "9ovp59dxygp"
   },
   "input": { "type": "aws-cloudwatch" }
 }

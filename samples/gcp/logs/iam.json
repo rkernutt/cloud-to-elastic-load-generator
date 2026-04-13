@@ -2,52 +2,53 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "europe-southwest1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
-    "service": { "name": "iam" }
+    "region": "us-east4",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" },
+    "service": { "name": "os-login" }
   },
   "gcp": {
-    "iam": {
-      "principal": "user:developer@globex.example.com",
-      "action": "CreateServiceAccountKey",
-      "resource": "projects/globex-staging-d4e5f6/serviceAccounts/sa@globex-staging-d4e5f6.iam.gserviceaccount.com",
-      "permission_granted": true,
-      "policy_delta_action": "ADD",
-      "role": "roles/iam.serviceAccountTokenCreator",
-      "request_id": "o5ggfvoyjw"
+    "os_login": {
+      "user": "dev@globex.example.com",
+      "action": "LOGIN",
+      "instance": "vm-build-2ohe",
+      "ssh_key_fingerprint": "SHA256:0014cb5ec01434f46a37cece474313996cea0799c10b",
+      "login_method": "OS_LOGIN_2FA"
     }
   },
-  "event": { "outcome": "success", "duration": 59000000, "module": "gcp", "dataset": "gcp.iam" },
-  "message": "IAM CreateServiceAccountKey by user:developer@globex.example.com on projects/globex-staging-d4e5f6/serviceAccounts/sa@globex-staging-d4e5f6.iam.gserviceaccount.com: ADD binding roles/iam.serviceAccountTokenCreator",
+  "event": {
+    "outcome": "success",
+    "duration": 35000000,
+    "module": "gcp",
+    "dataset": "gcp.oslogin"
+  },
+  "message": "OS Login LOGIN: dev@globex.example.com on vm-build-2ohe via OS_LOGIN_2FA",
   "log": { "level": "info" },
-  "service": { "name": "iam", "type": "gcp" },
+  "service": { "name": "os-login", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.iam", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.oslogin", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-southwest1",
-    "id": "uhl148uxsel"
+    "name": "elastic-agent-gcp-us-east4",
+    "id": "0f8q3imyb3ii"
   },
-  "input": { "type": "http_endpoint" },
-  "logName": "projects/globex-staging-d4e5f6/logs/iam",
+  "input": { "type": "gcp-pubsub" },
+  "logName": "projects/globex-dev-g7h8i9/logs/os-login",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-staging-d4e5f6", "region": "europe-southwest1" }
+    "labels": { "project_id": "globex-dev-g7h8i9", "region": "us-east4" }
   },
   "severity": "INFO",
-  "insertId": "BE7381K99P",
+  "insertId": "N3QBKQUBIAB",
   "jsonPayload": {
-    "iam": {
-      "principal": "user:developer@globex.example.com",
-      "action": "CreateServiceAccountKey",
-      "resource": "projects/globex-staging-d4e5f6/serviceAccounts/sa@globex-staging-d4e5f6.iam.gserviceaccount.com",
-      "permission_granted": true,
-      "policy_delta_action": "ADD",
-      "role": "roles/iam.serviceAccountTokenCreator",
-      "request_id": "o5ggfvoyjw"
+    "os_login": {
+      "user": "dev@globex.example.com",
+      "action": "LOGIN",
+      "instance": "vm-build-2ohe",
+      "ssh_key_fingerprint": "SHA256:0014cb5ec01434f46a37cece474313996cea0799c10b",
+      "login_method": "OS_LOGIN_2FA"
     },
-    "message": "IAM CreateServiceAccountKey by user:developer@globex.example.com on projects/globex-staging-d4e5f6/serviceAccounts/sa@globex-staging-d4e5f6.iam.gserviceaccount.com: ADD binding roles/iam.serviceAccountTokenCreator"
+    "message": "OS Login LOGIN: dev@globex.example.com on vm-build-2ohe via OS_LOGIN_2FA"
   }
 }

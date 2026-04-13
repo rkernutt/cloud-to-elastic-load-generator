@@ -1,66 +1,72 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-north-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "verified-access" }
   },
   "aws": {
-    "dimensions": { "ApplicationId": "va-app-tb0i3xa2" },
+    "dimensions": { "ApplicationId": "va-app-akhvz0qv" },
     "verifiedaccess": {
-      "endpoint_id": "vae-curs7jjfjpt",
-      "group_id": "vag-mtoq45a3dud",
-      "instance_id": "vai-gireot6pgdp",
-      "policy_name": "require-mfa-and-device",
-      "trust_provider_type": "iam-identity-center",
-      "device_posture": "COMPLIANT",
-      "verdict": "allow",
+      "endpoint_id": "vae-juzwlytx0t",
+      "group_id": "vag-sxhszorg5jf",
+      "instance_id": "vai-pxd0ik0zvjs",
+      "policy_name": "require-mfa",
+      "trust_provider_type": "oidc-okta",
+      "device_posture": "UNKNOWN",
+      "verdict": "deny",
+      "deny_reason": "mfa_required",
       "http_method": "PUT",
-      "http_path": "/api/v1/orders",
-      "http_status": 200,
-      "request_id": "ud8kus8e-fw8e-liil-w8qi-hs9sb181bh8",
-      "connection_id": "VUGYQ2PJV1F",
-      "session_id": "UM8O8BS1RSM",
-      "sni_hostname": "dev-tools.internal.example.com",
-      "application_name": "dev-tools"
+      "http_path": "/api/v1/users",
+      "http_status": 403,
+      "request_id": "q6zf74qy-1ihx-0jf2-kd65-qppz7netnai",
+      "connection_id": "O5FDDD5JM",
+      "session_id": "IXBFNV6ELTM",
+      "sni_hostname": "internal-dashboard.internal.example.com",
+      "application_name": "internal-dashboard"
     },
     "s3": {
       "bucket": {
-        "name": "aws-verifiedaccess-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-verifiedaccess-logs-164820739518"
+        "name": "aws-verifiedaccess-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-verifiedaccess-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/verifiedaccess/ap-southeast-3/2026/04/13/verifiedaccess_7C7I1QPGHDG.log.gz"
+        "key": "AWSLogs/814726593401/verifiedaccess/eu-north-1/2026/04/13/verifiedaccess_GPPABHISQ9T.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/verifiedaccess/logs",
-      "log_stream": "ap-southeast-3/oa0ts0ke",
-      "ingestion_time": "2026-04-13T13:40:12.638Z"
+      "log_stream": "eu-north-1/5ffr4i3m",
+      "ingestion_time": "2026-04-13T15:46:43.499Z"
     }
   },
-  "user": { "email": "bob@example.com", "name": "bob" },
-  "source": { "ip": "104.205.248.163" },
+  "user": { "email": "alice@example.com", "name": "alice" },
+  "source": { "ip": "90.140.19.92" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["authentication", "network"],
-    "type": ["allowed"],
+    "type": ["denied"],
     "dataset": "aws.verifiedaccess",
     "provider": "verified-access.amazonaws.com",
-    "duration": 82000000,
+    "duration": 185000000,
     "module": "aws"
   },
-  "message": "Verified Access allowed: bob@example.com -> dev-tools (COMPLIANT)",
-  "log": { "level": "info" },
+  "message": "Verified Access DENIED: alice@example.com -> internal-dashboard [mfa_required]",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "AccessDenied",
+    "message": "Verified Access policy denied: mfa_required",
+    "type": "authentication"
+  },
   "service": { "name": "verifiedaccess", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.verifiedaccess", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "dlsrhkqzhj6"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "ffbni6kie46"
   },
   "input": { "type": "aws-cloudwatch" }
 }

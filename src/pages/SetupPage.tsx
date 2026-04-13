@@ -78,27 +78,29 @@ type LogLine = { text: string; type: "info" | "ok" | "error" | "warn"; at?: stri
  * Simple expand/collapse for setup asset groups. EuiAccordion uses height animation +
  * ResizeObserver; with blockSize:0 while closed the observer can stay at 0 so opening
  * shows no content — this pattern matches ServiceGrid (collapsed === true hides body).
+ *
+ * Sections start **collapsed**; only keys with `expandedMap[k] === true` show body.
  */
 function SetupCollapsible({
   sectionKey,
-  collapsedMap,
-  setCollapsedMap,
+  expandedMap,
+  setExpandedMap,
   header,
   children,
 }: {
   sectionKey: string;
-  collapsedMap: Record<string, boolean>;
-  setCollapsedMap: Dispatch<SetStateAction<Record<string, boolean>>>;
+  expandedMap: Record<string, boolean>;
+  setExpandedMap: Dispatch<SetStateAction<Record<string, boolean>>>;
   header: ReactNode;
   children: ReactNode;
 }) {
-  const collapsed = collapsedMap[sectionKey] === true;
+  const expanded = expandedMap[sectionKey] === true;
   return (
     <div style={{ marginBottom: 8 }}>
       <button
         type="button"
         onClick={() =>
-          setCollapsedMap((prev) => ({
+          setExpandedMap((prev) => ({
             ...prev,
             [sectionKey]: !(prev[sectionKey] === true),
           }))
@@ -118,12 +120,19 @@ function SetupCollapsible({
         }}
       >
         <span style={{ fontSize: 10, color: "var(--euiColorSubdued, #69707d)", flexShrink: 0 }}>
-          {collapsed ? "\u25B6" : "\u25BC"}
+          {expanded ? "\u25BC" : "\u25B6"}
         </span>
         <span style={{ flex: 1, minWidth: 0 }}>{header}</span>
       </button>
-      {!collapsed && (
-        <div style={{ padding: "8px 4px 0 4px", borderLeft: "2px solid var(--euiColorLightShade, #d3dae6)", marginLeft: 10, marginTop: 4 }}>
+      {expanded && (
+        <div
+          style={{
+            padding: "8px 4px 0 4px",
+            borderLeft: "2px solid var(--euiColorLightShade, #d3dae6)",
+            marginLeft: 10,
+            marginTop: 4,
+          }}
+        >
           {children}
         </div>
       )}
@@ -154,8 +163,8 @@ export function SetupPage({
   const [enablePipelines, setEnablePipelines] = useState(false);
   const [enableDashboards, setEnableDashboards] = useState(false);
   const [enableMlJobs, setEnableMlJobs] = useState(false);
-  /** Pipeline / dashboard / ML section headers: true = collapsed (hidden), default expanded */
-  const [setupAssetCollapsed, setSetupAssetCollapsed] = useState<Record<string, boolean>>({});
+  /** Pipeline / dashboard / ML section headers: true = expanded (body visible); default collapsed */
+  const [setupAssetExpanded, setSetupAssetExpanded] = useState<Record<string, boolean>>({});
 
   const pipelineGroups = useMemo(
     () => [...new Set(PIPELINES.map((p) => p.group))].sort(),
@@ -181,7 +190,7 @@ export function SetupPage({
     );
     setSelectedMlJobIds(new Set(setupBundle.mlJobFiles.flatMap((f) => f.jobs.map((j) => j.id))));
     setAssetFilterQuery("");
-    setSetupAssetCollapsed({});
+    setSetupAssetExpanded({});
   }, [cloudId, setupBundle.fleetPackage]); // eslint-disable-line react-hooks/exhaustive-deps -- reset only on vendor switch
 
   const [isRunning, setIsRunning] = useState(false);
@@ -504,7 +513,9 @@ export function SetupPage({
   };
 
   const setAllJobsInMlFile = (file: MlJobFile, checked: boolean) => {
-    const ids = file.jobs.filter((j) => mlJobEntryMatchesQuery(j, assetFilterQuery)).map((j) => j.id);
+    const ids = file.jobs
+      .filter((j) => mlJobEntryMatchesQuery(j, assetFilterQuery))
+      .map((j) => j.id);
     setSelectedMlJobIds((prev) => {
       const next = new Set(prev);
       for (const id of ids) {
@@ -1094,8 +1105,8 @@ export function SetupPage({
             <SetupCollapsible
               key={g}
               sectionKey={`pipe:${g}:${uid}`}
-              collapsedMap={setupAssetCollapsed}
-              setCollapsedMap={setSetupAssetCollapsed}
+              expandedMap={setupAssetExpanded}
+              setExpandedMap={setSetupAssetExpanded}
               header={
                 <EuiText size="s">
                   <strong>{g}</strong>{" "}
@@ -1200,8 +1211,8 @@ export function SetupPage({
             <SetupCollapsible
               key={`dash-${gk}-${uid}`}
               sectionKey={`dash:${gk}:${uid}`}
-              collapsedMap={setupAssetCollapsed}
-              setCollapsedMap={setSetupAssetCollapsed}
+              expandedMap={setupAssetExpanded}
+              setExpandedMap={setSetupAssetExpanded}
               header={
                 <EuiText size="s">
                   <strong>{gk}</strong>{" "}
@@ -1238,7 +1249,11 @@ export function SetupPage({
                   const key = stableDashboardKey(d, i);
                   const title = d.title ?? `Dashboard ${i + 1}`;
                   return (
-                    <EuiFlexItem grow={false} key={key} style={{ minWidth: 280, maxWidth: 440 }}>
+                    <EuiFlexItem
+                      grow={false}
+                      key={`${gk}:${i}:${key}`}
+                      style={{ minWidth: 280, maxWidth: 440 }}
+                    >
                       <EuiCheckbox
                         id={`dashboard-${key}-${uid}`}
                         label={
@@ -1304,8 +1319,8 @@ export function SetupPage({
             <SetupCollapsible
               key={`ml-${file.group}-${uid}`}
               sectionKey={`ml:${file.group}:${uid}`}
-              collapsedMap={setupAssetCollapsed}
-              setCollapsedMap={setSetupAssetCollapsed}
+              expandedMap={setupAssetExpanded}
+              setExpandedMap={setSetupAssetExpanded}
               header={
                 <EuiText size="s">
                   <strong>{file.group}</strong>{" "}
@@ -1342,9 +1357,13 @@ export function SetupPage({
               <EuiSpacer size="s" />
               <EuiFlexGroup gutterSize="s" wrap responsive={false}>
                 {visibleJobs.map((j) => (
-                  <EuiFlexItem grow={false} key={j.id} style={{ minWidth: 260, maxWidth: 420 }}>
+                  <EuiFlexItem
+                    grow={false}
+                    key={`${file.group}:${j.id}`}
+                    style={{ minWidth: 260, maxWidth: 420 }}
+                  >
                     <EuiCheckbox
-                      id={`ml-job-${j.id}-${uid}`}
+                      id={`ml-job-${file.group}-${j.id}-${uid}`}
                       label={
                         <span title={j.description}>
                           <EuiCode>{j.id}</EuiCode>

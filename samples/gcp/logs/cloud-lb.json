@@ -2,55 +2,63 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west6",
+    "region": "europe-west8",
     "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
     "account": { "id": "271828182845", "name": "Globex Staging" },
-    "service": { "name": "serverless-neg" }
+    "service": { "name": "cloud-lb" }
   },
   "gcp": {
-    "serverless_neg": {
-      "neg_name": "neg-82t6sdwp",
-      "backend_service": "bes-gae-313d",
-      "target_type": "cloud-run",
-      "health_status": "DRAINING",
-      "request_count": 574166,
-      "error_rate": 0.0154
+    "cloud_lb": {
+      "backend_service": "bes-api-0b8z",
+      "url_map": "um-us8yc1",
+      "forwarding_rule": "fr-europe-west8-q13h",
+      "request_method": "DELETE",
+      "url_path": "/api/v1/orders",
+      "response_code": 201,
+      "latency_ms": 48,
+      "client_ip": "83.6.82.139",
+      "backend_ip": "127.133.143.209",
+      "protocol": "HTTP2"
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 148000000,
+    "duration": 48000000,
     "module": "gcp",
-    "dataset": "gcp.serverless_neg"
+    "dataset": "gcp.loadbalancing"
   },
-  "message": "Serverless NEG neg-82t6sdwp health=DRAINING requests=574166 err=1.542%",
-  "service": { "name": "serverless-neg", "type": "gcp" },
+  "message": "HTTP(S) LB DELETE /api/v1/orders 201 48.0ms HTTP2",
+  "service": { "name": "cloud-lb", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.serverless_neg", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.loadbalancing", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west6",
-    "id": "igil3yz4g9m"
+    "name": "elastic-agent-gcp-europe-west8",
+    "id": "osqvc6wezp9"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-staging-d4e5f6/logs/serverless-neg",
+  "logName": "projects/globex-staging-d4e5f6/logs/cloud-lb",
   "resource": {
-    "type": "global",
-    "labels": { "project_id": "globex-staging-d4e5f6", "region": "europe-west6" }
+    "type": "http_load_balancer",
+    "labels": { "project_id": "globex-staging-d4e5f6", "region": "europe-west8" }
   },
   "severity": "INFO",
-  "insertId": "0KYI73515AL",
+  "insertId": "V1PCJ1LH12L",
   "jsonPayload": {
-    "serverless_neg": {
-      "neg_name": "neg-82t6sdwp",
-      "backend_service": "bes-gae-313d",
-      "target_type": "cloud-run",
-      "health_status": "DRAINING",
-      "request_count": 574166,
-      "error_rate": 0.0154
+    "cloud_lb": {
+      "backend_service": "bes-api-0b8z",
+      "url_map": "um-us8yc1",
+      "forwarding_rule": "fr-europe-west8-q13h",
+      "request_method": "DELETE",
+      "url_path": "/api/v1/orders",
+      "response_code": 201,
+      "latency_ms": 48,
+      "client_ip": "83.6.82.139",
+      "backend_ip": "127.133.143.209",
+      "protocol": "HTTP2"
     },
-    "message": "Serverless NEG neg-82t6sdwp health=DRAINING requests=574166 err=1.542%"
+    "message": "HTTP(S) LB DELETE /api/v1/orders 201 48.0ms HTTP2"
   }
 }

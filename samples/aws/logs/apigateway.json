@@ -1,42 +1,45 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
+    "region": "ca-central-1",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "apigateway" }
   },
-  "trace": { "id": "1-v6p2lykd-m4aotkinmxi" },
   "aws": {
     "dimensions": {
       "ApiName": "internal-api",
-      "Stage": "v2",
-      "Method": "PATCH",
-      "Resource": "/api/v1/products"
+      "Stage": "prod",
+      "Method": "DELETE",
+      "Resource": "/api/v1/orders"
     },
     "apigateway": {
-      "request_id": "r17qe95w-gie9",
-      "api_id": "fxoqgj7n9s",
-      "domain_name": "fxoqgj7n9s.execute-api.us-west-2.amazonaws.com",
-      "stage": "v2",
-      "http_method": "PATCH",
-      "resource_path": "/api/v1/products",
+      "request_id": "gnmqbdfh-dem6",
+      "api_id": "s2rew2qcrp",
+      "domain_name": "s2rew2qcrp.execute-api.us-east-1.amazonaws.com",
+      "stage": "prod",
+      "http_method": "DELETE",
+      "resource_path": "/api/v1/orders",
       "protocol": "HTTP/1.1",
-      "route_key": "PATCH /api/v1/products",
-      "status": 201,
-      "response_length": 9375,
-      "ip_address": "215.88.58.139",
-      "user": "api-user",
-      "event_type": "MESSAGE",
-      "request_time": "2026-04-13T13:40:12.254Z",
-      "api_type": "HTTP",
-      "integration_latency": 570,
+      "route_key": "DELETE /api/v1/orders",
+      "status": 204,
+      "response_length": 6708,
+      "ip_address": "151.203.67.212",
+      "connection_id": "PLL0NL2UHS",
+      "event_type": "DISCONNECT",
+      "request_time": "2026-04-13T15:46:43.100Z",
+      "api_type": "REST",
+      "integration_latency": 132,
+      "cache_hit": true,
+      "cache_miss": false,
       "metrics": {
         "Count": { "sum": 1 },
-        "Latency": { "avg": 697, "p99": 2091 },
-        "IntegrationLatency": { "avg": 570 },
+        "Latency": { "avg": 155, "p99": 465 },
+        "IntegrationLatency": { "avg": 132 },
         "4XXError": { "sum": 0 },
-        "5XXError": { "sum": 0 }
+        "5XXError": { "sum": 0 },
+        "CacheHitCount": { "sum": 1 },
+        "CacheMissCount": { "sum": 0 }
       }
     },
     "s3": {
@@ -45,32 +48,35 @@
         "arn": "arn:aws:s3:::aws-apigateway-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/apigateway/us-east-2/2026/04/13/apigateway_7D59OCX85FI.log.gz"
+        "key": "AWSLogs/164820739518/apigateway/ca-central-1/2026/04/13/apigateway_G4Z9J0D1EGS.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/apigateway/logs",
-      "log_stream": "us-east-2/7y7cirdm",
-      "ingestion_time": "2026-04-13T13:40:12.562Z"
+      "log_stream": "ca-central-1/ass8qg30",
+      "ingestion_time": "2026-04-13T15:46:43.420Z"
     }
   },
   "http": {
-    "request": { "method": "PATCH", "id": "r17qe95w-gie9", "bytes": 766 },
-    "response": { "status_code": 201, "bytes": 9896 }
+    "request": { "method": "DELETE", "id": "gnmqbdfh-dem6", "bytes": 1942 },
+    "response": { "status_code": 204, "bytes": 9670 }
   },
-  "url": { "path": "/api/v1/products", "domain": "fxoqgj7n9s.execute-api.us-east-2.amazonaws.com" },
+  "url": {
+    "path": "/api/v1/orders",
+    "domain": "s2rew2qcrp.execute-api.ca-central-1.amazonaws.com"
+  },
   "client": {
-    "ip": "21.89.86.72",
+    "ip": "64.8.252.217",
     "geo": {
-      "country_iso_code": "GB",
-      "country_name": "United Kingdom",
-      "region_name": "London",
-      "city_name": "London"
+      "country_iso_code": "JP",
+      "country_name": "Japan",
+      "region_name": "Tokyo",
+      "city_name": "Tokyo"
     }
   },
-  "user_agent": { "original": "curl/7.68.0" },
+  "user_agent": { "original": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
   "event": {
-    "duration": 697000000,
+    "duration": 155000000,
     "outcome": "success",
     "category": ["web"],
     "type": ["access"],
@@ -78,7 +84,7 @@
     "provider": "apigateway.amazonaws.com",
     "module": "aws"
   },
-  "message": "PATCH /api/v1/products 201 697ms",
+  "message": "{\"requestId\":\"gnmqbdfh-dem6\",\"requestMethod\":\"DELETE\",\"requestPath\":\"/api/v1/orders\",\"status\":204,\"responseLatency\":155,\"integrationLatency\":132,\"timestamp\":\"2026-04-13T15:46:43.100Z\"}",
   "log": { "level": "info" },
   "service": { "name": "apigateway", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -86,8 +92,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "uv1kfp91azq"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "2hsbezav09n"
   },
   "input": { "type": "aws-cloudwatch" }
 }

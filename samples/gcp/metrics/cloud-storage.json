@@ -3,43 +3,51 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast3",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "us-central1",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-northeast3",
-    "ephemeral_id": "chi1sw6whda"
+    "name": "metricbeat-gcp-us-central1",
+    "ephemeral_id": "mm4j1z7dp5"
   },
   "gcp": {
-    "storage-transfer": {
+    "cloud-storage": {
       "metrics": {
-        "request_count": { "avg": 13933, "sum": 13933, "count": 1 },
-        "error_count": { "avg": 0, "sum": 0, "count": 1 },
-        "latency": { "avg": 109.27, "sum": 109.27, "count": 1 }
+        "total_bytes": { "avg": 415219993183, "sum": 415219993183, "count": 1 },
+        "object_count": { "avg": 1952109, "sum": 1952109, "count": 1 },
+        "request_count": { "avg": 20298, "sum": 20298, "count": 1 },
+        "network_sent_bytes": { "avg": 4607651183, "sum": 4607651183, "count": 1 },
+        "received_bytes": { "avg": 205619207, "sum": 205619207, "count": 1 },
+        "read_bytes": { "avg": 308889859, "sum": 308889859, "count": 1 },
+        "write_bytes": { "avg": 300245675, "sum": 300245675, "count": 1 },
+        "error_count": { "avg": 0, "sum": 0, "count": 1 }
       },
-      "labels": { "resource_id": "resource-a" }
+      "labels": { "bucket_name": "data-lake-raw" }
     }
   },
-  "metricset": { "name": "storage-transfer", "period": 60000 },
-  "data_stream": { "type": "metrics", "dataset": "gcp.storagetransfer", "namespace": "default" },
+  "metricset": { "name": "cloud-storage", "period": 60000 },
+  "data_stream": { "type": "metrics", "dataset": "gcp.gcs_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.storagetransfer", "module": "gcp" },
+  "event": { "dataset": "gcp.gcs_metrics", "module": "gcp" },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/storage-transfer/request_count",
+      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-storage/total_bytes",
       "labels": {}
     },
     "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-prod-a1b2c3", "region": "asia-northeast3" }
+      "type": "gcs_bucket",
+      "labels": { "project_id": "globex-dev-g7h8i9", "region": "us-central1" }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 13933 } }
+      {
+        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
+        "value": { "doubleValue": 415219993183 }
+      }
     ]
   }
 }

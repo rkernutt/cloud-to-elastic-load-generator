@@ -1,87 +1,84 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-central-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "rds" }
   },
   "aws": {
     "dimensions": {
-      "DBInstanceIdentifier": "prod-db-replica",
-      "DatabaseClass": "db.t3.medium",
-      "EngineName": "mysql",
-      "SourceRegion": "eu-north-1"
+      "DBInstanceIdentifier": "prod-db-primary",
+      "DatabaseClass": "db.r5.large",
+      "EngineName": "postgres",
+      "SourceRegion": "eu-central-2"
     },
     "rds": {
       "db_instance": {
-        "identifier": "prod-db-replica",
-        "class": "db.r5.large",
-        "engine_name": "mysql",
-        "arn": "arn:aws:rds:eu-north-1:164820739518:db:prod-db-replica",
-        "status": "incompatible-parameters",
+        "identifier": "prod-db-primary",
+        "class": "db.r6g.xlarge",
+        "engine_name": "postgres",
+        "arn": "arn:aws:rds:eu-central-2:293847561023:db:prod-db-primary",
+        "status": "available",
         "role": "instance"
       },
-      "cpu": { "total": { "pct": 0.893 } },
-      "freeable_memory": { "bytes": 7912167538 },
-      "free_storage": { "bytes": 498882711668 },
-      "database_connections": 128,
-      "read_io": { "ops_per_sec": 2819.6930796473907 },
-      "write_io": { "ops_per_sec": 693.7961130765437 },
-      "latency": { "read": 0.4877436325190059, "write": 0.4503811246446333 },
+      "cpu": { "total": { "pct": 0.4523 } },
+      "freeable_memory": { "bytes": 3319631399 },
+      "free_storage": { "bytes": 139168254324 },
+      "database_connections": 274,
+      "read_io": { "ops_per_sec": 1839.260221507072 },
+      "write_io": { "ops_per_sec": 809.341312356787 },
+      "latency": { "read": 0.015886796032932044, "write": 0.008625315666401161 },
       "throughput": {
-        "read": 65373108,
-        "write": 78751592,
-        "network_receive": 65653415,
-        "network_transmit": 25029576
+        "read": 16667641,
+        "write": 44341245,
+        "network_receive": 63955631,
+        "network_transmit": 83451963
       },
-      "replica_lag": { "sec": 8491.637936717334 },
-      "swap_usage": { "bytes": 24192233 },
-      "disk_usage": { "bin_log": { "bytes": 868196992 } }
+      "replica_lag": { "sec": 68.06839736480835 },
+      "swap_usage": { "bytes": 96197815 },
+      "disk_usage": { "bin_log": { "bytes": 491066831 } }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-rds-logs-164820739518"
+        "name": "aws-rds-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-rds-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/164820739518/rds/eu-north-1/2026/04/13/rds_HHQ0MTRHSVM.log.gz" }
+      "object": { "key": "AWSLogs/293847561023/rds/eu-central-2/2026/04/13/rds_931HZZ7HS3L.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/rds/logs",
-      "log_stream": "eu-north-1/hfvcvjsx",
-      "ingestion_time": "2026-04-13T13:40:12.571Z"
+      "log_stream": "eu-central-2/bah1p8qa",
+      "ingestion_time": "2026-04-13T15:46:43.431Z"
     }
   },
   "db": {
-    "user": { "name": "admin" },
-    "name": "events",
-    "statement": "SELECT * FROM users WHERE LBTJEI",
+    "user": { "name": "replica" },
+    "name": "appdb",
+    "statement": "INSERT INTO orders VALUES E1RMXZ",
     "type": "sql"
   },
   "event": {
-    "duration": 7656035816.04819,
-    "outcome": "failure",
+    "duration": 1879762207.0282853,
+    "outcome": "success",
     "category": ["database"],
-    "type": ["error"],
+    "type": ["info", "access"],
     "dataset": "aws.rds",
     "provider": "rds.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"instanceId\":\"prod-db-replica\",\"engine\":\"mysql\",\"userId\":\"admin\",\"queryTime\":7.65603581604819,\"error\":\"ERROR 1045 (28000): Access denied for user 'admin'@'217.127.255.43' (using password: YES)\",\"timestamp\":\"2026-04-13T13:40:12.254Z\",\"osMetrics\":{\"cpuUtilization\":{\"guest\":0.22285464924117648,\"irq\":0.38635838575212944,\"system\":28.57857284983222,\"wait\":18.229075596576276,\"idle\":19.5,\"user\":33.072992635955124,\"total\":80.5},\"memory\":{\"total\":55433573171,\"free\":6271763490,\"cached\":541954323,\"active\":7865329806,\"inactive\":1848981597,\"buffers\":286534441},\"disk\":{\"readIOsPS\":2073.9195340309543,\"writeIOsPS\":1791.8324525030248,\"readKbPS\":275847.7558966719,\"writeKbPS\":503189.69215814077,\"avgQueueLen\":29.076889223681796,\"await\":151.93445241792898},\"network\":{\"rx\":79701549,\"tx\":22732749},\"numVCPUs\":32,\"uptime\":\"48 days, 15:49:43\"}}",
-  "log": { "level": "error" },
-  "error": {
-    "code": "StorageTypeNotSupported",
-    "message": "[Warning] Aborted connection 5884 to db: 'mydb' user: 'admin' host: '126.190.178.145' (Got an error reading communication packets)",
-    "type": "db"
-  },
+  "message": "LOG: duration: 1879.762 ms statement: SELECT * FROM users WHERE id = 842871",
+  "log": { "level": "info" },
+  "trace": { "id": "1IJ6ATJIWN3" },
+  "transaction": { "id": "5R9O7BMFWFH" },
   "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "hvqvfykk2bj"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "o8d6qrbbsxd"
   },
   "input": { "type": "aws-cloudwatch" }
 }

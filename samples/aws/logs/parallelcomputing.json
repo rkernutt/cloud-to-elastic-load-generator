@@ -1,55 +1,61 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-southeast-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "pcs" }
   },
   "aws": {
-    "dimensions": { "ClusterId": "pcs-86xdc58a", "QueueName": "gpu" },
+    "dimensions": { "ClusterId": "pcs-vj9m4iun", "QueueName": "high-priority" },
     "pcs": {
-      "cluster_id": "pcs-86xdc58a",
+      "cluster_id": "pcs-vj9m4iun",
       "scheduler": "slurm",
-      "queue_name": "gpu",
-      "job_id": "job-885953",
-      "job_state": "RUNNING",
-      "metrics": { "running_jobs": 355, "pending_jobs": 126, "compute_nodes_active": 700 }
+      "queue_name": "high-priority",
+      "job_id": "job-735526",
+      "job_state": "FAILED",
+      "metrics": { "running_jobs": 0, "pending_jobs": 100, "compute_nodes_active": 0 },
+      "error_code": "NodeProvisioningFailed"
     },
     "s3": {
       "bucket": {
-        "name": "aws-parallelcomputing-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-parallelcomputing-logs-814726593401"
+        "name": "aws-parallelcomputing-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-parallelcomputing-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/parallelcomputing/ap-northeast-1/2026/04/13/parallelcomputing_016IWSDSBOWP.log.gz"
+        "key": "AWSLogs/501938274650/parallelcomputing/ap-southeast-2/2026/04/13/parallelcomputing_7EL2QYZ2WDV.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/parallelcomputing/logs",
-      "log_stream": "ap-northeast-1/qecfhegb",
-      "ingestion_time": "2026-04-13T13:40:12.592Z"
+      "log_stream": "ap-southeast-2/frplt06z",
+      "ingestion_time": "2026-04-13T15:46:43.454Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.pcs",
     "provider": "pcs.amazonaws.com",
-    "duration": 3585000000,
+    "duration": 58813000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.pcs", "namespace": "default" },
-  "message": "PCS cluster pcs-86xdc58a: 355 running, 126 pending, 700 nodes active",
-  "log": { "level": "info" },
-  "host": { "name": "ip-244-76-63-45.ec2.internal", "hostname": "parallelcomputing-7i2x0jsm" },
+  "message": "PCS cluster pcs-vj9m4iun: NodeProvisioningFailed for job job-735526 in queue high-priority",
+  "log": { "level": "error" },
+  "error": {
+    "code": "NodeProvisioningFailed",
+    "message": "Parallel Computing Service job failed on cluster pcs-vj9m4iun",
+    "type": "process"
+  },
+  "host": { "name": "ip-67-108-12-101.ec2.internal", "hostname": "parallelcomputing-i3bq1kb6" },
   "service": { "name": "parallelcomputing", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "30mgaf3l5ap"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "k96gkfq5onh"
   },
   "input": { "type": "aws-cloudwatch" }
 }

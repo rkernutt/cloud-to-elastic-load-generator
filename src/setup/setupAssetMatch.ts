@@ -33,10 +33,17 @@ export function dashboardTitlePrefix(cloudId: CloudId): "AWS" | "GCP" | "Azure" 
 
 /**
  * Infer title fragment after cloud prefix (e.g. "Lambda" from "AWS Lambda — …").
+ * AWS dashboards use both "AWS …" and "Amazon …" prefixes.
  */
 export function dashboardTitleServiceFragment(d: DashboardDef, cloudId: CloudId): string | null {
-  const prefix = dashboardTitlePrefix(cloudId);
   const t = d.title?.trim() ?? "";
+  if (cloudId === "aws") {
+    const awsRe = /^AWS\s+(.+?)\s+[\u2014\u2013-]/i;
+    const amzRe = /^Amazon\s+(.+?)\s+[\u2014\u2013-]/i;
+    const m = t.match(awsRe) ?? t.match(amzRe);
+    return m ? m[1].trim() : null;
+  }
+  const prefix = dashboardTitlePrefix(cloudId);
   const re = new RegExp(`^${prefix}\\s+(.+?)\\s+[\\u2014\\u2013-]`, "i");
   const m = t.match(re);
   return m ? m[1].trim() : null;

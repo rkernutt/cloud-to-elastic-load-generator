@@ -1,65 +1,65 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ca-west-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "batch" }
   },
   "aws": {
-    "dimensions": { "JobQueue": "report-generation-queue" },
+    "dimensions": { "JobQueue": "cleanup-job-queue" },
     "batch": {
-      "job": { "name": "report-generation", "id": "7bihfsaf-y13u", "status": "SUCCEEDED" },
-      "job_queue": "report-generation-queue",
-      "compute_environment": "ce-ondemand",
-      "structured_logging": true,
+      "job": { "name": "cleanup-job", "id": "9onfyo9c-tfkb", "status": "SUCCEEDED" },
+      "job_queue": "cleanup-job-queue",
+      "compute_environment": "ce-spot",
+      "structured_logging": false,
       "metrics": {
-        "PendingJobCount": { "avg": 18 },
-        "RunnableJobCount": { "avg": 36 },
-        "StartingJobCount": { "avg": 12 },
-        "RunningJobCount": { "avg": 139 },
+        "PendingJobCount": { "avg": 5 },
+        "RunnableJobCount": { "avg": 29 },
+        "StartingJobCount": { "avg": 6 },
+        "RunningJobCount": { "avg": 20 },
         "SucceededJobCount": { "sum": 1 },
         "FailedJobCount": { "sum": 0 },
-        "CPUReserved": { "avg": 16.49016190636416 },
+        "CPUReserved": { "avg": 77.71030852307729 },
         "GPUReserved": { "avg": 0 },
-        "MemoryReserved": { "avg": 65.88090983960322 }
+        "MemoryReserved": { "avg": 28.664453855054497 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-batch-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-batch-logs-814726593401"
+        "name": "aws-batch-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-batch-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/batch/ap-northeast-3/2026/04/13/batch_ESD3R9FPYYO.log.gz"
+        "key": "AWSLogs/164820739518/batch/ca-west-1/2026/04/13/batch_W6KTWY3C8WL.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/batch/logs",
-      "log_stream": "ap-northeast-3/650k3j60",
-      "ingestion_time": "2026-04-13T13:40:12.583Z"
+      "log_stream": "ca-west-1/mmmq0gph",
+      "ingestion_time": "2026-04-13T15:46:43.444Z"
     }
   },
-  "process": { "pid": 39466, "name": "bash", "exit_code": 0 },
+  "process": { "pid": 22644, "name": "bash", "exit_code": 0 },
   "log": { "level": "warn" },
   "event": {
     "category": ["process"],
     "outcome": "success",
     "dataset": "aws.batch",
     "provider": "batch.amazonaws.com",
-    "duration": 3330000000000,
+    "duration": 2834000000000,
     "module": "aws"
   },
-  "message": "{\"jobId\":\"7bihfsaf-y13u\",\"jobName\":\"report-generation\",\"jobQueue\":\"report-generation-queue\",\"level\":\"warn\",\"message\":\"vCPU limit approaching: 980/1000\",\"timestamp\":\"2026-04-13T13:40:12.254Z\",\"arrayIndex\":33}",
-  "host": { "name": "ip-152-241-134-181.ec2.internal", "hostname": "batch-a6o3nyf0" },
+  "message": "vCPU limit approaching: 980/1000",
+  "host": { "name": "ip-204-217-77-245.ec2.internal", "hostname": "batch-z32txhbj" },
   "service": { "name": "batch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.batch", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "eoain64xhx"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "0sl2w8ao5xx"
   },
   "input": { "type": "aws-cloudwatch" }
 }

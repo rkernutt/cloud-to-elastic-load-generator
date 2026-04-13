@@ -1,56 +1,61 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ca-central-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "supplychain" }
   },
   "aws": {
-    "dimensions": { "InstanceId": "arn:aws:scn:us-west-2:164820739518:instance/f4pyjn2v3ve" },
+    "dimensions": { "InstanceId": "arn:aws:scn:ca-central-1:814726593401:instance/ugzb1kf1akj" },
     "supplychain": {
-      "instance_id": "arn:aws:scn:us-west-2:164820739518:instance/f4pyjn2v3ve",
-      "instance_name": "apac-logistics",
-      "namespace": "aws.supply_chain.insight",
-      "event_type": "scn.data.purchase_order",
-      "job_status": "SUCCESS",
-      "record_count": 884892,
-      "forecast_horizon_days": 16,
-      "data_lake_dataset": "shipments"
+      "instance_id": "arn:aws:scn:ca-central-1:814726593401:instance/ugzb1kf1akj",
+      "instance_name": "global-supply-chain",
+      "namespace": "aws.supply_chain.plan",
+      "event_type": "scn.data.shipment",
+      "job_status": "FAILED",
+      "record_count": 104962,
+      "forecast_horizon_days": 12,
+      "data_lake_dataset": "demand_forecast"
     },
     "s3": {
       "bucket": {
-        "name": "aws-supplychain-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-supplychain-logs-164820739518"
+        "name": "aws-supplychain-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-supplychain-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/supplychain/us-west-2/2026/04/13/supplychain_P2S2L6MNTF.log.gz"
+        "key": "AWSLogs/814726593401/supplychain/ca-central-1/2026/04/13/supplychain_R97XOXMICJ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/supplychain/logs",
-      "log_stream": "us-west-2/7wm4152f",
-      "ingestion_time": "2026-04-13T13:40:12.766Z"
+      "log_stream": "ca-central-1/ppvcwh2z",
+      "ingestion_time": "2026-04-13T15:46:43.631Z"
     }
   },
   "event": {
-    "action": "UpdateInstance",
-    "outcome": "success",
+    "action": "SendDataIntegrationEvent",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.supplychain",
     "provider": "scn.amazonaws.com",
     "module": "aws"
   },
-  "message": "Supply Chain UpdateInstance: instance=apac-logistics event=scn.data.purchase_order status=SUCCESS",
-  "log": { "level": "info" },
+  "message": "Supply Chain SendDataIntegrationEvent FAILED [global-supply-chain]: Integration timeout",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ResourceNotFoundException",
+    "message": "Supply Chain operation failed",
+    "type": "process"
+  },
   "service": { "name": "supplychain", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.supplychain", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "jdb5ygi1iok"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "tffh3uztmn"
   },
   "input": { "type": "aws-cloudwatch" }
 }

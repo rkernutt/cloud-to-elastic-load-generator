@@ -1,41 +1,41 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "408cb3cdcf4a545a33bf01bde93facbf" },
+  "trace": { "id": "de95e6cb26199927bb718bf75132a894" },
   "transaction": {
-    "id": "9eb678b820bdf92e",
-    "name": "report-generator",
+    "id": "1880d7193579dae9",
+    "name": "stream-processor",
     "type": "lambda",
-    "duration": { "us": 3488000 },
-    "result": "success",
+    "duration": { "us": 2615000 },
+    "result": "failure",
     "sampled": true,
     "span_count": { "started": 3, "dropped": 0 },
     "faas": {
       "coldstart": false,
-      "execution": "a1eaca80-e895-1e0b-7224-d2266292561c",
-      "trigger": { "type": "timer" }
+      "execution": "f624f81a-6083-138d-7e04-ca4f3df886dd",
+      "trigger": { "type": "pubsub" }
     }
   },
   "faas": {
-    "name": "report-generator",
-    "id": "arn:aws:lambda:us-east-1:345678901234:function:report-generator",
+    "name": "stream-processor",
+    "id": "arn:aws:lambda:eu-west-3:345678901234:function:stream-processor",
     "version": "$LATEST",
     "coldstart": false,
-    "execution": "a1eaca80-e895-1e0b-7224-d2266292561c",
-    "trigger": { "type": "timer" }
+    "execution": "f624f81a-6083-138d-7e04-ca4f3df886dd",
+    "trigger": { "type": "pubsub" }
   },
   "service": {
-    "name": "report-generator",
-    "environment": "dev",
+    "name": "stream-processor",
+    "environment": "staging",
     "version": "1.0.0",
-    "language": { "name": "java" },
-    "runtime": { "name": "java21", "version": "21.0.3" },
+    "language": { "name": "nodejs" },
+    "runtime": { "name": "nodejs20.x", "version": "20.15.1" },
     "framework": { "name": "AWS Lambda" }
   },
-  "agent": { "name": "otlp", "version": "1.6.0" },
+  "agent": { "name": "otlp", "version": "1.4.0" },
   "telemetry": {
-    "sdk": { "name": "opentelemetry", "language": "java", "version": "2.12.0" },
-    "distro": { "name": "elastic", "version": "1.6.0" },
+    "sdk": { "name": "opentelemetry", "language": "nodejs", "version": "1.30.1" },
+    "distro": { "name": "elastic", "version": "1.4.0" },
     "otel_pipeline": {
       "hop": "otel_collector",
       "export_protocol": "otlp",
@@ -44,11 +44,11 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
+    "region": "eu-west-3",
     "account": { "id": "345678901234", "name": "dev-aws" },
     "service": { "name": "lambda" }
   },
-  "event": { "outcome": "success", "module": "aws", "dataset": "aws.lambda_logs" },
+  "event": { "outcome": "failure", "module": "aws", "dataset": "aws.lambda_logs" },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
   "ecs": { "version": "8.11.0" },
   "input": { "type": "opentelemetry" }

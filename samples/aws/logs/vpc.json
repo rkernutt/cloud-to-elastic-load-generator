@@ -1,85 +1,80 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-south-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "vpc" }
   },
   "aws": {
-    "dimensions": { "VpcId": "vpc-pt6l9ui5" },
+    "dimensions": { "VpcId": "vpc-ehkhqvfq" },
     "vpcflow": {
       "version": "2",
-      "account_id": "293847561023",
-      "interface_id": "eni-zkux8oym",
-      "action": "REJECT",
+      "account_id": "738291046572",
+      "interface_id": "eni-xsf4l16m",
+      "action": "ACCEPT",
       "log_status": "OK",
-      "instance_id": "i-85afjs5y6sw",
-      "pkt_srcaddr": "138.225.70.1",
-      "pkt_dstaddr": "66.218.172.246",
-      "vpc_id": "vpc-pt6l9ui5",
-      "subnet_id": "subnet-q39rckey",
+      "instance_id": "i-wok8ao4g9c",
+      "pkt_srcaddr": "68.109.115.102",
+      "pkt_dstaddr": "87.5.82.199",
+      "vpc_id": "vpc-ehkhqvfq",
+      "subnet_id": "subnet-l10ajj15",
       "type": "IPv4"
     },
     "s3": {
       "bucket": {
-        "name": "aws-vpc-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-vpc-logs-293847561023"
+        "name": "aws-vpc-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-vpc-logs-738291046572"
       },
-      "object": { "key": "AWSLogs/293847561023/vpc/eu-south-2/2026/04/13/vpc_9WRK726AT99.log.gz" }
+      "object": { "key": "AWSLogs/738291046572/vpc/ap-south-1/2026/04/13/vpc_A29S3GHQ9K7.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/vpc/logs",
-      "log_stream": "eu-south-2/y7zm582k",
-      "ingestion_time": "2026-04-13T13:40:12.566Z"
+      "log_stream": "ap-south-1/mj6vpg3t",
+      "ingestion_time": "2026-04-13T15:46:43.424Z"
     }
   },
   "source": {
-    "ip": "138.225.70.1",
-    "port": 6921,
+    "ip": "68.109.115.102",
+    "port": 8139,
     "geo": {
-      "country_iso_code": "JP",
-      "country_name": "Japan",
-      "city_name": "Tokyo",
-      "location": { "lat": 35.6762, "lon": 139.6503 }
+      "country_iso_code": "CN",
+      "country_name": "China",
+      "city_name": "Beijing",
+      "location": { "lat": 39.9042, "lon": 116.4074 }
     }
   },
   "destination": {
-    "ip": "66.218.172.246",
-    "port": 80,
+    "ip": "87.5.82.199",
+    "port": 8443,
     "geo": {
-      "country_iso_code": "IN",
-      "country_name": "India",
-      "city_name": "Mumbai",
-      "location": { "lat": 19.076, "lon": 72.8777 }
+      "country_iso_code": "US",
+      "country_name": "United States",
+      "city_name": "New York",
+      "location": { "lat": 40.7128, "lon": -74.006 }
     }
   },
-  "network": { "transport": "udp", "bytes": 59179, "packets": 83, "direction": "inbound" },
+  "network": { "transport": "tcp", "bytes": 8421, "packets": 21, "direction": "outbound" },
   "event": {
-    "action": "reject",
-    "outcome": "failure",
+    "action": "accept",
+    "outcome": "success",
     "category": ["network"],
-    "type": ["connection", "denied"],
+    "type": ["connection"],
     "dataset": "aws.vpcflow",
     "provider": "ec2.amazonaws.com",
-    "duration": 500000000,
+    "duration": 345000000,
     "module": "aws"
   },
-  "message": "2 293847561023 eni-zkux8oym 138.225.70.1 66.218.172.246 6921 80 17 83 59179 1776087612 1776087640 REJECT OK",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "FlowRejected",
-    "message": "Security group or ACL rejected flow",
-    "type": "network"
-  },
+  "message": "2 738291046572 eni-xsf4l16m 68.109.115.102 87.5.82.199 8139 8443 6 21 8421 1776095203 1776095205 ACCEPT OK",
+  "log": { "level": "info" },
   "service": { "name": "vpc", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.vpcflow", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "8e1bajobdvy"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "79c42uwy297"
   },
   "input": { "type": "aws-s3" }
 }

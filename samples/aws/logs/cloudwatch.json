@@ -1,54 +1,59 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-4",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-northeast-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "cloudwatchalarms" }
   },
   "aws": {
     "cloudwatch": {
-      "alarm_name": "ecs-memory",
-      "alarm_state": "OK",
+      "alarm_name": "lambda-errors",
+      "alarm_state": "ALARM",
       "previous_state": "ALARM",
-      "namespace": "Custom/Application",
+      "namespace": "AWS/ApplicationELB",
       "metric_name": "Duration",
-      "threshold": 95,
+      "threshold": 80,
       "evaluation_periods": 2,
-      "metric_value": 31.381644941368727,
-      "statistic": "Average",
-      "period_seconds": 60,
+      "metric_value": 99.24114981610404,
+      "statistic": "Maximum",
+      "period_seconds": 3600,
       "treat_missing_data": "notBreaching"
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudwatch-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-cloudwatch-logs-293847561023"
+        "name": "aws-cloudwatch-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-cloudwatch-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/cloudwatch/ap-southeast-4/2026/04/13/cloudwatch_Z7UPBQ6MCI.log.gz"
+        "key": "AWSLogs/738291046572/cloudwatch/ap-northeast-2/2026/04/13/cloudwatch_TUD6KJQ7OX.log.gz"
       }
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["configuration", "process"],
     "dataset": "aws.cloudwatch",
     "provider": "monitoring.amazonaws.com",
-    "duration": 3600000000000,
+    "duration": 300000000000,
     "module": "aws"
   },
-  "message": "CloudWatch alarm \"ecs-memory\": OK (Custom/Application/Duration=31.4)",
-  "log": { "level": "info" },
+  "message": "CloudWatch alarm \"lambda-errors\": ALARM (AWS/ApplicationELB/Duration=99.2)",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "AlarmTriggered",
+    "message": "Alarm lambda-errors: ALARM",
+    "type": "monitoring"
+  },
   "service": { "name": "cloudwatch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-4",
-    "ephemeral_id": "a2f5py9g1c6"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "43rzgfe3zv4"
   },
   "input": { "type": "aws-cloudwatch" }
 }

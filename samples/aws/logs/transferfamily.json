@@ -1,59 +1,66 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-southeast-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "transferfamily" }
   },
   "aws": {
-    "dimensions": { "ServerId": "s-hbvjff53ui", "Protocol": "SFTP" },
+    "dimensions": { "ServerId": "s-09zulvgcna2h", "Protocol": "AS2" },
     "transferfamily": {
-      "server_id": "s-hbvjff53ui",
-      "protocol": "SFTP",
-      "user_name": "data-ingest",
-      "session_id": "3fy5fxycxfx",
-      "file_path": "/reports/daily-sales.xlsx",
-      "operation": "DELETE",
-      "bytes_transferred": 1033872651,
-      "transfer_rate_mbps": 253.69207276867547,
-      "duration_seconds": 199.6581030481657,
-      "s3_bucket": "transfer-landing"
+      "server_id": "s-09zulvgcna2h",
+      "protocol": "AS2",
+      "user_name": "etl-transfer",
+      "session_id": "ajy0wgx9xd",
+      "file_path": "/data/events.json",
+      "operation": "GET",
+      "bytes_transferred": 185532042,
+      "transfer_rate_mbps": 103.1688452270672,
+      "duration_seconds": 189.9025216754852,
+      "s3_bucket": "transfer-landing",
+      "as2_message_id": "6ykgq2z7hzc",
+      "error_code": "FILE_NOT_FOUND"
     },
     "s3": {
       "bucket": {
-        "name": "aws-transferfamily-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-transferfamily-logs-293847561023"
+        "name": "aws-transferfamily-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-transferfamily-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/transferfamily/eu-central-1/2026/04/13/transferfamily_LD4SXASLYEA.log.gz"
+        "key": "AWSLogs/501938274650/transferfamily/ap-southeast-2/2026/04/13/transferfamily_DDDSAW0A9HE.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/transferfamily/logs",
-      "log_stream": "eu-central-1/xa9vkrq1",
-      "ingestion_time": "2026-04-13T13:40:12.781Z"
+      "log_stream": "ap-southeast-2/yi936wfe",
+      "ingestion_time": "2026-04-13T15:46:43.645Z"
     }
   },
-  "source": { "ip": "182.208.29.230" },
+  "source": { "ip": "93.157.247.55" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["file", "network"],
     "dataset": "aws.transfer",
     "provider": "transfer.amazonaws.com",
-    "duration": 15191000000,
+    "duration": 296744000000,
     "module": "aws"
   },
-  "message": "Transfer Family SFTP [data-ingest] /reports/daily-sales.xlsx: 986.0MB",
-  "log": { "level": "info" },
+  "message": "Transfer Family AS2 FAILED [etl-transfer] /data/events.json: Auth failure:",
+  "log": { "level": "error" },
+  "error": {
+    "code": "PERMISSION_DENIED",
+    "message": "Transfer Family operation failed",
+    "type": "file"
+  },
   "service": { "name": "transferfamily", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.transferfamily", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "csrbr3lb5j9"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "fg7egeo9kah"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -122,13 +122,13 @@ You can install individual groups or all groups at once.
 
 ### networking (5 jobs)
 
-| Job ID                           | Service     | Detector                   | What it detects                                          |
-| -------------------------------- | ----------- | -------------------------- | -------------------------------------------------------- |
-| `aws-alb-5xx-spike`              | ALB         | high_count by target group | Spikes in ALB 5xx responses per target group             |
-| `aws-alb-response-time-anomaly`  | ALB         | high_mean                  | Unusual backend response times in ALB                    |
-| `aws-alb-rare-user-agent`        | ALB         | rare by user agent         | Rare user agent strings (scanners, bots, attack tooling) |
-| `aws-apigateway-latency-anomaly` | API Gateway | high_mean by stage         | Unusual API Gateway latency per stage                    |
-| `aws-apigateway-error-spike`     | API Gateway | high_count by stage        | Spikes in API Gateway 4xx/5xx errors per stage           |
+| Job ID                                | Service     | Detector                   | What it detects                                                 |
+| ------------------------------------- | ----------- | -------------------------- | --------------------------------------------------------------- |
+| `aws-alb-5xx-spike`                   | ALB         | high_count by target group | Spikes in ALB 5xx responses per target group                    |
+| `aws-alb-response-time-anomaly`       | ALB         | high_mean                  | Unusual backend response times in ALB                           |
+| `aws-alb-rare-user-agent`             | ALB         | rare by user agent         | Rare user agent strings (scanners, bots, attack tooling)        |
+| `aws-apigateway-logs-latency-anomaly` | API Gateway | high_mean by stage         | Unusual API Gateway latency per stage (API Gateway access logs) |
+| `aws-apigateway-error-spike`          | API Gateway | high_count by stage        | Spikes in API Gateway 4xx/5xx errors per stage                  |
 
 ### networking-extended (4 jobs)
 
@@ -160,14 +160,18 @@ You can install individual groups or all groups at once.
 | `aws-opensearch-jvm-pressure`         | OpenSearch | high_mean by domain  | Unusual JVM memory pressure in OpenSearch (pre-OOM and GC storm warning)    |
 | `aws-opensearch-write-rejections`     | OpenSearch | high_mean by domain  | Unusual write rejection spikes in OpenSearch (indexing backpressure)        |
 
-### streaming (4 jobs)
+### streaming (12 jobs in `streaming-jobs.json`)
 
-| Job ID                             | Service | Detector            | What it detects                                           |
-| ---------------------------------- | ------- | ------------------- | --------------------------------------------------------- |
-| `aws-kinesis-iterator-age-anomaly` | Kinesis | high_mean by stream | Iterator age anomalies (consumers falling behind)         |
-| `aws-kinesis-throughput-anomaly`   | Kinesis | high_sum by stream  | Unusual write throughput spikes per stream                |
-| `aws-sqs-message-age-anomaly`      | SQS     | high_mean by queue  | Message age anomalies (slow consumers, DLQ build-up)      |
-| `aws-sqs-not-visible-spike`        | SQS     | high_count by queue | Spikes in not-visible message count (processing failures) |
+| Job ID                               | Service   | Detector            | What it detects                                                                  |
+| ------------------------------------ | --------- | ------------------- | -------------------------------------------------------------------------------- |
+| `aws-kinesis-iterator-age-anomaly`   | Kinesis   | high_mean by stream | Iterator age anomalies (consumers falling behind)                                |
+| `aws-kinesis-throughput-anomaly`     | Kinesis   | high_sum by stream  | Unusual write throughput spikes per stream                                       |
+| `aws-sqs-message-age-anomaly`        | SQS       | high_mean by queue  | Message age anomalies (slow consumers, DLQ build-up)                             |
+| `aws-sqs-not-visible-spike`          | SQS       | high_count by queue | Spikes in not-visible message count (processing failures)                        |
+| `aws-msk-topic-lag-duration-anomaly` | MSK/Kafka | high_mean by topic  | Unusual consumer lag duration by topic (distinct from messaging cluster lag job) |
+| `aws-msk-failure-spike`              | MSK/Kafka | high_count by topic | Failure event spikes by topic                                                    |
+
+Also includes Kinesis Data Analytics, Firehose, and SNS jobs — see the JSON file for full IDs.
 
 ### messaging (5 jobs)
 
@@ -231,12 +235,12 @@ Jobs in this group target the `traces-apm-*` data streams produced by the load g
 
 ### serverless (4 jobs)
 
-| Job ID                           | Service     | Detector                    | What it detects                                                          |
-| -------------------------------- | ----------- | --------------------------- | ------------------------------------------------------------------------ |
-| `aws-apigateway-5xx-error-spike` | API Gateway | high_count by stage         | Unusual spikes in 5xx server errors per stage (backend failures)         |
-| `aws-apigateway-throttle-spike`  | API Gateway | high_count                  | Unusual spikes in throttled (429) requests — quota exhaustion or abuse   |
-| `aws-apigateway-latency-anomaly` | API Gateway | high_mean duration by stage | Unusual API Gateway integration latency (backend slowdowns, cold starts) |
-| `aws-lambda-cold-start-spike`    | Lambda      | high_count by function      | Unusual Lambda cold start frequency per function (scaling or deployment) |
+| Job ID                                       | Service     | Detector                    | What it detects                                                          |
+| -------------------------------------------- | ----------- | --------------------------- | ------------------------------------------------------------------------ |
+| `aws-apigateway-5xx-error-spike`             | API Gateway | high_count by stage         | Unusual spikes in 5xx server errors per stage (backend failures)         |
+| `aws-apigateway-throttle-spike`              | API Gateway | high_count                  | Unusual spikes in throttled (429) requests — quota exhaustion or abuse   |
+| `aws-apigateway-integration-latency-anomaly` | API Gateway | high_mean duration by stage | Unusual API Gateway integration latency (backend slowdowns, cold starts) |
+| `aws-lambda-cold-start-spike`                | Lambda      | high_count by function      | Unusual Lambda cold start frequency per function (scaling or deployment) |
 
 ### devtools (5 jobs)
 

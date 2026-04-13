@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-13T13:40:12.254Z",
+  "@timestamp": "2026-04-13T15:46:43.100Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,61 +7,70 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-3",
-    "account": { "id": "738291046572", "name": "globex-development" }
+    "region": "ap-southeast-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" }
   },
   "resource": {
-    "id": "arn:aws:ec2:eu-west-3:738291046572:security-group/sg-gbhls1gd",
-    "name": "sg-gbhls1gd",
-    "sub_type": "security-group",
+    "id": "arn:aws:ec2:ap-southeast-2:164820739518:vpc/vpc-vbc8vvo4",
+    "name": "vpc-vbc8vvo4",
+    "sub_type": "vpc",
     "type": "cloud-network"
   },
   "rule": {
-    "id": "cis_5_4",
-    "name": "Ensure default VPC security group restricts all traffic",
-    "section": "5.4",
+    "id": "cis_5_1",
+    "name": "Ensure VPC Flow Logs are enabled in all VPCs",
+    "section": "5.1",
     "tags": ["Networking"],
     "benchmark": {
       "id": "cis_aws",
       "version": "v1.5.0",
-      "rule_number": "5.4",
+      "rule_number": "5.1",
       "posture_type": "cspm"
-    }
+    },
+    "impact": "Non-compliance with CIS AWS 5.1 may expose account to unauthorized access.",
+    "remediation": "Remediate per CIS AWS Foundations Benchmark v1.5.0 section 5.1."
   },
-  "result": { "evaluation": "passed" },
-  "severity": "none",
+  "result": { "evaluation": "failed" },
+  "severity": "medium",
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_cspm",
     "module": "aws"
   },
-  "message": "CSPM [CIS AWS 1.5 / 5.4] passed: Ensure default VPC security group restricts all traffic",
-  "log": { "level": "info" },
+  "message": "CSPM [CIS AWS 1.5 / 5.1] failed: Ensure VPC Flow Logs are enabled in all VPCs",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "CIS_CIS_5_1",
+    "message": "CSPM check failed: Ensure VPC Flow Logs are enabled in all VPCs",
+    "type": "compliance"
+  },
   "service": { "name": "cspm", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-3",
-    "ephemeral_id": "hq7q8dz7hqn"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "67ofpy5uxeo"
   },
   "input": { "type": "http_endpoint" },
   "aws": {
     "s3": {
       "bucket": {
-        "name": "aws-cspm-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-cspm-logs-738291046572"
+        "name": "aws-cspm-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-cspm-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/738291046572/cspm/eu-west-3/2026/04/13/cspm_ZKGUAEO2R1I.log.gz" }
+      "object": {
+        "key": "AWSLogs/164820739518/cspm/ap-southeast-2/2026/04/13/cspm_85V13PJQK1P.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/cspm/logs",
-      "log_stream": "eu-west-3/yj6uhzn1",
-      "ingestion_time": "2026-04-13T13:40:12.642Z"
+      "log_stream": "ap-southeast-2/vdf9v9wx",
+      "ingestion_time": "2026-04-13T15:46:43.502Z"
     }
   }
 }

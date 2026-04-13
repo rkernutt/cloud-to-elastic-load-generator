@@ -170,8 +170,12 @@ export function generateGcpCspmFindings(ts: string, er: number): EcsDocument[] {
           rule_number: rule.section,
           posture_type: "cspm",
         },
-        impact: isFailed ? `CIS GCP ${rule.section} gap may widen blast radius in ${project.id}.` : null,
-        remediation: isFailed ? `Remediate per CIS GCP Foundations Benchmark section ${rule.section}.` : null,
+        impact: isFailed
+          ? `CIS GCP ${rule.section} gap may widen blast radius in ${project.id}.`
+          : null,
+        remediation: isFailed
+          ? `Remediate per CIS GCP Foundations Benchmark section ${rule.section}.`
+          : null,
       },
       result: { evaluation },
       severity: isFailed ? rule.severity : "none",
