@@ -1,39 +1,40 @@
 {
-  "@timestamp": "2026-04-10T13:54:21.951Z",
+  "@timestamp": "2026-04-13T10:53:45.336Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-east-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "ses" }
   },
   "aws": {
     "dimensions": {
-      "ses:configuration-set": "marketing",
+      "ses:configuration-set": "alerts",
       "ses:from-domain": "company.com",
-      "ses:to-country": "GB",
-      "ses:to-isp": "AOL"
+      "ses:to-country": "AU",
+      "ses:to-isp": "Hotmail"
     },
     "ses": {
-      "message_id": "7e6o2wclyg.qgwx9znfkf@ap-south-1.amazonses.com",
-      "event_type": "Complaint",
+      "message_id": "bo6a9vg201.14tqv90qig@ap-east-1.amazonses.com",
+      "event_type": "Send",
       "from_address": "noreply@company.com",
-      "destination": "user_6mafzc@yahoo.com",
-      "configuration_set": "marketing",
+      "destination": "user_dvaaio@outlook.com",
+      "configuration_set": "alerts",
       "bounce": {},
-      "complaint": { "feedback_type": "not-spam" },
-      "sending_account_id": "814726593401",
+      "complaint": {},
+      "sending_account_id": "293847561023",
       "delivery": {
-        "recipients": ["user_6mafzc@yahoo.com"],
-        "timestamp": "2026-04-10T13:54:21.951Z",
-        "processing_time_ms": 2789
+        "recipients": ["user_dvaaio@outlook.com"],
+        "timestamp": "2026-04-13T10:53:45.336Z",
+        "processing_time_ms": 2194,
+        "smtp_response": "250 2.0.0 OK"
       },
       "metrics": {
         "Send": { "sum": 1 },
-        "Delivery": { "sum": 0 },
-        "Bounce": { "sum": 1 },
-        "Complaint": { "sum": 1 },
+        "Delivery": { "sum": 1 },
+        "Bounce": { "sum": 0 },
+        "Complaint": { "sum": 0 },
         "Reject": { "sum": 0 },
-        "Open": { "sum": 0 },
+        "Open": { "sum": 1 },
         "Click": { "sum": 0 },
         "RenderingFailure": { "sum": 0 },
         "DeliveryDelay": { "sum": 0 }
@@ -41,36 +42,35 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-ses-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-ses-logs-814726593401"
+        "name": "aws-ses-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-ses-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/814726593401/ses/ap-south-1/2026/04/10/ses_CK9WVRDZJ7V.log.gz" }
+      "object": { "key": "AWSLogs/293847561023/ses/ap-east-1/2026/04/13/ses_3SH32UHQ8HP.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/ses/logs",
-      "log_stream": "ap-south-1/7l0hdqtk",
-      "ingestion_time": "2026-04-10T13:54:29.112Z"
+      "log_stream": "ap-east-1/2267oseg",
+      "ingestion_time": "2026-04-13T10:53:45.835Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["email", "process"],
     "dataset": "aws.ses",
     "provider": "email.amazonaws.com",
-    "duration": 2998000000,
+    "duration": 2018000000,
     "module": "aws"
   },
-  "message": "SES Complaint FAILED for user_6mafzc@yahoo.com: Account suspended",
-  "log": { "level": "warn" },
-  "error": { "code": "SESDeliveryFailure", "message": "SES delivery failed", "type": "email" },
+  "message": "SES Send: noreply@company.com -> user_dvaaio@outlook.com",
+  "log": { "level": "info" },
   "service": { "name": "ses", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.ses", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "vpow2l8iklb"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "9jiiv6rzypm"
   },
   "input": { "type": "aws-cloudwatch" }
 }

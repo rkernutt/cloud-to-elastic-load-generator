@@ -172,6 +172,85 @@
         "query_delay": "60s",
         "delayed_data_check_config": { "enabled": true }
       }
+    },
+    {
+      "id": "azure-iot-hub-device-failure-spike",
+      "description": "Spikes in IoT Hub device failures per device",
+      "job": {
+        "description": "Spikes in IoT Hub device failures per device",
+        "groups": ["azure", "iot"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.iot_hub.device_id",
+              "function": "high_count",
+              "partition_field_name": "azure.iot_hub.device_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.iot_hub.device_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "cloud.service.name": "Microsoft.Devices/IotHubs" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-iot-hub-message-anomaly",
+      "description": "Unusual IoT Hub message volume per device",
+      "job": {
+        "description": "Unusual IoT Hub message volume per device",
+        "groups": ["azure", "iot"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.iot_hub.device_id",
+              "function": "high_count",
+              "partition_field_name": "azure.iot_hub.device_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.iot_hub.device_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "cloud.service.name": "Microsoft.Devices/IotHubs" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
     }
   ]
 }

@@ -1,37 +1,37 @@
 {
-  "@timestamp": "2026-04-10T13:54:21.951Z",
+  "@timestamp": "2026-04-13T10:53:45.336Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-west-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "temperature-alert-model", "KeyValue": "zone-B" },
+    "dimensions": { "DetectorModelName": "motor-health-detector", "KeyValue": "machine-prod-1" },
     "iotevents": {
-      "detector_model_name": "temperature-alert-model",
-      "detector_id": "zone-B",
-      "key_value": "zone-B",
-      "event_name": "ActionExecuted",
-      "from_state": "Warning",
-      "to_state": "Alarm",
-      "input_name": "CommandInput",
-      "action_type": "SetTimer",
-      "timer_name": "alarmTimer"
+      "detector_model_name": "motor-health-detector",
+      "detector_id": "machine-prod-1",
+      "key_value": "machine-prod-1",
+      "event_name": "AlarmActivated",
+      "from_state": "Normal",
+      "to_state": "Normal",
+      "input_name": "SensorInput",
+      "action_type": "Lambda",
+      "condition_expression": "$input.SensorInput.temperature > 85"
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotevents-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-iotevents-logs-293847561023"
+        "name": "aws-iotevents-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-iotevents-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/iotevents/ap-northeast-3/2026/04/10/iotevents_8VCX3TD6QGH.log.gz"
+        "key": "AWSLogs/501938274650/iotevents/us-west-1/2026/04/13/iotevents_I9US7CG4HOD.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "ap-northeast-3/k1wlk222",
-      "ingestion_time": "2026-04-10T13:54:29.270Z"
+      "log_stream": "us-west-1/i8aw9g3d",
+      "ingestion_time": "2026-04-13T10:53:45.843Z"
     }
   },
   "event": {
@@ -39,19 +39,19 @@
     "category": ["process"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 186000000,
+    "duration": 436000000,
     "module": "aws"
   },
-  "message": "IoT Events temperature-alert-model/zone-B: Warning → Alarm [ActionExecuted]",
-  "log": { "level": "warn" },
+  "message": "IoT Events motor-health-detector/machine-prod-1: Normal → Normal [AlarmActivated]",
+  "log": { "level": "info" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iotevents", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "2qh97occ75y"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "mnzrkq2ukr"
   },
   "input": { "type": "aws-cloudwatch" }
 }

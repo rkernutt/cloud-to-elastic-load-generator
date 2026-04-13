@@ -1,21 +1,22 @@
 {
-  "@timestamp": "2026-04-10T13:54:21.951Z",
+  "@timestamp": "2026-04-13T10:53:45.336Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
+    "region": "us-east-1",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "keyspaces" }
   },
   "aws": {
     "keyspaces": {
-      "keyspace_name": "user_data",
-      "table_name": "inventory",
-      "operation": "BATCH",
-      "read_capacity_units": 33.289089696088624,
-      "write_capacity_units": 25.091890169809776,
-      "rows_returned": 0,
-      "duration_ms": 93,
-      "cql_version": "3.11.2"
+      "keyspace_name": "sensor_data",
+      "table_name": "users",
+      "operation": "SELECT",
+      "read_capacity_units": 0,
+      "write_capacity_units": 0,
+      "rows_returned": 902,
+      "duration_ms": 258,
+      "cql_version": "3.11.2",
+      "error_code": "WriteConflictException"
     },
     "s3": {
       "bucket": {
@@ -23,33 +24,38 @@
         "arn": "arn:aws:s3:::aws-keyspaces-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/keyspaces/ap-northeast-1/2026/04/10/keyspaces_KE5M6DCSYC.log.gz"
+        "key": "AWSLogs/814726593401/keyspaces/us-east-1/2026/04/13/keyspaces_59NDO6313JK.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/keyspaces/logs",
-      "log_stream": "ap-northeast-1/0wgrfxhm",
-      "ingestion_time": "2026-04-10T13:54:27.267Z"
+      "log_stream": "us-east-1/annatu5u",
+      "ingestion_time": "2026-04-13T10:53:45.755Z"
     }
   },
   "event": {
-    "duration": 92983248.26060711,
-    "outcome": "success",
+    "duration": 257726735.98444846,
+    "outcome": "failure",
     "category": "database",
     "dataset": "aws.keyspaces",
     "provider": "cassandra.amazonaws.com",
     "module": "aws"
   },
-  "message": "Keyspaces BATCH on user_data.inventory: 93ms",
-  "log": { "level": "info" },
+  "message": "Keyspaces SELECT on sensor_data.users FAILED: Throughput exceeded",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ProvisionedThroughputExceededException",
+    "message": "Keyspaces operation failed",
+    "type": "db"
+  },
   "service": { "name": "keyspaces", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.keyspaces", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "h47pkvhjhih"
+    "name": "filebeat-aws-us-east-1",
+    "ephemeral_id": "cql1sx710e"
   },
   "input": { "type": "aws-cloudwatch" }
 }

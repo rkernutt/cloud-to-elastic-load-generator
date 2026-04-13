@@ -23,4 +23,34 @@ export const AZURE_TRACE_SERVICES = [
     id: "workflow-durable-orchestration",
     label: "Durable Functions — HTTP starter → orchestration → 3 activities",
   },
+  {
+    id: "cosmos-db",
+    label: "Cosmos DB",
+    desc: "NoSQL document reads/writes — partition key routing spans via OTel SDK",
+    group: "Single-Service",
+  },
+  {
+    id: "sql-database",
+    label: "Azure SQL Database",
+    desc: "SQL query spans — connection pool + parameterized queries via OTel JDBC/ADO.NET",
+    group: "Single-Service",
+  },
+  {
+    id: "event-hubs",
+    label: "Event Hubs",
+    desc: "Producer/consumer traces — sendBatch and receiveMessages spans with partition context",
+    group: "Single-Service",
+  },
+  {
+    id: "key-vault",
+    label: "Key Vault",
+    desc: "Secret and key access spans — getSecret, listVersions via OTel SDK",
+    group: "Single-Service",
+  },
+  {
+    id: "logic-apps",
+    label: "Logic Apps",
+    desc: "Workflow action chain — trigger + HTTP/ServiceBus/notification action spans",
+    group: "Single-Service",
+  },
 ] as const;

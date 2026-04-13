@@ -9,6 +9,16 @@ import {
 } from "../../data/elasticMaps.js";
 import type { MetricGenerator } from "../../../aws/generators/types.js";
 import { makeAzureGenericMetricGenerator } from "./generic.js";
+import {
+  generateIotHubMetrics,
+  generateLogicAppsMetrics,
+  generateApiManagementMetrics,
+  generateEventGridMetrics,
+  generateSynapseWorkspaceMetrics,
+  generateDatabricksMetrics,
+  generateCosmosDbDedicatedMetrics,
+  generateEventHubsDedicatedMetrics,
+} from "./dedicated.js";
 import { mergeAzureMetricVariants } from "../mergeHelpers.js";
 import { M365_METRICS_GENERATORS } from "../../../m365/generators/metrics/index.js";
 import { M365_METRIC_SERVICE_IDS_FOR_AZURE } from "../../../cloud/m365Config.js";
@@ -21,8 +31,19 @@ function azureMetricsDataset(svcId: string): string {
   );
 }
 
+const DEDICATED_METRICS: Record<string, MetricGenerator> = {
+  "iot-hub": generateIotHubMetrics,
+  "logic-apps": generateLogicAppsMetrics,
+  "api-management": generateApiManagementMetrics,
+  "event-grid": generateEventGridMetrics,
+  "synapse-workspace": generateSynapseWorkspaceMetrics,
+  databricks: generateDatabricksMetrics,
+  "cosmos-db": generateCosmosDbDedicatedMetrics,
+  "event-hubs": generateEventHubsDedicatedMetrics,
+};
+
 function metricGenForId(id: string): MetricGenerator {
-  return makeAzureGenericMetricGenerator(id, azureMetricsDataset(id));
+  return DEDICATED_METRICS[id] ?? makeAzureGenericMetricGenerator(id, azureMetricsDataset(id));
 }
 
 const METRIC_MERGE_VARIANTS: Record<string, string[]> = {

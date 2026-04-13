@@ -25,6 +25,13 @@ import {
 import { generatePubSubMetrics, generateDataflowMetrics } from "./streaming.js";
 import { generateBigQueryMetrics, generateDataprocMetrics } from "./analytics.js";
 import { mergeGcpMetricVariants } from "../mergeHelpers.js";
+import {
+  generateCloudFunctionsMetrics,
+  generateCloudRunMetrics,
+  generateAppEngineMetrics,
+} from "./serverless.js";
+import { generateCloudStorageMetrics } from "./storage.js";
+import { generateVertexAiMetrics } from "./aiml.js";
 
 function gcpMetricsDataset(svcId: string): string {
   return (
@@ -47,6 +54,11 @@ const DEDICATED: Record<string, MetricGenerator> = {
   dataflow: generateDataflowMetrics,
   bigquery: generateBigQueryMetrics,
   dataproc: generateDataprocMetrics,
+  "cloud-functions": generateCloudFunctionsMetrics,
+  "cloud-run": generateCloudRunMetrics,
+  "app-engine": generateAppEngineMetrics,
+  "cloud-storage": generateCloudStorageMetrics,
+  "vertex-ai": generateVertexAiMetrics,
 };
 
 function metricGenForId(id: string): MetricGenerator {

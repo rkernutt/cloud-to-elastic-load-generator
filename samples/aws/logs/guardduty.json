@@ -1,103 +1,99 @@
 {
-  "@timestamp": "2026-04-10T13:54:21.951Z",
+  "@timestamp": "2026-04-13T10:53:45.336Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-south-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "6knpnfru4xu" },
+    "dimensions": { "DetectorId": "p7luzrcy3n" },
     "guardduty": {
       "schema_version": "2.0",
-      "account_id": "738291046572",
-      "region": "ap-southeast-3",
+      "account_id": "814726593401",
+      "region": "ap-south-2",
       "partition": "aws",
-      "id": "6vu1w3dge1w",
-      "arn": "arn:aws:guardduty:ap-southeast-3:738291046572:detector/6knpnfru4xu/finding/6vu1w3dge1w",
-      "type": "Exfiltration:S3/MaliciousIPCaller",
-      "title": "S3 MaliciousIPCaller",
-      "description": "GuardDuty detected suspicious activity: Exfiltration:S3/MaliciousIPCaller",
-      "created_at": "2026-04-10T13:54:21.951Z",
-      "updated_at": "2026-04-10T13:54:21.951Z",
-      "severity": { "code": 5, "value": "Medium" },
-      "confidence": 72.73612126298609,
+      "id": "9l7demt8huv",
+      "arn": "arn:aws:guardduty:ap-south-2:814726593401:detector/p7luzrcy3n/finding/9l7demt8huv",
+      "type": "Recon:EC2/PortScan",
+      "title": "EC2 PortScan",
+      "description": "GuardDuty detected suspicious activity: Recon:EC2/PortScan",
+      "created_at": "2026-04-13T10:53:45.336Z",
+      "updated_at": "2026-04-13T10:53:45.336Z",
+      "severity": { "code": 4, "value": "Medium" },
+      "confidence": 79.78962957809549,
       "resource": {
-        "type": "EKSCluster",
+        "type": "S3Bucket",
         "instance_details": {
-          "availability_zone": "ap-southeast-3a",
-          "instance": { "id": "i-ff7jutwnwcc", "type": "m5.large", "state": "running" },
-          "image": { "id": "ami-mqrhff8n", "description": "Amazon Linux 2" },
+          "availability_zone": "ap-south-2a",
+          "instance": { "id": "i-wykyvtoilvj", "type": "m5.large", "state": "running" },
+          "image": { "id": "ami-8fy3hfku", "description": "Amazon Linux 2" },
           "network_interfaces": [
             {
-              "network_interface_id": "eni-pscjbmfp",
-              "private_ip_address": "109.25.194.29",
-              "subnet_id": "subnet-mdycxqb7",
-              "vpc_id": "vpc-naeuk8mq",
-              "security_groups": [{ "group_id": "sg-8dcwwlje", "group_name": "default" }]
+              "network_interface_id": "eni-hqqhk8ia",
+              "private_ip_address": "61.115.131.51",
+              "subnet_id": "subnet-lxglt7rm",
+              "vpc_id": "vpc-htabyee9",
+              "security_groups": [{ "group_id": "sg-ooxemo1l", "group_name": "default" }]
             }
           ]
         }
       },
       "service": {
-        "detector_id": "6knpnfru4xu",
-        "count": 176,
+        "detector_id": "p7luzrcy3n",
+        "count": 262,
         "archived": false,
-        "action": { "action_type": "NETWORK_CONNECTION" }
+        "action": { "action_type": "PORT_PROBE" }
       },
       "metrics": {
-        "FindingCount": { "sum": 17 },
+        "FindingCount": { "sum": 38 },
         "HighSeverityFindingCount": { "sum": 0 },
-        "MediumSeverityFindingCount": { "sum": 10 },
+        "MediumSeverityFindingCount": { "sum": 6 },
         "LowSeverityFindingCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-guardduty-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-guardduty-logs-738291046572"
+        "name": "aws-guardduty-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-guardduty-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/guardduty/ap-southeast-3/2026/04/10/guardduty_SZIR9HBTKDD.log.gz"
+        "key": "AWSLogs/814726593401/guardduty/ap-south-2/2026/04/13/guardduty_SGM298B6FF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/guardduty/logs",
-      "log_stream": "ap-southeast-3/9vayhkht",
-      "ingestion_time": "2026-04-10T13:54:26.586Z"
+      "log_stream": "ap-south-2/p6j2y1a9",
+      "ingestion_time": "2026-04-13T10:53:45.698Z"
     }
   },
-  "rule": {
-    "category": "threat",
-    "ruleset": "Exfiltration",
-    "name": "Exfiltration:S3/MaliciousIPCaller"
-  },
-  "threat": { "indicator": [{ "type": "ip", "value": "69.229.18.42" }] },
+  "rule": { "category": "intrusion_detection", "ruleset": "Recon", "name": "Recon:EC2/PortScan" },
+  "threat": { "indicator": [{ "type": "ip", "value": "24.211.254.1" }] },
   "source": {
-    "ip": "69.229.18.42",
+    "ip": "24.211.254.1",
     "geo": {
-      "country_iso_code": "DE",
-      "country_name": "Germany",
-      "city_name": "Frankfurt",
-      "location": { "lat": 50.1109, "lon": 8.6821 }
+      "country_iso_code": "CN",
+      "country_name": "China",
+      "city_name": "Beijing",
+      "location": { "lat": 39.9042, "lon": 116.4074 }
     }
   },
-  "destination": { "ip": "133.156.151.210" },
+  "destination": { "ip": "210.152.43.174" },
   "event": {
     "kind": "alert",
-    "severity": 5,
+    "severity": 4,
     "outcome": "failure",
-    "category": ["threat"],
+    "category": ["intrusion_detection"],
     "type": ["indicator"],
     "dataset": "aws.guardduty",
     "provider": "guardduty.amazonaws.com",
     "module": "aws"
   },
-  "message": "GuardDuty finding [Medium]: Exfiltration:S3/MaliciousIPCaller",
+  "message": "GuardDuty finding [Medium]: Recon:EC2/PortScan",
   "log": { "level": "warn" },
   "error": {
     "code": "ThreatFinding",
-    "message": "GuardDuty finding: Exfiltration:S3/MaliciousIPCaller",
+    "message": "GuardDuty finding: Recon:EC2/PortScan",
     "type": "security"
   },
   "service": { "name": "guardduty", "type": "aws" },
@@ -106,8 +102,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "6frgs0cox6e"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "91fh17ptpew"
   },
   "input": { "type": "http_endpoint" }
 }

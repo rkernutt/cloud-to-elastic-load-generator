@@ -3,62 +3,54 @@
   "cloud": {
     "provider": "gcp",
     "region": "australia-southeast1",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" },
-    "service": { "name": "cloud-lb" }
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" },
+    "service": { "name": "serverless-neg" }
   },
   "gcp": {
-    "cloud_lb": {
-      "backend_service": "bes-grpc-clvc",
-      "url_map": "um-qb9u3h",
-      "forwarding_rule": "fr-australia-southeast1-tp2y",
-      "request_method": "POST",
-      "url_path": "/v2/checkout",
-      "response_code": 302,
-      "latency_ms": 38,
-      "client_ip": "68.36.129.31",
-      "backend_ip": "129.51.133.47",
-      "protocol": "HTTP"
+    "serverless_neg": {
+      "neg_name": "neg-x7skkfqk",
+      "backend_service": "bes-run-onq3",
+      "target_type": "cloud-functions",
+      "health_status": "UNHEALTHY",
+      "request_count": 74,
+      "error_rate": 0.4633
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 38000000,
+    "outcome": "failure",
+    "duration": 3062000000,
     "module": "gcp",
-    "dataset": "gcp.loadbalancing"
+    "dataset": "gcp.serverless_neg"
   },
-  "message": "HTTP(S) LB POST /v2/checkout 302 38.0ms HTTP",
-  "service": { "name": "cloud-lb", "type": "gcp" },
+  "message": "Serverless NEG neg-x7skkfqk -> bes-run-onq3 (cloud-functions) unhealthy err=46.33%",
+  "service": { "name": "serverless-neg", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.loadbalancing", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.serverless_neg", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
     "name": "elastic-agent-gcp-australia-southeast1",
-    "id": "dhlfedxlqx6"
+    "id": "8zwp5w7s8eh"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-dev-g7h8i9/logs/cloud-lb",
+  "logName": "projects/globex-shared-m3n4o5/logs/serverless-neg",
   "resource": {
-    "type": "http_load_balancer",
-    "labels": { "project_id": "globex-dev-g7h8i9", "region": "australia-southeast1" }
+    "type": "global",
+    "labels": { "project_id": "globex-shared-m3n4o5", "region": "australia-southeast1" }
   },
   "severity": "INFO",
-  "insertId": "CX6ILNWYT8H",
+  "insertId": "RG68VEU3PO",
   "jsonPayload": {
-    "cloud_lb": {
-      "backend_service": "bes-grpc-clvc",
-      "url_map": "um-qb9u3h",
-      "forwarding_rule": "fr-australia-southeast1-tp2y",
-      "request_method": "POST",
-      "url_path": "/v2/checkout",
-      "response_code": 302,
-      "latency_ms": 38,
-      "client_ip": "68.36.129.31",
-      "backend_ip": "129.51.133.47",
-      "protocol": "HTTP"
+    "serverless_neg": {
+      "neg_name": "neg-x7skkfqk",
+      "backend_service": "bes-run-onq3",
+      "target_type": "cloud-functions",
+      "health_status": "UNHEALTHY",
+      "request_count": 74,
+      "error_rate": 0.4633
     },
-    "message": "HTTP(S) LB POST /v2/checkout 302 38.0ms HTTP"
+    "message": "Serverless NEG neg-x7skkfqk -> bes-run-onq3 (cloud-functions) unhealthy err=46.33%"
   }
 }

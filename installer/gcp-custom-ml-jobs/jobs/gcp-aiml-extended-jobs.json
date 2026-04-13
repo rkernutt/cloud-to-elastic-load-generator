@@ -1,0 +1,85 @@
+{
+  "group": "gcp-aiml-extended",
+  "description": "GCP AI/ML extended — Gemini model inference anomaly detection",
+  "jobs": [
+    {
+      "id": "gcp-gemini-error-spike",
+      "description": "Detects spikes in Gemini model inference failures by model",
+      "job": {
+        "description": "Detects spikes in Gemini model inference failures by model",
+        "groups": ["gcp", "aiml"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.gemini.model_id",
+              "function": "high_count",
+              "partition_field_name": "gcp.gemini.model_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.gemini.model_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*generativelanguage.googleapis.com*" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "gcp-gemini-latency-anomaly",
+      "description": "Detects unusual Gemini model inference latency",
+      "job": {
+        "description": "Detects unusual Gemini model inference latency",
+        "groups": ["gcp", "aiml"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration)",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*generativelanguage.googleapis.com*" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

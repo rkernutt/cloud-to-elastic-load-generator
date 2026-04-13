@@ -1,56 +1,63 @@
 {
-  "@timestamp": "2026-04-10T13:54:21.951Z",
+  "@timestamp": "2026-04-13T10:53:45.336Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-southeast-4",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "mwaa" }
   },
   "aws": {
-    "dimensions": { "EnvironmentName": "etl-orchestrator" },
+    "dimensions": { "EnvironmentName": "data-platform" },
     "mwaa": {
-      "environment_name": "etl-orchestrator",
-      "dag_id": "s3_to_redshift",
-      "run_id": "scheduled__2026-04-10T13:34:03.951Z",
+      "environment_name": "data-platform",
+      "dag_id": "report_generation",
+      "run_id": "scheduled__2026-04-13T10:26:38.336Z",
       "task_id": "cleanup",
-      "run_state": "running",
-      "duration_seconds": 273,
-      "worker_count": 3,
-      "queue_name": "default",
-      "airflow_version": "2.7.3"
+      "run_state": "upstream_failed",
+      "duration_seconds": 2460,
+      "worker_count": 1,
+      "queue_name": "ml_queue",
+      "airflow_version": "2.6.3"
     },
     "s3": {
       "bucket": {
-        "name": "aws-mwaa-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-mwaa-logs-738291046572"
+        "name": "aws-mwaa-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-mwaa-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/738291046572/mwaa/sa-east-1/2026/04/10/mwaa_DWBGFQQSSG.log.gz" }
+      "object": {
+        "key": "AWSLogs/501938274650/mwaa/ap-southeast-4/2026/04/13/mwaa_XU7L8PB665A.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/mwaa/logs",
-      "log_stream": "sa-east-1/kejgnf53",
-      "ingestion_time": "2026-04-10T13:54:28.251Z"
+      "log_stream": "ap-southeast-4/0qhbf0b8",
+      "ingestion_time": "2026-04-13T10:53:45.786Z"
     }
   },
   "event": {
-    "action": "WorkerScaleDown",
-    "outcome": "success",
+    "action": "DagRunStateChanged",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.mwaa",
     "provider": "airflow.amazonaws.com",
-    "duration": 273000000000,
+    "duration": 2460000000000,
     "module": "aws"
   },
-  "message": "MWAA etl-orchestrator: DAG s3_to_redshift task cleanup running (273s)",
-  "log": { "level": "info" },
+  "message": "MWAA data-platform: DAG report_generation task cleanup upstream_failed",
+  "log": { "level": "error" },
+  "error": {
+    "code": "TaskFailed",
+    "message": "Airflow task cleanup failed in DAG report_generation",
+    "type": "process"
+  },
   "service": { "name": "mwaa", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.mwaa", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "70pw58h568h"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "hu31tqcodj6"
   },
   "input": { "type": "aws-cloudwatch" }
 }

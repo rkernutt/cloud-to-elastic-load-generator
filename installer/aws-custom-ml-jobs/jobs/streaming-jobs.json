@@ -223,6 +223,239 @@
         "query_delay": "60s",
         "delayed_data_check_config": { "enabled": true }
       }
+    },
+    {
+      "id": "aws-firehose-delivery-failure-spike",
+      "description": "Detects spikes in Firehose delivery failures by delivery stream",
+      "job": {
+        "description": "Detects spikes in Firehose delivery failures by delivery stream",
+        "groups": ["aws", "streaming"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.firehose.delivery_stream_name",
+              "function": "high_count",
+              "partition_field_name": "aws.firehose.delivery_stream_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.firehose.delivery_stream_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.firehose" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-firehose-delivery-latency-anomaly",
+      "description": "Detects unusual Firehose delivery latency by delivery stream",
+      "job": {
+        "description": "Detects unusual Firehose delivery latency by delivery stream",
+        "groups": ["aws", "streaming"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=aws.firehose.delivery_stream_name",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "aws.firehose.delivery_stream_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.firehose.delivery_stream_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.firehose" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-msk-consumer-lag-anomaly",
+      "description": "Detects unusual MSK consumer lag duration by topic",
+      "job": {
+        "description": "Detects unusual MSK consumer lag duration by topic",
+        "groups": ["aws", "streaming"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=aws.msk.topic",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "aws.msk.topic",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.msk.topic", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.msk" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-msk-failure-spike",
+      "description": "Detects spikes in MSK failures by topic",
+      "job": {
+        "description": "Detects spikes in MSK failures by topic",
+        "groups": ["aws", "streaming"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.msk.topic",
+              "function": "high_count",
+              "partition_field_name": "aws.msk.topic",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.msk.topic", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.msk" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-sns-publish-failure-spike",
+      "description": "Detects spikes in SNS publish failures by topic",
+      "job": {
+        "description": "Detects spikes in SNS publish failures by topic",
+        "groups": ["aws", "messaging"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.sns.topic_name",
+              "function": "high_count",
+              "partition_field_name": "aws.sns.topic_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.sns.topic_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.sns" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-sns-message-volume-anomaly",
+      "description": "Detects unusual SNS message volume by topic",
+      "job": {
+        "description": "Detects unusual SNS message volume by topic",
+        "groups": ["aws", "messaging"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.sns.topic_name",
+              "function": "high_count",
+              "partition_field_name": "aws.sns.topic_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.sns.topic_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.sns" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
     }
   ]
 }

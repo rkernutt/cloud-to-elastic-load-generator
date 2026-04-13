@@ -81,6 +81,165 @@
         "query_delay": "60s",
         "delayed_data_check_config": { "enabled": true }
       }
+    },
+    {
+      "id": "azure-logic-apps-run-failure-spike",
+      "description": "Spikes in Logic Apps workflow run failures per workflow",
+      "job": {
+        "description": "Spikes in Logic Apps workflow run failures per workflow",
+        "groups": ["azure", "integration"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.logic_apps.workflow_name",
+              "function": "high_count",
+              "partition_field_name": "azure.logic_apps.workflow_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.logic_apps.workflow_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "cloud.service.name": "Microsoft.Logic/workflows" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-logic-apps-latency-anomaly",
+      "description": "Unusual Logic Apps workflow run duration per workflow",
+      "job": {
+        "description": "Unusual Logic Apps workflow run duration per workflow",
+        "groups": ["azure", "integration"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=azure.logic_apps.workflow_name",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "azure.logic_apps.workflow_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.logic_apps.workflow_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "cloud.service.name": "Microsoft.Logic/workflows" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-event-grid-delivery-failure-spike",
+      "description": "Spikes in Event Grid delivery failures per topic",
+      "job": {
+        "description": "Spikes in Event Grid delivery failures per topic",
+        "groups": ["azure", "integration"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.event_grid.topic_name",
+              "function": "high_count",
+              "partition_field_name": "azure.event_grid.topic_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.event_grid.topic_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "cloud.service.name": "Microsoft.EventGrid/topics" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-event-grid-drop-anomaly",
+      "description": "Unusual Event Grid drop rate across all topics",
+      "job": {
+        "description": "Unusual Event Grid drop rate across all topics",
+        "groups": ["azure", "integration"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count",
+              "function": "high_count",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.event_grid.topic_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "cloud.service.name": "Microsoft.EventGrid/topics" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
     }
   ]
 }

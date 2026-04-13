@@ -1,58 +1,61 @@
 {
-  "@timestamp": "2026-04-10T13:54:21.951Z",
+  "@timestamp": "2026-04-13T10:53:45.336Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-southeast-3",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "securitylake" }
   },
   "aws": {
-    "dimensions": { "OcsfClass": "HTTP Activity", "SourceType": "LAMBDA:ALB" },
+    "dimensions": { "OcsfClass": "API Activity", "SourceType": "LAMBDA:CloudTrail" },
     "securitylake": {
-      "source_type": "LAMBDA:ALB",
-      "class_uid": 4002,
-      "class_name": "HTTP Activity",
-      "category_uid": 4,
-      "category_name": "Network Activity",
-      "activity_id": 1,
-      "activity_name": "Update",
-      "severity_id": 2,
-      "severity": "Low",
+      "source_type": "LAMBDA:CloudTrail",
+      "class_uid": 6003,
+      "class_name": "API Activity",
+      "category_uid": 6,
+      "category_name": "Application Activity",
+      "activity_id": 3,
+      "activity_name": "Create",
+      "severity_id": 3,
+      "severity": "Medium",
       "status_id": 1,
       "status": "Success",
-      "time": 1775829261951,
+      "time": 1776077625336,
       "metadata": {
         "version": "1.1.0",
-        "product": { "name": "ALB", "vendor_name": "AWS" },
-        "uid": "lfm05yb8-2ro8-lq4v-mq45-s4r4czqc087"
+        "product": { "name": "CloudTrail", "vendor_name": "AWS" },
+        "uid": "1xste2gt-e3m0-pwdm-1lch-anh4xk1psl9"
       },
       "ocsf_cloud": {
         "provider": "AWS",
-        "account": { "uid": "164820739518" },
-        "region": "me-south-1"
+        "account": { "uid": "501938274650" },
+        "region": "ap-southeast-3"
       },
-      "http_request": {
-        "method": "DELETE",
-        "url": { "path": "/api/v1/products", "hostname": "api.example.com" },
-        "user_agent": "python-requests/2.27.1"
+      "api": {
+        "operation": "PutObject",
+        "service": { "name": "ec2.amazonaws.com" },
+        "request": { "uid": "h3enj807-ytrw-wm6p-uufr-ire6dy4ixq8" },
+        "response": { "code": 200 }
       },
-      "http_response": { "code": 200 },
-      "src_endpoint": { "ip": "46.236.252.43" },
-      "dst_endpoint": { "ip": "213.236.169.1" }
+      "actor": {
+        "user": { "uid": "arn:aws:iam::501938274650:user/bob", "name": "bob", "type": "IAMUser" },
+        "session": { "uid": "ASIAYTFQBERRVZJ", "is_mfa": true }
+      },
+      "src_endpoint": { "ip": "173.111.232.130" }
     },
     "s3": {
       "bucket": {
-        "name": "aws-securitylake-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-securitylake-logs-164820739518"
+        "name": "aws-securitylake-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-securitylake-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/securitylake/me-south-1/2026/04/10/securitylake_XYFKQMRH5A.log.gz"
+        "key": "AWSLogs/501938274650/securitylake/ap-southeast-3/2026/04/13/securitylake_V17LMZ8NM3M.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securitylake/logs",
-      "log_stream": "me-south-1/mj25yfbg",
-      "ingestion_time": "2026-04-10T13:54:26.793Z"
+      "log_stream": "ap-southeast-3/4avpxjhg",
+      "ingestion_time": "2026-04-13T10:53:45.711Z"
     }
   },
   "event": {
@@ -62,16 +65,16 @@
     "provider": "securitylake.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security Lake [HTTP Activity/Update] Low: ALB success",
-  "log": { "level": "info" },
+  "message": "Security Lake [API Activity/Create] Medium: CloudTrail success",
+  "log": { "level": "warn" },
   "service": { "name": "securitylake", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.securitylake", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "cjlfqxbudnj"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "g1rj6ans0ts"
   },
   "input": { "type": "http_endpoint" }
 }

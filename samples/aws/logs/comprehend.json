@@ -1,24 +1,26 @@
 {
-  "@timestamp": "2026-04-10T13:54:21.951Z",
+  "@timestamp": "2026-04-13T10:53:45.336Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
+    "region": "eu-west-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "comprehend" }
   },
   "aws": {
-    "dimensions": { "Operation": "DetectEntities" },
+    "dimensions": { "Operation": "DetectSentiment" },
     "comprehend": {
-      "operation": "DetectEntities",
-      "language_code": "fr",
-      "text_bytes": 42568,
-      "entities_detected": 13,
+      "operation": "DetectSentiment",
+      "language_code": "es",
+      "text_bytes": 84519,
+      "sentiment": "NEUTRAL",
+      "entities_detected": 0,
       "key_phrases_detected": 0,
       "pii_entities_detected": 0,
+      "error_code": "UnsupportedLanguageException",
       "metrics": {
         "NumberOfSuccessfulRequest": { "sum": 1 },
-        "NumberOfFailedRequest": { "sum": 0 },
-        "ResponseTime": { "avg": 260.7539476033869 }
+        "NumberOfFailedRequest": { "sum": 1 },
+        "ResponseTime": { "avg": 2581.0133290711174 }
       }
     },
     "s3": {
@@ -27,32 +29,33 @@
         "arn": "arn:aws:s3:::aws-comprehend-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/comprehend/us-east-2/2026/04/10/comprehend_SMML58UN4FF.log.gz"
+        "key": "AWSLogs/293847561023/comprehend/eu-west-1/2026/04/13/comprehend_SM7X04FHOG.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/comprehend/logs",
-      "log_stream": "us-east-2/xd9inxg7",
-      "ingestion_time": "2026-04-10T13:54:28.434Z"
+      "log_stream": "eu-west-1/clir2wku",
+      "ingestion_time": "2026-04-13T10:53:45.795Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.comprehend",
     "provider": "comprehend.amazonaws.com",
     "module": "aws"
   },
-  "message": "Comprehend DetectEntities: lang=fr",
-  "log": { "level": "info" },
+  "message": "Comprehend DetectSentiment FAILED: Text too large",
+  "log": { "level": "error" },
+  "error": { "code": "ComprehendError", "message": "Comprehend operation failed", "type": "ml" },
   "service": { "name": "comprehend", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.comprehend", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "kbxfr4r3ksh"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "cno20pcofym"
   },
   "input": { "type": "aws-cloudwatch" }
 }

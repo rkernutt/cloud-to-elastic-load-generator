@@ -1,54 +1,68 @@
 {
-  "@timestamp": "2026-04-10T13:54:21.951Z",
+  "@timestamp": "2026-04-13T10:53:45.336Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ca-west-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "inspector2" }
   },
   "aws": {
     "dimensions": { "Severity": "LOW" },
     "inspector2": {
-      "finding_id": "arn:aws:inspector2:eu-south-1:164820739518:finding/mhj0ko5w-3vs8-8x93-p5vc-85yefcvkidw",
-      "finding_type": "NETWORK_REACHABILITY",
+      "finding_id": "arn:aws:inspector2:ca-west-1:814726593401:finding/15fveejy-euae-ru12-2lb4-u45vycakupa",
+      "finding_type": "PACKAGE_VULNERABILITY",
       "finding_status": "ACTIVE",
       "severity": "LOW",
-      "severity_score": 0.9,
-      "exploitability": "PROOF_OF_CONCEPT",
-      "resource_type": "AWS_LAMBDA_FUNCTION",
-      "resource_id": "arn:aws:lambda:eu-south-1:164820739518:function:my-fn",
-      "first_observed_at": "2026-03-25T13:54:21.951Z",
-      "last_observed_at": "2026-04-10T13:54:21.951Z",
-      "network_reachability": {
-        "protocol": "UDP",
-        "open_port_range": { "begin": 80, "end": 3306 },
-        "network_path": "sg -> vpc-peering"
+      "severity_score": 0.2,
+      "exploitability": "NOT_DEFINED",
+      "resource_type": "AWS_EC2_INSTANCE",
+      "resource_id": "i-oesge29ju6",
+      "first_observed_at": "2026-03-27T10:53:45.336Z",
+      "last_observed_at": "2026-04-13T10:53:45.336Z",
+      "package_vulnerability": {
+        "cve_id": "CVE-2020-83444",
+        "source": "GHSA",
+        "cvss3_score": 0.1516336121557168,
+        "vulnerable_packages": [
+          {
+            "name": "requests",
+            "version": "1.4.1",
+            "fixed_in_version": "1.1.16",
+            "package_manager": "DOTNET"
+          }
+        ],
+        "related_vulnerabilities": []
       },
       "metrics": {
-        "TotalFindings": { "sum": 227 },
+        "TotalFindings": { "sum": 130 },
         "CriticalFindings": { "sum": 0 },
         "HighFindings": { "sum": 0 },
         "MediumFindings": { "sum": 0 },
-        "LowFindings": { "sum": 193 },
-        "CoveredResources": { "avg": 3600 }
+        "LowFindings": { "sum": 243 },
+        "CoveredResources": { "avg": 2201 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-inspector-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-inspector-logs-164820739518"
+        "name": "aws-inspector-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-inspector-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/inspector/eu-south-1/2026/04/10/inspector_8KSTO64A97F.log.gz"
+        "key": "AWSLogs/814726593401/inspector/ca-west-1/2026/04/13/inspector_X927I46XJN.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/inspector/logs",
-      "log_stream": "eu-south-1/csf9xhur",
-      "ingestion_time": "2026-04-10T13:54:26.649Z"
+      "log_stream": "ca-west-1/hk4sisct",
+      "ingestion_time": "2026-04-13T10:53:45.702Z"
     }
   },
-  "vulnerability": { "severity": "LOW", "score": { "base": 0.8959145001103418 } },
+  "vulnerability": {
+    "severity": "LOW",
+    "id": "CVE-2020-83444",
+    "score": { "base": 0.1516336121557168 }
+  },
+  "package": { "name": "requests", "version": "1.4.1" },
   "event": {
     "outcome": "success",
     "category": ["vulnerability"],
@@ -57,7 +71,7 @@
     "provider": "inspector2.amazonaws.com",
     "module": "aws"
   },
-  "message": "Inspector2 [LOW]: NETWORK_REACHABILITY detected on AWS_LAMBDA_FUNCTION",
+  "message": "Inspector2 [LOW]: CVE-2020-83444 in requests 1.4.1 on AWS_EC2_INSTANCE (fix: 1.1.16)",
   "log": { "level": "info" },
   "service": { "name": "inspector", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -65,8 +79,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "yhwmpsc8wno"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "0hx4qqgaupw"
   },
   "input": { "type": "http_endpoint" }
 }

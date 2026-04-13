@@ -1,26 +1,22 @@
 {
-  "@timestamp": "2026-04-10T13:54:21.951Z",
+  "@timestamp": "2026-04-13T10:53:45.336Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "sa-east-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "wafv2" }
   },
   "aws": {
-    "dimensions": { "WebACL": "regional-waf", "Rule": "IPRateBasedRule", "Region": "ap-east-1" },
+    "dimensions": { "WebACL": "cdn-waf", "Rule": "BadBot", "Region": "sa-east-1" },
     "waf": {
-      "id": "gbahxj53le",
-      "arn": "arn:aws:wafv2:ap-east-1:501938274650:regional/webacl/regional-waf/iv9p9thz-dwjg-ple1-wa45-o8t2t2ubp6",
+      "id": "u6q6uysn9s9",
+      "arn": "arn:aws:wafv2:sa-east-1:164820739518:regional/webacl/cdn-waf/03rz36eo-i7ep-ju4i-iq5g-oy72m3k9fae",
       "format_version": "1",
-      "source": { "name": "APIGW", "id": "501938274650-app/regional-waf/4ykrsm9wlnk" },
+      "source": { "name": "ALB", "id": "164820739518-app/cdn-waf/j0w6fazj88s" },
       "rule_group_list": [
         {
-          "ruleGroupId": "AWSManagedRulesLinuxRuleSet",
-          "terminatingRule": {
-            "action": "BLOCK",
-            "ruleId": "IPRateBasedRule",
-            "ruleMatchDetails": []
-          },
+          "ruleGroupId": "CustomSQLiRule",
+          "terminatingRule": { "action": "BLOCK", "ruleId": "BadBot", "ruleMatchDetails": [] },
           "nonTerminatingMatchingRules": []
         }
       ],
@@ -46,30 +42,30 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-wafv2-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-wafv2-logs-501938274650"
+        "name": "aws-wafv2-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-wafv2-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/wafv2/ap-east-1/2026/04/10/wafv2_9LMP1UBJQMM.log.gz"
+        "key": "AWSLogs/164820739518/wafv2/sa-east-1/2026/04/13/wafv2_OVNKBDOPBUP.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/wafv2/logs",
-      "log_stream": "ap-east-1/o6edr15l",
-      "ingestion_time": "2026-04-10T13:54:29.348Z"
+      "log_stream": "sa-east-1/46as85yi",
+      "ingestion_time": "2026-04-13T10:53:45.845Z"
     }
   },
   "source": {
-    "ip": "149.241.33.163",
+    "ip": "137.217.143.125",
     "geo": {
-      "country_iso_code": "GB",
-      "country_name": "United Kingdom",
-      "city_name": "London",
-      "location": { "lat": 51.5074, "lon": -0.1278 }
+      "country_iso_code": "JP",
+      "country_name": "Japan",
+      "city_name": "Tokyo",
+      "location": { "lat": 35.6762, "lon": 139.6503 }
     }
   },
-  "http": { "request": { "method": "DELETE", "bytes": 8209 } },
-  "url": { "path": "/api/v2/events" },
+  "http": { "request": { "method": "PATCH", "bytes": 2123 } },
+  "url": { "path": "/api/v1/search" },
   "user_agent": { "original": "python-requests/2.27.1" },
   "event": {
     "action": "block",
@@ -79,7 +75,7 @@
     "provider": "wafv2.amazonaws.com",
     "module": "aws"
   },
-  "message": "WAFv2 BLOCK [regional-waf] 149.241.33.163: AWSManagedRulesLinuxRuleSet/IPRateBasedRule",
+  "message": "WAFv2 BLOCK [cdn-waf] 137.217.143.125: CustomSQLiRule/BadBot",
   "log": { "level": "warn" },
   "error": { "code": "WAFBlock", "message": "WAFv2 request blocked", "type": "security" },
   "service": { "name": "wafv2", "type": "aws" },
@@ -88,8 +84,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "qwb49jq9dj"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "1lhn6ftsvwr"
   },
   "input": { "type": "aws-s3" }
 }

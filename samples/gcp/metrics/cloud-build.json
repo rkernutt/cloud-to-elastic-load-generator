@@ -3,43 +3,43 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-north1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" }
+    "region": "asia-northeast2",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-north1",
-    "ephemeral_id": "sujftvykt5"
+    "name": "metricbeat-gcp-asia-northeast2",
+    "ephemeral_id": "xfhkp4y322h"
   },
   "gcp": {
-    "cloud-build": {
+    "source-repositories": {
       "metrics": {
-        "task_count": { "avg": 24499, "sum": 24499, "count": 1 },
-        "duration_ms": { "avg": 911861.58, "sum": 911861.58, "count": 1 },
-        "failed_tasks": { "avg": 17, "sum": 17, "count": 1 }
+        "request_count": { "avg": 20574, "sum": 20574, "count": 1 },
+        "error_count": { "avg": 0, "sum": 0, "count": 1 },
+        "latency": { "avg": 127.22, "sum": 127.22, "count": 1 }
       },
-      "labels": { "job_id": "etl-daily" }
+      "labels": { "resource_id": "resource-a" }
     }
   },
-  "metricset": { "name": "cloud-build", "period": 60000 },
-  "data_stream": { "type": "metrics", "dataset": "gcp.cloudbuild_metrics", "namespace": "default" },
+  "metricset": { "name": "source-repositories", "period": 60000 },
+  "data_stream": { "type": "metrics", "dataset": "gcp.sourcerepo", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.cloudbuild_metrics", "module": "gcp" },
+  "event": { "dataset": "gcp.sourcerepo", "module": "gcp" },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-build/task_count",
+      "type": "custom.googleapis.com/opentelemetry/elastic/samples/source-repositories/request_count",
       "labels": {}
     },
     "resource": {
       "type": "global",
-      "labels": { "project_id": "globex-staging-d4e5f6", "region": "europe-north1" }
+      "labels": { "project_id": "globex-shared-m3n4o5", "region": "asia-northeast2" }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 24499 } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 20574 } }
     ]
   }
 }

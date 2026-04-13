@@ -32,6 +32,10 @@ import { generateDynamoDbTrace } from "./dynamodb.js";
 import { generateRdsTrace } from "./rds.js";
 import { generateBedrockTrace } from "./bedrock.js";
 import { generateSnsEventFanoutTrace } from "./workflow-sns-fanout.js";
+import { generateFirehoseTrace } from "./firehose.js";
+import { generateMskTrace } from "./msk.js";
+import { generateSnsTrace } from "./sns.js";
+import { generateBedrockAgentTrace } from "./bedrockagent.js";
 
 /**
  * Map of service id → trace generator function.
@@ -61,6 +65,10 @@ const TRACE_GENERATORS = {
   dynamodb: generateDynamoDbTrace,
   rds: generateRdsTrace,
   bedrock: generateBedrockTrace,
+  firehose: generateFirehoseTrace,
+  msk: generateMskTrace,
+  sns: generateSnsTrace,
+  bedrockagent: generateBedrockAgentTrace,
 };
 
 export { TRACE_GENERATORS };

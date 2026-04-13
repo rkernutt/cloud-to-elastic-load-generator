@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-10T13:54:21.951Z",
+  "@timestamp": "2026-04-13T10:53:45.336Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,68 +7,73 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "814726593401", "name": "globex-production" }
+    "region": "eu-west-3",
+    "account": { "id": "164820739518", "name": "globex-shared-services" }
   },
   "orchestrator": {
-    "cluster": { "id": "prod-eks-cluster", "name": "prod-eks-cluster" },
+    "cluster": { "id": "staging-eks", "name": "staging-eks" },
     "type": "kubernetes",
-    "namespace": "default"
+    "namespace": "production"
   },
   "resource": {
-    "id": "prod-eks-cluster/default/api-server/prod-eks-cluster",
-    "name": "api-server/prod-eks-cluster",
-    "sub_type": "api-server",
+    "id": "staging-eks/production/pod/api-gateway-h89h1",
+    "name": "pod/api-gateway-h89h1",
+    "sub_type": "Pod",
     "type": "k8s_object"
   },
   "rule": {
-    "id": "cis_eks_5_4",
-    "name": "Restrict access to the control plane endpoint",
-    "section": "5.4",
-    "tags": ["Managed Services"],
+    "id": "cis_eks_4_2",
+    "name": "Avoid the admission of privileged containers",
+    "section": "4.2",
+    "tags": ["Pod Security"],
     "benchmark": {
       "id": "cis_eks",
       "version": "v1.4.0",
-      "rule_number": "5.4",
+      "rule_number": "4.2",
       "posture_type": "kspm"
-    }
+    },
+    "impact": "Avoid the admission of privileged containers — non-compliant configuration may allow container escape or lateral movement.",
+    "remediation": "Review and remediate per CIS EKS Benchmark v1.4.0 section 4.2."
   },
-  "result": { "evaluation": "passed" },
-  "severity": "none",
+  "result": { "evaluation": "failed" },
+  "severity": "high",
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "aws"
   },
-  "message": "KSPM [CIS EKS / 5.4] passed: Restrict access to the control plane endpoint [prod-eks-cluster]",
-  "log": { "level": "info" },
+  "message": "KSPM [CIS EKS / 4.2] failed: Avoid the admission of privileged containers [staging-eks]",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "CIS_CIS_EKS_4_2",
+    "message": "KSPM check failed: Avoid the admission of privileged containers",
+    "type": "compliance"
+  },
   "service": { "name": "kspm", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "zurlf1vsi6"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "99hdefoiyit"
   },
   "input": { "type": "http_endpoint" },
   "aws": {
     "s3": {
       "bucket": {
-        "name": "aws-kspm-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-kspm-logs-814726593401"
+        "name": "aws-kspm-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-kspm-logs-164820739518"
       },
-      "object": {
-        "key": "AWSLogs/814726593401/kspm/eu-central-2/2026/04/10/kspm_MK03PJRPILH.log.gz"
-      }
+      "object": { "key": "AWSLogs/164820739518/kspm/eu-west-3/2026/04/13/kspm_AVA21B51ZSQ.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/kspm/logs",
-      "log_stream": "eu-central-2/lvzcdaq9",
-      "ingestion_time": "2026-04-10T13:54:26.878Z"
+      "log_stream": "eu-west-3/k8gppwmw",
+      "ingestion_time": "2026-04-13T10:53:45.714Z"
     }
   }
 }

@@ -169,4 +169,32 @@ export const TRACE_SERVICES = [
     icon: "Amazon-SageMaker",
     group: "Single-Service",
   },
+  {
+    id: "firehose",
+    label: "Kinesis Firehose",
+    desc: "Delivery stream producer traces — PutRecordBatch + S3/Redshift/OpenSearch delivery spans",
+    icon: "Amazon-Kinesis-Firehose",
+    group: "Single-Service",
+  },
+  {
+    id: "msk",
+    label: "MSK / Kafka",
+    desc: "Kafka consumer poll traces — partition/offset spans with downstream processing",
+    icon: "Amazon-Managed-Streaming-for-Apache-Kafka",
+    group: "Single-Service",
+  },
+  {
+    id: "sns",
+    label: "SNS Publisher",
+    desc: "SNS topic publish traces — Publish/PublishBatch spans with optional pre-publish lookup",
+    icon: "Amazon-Simple-Notification-Service",
+    group: "Single-Service",
+  },
+  {
+    id: "bedrockagent",
+    label: "Bedrock Agent",
+    desc: "Agent orchestration traces — KB retrieval + LLM invocation + optional action group tool call spans",
+    icon: "Amazon-Bedrock",
+    group: "Single-Service",
+  },
 ];

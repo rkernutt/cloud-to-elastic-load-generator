@@ -18,6 +18,8 @@ import {
   generateEventGridBlobPipelineTrace,
   generateDurableFunctionsOrchestrationTrace,
 } from "./workflow-chains.js";
+import { generateCosmosDbTrace, generateSqlDatabaseTrace } from "./databases.js";
+import { generateEventHubsTrace, generateKeyVaultTrace, generateLogicAppsTrace } from "./integration.js";
 
 const AZURE_TRACE_GENERATORS: Record<
   string,
@@ -34,6 +36,11 @@ const AZURE_TRACE_GENERATORS: Record<
   "workflow-servicebus-fanout": generateServiceBusTopicFanoutTrace,
   "workflow-eventgrid-blob": generateEventGridBlobPipelineTrace,
   "workflow-durable-orchestration": generateDurableFunctionsOrchestrationTrace,
+  "cosmos-db": generateCosmosDbTrace,
+  "sql-database": generateSqlDatabaseTrace,
+  "event-hubs": generateEventHubsTrace,
+  "key-vault": generateKeyVaultTrace,
+  "logic-apps": generateLogicAppsTrace,
 };
 
 export { AZURE_TRACE_SERVICES, AZURE_TRACE_GENERATORS };

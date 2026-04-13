@@ -121,6 +121,165 @@
         "query_delay": "60s",
         "delayed_data_check_config": { "enabled": true }
       }
+    },
+    {
+      "id": "azure-synapse-job-failure-spike",
+      "description": "Spikes in Synapse Workspace job failures per pool",
+      "job": {
+        "description": "Spikes in Synapse Workspace job failures per pool",
+        "groups": ["azure", "analytics"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.synapse.pool_name",
+              "function": "high_count",
+              "partition_field_name": "azure.synapse.pool_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.synapse.pool_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "cloud.service.name": "Microsoft.Synapse/workspaces" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-synapse-duration-anomaly",
+      "description": "Unusual Synapse Workspace job duration per pool",
+      "job": {
+        "description": "Unusual Synapse Workspace job duration per pool",
+        "groups": ["azure", "analytics"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=azure.synapse.pool_name",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "azure.synapse.pool_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.synapse.pool_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "cloud.service.name": "Microsoft.Synapse/workspaces" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-databricks-job-failure-spike",
+      "description": "Spikes in Databricks job failures per cluster",
+      "job": {
+        "description": "Spikes in Databricks job failures per cluster",
+        "groups": ["azure", "analytics"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.databricks.cluster_name",
+              "function": "high_count",
+              "partition_field_name": "azure.databricks.cluster_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.databricks.cluster_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "cloud.service.name": "Microsoft.Databricks/workspaces" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-databricks-cluster-action-anomaly",
+      "description": "Unusual Databricks cluster action volume per cluster",
+      "job": {
+        "description": "Unusual Databricks cluster action volume per cluster",
+        "groups": ["azure", "analytics"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.databricks.cluster_name",
+              "function": "high_count",
+              "partition_field_name": "azure.databricks.cluster_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.databricks.cluster_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "cloud.service.name": "Microsoft.Databricks/workspaces" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
     }
   ]
 }

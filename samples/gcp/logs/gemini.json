@@ -2,60 +2,55 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "me-west1",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" },
-    "service": { "name": "generativelanguage.googleapis.com" }
+    "region": "us-west3",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
+    "service": { "name": "gemini-code-assist" }
   },
   "gcp": {
-    "gemini": {
-      "model": "gemini-1.5-pro",
-      "prompt_token_count": 6273,
-      "candidates_token_count": 3072,
-      "total_token_count": 9345,
-      "finish_reason": "STOP",
-      "safety_ratings": [
-        { "category": "HARM_CATEGORY_HARASSMENT", "probability": "LOW" },
-        { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "probability": "NEGLIGIBLE" }
-      ],
-      "latency_ms": 851,
-      "grounding_used": true
+    "gemini_code_assist": {
+      "editor": "vscode",
+      "action": "CODE_REVIEW",
+      "language": "python",
+      "accepted": true,
+      "latency_ms": 628,
+      "tokens_generated": 1503
     }
   },
-  "event": { "outcome": "success", "duration": 851, "module": "gcp", "dataset": "gcp.gemini" },
-  "message": "Gemini gemini-1.5-pro generation completed (9345 tokens, 851ms, grounding=true)",
-  "service": { "name": "gemini", "type": "gcp" },
+  "event": {
+    "outcome": "success",
+    "duration": 628,
+    "module": "gcp",
+    "dataset": "gcp.gemini_code_assist"
+  },
+  "message": "Gemini Code Assist CODE_REVIEW python in vscode accepted=true tokens=1503 (628.0ms)",
+  "service": { "name": "gemini-code-assist", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.gemini", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.gemini_code_assist", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-me-west1",
-    "id": "5tr5uikk4c3"
+    "name": "elastic-agent-gcp-us-west3",
+    "id": "dqqzict26ij"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-security-j0k1l2/logs/gemini",
+  "logName": "projects/globex-prod-a1b2c3/logs/gemini-code-assist",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-security-j0k1l2", "region": "me-west1" }
+    "labels": { "project_id": "globex-prod-a1b2c3", "region": "us-west3" }
   },
   "severity": "INFO",
-  "insertId": "HW11H1S8EM",
+  "insertId": "PUWQL4P7EPE",
   "jsonPayload": {
-    "gemini": {
-      "model": "gemini-1.5-pro",
-      "prompt_token_count": 6273,
-      "candidates_token_count": 3072,
-      "total_token_count": 9345,
-      "finish_reason": "STOP",
-      "safety_ratings": [
-        { "category": "HARM_CATEGORY_HARASSMENT", "probability": "LOW" },
-        { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "probability": "NEGLIGIBLE" }
-      ],
-      "latency_ms": 851,
-      "grounding_used": true
+    "gemini_code_assist": {
+      "editor": "vscode",
+      "action": "CODE_REVIEW",
+      "language": "python",
+      "accepted": true,
+      "latency_ms": 628,
+      "tokens_generated": 1503
     },
-    "message": "Gemini gemini-1.5-pro generation completed (9345 tokens, 851ms, grounding=true)"
+    "message": "Gemini Code Assist CODE_REVIEW python in vscode accepted=true tokens=1503 (628.0ms)"
   }
 }

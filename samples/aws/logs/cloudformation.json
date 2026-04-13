@@ -1,62 +1,68 @@
 {
-  "@timestamp": "2026-04-10T13:54:21.951Z",
+  "@timestamp": "2026-04-13T10:53:45.336Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "sa-east-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "cloudformation" }
   },
   "aws": {
     "cloudformation": {
-      "stack_name": "rds-cluster",
-      "stack_id": "arn:aws:cloudformation:ap-northeast-1:738291046572:stack/rds-cluster/w1oza2vq",
-      "action": "CREATE_STACK",
-      "stack_status": "CREATE_IN_PROGRESS",
-      "resource_type": "AWS::EC2::VPC",
-      "logical_resource_id": "DatabaseCluster",
-      "drift_status": "DRIFTED",
+      "stack_name": "vpc-infra",
+      "stack_id": "arn:aws:cloudformation:sa-east-1:293847561023:stack/vpc-infra/udvghzp4",
+      "action": "DETECT_DRIFT",
+      "stack_status": "DELETE_FAILED",
+      "resource_type": "AWS::ECS::Service",
+      "logical_resource_id": "ApiFunction",
+      "resource_status_reason": "Insufficient capacity",
+      "drift_status": "IN_SYNC",
       "structured_logging": false,
       "metrics": {
-        "TotalStack": { "avg": 263 },
-        "ErroredStack": { "avg": 0 },
-        "RollbackStack": { "avg": 0 },
-        "DeletedStack": { "avg": 29 },
-        "StackInstancesDeployed": { "avg": 8598 }
+        "TotalStack": { "avg": 109 },
+        "ErroredStack": { "avg": 9 },
+        "RollbackStack": { "avg": 5 },
+        "DeletedStack": { "avg": 24 },
+        "StackInstancesDeployed": { "avg": 8131 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudformation-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-cloudformation-logs-738291046572"
+        "name": "aws-cloudformation-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-cloudformation-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/cloudformation/ap-northeast-1/2026/04/10/cloudformation_WTX0V8JURD.log.gz"
+        "key": "AWSLogs/293847561023/cloudformation/sa-east-1/2026/04/13/cloudformation_R0CWGGGA73B.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloudformation/logs",
-      "log_stream": "ap-northeast-1/9cuywle2",
-      "ingestion_time": "2026-04-10T13:54:28.680Z"
+      "log_stream": "sa-east-1/tyogrme8",
+      "ingestion_time": "2026-04-13T10:53:45.813Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["configuration", "process"],
     "dataset": "aws.cloudformation",
     "provider": "cloudformation.amazonaws.com",
-    "duration": 554000000000,
+    "duration": 1268000000000,
     "module": "aws"
   },
-  "message": "CloudFormation rds-cluster: CREATE_STACK -> CREATE_IN_PROGRESS",
-  "log": { "level": "info" },
+  "message": "CloudFormation vpc-infra DELETE_FAILED: AWS::ECS::Service failed - Limit exceeded",
+  "error": {
+    "code": "StackError",
+    "message": "CloudFormation stack operation failed",
+    "type": "configuration"
+  },
+  "log": { "level": "error" },
   "service": { "name": "cloudformation", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudformation", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "4wanwwv8qzb"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "72gu3wjpytm"
   },
   "input": { "type": "aws-cloudwatch" }
 }

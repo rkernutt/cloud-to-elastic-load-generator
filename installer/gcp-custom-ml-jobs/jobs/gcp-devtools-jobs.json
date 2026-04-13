@@ -81,6 +81,85 @@
         "query_delay": "60s",
         "delayed_data_check_config": { "enabled": true }
       }
+    },
+    {
+      "id": "gcp-apigee-error-spike",
+      "description": "Detects spikes in Apigee API failures by proxy",
+      "job": {
+        "description": "Detects spikes in Apigee API failures by proxy",
+        "groups": ["gcp", "networking"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.apigee.proxy_name",
+              "function": "high_count",
+              "partition_field_name": "gcp.apigee.proxy_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.apigee.proxy_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*apigee.googleapis.com*" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "gcp-apigee-latency-anomaly",
+      "description": "Detects unusual Apigee API latency",
+      "job": {
+        "description": "Detects unusual Apigee API latency",
+        "groups": ["gcp", "networking"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration)",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*apigee.googleapis.com*" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
     }
   ]
 }

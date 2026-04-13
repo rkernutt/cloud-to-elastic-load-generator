@@ -27,6 +27,11 @@ import {
   generateGcsObjectPipelineTrace,
   generateEventarcWorkflowOrchestrationTrace,
 } from "./workflow-chains.js";
+import { generateCloudStorageTrace } from "./cloudstorage.js";
+import { generateComputeEngineTrace } from "./computeengine.js";
+import { generateApigeeTrace } from "./apigee.js";
+import { generateCloudBuildTrace } from "./cloudbuild.js";
+import { generateGeminiTrace } from "./gemini.js";
 
 const GCP_TRACE_GENERATORS: Record<string, (ts: string, er: number) => Record<string, unknown>[]> =
   {
@@ -48,6 +53,11 @@ const GCP_TRACE_GENERATORS: Record<string, (ts: string, er: number) => Record<st
     "workflow-pubsub-fanout": generatePubSubFanoutTrace,
     "workflow-gcs-pipeline": generateGcsObjectPipelineTrace,
     "workflow-eventarc-orchestration": generateEventarcWorkflowOrchestrationTrace,
+    "cloud-storage": generateCloudStorageTrace,
+    "compute-engine": generateComputeEngineTrace,
+    apigee: generateApigeeTrace,
+    "cloud-build": generateCloudBuildTrace,
+    gemini: generateGeminiTrace,
   };
 
 export { GCP_TRACE_GENERATORS };

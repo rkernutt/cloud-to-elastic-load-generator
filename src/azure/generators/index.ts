@@ -28,6 +28,14 @@ import {
   generateM365Log,
 } from "./platform.js";
 import { generateOpenAiLog } from "./aiml.js";
+import {
+  generateIotHubLog,
+  generateLogicAppsLog,
+  generateApiManagementLog,
+  generateEventGridLog,
+  generateSynapseWorkspaceLog,
+  generateDatabricksLog,
+} from "./integration.js";
 import { mergeAzureLogVariants } from "./mergeHelpers.js";
 
 import type { EcsDocument } from "./helpers.js";
@@ -54,6 +62,12 @@ const DEDICATED: Record<string, Gen> = {
   "entra-id": generateEntraIdLog,
   m365: generateM365Log,
   openai: generateOpenAiLog,
+  "iot-hub": generateIotHubLog,
+  "logic-apps": generateLogicAppsLog,
+  "api-management": generateApiManagementLog,
+  "event-grid": generateEventGridLog,
+  "synapse-workspace": generateSynapseWorkspaceLog,
+  databricks: generateDatabricksLog,
 };
 
 const AZURE_LOG_MERGE_CHILDREN: Record<string, readonly string[]> = {

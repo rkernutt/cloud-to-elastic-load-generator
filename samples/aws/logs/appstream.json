@@ -1,57 +1,64 @@
 {
-  "@timestamp": "2026-04-10T13:54:21.951Z",
+  "@timestamp": "2026-04-13T10:53:45.336Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-west-3",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "appstream" }
   },
   "aws": {
     "appstream": {
-      "stack_name": "browser-isolation",
-      "fleet_name": "always-on-fleet",
-      "user_id": "user_zv9xda91@company.com",
-      "session_id": "vhw36i4ajne",
+      "stack_name": "dev-tools-stack",
+      "fleet_name": "on-demand-fleet",
+      "user_id": "user_x5qaf25e@company.com",
+      "session_id": "ufva6j63a1p",
       "event_type": "FILE_UPLOAD",
-      "instance_type": "stream.standard.medium",
+      "instance_type": "stream.memory.xlarge",
+      "storage_connector": "GoogleDrive",
       "idle_disconnect_timeout_minutes": 15,
-      "max_user_duration_hours": 2
+      "max_user_duration_hours": 8,
+      "error_code": "USER_NOT_AUTHORIZED"
     },
     "s3": {
       "bucket": {
-        "name": "aws-appstream-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-appstream-logs-814726593401"
+        "name": "aws-appstream-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-appstream-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/814726593401/appstream/ap-northeast-2/2026/04/10/appstream_OSOPYTJ5PQ.log.gz"
+        "key": "AWSLogs/293847561023/appstream/eu-west-3/2026/04/13/appstream_W27DIK7XCV.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/appstream/logs",
-      "log_stream": "ap-northeast-2/0q7rq389",
-      "ingestion_time": "2026-04-10T13:54:29.064Z"
+      "log_stream": "eu-west-3/8ey94m0y",
+      "ingestion_time": "2026-04-13T10:53:45.832Z"
     }
   },
-  "user": { "name": "user_zv9xda91@company.com" },
+  "user": { "name": "user_x5qaf25e@company.com" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["host", "session"],
     "dataset": "aws.appstream",
     "provider": "appstream2.amazonaws.com",
-    "duration": 1307000000,
+    "duration": 19237000000,
     "module": "aws"
   },
-  "message": "AppStream FILE_UPLOAD: user_zv9xda91@company.com [browser-isolation]",
-  "log": { "level": "info" },
-  "host": { "name": "ip-253-65-153-12.ec2.internal", "hostname": "appstream-k615a8wv" },
+  "message": "AppStream dev-tools-stack FILE_UPLOAD FAILED: IAM role error:",
+  "log": { "level": "error" },
+  "error": {
+    "code": "IAM_SERVICE_ROLE_ERROR",
+    "message": "AppStream operation failed",
+    "type": "session"
+  },
+  "host": { "name": "ip-51-119-93-165.ec2.internal", "hostname": "appstream-7k2igatn" },
   "service": { "name": "appstream", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.appstream", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "or1ixp61k9"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "msyzcvh8qgk"
   },
   "input": { "type": "aws-cloudwatch" }
 }

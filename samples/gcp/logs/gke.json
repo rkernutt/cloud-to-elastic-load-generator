@@ -2,55 +2,59 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "us-west1",
+    "region": "us-west3",
     "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
     "account": { "id": "141421356237", "name": "Globex Security" },
-    "service": { "name": "config-connector" }
+    "service": { "name": "container.googleapis.com" }
   },
   "gcp": {
-    "config_connector": {
-      "resource_kind": "ComputeInstance",
-      "resource_name": "computeinstance-lpteo5",
-      "action": "DELETE",
-      "namespace": "workloads",
-      "status": "SYNCED",
-      "reconcile_duration_ms": 315
+    "gke": {
+      "cluster": "staging-cluster",
+      "namespace": "kube-system",
+      "pod": "envoy-75vaa-4vlp7",
+      "container_name": "worker",
+      "node_name": "gke-staging-cluster-4gqq-def-0-1sc0",
+      "event_type": "PodScheduled",
+      "severity": "INFO"
     }
   },
-  "event": {
-    "outcome": "success",
-    "duration": 315000,
-    "module": "gcp",
-    "dataset": "gcp.configconnector"
-  },
-  "message": "Config Connector reconciled ComputeInstance computeinstance-lpteo5 ns=workloads in 315.0ms",
-  "service": { "name": "config-connector", "type": "gcp" },
+  "event": { "outcome": "success", "duration": 7371, "module": "gcp", "dataset": "gcp.gke" },
+  "message": "GKE staging-cluster/kube-system: PodScheduled for pod envoy-75vaa-4vlp7 container worker on gke-staging-cluster-4gqq-def-0-1sc0",
+  "service": { "name": "gke", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.configconnector", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.gke", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-west1",
-    "id": "9b2vmen8o3"
+    "name": "elastic-agent-gcp-us-west3",
+    "id": "dv5l1n97wff"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-security-j0k1l2/logs/config-connector",
+  "logName": "projects/globex-security-j0k1l2/logs/gke",
   "resource": {
-    "type": "global",
-    "labels": { "project_id": "globex-security-j0k1l2", "region": "us-west1" }
+    "type": "k8s_container",
+    "labels": {
+      "project_id": "globex-security-j0k1l2",
+      "cluster_name": "cluster",
+      "location": "us-west3",
+      "namespace_name": "kube-system",
+      "pod_name": "pod",
+      "container_name": "app"
+    }
   },
   "severity": "INFO",
-  "insertId": "30DAMJ3XD72",
+  "insertId": "8ICMH62DXF",
   "jsonPayload": {
-    "config_connector": {
-      "resource_kind": "ComputeInstance",
-      "resource_name": "computeinstance-lpteo5",
-      "action": "DELETE",
-      "namespace": "workloads",
-      "status": "SYNCED",
-      "reconcile_duration_ms": 315
+    "gke": {
+      "cluster": "staging-cluster",
+      "namespace": "kube-system",
+      "pod": "envoy-75vaa-4vlp7",
+      "container_name": "worker",
+      "node_name": "gke-staging-cluster-4gqq-def-0-1sc0",
+      "event_type": "PodScheduled",
+      "severity": "INFO"
     },
-    "message": "Config Connector reconciled ComputeInstance computeinstance-lpteo5 ns=workloads in 315.0ms"
+    "message": "GKE staging-cluster/kube-system: PodScheduled for pod envoy-75vaa-4vlp7 container worker on gke-staging-cluster-4gqq-def-0-1sc0"
   }
 }
