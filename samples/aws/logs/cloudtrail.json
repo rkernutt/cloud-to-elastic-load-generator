@@ -1,75 +1,75 @@
 {
-  "@timestamp": "2026-04-13T10:53:45.336Z",
+  "@timestamp": "2026-04-13T13:40:12.254Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-east-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "cloudtrail" }
   },
   "aws": {
-    "dimensions": { "EventName": "CreatePolicy", "EventSource": "iam.amazonaws.com" },
+    "dimensions": { "EventName": "AssumeRole", "EventSource": "sts.amazonaws.com" },
     "cloudtrail": {
       "event_version": "1.09",
       "event_category": "Management",
       "event_type": "AwsApiCall",
-      "request_id": "mbcl7d81-w0f3-9xa1-2yh4-67fti9s430m",
+      "request_id": "7od4rsya-c8t6-qu7t-l5oe-cfgsrglw97l",
       "api_version": "2012-10-17",
       "management_event": true,
       "read_only": false,
-      "recipient_account_id": "738291046572",
-      "aws_region": "ca-central-1",
+      "recipient_account_id": "501938274650",
+      "aws_region": "ap-east-1",
       "user_identity": {
-        "type": "WebIdentityUser",
-        "principal_id": "738291046572:ci-pipeline",
-        "arn": "arn:aws:iam::738291046572:user/ci-pipeline",
-        "account_id": "738291046572",
-        "access_key_id": "AKIACB8YLGDHIFO",
+        "type": "AssumedRole",
+        "principal_id": "AROAWZZCQA8ERS:carol-session",
+        "arn": "arn:aws:iam::501938274650:user/carol",
+        "account_id": "501938274650",
+        "access_key_id": "AKIAMLDZFTLZS4P",
         "session_context": {
           "session_issuer": {
             "type": "Role",
-            "principal_id": "AROA2TYJ66N7EHS",
-            "arn": "arn:aws:iam::738291046572:role/service-role/execution-role",
-            "account_id": "738291046572",
+            "principal_id": "AROAWZZCQA8ERS",
+            "arn": "arn:aws:iam::501938274650:role/service-role/execution-role",
+            "account_id": "501938274650",
             "user_name": "execution-role"
           },
           "web_id_federation_data": {},
           "attributes": {
-            "creation_date": "2026-04-13T10:00:12.336Z",
+            "creation_date": "2026-04-13T13:37:27.254Z",
             "mfa_authenticated": "false"
           }
         }
       },
-      "request_parameters": "null",
+      "request_parameters": "{\"roleArn\":\"arn:aws:iam::501938274650:role/CrossAccountRole\",\"roleSessionName\":\"session-gtedziyr\"}",
       "response_elements": "null"
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudtrail-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-cloudtrail-logs-738291046572"
+        "name": "aws-cloudtrail-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-cloudtrail-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/cloudtrail/ca-central-1/2026/04/13/cloudtrail_D1J7J7Y7XTO.log.gz"
+        "key": "AWSLogs/501938274650/cloudtrail/ap-east-1/2026/04/13/cloudtrail_MTFRZPEM2Z.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloudtrail/logs",
-      "log_stream": "ca-central-1/weo331ja",
-      "ingestion_time": "2026-04-13T10:53:45.647Z"
+      "log_stream": "ap-east-1/bhga9bcm",
+      "ingestion_time": "2026-04-13T13:40:12.568Z"
     }
   },
-  "user": { "name": "ci-pipeline" },
-  "source": { "ip": "77.239.180.146", "geo": { "country_iso_code": "CA", "city_name": "London" } },
-  "user_agent": { "original": "python-requests/2.27.1" },
+  "user": { "name": "carol" },
+  "source": { "ip": "180.5.139.207", "geo": { "country_iso_code": "US", "city_name": "Tokyo" } },
+  "user_agent": { "original": "Go-http-client/1.1" },
   "event": {
-    "action": "CreatePolicy",
+    "action": "AssumeRole",
     "outcome": "success",
-    "category": ["iam"],
-    "type": ["creation"],
+    "category": ["authentication", "iam"],
+    "type": ["access"],
     "dataset": "aws.cloudtrail",
     "provider": "cloudtrail.amazonaws.com",
     "module": "aws"
   },
-  "message": "CloudTrail: CreatePolicy by ci-pipeline from 77.239.180.146 - Success",
+  "message": "CloudTrail: AssumeRole by carol from 180.5.139.207 - Success",
   "log": { "level": "info" },
   "service": { "name": "cloudtrail", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -77,8 +77,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "43v1ul85f7h"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "gs49fre9x5v"
   },
   "input": { "type": "aws-s3" }
 }

@@ -1,61 +1,57 @@
 {
-  "@timestamp": "2026-04-13T10:53:45.336Z",
+  "@timestamp": "2026-04-13T13:40:12.254Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-west-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "iotfleetwise" }
   },
   "aws": {
-    "dimensions": { "FleetId": "delivery-vans", "CampaignName": "fuel-efficiency" },
+    "dimensions": { "FleetId": "delivery-vans", "CampaignName": "battery-monitoring" },
     "iotfleetwise": {
       "fleet_id": "delivery-vans",
-      "vehicle_id": "VIN-MGSUUG4MCFO",
-      "campaign_name": "fuel-efficiency",
-      "campaign_status": "SUSPENDED",
+      "vehicle_id": "VIN-2DEVJWNS55U",
+      "campaign_name": "battery-monitoring",
+      "campaign_status": "WAITING_FOR_APPROVAL",
       "signal_name": "Vehicle.Speed",
-      "collection_scheme": "TIME_BASED",
+      "signal_value": 33.65705396820131,
+      "collection_scheme": "CONDITION_BASED",
       "compression": "SNAPPY",
-      "data_destination": "IOT_SITERISE"
+      "data_destination": "S3"
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotfleetwise-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-iotfleetwise-logs-738291046572"
+        "name": "aws-iotfleetwise-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-iotfleetwise-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/iotfleetwise/me-south-1/2026/04/13/iotfleetwise_AB6MOVEJV5K.log.gz"
+        "key": "AWSLogs/814726593401/iotfleetwise/eu-west-1/2026/04/13/iotfleetwise_I7DQILP3HKI.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotfleetwise/logs",
-      "log_stream": "me-south-1/f6kshpu6",
-      "ingestion_time": "2026-04-13T10:53:45.810Z"
+      "log_stream": "eu-west-1/g6uwqqbk",
+      "ingestion_time": "2026-04-13T13:40:12.748Z"
     }
   },
   "event": {
-    "action": "UpdateVehicle",
-    "outcome": "failure",
+    "action": "AssociateVehicleFleet",
+    "outcome": "success",
     "category": ["iot", "process"],
     "dataset": "aws.iotfleetwise",
     "provider": "iotfleetwise.amazonaws.com",
     "module": "aws"
   },
-  "message": "IoT FleetWise UpdateVehicle FAILED [delivery-vans/VIN-MGSUUG4MCFO]: Campaign suspended",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ResourceNotFoundException",
-    "message": "IoT FleetWise operation failed",
-    "type": "iot"
-  },
+  "message": "IoT FleetWise AssociateVehicleFleet: fleet=delivery-vans, vehicle=VIN-2DEVJWNS55U, campaign=battery-monitoring WAITING_FOR_APPROVAL",
+  "log": { "level": "info" },
   "service": { "name": "iotfleetwise", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iotfleetwise", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "lysvuep0ef"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "8isnz9cshk5"
   },
   "input": { "type": "aws-cloudwatch" }
 }

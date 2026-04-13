@@ -17,6 +17,8 @@ import { PipelineLogo } from "./Logo";
 
 interface AppLayoutProps {
   branding: { headerLogoSrc: string; headerLogoAlt: string };
+  /** Linear wizard steps (Start through Ship); order matches the horizontal stepper */
+  wizardSteps: readonly { id: string; title: string }[];
   /** When set (multi-cloud UI), replaces the default “Load Generator” title */
   headerAppTitle?: string;
   /** Active hyperscaler mark next to the title (icon only; text label optional for badges) */
@@ -39,17 +41,6 @@ interface AppLayoutProps {
   isSetupDone: boolean;
 }
 
-/** Wizard steps in logical order */
-const STEPS = [
-  { id: "connection", title: "Start" },
-  { id: "setup", title: "Setup" },
-  { id: "services", title: "Select" },
-  { id: "config", title: "Configure" },
-  { id: "ship", title: "Ship" },
-] as const;
-
-const STEP_IDS = STEPS.map((s) => s.id);
-
 /** Secondary nav items. */
 const EXTRA_NAV = [
   { id: "anomalies", label: "Anomalies", icon: "bug" },
@@ -60,6 +51,7 @@ const OVERVIEW_NAV = [{ id: "welcome", label: "Welcome", icon: "home" }] as cons
 
 export function AppLayout({
   branding,
+  wizardSteps,
   headerAppTitle,
   headerVendorBadge,
   headerWordmarkSrc,
@@ -77,17 +69,18 @@ export function AppLayout({
   hasServicesSelected,
   isSetupDone,
 }: AppLayoutProps) {
+  const stepIds = wizardSteps.map((s) => s.id);
   /** Determine step status for the horizontal stepper */
-  const activeStepIdx = STEP_IDS.indexOf(activePage as (typeof STEP_IDS)[number]);
+  const activeStepIdx = stepIds.indexOf(activePage);
   const onWizardStep = activeStepIdx >= 0;
 
-  const stepStatuses = STEPS.map((step, idx) => {
+  const stepStatuses = wizardSteps.map((step, idx) => {
     const isPast = onWizardStep && idx < activeStepIdx;
     let isComplete = false;
     if (isPast) {
       if (step.id === "connection") isComplete = isConnected;
       if (step.id === "setup") isComplete = isSetupDone;
-      if (step.id === "services") isComplete = hasServicesSelected;
+      if (step.id === "services" || step.id === "security") isComplete = hasServicesSelected;
       if (step.id === "config") isComplete = hasServicesSelected;
       if (step.id === "ship") isComplete = status === "done";
     }

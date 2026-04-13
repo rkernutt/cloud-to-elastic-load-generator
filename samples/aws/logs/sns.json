@@ -1,59 +1,64 @@
 {
-  "@timestamp": "2026-04-13T10:53:45.336Z",
+  "@timestamp": "2026-04-13T13:40:12.254Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-south-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "sns" }
   },
   "aws": {
-    "dimensions": { "TopicName": "system-events" },
+    "dimensions": { "TopicName": "security-alarms" },
     "sns": {
       "metrics": {
-        "NumberOfMessagesPublished": { "sum": 771 },
-        "NumberOfNotificationsDelivered": { "sum": 771 },
-        "NumberOfNotificationsFailed": { "sum": 0 },
+        "NumberOfMessagesPublished": { "sum": 4434 },
+        "NumberOfNotificationsDelivered": { "sum": 1560 },
+        "NumberOfNotificationsFailed": { "sum": 2874 },
         "NumberOfNotificationsFilteredOut": { "sum": 0 },
         "NumberOfNotificationsFilteredOut-InvalidAttributes": { "sum": 0 },
         "NumberOfNotificationsFilteredOut-NoMessageAttributes": { "sum": 0 },
         "NumberOfNotificationsRedrivenToDlq": { "sum": 0 },
         "NumberOfNotificationsFailedToRedriveToDlq": { "sum": 0 },
-        "PublishSize": { "avg": 24766 },
+        "PublishSize": { "avg": 31574 },
         "SMSSuccessRate": {},
         "SMSMonthToDateSpentUSD": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sns-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-sns-logs-738291046572"
+        "name": "aws-sns-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-sns-logs-814726593401"
       },
-      "object": { "key": "AWSLogs/738291046572/sns/us-west-2/2026/04/13/sns_CDJESIDVDPS.log.gz" }
+      "object": { "key": "AWSLogs/814726593401/sns/ap-south-2/2026/04/13/sns_91KVHU3QBQK.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/sns/logs",
-      "log_stream": "us-west-2/oo7sflj7",
-      "ingestion_time": "2026-04-13T10:53:45.764Z"
+      "log_stream": "ap-south-2/uq3tbgba",
+      "ingestion_time": "2026-04-13T13:40:12.696Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.sns",
     "provider": "sns.amazonaws.com",
-    "duration": 365446661.52318066,
+    "duration": 13588308221.073784,
     "module": "aws"
   },
-  "message": "SNS delivered: system-events -> lambda (25411B)",
-  "log": { "level": "info" },
+  "message": "SNS delivery FAILED: security-alarms -> sqs: Endpoint disabled",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "InvalidParameterValueException",
+    "message": "SNS delivery failed",
+    "type": "messaging"
+  },
   "service": { "name": "sns", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sns", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "gk07dss0v4w"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "xnv8cyrzq4q"
   },
   "input": { "type": "aws-cloudwatch" }
 }

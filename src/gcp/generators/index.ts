@@ -5,6 +5,13 @@
  */
 
 import {
+  generateGcpSecurityFindingChain,
+  generateGcpCspmFindings,
+  generateGcpKspmFindings,
+  generateGcpIamPrivEscChain,
+  generateGcpDataExfilChain,
+} from "./securityChains.js";
+import {
   generateCloudFunctionsLog,
   generateCloudRunLog,
   generateAppEngineLog,
@@ -363,6 +370,12 @@ const GCP_GENERATORS: Record<string, (ts: string, er: number) => Record<string, 
     generateApplicationIntegrationLog,
     generateIntegrationConnectorsLog,
   ]),
+
+  "gcp-security-chain": generateGcpSecurityFindingChain,
+  "gcp-cspm": generateGcpCspmFindings,
+  "gcp-kspm": generateGcpKspmFindings,
+  "gcp-iam-privesc-chain": generateGcpIamPrivEscChain,
+  "gcp-data-exfil-chain": generateGcpDataExfilChain,
 };
 
 export { GCP_GENERATORS };

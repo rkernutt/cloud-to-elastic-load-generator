@@ -11,6 +11,11 @@ const AZURE_SERVICE_INGESTION_DEFAULTS: Record<string, string> = {
   "teams-user-activity": "o365-cel",
   "outlook-activity": "o365-cel",
   "onedrive-usage-storage": "o365-cel",
+  "azure-security-chain": "api",
+  "azure-cspm": "api",
+  "azure-kspm": "api",
+  "azure-iam-privesc-chain": "api",
+  "azure-data-exfil-chain": "api",
 };
 
 const AZURE_INGESTION_META: Record<string, { label: string; color: string; inputType: string }> = {

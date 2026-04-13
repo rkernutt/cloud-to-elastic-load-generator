@@ -1,24 +1,23 @@
 {
-  "@timestamp": "2026-04-13T10:53:45.336Z",
+  "@timestamp": "2026-04-13T13:40:12.254Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
+    "region": "us-west-1",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "codecommit" }
   },
   "aws": {
     "codecommit": {
-      "repository_name": "api-service",
-      "repository_arn": "arn:aws:codecommit:ap-east-1:501938274650:api-service",
-      "event_type": "PullRequestMerged",
+      "repository_name": "ml-models",
+      "repository_arn": "arn:aws:codecommit:us-west-1:501938274650:ml-models",
+      "event_type": "ReferenceUpdated",
       "reference_name": "develop",
-      "commit_id": "l6rrfv486b",
+      "commit_id": "vrk4h9k0yur",
       "author": "bob",
-      "files_changed": 24,
-      "lines_added": 236,
-      "lines_deleted": 128,
-      "pull_request_id": "373",
-      "merge_strategy": "fast-forward"
+      "files_changed": 4,
+      "lines_added": 16,
+      "lines_deleted": 91,
+      "error_code": "EncryptionKeyUnavailableException"
     },
     "s3": {
       "bucket": {
@@ -26,34 +25,39 @@
         "arn": "arn:aws:s3:::aws-codecommit-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/codecommit/ap-east-1/2026/04/13/codecommit_5BJW90NRX8N.log.gz"
+        "key": "AWSLogs/501938274650/codecommit/us-west-1/2026/04/13/codecommit_0RQ84XM6XO9E.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codecommit/logs",
-      "log_stream": "ap-east-1/6d22nntp",
-      "ingestion_time": "2026-04-13T10:53:45.772Z"
+      "log_stream": "us-west-1/npcgwmlo",
+      "ingestion_time": "2026-04-13T13:40:12.705Z"
     }
   },
-  "user": { "name": "alice" },
+  "user": { "name": "carol" },
   "event": {
-    "action": "PullRequestMerged",
-    "outcome": "success",
+    "action": "ReferenceUpdated",
+    "outcome": "failure",
     "category": ["configuration", "file"],
     "dataset": "aws.codecommit",
     "provider": "codecommit.amazonaws.com",
     "module": "aws"
   },
-  "message": "CodeCommit PullRequestMerged: api-service/develop",
-  "log": { "level": "info" },
+  "message": "CodeCommit ReferenceUpdated FAILED on ml-models: Encryption key unavailable",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InvalidBranchNameException",
+    "message": "CodeCommit operation failed",
+    "type": "vcs"
+  },
   "service": { "name": "codecommit", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.codecommit", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "5j93iwi80ec"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "v7ohbt3yw9c"
   },
   "input": { "type": "aws-cloudwatch" }
 }

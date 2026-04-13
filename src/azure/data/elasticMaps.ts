@@ -143,6 +143,11 @@ const AZURE_ELASTIC_DATASET_MAP: Record<string, string> = {
   "vmware-solution": "azure.vmware_solution",
   "confidential-vm": "azure.confidential_vm",
   "image-builder": "azure.image_builder",
+  "azure-security-chain": "azure.defender",
+  "azure-cspm": "cloud_security_posture.findings",
+  "azure-kspm": "cloud_security_posture.findings",
+  "azure-iam-privesc-chain": "azure.activity_log",
+  "azure-data-exfil-chain": "azure.defender",
 };
 
 const AZURE_METRICS_SUPPORTED_SERVICE_IDS = new Set([

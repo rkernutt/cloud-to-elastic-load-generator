@@ -1,57 +1,62 @@
 {
-  "@timestamp": "2026-04-13T10:53:45.336Z",
+  "@timestamp": "2026-04-13T13:40:12.254Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-west-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "directconnect" }
   },
   "aws": {
     "directconnect": {
-      "connection_id": "dxcon-o0gk847q",
-      "connection_name": "dx-primary",
+      "connection_id": "dxcon-c4rmcdqs",
+      "connection_name": "dx-secondary",
       "bandwidth": "1Gbps",
-      "connection_state": "available",
-      "vlan": 2638,
-      "asn": 65157,
-      "bgp_status": "up",
-      "bgp_peer_ip": "82.201.169.166",
-      "bytes_in": 811160893,
-      "bytes_out": 100773983,
-      "location": "LAX"
+      "connection_state": "down",
+      "vlan": 3514,
+      "asn": 64831,
+      "bgp_status": "down",
+      "bgp_peer_ip": "30.252.212.185",
+      "bytes_in": 263131282,
+      "bytes_out": 471357287,
+      "location": "DFW2"
     },
     "s3": {
       "bucket": {
-        "name": "aws-directconnect-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-directconnect-logs-293847561023"
+        "name": "aws-directconnect-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-directconnect-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/directconnect/eu-south-2/2026/04/13/directconnect_HD799ZLE1C.log.gz"
+        "key": "AWSLogs/164820739518/directconnect/eu-west-1/2026/04/13/directconnect_GVEWLCIZ305.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/directconnect/logs",
-      "log_stream": "eu-south-2/j36ds7p4",
-      "ingestion_time": "2026-04-13T10:53:45.687Z"
+      "log_stream": "eu-west-1/jt45vi7d",
+      "ingestion_time": "2026-04-13T13:40:12.612Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": "network",
     "dataset": "aws.directconnect",
     "provider": "directconnect.amazonaws.com",
     "module": "aws"
   },
-  "message": "Direct Connect dxcon-o0gk847q (1Gbps): BGP up, 12.4 Mbps",
-  "log": { "level": "info" },
+  "message": "Direct Connect dxcon-c4rmcdqs (1Gbps) DOWN - BGP session lost",
+  "log": { "level": "error" },
+  "error": {
+    "code": "BgpSessionDown",
+    "message": "Direct Connect dxcon-c4rmcdqs DOWN - BGP session lost",
+    "type": "network"
+  },
   "service": { "name": "directconnect", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.directconnect", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "esko9pc38yq"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "iftog7l1qd"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,49 +1,76 @@
 {
-  "@timestamp": "2026-04-13T10:53:45.336Z",
+  "@timestamp": "2026-04-13T13:40:12.254Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
-    "service": { "name": "dms-serverless" }
+    "region": "eu-central-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "service": { "name": "dms" }
   },
   "aws": {
-    "dmsserverless": {
-      "replication_config": "mysql-to-s3",
-      "replication_type": "full-load",
-      "provisioned_capacity": 38,
-      "min_capacity": 1,
-      "max_capacity": 64,
-      "tables_loaded": 250,
-      "tables_loading": 0,
+    "dimensions": { "ReplicationInstanceIdentifier": "dms-analytics-bdkgqqjr" },
+    "dms": {
+      "replication_task_id": "oracle-to-rds",
+      "migration_type": "full-load-and-cdc",
+      "replication_instance_identifier": "dms-analytics-bdkgqqjr",
+      "source_engine": "mysql",
+      "target_engine": "aurora-mysql",
+      "replication_instance_class": "dms.r5.xlarge",
+      "task_status": "Load complete",
+      "full_load_rows_transferred": 6969232,
+      "cdc_incoming_changes": 69993,
+      "latency_ms": 1178,
+      "tables_loaded": 238,
       "tables_errored": 0,
-      "cdc_latency_seconds": 0,
-      "rows_applied": 979554,
-      "bytes_transferred": 711078083
+      "metrics": {
+        "FullLoadThroughputRowsSource": { "avg": 72037 },
+        "FullLoadThroughputRowsTarget": { "avg": 70823 },
+        "CDCIncomingChanges": { "avg": 2006 },
+        "CDCChangesMemorySource": { "avg": 407 },
+        "CDCChangesMemoryTarget": { "avg": 715 },
+        "CDCChangesDiskSource": { "avg": 8 },
+        "CDCChangesDiskTarget": { "avg": 96 },
+        "CDCLatencySource": { "avg": 4 },
+        "CDCLatencyTarget": { "avg": 7 },
+        "CPUUtilization": { "avg": 42.244546620363565 },
+        "FreeableMemory": { "avg": 4902144518 },
+        "FreeStorageSpace": { "avg": 79490883170 },
+        "NetworkReceiveThroughput": { "avg": 82317965 },
+        "NetworkTransmitThroughput": { "avg": 94459696 },
+        "ReadIOPS": { "avg": 1177 },
+        "WriteIOPS": { "avg": 26 }
+      }
     },
     "s3": {
       "bucket": {
-        "name": "aws-dms-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-dms-logs-293847561023"
+        "name": "aws-dms-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-dms-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/293847561023/dms/ap-south-2/2026/04/13/dms_VSEO7TU3UGI.log.gz" }
+      "object": { "key": "AWSLogs/501938274650/dms/eu-central-2/2026/04/13/dms_9RM4EJWVGBV.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/dms/logs",
-      "log_stream": "ap-south-2/7rbwd2ec",
-      "ingestion_time": "2026-04-13T10:53:45.818Z"
+      "log_stream": "eu-central-2/9jfgn59n",
+      "ingestion_time": "2026-04-13T13:40:12.757Z"
     }
   },
-  "event": { "outcome": "success", "duration": 214869074, "module": "aws", "dataset": "aws.dms" },
-  "message": "DMS Serverless mysql-to-s3: full-load active (38 DCU, 4864 rows/s)",
-  "service": { "name": "dms", "type": "aws" },
+  "event": {
+    "outcome": "success",
+    "category": ["database", "process"],
+    "dataset": "aws.dms",
+    "provider": "dms.amazonaws.com",
+    "duration": 8106000000000,
+    "module": "aws"
+  },
+  "message": "DMS oracle-to-rds: 6,969,232 rows (mysql->aurora-mysql full-load-and-cdc)",
   "log": { "level": "info" },
+  "service": { "name": "dms", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.dms", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "m0s4ktojyn"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "6tlpp2rj7np"
   },
   "input": { "type": "aws-cloudwatch" }
 }

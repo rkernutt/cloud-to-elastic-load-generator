@@ -2,6 +2,12 @@ import { useState, useCallback, useRef, useEffect, useMemo, lazy, Suspense } fro
 import { rand, stripNulls } from "./helpers";
 import { enrichForCloud } from "./helpers/enrichGcpAzure";
 import { serviceIdsInGroup } from "./data/serviceGroups";
+import {
+  FINDINGS_GROUP_ID,
+  findingsServiceIdSet,
+  buildWizardStepIds,
+  WIZARD_STEP_TITLE,
+} from "./wizard/wizardFlow";
 import type { CloudAppConfig, CloudId } from "./cloud/types";
 import {
   unifiedVendorCard,
@@ -59,6 +65,7 @@ const WIZARD_PAGE_IDS = new Set([
   "connection",
   "setup",
   "services",
+  "security",
   "config",
   "anomalies",
   "ship",
@@ -145,6 +152,19 @@ export function LoadGeneratorApp({
     }
     return "otel";
   }, [ingestionSource]);
+  const includeSecurityPatterns = !isTracesMode && eventType === "logs";
+  const wizardStepIds = useMemo(
+    () => buildWizardStepIds(includeSecurityPatterns),
+    [includeSecurityPatterns]
+  );
+  const wizardStepsDisplay = useMemo(
+    () => wizardStepIds.map((id) => ({ id, title: WIZARD_STEP_TITLE[id] ?? id })),
+    [wizardStepIds]
+  );
+  const findingsIds = useMemo(
+    () => findingsServiceIdSet(config.serviceGroups),
+    [config.serviceGroups]
+  );
   const indexPrefix = eventType === "metrics" ? metricsIndexPrefix : logsIndexPrefix;
   const setIndexPrefix = eventType === "metrics" ? setMetricsIndexPrefix : setLogsIndexPrefix;
 
@@ -193,6 +213,15 @@ export function LoadGeneratorApp({
   const [preview, setPreview] = useState<string | null>(null);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
   const [activePage, setActivePageState] = useState(() => readStoredWizardPage(LS_KEY));
+  const serviceGroupsForLogsWizard = useMemo(() => {
+    if (isTracesMode || eventType !== "logs" || !includeSecurityPatterns) {
+      return config.serviceGroups;
+    }
+    if (activePage === "security") {
+      return config.serviceGroups.filter((g) => g.id === FINDINGS_GROUP_ID);
+    }
+    return config.serviceGroups.filter((g) => g.id !== FINDINGS_GROUP_ID);
+  }, [config.serviceGroups, activePage, isTracesMode, eventType, includeSecurityPatterns]);
   const navigateToPage = useCallback(
     (page: string) => {
       setActivePageState(page);
@@ -204,6 +233,12 @@ export function LoadGeneratorApp({
     },
     [LS_KEY]
   );
+
+  useEffect(() => {
+    if (includeSecurityPatterns || activePage !== "security") return;
+    navigateToPage("config");
+  }, [includeSecurityPatterns, activePage, navigateToPage]);
+
   const abortRef = useRef(false);
   const logSeqRef = useRef(0);
   /** Tracks cloud config so we can reset vendor-specific state without remounting (unified mode). */
@@ -643,8 +678,9 @@ export function LoadGeneratorApp({
       case "connection":
         return connectionStepComplete;
       case "setup":
-        return true;
       case "services":
+      case "security":
+        return true;
       case "config":
         return totalSelected > 0;
       default:
@@ -652,11 +688,11 @@ export function LoadGeneratorApp({
     }
   }, [activePage, connectionStepComplete, totalSelected]);
 
-  const totalServices = isTracesMode
-    ? config.traceServices.length
-    : eventType === "metrics"
-      ? config.metricsSupportedServiceIds.size
-      : config.allServiceIds.length;
+  const totalServices = useMemo(() => {
+    if (isTracesMode) return config.traceServices.length;
+    if (eventType === "metrics") return config.metricsSupportedServiceIds.size;
+    return serviceGroupsForLogsWizard.flatMap((g) => serviceIdsInGroup(g)).length;
+  }, [isTracesMode, eventType, config.traceServices.length, config.metricsSupportedServiceIds, serviceGroupsForLogsWizard]);
 
   // ─── Estimated volume ──────────────────────────────────────────────────────
   const estimatedDocs = isTracesMode
@@ -694,6 +730,7 @@ export function LoadGeneratorApp({
   return (
     <AppLayout
       branding={layoutBranding}
+      wizardSteps={wizardStepsDisplay}
       headerAppTitle={unifiedMode ? "Cloud to Elastic Load Generator" : undefined}
       headerVendorBadge={
         unifiedMode && vendorCard
@@ -710,6 +747,7 @@ export function LoadGeneratorApp({
         <WizardFooter
           activePage={activePage}
           onNavigate={navigateToPage}
+          stepIds={wizardStepIds}
           canGoNext={wizardCanGoNext}
         />
       }
@@ -849,8 +887,10 @@ export function LoadGeneratorApp({
 
         {activePage === "setup" && (
           <SetupPage
-            key={config.setupBundle.fleetPackage}
+            key={config.id}
             setupBundle={config.setupBundle}
+            cloudId={config.id}
+            selectedShipServiceIds={isTracesMode ? selectedTraceServices : selectedServices}
             elasticUrl={elasticUrl}
             kibanaUrl={effectiveKibanaUrl}
             apiKey={apiKey}
@@ -861,7 +901,7 @@ export function LoadGeneratorApp({
           />
         )}
 
-        {activePage === "services" && (
+        {(activePage === "services" || activePage === "security") && (
           <ServicesPage
             isTracesMode={isTracesMode}
             eventType={eventType}
@@ -874,11 +914,15 @@ export function LoadGeneratorApp({
             collapsedGroups={collapsedGroups}
             onToggleGroup={(gid) => setCollapsedGroups((prev) => ({ ...prev, [gid]: !prev[gid] }))}
             ingestionSource={ingestionSource}
-            serviceGroups={config.serviceGroups}
+            serviceGroups={serviceGroupsForLogsWizard}
             traceServices={config.traceServices}
             ingestionMeta={config.ingestionMeta}
             metricsSupportedServiceIds={config.metricsSupportedServiceIds}
             serviceIcons={config.serviceIcons}
+            pageTitle={
+              activePage === "security" ? "Security / attack patterns" : "Service selection"
+            }
+            gridHeading={activePage === "security" ? "Select patterns" : "Select services"}
             selectAll={() => {
               if (isTracesMode) {
                 setSelectedTraceServices(config.traceServices.map((s) => s.id));
@@ -886,15 +930,24 @@ export function LoadGeneratorApp({
                 setSelectedServices(
                   config.allServiceIds.filter((id) => config.metricsSupportedServiceIds.has(id))
                 );
+              } else if (activePage === "security") {
+                setSelectedServices((prev) => [...new Set([...prev, ...findingsIds])]);
               } else {
-                setSelectedServices([...config.allServiceIds]);
+                setSelectedServices((prev) => [
+                  ...new Set([
+                    ...prev.filter((id) => findingsIds.has(id)),
+                    ...config.allServiceIds.filter((id) => !findingsIds.has(id)),
+                  ]),
+                ]);
               }
             }}
             selectNone={() => {
               if (isTracesMode) {
                 setSelectedTraceServices([]);
+              } else if (activePage === "security") {
+                setSelectedServices((prev) => prev.filter((id) => !findingsIds.has(id)));
               } else {
-                setSelectedServices([]);
+                setSelectedServices((prev) => prev.filter((id) => findingsIds.has(id)));
               }
             }}
             toggleService={(id) => {
@@ -909,7 +962,7 @@ export function LoadGeneratorApp({
               }
             }}
             toggleGroupSelection={(gid) => {
-              const group = config.serviceGroups.find((g) => g.id === gid);
+              const group = serviceGroupsForLogsWizard.find((g) => g.id === gid);
               if (!group) return;
               let groupIds = serviceIdsInGroup(group);
               if (eventType === "metrics") {

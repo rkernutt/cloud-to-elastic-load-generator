@@ -154,6 +154,11 @@ const GCP_ELASTIC_DATASET_MAP: Record<string, string> = {
   "integration-connectors": "gcp.integration_connectors",
   "application-integration": "gcp.appintegration",
   "api-hub": "gcp.apihub",
+  "gcp-security-chain": "gcp.scc",
+  "gcp-cspm": "cloud_security_posture.findings",
+  "gcp-kspm": "cloud_security_posture.findings",
+  "gcp-iam-privesc-chain": "gcp.audit",
+  "gcp-data-exfil-chain": "gcp.dlp",
 };
 
 const GCP_METRICS_SUPPORTED_SERVICE_IDS = new Set([

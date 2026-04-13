@@ -1,67 +1,72 @@
 {
-  "@timestamp": "2026-04-13T10:53:45.336Z",
+  "@timestamp": "2026-04-13T13:40:12.254Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "me-central-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "aurora" }
   },
   "aws": {
     "aurora": {
-      "cluster_id": "analytics-aurora",
-      "instance_id": "analytics-aurora-instance-5",
-      "engine": "aurora-postgresql",
-      "engine_version": "15.4",
-      "replica_lag_seconds": 2.525108253793713,
-      "db_connections": 71,
+      "cluster_id": "staging-aurora",
+      "instance_id": "staging-aurora-instance-4",
+      "engine": "aurora-mysql",
+      "engine_version": "8.0.36",
+      "replica_lag_seconds": 535,
+      "db_connections": 299,
       "max_connections": 1000,
       "failover_in_progress": false,
       "metrics": {
-        "AuroraBinlogReplicaLag": { "avg": 3 },
-        "AuroraGlobalDBReplicatedWriteIO": { "sum": 52685686 },
-        "AuroraGlobalDBDataTransferBytes": { "sum": 675854614 },
-        "AuroraGlobalDBProgressLag": { "avg": 202 },
-        "BacktrackChangeRecordsCreationRate": { "avg": 9359 },
-        "BacktrackChangeRecordsStored": { "avg": 513530418 },
-        "BacktrackWindowActual": { "avg": 43328 },
+        "AuroraBinlogReplicaLag": { "avg": 2068 },
+        "AuroraGlobalDBReplicatedWriteIO": { "sum": 77455799 },
+        "AuroraGlobalDBDataTransferBytes": { "sum": 83885818 },
+        "AuroraGlobalDBProgressLag": { "avg": 55225 },
+        "BacktrackChangeRecordsCreationRate": { "avg": 5218 },
+        "BacktrackChangeRecordsStored": { "avg": 771009168 },
+        "BacktrackWindowActual": { "avg": 51119 },
         "BacktrackWindowAlert": { "avg": 0 },
-        "ServerlessDatabaseCapacity": { "avg": 49.8025426589432 },
-        "ACUUtilization": { "avg": 69.89328406150938 }
+        "ServerlessDatabaseCapacity": { "avg": 79.39463929811704 },
+        "ACUUtilization": { "avg": 40.42401995819568 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-aurora-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-aurora-logs-501938274650"
+        "name": "aws-aurora-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-aurora-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/aurora/ap-northeast-3/2026/04/13/aurora_RDPC2EP3KP.log.gz"
+        "key": "AWSLogs/814726593401/aurora/me-central-1/2026/04/13/aurora_KHR6DQD66IC.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/aurora/logs",
-      "log_stream": "ap-northeast-3/unhqq8b3",
-      "ingestion_time": "2026-04-13T10:53:45.751Z"
+      "log_stream": "me-central-1/1s7mzxq2",
+      "ingestion_time": "2026-04-13T13:40:12.681Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["database"],
     "dataset": "aws.aurora",
     "provider": "rds.amazonaws.com",
-    "duration": 49000000000,
+    "duration": 232000000000,
     "module": "aws"
   },
-  "message": "Multi-AZ failover completed in 22s",
-  "log": { "level": "info" },
+  "message": "Aurora failover initiated: primary instance unhealthy",
+  "log": { "level": "error" },
+  "error": {
+    "code": "AuroraError",
+    "message": "ERROR 2013: Lost connection to MySQL",
+    "type": "db"
+  },
   "service": { "name": "aurora", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.aurora", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "i39dz9822z"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "75oe4bqqt43"
   },
   "input": { "type": "aws-cloudwatch" }
 }

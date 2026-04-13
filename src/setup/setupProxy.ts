@@ -92,15 +92,25 @@ export async function proxyCall(opts: {
 
 type BulkDeleteStatus = { success?: boolean; error?: { statusCode?: number; message?: string } };
 
+/** Shown when both single-object and bulk Saved Object deletes are disabled (e.g. some Serverless projects). */
+export const SAVED_OBJECT_DELETE_UNSUPPORTED_HINT =
+  "This deployment’s Kibana does not allow Saved Object delete APIs. Remove dashboards in the UI (Management → Saved Objects, or the Dashboards app), or use a stack where those APIs are enabled.";
+
+export type DeleteKibanaDashboardOutcome =
+  | { result: "deleted" | "not_found" }
+  | { result: "api_disabled"; message: string }
+  | { result: "error"; message: string };
+
 /**
  * Remove a dashboard saved object. Stateful Kibana accepts DELETE /api/saved_objects/dashboard/:id;
- * Serverless often rejects that route and requires POST /api/saved_objects/_bulk_delete instead.
+ * some deployments allow POST /api/saved_objects/_bulk_delete when DELETE is blocked.
+ * Serverless may disable both; then {@link SAVED_OBJECT_DELETE_UNSUPPORTED_HINT} applies.
  */
 export async function deleteKibanaDashboard(
   baseUrl: string,
   apiKey: string,
   dashboardId: string
-): Promise<{ result: "deleted" | "not_found" } | { result: "error"; message: string }> {
+): Promise<DeleteKibanaDashboardOutcome> {
   const kb = baseUrl.replace(/\/$/, "");
   const enc = encodeURIComponent(dashboardId);
 
@@ -132,11 +142,16 @@ export async function deleteKibanaDashboard(
     const st = raw?.statuses?.[0];
     if (st?.success) return { result: "deleted" };
     if (st?.error?.statusCode === 404) return { result: "not_found" };
-    return {
-      result: "error",
-      message: (st?.error?.message ?? JSON.stringify(st?.error ?? raw)).slice(0, 320),
-    };
+    const errMsg = (st?.error?.message ?? JSON.stringify(st?.error ?? raw)).slice(0, 320);
+    if (isKibanaFeatureUnavailable(errMsg)) {
+      return { result: "api_disabled", message: SAVED_OBJECT_DELETE_UNSUPPORTED_HINT };
+    }
+    return { result: "error", message: errMsg };
   } catch (e2) {
-    return { result: "error", message: String(e2) };
+    const msg2 = String(e2);
+    if (isKibanaFeatureUnavailable(msg2)) {
+      return { result: "api_disabled", message: SAVED_OBJECT_DELETE_UNSUPPORTED_HINT };
+    }
+    return { result: "error", message: msg2 };
   }
 }

@@ -1,84 +1,87 @@
 {
-  "@timestamp": "2026-04-13T10:53:45.336Z",
+  "@timestamp": "2026-04-13T13:40:12.254Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-north-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "rds" }
   },
   "aws": {
     "dimensions": {
       "DBInstanceIdentifier": "prod-db-replica",
-      "DatabaseClass": "db.r5.large",
+      "DatabaseClass": "db.t3.medium",
       "EngineName": "mysql",
-      "SourceRegion": "ap-south-1"
+      "SourceRegion": "eu-north-1"
     },
     "rds": {
       "db_instance": {
         "identifier": "prod-db-replica",
-        "class": "db.t3.medium",
+        "class": "db.r5.large",
         "engine_name": "mysql",
-        "arn": "arn:aws:rds:ap-south-1:501938274650:db:prod-db-replica",
-        "status": "available",
+        "arn": "arn:aws:rds:eu-north-1:164820739518:db:prod-db-replica",
+        "status": "incompatible-parameters",
         "role": "instance"
       },
-      "cpu": { "total": { "pct": 0.0719 } },
-      "freeable_memory": { "bytes": 2887143954 },
-      "free_storage": { "bytes": 148089410535 },
-      "database_connections": 34,
-      "read_io": { "ops_per_sec": 135.41089745356126 },
-      "write_io": { "ops_per_sec": 2898.457618625104 },
-      "latency": { "read": 0.017035893527378762, "write": 0.0021028923620204235 },
+      "cpu": { "total": { "pct": 0.893 } },
+      "freeable_memory": { "bytes": 7912167538 },
+      "free_storage": { "bytes": 498882711668 },
+      "database_connections": 128,
+      "read_io": { "ops_per_sec": 2819.6930796473907 },
+      "write_io": { "ops_per_sec": 693.7961130765437 },
+      "latency": { "read": 0.4877436325190059, "write": 0.4503811246446333 },
       "throughput": {
-        "read": 99754458,
-        "write": 50341416,
-        "network_receive": 63223669,
-        "network_transmit": 40835797
+        "read": 65373108,
+        "write": 78751592,
+        "network_receive": 65653415,
+        "network_transmit": 25029576
       },
-      "replica_lag": { "sec": 44.32261847630835 },
-      "swap_usage": { "bytes": 7672489 },
-      "disk_usage": { "bin_log": { "bytes": 301282666 } }
+      "replica_lag": { "sec": 8491.637936717334 },
+      "swap_usage": { "bytes": 24192233 },
+      "disk_usage": { "bin_log": { "bytes": 868196992 } }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-rds-logs-501938274650"
+        "name": "aws-rds-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-rds-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/501938274650/rds/ap-south-1/2026/04/13/rds_MHKM3IP546.log.gz" }
+      "object": { "key": "AWSLogs/164820739518/rds/eu-north-1/2026/04/13/rds_HHQ0MTRHSVM.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/rds/logs",
-      "log_stream": "ap-south-1/k7yancdh",
-      "ingestion_time": "2026-04-13T10:53:45.650Z"
+      "log_stream": "eu-north-1/hfvcvjsx",
+      "ingestion_time": "2026-04-13T13:40:12.571Z"
     }
   },
   "db": {
-    "user": { "name": "readonly" },
+    "user": { "name": "admin" },
     "name": "events",
-    "statement": "SELECT * FROM users WHERE 575FJZ",
+    "statement": "SELECT * FROM users WHERE LBTJEI",
     "type": "sql"
   },
   "event": {
-    "duration": 849794722.9499552,
-    "outcome": "success",
+    "duration": 7656035816.04819,
+    "outcome": "failure",
     "category": ["database"],
-    "type": ["info", "access"],
+    "type": ["error"],
     "dataset": "aws.rds",
     "provider": "rds.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"instanceId\":\"prod-db-replica\",\"engine\":\"mysql\",\"userId\":\"readonly\",\"queryTime\":0.8497947229499553,\"error\":null,\"timestamp\":\"2026-04-13T10:53:45.336Z\",\"osMetrics\":{\"cpuUtilization\":{\"guest\":1.4940737734572331,\"irq\":0.8894410568836425,\"system\":7.09620604592028,\"wait\":1.7923683154250507,\"idle\":51.8,\"user\":36.943041001858475,\"total\":48.2},\"memory\":{\"total\":56724234934,\"free\":5331490646,\"cached\":3896754908,\"active\":12208047253,\"inactive\":2943589595,\"buffers\":398058988},\"disk\":{\"readIOsPS\":2190.194179824202,\"writeIOsPS\":625.5713536247235,\"readKbPS\":427833.2124787428,\"writeKbPS\":59629.760112255724,\"avgQueueLen\":5.719142434091717,\"await\":19.496316752231188},\"network\":{\"rx\":2007535,\"tx\":58226435},\"numVCPUs\":16,\"uptime\":\"24 days, 17:12:40\"}}",
-  "log": { "level": "info" },
-  "trace": { "id": "DPUQKYRXQ1F" },
-  "transaction": { "id": "YOC3XAO84IQ" },
+  "message": "{\"instanceId\":\"prod-db-replica\",\"engine\":\"mysql\",\"userId\":\"admin\",\"queryTime\":7.65603581604819,\"error\":\"ERROR 1045 (28000): Access denied for user 'admin'@'217.127.255.43' (using password: YES)\",\"timestamp\":\"2026-04-13T13:40:12.254Z\",\"osMetrics\":{\"cpuUtilization\":{\"guest\":0.22285464924117648,\"irq\":0.38635838575212944,\"system\":28.57857284983222,\"wait\":18.229075596576276,\"idle\":19.5,\"user\":33.072992635955124,\"total\":80.5},\"memory\":{\"total\":55433573171,\"free\":6271763490,\"cached\":541954323,\"active\":7865329806,\"inactive\":1848981597,\"buffers\":286534441},\"disk\":{\"readIOsPS\":2073.9195340309543,\"writeIOsPS\":1791.8324525030248,\"readKbPS\":275847.7558966719,\"writeKbPS\":503189.69215814077,\"avgQueueLen\":29.076889223681796,\"await\":151.93445241792898},\"network\":{\"rx\":79701549,\"tx\":22732749},\"numVCPUs\":32,\"uptime\":\"48 days, 15:49:43\"}}",
+  "log": { "level": "error" },
+  "error": {
+    "code": "StorageTypeNotSupported",
+    "message": "[Warning] Aborted connection 5884 to db: 'mydb' user: 'admin' host: '126.190.178.145' (Got an error reading communication packets)",
+    "type": "db"
+  },
   "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "yjvzghutrkf"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "hvqvfykk2bj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -357,6 +357,44 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
       { id: "vmware-solution", label: "Azure VMware Solution", icon: "▢", desc: "AVS clusters" },
     ],
   },
+  {
+    id: "findings",
+    label: "Security Findings & Attack Patterns",
+    color: "#DC2626",
+    icon: "\u26A1",
+    services: [
+      {
+        id: "azure-security-chain",
+        label: "Defender -> Sentinel -> Activity",
+        icon: "\u26D3",
+        desc: "Linked Defender for Cloud alert, Sentinel incident, and Activity Log correlation",
+      },
+      {
+        id: "azure-cspm",
+        label: "CSPM",
+        icon: "\u25CE",
+        desc: "Elastic CSPM — CIS Azure-style posture findings (cloud_security_posture.findings)",
+      },
+      {
+        id: "azure-kspm",
+        label: "KSPM",
+        icon: "\u2638",
+        desc: "Elastic KSPM — CIS AKS-style Kubernetes posture findings",
+      },
+      {
+        id: "azure-iam-privesc-chain",
+        label: "Identity PrivEsc chain",
+        icon: "\u26A1",
+        desc: "Attack chain: Entra risk, Owner assignment, ARM token abuse",
+      },
+      {
+        id: "azure-data-exfil-chain",
+        label: "Data exfiltration chain",
+        icon: "\u25C2",
+        desc: "Attack chain: Defender storage alert, blob read burst, NSG deny",
+      },
+    ],
+  },
 ];
 
 const AZURE_ALL_SERVICE_IDS = AZURE_SERVICE_GROUPS.flatMap((g) => g.services.map((s) => s.id));

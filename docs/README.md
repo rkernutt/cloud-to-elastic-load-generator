@@ -6,11 +6,12 @@ Reference material for **Cloud to Elastic Load Generator**. All Markdown guides 
 
 ## Essentials
 
-| Document                                                       | Description                                                            |
-| -------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| [development.md](./development.md)                             | Local dev, Docker, npm scripts, samples, icons, format/lint/typecheck  |
-| [otel-traces-setup.md](./otel-traces-setup.md)                 | OpenTelemetry-style traces and related setup notes                     |
-| [INGEST-PIPELINE-REFERENCE.md](./INGEST-PIPELINE-REFERENCE.md) | Ingest pipeline conventions and field reference (AWS custom pipelines) |
+| Document                                                         | Description                                                                                                |
+| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| [development.md](./development.md)                               | Local dev, Docker, npm scripts, samples, icons, format/lint/typecheck                                      |
+| [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md) | Web UI Setup step: filters, align with Services, persistence; **dashboard uninstall limits on Serverless** |
+| [otel-traces-setup.md](./otel-traces-setup.md)                   | OpenTelemetry-style traces and related setup notes                                                         |
+| [INGEST-PIPELINE-REFERENCE.md](./INGEST-PIPELINE-REFERENCE.md)   | Ingest pipeline conventions and field reference (AWS custom pipelines)                                     |
 
 ---
 

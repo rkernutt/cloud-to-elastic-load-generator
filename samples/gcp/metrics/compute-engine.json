@@ -3,49 +3,47 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast2",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" }
+    "region": "northamerica-northeast2",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-northeast2",
-    "ephemeral_id": "yhmz00qw13"
+    "name": "metricbeat-gcp-northamerica-northeast2",
+    "ephemeral_id": "gywx6erlat5"
   },
   "gcp": {
-    "compute-engine": {
+    "confidential-computing": {
       "metrics": {
-        "cpu_utilization": { "avg": 89.92, "sum": 89.92, "count": 1 },
-        "disk_read_bytes": { "avg": 155114, "sum": 155114, "count": 1 },
-        "disk_write_bytes": { "avg": 73422300, "sum": 73422300, "count": 1 },
-        "network_received_bytes": { "avg": 441594184, "sum": 441594184, "count": 1 },
-        "network_sent_bytes": { "avg": 83380438, "sum": 83380438, "count": 1 }
+        "request_count": { "avg": 49102, "sum": 49102, "count": 1 },
+        "error_count": { "avg": 0, "sum": 0, "count": 1 },
+        "latency": { "avg": 88.22, "sum": 88.22, "count": 1 }
       },
-      "labels": { "instance_name": "proxy-nx2a" }
+      "labels": { "resource_id": "resource-a" }
     }
   },
-  "metricset": { "name": "compute-engine", "period": 60000 },
-  "data_stream": { "type": "metrics", "dataset": "gcp.compute_metrics", "namespace": "default" },
+  "metricset": { "name": "confidential-computing", "period": 60000 },
+  "data_stream": {
+    "type": "metrics",
+    "dataset": "gcp.confidential_computing",
+    "namespace": "default"
+  },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.compute_metrics", "module": "gcp" },
+  "event": { "dataset": "gcp.confidential_computing", "module": "gcp" },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/compute-engine/cpu_utilization",
+      "type": "custom.googleapis.com/opentelemetry/elastic/samples/confidential-computing/request_count",
       "labels": {}
     },
     "resource": {
-      "type": "gce_instance",
-      "labels": {
-        "project_id": "globex-shared-m3n4o5",
-        "instance_id": "377752963770",
-        "zone": "asia-northeast2-a"
-      }
+      "type": "global",
+      "labels": { "project_id": "globex-prod-a1b2c3", "region": "northamerica-northeast2" }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 89.92 } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 49102 } }
     ]
   }
 }

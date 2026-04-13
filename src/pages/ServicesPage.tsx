@@ -37,6 +37,10 @@ interface ServicesPageProps {
   toggleService: (id: string) => void;
   toggleGroupSelection: (gid: string) => void;
   getEffectiveSource: (id: string) => string;
+  /** Wizard step heading (default: Services) */
+  pageTitle?: string;
+  /** Card toolbar label for the grid (default: Select Services) */
+  gridHeading?: string;
 }
 
 export function ServicesPage({
@@ -61,6 +65,8 @@ export function ServicesPage({
   toggleService,
   toggleGroupSelection,
   getEffectiveSource,
+  pageTitle = "Services",
+  gridHeading = "Select services",
 }: ServicesPageProps) {
   const traceServiceGroups = useMemo(() => {
     const order = [
@@ -177,7 +183,7 @@ export function ServicesPage({
   return (
     <>
       <EuiTitle size="s">
-        <h2>Services</h2>
+        <h2>{pageTitle}</h2>
       </EuiTitle>
       <EuiSpacer size="m" />
 
@@ -193,6 +199,7 @@ export function ServicesPage({
           ingestionMeta={ingestionMeta}
           metricsSupportedServiceIds={metricsSupportedServiceIds}
           serviceIcons={serviceIcons}
+          gridHeading={gridHeading}
           selectAll={selectAll}
           selectNone={selectNone}
           toggleService={toggleService}

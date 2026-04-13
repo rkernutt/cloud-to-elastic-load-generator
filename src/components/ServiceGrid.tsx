@@ -17,6 +17,8 @@ interface ServiceGridProps {
   ingestionMeta: Record<string, { label: string; color: string; inputType?: string }>;
   metricsSupportedServiceIds: Set<string>;
   serviceIcons: ServiceIconMode;
+  /** Label next to All/None in the grid toolbar */
+  gridHeading?: string;
   selectAll: () => void;
   selectNone: () => void;
   toggleService: (id: string) => void;
@@ -46,6 +48,7 @@ const ServiceGrid = memo(function ServiceGrid({
   ingestionMeta,
   metricsSupportedServiceIds,
   serviceIcons,
+  gridHeading = "Select services",
   selectAll,
   selectNone,
   toggleService,
@@ -63,7 +66,7 @@ const ServiceGrid = memo(function ServiceGrid({
           marginBottom: 12,
         }}
       >
-        <span style={{ fontSize: 13, fontWeight: 600, color: K.textHeading }}>Select Services</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: K.textHeading }}>{gridHeading}</span>
         <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
           <QuickBtn onClick={selectAll}>All {totalServices}</QuickBtn>
           <QuickBtn onClick={selectNone}>None</QuickBtn>

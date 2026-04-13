@@ -2,62 +2,50 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "asia-southeast2",
+    "region": "europe-west8",
     "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
     "account": { "id": "314159265358", "name": "Globex Production" },
-    "service": { "name": "cloudtrace.googleapis.com" }
+    "service": { "name": "cloudprofiler.googleapis.com" }
   },
   "gcp": {
-    "cloud_trace": {
-      "trace_id": "f32912b9be4884ab30e85a1ef5b8cb3d",
-      "span_id": "7de8d3368e75fc56",
-      "display_name": "grpc.io.server.call",
-      "kind": "CLIENT",
-      "status_code": 0,
-      "latency_ms": 875,
-      "attributes_count": 29,
-      "labels": {
-        "g.co/r/gcp.project.id": "globex-prod-a1b2c3",
-        "service.name": "checkout-api",
-        "http.route": "/v1/cart"
-      }
+    "cloud_profiler": {
+      "profile_type": "CONTENTION",
+      "service_name": "indexer",
+      "service_version": "v9.13.23",
+      "deployment_target": "gke",
+      "duration_seconds": 228,
+      "zone": "europe-west8-c"
     }
   },
-  "event": { "outcome": "success", "duration": 875, "module": "gcp", "dataset": "gcp.cloudtrace" },
-  "message": "Trace span OK: grpc.io.server.call (CLIENT) 875ms, attrs=29",
-  "service": { "name": "cloud-trace", "type": "gcp" },
+  "event": { "outcome": "success", "duration": 228000, "module": "gcp", "dataset": "gcp.profiler" },
+  "message": "Cloud Profiler collected CONTENTION profile for indexer@v9.13.23 on gke (228s, europe-west8-c)",
+  "service": { "name": "cloud-profiler", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.cloudtrace", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.profiler", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-southeast2",
-    "id": "jqudl0zobob"
+    "name": "elastic-agent-gcp-europe-west8",
+    "id": "v7t2nf1eaqd"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-prod-a1b2c3/logs/cloud-trace",
+  "logName": "projects/globex-prod-a1b2c3/logs/cloud-profiler",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-prod-a1b2c3", "region": "asia-southeast2" }
+    "labels": { "project_id": "globex-prod-a1b2c3", "region": "europe-west8" }
   },
   "severity": "INFO",
-  "insertId": "F1YAL238G9C",
+  "insertId": "CPOETVCIHA6",
   "jsonPayload": {
-    "cloud_trace": {
-      "trace_id": "f32912b9be4884ab30e85a1ef5b8cb3d",
-      "span_id": "7de8d3368e75fc56",
-      "display_name": "grpc.io.server.call",
-      "kind": "CLIENT",
-      "status_code": 0,
-      "latency_ms": 875,
-      "attributes_count": 29,
-      "labels": {
-        "g.co/r/gcp.project.id": "globex-prod-a1b2c3",
-        "service.name": "checkout-api",
-        "http.route": "/v1/cart"
-      }
+    "cloud_profiler": {
+      "profile_type": "CONTENTION",
+      "service_name": "indexer",
+      "service_version": "v9.13.23",
+      "deployment_target": "gke",
+      "duration_seconds": 228,
+      "zone": "europe-west8-c"
     },
-    "message": "Trace span OK: grpc.io.server.call (CLIENT) 875ms, attrs=29"
+    "message": "Cloud Profiler collected CONTENTION profile for indexer@v9.13.23 on gke (228s, europe-west8-c)"
   }
 }

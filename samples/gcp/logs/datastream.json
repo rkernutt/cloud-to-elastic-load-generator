@@ -2,57 +2,61 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "southamerica-west1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "region": "europe-southwest1",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" },
     "service": { "name": "datastream" }
   },
   "gcp": {
     "datastream": {
-      "stream_name": "projects/globex-staging-d4e5f6/locations/southamerica-west1/streams/mysql-cdc",
-      "source_type": "POSTGRESQL",
+      "stream_name": "projects/globex-security-j0k1l2/locations/europe-southwest1/streams/oracle-warehouse",
+      "source_type": "MYSQL",
       "destination_type": "BIGQUERY",
-      "status": "RUNNING",
-      "throughput_kbps": 71096,
-      "events_streamed": 13537188,
-      "lag_seconds": 26
+      "status": "FAILED",
+      "throughput_kbps": 34,
+      "events_streamed": 236,
+      "lag_seconds": 6593
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 908000000,
+    "outcome": "failure",
+    "duration": 3525000000,
     "module": "gcp",
     "dataset": "gcp.datastream"
   },
-  "message": "Datastream POSTGRESQL→BIGQUERY: 69.43 MB/s, lag 26s",
-  "log": { "level": "info" },
+  "message": "Datastream projects/globex-security-j0k1l2/locations/europe-southwest1/streams/oracle-warehouse error: replication lag 6593s (MYSQL → BIGQUERY)",
+  "log": { "level": "error" },
+  "error": {
+    "type": "ReplicationError",
+    "message": "Unable to read binary log position; connection reset by peer"
+  },
   "service": { "name": "datastream", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.datastream", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-southamerica-west1",
-    "id": "ur7zadcilba"
+    "name": "elastic-agent-gcp-europe-southwest1",
+    "id": "d21ohagjoce"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-staging-d4e5f6/logs/datastream",
+  "logName": "projects/globex-security-j0k1l2/logs/datastream",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-staging-d4e5f6", "region": "southamerica-west1" }
+    "labels": { "project_id": "globex-security-j0k1l2", "region": "europe-southwest1" }
   },
-  "severity": "INFO",
-  "insertId": "5U9KVFRGNMV",
+  "severity": "ERROR",
+  "insertId": "L0P4KDOR2AR",
   "jsonPayload": {
     "datastream": {
-      "stream_name": "projects/globex-staging-d4e5f6/locations/southamerica-west1/streams/mysql-cdc",
-      "source_type": "POSTGRESQL",
+      "stream_name": "projects/globex-security-j0k1l2/locations/europe-southwest1/streams/oracle-warehouse",
+      "source_type": "MYSQL",
       "destination_type": "BIGQUERY",
-      "status": "RUNNING",
-      "throughput_kbps": 71096,
-      "events_streamed": 13537188,
-      "lag_seconds": 26
+      "status": "FAILED",
+      "throughput_kbps": 34,
+      "events_streamed": 236,
+      "lag_seconds": 6593
     },
-    "message": "Datastream POSTGRESQL→BIGQUERY: 69.43 MB/s, lag 26s"
+    "message": "Datastream projects/globex-security-j0k1l2/locations/europe-southwest1/streams/oracle-warehouse error: replication lag 6593s (MYSQL → BIGQUERY)"
   }
 }

@@ -1,80 +1,85 @@
 {
-  "@timestamp": "2026-04-13T10:53:45.336Z",
+  "@timestamp": "2026-04-13T13:40:12.254Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-south-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "vpc" }
   },
   "aws": {
-    "dimensions": { "VpcId": "vpc-x93u7o1e" },
+    "dimensions": { "VpcId": "vpc-pt6l9ui5" },
     "vpcflow": {
       "version": "2",
-      "account_id": "814726593401",
-      "interface_id": "eni-f547xxt7",
-      "action": "ACCEPT",
+      "account_id": "293847561023",
+      "interface_id": "eni-zkux8oym",
+      "action": "REJECT",
       "log_status": "OK",
-      "instance_id": "i-40e1n64sv3s",
-      "pkt_srcaddr": "136.196.196.161",
-      "pkt_dstaddr": "233.240.162.242",
-      "vpc_id": "vpc-x93u7o1e",
-      "subnet_id": "subnet-54zmqd5u",
+      "instance_id": "i-85afjs5y6sw",
+      "pkt_srcaddr": "138.225.70.1",
+      "pkt_dstaddr": "66.218.172.246",
+      "vpc_id": "vpc-pt6l9ui5",
+      "subnet_id": "subnet-q39rckey",
       "type": "IPv4"
     },
     "s3": {
       "bucket": {
-        "name": "aws-vpc-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-vpc-logs-814726593401"
+        "name": "aws-vpc-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-vpc-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/814726593401/vpc/eu-central-2/2026/04/13/vpc_MRQ5T2978ED.log.gz" }
+      "object": { "key": "AWSLogs/293847561023/vpc/eu-south-2/2026/04/13/vpc_9WRK726AT99.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/vpc/logs",
-      "log_stream": "eu-central-2/kf797j1l",
-      "ingestion_time": "2026-04-13T10:53:45.644Z"
+      "log_stream": "eu-south-2/y7zm582k",
+      "ingestion_time": "2026-04-13T13:40:12.566Z"
     }
   },
   "source": {
-    "ip": "136.196.196.161",
-    "port": 20508,
+    "ip": "138.225.70.1",
+    "port": 6921,
     "geo": {
-      "country_iso_code": "US",
-      "country_name": "United States",
-      "city_name": "Seattle",
-      "location": { "lat": 47.6062, "lon": -122.3321 }
+      "country_iso_code": "JP",
+      "country_name": "Japan",
+      "city_name": "Tokyo",
+      "location": { "lat": 35.6762, "lon": 139.6503 }
     }
   },
   "destination": {
-    "ip": "233.240.162.242",
+    "ip": "66.218.172.246",
     "port": 80,
     "geo": {
-      "country_iso_code": "US",
-      "country_name": "United States",
-      "city_name": "New York",
-      "location": { "lat": 40.7128, "lon": -74.006 }
+      "country_iso_code": "IN",
+      "country_name": "India",
+      "city_name": "Mumbai",
+      "location": { "lat": 19.076, "lon": 72.8777 }
     }
   },
-  "network": { "transport": "tcp", "bytes": 107604, "packets": 98, "direction": "inbound" },
+  "network": { "transport": "udp", "bytes": 59179, "packets": 83, "direction": "inbound" },
   "event": {
-    "action": "accept",
-    "outcome": "success",
+    "action": "reject",
+    "outcome": "failure",
     "category": ["network"],
-    "type": ["connection"],
+    "type": ["connection", "denied"],
     "dataset": "aws.vpcflow",
     "provider": "ec2.amazonaws.com",
-    "duration": 429000000,
+    "duration": 500000000,
     "module": "aws"
   },
-  "message": "2 814726593401 eni-f547xxt7 136.196.196.161 233.240.162.242 20508 80 6 98 107604 1776077625 1776077649 ACCEPT OK",
-  "log": { "level": "info" },
+  "message": "2 293847561023 eni-zkux8oym 138.225.70.1 66.218.172.246 6921 80 17 83 59179 1776087612 1776087640 REJECT OK",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "FlowRejected",
+    "message": "Security group or ACL rejected flow",
+    "type": "network"
+  },
   "service": { "name": "vpc", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.vpcflow", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "j67yzo0v0i"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "8e1bajobdvy"
   },
   "input": { "type": "aws-s3" }
 }

@@ -29,6 +29,10 @@ Your selection controls the URL format shown in the prompts and the validation r
 | **Package Registry**   | Kibana-proxied (air-gap safe) + EPR fallback | EPR via Kibana  | EPR via Kibana  |
 | **Fleet required**     | yes — must be enabled                        | pre-configured  | pre-configured  |
 
+### Web UI Setup step (same assets)
+
+The load generator’s **Setup** wizard installs and uninstalls integrations, custom pipelines, dashboards, and ML jobs for the selected cloud. It supports **filtering**, **per-pipeline** selection, **Align with Services** (matches the Services step), and a **persisted Setup log** (sessionStorage). **Dashboard uninstall** may fail on **Elastic Cloud Serverless** when Kibana disables saved-object delete APIs — use Kibana UI to remove dashboards or see **[docs/SETUP-WIZARD-AND-UNINSTALL.md](../docs/SETUP-WIZARD-AND-UNINSTALL.md)**.
+
 ### Self-Managed notes
 
 **Self-signed / internal CA certificates**
@@ -285,9 +289,11 @@ These match the index names the load generator writes to, so pipelines are appli
 Pre-built Kibana dashboards for AWS services monitored by the load generator. Dashboards use ES|QL queries against
 the `logs-aws.*` data streams written by the app.
 
+**Removing dashboards:** This CLI is **install-only**. Use the app’s **Setup** step (Uninstall mode) or delete objects in Kibana. On some **Serverless** deployments Kibana returns **400** for saved-object **delete** routes — removal must be done in the Kibana UI. See **[docs/SETUP-WIZARD-AND-UNINSTALL.md](../docs/SETUP-WIZARD-AND-UNINSTALL.md)**.
+
 ### Dashboards included
 
-15 pre-built dashboards covering key AWS services. Each dashboard supports both import methods — the Kibana Dashboards API (9.4+) and Saved Objects ndjson import (8.11–9.3) — so all versions are covered automatically.
+The repository ships **many** `*-dashboard.json` files (the interactive installer lists all of them). The table below is a **representative subset** of early dashboards; panel counts and index patterns follow the same conventions for the rest.
 
 | File                           | Title                                              | Panels | Index pattern             |
 | ------------------------------ | -------------------------------------------------- | ------ | ------------------------- |
@@ -625,7 +631,7 @@ Running all four gives you full coverage across all 144 services. Paths use the 
 
 ## GCP mirror (parallel installers)
 
-The same four installer **patterns** exist under standalone paths for Google Cloud. They target the official Elastic **`gcp`** integration package, **`logs-gcp.*`** data streams, and synthetic documents from the GCP generator module (`src/gcp/`).
+The same four installer **patterns** exist under standalone paths for Google Cloud. They target the official Elastic **`gcp`** integration package, **`logs-gcp.*`** data streams, and synthetic documents from the GCP generator module (`src/gcp/`). **Dashboard uninstall** from automation may be blocked on **Serverless** Kibana — see **[docs/SETUP-WIZARD-AND-UNINSTALL.md](../docs/SETUP-WIZARD-AND-UNINSTALL.md)**.
 
 | Command                         | Path                                 | Purpose                                                                                |
 | ------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------- |
@@ -643,7 +649,7 @@ Regenerate assets when GCP dataset maps change:
 
 ## Azure mirror (parallel installers)
 
-Same four installer **patterns** for Microsoft Azure: synthetic data in `src/azure/`, data streams **`logs-azure.*`**. The Elastic Fleet package **`azure`** covers **Azure Logs**; resource metrics from Azure Monitor are a separate package **`azure_metrics`** if you ingest platform metrics the same way as production.
+Same four installer **patterns** for Microsoft Azure: synthetic data in `src/azure/`, data streams **`logs-azure.*`**. The Elastic Fleet package **`azure`** covers **Azure Logs**; resource metrics from Azure Monitor are a separate package **`azure_metrics`** if you ingest platform metrics the same way as production. **Dashboard uninstall** via API may be unavailable on **Serverless** — see **[docs/SETUP-WIZARD-AND-UNINSTALL.md](../docs/SETUP-WIZARD-AND-UNINSTALL.md)**.
 
 | Command                           | Path                                   | Purpose                                                                                                            |
 | --------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |

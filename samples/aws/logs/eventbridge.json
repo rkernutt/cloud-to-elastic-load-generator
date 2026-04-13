@@ -1,29 +1,29 @@
 {
-  "@timestamp": "2026-04-13T10:53:45.336Z",
+  "@timestamp": "2026-04-13T13:40:12.254Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
+    "region": "us-west-1",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "events" }
   },
   "aws": {
-    "dimensions": { "EventBusName": "app-events", "RuleName": "security-event-forwarder" },
+    "dimensions": { "EventBusName": "custom-events", "RuleName": "scheduled-cleanup" },
     "eventbridge": {
-      "event_bus": "app-events",
-      "rule": "security-event-forwarder",
-      "source": "aws.health",
-      "detail_type": "Object Created",
-      "targets_invoked": 3,
-      "targets_failed": 3,
-      "event_id": "11l6d2wp-pge5-7ktv-f5qi-ox0rsdwj61k",
-      "structured_logging": false,
+      "event_bus": "custom-events",
+      "rule": "scheduled-cleanup",
+      "source": "custom.app",
+      "detail_type": "Health Event",
+      "targets_invoked": 1,
+      "targets_failed": 0,
+      "event_id": "wx3uq50p-96qz-sc7f-g2i4-3252qcvx7s2",
+      "structured_logging": true,
       "metrics": {
         "Invocations": { "sum": 1 },
-        "FailedInvocations": { "sum": 1 },
+        "FailedInvocations": { "sum": 0 },
         "TriggeredRules": { "sum": 1 },
-        "MatchedEvents": { "sum": 84 },
-        "ThrottledRules": { "sum": 1 },
-        "DeadLetterInvocations": { "sum": 1 }
+        "MatchedEvents": { "sum": 82 },
+        "ThrottledRules": { "sum": 0 },
+        "DeadLetterInvocations": { "sum": 0 }
       }
     },
     "s3": {
@@ -32,39 +32,34 @@
         "arn": "arn:aws:s3:::aws-eventbridge-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/738291046572/eventbridge/af-south-1/2026/04/13/eventbridge_CDTGJM1DEAE.log.gz"
+        "key": "AWSLogs/738291046572/eventbridge/us-west-1/2026/04/13/eventbridge_IOW47JII8PQ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/eventbridge/logs",
-      "log_stream": "af-south-1/thbnuaea",
-      "ingestion_time": "2026-04-13T10:53:45.762Z"
+      "log_stream": "us-west-1/2m166kj1",
+      "ingestion_time": "2026-04-13T13:40:12.694Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
-    "type": ["creation"],
+    "type": ["deletion"],
     "dataset": "aws.eventbridge",
     "provider": "events.amazonaws.com",
-    "duration": 1971000000,
+    "duration": 130000000,
     "module": "aws"
   },
-  "message": "EventBridge rule security-event-forwarder: target invocations failed",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ResourceNotFoundException",
-    "message": "EventBridge target invocations failed",
-    "type": "event"
-  },
+  "message": "{\"id\":\"wx3uq50p-96qz-sc7f-g2i4-3252qcvx7s2\",\"source\":\"custom.app\",\"detailType\":\"Object Created\",\"rule\":\"scheduled-cleanup\",\"eventBus\":\"custom-events\",\"message\":\"EventBridge event routed: custom.app -> scheduled-cleanup\",\"timestamp\":\"2026-04-13T13:40:12.254Z\"}",
+  "log": { "level": "info" },
   "service": { "name": "eventbridge", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.eventbridge", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "u8op8e8d0d"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "8zs9p41yg2a"
   },
   "input": { "type": "aws-cloudwatch" }
 }

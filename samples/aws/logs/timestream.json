@@ -1,53 +1,59 @@
 {
-  "@timestamp": "2026-04-13T10:53:45.336Z",
+  "@timestamp": "2026-04-13T13:40:12.254Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "us-east-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "timestream" }
   },
   "aws": {
     "timestream": {
       "database_name": "iot-metrics",
-      "table_name": "device_telemetry",
+      "table_name": "cpu_metrics",
       "operation": "DescribeTable",
       "records_ingested": 0,
       "rows_returned": 0,
-      "duration_ms": 99
+      "duration_ms": 2684,
+      "error_code": "RejectedRecordsException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-timestream-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-timestream-logs-814726593401"
+        "name": "aws-timestream-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-timestream-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/814726593401/timestream/ap-south-1/2026/04/13/timestream_KKPS5KXV0V.log.gz"
+        "key": "AWSLogs/293847561023/timestream/us-east-1/2026/04/13/timestream_5DW24E384C8.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/timestream/logs",
-      "log_stream": "ap-south-1/uvilltr3",
-      "ingestion_time": "2026-04-13T10:53:45.753Z"
+      "log_stream": "us-east-1/a6fs9ytg",
+      "ingestion_time": "2026-04-13T13:40:12.685Z"
     }
   },
   "event": {
-    "duration": 98504434.63112128,
-    "outcome": "success",
+    "duration": 2683608265.364604,
+    "outcome": "failure",
     "category": "database",
     "dataset": "aws.timestream",
     "provider": "timestream.amazonaws.com",
     "module": "aws"
   },
-  "message": "Timestream DescribeTable on iot-metrics.device_telemetry: 99ms",
-  "log": { "level": "info" },
+  "message": "Timestream DescribeTable FAILED on iot-metrics.cpu_metrics: Not found",
+  "log": { "level": "error" },
+  "error": {
+    "code": "RejectedRecordsException",
+    "message": "Timestream operation failed",
+    "type": "db"
+  },
   "service": { "name": "timestream", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.timestream", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "2qn5jal0ky1"
+    "name": "filebeat-aws-us-east-1",
+    "ephemeral_id": "ckdkjtdpj98"
   },
   "input": { "type": "aws-cloudwatch" }
 }

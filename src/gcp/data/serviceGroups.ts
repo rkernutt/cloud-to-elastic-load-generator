@@ -630,6 +630,44 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
       },
     ],
   },
+  {
+    id: "findings",
+    label: "Security Findings & Attack Patterns",
+    color: "#DC2626",
+    icon: "\u26A1",
+    services: [
+      {
+        id: "gcp-security-chain",
+        label: "SCC -> Chronicle -> SecOps",
+        icon: "\u26D3",
+        desc: "Linked Security Command Center finding, Chronicle detection, and Security Operations case",
+      },
+      {
+        id: "gcp-cspm",
+        label: "CSPM",
+        icon: "\u25CE",
+        desc: "Elastic CSPM — CIS GCP-style posture findings (cloud_security_posture.findings)",
+      },
+      {
+        id: "gcp-kspm",
+        label: "KSPM",
+        icon: "\u2638",
+        desc: "Elastic KSPM — CIS GKE-style Kubernetes posture findings",
+      },
+      {
+        id: "gcp-iam-privesc-chain",
+        label: "IAM PrivEsc chain",
+        icon: "\u26A1",
+        desc: "Attack chain: IAM enumeration, SA key, policy escalation, token abuse (Cloud Audit)",
+      },
+      {
+        id: "gcp-data-exfil-chain",
+        label: "Data exfiltration chain",
+        icon: "\u25C2",
+        desc: "Attack chain: DLP mass findings, VPC high egress, GCS object reads",
+      },
+    ],
+  },
 ];
 
 const GCP_ALL_SERVICE_IDS = GCP_SERVICE_GROUPS.flatMap((g) => g.services.map((s) => s.id));

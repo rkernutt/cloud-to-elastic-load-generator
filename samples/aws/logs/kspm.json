@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-13T10:53:45.336Z",
+  "@timestamp": "2026-04-13T13:40:12.254Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,33 +7,33 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-3",
-    "account": { "id": "164820739518", "name": "globex-shared-services" }
+    "region": "ap-southeast-1",
+    "account": { "id": "293847561023", "name": "globex-staging" }
   },
   "orchestrator": {
-    "cluster": { "id": "staging-eks", "name": "staging-eks" },
+    "cluster": { "id": "dev-eks", "name": "dev-eks" },
     "type": "kubernetes",
-    "namespace": "production"
+    "namespace": "staging"
   },
   "resource": {
-    "id": "staging-eks/production/pod/api-gateway-h89h1",
-    "name": "pod/api-gateway-h89h1",
-    "sub_type": "Pod",
+    "id": "dev-eks/staging/secret/app-secrets-00eo",
+    "name": "secret/app-secrets-00eo",
+    "sub_type": "Secret",
     "type": "k8s_object"
   },
   "rule": {
-    "id": "cis_eks_4_2",
-    "name": "Avoid the admission of privileged containers",
-    "section": "4.2",
-    "tags": ["Pod Security"],
+    "id": "cis_eks_5_5",
+    "name": "Encrypt Kubernetes Secrets at rest using AWS KMS",
+    "section": "5.5",
+    "tags": ["Managed Services"],
     "benchmark": {
       "id": "cis_eks",
       "version": "v1.4.0",
-      "rule_number": "4.2",
+      "rule_number": "5.5",
       "posture_type": "kspm"
     },
-    "impact": "Avoid the admission of privileged containers — non-compliant configuration may allow container escape or lateral movement.",
-    "remediation": "Review and remediate per CIS EKS Benchmark v1.4.0 section 4.2."
+    "impact": "Encrypt Kubernetes Secrets at rest using AWS KMS — non-compliant configuration may allow container escape or lateral movement.",
+    "remediation": "Review and remediate per CIS EKS Benchmark v1.4.0 section 5.5."
   },
   "result": { "evaluation": "failed" },
   "severity": "high",
@@ -46,11 +46,11 @@
     "provider": "elastic_kspm",
     "module": "aws"
   },
-  "message": "KSPM [CIS EKS / 4.2] failed: Avoid the admission of privileged containers [staging-eks]",
+  "message": "KSPM [CIS EKS / 5.5] failed: Encrypt Kubernetes Secrets at rest using AWS KMS [dev-eks]",
   "log": { "level": "warn" },
   "error": {
-    "code": "CIS_CIS_EKS_4_2",
-    "message": "KSPM check failed: Avoid the admission of privileged containers",
+    "code": "CIS_CIS_EKS_5_5",
+    "message": "KSPM check failed: Encrypt Kubernetes Secrets at rest using AWS KMS",
     "type": "compliance"
   },
   "service": { "name": "kspm", "type": "aws" },
@@ -58,22 +58,24 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-3",
-    "ephemeral_id": "99hdefoiyit"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "qdjws69mma"
   },
   "input": { "type": "http_endpoint" },
   "aws": {
     "s3": {
       "bucket": {
-        "name": "aws-kspm-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-kspm-logs-164820739518"
+        "name": "aws-kspm-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-kspm-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/164820739518/kspm/eu-west-3/2026/04/13/kspm_AVA21B51ZSQ.log.gz" }
+      "object": {
+        "key": "AWSLogs/293847561023/kspm/ap-southeast-1/2026/04/13/kspm_9TXDCDN8W1R.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/kspm/logs",
-      "log_stream": "eu-west-3/k8gppwmw",
-      "ingestion_time": "2026-04-13T10:53:45.714Z"
+      "log_stream": "ap-southeast-1/pb9pvy1j",
+      "ingestion_time": "2026-04-13T13:40:12.643Z"
     }
   }
 }

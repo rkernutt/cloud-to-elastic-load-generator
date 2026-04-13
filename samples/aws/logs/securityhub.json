@@ -1,70 +1,75 @@
 {
-  "@timestamp": "2026-04-13T10:53:45.336Z",
+  "@timestamp": "2026-04-13T13:40:12.254Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-west-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "securityhub" }
   },
   "aws": {
-    "dimensions": { "ComplianceStandard": "cis-aws-foundations-benchmark", "ControlId": "RDS.1" },
+    "dimensions": { "ComplianceStandard": "pci-dss", "ControlId": "CIS.1.1" },
     "securityhub_findings": {
-      "id": "FDPQK2J2-3VGF-H5OV-WW5N-RXDYGXSJV5T",
-      "aws_account_id": "738291046572",
-      "region": "ap-southeast-1",
-      "description": "Control passed.",
-      "created_at": "2026-04-12T13:33:52.143Z",
-      "first_observed_at": "2026-04-12T13:33:52.143Z",
-      "last_observed_at": "2026-04-13T10:53:45.336Z",
-      "generator": { "id": "RDS.1" },
+      "id": "FNYDXJGO-KQ9C-97A3-X23E-J76F54E4GAE",
+      "aws_account_id": "501938274650",
+      "region": "eu-west-2",
+      "description": "Security check failed: CIS.1.1 - MFA not enabled for root",
+      "created_at": "2026-04-12T14:21:20.946Z",
+      "first_observed_at": "2026-04-12T14:21:20.946Z",
+      "last_observed_at": "2026-04-13T13:40:12.254Z",
+      "generator": { "id": "CIS.1.1" },
       "types": ["Effects/Data Exposure"],
-      "compliance": { "security_control_id": "RDS.1", "status": "PASSED" },
-      "severity": { "label": "INFORMATIONAL", "normalized": 0 },
-      "workflow": { "status": "NEW" },
-      "record_state": "ARCHIVED",
+      "compliance": { "security_control_id": "CIS.1.1", "status": "FAILED" },
+      "severity": { "label": "LOW", "normalized": 20 },
+      "workflow": { "status": "NOTIFIED" },
+      "record_state": "ACTIVE",
       "product": {
-        "arn": "arn:aws:securityhub:ap-southeast-1::product/aws/securityhub",
+        "arn": "arn:aws:securityhub:eu-west-2::product/aws/securityhub",
         "name": "Security Hub"
       },
       "criticality": 4,
-      "confidence": 98
+      "confidence": 86
     },
     "s3": {
       "bucket": {
-        "name": "aws-securityhub-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-securityhub-logs-738291046572"
+        "name": "aws-securityhub-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-securityhub-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/securityhub/ap-southeast-1/2026/04/13/securityhub_THX2FK1VQV.log.gz"
+        "key": "AWSLogs/501938274650/securityhub/eu-west-2/2026/04/13/securityhub_AKN2NU9H5M.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securityhub/logs",
-      "log_stream": "ap-southeast-1/xt478a37",
-      "ingestion_time": "2026-04-13T10:53:45.700Z"
+      "log_stream": "eu-west-2/2og8aa1v",
+      "ingestion_time": "2026-04-13T13:40:12.627Z"
     }
   },
-  "rule": { "id": "RDS.1", "name": "RDS.1 — CloudTrail not enabled" },
+  "rule": { "id": "CIS.1.1", "name": "CIS.1.1 — CloudTrail not enabled" },
   "event": {
     "kind": "alert",
     "severity": 4,
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["vulnerability"],
-    "type": ["info"],
+    "type": ["indicator"],
     "dataset": "aws.securityhub_findings",
     "provider": "securityhub.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security Hub: control passed",
+  "message": "Security Hub [LOW]: Compliance check failed",
   "log": { "level": "info" },
+  "error": {
+    "code": "ComplianceFailed",
+    "message": "Control CIS.1.1 failed",
+    "type": "compliance"
+  },
   "service": { "name": "securityhub", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.securityhub_findings", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "k790m6upu6q"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "uigxdt8r8m"
   },
   "input": { "type": "http_endpoint" }
 }

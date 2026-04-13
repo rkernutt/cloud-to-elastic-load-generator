@@ -1,57 +1,62 @@
 {
-  "@timestamp": "2026-04-13T10:53:45.336Z",
+  "@timestamp": "2026-04-13T13:40:12.254Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-3",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "us-west-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "managedgrafana" }
   },
   "aws": {
-    "dimensions": { "WorkspaceId": "g-z155om4875" },
+    "dimensions": { "WorkspaceId": "g-l20ghnhlct" },
     "managedgrafana": {
-      "workspace_id": "g-z155om4875",
-      "workspace_name": "prod-observability",
-      "workspace_status": "CREATING",
+      "workspace_id": "g-l20ghnhlct",
+      "workspace_name": "ops-dashboards",
+      "workspace_status": "FAILED",
       "grafana_version": "10.4",
       "alert_state": "alerting",
-      "dashboard_title": "EC2 Overview",
-      "datasource_type": "cloudwatch",
+      "dashboard_title": "EKS Cluster Health",
+      "datasource_type": "prometheus",
       "authentication_providers": "SAML",
       "notification_destinations": "SLACK"
     },
     "s3": {
       "bucket": {
-        "name": "aws-managedgrafana-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-managedgrafana-logs-738291046572"
+        "name": "aws-managedgrafana-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-managedgrafana-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/managedgrafana/eu-west-3/2026/04/13/managedgrafana_BOKYXFAT6N4.log.gz"
+        "key": "AWSLogs/164820739518/managedgrafana/us-west-1/2026/04/13/managedgrafana_90FWI5P2EKR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/managedgrafana/logs",
-      "log_stream": "eu-west-3/0f5w7zuf",
-      "ingestion_time": "2026-04-13T10:53:45.824Z"
+      "log_stream": "us-west-1/zkjphzv1",
+      "ingestion_time": "2026-04-13T13:40:12.765Z"
     }
   },
   "event": {
-    "action": "AssociateLicense",
-    "outcome": "success",
+    "action": "UpdatePermissions",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.managedgrafana",
     "provider": "grafana.amazonaws.com",
     "module": "aws"
   },
-  "message": "Managed Grafana AssociateLicense: workspace=prod-observability alert=alerting dashboard=\"EC2 Overview\"",
-  "log": { "level": "warn" },
+  "message": "Managed Grafana UpdatePermissions FAILED [ops-dashboards]: Access denied",
+  "log": { "level": "error" },
+  "error": {
+    "code": "AccessDeniedException",
+    "message": "Managed Grafana operation failed",
+    "type": "process"
+  },
   "service": { "name": "managedgrafana", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.managedgrafana", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-3",
-    "ephemeral_id": "3k8i4oohua"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "totshdq4tmr"
   },
   "input": { "type": "aws-cloudwatch" }
 }

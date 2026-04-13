@@ -6,7 +6,7 @@ The header uses a vendor-neutral cloud mark; AWS, GCP, and Azure logos appear in
 
 **Icons:** GCP/Azure flat SVGs and maps are committed under `public/gcp-icons/`, `public/azure-icons/`, and `src/cloud/generated/vendorFileIcons.ts`. AWS icons in `public/aws-icons/` are committed so clones work offline; `npm install` re-syncs that folder from the `aws-icons` package to match `src/data/iconMap.ts` and prunes unused files. A handful of AWS SVGs (and PNG findings artwork) are package-extras and remain committed only—see [docs/development.md](docs/development.md). Maintainers refresh GCP/Azure maps with `npm run icons:vendor` and sources in `local/cloud-icons/` (gitignored).
 
-**Documentation:** [docs/README.md](docs/README.md) — index of guides, AWS routing docs, pipeline reference, and diagrams. Day-to-day dev: [docs/development.md](docs/development.md).
+**Documentation:** [docs/README.md](docs/README.md) — index of guides, AWS routing docs, pipeline reference, and diagrams. **Setup wizard & uninstall (including Serverless dashboard limits):** [docs/SETUP-WIZARD-AND-UNINSTALL.md](docs/SETUP-WIZARD-AND-UNINSTALL.md). Day-to-day dev: [docs/development.md](docs/development.md).
 
 ---
 
@@ -80,6 +80,8 @@ Credentials stay in the browser session; the proxy forwards requests and may log
 ## Elastic onboarding
 
 Idempotent installers (integrations, ingest pipelines, dashboards, ML jobs) live under **`installer/`**. See **[installer/README.md](installer/README.md)** for AWS, GCP, and Azure entrypoints.
+
+The **same assets** can be installed or removed from the **Setup** step in the web UI (after **Start** and **Connection**). You can filter pipelines/dashboards/ML, **Align with Services** with your Services-step selection, and the Setup log can persist across refresh (sessionStorage). **Important:** on some **Elastic Cloud Serverless** projects, Kibana does **not** allow saved-object **delete** APIs, so **dashboard uninstall from the UI will not work** there — remove dashboards manually in Kibana or use a stack where those APIs are enabled. Details: [docs/SETUP-WIZARD-AND-UNINSTALL.md](docs/SETUP-WIZARD-AND-UNINSTALL.md).
 
 ---
 

@@ -29,6 +29,13 @@ import {
 } from "./platform.js";
 import { generateOpenAiLog } from "./aiml.js";
 import {
+  generateAzureSecurityFindingChain,
+  generateAzureCspmFindings,
+  generateAzureKspmFindings,
+  generateAzureIamPrivEscChain,
+  generateAzureDataExfilChain,
+} from "./securityChains.js";
+import {
   generateIotHubLog,
   generateLogicAppsLog,
   generateApiManagementLog,
@@ -68,6 +75,11 @@ const DEDICATED: Record<string, Gen> = {
   "event-grid": generateEventGridLog,
   "synapse-workspace": generateSynapseWorkspaceLog,
   databricks: generateDatabricksLog,
+  "azure-security-chain": generateAzureSecurityFindingChain,
+  "azure-cspm": generateAzureCspmFindings,
+  "azure-kspm": generateAzureKspmFindings,
+  "azure-iam-privesc-chain": generateAzureIamPrivEscChain,
+  "azure-data-exfil-chain": generateAzureDataExfilChain,
 };
 
 const AZURE_LOG_MERGE_CHILDREN: Record<string, readonly string[]> = {

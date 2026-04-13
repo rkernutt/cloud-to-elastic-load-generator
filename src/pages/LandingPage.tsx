@@ -26,12 +26,17 @@ export function LandingPage({ isUnifiedCloud, onGetStarted }: LandingPageProps) 
     {
       title: "Setup",
       description:
-        "Install/Uninstall optional Fleet integrations, ingest pipelines, dashboards, and ML jobs. Use Uninstall/Reinstall mode on the same screen to reinstall or reset those assets.",
+        "Install/Uninstall optional Fleet integrations, ingest pipelines, dashboards, and ML jobs. Pipelines, dashboards, and ML use the same style of filters, accordions, and Align with Services step as the main wizard.",
     },
     {
-      title: "Select",
+      title: "Service Selection",
       description:
-        "Pick which cloud services to simulate. Selection drives which generators run and how much data you ship per service.",
+        "Pick which cloud services to simulate (everything except multi-step security/attack pattern generators). Selection drives generators, volume, and which setup assets align when you use Align with Services step.",
+    },
+    {
+      title: "Security / Attack Patterns",
+      description:
+        "For logs mode only: optional second picker for linked security findings and attack chains (e.g. AWS GuardDuty→Security Hub→Lake, or GCP SCC→Chronicle→SecOps, Azure Defender→Sentinel). Skipped automatically for metrics or traces.",
     },
     {
       title: "Configure",

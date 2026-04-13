@@ -154,6 +154,11 @@ const GCP_SERVICE_INGESTION_DEFAULTS: Record<string, string> = {
   "integration-connectors": "cloud-logging",
   "application-integration": "cloud-logging",
   "api-hub": "cloud-logging",
+  "gcp-security-chain": "api",
+  "gcp-cspm": "api",
+  "gcp-kspm": "api",
+  "gcp-iam-privesc-chain": "api",
+  "gcp-data-exfil-chain": "api",
 };
 
 const GCP_INGESTION_META: Record<string, { label: string; color: string; inputType: string }> = {

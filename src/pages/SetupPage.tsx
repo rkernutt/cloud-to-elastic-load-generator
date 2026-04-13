@@ -1,4 +1,13 @@
-import { useState, useMemo, useEffect, useRef, useCallback, type ReactNode } from "react";
+import {
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  useCallback,
+  type ReactNode,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import {
   EuiTitle,
   EuiSpacer,
@@ -14,13 +23,21 @@ import {
   EuiHorizontalRule,
   EuiConfirmModal,
   EuiSwitch,
+  EuiFieldSearch,
+  EuiBadge,
 } from "@elastic/eui";
 
+import type { CloudId } from "../cloud/types";
 import type { CloudSetupBundle, MlJobFile, PipelineEntry } from "../setup/types";
 import { dashboardDefToSavedObjectId } from "../setup/dashboardToImportNdjson";
 import { stableDashboardKey } from "../setup/stableDashboardKey";
 import { runSetupInstall } from "../setup/runSetupInstall";
-import { proxyCall, resolveFleetPackageVersion, deleteKibanaDashboard } from "../setup/setupProxy";
+import {
+  proxyCall,
+  resolveFleetPackageVersion,
+  deleteKibanaDashboard,
+  SAVED_OBJECT_DELETE_UNSUPPORTED_HINT,
+} from "../setup/setupProxy";
 import { InstallerRow } from "../components/InstallerRow";
 import {
   loadSetupLog,
@@ -28,9 +45,23 @@ import {
   clearSetupLog,
   MAX_SETUP_LOG_ENTRIES,
 } from "../utils/sessionActivityLog";
+import {
+  pipelineMatchesQuery,
+  pipelineMatchesSelectedServices,
+  dashboardMatchesQuery,
+  dashboardMatchesSelectedServices,
+  dashboardTitleServiceFragment,
+  mlJobFileMatchesQuery,
+  mlJobFileMatchesSelectedServices,
+  mlJobEntryMatchesQuery,
+} from "../setup/setupAssetMatch";
 
 interface SetupPageProps {
   setupBundle: CloudSetupBundle;
+  /** Resets asset lists when switching vendor (AWS / GCP / Azure). */
+  cloudId: CloudId;
+  /** Services (or trace services) chosen on the Services step — drives “Align with Services”. */
+  selectedShipServiceIds: string[];
   elasticUrl: string;
   kibanaUrl: string;
   apiKey: string;
@@ -43,8 +74,67 @@ interface SetupPageProps {
 
 type LogLine = { text: string; type: "info" | "ok" | "error" | "warn"; at?: string };
 
+/**
+ * Simple expand/collapse for setup asset groups. EuiAccordion uses height animation +
+ * ResizeObserver; with blockSize:0 while closed the observer can stay at 0 so opening
+ * shows no content — this pattern matches ServiceGrid (collapsed === true hides body).
+ */
+function SetupCollapsible({
+  sectionKey,
+  collapsedMap,
+  setCollapsedMap,
+  header,
+  children,
+}: {
+  sectionKey: string;
+  collapsedMap: Record<string, boolean>;
+  setCollapsedMap: Dispatch<SetStateAction<Record<string, boolean>>>;
+  header: ReactNode;
+  children: ReactNode;
+}) {
+  const collapsed = collapsedMap[sectionKey] === true;
+  return (
+    <div style={{ marginBottom: 8 }}>
+      <button
+        type="button"
+        onClick={() =>
+          setCollapsedMap((prev) => ({
+            ...prev,
+            [sectionKey]: !(prev[sectionKey] === true),
+          }))
+        }
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          width: "100%",
+          textAlign: "left",
+          cursor: "pointer",
+          border: "1px solid var(--euiColorLightShade, #d3dae6)",
+          borderRadius: 6,
+          padding: "8px 12px",
+          background: "var(--euiColorEmptyShade, #fff)",
+          font: "inherit",
+        }}
+      >
+        <span style={{ fontSize: 10, color: "var(--euiColorSubdued, #69707d)", flexShrink: 0 }}>
+          {collapsed ? "\u25B6" : "\u25BC"}
+        </span>
+        <span style={{ flex: 1, minWidth: 0 }}>{header}</span>
+      </button>
+      {!collapsed && (
+        <div style={{ padding: "8px 4px 0 4px", borderLeft: "2px solid var(--euiColorLightShade, #d3dae6)", marginLeft: 10, marginTop: 4 }}>
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function SetupPage({
   setupBundle,
+  cloudId,
+  selectedShipServiceIds,
   elasticUrl,
   kibanaUrl,
   apiKey,
@@ -64,47 +154,35 @@ export function SetupPage({
   const [enablePipelines, setEnablePipelines] = useState(false);
   const [enableDashboards, setEnableDashboards] = useState(false);
   const [enableMlJobs, setEnableMlJobs] = useState(false);
+  /** Pipeline / dashboard / ML section headers: true = collapsed (hidden), default expanded */
+  const [setupAssetCollapsed, setSetupAssetCollapsed] = useState<Record<string, boolean>>({});
 
   const pipelineGroups = useMemo(
     () => [...new Set(PIPELINES.map((p) => p.group))].sort(),
     [PIPELINES]
   );
-  const [selectedPipelineGroups, setSelectedPipelineGroups] = useState<Set<string>>(
-    () => new Set(pipelineGroups)
+  const [selectedPipelineIds, setSelectedPipelineIds] = useState<Set<string>>(
+    () => new Set(PIPELINES.map((p) => p.id))
   );
-
-  const dashboardKeys = useMemo(
-    () =>
-      DASHBOARDS.map((d, i) => ({
-        key: stableDashboardKey(d, i),
-        title: d.title ?? `Dashboard ${i + 1}`,
-      })),
-    [DASHBOARDS]
-  );
+  const [assetFilterQuery, setAssetFilterQuery] = useState("");
 
   const [selectedDashboardKeys, setSelectedDashboardKeys] = useState<Set<string>>(
-    () => new Set(dashboardKeys.map((x) => x.key))
+    () => new Set(setupBundle.dashboards.map((d, i) => stableDashboardKey(d, i)))
   );
 
-  const mlJobGroups = useMemo(
-    () => ML_JOB_FILES.map((f) => ({ group: f.group, description: f.description })),
-    [ML_JOB_FILES]
-  );
-  const [selectedMlGroups, setSelectedMlGroups] = useState<Set<string>>(
-    () => new Set(ML_JOB_FILES.map((f) => f.group))
+  const [selectedMlJobIds, setSelectedMlJobIds] = useState<Set<string>>(
+    () => new Set(ML_JOB_FILES.flatMap((f) => f.jobs.map((j) => j.id)))
   );
 
   useEffect(() => {
-    setSelectedPipelineGroups(new Set(pipelineGroups));
-  }, [setupBundle.fleetPackage, PIPELINES.length, pipelineGroups]);
-
-  useEffect(() => {
-    setSelectedDashboardKeys(new Set(dashboardKeys.map((x) => x.key)));
-  }, [setupBundle.fleetPackage, DASHBOARDS.length, dashboardKeys]);
-
-  useEffect(() => {
-    setSelectedMlGroups(new Set(ML_JOB_FILES.map((f) => f.group)));
-  }, [setupBundle.fleetPackage, ML_JOB_FILES.length, ML_JOB_FILES]);
+    setSelectedPipelineIds(new Set(setupBundle.pipelines.map((p) => p.id)));
+    setSelectedDashboardKeys(
+      new Set(setupBundle.dashboards.map((d, i) => stableDashboardKey(d, i)))
+    );
+    setSelectedMlJobIds(new Set(setupBundle.mlJobFiles.flatMap((f) => f.jobs.map((j) => j.id))));
+    setAssetFilterQuery("");
+    setSetupAssetCollapsed({});
+  }, [cloudId, setupBundle.fleetPackage]); // eslint-disable-line react-hooks/exhaustive-deps -- reset only on vendor switch
 
   const [isRunning, setIsRunning] = useState(false);
   const [isDone, setIsDone] = useState(false);
@@ -231,7 +309,8 @@ export function SetupPage({
   ) : (
     <>
       Installs custom Elasticsearch ingest pipelines aligned with this load generator.{" "}
-      {PIPELINES.length} pipelines across {pipelineGroups.length} groups.
+      {PIPELINES.length} pipelines in {pipelineGroups.length} groups — pick individual pipelines,
+      filter the list, or <strong>Align with Services</strong> to match the Services step.
     </>
   );
 
@@ -243,11 +322,12 @@ export function SetupPage({
   ) : (
     <>
       Installs pre-built Kibana dashboards for {setupBundle.fleetPackageLabel} monitoring (
-      {DASHBOARDS.length} available). Uses the Dashboards API when available; otherwise falls back
-      to saved object import (e.g. Serverless).
+      {DASHBOARDS.length} available). Filter or align to your Services selection; uses the
+      Dashboards API when available, otherwise saved object import (e.g. Serverless).
     </>
   );
 
+  const totalMlJobsAll = ML_JOB_FILES.reduce((n, f) => n + f.jobs.length, 0);
   const descMl: ReactNode = removeMode ? (
     <>
       <strong>Uninstalls</strong> ML jobs: stop datafeeds, close jobs, then delete datafeeds and
@@ -256,15 +336,184 @@ export function SetupPage({
   ) : (
     <>
       Installs Elasticsearch ML anomaly detection jobs for synthetic{" "}
-      {setupBundle.fleetPackage.toUpperCase()} logs.{" "}
-      {ML_JOB_FILES.reduce((n, f) => n + f.jobs.length, 0)} jobs across {mlJobGroups.length} groups.
+      {setupBundle.fleetPackage.toUpperCase()} logs. Pick individual jobs, filter the list, or use{" "}
+      <strong>Align with Services step</strong>. {totalMlJobsAll} jobs in {ML_JOB_FILES.length}{" "}
+      files.
     </>
   );
 
-  const filteredPipelines = () => PIPELINES.filter((p) => selectedPipelineGroups.has(p.group));
+  const filteredPipelines = () => PIPELINES.filter((p) => selectedPipelineIds.has(p.id));
+
+  const visiblePipelineIds = useMemo(
+    () => PIPELINES.filter((p) => pipelineMatchesQuery(p, assetFilterQuery)).map((p) => p.id),
+    [PIPELINES, assetFilterQuery]
+  );
+
+  const visibleDashboardIndices = useMemo(
+    () =>
+      DASHBOARDS.map((_, i) => i).filter((i) =>
+        dashboardMatchesQuery(DASHBOARDS[i], i, assetFilterQuery)
+      ),
+    [DASHBOARDS, assetFilterQuery]
+  );
+
+  const dashboardGroupKeys = useMemo(() => {
+    const keys = new Set<string>();
+    for (const i of visibleDashboardIndices) {
+      const frag = dashboardTitleServiceFragment(DASHBOARDS[i], cloudId);
+      const key = frag?.trim().split(/\s+/)[0] ?? "Other";
+      keys.add(key || "Other");
+    }
+    return [...keys].sort((a, b) => {
+      if (a === "Other") return 1;
+      if (b === "Other") return -1;
+      return a.localeCompare(b);
+    });
+  }, [visibleDashboardIndices, DASHBOARDS, cloudId]);
+
+  const dashboardIndicesInGroup = useCallback(
+    (groupKey: string) =>
+      visibleDashboardIndices.filter((i) => {
+        const frag = dashboardTitleServiceFragment(DASHBOARDS[i], cloudId);
+        const key = frag?.trim().split(/\s+/)[0] ?? "Other";
+        return (key || "Other") === groupKey;
+      }),
+    [visibleDashboardIndices, DASHBOARDS, cloudId]
+  );
+
+  const visibleMlFiles = useMemo(
+    () => ML_JOB_FILES.filter((f) => mlJobFileMatchesQuery(f, assetFilterQuery)),
+    [ML_JOB_FILES, assetFilterQuery]
+  );
+
+  const alignSelectionsToShipServices = useCallback(() => {
+    const sel = new Set(selectedShipServiceIds.map((s) => s.trim()).filter(Boolean));
+    if (sel.size === 0) {
+      addLog(
+        "Choose at least one service on the Services step before using Align with Services.",
+        "warn"
+      );
+      return;
+    }
+    const pIds = new Set(
+      PIPELINES.filter((p) => pipelineMatchesSelectedServices(p, sel)).map((p) => p.id)
+    );
+    const dKeys = new Set<string>();
+    DASHBOARDS.forEach((d, i) => {
+      if (dashboardMatchesSelectedServices(d, cloudId, sel)) dKeys.add(stableDashboardKey(d, i));
+    });
+    const mlIds = new Set<string>();
+    for (const f of ML_JOB_FILES) {
+      if (!mlJobFileMatchesSelectedServices(f, sel)) continue;
+      for (const j of f.jobs) mlIds.add(j.id);
+    }
+    if (pIds.size === 0 && dKeys.size === 0 && mlIds.size === 0) {
+      addLog(
+        "No pipelines, dashboards, or ML jobs matched the current Services selection — adjust Services or pick assets manually.",
+        "warn"
+      );
+      return;
+    }
+    setSelectedPipelineIds(pIds);
+    setSelectedDashboardKeys(dKeys);
+    setSelectedMlJobIds(mlIds);
+    addLog(
+      `Aligned setup to Services: ${pIds.size} pipeline(s), ${dKeys.size} dashboard(s), ${mlIds.size} ML job(s).`,
+      "ok"
+    );
+  }, [PIPELINES, DASHBOARDS, ML_JOB_FILES, selectedShipServiceIds, cloudId, addLog]);
+
+  const selectAllVisiblePipelines = () => {
+    setSelectedPipelineIds((prev) => new Set([...prev, ...visiblePipelineIds]));
+  };
+
+  const clearVisiblePipelines = () => {
+    const vis = new Set(visiblePipelineIds);
+    setSelectedPipelineIds((prev) => new Set([...prev].filter((id) => !vis.has(id))));
+  };
+
+  const selectAllVisibleDashboards = () => {
+    setSelectedDashboardKeys((prev) => {
+      const next = new Set(prev);
+      for (const i of visibleDashboardIndices) {
+        next.add(stableDashboardKey(DASHBOARDS[i], i));
+      }
+      return next;
+    });
+  };
+
+  const clearVisibleDashboards = () => {
+    const vis = new Set(visibleDashboardIndices.map((i) => stableDashboardKey(DASHBOARDS[i], i)));
+    setSelectedDashboardKeys((prev) => new Set([...prev].filter((k) => !vis.has(k))));
+  };
+
+  const selectAllVisibleMlJobs = () => {
+    setSelectedMlJobIds((prev) => {
+      const next = new Set(prev);
+      for (const f of visibleMlFiles) {
+        for (const j of f.jobs) {
+          if (mlJobEntryMatchesQuery(j, assetFilterQuery)) next.add(j.id);
+        }
+      }
+      return next;
+    });
+  };
+
+  const clearVisibleMlJobs = () => {
+    const vis = new Set<string>();
+    for (const f of visibleMlFiles) {
+      for (const j of f.jobs) {
+        if (mlJobEntryMatchesQuery(j, assetFilterQuery)) vis.add(j.id);
+      }
+    }
+    setSelectedMlJobIds((prev) => new Set([...prev].filter((id) => !vis.has(id))));
+  };
+
+  const setAllInPipelineGroup = (group: string, checked: boolean) => {
+    const ids = PIPELINES.filter(
+      (p) => p.group === group && pipelineMatchesQuery(p, assetFilterQuery)
+    ).map((p) => p.id);
+    setSelectedPipelineIds((prev) => {
+      const next = new Set(prev);
+      for (const id of ids) {
+        if (checked) next.add(id);
+        else next.delete(id);
+      }
+      return next;
+    });
+  };
   const filteredDashboards = () =>
     DASHBOARDS.filter((d, i) => selectedDashboardKeys.has(stableDashboardKey(d, i)));
-  const filteredMlFiles = () => ML_JOB_FILES.filter((f) => selectedMlGroups.has(f.group));
+  const filteredMlJobPayload = (): MlJobFile[] =>
+    ML_JOB_FILES.map((f) => ({
+      ...f,
+      jobs: f.jobs.filter((j) => selectedMlJobIds.has(j.id)),
+    })).filter((f) => f.jobs.length > 0);
+
+  const setAllInDashboardGroup = (groupKey: string, checked: boolean) => {
+    const idxs = dashboardIndicesInGroup(groupKey);
+    setSelectedDashboardKeys((prev) => {
+      const next = new Set(prev);
+      for (const i of idxs) {
+        const k = stableDashboardKey(DASHBOARDS[i], i);
+        if (checked) next.add(k);
+        else next.delete(k);
+      }
+      return next;
+    });
+  };
+
+  const setAllJobsInMlFile = (file: MlJobFile, checked: boolean) => {
+    const ids = file.jobs.filter((j) => mlJobEntryMatchesQuery(j, assetFilterQuery)).map((j) => j.id);
+    setSelectedMlJobIds((prev) => {
+      const next = new Set(prev);
+      for (const id of ids) {
+        if (checked) next.add(id);
+        else next.delete(id);
+      }
+      return next;
+    });
+  };
 
   const handleInstall = async () => {
     setIsRunning(true);
@@ -284,7 +533,7 @@ export function SetupPage({
         enableMlJobs,
         pipelines: filteredPipelines(),
         dashboards: filteredDashboards(),
-        mlJobFiles: filteredMlFiles(),
+        mlJobFiles: filteredMlJobPayload(),
         addLog,
       });
       addLog("All selected installers complete.", "ok");
@@ -375,8 +624,10 @@ export function SetupPage({
     addLog(`Removing ${toRemove.length} custom dashboards…`);
     let ok = 0;
     let fail = 0;
+    let stoppedForApiDisabled = false;
     const kb = kibanaUrl.replace(/\/$/, "");
-    for (const dash of toRemove) {
+    for (let idx = 0; idx < toRemove.length; idx++) {
+      const dash = toRemove[idx];
       try {
         const dashId = await dashboardDefToSavedObjectId(dash);
         const outcome = await deleteKibanaDashboard(kb, apiKey, dashId);
@@ -389,6 +640,20 @@ export function SetupPage({
         } else if (outcome.result === "deleted") {
           addLog(`  ✓ Dashboard "${dash.title}"`, "ok");
           ok++;
+        } else if (outcome.result === "api_disabled") {
+          stoppedForApiDisabled = true;
+          addLog(
+            `  ! Saved Object delete APIs are disabled on this Kibana (first hit: "${dash.title}").`,
+            "warn"
+          );
+          const remaining = toRemove.length - idx - 1;
+          if (remaining > 0) {
+            addLog(
+              `  – Skipped ${remaining} other dashboard(s); same limitation applies to all.`,
+              "warn"
+            );
+          }
+          break;
         } else if (outcome.result === "error") {
           fail++;
           addLog(`  ✗ Dashboard "${dash.title}": ${outcome.message}`, "error");
@@ -398,10 +663,17 @@ export function SetupPage({
         addLog(`  ✗ Dashboard "${dash.title}": ${e}`, "error");
       }
     }
-    addLog(
-      `  ✓ Dashboards: ${ok} processed${fail > 0 ? `, ${fail} failed` : ""}`,
-      fail > 0 ? "warn" : "ok"
-    );
+    if (stoppedForApiDisabled) {
+      addLog(
+        `  – Dashboards: ${toRemove.length - ok} not removed via API. ${SAVED_OBJECT_DELETE_UNSUPPORTED_HINT}`,
+        "warn"
+      );
+    } else {
+      addLog(
+        `  ✓ Dashboards: ${ok} processed${fail > 0 ? `, ${fail} failed` : ""}`,
+        fail > 0 ? "warn" : "ok"
+      );
+    }
   }
 
   async function uninstallOneMlJob(jobId: string) {
@@ -448,7 +720,7 @@ export function SetupPage({
   }
 
   async function uninstallMlJobs() {
-    const files = filteredMlFiles();
+    const files = filteredMlJobPayload();
     const totalJobs = files.reduce((n, f) => n + f.jobs.length, 0);
     addLog(`Removing ${totalJobs} ML jobs across ${files.length} groups…`);
     let ok = 0;
@@ -525,7 +797,7 @@ export function SetupPage({
         enableMlJobs,
         pipelines: filteredPipelines(),
         dashboards: filteredDashboards(),
-        mlJobFiles: filteredMlFiles(),
+        mlJobFiles: filteredMlJobPayload(),
         addLog,
       });
       addLog("Reinstall finished.", "ok");
@@ -577,7 +849,7 @@ export function SetupPage({
         enableMlJobs,
         pipelines: filteredPipelines(),
         dashboards: filteredDashboards(),
-        mlJobFiles: filteredMlFiles(),
+        mlJobFiles: filteredMlJobPayload(),
         addLog,
       });
       addLog("Uninstall and reinstall finished.", "ok");
@@ -750,6 +1022,35 @@ export function SetupPage({
         </>
       )}
 
+      <EuiPanel paddingSize="s" hasBorder>
+        <EuiFieldSearch
+          placeholder="Filter pipelines, dashboards, ML jobs…"
+          value={assetFilterQuery}
+          onChange={(e) => setAssetFilterQuery(e.target.value)}
+          isClearable
+          fullWidth
+        />
+        <EuiSpacer size="s" />
+        <EuiFlexGroup gutterSize="s" alignItems="center" wrap responsive={false}>
+          <EuiFlexItem grow={false}>
+            <EuiButtonEmpty
+              size="s"
+              iconType="aggregate"
+              onClick={alignSelectionsToShipServices}
+              disabled={selectedShipServiceIds.length === 0}
+            >
+              Align with Services step
+            </EuiButtonEmpty>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiText size="xs" color="subdued">
+              {selectedShipServiceIds.length} service(s) on Services page
+            </EuiText>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      </EuiPanel>
+      <EuiSpacer size="m" />
+
       <InstallerRow
         label="Ingest Pipelines"
         badge="Elasticsearch"
@@ -760,25 +1061,94 @@ export function SetupPage({
         <EuiSpacer size="s" />
         <EuiText size="xs" color="subdued">
           <strong>
-            {removeMode
-              ? "Select pipeline groups to uninstall:"
-              : "Select pipeline groups to install:"}
-          </strong>
+            {removeMode ? "Select pipelines to uninstall:" : "Select pipelines to install:"}
+          </strong>{" "}
+          {selectedPipelineIds.size} of {PIPELINES.length} selected
+          {assetFilterQuery.trim() ? <> ({visiblePipelineIds.length} visible)</> : null}.
         </EuiText>
         <EuiSpacer size="xs" />
         <EuiFlexGroup gutterSize="s" wrap responsive={false}>
-          {pipelineGroups.map((g) => (
-            <EuiFlexItem grow={false} key={g}>
-              <EuiCheckbox
-                id={`pipeline-group-${g}-${uid}`}
-                label={<EuiCode>{g}</EuiCode>}
-                checked={selectedPipelineGroups.has(g)}
-                disabled={!enablePipelines}
-                onChange={() => setSelectedPipelineGroups((prev) => toggleGroup(prev, g))}
-              />
-            </EuiFlexItem>
-          ))}
+          <EuiFlexItem grow={false}>
+            <EuiButtonEmpty
+              size="xs"
+              onClick={selectAllVisiblePipelines}
+              disabled={!enablePipelines}
+            >
+              Select visible
+            </EuiButtonEmpty>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButtonEmpty size="xs" onClick={clearVisiblePipelines} disabled={!enablePipelines}>
+              Clear visible
+            </EuiButtonEmpty>
+          </EuiFlexItem>
         </EuiFlexGroup>
+        <EuiSpacer size="s" />
+        {pipelineGroups.map((g) => {
+          const inGroup = PIPELINES.filter(
+            (p) => p.group === g && pipelineMatchesQuery(p, assetFilterQuery)
+          );
+          if (inGroup.length === 0) return null;
+          const nSel = inGroup.filter((p) => selectedPipelineIds.has(p.id)).length;
+          return (
+            <SetupCollapsible
+              key={g}
+              sectionKey={`pipe:${g}:${uid}`}
+              collapsedMap={setupAssetCollapsed}
+              setCollapsedMap={setSetupAssetCollapsed}
+              header={
+                <EuiText size="s">
+                  <strong>{g}</strong>{" "}
+                  <EuiBadge color="hollow">
+                    {nSel}/{inGroup.length}
+                  </EuiBadge>
+                </EuiText>
+              }
+            >
+              <EuiFlexGroup gutterSize="s" wrap responsive={false} alignItems="center">
+                <EuiFlexItem grow={false}>
+                  <EuiButtonEmpty
+                    size="xs"
+                    onClick={() => setAllInPipelineGroup(g, true)}
+                    disabled={!enablePipelines}
+                  >
+                    All in group
+                  </EuiButtonEmpty>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiButtonEmpty
+                    size="xs"
+                    onClick={() => setAllInPipelineGroup(g, false)}
+                    disabled={!enablePipelines}
+                  >
+                    None in group
+                  </EuiButtonEmpty>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+              <EuiSpacer size="s" />
+              <EuiFlexGroup gutterSize="s" wrap responsive={false}>
+                {inGroup.map((p) => (
+                  <EuiFlexItem grow={false} key={p.id} style={{ minWidth: 280, maxWidth: 420 }}>
+                    <EuiCheckbox
+                      id={`pipeline-${p.id}-${uid}`}
+                      label={
+                        <span title={p.description}>
+                          <EuiCode>{p.id}</EuiCode>
+                          <EuiText size="xs" color="subdued">
+                            {p.description}
+                          </EuiText>
+                        </span>
+                      }
+                      checked={selectedPipelineIds.has(p.id)}
+                      disabled={!enablePipelines}
+                      onChange={() => setSelectedPipelineIds((prev) => toggleGroup(prev, p.id))}
+                    />
+                  </EuiFlexItem>
+                ))}
+              </EuiFlexGroup>
+            </SetupCollapsible>
+          );
+        })}
       </InstallerRow>
 
       <EuiSpacer size="m" />
@@ -793,7 +1163,8 @@ export function SetupPage({
         <EuiSpacer size="s" />
         <EuiText size="xs" color="subdued">
           <strong>Select dashboards{removeMode ? " to uninstall" : " to install"}:</strong>{" "}
-          {selectedDashboardKeys.size} of {DASHBOARDS.length} selected.
+          {selectedDashboardKeys.size} of {DASHBOARDS.length} selected
+          {assetFilterQuery.trim() ? <> ({visibleDashboardIndices.length} visible)</> : null}.
           {!enableDashboards && DASHBOARDS.length > 0 && (
             <>
               {" "}
@@ -803,22 +1174,89 @@ export function SetupPage({
         </EuiText>
         <EuiSpacer size="xs" />
         <EuiFlexGroup gutterSize="s" wrap responsive={false}>
-          {dashboardKeys.map(({ key, title }) => (
-            <EuiFlexItem grow={false} key={key}>
-              <EuiCheckbox
-                id={`dashboard-${key}-${uid}`}
-                label={
-                  <span title={title}>
-                    <EuiCode>{title}</EuiCode>
-                  </span>
-                }
-                checked={selectedDashboardKeys.has(key)}
-                disabled={!enableDashboards}
-                onChange={() => setSelectedDashboardKeys((prev) => toggleGroup(prev, key))}
-              />
-            </EuiFlexItem>
-          ))}
+          <EuiFlexItem grow={false}>
+            <EuiButtonEmpty
+              size="xs"
+              onClick={selectAllVisibleDashboards}
+              disabled={!enableDashboards}
+            >
+              Select visible
+            </EuiButtonEmpty>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButtonEmpty size="xs" onClick={clearVisibleDashboards} disabled={!enableDashboards}>
+              Clear visible
+            </EuiButtonEmpty>
+          </EuiFlexItem>
         </EuiFlexGroup>
+        <EuiSpacer size="xs" />
+        {dashboardGroupKeys.map((gk) => {
+          const idxs = dashboardIndicesInGroup(gk);
+          if (idxs.length === 0) return null;
+          const nSel = idxs.filter((i) =>
+            selectedDashboardKeys.has(stableDashboardKey(DASHBOARDS[i], i))
+          ).length;
+          return (
+            <SetupCollapsible
+              key={`dash-${gk}-${uid}`}
+              sectionKey={`dash:${gk}:${uid}`}
+              collapsedMap={setupAssetCollapsed}
+              setCollapsedMap={setSetupAssetCollapsed}
+              header={
+                <EuiText size="s">
+                  <strong>{gk}</strong>{" "}
+                  <EuiBadge color="hollow">
+                    {nSel}/{idxs.length}
+                  </EuiBadge>
+                </EuiText>
+              }
+            >
+              <EuiFlexGroup gutterSize="s" wrap responsive={false} alignItems="center">
+                <EuiFlexItem grow={false}>
+                  <EuiButtonEmpty
+                    size="xs"
+                    onClick={() => setAllInDashboardGroup(gk, true)}
+                    disabled={!enableDashboards}
+                  >
+                    All in group
+                  </EuiButtonEmpty>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiButtonEmpty
+                    size="xs"
+                    onClick={() => setAllInDashboardGroup(gk, false)}
+                    disabled={!enableDashboards}
+                  >
+                    None in group
+                  </EuiButtonEmpty>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+              <EuiSpacer size="s" />
+              <EuiFlexGroup gutterSize="s" wrap responsive={false}>
+                {idxs.map((i) => {
+                  const d = DASHBOARDS[i];
+                  const key = stableDashboardKey(d, i);
+                  const title = d.title ?? `Dashboard ${i + 1}`;
+                  return (
+                    <EuiFlexItem grow={false} key={key} style={{ minWidth: 280, maxWidth: 440 }}>
+                      <EuiCheckbox
+                        id={`dashboard-${key}-${uid}`}
+                        label={
+                          <span title={title}>
+                            <EuiCode>{title}</EuiCode>
+                          </span>
+                        }
+                        checked={selectedDashboardKeys.has(key)}
+                        disabled={!enableDashboards}
+                        onChange={() => setSelectedDashboardKeys((prev) => toggleGroup(prev, key))}
+                      />
+                    </EuiFlexItem>
+                  );
+                })}
+              </EuiFlexGroup>
+            </SetupCollapsible>
+          );
+        })}
       </InstallerRow>
 
       <EuiSpacer size="m" />
@@ -833,9 +1271,11 @@ export function SetupPage({
         <EuiSpacer size="s" />
         <EuiText size="xs" color="subdued">
           <strong>
-            {removeMode ? "Select job groups to uninstall:" : "Select job groups to install:"}
-          </strong>
-          {!enableMlJobs && mlJobGroups.length > 0 && (
+            {removeMode ? "Select ML jobs to uninstall:" : "Select ML jobs to install:"}
+          </strong>{" "}
+          {selectedMlJobIds.size} of {totalMlJobsAll} jobs
+          {assetFilterQuery.trim() ? <> ({visibleMlFiles.length} file(s) visible)</> : null}.
+          {!enableMlJobs && ML_JOB_FILES.length > 0 && (
             <>
               {" "}
               Turn on <strong>ML Anomaly Jobs</strong> above to include them in Install Selected.
@@ -844,22 +1284,85 @@ export function SetupPage({
         </EuiText>
         <EuiSpacer size="xs" />
         <EuiFlexGroup gutterSize="s" wrap responsive={false}>
-          {mlJobGroups.map(({ group, description }) => (
-            <EuiFlexItem grow={false} key={group}>
-              <EuiCheckbox
-                id={`ml-group-${group}-${uid}`}
-                label={
-                  <span title={description}>
-                    <EuiCode>{group}</EuiCode>
-                  </span>
-                }
-                checked={selectedMlGroups.has(group)}
-                disabled={!enableMlJobs}
-                onChange={() => setSelectedMlGroups((prev) => toggleGroup(prev, group))}
-              />
-            </EuiFlexItem>
-          ))}
+          <EuiFlexItem grow={false}>
+            <EuiButtonEmpty size="xs" onClick={selectAllVisibleMlJobs} disabled={!enableMlJobs}>
+              Select visible
+            </EuiButtonEmpty>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButtonEmpty size="xs" onClick={clearVisibleMlJobs} disabled={!enableMlJobs}>
+              Clear visible
+            </EuiButtonEmpty>
+          </EuiFlexItem>
         </EuiFlexGroup>
+        <EuiSpacer size="xs" />
+        {visibleMlFiles.map((file) => {
+          const visibleJobs = file.jobs.filter((j) => mlJobEntryMatchesQuery(j, assetFilterQuery));
+          if (visibleJobs.length === 0) return null;
+          const nSel = visibleJobs.filter((j) => selectedMlJobIds.has(j.id)).length;
+          return (
+            <SetupCollapsible
+              key={`ml-${file.group}-${uid}`}
+              sectionKey={`ml:${file.group}:${uid}`}
+              collapsedMap={setupAssetCollapsed}
+              setCollapsedMap={setSetupAssetCollapsed}
+              header={
+                <EuiText size="s">
+                  <strong>{file.group}</strong>{" "}
+                  <EuiBadge color="hollow">
+                    {nSel}/{visibleJobs.length}
+                  </EuiBadge>
+                </EuiText>
+              }
+            >
+              <EuiText size="xs" color="subdued">
+                {file.description}
+              </EuiText>
+              <EuiSpacer size="s" />
+              <EuiFlexGroup gutterSize="s" wrap responsive={false} alignItems="center">
+                <EuiFlexItem grow={false}>
+                  <EuiButtonEmpty
+                    size="xs"
+                    onClick={() => setAllJobsInMlFile(file, true)}
+                    disabled={!enableMlJobs}
+                  >
+                    All in file
+                  </EuiButtonEmpty>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiButtonEmpty
+                    size="xs"
+                    onClick={() => setAllJobsInMlFile(file, false)}
+                    disabled={!enableMlJobs}
+                  >
+                    None in file
+                  </EuiButtonEmpty>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+              <EuiSpacer size="s" />
+              <EuiFlexGroup gutterSize="s" wrap responsive={false}>
+                {visibleJobs.map((j) => (
+                  <EuiFlexItem grow={false} key={j.id} style={{ minWidth: 260, maxWidth: 420 }}>
+                    <EuiCheckbox
+                      id={`ml-job-${j.id}-${uid}`}
+                      label={
+                        <span title={j.description}>
+                          <EuiCode>{j.id}</EuiCode>
+                          <EuiText size="xs" color="subdued">
+                            {j.description}
+                          </EuiText>
+                        </span>
+                      }
+                      checked={selectedMlJobIds.has(j.id)}
+                      disabled={!enableMlJobs}
+                      onChange={() => setSelectedMlJobIds((prev) => toggleGroup(prev, j.id))}
+                    />
+                  </EuiFlexItem>
+                ))}
+              </EuiFlexGroup>
+            </SetupCollapsible>
+          );
+        })}
       </InstallerRow>
 
       <EuiSpacer size="xl" />

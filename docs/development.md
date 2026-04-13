@@ -23,6 +23,8 @@ After `npm install`, **`postinstall`** runs **`copy-icons`** (copies AWS archite
 
 Open **http://localhost:3000**. Configure Elasticsearch URL and API key in the UI; bulk requests go through **`/proxy`** in dev.
 
+The **Setup** wizard (integrations, pipelines, dashboards, ML) supports filtering, **Align with Services**, and session-persisted logs. **Dashboard uninstall** may be blocked on Elastic Serverless Kibana — see [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md).
+
 ## Build and preview
 
 ```bash

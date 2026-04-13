@@ -2,57 +2,61 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "southamerica-west1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "region": "europe-west2",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" },
     "service": { "name": "dataplex" }
   },
   "gcp": {
     "dataplex": {
-      "lake_name": "silver-lake",
-      "zone_name": "trusted",
-      "asset_name": "pubsub-events",
+      "lake_name": "bronze-lake",
+      "zone_name": "raw",
+      "asset_name": "gcs-clickstream",
       "action_type": "QUALITY",
-      "status": "SUCCEEDED",
-      "discovered_entities": 4921,
-      "quality_score_pct": 89.1
+      "status": "FAILED",
+      "discovered_entities": 1,
+      "quality_score_pct": 18.5
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 4281000000,
+    "outcome": "failure",
+    "duration": 39391000000,
     "module": "gcp",
     "dataset": "gcp.dataplex"
   },
-  "message": "Dataplex QUALITY: 4921 entities in silver-lake, quality 89.1%",
-  "log": { "level": "info" },
+  "message": "Dataplex QUALITY job failed for asset gcs-clickstream in bronze-lake/raw",
+  "log": { "level": "error" },
+  "error": {
+    "type": "JobFailed",
+    "message": "Data profiling worker could not read underlying BigQuery table"
+  },
   "service": { "name": "dataplex", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.dataplex", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-southamerica-west1",
-    "id": "deanf897t0n"
+    "name": "elastic-agent-gcp-europe-west2",
+    "id": "y84mo9ws6o"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-staging-d4e5f6/logs/dataplex",
+  "logName": "projects/globex-security-j0k1l2/logs/dataplex",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-staging-d4e5f6", "region": "southamerica-west1" }
+    "labels": { "project_id": "globex-security-j0k1l2", "region": "europe-west2" }
   },
-  "severity": "INFO",
-  "insertId": "CV7ZXZXJDCC",
+  "severity": "ERROR",
+  "insertId": "H0A2GHUNL9A",
   "jsonPayload": {
     "dataplex": {
-      "lake_name": "silver-lake",
-      "zone_name": "trusted",
-      "asset_name": "pubsub-events",
+      "lake_name": "bronze-lake",
+      "zone_name": "raw",
+      "asset_name": "gcs-clickstream",
       "action_type": "QUALITY",
-      "status": "SUCCEEDED",
-      "discovered_entities": 4921,
-      "quality_score_pct": 89.1
+      "status": "FAILED",
+      "discovered_entities": 1,
+      "quality_score_pct": 18.5
     },
-    "message": "Dataplex QUALITY: 4921 entities in silver-lake, quality 89.1%"
+    "message": "Dataplex QUALITY job failed for asset gcs-clickstream in bronze-lake/raw"
   }
 }
