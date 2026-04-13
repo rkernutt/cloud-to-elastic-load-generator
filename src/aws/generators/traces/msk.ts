@@ -64,7 +64,14 @@ type Downstream = "dynamodb" | "postgresql" | "http";
 
 const DOWNSTREAM_SHAPES: Record<
   Downstream,
-  { type: string; subtype: string; spanName: () => string; action: () => string; dest: string; db?: () => object }
+  {
+    type: string;
+    subtype: string;
+    spanName: () => string;
+    action: () => string;
+    dest: string;
+    db?: () => object;
+  }
 > = {
   dynamodb: {
     type: "db",

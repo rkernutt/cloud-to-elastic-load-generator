@@ -42,7 +42,9 @@ export function generateCloudFunctionsMetrics(ts: string, er: number): EcsDocume
       { function_name },
       {
         execution_count: counter(randInt(0, 500)),
-        execution_times_ms: stat(dp(isErr ? jitter(3000, 2000, 500, 10000) : jitter(250, 180, 10, 3000))),
+        execution_times_ms: stat(
+          dp(isErr ? jitter(3000, 2000, 500, 10000) : jitter(250, 180, 10, 3000))
+        ),
         memory_utilization: stat(dp(jitter(0.45, 0.3, 0, 1))),
         instance_count: counter(randInt(0, 50)),
         network_egress: counter(randInt(0, 5_000_000)),
@@ -67,7 +69,9 @@ export function generateCloudRunMetrics(ts: string, er: number): EcsDocument[] {
       { service_name },
       {
         request_count: counter(randInt(0, 2000)),
-        request_latencies_ms: stat(dp(isErr ? jitter(500, 400, 80, 5000) : jitter(80, 60, 5, 1000))),
+        request_latencies_ms: stat(
+          dp(isErr ? jitter(500, 400, 80, 5000) : jitter(80, 60, 5, 1000))
+        ),
         container_instance_count: counter(randInt(0, 20)),
         cpu_utilization: stat(dp(jitter(0.35, 0.25, 0, 1))),
         memory_utilization: stat(dp(jitter(0.5, 0.3, 0, 1))),

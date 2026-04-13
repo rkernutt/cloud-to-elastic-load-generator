@@ -82,8 +82,15 @@ export function generateSnsTrace(ts: string, er: number) {
   const isErr = Math.random() < er;
 
   const messageCount = cfg.operation === "PublishBatch" ? randInt(2, 10) : 1;
-  const subject = rand(["order.created", "payment.processed", "alert.triggered", "user.signup", "threshold.exceeded"]);
-  const messageGroupId = cfg.topicType === "fifo" ? `group-${rand(["a", "b", "c", "d"])}` : undefined;
+  const subject = rand([
+    "order.created",
+    "payment.processed",
+    "alert.triggered",
+    "user.signup",
+    "threshold.exceeded",
+  ]);
+  const messageGroupId =
+    cfg.topicType === "fifo" ? `group-${rand(["a", "b", "c", "d"])}` : undefined;
 
   const topicArn = `arn:aws:sns:${region}:${account.id}:${cfg.topicName}`;
 
@@ -95,7 +102,9 @@ export function generateSnsTrace(ts: string, er: number) {
   };
 
   // Error type: authorization error or throttling
-  const errorType = isErr ? rand(["AuthorizationError", "ThrottledException", "KMSAccessDeniedException"]) : undefined;
+  const errorType = isErr
+    ? rand(["AuthorizationError", "ThrottledException", "KMSAccessDeniedException"])
+    : undefined;
   if (isErr && errorType) {
     sharedLabels["error_type"] = errorType;
   }

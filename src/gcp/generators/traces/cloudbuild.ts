@@ -3,7 +3,15 @@
  */
 
 import type { EcsDocument } from "../helpers.js";
-import { rand, randInt, randId, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
+import {
+  rand,
+  randInt,
+  randId,
+  gcpCloud,
+  makeGcpSetup,
+  randTraceId,
+  randSpanId,
+} from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
 
 const APM_AGENT = { name: "opentelemetry/nodejs", version: "1.x" } as const;

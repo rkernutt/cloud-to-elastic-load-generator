@@ -19,7 +19,11 @@ import {
   generateDurableFunctionsOrchestrationTrace,
 } from "./workflow-chains.js";
 import { generateCosmosDbTrace, generateSqlDatabaseTrace } from "./databases.js";
-import { generateEventHubsTrace, generateKeyVaultTrace, generateLogicAppsTrace } from "./integration.js";
+import {
+  generateEventHubsTrace,
+  generateKeyVaultTrace,
+  generateLogicAppsTrace,
+} from "./integration.js";
 
 const AZURE_TRACE_GENERATORS: Record<
   string,

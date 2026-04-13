@@ -2,14 +2,7 @@
  * Dedicated log generators for Azure integration / messaging / analytics services.
  */
 
-import {
-  type EcsDocument,
-  rand,
-  randInt,
-  randId,
-  azureCloud,
-  makeAzureSetup,
-} from "./helpers.js";
+import { type EcsDocument, rand, randInt, randId, azureCloud, makeAzureSetup } from "./helpers.js";
 
 // ---------------------------------------------------------------------------
 // IoT Hub
@@ -50,15 +43,18 @@ export function generateIotHubLog(ts: string, er: number): EcsDocument {
 
 export function generateLogicAppsLog(ts: string, er: number): EcsDocument {
   const { region, subscription, resourceGroup, isErr } = makeAzureSetup(er);
-  const workflowName = rand(["order-processing", "approval-workflow", "notification-relay", "data-sync"]);
+  const workflowName = rand([
+    "order-processing",
+    "approval-workflow",
+    "notification-relay",
+    "data-sync",
+  ]);
   const workflowId = randId(32).toLowerCase();
   const runId = randId(16).toLowerCase();
   const actionName = rand(["ParseJSON", "SendEmail", "HttpRequest", "Condition", "ForEach"]);
   const actionType = rand(["ApiConnection", "Http", "ServiceProvider"] as const);
   const triggerName = rand(["manual", "recurrence", "http", "serviceBusTrigger"]);
-  const status = isErr
-    ? rand(["Failed", "Skipped"] as const)
-    : "Succeeded";
+  const status = isErr ? rand(["Failed", "Skipped"] as const) : "Succeeded";
   const durationMs = randInt(isErr ? 500 : 20, isErr ? 60_000 : 8_000);
   return {
     "@timestamp": ts,
@@ -94,7 +90,9 @@ export function generateApiManagementLog(ts: string, er: number): EcsDocument {
   const operationId = rand(["getOrders", "createUser", "processPayment", "listItems"]);
   const method = rand(["GET", "POST", "PUT", "DELETE"]);
   const url = `https://${serviceName}.azure-api.net/${apiId}/${operationId.toLowerCase()}`;
-  const responseCode = isErr ? rand([400, 401, 403, 429, 500, 502, 503]) : rand([200, 200, 200, 201, 204]);
+  const responseCode = isErr
+    ? rand([400, 401, 403, 429, 500, 502, 503])
+    : rand([200, 200, 200, 201, 204]);
   const backendResponseTimeMs = randInt(isErr ? 100 : 5, isErr ? 30_000 : 2_000);
   const cache = rand(["hit", "miss", "none"] as const);
   const subscriptionName = rand(["gold-tier", "silver-tier", "developer", "internal"]);
@@ -128,7 +126,12 @@ export function generateApiManagementLog(ts: string, er: number): EcsDocument {
 
 export function generateEventGridLog(ts: string, er: number): EcsDocument {
   const { region, subscription, resourceGroup, isErr } = makeAzureSetup(er);
-  const topicName = rand(["blob-events", "custom-topic-prod", "domain-events", "system-topic-storage"]);
+  const topicName = rand([
+    "blob-events",
+    "custom-topic-prod",
+    "domain-events",
+    "system-topic-storage",
+  ]);
   const subject = rand([
     "/blobServices/default/containers/data/blobs/file.csv",
     "/subscriptions/events/resource/created",
@@ -142,9 +145,7 @@ export function generateEventGridLog(ts: string, er: number): EcsDocument {
     "custom.app.eventPublished",
   ]);
   const deliveryCount = isErr ? randInt(3, 30) : randInt(1, 3);
-  const deliveryStatus = isErr
-    ? rand(["Failed", "Dropped"] as const)
-    : "Delivered";
+  const deliveryStatus = isErr ? rand(["Failed", "Dropped"] as const) : "Delivered";
   const subscriptionName = rand(["sub-function-handler", "sub-logic-app", "sub-webhook"]);
   return {
     "@timestamp": ts,

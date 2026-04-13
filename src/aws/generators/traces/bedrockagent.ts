@@ -150,7 +150,11 @@ export function generateBedrockAgentTrace(ts: string, er: number) {
   };
 
   if (isErr) {
-    sharedLabels["gen_ai_error"] = rand(["ThrottlingException", "ModelTimeoutException", "ActionGroupInvocationException"]);
+    sharedLabels["gen_ai_error"] = rand([
+      "ThrottlingException",
+      "ModelTimeoutException",
+      "ActionGroupInvocationException",
+    ]);
   }
 
   const svcBlock = serviceBlock(

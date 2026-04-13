@@ -268,9 +268,7 @@ export function generateSqlDatabaseTrace(ts: string, er: number): EcsDocument[] 
       agent: APM_AGENT,
       data_stream: APM_DS,
       event: {
-        outcome: failUpdate
-          ? "failure"
-          : "success",
+        outcome: failUpdate ? "failure" : "success",
       },
     };
     docs.push(spanUpdate);

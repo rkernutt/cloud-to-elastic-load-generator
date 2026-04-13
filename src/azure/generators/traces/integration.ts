@@ -69,9 +69,7 @@ export function generateEventHubsTrace(ts: string, er: number): EcsDocument[] {
     agent: APM_AGENT,
     data_stream: APM_DS,
     event: {
-      outcome: failOnSpan === 0
-        ? "failure"
-        : "success",
+      outcome: failOnSpan === 0 ? "failure" : "success",
     },
     azure: { trace: { entity_path: topic } },
   };
@@ -96,9 +94,7 @@ export function generateEventHubsTrace(ts: string, er: number): EcsDocument[] {
     agent: APM_AGENT,
     data_stream: APM_DS,
     event: {
-      outcome: failOnSpan === 1
-        ? "failure"
-        : "success",
+      outcome: failOnSpan === 1 ? "failure" : "success",
     },
     azure: { trace: { entity_path: `${topic}/ConsumerGroups/$Default/Partitions/${partition}` } },
   };
@@ -174,9 +170,7 @@ export function generateKeyVaultTrace(ts: string, er: number): EcsDocument[] {
     agent: APM_AGENT,
     data_stream: APM_DS,
     event: {
-      outcome: failOnSpan === 0
-        ? "failure"
-        : "success",
+      outcome: failOnSpan === 0 ? "failure" : "success",
     },
   };
   ms += Math.max(1, Math.round(kvUs / 1000));
@@ -206,9 +200,7 @@ export function generateKeyVaultTrace(ts: string, er: number): EcsDocument[] {
       agent: APM_AGENT,
       data_stream: APM_DS,
       event: {
-        outcome: failOnSpan === 1
-          ? "failure"
-          : "success",
+        outcome: failOnSpan === 1 ? "failure" : "success",
       },
     };
     docs.push(spanDown);

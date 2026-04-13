@@ -61,7 +61,14 @@ type Destination = "s3" | "redshift" | "opensearch";
 
 const DESTINATION_SHAPES: Record<
   Destination,
-  { type: string; subtype: string; spanName: string; action: string; dest: string; db?: () => object }
+  {
+    type: string;
+    subtype: string;
+    spanName: string;
+    action: string;
+    dest: string;
+    db?: () => object;
+  }
 > = {
   s3: {
     type: "storage",

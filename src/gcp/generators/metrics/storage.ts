@@ -3,12 +3,7 @@
  */
 
 import { GCP_METRICS_DATASET_MAP } from "../../data/elasticMaps.js";
-import {
-  randInt,
-  counter,
-  gcpMetricDoc,
-  pickGcpCloudContext,
-} from "./helpers.js";
+import { randInt, counter, gcpMetricDoc, pickGcpCloudContext } from "./helpers.js";
 import { rand } from "../helpers.js";
 import type { EcsDocument } from "../../../aws/generators/types.js";
 

@@ -9,17 +9,9 @@ import { offsetTs } from "../../../aws/generators/traces/helpers.js";
 const APM_AGENT = { name: "opentelemetry/nodejs", version: "1.x" } as const;
 const APM_DS = { type: "traces", dataset: "apm", namespace: "default" } as const;
 
-const GEMINI_OPERATIONS = [
-  "generateContent",
-  "streamGenerateContent",
-  "embedContent",
-] as const;
+const GEMINI_OPERATIONS = ["generateContent", "streamGenerateContent", "embedContent"] as const;
 
-const GEMINI_MODELS = [
-  "gemini-2.0-flash",
-  "gemini-1.5-pro",
-  "gemini-1.0-ultra",
-] as const;
+const GEMINI_MODELS = ["gemini-2.0-flash", "gemini-1.5-pro", "gemini-1.0-ultra"] as const;
 
 const CONTEXT_BUCKETS = ["rag-corpus-prod", "knowledge-base-v2", "embeddings-store"];
 
@@ -110,8 +102,7 @@ export function generateGeminiTrace(ts: string, er: number): EcsDocument[] {
   // Span: Gemini model call
   const promptTokens = randInt(50, 4096);
   const completionTokens = isErr ? 0 : randInt(10, 2048);
-  const modelUs =
-    randInt(200_000, 3_000_000) * (isErr ? randInt(2, 5) : 1);
+  const modelUs = randInt(200_000, 3_000_000) * (isErr ? randInt(2, 5) : 1);
   const sModel = randSpanId();
   totalUs += modelUs;
   spanDocs.push({
