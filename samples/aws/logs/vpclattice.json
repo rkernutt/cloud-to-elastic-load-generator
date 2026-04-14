@@ -1,55 +1,52 @@
 {
-  "@timestamp": "2026-04-13T16:49:56.865Z",
+  "@timestamp": "2026-04-14T08:24:23.219Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-southeast-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "vpclattice" }
   },
   "aws": {
-    "dimensions": {
-      "ServiceName": "inventory-svc",
-      "ServiceNetworkName": "shared-services-network"
-    },
+    "dimensions": { "ServiceName": "payment-svc", "ServiceNetworkName": "prod-service-network" },
     "vpclattice": {
-      "service_name": "inventory-svc",
-      "service_arn": "arn:aws:vpc-lattice:eu-central-2:164820739518:service/inventory-svc-o6q35ju2",
-      "service_network_name": "shared-services-network",
-      "target_group_id": "tg-v53ka7qu79",
-      "source_vpc_id": "vpc-l1kcok2l",
-      "destination_vpc_id": "vpc-rsvmcql0",
+      "service_name": "payment-svc",
+      "service_arn": "arn:aws:vpc-lattice:ap-southeast-1:814726593401:service/payment-svc-lbg8tho4",
+      "service_network_name": "prod-service-network",
+      "target_group_id": "tg-n2xunoqw2e",
+      "source_vpc_id": "vpc-v9dpw7ir",
+      "destination_vpc_id": "vpc-s78zk4hm",
       "request_method": "DELETE",
-      "response_code": 201,
-      "response_time_ms": 351,
-      "bytes_received": 43212,
-      "bytes_sent": 29794,
-      "tls_cipher_suite": "TLS_AES_128_GCM_SHA256"
+      "response_code": 204,
+      "response_time_ms": 83,
+      "bytes_received": 61426,
+      "bytes_sent": 130766,
+      "tls_cipher_suite": "TLS_AES_256_GCM_SHA384"
     },
     "s3": {
       "bucket": {
-        "name": "aws-vpclattice-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-vpclattice-logs-164820739518"
+        "name": "aws-vpclattice-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-vpclattice-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/vpclattice/eu-central-2/2026/04/13/vpclattice_FVFR1L0UWVI.log.gz"
+        "key": "AWSLogs/814726593401/vpclattice/ap-southeast-1/2026/04/14/vpclattice_ABDXZZFCNY4.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/vpclattice/logs",
-      "log_stream": "eu-central-2/x41zyidc",
-      "ingestion_time": "2026-04-13T16:49:57.232Z"
+      "log_stream": "ap-southeast-1/03q5meyr",
+      "ingestion_time": "2026-04-14T08:24:23.559Z"
     }
   },
   "event": {
-    "action": "ForwardRule",
+    "action": "ServiceAssociation",
     "outcome": "success",
     "category": ["network"],
     "dataset": "aws.vpclattice",
     "provider": "vpc-lattice.amazonaws.com",
-    "duration": 351000000,
+    "duration": 83000000,
     "module": "aws"
   },
-  "message": "VPC Lattice inventory-svc: DELETE 201 351ms",
+  "message": "VPC Lattice payment-svc: DELETE 204 83ms",
   "log": { "level": "info" },
   "service": { "name": "vpclattice", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -57,8 +54,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "wmd354pyp4r"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "ntrpre6m8v"
   },
   "input": { "type": "aws-cloudwatch" }
 }

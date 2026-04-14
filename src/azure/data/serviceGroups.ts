@@ -34,6 +34,24 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
       { id: "batch", label: "Batch", icon: "≡", desc: "Batch job logs" },
       { id: "compute-gallery", label: "Compute Gallery", icon: "◫", desc: "Image versions" },
       { id: "image-builder", label: "Image Builder", icon: "◧", desc: "Image pipeline" },
+      {
+        id: "dedicated-host",
+        label: "Dedicated Host",
+        icon: "▣",
+        desc: "Dedicated host platform events",
+      },
+      {
+        id: "proximity-placement",
+        label: "Proximity Placement Groups",
+        icon: "⊕",
+        desc: "PPG placement and capacity",
+      },
+      {
+        id: "confidential-vm",
+        label: "Confidential VMs",
+        icon: "🔐",
+        desc: "Confidential computing VM logs",
+      },
     ],
   },
   {
@@ -81,6 +99,12 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
         label: "Azure Front Door",
         icon: "◈",
         desc: "Edge + CDN-style access logs (random blend with classic CDN)",
+      },
+      {
+        id: "cdn",
+        label: "Azure CDN",
+        icon: "\u25CC",
+        desc: "Classic CDN (Microsoft.Cdn) resource logs",
       },
       { id: "expressroute-circuit", label: "ExpressRoute", icon: "∞", desc: "Private circuit" },
       { id: "expressroute-gateway", label: "ExpressRoute Gateway", icon: "⎘", desc: "Gateway BGP" },

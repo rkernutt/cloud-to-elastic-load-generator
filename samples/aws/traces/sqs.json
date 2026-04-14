@@ -1,26 +1,26 @@
 {
-  "@timestamp": "2026-04-13T16:49:56.865Z",
+  "@timestamp": "2026-04-14T08:24:23.219Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "cb7d679331f28d287973698496f34b26" },
+  "trace": { "id": "598cd1ba64341c24a81d4387297dacf1" },
   "transaction": {
-    "id": "0377e7b934edc205",
-    "name": "order-queue.fifo process",
+    "id": "15233cd32edcd0e9",
+    "name": "order-queue-dlq.fifo process",
     "type": "messaging",
-    "duration": { "us": 1252000 },
+    "duration": { "us": 1963000 },
     "result": "success",
     "sampled": true,
     "span_count": { "started": 2, "dropped": 0 }
   },
   "labels": {
-    "queue_name": "order-queue.fifo",
-    "queue_url": "https://sqs.us-east-2.amazonaws.com/123456789012/order-queue.fifo",
-    "message_count": "4",
-    "approximate_first_receive_delay_seconds": "20",
-    "parent_trace_id": "371a5a21196f2fd2d44456782d68eebb"
+    "queue_name": "order-queue-dlq.fifo",
+    "queue_url": "https://sqs.us-west-2.amazonaws.com/345678901234/order-queue-dlq.fifo",
+    "message_count": "10",
+    "approximate_first_receive_delay_seconds": "69",
+    "parent_trace_id": "26967d219de189b2871f4ebcec71222d"
   },
   "service": {
-    "name": "order-queue-consumer",
-    "environment": "production",
+    "name": "dead-letter-processor",
+    "environment": "dev",
     "version": "1.0.0",
     "language": { "name": "python" },
     "runtime": { "name": "python3.12", "version": "3.12.1" },
@@ -38,8 +38,8 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "123456789012", "name": "prod-aws" },
+    "region": "us-west-2",
+    "account": { "id": "345678901234", "name": "dev-aws" },
     "service": { "name": "sqs" }
   },
   "event": { "outcome": "success", "module": "aws", "dataset": "aws.sqs" },

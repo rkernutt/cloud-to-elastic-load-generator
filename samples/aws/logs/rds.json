@@ -1,47 +1,82 @@
 {
-  "@timestamp": "2026-04-13T16:49:56.865Z",
+  "@timestamp": "2026-04-14T08:24:23.219Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
+    "region": "us-west-1",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
-    "service": { "name": "rds-proxy" }
+    "service": { "name": "rds" }
   },
   "aws": {
-    "rdsproxy": {
-      "proxy_name": "read-proxy",
-      "target_group": "writer",
-      "db_user": "admin",
-      "connection_id": 56321,
-      "action": "FailoverTarget",
-      "active_connections": 58,
-      "max_connections": 200,
-      "borrow_timeout_ms": 480,
-      "client_connections": 267
+    "dimensions": {
+      "DBInstanceIdentifier": "prod-db-analytics",
+      "DatabaseClass": "db.t3.medium",
+      "EngineName": "aurora-mysql",
+      "SourceRegion": "us-west-1"
+    },
+    "rds": {
+      "db_instance": {
+        "identifier": "prod-db-analytics",
+        "class": "db.r5.large",
+        "engine_name": "aurora-mysql",
+        "arn": "arn:aws:rds:us-west-1:501938274650:db:prod-db-analytics",
+        "status": "available",
+        "role": "instance"
+      },
+      "cpu": { "total": { "pct": 0.4367 } },
+      "freeable_memory": { "bytes": 3404247742 },
+      "free_storage": { "bytes": 89469722814 },
+      "database_connections": 491,
+      "read_io": { "ops_per_sec": 1514.9071242449118 },
+      "write_io": { "ops_per_sec": 2706.814031186182 },
+      "latency": { "read": 0.01615927407326677, "write": 0.009754205398964585 },
+      "throughput": {
+        "read": 90531394,
+        "write": 1777344,
+        "network_receive": 82298315,
+        "network_transmit": 12521581
+      },
+      "replica_lag": { "sec": 13.178036507334978 },
+      "swap_usage": { "bytes": 36170999 },
+      "disk_usage": { "bin_log": { "bytes": 301333569 } }
     },
     "s3": {
       "bucket": {
         "name": "aws-rds-logs-501938274650",
         "arn": "arn:aws:s3:::aws-rds-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/501938274650/rds/us-west-2/2026/04/13/rds_QI70VNH0GV.log.gz" }
+      "object": { "key": "AWSLogs/501938274650/rds/us-west-1/2026/04/14/rds_5BZ3Y9C39QL.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/rds/logs",
-      "log_stream": "us-west-2/usjnyuqa",
-      "ingestion_time": "2026-04-13T16:49:57.186Z"
+      "log_stream": "us-west-1/8ob9c60m",
+      "ingestion_time": "2026-04-14T08:24:23.515Z"
     }
   },
-  "event": { "outcome": "success", "duration": 2608532, "module": "aws", "dataset": "aws.rds" },
-  "message": "RDS Proxy read-proxy: FailoverTarget on writer (conn 56321)",
-  "service": { "name": "rds", "type": "aws" },
+  "db": {
+    "user": { "name": "replica" },
+    "name": "appdb",
+    "statement": "INSERT INTO orders VALUES J586TG",
+    "type": "sql"
+  },
+  "event": {
+    "duration": 1861741119.5900023,
+    "outcome": "success",
+    "category": ["database"],
+    "type": ["info", "access"],
+    "dataset": "aws.rds",
+    "provider": "rds.amazonaws.com",
+    "module": "aws"
+  },
+  "message": "{\"instanceId\":\"prod-db-analytics\",\"engine\":\"aurora-mysql\",\"userId\":\"replica\",\"queryTime\":1.8617411195900022,\"error\":null,\"timestamp\":\"2026-04-14T08:24:23.219Z\",\"osMetrics\":{\"cpuUtilization\":{\"guest\":0.8166620572594587,\"irq\":0.5793625768396896,\"system\":0.6531916546031418,\"wait\":3.3820898769057326,\"idle\":58.8,\"user\":35.74298199830402,\"total\":41.2},\"memory\":{\"total\":50529864510,\"free\":4209953595,\"cached\":4950902469,\"active\":8573811513,\"inactive\":2594347651,\"buffers\":102815057},\"disk\":{\"readIOsPS\":1792.0779433814016,\"writeIOsPS\":2867.144267504191,\"readKbPS\":274007.6230224114,\"writeKbPS\":172909.00703998902,\"avgQueueLen\":3.8285919650097338,\"await\":19.41957518080325},\"network\":{\"rx\":71802070,\"tx\":82787312},\"numVCPUs\":64,\"uptime\":\"20 days, 16:05:08\"}}",
   "log": { "level": "info" },
+  "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "q5hzsb6fnu"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "0ja45ur9g1vb"
   },
   "input": { "type": "aws-cloudwatch" }
 }

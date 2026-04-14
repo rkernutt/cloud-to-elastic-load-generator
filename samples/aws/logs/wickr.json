@@ -1,54 +1,58 @@
 {
-  "@timestamp": "2026-04-13T16:49:56.865Z",
+  "@timestamp": "2026-04-14T08:24:23.219Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-west-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "wickr" }
   },
   "aws": {
-    "dimensions": { "NetworkId": "wickr-a6ex3xdt", "RoomId": "room-82zyjl71" },
+    "dimensions": { "NetworkId": "wickr-gx1pzdhx", "RoomId": "room-9dvuc6r8" },
     "wickr": {
-      "network_id": "wickr-a6ex3xdt",
-      "room_id": "room-82zyjl71",
+      "network_id": "wickr-gx1pzdhx",
+      "room_id": "room-9dvuc6r8",
       "message_type": "text",
       "retention_policy": "30d",
-      "metrics": { "messages_sent": 9429, "active_users": 407, "files_shared": 41 }
+      "metrics": { "messages_sent": 0, "active_users": 423, "files_shared": 0 },
+      "error_code": "ComplianceExportFailed"
     },
     "s3": {
       "bucket": {
-        "name": "aws-wickr-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-wickr-logs-293847561023"
+        "name": "aws-wickr-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-wickr-logs-164820739518"
       },
-      "object": {
-        "key": "AWSLogs/293847561023/wickr/ca-central-1/2026/04/13/wickr_4N251VPI7IM.log.gz"
-      }
+      "object": { "key": "AWSLogs/164820739518/wickr/us-west-1/2026/04/14/wickr_6V4UJSJ773.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/wickr/logs",
-      "log_stream": "ca-central-1/72eyobsj",
-      "ingestion_time": "2026-04-13T16:49:57.397Z"
+      "log_stream": "us-west-1/yregha2w",
+      "ingestion_time": "2026-04-14T08:24:23.715Z"
     }
   },
-  "user": { "name": "carol.white" },
+  "user": { "name": "bob.jones" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["authentication"],
     "dataset": "aws.wickr",
     "provider": "wickr.amazonaws.com",
-    "duration": 108000000,
+    "duration": 33000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.wickr", "namespace": "default" },
-  "message": "Wickr network wickr-a6ex3xdt: 9429 messages sent, 407 active users",
-  "log": { "level": "info" },
+  "message": "Wickr network wickr-gx1pzdhx: ComplianceExportFailed for user bob.jones",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ComplianceExportFailed",
+    "message": "Wickr compliance event in network wickr-gx1pzdhx",
+    "type": "authentication"
+  },
   "service": { "name": "wickr", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "vkxdpm5oqqd"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "m4zgtix88q"
   },
   "input": { "type": "aws-cloudwatch" }
 }

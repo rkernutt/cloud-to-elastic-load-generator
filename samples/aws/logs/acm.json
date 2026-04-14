@@ -1,52 +1,57 @@
 {
-  "@timestamp": "2026-04-13T16:49:56.865Z",
+  "@timestamp": "2026-04-14T08:24:23.219Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ca-west-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "acm" }
   },
   "aws": {
     "acm": {
-      "certificate_arn": "arn:aws:acm:ca-central-1:814726593401:certificate/w6nruse5-vx72",
-      "domain_name": "www.example.com",
-      "status": "PENDING_VALIDATION",
+      "certificate_arn": "arn:aws:acm:ca-west-1:501938274650:certificate/213nw0xt-kv4p",
+      "domain_name": "*.example.com",
+      "status": "FAILED",
       "type": "AMAZON_ISSUED",
-      "days_to_expiry": 144,
+      "days_to_expiry": -23,
       "key_algorithm": "EC_prime256v1",
       "validation_method": "DNS",
-      "renewal_status": "SUCCESS"
+      "renewal_status": "FAILED"
     },
     "s3": {
       "bucket": {
-        "name": "aws-acm-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-acm-logs-814726593401"
+        "name": "aws-acm-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-acm-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/814726593401/acm/ca-central-1/2026/04/13/acm_VVDFYNNF6E.log.gz" }
+      "object": { "key": "AWSLogs/501938274650/acm/ca-west-1/2026/04/14/acm_K0330ETNSK.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/acm/logs",
-      "log_stream": "ca-central-1/d0tp53uw",
-      "ingestion_time": "2026-04-13T16:49:57.250Z"
+      "log_stream": "ca-west-1/cqv88646",
+      "ingestion_time": "2026-04-14T08:24:23.575Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": "network",
     "dataset": "aws.acm",
     "provider": "acm.amazonaws.com",
     "module": "aws"
   },
-  "message": "ACM certificate for www.example.com: PENDING_VALIDATION, 144d remaining",
-  "log": { "level": "info" },
+  "message": "ACM certificate for *.example.com: FAILED (expired 23d ago)",
+  "log": { "level": "error" },
+  "error": {
+    "code": "FAILED",
+    "message": "Certificate *.example.com: FAILED",
+    "type": "certificate"
+  },
   "service": { "name": "acm", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.acm", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "icchwcosrbn"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "qcbvn45b8h"
   },
   "input": { "type": "aws-cloudwatch" }
 }

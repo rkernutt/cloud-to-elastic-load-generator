@@ -1,31 +1,30 @@
 {
-  "@timestamp": "2026-04-13T16:49:56.865Z",
+  "@timestamp": "2026-04-14T08:24:23.219Z",
   "cloud": {
     "provider": "aws",
     "region": "il-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "ses" }
   },
   "aws": {
     "dimensions": {
-      "ses:configuration-set": "alerts",
-      "ses:from-domain": "company.com",
-      "ses:to-country": "FR",
-      "ses:to-isp": "AOL"
+      "ses:configuration-set": "default",
+      "ses:from-domain": "app.io",
+      "ses:to-country": "AU",
+      "ses:to-isp": "Gmail"
     },
     "ses": {
-      "message_id": "papm462x7pa.6w4tc3gu75@il-central-1.amazonses.com",
-      "event_type": "RenderingFailure",
-      "from_address": "alerts@company.com",
-      "destination": "user_ab2hyy@gmail.com",
-      "configuration_set": "alerts",
+      "message_id": "41ywy86kh0g.0bziphexlv@il-central-1.amazonses.com",
+      "event_type": "Reject",
+      "from_address": "no-reply@app.io",
+      "destination": "user_ri95h8@company.org",
       "bounce": {},
       "complaint": {},
-      "sending_account_id": "501938274650",
+      "sending_account_id": "164820739518",
       "delivery": {
-        "recipients": ["user_ab2hyy@gmail.com"],
-        "timestamp": "2026-04-13T16:49:56.865Z",
-        "processing_time_ms": 1171,
+        "recipients": ["user_ri95h8@company.org"],
+        "timestamp": "2026-04-14T08:24:23.219Z",
+        "processing_time_ms": 821,
         "smtp_response": "250 2.0.0 OK"
       },
       "metrics": {
@@ -35,34 +34,35 @@
         "Complaint": { "sum": 0 },
         "Reject": { "sum": 0 },
         "Open": { "sum": 0 },
-        "Click": { "sum": 1 },
+        "Click": { "sum": 0 },
         "RenderingFailure": { "sum": 0 },
         "DeliveryDelay": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-ses-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-ses-logs-501938274650"
+        "name": "aws-ses-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-ses-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/501938274650/ses/il-central-1/2026/04/13/ses_DOODU0T4A6S.log.gz" }
+      "object": { "key": "AWSLogs/164820739518/ses/il-central-1/2026/04/14/ses_PT8E5R487AL.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/ses/logs",
-      "log_stream": "il-central-1/ene9cjns",
-      "ingestion_time": "2026-04-13T16:49:57.398Z"
+      "log_stream": "il-central-1/0c0j1m07",
+      "ingestion_time": "2026-04-14T08:24:23.716Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["email", "process"],
     "dataset": "aws.ses",
     "provider": "email.amazonaws.com",
-    "duration": 134000000,
+    "duration": 674000000,
     "module": "aws"
   },
-  "message": "SES RenderingFailure: alerts@company.com -> user_ab2hyy@gmail.com",
-  "log": { "level": "info" },
+  "message": "SES Reject: no-reply@app.io -> user_ri95h8@company.org",
+  "log": { "level": "warn" },
+  "error": { "code": "SESDeliveryFailure", "message": "SES delivery failed", "type": "email" },
   "service": { "name": "ses", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.ses", "namespace": "default" },
@@ -70,7 +70,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "7vqc1xaahs"
+    "ephemeral_id": "v040d6707qp"
   },
   "input": { "type": "aws-cloudwatch" }
 }

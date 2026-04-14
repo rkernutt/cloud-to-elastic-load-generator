@@ -189,7 +189,7 @@ export const PIPELINE_REGISTRY = [
   {
     id: "logs-azure.cdn-default",
     dataset: "azure.cdn",
-    group: "misc",
+    group: "networking",
     description: "Parse JSON from message for azure.cdn (cdn)",
     processors: [
       { json: { field: "message", target_field: "azure.parsed", ignore_failure: true } },
@@ -235,7 +235,7 @@ export const PIPELINE_REGISTRY = [
   {
     id: "logs-azure.confidential_vm-default",
     dataset: "azure.confidential_vm",
-    group: "misc",
+    group: "compute",
     description: "Parse JSON from message for azure.confidential_vm (confidential-vm)",
     processors: [
       { json: { field: "message", target_field: "azure.parsed", ignore_failure: true } },
@@ -334,7 +334,7 @@ export const PIPELINE_REGISTRY = [
   {
     id: "logs-azure.dedicated_host-default",
     dataset: "azure.dedicated_host",
-    group: "misc",
+    group: "compute",
     description: "Parse JSON from message for azure.dedicated_host (dedicated-host)",
     processors: [
       { json: { field: "message", target_field: "azure.parsed", ignore_failure: true } },
@@ -804,7 +804,7 @@ export const PIPELINE_REGISTRY = [
   {
     id: "logs-azure.proximity_placement_groups-default",
     dataset: "azure.proximity_placement_groups",
-    group: "misc",
+    group: "compute",
     description:
       "Parse JSON from message for azure.proximity_placement_groups (proximity-placement)",
     processors: [

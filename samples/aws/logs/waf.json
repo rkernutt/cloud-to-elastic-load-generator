@@ -1,33 +1,48 @@
 {
-  "@timestamp": "2026-04-13T16:49:56.865Z",
+  "@timestamp": "2026-04-14T08:24:23.219Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
+    "region": "ap-northeast-3",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "waf" }
   },
   "aws": {
-    "dimensions": { "WebACL": "prod-waf", "Rule": "GeoBlockRule", "Region": "eu-west-2" },
+    "dimensions": {
+      "WebACL": "api-waf",
+      "Rule": "AWSManagedRulesUnixRuleSet",
+      "Region": "ap-northeast-3"
+    },
     "waf": {
-      "id": "gx2g1odftip",
-      "arn": "arn:aws:wafv2:eu-west-2:501938274650:regional/webacl/prod-waf/k4fjbomb-fb9m-euh9-4e4v-hfdhgm8mwcs",
+      "id": "pc4stthfom",
+      "arn": "arn:aws:wafv2:ap-northeast-3:501938274650:regional/webacl/api-waf/5z01i5mw-kdmb-dba2-culh-7sima28v6wg",
       "format_version": "1",
-      "source": { "name": "ALB", "id": "501938274650-app/prod-waf/sgfq9xj5or" },
-      "rule_group_list": [{ "ruleGroupId": "GeoBlockRule", "nonTerminatingMatchingRules": [] }],
+      "source": { "name": "ALB", "id": "501938274650-app/api-waf/qcaprf8l73n" },
+      "rule_group_list": [
+        {
+          "ruleGroupId": "AWSManagedRulesUnixRuleSet",
+          "terminatingRule": {
+            "action": "BLOCK",
+            "ruleId": "AWSManagedRulesUnixRuleSet",
+            "ruleMatchDetails": []
+          },
+          "nonTerminatingMatchingRules": []
+        }
+      ],
       "non_terminating_matching_rules": [],
       "terminating_rule_match_details": [],
       "request": {
         "headers": [
-          { "name": "User-Agent", "value": "Go-http-client/1.1" },
+          { "name": "User-Agent", "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
           { "name": "Host", "value": "api.example.com" }
         ]
       },
-      "labels": [],
+      "labels": [{ "name": "awswaf:managed:aws:awsmanagedrulesunixruleset" }],
+      "response_code_sent": 403,
       "metrics": {
-        "AllowedRequests": { "sum": 1 },
-        "BlockedRequests": { "sum": 0 },
+        "AllowedRequests": { "sum": 0 },
+        "BlockedRequests": { "sum": 1 },
         "CountedRequests": { "sum": 0 },
-        "PassedRequests": { "sum": 1 },
+        "PassedRequests": { "sum": 0 },
         "RequestsWithValidCaptchaToken": { "sum": 0 },
         "ChallengeRequests": { "sum": 0 },
         "FailedCaptcha": { "sum": 0 }
@@ -38,55 +53,62 @@
         "name": "aws-waf-logs-501938274650",
         "arn": "arn:aws:s3:::aws-waf-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/501938274650/waf/eu-west-2/2026/04/13/waf_QQPNK3U0ZZQ.log.gz" }
+      "object": {
+        "key": "AWSLogs/501938274650/waf/ap-northeast-3/2026/04/14/waf_YOLTXTZ86B9.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/waf/logs",
-      "log_stream": "eu-west-2/93yukw72",
-      "ingestion_time": "2026-04-13T16:49:57.213Z"
+      "log_stream": "ap-northeast-3/awxpqvrp",
+      "ingestion_time": "2026-04-14T08:24:23.541Z"
     }
   },
-  "rule": { "id": "GeoBlockRule", "ruleset": "GeoBlockRule" },
-  "http": { "request": { "method": "POST", "bytes": 6915 } },
-  "url": { "path": "/api/v1/orders" },
+  "rule": { "id": "SizeRestrictions_BODY", "ruleset": "AWSManagedRulesUnixRuleSet" },
+  "http": { "request": { "method": "PATCH", "bytes": 514 } },
+  "url": { "path": "/api/v1/search" },
   "source": {
-    "ip": "253.233.214.188",
+    "ip": "217.120.222.177",
     "geo": {
-      "country_iso_code": "RU",
-      "country_name": "Russia",
-      "city_name": "Moscow",
-      "location": { "lat": 55.7558, "lon": 37.6173 }
+      "country_iso_code": "BR",
+      "country_name": "Brazil",
+      "city_name": "São Paulo",
+      "location": { "lat": -23.5505, "lon": -46.6333 }
     }
   },
   "client": {
-    "ip": "253.233.214.188",
+    "ip": "217.120.222.177",
     "geo": {
-      "country_iso_code": "RU",
-      "country_name": "Russia",
-      "city_name": "Moscow",
-      "location": { "lat": 55.7558, "lon": 37.6173 }
+      "country_iso_code": "BR",
+      "country_name": "Brazil",
+      "city_name": "São Paulo",
+      "location": { "lat": -23.5505, "lon": -46.6333 }
     }
   },
-  "user_agent": { "original": "Go-http-client/1.1" },
+  "user_agent": { "original": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
   "event": {
-    "action": "allow",
-    "outcome": "success",
+    "action": "block",
+    "outcome": "failure",
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
-    "duration": 3000000,
+    "duration": 26000000,
     "module": "aws"
   },
-  "message": "WAF ALLOWED request - Rule: GeoBlockRule",
-  "log": { "level": "info" },
+  "message": "WAF BLOCKED request - Rule: AWSManagedRulesUnixRuleSet",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "WAFBlock",
+    "message": "Request blocked by rule: AWSManagedRulesUnixRuleSet",
+    "type": "security"
+  },
   "service": { "name": "waf", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.waf", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "3ez4hihrhqa"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "70z9mol6k3l"
   },
   "input": { "type": "aws-s3" }
 }

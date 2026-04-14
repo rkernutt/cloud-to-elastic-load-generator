@@ -9,6 +9,7 @@ export default tseslint.config(
   {
     ignores: [
       ".claude/**",
+      ".vite/**",
       "dist/**",
       "node_modules/**",
       "public/aws-icons/**",

@@ -1,73 +1,103 @@
 {
-  "@timestamp": "2026-04-13T16:49:56.865Z",
+  "@timestamp": "2026-04-14T08:24:23.219Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-southeast-4",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "kuk8em2q1yo" },
+    "dimensions": { "DetectorId": "6lej29dh92u" },
     "guardduty": {
       "schema_version": "2.0",
-      "account_id": "738291046572",
-      "region": "eu-central-1",
+      "account_id": "293847561023",
+      "region": "ap-southeast-4",
       "partition": "aws",
-      "id": "ljtrrerzqip",
-      "arn": "arn:aws:guardduty:eu-central-1:738291046572:detector/kuk8em2q1yo/finding/ljtrrerzqip",
-      "type": "UnauthorizedAccess:IAMUser/MaliciousIPCaller.Custom",
-      "title": "IAMUser MaliciousIPCaller Custom",
-      "description": "Routine check completed.",
-      "created_at": "2026-04-13T16:49:56.865Z",
-      "updated_at": "2026-04-13T16:49:56.865Z",
-      "severity": { "code": 0, "value": "Informational" },
-      "confidence": 97.59748281352317,
-      "resource": { "type": "S3Bucket" },
-      "service": { "detector_id": "kuk8em2q1yo", "count": 183, "archived": false },
+      "id": "584kjhdmbg",
+      "arn": "arn:aws:guardduty:ap-southeast-4:293847561023:detector/6lej29dh92u/finding/584kjhdmbg",
+      "type": "InitialAccess:IAMUser/AnomalousBehavior",
+      "title": "IAMUser AnomalousBehavior",
+      "description": "GuardDuty detected suspicious activity: InitialAccess:IAMUser/AnomalousBehavior",
+      "created_at": "2026-04-14T08:24:23.219Z",
+      "updated_at": "2026-04-14T08:24:23.219Z",
+      "severity": { "code": 4, "value": "Medium" },
+      "confidence": 66.91026946640606,
+      "resource": {
+        "type": "Instance",
+        "instance_details": {
+          "availability_zone": "ap-southeast-4c",
+          "instance": { "id": "i-ue9yati8mk", "type": "t3.medium", "state": "running" },
+          "image": { "id": "ami-zjnhiaic", "description": "Amazon Linux 2" },
+          "network_interfaces": [
+            {
+              "network_interface_id": "eni-2gz2fnqo",
+              "private_ip_address": "82.49.244.209",
+              "subnet_id": "subnet-ap7kcta9",
+              "vpc_id": "vpc-8fgspqvx",
+              "security_groups": [{ "group_id": "sg-le8kv71f", "group_name": "default" }]
+            }
+          ]
+        }
+      },
+      "service": {
+        "detector_id": "6lej29dh92u",
+        "count": 427,
+        "archived": false,
+        "action": { "action_type": "DNS_REQUEST" }
+      },
       "metrics": {
-        "FindingCount": { "sum": 0 },
+        "FindingCount": { "sum": 27 },
         "HighSeverityFindingCount": { "sum": 0 },
-        "MediumSeverityFindingCount": { "sum": 0 },
+        "MediumSeverityFindingCount": { "sum": 11 },
         "LowSeverityFindingCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-guardduty-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-guardduty-logs-738291046572"
+        "name": "aws-guardduty-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-guardduty-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/guardduty/eu-central-1/2026/04/13/guardduty_7UZIGOOH1C9.log.gz"
+        "key": "AWSLogs/293847561023/guardduty/ap-southeast-4/2026/04/14/guardduty_7MQ7QTKU1FX.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/guardduty/logs",
-      "log_stream": "eu-central-1/zlvdvymx",
-      "ingestion_time": "2026-04-13T16:49:57.240Z"
+      "log_stream": "ap-southeast-4/p67qxq95",
+      "ingestion_time": "2026-04-14T08:24:23.566Z"
     }
   },
-  "rule": { "category": "threat" },
-  "threat": { "indicator": [{ "type": "ip", "value": "58.0.177.254" }] },
+  "rule": {
+    "category": "intrusion_detection",
+    "ruleset": "InitialAccess",
+    "name": "InitialAccess:IAMUser/AnomalousBehavior"
+  },
+  "threat": { "indicator": [{ "type": "ip", "value": "218.97.105.157" }] },
   "event": {
     "kind": "alert",
-    "severity": 0,
-    "outcome": "success",
-    "category": ["threat"],
+    "severity": 4,
+    "outcome": "failure",
+    "category": ["intrusion_detection"],
     "type": ["indicator"],
     "dataset": "aws.guardduty",
     "provider": "guardduty.amazonaws.com",
     "module": "aws"
   },
-  "message": "GuardDuty: no threats detected",
-  "log": { "level": "info" },
+  "message": "GuardDuty finding [Medium]: InitialAccess:IAMUser/AnomalousBehavior",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "ThreatFinding",
+    "message": "GuardDuty finding: InitialAccess:IAMUser/AnomalousBehavior",
+    "type": "security"
+  },
   "service": { "name": "guardduty", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.guardduty", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "gz60hydm5rq"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "du12o0v64m"
   },
   "input": { "type": "http_endpoint" }
 }

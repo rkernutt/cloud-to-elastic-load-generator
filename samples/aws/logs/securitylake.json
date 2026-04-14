@@ -1,59 +1,57 @@
 {
-  "@timestamp": "2026-04-13T16:49:56.865Z",
+  "@timestamp": "2026-04-14T08:24:23.219Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-northeast-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "securitylake" }
   },
   "aws": {
-    "dimensions": { "OcsfClass": "Network Activity", "SourceType": "LAMBDA:VpcFlow" },
+    "dimensions": { "OcsfClass": "Authentication", "SourceType": "LAMBDA:CloudTrail" },
     "securitylake": {
-      "source_type": "LAMBDA:VpcFlow",
-      "class_uid": 4001,
-      "class_name": "Network Activity",
-      "category_uid": 4,
-      "category_name": "Network Activity",
-      "activity_id": 5,
-      "activity_name": "Create",
-      "severity_id": 3,
-      "severity": "Medium",
+      "source_type": "LAMBDA:CloudTrail",
+      "class_uid": 3002,
+      "class_name": "Authentication",
+      "category_uid": 3,
+      "category_name": "Identity & Access Management Activity",
+      "activity_id": 1,
+      "activity_name": "Other",
+      "severity_id": 1,
+      "severity": "Informational",
       "status_id": 1,
       "status": "Success",
-      "time": 1776098996865,
+      "time": 1776155063219,
       "metadata": {
         "version": "1.1.0",
-        "product": { "name": "VpcFlow", "vendor_name": "AWS" },
-        "uid": "kpfvjz3e-sz8w-65mi-4yjc-5tdma3q6cnx"
+        "product": { "name": "CloudTrail", "vendor_name": "AWS" },
+        "uid": "00hrkcpo-1g54-oy72-5jkj-wtstrrkpyhc"
       },
       "ocsf_cloud": {
         "provider": "AWS",
-        "account": { "uid": "164820739518" },
-        "region": "us-west-2"
+        "account": { "uid": "814726593401" },
+        "region": "ap-northeast-2"
       },
-      "src_endpoint": { "ip": "91.205.96.164", "port": 5161 },
-      "dst_endpoint": { "ip": "107.60.45.172", "port": 3306 },
-      "connection_info": {
-        "protocol_num": 1,
-        "protocol_name": "ICMP",
-        "direction": "Outbound",
-        "direction_id": 1
+      "actor": {
+        "user": { "name": "svc-account", "uid": "arn:aws:iam::814726593401:user/svc-account" },
+        "session": { "is_mfa": true, "uid": "ASIADSVCUKMTK96" }
       },
-      "traffic": { "bytes": 636542, "packets": 68 }
+      "auth_protocol": "SAML",
+      "src_endpoint": { "ip": "1.207.49.229" },
+      "is_mfa": true
     },
     "s3": {
       "bucket": {
-        "name": "aws-securitylake-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-securitylake-logs-164820739518"
+        "name": "aws-securitylake-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-securitylake-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/securitylake/us-west-2/2026/04/13/securitylake_R1VPSU2IZ3.log.gz"
+        "key": "AWSLogs/814726593401/securitylake/ap-northeast-2/2026/04/14/securitylake_9K3250JIBH8.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securitylake/logs",
-      "log_stream": "us-west-2/u23tajhi",
-      "ingestion_time": "2026-04-13T16:49:57.254Z"
+      "log_stream": "ap-northeast-2/jsm4r1t2",
+      "ingestion_time": "2026-04-14T08:24:23.579Z"
     }
   },
   "event": {
@@ -63,16 +61,16 @@
     "provider": "securitylake.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security Lake [Network Activity/Create] Medium: VpcFlow success",
-  "log": { "level": "warn" },
+  "message": "Security Lake [Authentication/Other] Informational: CloudTrail success",
+  "log": { "level": "info" },
   "service": { "name": "securitylake", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.securitylake", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "nqv13pp6mt"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "awj6a1f3pft"
   },
   "input": { "type": "http_endpoint" }
 }

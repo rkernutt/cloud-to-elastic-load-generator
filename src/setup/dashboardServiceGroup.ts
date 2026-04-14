@@ -52,6 +52,12 @@ export function inferDashboardServiceGroupLabel(
  * Maps an ML job to the **Services** wizard group label using job id / datafeed / analysis config,
  * same ordering rules as {@link inferDashboardServiceGroupLabel}.
  */
+/** When no service matches, bucket AWS ML jobs under Additional Services (not a separate Uncategorized section). */
+function mlJobUnmatchedGroupLabel(serviceGroups: ServiceGroup[]): string {
+  const additional = serviceGroups.find((g) => g.id === "additional");
+  return additional?.label ?? "Uncategorized";
+}
+
 export function inferMlJobServiceGroupLabel(
   j: MlJobEntry,
   cloudId: CloudId,
@@ -60,10 +66,10 @@ export function inferMlJobServiceGroupLabel(
   if (serviceGroups.length === 0) return "Uncategorized";
   for (const sid of uniqueServiceIdsLongestFirst(serviceGroups)) {
     if (mlJobEntryMatchesSelectedServices(j, cloudId, new Set([sid]))) {
-      return groupLabelForServiceId(sid, serviceGroups) ?? "Uncategorized";
+      return groupLabelForServiceId(sid, serviceGroups) ?? mlJobUnmatchedGroupLabel(serviceGroups);
     }
   }
-  return "Uncategorized";
+  return mlJobUnmatchedGroupLabel(serviceGroups);
 }
 
 /** Partitions ML jobs under ordered service-type headings (for Setup sub-sections). */

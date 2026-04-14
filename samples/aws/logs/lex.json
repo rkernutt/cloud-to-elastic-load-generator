@@ -1,55 +1,59 @@
 {
-  "@timestamp": "2026-04-13T16:49:56.865Z",
+  "@timestamp": "2026-04-14T08:24:23.219Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-southeast-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "lex" }
   },
   "aws": {
-    "dimensions": { "BotName": "faq-bot", "Operation": "CheckStatus" },
+    "dimensions": { "BotName": "booking-assistant", "Operation": "CheckStatus" },
     "lex": {
-      "bot_id": "955FIXZGW3",
-      "bot_name": "faq-bot",
+      "bot_id": "V922B6QVWD",
+      "bot_name": "booking-assistant",
       "bot_version": "DRAFT",
-      "locale_id": "es_US",
-      "session_id": "lmdafvdh4eq",
-      "input_transcript": "Cancel my order",
+      "locale_id": "en_GB",
+      "session_id": "boxebowl1y",
+      "input_transcript": "I want to order a product",
       "intent_name": "CheckStatus",
-      "intent_nlu_confidence_score": 0.8209987754541274,
-      "dialog_state": "Fulfilled",
-      "sentiment": "POSITIVE"
+      "intent_nlu_confidence_score": 0.7933690208987318,
+      "dialog_state": "Failed",
+      "sentiment": "POSITIVE",
+      "error_code": "BadRequestException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-lex-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-lex-logs-164820739518"
+        "name": "aws-lex-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-lex-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/164820739518/lex/us-west-2/2026/04/13/lex_O8YAIDY31NO.log.gz" }
+      "object": {
+        "key": "AWSLogs/501938274650/lex/ap-southeast-1/2026/04/14/lex_ZVDJJMZ65CA.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/lex/logs",
-      "log_stream": "us-west-2/jtek6nkh",
-      "ingestion_time": "2026-04-13T16:49:57.352Z"
+      "log_stream": "ap-southeast-1/micmmidv",
+      "ingestion_time": "2026-04-14T08:24:23.673Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.lex",
     "provider": "lex.amazonaws.com",
     "module": "aws"
   },
-  "message": "Lex faq-bot: intent=CheckStatus (82%)",
-  "log": { "level": "info" },
+  "message": "Lex booking-assistant FAILED: intent CheckStatus - Slot validation failed",
+  "log": { "level": "error" },
+  "error": { "code": "LexError", "message": "Lex intent failed", "type": "ml" },
   "service": { "name": "lex", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lex", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "s77tso0zqca"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "t46lbm70kt"
   },
   "input": { "type": "aws-cloudwatch" }
 }

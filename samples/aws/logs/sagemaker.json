@@ -1,88 +1,73 @@
 {
-  "@timestamp": "2026-04-13T16:49:56.865Z",
+  "@timestamp": "2026-04-14T08:24:23.219Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "us-east-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "sagemaker" }
   },
   "aws": {
-    "dimensions": {
-      "TrainingJobName": "xgboost-classifier-training-wvbquo",
-      "JobType": "Training"
-    },
+    "dimensions": { "TrainingJobName": "resnet50-custom-endpoint-rsaiw1", "JobType": "Endpoint" },
     "sagemaker": {
-      "domain_id": "d-e1yik2meko",
-      "domain_name": "risk-models",
+      "domain_id": "d-65d3g5zmfg",
+      "domain_name": "nlp-experiments",
       "user_profile": "alice-ds",
       "job": {
-        "name": "xgboost-classifier-training-wvbquo",
-        "type": "Training",
-        "arn": "arn:aws:sagemaker:eu-central-2:501938274650:training-job/xgboost-classifier-training-wvbquo"
+        "name": "resnet50-custom-endpoint-rsaiw1",
+        "type": "Endpoint",
+        "arn": "arn:aws:sagemaker:us-east-2:814726593401:training-job/resnet50-custom-endpoint-rsaiw1"
       },
-      "model": { "name": "xgboost-classifier", "version": 19 },
-      "pipeline": { "name": "feature-engineering-pipeline", "execution_id": "pipe-tjdsajypibn" },
-      "instance": { "type": "ml.m5.xlarge", "count": 4 },
-      "metrics": {
-        "training_loss": 0.686,
-        "accuracy": 0.8879,
-        "epoch": 81,
-        "gpu_utilization_pct": 69,
-        "cpu_utilization_pct": 79
-      },
-      "studio": {
-        "space_name": "nlp-experiments",
-        "app_type": "JupyterServer",
-        "app_name": "default",
-        "lifecycle_config": true,
-        "continuous_logging": false
-      },
+      "model": { "name": "resnet50-custom", "version": 14 },
+      "pipeline": { "name": "model-training-pipeline", "execution_id": "pipe-oik1u0jwx8q" },
+      "instance": { "type": "ml.g4dn.xlarge", "count": 1 },
+      "metrics": { "gpu_utilization_pct": 32, "cpu_utilization_pct": 34 },
+      "studio": { "lifecycle_config": false, "continuous_logging": false },
       "cloudwatch_metrics": {
-        "Invocations": { "sum": 466 },
-        "ModelLatency": { "avg": 80 },
-        "GPUUtilization": { "avg": 56 },
-        "CPUUtilization": { "avg": 69 },
-        "DiskUtilization": { "avg": 17 },
-        "MemoryUtilization": { "avg": 80 },
+        "Invocations": { "sum": 2258 },
+        "ModelLatency": { "avg": 14 },
+        "GPUUtilization": { "avg": 62 },
+        "CPUUtilization": { "avg": 50 },
+        "DiskUtilization": { "avg": 13 },
+        "MemoryUtilization": { "avg": 63 },
         "Invocations4XXError": { "sum": 0 },
         "Invocations5XXError": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sagemaker-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-sagemaker-logs-501938274650"
+        "name": "aws-sagemaker-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-sagemaker-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/sagemaker/eu-central-2/2026/04/13/sagemaker_1SPYZZUGBW3.log.gz"
+        "key": "AWSLogs/814726593401/sagemaker/us-east-2/2026/04/14/sagemaker_U5LVZ6YZRQ8.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/sagemaker/logs",
-      "log_stream": "eu-central-2/owlb4830",
-      "ingestion_time": "2026-04-13T16:49:57.342Z"
+      "log_stream": "us-east-2/hzif6ur4",
+      "ingestion_time": "2026-04-14T08:24:23.664Z"
     }
   },
   "log": { "level": "info" },
   "user": { "name": "alice-ds" },
   "event": {
-    "action": "LifecycleConfigOnStart",
-    "duration": 10100351369674.809,
+    "action": "ModelRegistered",
+    "duration": 1031671604685.7118,
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.sagemaker",
     "provider": "sagemaker.amazonaws.com",
     "module": "aws"
   },
-  "message": "Training job succeeded",
+  "message": "Endpoint creation succeeded",
   "service": { "name": "sagemaker", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sagemaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "1h10a0b1l5k"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "6b5yx7yajed"
   },
   "input": { "type": "aws-cloudwatch" }
 }

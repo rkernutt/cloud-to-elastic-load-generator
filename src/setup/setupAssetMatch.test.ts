@@ -111,6 +111,78 @@ describe("setupAssetMatch", () => {
       datafeed: { query: { bool: { filter: [{ term: { "event.dataset": "aws.pcs" } }] } } },
     };
     expect(inferMlJobServiceGroupLabel(pcs, "aws", SERVICE_GROUPS)).toBe("Compute & Containers");
+    const kafkaMetrics = {
+      id: "aws-kafka-metrics-failure-spike",
+      description: "",
+      job: {},
+      datafeed: {
+        query: { bool: { filter: [{ term: { "event.dataset": "aws.kafka_metrics" } }] } },
+      },
+    };
+    expect(inferMlJobServiceGroupLabel(kafkaMetrics, "aws", SERVICE_GROUPS)).toBe(
+      "Streaming & Messaging"
+    );
+    const wafJob = {
+      id: "aws-waf-high-block-rate",
+      description: "WAF blocks",
+      job: { groups: ["aws", "security"] },
+      datafeed: {
+        query: {
+          bool: {
+            filter: [
+              { term: { "event.dataset": "aws.waf" } },
+              { term: { "event.action": "block" } },
+            ],
+          },
+        },
+      },
+    };
+    expect(inferMlJobServiceGroupLabel(wafJob, "aws", SERVICE_GROUPS)).toBe("Networking & CDN");
+    const alb = {
+      id: "aws-alb-5xx-spike",
+      description: "",
+      job: {},
+      datafeed: { query: { bool: { filter: [{ term: { "event.dataset": "aws.elb_logs" } }] } } },
+    };
+    expect(inferMlJobServiceGroupLabel(alb, "aws", SERVICE_GROUPS)).toBe("Networking & CDN");
+    const rdsPlain = {
+      id: "aws-rds-failure-spike",
+      description: "",
+      job: {},
+      datafeed: { query: { bool: { filter: [{ term: { "event.dataset": "aws.rds" } }] } } },
+    };
+    expect(inferMlJobServiceGroupLabel(rdsPlain, "aws", SERVICE_GROUPS)).toBe(
+      "Storage & Databases"
+    );
+    const ecsMetrics = {
+      id: "aws-ecs-metrics-spike",
+      description: "",
+      job: {},
+      datafeed: { query: { bool: { filter: [{ term: { "event.dataset": "aws.ecs_metrics" } }] } } },
+    };
+    expect(inferMlJobServiceGroupLabel(ecsMetrics, "aws", SERVICE_GROUPS)).toBe(
+      "Serverless & Core"
+    );
+    const netFw = {
+      id: "aws-networkfirewall-drop-spike",
+      description: "",
+      job: {},
+      datafeed: {
+        query: { bool: { filter: [{ term: { "event.dataset": "aws.firewall_logs" } }] } },
+      },
+    };
+    expect(inferMlJobServiceGroupLabel(netFw, "aws", SERVICE_GROUPS)).toBe("Networking & CDN");
+    const unknownDataset = {
+      id: "aws-zzz-unknown-ml-job",
+      description: "",
+      job: {},
+      datafeed: {
+        query: { bool: { filter: [{ term: { "event.dataset": "aws.zzzunknownxyz" } }] } },
+      },
+    };
+    expect(inferMlJobServiceGroupLabel(unknownDataset, "aws", SERVICE_GROUPS)).toBe(
+      "Additional Services"
+    );
   });
 
   it("infers AWS ML job slugs from event.dataset and matches services", () => {

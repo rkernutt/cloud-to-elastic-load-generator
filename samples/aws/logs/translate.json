@@ -1,26 +1,27 @@
 {
-  "@timestamp": "2026-04-13T16:49:56.865Z",
+  "@timestamp": "2026-04-14T08:24:23.219Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-3",
+    "region": "eu-central-1",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "translate" }
   },
   "aws": {
-    "dimensions": { "SourceLanguage": "zh", "TargetLanguage": "hi" },
+    "dimensions": { "SourceLanguage": "ru", "TargetLanguage": "hi" },
     "translate": {
-      "source_language_code": "zh",
+      "source_language_code": "ru",
       "target_language_code": "hi",
-      "characters_translated": 220341,
+      "characters_translated": 77,
       "applied_terminology": "tech-glossary",
-      "duration_ms": 629,
+      "duration_ms": 690,
+      "error_code": "DetectedLanguageLowConfidenceException",
       "metrics": {
         "SuccessfulRequestCount": { "sum": 1 },
-        "ThrottledCount": { "sum": 0 },
-        "UserErrorCount": { "sum": 0 },
+        "ThrottledCount": { "sum": 1 },
+        "UserErrorCount": { "sum": 3 },
         "ServerErrorCount": { "sum": 0 },
-        "CharacterCount": { "sum": 4051 },
-        "ResponseTime": { "avg": 298.73454684879107 }
+        "CharacterCount": { "sum": 3902 },
+        "ResponseTime": { "avg": 721.9859040045311 }
       }
     },
     "s3": {
@@ -29,33 +30,34 @@
         "arn": "arn:aws:s3:::aws-translate-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/translate/eu-west-3/2026/04/13/translate_9BEVJ7BA82.log.gz"
+        "key": "AWSLogs/814726593401/translate/eu-central-1/2026/04/14/translate_P1FZ66886OG.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/translate/logs",
-      "log_stream": "eu-west-3/q1d1dhzf",
-      "ingestion_time": "2026-04-13T16:49:57.347Z"
+      "log_stream": "eu-central-1/4rvo9yoj",
+      "ingestion_time": "2026-04-14T08:24:23.670Z"
     }
   },
   "event": {
-    "duration": 629294592.2888733,
-    "outcome": "success",
+    "duration": 690473964.5967301,
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.translate",
     "provider": "translate.amazonaws.com",
     "module": "aws"
   },
-  "message": "Translate zh->hi: 220,341 chars in 629ms",
-  "log": { "level": "info" },
+  "message": "Translate FAILED (ru->hi): Low confidence",
+  "log": { "level": "error" },
+  "error": { "code": "TranslateError", "message": "Translate failed", "type": "ml" },
   "service": { "name": "translate", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.translate", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-3",
-    "ephemeral_id": "zixglw82hil"
+    "name": "filebeat-aws-eu-central-1",
+    "ephemeral_id": "qvatm0bwe3h"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,59 +1,65 @@
 {
-  "@timestamp": "2026-04-13T16:49:56.865Z",
+  "@timestamp": "2026-04-14T08:24:23.219Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-west-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "pinpoint" }
   },
   "aws": {
     "pinpoint": {
-      "application_id": "6iosih2etd",
-      "event_type": "_sms.sent",
-      "channel": "EMAIL",
-      "campaign_id": "fu7ia1p4z54",
-      "campaign_name": "churn-prevention",
-      "journey_id": "cqt2ut0skes",
-      "segment_id": "7z8dvd13m16",
-      "endpoint_id": "user_om2afimzzj",
-      "message_id": "fa5ckustvg5",
-      "delivery_status": "SUCCESSFUL",
-      "destination": "user_om2afimzzj@example.com",
+      "application_id": "q5nzqdwxw7p",
+      "event_type": "_journey.send",
+      "channel": "IN_APP",
+      "campaign_id": "62eojwju3kl",
+      "campaign_name": "welcome-series",
+      "journey_id": "ckh8yhnh9uw",
+      "segment_id": "39ubj5stxms",
+      "endpoint_id": "user_xl3a7i0wy4",
+      "message_id": "m0glizjevla",
+      "delivery_status": "DUPLICATE",
+      "status_message": "Address on suppression list",
+      "destination": "user_xl3a7i0wy4",
       "iso_country_code": "AU"
     },
     "s3": {
       "bucket": {
-        "name": "aws-pinpoint-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-pinpoint-logs-738291046572"
+        "name": "aws-pinpoint-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-pinpoint-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/pinpoint/ca-west-1/2026/04/13/pinpoint_0XMTAIUIHYRO.log.gz"
+        "key": "AWSLogs/293847561023/pinpoint/eu-west-1/2026/04/14/pinpoint_SWUJS3J47OH.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/pinpoint/logs",
-      "log_stream": "ca-west-1/t7edsg5u",
-      "ingestion_time": "2026-04-13T16:49:57.399Z"
+      "log_stream": "eu-west-1/e6zd8phj",
+      "ingestion_time": "2026-04-14T08:24:23.717Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.pinpoint",
     "provider": "mobiletargeting.amazonaws.com",
-    "duration": 1610000000,
+    "duration": 4260000000,
     "module": "aws"
   },
-  "message": "Pinpoint _sms.sent [churn-prevention]: user_om2afimzzj via EMAIL",
-  "log": { "level": "info" },
+  "message": "Pinpoint IN_APP FAILED [welcome-series]: Invalid endpoint:",
+  "log": { "level": "error" },
+  "error": {
+    "code": "DeliveryFailure",
+    "message": "Pinpoint delivery failed",
+    "type": "messaging"
+  },
   "service": { "name": "pinpoint", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.pinpoint", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "fm8jwk5olsf"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "0oe7sx744co"
   },
   "input": { "type": "aws-cloudwatch" }
 }

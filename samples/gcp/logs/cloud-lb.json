@@ -2,55 +2,63 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west2",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
-    "service": { "name": "serverless-neg" }
+    "region": "us-west2",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "service": { "name": "cloud-lb" }
   },
   "gcp": {
-    "serverless_neg": {
-      "neg_name": "neg-nxp19269",
-      "backend_service": "bes-gae-5xxv",
-      "target_type": "cloud-run",
-      "health_status": "DRAINING",
-      "request_count": 46935,
-      "error_rate": 0.0054
+    "cloud_lb": {
+      "backend_service": "bes-api-aae0",
+      "url_map": "um-cz39sp",
+      "forwarding_rule": "fr-us-west2-8vn4",
+      "request_method": "PUT",
+      "url_path": "/graphql",
+      "response_code": 302,
+      "latency_ms": 58,
+      "client_ip": "204.226.232.164",
+      "backend_ip": "39.179.51.227",
+      "protocol": "HTTP2"
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 255000000,
+    "duration": 58000000,
     "module": "gcp",
-    "dataset": "gcp.serverless_neg"
+    "dataset": "gcp.loadbalancing"
   },
-  "message": "Serverless NEG neg-nxp19269 health=DRAINING requests=46935 err=0.539%",
-  "service": { "name": "serverless-neg", "type": "gcp" },
+  "message": "HTTP(S) LB PUT /graphql 302 58.0ms HTTP2",
+  "service": { "name": "cloud-lb", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.serverless_neg", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.loadbalancing", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west2",
-    "id": "jgmrwmhnxvs"
+    "name": "elastic-agent-gcp-us-west2",
+    "id": "krnqxg0c13e"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-m3n4o5/logs/serverless-neg",
+  "logName": "projects/globex-staging-d4e5f6/logs/cloud-lb",
   "resource": {
-    "type": "global",
-    "labels": { "project_id": "globex-shared-m3n4o5", "region": "europe-west2" }
+    "type": "http_load_balancer",
+    "labels": { "project_id": "globex-staging-d4e5f6", "region": "us-west2" }
   },
   "severity": "INFO",
-  "insertId": "UHYL1WO58Q",
+  "insertId": "62R7U0N8S4",
   "jsonPayload": {
-    "serverless_neg": {
-      "neg_name": "neg-nxp19269",
-      "backend_service": "bes-gae-5xxv",
-      "target_type": "cloud-run",
-      "health_status": "DRAINING",
-      "request_count": 46935,
-      "error_rate": 0.0054
+    "cloud_lb": {
+      "backend_service": "bes-api-aae0",
+      "url_map": "um-cz39sp",
+      "forwarding_rule": "fr-us-west2-8vn4",
+      "request_method": "PUT",
+      "url_path": "/graphql",
+      "response_code": 302,
+      "latency_ms": 58,
+      "client_ip": "204.226.232.164",
+      "backend_ip": "39.179.51.227",
+      "protocol": "HTTP2"
     },
-    "message": "Serverless NEG neg-nxp19269 health=DRAINING requests=46935 err=0.539%"
+    "message": "HTTP(S) LB PUT /graphql 302 58.0ms HTTP2"
   }
 }

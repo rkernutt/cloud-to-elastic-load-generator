@@ -156,6 +156,16 @@ const AWS_ML_DATASET_SEGMENT_ALIASES: Record<string, string[]> = {
   rdscustom: ["rds"],
   s3_intelligent_tiering: ["s3"],
   pcs: ["parallelcomputing"],
+  /** CloudWatch Kafka metrics / MSK-adjacent datasets → MSK (Kafka) in Streaming & Messaging */
+  kafka_metrics: ["msk"],
+  /** WAF v2 logs align with classic WAF under Networking & CDN */
+  wafv2: ["waf"],
+  /** Classic ELB / ALB access logs (`aws.elb_logs`) */
+  elb_logs: ["alb"],
+  /** ECS CloudWatch metrics (`aws.ecs_metrics`) — ECS lives under Serverless & Core */
+  ecs_metrics: ["ecs"],
+  /** Network Firewall (`aws.firewall_logs`) */
+  firewall_logs: ["networkfirewall"],
 };
 
 function addKeysFromAwsMlSegment(seg: string, keys: Set<string>): void {
@@ -191,8 +201,12 @@ export function mlJobInferredMatchKeys(j: MlJobEntry, cloudId: CloudId): string[
     }
   }
 
-  for (const part of idPart.split(/[^a-z0-9]+/)) {
-    if (part.length >= 2 && part !== "aws" && part !== "gcp" && part !== "azure") keys.add(part);
+  // Avoid id tokens like "metrics" / "failure" fuzzy-matching unrelated services when dataset is explicit.
+  const useIdDerivedTokens = cloudId !== "aws" || !feed.includes("event.dataset");
+  if (useIdDerivedTokens) {
+    for (const part of idPart.split(/[^a-z0-9]+/)) {
+      if (part.length >= 2 && part !== "aws" && part !== "gcp" && part !== "azure") keys.add(part);
+    }
   }
   return [...keys].filter(Boolean);
 }

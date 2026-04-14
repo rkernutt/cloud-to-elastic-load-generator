@@ -1,66 +1,72 @@
 {
-  "@timestamp": "2026-04-13T16:49:56.865Z",
+  "@timestamp": "2026-04-14T08:24:23.219Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "us-west-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "bedrock" }
   },
   "aws": {
-    "dimensions": { "ModelId": "amazon.nova-premier-v1:0", "ModelTier": "premier" },
+    "dimensions": { "ModelId": "amazon.nova-pro-v1:0", "ModelTier": "pro" },
     "nova": {
-      "model_id": "amazon.nova-premier-v1:0",
-      "model_tier": "premier",
+      "model_id": "amazon.nova-pro-v1:0",
+      "model_tier": "pro",
       "modality": "text",
-      "input_token_count": 3815,
-      "output_token_count": 372,
+      "input_token_count": 1444,
+      "output_token_count": 0,
       "cache_read_input_token_count": 0,
-      "total_token_count": 4187,
-      "invocation_latency_ms": 6971,
-      "streaming": false,
-      "use_case": "agentic-reasoning",
-      "guardrail_action": "INTERVENED",
-      "stop_reason": "stop_sequence",
+      "total_token_count": 1444,
+      "invocation_latency_ms": 7994,
+      "time_to_first_token_ms": 354,
+      "streaming": true,
+      "use_case": "summarization",
+      "guardrail_action": "NONE",
+      "error_code": "ThrottlingException",
       "metrics": {
-        "Invocations": { "sum": 101 },
-        "InvocationLatency": { "avg": 6971, "p99": 17428 },
-        "InputTokenCount": { "sum": 3815 },
-        "OutputTokenCount": { "sum": 372 },
+        "Invocations": { "sum": 644 },
+        "InvocationLatency": { "avg": 7994, "p99": 19985 },
+        "InputTokenCount": { "sum": 1444 },
+        "OutputTokenCount": { "sum": 0 },
         "CacheReadInputTokenCount": { "sum": 0 },
-        "Throttles": { "sum": 0 }
+        "Throttles": { "sum": 17 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-nova-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-nova-logs-501938274650"
+        "name": "aws-nova-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-nova-logs-738291046572"
       },
-      "object": { "key": "AWSLogs/501938274650/nova/eu-south-2/2026/04/13/nova_QW7J9851CCQ.log.gz" }
+      "object": { "key": "AWSLogs/738291046572/nova/us-west-2/2026/04/14/nova_AX7MG1G80BR.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/nova/logs",
-      "log_stream": "eu-south-2/1qhtbzj0",
-      "ingestion_time": "2026-04-13T16:49:57.356Z"
+      "log_stream": "us-west-2/z22qddl4",
+      "ingestion_time": "2026-04-14T08:24:23.677Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.nova",
     "provider": "bedrock.amazonaws.com",
-    "duration": 6971000000,
+    "duration": 7994000000,
     "module": "aws"
   },
-  "message": "Nova premier 3815->372 tokens 6.97s",
-  "log": { "level": "warn" },
+  "message": "Nova pro [amazon.nova-pro-v1:0] FAILED: ThrottlingException",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ThrottlingException",
+    "message": "Nova model invocation failed",
+    "type": "ml"
+  },
   "service": { "name": "nova", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.nova", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "cql5pztrozg"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "h0674z1jv1g"
   },
   "input": { "type": "aws-cloudwatch" }
 }

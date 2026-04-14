@@ -1,40 +1,40 @@
 {
-  "@timestamp": "2026-04-13T16:49:56.865Z",
+  "@timestamp": "2026-04-14T08:24:23.219Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "us-east-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "autoscaling" }
   },
   "aws": {
-    "dimensions": { "AutoScalingGroupName": "web-asg" },
+    "dimensions": { "AutoScalingGroupName": "worker-asg" },
     "autoscaling": {
-      "group_name": "web-asg",
-      "activity_id": "38a2cheh-whif-kl25",
-      "action_type": "Launch",
-      "instance_id": "i-jqblhqjw9b",
-      "instance_type": "r5.large",
-      "desired_capacity": 12,
+      "group_name": "worker-asg",
+      "activity_id": "fgdpqptr-i5ds-4e1t",
+      "action_type": "Terminate",
+      "instance_id": "i-2clckkow63f",
+      "instance_type": "c5.2xlarge",
+      "desired_capacity": 15,
       "min_size": 2,
       "max_size": 50,
       "current_capacity": 12,
-      "cause": "Unhealthy instance replaced",
+      "cause": "Instance unhealthy",
       "status_code": "Successful",
       "launch_template": "web-lt:5",
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 12 },
+        "GroupDesiredCapacity": { "avg": 15 },
         "GroupInServiceInstances": { "avg": 12 },
         "GroupPendingInstances": { "avg": 0 },
-        "GroupStandbyInstances": { "avg": 0 },
-        "GroupTerminatingInstances": { "avg": 0 },
-        "GroupTotalInstances": { "avg": 12 },
+        "GroupStandbyInstances": { "avg": 1 },
+        "GroupTerminatingInstances": { "avg": 2 },
+        "GroupTotalInstances": { "avg": 15 },
         "GroupInServiceCapacity": { "avg": 12 },
         "GroupPendingCapacity": { "avg": 0 },
-        "GroupStandbyCapacity": { "avg": 0 },
-        "GroupTerminatingCapacity": { "avg": 0 },
-        "GroupTotalCapacity": { "avg": 12 },
+        "GroupStandbyCapacity": { "avg": 1 },
+        "GroupTerminatingCapacity": { "avg": 2 },
+        "GroupTotalCapacity": { "avg": 15 },
         "WarmPoolMinSize": { "avg": 0 },
         "WarmPoolDesiredCapacity": { "avg": 0 },
         "WarmPoolPendingCapacity": { "avg": 0 },
@@ -45,17 +45,17 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-autoscaling-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-autoscaling-logs-738291046572"
+        "name": "aws-autoscaling-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-autoscaling-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/autoscaling/ap-southeast-2/2026/04/13/autoscaling_4AL4O1LUFS3.log.gz"
+        "key": "AWSLogs/814726593401/autoscaling/us-east-2/2026/04/14/autoscaling_YDGMETHULVO.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "ap-southeast-2/jsxq5bw9",
-      "ingestion_time": "2026-04-13T16:49:57.202Z"
+      "log_stream": "us-east-2/9rk5tg6i",
+      "ingestion_time": "2026-04-14T08:24:23.531Z"
     }
   },
   "event": {
@@ -63,10 +63,10 @@
     "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 414000000000,
+    "duration": 223000000000,
     "module": "aws"
   },
-  "message": "AutoScaling web-asg: Launch instance",
+  "message": "AutoScaling worker-asg: Terminate instance",
   "log": { "level": "info" },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -74,8 +74,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-2",
-    "ephemeral_id": "oztpsa1ih8m"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "3idi975xkf1"
   },
   "input": { "type": "aws-cloudwatch" }
 }

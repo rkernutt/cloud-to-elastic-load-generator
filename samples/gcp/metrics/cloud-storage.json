@@ -3,43 +3,51 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "me-west1",
+    "region": "africa-south1",
     "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
     "account": { "id": "141421356237", "name": "Globex Security" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-me-west1",
-    "ephemeral_id": "1xj99wzo18l"
+    "name": "metricbeat-gcp-africa-south1",
+    "ephemeral_id": "pkhjxexcpa"
   },
   "gcp": {
-    "storage-transfer": {
+    "cloud-storage": {
       "metrics": {
-        "request_count": { "avg": 23008, "sum": 23008, "count": 1 },
-        "error_count": { "avg": 0, "sum": 0, "count": 1 },
-        "latency": { "avg": 79.59, "sum": 79.59, "count": 1 }
+        "total_bytes": { "avg": 287175532574, "sum": 287175532574, "count": 1 },
+        "object_count": { "avg": 5610163, "sum": 5610163, "count": 1 },
+        "request_count": { "avg": 37497, "sum": 37497, "count": 1 },
+        "network_sent_bytes": { "avg": 227922116, "sum": 227922116, "count": 1 },
+        "received_bytes": { "avg": 86164743, "sum": 86164743, "count": 1 },
+        "read_bytes": { "avg": 1284140999, "sum": 1284140999, "count": 1 },
+        "write_bytes": { "avg": 97443790, "sum": 97443790, "count": 1 },
+        "error_count": { "avg": 0, "sum": 0, "count": 1 }
       },
-      "labels": { "resource_id": "resource-a" }
+      "labels": { "bucket_name": "ml-training-data" }
     }
   },
-  "metricset": { "name": "storage-transfer", "period": 60000 },
-  "data_stream": { "type": "metrics", "dataset": "gcp.storagetransfer", "namespace": "default" },
+  "metricset": { "name": "cloud-storage", "period": 60000 },
+  "data_stream": { "type": "metrics", "dataset": "gcp.gcs_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.storagetransfer", "module": "gcp" },
+  "event": { "dataset": "gcp.gcs_metrics", "module": "gcp" },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/storage-transfer/request_count",
+      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-storage/total_bytes",
       "labels": {}
     },
     "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-security-j0k1l2", "region": "me-west1" }
+      "type": "gcs_bucket",
+      "labels": { "project_id": "globex-security-j0k1l2", "region": "africa-south1" }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 23008 } }
+      {
+        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
+        "value": { "doubleValue": 287175532574 }
+      }
     ]
   }
 }

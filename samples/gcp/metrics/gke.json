@@ -3,43 +3,44 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "australia-southeast1",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "me-central2",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-australia-southeast1",
-    "ephemeral_id": "x3vwz5kfo0d"
+    "name": "metricbeat-gcp-me-central2",
+    "ephemeral_id": "e9b3kg04o7i"
   },
   "gcp": {
-    "config-connector": {
+    "gke": {
       "metrics": {
-        "request_count": { "avg": 83192, "sum": 83192, "count": 1 },
-        "error_count": { "avg": 0, "sum": 0, "count": 1 },
-        "latency": { "avg": 175.55, "sum": 175.55, "count": 1 }
+        "container_cpu_usage": { "avg": 0.26, "sum": 0.26, "count": 1 },
+        "container_memory_usage": { "avg": 422731634.09, "sum": 422731634.09, "count": 1 },
+        "pod_count": { "avg": 399, "sum": 399, "count": 1 },
+        "node_cpu_allocatable": { "avg": 37.68, "sum": 37.68, "count": 1 }
       },
-      "labels": { "resource_id": "resource-a" }
+      "labels": { "cluster_name": "prod-cluster", "namespace": "monitoring" }
     }
   },
-  "metricset": { "name": "config-connector", "period": 60000 },
-  "data_stream": { "type": "metrics", "dataset": "gcp.configconnector", "namespace": "default" },
+  "metricset": { "name": "gke", "period": 60000 },
+  "data_stream": { "type": "metrics", "dataset": "gcp.gke_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.configconnector", "module": "gcp" },
+  "event": { "dataset": "gcp.gke_metrics", "module": "gcp" },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/config-connector/request_count",
+      "type": "custom.googleapis.com/opentelemetry/elastic/samples/gke/container_cpu_usage",
       "labels": {}
     },
     "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-prod-a1b2c3", "region": "australia-southeast1" }
+      "type": "k8s_container",
+      "labels": { "project_id": "globex-security-j0k1l2", "region": "me-central2" }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 83192 } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 0.26 } }
     ]
   }
 }

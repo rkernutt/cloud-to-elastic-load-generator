@@ -1,53 +1,47 @@
 {
-  "@timestamp": "2026-04-13T16:49:56.865Z",
+  "@timestamp": "2026-04-14T08:24:23.219Z",
   "cloud": {
     "provider": "aws",
     "region": "af-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "access-analyzer" }
   },
   "aws": {
     "dimensions": { "AnalyzerName": "analyzer-af-south-1" },
     "access_analyzer": {
-      "finding_id": "g2ocitsc-vj03-lil3",
+      "finding_id": "2dqbk6rv-hfr3-frdf",
       "analyzer_name": "analyzer-af-south-1",
-      "finding_type": "EXTERNAL_ACCESS",
-      "finding_description": "Unused access key",
-      "resource_type": "AWS::SQS::Queue",
-      "resource_arn": "arn:aws:s3:::dev-bucket",
-      "principal": "*",
-      "status": "ACTIVE"
+      "finding_type": "none",
+      "finding_description": "No external access",
+      "resource_type": "AWS::Lambda::Function",
+      "resource_arn": "arn:aws:s3:::staging-bucket",
+      "status": "RESOLVED"
     },
     "s3": {
       "bucket": {
-        "name": "aws-accessanalyzer-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-accessanalyzer-logs-814726593401"
+        "name": "aws-accessanalyzer-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-accessanalyzer-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/accessanalyzer/af-south-1/2026/04/13/accessanalyzer_TBZ4S3CKTFE.log.gz"
+        "key": "AWSLogs/501938274650/accessanalyzer/af-south-1/2026/04/14/accessanalyzer_ANUQI3QB5IF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/accessanalyzer/logs",
-      "log_stream": "af-south-1/q30xnqcx",
-      "ingestion_time": "2026-04-13T16:49:57.245Z"
+      "log_stream": "af-south-1/admcbxj3",
+      "ingestion_time": "2026-04-14T08:24:23.572Z"
     }
   },
   "event": {
-    "kind": "alert",
-    "outcome": "failure",
+    "kind": "event",
+    "outcome": "success",
     "category": ["configuration", "iam"],
     "dataset": "aws.access_analyzer",
     "provider": "access-analyzer.amazonaws.com",
     "module": "aws"
   },
-  "message": "IAM Access Analyzer: external access found on AWS::SQS::Queue",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "ExternalAccess",
-    "message": "External access path detected",
-    "type": "access"
-  },
+  "message": "Access Analyzer: no external access paths detected",
+  "log": { "level": "info" },
   "service": { "name": "accessanalyzer", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.accessanalyzer", "namespace": "default" },
@@ -55,7 +49,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "4ynwp2zkdx"
+    "ephemeral_id": "zn3kbnavugr"
   },
   "input": { "type": "http_endpoint" }
 }

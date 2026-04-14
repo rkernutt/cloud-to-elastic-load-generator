@@ -8,6 +8,8 @@ The header uses a vendor-neutral cloud mark; AWS, GCP, and Azure logos appear in
 
 **Documentation:** [docs/README.md](docs/README.md) — index of guides, AWS routing docs, pipeline reference, and diagrams. **Setup wizard & uninstall (including Serverless dashboard limits):** [docs/SETUP-WIZARD-AND-UNINSTALL.md](docs/SETUP-WIZARD-AND-UNINSTALL.md). Day-to-day dev: [docs/development.md](docs/development.md).
 
+**Test / pilot builds:** Use synthetic data and non-production Elasticsearch targets unless you have explicit approval. Before handing off a build, run the same checks as CI (see **Testing and quality** below): `format:check`, `lint`, `typecheck`, `test`, and `build` should all succeed on Node 20.
+
 ---
 
 ## Quick start
