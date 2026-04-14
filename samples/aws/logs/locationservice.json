@@ -1,51 +1,54 @@
 {
-  "@timestamp": "2026-04-14T08:24:23.219Z",
+  "@timestamp": "2026-04-14T09:28:17.596Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-northeast-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "location" }
   },
   "aws": {
-    "dimensions": { "Operation": "SearchPlaceIndex" },
+    "dimensions": { "Operation": "UpdateDevicePosition" },
     "locationservice": {
-      "operation": "SearchPlaceIndex",
-      "place_index": "here-place-index",
-      "query": "hospital"
+      "operation": "UpdateDevicePosition",
+      "tracker_name": "field-worker-track",
+      "device_id": "device-w1qj5ocf",
+      "position": { "lat": 37.14101169364089, "lon": 120.39614483668032 },
+      "error_code": "ValidationException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-locationservice-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-locationservice-logs-738291046572"
+        "name": "aws-locationservice-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-locationservice-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/locationservice/me-south-1/2026/04/14/locationservice_Z5S0DV7XYCL.log.gz"
+        "key": "AWSLogs/293847561023/locationservice/ap-northeast-2/2026/04/14/locationservice_9TSVG9595YP.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/locationservice/logs",
-      "log_stream": "me-south-1/yqpnruam",
-      "ingestion_time": "2026-04-14T08:24:23.723Z"
+      "log_stream": "ap-northeast-2/rtqchsv3",
+      "ingestion_time": "2026-04-14T09:28:18.272Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process", "network"],
     "dataset": "aws.location",
     "provider": "geo.amazonaws.com",
-    "duration": 266000000,
+    "duration": 312000000,
     "module": "aws"
   },
-  "message": "Location Service SearchPlaceIndex: geofence check",
-  "log": { "level": "info" },
+  "message": "Location Service UpdateDevicePosition FAILED: Invalid coordinates:",
+  "log": { "level": "error" },
+  "error": { "code": "ThrottlingException", "message": "Location Service failed", "type": "geo" },
   "service": { "name": "locationservice", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.locationservice", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "uckekp0ocha"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "o9531yk5qkh"
   },
   "input": { "type": "aws-cloudwatch" }
 }

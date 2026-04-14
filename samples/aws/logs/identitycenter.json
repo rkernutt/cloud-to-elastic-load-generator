@@ -1,55 +1,61 @@
 {
-  "@timestamp": "2026-04-14T08:24:23.219Z",
+  "@timestamp": "2026-04-14T09:28:17.596Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-southeast-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "identitycenter" }
   },
   "aws": {
     "iam_identity_center": {
-      "event_type": "RevokeAccess",
-      "user_name": "alice@corp.com",
+      "event_type": "Authorize",
+      "user_name": "svc-account@corp.com",
       "application_name": "Jira",
-      "permission_set": "ReadOnlyAccess",
-      "account_id": "738291046572",
+      "permission_set": "BillingAccess",
+      "account_id": "293847561023",
+      "error_code": "AccessDeniedException",
       "mfa_authenticated": true
     },
     "s3": {
       "bucket": {
-        "name": "aws-identitycenter-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-identitycenter-logs-738291046572"
+        "name": "aws-identitycenter-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-identitycenter-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/identitycenter/eu-central-2/2026/04/14/identitycenter_P2JE8W52SX.log.gz"
+        "key": "AWSLogs/293847561023/identitycenter/ap-southeast-1/2026/04/14/identitycenter_4Q86BU14ZCA.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/identitycenter/logs",
-      "log_stream": "eu-central-2/w7gcfr43",
-      "ingestion_time": "2026-04-14T08:24:23.576Z"
+      "log_stream": "ap-southeast-1/z52k5jue",
+      "ingestion_time": "2026-04-14T09:28:18.124Z"
     }
   },
-  "user": { "name": "alice@corp.com" },
-  "source": { "ip": "237.43.231.38" },
+  "user": { "name": "svc-account@corp.com" },
+  "source": { "ip": "103.176.17.200" },
   "event": {
-    "action": "RevokeAccess",
-    "outcome": "success",
+    "action": "Authorize",
+    "outcome": "failure",
     "category": "authentication",
     "dataset": "aws.identitycenter",
     "provider": "sso.amazonaws.com",
     "module": "aws"
   },
-  "message": "IAM Identity Center RevokeAccess: alice@corp.com -> Jira",
-  "log": { "level": "info" },
+  "message": "IAM Identity Center Authorize FAILED for svc-account@corp.com on Jira",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "MFARequired",
+    "message": "SSO authentication failed",
+    "type": "authentication"
+  },
   "service": { "name": "identitycenter", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.identitycenter", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "fr6lt29orr9"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "1ejkyr6b4pj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

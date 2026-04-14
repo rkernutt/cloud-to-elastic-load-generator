@@ -7,13 +7,13 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "me-central1",
-    "account": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" }
+    "region": "asia-south2",
+    "account": { "id": "globex-security-j0k1l2", "name": "Globex Security" }
   },
-  "orchestrator": { "cluster": { "name": "ml-cluster" } },
+  "orchestrator": { "cluster": { "name": "edge-cluster" } },
   "resource": {
-    "id": "//container.googleapis.com/ml-cluster",
-    "name": "ml-cluster",
+    "id": "//container.googleapis.com/edge-cluster",
+    "name": "edge-cluster",
     "sub_type": "api-server",
     "type": "k8s_object"
   },
@@ -27,33 +27,35 @@
       "version": "v1.4.0",
       "rule_number": "4.2.1",
       "posture_type": "kspm"
-    }
+    },
+    "impact": "GKE CIS 4.2.1 failure on edge-cluster.",
+    "remediation": "Harden edge-cluster per CIS GKE Benchmark 4.2.1."
   },
-  "result": { "evaluation": "passed" },
-  "severity": "none",
+  "result": { "evaluation": "failed" },
+  "severity": "high",
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "gcp"
   },
-  "message": "KSPM [CIS GKE / 4.2.1] passed: Ensure audit logging is enabled [ml-cluster]",
-  "log": { "level": "info" },
+  "message": "KSPM [CIS GKE / 4.2.1] failed: Ensure audit logging is enabled [edge-cluster]",
+  "log": { "level": "warn" },
   "service": { "name": "gcp-kspm", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-me-central1",
-    "id": "jo50fb8lwi"
+    "name": "elastic-agent-gcp-asia-south2",
+    "id": "19qn5fxkuhk"
   },
   "input": { "type": "http_endpoint" },
   "logName": "projects/project-unknown/logs/gcp-kspm",
-  "insertId": "ENPEMNL6VU9",
+  "insertId": "UA6EC4DSUN",
   "jsonPayload": {
-    "message": "KSPM [CIS GKE / 4.2.1] passed: Ensure audit logging is enabled [ml-cluster]"
+    "message": "KSPM [CIS GKE / 4.2.1] failed: Ensure audit logging is enabled [edge-cluster]"
   }
 }

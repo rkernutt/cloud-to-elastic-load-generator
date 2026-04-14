@@ -1,24 +1,24 @@
 {
-  "@timestamp": "2026-04-14T08:24:23.219Z",
+  "@timestamp": "2026-04-14T09:28:17.596Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
+    "region": "ca-central-1",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "mskconnect" }
   },
   "aws": {
-    "dimensions": { "ConnectorName": "opensearch-sink" },
+    "dimensions": { "ConnectorName": "debezium-postgres-source" },
     "mskconnect": {
-      "connector_name": "opensearch-sink",
-      "connector_arn": "arn:aws:kafkaconnect:ap-northeast-1:164820739518:connector/opensearch-sink/1nzyt1dh",
+      "connector_name": "debezium-postgres-source",
+      "connector_arn": "arn:aws:kafkaconnect:ca-central-1:164820739518:connector/debezium-postgres-source/06w2ibl6",
       "connector_state": "RUNNING",
-      "worker_count": 5,
-      "capacity_type": "MCU_2X",
-      "kafka_cluster_bootstrap_servers": "b-1.prod-kafka-ap-northeast-1.amazonaws.com:9092,b-2.prod-kafka-ap-northeast-1.amazonaws.com:9092",
-      "connector_class": "org.apache.kafka.connect.s3.S3SinkConnector",
+      "worker_count": 2,
+      "capacity_type": "MCU_1X",
+      "kafka_cluster_bootstrap_servers": "b-1.prod-kafka-ca-central-1.amazonaws.com:9092,b-2.prod-kafka-ca-central-1.amazonaws.com:9092",
+      "connector_class": "com.amazon.kinesis.kafka.AmazonKinesisSinkConnector",
       "tasks_status": "RUNNING",
-      "offset_lag": 492,
-      "record_count": 9554
+      "offset_lag": 196,
+      "record_count": 40251
     },
     "s3": {
       "bucket": {
@@ -26,13 +26,13 @@
         "arn": "arn:aws:s3:::aws-mskconnect-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/mskconnect/ap-northeast-1/2026/04/14/mskconnect_TS74I5I19L.log.gz"
+        "key": "AWSLogs/164820739518/mskconnect/ca-central-1/2026/04/14/mskconnect_49DWGHVCSRZ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/mskconnect/logs",
-      "log_stream": "ap-northeast-1/gecz8asu",
-      "ingestion_time": "2026-04-14T08:24:23.638Z"
+      "log_stream": "ca-central-1/qnj4clr6",
+      "ingestion_time": "2026-04-14T09:28:18.188Z"
     }
   },
   "event": {
@@ -41,10 +41,10 @@
     "category": ["process"],
     "dataset": "aws.mskconnect",
     "provider": "kafkaconnect.amazonaws.com",
-    "duration": 1969000000,
+    "duration": 2654000000,
     "module": "aws"
   },
-  "message": "MSK Connect opensearch-sink: RUNNING, lag=82",
+  "message": "MSK Connect debezium-postgres-source: RUNNING, lag=194",
   "log": { "level": "info" },
   "service": { "name": "mskconnect", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -52,8 +52,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "spb4pwo98oe"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "9bkbfmkoy5"
   },
   "input": { "type": "aws-cloudwatch" }
 }

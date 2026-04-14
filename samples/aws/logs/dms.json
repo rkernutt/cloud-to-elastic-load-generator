@@ -1,49 +1,78 @@
 {
-  "@timestamp": "2026-04-14T08:24:23.219Z",
+  "@timestamp": "2026-04-14T09:28:17.596Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
-    "service": { "name": "dms-serverless" }
+    "region": "ap-southeast-4",
+    "account": { "id": "293847561023", "name": "globex-staging" },
+    "service": { "name": "dms" }
   },
   "aws": {
-    "dmsserverless": {
-      "replication_config": "sqlserver-to-redshift",
-      "replication_type": "pre-migration-assessment",
-      "provisioned_capacity": 17,
-      "min_capacity": 1,
-      "max_capacity": 64,
-      "tables_loaded": 359,
-      "tables_loading": 11,
+    "dimensions": { "ReplicationInstanceIdentifier": "dms-staging-ux4k3zma" },
+    "dms": {
+      "replication_task_id": "on-prem-to-rds",
+      "migration_type": "full-load-and-cdc",
+      "replication_instance_identifier": "dms-staging-ux4k3zma",
+      "source_engine": "mysql",
+      "target_engine": "redshift",
+      "replication_instance_class": "dms.r5.large",
+      "task_status": "Load complete",
+      "full_load_rows_transferred": 7164731,
+      "cdc_incoming_changes": 77950,
+      "latency_ms": 1057,
+      "tables_loaded": 257,
       "tables_errored": 0,
-      "cdc_latency_seconds": 0,
-      "rows_applied": 204247,
-      "bytes_transferred": 293507687
+      "metrics": {
+        "FullLoadThroughputRowsSource": { "avg": 75463 },
+        "FullLoadThroughputRowsTarget": { "avg": 43814 },
+        "CDCIncomingChanges": { "avg": 7542 },
+        "CDCChangesMemorySource": { "avg": 518 },
+        "CDCChangesMemoryTarget": { "avg": 845 },
+        "CDCChangesDiskSource": { "avg": 97 },
+        "CDCChangesDiskTarget": { "avg": 93 },
+        "CDCLatencySource": { "avg": 3 },
+        "CDCLatencyTarget": { "avg": 2 },
+        "CPUUtilization": { "avg": 9.750104436247739 },
+        "FreeableMemory": { "avg": 3539389092 },
+        "FreeStorageSpace": { "avg": 15833691451 },
+        "NetworkReceiveThroughput": { "avg": 18806631 },
+        "NetworkTransmitThroughput": { "avg": 81351393 },
+        "ReadIOPS": { "avg": 215 },
+        "WriteIOPS": { "avg": 1193 }
+      }
     },
     "s3": {
       "bucket": {
-        "name": "aws-dms-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-dms-logs-814726593401"
+        "name": "aws-dms-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-dms-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/814726593401/dms/me-central-1/2026/04/14/dms_L84QUFKAGK9.log.gz" }
+      "object": {
+        "key": "AWSLogs/293847561023/dms/ap-southeast-4/2026/04/14/dms_ELV0LBYEQT6.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/dms/logs",
-      "log_stream": "me-central-1/2ykhr6rk",
-      "ingestion_time": "2026-04-14T08:24:23.694Z"
+      "log_stream": "ap-southeast-4/sn5dlg4m",
+      "ingestion_time": "2026-04-14T09:28:18.246Z"
     }
   },
-  "event": { "outcome": "success", "duration": 398112060, "module": "aws", "dataset": "aws.dms" },
-  "message": "DMS Serverless sqlserver-to-redshift: pre-migration-assessment active (17 DCU, 5309 rows/s)",
-  "service": { "name": "dms", "type": "aws" },
+  "event": {
+    "outcome": "success",
+    "category": ["database", "process"],
+    "dataset": "aws.dms",
+    "provider": "dms.amazonaws.com",
+    "duration": 22311000000000,
+    "module": "aws"
+  },
+  "message": "DMS on-prem-to-rds: 7,164,731 rows (mysql->redshift full-load-and-cdc)",
   "log": { "level": "info" },
+  "service": { "name": "dms", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.dms", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "eawxiuy2lg4"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "05eateams233"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,38 +1,38 @@
 {
-  "@timestamp": "2026-04-14T08:24:23.219Z",
+  "@timestamp": "2026-04-14T09:28:17.596Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-north-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "conveyor-fault", "KeyValue": "machine-prod-1" },
+    "dimensions": { "DetectorModelName": "pressure-monitor", "KeyValue": "zone-B" },
     "iotevents": {
-      "detector_model_name": "conveyor-fault",
-      "detector_id": "machine-prod-1",
-      "key_value": "machine-prod-1",
-      "event_name": "StateTransition",
-      "from_state": "Warning",
-      "to_state": "Alarm",
-      "input_name": "HealthCheck",
+      "detector_model_name": "pressure-monitor",
+      "detector_id": "zone-B",
+      "key_value": "zone-B",
+      "event_name": "AlarmReset",
+      "from_state": "Acknowledged",
+      "to_state": "Warning",
+      "input_name": "SensorInput",
       "action_type": "SetTimer",
-      "timer_name": "idleTimer",
+      "timer_name": "alarmTimer",
       "condition_expression": "$input.SensorInput.temperature > 85"
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotevents-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-iotevents-logs-814726593401"
+        "name": "aws-iotevents-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-iotevents-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/iotevents/ap-south-1/2026/04/14/iotevents_N81UNYZQLV.log.gz"
+        "key": "AWSLogs/164820739518/iotevents/eu-north-1/2026/04/14/iotevents_SPAQP35DI5I.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "ap-south-1/q5017vg5",
-      "ingestion_time": "2026-04-14T08:24:23.726Z"
+      "log_stream": "eu-north-1/uovsysd0",
+      "ingestion_time": "2026-04-14T09:28:18.275Z"
     }
   },
   "event": {
@@ -40,19 +40,19 @@
     "category": ["process"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 477000000,
+    "duration": 3000000,
     "module": "aws"
   },
-  "message": "IoT Events conveyor-fault/machine-prod-1: Warning → Alarm [StateTransition]",
-  "log": { "level": "warn" },
+  "message": "IoT Events pressure-monitor/zone-B: Acknowledged → Warning [AlarmReset]",
+  "log": { "level": "info" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iotevents", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "qcf33jnkfbj"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "pdc9t1xoycc"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,65 +1,70 @@
 {
-  "@timestamp": "2026-04-14T08:24:23.219Z",
+  "@timestamp": "2026-04-14T09:28:17.596Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-northeast-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "batch" }
   },
   "aws": {
-    "dimensions": { "JobQueue": "nightly-etl-queue" },
+    "dimensions": { "JobQueue": "ml-training-prep-queue" },
     "batch": {
-      "job": { "name": "nightly-etl", "id": "ui5pgacz-fyqo", "status": "SUCCEEDED" },
-      "job_queue": "nightly-etl-queue",
+      "job": { "name": "ml-training-prep", "id": "d6zea6ay-v1hl", "status": "FAILED" },
+      "job_queue": "ml-training-prep-queue",
       "compute_environment": "ce-ondemand",
       "structured_logging": true,
       "metrics": {
-        "PendingJobCount": { "avg": 19 },
-        "RunnableJobCount": { "avg": 26 },
-        "StartingJobCount": { "avg": 3 },
-        "RunningJobCount": { "avg": 19 },
-        "SucceededJobCount": { "sum": 1 },
-        "FailedJobCount": { "sum": 0 },
-        "CPUReserved": { "avg": 34.42943464375338 },
+        "PendingJobCount": { "avg": 84 },
+        "RunnableJobCount": { "avg": 23 },
+        "StartingJobCount": { "avg": 10 },
+        "RunningJobCount": { "avg": 80 },
+        "SucceededJobCount": { "sum": 0 },
+        "FailedJobCount": { "sum": 1 },
+        "CPUReserved": { "avg": 19.498354683485175 },
         "GPUReserved": { "avg": 0 },
-        "MemoryReserved": { "avg": 37.87701701435122 }
+        "MemoryReserved": { "avg": 46.42240707598722 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-batch-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-batch-logs-501938274650"
+        "name": "aws-batch-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-batch-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/batch/ap-southeast-1/2026/04/14/batch_BJXSY17QG96.log.gz"
+        "key": "AWSLogs/814726593401/batch/ap-northeast-2/2026/04/14/batch_7XY3TO17FBM.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/batch/logs",
-      "log_stream": "ap-southeast-1/xarj6s21",
-      "ingestion_time": "2026-04-14T08:24:23.526Z"
+      "log_stream": "ap-northeast-2/7vj1vwiq",
+      "ingestion_time": "2026-04-14T09:28:18.074Z"
     }
   },
-  "process": { "pid": 43181, "name": "spark-submit", "exit_code": 0 },
-  "log": { "level": "info" },
+  "process": { "pid": 53021, "name": "spark-submit", "exit_code": 1 },
+  "log": { "level": "error" },
   "event": {
     "category": ["process"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "aws.batch",
     "provider": "batch.amazonaws.com",
-    "duration": 3435000000000,
+    "duration": 5950000000000,
     "module": "aws"
   },
-  "message": "{\"jobId\":\"ui5pgacz-fyqo\",\"jobName\":\"nightly-etl\",\"jobQueue\":\"nightly-etl-queue\",\"level\":\"info\",\"message\":\"Job run started\",\"timestamp\":\"2026-04-14T08:24:23.219Z\",\"arrayIndex\":36}",
-  "host": { "name": "ip-60-252-87-251.ec2.internal", "hostname": "batch-crcdtpam" },
+  "message": "{\"jobId\":\"d6zea6ay-v1hl\",\"jobName\":\"ml-training-prep\",\"jobQueue\":\"ml-training-prep-queue\",\"level\":\"error\",\"message\":\"Job queue capacity exceeded\",\"timestamp\":\"2026-04-14T09:28:17.596Z\",\"arrayIndex\":95}",
+  "error": {
+    "code": "JobDependencyError",
+    "message": "Job failed with exit code 1",
+    "type": "process"
+  },
+  "host": { "name": "ip-16-62-153-93.ec2.internal", "hostname": "batch-p7rfe7d2" },
   "service": { "name": "batch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.batch", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "5krwiyon8gb"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "7uv591ly6ju"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -28,6 +28,8 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: "hidden",
+    // @elastic/eui is a single large bundle; remaining vendor chunk is mostly transitive deps.
+    chunkSizeWarningLimit: 1700,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -35,6 +37,8 @@ export default defineConfig({
             if (id.includes("@elastic/eui")) return "vendor-eui";
             if (id.includes("@emotion")) return "vendor-emotion";
             if (id.includes("/moment/")) return "vendor-moment";
+            if (id.includes("@elastic/datemath")) return "vendor-datemath";
+            if (id.includes("simple-icons")) return "vendor-simple-icons";
             // React core + scheduler together avoids prior vendor ↔ vendor-react cycles.
             if (/node_modules\/(react-dom|react\/|scheduler\/)/.test(id)) return "vendor-react";
             return "vendor";

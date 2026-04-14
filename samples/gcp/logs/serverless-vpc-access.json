@@ -2,24 +2,24 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west8",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
+    "region": "southamerica-west1",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
     "service": { "name": "serverless-vpc-access" }
   },
   "gcp": {
     "serverless_vpc_access": {
-      "connector_name": "vpc-conn-a2b1i5",
-      "network": "shared-vpc",
-      "ip_range": "10.15.203.0/28",
-      "throughput": "MIN",
-      "status": "UPDATING",
-      "instances_active": 55,
-      "packets_forwarded": 46839605
+      "connector_name": "vpc-conn-120k66",
+      "network": "default",
+      "ip_range": "10.22.127.0/28",
+      "throughput": "MAX",
+      "status": "DEGRADED",
+      "instances_active": 2,
+      "packets_forwarded": 3692
     }
   },
-  "event": { "outcome": "success", "duration": 6347, "module": "gcp", "dataset": "gcp.vpcaccess" },
-  "message": "Serverless VPC Access vpc-conn-a2b1i5 shared-vpc 10.15.203.0/28 throughput=MIN active=55 forwarded=46839605",
+  "event": { "outcome": "failure", "duration": 1495, "module": "gcp", "dataset": "gcp.vpcaccess" },
+  "message": "Serverless VPC Access vpc-conn-120k66 on default DEGRADED: packet forwarding stalled (3692 pkts)",
   "service": { "name": "serverless-vpc-access", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -27,27 +27,27 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west8",
-    "id": "rk8pdecigrb"
+    "name": "elastic-agent-gcp-southamerica-west1",
+    "id": "n31ue6thws"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-m3n4o5/logs/serverless-vpc-access",
+  "logName": "projects/globex-prod-a1b2c3/logs/serverless-vpc-access",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-shared-m3n4o5", "region": "europe-west8" }
+    "labels": { "project_id": "globex-prod-a1b2c3", "region": "southamerica-west1" }
   },
   "severity": "INFO",
-  "insertId": "CVQIXK7PFGI",
+  "insertId": "8DL15M91SCA",
   "jsonPayload": {
     "serverless_vpc_access": {
-      "connector_name": "vpc-conn-a2b1i5",
-      "network": "shared-vpc",
-      "ip_range": "10.15.203.0/28",
-      "throughput": "MIN",
-      "status": "UPDATING",
-      "instances_active": 55,
-      "packets_forwarded": 46839605
+      "connector_name": "vpc-conn-120k66",
+      "network": "default",
+      "ip_range": "10.22.127.0/28",
+      "throughput": "MAX",
+      "status": "DEGRADED",
+      "instances_active": 2,
+      "packets_forwarded": 3692
     },
-    "message": "Serverless VPC Access vpc-conn-a2b1i5 shared-vpc 10.15.203.0/28 throughput=MIN active=55 forwarded=46839605"
+    "message": "Serverless VPC Access vpc-conn-120k66 on default DEGRADED: packet forwarding stalled (3692 pkts)"
   }
 }

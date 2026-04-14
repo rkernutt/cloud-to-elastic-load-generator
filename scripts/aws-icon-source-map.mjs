@@ -13,6 +13,11 @@ export const AWS_ICON_SOURCE_ALIASES = {
   AmazonHealthOmics: "architecture-service/AWSHealthOmics.svg",
   AWSSystemsManagerIncidentManager: "resource/AWSSystemsManagerIncidentManager.svg",
   AmazonCloudWatch_RUM: "resource/AmazonCloudWatchRUM.svg",
+  // Removed from `aws-icons` package — map to closest published assets so `copy-icons` succeeds.
+  AmazonQLDB: "resource/Database.svg",
+  AmazonLookoutforMetrics: "resource/AmazonCloudWatchMetricsInsights.svg",
+  AWSPrivate5G: "architecture-service/AWSWavelength.svg",
+  AWSRoboMaker: "architecture-service/AWSSimSpaceWeaver.svg",
 };
 
 /** Category-* public filenames → relative path under `icons/` (category/). */

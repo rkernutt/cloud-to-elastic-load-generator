@@ -2,29 +2,29 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "southamerica-west1",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" },
+    "region": "europe-west8",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
     "service": { "name": "binary-authorization" }
   },
   "gcp": {
     "binary_authorization": {
-      "cluster": "dev-cluster",
-      "namespace": "default",
-      "pod": "checkout-zfh1b-18j8w",
-      "image": "gcr.io/globex-dev-g7h8i9/payments-api@sha256:hhv6am2q9mj",
-      "attestor": "prod-security",
-      "verdict": "ALLOWED",
-      "policy_name": "dev-permissive"
+      "cluster": "data-cluster",
+      "namespace": "monitoring",
+      "pod": "checkout-ln3dk-zf3ts",
+      "image": "us-docker.pkg.dev/globex-prod-a1b2c3/apps/checkout:v2.7",
+      "attestor": "build-attestor",
+      "verdict": "BREAK_GLASS",
+      "policy_name": "pci-images-only"
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 21000000,
+    "duration": 8000000,
     "module": "gcp",
     "dataset": "gcp.binaryauthorization"
   },
-  "message": "Binary Authorization ALLOWED for gcr.io/globex-dev-g7h8i9/payments-api@sha256:hhv6am2q9mj on dev-cluster/default/checkout-zfh1b-18j8w",
+  "message": "Binary Authorization BREAK_GLASS for us-docker.pkg.dev/globex-prod-a1b2c3/apps/checkout:v2.7 on data-cluster/monitoring/checkout-ln3dk-zf3ts",
   "log": { "level": "info" },
   "service": { "name": "binary-authorization", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
@@ -32,27 +32,27 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-southamerica-west1",
-    "id": "tne04t7b85"
+    "name": "elastic-agent-gcp-europe-west8",
+    "id": "n3ljp1ij5t"
   },
   "input": { "type": "http_endpoint" },
-  "logName": "projects/globex-dev-g7h8i9/logs/binary-authorization",
+  "logName": "projects/globex-prod-a1b2c3/logs/binary-authorization",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-dev-g7h8i9", "region": "southamerica-west1" }
+    "labels": { "project_id": "globex-prod-a1b2c3", "region": "europe-west8" }
   },
   "severity": "INFO",
-  "insertId": "1SXER8HTIR9",
+  "insertId": "EW0T2XD2CIG",
   "jsonPayload": {
     "binary_authorization": {
-      "cluster": "dev-cluster",
-      "namespace": "default",
-      "pod": "checkout-zfh1b-18j8w",
-      "image": "gcr.io/globex-dev-g7h8i9/payments-api@sha256:hhv6am2q9mj",
-      "attestor": "prod-security",
-      "verdict": "ALLOWED",
-      "policy_name": "dev-permissive"
+      "cluster": "data-cluster",
+      "namespace": "monitoring",
+      "pod": "checkout-ln3dk-zf3ts",
+      "image": "us-docker.pkg.dev/globex-prod-a1b2c3/apps/checkout:v2.7",
+      "attestor": "build-attestor",
+      "verdict": "BREAK_GLASS",
+      "policy_name": "pci-images-only"
     },
-    "message": "Binary Authorization ALLOWED for gcr.io/globex-dev-g7h8i9/payments-api@sha256:hhv6am2q9mj on dev-cluster/default/checkout-zfh1b-18j8w"
+    "message": "Binary Authorization BREAK_GLASS for us-docker.pkg.dev/globex-prod-a1b2c3/apps/checkout:v2.7 on data-cluster/monitoring/checkout-ln3dk-zf3ts"
   }
 }

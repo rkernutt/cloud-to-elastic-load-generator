@@ -1,60 +1,54 @@
 {
-  "@timestamp": "2026-04-14T08:24:23.219Z",
+  "@timestamp": "2026-04-14T09:28:17.596Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-south-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "comprehendmedical" }
   },
   "aws": {
-    "dimensions": { "Operation": "InferICD10CM" },
+    "dimensions": { "Operation": "InferSNOMEDCT" },
     "comprehendmedical": {
-      "operation": "InferICD10CM",
-      "entities_detected": 4,
-      "phi_entities": 0,
-      "icd10_concepts": 1,
-      "text_characters": 1201,
-      "data_access_role_arn": "arn:aws:iam::814726593401:role/ComprehendMedicalRole",
-      "s3_bucket": "clinical-notes",
-      "error_code": "InvalidRequestException"
+      "operation": "InferSNOMEDCT",
+      "entities_detected": 28,
+      "phi_entities": 10,
+      "snomedct_concepts": 24,
+      "text_characters": 2894,
+      "data_access_role_arn": "arn:aws:iam::164820739518:role/ComprehendMedicalRole",
+      "s3_bucket": "ehr-processed"
     },
     "s3": {
       "bucket": {
-        "name": "aws-comprehendmedical-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-comprehendmedical-logs-814726593401"
+        "name": "aws-comprehendmedical-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-comprehendmedical-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/comprehendmedical/ap-northeast-1/2026/04/14/comprehendmedical_2CJQUH2GOCG.log.gz"
+        "key": "AWSLogs/164820739518/comprehendmedical/ap-south-2/2026/04/14/comprehendmedical_4XL52E1NLWF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/comprehendmedical/logs",
-      "log_stream": "ap-northeast-1/spqqlc8q",
-      "ingestion_time": "2026-04-14T08:24:23.721Z"
+      "log_stream": "ap-south-2/feefyuh9",
+      "ingestion_time": "2026-04-14T09:28:18.271Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.comprehendmedical",
     "provider": "comprehendmedical.amazonaws.com",
     "module": "aws"
   },
-  "message": "Comprehend Medical InferICD10CM FAILED: Invalid request",
-  "log": { "level": "error" },
-  "error": {
-    "code": "InvalidRequestException",
-    "message": "Comprehend Medical failed",
-    "type": "ml"
-  },
+  "message": "Comprehend Medical InferSNOMEDCT: 28 entities, 10 PHI",
+  "log": { "level": "warn" },
   "service": { "name": "comprehendmedical", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.comprehendmedical", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "evqdhnpbhv"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "nby8s5rmpm"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -3,39 +3,34 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "germanywestcentral",
+    "region": "northeurope",
     "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-germanywestcentral",
-    "ephemeral_id": "1ksqbemlndi"
+    "name": "metricbeat-azure-northeurope",
+    "ephemeral_id": "cp2el5llejr"
   },
   "azure": {
-    "virtual_machines": {
+    "confidential_vm": {
       "metrics": {
-        "cpu_percent": { "avg": 60.51, "sum": 60.51, "count": 1 },
-        "network_in": { "avg": 195607341, "sum": 195607341, "count": 1 },
-        "network_out": { "avg": 125613130, "sum": 125613130, "count": 1 },
-        "disk_ops": { "avg": 442, "sum": 442, "count": 1 }
+        "request_count": { "avg": 149978, "sum": 149978, "count": 1 },
+        "error_count": { "avg": 0, "sum": 0, "count": 1 },
+        "duration_ms": { "avg": 46.68, "sum": 46.68, "count": 1 }
       },
-      "labels": { "resource_group": "rg-data-r8vab", "instance_id": "vm-1" }
+      "labels": { "resource_group": "rg-data-wrr8l", "resource_id": "res-a" }
     }
   },
-  "metricset": { "name": "virtual_machines", "period": 60000 },
-  "data_stream": {
-    "type": "metrics",
-    "dataset": "azure.virtual_machines_metrics",
-    "namespace": "default"
-  },
+  "metricset": { "name": "confidential_vm", "period": 60000 },
+  "data_stream": { "type": "metrics", "dataset": "azure.confidential_vm", "namespace": "default" },
   "input": { "type": "azure-monitor" },
-  "event": { "dataset": "azure.virtual_machines_metrics", "module": "azure" },
+  "event": { "dataset": "azure.confidential_vm", "module": "azure" },
   "azureMonitorMetric": {
     "time": "2026-04-07T12:00:00.000Z",
-    "metricName": "cpu_percent",
-    "resourceGroup": "rg-virtual-machines",
+    "metricName": "request_count",
+    "resourceGroup": "rg-confidential-vm",
     "subscriptionId": "8f6b5c4d-3e2a-1098-7654-3210fedcba98",
-    "timeseries": [{ "data": [{ "average": 60.51, "count": 1 }] }]
+    "timeseries": [{ "data": [{ "average": 149978, "count": 1 }] }]
   }
 }

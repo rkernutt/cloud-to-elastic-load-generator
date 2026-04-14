@@ -2,55 +2,62 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "australia-southeast2",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" },
-    "service": { "name": "packet-mirroring" }
+    "region": "europe-west1",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" },
+    "service": { "name": "vpc-flow" }
   },
   "gcp": {
-    "packet_mirroring": {
-      "policy_name": "pm-policy-872xb",
-      "mirrored_network": "data-vpc",
-      "collector_instance": "mirror-collector-oofex3",
-      "mirrored_instances_count": 45,
-      "filter_protocol": "tcp",
-      "filter_cidr": "10.152.218.0/24"
+    "vpc_flow": {
+      "src_ip": "232.149.160.13",
+      "dst_ip": "182.98.61.214",
+      "src_port": 18146,
+      "dst_port": 80,
+      "protocol": "UDP",
+      "bytes_sent": 272499,
+      "packets_sent": 257,
+      "direction": "ingress",
+      "subnet": "projects/globex-prod-a1b2c3/regions/europe-west1/subnetworks/private",
+      "vpc_name": "shared-vpc",
+      "action": "ALLOW",
+      "rule_name": "allow-internal-723m"
     }
   },
-  "event": {
-    "outcome": "success",
-    "duration": 259000000,
-    "module": "gcp",
-    "dataset": "gcp.packetmirroring"
-  },
-  "message": "Packet mirroring pm-policy-872xb mirroring 45 instances to mirror-collector-oofex3 (tcp, 10.152.218.0/24)",
-  "service": { "name": "packet-mirroring", "type": "gcp" },
+  "event": { "outcome": "success", "duration": 2000000, "module": "gcp", "dataset": "gcp.vpcflow" },
+  "message": "VPC flow ALLOW ingress 272499b 257pkts proto UDP",
+  "service": { "name": "vpc-flow", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.packetmirroring", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.vpcflow", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-australia-southeast2",
-    "id": "gj5vgs0e39p"
+    "name": "elastic-agent-gcp-europe-west1",
+    "id": "zqfc3s4tdyf"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-security-j0k1l2/logs/packet-mirroring",
+  "logName": "projects/globex-dev-g7h8i9/logs/vpc-flow",
   "resource": {
-    "type": "global",
-    "labels": { "project_id": "globex-security-j0k1l2", "region": "australia-southeast2" }
+    "type": "gce_subnetwork",
+    "labels": { "project_id": "globex-dev-g7h8i9", "region": "europe-west1" }
   },
   "severity": "INFO",
-  "insertId": "0LPS9LSY04XB",
+  "insertId": "GBQ6CVJLSD",
   "jsonPayload": {
-    "packet_mirroring": {
-      "policy_name": "pm-policy-872xb",
-      "mirrored_network": "data-vpc",
-      "collector_instance": "mirror-collector-oofex3",
-      "mirrored_instances_count": 45,
-      "filter_protocol": "tcp",
-      "filter_cidr": "10.152.218.0/24"
+    "vpc_flow": {
+      "src_ip": "232.149.160.13",
+      "dst_ip": "182.98.61.214",
+      "src_port": 18146,
+      "dst_port": 80,
+      "protocol": "UDP",
+      "bytes_sent": 272499,
+      "packets_sent": 257,
+      "direction": "ingress",
+      "subnet": "projects/globex-prod-a1b2c3/regions/europe-west1/subnetworks/private",
+      "vpc_name": "shared-vpc",
+      "action": "ALLOW",
+      "rule_name": "allow-internal-723m"
     },
-    "message": "Packet mirroring pm-policy-872xb mirroring 45 instances to mirror-collector-oofex3 (tcp, 10.152.218.0/24)"
+    "message": "VPC flow ALLOW ingress 272499b 257pkts proto UDP"
   }
 }

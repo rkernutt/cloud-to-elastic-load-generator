@@ -3,43 +3,46 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west9",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "northamerica-northeast1",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west9",
-    "ephemeral_id": "eo06rc7lpzf"
+    "name": "metricbeat-gcp-northamerica-northeast1",
+    "ephemeral_id": "v3k33i87q5a"
   },
   "gcp": {
-    "vertex-ai-search": {
+    "vertex-ai": {
       "metrics": {
-        "request_count": { "avg": 3475, "sum": 3475, "count": 1 },
-        "error_count": { "avg": 0, "sum": 0, "count": 1 },
-        "latency": { "avg": 101.99, "sum": 101.99, "count": 1 }
+        "prediction_count": { "avg": 970, "sum": 970, "count": 1 },
+        "prediction_latencies_ms": { "avg": 263.52, "sum": 263.52, "count": 1 },
+        "online_prediction_request_count": { "avg": 567, "sum": 567, "count": 1 },
+        "failed_prediction_count": { "avg": 0, "sum": 0, "count": 1 },
+        "active_models": { "avg": 3, "sum": 3, "count": 1 },
+        "accelerator_duty_cycle": { "avg": 0.56, "sum": 0.56, "count": 1 }
       },
-      "labels": { "resource_id": "resource-a" }
+      "labels": { "endpoint_id": "endpoint-chat" }
     }
   },
-  "metricset": { "name": "vertex-ai-search", "period": 60000 },
-  "data_stream": { "type": "metrics", "dataset": "gcp.vertexaisearch", "namespace": "default" },
+  "metricset": { "name": "vertex-ai", "period": 60000 },
+  "data_stream": { "type": "metrics", "dataset": "gcp.vertexai_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.vertexaisearch", "module": "gcp" },
+  "event": { "dataset": "gcp.vertexai_metrics", "module": "gcp" },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/vertex-ai-search/request_count",
+      "type": "custom.googleapis.com/opentelemetry/elastic/samples/vertex-ai/prediction_count",
       "labels": {}
     },
     "resource": {
       "type": "global",
-      "labels": { "project_id": "globex-security-j0k1l2", "region": "europe-west9" }
+      "labels": { "project_id": "globex-shared-m3n4o5", "region": "northamerica-northeast1" }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 3475 } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 970 } }
     ]
   }
 }

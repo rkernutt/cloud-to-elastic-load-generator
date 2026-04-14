@@ -1,57 +1,57 @@
 {
-  "@timestamp": "2026-04-14T08:24:23.219Z",
+  "@timestamp": "2026-04-14T09:28:17.596Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-south-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "lakeformation" }
   },
   "aws": {
     "dimensions": {
-      "ResourceArn": "arn:aws:glue:ca-west-1:738291046572:table/data_lake/users",
-      "Principal": "arn:aws:iam::738291046572:role/analyst-role"
+      "ResourceArn": "arn:aws:glue:ap-south-1:501938274650:table/analytics/users",
+      "Principal": "arn:aws:iam::501938274650:role/glue-role"
     },
     "lakeformation": {
-      "database": "data_lake",
+      "database": "analytics",
       "table": "users",
       "action": "CreateLakeFormationTag",
-      "principal_arn": "arn:aws:iam::738291046572:role/analyst-role",
-      "resource_arn": "arn:aws:glue:ca-west-1:738291046572:table/data_lake/users",
-      "permissions": ["SELECT"],
-      "lf_tag_key": "environment",
+      "principal_arn": "arn:aws:iam::501938274650:role/glue-role",
+      "resource_arn": "arn:aws:glue:ap-south-1:501938274650:table/analytics/users",
+      "permissions": ["SELECT", "INSERT"],
+      "lf_tag_key": "team",
       "lf_tag_values": ["pii"],
       "metrics": {
-        "GrantCount": { "sum": 46 },
-        "DatabaseCount": { "avg": 16 },
-        "TableCount": { "avg": 68 },
+        "GrantCount": { "sum": 6 },
+        "DatabaseCount": { "avg": 20 },
+        "TableCount": { "avg": 36 },
         "DataLakeSettings": { "avg": 1 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-lakeformation-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-lakeformation-logs-738291046572"
+        "name": "aws-lakeformation-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-lakeformation-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/lakeformation/ca-west-1/2026/04/14/lakeformation_YFWKMIXVN5K.log.gz"
+        "key": "AWSLogs/501938274650/lakeformation/ap-south-1/2026/04/14/lakeformation_TCWEFXTO8SE.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lakeformation/logs",
-      "log_stream": "ca-west-1/4ontf79c",
-      "ingestion_time": "2026-04-14T08:24:23.655Z"
+      "log_stream": "ap-south-1/bj8niysc",
+      "ingestion_time": "2026-04-14T09:28:18.208Z"
     }
   },
   "event": {
     "action": "CreateLakeFormationTag",
-    "duration": 374000000,
+    "duration": 833000000,
     "outcome": "success",
     "category": ["database", "iam"],
     "dataset": "aws.lakeformation",
     "provider": "lakeformation.amazonaws.com",
     "module": "aws"
   },
-  "message": "Lake Formation CreateLakeFormationTag: SELECT on data_lake.users",
+  "message": "Lake Formation CreateLakeFormationTag: SELECT,INSERT on analytics.users",
   "log": { "level": "info" },
   "service": { "name": "lakeformation", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -59,8 +59,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "q1hosfd3tzo"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "a891lm9m04"
   },
   "input": { "type": "aws-cloudwatch" }
 }

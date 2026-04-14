@@ -1,52 +1,57 @@
 {
-  "@timestamp": "2026-04-14T08:24:23.219Z",
+  "@timestamp": "2026-04-14T09:28:17.596Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "us-west-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "detective" }
   },
   "aws": {
     "detective": {
-      "entity_type": "AwsIamRole",
-      "entity_id": "arn:aws:iam::738291046572:user/suspicious",
-      "behavior_type": "Normal",
-      "severity_score": 27.446525888394763,
-      "finding_count": 0
+      "entity_type": "AwsIamUser",
+      "entity_id": "i-m6gwvtsbu8r",
+      "behavior_type": "Impossible Travel",
+      "severity_score": 83.15544263023827,
+      "finding_count": 10
     },
     "s3": {
       "bucket": {
-        "name": "aws-detective-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-detective-logs-738291046572"
+        "name": "aws-detective-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-detective-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/detective/ap-northeast-2/2026/04/14/detective_LU65F1YICDJ.log.gz"
+        "key": "AWSLogs/293847561023/detective/us-west-2/2026/04/14/detective_I6UYEAU868P.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/detective/logs",
-      "log_stream": "ap-northeast-2/dou7qkr0",
-      "ingestion_time": "2026-04-14T08:24:23.577Z"
+      "log_stream": "us-west-2/8hv6ufc3",
+      "ingestion_time": "2026-04-14T09:28:18.126Z"
     }
   },
   "event": {
-    "kind": "event",
-    "outcome": "success",
+    "kind": "alert",
+    "outcome": "failure",
     "category": "intrusion_detection",
     "dataset": "aws.detective",
     "provider": "detective.amazonaws.com",
     "module": "aws"
   },
-  "message": "Detective: entity behavior within normal baseline",
-  "log": { "level": "info" },
+  "message": "Detective [HIGH]: Impossible Travel detected - 4 related findings",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "AnomalousBehavior",
+    "message": "Impossible Travel detected",
+    "type": "security"
+  },
   "service": { "name": "detective", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.detective", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "b1upxaz97y"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "hvzuzews8te"
   },
   "input": { "type": "http_endpoint" }
 }

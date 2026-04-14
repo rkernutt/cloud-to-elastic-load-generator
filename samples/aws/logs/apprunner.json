@@ -1,77 +1,76 @@
 {
-  "@timestamp": "2026-04-14T08:24:23.219Z",
+  "@timestamp": "2026-04-14T09:28:17.596Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "il-central-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "apprunner" }
   },
   "aws": {
-    "dimensions": { "ServiceName": "frontend", "ServiceId": "gvja9qlqhfe" },
+    "dimensions": { "ServiceName": "webhook-handler", "ServiceId": "gyosqj718l" },
     "apprunner": {
-      "service_name": "frontend",
-      "service_arn": "arn:aws:apprunner:ap-northeast-2:164820739518:service/frontend/gvja9qlqhfe",
+      "service_name": "webhook-handler",
+      "service_arn": "arn:aws:apprunner:il-central-1:501938274650:service/webhook-handler/gyosqj718l",
       "auto_scaling": {
         "min_size": 0,
-        "max_size": 25,
-        "desired_count": 5,
-        "scale_from_zero": false
+        "max_size": 50,
+        "desired_count": 8,
+        "scale_from_zero": true
       },
-      "structured_logging": true,
+      "structured_logging": false,
       "metrics": {
         "Requests": { "sum": 1 },
-        "2xxStatusResponses": { "sum": 0 },
+        "2xxStatusResponses": { "sum": 1 },
         "4xxStatusResponses": { "sum": 0 },
-        "5xxStatusResponses": { "sum": 1 },
-        "HttpStatusCode2XX": { "sum": 0 },
-        "RequestLatency": { "avg": 934, "p99": 2802 },
-        "ActiveInstances": { "avg": 4 },
-        "ConcurrentRequests": { "avg": 20 },
-        "CPUUtilization": { "avg": 41.056907100861245 },
-        "MemoryUtilization": { "avg": 76.6437038649181 }
+        "5xxStatusResponses": { "sum": 0 },
+        "HttpStatusCode2XX": { "sum": 1 },
+        "RequestLatency": { "avg": 31, "p99": 93 },
+        "ActiveInstances": { "avg": 9 },
+        "ConcurrentRequests": { "avg": 28 },
+        "CPUUtilization": { "avg": 55.06122743023572 },
+        "MemoryUtilization": { "avg": 18.669087459275055 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-apprunner-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-apprunner-logs-164820739518"
+        "name": "aws-apprunner-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-apprunner-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/apprunner/ap-northeast-2/2026/04/14/apprunner_FRW6CUJ6JKS.log.gz"
+        "key": "AWSLogs/501938274650/apprunner/il-central-1/2026/04/14/apprunner_6HK1F1BFVGM.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/apprunner/logs",
-      "log_stream": "ap-northeast-2/jtmkvenv",
-      "ingestion_time": "2026-04-14T08:24:23.524Z"
+      "log_stream": "il-central-1/v2j6nixb",
+      "ingestion_time": "2026-04-14T09:28:18.072Z"
     }
   },
   "http": {
-    "request": { "method": "PATCH", "bytes": 2035 },
-    "response": { "status_code": 502, "bytes": 1197 }
+    "request": { "method": "PATCH", "bytes": 4770 },
+    "response": { "status_code": 201, "bytes": 6047 }
   },
-  "url": { "path": "/api/v1/products" },
-  "client": { "ip": "224.95.231.243" },
+  "url": { "path": "/health" },
+  "client": { "ip": "151.83.194.136" },
   "event": {
-    "duration": 934000000,
-    "outcome": "failure",
+    "duration": 31000000,
+    "outcome": "success",
     "category": ["web", "process"],
     "dataset": "aws.apprunner",
     "provider": "apprunner.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"service\":\"frontend\",\"status\":502,\"latency_ms\":934,\"timestamp\":\"2026-04-14T08:24:23.219Z\"}",
-  "log": { "level": "error" },
-  "error": { "code": "BadGateway", "message": "HTTP 502", "type": "server" },
-  "host": { "name": "ip-14-247-172-206.ec2.internal", "hostname": "apprunner-dbys104b" },
+  "message": "PUT /health 201 31ms",
+  "log": { "level": "info" },
+  "host": { "name": "ip-233-45-148-58.ec2.internal", "hostname": "apprunner-yf8xwx3e" },
   "service": { "name": "apprunner", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.apprunner", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "ambae4glte"
+    "name": "filebeat-aws-il-central-1",
+    "ephemeral_id": "qm7nu98cw8d"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # ── Stage 1: Build ────────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
 
@@ -5,10 +6,15 @@ WORKDIR /app
 
 # Install deps without lifecycle scripts — postinstall runs `copy-icons`, which imports `src/data/iconMap.ts`
 COPY package.json package-lock.json ./
-RUN npm ci --ignore-scripts
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --ignore-scripts
 
-# Full tree, then sync AWS icons (vite-node + iconMap) and build
-COPY . .
+# Copy only what Vite needs so edits to docs/tests/docker files don’t invalidate this layer
+COPY index.html vite.config.ts tsconfig.json tsconfig.node.json ./
+COPY scripts ./scripts
+COPY public ./public
+COPY src ./src
+COPY installer ./installer
 RUN npm run copy-icons && npm run build
 
 # ── Stage 2: Serve ────────────────────────────────────────────────────────────
