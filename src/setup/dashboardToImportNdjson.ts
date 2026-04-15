@@ -409,7 +409,16 @@ async function buildPanel(panel: PanelShape, dashTitle: string, index: number) {
   };
 }
 
-export async function dashboardDefToImportNdjsonLine(def: DashboardDef): Promise<string> {
+export type DashboardSavedObjectPayload = {
+  id: string;
+  attributes: Record<string, unknown>;
+  references: unknown[];
+  coreMigrationVersion: string;
+  typeMigrationVersion: string;
+};
+
+/** Full saved-object shape for NDJSON import and for PUT /api/saved_objects/dashboard/:id (Serverless). */
+export async function buildDashboardSavedObjectPayload(def: DashboardDef): Promise<DashboardSavedObjectPayload> {
   const panelsRaw = def.panels;
   if (!Array.isArray(panelsRaw)) {
     throw new Error("Dashboard definition missing panels array");
@@ -442,14 +451,26 @@ export async function dashboardDefToImportNdjsonLine(def: DashboardDef): Promise
     },
   };
 
+  return {
+    id,
+    attributes,
+    references: [],
+    coreMigrationVersion: "8.8.0",
+    typeMigrationVersion: "10.3.0",
+  };
+}
+
+export async function dashboardDefToImportNdjsonLine(def: DashboardDef): Promise<string> {
+  const { id, attributes, references, coreMigrationVersion, typeMigrationVersion } =
+    await buildDashboardSavedObjectPayload(def);
   const obj = {
     id,
     type: "dashboard",
     namespaces: ["default"],
     attributes,
-    references: [] as unknown[],
-    coreMigrationVersion: "8.8.0",
-    typeMigrationVersion: "10.3.0",
+    references,
+    coreMigrationVersion,
+    typeMigrationVersion,
   };
 
   return JSON.stringify(obj) + "\n";

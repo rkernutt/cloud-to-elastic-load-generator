@@ -832,12 +832,18 @@ export function SetupPage({
 
   async function uninstallMlJobs() {
     const files = filteredMlJobPayload();
-    const totalJobs = files.reduce((n, f) => n + f.jobs.length, 0);
+    const entries = files.flatMap((f) => f.jobs);
+    const totalJobs = entries.length;
+    /** Independent per-job calls; pool avoids head-of-line blocking (was ~4×N sequential round-trips). */
+    const ML_UNINSTALL_CONCURRENCY = 12;
     addLog(`Removing ${totalJobs} ML jobs across ${files.length} groups…`);
     let ok = 0;
     let fail = 0;
-    for (const file of files) {
-      for (const entry of file.jobs) {
+    let next = 0;
+    const worker = async () => {
+      while (next < entries.length) {
+        const i = next++;
+        const entry = entries[i]!;
         try {
           await uninstallOneMlJob(entry.id);
           ok++;
@@ -846,7 +852,12 @@ export function SetupPage({
           addLog(`  ✗ ML job ${entry.id}: ${e}`, "error");
         }
       }
-    }
+    };
+    await Promise.all(
+      Array.from({ length: Math.min(ML_UNINSTALL_CONCURRENCY, Math.max(1, entries.length)) }, () =>
+        worker()
+      )
+    );
     addLog(
       `  ✓ ML jobs: ${ok} removed${fail > 0 ? `, ${fail} failed` : ""}`,
       fail > 0 ? "warn" : "ok"

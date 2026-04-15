@@ -1,5 +1,8 @@
 import type { CloudSetupBundle, DashboardDef, MlJobFile, PipelineEntry } from "./types";
-import { dashboardDefToImportNdjsonLine } from "./dashboardToImportNdjson";
+import {
+  buildDashboardSavedObjectPayload,
+  dashboardDefToImportNdjsonLine,
+} from "./dashboardToImportNdjson";
 import {
   proxyCall,
   isKibanaFeatureUnavailable,
@@ -8,6 +11,72 @@ import {
 } from "./setupProxy";
 
 export type SetupLogFn = (text: string, type?: "info" | "ok" | "error" | "warn") => void;
+
+function savedObjectImportHasConflict(raw: unknown): boolean {
+  if (!raw || typeof raw !== "object") return false;
+  const r = raw as { errors?: Array<{ error?: { type?: string } }> };
+  if (!Array.isArray(r.errors)) return false;
+  return r.errors.some((e) => e?.error?.type === "conflict");
+}
+
+/**
+ * Serverless often disables saved-object DELETE (and may still return import conflicts even with
+ * overwrite=true). PUT /api/saved_objects/dashboard/:id updates attributes in place when allowed.
+ */
+async function updateDashboardViaSavedObjectPut(
+  kb: string,
+  apiKey: string,
+  dash: DashboardDef
+): Promise<void> {
+  const { id, attributes, references } = await buildDashboardSavedObjectPayload(dash);
+  const encId = encodeURIComponent(id);
+
+  let cur: { version?: string } | null = null;
+  try {
+    cur = (await proxyCall({
+      baseUrl: kb,
+      apiKey,
+      path: `/api/saved_objects/dashboard/${encId}`,
+      method: "GET",
+      allow404: true,
+    })) as { version?: string } | null;
+  } catch (e) {
+    if (!isKibanaFeatureUnavailable(String(e))) throw e;
+  }
+
+  const body: Record<string, unknown> = { attributes, references };
+  if (cur?.version) {
+    body.version = cur.version;
+  }
+
+  try {
+    await proxyCall({
+      baseUrl: kb,
+      apiKey,
+      path: `/api/saved_objects/dashboard/${encId}`,
+      method: "PUT",
+      body,
+    });
+  } catch (firstErr) {
+    const m = String(firstErr);
+    if (!m.includes("HTTP 409")) throw firstErr;
+    const again = (await proxyCall({
+      baseUrl: kb,
+      apiKey,
+      path: `/api/saved_objects/dashboard/${encId}`,
+      method: "GET",
+      allow404: true,
+    })) as { version?: string } | null;
+    if (!again?.version) throw firstErr;
+    await proxyCall({
+      baseUrl: kb,
+      apiKey,
+      path: `/api/saved_objects/dashboard/${encId}`,
+      method: "PUT",
+      body: { attributes, references, version: again.version },
+    });
+  }
+}
 
 export async function runSetupInstall(opts: {
   setupBundle: CloudSetupBundle;
@@ -121,7 +190,7 @@ export async function runSetupInstall(opts: {
           const raw = (await proxyCall({
             baseUrl: kb,
             apiKey,
-            path: "/api/saved_objects/_import?overwrite=false",
+            path: "/api/saved_objects/_import?overwrite=true",
             method: "POST",
             kibanaSavedObjectsNdjson: ndjson,
           })) as {
@@ -132,13 +201,18 @@ export async function runSetupInstall(opts: {
           const importedOk =
             raw?.success === true ||
             (typeof raw?.successCount === "number" && raw.successCount > 0);
-          if (!importedOk) {
+          if (importedOk) {
+            ok++;
+            addLog(`  ✓ Dashboard "${dash.title}" (saved objects import)`, "ok");
+          } else if (savedObjectImportHasConflict(raw)) {
+            await updateDashboardViaSavedObjectPut(kb, apiKey, dash);
+            ok++;
+            addLog(`  ✓ Dashboard "${dash.title}" (saved object update)`, "ok");
+          } else {
             throw new Error(
               `Saved objects import: ${JSON.stringify(raw?.errors ?? raw).slice(0, 400)}`
             );
           }
-          ok++;
-          addLog(`  ✓ Dashboard "${dash.title}" (saved objects import)`, "ok");
         } catch (e2) {
           fail++;
           addLog(`  ✗ Dashboard "${dash.title}": ${e2}`, "error");
