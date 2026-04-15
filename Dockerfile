@@ -15,6 +15,44 @@ COPY scripts ./scripts
 COPY public ./public
 COPY src ./src
 COPY installer ./installer
+# Fail fast when the build context omits installer JSON (sparse clone, wrong directory, or broken
+# sync). A healthy tree sends ~3–5MB+ to the daemon; ~100KB almost always means dashboards/ML
+# never reached the image — npm run build would then ship an empty AWS (or other) bundle.
+RUN set -eu; \
+  aws_d=$(find installer/aws-custom-dashboards -maxdepth 1 -name '*-dashboard.json' 2>/dev/null | wc -l); \
+  aws_ml=$(find installer/aws-custom-ml-jobs/jobs -maxdepth 1 -name '*.json' 2>/dev/null | wc -l); \
+  az_d=$(find installer/azure-custom-dashboards -maxdepth 1 -name '*-dashboard.json' 2>/dev/null | wc -l); \
+  gcp_d=$(find installer/gcp-custom-dashboards -maxdepth 1 -name '*-dashboard.json' 2>/dev/null | wc -l); \
+  if [ "$aws_d" -lt 1 ] || [ "$aws_ml" -lt 1 ] || [ "$az_d" -lt 1 ] || [ "$gcp_d" -lt 1 ]; then \
+    echo "ERROR: installer/ in this build is incomplete."; \
+    echo "  aws *-dashboard.json (top-level): $aws_d (need >= 1)"; \
+    echo "  aws ml jobs/*.json:               $aws_ml (need >= 1)"; \
+    echo "  azure *-dashboard.json:          $az_d (need >= 1)"; \
+    echo "  gcp *-dashboard.json:             $gcp_d (need >= 1)"; \
+    echo ""; \
+    echo "Those directories must exist on the Mac/Linux host before docker build — COPY cannot create them."; \
+    echo "If ls said 'No such file', they are not in your working tree (common: git sparse-checkout)."; \
+    echo ""; \
+    du -sh installer 2>/dev/null || true; \
+    echo ""; \
+    echo "--- installer/ (what actually reached this build) ---"; \
+    ls -la installer 2>&1 | head -40 || true; \
+    echo ""; \
+    echo "--- installer/aws-custom-dashboards (expect ~100+ *-dashboard.json) ---"; \
+    ls -la installer/aws-custom-dashboards 2>&1 | head -20 || true; \
+    echo "--- installer/aws-custom-ml-jobs/jobs ---"; \
+    ls -la installer/aws-custom-ml-jobs/jobs 2>&1 | head -20 || true; \
+    echo ""; \
+    echo "Fix on the host at the same path you run docker compose from:"; \
+    echo "  • Verify: ls -d installer/aws-custom-dashboards installer/aws-custom-ml-jobs"; \
+    echo "  • Sparse checkout (two commands):"; \
+    echo "      git sparse-checkout add installer/aws-custom-dashboards installer/aws-custom-ml-jobs installer/aws-custom-pipelines"; \
+    echo "      git sparse-checkout reapply"; \
+    echo "  • Or full tree: git sparse-checkout disable"; \
+    echo "  • Restore from git: git checkout HEAD -- installer/aws-custom-dashboards installer/aws-custom-ml-jobs"; \
+    echo "  • Then: docker compose build --no-cache"; \
+    exit 1; \
+  fi
 RUN npm run copy-icons && npm run build
 
 # ── Stage 2: Serve ────────────────────────────────────────────────────────────

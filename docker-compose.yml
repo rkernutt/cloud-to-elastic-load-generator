@@ -1,3 +1,12 @@
+# Build needs a full installer/ tree on disk (Docker only COPYs what exists in this directory).
+# If the image build errors on missing AWS paths, on the host run:
+#   ls -d installer/aws-custom-dashboards installer/aws-custom-ml-jobs
+# If either is missing, fix checkout, e.g.:
+#   git sparse-checkout add installer/aws-custom-dashboards installer/aws-custom-ml-jobs installer/aws-custom-pipelines
+#   git sparse-checkout reapply
+# or: git sparse-checkout disable
+# Then: docker compose build --no-cache
+
 services:
   cloud-to-elastic-load-generator:
     build:

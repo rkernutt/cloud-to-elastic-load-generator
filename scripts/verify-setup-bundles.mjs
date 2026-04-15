@@ -23,7 +23,11 @@ for (const [name, b] of bundles) {
 if (failed) {
   console.error(
     "\nThese assets come from installer/ (e.g. installer/*-custom-dashboards/*-dashboard.json). " +
-      "Use a full repository checkout—avoid sparse clones that omit installer—and run npm run build again.\n"
+      "Use a full repository checkout—avoid sparse clones that omit installer—and run npm run build again."
+  );
+  console.error(
+    "\nDocker: if the build log showed a tiny context (~100KB instead of several MB), the daemon never " +
+      "received most of installer/. Run `docker compose build` from the full repo root after `git clone`.\n"
   );
   process.exit(1);
 }
