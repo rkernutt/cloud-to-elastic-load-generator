@@ -20,6 +20,10 @@ export function valuesFromEagerJsonGlob<T>(modules: Record<string, unknown>): T[
     if (Array.isArray(inner.panels) || Array.isArray(inner.jobs)) {
       return o.default as T;
     }
+    /** Vite JSON interop: `panels` / `jobs` on the namespace while `default` is empty or incomplete. */
+    if (Array.isArray(o.panels) || Array.isArray(o.jobs)) {
+      return mod as T;
+    }
     const keys = Object.keys(o);
     const looksLikeEsmDefaultExport =
       (keys.length === 1 && keys[0] === "default") ||

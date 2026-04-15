@@ -24,4 +24,16 @@ describe("valuesFromEagerJsonGlob", () => {
     const [one] = valuesFromEagerJsonGlob<typeof mod>({ a: mod });
     expect(one).toBe(mod);
   });
+
+  it("uses namespace panels when default is empty but panels are hoisted", () => {
+    const mod = {
+      default: {},
+      title: "T",
+      panels: [{ x: 1 }],
+      __esModule: true,
+    };
+    const [one] = valuesFromEagerJsonGlob<{ title: string; panels: unknown[] }>({ a: mod });
+    expect(one).toEqual(mod);
+    expect((one as { panels: unknown[] }).panels).toHaveLength(1);
+  });
 });

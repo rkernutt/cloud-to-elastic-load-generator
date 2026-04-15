@@ -96,32 +96,31 @@ type LogLine = { text: string; type: "info" | "ok" | "error" | "warn"; at?: stri
  * ResizeObserver; with blockSize:0 while closed the observer can stay at 0 so opening
  * shows no content — this pattern matches ServiceGrid (collapsed === true hides body).
  *
- * **`collapsedMap[k] === false`** means the user expanded that group. Missing key = collapsed (default).
- * Use `setCollapsedMap({})` to collapse every group. To expand all visible groups, set each key to `false`.
+ * **`expandedSections.has(k)`** means the user opened that group. Default = all collapsed (empty Set).
  */
 function SetupCollapsible({
   sectionKey,
-  collapsedMap,
-  setCollapsedMap,
+  expandedSections,
+  setExpandedSections,
   header,
   children,
 }: {
   sectionKey: string;
-  collapsedMap: Record<string, boolean>;
-  setCollapsedMap: Dispatch<SetStateAction<Record<string, boolean>>>;
+  expandedSections: Set<string>;
+  setExpandedSections: Dispatch<SetStateAction<Set<string>>>;
   header: ReactNode;
   children: ReactNode;
 }) {
-  const expanded = collapsedMap[sectionKey] === false;
+  const expanded = expandedSections.has(sectionKey);
   return (
     <div style={{ marginBottom: 8 }}>
       <button
         type="button"
         onClick={() =>
-          setCollapsedMap((prev) => {
-            const next = { ...prev };
-            if (prev[sectionKey] === false) delete next[sectionKey];
-            else next[sectionKey] = false;
+          setExpandedSections((prev) => {
+            const next = new Set(prev);
+            if (next.has(sectionKey)) next.delete(sectionKey);
+            else next.add(sectionKey);
             return next;
           })
         }
@@ -184,8 +183,8 @@ export function SetupPage({
   const [enablePipelines, setEnablePipelines] = useState(false);
   const [enableDashboards, setEnableDashboards] = useState(false);
   const [enableMlJobs, setEnableMlJobs] = useState(false);
-  /** Pipeline / dashboard / ML groups: `false` = user expanded that group; missing = collapsed */
-  const [setupAssetCollapsed, setSetupAssetCollapsed] = useState<Record<string, boolean>>({});
+  /** Pipeline / dashboard / ML group section keys the user has expanded (default: none). */
+  const [expandedSetupSections, setExpandedSetupSections] = useState<Set<string>>(() => new Set());
 
   const pipelineGroups = useMemo(
     () => [...new Set(PIPELINES.map((p) => p.group))].sort(),
@@ -211,7 +210,7 @@ export function SetupPage({
     );
     setSelectedMlJobIds(new Set(setupBundle.mlJobFiles.flatMap((f) => f.jobs.map((j) => j.id))));
     setAssetFilterQuery("");
-    setSetupAssetCollapsed({});
+    setExpandedSetupSections(new Set());
   }, [cloudId, setupBundle.fleetPackage]); // eslint-disable-line react-hooks/exhaustive-deps -- reset only on vendor switch
 
   const [isRunning, setIsRunning] = useState(false);
@@ -624,11 +623,7 @@ export function SetupPage({
   ]);
 
   const expandAllSetupAssetGroups = useCallback(() => {
-    setSetupAssetCollapsed((prev) => {
-      const next = { ...prev };
-      for (const k of expandableSetupSectionKeys) next[k] = false;
-      return next;
-    });
+    setExpandedSetupSections(new Set(expandableSetupSectionKeys));
   }, [expandableSetupSectionKeys]);
 
   const handleInstall = async () => {
@@ -1179,7 +1174,7 @@ export function SetupPage({
         enabled={enablePipelines}
         onToggle={(v) => {
           setEnablePipelines(v);
-          if (v) setSetupAssetCollapsed({});
+          if (v) setExpandedSetupSections(new Set());
         }}
       >
         <EuiSpacer size="s" />
@@ -1218,8 +1213,8 @@ export function SetupPage({
             <SetupCollapsible
               key={g}
               sectionKey={`pipe:${g}:${uid}`}
-              collapsedMap={setupAssetCollapsed}
-              setCollapsedMap={setSetupAssetCollapsed}
+              expandedSections={expandedSetupSections}
+              setExpandedSections={setExpandedSetupSections}
               header={
                 <EuiText size="s">
                   <strong>{polishSetupCategoryLabel(g)}</strong>{" "}
@@ -1293,7 +1288,7 @@ export function SetupPage({
         enabled={enableDashboards}
         onToggle={(v) => {
           setEnableDashboards(v);
-          if (v) setSetupAssetCollapsed({});
+          if (v) setExpandedSetupSections(new Set());
         }}
       >
         <EuiSpacer size="s" />
@@ -1336,8 +1331,8 @@ export function SetupPage({
             <SetupCollapsible
               key={`dash-${gk}-${uid}`}
               sectionKey={`dash:${gk}:${uid}`}
-              collapsedMap={setupAssetCollapsed}
-              setCollapsedMap={setSetupAssetCollapsed}
+              expandedSections={expandedSetupSections}
+              setExpandedSections={setExpandedSetupSections}
               header={
                 <EuiText size="s">
                   <strong>{gk}</strong>{" "}
@@ -1423,7 +1418,7 @@ export function SetupPage({
         enabled={enableMlJobs}
         onToggle={(v) => {
           setEnableMlJobs(v);
-          if (v) setSetupAssetCollapsed({});
+          if (v) setExpandedSetupSections(new Set());
         }}
       >
         <EuiSpacer size="s" />
@@ -1471,8 +1466,8 @@ export function SetupPage({
                 <SetupCollapsible
                   key={`ml-srv-${section.label}-${uid}`}
                   sectionKey={`ml:srv:${section.label}:${uid}`}
-                  collapsedMap={setupAssetCollapsed}
-                  setCollapsedMap={setSetupAssetCollapsed}
+                  expandedSections={expandedSetupSections}
+                  setExpandedSections={setExpandedSetupSections}
                   header={
                     <EuiText size="s">
                       <strong>{section.label}</strong>{" "}
@@ -1540,8 +1535,8 @@ export function SetupPage({
                 <SetupCollapsible
                   key={`ml-${file.group}-${uid}`}
                   sectionKey={`ml:${file.group}:${uid}`}
-                  collapsedMap={setupAssetCollapsed}
-                  setCollapsedMap={setSetupAssetCollapsed}
+                  expandedSections={expandedSetupSections}
+                  setExpandedSections={setExpandedSetupSections}
                   header={
                     <EuiText size="s">
                       <strong>{polishSetupCategoryLabel(file.group)}</strong>{" "}

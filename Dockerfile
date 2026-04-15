@@ -14,7 +14,12 @@ COPY index.html vite.config.ts tsconfig.json tsconfig.node.json ./
 COPY scripts ./scripts
 COPY public ./public
 COPY src ./src
+# Whole-tree copy first, then overlay AWS dashboard + ML dirs. Some Docker Desktop / BuildKit
+# setups have produced an installer/ layer missing only those paths even when they exist on the host;
+# separate COPYs force those subtrees into the image with their own cache keys.
 COPY installer ./installer
+COPY installer/aws-custom-dashboards ./installer/aws-custom-dashboards
+COPY installer/aws-custom-ml-jobs ./installer/aws-custom-ml-jobs
 # Fail fast when the build context omits installer JSON (sparse clone, wrong directory, or broken
 # sync). A healthy tree sends ~3–5MB+ to the daemon; ~100KB almost always means dashboards/ML
 # never reached the image — npm run build would then ship an empty AWS (or other) bundle.
@@ -31,7 +36,9 @@ RUN set -eu; \
     echo "  gcp *-dashboard.json:             $gcp_d (need >= 1)"; \
     echo ""; \
     echo "Those directories must exist on the Mac/Linux host before docker build — COPY cannot create them."; \
-    echo "If ls said 'No such file', they are not in your working tree (common: git sparse-checkout)."; \
+    echo "If the host has AWS files but Docker does not: installer/aws-custom-dashboards or aws-custom-ml-jobs may be symlinks"; \
+    echo "to paths outside the repo — Docker omits those from the context. Use real dirs: rm <link> && git checkout HEAD -- <path>"; \
+    echo "Run ./scripts/assert-installer-for-docker.sh on the host before docker compose build."; \
     echo ""; \
     du -sh installer 2>/dev/null || true; \
     echo ""; \
@@ -44,12 +51,11 @@ RUN set -eu; \
     ls -la installer/aws-custom-ml-jobs/jobs 2>&1 | head -20 || true; \
     echo ""; \
     echo "Fix on the host at the same path you run docker compose from:"; \
-    echo "  • Verify: ls -d installer/aws-custom-dashboards installer/aws-custom-ml-jobs"; \
-    echo "  • Sparse checkout (two commands):"; \
-    echo "      git sparse-checkout add installer/aws-custom-dashboards installer/aws-custom-ml-jobs installer/aws-custom-pipelines"; \
-    echo "      git sparse-checkout reapply"; \
-    echo "  • Or full tree: git sparse-checkout disable"; \
-    echo "  • Restore from git: git checkout HEAD -- installer/aws-custom-dashboards installer/aws-custom-ml-jobs"; \
+    echo "  • First (normal repo, sparse-checkout OFF): git checkout HEAD -- installer/aws-custom-dashboards installer/aws-custom-ml-jobs"; \
+    echo "    If pathspec did not match: git fetch && git pull on a branch that contains those paths."; \
+    echo "  • If git sparse-checkout add fails with no sparse-checkout: sparse mode is disabled — use checkout above, not sparse-checkout."; \
+    echo "  • If core.sparseCheckout is true: git sparse-checkout add ... && git sparse-checkout reapply"; \
+    echo "  • Or: git sparse-checkout disable"; \
     echo "  • Then: docker compose build --no-cache"; \
     exit 1; \
   fi
