@@ -1,0 +1,8 @@
+#!/bin/sh
+# One command after clone or git pull: build the image and start the stack.
+set -eu
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+cd "$ROOT"
+sh scripts/docker-build-from-tar.sh
+docker compose up -d --no-build
+printf "\nReady: http://localhost:8765\n"

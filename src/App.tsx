@@ -72,10 +72,20 @@ const WIZARD_PAGE_IDS = new Set([
   "log",
 ]);
 
-function readStoredWizardPage(lsKey: string): string {
+/** Unified multi-cloud UI: one session key so switching vendor does not remount to Welcome. */
+const UNIFIED_WIZARD_PAGE_LS_PREFIX = "unifiedElasticLoadGen";
+
+function readStoredWizardPage(persistenceKey: string, legacyLsKey?: string): string {
   try {
-    const raw = sessionStorage.getItem(`${lsKey}:activeWizardPage`);
+    const raw = sessionStorage.getItem(`${persistenceKey}:activeWizardPage`);
     if (raw && WIZARD_PAGE_IDS.has(raw)) return raw;
+    if (legacyLsKey) {
+      const leg = sessionStorage.getItem(`${legacyLsKey}:activeWizardPage`);
+      if (leg && WIZARD_PAGE_IDS.has(leg)) {
+        sessionStorage.setItem(`${persistenceKey}:activeWizardPage`, leg);
+        return leg;
+      }
+    }
   } catch {
     /* ignore */
   }
@@ -212,7 +222,10 @@ export function LoadGeneratorApp({
   });
   const [preview, setPreview] = useState<string | null>(null);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
-  const [activePage, setActivePageState] = useState(() => readStoredWizardPage(LS_KEY));
+  const wizardPagePersistenceKey = unifiedMode ? UNIFIED_WIZARD_PAGE_LS_PREFIX : LS_KEY;
+  const [activePage, setActivePageState] = useState(() =>
+    readStoredWizardPage(wizardPagePersistenceKey, unifiedMode ? LS_KEY : undefined)
+  );
   const serviceGroupsForLogsWizard = useMemo(() => {
     if (isTracesMode || eventType !== "logs" || !includeSecurityPatterns) {
       return config.serviceGroups;
@@ -226,12 +239,12 @@ export function LoadGeneratorApp({
     (page: string) => {
       setActivePageState(page);
       try {
-        sessionStorage.setItem(`${LS_KEY}:activeWizardPage`, page);
+        sessionStorage.setItem(`${wizardPagePersistenceKey}:activeWizardPage`, page);
       } catch {
         /* ignore quota / private mode */
       }
     },
-    [LS_KEY]
+    [wizardPagePersistenceKey]
   );
 
   useEffect(() => {

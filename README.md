@@ -14,23 +14,28 @@ The header uses a vendor-neutral cloud mark; AWS, GCP, and Azure logos appear in
 
 ## Quick start
 
-### Docker Compose (recommended)
+### Docker (recommended)
+
+After clone or `git pull`, from the repo root:
 
 ```bash
-cd cloud-to-elastic-load-generator
-docker compose up -d
+./docker-up
 ```
 
-Open **http://localhost:8765**.
+Or: `npm run docker:up`
 
-### Docker CLI
+This builds the image and starts the container. Open **http://localhost:8765**.
+
+You need a **full clone** (including `installer/`). If the build says installer assets are missing, run `git checkout HEAD -- installer/aws-custom-dashboards installer/aws-custom-ml-jobs` (or `git sparse-checkout disable`) and try again.
+
+### Docker CLI (manual)
 
 ```bash
 docker build -t cloud-to-elastic-load-generator .
 docker run -d -p 8765:80 --name cloud-to-elastic-load-generator cloud-to-elastic-load-generator
 ```
 
-**Docker build tips:** Use BuildKit (default on current Docker Desktop; otherwise `DOCKER_BUILDKIT=1`). The image uses a small build context via [`.dockerignore`](.dockerignore) and splits the builder so `npm ci` stays cached when you only change docs or tests. `npm ci` also uses a cache mount for faster reinstalls when the lockfile is unchanged. For CI, consider [buildx](https://docs.docker.com/build/cache/backends/) with a shared cache so layers are reused across runs.
+For a build that matches `./docker-up`, use `npm run docker:build` (tar-based context). Plain `docker compose build` can work on some setups but may omit large `installer/` trees on Docker Desktop.
 
 ### Local development
 

@@ -14,12 +14,7 @@ COPY index.html vite.config.ts tsconfig.json tsconfig.node.json ./
 COPY scripts ./scripts
 COPY public ./public
 COPY src ./src
-# Whole-tree copy first, then overlay AWS dashboard + ML dirs. Some Docker Desktop / BuildKit
-# setups have produced an installer/ layer missing only those paths even when they exist on the host;
-# separate COPYs force those subtrees into the image with their own cache keys.
 COPY installer ./installer
-COPY installer/aws-custom-dashboards ./installer/aws-custom-dashboards
-COPY installer/aws-custom-ml-jobs ./installer/aws-custom-ml-jobs
 # Fail fast when the build context omits installer JSON (sparse clone, wrong directory, or broken
 # sync). A healthy tree sends ~3–5MB+ to the daemon; ~100KB almost always means dashboards/ML
 # never reached the image — npm run build would then ship an empty AWS (or other) bundle.
@@ -56,7 +51,8 @@ RUN set -eu; \
     echo "  • If git sparse-checkout add fails with no sparse-checkout: sparse mode is disabled — use checkout above, not sparse-checkout."; \
     echo "  • If core.sparseCheckout is true: git sparse-checkout add ... && git sparse-checkout reapply"; \
     echo "  • Or: git sparse-checkout disable"; \
-    echo "  • Then: docker compose build --no-cache"; \
+    echo "  • If the host has full installer/ but the image is still incomplete: ./docker-up or npm run docker:up"; \
+    echo "    then: docker compose up -d --no-build"; \
     exit 1; \
   fi
 RUN npm run copy-icons && npm run build

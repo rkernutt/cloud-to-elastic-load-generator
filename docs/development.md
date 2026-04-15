@@ -60,9 +60,15 @@ Runs Vitest, then **`samples`** and **`samples:verify`**.
 
 ## Docker
 
+From the repo root (full clone so **`installer/`** is present):
+
 ```bash
-docker compose up -d
+./docker-up
 ```
+
+Or: `npm run docker:up` (same script). This builds the image with a **tar stream** so Docker Desktop does not drop large **`installer/`** trees from the build context.
+
+To build only: `npm run docker:build`. Plain `docker compose build` can work on some setups but may omit **`installer/`** on Docker Desktop; pre-flight: `npm run docker:check-installer`.
 
 Service name: **`cloud-to-elastic-load-generator`**. App on **8765** → container **80**.
 
