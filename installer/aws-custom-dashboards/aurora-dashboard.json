@@ -1,11 +1,19 @@
 {
   "title": "AWS Aurora — Cluster & Replication Health",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "aurora-kpi-db-connections",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,14 +22,25 @@
             "type": "esql",
             "query": "FROM logs-aws.aurora* | STATS avg_c = AVG(`aws.aurora.db_connections`) | EVAL `Avg DB Connections` = ROUND(avg_c, 0)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg DB Connections" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg DB Connections"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "aurora-kpi-replica-lag",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -30,14 +49,25 @@
             "type": "esql",
             "query": "FROM logs-aws.aurora* | STATS avg_l = AVG(`aws.aurora.replica_lag_seconds`) | EVAL `Avg Replica Lag (s)` = ROUND(avg_l, 3)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Replica Lag (s)" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Replica Lag (s)"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "aurora-kpi-acu-utilization",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -47,7 +77,11 @@
             "query": "FROM logs-aws.aurora* | STATS avg_a = AVG(`aws.aurora.metrics.ACUUtilization.avg`) | EVAL `Avg ACU Utilization %` = ROUND(avg_a, 1)"
           },
           "metrics": [
-            { "type": "primary", "operation": "value", "column": "Avg ACU Utilization %" }
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg ACU Utilization %"
+            }
           ]
         }
       }
@@ -55,23 +89,39 @@
     {
       "type": "lens",
       "uid": "aurora-kpi-error-rate",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.aurora* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS avg_e = AVG(is_err) | EVAL `Error Rate %` = ROUND(avg_e * 100, 1)"
+            "query": "FROM logs-aws.aurora* | EVAL is_err = CASE(log.level == \"error\", 1, 0) | STATS avg_e = AVG(is_err) | EVAL `Error Rate %` = ROUND(avg_e * 100, 1)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Error Rate %" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Error Rate %"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "aurora-events-by-cluster",
-      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Events by Cluster",
         "attributes": {
@@ -80,32 +130,62 @@
             "type": "esql",
             "query": "FROM logs-aws.aurora* | STATS count = COUNT() BY cluster = `aws.aurora.cluster_id` | SORT count DESC | LIMIT 8"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "cluster" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "cluster"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "aurora-event-outcomes",
-      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Event Outcomes",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.aurora* | STATS count = COUNT() BY outcome = event.outcome"
+            "query": "FROM logs-aws.aurora* | STATS count = COUNT() BY outcome = log.level"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "outcome" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "outcome"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "aurora-engine-version-split",
-      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Engine Version Split",
         "attributes": {
@@ -114,32 +194,64 @@
             "type": "esql",
             "query": "FROM logs-aws.aurora* | STATS count = COUNT() BY ver = `aws.aurora.engine_version` | SORT count DESC | LIMIT 8"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "ver" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "ver"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "aurora-db-connections-over-time",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "DB Connections Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.aurora* | STATS avg_conn = AVG(`aws.aurora.db_connections`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.aurora* | STATS avg_conn = AVG(`aws.aurora.db_connections`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "avg_conn", "label": "Avg DB Connections" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_conn",
+                  "label": "Avg DB Connections"
+                }
+              ]
             }
           ]
         }
@@ -148,26 +260,50 @@
     {
       "type": "lens",
       "uid": "aurora-replica-lag-over-time",
-      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Replica Lag Over Time (s)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.aurora* | STATS binlog_lag = AVG(`aws.aurora.metrics.AuroraBinlogReplicaLag.avg`), global_lag = AVG(`aws.aurora.metrics.AuroraGlobalDBProgressLag.avg`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.aurora* | STATS binlog_lag = AVG(`aws.aurora.metrics.AuroraBinlogReplicaLag.avg`), global_lag = AVG(`aws.aurora.metrics.AuroraGlobalDBProgressLag.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
               "y": [
-                { "operation": "value", "column": "binlog_lag", "label": "Binlog Replica Lag" },
-                { "operation": "value", "column": "global_lag", "label": "Global DB Progress Lag" }
+                {
+                  "operation": "value",
+                  "column": "binlog_lag",
+                  "label": "Binlog Replica Lag"
+                },
+                {
+                  "operation": "value",
+                  "column": "global_lag",
+                  "label": "Global DB Progress Lag"
+                }
               ]
             }
           ]
@@ -177,26 +313,50 @@
     {
       "type": "lens",
       "uid": "aurora-serverless-capacity-acu",
-      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Serverless Capacity & ACU Utilization",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.aurora* | STATS capacity = AVG(`aws.aurora.metrics.ServerlessDatabaseCapacity.avg`), acu = AVG(`aws.aurora.metrics.ACUUtilization.avg`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.aurora* | STATS capacity = AVG(`aws.aurora.metrics.ServerlessDatabaseCapacity.avg`), acu = AVG(`aws.aurora.metrics.ACUUtilization.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
               "y": [
-                { "operation": "value", "column": "capacity", "label": "Serverless Capacity" },
-                { "operation": "value", "column": "acu", "label": "ACU Utilization" }
+                {
+                  "operation": "value",
+                  "column": "capacity",
+                  "label": "Serverless Capacity"
+                },
+                {
+                  "operation": "value",
+                  "column": "acu",
+                  "label": "ACU Utilization"
+                }
               ]
             }
           ]
@@ -206,14 +366,27 @@
     {
       "type": "lens",
       "uid": "aurora-avg-connections-by-cluster",
-      "grid": { "x": 0, "y": 35, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 35,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Avg Connections by Cluster",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
@@ -222,8 +395,17 @@
                 "type": "esql",
                 "query": "FROM logs-aws.aurora* | STATS avg_c = AVG(`aws.aurora.db_connections`) BY cluster = `aws.aurora.cluster_id` | SORT avg_c DESC | LIMIT 10"
               },
-              "x": { "operation": "value", "column": "cluster" },
-              "y": [{ "operation": "value", "column": "avg_c", "label": "Avg Connections" }]
+              "x": {
+                "operation": "value",
+                "column": "cluster"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_c",
+                  "label": "Avg Connections"
+                }
+              ]
             }
           ]
         }
@@ -232,24 +414,46 @@
     {
       "type": "lens",
       "uid": "aurora-global-db-transfer-bytes",
-      "grid": { "x": 24, "y": 35, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 35,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Global DB Transfer Bytes Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.aurora* | STATS xfer = SUM(`aws.aurora.metrics.AuroraGlobalDBDataTransferBytes.sum`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.aurora* | STATS xfer = SUM(`aws.aurora.metrics.AuroraGlobalDBDataTransferBytes.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "xfer", "label": "Transfer Bytes" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "xfer",
+                  "label": "Transfer Bytes"
+                }
+              ]
             }
           ]
         }
@@ -258,20 +462,41 @@
     {
       "type": "lens",
       "uid": "aurora-log-table",
-      "grid": { "x": 0, "y": 45, "w": 48, "h": 12 },
+      "grid": {
+        "x": 0,
+        "y": 45,
+        "w": 48,
+        "h": 12
+      },
       "config": {
         "title": "Recent Events",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.aurora* | KEEP @timestamp, `aws.aurora.cluster_id`, `aws.aurora.instance_id`, `aws.aurora.engine`, `aws.aurora.db_connections`, `aws.aurora.replica_lag_seconds`, event.outcome | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.aurora* | KEEP `@timestamp`, `aws.aurora.cluster_id`, `aws.aurora.instance_id`, `aws.aurora.engine`, `aws.aurora.db_connections`, `aws.aurora.replica_lag_seconds`, log.level | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
-            { "operation": "value", "column": "aws.aurora.cluster_id", "label": "Cluster ID" },
-            { "operation": "value", "column": "aws.aurora.instance_id", "label": "Instance ID" },
-            { "operation": "value", "column": "aws.aurora.engine", "label": "Engine" },
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.aurora.cluster_id",
+              "label": "Cluster ID"
+            },
+            {
+              "operation": "value",
+              "column": "aws.aurora.instance_id",
+              "label": "Instance ID"
+            },
+            {
+              "operation": "value",
+              "column": "aws.aurora.engine",
+              "label": "Engine"
+            },
             {
               "operation": "value",
               "column": "aws.aurora.db_connections",
@@ -282,7 +507,11 @@
               "column": "aws.aurora.replica_lag_seconds",
               "label": "Replica Lag (s)"
             },
-            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Log level"
+            }
           ],
           "rows": []
         }

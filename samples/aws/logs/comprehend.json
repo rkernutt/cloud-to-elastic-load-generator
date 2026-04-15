@@ -1,24 +1,25 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
+  "@timestamp": "2026-04-15T13:24:35.775Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
+    "region": "sa-east-1",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "comprehend" }
   },
   "aws": {
-    "dimensions": { "Operation": "StartEntitiesDetectionJob" },
+    "dimensions": { "Operation": "DetectDominantLanguage" },
     "comprehend": {
-      "operation": "StartEntitiesDetectionJob",
-      "language_code": "en",
-      "text_bytes": 75433,
+      "operation": "DetectDominantLanguage",
+      "language_code": "es",
+      "text_bytes": 72567,
       "entities_detected": 0,
       "key_phrases_detected": 0,
       "pii_entities_detected": 0,
+      "error_code": "UnsupportedLanguageException",
       "metrics": {
         "NumberOfSuccessfulRequest": { "sum": 1 },
-        "NumberOfFailedRequest": { "sum": 0 },
-        "ResponseTime": { "avg": 325.798491269355 }
+        "NumberOfFailedRequest": { "sum": 1 },
+        "ResponseTime": { "avg": 856.7908836675625 }
       }
     },
     "s3": {
@@ -27,32 +28,33 @@
         "arn": "arn:aws:s3:::aws-comprehend-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/comprehend/ap-south-2/2026/04/14/comprehend_APVPK3BFJWD.log.gz"
+        "key": "AWSLogs/501938274650/comprehend/sa-east-1/2026/04/15/comprehend_PF79UWN8KYA.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/comprehend/logs",
-      "log_stream": "ap-south-2/rwtgqfy2",
-      "ingestion_time": "2026-04-14T09:28:18.222Z"
+      "log_stream": "sa-east-1/ex28lvhl",
+      "ingestion_time": "2026-04-15T13:24:36.371Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.comprehend",
     "provider": "comprehend.amazonaws.com",
     "module": "aws"
   },
-  "message": "Comprehend StartEntitiesDetectionJob: lang=en",
-  "log": { "level": "info" },
+  "message": "Comprehend DetectDominantLanguage FAILED: Unsupported language",
+  "log": { "level": "error" },
+  "error": { "code": "ComprehendError", "message": "Comprehend operation failed", "type": "ml" },
   "service": { "name": "comprehend", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.comprehend", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "coj2j4wqb0w"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "19x9q45qavs"
   },
   "input": { "type": "aws-cloudwatch" }
 }

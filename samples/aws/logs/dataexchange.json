@@ -1,58 +1,63 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
+  "@timestamp": "2026-04-15T13:24:35.775Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-south-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "dataexchange" }
   },
   "aws": {
-    "dimensions": { "DataSetId": "769nayh5-sfld-0bt0-pnii-0leq14z761ji" },
+    "dimensions": { "DataSetId": "2limhh1s-109r-klt0-dwt2-dwk978o4h0f" },
     "dataexchange": {
-      "dataset_id": "769nayh5-sfld-0bt0-pnii-0leq14z761ji",
-      "dataset_name": "Healthcare-Claims",
-      "data_set_type": "REDSHIFT",
-      "revision_id": "rilbf9xd-7mv0-yrdb-r78f-fdbj2pbn0o6",
-      "job_id": "khe0ie5x-t85e-o8yl-110v-e4ot4kywrgv",
-      "job_type": "EXPORT_REVISIONS_TO_S3",
-      "job_status": "COMPLETED",
-      "provider_account_id": "293847561023",
-      "subscriber_account_id": "501938274650",
-      "asset_count": 326
+      "dataset_id": "2limhh1s-109r-klt0-dwt2-dwk978o4h0f",
+      "dataset_name": "Financial-Market-Feed",
+      "data_set_type": "LAKE_FORMATION",
+      "revision_id": "eb1yzyq8-qy9f-sexc-sv0y-yvt0uhpnm2g",
+      "job_id": "uj3zl3ec-snk7-qm5g-opvk-5mahxqjyysp",
+      "job_type": "IMPORT_ASSET_FROM_API_GATEWAY",
+      "job_status": "ERROR",
+      "provider_account_id": "164820739518",
+      "subscriber_account_id": "164820739518",
+      "asset_count": 31
     },
     "s3": {
       "bucket": {
-        "name": "aws-dataexchange-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-dataexchange-logs-501938274650"
+        "name": "aws-dataexchange-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-dataexchange-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/dataexchange/eu-central-1/2026/04/14/dataexchange_IFNMRQPMINH.log.gz"
+        "key": "AWSLogs/164820739518/dataexchange/eu-south-2/2026/04/15/dataexchange_8D548S0MSU2.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/dataexchange/logs",
-      "log_stream": "eu-central-1/nxpc5cei",
-      "ingestion_time": "2026-04-14T09:28:18.215Z"
+      "log_stream": "eu-south-2/7pd0f9sk",
+      "ingestion_time": "2026-04-15T13:24:36.363Z"
     }
   },
   "event": {
     "action": "PublishDataSet",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.dataexchange",
     "provider": "dataexchange.amazonaws.com",
     "module": "aws"
   },
-  "message": "Data Exchange Healthcare-Claims: EXPORT_REVISIONS_TO_S3 COMPLETED, 326 assets",
-  "log": { "level": "info" },
+  "message": "Data Exchange Financial-Market-Feed: job ERROR",
+  "log": { "level": "error" },
+  "error": {
+    "code": "AccessDeniedException",
+    "message": "Data Exchange job failed",
+    "type": "process"
+  },
   "service": { "name": "dataexchange", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.dataexchange", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "y4hyk2t5i4"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "y0is28kff4g"
   },
   "input": { "type": "aws-cloudwatch" }
 }

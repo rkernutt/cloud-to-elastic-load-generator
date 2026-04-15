@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.nic* | STATS c = COUNT()"
+            "query": "FROM logs-gcp.nic* | STATS `Log events` = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "c"
+              "column": "Log events"
             }
           ]
         }
@@ -42,12 +42,12 @@
         "h": 10
       },
       "config": {
-        "title": "Outcome",
+        "title": "Log level",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.nic* | STATS c = COUNT() BY o = event.outcome"
+            "query": "FROM logs-gcp.nic* | STATS c = COUNT() BY o = log.level"
           },
           "metrics": [
             {
@@ -94,7 +94,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.nic* | STATS c = COUNT() BY b = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.nic* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",

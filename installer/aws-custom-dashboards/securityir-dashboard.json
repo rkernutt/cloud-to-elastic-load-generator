@@ -1,11 +1,19 @@
 {
   "title": "AWS Security Incident Response — Cases",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "securityir-kpi-total-cases",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,14 +22,25 @@
             "type": "esql",
             "query": "FROM logs-aws.securityir* | STATS `Total Cases` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Cases" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Cases"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "securityir-kpi-critical-cases",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -30,14 +49,25 @@
             "type": "esql",
             "query": "FROM logs-aws.securityir* | WHERE `aws.securityir.severity` == \"critical\" | STATS `Critical Cases` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Critical Cases" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Critical Cases"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "securityir-kpi-active-cases",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -46,14 +76,25 @@
             "type": "esql",
             "query": "FROM logs-aws.securityir* | WHERE `aws.securityir.case_status` == \"active\" | STATS `Active Cases` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Active Cases" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Active Cases"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "securityir-kpi-resolved-cases",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -62,14 +103,25 @@
             "type": "esql",
             "query": "FROM logs-aws.securityir* | WHERE `aws.securityir.case_status` == \"resolved\" | STATS `Resolved Cases` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Resolved Cases" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Resolved Cases"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "securityir-donut-by-severity",
-      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Cases by Severity",
         "attributes": {
@@ -78,15 +130,30 @@
             "type": "esql",
             "query": "FROM logs-aws.securityir* | STATS count = COUNT() BY severity = `aws.securityir.severity` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "severity" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "severity"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "securityir-donut-by-status",
-      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Cases by Status",
         "attributes": {
@@ -95,32 +162,64 @@
             "type": "esql",
             "query": "FROM logs-aws.securityir* | STATS count = COUNT() BY status = `aws.securityir.case_status` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "status" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "status"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "securityir-cases-over-time",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Cases Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.securityir* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.securityir* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "count", "label": "Cases" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Cases"
+                }
+              ]
             }
           ]
         }
@@ -129,20 +228,41 @@
     {
       "type": "lens",
       "uid": "securityir-recent-cases",
-      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Recent Cases",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.securityir* | KEEP @timestamp, `aws.securityir.case_title`, `aws.securityir.severity`, `aws.securityir.case_status` | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.securityir* | KEEP `@timestamp`, `aws.securityir.case_title`, `aws.securityir.severity`, `aws.securityir.case_status` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
-            { "operation": "value", "column": "aws.securityir.case_title", "label": "Case Title" },
-            { "operation": "value", "column": "aws.securityir.severity", "label": "Severity" },
-            { "operation": "value", "column": "aws.securityir.case_status", "label": "Status" }
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.securityir.case_title",
+              "label": "Case Title"
+            },
+            {
+              "operation": "value",
+              "column": "aws.securityir.severity",
+              "label": "Severity"
+            },
+            {
+              "operation": "value",
+              "column": "aws.securityir.case_status",
+              "label": "Status"
+            }
           ],
           "rows": []
         }

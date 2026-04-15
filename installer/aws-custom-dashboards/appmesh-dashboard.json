@@ -1,11 +1,19 @@
 {
   "title": "AWS App Mesh — Service Mesh Traffic",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "appmesh-kpi-total-requests",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,14 +22,25 @@
             "type": "esql",
             "query": "FROM logs-aws.appmesh* | STATS `Total Requests` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Requests" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Requests"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "appmesh-kpi-5xx-errors",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -30,14 +49,25 @@
             "type": "esql",
             "query": "FROM logs-aws.appmesh* | WHERE `aws.appmesh.response_code` >= 500 | STATS `5xx Error Count` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "5xx Error Count" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "5xx Error Count"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "appmesh-kpi-avg-response-time",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -47,7 +77,11 @@
             "query": "FROM logs-aws.appmesh* | STATS avg_rt = AVG(`aws.appmesh.response_time_ms`) | EVAL `Avg Response Time (ms)` = ROUND(avg_rt, 0)"
           },
           "metrics": [
-            { "type": "primary", "operation": "value", "column": "Avg Response Time (ms)" }
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Response Time (ms)"
+            }
           ]
         }
       }
@@ -55,7 +89,12 @@
     {
       "type": "lens",
       "uid": "appmesh-kpi-mesh-node-count",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -64,14 +103,25 @@
             "type": "esql",
             "query": "FROM logs-aws.appmesh* | STATS `Mesh Node Count` = COUNT_DISTINCT(`aws.appmesh.virtual_node`)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Mesh Node Count" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Mesh Node Count"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "appmesh-donut-response-code",
-      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Response Code Distribution",
         "attributes": {
@@ -80,15 +130,30 @@
             "type": "esql",
             "query": "FROM logs-aws.appmesh* | STATS count = COUNT() BY code = `aws.appmesh.response_code` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "code" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "code"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "appmesh-donut-protocol",
-      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Protocol Breakdown",
         "attributes": {
@@ -97,32 +162,64 @@
             "type": "esql",
             "query": "FROM logs-aws.appmesh* | STATS count = COUNT() BY protocol = `aws.appmesh.protocol` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "protocol" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "protocol"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "appmesh-requests-over-time",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Request Rate Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.appmesh* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.appmesh* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "count", "label": "Requests" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Requests"
+                }
+              ]
             }
           ]
         }
@@ -131,18 +228,31 @@
     {
       "type": "lens",
       "uid": "appmesh-recent-requests",
-      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Recent Requests",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.appmesh* | KEEP @timestamp, `aws.appmesh.virtual_node`, `aws.appmesh.response_code`, `aws.appmesh.response_time_ms`, `event.outcome` | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.appmesh* | KEEP `@timestamp`, `aws.appmesh.virtual_node`, `aws.appmesh.response_code`, `aws.appmesh.response_time_ms`, `log.level` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
-            { "operation": "value", "column": "aws.appmesh.virtual_node", "label": "Virtual Node" },
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.appmesh.virtual_node",
+              "label": "Virtual Node"
+            },
             {
               "operation": "value",
               "column": "aws.appmesh.response_code",
@@ -153,7 +263,11 @@
               "column": "aws.appmesh.response_time_ms",
               "label": "Response Time (ms)"
             },
-            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Log level"
+            }
           ],
           "rows": []
         }

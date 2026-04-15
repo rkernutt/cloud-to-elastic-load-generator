@@ -1,11 +1,19 @@
 {
   "title": "AWS Kendra — Enterprise Search",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "kendra-kpi-total-queries",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,30 +22,52 @@
             "type": "esql",
             "query": "FROM logs-aws.kendra* | STATS `Total Queries` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Queries" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Queries"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "kendra-kpi-failed-queries",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.kendra* | WHERE event.outcome == \"failure\" | STATS `Failed Queries` = COUNT()"
+            "query": "FROM logs-aws.kendra* | WHERE log.level == \"error\" | STATS `Failed Queries` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Failed Queries" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Queries"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "kendra-kpi-avg-response-time",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -47,7 +77,11 @@
             "query": "FROM logs-aws.kendra* | STATS avg_rt = AVG(`aws.kendra.response_time_ms`) | EVAL `Avg Response Time (ms)` = ROUND(avg_rt, 0)"
           },
           "metrics": [
-            { "type": "primary", "operation": "value", "column": "Avg Response Time (ms)" }
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Response Time (ms)"
+            }
           ]
         }
       }
@@ -55,7 +89,12 @@
     {
       "type": "lens",
       "uid": "kendra-kpi-avg-result-count",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -64,14 +103,25 @@
             "type": "esql",
             "query": "FROM logs-aws.kendra* | STATS avg_rc = AVG(`aws.kendra.result_count`) | EVAL `Avg Result Count` = ROUND(avg_rc, 1)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Result Count" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Result Count"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "kendra-donut-by-index",
-      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Queries by Index Name",
         "attributes": {
@@ -80,15 +130,30 @@
             "type": "esql",
             "query": "FROM logs-aws.kendra* | STATS count = COUNT() BY index = `aws.kendra.index_name` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "index" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "index"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "kendra-donut-by-datasource",
-      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Queries by Data Source Type",
         "attributes": {
@@ -97,34 +162,68 @@
             "type": "esql",
             "query": "FROM logs-aws.kendra* | STATS count = COUNT() BY datasource = `aws.kendra.data_source_type` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "datasource" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "datasource"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "kendra-queries-over-time",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Queries Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.kendra* | STATS count = COUNT(), avg_rt = AVG(`aws.kendra.response_time_ms`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.kendra* | STATS count = COUNT(), avg_rt = AVG(`aws.kendra.response_time_ms`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
               "y": [
-                { "operation": "value", "column": "count", "label": "Queries" },
-                { "operation": "value", "column": "avg_rt", "label": "Avg Response Time (ms)" }
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Queries"
+                },
+                {
+                  "operation": "value",
+                  "column": "avg_rt",
+                  "label": "Avg Response Time (ms)"
+                }
               ]
             }
           ]
@@ -134,18 +233,31 @@
     {
       "type": "lens",
       "uid": "kendra-recent-queries",
-      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Recent Queries",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.kendra* | KEEP @timestamp, `aws.kendra.index_name`, `aws.kendra.data_source_type`, `aws.kendra.response_time_ms`, `aws.kendra.result_count`, event.outcome | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.kendra* | KEEP `@timestamp`, `aws.kendra.index_name`, `aws.kendra.data_source_type`, `aws.kendra.response_time_ms`, `aws.kendra.result_count`, log.level | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
-            { "operation": "value", "column": "aws.kendra.index_name", "label": "Index Name" },
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.kendra.index_name",
+              "label": "Index Name"
+            },
             {
               "operation": "value",
               "column": "aws.kendra.data_source_type",
@@ -156,8 +268,16 @@
               "column": "aws.kendra.response_time_ms",
               "label": "Response Time (ms)"
             },
-            { "operation": "value", "column": "aws.kendra.result_count", "label": "Result Count" },
-            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
+            {
+              "operation": "value",
+              "column": "aws.kendra.result_count",
+              "label": "Result Count"
+            },
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Log level"
+            }
           ],
           "rows": []
         }

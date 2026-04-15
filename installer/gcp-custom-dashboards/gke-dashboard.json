@@ -47,7 +47,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.gke* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)"
+            "query": "FROM logs-gcp.gke* | EVAL is_err = CASE(log.level == \"error\", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)"
           },
           "metrics": [
             {
@@ -153,7 +153,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.gke* | STATS c = COUNT() BY b = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.gke* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -186,12 +186,12 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.gke* | KEEP @timestamp, `gcp.gke.cluster`, `gcp.gke.namespace`, `gcp.gke.pod`, `gcp.gke.event_type`, `gcp.gke.severity`, event.outcome, message | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-gcp.gke* | KEEP `@timestamp`, `gcp.gke.cluster`, `gcp.gke.namespace`, `gcp.gke.pod`, `gcp.gke.event_type`, `gcp.gke.severity`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "@timestamp",
+              "column": "`@timestamp`",
               "label": "Time"
             },
             {
@@ -221,8 +221,8 @@
             },
             {
               "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
+              "column": "log.level",
+              "label": "Log level"
             },
             {
               "operation": "value",

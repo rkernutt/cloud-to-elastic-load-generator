@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.service_bus* | STATS c = COUNT()"
+            "query": "FROM logs-azure.service_bus* | STATS `Log events` = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "c"
+              "column": "Log events"
             }
           ]
         }
@@ -47,12 +47,12 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.service_bus* | KEEP @timestamp, `azure.service_bus.namespace`, `azure.service_bus.entity`, `azure.service_bus.operation`, event.outcome, message | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-azure.service_bus* | KEEP `@timestamp`, `azure.service_bus.namespace`, `azure.service_bus.entity`, `azure.service_bus.operation`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "@timestamp",
+              "column": "`@timestamp`",
               "label": "Time"
             },
             {
@@ -72,8 +72,8 @@
             },
             {
               "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
+              "column": "log.level",
+              "label": "Log level"
             },
             {
               "operation": "value",

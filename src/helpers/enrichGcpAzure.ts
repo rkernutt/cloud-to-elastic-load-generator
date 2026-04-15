@@ -180,7 +180,8 @@ export function enrichGcpAzureDocument(
       : inferAzureFlavorServiceId(doc, serviceId);
   const metricsKind = resolveMetricsIntegration(ctx, eventType, flavorId, serviceId);
   const source = resolveSource(ctx, flavorId, serviceId, opts.ingestionSource);
-  const region = doc.cloud?.region ?? ctx.regions[Math.floor(Math.random() * ctx.regions.length)];
+  const resolvedRegion =
+    doc.cloud?.region ?? ctx.regions[Math.floor(Math.random() * ctx.regions.length)];
   const dataset = resolveDataset(ctx, flavorId, eventType, metricsKind);
 
   const ecs = doc.ecs ?? { version: ECS_VERSION };
@@ -191,7 +192,7 @@ export function enrichGcpAzureDocument(
     namespace: "default",
   };
 
-  const agentMeta = doc.agent ?? buildAgentMeta(ctx, source, eventType, region, metricsKind);
+  const agentMeta = doc.agent ?? buildAgentMeta(ctx, source, eventType, resolvedRegion, metricsKind);
   const inputType = buildInputType(
     ctx,
     eventType === "traces" ? (isOtelPipelineSource(source) ? source : "otel") : source
@@ -207,7 +208,12 @@ export function enrichGcpAzureDocument(
     dataset: doc.event?.dataset || dataset,
   };
 
-  const baseline: LooseDoc = {};
+  const baseline: LooseDoc = {
+    cloud: {
+      ...(typeof doc.cloud === "object" && doc.cloud !== null ? doc.cloud : {}),
+      region: resolvedRegion,
+    },
+  };
   if (eventType === "logs" && !doc.service?.name) {
     baseline.service = {
       ...doc.service,
@@ -215,8 +221,18 @@ export function enrichGcpAzureDocument(
       type: doc.service?.type ?? ctx.cloudModule,
     };
   }
-  if (eventType === "logs" && !doc.log) {
-    baseline.log = { level: "info" };
+  if (eventType === "logs") {
+    const levelFromOutcome = (): string => {
+      const o = doc.event?.outcome;
+      if (o === "failure") return "error";
+      if (o === "success") return "info";
+      return "info";
+    };
+    if (!doc.log) {
+      baseline.log = { level: levelFromOutcome() };
+    } else if (typeof doc.log === "object" && doc.log !== null && doc.log.level == null) {
+      baseline.log = { ...doc.log, level: levelFromOutcome() };
+    }
   }
 
   let otelFields: LooseDoc = {};

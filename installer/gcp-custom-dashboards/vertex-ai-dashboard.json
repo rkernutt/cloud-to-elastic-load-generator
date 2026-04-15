@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.vertexai* | STATS c = COUNT()"
+            "query": "FROM logs-gcp.vertexai* | STATS `Log events` = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "c"
+              "column": "Log events"
             }
           ]
         }
@@ -121,7 +121,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.vertexai* | STATS c = COUNT() BY b = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.vertexai* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -154,12 +154,12 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.vertexai* | KEEP @timestamp, `gcp.vertex_ai.endpoint_id`, `gcp.vertex_ai.model_name`, `gcp.vertex_ai.prediction_type`, `gcp.vertex_ai.latency_ms`, event.outcome, message | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-gcp.vertexai* | KEEP `@timestamp`, `gcp.vertex_ai.endpoint_id`, `gcp.vertex_ai.model_name`, `gcp.vertex_ai.prediction_type`, `gcp.vertex_ai.latency_ms`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "@timestamp",
+              "column": "`@timestamp`",
               "label": "Time"
             },
             {
@@ -184,8 +184,8 @@
             },
             {
               "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
+              "column": "log.level",
+              "label": "Log level"
             },
             {
               "operation": "value",

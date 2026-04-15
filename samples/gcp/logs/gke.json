@@ -2,55 +2,59 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "europe-north1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
-    "service": { "name": "config-connector" }
+    "region": "europe-west6",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" },
+    "service": { "name": "container.googleapis.com" }
   },
   "gcp": {
-    "config_connector": {
-      "resource_kind": "ComputeInstance",
-      "resource_name": "computeinstance-17kj6e",
-      "action": "UPDATE",
-      "namespace": "config-connector-system",
-      "status": "IN_PROGRESS",
-      "reconcile_duration_ms": 391
+    "gke": {
+      "cluster": "dev-cluster",
+      "namespace": "monitoring",
+      "pod": "worker-hxw2p-74iqd",
+      "container_name": "metrics",
+      "node_name": "gke-dev-cluster-w01u-def-1-k7ju",
+      "event_type": "Started",
+      "severity": "NOTICE"
     }
   },
-  "event": {
-    "outcome": "success",
-    "duration": 391000,
-    "module": "gcp",
-    "dataset": "gcp.configconnector"
-  },
-  "message": "Config Connector reconciled ComputeInstance computeinstance-17kj6e ns=config-connector-system in 391.0ms",
-  "service": { "name": "config-connector", "type": "gcp" },
+  "event": { "outcome": "success", "duration": 23498, "module": "gcp", "dataset": "gcp.gke" },
+  "message": "GKE dev-cluster/monitoring: Started for pod worker-hxw2p-74iqd container metrics on gke-dev-cluster-w01u-def-1-k7ju",
+  "service": { "name": "gke", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.configconnector", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.gke", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-north1",
-    "id": "9990qvhwu0l"
+    "name": "elastic-agent-gcp-europe-west6",
+    "id": "pkiayb5cln"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-staging-d4e5f6/logs/config-connector",
+  "logName": "projects/globex-shared-m3n4o5/logs/gke",
   "resource": {
-    "type": "global",
-    "labels": { "project_id": "globex-staging-d4e5f6", "region": "europe-north1" }
+    "type": "k8s_container",
+    "labels": {
+      "project_id": "globex-shared-m3n4o5",
+      "cluster_name": "cluster",
+      "location": "europe-west6",
+      "namespace_name": "monitoring",
+      "pod_name": "pod",
+      "container_name": "app"
+    }
   },
   "severity": "INFO",
-  "insertId": "SOWT54IVOVM",
+  "insertId": "U6TUZE4VBL8",
   "jsonPayload": {
-    "config_connector": {
-      "resource_kind": "ComputeInstance",
-      "resource_name": "computeinstance-17kj6e",
-      "action": "UPDATE",
-      "namespace": "config-connector-system",
-      "status": "IN_PROGRESS",
-      "reconcile_duration_ms": 391
+    "gke": {
+      "cluster": "dev-cluster",
+      "namespace": "monitoring",
+      "pod": "worker-hxw2p-74iqd",
+      "container_name": "metrics",
+      "node_name": "gke-dev-cluster-w01u-def-1-k7ju",
+      "event_type": "Started",
+      "severity": "NOTICE"
     },
-    "message": "Config Connector reconciled ComputeInstance computeinstance-17kj6e ns=config-connector-system in 391.0ms"
+    "message": "GKE dev-cluster/monitoring: Started for pod worker-hxw2p-74iqd container metrics on gke-dev-cluster-w01u-def-1-k7ju"
   }
 }

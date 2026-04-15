@@ -1,72 +1,75 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
+  "@timestamp": "2026-04-15T13:24:35.775Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-3",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-west-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "cloudtrail" }
   },
   "aws": {
-    "dimensions": { "EventName": "StopInstances", "EventSource": "ec2.amazonaws.com" },
+    "dimensions": { "EventName": "AssumeRole", "EventSource": "sts.amazonaws.com" },
     "cloudtrail": {
       "event_version": "1.09",
       "event_category": "Management",
       "event_type": "AwsApiCall",
-      "request_id": "k04b7y60-evxu-tgsa-xrhp-96auaascxyd",
+      "request_id": "gok30sn7-wrka-ftrn-mzqy-3g5u90meld",
       "api_version": "2012-10-17",
       "management_event": true,
       "read_only": false,
-      "recipient_account_id": "501938274650",
-      "aws_region": "eu-west-3",
+      "recipient_account_id": "293847561023",
+      "aws_region": "eu-west-1",
       "user_identity": {
-        "type": "AssumedRole",
-        "principal_id": "AROAN82A16DHOV:alice-session",
-        "arn": "arn:aws:iam::501938274650:user/alice",
-        "account_id": "501938274650",
-        "access_key_id": "AKIABCS03JL1HB",
+        "type": "IAMUser",
+        "principal_id": "293847561023:deploy-bot",
+        "arn": "arn:aws:iam::293847561023:user/deploy-bot",
+        "account_id": "293847561023",
+        "access_key_id": "AKIAELPGEVX7Z66",
         "session_context": {
           "session_issuer": {
             "type": "Role",
-            "principal_id": "AROAN82A16DHOV",
-            "arn": "arn:aws:iam::501938274650:role/service-role/execution-role",
-            "account_id": "501938274650",
+            "principal_id": "AROA4FH974CLJAI",
+            "arn": "arn:aws:iam::293847561023:role/service-role/execution-role",
+            "account_id": "293847561023",
             "user_name": "execution-role"
           },
           "web_id_federation_data": {},
-          "attributes": { "creation_date": "2026-04-14T08:30:42.596Z", "mfa_authenticated": "true" }
+          "attributes": {
+            "creation_date": "2026-04-15T13:16:06.775Z",
+            "mfa_authenticated": "false"
+          }
         }
       },
-      "request_parameters": "null",
+      "request_parameters": "{\"roleArn\":\"arn:aws:iam::293847561023:role/CrossAccountRole\",\"roleSessionName\":\"session-cn4b8nbd\"}",
       "response_elements": "null"
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudtrail-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-cloudtrail-logs-501938274650"
+        "name": "aws-cloudtrail-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-cloudtrail-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/cloudtrail/eu-west-3/2026/04/14/cloudtrail_8V356WFOMQI.log.gz"
+        "key": "AWSLogs/293847561023/cloudtrail/eu-west-1/2026/04/15/cloudtrail_W31XN8Q5PKR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloudtrail/logs",
-      "log_stream": "eu-west-3/ols049go",
-      "ingestion_time": "2026-04-14T09:28:18.056Z"
+      "log_stream": "eu-west-1/d617rpnp",
+      "ingestion_time": "2026-04-15T13:24:36.216Z"
     }
   },
-  "user": { "name": "alice" },
-  "source": { "ip": "117.218.143.31", "geo": { "country_iso_code": "FR", "city_name": "Sydney" } },
+  "user": { "name": "deploy-bot" },
+  "source": { "ip": "246.143.125.134", "geo": { "country_iso_code": "DE", "city_name": "London" } },
   "user_agent": { "original": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
   "event": {
-    "action": "StopInstances",
+    "action": "AssumeRole",
     "outcome": "success",
-    "category": ["configuration"],
-    "type": ["change"],
+    "category": ["authentication", "iam"],
+    "type": ["access"],
     "dataset": "aws.cloudtrail",
     "provider": "cloudtrail.amazonaws.com",
     "module": "aws"
   },
-  "message": "CloudTrail: StopInstances by alice from 117.218.143.31 - Success",
+  "message": "CloudTrail: AssumeRole by deploy-bot from 246.143.125.134 - Success",
   "log": { "level": "info" },
   "service": { "name": "cloudtrail", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -74,8 +77,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-3",
-    "ephemeral_id": "bs8r8obg0w"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "yud2wx83zw"
   },
   "input": { "type": "aws-s3" }
 }

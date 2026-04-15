@@ -41,6 +41,8 @@ export function useScheduleLoop(
 ): {
   scheduleActive: boolean;
   scheduleCurrentRun: number;
+  /** Full shipping rounds finished (not counting an in-flight run until it completes). */
+  scheduleRunsCompleted: number;
   nextRunAt: Date | null;
   countdown: number;
   scheduleResumeNotice: string | null;
@@ -49,6 +51,7 @@ export function useScheduleLoop(
 } {
   const [scheduleActive, setScheduleActive] = useState(false);
   const [scheduleCurrentRun, setScheduleCurrentRun] = useState(0);
+  const [scheduleRunsCompleted, setScheduleRunsCompleted] = useState(0);
   const [nextRunAt, setNextRunAt] = useState<Date | null>(null);
   const [countdown, setCountdown] = useState(0);
   const [scheduleResumeNotice, setScheduleResumeNotice] = useState<string | null>(null);
@@ -91,7 +94,9 @@ export function useScheduleLoop(
         clearSchedulePersistence(lsKey);
         await shipRef.current();
         if (abortRef.current) controller.abort();
-        if (controller.signal.aborted || run === total) break;
+        if (controller.signal.aborted) break;
+        setScheduleRunsCompleted(run);
+        if (run === total) break;
 
         const nextTime = new Date(Date.now() + intervalMin * 60 * 1000);
         setNextRunAt(nextTime);
@@ -132,6 +137,7 @@ export function useScheduleLoop(
     const controller = new AbortController();
     scheduleLoopRef.current = controller;
     setScheduleActive(true);
+    setScheduleRunsCompleted(0);
     clearSchedulePersistence(lsKey);
     await runScheduleFrom(1, controller);
   }, [lsKey, runScheduleFrom]);
@@ -180,6 +186,7 @@ export function useScheduleLoop(
     );
     setScheduleActive(true);
     setScheduleCurrentRun(parsed.displayRun);
+    setScheduleRunsCompleted(parsed.displayRun);
     setNextRunAt(next);
 
     void (async () => {
@@ -211,6 +218,7 @@ export function useScheduleLoop(
   return {
     scheduleActive,
     scheduleCurrentRun,
+    scheduleRunsCompleted,
     nextRunAt,
     countdown,
     scheduleResumeNotice,

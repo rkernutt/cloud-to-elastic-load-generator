@@ -1,11 +1,19 @@
 {
   "title": "Amazon DynamoDB DAX — Cache Performance",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "dax-kpi-total-requests",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,14 +22,25 @@
             "type": "esql",
             "query": "FROM logs-aws.dax* | STATS `Total Requests` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Requests" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Requests"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "dax-kpi-cache-hit-rate",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -30,14 +49,25 @@
             "type": "esql",
             "query": "FROM logs-aws.dax* | STATS total = COUNT(), hits = COUNT_IF(`event.action` == \"cache-hit\") | EVAL `Cache Hit Rate (%)` = ROUND(hits * 100.0 / total, 1)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Cache Hit Rate (%)" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Cache Hit Rate (%)"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "dax-kpi-avg-latency",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -46,30 +76,52 @@
             "type": "esql",
             "query": "FROM logs-aws.dax* | STATS avg_l = AVG(`aws.dax.request_latency_ms`) | EVAL `Avg Latency (ms)` = ROUND(avg_l, 0)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Latency (ms)" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Latency (ms)"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "dax-kpi-error-count",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.dax* | WHERE `event.outcome` == \"failure\" | STATS `Error Count` = COUNT()"
+            "query": "FROM logs-aws.dax* | WHERE `log.level` == \"failure\" | STATS `Error Count` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Error Count" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Error Count"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "dax-donut-cache-result",
-      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Cache Result",
         "attributes": {
@@ -78,15 +130,30 @@
             "type": "esql",
             "query": "FROM logs-aws.dax* | STATS count = COUNT() BY result = `event.action` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "result" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "result"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "dax-donut-operation-type",
-      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Operation Type",
         "attributes": {
@@ -95,32 +162,64 @@
             "type": "esql",
             "query": "FROM logs-aws.dax* | STATS count = COUNT() BY operation = `aws.dax.operation` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "operation" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "operation"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "dax-requests-over-time",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Request Rate Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.dax* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.dax* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "count", "label": "Requests" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Requests"
+                }
+              ]
             }
           ]
         }
@@ -129,25 +228,46 @@
     {
       "type": "lens",
       "uid": "dax-recent-requests",
-      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Recent Requests",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.dax* | KEEP @timestamp, `aws.dax.cluster_name`, `aws.dax.operation`, `aws.dax.request_latency_ms`, `event.outcome` | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.dax* | KEEP `@timestamp`, `aws.dax.cluster_name`, `aws.dax.operation`, `aws.dax.request_latency_ms`, `log.level` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
-            { "operation": "value", "column": "aws.dax.cluster_name", "label": "Cluster Name" },
-            { "operation": "value", "column": "aws.dax.operation", "label": "Operation" },
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.dax.cluster_name",
+              "label": "Cluster Name"
+            },
+            {
+              "operation": "value",
+              "column": "aws.dax.operation",
+              "label": "Operation"
+            },
             {
               "operation": "value",
               "column": "aws.dax.request_latency_ms",
               "label": "Latency (ms)"
             },
-            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Log level"
+            }
           ],
           "rows": []
         }

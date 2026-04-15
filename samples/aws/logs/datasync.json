@@ -1,57 +1,55 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
+  "@timestamp": "2026-04-15T13:24:35.775Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-southeast-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "datasync" }
   },
   "aws": {
     "datasync": {
-      "task_arn": "arn:aws:datasync:af-south-1:814726593401:task/task-eunrnafo5v",
-      "source_location_uri": "smb://file-server/share",
-      "destination_location_uri": "s3://prod-backup",
-      "status": "ERROR",
-      "files_transferred": 0,
-      "bytes_transferred": 0,
-      "files_failed": 2,
-      "duration_seconds": 522,
-      "error_code": "InvalidS3Config"
+      "task_arn": "arn:aws:datasync:ap-southeast-2:293847561023:task/task-lmna8caodi",
+      "source_location_uri": "s3://source-bucket",
+      "destination_location_uri": "s3://archive-bucket",
+      "status": "SUCCESS",
+      "files_transferred": 587133,
+      "bytes_transferred": 471840041322,
+      "files_failed": 0,
+      "duration_seconds": 926
     },
     "s3": {
       "bucket": {
-        "name": "aws-datasync-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-datasync-logs-814726593401"
+        "name": "aws-datasync-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-datasync-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/814726593401/datasync/af-south-1/2026/04/14/datasync_EQIWRD8PCO.log.gz"
+        "key": "AWSLogs/293847561023/datasync/ap-southeast-2/2026/04/15/datasync_9ZMZWX9B9LP.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/datasync/logs",
-      "log_stream": "af-south-1/p109ukxu",
-      "ingestion_time": "2026-04-14T09:28:18.162Z"
+      "log_stream": "ap-southeast-2/vntl5o9t",
+      "ingestion_time": "2026-04-15T13:24:36.314Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["file"],
     "dataset": "aws.datasync",
     "provider": "datasync.amazonaws.com",
-    "duration": 522000000000,
+    "duration": 926000000000,
     "module": "aws"
   },
-  "message": "DataSync FAILED: NFS permission denied",
-  "log": { "level": "error" },
-  "error": { "code": "NetworkError", "message": "DataSync task failed", "type": "storage" },
+  "message": "DataSync: 587,133 files transferred from s3:",
+  "log": { "level": "info" },
   "service": { "name": "datasync", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.datasync", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "rb32nr6pjae"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "lrzjby4xz4"
   },
   "input": { "type": "aws-cloudwatch" }
 }

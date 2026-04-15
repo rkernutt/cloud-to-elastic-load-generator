@@ -37,6 +37,8 @@ interface ServicesPageProps {
   toggleService: (id: string) => void;
   toggleGroupSelection: (gid: string) => void;
   getEffectiveSource: (id: string) => string;
+  /** Clears per-group collapse so every category is open */
+  onExpandAllGroups?: () => void;
   /** Wizard step heading (default: Services) */
   pageTitle?: string;
   /** Card toolbar label for the grid (default: Select Services) */
@@ -65,6 +67,7 @@ export function ServicesPage({
   toggleService,
   toggleGroupSelection,
   getEffectiveSource,
+  onExpandAllGroups,
   pageTitle = "Services",
   gridHeading = "Select services",
 }: ServicesPageProps) {
@@ -206,6 +209,7 @@ export function ServicesPage({
           toggleGroup={toggleGroupSelection}
           toggleCollapse={onToggleGroup}
           getEffectiveSource={getEffectiveSource}
+          expandAllGroups={onExpandAllGroups}
         />
       </EuiPanel>
     </>

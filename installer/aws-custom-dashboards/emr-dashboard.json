@@ -1,11 +1,19 @@
 {
   "title": "AWS EMR — Clusters & Job Performance",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "emr-kpi-total",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,30 +22,52 @@
             "type": "esql",
             "query": "FROM logs-aws.emr* | STATS `Total Jobs` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Jobs" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Jobs"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "emr-kpi-success-rate",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.emr* | EVAL is_success = CASE(event.outcome == \"success\", 1, 0) | STATS avg_rate = AVG(is_success) | EVAL `Success Rate %` = ROUND(avg_rate * 100, 1)"
+            "query": "FROM logs-aws.emr* | EVAL is_success = CASE(log.level == \"info\", 1, 0) | STATS avg_rate = AVG(is_success) | EVAL `Success Rate %` = ROUND(avg_rate * 100, 1)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Success Rate %" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Success Rate %"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "emr-kpi-avg-duration",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -46,47 +76,84 @@
             "type": "esql",
             "query": "FROM logs-aws.emr* | STATS avg_ns = AVG(event.duration) | EVAL `Avg Duration (s)` = ROUND(avg_ns / 1000000000.0, 2)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Duration (s)" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Duration (s)"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "emr-kpi-failed",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.emr* | WHERE event.outcome == \"failure\" | STATS `Failed Jobs` = COUNT()"
+            "query": "FROM logs-aws.emr* | WHERE log.level == \"error\" | STATS `Failed Jobs` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Failed Jobs" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Jobs"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "emr-outcomes",
-      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Job Outcomes",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.emr* | STATS count = COUNT() BY outcome = event.outcome"
+            "query": "FROM logs-aws.emr* | STATS count = COUNT() BY outcome = log.level"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "outcome" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "outcome"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "emr-by-application",
-      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Jobs by Application",
         "attributes": {
@@ -95,15 +162,30 @@
             "type": "esql",
             "query": "FROM logs-aws.emr* | STATS count = COUNT() BY application = `aws.emr.application`"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "application" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "application"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "emr-run-state",
-      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Jobs by Run State",
         "attributes": {
@@ -112,32 +194,64 @@
             "type": "esql",
             "query": "FROM logs-aws.emr* | STATS count = COUNT() BY state = `aws.emr.job.run_state`"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "state" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "state"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "emr-jobs-over-time",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Job Runs Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.emr* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.emr* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "count", "label": "Job Runs" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Job Runs"
+                }
+              ]
             }
           ]
         }
@@ -146,24 +260,46 @@
     {
       "type": "lens",
       "uid": "emr-hdfs-util",
-      "grid": { "x": 0, "y": 25, "w": 16, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Avg HDFS Utilisation %",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.emr* | STATS avg_hdfs = AVG(`aws.emr.metrics.hdfs_utilization_pct`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.emr* | STATS avg_hdfs = AVG(`aws.emr.metrics.hdfs_utilization_pct`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "avg_hdfs", "label": "HDFS Utilisation %" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_hdfs",
+                  "label": "HDFS Utilisation %"
+                }
+              ]
             }
           ]
         }
@@ -172,24 +308,46 @@
     {
       "type": "lens",
       "uid": "emr-yarn-memory",
-      "grid": { "x": 16, "y": 25, "w": 16, "h": 10 },
+      "grid": {
+        "x": 16,
+        "y": 25,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Avg YARN Memory Used (MB)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.emr* | STATS avg_yarn = AVG(`aws.emr.metrics.yarn_memory_used_mb`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.emr* | STATS avg_yarn = AVG(`aws.emr.metrics.yarn_memory_used_mb`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "avg_yarn", "label": "YARN Memory (MB)" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_yarn",
+                  "label": "YARN Memory (MB)"
+                }
+              ]
             }
           ]
         }
@@ -198,24 +356,46 @@
     {
       "type": "lens",
       "uid": "emr-jvm-heap",
-      "grid": { "x": 32, "y": 25, "w": 16, "h": 10 },
+      "grid": {
+        "x": 32,
+        "y": 25,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "JVM Heap Usage (0–1)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.emr* | STATS avg_heap = AVG(`aws.emr.metrics.jvm_heap_usage`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.emr* | STATS avg_heap = AVG(`aws.emr.metrics.jvm_heap_usage`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "avg_heap", "label": "JVM Heap Usage" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_heap",
+                  "label": "JVM Heap Usage"
+                }
+              ]
             }
           ]
         }
@@ -224,24 +404,46 @@
     {
       "type": "lens",
       "uid": "emr-executor-count",
-      "grid": { "x": 0, "y": 35, "w": 16, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 35,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Avg Executor Count",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.emr* | STATS avg_exec = AVG(`aws.emr.metrics.executor_count`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.emr* | STATS avg_exec = AVG(`aws.emr.metrics.executor_count`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "avg_exec", "label": "Executors" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_exec",
+                  "label": "Executors"
+                }
+              ]
             }
           ]
         }
@@ -250,24 +452,46 @@
     {
       "type": "lens",
       "uid": "emr-gc-time",
-      "grid": { "x": 16, "y": 35, "w": 16, "h": 10 },
+      "grid": {
+        "x": 16,
+        "y": 35,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Avg GC Time (ms)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.emr* | STATS avg_gc = AVG(`aws.emr.metrics.gc_time_ms`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.emr* | STATS avg_gc = AVG(`aws.emr.metrics.gc_time_ms`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "avg_gc", "label": "GC Time (ms)" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_gc",
+                  "label": "GC Time (ms)"
+                }
+              ]
             }
           ]
         }
@@ -276,26 +500,50 @@
     {
       "type": "lens",
       "uid": "emr-task-health",
-      "grid": { "x": 32, "y": 35, "w": 16, "h": 10 },
+      "grid": {
+        "x": 32,
+        "y": 35,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Completed vs Failed Tasks",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "bar_stacked",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.emr* | STATS completed = SUM(`aws.emr.metrics.numCompletedTasks`), failed = SUM(`aws.emr.metrics.numFailedTasks`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.emr* | STATS completed = SUM(`aws.emr.metrics.numCompletedTasks`), failed = SUM(`aws.emr.metrics.numFailedTasks`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
               "y": [
-                { "operation": "value", "column": "completed", "label": "Completed" },
-                { "operation": "value", "column": "failed", "label": "Failed" }
+                {
+                  "operation": "value",
+                  "column": "completed",
+                  "label": "Completed"
+                },
+                {
+                  "operation": "value",
+                  "column": "failed",
+                  "label": "Failed"
+                }
               ]
             }
           ]
@@ -305,23 +553,56 @@
     {
       "type": "lens",
       "uid": "emr-log-table",
-      "grid": { "x": 0, "y": 45, "w": 48, "h": 12 },
+      "grid": {
+        "x": 0,
+        "y": 45,
+        "w": 48,
+        "h": 12
+      },
       "config": {
         "title": "Recent Job Runs",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.emr* | KEEP @timestamp, `aws.emr.cluster_name`, `aws.emr.application`, `aws.emr.job.name`, `aws.emr.job.run_state`, event.outcome, event.duration | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.emr* | KEEP `@timestamp`, `aws.emr.cluster_name`, `aws.emr.application`, `aws.emr.job.name`, `aws.emr.job.run_state`, log.level, event.duration | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
-            { "operation": "value", "column": "aws.emr.cluster_name", "label": "Cluster" },
-            { "operation": "value", "column": "aws.emr.application", "label": "Application" },
-            { "operation": "value", "column": "aws.emr.job.name", "label": "Job Name" },
-            { "operation": "value", "column": "aws.emr.job.run_state", "label": "Run State" },
-            { "operation": "value", "column": "event.outcome", "label": "Outcome" },
-            { "operation": "value", "column": "event.duration", "label": "Duration (ns)" }
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.emr.cluster_name",
+              "label": "Cluster"
+            },
+            {
+              "operation": "value",
+              "column": "aws.emr.application",
+              "label": "Application"
+            },
+            {
+              "operation": "value",
+              "column": "aws.emr.job.name",
+              "label": "Job Name"
+            },
+            {
+              "operation": "value",
+              "column": "aws.emr.job.run_state",
+              "label": "Run State"
+            },
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Log level"
+            },
+            {
+              "operation": "value",
+              "column": "event.duration",
+              "label": "Duration (ns)"
+            }
           ],
           "rows": []
         }

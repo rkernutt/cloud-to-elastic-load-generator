@@ -1,30 +1,30 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
+  "@timestamp": "2026-04-15T13:24:35.775Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "waf" }
   },
   "aws": {
     "dimensions": {
       "WebACL": "prod-waf",
-      "Rule": "AWSManagedRulesLinuxRuleSet",
-      "Region": "eu-central-2"
+      "Rule": "AWSManagedRulesWordPressRuleSet",
+      "Region": "eu-south-1"
     },
     "waf": {
-      "id": "5j7vkcetzwg",
-      "arn": "arn:aws:wafv2:eu-central-2:293847561023:regional/webacl/prod-waf/guvbbp4k-owqa-l9as-8jf4-mlxgr3p0k2",
+      "id": "w97kkkvvsae",
+      "arn": "arn:aws:wafv2:eu-south-1:814726593401:regional/webacl/prod-waf/gnobqspd-6d5r-g53e-64k3-8w28q2gfsco",
       "format_version": "1",
-      "source": { "name": "ALB", "id": "293847561023-app/prod-waf/6w822vsago8" },
+      "source": { "name": "ALB", "id": "814726593401-app/prod-waf/7xbd6f94y9w" },
       "rule_group_list": [
-        { "ruleGroupId": "AWSManagedRulesLinuxRuleSet", "nonTerminatingMatchingRules": [] }
+        { "ruleGroupId": "AWSManagedRulesWordPressRuleSet", "nonTerminatingMatchingRules": [] }
       ],
       "non_terminating_matching_rules": [],
       "terminating_rule_match_details": [],
       "request": {
         "headers": [
-          { "name": "User-Agent", "value": "Go-http-client/1.1" },
+          { "name": "User-Agent", "value": "python-requests/2.27.1" },
           { "name": "Host", "value": "api.example.com" }
         ]
       },
@@ -41,49 +41,49 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-waf-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-waf-logs-293847561023"
+        "name": "aws-waf-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-waf-logs-814726593401"
       },
-      "object": { "key": "AWSLogs/293847561023/waf/eu-central-2/2026/04/14/waf_MFO68NT9LTC.log.gz" }
+      "object": { "key": "AWSLogs/814726593401/waf/eu-south-1/2026/04/15/waf_ZUYMYOMKZVN.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/waf/logs",
-      "log_stream": "eu-central-2/yvdq74dn",
-      "ingestion_time": "2026-04-14T09:28:18.088Z"
+      "log_stream": "eu-south-1/nj50bh1m",
+      "ingestion_time": "2026-04-15T13:24:36.245Z"
     }
   },
-  "rule": { "id": "SQLi_Args", "ruleset": "AWSManagedRulesLinuxRuleSet" },
-  "http": { "request": { "method": "GET", "bytes": 2701 } },
-  "url": { "path": "/health" },
+  "rule": { "id": "GenericRFI_BODY", "ruleset": "AWSManagedRulesWordPressRuleSet" },
+  "http": { "request": { "method": "GET", "bytes": 4460 } },
+  "url": { "path": "/api/v1/orders" },
   "source": {
-    "ip": "42.247.22.254",
+    "ip": "232.33.39.162",
     "geo": {
-      "country_iso_code": "NL",
-      "country_name": "Netherlands",
-      "city_name": "Amsterdam",
-      "location": { "lat": 52.3676, "lon": 4.9041 }
+      "country_iso_code": "US",
+      "country_name": "United States",
+      "city_name": "New York",
+      "location": { "lat": 40.7128, "lon": -74.006 }
     }
   },
   "client": {
-    "ip": "42.247.22.254",
+    "ip": "232.33.39.162",
     "geo": {
-      "country_iso_code": "NL",
-      "country_name": "Netherlands",
-      "city_name": "Amsterdam",
-      "location": { "lat": 52.3676, "lon": 4.9041 }
+      "country_iso_code": "US",
+      "country_name": "United States",
+      "city_name": "New York",
+      "location": { "lat": 40.7128, "lon": -74.006 }
     }
   },
-  "user_agent": { "original": "Go-http-client/1.1" },
+  "user_agent": { "original": "python-requests/2.27.1" },
   "event": {
     "action": "allow",
     "outcome": "success",
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
-    "duration": 4000000,
+    "duration": 9000000,
     "module": "aws"
   },
-  "message": "WAF ALLOWED request - Rule: AWSManagedRulesLinuxRuleSet",
+  "message": "WAF ALLOWED request - Rule: AWSManagedRulesWordPressRuleSet",
   "log": { "level": "info" },
   "service": { "name": "waf", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -91,8 +91,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "p76xnbeassh"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "fth291i5zu8"
   },
   "input": { "type": "aws-s3" }
 }

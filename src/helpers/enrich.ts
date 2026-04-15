@@ -195,7 +195,12 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
   }
 
   // ── ECS baseline fields (logs only) ────────────────────────────────────────
-  const baseline: LooseDoc = {};
+  const baseline: LooseDoc = {
+    cloud: {
+      ...(typeof doc.cloud === "object" && doc.cloud !== null ? doc.cloud : {}),
+      region,
+    },
+  };
   if (eventType === "logs") {
     if (COMPUTE_SERVICES.has(serviceId) && !doc.host?.name) {
       baseline.host = {
@@ -211,8 +216,16 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
         type: doc.service?.type ?? "aws",
       };
     }
+    const levelFromOutcome = (): string => {
+      const o = doc.event?.outcome;
+      if (o === "failure") return "error";
+      if (o === "success") return "info";
+      return "info";
+    };
     if (!doc.log) {
-      baseline.log = { level: "info" };
+      baseline.log = { level: levelFromOutcome() };
+    } else if (typeof doc.log === "object" && doc.log !== null && doc.log.level == null) {
+      baseline.log = { ...doc.log, level: levelFromOutcome() };
     }
   }
 

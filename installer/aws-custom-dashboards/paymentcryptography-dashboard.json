@@ -1,11 +1,19 @@
 {
   "title": "AWS Payment Cryptography — Key Operations",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "paymentcryptography-kpi-total-operations",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,30 +22,52 @@
             "type": "esql",
             "query": "FROM logs-aws.paymentcryptography* | STATS `Total Operations` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Operations" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Operations"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "paymentcryptography-kpi-failed-operations",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.paymentcryptography* | WHERE `event.outcome` == \"failure\" | STATS `Failed Operations` = COUNT()"
+            "query": "FROM logs-aws.paymentcryptography* | WHERE `log.level` == \"failure\" | STATS `Failed Operations` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Failed Operations" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Operations"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "paymentcryptography-kpi-key-types",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -46,14 +76,25 @@
             "type": "esql",
             "query": "FROM logs-aws.paymentcryptography* | STATS `Key Types in Use` = COUNT_DISTINCT(`aws.paymentcryptography.key_algorithm`)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Key Types in Use" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Key Types in Use"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "paymentcryptography-kpi-unique-operations",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -62,14 +103,25 @@
             "type": "esql",
             "query": "FROM logs-aws.paymentcryptography* | STATS `Unique Operations` = COUNT_DISTINCT(`aws.paymentcryptography.operation`)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Unique Operations" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Unique Operations"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "paymentcryptography-donut-operation-type",
-      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Operation Type",
         "attributes": {
@@ -78,15 +130,30 @@
             "type": "esql",
             "query": "FROM logs-aws.paymentcryptography* | STATS count = COUNT() BY operation = `aws.paymentcryptography.operation` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "operation" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "operation"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "paymentcryptography-donut-key-algorithm",
-      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Key Algorithm",
         "attributes": {
@@ -95,32 +162,64 @@
             "type": "esql",
             "query": "FROM logs-aws.paymentcryptography* | STATS count = COUNT() BY algorithm = `aws.paymentcryptography.key_algorithm` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "algorithm" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "algorithm"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "paymentcryptography-operations-over-time",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Crypto Operations Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.paymentcryptography* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.paymentcryptography* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "count", "label": "Operations" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Operations"
+                }
+              ]
             }
           ]
         }
@@ -129,17 +228,26 @@
     {
       "type": "lens",
       "uid": "paymentcryptography-recent-operations",
-      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Recent Operations",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.paymentcryptography* | KEEP @timestamp, `aws.paymentcryptography.operation`, `aws.paymentcryptography.key_algorithm`, `aws.paymentcryptography.key_usage`, `event.outcome` | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.paymentcryptography* | KEEP `@timestamp`, `aws.paymentcryptography.operation`, `aws.paymentcryptography.key_algorithm`, `aws.paymentcryptography.key_usage`, `log.level` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
             {
               "operation": "value",
               "column": "aws.paymentcryptography.operation",
@@ -155,7 +263,11 @@
               "column": "aws.paymentcryptography.key_usage",
               "label": "Key Usage"
             },
-            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Log level"
+            }
           ],
           "rows": []
         }

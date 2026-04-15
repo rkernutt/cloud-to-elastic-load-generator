@@ -1,58 +1,65 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
+  "@timestamp": "2026-04-15T13:24:35.775Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-southeast-4",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "securitylake" }
   },
   "aws": {
-    "dimensions": { "OcsfClass": "Security Finding", "SourceType": "LAMBDA:SecurityHub" },
+    "dimensions": { "OcsfClass": "API Activity", "SourceType": "LAMBDA:CloudTrail" },
     "securitylake": {
-      "source_type": "LAMBDA:SecurityHub",
-      "class_uid": 2001,
-      "class_name": "Security Finding",
-      "category_uid": 2,
-      "category_name": "Findings",
-      "activity_id": 1,
-      "activity_name": "Other",
+      "source_type": "LAMBDA:CloudTrail",
+      "class_uid": 6003,
+      "class_name": "API Activity",
+      "category_uid": 6,
+      "category_name": "Application Activity",
+      "activity_id": 3,
+      "activity_name": "Update",
       "severity_id": 3,
       "severity": "Medium",
       "status_id": 1,
       "status": "Success",
-      "time": 1776158897596,
+      "time": 1776259475775,
       "metadata": {
         "version": "1.1.0",
-        "product": { "name": "SecurityHub", "vendor_name": "AWS" },
-        "uid": "9pf81rss-6uq7-smzm-d751-ftpiqn6vjpj"
+        "product": { "name": "CloudTrail", "vendor_name": "AWS" },
+        "uid": "dy133lp0-narf-1r7o-r7pr-6r03swb9zt"
       },
       "ocsf_cloud": {
         "provider": "AWS",
-        "account": { "uid": "814726593401" },
-        "region": "ap-east-1"
+        "account": { "uid": "738291046572" },
+        "region": "ap-southeast-4"
       },
-      "finding": {
-        "uid": "7u9iqp9l-e5p3-fao0-mmm6-3gn0jz9wgsb",
-        "title": "UnauthorizedAccess:IAMUser/MaliciousIPCaller",
-        "types": ["TTPs/Initial Access"],
-        "first_seen_time": 1776119297596,
-        "last_seen_time": 1776158897596,
-        "confidence_score": 9
-      }
+      "api": {
+        "operation": "CreateBucket",
+        "service": { "name": "sts.amazonaws.com" },
+        "request": { "uid": "ddh7qicp-qymy-yhwc-vfou-s9hn2joiveh" },
+        "response": { "code": 200 }
+      },
+      "actor": {
+        "user": {
+          "uid": "arn:aws:iam::738291046572:user/carol",
+          "name": "carol",
+          "type": "IAMUser"
+        },
+        "session": { "uid": "ASIAT5GRLP8EGP9", "is_mfa": false }
+      },
+      "src_endpoint": { "ip": "31.123.160.212" }
     },
     "s3": {
       "bucket": {
-        "name": "aws-securitylake-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-securitylake-logs-814726593401"
+        "name": "aws-securitylake-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-securitylake-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/814726593401/securitylake/ap-east-1/2026/04/14/securitylake_TL40RJ9A5G8.log.gz"
+        "key": "AWSLogs/738291046572/securitylake/ap-southeast-4/2026/04/15/securitylake_QAYXPX8V1NA.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securitylake/logs",
-      "log_stream": "ap-east-1/5yqxiroe",
-      "ingestion_time": "2026-04-14T09:28:18.128Z"
+      "log_stream": "ap-southeast-4/v394q2bo",
+      "ingestion_time": "2026-04-15T13:24:36.280Z"
     }
   },
   "event": {
@@ -62,7 +69,7 @@
     "provider": "securitylake.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security Lake [Security Finding/Other] Medium: SecurityHub success",
+  "message": "Security Lake [API Activity/Update] Medium: CloudTrail success",
   "log": { "level": "warn" },
   "service": { "name": "securitylake", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -70,8 +77,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "xm6kicwtev"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "0gi13xtln0ia"
   },
   "input": { "type": "http_endpoint" }
 }

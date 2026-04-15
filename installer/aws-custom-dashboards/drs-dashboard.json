@@ -1,11 +1,19 @@
 {
   "title": "AWS Elastic Disaster Recovery — Replication Health",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "drs-kpi-total-servers",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,14 +22,25 @@
             "type": "esql",
             "query": "FROM logs-aws.drs* | STATS `Total Servers` = COUNT_DISTINCT(`aws.drs.source_hostname`)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Servers" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Servers"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "drs-kpi-disconnected-servers",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -30,14 +49,25 @@
             "type": "esql",
             "query": "FROM logs-aws.drs* | WHERE `aws.drs.replication_status` == \"DISCONNECTED\" | STATS `Disconnected Servers` = COUNT_DISTINCT(`aws.drs.source_hostname`)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Disconnected Servers" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Disconnected Servers"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "drs-kpi-avg-replication-lag",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -47,7 +77,11 @@
             "query": "FROM logs-aws.drs* | STATS avg_lag = AVG(`aws.drs.lag_duration_seconds`) | EVAL `Avg Replication Lag (s)` = ROUND(avg_lag, 1)"
           },
           "metrics": [
-            { "type": "primary", "operation": "value", "column": "Avg Replication Lag (s)" }
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Replication Lag (s)"
+            }
           ]
         }
       }
@@ -55,7 +89,12 @@
     {
       "type": "lens",
       "uid": "drs-kpi-recovery-instances",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -64,14 +103,25 @@
             "type": "esql",
             "query": "FROM logs-aws.drs* | WHERE `aws.drs.data_replication_state` == \"REPLICATING\" | STATS `Recovery Instances` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Recovery Instances" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Recovery Instances"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "drs-donut-replication-status",
-      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Replication Status",
         "attributes": {
@@ -80,15 +130,30 @@
             "type": "esql",
             "query": "FROM logs-aws.drs* | STATS count = COUNT() BY status = `aws.drs.replication_status` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "status" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "status"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "drs-donut-data-replication-state",
-      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Data Replication State",
         "attributes": {
@@ -97,32 +162,64 @@
             "type": "esql",
             "query": "FROM logs-aws.drs* | STATS count = COUNT() BY state = `aws.drs.data_replication_state` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "state" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "state"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "drs-replication-events-over-time",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Replication Events Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.drs* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.drs* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "count", "label": "Replication Events" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Replication Events"
+                }
+              ]
             }
           ]
         }
@@ -131,17 +228,26 @@
     {
       "type": "lens",
       "uid": "drs-recent-events",
-      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Recent Replication Events",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.drs* | KEEP @timestamp, `aws.drs.source_hostname`, `aws.drs.replication_status`, `aws.drs.lag_duration_seconds`, `aws.drs.recovery_point_objective_seconds` | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.drs* | KEEP `@timestamp`, `aws.drs.source_hostname`, `aws.drs.replication_status`, `aws.drs.lag_duration_seconds`, `aws.drs.recovery_point_objective_seconds` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
             {
               "operation": "value",
               "column": "aws.drs.source_hostname",
@@ -152,7 +258,11 @@
               "column": "aws.drs.replication_status",
               "label": "Replication Status"
             },
-            { "operation": "value", "column": "aws.drs.lag_duration_seconds", "label": "Lag (s)" },
+            {
+              "operation": "value",
+              "column": "aws.drs.lag_duration_seconds",
+              "label": "Lag (s)"
+            },
             {
               "operation": "value",
               "column": "aws.drs.recovery_point_objective_seconds",

@@ -1,11 +1,19 @@
 {
   "title": "Amazon Augmented AI — Human Review",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "a2i-kpi-total-loops",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,14 +22,25 @@
             "type": "esql",
             "query": "FROM logs-aws.a2i* | STATS `Total Loops` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Loops" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Loops"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "a2i-kpi-failed-loops",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -30,14 +49,25 @@
             "type": "esql",
             "query": "FROM logs-aws.a2i* | WHERE `aws.a2i.human_loop_status` == \"Failed\" | STATS `Failed Loops` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Failed Loops" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Loops"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "a2i-kpi-completed-loops",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -46,14 +76,25 @@
             "type": "esql",
             "query": "FROM logs-aws.a2i* | WHERE `aws.a2i.task_completed` == true | STATS `Completed Loops` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Completed Loops" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Completed Loops"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "a2i-kpi-review-required",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -63,7 +104,11 @@
             "query": "FROM logs-aws.a2i* | WHERE `aws.a2i.human_review_required` == true | STATS `Review Required Count` = COUNT()"
           },
           "metrics": [
-            { "type": "primary", "operation": "value", "column": "Review Required Count" }
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Review Required Count"
+            }
           ]
         }
       }
@@ -71,7 +116,12 @@
     {
       "type": "lens",
       "uid": "a2i-donut-by-loop-status",
-      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Loops by Status",
         "attributes": {
@@ -80,15 +130,30 @@
             "type": "esql",
             "query": "FROM logs-aws.a2i* | STATS count = COUNT() BY status = `aws.a2i.human_loop_status` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "status" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "status"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "a2i-donut-by-flow-definition",
-      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Loops by Flow Definition",
         "attributes": {
@@ -97,32 +162,64 @@
             "type": "esql",
             "query": "FROM logs-aws.a2i* | STATS count = COUNT() BY flow = `aws.a2i.flow_definition_name` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "flow" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "flow"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "a2i-loops-over-time",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Human Review Loops Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.a2i* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.a2i* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "count", "label": "Loops" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Loops"
+                }
+              ]
             }
           ]
         }
@@ -131,24 +228,41 @@
     {
       "type": "lens",
       "uid": "a2i-recent-loops",
-      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Recent Human Review Loops",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.a2i* | KEEP @timestamp, `aws.a2i.human_loop_status`, `aws.a2i.human_review_required`, `aws.a2i.task_completed`, `aws.a2i.flow_definition_name` | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.a2i* | KEEP `@timestamp`, `aws.a2i.human_loop_status`, `aws.a2i.human_review_required`, `aws.a2i.task_completed`, `aws.a2i.flow_definition_name` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
-            { "operation": "value", "column": "aws.a2i.human_loop_status", "label": "Loop Status" },
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.a2i.human_loop_status",
+              "label": "Loop Status"
+            },
             {
               "operation": "value",
               "column": "aws.a2i.human_review_required",
               "label": "Review Required"
             },
-            { "operation": "value", "column": "aws.a2i.task_completed", "label": "Task Completed" },
+            {
+              "operation": "value",
+              "column": "aws.a2i.task_completed",
+              "label": "Task Completed"
+            },
             {
               "operation": "value",
               "column": "aws.a2i.flow_definition_name",

@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.pubsub* | STATS c = COUNT()"
+            "query": "FROM logs-gcp.pubsub* | STATS `Log events` = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "c"
+              "column": "Log events"
             }
           ]
         }
@@ -47,7 +47,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.pubsub* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)"
+            "query": "FROM logs-gcp.pubsub* | EVAL is_err = CASE(log.level == \"error\", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)"
           },
           "metrics": [
             {
@@ -121,7 +121,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.pubsub* | STATS c = COUNT() BY b = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.pubsub* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -154,12 +154,12 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.pubsub* | KEEP @timestamp, `gcp.pubsub.topic_name`, `gcp.pubsub.subscription_name`, `gcp.pubsub.action`, `gcp.pubsub.message_size_bytes`, event.outcome, message | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-gcp.pubsub* | KEEP `@timestamp`, `gcp.pubsub.topic_name`, `gcp.pubsub.subscription_name`, `gcp.pubsub.action`, `gcp.pubsub.message_size_bytes`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "@timestamp",
+              "column": "`@timestamp`",
               "label": "Time"
             },
             {
@@ -184,8 +184,8 @@
             },
             {
               "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
+              "column": "log.level",
+              "label": "Log level"
             },
             {
               "operation": "value",

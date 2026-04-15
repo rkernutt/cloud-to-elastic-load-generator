@@ -664,6 +664,7 @@ export function LoadGeneratorApp({
   const {
     scheduleActive,
     scheduleCurrentRun,
+    scheduleRunsCompleted,
     nextRunAt,
     countdown,
     scheduleResumeNotice,
@@ -763,6 +764,7 @@ export function LoadGeneratorApp({
       totalServices={totalServices}
       scheduleActive={scheduleActive}
       scheduleCurrentRun={scheduleCurrentRun}
+      scheduleRunsCompleted={scheduleRunsCompleted}
       scheduleTotalRuns={scheduleTotalRuns}
       isConnected={!!(elasticUrl && apiKey)}
       hasServicesSelected={totalSelected > 0}
@@ -807,6 +809,7 @@ export function LoadGeneratorApp({
             scheduleIntervalMin={scheduleIntervalMin}
             scheduleActive={scheduleActive}
             scheduleCurrentRun={scheduleCurrentRun}
+            scheduleRunsCompleted={scheduleRunsCompleted}
             nextRunAt={nextRunAt}
             countdown={countdown}
             scheduleResumeNotice={scheduleResumeNotice}
@@ -921,6 +924,7 @@ export function LoadGeneratorApp({
             totalServices={totalServices}
             collapsedGroups={collapsedGroups}
             onToggleGroup={(gid) => setCollapsedGroups((prev) => ({ ...prev, [gid]: !prev[gid] }))}
+            onExpandAllGroups={() => setCollapsedGroups({})}
             ingestionSource={ingestionSource}
             serviceGroups={serviceGroupsForLogsWizard}
             traceServices={config.traceServices}

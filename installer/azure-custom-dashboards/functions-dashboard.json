@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.functions* | STATS c = COUNT()"
+            "query": "FROM logs-azure.functions* | STATS `Log events` = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "c"
+              "column": "Log events"
             }
           ]
         }
@@ -62,7 +62,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.functions* | STATS c = COUNT() BY b = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-azure.functions* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -95,12 +95,12 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.functions* | KEEP @timestamp, `azure.functions.function_name`, `azure.functions.trigger`, `azure.functions.duration_ms`, event.outcome, message | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-azure.functions* | KEEP `@timestamp`, `azure.functions.function_name`, `azure.functions.trigger`, `azure.functions.duration_ms`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "@timestamp",
+              "column": "`@timestamp`",
               "label": "Time"
             },
             {
@@ -120,8 +120,8 @@
             },
             {
               "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
+              "column": "log.level",
+              "label": "Log level"
             },
             {
               "operation": "value",

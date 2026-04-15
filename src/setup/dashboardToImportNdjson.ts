@@ -47,9 +47,9 @@ export async function dashboardDefToSavedObjectId(def: DashboardDef): Promise<st
 
 function inferXType(col: string, query: string | undefined): "string" | "date" {
   if (!query) return "string";
-  const re = new RegExp(`\\b${col}\\s*=\\s*BUCKET\\s*\\(\\s*@timestamp`, "i");
+  const re = new RegExp(`\\b${col}\\s*=\\s*BUCKET\\s*\\(\\s*\`?@timestamp\`?`, "i");
   if (re.test(query)) return "date";
-  const trunc = new RegExp(`\\b${col}\\s*=\\s*DATE_TRUNC\\s*\\([^)]+@timestamp`, "i");
+  const trunc = new RegExp(`\\b${col}\\s*=\\s*DATE_TRUNC\\s*\\([^)]+\`?@timestamp\`?`, "i");
   if (trunc.test(query)) return "date";
   return "string";
 }

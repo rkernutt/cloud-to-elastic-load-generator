@@ -1,11 +1,19 @@
 {
   "title": "Amazon Chime SDK Voice — Call Quality",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "chimesdkvoice-kpi-total-calls",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,14 +22,25 @@
             "type": "esql",
             "query": "FROM logs-aws.chimesdkvoice* | STATS `Total Calls` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Calls" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Calls"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "chimesdkvoice-kpi-failed-calls",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -30,14 +49,25 @@
             "type": "esql",
             "query": "FROM logs-aws.chimesdkvoice* | WHERE `aws.chimesdkvoice.call_status` == \"FAILED\" | STATS `Failed Calls` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Failed Calls" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Calls"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "chimesdkvoice-kpi-avg-mos",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -46,14 +76,25 @@
             "type": "esql",
             "query": "FROM logs-aws.chimesdkvoice* | STATS avg_m = AVG(`aws.chimesdkvoice.mos_score`) | EVAL `Avg MOS Score` = ROUND(avg_m, 2)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg MOS Score" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg MOS Score"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "chimesdkvoice-kpi-avg-packet-loss",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -62,14 +103,25 @@
             "type": "esql",
             "query": "FROM logs-aws.chimesdkvoice* | STATS avg_pl = AVG(`aws.chimesdkvoice.packet_loss_percentage`) | EVAL `Avg Packet Loss (%)` = ROUND(avg_pl, 2)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Packet Loss (%)" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Packet Loss (%)"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "chimesdkvoice-donut-call-status",
-      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Call Status",
         "attributes": {
@@ -78,15 +130,30 @@
             "type": "esql",
             "query": "FROM logs-aws.chimesdkvoice* | STATS count = COUNT() BY status = `aws.chimesdkvoice.call_status` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "status" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "status"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "chimesdkvoice-donut-direction",
-      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Call Direction",
         "attributes": {
@@ -95,32 +162,64 @@
             "type": "esql",
             "query": "FROM logs-aws.chimesdkvoice* | STATS count = COUNT() BY direction = `aws.chimesdkvoice.direction` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "direction" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "direction"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "chimesdkvoice-calls-over-time",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Call Volume Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.chimesdkvoice* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.chimesdkvoice* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "count", "label": "Calls" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Calls"
+                }
+              ]
             }
           ]
         }
@@ -129,25 +228,46 @@
     {
       "type": "lens",
       "uid": "chimesdkvoice-recent-calls",
-      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Recent Calls",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.chimesdkvoice* | KEEP @timestamp, `aws.chimesdkvoice.call_id`, `aws.chimesdkvoice.direction`, `aws.chimesdkvoice.call_status`, `aws.chimesdkvoice.mos_score`, `aws.chimesdkvoice.duration_seconds` | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.chimesdkvoice* | KEEP `@timestamp`, `aws.chimesdkvoice.call_id`, `aws.chimesdkvoice.direction`, `aws.chimesdkvoice.call_status`, `aws.chimesdkvoice.mos_score`, `aws.chimesdkvoice.duration_seconds` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
-            { "operation": "value", "column": "aws.chimesdkvoice.call_id", "label": "Call ID" },
-            { "operation": "value", "column": "aws.chimesdkvoice.direction", "label": "Direction" },
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.chimesdkvoice.call_id",
+              "label": "Call ID"
+            },
+            {
+              "operation": "value",
+              "column": "aws.chimesdkvoice.direction",
+              "label": "Direction"
+            },
             {
               "operation": "value",
               "column": "aws.chimesdkvoice.call_status",
               "label": "Call Status"
             },
-            { "operation": "value", "column": "aws.chimesdkvoice.mos_score", "label": "MOS Score" },
+            {
+              "operation": "value",
+              "column": "aws.chimesdkvoice.mos_score",
+              "label": "MOS Score"
+            },
             {
               "operation": "value",
               "column": "aws.chimesdkvoice.duration_seconds",

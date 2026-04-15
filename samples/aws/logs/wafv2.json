@@ -1,26 +1,30 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
+  "@timestamp": "2026-04-15T13:24:35.775Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-west-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "wafv2" }
   },
   "aws": {
-    "dimensions": { "WebACL": "cdn-waf", "Rule": "NoUserAgent", "Region": "us-east-2" },
+    "dimensions": {
+      "WebACL": "admin-portal-waf",
+      "Rule": "CrossSiteScripting",
+      "Region": "eu-west-1"
+    },
     "waf": {
-      "id": "lcreorey2vd",
-      "arn": "arn:aws:wafv2:us-east-2:501938274650:regional/webacl/cdn-waf/qp7t3prh-h69u-ehws-m83t-lggo09elsf",
+      "id": "jszwlkwzxib",
+      "arn": "arn:aws:wafv2:eu-west-1:738291046572:regional/webacl/admin-portal-waf/7uhlrkl5-j8ox-qora-zam1-d1rjovgzkgw",
       "format_version": "1",
-      "source": { "name": "CF", "id": "501938274650-app/cdn-waf/zam9urmxva" },
+      "source": { "name": "APIGW", "id": "738291046572-app/admin-portal-waf/xkqtn09fzyi" },
       "rule_group_list": [
-        { "ruleGroupId": "AWSManagedRulesLinuxRuleSet", "nonTerminatingMatchingRules": [] }
+        { "ruleGroupId": "AWSManagedRulesCommonRuleSet", "nonTerminatingMatchingRules": [] }
       ],
       "non_terminating_matching_rules": [],
       "terminating_rule_match_details": [],
       "request": {
         "headers": [
-          { "name": "User-Agent", "value": "Go-http-client/1.1" },
+          { "name": "User-Agent", "value": "curl/7.68.0" },
           { "name": "Host", "value": "api.example.com" }
         ]
       },
@@ -37,31 +41,31 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-wafv2-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-wafv2-logs-501938274650"
+        "name": "aws-wafv2-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-wafv2-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/501938274650/wafv2/us-east-2/2026/04/14/wafv2_64653MIW8H8.log.gz"
+        "key": "AWSLogs/738291046572/wafv2/eu-west-1/2026/04/15/wafv2_8EC1TVN70OG.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/wafv2/logs",
-      "log_stream": "us-east-2/v294uqdj",
-      "ingestion_time": "2026-04-14T09:28:18.277Z"
+      "log_stream": "eu-west-1/3e5hwi9y",
+      "ingestion_time": "2026-04-15T13:24:36.431Z"
     }
   },
   "source": {
-    "ip": "51.130.139.216",
+    "ip": "176.127.189.30",
     "geo": {
-      "country_iso_code": "CA",
-      "country_name": "Canada",
-      "city_name": "Toronto",
-      "location": { "lat": 43.6532, "lon": -79.3832 }
+      "country_iso_code": "US",
+      "country_name": "United States",
+      "city_name": "Dallas",
+      "location": { "lat": 32.7767, "lon": -96.797 }
     }
   },
-  "http": { "request": { "method": "PATCH", "bytes": 8617 } },
-  "url": { "path": "/api/v1/auth/login" },
-  "user_agent": { "original": "Go-http-client/1.1" },
+  "http": { "request": { "method": "PATCH", "bytes": 8490 } },
+  "url": { "path": "/health" },
+  "user_agent": { "original": "curl/7.68.0" },
   "event": {
     "action": "allow",
     "outcome": "success",
@@ -70,7 +74,7 @@
     "provider": "wafv2.amazonaws.com",
     "module": "aws"
   },
-  "message": "WAFv2 ALLOW [cdn-waf] 51.130.139.216 PATCH /api/v1/auth/login",
+  "message": "WAFv2 ALLOW [admin-portal-waf] 176.127.189.30 PATCH /health",
   "log": { "level": "info" },
   "service": { "name": "wafv2", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -78,8 +82,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "ofh09be7iwl"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "m2w7ur3bri"
   },
   "input": { "type": "aws-s3" }
 }

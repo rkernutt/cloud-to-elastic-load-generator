@@ -96,31 +96,34 @@ type LogLine = { text: string; type: "info" | "ok" | "error" | "warn"; at?: stri
  * ResizeObserver; with blockSize:0 while closed the observer can stay at 0 so opening
  * shows no content — this pattern matches ServiceGrid (collapsed === true hides body).
  *
- * Sections start **collapsed**; only keys with `expandedMap[k] === true` show body.
+ * **`collapsedMap[k] === false`** means the user expanded that group. Missing key = collapsed (default).
+ * Use `setCollapsedMap({})` to collapse every group. To expand all visible groups, set each key to `false`.
  */
 function SetupCollapsible({
   sectionKey,
-  expandedMap,
-  setExpandedMap,
+  collapsedMap,
+  setCollapsedMap,
   header,
   children,
 }: {
   sectionKey: string;
-  expandedMap: Record<string, boolean>;
-  setExpandedMap: Dispatch<SetStateAction<Record<string, boolean>>>;
+  collapsedMap: Record<string, boolean>;
+  setCollapsedMap: Dispatch<SetStateAction<Record<string, boolean>>>;
   header: ReactNode;
   children: ReactNode;
 }) {
-  const expanded = expandedMap[sectionKey] === true;
+  const expanded = collapsedMap[sectionKey] === false;
   return (
     <div style={{ marginBottom: 8 }}>
       <button
         type="button"
         onClick={() =>
-          setExpandedMap((prev) => ({
-            ...prev,
-            [sectionKey]: !(prev[sectionKey] === true),
-          }))
+          setCollapsedMap((prev) => {
+            const next = { ...prev };
+            if (prev[sectionKey] === false) delete next[sectionKey];
+            else next[sectionKey] = false;
+            return next;
+          })
         }
         style={{
           display: "flex",
@@ -181,8 +184,8 @@ export function SetupPage({
   const [enablePipelines, setEnablePipelines] = useState(false);
   const [enableDashboards, setEnableDashboards] = useState(false);
   const [enableMlJobs, setEnableMlJobs] = useState(false);
-  /** Pipeline / dashboard / ML section headers: true = expanded (body visible); default collapsed */
-  const [setupAssetExpanded, setSetupAssetExpanded] = useState<Record<string, boolean>>({});
+  /** Pipeline / dashboard / ML groups: `false` = user expanded that group; missing = collapsed */
+  const [setupAssetCollapsed, setSetupAssetCollapsed] = useState<Record<string, boolean>>({});
 
   const pipelineGroups = useMemo(
     () => [...new Set(PIPELINES.map((p) => p.group))].sort(),
@@ -208,7 +211,7 @@ export function SetupPage({
     );
     setSelectedMlJobIds(new Set(setupBundle.mlJobFiles.flatMap((f) => f.jobs.map((j) => j.id))));
     setAssetFilterQuery("");
-    setSetupAssetExpanded({});
+    setSetupAssetCollapsed({});
   }, [cloudId, setupBundle.fleetPackage]); // eslint-disable-line react-hooks/exhaustive-deps -- reset only on vendor switch
 
   const [isRunning, setIsRunning] = useState(false);
@@ -585,6 +588,48 @@ export function SetupPage({
     },
     [mlJobSectionsByServiceType]
   );
+
+  const expandableSetupSectionKeys = useMemo(() => {
+    const keys: string[] = [];
+    for (const g of pipelineGroups) {
+      const inGroup = PIPELINES.filter(
+        (p) => p.group === g && pipelineMatchesQuery(p, assetFilterQuery)
+      );
+      if (inGroup.length > 0) keys.push(`pipe:${g}:${uid}`);
+    }
+    for (const gk of dashboardGroupKeys) {
+      if (dashboardIndicesInGroup(gk).length > 0) keys.push(`dash:${gk}:${uid}`);
+    }
+    if (useAwsMlUnifiedByServiceType && mlJobSectionsByServiceType) {
+      for (const section of mlJobSectionsByServiceType) {
+        keys.push(`ml:srv:${section.label}:${uid}`);
+      }
+    } else {
+      for (const file of visibleMlFiles) {
+        const visibleJobs = file.jobs.filter((j) => mlJobEntryMatchesQuery(j, assetFilterQuery));
+        if (visibleJobs.length > 0) keys.push(`ml:${file.group}:${uid}`);
+      }
+    }
+    return keys;
+  }, [
+    pipelineGroups,
+    PIPELINES,
+    assetFilterQuery,
+    uid,
+    dashboardGroupKeys,
+    dashboardIndicesInGroup,
+    useAwsMlUnifiedByServiceType,
+    mlJobSectionsByServiceType,
+    visibleMlFiles,
+  ]);
+
+  const expandAllSetupAssetGroups = useCallback(() => {
+    setSetupAssetCollapsed((prev) => {
+      const next = { ...prev };
+      for (const k of expandableSetupSectionKeys) next[k] = false;
+      return next;
+    });
+  }, [expandableSetupSectionKeys]);
 
   const handleInstall = async () => {
     setIsRunning(true);
@@ -1118,6 +1163,11 @@ export function SetupPage({
               {selectedShipServiceIds.length} service(s) on Services page
             </EuiText>
           </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButtonEmpty size="s" onClick={expandAllSetupAssetGroups}>
+              Expand all pipeline / dashboard / ML groups
+            </EuiButtonEmpty>
+          </EuiFlexItem>
         </EuiFlexGroup>
       </EuiPanel>
       <EuiSpacer size="m" />
@@ -1127,7 +1177,10 @@ export function SetupPage({
         badge="Elasticsearch"
         description={descPipelines}
         enabled={enablePipelines}
-        onToggle={setEnablePipelines}
+        onToggle={(v) => {
+          setEnablePipelines(v);
+          if (v) setSetupAssetCollapsed({});
+        }}
       >
         <EuiSpacer size="s" />
         <EuiText size="xs" color="subdued">
@@ -1165,8 +1218,8 @@ export function SetupPage({
             <SetupCollapsible
               key={g}
               sectionKey={`pipe:${g}:${uid}`}
-              expandedMap={setupAssetExpanded}
-              setExpandedMap={setSetupAssetExpanded}
+              collapsedMap={setupAssetCollapsed}
+              setCollapsedMap={setSetupAssetCollapsed}
               header={
                 <EuiText size="s">
                   <strong>{polishSetupCategoryLabel(g)}</strong>{" "}
@@ -1220,6 +1273,15 @@ export function SetupPage({
             </SetupCollapsible>
           );
         })}
+        {PIPELINES.length === 0 ? (
+          <EuiText size="s" color="danger">
+            <p>No ingest pipelines are bundled for this cloud in this build.</p>
+          </EuiText>
+        ) : visiblePipelineIds.length === 0 ? (
+          <EuiText size="s" color="subdued">
+            <p>No pipelines match the current filter — clear the search box.</p>
+          </EuiText>
+        ) : null}
       </InstallerRow>
 
       <EuiSpacer size="m" />
@@ -1229,7 +1291,10 @@ export function SetupPage({
         badge="Kibana"
         description={descDashboards}
         enabled={enableDashboards}
-        onToggle={setEnableDashboards}
+        onToggle={(v) => {
+          setEnableDashboards(v);
+          if (v) setSetupAssetCollapsed({});
+        }}
       >
         <EuiSpacer size="s" />
         <EuiText size="xs" color="subdued">
@@ -1271,8 +1336,8 @@ export function SetupPage({
             <SetupCollapsible
               key={`dash-${gk}-${uid}`}
               sectionKey={`dash:${gk}:${uid}`}
-              expandedMap={setupAssetExpanded}
-              setExpandedMap={setSetupAssetExpanded}
+              collapsedMap={setupAssetCollapsed}
+              setCollapsedMap={setSetupAssetCollapsed}
               header={
                 <EuiText size="s">
                   <strong>{gk}</strong>{" "}
@@ -1332,6 +1397,21 @@ export function SetupPage({
             </SetupCollapsible>
           );
         })}
+        {DASHBOARDS.length === 0 ? (
+          <EuiText size="s" color="danger">
+            <p>
+              No dashboard definitions are bundled for this cloud in this build. The UI is built from
+              JSON under <EuiCode>installer/</EuiCode> (for example{" "}
+              <EuiCode>installer/azure-custom-dashboards/*-dashboard.json</EuiCode>). Rebuild from a
+              full clone that includes <EuiCode>installer/</EuiCode>, or hard-refresh if you suspect a
+              cached old bundle.
+            </p>
+          </EuiText>
+        ) : visibleDashboardIndices.length === 0 ? (
+          <EuiText size="s" color="subdued">
+            <p>No dashboards match the current filter — clear the search box.</p>
+          </EuiText>
+        ) : null}
       </InstallerRow>
 
       <EuiSpacer size="m" />
@@ -1341,7 +1421,10 @@ export function SetupPage({
         badge="Elasticsearch"
         description={descMl}
         enabled={enableMlJobs}
-        onToggle={setEnableMlJobs}
+        onToggle={(v) => {
+          setEnableMlJobs(v);
+          if (v) setSetupAssetCollapsed({});
+        }}
       >
         <EuiSpacer size="s" />
         <EuiText size="xs" color="subdued">
@@ -1388,8 +1471,8 @@ export function SetupPage({
                 <SetupCollapsible
                   key={`ml-srv-${section.label}-${uid}`}
                   sectionKey={`ml:srv:${section.label}:${uid}`}
-                  expandedMap={setupAssetExpanded}
-                  setExpandedMap={setSetupAssetExpanded}
+                  collapsedMap={setupAssetCollapsed}
+                  setCollapsedMap={setSetupAssetCollapsed}
                   header={
                     <EuiText size="s">
                       <strong>{section.label}</strong>{" "}
@@ -1457,8 +1540,8 @@ export function SetupPage({
                 <SetupCollapsible
                   key={`ml-${file.group}-${uid}`}
                   sectionKey={`ml:${file.group}:${uid}`}
-                  expandedMap={setupAssetExpanded}
-                  setExpandedMap={setSetupAssetExpanded}
+                  collapsedMap={setupAssetCollapsed}
+                  setCollapsedMap={setSetupAssetCollapsed}
                   header={
                     <EuiText size="s">
                       <strong>{polishSetupCategoryLabel(file.group)}</strong>{" "}
@@ -1520,6 +1603,15 @@ export function SetupPage({
                 </SetupCollapsible>
               );
             })}
+        {ML_JOB_FILES.length === 0 || totalMlJobsAll === 0 ? (
+          <EuiText size="s" color="danger">
+            <p>No ML job definitions are bundled for this cloud in this build.</p>
+          </EuiText>
+        ) : visibleMlJobRefs.length === 0 ? (
+          <EuiText size="s" color="subdued">
+            <p>No ML jobs match the current filter — clear the search box.</p>
+          </EuiText>
+        ) : null}
       </InstallerRow>
 
       <EuiSpacer size="xl" />

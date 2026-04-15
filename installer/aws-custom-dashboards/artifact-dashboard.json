@@ -1,11 +1,19 @@
 {
   "title": "AWS Artifact — Compliance Report Access",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "artifact-kpi-total-accesses",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -15,7 +23,11 @@
             "query": "FROM logs-aws.artifact* | STATS `Total Report Accesses` = COUNT()"
           },
           "metrics": [
-            { "type": "primary", "operation": "value", "column": "Total Report Accesses" }
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Report Accesses"
+            }
           ]
         }
       }
@@ -23,7 +35,12 @@
     {
       "type": "lens",
       "uid": "artifact-kpi-unique-reports",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -32,14 +49,25 @@
             "type": "esql",
             "query": "FROM logs-aws.artifact* | STATS `Unique Reports` = COUNT_DISTINCT(`aws.artifact.report_name`)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Unique Reports" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Unique Reports"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "artifact-kpi-agreement-actions",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -48,14 +76,25 @@
             "type": "esql",
             "query": "FROM logs-aws.artifact* | WHERE `event.action` LIKE \"*agreement*\" | STATS `Agreement Actions` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Agreement Actions" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Agreement Actions"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "artifact-kpi-unique-users",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -64,14 +103,25 @@
             "type": "esql",
             "query": "FROM logs-aws.artifact* | STATS `Unique Users` = COUNT_DISTINCT(`user.name`)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Unique Users" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Unique Users"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "artifact-donut-report-category",
-      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Report Category",
         "attributes": {
@@ -80,15 +130,30 @@
             "type": "esql",
             "query": "FROM logs-aws.artifact* | STATS count = COUNT() BY category = `aws.artifact.report_category` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "category" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "category"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "artifact-donut-action-type",
-      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Action Type",
         "attributes": {
@@ -97,32 +162,64 @@
             "type": "esql",
             "query": "FROM logs-aws.artifact* | STATS count = COUNT() BY action = `event.action` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "action" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "action"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "artifact-access-over-time",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Report Access Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.artifact* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.artifact* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "count", "label": "Accesses" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Accesses"
+                }
+              ]
             }
           ]
         }
@@ -131,25 +228,46 @@
     {
       "type": "lens",
       "uid": "artifact-recent-accesses",
-      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Recent Report Accesses",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.artifact* | KEEP @timestamp, `aws.artifact.report_name`, `aws.artifact.report_category`, `user.name`, `event.action` | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.artifact* | KEEP `@timestamp`, `aws.artifact.report_name`, `aws.artifact.report_category`, `user.name`, `event.action` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
-            { "operation": "value", "column": "aws.artifact.report_name", "label": "Report Name" },
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.artifact.report_name",
+              "label": "Report Name"
+            },
             {
               "operation": "value",
               "column": "aws.artifact.report_category",
               "label": "Report Category"
             },
-            { "operation": "value", "column": "user.name", "label": "User" },
-            { "operation": "value", "column": "event.action", "label": "Action" }
+            {
+              "operation": "value",
+              "column": "user.name",
+              "label": "User"
+            },
+            {
+              "operation": "value",
+              "column": "event.action",
+              "label": "Action"
+            }
           ],
           "rows": []
         }

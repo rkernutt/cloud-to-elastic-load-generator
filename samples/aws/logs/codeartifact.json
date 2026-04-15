@@ -1,9 +1,9 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
+  "@timestamp": "2026-04-15T13:24:35.775Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-west-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "codeartifact" }
   },
   "aws": {
@@ -11,45 +11,51 @@
       "domain_name": "corp-packages",
       "repository_name": "nuget-store",
       "package_format": "nuget",
-      "package_name": "shared-components",
-      "package_version": "4.14.1",
+      "package_name": "api-client",
+      "package_version": "3.1.8",
       "action": "PublishPackageVersion",
-      "download_size_bytes": 3116838,
-      "upstream_repository": "pypi-upstream"
+      "download_size_bytes": 38564151,
+      "upstream_repository": "pypi-upstream",
+      "error_code": "AccessDeniedException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-codeartifact-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-codeartifact-logs-738291046572"
+        "name": "aws-codeartifact-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-codeartifact-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/codeartifact/ap-south-1/2026/04/14/codeartifact_7PYT49PDZR.log.gz"
+        "key": "AWSLogs/293847561023/codeartifact/eu-west-2/2026/04/15/codeartifact_GBQ1Q3CETB.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codeartifact/logs",
-      "log_stream": "ap-south-1/sspeefrw",
-      "ingestion_time": "2026-04-14T09:28:18.196Z"
+      "log_stream": "eu-west-2/zxt1csbe",
+      "ingestion_time": "2026-04-15T13:24:36.346Z"
     }
   },
   "event": {
     "action": "PublishPackageVersion",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["package", "process"],
     "dataset": "aws.codeartifact",
     "provider": "codeartifact.amazonaws.com",
     "module": "aws"
   },
-  "message": "CodeArtifact PublishPackageVersion: shared-components@4.14.1 [nuget] in corp-packages/nuget-store",
-  "log": { "level": "info" },
+  "message": "CodeArtifact PublishPackageVersion FAILED: api-client@3.1.8 in corp-packages/nuget-store",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ResourceNotFoundException",
+    "message": "CodeArtifact operation failed",
+    "type": "package"
+  },
   "service": { "name": "codeartifact", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.codeartifact", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "vtubjr1rwrr"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "9pec695qxta"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -47,7 +47,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudrun* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Err %` = ROUND(e * 100, 1)"
+            "query": "FROM logs-gcp.cloudrun* | EVAL is_err = CASE(log.level == \"error\", 1, 0) | STATS e = AVG(is_err) | EVAL `Err %` = ROUND(e * 100, 1)"
           },
           "metrics": [
             {
@@ -180,7 +180,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.cloudrun* | STATS c = COUNT() BY b = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.cloudrun* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -213,12 +213,12 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudrun* | KEEP @timestamp, `gcp.cloud_run.service_name`, `gcp.cloud_run.request_method`, `gcp.cloud_run.url_path`, `gcp.cloud_run.response_status`, event.outcome, event.duration, message | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-gcp.cloudrun* | KEEP `@timestamp`, `gcp.cloud_run.service_name`, `gcp.cloud_run.request_method`, `gcp.cloud_run.url_path`, `gcp.cloud_run.response_status`, log.level, event.duration, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "@timestamp",
+              "column": "`@timestamp`",
               "label": "Time"
             },
             {
@@ -243,8 +243,8 @@
             },
             {
               "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
+              "column": "log.level",
+              "label": "Log level"
             },
             {
               "operation": "value",

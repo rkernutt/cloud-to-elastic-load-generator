@@ -1,11 +1,19 @@
 {
   "title": "AWS Bedrock — Model Invocations & Token Usage",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "bedrock-kpi-total-invocations",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,14 +22,25 @@
             "type": "esql",
             "query": "FROM logs-aws.bedrock* | STATS `Total Invocations` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Invocations" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Invocations"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "bedrock-kpi-total-input-tokens",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -30,14 +49,25 @@
             "type": "esql",
             "query": "FROM logs-aws.bedrock* | STATS `Total Input Tokens` = SUM(`aws.bedrock.metrics.InputTokenCount.sum`)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Input Tokens" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Input Tokens"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "bedrock-kpi-total-output-tokens",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -46,14 +76,25 @@
             "type": "esql",
             "query": "FROM logs-aws.bedrock* | STATS `Total Output Tokens` = SUM(`aws.bedrock.metrics.OutputTokenCount.sum`)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Output Tokens" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Output Tokens"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "bedrock-kpi-avg-latency",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -62,14 +103,25 @@
             "type": "esql",
             "query": "FROM logs-aws.bedrock* | STATS avg_l = AVG(`aws.bedrock.invocation_latency_ms`) | EVAL `Avg Latency (ms)` = ROUND(avg_l, 0)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Latency (ms)" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Latency (ms)"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "bedrock-donut-by-model",
-      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Invocations by Model",
         "attributes": {
@@ -78,15 +130,30 @@
             "type": "esql",
             "query": "FROM logs-aws.bedrock* | STATS count = COUNT() BY model = `aws.bedrock.model_id` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "model" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "model"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "bedrock-donut-model-family",
-      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Model Family Split",
         "attributes": {
@@ -95,15 +162,30 @@
             "type": "esql",
             "query": "FROM logs-aws.bedrock* | STATS count = COUNT() BY family = `aws.bedrock.model_family`"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "family" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "family"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "bedrock-donut-stop-reason",
-      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Stop Reason",
         "attributes": {
@@ -112,32 +194,64 @@
             "type": "esql",
             "query": "FROM logs-aws.bedrock* | STATS count = COUNT() BY reason = `aws.bedrock.stop_reason`"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "reason" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "reason"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "bedrock-invocations-over-time",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Invocations Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.bedrock* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.bedrock* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "count", "label": "Invocations" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Invocations"
+                }
+              ]
             }
           ]
         }
@@ -146,26 +260,50 @@
     {
       "type": "lens",
       "uid": "bedrock-token-usage-over-time",
-      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Token Usage Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.bedrock* | STATS input_t = SUM(`aws.bedrock.metrics.InputTokenCount.sum`), output_t = SUM(`aws.bedrock.metrics.OutputTokenCount.sum`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.bedrock* | STATS input_t = SUM(`aws.bedrock.metrics.InputTokenCount.sum`), output_t = SUM(`aws.bedrock.metrics.OutputTokenCount.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
               "y": [
-                { "operation": "value", "column": "input_t", "label": "Input Tokens" },
-                { "operation": "value", "column": "output_t", "label": "Output Tokens" }
+                {
+                  "operation": "value",
+                  "column": "input_t",
+                  "label": "Input Tokens"
+                },
+                {
+                  "operation": "value",
+                  "column": "output_t",
+                  "label": "Output Tokens"
+                }
               ]
             }
           ]
@@ -175,26 +313,50 @@
     {
       "type": "lens",
       "uid": "bedrock-latency-over-time",
-      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Avg Latency Over Time (ms)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.bedrock* | STATS avg_lat = AVG(`aws.bedrock.metrics.InvocationLatency.avg`), p99_lat = AVG(`aws.bedrock.metrics.InvocationLatency.p99`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.bedrock* | STATS avg_lat = AVG(`aws.bedrock.metrics.InvocationLatency.avg`), p99_lat = AVG(`aws.bedrock.metrics.InvocationLatency.p99`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
               "y": [
-                { "operation": "value", "column": "avg_lat", "label": "Avg Latency (ms)" },
-                { "operation": "value", "column": "p99_lat", "label": "P99 Latency (ms)" }
+                {
+                  "operation": "value",
+                  "column": "avg_lat",
+                  "label": "Avg Latency (ms)"
+                },
+                {
+                  "operation": "value",
+                  "column": "p99_lat",
+                  "label": "P99 Latency (ms)"
+                }
               ]
             }
           ]
@@ -204,14 +366,27 @@
     {
       "type": "lens",
       "uid": "bedrock-avg-latency-by-model",
-      "grid": { "x": 0, "y": 35, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 35,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Avg Latency by Model (ms)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
@@ -220,8 +395,17 @@
                 "type": "esql",
                 "query": "FROM logs-aws.bedrock* | STATS avg_l = AVG(`aws.bedrock.invocation_latency_ms`) BY model = `aws.bedrock.model_id` | SORT avg_l DESC | LIMIT 10"
               },
-              "x": { "operation": "value", "column": "model" },
-              "y": [{ "operation": "value", "column": "avg_l", "label": "Avg Latency (ms)" }]
+              "x": {
+                "operation": "value",
+                "column": "model"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_l",
+                  "label": "Avg Latency (ms)"
+                }
+              ]
             }
           ]
         }
@@ -230,24 +414,46 @@
     {
       "type": "lens",
       "uid": "bedrock-throttles-over-time",
-      "grid": { "x": 24, "y": 35, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 35,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Throttles Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.bedrock* | STATS throttles = SUM(`aws.bedrock.metrics.Throttles.sum`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.bedrock* | STATS throttles = SUM(`aws.bedrock.metrics.Throttles.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "throttles", "label": "Throttles" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "throttles",
+                  "label": "Throttles"
+                }
+              ]
             }
           ]
         }
@@ -256,19 +462,36 @@
     {
       "type": "lens",
       "uid": "bedrock-recent-invocations",
-      "grid": { "x": 0, "y": 45, "w": 48, "h": 12 },
+      "grid": {
+        "x": 0,
+        "y": 45,
+        "w": 48,
+        "h": 12
+      },
       "config": {
         "title": "Recent Invocations",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.bedrock* | KEEP @timestamp, `aws.bedrock.model_id`, `aws.bedrock.model_family`, `aws.bedrock.input_token_count`, `aws.bedrock.output_token_count`, `aws.bedrock.invocation_latency_ms`, event.outcome | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.bedrock* | KEEP `@timestamp`, `aws.bedrock.model_id`, `aws.bedrock.model_family`, `aws.bedrock.input_token_count`, `aws.bedrock.output_token_count`, `aws.bedrock.invocation_latency_ms`, log.level | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
-            { "operation": "value", "column": "aws.bedrock.model_id", "label": "Model ID" },
-            { "operation": "value", "column": "aws.bedrock.model_family", "label": "Model Family" },
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.bedrock.model_id",
+              "label": "Model ID"
+            },
+            {
+              "operation": "value",
+              "column": "aws.bedrock.model_family",
+              "label": "Model Family"
+            },
             {
               "operation": "value",
               "column": "aws.bedrock.input_token_count",
@@ -284,7 +507,11 @@
               "column": "aws.bedrock.invocation_latency_ms",
               "label": "Latency (ms)"
             },
-            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Log level"
+            }
           ],
           "rows": []
         }

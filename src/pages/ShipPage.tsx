@@ -33,6 +33,7 @@ interface ShipPageProps {
   scheduleIntervalMin: number;
   scheduleActive: boolean;
   scheduleCurrentRun: number;
+  scheduleRunsCompleted: number;
   nextRunAt: Date | null;
   countdown: number;
   /** Shown after a page refresh restored or failed to restore an in-progress schedule */
@@ -68,6 +69,7 @@ export function ShipPage({
   scheduleIntervalMin,
   scheduleActive,
   scheduleCurrentRun,
+  scheduleRunsCompleted,
   nextRunAt,
   countdown,
   scheduleResumeNotice,
@@ -84,6 +86,9 @@ export function ShipPage({
 }: ShipPageProps) {
   const isRunning = status === "running";
   const perService = isTracesMode ? tracesPerService : logsPerService;
+  const scheduleRunsRemaining = Math.max(0, scheduleTotalRuns - scheduleRunsCompleted);
+  const showScheduleProgress =
+    scheduleEnabled && (scheduleActive || scheduleRunsCompleted > 0);
 
   const formatCountdown = (seconds: number): string => {
     const m = Math.floor(seconds / 60);
@@ -115,6 +120,37 @@ export function ShipPage({
       </EuiPanel>
 
       <EuiSpacer size="l" />
+
+      {showScheduleProgress && (
+        <>
+          <EuiCallOut
+            title={scheduleActive ? "Scheduled shipping progress" : "Last scheduled shipping"}
+            color={scheduleActive ? "primary" : "success"}
+            iconType="clock"
+          >
+            <p>
+              <strong>{scheduleRunsCompleted}</strong> of {scheduleTotalRuns} runs completed ·{" "}
+              <strong>{scheduleRunsRemaining}</strong> remaining
+              {scheduleActive && isRunning && scheduleCurrentRun > 0 && (
+                <>
+                  {" "}
+                  (shipping run {scheduleCurrentRun} of {scheduleTotalRuns})
+                </>
+              )}
+            </p>
+            {scheduleActive && nextRunAt && !isRunning && (
+              <p>
+                Next run starts round <strong>{scheduleCurrentRun + 1}</strong> of{" "}
+                {scheduleTotalRuns} in <strong>{formatCountdown(countdown)}</strong>.
+              </p>
+            )}
+            {!scheduleActive && scheduleRunsCompleted >= scheduleTotalRuns && (
+              <p>All scheduled runs finished.</p>
+            )}
+          </EuiCallOut>
+          <EuiSpacer size="m" />
+        </>
+      )}
 
       {scheduleResumeNotice && (
         <>
@@ -201,21 +237,6 @@ export function ShipPage({
             </EuiFlexItem>
           </EuiFlexGroup>
         </EuiPanel>
-      )}
-
-      {/* Schedule countdown */}
-      {scheduleActive && nextRunAt && !isRunning && (
-        <>
-          <EuiSpacer size="m" />
-          <EuiPanel color="subdued">
-            <EuiText size="s">
-              <p>
-                <strong>Schedule active:</strong> Run {scheduleCurrentRun} of {scheduleTotalRuns}.
-                Next run in <strong>{formatCountdown(countdown)}</strong>
-              </p>
-            </EuiText>
-          </EuiPanel>
-        </>
       )}
 
       {/* Completion/abort status */}

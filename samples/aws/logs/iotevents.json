@@ -1,38 +1,38 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
+  "@timestamp": "2026-04-15T13:24:35.775Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-east-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "pressure-monitor", "KeyValue": "zone-B" },
+    "dimensions": { "DetectorModelName": "motor-health-detector", "KeyValue": "unit-01" },
     "iotevents": {
-      "detector_model_name": "pressure-monitor",
-      "detector_id": "zone-B",
-      "key_value": "zone-B",
-      "event_name": "AlarmReset",
+      "detector_model_name": "motor-health-detector",
+      "detector_id": "unit-01",
+      "key_value": "unit-01",
+      "event_name": "ActionExecuted",
       "from_state": "Acknowledged",
-      "to_state": "Warning",
-      "input_name": "SensorInput",
+      "to_state": "Alarm",
+      "input_name": "HealthCheck",
       "action_type": "SetTimer",
       "timer_name": "alarmTimer",
-      "condition_expression": "$input.SensorInput.temperature > 85"
+      "condition_expression": "$input.data.value < threshold"
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotevents-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-iotevents-logs-164820739518"
+        "name": "aws-iotevents-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-iotevents-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/iotevents/eu-north-1/2026/04/14/iotevents_SPAQP35DI5I.log.gz"
+        "key": "AWSLogs/501938274650/iotevents/ap-east-1/2026/04/15/iotevents_UCXUPGD8D6H.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "eu-north-1/uovsysd0",
-      "ingestion_time": "2026-04-14T09:28:18.275Z"
+      "log_stream": "ap-east-1/2mbkuvxa",
+      "ingestion_time": "2026-04-15T13:24:36.427Z"
     }
   },
   "event": {
@@ -40,19 +40,19 @@
     "category": ["process"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 3000000,
+    "duration": 187000000,
     "module": "aws"
   },
-  "message": "IoT Events pressure-monitor/zone-B: Acknowledged → Warning [AlarmReset]",
-  "log": { "level": "info" },
+  "message": "IoT Events motor-health-detector/unit-01: Acknowledged → Alarm [ActionExecuted]",
+  "log": { "level": "warn" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iotevents", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "pdc9t1xoycc"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "5oxybbnrac2"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,66 +1,68 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
+  "@timestamp": "2026-04-15T13:24:35.775Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-south-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "mediaconvert" }
   },
   "aws": {
-    "dimensions": { "Operation": "MP4" },
+    "dimensions": { "Operation": "CMAF" },
     "mediaconvert": {
-      "job_id": "3921620773-qbx1rr",
-      "queue_arn": "arn:aws:mediaconvert:eu-south-1:738291046572:queues/batch",
-      "job_status": "COMPLETE",
-      "output_group_type": "MP4",
-      "input_file": "s3://uploads/user-video.mp4",
-      "input_duration_minutes": 54.74715170640322,
+      "job_id": "5272872885-ojq5j7",
+      "queue_arn": "arn:aws:mediaconvert:ap-south-2:293847561023:queues/batch",
+      "job_status": "ERROR",
+      "output_group_type": "CMAF",
+      "input_file": "s3://media-input/broadcast/live.mxf",
+      "input_duration_minutes": 7.68151485789604,
       "video_codec": "H_265",
-      "audio_codec": "AC3",
+      "audio_codec": "AAC",
       "width": 1280,
       "height": 1080,
-      "bitrate_kbps": 8000,
-      "duration_seconds": 1241,
+      "bitrate_kbps": 1500,
+      "duration_seconds": 616,
+      "error_message": "Unsupported codec",
       "metrics": {
-        "JobsCompletedCount": { "sum": 1 },
-        "JobsErroredCount": { "sum": 0 },
-        "StandbyTime": { "avg": 251 },
-        "TranscodingTime": { "avg": 1241 }
+        "JobsCompletedCount": { "sum": 0 },
+        "JobsErroredCount": { "sum": 1 },
+        "StandbyTime": { "avg": 286 },
+        "TranscodingTime": { "avg": 616 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-mediaconvert-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-mediaconvert-logs-738291046572"
+        "name": "aws-mediaconvert-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-mediaconvert-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/mediaconvert/eu-south-1/2026/04/14/mediaconvert_YAHGVVRD2NI.log.gz"
+        "key": "AWSLogs/293847561023/mediaconvert/ap-south-2/2026/04/15/mediaconvert_FBFTQDO6JR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/mediaconvert/logs",
-      "log_stream": "eu-south-1/86texcwk",
-      "ingestion_time": "2026-04-14T09:28:18.258Z"
+      "log_stream": "ap-south-2/8mihlxjh",
+      "ingestion_time": "2026-04-15T13:24:36.408Z"
     }
   },
   "event": {
-    "duration": 1241000000000,
-    "outcome": "success",
+    "duration": 616000000000,
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.mediaconvert",
     "provider": "mediaconvert.amazonaws.com",
     "module": "aws"
   },
-  "message": "MediaConvert job 3921620773-qbx1rr COMPLETE: 54.7 min -> MP4",
-  "log": { "level": "info" },
+  "message": "MediaConvert job 5272872885-ojq5j7 ERROR: Codec unsupported",
+  "error": { "code": "JobError", "message": "MediaConvert job failed", "type": "media" },
+  "log": { "level": "error" },
   "service": { "name": "mediaconvert", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.mediaconvert", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "4tso9ywnlax"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "kmuc148j9gk"
   },
   "input": { "type": "aws-cloudwatch" }
 }

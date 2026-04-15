@@ -1,78 +1,76 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
-  "trace": { "id": "1-69de08b1-lx696g3okc" },
-  "span": { "id": "k3yoc7glfv" },
+  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "trace": { "id": "1-69df9193-z9mwdg184b" },
+  "span": { "id": "b5dclcbe8ol" },
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-south-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "xray" }
   },
   "aws": {
-    "dimensions": { "GroupName": "Default", "ServiceType": "AWS::RDS::DBInstance" },
+    "dimensions": { "GroupName": "Default", "ServiceType": "AWS::Lambda::Function" },
     "xray": {
-      "trace_id": "1-69de08b1-lx696g3okc",
-      "segment_id": "k3yoc7glfv",
-      "parent_id": "3zpmxvnngfa",
-      "service": { "name": "rds-proxy", "type": "AWS::RDS::DBInstance" },
-      "duration": 1.3076467558975138,
+      "trace_id": "1-69df9193-z9mwdg184b",
+      "segment_id": "b5dclcbe8ol",
+      "parent_id": "o5qjc8n43k",
+      "service": { "name": "lambda-function", "type": "AWS::Lambda::Function" },
+      "duration": 1.4465988407553723,
       "fault": false,
       "error": false,
       "throttle": false,
       "http": {
-        "request": { "method": "PUT", "url": "/api/v1/products" },
-        "response": { "status": 204 }
+        "request": { "method": "PUT", "url": "/api/v1/orders" },
+        "response": { "status": 200 }
       },
-      "annotations": { "env": "prod", "version": "v14" },
+      "annotations": { "env": "prod", "version": "v20" },
       "subsegments": [
         {
-          "id": "uf9b99qdsro",
-          "name": "S3.PutObject",
+          "id": "os264qai69b",
+          "name": "S3.GetObject",
+          "namespace": "remote",
+          "duration": 0.21370074318781535,
+          "fault": false
+        },
+        {
+          "id": "oey3urdvxkc",
+          "name": "S3.GetObject",
+          "namespace": "remote",
+          "duration": 0.002247635489788101,
+          "fault": false
+        },
+        {
+          "id": "1s5cvvj1e9s",
+          "name": "S3.GetObject",
           "namespace": "aws",
-          "duration": 0.41909954993517085,
-          "fault": false
-        },
-        {
-          "id": "raglc1elp1l",
-          "name": "SNS.Publish",
-          "namespace": "remote",
-          "duration": 0.4754349976875624,
-          "fault": false
-        },
-        {
-          "id": "34x8cevyx04",
-          "name": "DynamoDB.GetItem",
-          "namespace": "remote",
-          "duration": 0.06506846390087866,
+          "duration": 0.3239071057143439,
           "fault": false
         }
       ],
       "metrics": {
-        "ErrorRate": { "avg": 0.5645484257529384 },
-        "FaultRate": { "avg": 0.10380536635769427 },
-        "ThrottleRate": { "avg": 0.07154688262595649 },
-        "TotalCount": { "sum": 1022 },
-        "Latency": { "avg": 1307.6467558975137, "p99": 3922.9402676925415 }
+        "ErrorRate": { "avg": 0.09375330126627612 },
+        "FaultRate": { "avg": 0.32528193339616357 },
+        "ThrottleRate": { "avg": 0.4335509770183644 },
+        "TotalCount": { "sum": 5380 },
+        "Latency": { "avg": 1446.5988407553723, "p99": 4339.796522266117 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-xray-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-xray-logs-293847561023"
+        "name": "aws-xray-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-xray-logs-814726593401"
       },
-      "object": {
-        "key": "AWSLogs/293847561023/xray/eu-central-1/2026/04/14/xray_V8EY8NM28B.log.gz"
-      }
+      "object": { "key": "AWSLogs/814726593401/xray/eu-south-2/2026/04/15/xray_T7D4CP10FRK.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/xray/logs",
-      "log_stream": "eu-central-1/ikdvkll2",
-      "ingestion_time": "2026-04-14T09:28:18.194Z"
+      "log_stream": "eu-south-2/0bhy96qe",
+      "ingestion_time": "2026-04-15T13:24:36.344Z"
     }
   },
-  "http": { "request": { "method": "PUT" }, "response": { "status_code": 204 } },
+  "http": { "request": { "method": "PUT" }, "response": { "status_code": 200 } },
   "event": {
-    "duration": 1307646756,
+    "duration": 1446598841,
     "outcome": "success",
     "category": ["network"],
     "type": ["connection"],
@@ -80,7 +78,7 @@
     "provider": "xray.amazonaws.com",
     "module": "aws"
   },
-  "message": "X-Ray: rds-proxy PUT → 204 (1.308s)",
+  "message": "X-Ray: lambda-function PUT → 200 (1.447s)",
   "log": { "level": "info" },
   "service": { "name": "xray", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -88,8 +86,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "ioua98tffab"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "xy9ejjp2io"
   },
   "input": { "type": "http_endpoint" }
 }

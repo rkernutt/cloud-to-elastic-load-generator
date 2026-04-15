@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.vpcflow* | STATS c = COUNT()"
+            "query": "FROM logs-gcp.vpcflow* | STATS `Log events` = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "c"
+              "column": "Log events"
             }
           ]
         }
@@ -153,7 +153,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.vpcflow* | STATS c = COUNT() BY b = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.vpcflow* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -186,12 +186,12 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.vpcflow* | KEEP @timestamp, `gcp.vpc_flow.src_ip`, `gcp.vpc_flow.dst_ip`, `gcp.vpc_flow.dst_port`, `gcp.vpc_flow.protocol`, `gcp.vpc_flow.action`, event.outcome, message | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-gcp.vpcflow* | KEEP `@timestamp`, `gcp.vpc_flow.src_ip`, `gcp.vpc_flow.dst_ip`, `gcp.vpc_flow.dst_port`, `gcp.vpc_flow.protocol`, `gcp.vpc_flow.action`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "@timestamp",
+              "column": "`@timestamp`",
               "label": "Time"
             },
             {
@@ -221,8 +221,8 @@
             },
             {
               "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
+              "column": "log.level",
+              "label": "Log level"
             },
             {
               "operation": "value",

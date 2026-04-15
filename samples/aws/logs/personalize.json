@@ -1,56 +1,58 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
+  "@timestamp": "2026-04-15T13:24:35.775Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-south-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "personalize" }
   },
   "aws": {
-    "dimensions": { "CampaignArn": "similar-items", "Operation": "PutEvents" },
+    "dimensions": { "CampaignArn": "content-discovery", "Operation": "CreateCampaign" },
     "personalize": {
-      "campaign_name": "similar-items",
-      "action": "PutEvents",
-      "user_id": "user-if5nm9qi",
-      "num_results_returned": 17,
-      "recipe": "aws-user-personalization",
-      "solution_version": "1.0.0",
-      "duration_ms": 209
+      "campaign_name": "content-discovery",
+      "action": "CreateCampaign",
+      "user_id": "user-peju0e80",
+      "num_results_returned": 0,
+      "recipe": "aws-similar-items",
+      "solution_version": "2.0.0",
+      "duration_ms": 3781,
+      "error_code": "InvalidInputException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-personalize-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-personalize-logs-293847561023"
+        "name": "aws-personalize-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-personalize-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/personalize/eu-north-1/2026/04/14/personalize_ZQ632113Z1.log.gz"
+        "key": "AWSLogs/814726593401/personalize/eu-south-2/2026/04/15/personalize_EMRGFCUSTB5.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/personalize/logs",
-      "log_stream": "eu-north-1/yiow1s7u",
-      "ingestion_time": "2026-04-14T09:28:18.225Z"
+      "log_stream": "eu-south-2/s1nmwds7",
+      "ingestion_time": "2026-04-15T13:24:36.375Z"
     }
   },
-  "user": { "name": "user-if5nm9qi" },
+  "user": { "name": "user-peju0e80" },
   "event": {
-    "duration": 209429128.67313355,
-    "outcome": "success",
+    "duration": 3780834482.99757,
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.personalize",
     "provider": "personalize.amazonaws.com",
     "module": "aws"
   },
-  "message": "Personalize PutEvents: 17 recs for user-if5nm9qi in 209ms",
-  "log": { "level": "info" },
+  "message": "Personalize CreateCampaign FAILED for content-discovery",
+  "log": { "level": "error" },
+  "error": { "code": "PersonalizeError", "message": "Personalize operation failed", "type": "ml" },
   "service": { "name": "personalize", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.personalize", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "u8phhncqq4j"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "wrhl0r1n8wp"
   },
   "input": { "type": "aws-cloudwatch" }
 }

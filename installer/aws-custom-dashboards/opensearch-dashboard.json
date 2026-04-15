@@ -1,11 +1,19 @@
 {
   "title": "AWS OpenSearch — Cluster Health & Performance",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "opensearch-kpi-search-rate",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,14 +22,25 @@
             "type": "esql",
             "query": "FROM logs-aws.opensearch* | STATS avg_sr = AVG(`aws.opensearch.metrics.SearchRate.avg`) | EVAL `Avg Search Rate` = ROUND(avg_sr, 1)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Search Rate" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Search Rate"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "opensearch-kpi-indexing-rate",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -30,14 +49,25 @@
             "type": "esql",
             "query": "FROM logs-aws.opensearch* | STATS avg_ir = AVG(`aws.opensearch.metrics.IndexingRate.avg`) | EVAL `Avg Indexing Rate` = ROUND(avg_ir, 1)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Indexing Rate" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Indexing Rate"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "opensearch-kpi-jvm",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -46,14 +76,25 @@
             "type": "esql",
             "query": "FROM logs-aws.opensearch* | STATS avg_jvm = AVG(`aws.opensearch.metrics.JVMMemoryPressure.avg`) | EVAL `Avg JVM Memory %` = ROUND(avg_jvm, 1)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg JVM Memory %" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg JVM Memory %"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "opensearch-kpi-write-rejections",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -62,14 +103,25 @@
             "type": "esql",
             "query": "FROM logs-aws.opensearch* | STATS `Write Rejections` = SUM(`aws.opensearch.metrics.CoordinatingWriteRejected.sum`) + SUM(`aws.opensearch.metrics.PrimaryWriteRejected.sum`) + SUM(`aws.opensearch.metrics.ReplicaWriteRejected.sum`)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Write Rejections" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Write Rejections"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "opensearch-by-domain",
-      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Events by Domain",
         "attributes": {
@@ -78,15 +130,30 @@
             "type": "esql",
             "query": "FROM logs-aws.opensearch* | STATS count = COUNT() BY domain = `aws.opensearch.domain_name`"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "domain" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "domain"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "opensearch-by-operation",
-      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Operations by Type",
         "attributes": {
@@ -95,51 +162,100 @@
             "type": "esql",
             "query": "FROM logs-aws.opensearch* | STATS count = COUNT() BY op = `aws.opensearch.operation`"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "op" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "op"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "opensearch-by-outcome",
-      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Event Outcomes",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.opensearch* | STATS count = COUNT() BY outcome = event.outcome"
+            "query": "FROM logs-aws.opensearch* | STATS count = COUNT() BY outcome = log.level"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "outcome" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "outcome"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "opensearch-search-indexing-rate-ts",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Search & Indexing Rate Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.opensearch* | STATS search_r = AVG(`aws.opensearch.metrics.SearchRate.avg`), index_r = AVG(`aws.opensearch.metrics.IndexingRate.avg`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.opensearch* | STATS search_r = AVG(`aws.opensearch.metrics.SearchRate.avg`), index_r = AVG(`aws.opensearch.metrics.IndexingRate.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
               "y": [
-                { "operation": "value", "column": "search_r", "label": "Search Rate" },
-                { "operation": "value", "column": "index_r", "label": "Indexing Rate" }
+                {
+                  "operation": "value",
+                  "column": "search_r",
+                  "label": "Search Rate"
+                },
+                {
+                  "operation": "value",
+                  "column": "index_r",
+                  "label": "Indexing Rate"
+                }
               ]
             }
           ]
@@ -149,26 +265,50 @@
     {
       "type": "lens",
       "uid": "opensearch-latency-ts",
-      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Search & Indexing Latency (ms)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.opensearch* | STATS s_lat = AVG(`aws.opensearch.metrics.SearchLatency.avg`), i_lat = AVG(`aws.opensearch.metrics.IndexingLatency.avg`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.opensearch* | STATS s_lat = AVG(`aws.opensearch.metrics.SearchLatency.avg`), i_lat = AVG(`aws.opensearch.metrics.IndexingLatency.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
               "y": [
-                { "operation": "value", "column": "s_lat", "label": "Search Latency (ms)" },
-                { "operation": "value", "column": "i_lat", "label": "Indexing Latency (ms)" }
+                {
+                  "operation": "value",
+                  "column": "s_lat",
+                  "label": "Search Latency (ms)"
+                },
+                {
+                  "operation": "value",
+                  "column": "i_lat",
+                  "label": "Indexing Latency (ms)"
+                }
               ]
             }
           ]
@@ -178,26 +318,50 @@
     {
       "type": "lens",
       "uid": "opensearch-jvm-cpu-ts",
-      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "JVM Memory & CPU Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.opensearch* | STATS jvm = AVG(`aws.opensearch.metrics.JVMMemoryPressure.avg`), cpu = AVG(`aws.opensearch.metrics.CPUUtilization.avg`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.opensearch* | STATS jvm = AVG(`aws.opensearch.metrics.JVMMemoryPressure.avg`), cpu = AVG(`aws.opensearch.metrics.CPUUtilization.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
               "y": [
-                { "operation": "value", "column": "jvm", "label": "JVM Memory %" },
-                { "operation": "value", "column": "cpu", "label": "CPU %" }
+                {
+                  "operation": "value",
+                  "column": "jvm",
+                  "label": "JVM Memory %"
+                },
+                {
+                  "operation": "value",
+                  "column": "cpu",
+                  "label": "CPU %"
+                }
               ]
             }
           ]
@@ -207,14 +371,27 @@
     {
       "type": "lens",
       "uid": "opensearch-active-shards-by-domain",
-      "grid": { "x": 0, "y": 35, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 35,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Active Shards by Domain",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
@@ -223,8 +400,17 @@
                 "type": "esql",
                 "query": "FROM logs-aws.opensearch* | STATS shards = AVG(`aws.opensearch.shards.active`) BY domain = `aws.opensearch.domain_name` | SORT shards DESC | LIMIT 10"
               },
-              "x": { "operation": "value", "column": "domain" },
-              "y": [{ "operation": "value", "column": "shards", "label": "Active Shards" }]
+              "x": {
+                "operation": "value",
+                "column": "domain"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "shards",
+                  "label": "Active Shards"
+                }
+              ]
             }
           ]
         }
@@ -233,26 +419,50 @@
     {
       "type": "lens",
       "uid": "opensearch-write-rejections-ts",
-      "grid": { "x": 24, "y": 35, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 35,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Write Rejections Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.opensearch* | STATS coord_rej = SUM(`aws.opensearch.metrics.CoordinatingWriteRejected.sum`), prim_rej = SUM(`aws.opensearch.metrics.PrimaryWriteRejected.sum`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.opensearch* | STATS coord_rej = SUM(`aws.opensearch.metrics.CoordinatingWriteRejected.sum`), prim_rej = SUM(`aws.opensearch.metrics.PrimaryWriteRejected.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
               "y": [
-                { "operation": "value", "column": "coord_rej", "label": "Coordinating Rejected" },
-                { "operation": "value", "column": "prim_rej", "label": "Primary Rejected" }
+                {
+                  "operation": "value",
+                  "column": "coord_rej",
+                  "label": "Coordinating Rejected"
+                },
+                {
+                  "operation": "value",
+                  "column": "prim_rej",
+                  "label": "Primary Rejected"
+                }
               ]
             }
           ]
@@ -262,20 +472,41 @@
     {
       "type": "lens",
       "uid": "opensearch-log-table",
-      "grid": { "x": 0, "y": 45, "w": 48, "h": 12 },
+      "grid": {
+        "x": 0,
+        "y": 45,
+        "w": 48,
+        "h": 12
+      },
       "config": {
         "title": "Recent Events",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.opensearch* | KEEP @timestamp, `aws.opensearch.domain_name`, `aws.opensearch.operation`, `aws.opensearch.took_ms`, `aws.opensearch.shards.active`, `aws.opensearch.shards.unassigned`, event.outcome | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.opensearch* | KEEP `@timestamp`, `aws.opensearch.domain_name`, `aws.opensearch.operation`, `aws.opensearch.took_ms`, `aws.opensearch.shards.active`, `aws.opensearch.shards.unassigned`, log.level | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
-            { "operation": "value", "column": "aws.opensearch.domain_name", "label": "Domain" },
-            { "operation": "value", "column": "aws.opensearch.operation", "label": "Operation" },
-            { "operation": "value", "column": "aws.opensearch.took_ms", "label": "Took (ms)" },
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.opensearch.domain_name",
+              "label": "Domain"
+            },
+            {
+              "operation": "value",
+              "column": "aws.opensearch.operation",
+              "label": "Operation"
+            },
+            {
+              "operation": "value",
+              "column": "aws.opensearch.took_ms",
+              "label": "Took (ms)"
+            },
             {
               "operation": "value",
               "column": "aws.opensearch.shards.active",
@@ -286,7 +517,11 @@
               "column": "aws.opensearch.shards.unassigned",
               "label": "Unassigned Shards"
             },
-            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Log level"
+            }
           ],
           "rows": []
         }

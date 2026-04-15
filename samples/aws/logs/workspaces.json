@@ -1,29 +1,30 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
+  "@timestamp": "2026-04-15T13:24:35.775Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
+    "region": "ap-south-2",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "workspaces" }
   },
   "aws": {
-    "dimensions": { "DirectoryId": "d-btefx0q93c", "WorkspaceId": "ws-nm8gyxj2ut" },
+    "dimensions": { "DirectoryId": "d-eujq5n62bt", "WorkspaceId": "ws-ktwov9fujg" },
     "workspaces": {
-      "workspace_id": "ws-nm8gyxj2ut",
-      "user_name": "carol",
+      "workspace_id": "ws-ktwov9fujg",
+      "user_name": "alice",
       "bundle_type": "Performance",
-      "workspace_state": "AVAILABLE",
-      "action": "StopWorkspace",
+      "workspace_state": "UNHEALTHY",
+      "action": "Connect",
       "compute_type": "POWER",
       "running_mode": "ALWAYS_ON",
-      "client_ip": "237.188.32.197",
-      "client_os": "Ubuntu 22.04",
+      "client_ip": "228.229.67.219",
+      "client_os": "macOS 14",
+      "error_code": "OperationNotSupportedException",
       "metrics": {
-        "Available": { "sum": 1 },
-        "Unhealthy": { "sum": 0 },
+        "Available": { "sum": 0 },
+        "Unhealthy": { "sum": 1 },
         "ConnectionSuccess": { "sum": 0 },
-        "ConnectionFailure": { "sum": 0 },
-        "ConnectionAttempt": { "sum": 0 },
+        "ConnectionFailure": { "sum": 1 },
+        "ConnectionAttempt": { "sum": 1 },
         "UserConnected": { "sum": 0 },
         "Stopped": { "sum": 0 },
         "Maintenance": { "sum": 0 }
@@ -35,37 +36,42 @@
         "arn": "arn:aws:s3:::aws-workspaces-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/738291046572/workspaces/eu-west-2/2026/04/14/workspaces_YRNK0M4N049.log.gz"
+        "key": "AWSLogs/738291046572/workspaces/ap-south-2/2026/04/15/workspaces_TM5ROR0RFD9.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/workspaces/logs",
-      "log_stream": "eu-west-2/n9vyaagh",
-      "ingestion_time": "2026-04-14T09:28:18.259Z"
+      "log_stream": "ap-south-2/56az4csg",
+      "ingestion_time": "2026-04-15T13:24:36.409Z"
     }
   },
-  "user": { "name": "carol" },
-  "source": { "ip": "201.78.124.134" },
+  "user": { "name": "alice" },
+  "source": { "ip": "241.162.92.223" },
   "event": {
-    "action": "StopWorkspace",
-    "outcome": "success",
+    "action": "Connect",
+    "outcome": "failure",
     "category": ["host", "session"],
     "dataset": "aws.workspaces",
     "provider": "workspaces.amazonaws.com",
-    "duration": 392000000,
+    "duration": 6207000000,
     "module": "aws"
   },
-  "message": "WorkSpaces StopWorkspace: carol on ws-nm8gyxj2ut [AVAILABLE]",
-  "log": { "level": "info" },
-  "host": { "name": "ip-36-244-24-207.ec2.internal", "hostname": "workspaces-d6yyzuq2" },
+  "message": "WorkSpaces Connect FAILED for alice (ws-ktwov9fujg)",
+  "error": {
+    "code": "WorkSpacesError",
+    "message": "WorkSpaces operation failed",
+    "type": "session"
+  },
+  "log": { "level": "error" },
+  "host": { "name": "ip-81-95-72-222.ec2.internal", "hostname": "workspaces-dbxsaomh" },
   "service": { "name": "workspaces", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.workspaces", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "sbbltmxrokl"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "216u2ncycqh"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,11 +1,19 @@
 {
   "title": "AWS HealthLake — FHIR Data Store",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "healthlake-kpi-total-operations",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,30 +22,52 @@
             "type": "esql",
             "query": "FROM logs-aws.healthlake* | STATS `Total Operations` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Operations" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Operations"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "healthlake-kpi-failed-operations",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.healthlake* | WHERE event.outcome == \"failure\" | STATS `Failed Operations` = COUNT()"
+            "query": "FROM logs-aws.healthlake* | WHERE log.level == \"error\" | STATS `Failed Operations` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Failed Operations" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Operations"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "healthlake-kpi-avg-latency",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -46,14 +76,25 @@
             "type": "esql",
             "query": "FROM logs-aws.healthlake* | STATS avg_lat = AVG(`aws.healthlake.latency_ms`) | EVAL `Avg Latency (ms)` = ROUND(avg_lat, 0)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Latency (ms)" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Latency (ms)"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "healthlake-kpi-active-datastores",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -62,14 +103,25 @@
             "type": "esql",
             "query": "FROM logs-aws.healthlake* | STATS `Active Datastores` = COUNT_DISTINCT(`aws.healthlake.datastore_name`)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Active Datastores" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Active Datastores"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "healthlake-donut-by-datastore",
-      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Operations by Datastore",
         "attributes": {
@@ -78,15 +130,30 @@
             "type": "esql",
             "query": "FROM logs-aws.healthlake* | STATS count = COUNT() BY datastore = `aws.healthlake.datastore_name` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "datastore" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "datastore"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "healthlake-donut-by-resource-type",
-      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Operations by Resource Type",
         "attributes": {
@@ -95,34 +162,68 @@
             "type": "esql",
             "query": "FROM logs-aws.healthlake* | STATS count = COUNT() BY resource = `aws.healthlake.resource_type` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "resource" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "resource"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "healthlake-operations-over-time",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "FHIR Operations Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.healthlake* | STATS count = COUNT(), avg_lat = AVG(`aws.healthlake.latency_ms`) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.healthlake* | STATS count = COUNT(), avg_lat = AVG(`aws.healthlake.latency_ms`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
               "y": [
-                { "operation": "value", "column": "count", "label": "Operations" },
-                { "operation": "value", "column": "avg_lat", "label": "Avg Latency (ms)" }
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Operations"
+                },
+                {
+                  "operation": "value",
+                  "column": "avg_lat",
+                  "label": "Avg Latency (ms)"
+                }
               ]
             }
           ]
@@ -132,23 +233,36 @@
     {
       "type": "lens",
       "uid": "healthlake-recent-operations",
-      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Recent FHIR Operations",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.healthlake* | KEEP @timestamp, `aws.healthlake.datastore_name`, `aws.healthlake.operation`, `aws.healthlake.resource_type`, `aws.healthlake.latency_ms`, event.outcome | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.healthlake* | KEEP `@timestamp`, `aws.healthlake.datastore_name`, `aws.healthlake.operation`, `aws.healthlake.resource_type`, `aws.healthlake.latency_ms`, log.level | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
             {
               "operation": "value",
               "column": "aws.healthlake.datastore_name",
               "label": "Datastore Name"
             },
-            { "operation": "value", "column": "aws.healthlake.operation", "label": "Operation" },
+            {
+              "operation": "value",
+              "column": "aws.healthlake.operation",
+              "label": "Operation"
+            },
             {
               "operation": "value",
               "column": "aws.healthlake.resource_type",
@@ -159,7 +273,11 @@
               "column": "aws.healthlake.latency_ms",
               "label": "Latency (ms)"
             },
-            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Log level"
+            }
           ],
           "rows": []
         }

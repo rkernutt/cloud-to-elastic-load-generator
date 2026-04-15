@@ -1,19 +1,18 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
+  "@timestamp": "2026-04-15T13:24:35.775Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
+    "region": "eu-south-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "identitycenter" }
   },
   "aws": {
     "iam_identity_center": {
-      "event_type": "Authorize",
-      "user_name": "svc-account@corp.com",
-      "application_name": "Jira",
-      "permission_set": "BillingAccess",
+      "event_type": "Authenticate",
+      "user_name": "alice@corp.com",
+      "application_name": "GitHub Enterprise",
+      "permission_set": "ReadOnlyAccess",
       "account_id": "293847561023",
-      "error_code": "AccessDeniedException",
       "mfa_authenticated": true
     },
     "s3": {
@@ -22,40 +21,35 @@
         "arn": "arn:aws:s3:::aws-identitycenter-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/identitycenter/ap-southeast-1/2026/04/14/identitycenter_4Q86BU14ZCA.log.gz"
+        "key": "AWSLogs/293847561023/identitycenter/eu-south-1/2026/04/15/identitycenter_5387NVWAKXP.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/identitycenter/logs",
-      "log_stream": "ap-southeast-1/z52k5jue",
-      "ingestion_time": "2026-04-14T09:28:18.124Z"
+      "log_stream": "eu-south-1/dhu54zoa",
+      "ingestion_time": "2026-04-15T13:24:36.277Z"
     }
   },
-  "user": { "name": "svc-account@corp.com" },
-  "source": { "ip": "103.176.17.200" },
+  "user": { "name": "alice@corp.com" },
+  "source": { "ip": "223.246.134.148" },
   "event": {
-    "action": "Authorize",
-    "outcome": "failure",
+    "action": "Authenticate",
+    "outcome": "success",
     "category": "authentication",
     "dataset": "aws.identitycenter",
     "provider": "sso.amazonaws.com",
     "module": "aws"
   },
-  "message": "IAM Identity Center Authorize FAILED for svc-account@corp.com on Jira",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "MFARequired",
-    "message": "SSO authentication failed",
-    "type": "authentication"
-  },
+  "message": "IAM Identity Center Authenticate: alice@corp.com -> GitHub Enterprise",
+  "log": { "level": "info" },
   "service": { "name": "identitycenter", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.identitycenter", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "1ejkyr6b4pj"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "lo4hmykqq6"
   },
   "input": { "type": "aws-cloudwatch" }
 }

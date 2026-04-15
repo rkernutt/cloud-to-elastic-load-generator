@@ -1,58 +1,61 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
+  "@timestamp": "2026-04-15T13:24:35.775Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-south-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "sqs" }
   },
   "aws": {
     "dimensions": { "QueueName": "email-queue" },
     "sqs": {
       "queue": { "name": "email-queue" },
-      "oldest_message_age": { "sec": 226 },
+      "oldest_message_age": { "sec": 32153 },
       "messages": {
-        "delayed": 31,
-        "not_visible": 142,
-        "visible": 933,
-        "deleted": 803,
-        "received": 3793,
-        "sent": 4052
+        "delayed": 409,
+        "not_visible": 433,
+        "visible": 25655,
+        "deleted": 712,
+        "received": 4798,
+        "sent": 8585
       },
-      "empty_receives": 84,
-      "sent_message_size": { "bytes": 229828 }
+      "empty_receives": 7,
+      "sent_message_size": { "bytes": 90028 }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sqs-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-sqs-logs-814726593401"
+        "name": "aws-sqs-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-sqs-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/814726593401/sqs/ca-west-1/2026/04/14/sqs_3UZVL3QB9HA.log.gz" }
+      "object": { "key": "AWSLogs/501938274650/sqs/eu-south-2/2026/04/15/sqs_Z7KWV9V89AA.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/sqs/logs",
-      "log_stream": "ca-west-1/458fwaqm",
-      "ingestion_time": "2026-04-14T09:28:18.181Z"
+      "log_stream": "eu-south-2/5wp0igmo",
+      "ingestion_time": "2026-04-15T13:24:36.333Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.sqs",
     "provider": "sqs.amazonaws.com",
-    "duration": 430000000,
+    "duration": 24750000000,
     "module": "aws"
   },
-  "message": "SQS email-queue: 4052 sent, 3793 received",
-  "log": { "level": "info" },
+  "message": "SQS email-queue: 284 messages dead-lettered after max retries",
+  "log": { "level": "warn" },
+  "error": { "code": "QueueDeletedRecently", "message": "SQS operation failed", "type": "queue" },
+  "trace": { "id": "Z7BACEYZ3YO" },
+  "transaction": { "id": "655LUSJBDGB" },
   "service": { "name": "sqs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sqs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "t3a0iw1a0w"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "v60erpwvhu"
   },
   "input": { "type": "aws-cloudwatch" }
 }

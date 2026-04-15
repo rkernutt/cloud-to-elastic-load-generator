@@ -50,7 +50,8 @@ export function ScheduleSection({
       <EuiCallOut title="Scheduled shipping" color="primary" iconType="clock" size="s">
         <p>
           When enabled, Ship (or Start Schedule) repeats at the interval below. Useful for steady
-          load over time.
+          load over time. On the Ship step, the summary and header badge show how many runs have
+          finished and how many are still queued.
         </p>
       </EuiCallOut>
 

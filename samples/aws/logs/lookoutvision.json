@@ -1,21 +1,24 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
+  "@timestamp": "2026-04-15T13:24:35.775Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
+    "region": "us-west-1",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "lookoutvision" }
   },
   "aws": {
-    "dimensions": { "ProjectName": "turbine-blade-check", "ModelVersion": "5.0" },
+    "dimensions": { "ProjectName": "fabric-anomaly-detector", "ModelVersion": "1.0" },
     "lookoutvision": {
-      "project_name": "turbine-blade-check",
-      "model_version": "5.0",
-      "model_arn": "arn:aws:lookoutvision:ap-northeast-2:814726593401:model/turbine-blade-check/5.0",
-      "event_type": "DescribeModelPackagingJob",
-      "image_source": "camera-stream",
-      "is_anomalous": false,
-      "confidence": 0.933436172205612
+      "project_name": "fabric-anomaly-detector",
+      "model_version": "1.0",
+      "model_arn": "arn:aws:lookoutvision:us-west-1:814726593401:model/fabric-anomaly-detector/1.0",
+      "event_type": "DetectAnomalies",
+      "image_source": "local-file",
+      "is_anomalous": true,
+      "confidence": 0.9457496204156697,
+      "anomaly_label": "scratch",
+      "anomaly_mask_uri": "s3://lookoutvision-masks-814726593401/fabric-anomaly-detector/7527jtem.png",
+      "inference_latency_ms": 237
     },
     "s3": {
       "bucket": {
@@ -23,13 +26,13 @@
         "arn": "arn:aws:s3:::aws-lookoutvision-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/lookoutvision/ap-northeast-2/2026/04/14/lookoutvision_3IW6I0M13TC.log.gz"
+        "key": "AWSLogs/814726593401/lookoutvision/us-west-1/2026/04/15/lookoutvision_D070FW979RF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lookoutvision/logs",
-      "log_stream": "ap-northeast-2/v6zqw7hb",
-      "ingestion_time": "2026-04-14T09:28:18.231Z"
+      "log_stream": "us-west-1/73hxjuar",
+      "ingestion_time": "2026-04-15T13:24:36.380Z"
     }
   },
   "event": {
@@ -37,19 +40,19 @@
     "category": ["process"],
     "dataset": "aws.lookoutvision",
     "provider": "lookoutvision.amazonaws.com",
-    "duration": 129000000,
+    "duration": 237000000,
     "module": "aws"
   },
-  "message": "Lookout for Vision [turbine-blade-check] OK confidence=0.933 129ms",
-  "log": { "level": "info" },
+  "message": "Lookout for Vision [fabric-anomaly-detector] ANOMALY DETECTED: scratch confidence=0.946",
+  "log": { "level": "warn" },
   "service": { "name": "lookoutvision", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lookoutvision", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "6pftei8tsdo"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "11bg6xwsme6"
   },
   "input": { "type": "aws-cloudwatch" }
 }

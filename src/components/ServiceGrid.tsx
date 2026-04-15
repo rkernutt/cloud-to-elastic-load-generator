@@ -25,6 +25,8 @@ interface ServiceGridProps {
   toggleGroup: (gid: string) => void;
   toggleCollapse: (gid: string) => void;
   getEffectiveSource: (id: string) => string;
+  /** Expands every category (clears collapsed state). */
+  expandAllGroups?: () => void;
 }
 
 /** Public URL for a file under `iconBaseUrl` (flat names under public/, paths URL-encoded). */
@@ -55,6 +57,7 @@ const ServiceGrid = memo(function ServiceGrid({
   toggleGroup,
   toggleCollapse,
   getEffectiveSource,
+  expandAllGroups,
 }: ServiceGridProps) {
   return (
     <Card>
@@ -68,6 +71,9 @@ const ServiceGrid = memo(function ServiceGrid({
       >
         <span style={{ fontSize: 13, fontWeight: 600, color: K.textHeading }}>{gridHeading}</span>
         <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          {expandAllGroups && (
+            <QuickBtn onClick={expandAllGroups}>Expand all groups</QuickBtn>
+          )}
           <QuickBtn onClick={selectAll}>All {totalServices}</QuickBtn>
           <QuickBtn onClick={selectNone}>None</QuickBtn>
           {totalSelected > 0 && (

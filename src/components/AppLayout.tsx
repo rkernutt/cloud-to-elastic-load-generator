@@ -35,6 +35,7 @@ interface AppLayoutProps {
   totalServices: number;
   scheduleActive: boolean;
   scheduleCurrentRun: number;
+  scheduleRunsCompleted: number;
   scheduleTotalRuns: number;
   isConnected: boolean;
   hasServicesSelected: boolean;
@@ -64,6 +65,7 @@ export function AppLayout({
   totalServices,
   scheduleActive,
   scheduleCurrentRun,
+  scheduleRunsCompleted,
   scheduleTotalRuns,
   isConnected,
   hasServicesSelected,
@@ -227,8 +229,9 @@ export function AppLayout({
                   {statusBadge && <EuiFlexItem grow={false}>{statusBadge}</EuiFlexItem>}
                   {scheduleActive && (
                     <EuiFlexItem grow={false}>
-                      <EuiBadge color="accent">
-                        Run {scheduleCurrentRun}/{scheduleTotalRuns}
+                      <EuiBadge color="accent" title="Scheduled shipping: runs finished vs total">
+                        {scheduleRunsCompleted}/{scheduleTotalRuns} done ·{" "}
+                        {Math.max(0, scheduleTotalRuns - scheduleRunsCompleted)} left
                       </EuiBadge>
                     </EuiFlexItem>
                   )}

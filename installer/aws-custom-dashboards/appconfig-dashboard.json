@@ -1,11 +1,19 @@
 {
   "title": "AWS AppConfig — Configuration Deployments",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "appconfig-kpi-total-deployments",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,14 +22,25 @@
             "type": "esql",
             "query": "FROM logs-aws.appconfig* | STATS `Total Deployments` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Deployments" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Deployments"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "appconfig-kpi-rolled-back",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -31,7 +50,11 @@
             "query": "FROM logs-aws.appconfig* | WHERE `aws.appconfig.state` == \"ROLLED_BACK\" | STATS `Rolled-Back Deployments` = COUNT()"
           },
           "metrics": [
-            { "type": "primary", "operation": "value", "column": "Rolled-Back Deployments" }
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Rolled-Back Deployments"
+            }
           ]
         }
       }
@@ -39,7 +62,12 @@
     {
       "type": "lens",
       "uid": "appconfig-kpi-applications",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -49,7 +77,11 @@
             "query": "FROM logs-aws.appconfig* | STATS `Applications Configured` = COUNT_DISTINCT(`aws.appconfig.application_name`)"
           },
           "metrics": [
-            { "type": "primary", "operation": "value", "column": "Applications Configured" }
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Applications Configured"
+            }
           ]
         }
       }
@@ -57,7 +89,12 @@
     {
       "type": "lens",
       "uid": "appconfig-kpi-avg-completion",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -66,14 +103,25 @@
             "type": "esql",
             "query": "FROM logs-aws.appconfig* | STATS avg_c = AVG(`aws.appconfig.percentage_complete`) | EVAL `Avg Completion (%)` = ROUND(avg_c, 1)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Completion (%)" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Completion (%)"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "appconfig-donut-deployment-state",
-      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Deployment State",
         "attributes": {
@@ -82,15 +130,30 @@
             "type": "esql",
             "query": "FROM logs-aws.appconfig* | STATS count = COUNT() BY state = `aws.appconfig.state` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "state" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "state"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "appconfig-donut-deployment-strategy",
-      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Deployment Strategy",
         "attributes": {
@@ -99,32 +162,64 @@
             "type": "esql",
             "query": "FROM logs-aws.appconfig* | STATS count = COUNT() BY strategy = `aws.appconfig.deployment_strategy` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "strategy" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "strategy"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "appconfig-deployments-over-time",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Configuration Deployments Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.appconfig* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.appconfig* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "count", "label": "Deployments" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Deployments"
+                }
+              ]
             }
           ]
         }
@@ -133,17 +228,26 @@
     {
       "type": "lens",
       "uid": "appconfig-recent-deployments",
-      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Recent Deployments",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.appconfig* | KEEP @timestamp, `aws.appconfig.application_name`, `aws.appconfig.environment_name`, `aws.appconfig.state`, `aws.appconfig.percentage_complete` | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.appconfig* | KEEP `@timestamp`, `aws.appconfig.application_name`, `aws.appconfig.environment_name`, `aws.appconfig.state`, `aws.appconfig.percentage_complete` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
             {
               "operation": "value",
               "column": "aws.appconfig.application_name",
@@ -154,7 +258,11 @@
               "column": "aws.appconfig.environment_name",
               "label": "Environment"
             },
-            { "operation": "value", "column": "aws.appconfig.state", "label": "State" },
+            {
+              "operation": "value",
+              "column": "aws.appconfig.state",
+              "label": "State"
+            },
             {
               "operation": "value",
               "column": "aws.appconfig.percentage_complete",

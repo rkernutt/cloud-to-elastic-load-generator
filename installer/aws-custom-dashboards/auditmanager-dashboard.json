@@ -1,11 +1,19 @@
 {
   "title": "AWS Audit Manager — Compliance Assessments",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "auditmanager-kpi-total-evidence",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,14 +22,25 @@
             "type": "esql",
             "query": "FROM logs-aws.auditmanager* | STATS `Total Evidence Items` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Evidence Items" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Evidence Items"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "auditmanager-kpi-non-compliant-controls",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -31,7 +50,11 @@
             "query": "FROM logs-aws.auditmanager* | WHERE `aws.auditmanager.compliance_check` == \"NON_COMPLIANT\" | STATS `Non-Compliant Controls` = COUNT_DISTINCT(`aws.auditmanager.control_id`)"
           },
           "metrics": [
-            { "type": "primary", "operation": "value", "column": "Non-Compliant Controls" }
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Non-Compliant Controls"
+            }
           ]
         }
       }
@@ -39,7 +62,12 @@
     {
       "type": "lens",
       "uid": "auditmanager-kpi-active-assessments",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -48,14 +76,25 @@
             "type": "esql",
             "query": "FROM logs-aws.auditmanager* | STATS `Active Assessments` = COUNT_DISTINCT(`aws.auditmanager.assessment_name`)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Active Assessments" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Active Assessments"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "auditmanager-kpi-evidence-count",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -64,14 +103,25 @@
             "type": "esql",
             "query": "FROM logs-aws.auditmanager* | STATS `Evidence Count` = SUM(`aws.auditmanager.evidence_count`)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Evidence Count" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Evidence Count"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "auditmanager-donut-evidence-status",
-      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Evidence Status",
         "attributes": {
@@ -80,15 +130,30 @@
             "type": "esql",
             "query": "FROM logs-aws.auditmanager* | STATS count = COUNT() BY status = `aws.auditmanager.evidence_status` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "status" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "status"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "auditmanager-donut-data-source",
-      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Data Source",
         "attributes": {
@@ -97,32 +162,64 @@
             "type": "esql",
             "query": "FROM logs-aws.auditmanager* | STATS count = COUNT() BY source = `aws.auditmanager.data_source` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "source" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "source"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "auditmanager-compliance-checks-over-time",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Compliance Checks Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.auditmanager* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.auditmanager* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "count", "label": "Compliance Checks" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Compliance Checks"
+                }
+              ]
             }
           ]
         }
@@ -131,17 +228,26 @@
     {
       "type": "lens",
       "uid": "auditmanager-recent-evidence",
-      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Recent Evidence",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.auditmanager* | KEEP @timestamp, `aws.auditmanager.assessment_name`, `aws.auditmanager.control_id`, `aws.auditmanager.evidence_status`, `aws.auditmanager.compliance_check` | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.auditmanager* | KEEP `@timestamp`, `aws.auditmanager.assessment_name`, `aws.auditmanager.control_id`, `aws.auditmanager.evidence_status`, `aws.auditmanager.compliance_check` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
             {
               "operation": "value",
               "column": "aws.auditmanager.assessment_name",

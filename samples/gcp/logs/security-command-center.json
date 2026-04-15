@@ -2,54 +2,50 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "africa-south1",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
-    "service": { "name": "security-command-center" }
+    "region": "us-east1",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "service": { "name": "vpc-service-controls" }
   },
   "gcp": {
-    "security_command_center": {
-      "finding_id": "organizations/9/sources/VYJ8CXPX/findings/vnudq5c9-8n3g-q6kt-6f5e-uxw19hiyvm",
-      "category": "MALWARE",
-      "severity": "HIGH",
-      "resource_name": "//compute.googleapis.com/projects/globex-shared-m3n4o5/zones/africa-south1-a/instances/api-G9YB",
-      "resource_type": "sqladmin.googleapis.com/Instance",
-      "state": "ACTIVE",
-      "source": "WEB_SECURITY_SCANNER",
-      "organization_id": "organizations/671678"
+    "vpc_service_controls": {
+      "perimeter_name": "data_analytics",
+      "access_level": "partner_restricted",
+      "resource": "//storage.googleapis.com/projects/_/buckets/globex-shared-m3n4o5-data",
+      "api_method": "compute.instances.list",
+      "violation_type": "RESOURCES_NOT_IN_SAME_PERIMETER",
+      "dry_run_mode": false
     }
   },
-  "event": { "outcome": "success", "duration": 113000000, "module": "gcp", "dataset": "gcp.scc" },
-  "message": "SCC WEB_SECURITY_SCANNER: HIGH finding MALWARE on sqladmin.googleapis.com/Instance (ACTIVE)",
+  "event": { "outcome": "success", "duration": 8000000, "module": "gcp", "dataset": "gcp.vpcsc" },
+  "message": "VPC SC audit: allowed compute.instances.list within perimeter data_analytics",
   "log": { "level": "info" },
-  "service": { "name": "security-command-center", "type": "gcp" },
+  "service": { "name": "vpc-service-controls", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.scc", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.vpcsc", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-africa-south1",
-    "id": "e097mf30qhn"
+    "name": "elastic-agent-gcp-us-east1",
+    "id": "99ias5dikz"
   },
   "input": { "type": "http_endpoint" },
-  "logName": "projects/globex-shared-m3n4o5/logs/security-command-center",
+  "logName": "projects/globex-staging-d4e5f6/logs/vpc-service-controls",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-shared-m3n4o5", "region": "africa-south1" }
+    "labels": { "project_id": "globex-staging-d4e5f6", "region": "us-east1" }
   },
   "severity": "INFO",
-  "insertId": "7O2K4U4NYR6",
+  "insertId": "1BD4BE6O9D6",
   "jsonPayload": {
-    "security_command_center": {
-      "finding_id": "organizations/9/sources/VYJ8CXPX/findings/vnudq5c9-8n3g-q6kt-6f5e-uxw19hiyvm",
-      "category": "MALWARE",
-      "severity": "HIGH",
-      "resource_name": "//compute.googleapis.com/projects/globex-shared-m3n4o5/zones/africa-south1-a/instances/api-G9YB",
-      "resource_type": "sqladmin.googleapis.com/Instance",
-      "state": "ACTIVE",
-      "source": "WEB_SECURITY_SCANNER",
-      "organization_id": "organizations/671678"
+    "vpc_service_controls": {
+      "perimeter_name": "data_analytics",
+      "access_level": "partner_restricted",
+      "resource": "//storage.googleapis.com/projects/_/buckets/globex-shared-m3n4o5-data",
+      "api_method": "compute.instances.list",
+      "violation_type": "RESOURCES_NOT_IN_SAME_PERIMETER",
+      "dry_run_mode": false
     },
-    "message": "SCC WEB_SECURITY_SCANNER: HIGH finding MALWARE on sqladmin.googleapis.com/Instance (ACTIVE)"
+    "message": "VPC SC audit: allowed compute.instances.list within perimeter data_analytics"
   }
 }

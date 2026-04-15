@@ -3,43 +3,43 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-east2",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "europe-west9",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-east2",
-    "ephemeral_id": "iva7n7jxdf"
+    "name": "metricbeat-gcp-europe-west9",
+    "ephemeral_id": "rkbuzp6v47"
   },
   "gcp": {
-    "network-service-tiers": {
+    "vpc-flow": {
       "metrics": {
-        "request_count": { "avg": 74066, "sum": 74066, "count": 1 },
-        "error_count": { "avg": 0, "sum": 0, "count": 1 },
-        "latency": { "avg": 102.52, "sum": 102.52, "count": 1 }
+        "request_count": { "avg": 757209, "sum": 757209, "count": 1 },
+        "latency": { "avg": 69.79, "sum": 69.79, "count": 1 },
+        "error_rate": { "avg": 0, "sum": 0, "count": 1 }
       },
-      "labels": { "resource_id": "resource-a" }
+      "labels": { "resource_url": "/api/v1/orders" }
     }
   },
-  "metricset": { "name": "network-service-tiers", "period": 60000 },
-  "data_stream": { "type": "metrics", "dataset": "gcp.nst", "namespace": "default" },
+  "metricset": { "name": "vpc-flow", "period": 60000 },
+  "data_stream": { "type": "metrics", "dataset": "gcp.vpcflow_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.nst", "module": "gcp" },
+  "event": { "dataset": "gcp.vpcflow_metrics", "module": "gcp" },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/network-service-tiers/request_count",
+      "type": "custom.googleapis.com/opentelemetry/elastic/samples/vpc-flow/request_count",
       "labels": {}
     },
     "resource": {
       "type": "global",
-      "labels": { "project_id": "globex-prod-a1b2c3", "region": "asia-east2" }
+      "labels": { "project_id": "globex-dev-g7h8i9", "region": "europe-west9" }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 74066 } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 757209 } }
     ]
   }
 }

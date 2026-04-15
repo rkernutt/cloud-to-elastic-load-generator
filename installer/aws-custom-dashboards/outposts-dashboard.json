@@ -1,11 +1,19 @@
 {
   "title": "AWS Outposts — Hybrid Cloud Capacity",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "outposts-kpi-total-capacity-events",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -15,7 +23,11 @@
             "query": "FROM logs-aws.outposts* | STATS `Total Capacity Events` = COUNT()"
           },
           "metrics": [
-            { "type": "primary", "operation": "value", "column": "Total Capacity Events" }
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Capacity Events"
+            }
           ]
         }
       }
@@ -23,7 +35,12 @@
     {
       "type": "lens",
       "uid": "outposts-kpi-disconnected-outposts",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -33,7 +50,11 @@
             "query": "FROM logs-aws.outposts* | WHERE `aws.outposts.connectivity_status` == \"DISCONNECTED\" | STATS `Disconnected Outposts` = COUNT_DISTINCT(`aws.outposts.outpost_id`)"
           },
           "metrics": [
-            { "type": "primary", "operation": "value", "column": "Disconnected Outposts" }
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Disconnected Outposts"
+            }
           ]
         }
       }
@@ -41,7 +62,12 @@
     {
       "type": "lens",
       "uid": "outposts-kpi-avg-available-instances",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -51,7 +77,11 @@
             "query": "FROM logs-aws.outposts* | STATS avg_i = AVG(`aws.outposts.available_instance_count`) | EVAL `Avg Available Instances` = ROUND(avg_i, 0)"
           },
           "metrics": [
-            { "type": "primary", "operation": "value", "column": "Avg Available Instances" }
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Available Instances"
+            }
           ]
         }
       }
@@ -59,7 +89,12 @@
     {
       "type": "lens",
       "uid": "outposts-kpi-total-racks",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -68,14 +103,25 @@
             "type": "esql",
             "query": "FROM logs-aws.outposts* | STATS `Total Racks` = COUNT_DISTINCT(`aws.outposts.outpost_id`)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Racks" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Racks"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "outposts-donut-connectivity-status",
-      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Connectivity Status",
         "attributes": {
@@ -84,15 +130,30 @@
             "type": "esql",
             "query": "FROM logs-aws.outposts* | STATS count = COUNT() BY status = `aws.outposts.connectivity_status` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "status" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "status"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "outposts-donut-capacity-status",
-      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Capacity Status",
         "attributes": {
@@ -101,32 +162,64 @@
             "type": "esql",
             "query": "FROM logs-aws.outposts* | STATS count = COUNT() BY cap_status = `aws.outposts.capacity_status` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "cap_status" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "cap_status"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "outposts-capacity-events-over-time",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Capacity Events Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.outposts* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.outposts* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "count", "label": "Capacity Events" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Capacity Events"
+                }
+              ]
             }
           ]
         }
@@ -135,18 +228,31 @@
     {
       "type": "lens",
       "uid": "outposts-recent-events",
-      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Recent Capacity Events",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.outposts* | KEEP @timestamp, `aws.outposts.outpost_id`, `aws.outposts.instance_type`, `aws.outposts.capacity_status`, `aws.outposts.available_instance_count` | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.outposts* | KEEP `@timestamp`, `aws.outposts.outpost_id`, `aws.outposts.instance_type`, `aws.outposts.capacity_status`, `aws.outposts.available_instance_count` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
-            { "operation": "value", "column": "aws.outposts.outpost_id", "label": "Outpost ID" },
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.outposts.outpost_id",
+              "label": "Outpost ID"
+            },
             {
               "operation": "value",
               "column": "aws.outposts.instance_type",

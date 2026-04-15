@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.dataflow* | STATS c = COUNT()"
+            "query": "FROM logs-gcp.dataflow* | STATS `Log events` = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "c"
+              "column": "Log events"
             }
           ]
         }
@@ -121,7 +121,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.dataflow* | STATS c = COUNT() BY b = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.dataflow* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -154,12 +154,12 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.dataflow* | KEEP @timestamp, `gcp.dataflow.job_name`, `gcp.dataflow.job_type`, `gcp.dataflow.worker_count`, `gcp.dataflow.watermark_lag_seconds`, event.outcome, message | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-gcp.dataflow* | KEEP `@timestamp`, `gcp.dataflow.job_name`, `gcp.dataflow.job_type`, `gcp.dataflow.worker_count`, `gcp.dataflow.watermark_lag_seconds`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "@timestamp",
+              "column": "`@timestamp`",
               "label": "Time"
             },
             {
@@ -184,8 +184,8 @@
             },
             {
               "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
+              "column": "log.level",
+              "label": "Log level"
             },
             {
               "operation": "value",

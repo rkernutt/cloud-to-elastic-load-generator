@@ -1,11 +1,19 @@
 {
   "title": "AWS AppFabric — SaaS Audit Logs",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "appfabric-kpi-total-events",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,14 +22,25 @@
             "type": "esql",
             "query": "FROM logs-aws.appfabric* | STATS `Total Events` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Events" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Events"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "appfabric-kpi-unique-applications",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -30,30 +49,52 @@
             "type": "esql",
             "query": "FROM logs-aws.appfabric* | STATS `Unique Applications` = COUNT_DISTINCT(`aws.appfabric.application`)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Unique Applications" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Unique Applications"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "appfabric-kpi-failed-ingestions",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.appfabric* | WHERE `event.outcome` == \"failure\" | STATS `Failed Ingestions` = COUNT()"
+            "query": "FROM logs-aws.appfabric* | WHERE `log.level` == \"failure\" | STATS `Failed Ingestions` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Failed Ingestions" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Ingestions"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "appfabric-kpi-unique-users",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -62,14 +103,25 @@
             "type": "esql",
             "query": "FROM logs-aws.appfabric* | STATS `Unique Users` = COUNT_DISTINCT(`aws.appfabric.normalized_user`)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Unique Users" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Unique Users"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "appfabric-donut-application",
-      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Application Breakdown",
         "attributes": {
@@ -78,15 +130,30 @@
             "type": "esql",
             "query": "FROM logs-aws.appfabric* | STATS count = COUNT() BY app = `aws.appfabric.application` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "app" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "app"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "appfabric-donut-event-type",
-      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Event Type",
         "attributes": {
@@ -95,32 +162,64 @@
             "type": "esql",
             "query": "FROM logs-aws.appfabric* | STATS count = COUNT() BY event_type = `aws.appfabric.event_type` | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "event_type" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "event_type"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "appfabric-events-over-time",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "SaaS Events Normalised Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.appfabric* | STATS count = COUNT() BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.appfabric* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
-              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Events"
+                }
+              ]
             }
           ]
         }
@@ -129,25 +228,46 @@
     {
       "type": "lens",
       "uid": "appfabric-recent-events",
-      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Recent Events",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.appfabric* | KEEP @timestamp, `aws.appfabric.application`, `aws.appfabric.event_type`, `aws.appfabric.normalized_user`, `aws.appfabric.ocsf_class` | SORT @timestamp DESC | LIMIT 100"
+            "query": "FROM logs-aws.appfabric* | KEEP `@timestamp`, `aws.appfabric.application`, `aws.appfabric.event_type`, `aws.appfabric.normalized_user`, `aws.appfabric.ocsf_class` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
-            { "operation": "value", "column": "aws.appfabric.application", "label": "Application" },
-            { "operation": "value", "column": "aws.appfabric.event_type", "label": "Event Type" },
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.appfabric.application",
+              "label": "Application"
+            },
+            {
+              "operation": "value",
+              "column": "aws.appfabric.event_type",
+              "label": "Event Type"
+            },
             {
               "operation": "value",
               "column": "aws.appfabric.normalized_user",
               "label": "Normalised User"
             },
-            { "operation": "value", "column": "aws.appfabric.ocsf_class", "label": "OCSF Class" }
+            {
+              "operation": "value",
+              "column": "aws.appfabric.ocsf_class",
+              "label": "OCSF Class"
+            }
           ],
           "rows": []
         }

@@ -1,70 +1,71 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
+  "@timestamp": "2026-04-15T13:24:35.775Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-4",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-southeast-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "securityhub" }
   },
   "aws": {
-    "dimensions": { "ComplianceStandard": "cis-aws-foundations-benchmark", "ControlId": "S3.1" },
+    "dimensions": { "ComplianceStandard": "pci-dss", "ControlId": "S3.2" },
     "securityhub_findings": {
-      "id": "NT9NW5GB-3JZB-G971-QNTO-ZN43EJK909",
-      "aws_account_id": "501938274650",
-      "region": "ap-southeast-4",
-      "description": "Control passed.",
-      "created_at": "2026-04-14T00:36:59.131Z",
-      "first_observed_at": "2026-04-14T00:36:59.131Z",
-      "last_observed_at": "2026-04-14T09:28:17.596Z",
-      "generator": { "id": "S3.1" },
-      "types": ["Effects/Data Exposure"],
-      "compliance": { "security_control_id": "S3.1", "status": "PASSED" },
-      "severity": { "label": "INFORMATIONAL", "normalized": 0 },
-      "workflow": { "status": "SUPPRESSED" },
-      "record_state": "ARCHIVED",
+      "id": "2SMQD6VD-2D7Q-LF0G-9C8C-VRDOK34FTT",
+      "aws_account_id": "164820739518",
+      "region": "ap-southeast-1",
+      "description": "Security check failed: S3.2 - S3 bucket is publicly accessible",
+      "created_at": "2026-04-15T04:52:38.499Z",
+      "first_observed_at": "2026-04-15T04:52:38.499Z",
+      "last_observed_at": "2026-04-15T13:24:35.775Z",
+      "generator": { "id": "S3.2" },
+      "types": ["Threat Detections/Tactics/Impact"],
+      "compliance": { "security_control_id": "S3.2", "status": "FAILED" },
+      "severity": { "label": "HIGH", "normalized": 70 },
+      "workflow": { "status": "NEW" },
+      "record_state": "ACTIVE",
       "product": {
-        "arn": "arn:aws:securityhub:ap-southeast-4::product/aws/securityhub",
+        "arn": "arn:aws:securityhub:ap-southeast-1::product/aws/securityhub",
         "name": "Security Hub"
       },
-      "criticality": 4,
-      "confidence": 72
+      "criticality": 7,
+      "confidence": 79
     },
     "s3": {
       "bucket": {
-        "name": "aws-securityhub-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-securityhub-logs-501938274650"
+        "name": "aws-securityhub-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-securityhub-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/securityhub/ap-southeast-4/2026/04/14/securityhub_7KTSK9TIV8H.log.gz"
+        "key": "AWSLogs/164820739518/securityhub/ap-southeast-1/2026/04/15/securityhub_2C9POI2XMGI.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securityhub/logs",
-      "log_stream": "ap-southeast-4/mt991ufj",
-      "ingestion_time": "2026-04-14T09:28:18.115Z"
+      "log_stream": "ap-southeast-1/vpfqjqnx",
+      "ingestion_time": "2026-04-15T13:24:36.268Z"
     }
   },
-  "rule": { "id": "S3.1", "name": "S3.1 — Security group allows all traffic" },
+  "rule": { "id": "S3.2", "name": "S3.2 — MFA not enabled for root" },
   "event": {
     "kind": "alert",
-    "severity": 4,
-    "outcome": "success",
+    "severity": 7,
+    "outcome": "failure",
     "category": ["vulnerability"],
-    "type": ["info"],
+    "type": ["indicator"],
     "dataset": "aws.securityhub_findings",
     "provider": "securityhub.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security Hub: control passed",
-  "log": { "level": "info" },
+  "message": "Security Hub [HIGH]: Compliance check failed",
+  "log": { "level": "warn" },
+  "error": { "code": "ComplianceFailed", "message": "Control S3.2 failed", "type": "compliance" },
   "service": { "name": "securityhub", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.securityhub_findings", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-4",
-    "ephemeral_id": "f96jqx4gggk"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "kpf8cviek5"
   },
   "input": { "type": "http_endpoint" }
 }

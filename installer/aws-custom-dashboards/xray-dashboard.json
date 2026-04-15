@@ -1,11 +1,19 @@
 {
   "title": "AWS X-Ray — Distributed Tracing",
-  "time_range": { "from": "now-3h", "to": "now" },
+  "time_range": {
+    "from": "now-3h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "xray-kpi-total-traces",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,15 +22,25 @@
             "type": "esql",
             "query": "FROM traces-aws.xray* | STATS `Total Segments` = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Segments" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Segments"
+            }
+          ]
         }
       }
     },
-
     {
       "type": "lens",
       "uid": "xray-kpi-fault-rate",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -31,15 +49,25 @@
             "type": "esql",
             "query": "FROM traces-aws.xray* | EVAL is_fault = CASE(`aws.xray.fault` == true, 1, 0) | STATS `Fault Rate %` = ROUND(AVG(is_fault) * 100, 1)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Fault Rate %" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Fault Rate %"
+            }
+          ]
         }
       }
     },
-
     {
       "type": "lens",
       "uid": "xray-kpi-error-rate",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -48,15 +76,25 @@
             "type": "esql",
             "query": "FROM traces-aws.xray* | EVAL is_error = CASE(`aws.xray.error` == true, 1, 0) | STATS `Error Rate %` = ROUND(AVG(is_error) * 100, 1)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Error Rate %" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Error Rate %"
+            }
+          ]
         }
       }
     },
-
     {
       "type": "lens",
       "uid": "xray-kpi-avg-latency",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -65,83 +103,151 @@
             "type": "esql",
             "query": "FROM traces-aws.xray* | STATS avg_ns = AVG(event.duration) | EVAL `Avg Latency (ms)` = ROUND(avg_ns / 1000000, 1)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Latency (ms)" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Latency (ms)"
+            }
+          ]
         }
       }
     },
-
     {
       "type": "lens",
       "uid": "xray-latency-trend",
-      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Latency Over Time (ms)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM traces-aws.xray* | STATS avg_ms = ROUND(AVG(event.duration) / 1000000, 2), p99_ms = ROUND(AVG(`aws.xray.metrics.Latency.p99`), 2) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM traces-aws.xray* | STATS avg_ms = ROUND(AVG(event.duration) / 1000000, 2), p99_ms = ROUND(AVG(`aws.xray.metrics.Latency.p99`), 2) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
               "y": [
-                { "operation": "value", "column": "avg_ms", "label": "Avg (ms)" },
-                { "operation": "value", "column": "p99_ms", "label": "P99 (ms)" }
+                {
+                  "operation": "value",
+                  "column": "avg_ms",
+                  "label": "Avg (ms)"
+                },
+                {
+                  "operation": "value",
+                  "column": "p99_ms",
+                  "label": "P99 (ms)"
+                }
               ]
             }
           ]
         }
       }
     },
-
     {
       "type": "lens",
       "uid": "xray-fault-error-throttle-trend",
-      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Fault / Error / Throttle Rate Over Time (%)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM traces-aws.xray* | EVAL f = CASE(`aws.xray.fault` == true, 1.0, 0.0), e = CASE(`aws.xray.error` == true, 1.0, 0.0), t = CASE(`aws.xray.throttle` == true, 1.0, 0.0) | STATS fault_pct = ROUND(AVG(f)*100,2), error_pct = ROUND(AVG(e)*100,2), throttle_pct = ROUND(AVG(t)*100,2) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM traces-aws.xray* | EVAL f = CASE(`aws.xray.fault` == true, 1.0, 0.0), e = CASE(`aws.xray.error` == true, 1.0, 0.0), t = CASE(`aws.xray.throttle` == true, 1.0, 0.0) | STATS fault_pct = ROUND(AVG(f)*100,2), error_pct = ROUND(AVG(e)*100,2), throttle_pct = ROUND(AVG(t)*100,2) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
               "y": [
-                { "operation": "value", "column": "fault_pct", "label": "Fault %" },
-                { "operation": "value", "column": "error_pct", "label": "Error %" },
-                { "operation": "value", "column": "throttle_pct", "label": "Throttle %" }
+                {
+                  "operation": "value",
+                  "column": "fault_pct",
+                  "label": "Fault %"
+                },
+                {
+                  "operation": "value",
+                  "column": "error_pct",
+                  "label": "Error %"
+                },
+                {
+                  "operation": "value",
+                  "column": "throttle_pct",
+                  "label": "Throttle %"
+                }
               ]
             }
           ]
         }
       }
     },
-
     {
       "type": "lens",
       "uid": "xray-requests-by-service",
-      "grid": { "x": 0, "y": 15, "w": 16, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Requests by Service",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
@@ -150,36 +256,63 @@
                 "type": "esql",
                 "query": "FROM traces-aws.xray* | STATS count = COUNT() BY service = `aws.xray.service.name` | SORT count DESC | LIMIT 10"
               },
-              "x": { "operation": "value", "column": "service" },
-              "y": [{ "operation": "value", "column": "count", "label": "Requests" }]
+              "x": {
+                "operation": "value",
+                "column": "service"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Requests"
+                }
+              ]
             }
           ]
         }
       }
     },
-
     {
       "type": "lens",
       "uid": "xray-outcome-distribution",
-      "grid": { "x": 16, "y": 15, "w": 16, "h": 10 },
+      "grid": {
+        "x": 16,
+        "y": 15,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Outcome Distribution",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM traces-aws.xray* | STATS count = COUNT() BY outcome = event.outcome"
+            "query": "FROM traces-aws.xray* | STATS count = COUNT() BY outcome = log.level"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "outcome" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "outcome"
+            }
+          ]
         }
       }
     },
-
     {
       "type": "lens",
       "uid": "xray-http-status-distribution",
-      "grid": { "x": 32, "y": 15, "w": 16, "h": 10 },
+      "grid": {
+        "x": 32,
+        "y": 15,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "HTTP Status Distribution",
         "attributes": {
@@ -188,23 +321,45 @@
             "type": "esql",
             "query": "FROM traces-aws.xray* | EVAL status_str = TO_STRING(`aws.xray.http.response.status`) | STATS count = COUNT() BY status_str | SORT count DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "status_str" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "status_str"
+            }
+          ]
         }
       }
     },
-
     {
       "type": "lens",
       "uid": "xray-avg-latency-by-service",
-      "grid": { "x": 0, "y": 25, "w": 16, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Avg Latency by Service (ms)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
@@ -213,18 +368,31 @@
                 "type": "esql",
                 "query": "FROM traces-aws.xray* | STATS avg_ms = ROUND(AVG(event.duration) / 1000000, 1) BY service = `aws.xray.service.name` | SORT avg_ms DESC | LIMIT 10"
               },
-              "x": { "operation": "value", "column": "service" },
-              "y": [{ "operation": "value", "column": "avg_ms", "label": "Avg Latency (ms)" }]
+              "x": {
+                "operation": "value",
+                "column": "service"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_ms",
+                  "label": "Avg Latency (ms)"
+                }
+              ]
             }
           ]
         }
       }
     },
-
     {
       "type": "lens",
       "uid": "xray-service-type-breakdown",
-      "grid": { "x": 16, "y": 25, "w": 16, "h": 10 },
+      "grid": {
+        "x": 16,
+        "y": 25,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Segments by AWS Resource Type",
         "attributes": {
@@ -233,16 +401,30 @@
             "type": "esql",
             "query": "FROM traces-aws.xray* | STATS count = COUNT() BY resource_type = `aws.xray.service.type`"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "resource_type" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "resource_type"
+            }
+          ]
         }
       }
     },
-
     {
       "type": "lens",
       "uid": "xray-http-method-breakdown",
-      "grid": { "x": 32, "y": 25, "w": 16, "h": 10 },
+      "grid": {
+        "x": 32,
+        "y": 25,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "HTTP Method Breakdown",
         "attributes": {
@@ -251,67 +433,152 @@
             "type": "esql",
             "query": "FROM traces-aws.xray* | STATS count = COUNT() BY method = `aws.xray.http.request.method`"
           },
-          "metrics": [{ "operation": "value", "column": "count" }],
-          "group_by": [{ "operation": "value", "column": "method" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "method"
+            }
+          ]
         }
       }
     },
-
     {
       "type": "lens",
       "uid": "xray-trace-volume",
-      "grid": { "x": 0, "y": 35, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 35,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Trace Volume Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "bar",
               "dataset": {
                 "type": "esql",
-                "query": "FROM traces-aws.xray* | STATS total = COUNT(), faults = SUM(CASE(`aws.xray.fault` == true, 1, 0)), errors = SUM(CASE(`aws.xray.error` == true, 1, 0)) BY bucket = BUCKET(@timestamp, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM traces-aws.xray* | STATS total = COUNT(), faults = SUM(CASE(`aws.xray.fault` == true, 1, 0)), errors = SUM(CASE(`aws.xray.error` == true, 1, 0)) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": { "operation": "value", "column": "bucket" },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
               "y": [
-                { "operation": "value", "column": "total", "label": "Total" },
-                { "operation": "value", "column": "faults", "label": "Faults" },
-                { "operation": "value", "column": "errors", "label": "Errors" }
+                {
+                  "operation": "value",
+                  "column": "total",
+                  "label": "Total"
+                },
+                {
+                  "operation": "value",
+                  "column": "faults",
+                  "label": "Faults"
+                },
+                {
+                  "operation": "value",
+                  "column": "errors",
+                  "label": "Errors"
+                }
               ]
             }
           ]
         }
       }
     },
-
     {
       "type": "lens",
       "uid": "xray-recent-traces-table",
-      "grid": { "x": 0, "y": 45, "w": 48, "h": 12 },
+      "grid": {
+        "x": 0,
+        "y": 45,
+        "w": 48,
+        "h": 12
+      },
       "config": {
         "title": "Recent Trace Segments",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM traces-aws.xray* | KEEP @timestamp, `aws.xray.trace_id`, `aws.xray.service.name`, `aws.xray.service.type`, `aws.xray.http.request.method`, `aws.xray.http.response.status`, `aws.xray.duration`, `aws.xray.fault`, `aws.xray.error`, `aws.xray.throttle`, event.outcome | SORT @timestamp DESC | LIMIT 50"
+            "query": "FROM traces-aws.xray* | KEEP `@timestamp`, `aws.xray.trace_id`, `aws.xray.service.name`, `aws.xray.service.type`, `aws.xray.http.request.method`, `aws.xray.http.response.status`, `aws.xray.duration`, `aws.xray.fault`, `aws.xray.error`, `aws.xray.throttle`, log.level | SORT `@timestamp` DESC | LIMIT 50"
           },
           "metrics": [
-            { "operation": "value", "column": "@timestamp", "label": "Timestamp" },
-            { "operation": "value", "column": "aws.xray.trace_id", "label": "Trace ID" },
-            { "operation": "value", "column": "aws.xray.service.name", "label": "Service" },
-            { "operation": "value", "column": "aws.xray.service.type", "label": "Resource Type" },
-            { "operation": "value", "column": "aws.xray.http.request.method", "label": "Method" },
-            { "operation": "value", "column": "aws.xray.http.response.status", "label": "Status" },
-            { "operation": "value", "column": "aws.xray.duration", "label": "Duration (s)" },
-            { "operation": "value", "column": "aws.xray.fault", "label": "Fault" },
-            { "operation": "value", "column": "aws.xray.error", "label": "Error" },
-            { "operation": "value", "column": "aws.xray.throttle", "label": "Throttle" },
-            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.xray.trace_id",
+              "label": "Trace ID"
+            },
+            {
+              "operation": "value",
+              "column": "aws.xray.service.name",
+              "label": "Service"
+            },
+            {
+              "operation": "value",
+              "column": "aws.xray.service.type",
+              "label": "Resource Type"
+            },
+            {
+              "operation": "value",
+              "column": "aws.xray.http.request.method",
+              "label": "Method"
+            },
+            {
+              "operation": "value",
+              "column": "aws.xray.http.response.status",
+              "label": "Status"
+            },
+            {
+              "operation": "value",
+              "column": "aws.xray.duration",
+              "label": "Duration (s)"
+            },
+            {
+              "operation": "value",
+              "column": "aws.xray.fault",
+              "label": "Fault"
+            },
+            {
+              "operation": "value",
+              "column": "aws.xray.error",
+              "label": "Error"
+            },
+            {
+              "operation": "value",
+              "column": "aws.xray.throttle",
+              "label": "Throttle"
+            },
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Log level"
+            }
           ],
           "rows": []
         }

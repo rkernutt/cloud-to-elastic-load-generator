@@ -1,59 +1,64 @@
 {
-  "@timestamp": "2026-04-14T09:28:17.596Z",
+  "@timestamp": "2026-04-15T13:24:35.775Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ca-west-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "chimesdkvoice" }
   },
   "aws": {
-    "dimensions": { "VoiceConnectorId": "abcdefgh747AUHH371L", "Direction": "Inbound" },
+    "dimensions": { "VoiceConnectorId": "abcdefgh2X9R2ABU4E1", "Direction": "Outbound" },
     "chimesdkvoice": {
-      "voice_connector_id": "abcdefgh747AUHH371L",
-      "call_id": "mvmv718r-qet2-hmfm-0uy1-6bqlredilpt",
-      "direction": "Inbound",
-      "call_status": "Completed",
-      "from_number": "+17053385244",
-      "to_number": "+16588887187",
-      "duration_seconds": 2751,
-      "packet_loss_percent": 0.14,
-      "mos_score": 3.61,
-      "jitter_ms": 15,
-      "sip_response_code": 200
+      "voice_connector_id": "abcdefgh2X9R2ABU4E1",
+      "call_id": "nech0czi-0vkc-2lvq-pf8b-tctbo2aie6",
+      "direction": "Outbound",
+      "call_status": "NoAnswer",
+      "from_number": "+12303023552",
+      "to_number": "+18762157731",
+      "duration_seconds": 29,
+      "packet_loss_percent": 19.5,
+      "mos_score": 1.68,
+      "jitter_ms": 296,
+      "sip_response_code": 408
     },
     "s3": {
       "bucket": {
-        "name": "aws-chimesdkvoice-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-chimesdkvoice-logs-293847561023"
+        "name": "aws-chimesdkvoice-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-chimesdkvoice-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/chimesdkvoice/eu-central-1/2026/04/14/chimesdkvoice_C6T4V6D2PX.log.gz"
+        "key": "AWSLogs/164820739518/chimesdkvoice/ca-west-1/2026/04/15/chimesdkvoice_XPJL20ZQUK.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/chimesdkvoice/logs",
-      "log_stream": "eu-central-1/e0smmrxv",
-      "ingestion_time": "2026-04-14T09:28:18.263Z"
+      "log_stream": "ca-west-1/5o4nesa3",
+      "ingestion_time": "2026-04-15T13:24:36.413Z"
     }
   },
   "event": {
-    "action": "CallFailed",
-    "outcome": "success",
+    "action": "CallCompleted",
+    "outcome": "failure",
     "category": ["network", "session"],
     "dataset": "aws.chimesdkvoice",
     "provider": "chime.amazonaws.com",
     "module": "aws"
   },
-  "message": "Chime SDK Voice Inbound call 2751s MOS:3.61 loss:0.14%",
-  "log": { "level": "info" },
+  "message": "Chime SDK Voice Outbound call nech0czi-0vkc-2lvq-pf8b-tctbo2aie6: NoAnswer SIP 408",
+  "log": { "level": "error" },
+  "error": {
+    "code": "BadRequestException",
+    "message": "Chime SDK Voice call failed",
+    "type": "network"
+  },
   "service": { "name": "chimesdkvoice", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.chimesdkvoice", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "zt99pdqek2b"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "vu429zod4pa"
   },
   "input": { "type": "aws-cloudwatch" }
 }
