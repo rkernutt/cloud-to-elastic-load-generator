@@ -7,6 +7,7 @@ import {
   randUUID,
   randAccount,
   REGIONS,
+  USER_AGENTS,
 } from "../../helpers";
 import type { EcsDocument } from "./types.js";
 
@@ -23,10 +24,52 @@ function generateWorkSpacesLog(ts: string, er: number): EcsDocument {
     "StartWorkspace",
     "StopWorkspace",
     "RebuildWorkspace",
+    "Login",
+    "Logout",
+    "SessionMetrics",
+    "WSPStreamEvent",
+    "UserActivity",
   ]);
   const state = isErr
     ? rand(["ERROR", "UNHEALTHY", "STOPPED"])
     : rand(["AVAILABLE", "AVAILABLE", "CONNECTED"]);
+  const rttMs = isErr ? randInt(200, 2000) : randInt(8, 80);
+  const packetLossPct = isErr ? Number(randFloat(2, 25)) : Number(randFloat(0, 0.8));
+  const wspEvent = rand([
+    "channel_connected",
+    "frame_decode",
+    "usb_redirection",
+    "display_mode_change",
+  ]);
+  const useStructured = Math.random() < 0.45;
+  const structured = {
+    eventType: action,
+    directoryId,
+    workspaceId: wsId,
+    userName: user,
+    timestamp: new Date(ts).toISOString(),
+    ...(action === "Login" || action === "Logout"
+      ? { authResult: isErr ? "FAILURE" : "SUCCESS", clientIp: randIp() }
+      : {}),
+    ...(action === "SessionMetrics"
+      ? {
+          connectionQuality: {
+            roundTripTimeMs: rttMs,
+            packetLossPercent: packetLossPct,
+            sessionSetupTimeMs: randInt(500, 8000),
+          },
+        }
+      : {}),
+    ...(action === "WSPStreamEvent"
+      ? { streamingProtocol: "WSP", wspEvent, encoder: rand(["H264", "AVC420", "HEVC"]) }
+      : {}),
+    ...(action === "UserActivity"
+      ? {
+          activity: rand(["idle_timeout_reset", "clipboard_sync", "file_upload", "display_lock"]),
+          resourceId: rand(["Desktop", "RemovableMedia", "Printer"]),
+        }
+      : {}),
+  };
   return {
     "@timestamp": ts,
     cloud: {
@@ -48,12 +91,17 @@ function generateWorkSpacesLog(ts: string, er: number): EcsDocument {
         client_ip: randIp(),
         client_os: rand(["Windows 11", "macOS 14", "Ubuntu 22.04"]),
         error_code: isErr ? rand(["InvalidUser", "OperationNotSupportedException"]) : null,
+        round_trip_time_ms: action === "SessionMetrics" ? rttMs : null,
+        packet_loss_percent: action === "SessionMetrics" ? packetLossPct : null,
+        wsp_event: action === "WSPStreamEvent" ? wspEvent : null,
         metrics: {
           Available: { sum: isErr ? 0 : 1 },
           Unhealthy: { sum: isErr ? 1 : 0 },
-          ConnectionSuccess: { sum: isErr ? 0 : action === "Connect" ? 1 : 0 },
-          ConnectionFailure: { sum: isErr && action === "Connect" ? 1 : 0 },
-          ConnectionAttempt: { sum: action === "Connect" ? 1 : 0 },
+          ConnectionSuccess: {
+            sum: isErr ? 0 : action === "Connect" || action === "Login" ? 1 : 0,
+          },
+          ConnectionFailure: { sum: isErr && (action === "Connect" || action === "Login") ? 1 : 0 },
+          ConnectionAttempt: { sum: action === "Connect" || action === "Login" ? 1 : 0 },
           UserConnected: { sum: state === "CONNECTED" ? 1 : 0 },
           Stopped: { sum: state === "STOPPED" ? 1 : 0 },
           Maintenance: { sum: Math.random() < 0.05 ? 1 : 0 },
@@ -70,9 +118,11 @@ function generateWorkSpacesLog(ts: string, er: number): EcsDocument {
       provider: "workspaces.amazonaws.com",
       duration: randInt(100, isErr ? 10000 : 5000) * 1e6,
     },
-    message: isErr
-      ? `WorkSpaces ${action} FAILED for ${user} (${wsId})`
-      : `WorkSpaces ${action}: ${user} on ${wsId} [${state}]`,
+    message: useStructured
+      ? JSON.stringify(structured)
+      : isErr
+        ? `WorkSpaces ${action} FAILED for ${user} (${wsId})`
+        : `WorkSpaces ${action}: ${user} on ${wsId} [${state}]`,
     ...(isErr
       ? {
           error: {
@@ -92,11 +142,68 @@ function generateConnectLog(ts: string, er: number): EcsDocument {
   const isErr = Math.random() < er;
   const instanceId =
     `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase();
-  const action = rand(["INBOUND_CALL", "OUTBOUND_CALL", "CHAT", "TASK", "TRANSFER", "DISCONNECT"]);
-  const queue = rand(["BasicQueue", "TechSupport", "Billing", "Sales", "Priority-Enterprise"]);
+  const initiationMethod = rand([
+    "INBOUND",
+    "OUTBOUND",
+    "API",
+    "TRANSFER",
+    "QUEUE_TRANSFER",
+    "MONITOR",
+  ]);
+  const channel = rand(["VOICE", "CHAT", "TASK"]);
+  const queueName = rand(["BasicQueue", "TechSupport", "Billing", "Sales", "Priority-Enterprise"]);
   const agent = rand(["agent-alice", "agent-bob", "agent-carol", null]);
   const dur = randInt(10, 1800);
   const sentiment = rand(["POSITIVE", "NEUTRAL", "NEGATIVE", "MIXED"]);
+  const contactId = `${randId(8)}-${randId(4)}-${randId(4)}`.toLowerCase();
+  const initiationTs = new Date(new Date(ts).getTime() - dur * 1000).toISOString();
+  const disconnectTs = new Date(ts).toISOString();
+  const agentConnectSec = dur <= 2 ? 1 : randInt(1, dur - 1);
+  const dequeueSec = dur <= 3 ? 1 : randInt(1, dur - 2);
+  const customerPhone = `+1${randInt(2000000000, 9999999999)}`;
+  const systemPhone = `+1800${randInt(1000000, 9999999)}`;
+  const ctr = {
+    ContactId: contactId,
+    AWSAccountId: acct.id,
+    InstanceARN: `arn:aws:connect:${region}:${acct.id}:instance/${instanceId}`,
+    Channel: channel,
+    InitiationMethod: initiationMethod,
+    InitiationTimestamp: initiationTs,
+    DisconnectTimestamp: disconnectTs,
+    LastUpdateTimestamp: disconnectTs,
+    TotalPauseCount: randInt(0, 5),
+    Queue: {
+      ARN: `arn:aws:connect:${region}:${acct.id}:instance/${instanceId}/queue/${randId(10)}`,
+      Name: queueName,
+      EnqueueTimestamp: new Date(
+        new Date(ts).getTime() - (dur - randInt(0, Math.min(120, dur - 1))) * 1000
+      ).toISOString(),
+      DequeueTimestamp: new Date(new Date(ts).getTime() - dequeueSec * 1000).toISOString(),
+    },
+    AgentInfo: agent
+      ? {
+          Id: `arn:aws:connect:${region}:${acct.id}:instance/${instanceId}/agent/${randId(8)}`,
+          ConnectedToAgentTimestamp: new Date(
+            new Date(ts).getTime() - agentConnectSec * 1000
+          ).toISOString(),
+          Username: agent,
+          AfterContactWorkDuration: randInt(0, 300),
+        }
+      : {},
+    CustomerEndpoint: {
+      Type: channel === "CHAT" ? "EMAIL" : "TELEPHONE_NUMBER",
+      Address: customerPhone,
+    },
+    SystemEndpoint: { Type: "TELEPHONE_NUMBER", Address: systemPhone },
+    InitialContactId: null,
+    PreviousContactId: null,
+    InitiationDurationSeconds: randInt(0, 45),
+    AfterContactWorkDuration: randInt(0, 300),
+    ContactDuration: dur,
+    DisconnectReason: rand(["CUSTOMER_DISCONNECT", "AGENT_DISCONNECT", "OTHER", "FLOW_ERROR"]),
+    Tags: { department: rand(["support", "sales", "billing"]) },
+  };
+  const useCtrJson = Math.random() < 0.55;
   return {
     "@timestamp": ts,
     cloud: {
@@ -109,10 +216,10 @@ function generateConnectLog(ts: string, er: number): EcsDocument {
       dimensions: { InstanceId: instanceId, MetricGroup: "Queue" },
       connect: {
         instance_id: instanceId,
-        contact_id: `${randId(8)}-${randId(4)}-${randId(4)}`.toLowerCase(),
-        channel: rand(["VOICE", "CHAT", "TASK"]),
-        initiation_method: action,
-        queue_name: queue,
+        contact_id: contactId,
+        channel,
+        initiation_method: initiationMethod,
+        queue_name: queueName,
         agent_id: agent,
         duration_seconds: dur,
         hold_duration_seconds: randInt(0, 120),
@@ -121,6 +228,10 @@ function generateConnectLog(ts: string, er: number): EcsDocument {
         sentiment_overall: sentiment,
         contact_lens_enabled: Math.random() > 0.5,
         lex_bot_interacted: Math.random() > 0.5,
+        initiation_timestamp: initiationTs,
+        disconnect_timestamp: disconnectTs,
+        customer_endpoint: customerPhone,
+        system_endpoint: systemPhone,
         error_code: isErr ? rand(["ContactNotFoundException", "QueueCapacityExceeded"]) : null,
         metrics: {
           ContactsQueued: { sum: 1 },
@@ -142,9 +253,11 @@ function generateConnectLog(ts: string, er: number): EcsDocument {
       dataset: "aws.connect",
       provider: "connect.amazonaws.com",
     },
-    message: isErr
-      ? `Connect ${action} FAILED: ${rand(["Queue capacity exceeded", "Flow error", "Agent unavailable"])}`
-      : `Connect ${action}: ${queue}${agent ? ` agent=${agent}` : ""}, ${dur}s, ${sentiment}`,
+    message: useCtrJson
+      ? JSON.stringify(ctr)
+      : isErr
+        ? `Connect ${initiationMethod} FAILED: ${rand(["Queue capacity exceeded", "Flow error", "Agent unavailable"])}`
+        : `Connect ${initiationMethod}: ${queueName}${agent ? ` agent=${agent}` : ""}, ${dur}s, ${sentiment}`,
     ...(isErr
       ? { error: { code: "ConnectError", message: "Connect operation failed", type: "session" } }
       : {}),
@@ -334,7 +447,7 @@ function generateSesLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;
-  const event = rand([
+  const eventType = rand([
     "Send",
     "Delivery",
     "Bounce",
@@ -347,14 +460,101 @@ function generateSesLog(ts: string, er: number): EcsDocument {
   const from = rand(["noreply@company.com", "alerts@company.com", "no-reply@app.io"]);
   const fromDomain = from.split("@")[1];
   const to = `user_${randId(6).toLowerCase()}@${rand(["gmail.com", "yahoo.com", "company.org", "outlook.com"])}`;
+  const destList = [to, `archive+${randId(4)}@company.org`].slice(0, randInt(1, 2));
   const toCountry = rand(["US", "GB", "DE", "FR", "AU", "CA", "JP"]);
   const toIsp = rand(["Gmail", "Yahoo", "Hotmail", "AOL", "Other"]);
   const configSet = rand(["transactional", "marketing", "alerts", null]);
   const msgId = `${randId(20)}.${randId(10)}@${region}.amazonses.com`.toLowerCase();
-  const bounceType = event === "Bounce" ? rand(["Permanent", "Transient"]) : null;
+  const bounceType = eventType === "Bounce" ? rand(["Permanent", "Transient"]) : null;
   const bounceSubType = bounceType
     ? rand(["General", "NoEmail", "Suppressed", "MailboxFull", "MessageTooLarge"])
     : null;
+  const sesNotification = {
+    eventType,
+    mail: {
+      timestamp: new Date(ts).toISOString(),
+      messageId: msgId,
+      source: from,
+      sourceArn: `arn:aws:ses:${region}:${acct.id}:identity/${fromDomain}`,
+      sendingAccountId: acct.id,
+      destination: destList,
+      headersTruncated: false,
+      commonHeaders: {
+        from: [from],
+        to: destList,
+        subject: rand(["Your order", "Security alert", "Weekly digest"]),
+        messageId: `<${msgId}>`,
+      },
+      tags: {
+        "ses:configuration-set": configSet ? [configSet] : [],
+        "ses:source-ip": [randIp()],
+        "ses:outgoing-ip": [
+          `${randInt(1, 223)}.${randInt(0, 255)}.${randInt(0, 255)}.${randInt(1, 254)}`,
+        ],
+      },
+    },
+    ...(eventType === "Bounce"
+      ? {
+          bounce: {
+            bounceType,
+            bounceSubType,
+            bouncedRecipients: [
+              {
+                emailAddress: to,
+                action: "failed",
+                status: bounceType === "Permanent" ? "5.1.1" : "4.2.2",
+                diagnosticCode: `smtp; ${rand([550, 552, 421])} ${rand(["user unknown", "mailbox full"])}`,
+              },
+            ],
+            timestamp: new Date(ts).toISOString(),
+            feedbackId: `${randId(8)}-${region}-${acct.id}`,
+          },
+        }
+      : {}),
+    ...(eventType === "Complaint"
+      ? {
+          complaint: {
+            complainedRecipients: [{ emailAddress: to }],
+            timestamp: new Date(ts).toISOString(),
+            feedbackId: `${randId(8)}-${region}-${acct.id}`,
+            complaintFeedbackType: rand(["abuse", "fraud", "virus", "not-spam"]),
+            userAgent: rand(["Yahoo!-Mail-Feedback/1.0", "Hotmail FBL"]),
+          },
+        }
+      : {}),
+    ...(eventType === "Delivery"
+      ? {
+          delivery: {
+            timestamp: new Date(ts).toISOString(),
+            processingTimeMillis: randInt(50, 3000),
+            recipients: destList,
+            smtpResponse: "250 2.0.0 OK",
+            reportingMTA: `a${randInt(1, 9)}-${randId(4)}.smtp-out.${region}.amazonses.com`,
+          },
+        }
+      : {}),
+    ...(eventType === "Open" || eventType === "Click"
+      ? {
+          [eventType.toLowerCase()]: {
+            timestamp: new Date(ts).toISOString(),
+            userAgent: rand(USER_AGENTS),
+            ipAddress: randIp(),
+            ...(eventType === "Click" ? { link: `https://example.com/track/${randId(8)}` } : {}),
+          },
+        }
+      : {}),
+    ...(eventType === "Reject" || eventType === "RenderingFailure"
+      ? {
+          failure: {
+            errorMessage: rand(["Message rejected", "Template rendering failed"]),
+            templateName:
+              eventType === "RenderingFailure" ? rand(["welcome", "receipt"]) : undefined,
+          },
+        }
+      : {}),
+  };
+  const message =
+    Math.random() < 0.65 ? JSON.stringify(sesNotification) : `SES ${eventType}: ${from} -> ${to}`;
   return {
     "@timestamp": ts,
     cloud: {
@@ -372,18 +572,32 @@ function generateSesLog(ts: string, er: number): EcsDocument {
       },
       ses: {
         message_id: msgId,
-        event_type: event,
+        event_type: eventType,
         from_address: from,
-        destination: to,
+        destination: destList,
         configuration_set: configSet,
-        bounce: { bounce_type: bounceType, bounce_sub_type: bounceSubType },
+        bounce: {
+          bounce_type: bounceType,
+          bounce_sub_type: bounceSubType,
+          bounced_recipients:
+            eventType === "Bounce"
+              ? [
+                  {
+                    emailAddress: to,
+                    action: "failed",
+                    status: bounceType === "Permanent" ? "5.1.1" : "4.2.2",
+                  },
+                ]
+              : [],
+        },
         complaint: {
           feedback_type:
-            event === "Complaint" ? rand(["abuse", "fraud", "virus", "not-spam"]) : null,
+            eventType === "Complaint" ? rand(["abuse", "fraud", "virus", "not-spam"]) : null,
+          complained_recipients: eventType === "Complaint" ? [{ emailAddress: to }] : [],
         },
         sending_account_id: `${acct.id}`,
         delivery: {
-          recipients: [to],
+          recipients: destList,
           timestamp: ts,
           processing_time_ms: randInt(50, 3000),
           smtp_response: isErr ? null : "250 2.0.0 OK",
@@ -402,23 +616,22 @@ function generateSesLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
-      outcome: isErr || ["Bounce", "Complaint", "Reject"].includes(event) ? "failure" : "success",
+      outcome:
+        isErr || ["Bounce", "Complaint", "Reject"].includes(eventType) ? "failure" : "success",
       category: ["email", "process"],
       dataset: "aws.ses",
       provider: "email.amazonaws.com",
       duration: randInt(50, isErr ? 5000 : 3000) * 1e6,
     },
-    message: isErr
-      ? `SES ${event} FAILED for ${to}: ${rand(["Rendering failure", "Account suspended", "Rate limit exceeded"])}`
-      : event === "Bounce"
-        ? `SES Bounce [${bounceType}/${bounceSubType}]: ${to}`
-        : event === "Complaint"
-          ? `SES Complaint from ${to}:`
-          : `SES ${event}: ${from} -> ${to}`,
+    message,
     log: {
-      level: ["Bounce", "Complaint", "Reject"].includes(event) ? "warn" : isErr ? "error" : "info",
+      level: ["Bounce", "Complaint", "Reject"].includes(eventType)
+        ? "warn"
+        : isErr
+          ? "error"
+          : "info",
     },
-    ...(isErr || ["Bounce", "Complaint", "Reject"].includes(event)
+    ...(isErr || ["Bounce", "Complaint", "Reject"].includes(eventType)
       ? { error: { code: "SESDeliveryFailure", message: "SES delivery failed", type: "email" } }
       : {}),
   };

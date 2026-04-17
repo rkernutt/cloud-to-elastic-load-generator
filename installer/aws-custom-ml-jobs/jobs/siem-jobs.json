@@ -1,13 +1,13 @@
 {
   "group": "siem",
-  "description": "SIEM anomaly detection — CloudTrail source IP anomalies, root account activity, IAM creation spikes, Route53 DNS exfiltration detection",
+  "description": "SIEM anomaly detection \u2014 CloudTrail source IP anomalies, root account activity, IAM creation spikes, Route53 DNS exfiltration detection",
   "jobs": [
     {
       "id": "aws-cloudtrail-rare-source-ip",
-      "description": "Detects API calls from unusual or previously unseen source IPs — geographic anomalies, impossible travel, or compromised credentials in use",
+      "description": "Detects API calls from unusual or previously unseen source IPs \u2014 geographic anomalies, impossible travel, or compromised credentials in use",
       "job": {
-        "description": "Detects API calls from unusual or previously unseen source IPs — geographic anomalies, impossible travel, or compromised credentials in use",
-        "groups": ["aws", "siem"],
+        "description": "Detects API calls from unusual or previously unseen source IPs \u2014 geographic anomalies, impossible travel, or compromised credentials in use",
+        "groups": ["aws", "siem", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "60m",
           "detectors": [
@@ -22,9 +22,16 @@
           "influencers": ["user.name", "source.ip", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "128mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "128mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.cloudtrail-*"],
@@ -32,24 +39,46 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.cloudtrail" } },
-              { "exists": { "field": "user.name" } },
-              { "exists": { "field": "source.ip" } }
+              {
+                "term": {
+                  "event.dataset": "aws.cloudtrail"
+                }
+              },
+              {
+                "exists": {
+                  "field": "user.name"
+                }
+              },
+              {
+                "exists": {
+                  "field": "source.ip"
+                }
+              }
             ],
-            "must_not": [{ "term": { "source.ip": "AWS Internal" } }]
+            "must_not": [
+              {
+                "term": {
+                  "source.ip": "AWS Internal"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-cloudtrail-root-activity",
-      "description": "Detects any API calls made by the AWS root account — root usage should be extremely rare and every occurrence warrants investigation",
+      "description": "Detects any API calls made by the AWS root account \u2014 root usage should be extremely rare and every occurrence warrants investigation",
       "job": {
-        "description": "Detects any API calls made by the AWS root account — root usage should be extremely rare and every occurrence warrants investigation",
-        "groups": ["aws", "siem"],
+        "description": "Detects any API calls made by the AWS root account \u2014 root usage should be extremely rare and every occurrence warrants investigation",
+        "groups": ["aws", "siem", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "60m",
           "detectors": [
@@ -62,9 +91,16 @@
           "influencers": ["cloud.account.id", "cloud.region", "event.action"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "16mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "16mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.cloudtrail-*"],
@@ -72,22 +108,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.cloudtrail" } },
-              { "term": { "aws.cloudtrail.user_identity.type": "Root" } }
+              {
+                "term": {
+                  "event.dataset": "aws.cloudtrail"
+                }
+              },
+              {
+                "term": {
+                  "aws.cloudtrail.user_identity.type": "Root"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-cloudtrail-iam-creation-spike",
-      "description": "Detects unusual spikes in IAM user, role, or policy creation — may indicate account compromise, credential abuse, or automated attack tooling",
+      "description": "Detects unusual spikes in IAM user, role, or policy creation \u2014 may indicate account compromise, credential abuse, or automated attack tooling",
       "job": {
-        "description": "Detects unusual spikes in IAM user, role, or policy creation — may indicate account compromise, credential abuse, or automated attack tooling",
-        "groups": ["aws", "siem"],
+        "description": "Detects unusual spikes in IAM user, role, or policy creation \u2014 may indicate account compromise, credential abuse, or automated attack tooling",
+        "groups": ["aws", "siem", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "30m",
           "detectors": [
@@ -101,9 +149,16 @@
           "influencers": ["user.name", "source.ip", "event.action", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "64mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.cloudtrail-*"],
@@ -111,7 +166,11 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.cloudtrail" } },
+              {
+                "term": {
+                  "event.dataset": "aws.cloudtrail"
+                }
+              },
               {
                 "terms": {
                   "event.action": [
@@ -128,17 +187,21 @@
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-route53-dns-exfiltration",
-      "description": "Detects unusually high DNS query volumes per source IP — DNS tunneling or command-and-control traffic encoded as DNS queries",
+      "description": "Detects unusually high DNS query volumes per source IP \u2014 DNS tunneling or command-and-control traffic encoded as DNS queries",
       "job": {
-        "description": "Detects unusually high DNS query volumes per source IP — DNS tunneling or command-and-control traffic encoded as DNS queries",
-        "groups": ["aws", "siem"],
+        "description": "Detects unusually high DNS query volumes per source IP \u2014 DNS tunneling or command-and-control traffic encoded as DNS queries",
+        "groups": ["aws", "siem", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -152,21 +215,38 @@
           "influencers": ["source.ip", "cloud.account.id", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "64mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.route53_public_logs" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.route53_public_logs"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

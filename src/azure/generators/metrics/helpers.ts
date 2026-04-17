@@ -1,7 +1,3 @@
-/**
- * Azure Monitor–style synthetic metric documents.
- */
-
 export {
   AZURE_REGIONS,
   AZURE_SUBSCRIPTIONS,
@@ -14,17 +10,34 @@ import { rand, randId, AZURE_REGIONS, randSubscription } from "../helpers.js";
 import type { AzureSubscription } from "../helpers.js";
 import type { EcsDocument } from "../../../aws/generators/types.js";
 
+export function buildArmResourceId(
+  subscriptionId: string,
+  resourceGroup: string,
+  providerSegments: string[]
+): string {
+  return `/subscriptions/${subscriptionId}/resourceGroups/${resourceGroup}/providers/${providerSegments.join("/")}`;
+}
+
 export function azureMetricDoc(
   ts: string,
-  serviceKey: string,
+  serviceNestedKey: string,
   dataset: string,
   region: string,
   subscription: AzureSubscription,
   resourceGroup: string,
-  labels: Record<string, unknown>,
-  metrics: Record<string, unknown>,
+  params: {
+    namespace: string;
+    resourceName: string;
+    armProviderSegments: string[];
+    dimensions: Record<string, string>;
+    metrics: Record<string, Record<string, number>>;
+  },
   period = 60_000
 ): EcsDocument {
+  const { namespace, resourceName, armProviderSegments, dimensions, metrics } = params;
+  const resourceId = buildArmResourceId(subscription.id, resourceGroup, armProviderSegments);
+  const dimensionsWithRg = { ...dimensions, ResourceGroup: resourceGroup };
+
   return {
     "@timestamp": ts,
     ecs: { version: "8.11.0" },
@@ -40,12 +53,16 @@ export function azureMetricDoc(
       ephemeral_id: randId(36).toLowerCase(),
     },
     azure: {
-      [serviceKey.replace(/-/g, "_")]: {
-        metrics,
-        labels: { resource_group: resourceGroup, ...labels },
+      [serviceNestedKey]: { metrics },
+      dimensions: dimensionsWithRg,
+      resource: {
+        id: resourceId,
+        group: resourceGroup,
+        name: resourceName,
       },
+      namespace,
     },
-    metricset: { name: serviceKey, period },
+    metricset: { name: "monitor", period },
     data_stream: { type: "metrics", dataset, namespace: "default" },
     input: { type: "azure-monitor" },
     event: { dataset, module: "azure" },
@@ -70,10 +87,10 @@ export function stat(
   avg: number,
   { sum, count = 1, max, min }: { sum?: number; count?: number; max?: number; min?: number } = {}
 ): Record<string, number> {
-  const s: Record<string, number> = { avg: dp(avg), sum: dp(sum ?? avg), count };
-  if (max !== undefined) s.max = dp(max);
-  if (min !== undefined) s.min = dp(min);
-  return s;
+  const sumV = sum ?? avg;
+  const minV = min ?? (avg === 0 && sumV === 0 ? 0 : dp(Math.min(avg, sumV) * 0.88));
+  const maxV = max ?? (avg === 0 && sumV === 0 ? 0 : dp(Math.max(avg, sumV) * 1.12));
+  return { avg: dp(avg), min: dp(minV), max: dp(maxV), sum: dp(sumV), count };
 }
 
 export function counter(value: number): Record<string, number> {

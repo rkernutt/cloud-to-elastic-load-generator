@@ -1,62 +1,82 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
+  "severity": "INFO",
+  "logName": "projects/globex-security-j0k1l2/logs/binaryauthorization.googleapis.com%2Fpolicy_events",
+  "insertId": "33dn1npv1bp",
+  "resource": {
+    "type": "gke_cluster",
+    "labels": {
+      "project_id": "globex-security-j0k1l2",
+      "cluster_name": "staging-cluster",
+      "location": "asia-southeast2"
+    }
+  },
+  "jsonPayload": {
+    "typeUrl": "type.googleapis.com/google.cloud.binaryauthorization.v1beta1.ContinuousValidationEvent",
+    "policy": "projects/globex-security-j0k1l2/platforms/gke/policies/globex-prod-policy",
+    "cluster": "projects/globex-security-j0k1l2/locations/asia-southeast2/clusters/staging-cluster",
+    "deployable": {
+      "pod_name": "production/checkout-3f1uw-nyswq",
+      "container_image": "us-docker.pkg.dev/globex-security-j0k1l2/apps/checkout:v9.0"
+    },
+    "verdict": "BREAK_GLASS",
+    "attestations": [
+      {
+        "attestor": "projects/globex-security-j0k1l2/attestors/cosign-prod",
+        "pgp_key_id": "0xBL7NJ8FC3KK"
+      }
+    ]
+  },
   "cloud": {
     "provider": "gcp",
-    "region": "us-east1",
+    "region": "asia-southeast2",
     "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
     "account": { "id": "141421356237", "name": "Globex Security" },
     "service": { "name": "binary-authorization" }
   },
   "gcp": {
     "binary_authorization": {
-      "cluster": "edge-cluster",
-      "namespace": "monitoring",
-      "pod": "checkout-cryoz-qje7z",
-      "image": "us-docker.pkg.dev/globex-security-j0k1l2/apps/checkout:v3.12",
+      "json_payload": {
+        "typeUrl": "type.googleapis.com/google.cloud.binaryauthorization.v1beta1.ContinuousValidationEvent",
+        "policy": "projects/globex-security-j0k1l2/platforms/gke/policies/globex-prod-policy",
+        "cluster": "projects/globex-security-j0k1l2/locations/asia-southeast2/clusters/staging-cluster",
+        "deployable": {
+          "pod_name": "production/checkout-3f1uw-nyswq",
+          "container_image": "us-docker.pkg.dev/globex-security-j0k1l2/apps/checkout:v9.0"
+        },
+        "verdict": "BREAK_GLASS",
+        "attestations": [
+          {
+            "attestor": "projects/globex-security-j0k1l2/attestors/cosign-prod",
+            "pgp_key_id": "0xBL7NJ8FC3KK"
+          }
+        ]
+      },
+      "cluster": "staging-cluster",
+      "namespace": "production",
+      "pod": "checkout-3f1uw-nyswq",
+      "image": "us-docker.pkg.dev/globex-security-j0k1l2/apps/checkout:v9.0",
       "attestor": "cosign-prod",
-      "verdict": "DENIED",
-      "policy_name": "pci-images-only"
+      "verdict": "BREAK_GLASS",
+      "policy_name": "globex-prod-policy"
     }
   },
   "event": {
-    "outcome": "failure",
-    "duration": 80000000,
+    "outcome": "success",
+    "duration": 15000000,
     "module": "gcp",
     "dataset": "gcp.binaryauthorization"
   },
-  "message": "Binary Authorization admission review failed for monitoring/checkout-cryoz-qje7z: policy backend error",
-  "log": { "level": "error" },
-  "error": {
-    "type": "Internal",
-    "message": "Binary Authorization policy server returned 503 during admission"
-  },
+  "message": "binaryauthorization.googleapis.com/Admission BREAK_GLASS cluster=staging-cluster image=us-docker.pkg.dev/globex-security-j0k1l2/apps/checkout:v9.0",
   "service": { "name": "binary-authorization", "type": "gcp" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.binaryauthorization", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-east1",
-    "id": "f3arljx8x4"
+    "name": "elastic-agent-gcp-asia-southeast2",
+    "id": "auqf5jq0k9f"
   },
-  "input": { "type": "http_endpoint" },
-  "logName": "projects/globex-security-j0k1l2/logs/binary-authorization",
-  "resource": {
-    "type": "global",
-    "labels": { "project_id": "globex-security-j0k1l2", "region": "us-east1" }
-  },
-  "severity": "ERROR",
-  "insertId": "DFQ3QQI5TQH",
-  "jsonPayload": {
-    "binary_authorization": {
-      "cluster": "edge-cluster",
-      "namespace": "monitoring",
-      "pod": "checkout-cryoz-qje7z",
-      "image": "us-docker.pkg.dev/globex-security-j0k1l2/apps/checkout:v3.12",
-      "attestor": "cosign-prod",
-      "verdict": "DENIED",
-      "policy_name": "pci-images-only"
-    },
-    "message": "Binary Authorization admission review failed for monitoring/checkout-cryoz-qje7z: policy backend error"
-  }
+  "input": { "type": "http_endpoint" }
 }

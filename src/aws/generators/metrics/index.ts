@@ -233,6 +233,23 @@ const GENERIC_SERVICE_IDS = [
   "healthlake",
   "deadlinecloud",
   "licensemanager",
+  "a2i",
+  "appfabric",
+  "arc",
+  "artifact",
+  "auditmanager",
+  "b2bi",
+  "chatbot",
+  "cloudhsm",
+  "codecatalyst",
+  "dataexchange",
+  "datazone",
+  "devicefarm",
+  "entityresolution",
+  "paymentcryptography",
+  "proton",
+  "securityir",
+  "supplychain",
 ];
 
 const GENERIC_GENERATORS = Object.fromEntries(

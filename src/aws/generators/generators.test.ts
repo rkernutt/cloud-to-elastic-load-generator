@@ -268,7 +268,6 @@ describe("Database generators", () => {
   });
 
   it("RDS enhanced monitoring emits os_metrics", () => {
-    // Run a few times to hit the enhanced monitoring path
     let emDoc: any = null;
     for (let i = 0; i < 20; i++) {
       const d: any = generateRdsLog(TS, 0);
@@ -278,10 +277,10 @@ describe("Database generators", () => {
       }
     }
     if (emDoc) {
-      expect(emDoc.aws.rds.os_metrics).toBeTruthy();
-      expect(emDoc.aws.rds.os_metrics).toHaveProperty("cpuUtilization");
-      expect(emDoc.aws.rds.os_metrics).toHaveProperty("memory");
-      expect(emDoc.aws.rds.os_metrics).toHaveProperty("disk");
+      expect(emDoc.aws.rds.enhanced_monitoring).toBeTruthy();
+      expect(emDoc.aws.rds.enhanced_monitoring).toHaveProperty("cpuUtilization");
+      expect(emDoc.aws.rds.enhanced_monitoring).toHaveProperty("memory");
+      expect(emDoc.aws.rds.enhanced_monitoring).toHaveProperty("disk");
     }
   });
 });

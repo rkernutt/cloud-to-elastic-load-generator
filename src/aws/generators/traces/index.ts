@@ -36,6 +36,18 @@ import { generateFirehoseTrace } from "./firehose.js";
 import { generateMskTrace } from "./msk.js";
 import { generateSnsTrace } from "./sns.js";
 import { generateBedrockAgentTrace } from "./bedrockagent.js";
+import { generateEc2Trace } from "./ec2.js";
+import { generateElastiCacheTrace } from "./elasticache.js";
+import { generateOpenSearchTrace } from "./opensearch.js";
+import { generateRedshiftTrace } from "./redshift.js";
+import { generateAthenaTrace } from "./athena.js";
+import { generateCognitoTrace } from "./cognito.js";
+import { generateCloudFrontTrace } from "./cloudfront.js";
+import { generateNeptuneTrace } from "./neptune.js";
+import { generateDocDbTrace } from "./docdb.js";
+import { generateAuroraTrace } from "./aurora.js";
+import { generateSecretsManagerTrace } from "./secretsmanager.js";
+import { generateKmsTrace } from "./kms.js";
 
 /**
  * Map of service id → trace generator function.
@@ -69,6 +81,18 @@ const TRACE_GENERATORS = {
   msk: generateMskTrace,
   sns: generateSnsTrace,
   bedrockagent: generateBedrockAgentTrace,
+  ec2: generateEc2Trace,
+  elasticache: generateElastiCacheTrace,
+  opensearch: generateOpenSearchTrace,
+  redshift: generateRedshiftTrace,
+  athena: generateAthenaTrace,
+  cognito: generateCognitoTrace,
+  cloudfront: generateCloudFrontTrace,
+  neptune: generateNeptuneTrace,
+  docdb: generateDocDbTrace,
+  aurora: generateAuroraTrace,
+  secretsmanager: generateSecretsManagerTrace,
+  kms: generateKmsTrace,
 };
 
 export { TRACE_GENERATORS };

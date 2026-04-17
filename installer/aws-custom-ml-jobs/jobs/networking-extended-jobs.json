@@ -1,13 +1,13 @@
 {
   "group": "networking-extended",
-  "description": "Extended networking anomaly detection — CloudFront error rates & cache misses, Route 53 NXDOMAIN spikes, Network Firewall drops",
+  "description": "Extended networking anomaly detection — Amazon CloudFront error rates & cache misses, Amazon Route 53 NXDOMAIN spikes, AWS Network Firewall drops",
   "jobs": [
     {
       "id": "aws-cloudfront-error-rate-spike",
       "description": "Detects unusual CDN error rates in CloudFront — origin failures and availability issues",
       "job": {
         "description": "Detects unusual CDN error rates in CloudFront — origin failures and availability issues",
-        "groups": ["aws", "networking-extended"],
+        "groups": ["aws", "networking-extended", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -20,9 +20,16 @@
           "influencers": ["cloud.region", "source.ip"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "16mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "16mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -30,22 +37,36 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.cloudfront_logs" } },
-              { "range": { "http.response.status_code": { "gte": 500 } } }
+              {
+                "term": {
+                  "event.dataset": "aws.cloudfront_logs"
+                }
+              },
+              {
+                "range": {
+                  "http.response.status_code": {
+                    "gte": 500
+                  }
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-cloudfront-cache-miss-spike",
-      "description": "Detects unusual CloudFront cache miss rate spikes — cache invalidation storms and origin overload",
+      "description": "Detects unusual Amazon CloudFront cache miss rate spikes — cache invalidation storms and origin overload",
       "job": {
         "description": "Detects unusual CloudFront cache miss rate spikes — cache invalidation storms and origin overload",
-        "groups": ["aws", "networking-extended"],
+        "groups": ["aws", "networking-extended", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -58,9 +79,16 @@
           "influencers": ["cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "16mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "16mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -68,14 +96,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.cloudfront_logs" } },
-              { "term": { "aws.cloudfront.edge_result_type": "Miss" } }
+              {
+                "term": {
+                  "event.dataset": "aws.cloudfront_logs"
+                }
+              },
+              {
+                "term": {
+                  "aws.cloudfront.edge_result_type": "Miss"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -83,7 +123,7 @@
       "description": "Detects unusual NXDOMAIN response rate spikes — DNS-based attack or misconfiguration detection",
       "job": {
         "description": "Detects unusual NXDOMAIN response rate spikes — DNS-based attack or misconfiguration detection",
-        "groups": ["aws", "networking-extended"],
+        "groups": ["aws", "networking-extended", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -96,9 +136,16 @@
           "influencers": ["source.ip", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "16mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "16mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -106,22 +153,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.route53" } },
-              { "term": { "aws.route53.response_code": "NXDOMAIN" } }
+              {
+                "term": {
+                  "event.dataset": "aws.route53"
+                }
+              },
+              {
+                "term": {
+                  "aws.route53.response_code": "NXDOMAIN"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-networkfirewall-drop-spike",
-      "description": "Detects unusual Network Firewall packet drop spikes — network perimeter anomaly detection",
+      "description": "Detects unusual AWS Network Firewall packet drop spikes — network perimeter anomaly detection",
       "job": {
         "description": "Detects unusual Network Firewall packet drop spikes — network perimeter anomaly detection",
-        "groups": ["aws", "networking-extended"],
+        "groups": ["aws", "networking-extended", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -134,9 +193,16 @@
           "influencers": ["source.ip", "destination.port"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "16mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "16mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -144,14 +210,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.firewall_logs" } },
-              { "term": { "event.action": "drop" } }
+              {
+                "term": {
+                  "event.dataset": "aws.firewall_logs"
+                }
+              },
+              {
+                "term": {
+                  "event.action": "drop"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

@@ -3,26 +3,49 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "australiaeast",
-    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" }
+    "region": "canadacentral",
+    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-australiaeast",
-    "ephemeral_id": "r5z1a8kcwf"
+    "name": "metricbeat-azure-canadacentral",
+    "ephemeral_id": "vahusyfawd"
   },
   "azure": {
     "aks": {
       "metrics": {
-        "pod_count": { "avg": 240, "sum": 240, "count": 1 },
-        "cpu_usage": { "avg": 79.65, "sum": 79.65, "count": 1 },
-        "failed_pods": { "avg": 0, "sum": 0, "count": 1 }
-      },
-      "labels": { "resource_group": "rg-shared-m302x", "node_name": "nodepool-0" }
-    }
+        "node_cpu_usage_percentage": {
+          "avg": 67.7,
+          "min": 59.58,
+          "max": 75.82,
+          "sum": 67.7,
+          "count": 1
+        },
+        "node_memory_rss_percentage": {
+          "avg": 31.68,
+          "min": 27.88,
+          "max": 35.48,
+          "sum": 31.68,
+          "count": 1
+        },
+        "kube_pod_status_ready": { "avg": 0.83, "min": 0.73, "max": 0.93, "sum": 0.83, "count": 1 }
+      }
+    },
+    "dimensions": {
+      "node": "nodepool-0",
+      "namespace": "payments",
+      "pod": "pod-ingress-49",
+      "ResourceGroup": "rg-data-5l375"
+    },
+    "resource": {
+      "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-data-5l375/providers/Microsoft.ContainerService/managedClusters/aks-prod",
+      "group": "rg-data-5l375",
+      "name": "aks-prod"
+    },
+    "namespace": "Microsoft.ContainerService/managedClusters"
   },
-  "metricset": { "name": "aks", "period": 60000 },
+  "metricset": { "name": "monitor", "period": 60000 },
   "data_stream": {
     "type": "metrics",
     "dataset": "azure.kubernetes_metrics",
@@ -32,9 +55,9 @@
   "event": { "dataset": "azure.kubernetes_metrics", "module": "azure" },
   "azureMonitorMetric": {
     "time": "2026-04-07T12:00:00.000Z",
-    "metricName": "pod_count",
+    "metricName": "node_cpu_usage_percentage",
     "resourceGroup": "rg-aks",
-    "subscriptionId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-    "timeseries": [{ "data": [{ "average": 240, "count": 1 }] }]
+    "subscriptionId": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
+    "timeseries": [{ "data": [{ "average": 67.7, "count": 1 }] }]
   }
 }

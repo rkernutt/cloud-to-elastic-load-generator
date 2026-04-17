@@ -1,7 +1,3 @@
-/**
- * Cloud Build OTel trace: Build pipeline with sequential step spans.
- */
-
 import type { EcsDocument } from "../helpers.js";
 import {
   rand,
@@ -13,9 +9,7 @@ import {
   randSpanId,
 } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-
-const APM_AGENT = { name: "opentelemetry/nodejs", version: "1.x" } as const;
-const APM_DS = { type: "traces", dataset: "apm", namespace: "default" } as const;
+import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
 
 const BUILD_STEPS = ["pull", "install", "test", "build", "push"] as const;
 type BuildStep = (typeof BUILD_STEPS)[number];
@@ -35,11 +29,16 @@ export function generateCloudBuildTrace(ts: string, er: number): EcsDocument[] {
   const base = new Date(ts);
   const env = rand(["production", "production", "staging", "dev"]);
   const buildId = randId(8).toLowerCase();
+  const otel = gcpOtelMeta("python");
+  const svc = gcpServiceBase("cloud-build", env, "python", {
+    framework: "Google Cloud Build",
+    runtimeName: "python",
+    runtimeVersion: "3.12",
+  });
 
   const numSteps = randInt(3, 5);
   const steps = BUILD_STEPS.slice(0, numSteps) as BuildStep[];
 
-  // On error: pick test or build as the failing step
   const failStep: BuildStep | null = isErr ? rand(["test", "build"] as BuildStep[]) : null;
   const failIdx = failStep !== null ? steps.indexOf(failStep) : -1;
 
@@ -48,11 +47,11 @@ export function generateCloudBuildTrace(ts: string, er: number): EcsDocument[] {
   const spanDocs: EcsDocument[] = [];
 
   for (let i = 0; i < steps.length; i++) {
-    const step = steps[i];
+    const step = steps[i]!;
     const isSkipped = failIdx >= 0 && i > failIdx;
     const isFailStep = i === failIdx;
 
-    if (isSkipped) break; // subsequent steps skipped after failure
+    if (isSkipped) break;
 
     const [minUs, maxUs] = STEP_BASE_US[step];
     const stepUs = randInt(minUs, maxUs) * (isFailStep ? randInt(1, 2) : 1);
@@ -72,19 +71,18 @@ export function generateCloudBuildTrace(ts: string, er: number): EcsDocument[] {
         name: `step: ${step}`,
         duration: { us: stepUs },
         action: step,
-        labels: { step_name: step, step_index: String(i) },
+        labels: {
+          step_name: step,
+          step_index: String(i),
+          ...(isFailStep ? { "gcp.cloudbuild.status": "FAILURE" } : {}),
+        },
       },
-      service: {
-        name: "cloud-build",
-        environment: env,
-        language: { name: "python" },
-        runtime: { name: "python", version: "3.12" },
-        framework: { name: "Google Cloud Build" },
-      },
+      service: svc,
       cloud: gcpCloud(region, project, "cloudbuild.googleapis.com"),
-      agent: APM_AGENT,
       data_stream: APM_DS,
       event: { outcome: isFailStep ? "failure" : "success" },
+      ...otel,
+      ...gcpCloudTraceMeta(project.id, traceId, sSpan),
     });
     offsetMs += Math.max(1, Math.round(stepUs / 1000));
   }
@@ -103,18 +101,13 @@ export function generateCloudBuildTrace(ts: string, er: number): EcsDocument[] {
       sampled: true,
       span_count: { started: spanDocs.length, dropped: 0 },
     },
-    service: {
-      name: "cloud-build",
-      environment: env,
-      language: { name: "python" },
-      runtime: { name: "python", version: "3.12" },
-      framework: { name: "Google Cloud Build" },
-    },
+    service: svc,
     cloud: gcpCloud(region, project, "cloudbuild.googleapis.com"),
-    agent: APM_AGENT,
+    labels: { build_id: buildId, failed_step: failStep ?? "" },
     data_stream: APM_DS,
     event: { outcome: isErr ? "failure" : "success" },
-    labels: { build_id: buildId, failed_step: failStep ?? "" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, txId),
   };
 
   return [txDoc, ...spanDocs];

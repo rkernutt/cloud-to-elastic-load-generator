@@ -1,12 +1,12 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "67b6fd0d559413eb8e5c848fadc5c9ef" },
+  "trace": { "id": "4a8f959c28f448b05968e033b57f2d16" },
   "transaction": {
-    "id": "1bfb698a2bd70afe",
-    "name": "GET /v1/orders/checkout",
+    "id": "cb32c9ac6c89584b",
+    "name": "GET /v1/orders/allocate",
     "type": "request",
-    "duration": { "us": 3235146 },
+    "duration": { "us": 7154069 },
     "result": "HTTP 2xx",
     "sampled": true,
     "span_count": { "started": 4, "dropped": 0 }
@@ -14,26 +14,24 @@
   "service": {
     "name": "api-gateway",
     "environment": "staging",
+    "version": "1.0.0",
     "language": { "name": "go" },
-    "runtime": { "name": "go", "version": "1.22" },
-    "framework": { "name": "API Gateway" }
+    "framework": { "name": "API Gateway" },
+    "runtime": { "name": "go", "version": "1.22" }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west8",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "region": "us-east1",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" },
     "service": { "name": "apigateway.googleapis.com" }
   },
-  "agent": { "name": "opentelemetry/nodejs", "version": "1.x" },
+  "labels": { "gcp.workflow": "cascading_failure" },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
   "event": { "outcome": "success", "module": "gcp", "dataset": "gcp.workflow_cascading" },
   "ecs": { "version": "8.11.0" },
   "input": { "type": "opentelemetry" },
-  "gcpCloudTrace": {
-    "trace": "projects/globex-staging-d4e5f6/traces/67b6fd0d559413eb8e5c848fadc5c9ef",
-    "spanId": "1bfb698a2bd70afe"
-  },
+  "agent": { "name": "opentelemetry/go", "version": "1.x" },
   "telemetry": {
     "sdk": { "name": "opentelemetry", "language": "go", "version": "1.32.0" },
     "distro": { "name": "elastic", "version": "8.18.0" },
@@ -42,5 +40,9 @@
       "export_protocol": "otlp",
       "destination": "elastic_managed"
     }
+  },
+  "gcpCloudTrace": {
+    "trace": "projects/globex-dev-g7h8i9/traces/4a8f959c28f448b05968e033b57f2d16",
+    "spanId": "cb32c9ac6c89584b"
   }
 }

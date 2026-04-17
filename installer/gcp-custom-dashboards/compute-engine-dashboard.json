@@ -1,5 +1,5 @@
 {
-  "title": "GCP Compute Engine — Instance Events",
+  "title": "GCP Compute Engine \u2014 Instance Events",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -127,7 +127,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.compute* | KEEP `@timestamp`, `gcp.compute_engine.instance_name`, `gcp.compute_engine.zone`, `gcp.compute_engine.machine_type`, `gcp.compute_engine.event_type`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.compute* | KEEP `@timestamp`, `gcp.compute_engine.instance_name`, `gcp.compute_engine.zone`, `gcp.compute_engine.machine_type`, `gcp.compute_engine.event_type`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
@@ -157,8 +157,8 @@
             },
             {
               "operation": "value",
-              "column": "log.level",
-              "label": "Log level"
+              "column": "event.outcome",
+              "label": "Outcome"
             },
             {
               "operation": "value",

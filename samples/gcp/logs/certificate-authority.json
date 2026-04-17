@@ -1,53 +1,151 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
+  "severity": "ERROR",
+  "logName": "projects/globex-prod-a1b2c3/logs/cloudaudit.googleapis.com%2Factivity",
+  "insertId": "t8ak076xdm",
+  "resource": {
+    "type": "privateca_certificate_authority",
+    "labels": {
+      "project_id": "globex-prod-a1b2c3",
+      "location": "africa-south1",
+      "ca_pool": "workload-identity"
+    }
+  },
+  "protoPayload": {
+    "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+    "authenticationInfo": {
+      "principalEmail": "gke-node-sa@globex-prod-a1b2c3.iam.gserviceaccount.com"
+    },
+    "authorizationInfo": [
+      {
+        "resource": "//privateca.googleapis.com/projects/globex-prod-a1b2c3/locations/africa-south1/caPools/workload-identity/certificateAuthorities/intermediate-prod",
+        "permission": "privateca.certificates.create",
+        "granted": false
+      }
+    ],
+    "methodName": "google.cloud.security.privateca.v1.CertificateAuthorityService.IssueCertificate",
+    "serviceName": "privateca.googleapis.com",
+    "resourceName": "projects/globex-prod-a1b2c3/locations/africa-south1/caPools/workload-identity/certificateAuthorities/intermediate-prod/certificates/lltclmxdj7d",
+    "requestMetadata": {
+      "callerIp": "193.224.67.102",
+      "callerSuppliedUserAgent": "python-requests/2.27.1",
+      "requestAttributes": {}
+    },
+    "request": {
+      "parent": "projects/globex-prod-a1b2c3/locations/africa-south1/caPools/workload-identity/certificateAuthorities/intermediate-prod",
+      "certificateId": "lltclmxdj7d",
+      "request": {
+        "pemCsr": "-----BEGIN CERTIFICATE REQUEST-----\nMIIB...\n-----END CERTIFICATE REQUEST-----",
+        "validity": { "lifetime": "10022400s" },
+        "publicKeyAlgorithm": "RSA_PKCS1_2048_SHA256"
+      }
+    }
+  },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west4",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" },
+    "region": "africa-south1",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
     "service": { "name": "certificate-authority-service" }
   },
   "gcp": {
     "certificate_authority": {
+      "proto_payload": {
+        "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+        "authenticationInfo": {
+          "principalEmail": "gke-node-sa@globex-prod-a1b2c3.iam.gserviceaccount.com"
+        },
+        "authorizationInfo": [
+          {
+            "resource": "//privateca.googleapis.com/projects/globex-prod-a1b2c3/locations/africa-south1/caPools/workload-identity/certificateAuthorities/intermediate-prod",
+            "permission": "privateca.certificates.create",
+            "granted": false
+          }
+        ],
+        "methodName": "google.cloud.security.privateca.v1.CertificateAuthorityService.IssueCertificate",
+        "serviceName": "privateca.googleapis.com",
+        "resourceName": "projects/globex-prod-a1b2c3/locations/africa-south1/caPools/workload-identity/certificateAuthorities/intermediate-prod/certificates/lltclmxdj7d",
+        "requestMetadata": {
+          "callerIp": "193.224.67.102",
+          "callerSuppliedUserAgent": "python-requests/2.27.1",
+          "requestAttributes": {}
+        },
+        "request": {
+          "parent": "projects/globex-prod-a1b2c3/locations/africa-south1/caPools/workload-identity/certificateAuthorities/intermediate-prod",
+          "certificateId": "lltclmxdj7d",
+          "request": {
+            "pemCsr": "-----BEGIN CERTIFICATE REQUEST-----\nMIIB...\n-----END CERTIFICATE REQUEST-----",
+            "validity": { "lifetime": "10022400s" },
+            "publicKeyAlgorithm": "RSA_PKCS1_2048_SHA256"
+          }
+        }
+      },
       "ca_pool": "workload-identity",
       "ca_name": "intermediate-prod",
-      "certificate_id": "qfo5n67pki",
-      "operation": "EnableCA",
-      "validity_days": 79,
-      "key_algorithm": "EC_P256_SHA256",
-      "location": "europe-west4"
+      "certificate_id": "lltclmxdj7d",
+      "operation": "IssueCertificate",
+      "validity_days": 116,
+      "key_algorithm": "RSA_PKCS1_2048_SHA256",
+      "location": "africa-south1"
     }
   },
-  "event": { "outcome": "success", "duration": 196000000, "module": "gcp", "dataset": "gcp.cas" },
-  "message": "Private CA EnableCA: issued cert qfo5n67pki (79d, EC_P256_SHA256)",
-  "log": { "level": "info" },
+  "event": { "outcome": "failure", "duration": 1395000000, "module": "gcp", "dataset": "gcp.cas" },
+  "message": "privateca.googleapis.com google.cloud.security.privateca.v1.CertificateAuthorityService.IssueCertificate projects/globex-prod-a1b2c3/locations/africa-south1/caPools/workload-identity/certificateAuthorities/intermediate-prod",
+  "error": {
+    "type": "InvalidArgument",
+    "message": "Certificate template does not allow requested SANs"
+  },
   "service": { "name": "certificate-authority", "type": "gcp" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.cas", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west4",
-    "id": "t3981lrintk"
+    "name": "elastic-agent-gcp-africa-south1",
+    "id": "eiu9otia1ei"
   },
   "input": { "type": "http_endpoint" },
-  "logName": "projects/globex-security-j0k1l2/logs/certificate-authority",
-  "resource": {
-    "type": "global",
-    "labels": { "project_id": "globex-security-j0k1l2", "region": "europe-west4" }
-  },
-  "severity": "INFO",
-  "insertId": "9BERGZI0GN",
   "jsonPayload": {
     "certificate_authority": {
+      "proto_payload": {
+        "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+        "authenticationInfo": {
+          "principalEmail": "gke-node-sa@globex-prod-a1b2c3.iam.gserviceaccount.com"
+        },
+        "authorizationInfo": [
+          {
+            "resource": "//privateca.googleapis.com/projects/globex-prod-a1b2c3/locations/africa-south1/caPools/workload-identity/certificateAuthorities/intermediate-prod",
+            "permission": "privateca.certificates.create",
+            "granted": false
+          }
+        ],
+        "methodName": "google.cloud.security.privateca.v1.CertificateAuthorityService.IssueCertificate",
+        "serviceName": "privateca.googleapis.com",
+        "resourceName": "projects/globex-prod-a1b2c3/locations/africa-south1/caPools/workload-identity/certificateAuthorities/intermediate-prod/certificates/lltclmxdj7d",
+        "requestMetadata": {
+          "callerIp": "193.224.67.102",
+          "callerSuppliedUserAgent": "python-requests/2.27.1",
+          "requestAttributes": {}
+        },
+        "request": {
+          "parent": "projects/globex-prod-a1b2c3/locations/africa-south1/caPools/workload-identity/certificateAuthorities/intermediate-prod",
+          "certificateId": "lltclmxdj7d",
+          "request": {
+            "pemCsr": "-----BEGIN CERTIFICATE REQUEST-----\nMIIB...\n-----END CERTIFICATE REQUEST-----",
+            "validity": { "lifetime": "10022400s" },
+            "publicKeyAlgorithm": "RSA_PKCS1_2048_SHA256"
+          }
+        }
+      },
       "ca_pool": "workload-identity",
       "ca_name": "intermediate-prod",
-      "certificate_id": "qfo5n67pki",
-      "operation": "EnableCA",
-      "validity_days": 79,
-      "key_algorithm": "EC_P256_SHA256",
-      "location": "europe-west4"
+      "certificate_id": "lltclmxdj7d",
+      "operation": "IssueCertificate",
+      "validity_days": 116,
+      "key_algorithm": "RSA_PKCS1_2048_SHA256",
+      "location": "africa-south1"
     },
-    "message": "Private CA EnableCA: issued cert qfo5n67pki (79d, EC_P256_SHA256)"
+    "message": "privateca.googleapis.com google.cloud.security.privateca.v1.CertificateAuthorityService.IssueCertificate projects/globex-prod-a1b2c3/locations/africa-south1/caPools/workload-identity/certificateAuthorities/intermediate-prod"
   }
 }

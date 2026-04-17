@@ -3,27 +3,52 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "qatarcentral",
-    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" }
+    "region": "northeurope",
+    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-qatarcentral",
-    "ephemeral_id": "91bbh2lod6p"
+    "name": "metricbeat-azure-northeurope",
+    "ephemeral_id": "ufourb0x25"
   },
   "azure": {
     "app_service": {
       "metrics": {
-        "cpu_percent": { "avg": 59.81, "sum": 59.81, "count": 1 },
-        "network_in": { "avg": 252839366, "sum": 252839366, "count": 1 },
-        "network_out": { "avg": 223217385, "sum": 223217385, "count": 1 },
-        "disk_ops": { "avg": 403, "sum": 403, "count": 1 }
-      },
-      "labels": { "resource_group": "rg-shared-m02h7", "instance_id": "vm-1" }
-    }
+        "Http2xx": {
+          "avg": 1142585,
+          "min": 1005474.8,
+          "max": 1279695.2,
+          "sum": 1142585,
+          "count": 1
+        },
+        "Http5xx": { "avg": 43, "min": 37.84, "max": 48.16, "sum": 43, "count": 1 },
+        "AverageResponseTime": {
+          "avg": 147.05,
+          "min": 129.4,
+          "max": 164.7,
+          "sum": 147.05,
+          "count": 1
+        },
+        "CpuTime": { "avg": 219371, "min": 193046.48, "max": 245695.52, "sum": 219371, "count": 1 },
+        "MemoryWorkingSet": {
+          "avg": 302974998.04,
+          "min": 266617998.28,
+          "max": 339331997.8,
+          "sum": 302974998.04,
+          "count": 1
+        }
+      }
+    },
+    "dimensions": { "Instance": "web-prod__3", "ResourceGroup": "rg-shared-afbbc" },
+    "resource": {
+      "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-shared-afbbc/providers/Microsoft.Web/sites/web-prod",
+      "group": "rg-shared-afbbc",
+      "name": "web-prod"
+    },
+    "namespace": "Microsoft.Web/sites"
   },
-  "metricset": { "name": "app_service", "period": 60000 },
+  "metricset": { "name": "monitor", "period": 60000 },
   "data_stream": {
     "type": "metrics",
     "dataset": "azure.app_service_metrics",
@@ -33,9 +58,9 @@
   "event": { "dataset": "azure.app_service_metrics", "module": "azure" },
   "azureMonitorMetric": {
     "time": "2026-04-07T12:00:00.000Z",
-    "metricName": "cpu_percent",
+    "metricName": "Http2xx",
     "resourceGroup": "rg-app-service",
-    "subscriptionId": "8f6b5c4d-3e2a-1098-7654-3210fedcba98",
-    "timeseries": [{ "data": [{ "average": 59.81, "count": 1 }] }]
+    "subscriptionId": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
+    "timeseries": [{ "data": [{ "average": 1142585, "count": 1 }] }]
   }
 }

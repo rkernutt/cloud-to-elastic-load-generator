@@ -1,31 +1,31 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "us-east-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "transitgateway" }
   },
   "aws": {
     "dimensions": {
-      "TransitGateway": "tgw-q3skzlrcjdm",
-      "TransitGatewayAttachment": "tgw-attach-sa81i5pk6fb"
+      "TransitGateway": "tgw-krqfvfe0zk",
+      "TransitGatewayAttachment": "tgw-attach-ctpn8cnlmc"
     },
     "transitgateway": {
-      "tgw_id": "tgw-q3skzlrcjdm",
-      "tgw_attachment_id": "tgw-attach-sa81i5pk6fb",
+      "tgw_id": "tgw-krqfvfe0zk",
+      "tgw_attachment_id": "tgw-attach-ctpn8cnlmc",
       "resource_type": "vpn",
-      "src_vpc_id": "vpc-hzs3h8km",
-      "dst_vpc_id": "vpc-cwzoryae",
-      "action": "accept",
-      "bytes": 16691,
-      "packets": 77,
+      "src_vpc_id": "vpc-e85ia4t1",
+      "dst_vpc_id": "vpc-uvg5dza0",
+      "action": "blackhole",
+      "bytes": 32336,
+      "packets": 74,
       "protocol": "TCP",
       "metrics": {
-        "BytesIn": { "sum": 6048332031 },
-        "BytesOut": { "sum": 4640182039 },
-        "PacketsIn": { "sum": 3636988 },
-        "PacketsOut": { "sum": 1321367 },
+        "BytesIn": { "sum": 9061096808 },
+        "BytesOut": { "sum": 1121199322 },
+        "PacketsIn": { "sum": 3693621 },
+        "PacketsOut": { "sum": 6785128 },
         "PacketDropCountBlackhole": { "sum": 0 },
         "PacketDropCountNoRoute": { "sum": 0 },
         "BytesDropCountBlackhole": { "sum": 0 },
@@ -34,40 +34,45 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-transitgateway-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-transitgateway-logs-814726593401"
+        "name": "aws-transitgateway-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-transitgateway-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/transitgateway/eu-north-1/2026/04/15/transitgateway_6NXQEBU1B4Y.log.gz"
+        "key": "AWSLogs/501938274650/transitgateway/us-east-2/2026/04/17/transitgateway_GPXT365MNR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/transitgateway/logs",
-      "log_stream": "eu-north-1/nvx38ls9",
-      "ingestion_time": "2026-04-15T13:24:36.254Z"
+      "log_stream": "us-east-2/0l00csns",
+      "ingestion_time": "2026-04-17T09:05:18.882Z"
     }
   },
-  "source": { "ip": "44.7.209.238", "port": 26973 },
-  "destination": { "ip": "212.3.95.111", "port": 3306 },
-  "network": { "transport": "tcp", "bytes": 37666 },
+  "source": { "ip": "208.205.167.121", "port": 11115 },
+  "destination": { "ip": "54.138.226.218", "port": 443 },
+  "network": { "transport": "tcp", "bytes": 23124 },
   "event": {
-    "action": "accept",
-    "outcome": "success",
+    "action": "blackhole",
+    "outcome": "failure",
     "category": ["network"],
     "dataset": "aws.transitgateway",
     "provider": "ec2.amazonaws.com",
     "module": "aws"
   },
-  "message": "TGW tgw-q3skzlrcjdm ACCEPT TCP flow",
-  "log": { "level": "info" },
+  "message": "TGW tgw-krqfvfe0zk BLACKHOLE TCP flow",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "FlowDropped",
+    "message": "TGW blackhole - no route or blackhole",
+    "type": "network"
+  },
   "service": { "name": "transitgateway", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.transitgateway", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "uymositmwk"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "85bgsm4zv7c"
   },
   "input": { "type": "aws-cloudwatch" }
 }

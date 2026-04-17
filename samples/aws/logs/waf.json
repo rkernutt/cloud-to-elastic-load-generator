@@ -1,31 +1,26 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-southeast-3",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "waf" }
   },
   "aws": {
-    "dimensions": {
-      "WebACL": "prod-waf",
-      "Rule": "AWSManagedRulesWordPressRuleSet",
-      "Region": "eu-south-1"
-    },
+    "dimensions": { "WebACL": "prod-waf", "Rule": "CustomSQLiRule", "Region": "ap-southeast-3" },
     "waf": {
-      "id": "w97kkkvvsae",
-      "arn": "arn:aws:wafv2:eu-south-1:814726593401:regional/webacl/prod-waf/gnobqspd-6d5r-g53e-64k3-8w28q2gfsco",
+      "id": "stg4ubzkd6r",
+      "arn": "arn:aws:wafv2:ap-southeast-3:738291046572:regional/webacl/prod-waf/50b0a26p-ydb4-qwue-f0yh-04p48ejqv3gg",
       "format_version": "1",
-      "source": { "name": "ALB", "id": "814726593401-app/prod-waf/7xbd6f94y9w" },
-      "rule_group_list": [
-        { "ruleGroupId": "AWSManagedRulesWordPressRuleSet", "nonTerminatingMatchingRules": [] }
-      ],
+      "source": { "name": "ALB", "id": "738291046572-app/prod-waf/8z333z05du2" },
+      "rule_group_list": [{ "ruleGroupId": "CustomSQLiRule", "nonTerminatingMatchingRules": [] }],
       "non_terminating_matching_rules": [],
       "terminating_rule_match_details": [],
       "request": {
         "headers": [
-          { "name": "User-Agent", "value": "python-requests/2.27.1" },
-          { "name": "Host", "value": "api.example.com" }
+          { "name": "Host", "value": "api.example.com" },
+          { "name": "User-Agent", "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
+          { "name": "Accept", "value": "*/*" }
         ]
       },
       "labels": [],
@@ -37,26 +32,51 @@
         "RequestsWithValidCaptchaToken": { "sum": 0 },
         "ChallengeRequests": { "sum": 0 },
         "FailedCaptcha": { "sum": 0 }
-      }
+      },
+      "webaclId": "50b0a26p-ydb4-qwue-f0yh-04p48ejqv3gg",
+      "terminatingRuleId": "NoUserAgent_HEADER",
+      "terminatingRuleType": "GROUP",
+      "action": "ALLOW",
+      "httpRequest": {
+        "clientIp": "87.232.137.70",
+        "country": "US",
+        "headers": [
+          { "name": "Host", "value": "api.example.com" },
+          { "name": "User-Agent", "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
+          { "name": "Accept", "value": "*/*" }
+        ],
+        "httpMethod": "DELETE",
+        "httpVersion": "HTTP/1.1",
+        "uri": "/api/v1/auth/login"
+      },
+      "httpSourceId": "738291046572-app/prod-waf/8z333z05du2",
+      "rateBasedRuleList": [],
+      "nonTerminatingMatchingRules": [
+        { "ruleId": "SizeRestrictions_BODY", "action": "COUNT", "ruleMatchDetails": [] }
+      ],
+      "requestHeadersInserted": [],
+      "responseCodeSent": 200
     },
     "s3": {
       "bucket": {
-        "name": "aws-waf-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-waf-logs-814726593401"
+        "name": "aws-waf-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-waf-logs-738291046572"
       },
-      "object": { "key": "AWSLogs/814726593401/waf/eu-south-1/2026/04/15/waf_ZUYMYOMKZVN.log.gz" }
+      "object": {
+        "key": "AWSLogs/738291046572/waf/ap-southeast-3/2026/04/17/waf_8OUF3ANGOZW.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/waf/logs",
-      "log_stream": "eu-south-1/nj50bh1m",
-      "ingestion_time": "2026-04-15T13:24:36.245Z"
+      "log_stream": "ap-southeast-3/eg0d1pzr",
+      "ingestion_time": "2026-04-17T09:05:18.871Z"
     }
   },
-  "rule": { "id": "GenericRFI_BODY", "ruleset": "AWSManagedRulesWordPressRuleSet" },
-  "http": { "request": { "method": "GET", "bytes": 4460 } },
-  "url": { "path": "/api/v1/orders" },
+  "rule": { "id": "NoUserAgent_HEADER", "ruleset": "CustomSQLiRule" },
+  "http": { "request": { "method": "DELETE", "bytes": 3400 } },
+  "url": { "path": "/api/v1/auth/login" },
   "source": {
-    "ip": "232.33.39.162",
+    "ip": "87.232.137.70",
     "geo": {
       "country_iso_code": "US",
       "country_name": "United States",
@@ -65,7 +85,7 @@
     }
   },
   "client": {
-    "ip": "232.33.39.162",
+    "ip": "87.232.137.70",
     "geo": {
       "country_iso_code": "US",
       "country_name": "United States",
@@ -73,17 +93,17 @@
       "location": { "lat": 40.7128, "lon": -74.006 }
     }
   },
-  "user_agent": { "original": "python-requests/2.27.1" },
+  "user_agent": { "original": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
   "event": {
     "action": "allow",
     "outcome": "success",
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
-    "duration": 9000000,
+    "duration": 10000000,
     "module": "aws"
   },
-  "message": "WAF ALLOWED request - Rule: AWSManagedRulesWordPressRuleSet",
+  "message": "{\"timestamp\":\"2026-04-17T09:05:18.304Z\",\"formatVersion\":1,\"webaclId\":\"50b0a26p-ydb4-qwue-f0yh-04p48ejqv3gg\",\"terminatingRuleId\":\"NoUserAgent_HEADER\",\"terminatingRuleType\":\"GROUP\",\"action\":\"ALLOW\",\"httpRequest\":{\"clientIp\":\"87.232.137.70\",\"country\":\"US\",\"headers\":[{\"name\":\"Host\",\"value\":\"api.example.com\"},{\"name\":\"User-Agent\",\"value\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\"},{\"name\":\"Accept\",\"value\":\"*/*\"}],\"httpMethod\":\"DELETE\",\"httpVersion\":\"HTTP/1.1\",\"uri\":\"/api/v1/auth/login\"},\"httpSourceId\":\"738291046572-app/prod-waf/8z333z05du2\",\"rateBasedRuleList\":[],\"nonTerminatingMatchingRules\":[{\"ruleId\":\"SizeRestrictions_BODY\",\"action\":\"COUNT\",\"ruleMatchDetails\":[]}],\"requestHeadersInserted\":[],\"responseCodeSent\":200}",
   "log": { "level": "info" },
   "service": { "name": "waf", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -91,8 +111,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "fth291i5zu8"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "xtmnrcnjl3"
   },
   "input": { "type": "aws-s3" }
 }

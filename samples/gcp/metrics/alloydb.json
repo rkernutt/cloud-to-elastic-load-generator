@@ -3,45 +3,46 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west3",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "europe-southwest1",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-us-west3",
-    "ephemeral_id": "z08maoiga99"
+    "name": "metricbeat-gcp-europe-southwest1",
+    "ephemeral_id": "s5npshcsvt"
+  },
+  "monitoringTimeSeries": {
+    "metric": { "type": "cloudsql.googleapis.com/database/cpu/utilization", "labels": {} },
+    "resource": {
+      "type": "cloudsql_database",
+      "labels": {
+        "project_id": "globex-dev-g7h8i9",
+        "database_id": "globex:db-primary",
+        "region": "europe-southwest1"
+      }
+    },
+    "metricKind": "GAUGE",
+    "valueType": "DOUBLE",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 0.68 } }
+    ]
   },
   "gcp": {
     "alloydb": {
-      "metrics": {
-        "cpu_utilization": { "avg": 56.46, "sum": 56.46, "count": 1 },
-        "memory_utilization": { "avg": 49.05, "sum": 49.05, "count": 1 },
-        "connections": { "avg": 1188, "sum": 1188, "count": 1 },
-        "queries": { "avg": 226616, "sum": 226616, "count": 1 },
-        "errors": { "avg": 0, "sum": 0, "count": 1 }
+      "labels": {
+        "project_id": "globex-dev-g7h8i9",
+        "database_id": "globex:db-primary",
+        "region": "europe-southwest1"
       },
-      "labels": { "database_id": "db-primary" }
+      "metrics": {
+        "cloudsql.googleapis.com/database/cpu/utilization": { "avg": 0.68, "sum": 0.68, "count": 1 }
+      }
     }
   },
   "metricset": { "name": "alloydb", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.alloydb_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.alloydb_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/alloydb/cpu_utilization",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-prod-a1b2c3", "region": "us-west3" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 56.46 } }
-    ]
-  }
+  "event": { "dataset": "gcp.alloydb_metrics", "module": "gcp" }
 }

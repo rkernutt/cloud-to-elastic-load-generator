@@ -8,48 +8,238 @@ import {
   randInt,
   randFloat,
   randId,
+  randUUID,
   gcpCloud,
   makeGcpSetup,
   randGkeCluster,
   randGkePod,
   randGkeNamespace,
   randSeverity,
+  randHttpStatus,
+  randLatencyMs,
+  randTraceId,
+  randSpanId,
+  randIp,
+  HTTP_METHODS,
+  HTTP_PATHS,
+  USER_AGENTS,
 } from "./helpers.js";
+
+function insertId(): string {
+  return randId(12).toUpperCase();
+}
+
+function kubeletDatePrefix(ts: string): { prefix: string; clock: string } {
+  const d = new Date(ts);
+  const mon = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  const hh = String(d.getUTCHours()).padStart(2, "0");
+  const mm = String(d.getUTCMinutes()).padStart(2, "0");
+  const ss = String(d.getUTCSeconds()).padStart(2, "0");
+  const ms = String(d.getUTCMilliseconds()).padStart(3, "0");
+  return { prefix: `I${mon}${day}`, clock: `${hh}:${mm}:${ss}.${ms}` };
+}
 
 export function generateGkeLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const cluster = randGkeCluster();
+  const clusterName = randGkeCluster();
   const namespace = randGkeNamespace();
-  const pod = randGkePod();
+  const podName = randGkePod();
   const containerName = rand(["app", "sidecar", "istio-proxy", "metrics", "worker"]);
-  const nodeName = `gke-${cluster}-${randId(4).toLowerCase()}-${rand(["abc", "def", "ghi"])}-${randInt(0, 9)}-${randId(4).toLowerCase()}`;
-  const eventType = isErr
-    ? rand(["Unhealthy", "Evicted", "OOMKilled", "Pulling"] as const)
-    : rand(["PodScheduled", "Pulling", "Created", "Started"] as const);
-  const severity = randSeverity(isErr);
-  const message = isErr
-    ? `GKE ${cluster}/${namespace}: pod ${pod} on ${nodeName} — ${eventType} (${severity}): ${rand(["Liveness probe failed", "Back-off pulling image", "Container OOMKilled", "Evicted due to disk pressure"])}`
-    : `GKE ${cluster}/${namespace}: ${eventType} for pod ${pod} container ${containerName} on ${nodeName}`;
+  const nodePool = rand([
+    "default-pool",
+    `pool-${randId(4).toLowerCase()}`,
+    "system-pool",
+    "spot-pool",
+  ]);
+  const nodeName = `gke-${clusterName}-${nodePool}-${randId(4).toLowerCase()}-${rand(["abc", "def", "ghi"])}-${randInt(0, 9)}-${randId(4).toLowerCase()}`;
+  const podUid = randUUID();
+  const style = randInt(0, 6);
+  const location = region;
+  const padPid = (n: number) => String(n).padStart(5, "0");
+
+  let message: string;
+  let eventType: string;
+  let severity: string;
+  let outcome: "success" | "failure";
+  let duration: number;
+  let auditLogName: string | undefined;
+  const extra: Record<string, unknown> = {};
+
+  if (style === 0) {
+    const payload = isErr
+      ? {
+          level: "error",
+          msg: rand(["unhandled rejection", "ETIMEDOUT connecting to redis", "5xx from upstream"]),
+          trace_id: randTraceId(),
+        }
+      : {
+          level: "info",
+          msg: rand(["request handled", "batch commit ok", "cache hit"]),
+          latency_ms: randInt(3, 120),
+        };
+    message = JSON.stringify(payload);
+    eventType = "CONTAINER_STDOUT";
+    severity = isErr ? "ERROR" : "INFO";
+    outcome = isErr ? "failure" : "success";
+    duration = randInt(5, isErr ? 60_000 : 8000);
+  } else if (style === 1) {
+    const reason = isErr
+      ? rand(["FailedScheduling", "FailedMount", "Unhealthy", "OOMKilled"])
+      : rand(["Pulling", "Pulled", "Started", "Created", "Scheduled"]);
+    const ktype = isErr ? "Warning" : "Normal";
+    message = isErr
+      ? `${ktype} ${reason} pod/${podName} (${reason}) — ${rand(["0/5 nodes are available: insufficient cpu", "MountVolume.SetUp failed", "Back-off restarting failed container", "Memory limit exceeded"])}`
+      : `${ktype} ${reason} pod/${podName} (${rand(["kubelet", "kube-scheduler", "attachdetach-controller"])}) Message: ${rand(["Successfully pulled image", "Started container", "Pulling image", "Successfully assigned"])}`;
+    eventType = "KUBERNETES_EVENT";
+    severity = isErr ? "WARNING" : "INFO";
+    outcome = isErr ? "failure" : "success";
+    duration = randInt(50, isErr ? 300_000 : 30_000);
+    extra.jsonPayload = {
+      involvedObject: { kind: "Pod", name: podName, namespace },
+      type: ktype,
+      reason,
+    };
+  } else if (style === 2) {
+    const { prefix, clock } = kubeletDatePrefix(ts);
+    const pid = randInt(10000, 65535);
+    message = isErr
+      ? `kubelet[${pid}]: ${prefix} ${clock}    ${padPid(pid)} kubelet.go:${randInt(2000, 4200)}] E${prefix.slice(1)} ${clock} ${randInt(100, 999)} pod_workers.go:${randInt(100, 999)}] Error syncing pod ${namespace}/${podName}, skipping: CrashLoopBackOff for container ${containerName}`
+      : `kubelet[${pid}]: ${prefix} ${clock}    ${padPid(pid)} kubelet.go:${randInt(2000, 4200)}] SyncLoop (PLEG): event for pod "${namespace}/${podName}"`;
+    eventType = "KUBELET";
+    severity = isErr ? "ERROR" : "INFO";
+    outcome = isErr ? "failure" : "success";
+    duration = randInt(20, 120_000);
+  } else if (style === 3) {
+    const methodName = rand([
+      "io.k8s.core.v1.pods.create",
+      "io.k8s.core.v1.pods.delete",
+      "container.clusters.update",
+      "io.k8s.core.v1.services.patch",
+    ] as const);
+    const principal = rand([
+      `system:serviceaccount:${namespace}:default`,
+      `user:cluster-admin@${project.id.split("-")[0]}.example.com`,
+      `system:serviceaccount:kube-system:replicaset-controller`,
+    ]);
+    const resourceName = rand([
+      `projects/${project.id}/locations/${location}/clusters/${clusterName}/k8s/namespaces/${namespace}/pods/${podName}`,
+      `projects/${project.id}/zones/${location}/clusters/${clusterName}`,
+    ]);
+    message = isErr
+      ? `cloudaudit.googleapis.com/activity: ${methodName} denied for ${principal} on ${resourceName}`
+      : `cloudaudit.googleapis.com/activity: ${methodName} by ${principal} on ${resourceName}`;
+    eventType = "AUDIT";
+    severity = isErr ? "ERROR" : "NOTICE";
+    outcome = isErr ? "failure" : "success";
+    duration = randInt(80, 45_000);
+    extra.protoPayload = {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      methodName,
+      resourceName,
+      authenticationInfo: {
+        principalEmail: principal.startsWith("user:") ? principal.slice(5) : principal,
+      },
+      serviceName: methodName.startsWith("container.") ? "container.googleapis.com" : "k8s.io",
+      status: isErr ? { code: 7, message: "PERMISSION_DENIED" } : {},
+    };
+    auditLogName = `projects/${project.id}/logs/cloudaudit.googleapis.com%2Factivity`;
+  } else if (style === 4) {
+    message = isErr
+      ? `node-problem-detector[${randInt(1000, 9999)}]: Condition MemoryPressure is now: True, reason: KubeletHasInsufficientMemory on node ${nodeName}`
+      : `cluster-autoscaler: Scale-up: group https://www.googleapis.com/compute/v1/projects/${project.id}/zones/${location}/instanceGroups/${nodePool} size set to ${randInt(3, 12)}`;
+    eventType = "NODE_EVENT";
+    severity = isErr ? "WARNING" : "INFO";
+    outcome = isErr ? "failure" : "success";
+    duration = randInt(500, 180_000);
+  } else if (style === 5) {
+    const method = rand(HTTP_METHODS);
+    const path = rand(HTTP_PATHS);
+    const statusCode = randHttpStatus(isErr);
+    const lat = randLatencyMs(randInt(8, 120), isErr);
+    const upstream = rand([
+      "outbound|8080||catalog.production.svc.cluster.local",
+      "outbound|443||payments.production.svc.cluster.local",
+    ]);
+    message = `[${ts}] "${method} ${path} HTTP/1.1" ${statusCode} - via_upstream - "${rand(USER_AGENTS)}" ${lat}ms ${upstream} ${randIp()}`;
+    eventType = "ENVOY_ACCESS";
+    severity = isErr ? "WARNING" : "INFO";
+    outcome = isErr ? "failure" : "success";
+    duration = lat;
+  } else {
+    const traceId = randTraceId();
+    const spanId = randSpanId();
+    message = isErr
+      ? `Error from server (Invalid): error when applying patch: Operation cannot be fulfilled on deployments.apps "api-gateway": the object has been modified`
+      : `deployment.apps/${podName.split("-")[0]} configured`;
+    eventType = "APISERVER";
+    severity = isErr ? "ERROR" : "INFO";
+    outcome = isErr ? "failure" : "success";
+    duration = randInt(30, 20_000);
+    extra.jsonPayload = {
+      traceId,
+      spanId,
+      component: "apiserver",
+      auditId: randId(16).toLowerCase(),
+    };
+  }
+
+  const gkeBlock = {
+    cluster: clusterName,
+    cluster_name: clusterName,
+    namespace,
+    pod: podName,
+    pod_name: podName,
+    container_name: containerName,
+    node_name: nodeName,
+    node_pool: nodePool,
+    event_type: eventType,
+    severity,
+  };
 
   return {
     "@timestamp": ts,
-    cloud: gcpCloud(region, project, "container.googleapis.com"),
-    gcp: {
-      gke: {
-        cluster,
-        namespace,
-        pod,
+    severity,
+    labels: {
+      project_id: project.id,
+      cluster_name: clusterName,
+      location,
+      namespace_name: namespace,
+      pod_name: podName,
+      container_name: containerName,
+      node_name: nodeName,
+    },
+    insertId: insertId(),
+    logName:
+      auditLogName ??
+      `projects/${project.id}/logs/${rand(["container.googleapis.com%2Fcluster-autoscaler-visibility", "stdout"])}`,
+    resource: {
+      type: "k8s_container",
+      labels: {
+        project_id: project.id,
+        cluster_name: clusterName,
+        location,
+        namespace_name: namespace,
+        pod_name: podName,
         container_name: containerName,
-        node_name: nodeName,
-        event_type: eventType,
-        severity,
       },
     },
+    cloud: gcpCloud(region, project, "container.googleapis.com"),
+    kubernetes: {
+      namespace,
+      pod: { name: podName, uid: podUid },
+      container: { name: containerName },
+      node: { name: nodeName },
+    },
+    gcp: {
+      gke: gkeBlock,
+    },
     event: {
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(50, isErr ? 300_000 : 30_000),
+      outcome,
+      duration,
     },
     message,
+    ...extra,
   };
 }
 
@@ -64,12 +254,20 @@ export function generateAnthosLog(ts: string, er: number): EcsDocument {
     ? rand(["SYNC_FAILURE", "POLICY_VIOLATION", "MESH_CERT_ERROR"])
     : rand(["SYNC_OK", "FEATURE_ENABLED", "HEALTH_CHECK", "UPGRADE_STARTED"]);
   const status = isErr ? rand(["ERROR", "DEGRADED"]) : rand(["HEALTHY", "RUNNING", "OK"]);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Anthos ${feature} on ${clusterName} (${location}): ${eventType} — ${status} in ${fleetNamespace}`
-    : `Anthos membership ${membershipName}: ${feature} ${eventType} (${status})`;
+    ? `anthos.googleapis.com: membership "${clusterName}" (${location}) feature ${feature}: ${eventType} — ${status} in namespace ${fleetNamespace}`
+    : `anthos.googleapis.com: ${membershipName} — ${feature} ${eventType} (${status})`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { membership: clusterName, feature, fleet_namespace: fleetNamespace },
+    insertId: insertId(),
+    resource: {
+      type: "gke_hub_membership",
+      labels: { project_id: project.id, location: "global", membership_name: clusterName },
+    },
     cloud: gcpCloud(region, project, "anthos.googleapis.com"),
     gcp: {
       anthos: {
@@ -106,17 +304,25 @@ export function generateArtifactRegistryLog(ts: string, er: number): EcsDocument
     ? rand(["scan", "push", "pull"] as const)
     : rand(["push", "pull", "delete", "scan"] as const);
   const vulnerabilityCount = action === "scan" ? (isErr ? randInt(1, 50) : randInt(0, 3)) : 0;
+  const severity = randSeverity(isErr);
   const message =
     action === "scan"
       ? isErr
-        ? `Artifact Registry scan of ${packageName}:${tagOrVersion} found ${vulnerabilityCount} vulnerabilities (${format})`
-        : `Artifact Registry scan completed for ${packageName}:${tagOrVersion} (${vulnerabilityCount} findings, ${format})`
+        ? `artifactregistry.googleapis.com: vulnerability scan FAILED for ${packageName}:${tagOrVersion} (${format}) — ${vulnerabilityCount} critical/high findings`
+        : `artifactregistry.googleapis.com: scan completed ${packageName}:${tagOrVersion} (${format}); ${vulnerabilityCount} low/info findings`
       : isErr
-        ? `Artifact Registry ${action} failed for ${packageName}@${tagOrVersion} (${format})`
-        : `Artifact Registry ${action} succeeded: ${packageName}@${tagOrVersion} (${format})`;
+        ? `artifactregistry.googleapis.com: ${action} FAILED ${packageName}@${tagOrVersion} (${format}): ${rand(["DENIED", "NOT_FOUND", "QUOTA_EXCEEDED"])}`
+        : `artifactregistry.googleapis.com: ${action} OK ${packageName}@${tagOrVersion} (${format})`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { repository, format, action },
+    insertId: insertId(),
+    resource: {
+      type: "artifactregistry.googleapis.com/Repository",
+      labels: { project_id: project.id, location: region, repository },
+    },
     cloud: gcpCloud(region, project, "artifactregistry.googleapis.com"),
     gcp: {
       artifact_registry: {
@@ -147,12 +353,20 @@ export function generateContainerRegistryLog(ts: string, er: number): EcsDocumen
   const digest = `sha256:${Array.from({ length: 64 }, () => randInt(0, 15).toString(16)).join("")}`;
   const action = rand(["push", "pull", "delete"] as const);
   const sizeBytes = randInt(5_000_000, 900_000_000);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `gcr.io ${action} failed for ${imageName}:${tag} (${digest.slice(0, 19)}…): ${rand(["denied", "manifest unknown", "quota exceeded"])}`
-    : `gcr.io ${action} ${imageName}:${tag} (${Math.round(sizeBytes / 1_048_576)}MiB, ${digest.slice(0, 19)}…)`;
+    ? `containerregistry.googleapis.com: ${action} denied for ${imageName}:${tag} (${digest.slice(0, 19)}…): ${rand(["denied", "manifest unknown", "quota exceeded"])}`
+    : `containerregistry.googleapis.com: ${action} ${imageName}:${tag} size=${Math.round(sizeBytes / 1_048_576)}MiB digest=${digest.slice(0, 19)}…`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { image: imageName.split("/").pop() ?? "image", action },
+    insertId: insertId(),
+    resource: {
+      type: "gcr.io",
+      labels: { project_id: project.id, bucket_name: "artifacts." + project.id + ".appspot.com" },
+    },
     cloud: gcpCloud(region, project, "containerregistry.googleapis.com"),
     gcp: {
       container_registry: {
@@ -182,12 +396,20 @@ export function generateGkeAutopilotLog(ts: string, er: number): EcsDocument {
   const scalingEvent = isErr
     ? rand(["SCALE_DOWN_BLOCKED", "CAPACITY_ERROR", "ADMISSION_DENIED"])
     : rand(["SCALE_UP", "SCALE_DOWN", "POD_SCHEDULED", "NODE_POOL_RESIZED"]);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `GKE Autopilot ${cluster}: ${scalingEvent} for ${workloadType} ${pod} in ${namespace} (requests ${resourceRequestCpu}/${resourceRequestMemory})`
-    : `GKE Autopilot ${cluster} ${scalingEvent}: ${workloadType} ${pod} (${namespace}) sized to ${resourceRequestCpu} CPU, ${resourceRequestMemory} RAM`;
+    ? `container.googleapis.com/autopilot: cluster "${cluster}" ${scalingEvent} for ${workloadType}/${pod} in ${namespace} (requests ${resourceRequestCpu}/${resourceRequestMemory})`
+    : `container.googleapis.com/autopilot: cluster "${cluster}" ${scalingEvent}: ${workloadType} ${pod} (${namespace}) sized to ${resourceRequestCpu} CPU, ${resourceRequestMemory} RAM`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { cluster_name: cluster, namespace_name: namespace, scaling_event: scalingEvent },
+    insertId: insertId(),
+    resource: {
+      type: "k8s_cluster",
+      labels: { project_id: project.id, location: region, cluster_name: cluster },
+    },
     cloud: gcpCloud(region, project, "container.googleapis.com"),
     gcp: {
       gke_autopilot: {
@@ -218,12 +440,20 @@ export function generateAnthosServiceMeshLog(ts: string, er: number): EcsDocumen
   const latencyP99Ms = isErr ? randInt(800, 8000) : randInt(20, 400);
   const errorRate = isErr ? randFloat(0.05, 0.4) : randFloat(0, 0.02);
   const protocol = rand(["HTTP", "gRPC"] as const);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Anthos Service Mesh ${meshName} ${service}: p99=${latencyP99Ms}ms err=${(errorRate * 100).toFixed(2)}% ${protocol}`
-    : `Anthos Service Mesh ${meshName} ${sourceWorkload} -> ${destWorkload} rq=${requestCount} p99=${latencyP99Ms}ms`;
+    ? `istio.io/telemetry: mesh=${meshName} service=${service} p99=${latencyP99Ms}ms err_rate=${(errorRate * 100).toFixed(2)}% protocol=${protocol}`
+    : `istio.io/telemetry: mesh=${meshName} ${sourceWorkload} -> ${destWorkload} rq=${requestCount} p99=${latencyP99Ms}ms`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { mesh_name: meshName, service },
+    insertId: insertId(),
+    resource: {
+      type: "k8s_cluster",
+      labels: { project_id: project.id, location: region, cluster_name: meshName },
+    },
     cloud: gcpCloud(region, project, "anthos-service-mesh"),
     gcp: {
       anthos_service_mesh: {
@@ -255,12 +485,20 @@ export function generateAnthosConfigMgmtLog(ts: string, er: number): EcsDocument
   const commitSha = Array.from({ length: 7 }, () => randInt(0, 15).toString(16)).join("");
   const policyViolations = isErr ? randInt(3, 40) : randInt(0, 5);
   const lastSyncTime = new Date(new Date(ts).getTime() - randInt(60_000, 3_600_000)).toISOString();
+  const severity = randSeverity(isErr || syncStatus === "ERROR");
   const message = isErr
-    ? `Anthos Config Management ${cluster}: ${syncStatus} — ${policyViolations} policy controller violations (commit ${commitSha})`
-    : `Anthos Config Management ${cluster} ${syncStatus} at ${lastSyncTime} (${policyViolations} violations)`;
+    ? `configmanagement.gke.io: cluster "${cluster}" sync ${syncStatus} — policy-controller reports ${policyViolations} violations (commit ${commitSha})`
+    : `configmanagement.gke.io: cluster "${cluster}" ${syncStatus} at ${lastSyncTime} (${policyViolations} open violations)`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { cluster_name: cluster, sync_status: syncStatus },
+    insertId: insertId(),
+    resource: {
+      type: "k8s_cluster",
+      labels: { project_id: project.id, location: region, cluster_name: cluster },
+    },
     cloud: gcpCloud(region, project, "anthos-config-mgmt"),
     gcp: {
       anthos_config_mgmt: {
@@ -289,12 +527,20 @@ export function generateGkeEnterpriseLog(ts: string, er: number): EcsDocument {
     ? rand(["NON_COMPLIANT", "UNKNOWN"] as const)
     : rand(["COMPLIANT", "PARTIAL", "NON_COMPLIANT"] as const);
   const violationCount = isErr ? randInt(5, 200) : randInt(0, 12);
+  const severity = randSeverity(isErr || complianceState === "NON_COMPLIANT");
   const message = isErr
-    ? `GKE Enterprise fleet ${fleetName}: feature ${feature} ${complianceState} (${violationCount} violations)`
-    : `GKE Enterprise ${fleetName} membership ${membership.split("/").pop()}: ${feature} ${complianceState}`;
+    ? `gkehub.googleapis.com: fleet "${fleetName}" feature ${feature} state=${complianceState} violations=${violationCount}`
+    : `gkehub.googleapis.com: fleet "${fleetName}" membership ${membership.split("/").pop()}: ${feature} ${complianceState}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { fleet_name: fleetName, feature },
+    insertId: insertId(),
+    resource: {
+      type: "gke_hub_fleet",
+      labels: { project_id: project.id, location: "global", fleet: fleetName },
+    },
     cloud: gcpCloud(region, project, "gke-enterprise"),
     gcp: {
       gke_enterprise: {
@@ -323,12 +569,20 @@ export function generateMigrateToContainersLog(ts: string, er: number): EcsDocum
     ? rand(["FAILED", "RUNNING"] as const)
     : rand(["SUCCEEDED", "RUNNING", "PENDING"] as const);
   const fitScore = isErr ? randFloat(0.2, 0.55) : randFloat(0.65, 0.98);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Migrate to Containers ${migrationPlan} phase ${phase} ${status}: fit score ${(fitScore * 100).toFixed(0)}`
-    : `Migrate to Containers ${sourceVm} -> ${targetImage} ${phase} ${status} (fit ${(fitScore * 100).toFixed(0)})`;
+    ? `migrate.kubernetes.io: plan "${migrationPlan}" phase ${phase} ${status}: fit score ${(fitScore * 100).toFixed(0)} (${sourceVm})`
+    : `migrate.kubernetes.io: ${sourceVm} -> ${targetImage} phase ${phase} ${status} (fit ${(fitScore * 100).toFixed(0)})`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { migration_plan: migrationPlan, phase, source_vm: sourceVm },
+    insertId: insertId(),
+    resource: {
+      type: "gce_instance",
+      labels: { project_id: project.id, instance_id: sourceVm },
+    },
     cloud: gcpCloud(region, project, "migrate-to-containers"),
     gcp: {
       migrate_to_containers: {

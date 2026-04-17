@@ -2,13 +2,46 @@
 
 A single web UI for bulk-generating realistic **AWS**, **Google Cloud**, and **Microsoft Azure** observability data (logs, metrics, and traces) and shipping it to Elasticsearch with the `_bulk` API. Pick your hyperscaler on the **Start** step; documents follow **ECS** naming and integration-style metadata so they behave like production ingest.
 
+Generators produce **real-life native-format outputs** for each cloud — AWS CloudWatch / S3 / Firehose shapes, GCP Cloud Logging API v2 / Cloud Monitoring TimeSeries, Azure Resource Log / Monitor Metrics / Application Insights — so the data matches what you see from actual cloud workloads.
+
 The header uses a vendor-neutral cloud mark; AWS, GCP, and Azure logos appear in the wizard when choosing a cloud.
 
-**Icons:** GCP/Azure flat SVGs and maps are committed under `public/gcp-icons/`, `public/azure-icons/`, and `src/cloud/generated/vendorFileIcons.ts`. AWS icons in `public/aws-icons/` are committed so clones work offline; `npm install` re-syncs that folder from the `aws-icons` package to match `src/data/iconMap.ts` and prunes unused files. A handful of AWS SVGs (and PNG findings artwork) are package-extras and remain committed only—see [docs/development.md](docs/development.md). Maintainers refresh GCP/Azure maps with `npm run icons:vendor` and sources in `local/cloud-icons/` (gitignored).
+**Icons:** GCP/Azure flat SVGs and maps are committed under `public/gcp-icons/`, `public/azure-icons/`, and `src/cloud/generated/vendorFileIcons.ts`. AWS icons in `public/aws-icons/` are committed so clones work offline; `npm install` re-syncs that folder from the `aws-icons` package to match `src/data/iconMap.ts` and prunes unused files. Maintainers refresh GCP/Azure maps with `npm run icons:vendor` and sources in `local/cloud-icons/` (gitignored).
 
-**Documentation:** [docs/README.md](docs/README.md) — index of guides, AWS routing docs, pipeline reference, and diagrams. **Setup wizard & uninstall (including Serverless dashboard limits):** [docs/SETUP-WIZARD-AND-UNINSTALL.md](docs/SETUP-WIZARD-AND-UNINSTALL.md). Day-to-day dev: [docs/development.md](docs/development.md).
+**Documentation:** [docs/README.md](docs/README.md); **Setup / Serverless / `cloudloadgen` tag:** [docs/SETUP-WIZARD-AND-UNINSTALL.md](docs/SETUP-WIZARD-AND-UNINSTALL.md); **dev:** [docs/development.md](docs/development.md).
 
 **Test / pilot builds:** Use synthetic data and non-production Elasticsearch targets unless you have explicit approval. Before handing off a build, run the same checks as CI (see **Testing and quality** below): `format:check`, `lint`, `typecheck`, `test`, and `build` should all succeed on Node 20.
+
+---
+
+## Cloud Loadgen Integrations
+
+Assets are installed **per service** as **Cloud Loadgen Integrations** — each service gets its own bundle of:
+
+| Asset type | Description |
+| --- | --- |
+| **Ingest pipeline** | Routes and parses logs into the correct data stream; uses **TSDS** (Time Series Data Stream) for metrics where appropriate |
+| **Index / data stream templates** | `logs-*` and `metrics-*` data views for dashboard panels |
+| **Kibana dashboard** | ES\|QL-based visualisation (Lens panels) tailored to that service |
+| **ML anomaly detection jobs** | Detect operational and security anomalies (error spikes, latency, rare activity) |
+| **Alerting rules** | Elasticsearch query-based rules for critical patterns (e.g. data pipeline failures) |
+
+All assets are tagged **`cloudloadgen`** so you can:
+
+- **Filter** in Kibana **Saved Objects → Tags → cloudloadgen** to see every dashboard at a glance
+- **Bulk-edit** or **bulk-delete** load-generator assets without touching production objects
+- ML jobs and pipelines include `cloudloadgen` in their metadata/descriptions for the same easy filtering
+
+The **Setup** page in the web UI groups integrations by **service category** (Compute, Networking, Storage, Databases, Analytics, AI & ML, etc.) and lets you install or remove per service. The same assets can be installed from the CLI — see [installer/README.md](installer/README.md).
+
+### Chained Events
+
+Beyond single-service generators, the app includes **Chained Events** — multi-step correlated scenarios that span several services:
+
+- **Data & Analytics Pipeline** (AWS: S3 → EMR → Glue → Athena → MWAA; GCP: GCS → Dataproc → Data Catalog → BigQuery → Composer; Azure: Blob → Databricks → Purview → Synapse → Data Factory) — includes APM traces for the Elastic Service Map, dashboards, ML jobs, and alerting rules
+- **Security / data exfiltration chains** — cross-service attack pattern simulation
+
+See [docs/chained-events/](docs/chained-events/) for architecture diagrams and failure-mode documentation.
 
 ---
 
@@ -26,7 +59,7 @@ Or: `npm run docker:up`
 
 This builds the image and starts the container. Open **http://localhost:8765**.
 
-You need a **full clone** (including `installer/`). If the build says installer assets are missing, run `git checkout HEAD -- installer/aws-custom-dashboards installer/aws-custom-ml-jobs` (or `git sparse-checkout disable`) and try again.
+You need a **full clone** (including `installer/`). If the build says installer assets are missing, run `git checkout HEAD -- installer/aws-custom-dashboards installer/aws-custom-ml-jobs installer/aws-loadgen-packs` (or `git sparse-checkout disable`) and try again.
 
 ### Docker CLI (manual)
 
@@ -83,18 +116,6 @@ Browser → nginx (port 80) → React SPA
 ```
 
 Credentials stay in the browser session; the proxy forwards requests and may log metadata-only access lines (see proxy comments in `proxy.cjs`).
-
----
-
-## Elastic onboarding
-
-Idempotent installers (integrations, ingest pipelines, dashboards, ML jobs) live under **`installer/`**. See **[installer/README.md](installer/README.md)** for AWS, GCP, and Azure entrypoints.
-
-The **same assets** can be installed or removed from the **Setup** step in the web UI (after **Start** and **Connection**). You can filter pipelines/dashboards/ML, **Align with Services** with your Services-step selection, and the Setup log can persist across refresh (sessionStorage).
-
-On **AWS**, **dashboards** and **ML anomaly jobs** are grouped under the same high-level **Services** categories as the wizard (for example _Networking & CDN_, _Storage & Databases_, _Compute & Containers_) so Setup matches what you chose on the Services step. **GCP** and **Azure** ML jobs stay grouped by installer JSON file; pipeline accordion labels use readable polish (for example GCP `datawarehouse` → **Data Warehouse**). See [docs/SETUP-WIZARD-AND-UNINSTALL.md](docs/SETUP-WIZARD-AND-UNINSTALL.md).
-
-**Important:** on some **Elastic Cloud Serverless** projects, Kibana does **not** allow saved-object **delete** APIs, so **dashboard uninstall from the UI will not work** there — remove dashboards manually in Kibana or use a stack where those APIs are enabled. Details: [docs/SETUP-WIZARD-AND-UNINSTALL.md](docs/SETUP-WIZARD-AND-UNINSTALL.md).
 
 ---
 

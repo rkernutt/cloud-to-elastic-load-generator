@@ -42,12 +42,12 @@
         "h": 10
       },
       "config": {
-        "title": "Log level",
+        "title": "Event outcome",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.virtual_machines* | STATS c = COUNT() BY o = log.level"
+            "query": "FROM logs-azure.virtual_machines* | STATS c = COUNT() BY o = event.outcome"
           },
           "metrics": [
             {
@@ -127,7 +127,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.virtual_machines* | KEEP `@timestamp`, `azure.virtual_machines.vm_name`, `azure.virtual_machines.operation`, `azure.virtual_machines.status`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-azure.virtual_machines* | KEEP `@timestamp`, `azure.virtual_machines.vm_name`, `azure.virtual_machines.operation`, `azure.virtual_machines.status`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
@@ -152,8 +152,8 @@
             },
             {
               "operation": "value",
-              "column": "log.level",
-              "label": "Log level"
+              "column": "event.outcome",
+              "label": "Outcome"
             },
             {
               "operation": "value",

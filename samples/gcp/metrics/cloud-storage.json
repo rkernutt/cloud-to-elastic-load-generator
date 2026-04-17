@@ -11,43 +11,46 @@
     "type": "metricbeat",
     "version": "8.18.0",
     "name": "metricbeat-gcp-asia-northeast1",
-    "ephemeral_id": "aw6gzntn0n"
+    "ephemeral_id": "n75285s3gt"
   },
-  "gcp": {
-    "cloud-storage": {
-      "metrics": {
-        "total_bytes": { "avg": 124675512260, "sum": 124675512260, "count": 1 },
-        "object_count": { "avg": 9165660, "sum": 9165660, "count": 1 },
-        "request_count": { "avg": 32230, "sum": 32230, "count": 1 },
-        "network_sent_bytes": { "avg": 4966837332, "sum": 4966837332, "count": 1 },
-        "received_bytes": { "avg": 200178578, "sum": 200178578, "count": 1 },
-        "read_bytes": { "avg": 1308819632, "sum": 1308819632, "count": 1 },
-        "write_bytes": { "avg": 148847034, "sum": 148847034, "count": 1 },
-        "error_count": { "avg": 0, "sum": 0, "count": 1 }
-      },
-      "labels": { "bucket_name": "data-lake-raw" }
-    }
-  },
-  "metricset": { "name": "cloud-storage", "period": 60000 },
-  "data_stream": { "type": "metrics", "dataset": "gcp.gcs_metrics", "namespace": "default" },
-  "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.gcs_metrics", "module": "gcp" },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-storage/total_bytes",
-      "labels": {}
+      "type": "serviceruntime.googleapis.com/api/request_count",
+      "labels": { "credential_id": "resource-a" }
     },
     "resource": {
-      "type": "gcs_bucket",
-      "labels": { "project_id": "globex-dev-g7h8i9", "region": "asia-northeast1" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      {
-        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "doubleValue": 124675512260 }
+      "type": "consumed_api",
+      "labels": {
+        "project_id": "globex-dev-g7h8i9",
+        "service": "generic.googleapis.com",
+        "method": "resource_id"
       }
+    },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "64000" } }
     ]
-  }
+  },
+  "gcp": {
+    "storage-transfer": {
+      "labels": {
+        "project_id": "globex-dev-g7h8i9",
+        "service": "generic.googleapis.com",
+        "method": "resource_id",
+        "credential_id": "resource-a"
+      },
+      "metrics": {
+        "serviceruntime.googleapis.com/api/request_count": {
+          "avg": 64000,
+          "sum": 64000,
+          "count": 1
+        }
+      }
+    }
+  },
+  "metricset": { "name": "storage-transfer", "period": 60000 },
+  "data_stream": { "type": "metrics", "dataset": "gcp.gcs_metrics", "namespace": "default" },
+  "input": { "type": "gcp-monitoring" },
+  "event": { "dataset": "gcp.gcs_metrics", "module": "gcp" }
 }

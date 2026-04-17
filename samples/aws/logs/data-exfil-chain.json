@@ -1,45 +1,45 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
+    "region": "me-south-1",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "hnnqx9rym5g" },
+    "dimensions": { "DetectorId": "s5k2e1cfznp" },
     "guardduty": {
       "schema_version": "2.0",
       "account_id": "814726593401",
-      "region": "eu-north-1",
+      "region": "me-south-1",
       "partition": "aws",
-      "id": "ji45k258dm",
-      "arn": "arn:aws:guardduty:eu-north-1:814726593401:detector/hnnqx9rym5g/finding/ji45k258dm",
+      "id": "57yq4lxtwa8",
+      "arn": "arn:aws:guardduty:me-south-1:814726593401:detector/s5k2e1cfznp/finding/57yq4lxtwa8",
       "type": "Exfiltration:S3/MaliciousIPCaller",
       "title": "S3 object accessed from a known malicious IP",
-      "description": "S3 bucket prod-customer-data-593401 was accessed by 228.212.3.177, an IP associated with known threat actors",
-      "created_at": "2026-04-15T13:24:35.775Z",
-      "updated_at": "2026-04-15T13:24:35.775Z",
+      "description": "S3 bucket hr-confidential-593401 was accessed by 222.185.194.51, an IP associated with known threat actors",
+      "created_at": "2026-04-17T09:05:18.304Z",
+      "updated_at": "2026-04-17T09:05:18.304Z",
       "severity": { "code": 7, "value": "High" },
-      "confidence": 80.04003978339409,
+      "confidence": 83.6576590330016,
       "resource": {
         "type": "S3Bucket",
-        "s3_bucket_detail": { "name": "prod-customer-data-593401", "type": "Destination" }
+        "s3_bucket_detail": { "name": "hr-confidential-593401", "type": "Destination" }
       },
       "service": {
-        "detector_id": "hnnqx9rym5g",
-        "count": 1434,
+        "detector_id": "s5k2e1cfznp",
+        "count": 1154,
         "archived": false,
         "action": {
           "action_type": "AWS_API_CALL",
           "aws_api_call_action": {
             "api": "GetObject",
             "caller_type": "Remote IP",
-            "remote_ip_details": { "ip_address_v4": "228.212.3.177" }
+            "remote_ip_details": { "ip_address_v4": "222.185.194.51" }
           }
         }
       },
-      "metrics": { "FindingCount": { "sum": 2 }, "HighSeverityFindingCount": { "sum": 1 } }
+      "metrics": { "FindingCount": { "sum": 18 }, "HighSeverityFindingCount": { "sum": 3 } }
     },
     "s3": {
       "bucket": {
@@ -47,21 +47,21 @@
         "arn": "arn:aws:s3:::aws-data-exfil-chain-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/data-exfil-chain/eu-north-1/2026/04/15/data-exfil-chain_CTD4QWK0Z5L.log.gz"
+        "key": "AWSLogs/814726593401/data-exfil-chain/me-south-1/2026/04/17/data-exfil-chain_KTO95JUFGD.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/data-exfil-chain/logs",
-      "log_stream": "eu-north-1/4mrqy74a",
-      "ingestion_time": "2026-04-15T13:24:36.287Z"
+      "log_stream": "me-south-1/zu1uaooh",
+      "ingestion_time": "2026-04-17T09:05:18.920Z"
     }
   },
-  "source": { "ip": "228.212.3.177" },
+  "source": { "ip": "222.185.194.51" },
   "rule": { "category": "exfiltration", "name": "Exfiltration:S3/MaliciousIPCaller" },
   "threat": {
     "tactic": { "name": "Exfiltration", "id": "TA0010" },
     "technique": { "name": "Transfer Data to Cloud Account", "id": "T1537" },
-    "indicator": [{ "type": "ip", "value": "228.212.3.177" }]
+    "indicator": [{ "type": "ip", "value": "222.185.194.51" }]
   },
   "event": {
     "kind": "alert",
@@ -73,11 +73,11 @@
     "provider": "guardduty.amazonaws.com",
     "module": "aws"
   },
-  "message": "GuardDuty [HIGH]: Exfiltration:S3/MaliciousIPCaller — s3://prod-customer-data-593401 from 228.212.3.177",
+  "message": "GuardDuty [HIGH]: Exfiltration:S3/MaliciousIPCaller — s3://hr-confidential-593401 from 222.185.194.51",
   "log": { "level": "error" },
   "error": {
     "code": "ExfiltrationDetected",
-    "message": "S3 data exfiltration from prod-customer-data-593401",
+    "message": "S3 data exfiltration from hr-confidential-593401",
     "type": "security"
   },
   "service": { "name": "data-exfil-chain", "type": "aws" },
@@ -86,8 +86,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "lpnyyotsp1"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "m0jmh7w41ut"
   },
   "input": { "type": "http_endpoint" }
 }

@@ -40,13 +40,20 @@ export function dashboardTitleServiceFragment(d: DashboardDef, cloudId: CloudId)
   if (cloudId === "aws") {
     const awsRe = /^AWS\s+(.+?)\s+[\u2014\u2013-]/i;
     const amzRe = /^Amazon\s+(.+?)\s+[\u2014\u2013-]/i;
-    const m = t.match(awsRe) ?? t.match(amzRe);
+    const genericRe = /^(.+?)\s+[\u2014\u2013-]/i;
+    const m = t.match(awsRe) ?? t.match(amzRe) ?? t.match(genericRe);
     return m ? m[1].trim() : null;
   }
   const prefix = dashboardTitlePrefix(cloudId);
   const re = new RegExp(`^${prefix}\\s+(.+?)\\s+[\\u2014\\u2013-]`, "i");
   const m = t.match(re);
-  return m ? m[1].trim() : null;
+  if (m) return m[1].trim();
+  if (cloudId === "azure") {
+    const msRe = /^Microsoft\s+(.+?)\s+[\u2014\u2013-]/i;
+    const msm = t.match(msRe);
+    if (msm) return msm[1].trim();
+  }
+  return null;
 }
 
 /**
@@ -199,6 +206,11 @@ export function mlJobInferredMatchKeys(j: MlJobEntry, cloudId: CloudId): string[
     for (const m of blob.matchAll(re)) {
       addKeysFromAwsMlSegment(m[1], keys);
     }
+  }
+
+  /** NLB metrics share `aws.elb` with ALB; job ids use `aws-nlb-` prefix (id tokens disabled when event.dataset is set). */
+  if (cloudId === "aws" && idPart.startsWith("aws-nlb-")) {
+    keys.add("nlb");
   }
 
   // Avoid id tokens like "metrics" / "failure" fuzzy-matching unrelated services when dataset is explicit.

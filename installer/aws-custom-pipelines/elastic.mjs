@@ -71,5 +71,37 @@ export function createElasticClient(baseUrl, apiKey) {
     async testConnection() {
       return request("GET", "/");
     },
+
+    /**
+     * GET /_component_template/{name}
+     * Returns the component template or null if not found (404).
+     */
+    async getComponentTemplate(name) {
+      return request("GET", `/_component_template/${encodeURIComponent(name)}`);
+    },
+
+    /**
+     * PUT /_component_template/{name}
+     * Creates or updates a component template.
+     */
+    async putComponentTemplate(name, body) {
+      return request("PUT", `/_component_template/${encodeURIComponent(name)}`, body);
+    },
+
+    /**
+     * GET /_index_template/{name}
+     * Returns the index template or null if not found (404).
+     */
+    async getIndexTemplate(name) {
+      return request("GET", `/_index_template/${encodeURIComponent(name)}`);
+    },
+
+    /**
+     * PUT /_index_template/{name}
+     * Creates or updates a composable index template.
+     */
+    async putIndexTemplate(name, body) {
+      return request("PUT", `/_index_template/${encodeURIComponent(name)}`, body);
+    },
   };
 }

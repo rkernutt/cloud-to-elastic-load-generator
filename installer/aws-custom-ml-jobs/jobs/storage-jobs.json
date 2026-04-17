@@ -1,13 +1,13 @@
 {
   "group": "storage",
-  "description": "Storage anomaly detection — S3 bandwidth, errors, and rare operations",
+  "description": "Storage anomaly detection \u2014 S3 bandwidth, errors, and rare operations",
   "jobs": [
     {
       "id": "aws-s3-bandwidth-anomaly",
       "description": "Detects unusual data transfer volumes from S3 buckets",
       "job": {
         "description": "Detects unusual data transfer volumes from S3 buckets",
-        "groups": ["aws", "storage"],
+        "groups": ["aws", "storage", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -22,21 +22,38 @@
           "influencers": ["aws.s3.bucket.name", "client.ip"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.s3" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.s3"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -44,7 +61,7 @@
       "description": "Detects spikes in S3 client errors (4xx) per bucket",
       "job": {
         "description": "Detects spikes in S3 client errors (4xx) per bucket",
-        "groups": ["aws", "storage"],
+        "groups": ["aws", "storage", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -58,28 +75,48 @@
           "influencers": ["aws.s3.bucket.name", "client.ip"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.s3" } }],
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.s3"
+                }
+              }
+            ],
             "must": [
               {
                 "range": {
-                  "aws.s3access.http_status": { "gte": 400, "lt": 500 }
+                  "aws.s3access.http_status": {
+                    "gte": 400,
+                    "lt": 500
+                  }
                 }
               }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -87,7 +124,7 @@
       "description": "Detects rare or unusual S3 operations per bucket such as unexpected DELETE or ACL changes",
       "job": {
         "description": "Detects rare or unusual S3 operations per bucket such as unexpected DELETE or ACL changes",
-        "groups": ["aws", "storage"],
+        "groups": ["aws", "storage", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "60m",
           "detectors": [
@@ -102,21 +139,38 @@
           "influencers": ["aws.s3.bucket.name", "client.ip", "aws.s3access.operation"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.s3" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.s3"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -124,7 +178,7 @@
       "description": "Detects rare or unusual requesters accessing an S3 bucket",
       "job": {
         "description": "Detects rare or unusual requesters accessing an S3 bucket",
-        "groups": ["aws", "storage"],
+        "groups": ["aws", "storage", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "60m",
           "detectors": [
@@ -139,21 +193,38 @@
           "influencers": ["aws.s3.bucket.name", "client.ip"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "64mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.s3" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.s3"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

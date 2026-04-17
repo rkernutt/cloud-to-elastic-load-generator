@@ -3,24 +3,50 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-southeast2",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "europe-west6",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-southeast2",
-    "ephemeral_id": "ect7l1yy3r"
+    "name": "metricbeat-gcp-europe-west6",
+    "ephemeral_id": "dqmvk1caljk"
+  },
+  "monitoringTimeSeries": {
+    "metric": {
+      "type": "serviceruntime.googleapis.com/api/request_count",
+      "labels": { "credential_id": "resource-a" }
+    },
+    "resource": {
+      "type": "consumed_api",
+      "labels": {
+        "project_id": "globex-staging-d4e5f6",
+        "service": "generic.googleapis.com",
+        "method": "resource_id"
+      }
+    },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "97148" } }
+    ]
   },
   "gcp": {
     "gke-enterprise": {
-      "metrics": {
-        "request_count": { "avg": 53980, "sum": 53980, "count": 1 },
-        "error_count": { "avg": 0, "sum": 0, "count": 1 },
-        "latency": { "avg": 122.53, "sum": 122.53, "count": 1 }
+      "labels": {
+        "project_id": "globex-staging-d4e5f6",
+        "service": "generic.googleapis.com",
+        "method": "resource_id",
+        "credential_id": "resource-a"
       },
-      "labels": { "resource_id": "resource-a" }
+      "metrics": {
+        "serviceruntime.googleapis.com/api/request_count": {
+          "avg": 97148,
+          "sum": 97148,
+          "count": 1
+        }
+      }
     }
   },
   "metricset": { "name": "gke-enterprise", "period": 60000 },
@@ -30,20 +56,5 @@
     "namespace": "default"
   },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.gke_enterprise_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/gke-enterprise/request_count",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-prod-a1b2c3", "region": "asia-southeast2" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 53980 } }
-    ]
-  }
+  "event": { "dataset": "gcp.gke_enterprise_metrics", "module": "gcp" }
 }

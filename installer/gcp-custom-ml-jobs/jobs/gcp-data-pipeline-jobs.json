@@ -1,0 +1,161 @@
+{
+  "group": "gcp-data-pipeline",
+  "description": "ML anomaly detection jobs for the GCP Data & Analytics Pipeline chained event scenario",
+  "jobs": [
+    {
+      "id": "gcp-data-pipeline-duration-anomaly",
+      "description": "Detects unusually slow data pipeline runs via Composer DAG completion duration",
+      "job": {
+        "description": "Detects unusually slow data pipeline runs",
+        "groups": ["gcp", "data-pipeline", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(gcp.composer.duration_ms) partitionfield=gcp.composer.dag_id",
+              "function": "high_mean",
+              "field_name": "gcp.composer.duration_ms",
+              "partition_field_name": "gcp.composer.dag_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.composer.dag_id", "cloud.region", "gcp.composer.quality_check"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "64mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-load-generator-data-pipeline", "tags": ["cloudloadgen"] }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.composer*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "gcp.composer.task_id": "dag_complete" } },
+              { "exists": { "field": "gcp.composer.duration_ms" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "gcp-data-pipeline-error-spike",
+      "description": "Detects spikes in data pipeline failures across all pipeline services",
+      "job": {
+        "description": "Detects spikes in data pipeline failures",
+        "groups": ["gcp", "data-pipeline", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count on event.outcome=failure partitionfield=cloud.region",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.dataset", "error.type"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "64mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-load-generator-data-pipeline", "tags": ["cloudloadgen"] }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.composer*", "logs-gcp.dataproc*", "logs-gcp.data_catalog*", "logs-gcp.bigquery*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "gcp-data-pipeline-null-data",
+      "description": "Detects increase in BigQuery queries returning zero rows (null data propagation)",
+      "job": {
+        "description": "Detects increase in BigQuery queries returning zero rows",
+        "groups": ["gcp", "data-pipeline", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count on BigQuery zero-row queries partitionfield=gcp.bigquery.dataset_id",
+              "function": "high_count",
+              "partition_field_name": "gcp.bigquery.dataset_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.bigquery.dataset_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-load-generator-data-pipeline", "tags": ["cloudloadgen"] }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.bigquery*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "gcp.bigquery.rows_returned": 0 } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "gcp-data-pipeline-stage-latency",
+      "description": "Detects per-stage latency anomalies in Dataproc Spark processing",
+      "job": {
+        "description": "Detects per-stage latency anomalies in Dataproc Spark processing",
+        "groups": ["gcp", "data-pipeline", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(gcp.dataproc.duration_ms) partitionfield=gcp.dataproc.cluster_name",
+              "function": "high_mean",
+              "field_name": "gcp.dataproc.duration_ms",
+              "partition_field_name": "gcp.dataproc.cluster_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.dataproc.cluster_name", "gcp.dataproc.job_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "64mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-load-generator-data-pipeline", "tags": ["cloudloadgen"] }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.dataproc*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "exists": { "field": "gcp.dataproc.duration_ms" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

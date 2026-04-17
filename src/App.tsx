@@ -17,7 +17,11 @@ import {
 import { validateElasticUrl, validateApiKey, validateIndexPrefix } from "./utils/validation";
 import { useConnectionValidation } from "./hooks/useConnectionValidation";
 import { useScheduleLoop } from "./hooks/useScheduleLoop";
-import { loadAndScrubSavedConfig, toPersistedStorageObject } from "./utils/persistedConfig";
+import {
+  DEFAULT_SCHEDULE_ENABLED,
+  loadAndScrubSavedConfig,
+  toPersistedStorageObject,
+} from "./utils/persistedConfig";
 import { isOtelPipelineSource } from "./helpers/otelPipeline";
 import {
   analyzeIngestionConflicts,
@@ -146,7 +150,9 @@ export function LoadGeneratorApp({
   );
   const [batchDelayMs, setBatchDelayMs] = useState(savedConfig.batchDelayMs ?? 20);
   const [injectAnomalies, setInjectAnomalies] = useState(savedConfig.injectAnomalies ?? false);
-  const [scheduleEnabled, setScheduleEnabled] = useState(savedConfig.scheduleEnabled ?? false);
+  const [scheduleEnabled, setScheduleEnabled] = useState(
+    () => savedConfig.scheduleEnabled ?? DEFAULT_SCHEDULE_ENABLED
+  );
   const [scheduleTotalRuns, setScheduleTotalRuns] = useState(savedConfig.scheduleTotalRuns ?? 12);
   const [scheduleIntervalMin, setScheduleIntervalMin] = useState(
     savedConfig.scheduleIntervalMin ?? 15
@@ -201,6 +207,9 @@ export function LoadGeneratorApp({
       ? elasticUrl.replace(".es.", ".kb.")
       : "");
 
+  /** Must be declared before `log` state initializer (restores seq from activity log). */
+  const logSeqRef = useRef(0);
+
   const [status, setStatus] = useState<ShipStatus>(null);
   const [progress, setProgress] = useState<ShipProgress>({
     sent: 0,
@@ -253,7 +262,6 @@ export function LoadGeneratorApp({
   }, [includeSecurityPatterns, activePage, navigateToPage]);
 
   const abortRef = useRef(false);
-  const logSeqRef = useRef(0);
   /** Tracks cloud config so we can reset vendor-specific state without remounting (unified mode). */
   const prevCloudIdRef = useRef<CloudId | undefined>(undefined);
 
@@ -364,7 +372,7 @@ export function LoadGeneratorApp({
     setIngestionSource("default");
     setBatchDelayMs(20);
     setInjectAnomalies(false);
-    setScheduleEnabled(false);
+    setScheduleEnabled(DEFAULT_SCHEDULE_ENABLED);
     setScheduleTotalRuns(12);
     setScheduleIntervalMin(15);
     setDeploymentType("serverless");
@@ -473,7 +481,11 @@ export function LoadGeneratorApp({
         }
         if (config.ingestionSource) setIngestionSource(config.ingestionSource);
         if (config.injectAnomalies != null) setInjectAnomalies(config.injectAnomalies);
-        if (config.scheduleEnabled != null) setScheduleEnabled(config.scheduleEnabled);
+        if (typeof config.scheduleEnabled === "boolean") {
+          setScheduleEnabled(config.scheduleEnabled);
+        } else {
+          setScheduleEnabled(DEFAULT_SCHEDULE_ENABLED);
+        }
         if (config.scheduleTotalRuns != null) setScheduleTotalRuns(config.scheduleTotalRuns);
         if (config.scheduleIntervalMin != null) setScheduleIntervalMin(config.scheduleIntervalMin);
         addLog(`Config imported from ${file.name}`, "ok");
@@ -944,10 +956,8 @@ export function LoadGeneratorApp({
             ingestionMeta={config.ingestionMeta}
             metricsSupportedServiceIds={config.metricsSupportedServiceIds}
             serviceIcons={config.serviceIcons}
-            pageTitle={
-              activePage === "security" ? "Security / attack patterns" : "Service selection"
-            }
-            gridHeading={activePage === "security" ? "Select patterns" : "Select services"}
+            pageTitle={activePage === "security" ? "Chained events" : "Service selection"}
+            gridHeading={activePage === "security" ? "Select chained events" : "Select services"}
             selectAll={() => {
               if (isTracesMode) {
                 setSelectedTraceServices(config.traceServices.map((s) => s.id));

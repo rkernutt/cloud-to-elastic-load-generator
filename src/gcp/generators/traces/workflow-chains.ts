@@ -14,9 +14,7 @@ import {
   randBucket,
 } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-
-const APM_AGENT = { name: "opentelemetry/nodejs", version: "1.x" } as const;
-const APM_DS = { type: "traces", dataset: "apm", namespace: "default" } as const;
+import { enrichGcpTraceDoc } from "./trace-kit.js";
 
 /**
  * Cloud Run (HTTP) → Pub/Sub publish → parallel subscribers:
@@ -84,8 +82,6 @@ export function generatePubSubFanoutTrace(ts: string, er: number): EcsDocument[]
       framework: { name: "Cloud Run" },
     },
     cloud: gcpCloud(region, project, "run.googleapis.com"),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     event: { outcome: txErr ? "failure" : "success" },
   };
 
@@ -107,8 +103,6 @@ export function generatePubSubFanoutTrace(ts: string, er: number): EcsDocument[]
     },
     service: { name: "order-emitter", environment: env, language: { name: "nodejs" } },
     cloud: gcpCloud(region, project, "pubsub.googleapis.com"),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     event: { outcome: failWhich === 3 ? "failure" : "success" },
   };
   offsetMs += Math.max(1, Math.round(pubUs / 1000));
@@ -151,12 +145,14 @@ export function generatePubSubFanoutTrace(ts: string, er: number): EcsDocument[]
       ...(s.subtype === "cloud_run" ? { runtime: { name: "go", version: "1.22" } } : {}),
     },
     cloud: gcpCloud(region, project, s.cloudSvc),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     event: { outcome: failWhich === i ? "failure" : "success" },
   }));
 
-  return [txDoc, spanPub, ...subDocs];
+  return [
+    enrichGcpTraceDoc(txDoc, project.id, traceId),
+    enrichGcpTraceDoc(spanPub, project.id, traceId),
+    ...subDocs.map((d) => enrichGcpTraceDoc(d, project.id, traceId)),
+  ];
 }
 
 /**
@@ -203,8 +199,6 @@ export function generateGcsObjectPipelineTrace(ts: string, er: number): EcsDocum
       runtime: { name: "python", version: "3.12" },
     },
     cloud: gcpCloud(region, project, "storage.googleapis.com"),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     event: { outcome: failIdx === 0 ? "failure" : "success" },
   };
   offsetMs += Math.max(1, Math.round(gcsUs / 1000));
@@ -226,8 +220,6 @@ export function generateGcsObjectPipelineTrace(ts: string, er: number): EcsDocum
     },
     service: { name: "lake-promoter-fn", environment: env, language: { name: "python" } },
     cloud: gcpCloud(region, project, "pubsub.googleapis.com"),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     event: { outcome: "success" },
   };
   offsetMs += Math.max(1, Math.round(ackUs / 1000));
@@ -253,8 +245,6 @@ export function generateGcsObjectPipelineTrace(ts: string, er: number): EcsDocum
     },
     service: { name: "lake-promoter-fn", environment: env, language: { name: "python" } },
     cloud: gcpCloud(region, project, "bigquery.googleapis.com"),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     event: { outcome: failIdx === 1 ? "failure" : "success" },
   };
 
@@ -282,12 +272,15 @@ export function generateGcsObjectPipelineTrace(ts: string, er: number): EcsDocum
       framework: { name: "Google Cloud Functions" },
     },
     cloud: gcpCloud(region, project, "cloudfunctions.googleapis.com"),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     event: { outcome: txErr && failIdx >= 0 ? "failure" : "success" },
   };
 
-  return [txDoc, spanGcs, spanAck, spanBq];
+  return [
+    enrichGcpTraceDoc(txDoc, project.id, traceId, "python"),
+    enrichGcpTraceDoc(spanGcs, project.id, traceId, "python"),
+    enrichGcpTraceDoc(spanAck, project.id, traceId, "python"),
+    enrichGcpTraceDoc(spanBq, project.id, traceId, "python"),
+  ];
 }
 
 /**
@@ -341,8 +334,6 @@ export function generateEventarcWorkflowOrchestrationTrace(ts: string, er: numbe
     },
     service: { name: "order-api", environment: env, language: { name: "go" } },
     cloud: gcpCloud(region, project, "eventarc.googleapis.com"),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     event: { outcome: isErr ? "failure" : "success" },
   };
 
@@ -368,8 +359,6 @@ export function generateEventarcWorkflowOrchestrationTrace(ts: string, er: numbe
       runtime: { name: "nodejs", version: "20.x" },
     },
     cloud: gcpCloud(region, project, "workflows.googleapis.com"),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     labels: { workflow_name: wfName, execution_id: `exec-${randInt(10000, 99999)}` },
     event: { outcome: isErr ? "failure" : "success" },
   };
@@ -390,8 +379,6 @@ export function generateEventarcWorkflowOrchestrationTrace(ts: string, er: numbe
     },
     service: { name: "workflows-executor", environment: env },
     cloud: gcpCloud(region, project, "workflows.googleapis.com"),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     event: { outcome: "success" },
   };
   ms += randInt(2, 8);
@@ -413,8 +400,6 @@ export function generateEventarcWorkflowOrchestrationTrace(ts: string, er: numbe
       framework: { name: "Cloud Run" },
     },
     cloud: gcpCloud(region, project, "run.googleapis.com"),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     event: { outcome: failBranch === 0 ? "failure" : "success" },
   };
   ms += randInt(2, 6);
@@ -434,8 +419,6 @@ export function generateEventarcWorkflowOrchestrationTrace(ts: string, er: numbe
     },
     service: { name: "inventory-api", environment: env },
     cloud: gcpCloud(region, project, "spanner.googleapis.com"),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     event: { outcome: failBranch === 0 ? "failure" : "success" },
   };
 
@@ -455,8 +438,6 @@ export function generateEventarcWorkflowOrchestrationTrace(ts: string, er: numbe
     },
     service: { name: "workflows-executor", environment: env },
     cloud: gcpCloud(region, project, "workflows.googleapis.com"),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     event: { outcome: "success" },
   };
   ms += randInt(2, 8);
@@ -478,8 +459,6 @@ export function generateEventarcWorkflowOrchestrationTrace(ts: string, er: numbe
       framework: { name: "Cloud Run" },
     },
     cloud: gcpCloud(region, project, "run.googleapis.com"),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     event: { outcome: failBranch === 1 ? "failure" : "success" },
   };
   ms += randInt(2, 6);
@@ -503,8 +482,6 @@ export function generateEventarcWorkflowOrchestrationTrace(ts: string, er: numbe
     },
     service: { name: "payments-api", environment: env },
     cloud: gcpCloud(region, project, "sqladmin.googleapis.com"),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     event: { outcome: failBranch === 1 ? "failure" : "success" },
   };
 
@@ -524,8 +501,6 @@ export function generateEventarcWorkflowOrchestrationTrace(ts: string, er: numbe
     },
     service: { name: "workflows-executor", environment: env },
     cloud: gcpCloud(region, project, "workflows.googleapis.com"),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     event: { outcome: "success" },
   };
   ms += randInt(2, 8);
@@ -547,8 +522,6 @@ export function generateEventarcWorkflowOrchestrationTrace(ts: string, er: numbe
       framework: { name: "Cloud Run" },
     },
     cloud: gcpCloud(region, project, "run.googleapis.com"),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     event: { outcome: failBranch === 2 ? "failure" : "success" },
   };
   ms += randInt(2, 6);
@@ -567,22 +540,20 @@ export function generateEventarcWorkflowOrchestrationTrace(ts: string, er: numbe
     },
     service: { name: "notifications-api", environment: env },
     cloud: gcpCloud(region, project, "pubsub.googleapis.com"),
-    agent: APM_AGENT,
-    data_stream: APM_DS,
     event: { outcome: failBranch === 2 ? "failure" : "success" },
   };
 
   return [
-    txEventarc,
-    txWorkflow,
-    spanStep1,
-    txRun1,
-    spanSpanner,
-    spanStep2,
-    txRun2,
-    spanSql,
-    spanStep3,
-    txRun3,
-    spanPub,
+    enrichGcpTraceDoc(txEventarc, project.id, traceId, "go"),
+    enrichGcpTraceDoc(txWorkflow, project.id, traceId, "nodejs"),
+    enrichGcpTraceDoc(spanStep1, project.id, traceId, "nodejs"),
+    enrichGcpTraceDoc(txRun1, project.id, traceId, "java"),
+    enrichGcpTraceDoc(spanSpanner, project.id, traceId, "java"),
+    enrichGcpTraceDoc(spanStep2, project.id, traceId, "nodejs"),
+    enrichGcpTraceDoc(txRun2, project.id, traceId, "nodejs"),
+    enrichGcpTraceDoc(spanSql, project.id, traceId, "nodejs"),
+    enrichGcpTraceDoc(spanStep3, project.id, traceId, "nodejs"),
+    enrichGcpTraceDoc(txRun3, project.id, traceId, "python"),
+    enrichGcpTraceDoc(spanPub, project.id, traceId, "python"),
   ];
 }

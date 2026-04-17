@@ -1,5 +1,5 @@
 {
-  "title": "GCP Cloud Build — Pipeline Steps",
+  "title": "GCP Cloud Build \u2014 Pipeline Steps",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -47,7 +47,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudbuild* | EVAL is_err = CASE(log.level == \"error\", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)"
+            "query": "FROM logs-gcp.cloudbuild* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)"
           },
           "metrics": [
             {
@@ -154,7 +154,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudbuild* | KEEP `@timestamp`, `gcp.cloud_build.build_id`, `gcp.cloud_build.trigger_name`, `gcp.cloud_build.step_name`, `gcp.cloud_build.status`, `gcp.cloud_build.build_duration_seconds`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.cloudbuild* | KEEP `@timestamp`, `gcp.cloud_build.build_id`, `gcp.cloud_build.trigger_name`, `gcp.cloud_build.step_name`, `gcp.cloud_build.status`, `gcp.cloud_build.build_duration_seconds`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
@@ -189,8 +189,8 @@
             },
             {
               "operation": "value",
-              "column": "log.level",
-              "label": "Log level"
+              "column": "event.outcome",
+              "label": "Outcome"
             },
             {
               "operation": "value",

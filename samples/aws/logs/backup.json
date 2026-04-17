@@ -1,34 +1,38 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-west-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "backup" }
   },
   "aws": {
     "backup": {
-      "backup_job_id": "87lrht89-95tw-2sxd",
-      "backup_plan_name": "compliance-backup",
-      "resource_type": "RDS",
-      "backup_vault_name": "Default",
+      "event_subtype": "backup_job",
+      "backup_job_id": "b9dgh7l8-iq8o-8eg0",
+      "backup_plan_name": "critical-data-plan",
+      "resource_arn": "arn:aws:backup:eu-west-1:738291046572:recovery-point:ef1woll95jd",
+      "resource_type": "EC2",
+      "backup_vault_name": "compliance-vault",
+      "job_phase": "CREATED",
+      "job_lifecycle": ["CREATED", "PENDING", "RUNNING", "COMPLETED"],
       "status": "RUNNING",
-      "backup_size_gb": 524.7017363480335,
-      "lifecycle_delete_after_days": 365
+      "backup_size_gb": 559.7252365250696,
+      "lifecycle_delete_after_days": 30
     },
     "s3": {
       "bucket": {
-        "name": "aws-backup-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-backup-logs-164820739518"
+        "name": "aws-backup-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-backup-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/164820739518/backup/us-east-2/2026/04/15/backup_ZNYOYK6G0E.log.gz"
+        "key": "AWSLogs/738291046572/backup/eu-west-1/2026/04/17/backup_0JQU2VWU8K6Q.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/backup/logs",
-      "log_stream": "us-east-2/bgczgpy6",
-      "ingestion_time": "2026-04-15T13:24:36.315Z"
+      "log_stream": "eu-west-1/ooqr30o3",
+      "ingestion_time": "2026-04-17T09:05:18.949Z"
     }
   },
   "event": {
@@ -36,10 +40,10 @@
     "category": ["process"],
     "dataset": "aws.backup",
     "provider": "backup.amazonaws.com",
-    "duration": 3429000000000,
+    "duration": 2263000000000,
     "module": "aws"
   },
-  "message": "AWS Backup RUNNING: rds/prod-db -> Default (524.7GB)",
+  "message": "AWS Backup RUNNING: dynamodb/users-table -> compliance-vault (559.7GB)",
   "log": { "level": "info" },
   "service": { "name": "backup", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -47,8 +51,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "5ym6hw6q3fm"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "9s6z80nmw0w"
   },
   "input": { "type": "aws-cloudwatch" }
 }

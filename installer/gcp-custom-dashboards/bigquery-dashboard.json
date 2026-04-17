@@ -1,5 +1,5 @@
 {
-  "title": "GCP BigQuery — Jobs & Slot Usage",
+  "title": "GCP BigQuery \u2014 Jobs & Slot Usage",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -47,7 +47,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.bigquery* | EVAL is_err = CASE(log.level == \"error\", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)"
+            "query": "FROM logs-gcp.bigquery* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)"
           },
           "metrics": [
             {
@@ -213,7 +213,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.bigquery* | KEEP `@timestamp`, `gcp.bigquery.job_id`, `gcp.bigquery.job_type`, `gcp.bigquery.dataset`, `gcp.bigquery.statement_type`, `gcp.bigquery.total_bytes_processed`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.bigquery* | KEEP `@timestamp`, `gcp.bigquery.job_id`, `gcp.bigquery.job_type`, `gcp.bigquery.dataset`, `gcp.bigquery.statement_type`, `gcp.bigquery.total_bytes_processed`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
@@ -248,8 +248,8 @@
             },
             {
               "operation": "value",
-              "column": "log.level",
-              "label": "Log level"
+              "column": "event.outcome",
+              "label": "Outcome"
             },
             {
               "operation": "value",

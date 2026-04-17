@@ -1,0 +1,121 @@
+{
+  "group": "data-pipeline",
+  "description": "Alerting rules for the Data & Analytics Pipeline chained event scenario",
+  "rules": [
+    {
+      "id": "cloudloadgen-data-pipeline-failure-rate",
+      "name": "[CloudLoadGen] Data Pipeline — High Failure Rate",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [3],
+        "thresholdComparator": ">",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.mwaa\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}",
+        "index": ["logs-aws.mwaa*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-data-pipeline-null-data",
+      "name": "[CloudLoadGen] Data Pipeline — Null/Empty Data Detected",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.athena\"}},{\"term\":{\"aws.athena.rows_returned\":0}}]}}",
+        "index": ["logs-aws.athena*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-data-pipeline-emr-error",
+      "name": "[CloudLoadGen] Data Pipeline — EMR/Spark Processing Error",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr\"}},{\"exists\":{\"field\":\"error.type\"}}]}}",
+        "index": ["logs-aws.emr*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-data-pipeline-s3-format-error",
+      "name": "[CloudLoadGen] Data Pipeline — S3 Source File Format Error",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.s3access\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"aws.s3access.key\":{\"value\":\"*%*\"}}},{\"bool\":{\"must_not\":{\"wildcard\":{\"aws.s3access.key\":{\"value\":\"*.avro\"}}}}}]}}]}}",
+        "index": ["logs-aws.s3access*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-data-pipeline-slow-run",
+      "name": "[CloudLoadGen] Data Pipeline — Slow Pipeline Run (>60s)",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 30,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.mwaa\"}},{\"term\":{\"event.action\":\"dag_completed\"}},{\"range\":{\"aws.mwaa.duration_ms\":{\"gt\":60000}}}]}}",
+        "index": ["logs-aws.mwaa*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    }
+  ]
+}

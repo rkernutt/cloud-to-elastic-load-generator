@@ -213,6 +213,7 @@ const SERVICE_INGESTION_DEFAULTS = {
   kspm: "api",
   "iam-privesc-chain": "api",
   "data-exfil-chain": "api",
+  "data-pipeline-chain": "api",
   storagelens: "s3",
   qbusiness: "cloudwatch",
   // v11.5 new services

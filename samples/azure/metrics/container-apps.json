@@ -3,26 +3,50 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "uaenorth",
-    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" }
+    "region": "eastus",
+    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-uaenorth",
-    "ephemeral_id": "fi9hffrgrf7"
+    "name": "metricbeat-azure-eastus",
+    "ephemeral_id": "9fi9eyyymyo"
   },
   "azure": {
     "container_apps": {
       "metrics": {
-        "pod_count": { "avg": 488, "sum": 488, "count": 1 },
-        "cpu_usage": { "avg": 40.37, "sum": 40.37, "count": 1 },
-        "failed_pods": { "avg": 0, "sum": 0, "count": 1 }
-      },
-      "labels": { "resource_group": "rg-data-clqgb", "node_name": "nodepool-0" }
-    }
+        "Replicas": { "avg": 10, "min": 8.8, "max": 11.2, "sum": 10, "count": 1 },
+        "CpuUsageNanoCores": {
+          "avg": 209419630,
+          "min": 184289274.4,
+          "max": 234549985.6,
+          "sum": 209419630,
+          "count": 1
+        },
+        "MemoryWorkingSetBytes": {
+          "avg": 502806301.93,
+          "min": 442469545.7,
+          "max": 563143058.16,
+          "sum": 502806301.93,
+          "count": 1
+        },
+        "RestartCount": { "avg": 0, "min": 0, "max": 0, "sum": 0, "count": 1 },
+        "Requests": { "avg": 480872, "min": 423167.36, "max": 538576.64, "sum": 480872, "count": 1 }
+      }
+    },
+    "dimensions": {
+      "revisionName": "ca-api--v1",
+      "replicaName": "ca-prod-3003",
+      "ResourceGroup": "rg-prod-fydeh"
+    },
+    "resource": {
+      "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-prod-fydeh/providers/Microsoft.App/containerApps/ca-prod",
+      "group": "rg-prod-fydeh",
+      "name": "ca-prod"
+    },
+    "namespace": "Microsoft.App/containerApps"
   },
-  "metricset": { "name": "container_apps", "period": 60000 },
+  "metricset": { "name": "monitor", "period": 60000 },
   "data_stream": {
     "type": "metrics",
     "dataset": "azure.container_apps_metrics",
@@ -32,9 +56,9 @@
   "event": { "dataset": "azure.container_apps_metrics", "module": "azure" },
   "azureMonitorMetric": {
     "time": "2026-04-07T12:00:00.000Z",
-    "metricName": "pod_count",
+    "metricName": "Replicas",
     "resourceGroup": "rg-container-apps",
-    "subscriptionId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-    "timeseries": [{ "data": [{ "average": 488, "count": 1 }] }]
+    "subscriptionId": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
+    "timeseries": [{ "data": [{ "average": 10, "count": 1 }] }]
   }
 }

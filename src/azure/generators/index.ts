@@ -35,6 +35,7 @@ import {
   generateAzureIamPrivEscChain,
   generateAzureDataExfilChain,
 } from "./securityChains.js";
+import { generateAzureDataPipelineChain } from "./dataPipelineChain.js";
 import {
   generateIotHubLog,
   generateLogicAppsLog,
@@ -81,6 +82,7 @@ const DEDICATED: Record<string, Gen> = {
   "azure-kspm": generateAzureKspmFindings,
   "azure-iam-privesc-chain": generateAzureIamPrivEscChain,
   "azure-data-exfil-chain": generateAzureDataExfilChain,
+  "azure-data-pipeline-chain": generateAzureDataPipelineChain,
 };
 
 const AZURE_LOG_MERGE_CHILDREN: Record<string, readonly string[]> = {

@@ -435,6 +435,60 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
       );
     }
 
+    // ── Companion APM traces for services with native OTel instrumentation ──
+    const TRACE_CAPABLE_SERVICES = ["lambda", "emr"];
+    const traceEligible = activeServices.filter((s) => TRACE_CAPABLE_SERVICES.includes(s));
+    if (traceEligible.length > 0 && !abortRef.current) {
+      const TRACE_GENERATORS = await config.loadTraceGenerators();
+      const APM_INDEX = "traces-apm-default";
+      const traceCount = Math.max(20, Math.round(logsPerService * 0.15));
+      addLog(`🔗 Shipping companion APM traces for ${traceEligible.join(", ")} → ${APM_INDEX}`);
+      for (const svc of traceEligible) {
+        if (abortRef.current) break;
+        if (!TRACE_GENERATORS[svc]) continue;
+        const traceDocs = Array.from({ length: traceCount }, () =>
+          TRACE_GENERATORS[svc](randTs(startDate, endDate), errorRate).map((d) =>
+            enrichDoc(stripNulls(d) as LooseDoc, svc, "otel", "traces")
+          )
+        ).flat();
+        const apmMeta = JSON.stringify({ create: { _index: APM_INDEX } });
+        let traceSent = 0,
+          traceErrs = 0;
+        for (let i = 0; i < traceDocs.length; i += batchSize) {
+          if (abortRef.current) break;
+          const batch = traceDocs.slice(i, i + batchSize);
+          let ndjson = "";
+          for (const doc of batch) ndjson += apmMeta + "\n" + JSON.stringify(doc) + "\n";
+          try {
+            const res = dryRun
+              ? dryRunResponse()
+              : await fetchWithRetry(`/proxy/_bulk`, { method: "POST", headers, body: ndjson });
+            const json = (await res.json()) as {
+              error?: { reason?: string };
+              items?: BulkRespItem[];
+            };
+            if (!res.ok) {
+              traceErrs += batch.length;
+            } else {
+              const errs =
+                json.items?.filter((it: BulkRespItem) => it.create?.error || it.index?.error)
+                  .length ?? 0;
+              traceSent += batch.length - errs;
+              traceErrs += errs;
+            }
+          } catch {
+            traceErrs += batch.length;
+          }
+        }
+        totalSent += traceSent;
+        totalErrors += traceErrs;
+        addLog(
+          `  ✓ ${svc} APM traces: ${traceSent} docs → ${APM_INDEX}`,
+          traceErrs > 0 ? "warn" : "ok"
+        );
+      }
+    }
+
     if (injectAnomalies && !abortRef.current) {
       addLog("⚡ Anomaly injection pass — shipping spike events at current time…", "info");
       const injCount = Math.max(50, Math.round(logsPerService * 0.3));

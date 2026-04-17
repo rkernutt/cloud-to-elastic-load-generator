@@ -25,8 +25,13 @@ import {
 
 const AZURE_ICON_BASE = publicUrl("azure-icons");
 
+const CHAINED_EVENT_RE = /chain|cspm|kspm/;
+
 const azureVendorServiceFiles = Object.fromEntries(
-  AZURE_ALL_SERVICE_IDS.map((id) => [id, AZURE_VENDOR_SERVICE_ICONS[id] ?? AZURE_VENDOR_FALLBACK])
+  AZURE_ALL_SERVICE_IDS.filter((id) => !CHAINED_EVENT_RE.test(id)).map((id) => [
+    id,
+    AZURE_VENDOR_SERVICE_ICONS[id] ?? AZURE_VENDOR_FALLBACK,
+  ])
 );
 
 const azureVendorCategoryFiles = Object.fromEntries(

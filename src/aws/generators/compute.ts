@@ -10,6 +10,7 @@ function generateEc2Log(ts: string, er: number) {
   const INSTANCE_TYPES = ["t3.medium", "m5.xlarge", "c5.2xlarge", "r5.large"] as const;
   const instanceType = rand(INSTANCE_TYPES);
   const cpuCores = CPU_CORES[instanceType];
+  const stackId = `arn:aws:cloudformation:${region}:${acct.id}:stack/${rand(["web", "api", "data"])}-stack/${randId(8)}`;
   const MSGS = {
     error: [
       "kernel: EXT4-fs error (device xvda1): ext4_validate_block_bitmap: bg 0: bad block bitmap checksum",
@@ -18,15 +19,33 @@ function generateEc2Log(ts: string, er: number) {
       "sshd: error: Could not load host key",
       "Failed to start NetworkManager",
       "disk I/O error on /dev/xvda1",
+      "amazon-cloudwatch-agent: E! [outputs.cloudwatchlogs] Write failed: AccessDeniedException",
+      "cfn-init: Error executing configSet default: Command 01_install failed",
     ],
     warn: [
       "CPU steal time above threshold: 23%",
       "High disk utilization: 88% full",
       "Memory available below 512MB",
       "SSH login from unknown IP",
+      "amazon-ssm-agent: WARN Ping response latency high: 850ms",
+      "amazon-cloudwatch-agent: W! Deprecation: configuration key 'metrics_collected' nested path changed",
     ],
     info: [
-      "cloud-init: Cloud-init v. 22.2.2 running 'init-local'",
+      "cloud-init: Cloud-init v. 22.2.2 running 'init-local' at Mon, 01 Jan 2024 12:00:00 +0000. Up 2.13 seconds.",
+      "cloud-init: Fetching ec2 metadata from http://169.254.169.254/latest/meta-data/instance-id",
+      "cloud-init: Reading user-data from /var/lib/cloud/instance/user-data.txt (multipart: False)",
+      "cloud-init: Running module write_files (<module>, 0, False) with frequency once-per-instance",
+      "cloud-init: Running command ['sh', '-c', 'systemctl enable amazon-ssm-agent'] (frequency once-per-instance)",
+      "cloud-init: modules-final: running modules for final",
+      "amazon-ssm-agent: INFO [HealthCheck] HealthCheck reporting agent health.",
+      "amazon-ssm-agent: INFO [MessageService] [EngineProcessor] [MessageHandler] successfully completed document aws:runShellScript",
+      "amazon-ssm-agent: INFO [LongRunningPluginsManager] There are no long running plugins currently getting executed - skipping their healthcheck",
+      "amazon-cloudwatch-agent: I! Detected runAsUser: cwagent",
+      "amazon-cloudwatch-agent: I! Loaded configuration from /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json",
+      "amazon-cloudwatch-agent: I! [logagent] start logs plugin file paths [/var/log/messages]",
+      "amazon-cloudwatch-agent: D! [outputs.cloudwatchlogs] Buffer fullness: 12%",
+      "cfn-init: Completed successfully",
+      `cfn-init: Signaling resource ${rand(["WebServerInstance", "LaunchTemplate", "AutoScalingGroup"])} in stack ${stackId}`,
       "systemd: Started Amazon SSM Agent.",
       "kernel: [    0.000000] Linux version 5.10.68-62.173.amzn2.x86_64",
       "sshd: Accepted publickey for ec2-user",
@@ -50,14 +69,26 @@ function generateEc2Log(ts: string, er: number) {
   const durationSec = randInt(60, 3600);
   const plainMessage = rand(MSGS[level]);
   const useStructuredLogging = Math.random() < 0.55;
+  const logGroup = rand([
+    `/aws/ec2/${instanceId}/messages`,
+    `/aws/ec2/${instanceId}/cloud-init`,
+    `/aws/ec2/${instanceId}/ssm`,
+    `/aws/ec2/${instanceId}/cfn-init-cmd.log`,
+    `/aws/ec2/${instanceId}/cwagent`,
+  ]);
+  const logStream = `${instanceId}/${rand(["messages", "cloud-init.log", "amazon-ssm-agent.log", "amazon-cloudwatch-agent.log", "cfn-init.log"])}`;
   const message = useStructuredLogging
     ? JSON.stringify({
-        instanceId,
-        instanceType,
-        level,
+        source: rand(["amazon-cloudwatch-agent", "cwagent"]),
+        log_group: logGroup,
+        log_stream: logStream,
+        instance_id: instanceId,
+        instance_type: instanceType,
+        log_level: level,
         message: plainMessage,
-        timestamp: new Date(ts).toISOString(),
-        component: rand(["syslog", "cloud-init", "sshd", "awslogs"]),
+        "@timestamp": new Date(ts).toISOString(),
+        os_type: "linux",
+        agent_version: rand(["1.300032.0", "1.248013.0"]),
       })
     : plainMessage;
   const eventType = isErr
@@ -180,15 +211,42 @@ function generateEcsLog(ts: string, er: number): EcsDocument {
   const cpuPct = Number(randFloat(1, isErr ? 99 : 70));
   const memReservation = Number(randFloat(20, 70));
   const memPct = Number(randFloat(10, Math.min(memReservation, isErr ? 99 : 80)));
+  const taskDefFamily = `${svc}-td`;
+  const taskDefRev = randInt(1, 42);
+  const taskArn = `arn:aws:ecs:${region}:${acct.id}:task/${cluster}/${randId(32).toLowerCase()}`;
+  const imageRef = `${acct.id}.dkr.ecr.${region}.amazonaws.com/${svc}:${rand(["latest", "v1.4.2", "sha256:a1b2"])}`;
   const MSGS = {
     error: [
       "Container exited with code 1",
       "OOMKilled",
       "Health check failed",
       "Failed to pull image",
+      `containerd: failed to pull and unpack image "${imageRef}": failed to resolve reference: unexpected status 403`,
+      `ecs-agent: [ERROR] TaskEngine: error transitioning container [${svc}] to [CREATED]: DockerTimeoutError`,
     ],
-    warn: ["High memory: 85%", "Slow response", "Retry 2/3", "Connection pool exhausted"],
-    info: ["Task started", "Health check passed", "Request processed", "Scaling event triggered"],
+    warn: [
+      "High memory: 85%",
+      "Slow response",
+      "Retry 2/3",
+      "Connection pool exhausted",
+      `ecs-agent: [WARN] TaskEngine: pull image slow for container [${svc}] duration=45s`,
+      `containerd: unpacking layer sha256:${randId(40).toLowerCase()} (application/vnd.docker.image.rootfs.diff.tar.gzip)`,
+    ],
+    info: [
+      "Task started",
+      "Health check passed",
+      "Request processed",
+      "Scaling event triggered",
+      `containerd: pulling image "${imageRef}"`,
+      `containerd: successfully pulled image "${imageRef}" in 3.2s`,
+      `containerd: creating container ${randId(12).toLowerCase()} name=${svc}`,
+      `ecs-agent: [INFO] Managed task [arn:aws:ecs:...] at [RUNNING]: steady state`,
+      `ecs-agent: [INFO] TaskHandler: Recording task started, task arn: ${taskArn}`,
+      `service ${svc} has reached a steady state.`,
+      `service ${svc} deployment ecs-svc/${randId(10)} deployment completed.`,
+      `(service ${svc}) has started 1 tasks: (task ${randId(32).toLowerCase()}).`,
+      `(service ${svc}) registered 1 targets in (target-group tg-${randId(8)})`,
+    ],
   };
   const ECS_ERROR_CODES = [
     "ClusterContainsContainerInstances",
@@ -208,9 +266,12 @@ function generateEcsLog(ts: string, er: number): EcsDocument {
     "UpdateInProgressException",
   ];
   const durationSec = randInt(5, isErr ? 300 : 3600);
-  const taskId = randId(32).toLowerCase();
+  const taskId = taskArn.split("/").pop() ?? randId(32).toLowerCase();
   const plainMessage = rand(MSGS[level]);
   const useStructuredLogging = Math.random() < 0.6;
+  const ecsCluster = cluster;
+  const ecsTaskDefinition = `${taskDefFamily}:${taskDefRev}`;
+  const ecsTaskArn = taskArn;
   const message = useStructuredLogging
     ? JSON.stringify({
         cluster,
@@ -220,6 +281,9 @@ function generateEcsLog(ts: string, er: number): EcsDocument {
         level,
         message: plainMessage,
         timestamp: new Date(ts).toISOString(),
+        ecs_cluster: ecsCluster,
+        ecs_task_definition: ecsTaskDefinition,
+        ecs_task_arn: ecsTaskArn,
       })
     : plainMessage;
   return {
@@ -233,6 +297,9 @@ function generateEcsLog(ts: string, er: number): EcsDocument {
     aws: {
       dimensions: { ClusterName: cluster, ServiceName: svc },
       ecs: {
+        ecs_cluster: ecsCluster,
+        ecs_task_definition: ecsTaskDefinition,
+        ecs_task_arn: ecsTaskArn,
         metrics: {
           CPUUtilization: { avg: cpuPct },
           CPUReservation: { avg: Number(randFloat(10, 80)) },
@@ -262,6 +329,9 @@ function generateEcsLog(ts: string, er: number): EcsDocument {
     },
     message: message,
     service: { name: svc, type: "ecs" },
+    ecs_cluster: ecsCluster,
+    ecs_task_definition: ecsTaskDefinition,
+    ecs_task_arn: ecsTaskArn,
     ...(isErr
       ? { error: { code: rand(ECS_ERROR_CODES), message: rand(MSGS.error), type: "container" } }
       : {}),
@@ -306,22 +376,108 @@ function generateEksLog(ts: string, er: number): EcsDocument {
     "FailedScheduling",
   ];
   const durationSec = randInt(1, isErr ? 300 : 3600);
-  const plainMessage = rand(MSGS[level]);
-  const useStructuredLogging = Math.random() < 0.6;
-  const kubeletTs = `${new Date(ts).toISOString().replace("T", " ").replace("Z", "")}`;
-  const kubeletMsg = `${kubeletTs} ${rand(["E", "W", "I"])}${randInt(100, 1299)} ${randId(6)} ${rand(["reconciler.go", "controller.go", "manager.go"])}:${randInt(50, 500)}] ${plainMessage}`;
-  const message = useStructuredLogging
-    ? JSON.stringify({
-        cluster: clusterName,
-        namespace: ns,
-        pod,
-        level,
-        message: plainMessage,
-        timestamp: new Date(ts).toISOString(),
-        stream: rand(["stdout", "stderr"]),
-      })
-    : kubeletMsg;
   const nodeName = `ip-${randIp().replace(/\./g, "-")}.${region}.compute.internal`;
+  const iso = new Date(ts).toISOString();
+  const kubeletPlain = rand(MSGS[level]);
+  const lineKind = rand([
+    "kubelet",
+    "kubelet",
+    "authenticator",
+    "audit",
+    "scheduler",
+    "controller",
+    "event",
+    "coredns",
+  ]);
+  const username = rand([
+    `system:serviceaccount:${ns}:${pod.split("-")[0]}-sa`,
+    `system:node:${nodeName}`,
+    `arn:aws:sts::${acct.id}:assumed-role/${rand(["eks-nodegroup-role", "EKS-Fargate-PodRole"])}/session`,
+    "admin",
+  ]);
+  const verb = rand(["get", "list", "watch", "create", "update", "patch", "delete"]);
+  const resName = rand(["pods", "deployments", "services", "configmaps", "events"]);
+  const objectRef = {
+    kind: rand(["Pod", "Deployment", "Service", "ConfigMap"]),
+    namespace: ns,
+    name: pod,
+    resource: resName,
+    apiVersion: rand(["v1", "apps/v1"]),
+  };
+  const svcDns = `${pod.split("-")[0]}.${ns}.svc.cluster.local`;
+  let message: string;
+  let useStructuredLogging: boolean;
+  if (lineKind === "audit") {
+    useStructuredLogging = true;
+    message = JSON.stringify({
+      kind: "Event",
+      apiVersion: "audit.k8s.io/v1",
+      level: isErr ? "RequestResponse" : "Metadata",
+      auditID: randId(16).toLowerCase(),
+      stage: rand(["RequestReceived", "ResponseComplete"]),
+      requestURI: `/api/v1/namespaces/${ns}/${resName}/${pod}`,
+      verb,
+      user: { username },
+      objectRef,
+      responseStatus: { code: isErr ? rand([401, 403, 500]) : 200 },
+      sourceIPs: [randIp()],
+      timestamp: iso,
+    });
+  } else if (lineKind === "authenticator") {
+    useStructuredLogging = false;
+    message = isErr
+      ? `time="${iso}" level=error msg="could not load ConfigMap "aws-auth" in namespace "kube-system": configmaps "aws-auth" not found"`
+      : `time="${iso}" level=info msg="mapping IAM role" groups="system:bootstrappers,system:nodes" username="${username}" uid="aws-iam-authenticator:${acct.id}:role/${rand(["eksNodeRole", "node-instance-role"])}"`;
+  } else if (lineKind === "scheduler") {
+    useStructuredLogging = false;
+    message = isErr
+      ? `E${randInt(100, 129)}${randInt(1000, 9999)} ${iso.substring(11, 23).replace("T", " ")}       1 factory.go:${randInt(200, 999)}] "Unable to schedule pod; no fit" pod=${ns}/${pod} err="0/${randInt(3, 20)} nodes available: insufficient cpu"`
+      : `I${randInt(100, 129)}${randInt(1000, 9999)} ${iso.substring(11, 23).replace("T", " ")}       1 default_binder.go:${randInt(50, 200)}] "Successfully bound pod to node" pod=${ns}/${pod} node=${nodeName} evaluatedNodes=${randInt(5, 40)} feasibleNodes=${randInt(1, 10)}`;
+  } else if (lineKind === "controller") {
+    useStructuredLogging = false;
+    message = isErr
+      ? `E${randInt(100, 129)}${randInt(1000, 9999)} ${iso.substring(11, 23).replace("T", " ")}       1 deployment_controller.go:${randInt(400, 900)}] "error syncing deployment" deployment=${ns}/${pod.split("-")[0]} err="failed to create ReplicaSet: forbidden"`
+      : `I${randInt(100, 129)}${randInt(1000, 9999)} ${iso.substring(11, 23).replace("T", " ")}       1 replica_set.go:${randInt(100, 400)}] "Finished syncing" deployment=${ns}/${pod.split("-")[0]} duration="${Number(randFloat(0.001, 0.25)).toFixed(6)}s"`;
+  } else if (lineKind === "event") {
+    useStructuredLogging = true;
+    message = JSON.stringify({
+      type: isErr ? "Warning" : "Normal",
+      reason: rand(["Scheduled", "Pulling", "Started", "Killing", "FailedMount"]),
+      message: kubeletPlain,
+      metadata: { namespace: ns, name: pod, creationTimestamp: iso },
+      involvedObject: {
+        kind: objectRef.kind,
+        namespace: ns,
+        name: pod,
+        uid: randId(10).toLowerCase(),
+      },
+      reportingComponent: rand(["kube-scheduler", "kubelet", "deployment-controller"]),
+      reportingInstance: nodeName,
+      action: verb,
+      user: { username },
+    });
+  } else if (lineKind === "coredns") {
+    useStructuredLogging = false;
+    const client = randIp();
+    const qtype = rand(["A", "AAAA", "SRV"]);
+    const rcode = isErr ? "SERVFAIL" : "NOERROR";
+    message = `[${level === "error" ? "ERROR" : "INFO"}] ${client}:${randInt(40000, 65535)} - ${randInt(10000, 99999)} "${qtype} IN ${svcDns}. udp ${randInt(40, 512)} false ${randInt(512, 4096)}" ${rcode} qr,aa,rd,ra ${randInt(50, 200)} ${Number(randFloat(0.00001, isErr ? 2 : 0.05)).toFixed(8)}s`;
+  } else {
+    const kubeletTs = `${iso.replace("T", " ").replace("Z", "")}`;
+    const kubeletMsg = `${kubeletTs} ${rand(["E", "W", "I"])}${randInt(100, 1299)} ${randId(6)} ${rand(["reconciler.go", "kubelet.go", "kuberuntime_manager.go"])}:${randInt(50, 500)}] ${kubeletPlain}`;
+    useStructuredLogging = Math.random() < 0.6;
+    message = useStructuredLogging
+      ? JSON.stringify({
+          cluster: clusterName,
+          namespace: ns,
+          pod,
+          level,
+          message: kubeletPlain,
+          timestamp: iso,
+          stream: rand(["stdout", "stderr"]),
+        })
+      : kubeletMsg;
+  }
   return {
     "@timestamp": ts,
     cloud: {
@@ -334,6 +490,7 @@ function generateEksLog(ts: string, er: number): EcsDocument {
       dimensions: { ClusterName: clusterName, NodeName: nodeName, Namespace: ns, PodName: pod },
       eks: {
         structured_logging: useStructuredLogging,
+        log_line_kind: lineKind,
         cluster: { name: clusterName },
         node: { name: nodeName },
         metrics: {
@@ -393,6 +550,16 @@ function generateBatchLog(ts: string, er: number): EcsDocument {
   const jobId = `${randId(8)}-${randId(4)}`.toLowerCase();
   const isErr = level === "error";
   const durationSec = randInt(10, isErr ? 7200 : 3600);
+  const jobDefName = `${jobName}-def`;
+  const ecsTaskId = randId(32).toLowerCase();
+  const logStreamName = `${jobDefName}/default/${ecsTaskId}`;
+  const attempt = isErr ? randInt(1, 3) : randInt(1, 1);
+  const exitCode = isErr ? rand([1, 2, 127, 137, 139, 255]) : 0;
+  const jobStatus = rand(
+    isErr
+      ? ["FAILED", "FAILED", "RUNNING"]
+      : ["SUBMITTED", "PENDING", "RUNNABLE", "STARTING", "RUNNING", "SUCCEEDED"]
+  );
   const MSGS = {
     error: [
       "Job run failed",
@@ -401,19 +568,28 @@ function generateBatchLog(ts: string, er: number): EcsDocument {
       "Job queue capacity exceeded",
       "IAM role permission denied",
       "Spot instance reclaimed during execution",
+      `AWS_BATCH_JOB_ATTEMPT=${attempt} container exited with code ${exitCode}: OOMKilled`,
+      `StatusReason=Host EC2 (instance i-${randId(17).toLowerCase()}) terminated.`,
     ],
     warn: [
       "Job retry attempt 2/3",
       "vCPU limit approaching: 980/1000",
       "Job timeout warning: 80% elapsed",
+      `Job ${jobId} transition RUNNABLE -> STARTING (waiting for instance capacity)`,
     ],
     info: [
-      "Job run started",
-      "Job run succeeded",
+      `batch: job ${jobId} status SUBMITTED -> PENDING`,
+      `batch: job ${jobId} status PENDING -> RUNNABLE`,
+      `batch: job ${jobId} status RUNNABLE -> STARTING`,
+      `batch: job ${jobId} status STARTING -> RUNNING`,
+      `batch: job ${jobId} status RUNNING -> SUCCEEDED`,
       "Job submitted to queue",
       "Container started on ECS instance",
       "Job completed successfully",
       "Job definition registered",
+      `stderr:WARNING:deprecation: legacy flag --use_spark will be removed`,
+      `stdout:INFO:__main__:processed partition ${randInt(0, 999)} rows=${randInt(1e3, 1e6)}`,
+      `stdout:${new Date(ts).toISOString()} INFO spark.SparkContext: Running job 0 stage ${randInt(0, 20)}`,
     ],
   };
   const BATCH_ERROR_CODES = [
@@ -437,6 +613,10 @@ function generateBatchLog(ts: string, er: number): EcsDocument {
         message: plainMessage,
         timestamp: new Date(ts).toISOString(),
         arrayIndex: randInt(0, 99),
+        logStreamName,
+        jobAttempt: attempt,
+        containerExitCode: exitCode,
+        jobStatus,
       })
     : plainMessage;
   return {
@@ -450,9 +630,16 @@ function generateBatchLog(ts: string, er: number): EcsDocument {
     aws: {
       dimensions: { JobQueue: jobQueue },
       batch: {
-        job: { name: jobName, id: jobId, status: isErr ? "FAILED" : "SUCCEEDED" },
+        job: {
+          name: jobName,
+          id: jobId,
+          status: isErr ? "FAILED" : jobStatus === "SUCCEEDED" ? "SUCCEEDED" : jobStatus,
+        },
         job_queue: jobQueue,
         compute_environment: `ce-${rand(["spot", "ondemand"])}`,
+        log_stream_name: logStreamName,
+        job_attempt: attempt,
+        container_exit_code: exitCode,
         structured_logging: useStructuredLogging,
         metrics: {
           PendingJobCount: { avg: randInt(0, 100) },
@@ -470,7 +657,7 @@ function generateBatchLog(ts: string, er: number): EcsDocument {
     process: {
       pid: randInt(1, 65535),
       name: rand(["python", "java", "spark-submit", "bash"]),
-      exit_code: isErr ? rand([1, 2, 127, 137, 143]) : 0,
+      exit_code: exitCode,
     },
     log: { level },
     event: {
@@ -481,6 +668,7 @@ function generateBatchLog(ts: string, er: number): EcsDocument {
       duration: durationSec * 1e9,
     },
     message: message,
+    logStreamName,
     ...(isErr
       ? { error: { code: rand(BATCH_ERROR_CODES), message: rand(MSGS.error), type: "process" } }
       : {}),
@@ -495,22 +683,36 @@ function generateBeanstalkLog(ts: string, er: number): EcsDocument {
   const env = `${app}-${rand(["production", "staging", "dev"])}`;
   const status = isErr ? rand([500, 502, 503]) : rand([200, 200, 201, 204, 301]);
   const instanceId = `i-${randId(17).toLowerCase()}`;
+  const reqPath = rand(["/api/health", "/index.html", "/v1/status", "/static/app.js"]);
+  const clientIp = randIp();
   const MSGS = {
     error: [
       "ERROR: Failed to deploy application version",
       "ENV_ERROR: Deployment failed, rolling back",
       "Application version rejected: validation failed",
+      "eb-engine: ERROR Instance deployment failed. For details, see 'eb-engine.log'.",
+      "nginx: [error] connect() failed (111: Connection refused) while connecting to upstream",
     ],
     warn: [
       "WARN: Enhanced health reporting: Warning",
       "CPU utilization above 75%",
       "Response time above 3s threshold",
+      "eb-engine: WARN Command took longer than expected: hooks/appdeploy/pre/01_install_deps.sh",
+      `nginx: [warn] upstream server temporarily disabled`,
     ],
     info: [
       "Deployment completed successfully",
       "Environment health: OK",
       "Auto Scaling event: +2 instances",
       "Rolling update complete",
+      "eb-engine: INFO Running platform hook: .platform/hooks/prebuild/01_set_env.sh",
+      "eb-engine: INFO Executing instruction: RunAppDeployPreDeployHooks",
+      "eb-engine: INFO Instance deployment: application code deploy finished successfully.",
+      `nginx: ${clientIp} - - [${new Date(ts).toISOString().replace("T", " ").replace("Z", " +0000")}] "GET ${reqPath} HTTP/1.1" ${status} ${randInt(100, 12000)} "-" "ELB-HealthChecker/2.0"`,
+      `nginx: ${clientIp} - - [${new Date(ts).toISOString().replace("T", " ").replace("Z", " +0000")}] "POST ${reqPath} HTTP/1.1" ${status} ${randInt(200, 5000)}`,
+      "healthd: INFO Health transition: Ok -> Info (Application update in progress on 1 out of 3 instances.)",
+      "healthd: INFO Health transition: Info -> Ok (All instances are healthy.)",
+      "healthd: WARN Environment health has transitioned from Ok to Warning. 1 out of 3 instances are impacted.",
     ],
   };
   const BEANSTALK_ERROR_CODES = ["DeploymentFailed", "Rollback", "ValidationFailed"];
@@ -532,6 +734,8 @@ function generateBeanstalkLog(ts: string, er: number): EcsDocument {
         status,
         message: plainMessage,
         timestamp: new Date(ts).toISOString(),
+        instance_id: instanceId,
+        log_source: rand(["eb-engine", "nginx", "healthd", "platform-hooks"]),
       })
     : plainMessage;
   return {
@@ -607,19 +811,54 @@ function generateEcrLog(ts: string, er: number): EcsDocument {
     "nginx-custom",
   ]);
   const tag = rand(["latest", "v1.2.3", "main", "release-42", "sha-a3f1bc"]);
-  const action = rand(["push", "pull", "pull", "pull", "scan", "delete"]);
+  const action = rand(["push", "pull", "pull", "scan", "delete", "lifecycle", "replication"]);
   const SCAN_SEVS = ["CRITICAL", "HIGH", "MEDIUM"];
   const ECR_ERROR_CODES = ["ScanFindings", "ImageNotFound", "AccessDenied", "RateLimitExceeded"];
-  const findingCount = isErr ? randInt(1, 30) : 0;
+  const findingCount = isErr && action === "scan" ? randInt(1, 30) : isErr ? randInt(0, 12) : 0;
   let sevRem = findingCount;
   const sevCritical = isErr ? randInt(0, Math.min(sevRem, 5)) : 0;
   sevRem -= sevCritical;
   const sevHigh = isErr ? randInt(0, Math.min(sevRem, 10)) : 0;
   sevRem -= sevHigh;
   const sevMedium = isErr ? sevRem : 0;
+  const digest = `sha256:${randId(40).toLowerCase()}`;
+  const otherRegions = REGIONS.filter((r) => r !== region);
+  const destRegion = rand(otherRegions.length ? otherRegions : REGIONS);
+  const replicationDestination = `${acct.id}.dkr.ecr.${destRegion}.amazonaws.com/${repo}`;
+  const lifecycleRuleId = `rule-${randInt(1, 12)}`;
   const errMsg = isErr
-    ? `ECR scan: ${repo}:${tag} found ${findingCount} vulnerabilities [${rand(SCAN_SEVS)}]`
+    ? action === "scan"
+      ? `ECR ImageScanCompleted: repository=${repo} imageDigest=${digest} findingsCount=${findingCount} maxSeverity=${rand(SCAN_SEVS)}`
+      : `ECR ${action} failed for ${repo}:${tag}: ${rand(["ThrottlingException", "RepositoryNotFoundException", "ImageNotFoundException"])}`
     : null;
+  const layerCount = randInt(4, 32);
+  const pulledLayers = randInt(1, layerCount);
+  let message: string;
+  if (action === "scan") {
+    message = isErr
+      ? (errMsg as string)
+      : `ECR ImageScanCompleted: repository=${repo} imageDigest=${digest} findingsCount=0 severitySummary=CLEAN scanTimestamp=${new Date(ts).toISOString()}`;
+  } else if (action === "push") {
+    message = isErr
+      ? (errMsg as string)
+      : `ECR PutImage repository=${repo} imageTag=${tag} imageDigest=${digest} imageSizeInBytes=${randInt(8e6, 900e6)} layerCount=${layerCount} partChecksums=${randInt(8, layerCount)}`;
+  } else if (action === "pull") {
+    message = isErr
+      ? (errMsg as string)
+      : `ECR BatchGetImage repository=${repo} registryId=${acct.id} imageManifestMediaType=application/vnd.docker.distribution.manifest.v2+json layersFetched=${pulledLayers}/${layerCount} bytesTransferred=${randInt(2e6, 400e6)}`;
+  } else if (action === "delete") {
+    message = isErr
+      ? (errMsg as string)
+      : `ECR BatchDeleteImage repository=${repo} imageIds=[{imageDigest=${digest},imageTag=${tag}}] deleted=${randInt(1, 3)}`;
+  } else if (action === "lifecycle") {
+    message = isErr
+      ? (errMsg as string)
+      : `ECR LifecyclePolicyExecution: repository=${repo} ruleId=${lifecycleRuleId} action=expire imagesExpired=${randInt(1, 8)} bytesReclaimed=${randInt(5e7, 5e9)}`;
+  } else {
+    message = isErr
+      ? (errMsg as string)
+      : `ECR ReplicationComplete: repository=${repo} imageDigest=${digest} sourceRegion=${region} destination=${replicationDestination} status=COMPLETE`;
+  }
   return {
     "@timestamp": ts,
     cloud: {
@@ -634,7 +873,7 @@ function generateEcrLog(ts: string, er: number): EcsDocument {
         repository_name: repo,
         registry_id: `${acct.id}`,
         image_tag: tag,
-        image_digest: `sha256:${randId(40).toLowerCase()}`,
+        image_digest: digest,
         action,
         image_size_bytes: randInt(5e6, 2e9),
         pushed_by: rand(["codebuild", "github-actions", "developer", "ci-pipeline"]),
@@ -646,10 +885,16 @@ function generateEcrLog(ts: string, er: number): EcsDocument {
         finding_severity: isErr ? rand(SCAN_SEVS) : null,
         finding_count: findingCount,
         vulnerability_scan_enabled: true,
+        replication_destination: action === "replication" ? replicationDestination : null,
+        lifecycle_policy_rule_id: action === "lifecycle" ? lifecycleRuleId : null,
+        layer_count: action === "push" || action === "pull" ? layerCount : null,
         metrics: {
           ImageCount: { avg: randInt(1, 1000) },
           RepositorySizeInBytes: { avg: randInt(1e6, 50e9) },
-          LifecyclePolicyRuleEvaluationCount: { sum: Math.random() > 0.9 ? randInt(1, 100) : 0 },
+          LifecyclePolicyRuleEvaluationCount: {
+            sum:
+              action === "lifecycle" ? randInt(1, 50) : Math.random() > 0.9 ? randInt(1, 100) : 0,
+          },
           PullCount: { sum: action === "pull" ? randInt(1, 1000) : 0 },
           PushCount: { sum: action === "push" ? 1 : 0 },
           ScanFindingsSeverityCritical: { sum: sevCritical },
@@ -667,9 +912,11 @@ function generateEcrLog(ts: string, er: number): EcsDocument {
       provider: "ecr.amazonaws.com",
       duration: randInt(100, isErr ? 30000 : 5000) * 1e6,
     },
-    message: isErr ? errMsg : `ECR ${action}: ${repo}:${tag}`,
+    message,
     log: { level: isErr ? "warn" : "info" },
-    ...(isErr ? { error: { code: rand(ECR_ERROR_CODES), message: errMsg, type: "package" } } : {}),
+    ...(isErr
+      ? { error: { code: rand(ECR_ERROR_CODES), message: errMsg as string, type: "package" } }
+      : {}),
   };
 }
 
@@ -678,28 +925,100 @@ function generateAutoScalingLog(ts: string, er: number): EcsDocument {
   const acct = randAccount();
   const isErr = Math.random() < er;
   const asg = rand(["web-asg", "api-asg", "worker-asg", "batch-asg", "spot-fleet"]);
-  const action = rand(["Launch", "Terminate", "Launch", "Launch", "HealthCheck"]);
+  const action = rand([
+    "Launch",
+    "Terminate",
+    "Launch",
+    "Launch",
+    "HealthCheck",
+    "LifecycleHook",
+    "WarmPoolTransition",
+    "PredictiveScalingForecast",
+  ]);
+  const instanceId = `i-${randId(17).toLowerCase()}`;
+  const activityId = `${randId(8)}-${randId(4)}-${randId(4)}`.toLowerCase();
+  const hookName = rand([
+    "launch-wait",
+    "drain-connections",
+    "register-targets",
+    "finalize-termination",
+  ]);
+  const lifecycleTransition = rand([
+    "autoscaling:EC2_INSTANCE_LAUNCHING",
+    "autoscaling:EC2_INSTANCE_TERMINATING",
+  ]);
   const reason =
     action === "Launch"
       ? rand([
-          "Scale out triggered: capacity below desired",
-          "Scheduled action triggered",
-          "Unhealthy instance replaced",
+          "At 2024-01-01T12:00:00Z a user request update of AutoScalingGroup constraints to min: 2, max: 50, desired: 8 changing the desired capacity from 6 to 8",
+          "At 2024-01-01T12:00:00Z a monitor alarm TargetTracking-scale-out-alarm in state ALARM triggered policy scale-out",
+          "At 2024-01-01T12:00:00Z instance i-0abc123456789abcd failed ELB health checks",
         ])
       : action === "Terminate"
-        ? rand(["Scale in: reducing to desired", "Spot interruption", "Instance unhealthy"])
-        : rand(["EC2 health check passed", "ELB health check: InService"]);
+        ? rand([
+            "At 2024-01-01T12:00:00Z a user request update of AutoScalingGroup constraints to min: 2, max: 50, desired: 4 changing the desired capacity from 6 to 4",
+            "At 2024-01-01T12:00:00Z instance i-0abc123456789abcd was taken out of service in response to a spot instance interruption notice",
+            "At 2024-01-01T12:00:00Z instance failed EC2 health check",
+          ])
+        : action === "LifecycleHook"
+          ? `LifecycleHookNotification for ${hookName} transition ${lifecycleTransition}`
+          : action === "WarmPoolTransition"
+            ? rand([
+                "Warm pool instance moved from Warmed:Stopped to Warmed:Running",
+                "Warm pool instance transitioned Hibernated -> Warming -> InService",
+              ])
+            : action === "PredictiveScalingForecast"
+              ? `PredictiveScaling: forecast shows load increase; preemptive capacity adjustment recommended for ${asg}`
+              : rand(["EC2 health check passed", "ELB health check: InService"]);
   const failReasons = ["No capacity", "Launch template error", "VPC limit"];
   const errMsg = isErr ? `AutoScaling ${asg}: ${action} FAILED - ${rand(failReasons)}` : null;
   const ASG_ERROR_CODES = ["InsufficientCapacity", "LaunchTemplateError", "VpcLimitExceeded"];
   const desired = randInt(2, 20);
   const activityDurationSec = randInt(30, 600);
-  const terminating = action === "Terminate" ? randInt(1, Math.min(3, desired)) : 0;
+  const terminating =
+    action === "Terminate"
+      ? randInt(1, Math.min(3, desired))
+      : action === "LifecycleHook" && lifecycleTransition.includes("TERMINATING")
+        ? 1
+        : 0;
   const remaining = desired - terminating;
   const standby = randInt(0, Math.min(2, remaining));
   const pendingSlots = remaining - standby;
-  const pending = isErr ? randInt(1, Math.max(1, Math.min(3, pendingSlots))) : 0;
-  const inService = pendingSlots - pending;
+  const pending =
+    action === "Launch" || action === "LifecycleHook"
+      ? isErr
+        ? randInt(1, Math.max(1, Math.min(3, pendingSlots)))
+        : randInt(0, Math.min(2, pendingSlots))
+      : isErr
+        ? randInt(1, Math.max(1, Math.min(3, pendingSlots)))
+        : 0;
+  const inService = Math.max(0, pendingSlots - pending);
+  const useWarmPool = action === "WarmPoolTransition" || Math.random() < 0.22;
+  const wpMin = useWarmPool ? randInt(0, 2) : 0;
+  const wpDesired = useWarmPool ? randInt(2, 10) : 0;
+  const wpPending = useWarmPool ? randInt(0, 3) : 0;
+  const wpTerm = useWarmPool ? randInt(0, 2) : 0;
+  const wpTotal = useWarmPool ? wpDesired + wpPending + wpTerm : 0;
+  const wpWarmed = useWarmPool ? randInt(1, Math.max(1, wpTotal)) : 0;
+  let message: string;
+  if (isErr) {
+    message = errMsg as string;
+  } else if (action === "LifecycleHook") {
+    message = rand([
+      `LifecycleHook ${hookName} for ${asg}: Pending:Wait -> Pending:Proceed instance ${instanceId} heartbeatTimeout=3600`,
+      `SNS lifecycle hook notification published hook=${hookName} AutoScalingGroupName=${asg} EC2InstanceId=${instanceId} LifecycleTransition=${lifecycleTransition}`,
+    ]);
+  } else if (action === "WarmPoolTransition") {
+    message = `WarmPool state change ASG=${asg} instance=${instanceId} warmed=${wpWarmed} desired=${wpDesired} poolStatus=${rand(["Active", "Warming"])}`;
+  } else if (action === "PredictiveScalingForecast") {
+    message = `PredictiveScalingForecast asg=${asg} forecastTime=${new Date(ts).toISOString()} predictedCPU=${Number(randFloat(45, 92)).toFixed(1)}% recommendedDesiredCapacity=${randInt(desired, desired + 6)}`;
+  } else if (action === "Launch") {
+    message = `SuccessfulScalingActivity: Launching a new EC2 instance: ${instanceId} ActivityId=${activityId} Cause: ${reason}`;
+  } else if (action === "Terminate") {
+    message = `SuccessfulScalingActivity: Terminating EC2 instance: ${instanceId} ActivityId=${activityId} Cause: ${reason}`;
+  } else {
+    message = `AutoScaling ${asg}: ${action} instance ${instanceId} — ${reason}`;
+  }
   return {
     "@timestamp": ts,
     cloud: {
@@ -712,9 +1031,9 @@ function generateAutoScalingLog(ts: string, er: number): EcsDocument {
       dimensions: { AutoScalingGroupName: asg },
       autoscaling: {
         group_name: asg,
-        activity_id: `${randId(8)}-${randId(4)}-${randId(4)}`.toLowerCase(),
+        activity_id: activityId,
         action_type: action,
-        instance_id: `i-${randId(17).toLowerCase()}`,
+        instance_id: instanceId,
         instance_type: rand(["t3.medium", "m5.xlarge", "c5.2xlarge", "r5.large"]),
         desired_capacity: desired,
         min_size: 2,
@@ -723,6 +1042,9 @@ function generateAutoScalingLog(ts: string, er: number): EcsDocument {
         cause: reason,
         status_code: isErr ? "Failed" : "Successful",
         launch_template: rand(["web-lt:5", "api-lt:3", "worker-lt:8"]),
+        lifecycle_hook_name: action === "LifecycleHook" ? hookName : null,
+        lifecycle_transition: action === "LifecycleHook" ? lifecycleTransition : null,
+        predictive_scaling_forecast: action === "PredictiveScalingForecast",
         metrics: {
           GroupMinSize: { avg: 2 },
           GroupMaxSize: { avg: 50 },
@@ -737,12 +1059,12 @@ function generateAutoScalingLog(ts: string, er: number): EcsDocument {
           GroupStandbyCapacity: { avg: standby },
           GroupTerminatingCapacity: { avg: terminating },
           GroupTotalCapacity: { avg: inService + pending + standby + terminating },
-          WarmPoolMinSize: { avg: 0 },
-          WarmPoolDesiredCapacity: { avg: 0 },
-          WarmPoolPendingCapacity: { avg: 0 },
-          WarmPoolTerminatingCapacity: { avg: 0 },
-          WarmPoolTotalCapacity: { avg: 0 },
-          WarmPoolWarmedCapacity: { avg: 0 },
+          WarmPoolMinSize: { avg: wpMin },
+          WarmPoolDesiredCapacity: { avg: wpDesired },
+          WarmPoolPendingCapacity: { avg: wpPending },
+          WarmPoolTerminatingCapacity: { avg: wpTerm },
+          WarmPoolTotalCapacity: { avg: wpTotal },
+          WarmPoolWarmedCapacity: { avg: wpWarmed },
         },
       },
     },
@@ -753,7 +1075,7 @@ function generateAutoScalingLog(ts: string, er: number): EcsDocument {
       provider: "autoscaling.amazonaws.com",
       duration: activityDurationSec * 1e9,
     },
-    message: isErr ? errMsg : `AutoScaling ${asg}: ${action} instance`,
+    message,
     log: { level: isErr ? "error" : "info" },
     ...(isErr ? { error: { code: rand(ASG_ERROR_CODES), message: errMsg, type: "host" } } : {}),
   };

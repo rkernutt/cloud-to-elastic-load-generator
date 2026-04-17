@@ -3,45 +3,46 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "africa-south1",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" }
+    "region": "asia-northeast2",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-africa-south1",
-    "ephemeral_id": "bdi2azqs1il"
+    "name": "metricbeat-gcp-asia-northeast2",
+    "ephemeral_id": "qzs3qhyizus"
+  },
+  "monitoringTimeSeries": {
+    "metric": { "type": "cloudsql.googleapis.com/database/cpu/utilization", "labels": {} },
+    "resource": {
+      "type": "cloudsql_database",
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "database_id": "globex:db-primary",
+        "region": "asia-northeast2"
+      }
+    },
+    "metricKind": "GAUGE",
+    "valueType": "DOUBLE",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 0.44 } }
+    ]
   },
   "gcp": {
     "firestore": {
-      "metrics": {
-        "cpu_utilization": { "avg": 35.72, "sum": 35.72, "count": 1 },
-        "memory_utilization": { "avg": 71.72, "sum": 71.72, "count": 1 },
-        "connections": { "avg": 1807, "sum": 1807, "count": 1 },
-        "queries": { "avg": 63434, "sum": 63434, "count": 1 },
-        "errors": { "avg": 0, "sum": 0, "count": 1 }
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "database_id": "globex:db-primary",
+        "region": "asia-northeast2"
       },
-      "labels": { "database_id": "db-primary" }
+      "metrics": {
+        "cloudsql.googleapis.com/database/cpu/utilization": { "avg": 0.44, "sum": 0.44, "count": 1 }
+      }
     }
   },
   "metricset": { "name": "firestore", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.firestore_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.firestore_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/firestore/cpu_utilization",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-dev-g7h8i9", "region": "africa-south1" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 35.72 } }
-    ]
-  }
+  "event": { "dataset": "gcp.firestore_metrics", "module": "gcp" }
 }

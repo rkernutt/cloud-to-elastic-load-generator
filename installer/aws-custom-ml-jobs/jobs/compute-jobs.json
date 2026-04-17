@@ -4,10 +4,10 @@
   "jobs": [
     {
       "id": "aws-lambda-error-spike",
-      "description": "Detects spikes in Lambda function errors per function name (application failures or regressions)",
+      "description": "Detects spikes in AWS Lambda function errors per function name (application failures or regressions)",
       "job": {
         "description": "Detects spikes in Lambda function errors per function name (application failures or regressions)",
-        "groups": ["aws", "compute"],
+        "groups": ["aws", "compute", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -21,9 +21,16 @@
           "influencers": ["aws.lambda.function.name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -31,22 +38,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.lambda_logs" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.lambda_logs"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-lambda-duration-anomaly",
-      "description": "Detects unusual Lambda execution durations per function (performance degradation or resource contention)",
+      "description": "Detects unusual AWS Lambda execution durations per function (performance degradation or resource contention)",
       "job": {
         "description": "Detects unusual Lambda execution durations per function (performance degradation or resource contention)",
-        "groups": ["aws", "compute"],
+        "groups": ["aws", "compute", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -61,29 +80,46 @@
           "influencers": ["aws.lambda.function.name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.lambda_logs" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.lambda_logs"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-lambda-throttle-spike",
-      "description": "Detects unusual Lambda throttling rates per function (capacity limits or runaway invocations)",
+      "description": "Detects unusual AWS Lambda throttling rates per function (capacity limits or runaway invocations)",
       "job": {
         "description": "Detects unusual Lambda throttling rates per function (capacity limits or runaway invocations)",
-        "groups": ["aws", "compute"],
+        "groups": ["aws", "compute", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -98,29 +134,46 @@
           "influencers": ["aws.lambda.function.name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.lambda_logs" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.lambda_logs"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-ec2-cpu-anomaly",
-      "description": "Detects unusual CPU utilization per EC2 instance (runaway processes, crypto-mining, or infrastructure issues)",
+      "description": "Detects unusual CPU utilization per Amazon EC2 instance (runaway processes, crypto-mining, or infrastructure issues)",
       "job": {
         "description": "Detects unusual CPU utilization per EC2 instance (runaway processes, crypto-mining, or infrastructure issues)",
-        "groups": ["aws", "compute"],
+        "groups": ["aws", "compute", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -135,29 +188,46 @@
           "influencers": ["aws.ec2.dimensions.InstanceId", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.ec2" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.ec2"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-ec2-network-spike",
-      "description": "Detects unusual outbound network activity per EC2 instance (data exfiltration or DDoS participation)",
+      "description": "Detects unusual outbound network activity per Amazon EC2 instance (data exfiltration or DDoS participation)",
       "job": {
         "description": "Detects unusual outbound network activity per EC2 instance (data exfiltration or DDoS participation)",
-        "groups": ["aws", "compute"],
+        "groups": ["aws", "compute", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -172,29 +242,46 @@
           "influencers": ["aws.ec2.dimensions.InstanceId", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.ec2" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.ec2"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-eks-pod-failure-spike",
-      "description": "Detects spikes in EKS pod failures or error events per namespace (cluster instability or cascading failures)",
+      "description": "Detects spikes in Amazon Amazon Amazon EKS pod failures or error events per namespace (cluster instability or cascading failures)",
       "job": {
         "description": "Detects spikes in EKS pod failures or error events per namespace (cluster instability or cascading failures)",
-        "groups": ["aws", "compute"],
+        "groups": ["aws", "compute", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -208,9 +295,16 @@
           "influencers": ["kubernetes.pod.name", "kubernetes.namespace"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -218,22 +312,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.eks" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.eks"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-eks-rare-image",
-      "description": "Detects rare or previously unseen container images being deployed in EKS (supply chain attacks or unauthorised deployments)",
+      "description": "Detects rare or previously unseen container images being deployed in Amazon EKS (supply chain attacks or unauthorised deployments)",
       "job": {
         "description": "Detects rare or previously unseen container images being deployed in EKS (supply chain attacks or unauthorised deployments)",
-        "groups": ["aws", "compute"],
+        "groups": ["aws", "compute", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "60m",
           "detectors": [
@@ -247,21 +353,38 @@
           "influencers": ["container.image.name", "kubernetes.namespace", "kubernetes.pod.name"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "16mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "16mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.eks" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.eks"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

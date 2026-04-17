@@ -1,5 +1,5 @@
 {
-  "title": "GCP Vertex AI — Predictions & Latency",
+  "title": "GCP Vertex AI \u2014 Predictions & Latency",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -154,7 +154,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.vertexai* | KEEP `@timestamp`, `gcp.vertex_ai.endpoint_id`, `gcp.vertex_ai.model_name`, `gcp.vertex_ai.prediction_type`, `gcp.vertex_ai.latency_ms`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.vertexai* | KEEP `@timestamp`, `gcp.vertex_ai.endpoint_id`, `gcp.vertex_ai.model_name`, `gcp.vertex_ai.prediction_type`, `gcp.vertex_ai.latency_ms`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
@@ -184,8 +184,8 @@
             },
             {
               "operation": "value",
-              "column": "log.level",
-              "label": "Log level"
+              "column": "event.outcome",
+              "label": "Outcome"
             },
             {
               "operation": "value",

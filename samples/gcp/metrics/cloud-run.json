@@ -3,50 +3,52 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast1",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" }
+    "region": "asia-northeast3",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-northeast1",
-    "ephemeral_id": "hk0eb8gdaq8"
+    "name": "metricbeat-gcp-asia-northeast3",
+    "ephemeral_id": "inul95tsfmq"
+  },
+  "monitoringTimeSeries": {
+    "metric": {
+      "type": "run.googleapis.com/request_count",
+      "labels": { "response_code_class": "2xx" }
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "service_name": "checkout-api",
+        "revision_name": "checkout-api-00004-abc",
+        "configuration_name": "checkout-api",
+        "location": "asia-northeast3"
+      }
+    },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "4980" } }
+    ]
   },
   "gcp": {
     "cloud-run": {
-      "metrics": {
-        "request_count": { "avg": 1403, "sum": 1403, "count": 1 },
-        "request_latencies_ms": { "avg": 107.3, "sum": 107.3, "count": 1 },
-        "container_instance_count": { "avg": 4, "sum": 4, "count": 1 },
-        "cpu_utilization": { "avg": 0.42, "sum": 0.42, "count": 1 },
-        "memory_utilization": { "avg": 0.61, "sum": 0.61, "count": 1 },
-        "billable_container_instances": { "avg": 15, "sum": 15, "count": 1 }
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "service_name": "checkout-api",
+        "revision_name": "checkout-api-00004-abc",
+        "configuration_name": "checkout-api",
+        "location": "asia-northeast3",
+        "response_code_class": "2xx"
       },
-      "labels": { "service_name": "catalog-svc" }
+      "metrics": { "run.googleapis.com/request_count": { "avg": 4980, "sum": 4980, "count": 1 } }
     }
   },
   "metricset": { "name": "cloud-run", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.cloudrun_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.cloudrun_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-run/request_count",
-      "labels": {}
-    },
-    "resource": {
-      "type": "cloud_run_revision",
-      "labels": {
-        "project_id": "globex-dev-g7h8i9",
-        "service_name": "svc",
-        "location": "asia-northeast1"
-      }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 1403 } }
-    ]
-  }
+  "event": { "dataset": "gcp.cloudrun_metrics", "module": "gcp" }
 }

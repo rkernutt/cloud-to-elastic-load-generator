@@ -1,5 +1,5 @@
 {
-  "title": "GCP Cloud SQL — Queries & Connections",
+  "title": "GCP Cloud SQL \u2014 Queries & Connections",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -47,7 +47,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudsql* | EVAL is_err = CASE(log.level == \"error\", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)"
+            "query": "FROM logs-gcp.cloudsql* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)"
           },
           "metrics": [
             {
@@ -213,7 +213,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudsql* | KEEP `@timestamp`, `gcp.cloud_sql.instance_name`, `gcp.cloud_sql.database_engine`, `gcp.cloud_sql.query_type`, `gcp.cloud_sql.query_duration_ms`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.cloudsql* | KEEP `@timestamp`, `gcp.cloud_sql.instance_name`, `gcp.cloud_sql.database_engine`, `gcp.cloud_sql.query_type`, `gcp.cloud_sql.query_duration_ms`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
@@ -243,8 +243,8 @@
             },
             {
               "operation": "value",
-              "column": "log.level",
-              "label": "Log level"
+              "column": "event.outcome",
+              "label": "Outcome"
             },
             {
               "operation": "value",

@@ -7,10 +7,9 @@ import {
   randInt,
   jitter,
   dp,
-  stat,
-  counter,
   gcpMetricDoc,
   pickGcpCloudContext,
+  toInt64String,
 } from "./helpers.js";
 import { randBigQueryDataset } from "../helpers.js";
 import type { EcsDocument } from "../../../aws/generators/types.js";
@@ -20,49 +19,123 @@ const DATAPROC_CLUSTERS = ["analytics-spark", "etl-daily", "ml-preprocess", "bat
 export function generateBigQueryMetrics(ts: string, er: number): EcsDocument[] {
   const { region, project } = pickGcpCloudContext();
   const dataset = GCP_METRICS_DATASET_MAP.bigquery!;
-  const n = randInt(1, 3);
-  return Array.from({ length: n }, () => {
-    const project_id = project.id;
-    const dataset_id = randBigQueryDataset();
-    const slotPressure = Math.random() < er;
-    return gcpMetricDoc(
-      ts,
-      "bigquery",
-      dataset,
-      region,
-      project,
-      { project_id, dataset_id },
-      {
-        slots_total: counter(randInt(100, 4000)),
-        slots_available: counter(slotPressure ? randInt(0, 80) : randInt(200, 3500)),
-        query_count: counter(randInt(500, 2_000_000)),
-        stored_bytes: counter(randInt(500_000_000, 80_000_000_000_000)),
-      }
-    );
-  });
+  const project_id = project.id;
+  const dataset_id = randBigQueryDataset();
+  const slotPressure = Math.random() < er;
+  const projRes = { project_id };
+  const dsRes = { project_id, dataset_id };
+  const scanned = randInt(2_000_000_000, slotPressure ? 420_000_000_000_000 : 180_000_000_000_000);
+  const qCount = randInt(600, slotPressure ? 2_400_000 : 1_800_000);
+  const slotsAlloc = randInt(slotPressure ? 2800 : 120, slotPressure ? 4000 : 3600);
+  const slotsAvail = randInt(slotPressure ? 0 : 400, slotPressure ? 120 : 3400);
+  const stored = randInt(900_000_000_000, 78_000_000_000_000_000);
+  const billed = randInt(500_000_000, slotPressure ? 48_000_000_000_000 : 28_000_000_000_000);
+  const tableCount = randInt(40, slotPressure ? 120_000 : 85_000);
+
+  return [
+    gcpMetricDoc(ts, "bigquery", dataset, region, project, {
+      metricType: "bigquery.googleapis.com/query/scanned_bytes",
+      resourceType: "bigquery_project",
+      resourceLabels: projRes,
+      metricKind: "DELTA",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(scanned) },
+    }),
+    gcpMetricDoc(ts, "bigquery", dataset, region, project, {
+      metricType: "bigquery.googleapis.com/query/count",
+      resourceType: "bigquery_project",
+      resourceLabels: projRes,
+      metricKind: "DELTA",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(qCount) },
+    }),
+    gcpMetricDoc(ts, "bigquery", dataset, region, project, {
+      metricType: "bigquery.googleapis.com/slots/allocated",
+      resourceType: "bigquery_project",
+      resourceLabels: projRes,
+      metricKind: "GAUGE",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(slotsAlloc) },
+    }),
+    gcpMetricDoc(ts, "bigquery", dataset, region, project, {
+      metricType: "bigquery.googleapis.com/slots/available",
+      resourceType: "bigquery_project",
+      resourceLabels: projRes,
+      metricKind: "GAUGE",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(slotsAvail) },
+    }),
+    gcpMetricDoc(ts, "bigquery", dataset, region, project, {
+      metricType: "bigquery.googleapis.com/storage/stored_bytes",
+      resourceType: "bigquery_dataset",
+      resourceLabels: dsRes,
+      metricKind: "GAUGE",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(stored) },
+    }),
+    gcpMetricDoc(ts, "bigquery", dataset, region, project, {
+      metricType: "bigquery.googleapis.com/query/billed_bytes",
+      resourceType: "bigquery_project",
+      resourceLabels: projRes,
+      metricKind: "DELTA",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(billed) },
+    }),
+    gcpMetricDoc(ts, "bigquery", dataset, region, project, {
+      metricType: "bigquery.googleapis.com/storage/table_count",
+      resourceType: "bigquery_dataset",
+      resourceLabels: dsRes,
+      metricKind: "GAUGE",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(tableCount) },
+    }),
+  ];
 }
 
 export function generateDataprocMetrics(ts: string, er: number): EcsDocument[] {
   const { region, project } = pickGcpCloudContext();
   const dataset = GCP_METRICS_DATASET_MAP.dataproc!;
-  const n = randInt(1, 3);
-  return Array.from({ length: n }, (_, i) => {
-    const cluster_name = DATAPROC_CLUSTERS[i % DATAPROC_CLUSTERS.length];
-    const stressed = Math.random() < er;
-    return gcpMetricDoc(
-      ts,
-      "dataproc",
-      dataset,
-      region,
-      project,
-      { cluster_name },
-      {
-        yarn_memory_available: stat(
-          dp(jitter(stressed ? 2e9 : 12e9, stressed ? 1e9 : 4e9, 1e8, 20e9))
-        ),
-        yarn_vcores_available: stat(dp(jitter(stressed ? 4 : 48, stressed ? 3 : 16, 0, 512))),
-        hdfs_capacity: counter(randInt(5_000_000_000_000, 500_000_000_000_000)),
-      }
-    );
-  });
+  const cluster_name = DATAPROC_CLUSTERS[randInt(0, DATAPROC_CLUSTERS.length - 1)]!;
+  const cluster_uuid = `${cluster_name}-${randInt(1000, 9999)}`;
+  const stressed = Math.random() < er;
+  const res = { project_id: project.id, cluster_name, cluster_uuid, region };
+  const yarnMem = jitter(stressed ? 2.2e9 : 11e9, stressed ? 1.1e9 : 3.8e9, 1e8, 22e9);
+  const yarnCores = jitter(stressed ? 5.5 : 46, stressed ? 3.2 : 14, 0, 512);
+  const hdfsCap = randInt(8_000_000_000_000, stressed ? 480_000_000_000_000 : 420_000_000_000_000);
+  const running = randInt(stressed ? 2 : 8, stressed ? 180 : 220);
+
+  return [
+    gcpMetricDoc(ts, "dataproc", dataset, region, project, {
+      metricType: "dataproc.googleapis.com/cluster/yarn/available_memory",
+      resourceType: "cloud_dataproc_cluster",
+      resourceLabels: res,
+      metricKind: "GAUGE",
+      valueType: "DOUBLE",
+      point: { doubleValue: dp(yarnMem) },
+    }),
+    gcpMetricDoc(ts, "dataproc", dataset, region, project, {
+      metricType: "dataproc.googleapis.com/cluster/yarn/nodes/running",
+      resourceType: "cloud_dataproc_cluster",
+      resourceLabels: res,
+      metricKind: "GAUGE",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(running) },
+    }),
+    gcpMetricDoc(ts, "dataproc", dataset, region, project, {
+      metricType: "dataproc.googleapis.com/cluster/yarn/vcores",
+      resourceType: "cloud_dataproc_cluster",
+      resourceLabels: res,
+      metricKind: "GAUGE",
+      valueType: "DOUBLE",
+      point: { doubleValue: dp(yarnCores) },
+    }),
+    gcpMetricDoc(ts, "dataproc", dataset, region, project, {
+      metricType: "dataproc.googleapis.com/cluster/hdfs/dfs_capacity",
+      resourceType: "cloud_dataproc_cluster",
+      resourceLabels: res,
+      metricKind: "GAUGE",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(hdfsCap) },
+    }),
+  ];
 }

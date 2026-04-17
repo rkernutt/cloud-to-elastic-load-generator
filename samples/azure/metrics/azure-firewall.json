@@ -3,34 +3,63 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "qatarcentral",
-    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" }
+    "region": "westus3",
+    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-qatarcentral",
-    "ephemeral_id": "50mmkud714p"
+    "name": "metricbeat-azure-westus3",
+    "ephemeral_id": "hcavuxybn9"
   },
   "azure": {
     "azure_firewall": {
       "metrics": {
-        "byte_count": { "avg": 268393632, "sum": 268393632, "count": 1 },
-        "packet_count": { "avg": 4156780, "sum": 4156780, "count": 1 },
-        "health_probe_failed": { "avg": 0, "sum": 0, "count": 1 }
-      },
-      "labels": { "resource_group": "rg-prod-mt99p", "frontend_id": "fe-prod" }
-    }
+        "ApplicationRuleHit": {
+          "avg": 2679507,
+          "min": 2357966.16,
+          "max": 3001047.84,
+          "sum": 2679507,
+          "count": 1
+        },
+        "NetworkRuleHit": {
+          "avg": 1356125,
+          "min": 1193390,
+          "max": 1518860,
+          "sum": 1356125,
+          "count": 1
+        },
+        "FirewallHealth": { "avg": 99.98, "min": 87.98, "max": 111.98, "sum": 99.98, "count": 1 },
+        "SNATPortUtilization": {
+          "avg": 20.47,
+          "min": 18.01,
+          "max": 22.93,
+          "sum": 20.47,
+          "count": 1
+        }
+      }
+    },
+    "dimensions": {
+      "FirewallPolicy": "policy-east",
+      "Protocol": "TCP",
+      "ResourceGroup": "rg-data-7nz67"
+    },
+    "resource": {
+      "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-data-7nz67/providers/Microsoft.Network/azureFirewalls/afw-ut9pv",
+      "group": "rg-data-7nz67",
+      "name": "afw-ut9pv"
+    },
+    "namespace": "Microsoft.Network/azureFirewalls"
   },
-  "metricset": { "name": "azure_firewall", "period": 60000 },
+  "metricset": { "name": "monitor", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "azure.firewall_metrics", "namespace": "default" },
   "input": { "type": "azure-monitor" },
   "event": { "dataset": "azure.firewall_metrics", "module": "azure" },
   "azureMonitorMetric": {
     "time": "2026-04-07T12:00:00.000Z",
-    "metricName": "byte_count",
+    "metricName": "ApplicationRuleHit",
     "resourceGroup": "rg-azure-firewall",
-    "subscriptionId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-    "timeseries": [{ "data": [{ "average": 268393632, "count": 1 }] }]
+    "subscriptionId": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
+    "timeseries": [{ "data": [{ "average": 2679507, "count": 1 }] }]
   }
 }

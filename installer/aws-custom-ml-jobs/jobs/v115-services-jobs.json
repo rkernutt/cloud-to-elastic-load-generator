@@ -1,13 +1,13 @@
 {
   "group": "aws-ml-data-ml-operations",
-  "description": "Data & ML operations bundle — RDS Proxy, RDS Custom, DMS Serverless, ElastiCache Global, SageMaker Feature Store/Pipelines/Model Monitor, Lookout for Equipment, Monitron, Network Access Analyzer, Incident Manager, CloudShell, Cloud9, RoboMaker, S3 Intelligent-Tiering & Batch Ops, Kinesis Video, Panorama, FreeRTOS, CloudWatch RUM, and more",
+  "description": "Data & ML operations bundle — Amazon RDS Proxy, Amazon RDS Custom, DMS Serverless, Amazon ElastiCache Global, Amazon SageMaker Feature Store/Pipelines/Model Monitor, Amazon Lookout for Equipment, Monitron, VPC Network Access Analyzer, Incident Manager, CloudShell, Cloud9, RoboMaker, Amazon S3 Intelligent-Tiering & Batch Ops, Amazon Kinesis Video Streams, Panorama, FreeRTOS, Amazon CloudWatch RUM, and more",
   "jobs": [
     {
       "id": "aws-rdsproxy-connection-failure-spike",
-      "description": "Detects spikes in RDS Proxy connection failures per proxy (authentication or target exhaustion issues)",
+      "description": "Detects spikes in Amazon RDS Proxy connection failures per proxy (authentication or target exhaustion issues)",
       "job": {
         "description": "Detects spikes in RDS Proxy connection failures per proxy (authentication or target exhaustion issues)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -21,9 +21,16 @@
           "influencers": ["aws.rdsproxy.proxy_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -31,22 +38,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.rdsproxy" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.rdsproxy"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-rdscustom-patch-failure-spike",
-      "description": "Detects spikes in RDS Custom patch failures per instance (OS-level or custom engine patch errors)",
+      "description": "Detects spikes in Amazon RDS Custom patch failures per instance (OS-level or custom engine patch errors)",
       "job": {
         "description": "Detects spikes in RDS Custom patch failures per instance (OS-level or custom engine patch errors)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -60,9 +79,16 @@
           "influencers": ["aws.rdscustom.instance_id", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -70,14 +96,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.rdscustom" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.rdscustom"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -85,7 +123,7 @@
       "description": "Detects spikes in DMS Serverless migration errors per replication config (schema mismatch or connectivity failures)",
       "job": {
         "description": "Detects spikes in DMS Serverless migration errors per replication config (schema mismatch or connectivity failures)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -99,9 +137,16 @@
           "influencers": ["aws.dmsserverless.replication_config", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -109,22 +154,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.dmsserverless" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.dmsserverless"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-elasticacheglobal-replication-lag-spike",
-      "description": "Detects spikes in ElastiCache Global Datastore replication lag per datastore (cross-region sync degradation)",
+      "description": "Detects spikes in Amazon ElastiCache Global Datastore replication lag per datastore (cross-region sync degradation)",
       "job": {
         "description": "Detects spikes in ElastiCache Global Datastore replication lag per datastore (cross-region sync degradation)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -139,9 +196,16 @@
           "influencers": ["aws.elasticacheglobal.global_datastore_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -149,22 +213,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.elasticacheglobal" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.elasticacheglobal"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-sagemakerfeaturestore-error-spike",
-      "description": "Detects spikes in SageMaker Feature Store errors per feature group (ingestion or serving failures)",
+      "description": "Detects spikes in Amazon SageMaker Feature Store errors per feature group (ingestion or serving failures)",
       "job": {
         "description": "Detects spikes in SageMaker Feature Store errors per feature group (ingestion or serving failures)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -178,9 +254,16 @@
           "influencers": ["aws.sagemaker_featurestore.feature_group_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -188,22 +271,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.sagemakerfeaturestore" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.sagemakerfeaturestore"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-sagemakerpipelines-pipeline-failure-spike",
-      "description": "Detects spikes in SageMaker Pipelines execution failures per pipeline (step errors or resource limits)",
+      "description": "Detects spikes in Amazon SageMaker Pipelines execution failures per pipeline (step errors or resource limits)",
       "job": {
         "description": "Detects spikes in SageMaker Pipelines execution failures per pipeline (step errors or resource limits)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -217,9 +312,16 @@
           "influencers": ["aws.sagemaker_pipelines.pipeline_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -227,22 +329,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.sagemakerpipelines" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.sagemakerpipelines"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-sagemakermodelmonitor-violation-spike",
-      "description": "Detects spikes in SageMaker Model Monitor violation counts per endpoint (model drift or data quality degradation)",
+      "description": "Detects spikes in Amazon SageMaker Model Monitor violation counts per endpoint (model drift or data quality degradation)",
       "job": {
         "description": "Detects spikes in SageMaker Model Monitor violation counts per endpoint (model drift or data quality degradation)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -257,9 +371,16 @@
           "influencers": ["aws.sagemaker_model_monitor.endpoint_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -267,22 +388,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.sagemakermodelmonitor" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.sagemakermodelmonitor"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-lookoutequipment-anomaly-spike",
-      "description": "Detects spikes in Lookout for Equipment anomaly detections per model (equipment degradation or sensor drift)",
+      "description": "Detects spikes in Amazon Lookout for Equipment anomaly detections per model (equipment degradation or sensor drift)",
       "job": {
         "description": "Detects spikes in Lookout for Equipment anomaly detections per model (equipment degradation or sensor drift)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -296,9 +429,16 @@
           "influencers": ["aws.lookoutequipment.model_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -306,22 +446,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.lookoutequipment" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.lookoutequipment"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-monitron-sensor-alarm-spike",
-      "description": "Detects spikes in Monitron sensor alarm events per sensor (vibration or temperature threshold breaches)",
+      "description": "Detects spikes in Amazon Monitron sensor alarm events per sensor (vibration or temperature threshold breaches)",
       "job": {
         "description": "Detects spikes in Monitron sensor alarm events per sensor (vibration or temperature threshold breaches)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -335,9 +487,16 @@
           "influencers": ["aws.monitron.sensor_id", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -345,22 +504,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.monitron" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.monitron"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-networkaccessanalyzer-finding-spike",
-      "description": "Detects spikes in Network Access Analyzer finding counts per scope (unexpected network path exposure)",
+      "description": "Detects spikes in VPC Network Access Analyzer finding counts per scope (unexpected network path exposure)",
       "job": {
         "description": "Detects spikes in Network Access Analyzer finding counts per scope (unexpected network path exposure)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -375,9 +546,16 @@
           "influencers": ["aws.network_access_analyzer.scope_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -385,22 +563,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.networkaccessanalyzer" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.networkaccessanalyzer"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-incidentmanager-incident-frequency-spike",
-      "description": "Detects spikes in Incident Manager incident creation per response plan (recurring outage patterns)",
+      "description": "Detects spikes in AWS AWS Systems Manager Incident Manager incident creation per response plan (recurring outage patterns)",
       "job": {
         "description": "Detects spikes in Incident Manager incident creation per response plan (recurring outage patterns)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -414,9 +604,16 @@
           "influencers": ["aws.incident_manager.response_plan", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -424,22 +621,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.incidentmanager" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.incidentmanager"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-cloudshell-session-failure-spike",
-      "description": "Detects spikes in CloudShell session failures per environment (resource limits or connectivity issues)",
+      "description": "Detects spikes in AWS CloudShell session failures per environment (resource limits or connectivity issues)",
       "job": {
         "description": "Detects spikes in CloudShell session failures per environment (resource limits or connectivity issues)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -453,9 +662,16 @@
           "influencers": ["aws.cloudshell.environment_id", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -463,22 +679,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.cloudshell" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.cloudshell"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-cloud9-environment-failure-spike",
-      "description": "Detects spikes in Cloud9 environment failures per environment (IDE crashes or backend connectivity issues)",
+      "description": "Detects spikes in AWS Cloud9 environment failures per environment (IDE crashes or backend connectivity issues)",
       "job": {
         "description": "Detects spikes in Cloud9 environment failures per environment (IDE crashes or backend connectivity issues)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -492,9 +720,16 @@
           "influencers": ["aws.cloud9.environment_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -502,22 +737,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.cloud9" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.cloud9"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-robomaker-simulation-failure-spike",
-      "description": "Detects spikes in RoboMaker simulation failures per robot application (physics engine crashes or resource exhaustion)",
+      "description": "Detects spikes in AWS RoboMaker simulation failures per robot application (physics engine crashes or resource exhaustion)",
       "job": {
         "description": "Detects spikes in RoboMaker simulation failures per robot application (physics engine crashes or resource exhaustion)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -531,9 +778,16 @@
           "influencers": ["aws.robomaker.robot_application", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -541,22 +795,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.robomaker" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.robomaker"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-s3intelligenttier-transition-failure-spike",
-      "description": "Detects spikes in S3 Intelligent-Tiering transition failures per bucket (lifecycle policy or access pattern issues)",
+      "description": "Detects spikes in Amazon S3 Intelligent-Tiering transition failures per bucket (lifecycle policy or access pattern issues)",
       "job": {
         "description": "Detects spikes in S3 Intelligent-Tiering transition failures per bucket (lifecycle policy or access pattern issues)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -570,9 +836,16 @@
           "influencers": ["aws.s3_intelligent_tiering.bucket_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -580,22 +853,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.s3_intelligent_tiering" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.s3_intelligent_tiering"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-s3batchops-job-failure-spike",
-      "description": "Detects spikes in S3 Batch Operations job failures per operation (permission errors or object access issues)",
+      "description": "Detects spikes in Amazon S3 Batch Operations job failures per operation (permission errors or object access issues)",
       "job": {
         "description": "Detects spikes in S3 Batch Operations job failures per operation (permission errors or object access issues)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -609,9 +894,16 @@
           "influencers": ["aws.s3_batch_operations.operation", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -619,22 +911,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.s3_batch_operations" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.s3_batch_operations"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-kinesisvideo-ingestion-failure-spike",
-      "description": "Detects spikes in Kinesis Video stream ingestion failures per stream (producer SDK errors or bandwidth limits)",
+      "description": "Detects spikes in Amazon Kinesis Video Streams stream ingestion failures per stream (producer SDK errors or bandwidth limits)",
       "job": {
         "description": "Detects spikes in Kinesis Video stream ingestion failures per stream (producer SDK errors or bandwidth limits)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -648,9 +952,16 @@
           "influencers": ["aws.kinesis_video.stream_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -658,22 +969,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.kinesisvideo" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.kinesisvideo"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-panorama-device-failure-spike",
-      "description": "Detects spikes in Panorama device failures per device (firmware crashes or camera connectivity loss)",
+      "description": "Detects spikes in AWS Panorama device failures per device (firmware crashes or camera connectivity loss)",
       "job": {
         "description": "Detects spikes in Panorama device failures per device (firmware crashes or camera connectivity loss)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -687,9 +1010,16 @@
           "influencers": ["aws.panorama.device_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -697,14 +1027,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.panorama" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.panorama"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -712,7 +1054,7 @@
       "description": "Detects spikes in FreeRTOS device disconnections per thing (network instability or firmware issues)",
       "job": {
         "description": "Detects spikes in FreeRTOS device disconnections per thing (network instability or firmware issues)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -726,9 +1068,16 @@
           "influencers": ["aws.freertos.thing_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -736,22 +1085,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.freertos" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.freertos"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-cloudwatchrum-js-error-spike",
-      "description": "Detects spikes in CloudWatch RUM JavaScript error events per app monitor (frontend regression or third-party script failures)",
+      "description": "Detects spikes in Amazon CloudWatch RUM JavaScript error events per app monitor (frontend regression or third-party script failures)",
       "job": {
         "description": "Detects spikes in CloudWatch RUM JavaScript error events per app monitor (frontend regression or third-party script failures)",
-        "groups": ["aws", "aws-ml-data-ml-operations"],
+        "groups": ["aws", "aws-ml-data-ml-operations", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -765,9 +1126,16 @@
           "influencers": ["aws.cloudwatch_rum.app_monitor_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -775,14 +1143,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.cloudwatch_rum" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.cloudwatch_rum"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

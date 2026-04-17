@@ -1,53 +1,61 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
+  "severity": "DEBUG",
+  "labels": {
+    "resource.type": "cloudbilling.googleapis.com/BillingAccount",
+    "billing_account": "01AXTT2O-KGQ9-60QV"
+  },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-south1",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
-    "service": { "name": "carbon-footprint" }
+    "region": "asia-southeast1",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" },
+    "service": { "name": "cloudbilling.googleapis.com" }
   },
   "gcp": {
-    "carbon_footprint": {
-      "project_id": "globex-prod-a1b2c3",
-      "service": "Compute Engine",
-      "region": "asia-south1",
-      "carbon_kg_co2e": 2136.158,
-      "electricity_kwh": 4722,
-      "scope": "SCOPE_2",
-      "period_month": "2026-04"
+    "billing": {
+      "billing_account_id": "01AXTT2O-KGQ9-60QV",
+      "service_description": "Cloud SQL",
+      "sku_description": "Standard Storage US Multi-region",
+      "cost_amount": 2923.46,
+      "currency": "USD",
+      "usage_amount": 105905.955,
+      "usage_unit": "hour",
+      "credits_amount": 815.72,
+      "project_id": "globex-shared-m3n4o5"
     }
   },
-  "event": { "outcome": "success", "duration": 17961, "module": "gcp", "dataset": "gcp.carbon" },
-  "message": "Carbon Footprint 2026-04 Compute Engine asia-south1: 2136.158 kgCO2e (4722.0 kWh, SCOPE_2)",
-  "service": { "name": "carbon-footprint", "type": "gcp" },
+  "event": { "outcome": "success", "duration": 4597, "module": "gcp", "dataset": "gcp.billing" },
+  "message": "Billing cost row: service=\"Cloud SQL\" sku=\"Standard Storage US Multi-region\" cost=2923.46 USD usage=105905.95 hour credits=-815.72 project=globex-shared-m3n4o5",
+  "service": { "name": "billing", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.carbon", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.billing", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-south1",
-    "id": "pclcxj7k9j"
+    "name": "elastic-agent-gcp-asia-southeast1",
+    "id": "66r8ngzltuq"
   },
-  "input": { "type": "http_endpoint" },
-  "logName": "projects/globex-prod-a1b2c3/logs/carbon-footprint",
+  "input": { "type": "gcp-pubsub" },
+  "logName": "projects/globex-shared-m3n4o5/logs/billing",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-prod-a1b2c3", "region": "asia-south1" }
+    "labels": { "project_id": "globex-shared-m3n4o5", "region": "asia-southeast1" }
   },
-  "severity": "INFO",
-  "insertId": "IYN2SYDSJ",
+  "insertId": "CG7D2T55SBH",
   "jsonPayload": {
-    "carbon_footprint": {
-      "project_id": "globex-prod-a1b2c3",
-      "service": "Compute Engine",
-      "region": "asia-south1",
-      "carbon_kg_co2e": 2136.158,
-      "electricity_kwh": 4722,
-      "scope": "SCOPE_2",
-      "period_month": "2026-04"
+    "billing": {
+      "billing_account_id": "01AXTT2O-KGQ9-60QV",
+      "service_description": "Cloud SQL",
+      "sku_description": "Standard Storage US Multi-region",
+      "cost_amount": 2923.46,
+      "currency": "USD",
+      "usage_amount": 105905.955,
+      "usage_unit": "hour",
+      "credits_amount": 815.72,
+      "project_id": "globex-shared-m3n4o5"
     },
-    "message": "Carbon Footprint 2026-04 Compute Engine asia-south1: 2136.158 kgCO2e (4722.0 kWh, SCOPE_2)"
+    "message": "Billing cost row: service=\"Cloud SQL\" sku=\"Standard Storage US Multi-region\" cost=2923.46 USD usage=105905.95 hour credits=-815.72 project=globex-shared-m3n4o5"
   }
 }

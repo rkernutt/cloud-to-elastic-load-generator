@@ -9,7 +9,6 @@ import {
   EuiCallOut,
   EuiCodeBlock,
   EuiPanel,
-  EuiText,
   EuiSpacer,
   EuiTitle,
 } from "@elastic/eui";
@@ -87,8 +86,7 @@ export function ShipPage({
   const isRunning = status === "running";
   const perService = isTracesMode ? tracesPerService : logsPerService;
   const scheduleRunsRemaining = Math.max(0, scheduleTotalRuns - scheduleRunsCompleted);
-  const showScheduleProgress =
-    scheduleEnabled && (scheduleActive || scheduleRunsCompleted > 0);
+  const showScheduleProgress = scheduleEnabled && (scheduleActive || scheduleRunsCompleted > 0);
 
   const formatCountdown = (seconds: number): string => {
     const m = Math.floor(seconds / 60);

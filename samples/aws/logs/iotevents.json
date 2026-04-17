@@ -1,9 +1,9 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "us-west-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "iotevents" }
   },
   "aws": {
@@ -12,27 +12,26 @@
       "detector_model_name": "motor-health-detector",
       "detector_id": "unit-01",
       "key_value": "unit-01",
-      "event_name": "ActionExecuted",
-      "from_state": "Acknowledged",
+      "event_name": "AlarmActivated",
+      "from_state": "Alarm",
       "to_state": "Alarm",
-      "input_name": "HealthCheck",
-      "action_type": "SetTimer",
-      "timer_name": "alarmTimer",
-      "condition_expression": "$input.data.value < threshold"
+      "input_name": "CommandInput",
+      "action_type": "Lambda",
+      "condition_expression": "$input.SensorInput.temperature > 85"
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotevents-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-iotevents-logs-501938274650"
+        "name": "aws-iotevents-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-iotevents-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/iotevents/ap-east-1/2026/04/15/iotevents_UCXUPGD8D6H.log.gz"
+        "key": "AWSLogs/293847561023/iotevents/us-west-2/2026/04/17/iotevents_9EYDO9JVZF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "ap-east-1/2mbkuvxa",
-      "ingestion_time": "2026-04-15T13:24:36.427Z"
+      "log_stream": "us-west-2/yek8x4wk",
+      "ingestion_time": "2026-04-17T09:05:19.102Z"
     }
   },
   "event": {
@@ -40,10 +39,10 @@
     "category": ["process"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 187000000,
+    "duration": 254000000,
     "module": "aws"
   },
-  "message": "IoT Events motor-health-detector/unit-01: Acknowledged → Alarm [ActionExecuted]",
+  "message": "IoT Events motor-health-detector/unit-01: Alarm → Alarm [AlarmActivated]",
   "log": { "level": "warn" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -51,8 +50,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "5oxybbnrac2"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "tmzr0waqwfh"
   },
   "input": { "type": "aws-cloudwatch" }
 }

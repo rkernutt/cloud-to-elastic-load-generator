@@ -201,4 +201,24 @@ describe("setupAssetMatch", () => {
     expect(mlJobInferredMatchKeys(j, "aws")).toContain("kendra");
     expect(mlJobEntryMatchesSelectedServices(j, "aws", new Set(["kendra"]))).toBe(true);
   });
+
+  it("maps aws-nlb ML jobs to nlb despite shared aws.elb metrics dataset", () => {
+    const j = {
+      id: "aws-nlb-unhealthy-host-spike",
+      description: "NLB unhealthy targets",
+      job: {},
+      datafeed: {
+        query: {
+          bool: {
+            filter: [
+              { term: { "event.dataset": "aws.elb" } },
+              { prefix: { "aws.elb.dimensions.LoadBalancer": "net/" } },
+            ],
+          },
+        },
+      },
+    };
+    expect(mlJobInferredMatchKeys(j, "aws")).toContain("nlb");
+    expect(mlJobEntryMatchesSelectedServices(j, "aws", new Set(["nlb"]))).toBe(true);
+  });
 });

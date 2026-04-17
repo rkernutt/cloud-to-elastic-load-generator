@@ -159,6 +159,74 @@ function generateAlbLog(ts: string, er: number): EcsDocument {
     `arn:aws:acm:${region}:${acct.id}:certificate/${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase();
   const isSuspicious = isErr && Math.random() < 0.15;
   const clientGeo = rand(GEO_LOCATIONS);
+  const clientIp = randIp();
+  const clientPort = randInt(1024, 65535);
+  const domain = "api.example.com";
+  const receivedBytes = randInt(200, 8000);
+  const sentBytes = randInt(500, 50000);
+  const ua = rand(USER_AGENTS);
+  const traceId = `Root=1-${randId(8)}-${randId(24)}`;
+  const matchedRulePriority = String(rand([1, 2, 3, 4, 5, 10, "default"]));
+  const targetDown = is5xx && Math.random() < 0.25;
+  const targetField = targetDown ? "-" : `${backendIp}:${backendPort}`;
+  const elbStatusCode = status;
+  const targetStatusCode = targetDown ? "-" : String(status);
+  const requestLine = `${method} https://${domain}:443${path} HTTP/1.1`;
+  const actionsExecuted =
+    isErr && status >= 500
+      ? rand(["forward", "fixed-response"])
+      : rand(["forward", "forward", "forward", "authenticate-cognito"]);
+  const redirectUrl = status >= 300 && status < 400 ? `https://${domain}/new` : "-";
+  const elbAccessErrorReason =
+    isErr && status >= 500
+      ? rand([
+          "TargetConnectionError",
+          "TargetResponseError",
+          "TargetTimeout",
+          "ELBInternalError",
+          "RequestTimeout",
+        ])
+      : "-";
+  const targetPortList = targetField === "-" ? "-" : `"${backendIp}:${backendPort}"`;
+  const targetStatusCodeList = targetDown ? "-" : `"${status}"`;
+  const classification = isSuspicious ? "SUSPICIOUS" : "NORMAL";
+  const classificationReason = isSuspicious
+    ? rand(["AmbiguousUri", "BadContentLength", "DuplicateHeader"])
+    : "-";
+  const albTime = new Date(ts).toISOString();
+  const requestCreationTime = albTime;
+  const q = (s: string) => `"${s.replace(/"/g, "'")}"`;
+  const albRawLine = [
+    "https",
+    albTime,
+    lbName,
+    `${clientIp}:${clientPort}`,
+    targetField,
+    String(reqProc),
+    String(backendProc),
+    String(respProc),
+    String(elbStatusCode),
+    targetStatusCode,
+    String(receivedBytes),
+    String(sentBytes),
+    q(requestLine),
+    q(ua),
+    "ECDHE-RSA-AES128-GCM-SHA256",
+    "TLSv1.3",
+    tgArn,
+    q(traceId),
+    q(domain),
+    q(certArn),
+    matchedRulePriority,
+    requestCreationTime,
+    q(`[${actionsExecuted}]`),
+    redirectUrl === "-" ? q("-") : q(redirectUrl),
+    elbAccessErrorReason === "-" ? q("-") : q(elbAccessErrorReason),
+    targetPortList,
+    targetStatusCodeList,
+    q(classification),
+    classificationReason === "-" ? q("-") : q(classificationReason),
+  ].join(" ");
   return {
     "@timestamp": ts,
     cloud: {
@@ -189,34 +257,20 @@ function generateAlbLog(ts: string, er: number): EcsDocument {
         ssl_cipher: "ECDHE-RSA-AES128-GCM-SHA256",
         tls_named_group: "x25519",
         "chosen_cert.arn": certArn,
-        trace_id: `Root=1-${randId(8)}-${randId(24)}`,
-        matched_rule_priority: String(rand([1, 2, 3, 4, 5, 10, "default"])),
-        action_executed:
-          isErr && status >= 500
-            ? rand(["fixed-response", "forward"])
-            : rand(["forward", "forward", "forward", "authenticate-cognito"]),
-        target_port: `${backendIp}:${backendPort}`,
-        target_status_code: String(status),
-        classification: isSuspicious ? "SUSPICIOUS" : "NORMAL",
-        ...(isSuspicious
-          ? { classification_reason: rand(["AmbiguousUri", "BadContentLength", "DuplicateHeader"]) }
-          : {}),
-        "error.reason":
-          isErr && status >= 500
-            ? rand([
-                "TargetConnectionError",
-                "TargetResponseError",
-                "TargetTimeout",
-                "ELBInternalError",
-                "RequestTimeout",
-              ])
-            : undefined,
+        trace_id: traceId,
+        matched_rule_priority: matchedRulePriority,
+        action_executed: actionsExecuted,
+        target_port: targetField === "-" ? undefined : `${backendIp}:${backendPort}`,
+        target_status_code: targetStatusCode,
+        classification,
+        ...(isSuspicious ? { classification_reason: classificationReason } : {}),
+        "error.reason": elbAccessErrorReason === "-" ? undefined : elbAccessErrorReason,
       },
     },
     http: {
       request: {
         method,
-        bytes: randInt(200, 8000),
+        bytes: receivedBytes,
         referrer:
           Math.random() < 0.2
             ? rand([
@@ -226,12 +280,12 @@ function generateAlbLog(ts: string, er: number): EcsDocument {
               ])
             : undefined,
       },
-      response: { status_code: status, bytes: randInt(500, 50000) },
+      response: { status_code: status, bytes: sentBytes },
     },
-    url: { path, domain: "api.example.com" },
+    url: { path, domain },
     client: {
-      ip: randIp(),
-      port: randInt(1024, 65535),
+      ip: clientIp,
+      port: clientPort,
       geo: {
         country_iso_code: clientGeo.country_iso_code,
         country_name: clientGeo.country_name,
@@ -239,7 +293,7 @@ function generateAlbLog(ts: string, er: number): EcsDocument {
         location: clientGeo.location,
       },
     },
-    user_agent: { original: rand(USER_AGENTS) },
+    user_agent: { original: ua },
     event: {
       duration: (reqProc + backendProc + respProc) * 1e9,
       outcome: status >= 400 ? "failure" : "success",
@@ -248,7 +302,7 @@ function generateAlbLog(ts: string, er: number): EcsDocument {
       dataset: "aws.elb_logs",
       provider: "elasticloadbalancing.amazonaws.com",
     },
-    message: `${method} ${path} ${status} ${((reqProc + backendProc + respProc) * 1000).toFixed(0)}ms`,
+    message: albRawLine,
     log: { level: status >= 500 ? "error" : status >= 400 ? "warn" : "info" },
     ...(status >= 400
       ? {
@@ -367,6 +421,34 @@ function generateCloudFrontLog(ts: string, er: number): EcsDocument {
     ? rand(["Error", "AbortedOrigin", "OriginDNSError", "OriginConnectError"])
     : rand(["Hit", "Miss", "RefreshHit", "Redirect"]);
   const cookies = rand(["", "session=abc123", "user=guest"]);
+  const cfDomain = `d${randId(12).toLowerCase()}.cloudfront.net`;
+  const du = new Date(ts);
+  const pad2 = (n: number) => String(n).padStart(2, "0");
+  const cfDate = `${du.getUTCFullYear()}-${pad2(du.getUTCMonth() + 1)}-${pad2(du.getUTCDate())}`;
+  const cfTime = `${pad2(du.getUTCHours())}:${pad2(du.getUTCMinutes())}:${pad2(du.getUTCSeconds())}`;
+  const csMethod = "GET";
+  const csBytes = randInt(0, 1000);
+  const xForwardedFor = Math.random() < 0.45 ? `${clientIp}, ${randIp()}` : clientIp;
+  const sslProtocol = "TLSv1.3";
+  const sslCipher = "TLS_AES_128_GCM_SHA256";
+  const cfExtendedLine = [
+    cfDate,
+    cfTime,
+    edge,
+    String(bytes),
+    clientIp,
+    csMethod,
+    cfDomain,
+    path,
+    String(status),
+    edgeResultType,
+    edgeResponseResultType,
+    String(timeTaken),
+    xForwardedFor,
+    sslProtocol,
+    sslCipher,
+    edgeDetailedResultType,
+  ].join("\t");
   return {
     "@timestamp": ts,
     cloud: {
@@ -378,7 +460,7 @@ function generateCloudFrontLog(ts: string, er: number): EcsDocument {
     aws: {
       dimensions: { DistributionId: distId, Region: "Global" },
       cloudfront: {
-        domain: `d${randId(12).toLowerCase()}.cloudfront.net`,
+        domain: cfDomain,
         edge_location: edge,
         edge_result_type: edgeResultType,
         edge_response_result_type: edgeResponseResultType,
@@ -387,13 +469,27 @@ function generateCloudFrontLog(ts: string, er: number): EcsDocument {
         range_start: null,
         range_end: null,
         cookies: cookies || undefined,
+        "x-edge-location": edge,
+        "sc-bytes": bytes,
+        "c-ip": clientIp,
+        "cs-method": csMethod,
+        "cs(Host)": cfDomain,
+        "cs-uri-stem": path,
+        "sc-status": status,
+        "x-edge-result-type": edgeResultType,
+        "x-edge-response-result-type": edgeResponseResultType,
+        "time-taken": timeTaken,
+        "x-forwarded-for": xForwardedFor,
+        "ssl-protocol": sslProtocol,
+        "ssl-cipher": sslCipher,
+        "x-edge-detailed-result-type": edgeDetailedResultType,
       },
     },
     http: {
-      request: { method: "GET", bytes: randInt(0, 1000) },
+      request: { method: "GET", bytes: csBytes },
       response: { status_code: status, bytes },
     },
-    url: { path, domain: `d${randId(12).toLowerCase()}.cloudfront.net` },
+    url: { path, domain: cfDomain },
     client: {
       ip: clientIp,
       geo: {
@@ -411,7 +507,7 @@ function generateCloudFrontLog(ts: string, er: number): EcsDocument {
       provider: "cloudfront.amazonaws.com",
       duration: Math.round(timeTaken * 1e9),
     },
-    message: `GET ${path} ${status} [${edge}]`,
+    message: cfExtendedLine,
     log: { level: status >= 500 ? "error" : status >= 400 ? "warn" : "info" },
     ...(status >= 400
       ? {
@@ -444,7 +540,7 @@ function generateWafLog(ts: string, er: number): EcsDocument {
   ];
   const rule = rand(rules);
   const webAclName = rand(["prod-waf", "api-waf", "admin-waf"]);
-  const webAclId =
+  const webaclId =
     `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase();
   const uri = rand(HTTP_PATHS);
   const method = rand(HTTP_METHODS);
@@ -452,6 +548,69 @@ function generateWafLog(ts: string, er: number): EcsDocument {
   const ua = rand(USER_AGENTS);
   const clientGeo = rand(GEO_LOCATIONS);
   const lbId = `${acct.id}-app/${webAclName}/${randId(16).toLowerCase()}`;
+  const terminatingRuleId = rand([
+    "NoUserAgent_HEADER",
+    "SQLi_Args",
+    "CrossSiteScripting",
+    "GenericRFI_BODY",
+    "GenericLFI_URIPATH",
+    "BadBot",
+    "SizeRestrictions_BODY",
+    "IPRateBasedRule",
+    "GeoBlockRule",
+    "RateLimit_IP",
+  ]);
+  const terminatingRuleType =
+    rule === "IPRateBasedRule" || terminatingRuleId === "IPRateBasedRule"
+      ? "RATE_BASED"
+      : rule.startsWith("AWSManaged")
+        ? "MANAGED_RULE_GROUP"
+        : "GROUP";
+  const action = isBlock ? "BLOCK" : "ALLOW";
+  const httpHeaders = [
+    { name: "Host", value: "api.example.com" },
+    { name: "User-Agent", value: ua },
+    { name: "Accept", value: "*/*" },
+  ];
+  const httpRequest = {
+    clientIp,
+    country: clientGeo.country_iso_code,
+    headers: httpHeaders,
+    httpMethod: method,
+    httpVersion: "HTTP/1.1",
+    uri: uri.startsWith("/") ? uri : `/${uri}`,
+  };
+  const rateBasedRuleList =
+    rule === "IPRateBasedRule" || terminatingRuleId === "IPRateBasedRule"
+      ? [
+          {
+            rateBasedRuleId: "IPRateBasedRule",
+            rateLimitKey: "IP",
+            limitKey: clientIp,
+            maxRateAllowed: 2000,
+          },
+        ]
+      : [];
+  const nonTerminatingMatchingRules =
+    !isBlock && Math.random() < 0.35
+      ? [{ ruleId: "SizeRestrictions_BODY", action: "COUNT", ruleMatchDetails: [] }]
+      : [];
+  const requestHeadersInserted: { name: string; value: string }[] = [];
+  const responseCodeSent = isBlock ? 403 : 200;
+  const wafNative = {
+    timestamp: ts,
+    formatVersion: 1,
+    webaclId,
+    terminatingRuleId,
+    terminatingRuleType,
+    action,
+    httpRequest,
+    httpSourceId: lbId,
+    rateBasedRuleList,
+    nonTerminatingMatchingRules,
+    requestHeadersInserted,
+    responseCodeSent,
+  };
   return {
     "@timestamp": ts,
     cloud: {
@@ -464,7 +623,7 @@ function generateWafLog(ts: string, er: number): EcsDocument {
       dimensions: { WebACL: webAclName, Rule: rule, Region: region },
       waf: {
         id: randId(36).toLowerCase(),
-        arn: `arn:aws:wafv2:${region}:${acct.id}:regional/webacl/${webAclName}/${webAclId}`,
+        arn: `arn:aws:wafv2:${region}:${acct.id}:regional/webacl/${webAclName}/${webaclId}`,
         format_version: "1",
         source: { name: "ALB", id: lbId },
         rule_group_list: [
@@ -479,10 +638,7 @@ function generateWafLog(ts: string, er: number): EcsDocument {
         non_terminating_matching_rules: [],
         terminating_rule_match_details: [],
         request: {
-          headers: [
-            { name: "User-Agent", value: ua },
-            { name: "Host", value: "api.example.com" },
-          ],
+          headers: httpHeaders,
         },
         labels: isBlock ? [{ name: `awswaf:managed:aws:${rule.toLowerCase()}` }] : [],
         response_code_sent: isBlock ? 403 : undefined,
@@ -495,21 +651,20 @@ function generateWafLog(ts: string, er: number): EcsDocument {
           ChallengeRequests: { sum: 0 },
           FailedCaptcha: { sum: 0 },
         },
+        webaclId,
+        terminatingRuleId,
+        terminatingRuleType,
+        action,
+        httpRequest,
+        httpSourceId: lbId,
+        rateBasedRuleList,
+        nonTerminatingMatchingRules,
+        requestHeadersInserted,
+        responseCodeSent,
       },
     },
     rule: {
-      id: rand([
-        "NoUserAgent_HEADER",
-        "SQLi_Args",
-        "CrossSiteScripting",
-        "GenericRFI_BODY",
-        "GenericLFI_URIPATH",
-        "BadBot",
-        "SizeRestrictions_BODY",
-        "IPRateBasedRule",
-        "GeoBlockRule",
-        "RateLimit_IP",
-      ]),
+      id: terminatingRuleId,
       ruleset: rule,
     },
     http: { request: { method, bytes: randInt(100, 10000) } },
@@ -541,7 +696,7 @@ function generateWafLog(ts: string, er: number): EcsDocument {
       provider: "wafv2.amazonaws.com",
       duration: randInt(1, isBlock ? 500 : 50) * 1e6,
     },
-    message: `WAF ${isBlock ? "BLOCKED" : "ALLOWED"} request - Rule: ${rule}`,
+    message: JSON.stringify(wafNative),
     log: { level: isBlock ? "warn" : "info" },
     ...(isBlock
       ? {
@@ -560,7 +715,7 @@ function generateWafv2Log(ts: string, er: number) {
   const acct = randAccount();
   const isErr = Math.random() < er;
   const webAcl = rand(["prod-api-acl", "cdn-waf", "admin-portal-waf", "regional-waf"]);
-  const webAclId =
+  const webaclId =
     `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase();
   const action = isErr ? rand(["BLOCK", "CAPTCHA", "COUNT"]) : rand(["ALLOW", "ALLOW", "BLOCK"]);
   const ruleGroup = rand([
@@ -575,7 +730,7 @@ function generateWafv2Log(ts: string, er: number) {
     "GeoBlockRule",
     "CustomSQLiRule",
   ]);
-  const rule = rand([
+  const terminatingRuleId = rand([
     "SQLi_Args",
     "CrossSiteScripting",
     "GenericRFI_BODY",
@@ -602,6 +757,58 @@ function generateWafv2Log(ts: string, er: number) {
         ]),
       ]
     : [];
+  const httpSourceId = `${acct.id}-app/${webAcl}/${randId(16).toLowerCase()}`;
+  const httpHeaders = [
+    { name: "Host", value: "api.example.com" },
+    { name: "User-Agent", value: ua },
+    { name: "Accept", value: "*/*" },
+  ];
+  const httpRequest = {
+    clientIp: ip,
+    country: srcGeo.country_iso_code,
+    headers: httpHeaders,
+    httpMethod: method,
+    httpVersion: "HTTP/1.1",
+    uri: uri.startsWith("/") ? uri : `/${uri}`,
+  };
+  const terminatingRuleType =
+    ruleGroup === "IPRateBasedRule" || terminatingRuleId === "IPRateBasedRule"
+      ? "RATE_BASED"
+      : ruleGroup.startsWith("AWSManaged")
+        ? "MANAGED_RULE_GROUP"
+        : "GROUP";
+  const rateBasedRuleList =
+    ruleGroup === "IPRateBasedRule" || terminatingRuleId === "IPRateBasedRule"
+      ? [
+          {
+            rateBasedRuleId: "IPRateBasedRule",
+            rateLimitKey: "IP",
+            limitKey: ip,
+            maxRateAllowed: 5000,
+          },
+        ]
+      : [];
+  const nonTerminatingMatchingRules =
+    action === "COUNT" || (!isBlock && Math.random() < 0.3)
+      ? [{ ruleId: "GeoBlockRule", action: "COUNT", ruleMatchDetails: [] }]
+      : [];
+  const requestHeadersInserted: { name: string; value: string }[] = [];
+  const responseCodeSent =
+    action === "BLOCK" ? 403 : action === "CAPTCHA" ? 405 : action === "COUNT" ? 200 : 200;
+  const wafNative = {
+    timestamp: ts,
+    formatVersion: 1,
+    webaclId,
+    terminatingRuleId,
+    terminatingRuleType,
+    action,
+    httpRequest,
+    httpSourceId,
+    rateBasedRuleList,
+    nonTerminatingMatchingRules,
+    requestHeadersInserted,
+    responseCodeSent,
+  };
   return {
     "@timestamp": ts,
     cloud: {
@@ -611,41 +818,50 @@ function generateWafv2Log(ts: string, er: number) {
       service: { name: "wafv2" },
     },
     aws: {
-      dimensions: { WebACL: webAcl, Rule: rule, Region: region },
+      dimensions: { WebACL: webAcl, Rule: terminatingRuleId, Region: region },
       waf: {
         id: randId(36).toLowerCase(),
-        arn: `arn:aws:wafv2:${region}:${acct.id}:regional/webacl/${webAcl}/${webAclId}`,
+        arn: `arn:aws:wafv2:${region}:${acct.id}:regional/webacl/${webAcl}/${webaclId}`,
         format_version: "1",
         source: {
           name: rand(["ALB", "APIGW", "CF"]),
-          id: `${acct.id}-app/${webAcl}/${randId(16).toLowerCase()}`,
+          id: httpSourceId,
         },
         rule_group_list: [
           {
             ruleGroupId: ruleGroup,
-            terminatingRule: isBlock ? { action, ruleId: rule, ruleMatchDetails: [] } : undefined,
+            terminatingRule: isBlock
+              ? { action, ruleId: terminatingRuleId, ruleMatchDetails: [] }
+              : undefined,
             nonTerminatingMatchingRules: [],
           },
         ],
         non_terminating_matching_rules: [],
         terminating_rule_match_details: [],
         request: {
-          headers: [
-            { name: "User-Agent", value: ua },
-            { name: "Host", value: "api.example.com" },
-          ],
+          headers: httpHeaders,
         },
         labels: labelNames.map((n) => ({ name: n })),
         response_code_sent: isBlock ? 403 : undefined,
         metrics: {
           AllowedRequests: { sum: isBlock ? 0 : 1 },
           BlockedRequests: { sum: isBlock ? 1 : 0 },
-          CountedRequests: { sum: 0 },
+          CountedRequests: { sum: action === "COUNT" ? 1 : 0 },
           PassedRequests: { sum: isBlock ? 0 : 1 },
           RequestsWithValidCaptchaToken: { sum: 0 },
           ChallengeRequests: { sum: 0 },
           FailedCaptcha: { sum: 0 },
         },
+        webaclId,
+        terminatingRuleId,
+        terminatingRuleType,
+        action,
+        httpRequest,
+        httpSourceId,
+        rateBasedRuleList,
+        nonTerminatingMatchingRules,
+        requestHeadersInserted,
+        responseCodeSent,
       },
     },
     source: {
@@ -666,10 +882,9 @@ function generateWafv2Log(ts: string, er: number) {
       category: ["intrusion_detection", "network"],
       dataset: "aws.waf",
       provider: "wafv2.amazonaws.com",
+      duration: randInt(1, isBlock ? 500 : 50) * 1e6,
     },
-    message: isBlock
-      ? `WAFv2 ${action} [${webAcl}] ${ip}: ${ruleGroup}/${rule}`
-      : `WAFv2 ${action} [${webAcl}] ${ip} ${method} ${uri}`,
+    message: JSON.stringify(wafNative),
     log: { level: isBlock ? "warn" : "info" },
     ...(isBlock
       ? { error: { code: "WAFBlock", message: "WAFv2 request blocked", type: "security" } }
@@ -1298,6 +1513,15 @@ function generateVpcFlowLog(ts: string, er: number): EcsDocument {
         version: "2",
         account_id: acct.id,
         interface_id: eni,
+        srcaddr: src,
+        dstaddr: dst,
+        srcport: srcPort,
+        dstport: dstPort,
+        protocol: String(proto),
+        packets: pkts,
+        bytes,
+        start: tsEpoch,
+        end: endEpoch,
         action,
         log_status: "OK",
         instance_id: Math.random() > 0.3 ? `i-${randId(17).toLowerCase()}` : undefined,

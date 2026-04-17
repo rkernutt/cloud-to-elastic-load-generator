@@ -6,167 +6,74 @@
 import {
   randInt,
   dp,
-  stat,
-  counter,
   gcpMetricDoc,
   pickGcpCloudContext,
   jitter,
+  toInt64String,
+  distributionFromMs,
 } from "./helpers.js";
+import type { GcpMonitoringMetricSpec } from "./helpers.js";
 import type { MetricGenerator } from "../../../aws/generators/types.js";
 
 export type { MetricGenerator } from "../../../aws/generators/types.js";
 
-type TemplatePart =
-  | { dim: string; vals: string[] }
-  | { metrics: (er: number) => Record<string, unknown> };
+type TemplatePart = { dim: string; vals: string[] } | { templateKey: string };
 
-/** Default templates by service category (dimension keys + synthetic metrics). */
 export const GCP_METRIC_TEMPLATES: Record<string, TemplatePart[]> = {
   serverless: [
     { dim: "function_name", vals: ["api-handler", "worker", "batch-fn", "webhook"] },
-    {
-      metrics: (er) => ({
-        request_count: counter(randInt(0, 500_000)),
-        execution_count: counter(randInt(0, 200_000)),
-        error_count: counter(Math.random() < er ? randInt(1, 5_000) : 0),
-        execution_times: stat(dp(jitter(120, 100, 5, 60_000))),
-      }),
-    },
+    { templateKey: "serverless" },
   ],
   compute: [
     { dim: "instance_name", vals: ["vm-web-1", "vm-app-2", "vm-batch-3"] },
-    {
-      metrics: (er) => ({
-        cpu_utilization: stat(
-          dp(Math.random() < er ? jitter(85, 10, 70, 100) : jitter(35, 25, 5, 95))
-        ),
-        disk_read_bytes: counter(randInt(0, 80_000_000)),
-        disk_write_bytes: counter(randInt(0, 120_000_000)),
-        network_received_bytes: counter(randInt(0, 400_000_000)),
-        network_sent_bytes: counter(randInt(0, 250_000_000)),
-      }),
-    },
+    { templateKey: "compute" },
   ],
   database: [
-    { dim: "database_id", vals: ["db-primary", "db-replica", "db-analytics"] },
-    {
-      metrics: (er) => ({
-        cpu_utilization: stat(dp(jitter(40, 30, 5, 98))),
-        memory_utilization: stat(dp(jitter(55, 20, 10, 99))),
-        connections: counter(randInt(0, 2_000)),
-        queries: counter(randInt(0, 500_000)),
-        errors: counter(Math.random() < er ? randInt(1, 500) : 0),
-      }),
-    },
+    { dim: "database_id", vals: ["globex:db-primary", "globex:db-replica", "globex:db-analytics"] },
+    { templateKey: "database" },
   ],
   networking: [
-    { dim: "resource_url", vals: ["/api/v1/orders", "/health", "/static/*", "/graphql"] },
-    {
-      metrics: (er) => ({
-        request_count: counter(randInt(0, 1_000_000)),
-        latency: stat(dp(jitter(45, 40, 2, 5_000))),
-        error_rate: stat(
-          dp(Math.random() < er ? jitter(0.05, 0.04, 0, 0.5) : jitter(0.002, 0.002, 0, 0.02))
-        ),
-      }),
-    },
+    { dim: "url_map_name", vals: ["api-map", "web-map", "grpc-map", "static-map"] },
+    { templateKey: "networking" },
   ],
   storage: [
     { dim: "bucket_name", vals: ["data-lake", "logs-archive", "assets-cdn", "backups"] },
-    {
-      metrics: (er) => ({
-        storage_bytes: counter(randInt(1_000_000, 50_000_000_000)),
-        object_count: counter(randInt(100, 10_000_000)),
-        api_request_count: counter(randInt(0, 500_000)),
-        errors: counter(Math.random() < er ? randInt(1, 2_000) : 0),
-      }),
-    },
+    { templateKey: "storage" },
   ],
   ml: [
     { dim: "model_id", vals: ["recommendation-v2", "fraud-detect", "embeddings-prod"] },
-    {
-      metrics: (er) => ({
-        prediction_count: counter(randInt(0, 2_000_000)),
-        latency: stat(dp(jitter(80, 70, 5, 10_000))),
-        error_count: counter(Math.random() < er ? randInt(1, 1_000) : 0),
-      }),
-    },
+    { templateKey: "ml" },
   ],
   orchestration: [
-    { dim: "job_id", vals: ["etl-daily", "spark-agg", "export-weekly"] },
-    {
-      metrics: (er) => ({
-        task_count: counter(randInt(0, 50_000)),
-        duration_ms: stat(dp(jitter(600_000, 400_000, 10_000, 3_600_000))),
-        failed_tasks: counter(Math.random() < er ? randInt(1, 200) : 0),
-      }),
-    },
+    { dim: "build_id", vals: ["build-aa1", "build-bb2", "build-cc3"] },
+    { templateKey: "orchestration" },
   ],
   observability: [
-    { dim: "resource_type", vals: ["global", "project", "workspace"] },
-    {
-      metrics: (er) => ({
-        ingestion_volume: counter(randInt(0, 10_000_000_000)),
-        query_count: counter(randInt(0, 500_000)),
-        dropped_entries: counter(Math.random() < er ? randInt(1, 10_000) : 0),
-      }),
-    },
+    { dim: "workspace_id", vals: ["ws-global", "ws-prod", "ws-staging"] },
+    { templateKey: "observability" },
   ],
   messaging: [
     { dim: "queue_id", vals: ["tasks-default", "tasks-priority", "scheduler-jobs"] },
-    {
-      metrics: (er) => ({
-        published_messages: counter(randInt(0, 800_000)),
-        delivered_messages: counter(randInt(0, 750_000)),
-        oldest_message_age: stat(dp(jitter(2, 8, 0, 3600))),
-        dlq_count: counter(Math.random() < er ? randInt(1, 500) : 0),
-      }),
-    },
+    { templateKey: "messaging" },
   ],
   api_gateway: [
-    { dim: "proxy_name", vals: ["internal-api", "partner-api", "public-gateway"] },
-    {
-      metrics: (er) => ({
-        request_count: counter(randInt(0, 2_000_000)),
-        latency_ms: stat(dp(jitter(60, 50, 1, 8_000))),
-        _4xx_count: counter(Math.random() < er ? randInt(1, 20_000) : randInt(0, 2_000)),
-        _5xx_count: counter(Math.random() < er ? randInt(1, 5_000) : 0),
-      }),
-    },
+    { dim: "gateway_id", vals: ["internal-api", "partner-api", "public-gateway"] },
+    { templateKey: "api_gateway" },
   ],
   iot: [
     { dim: "device_type", vals: ["sensor", "gateway", "camera", "controller"] },
-    {
-      metrics: (er) => ({
-        mqtt_connections: counter(randInt(0, 100_000)),
-        messages_ingested: counter(randInt(0, 5_000_000)),
-        errors: counter(Math.random() < er ? randInt(1, 5_000) : 0),
-      }),
-    },
+    { templateKey: "iot" },
   ],
   security: [
-    { dim: "resource_id", vals: ["kms-ring-1", "secret-prod", "artifact-repo"] },
-    {
-      metrics: (er) => ({
-        api_request_count: counter(randInt(0, 200_000)),
-        denied_requests: counter(Math.random() < er ? randInt(1, 1_000) : randInt(0, 50)),
-        key_operations: counter(randInt(0, 50_000)),
-      }),
-    },
+    { dim: "resource_name", vals: ["kms-ring-1", "secret-prod", "artifact-repo"] },
+    { templateKey: "security" },
   ],
   default: [
     { dim: "resource_id", vals: ["resource-a", "resource-b", "resource-c"] },
-    {
-      metrics: (er) => ({
-        request_count: counter(randInt(0, 100_000)),
-        error_count: counter(Math.random() < er ? randInt(1, 1_000) : 0),
-        latency: stat(dp(jitter(100, 80, 5, 10_000))),
-      }),
-    },
+    { templateKey: "default" },
   ],
 };
 
-/** Maps service IDs to template keys in {@link GCP_METRIC_TEMPLATES}. */
 export const GCP_TEMPLATE_MAP: Record<string, string> = {
   "cloud-functions": "serverless",
   "cloud-run": "serverless",
@@ -200,17 +107,376 @@ export const GCP_TEMPLATE_MAP: Record<string, string> = {
   "pubsub-lite": "messaging",
 };
 
-/**
- * Generic metric generator for GCP services without a dedicated generator.
- * Produces 1–3 label combinations per call.
- */
+function specsForTemplate(
+  key: string,
+  dimKey: string,
+  dimVal: string,
+  project: ReturnType<typeof pickGcpCloudContext>["project"],
+  region: string,
+  er: number
+): GcpMonitoringMetricSpec[] {
+  const err = Math.random() < er;
+  const project_id = project.id;
+
+  switch (key) {
+    case "serverless": {
+      const res = { project_id, function_name: dimVal, region };
+      return [
+        {
+          metricType: "cloudfunctions.googleapis.com/function/execution_count",
+          resourceType: "cloud_function",
+          resourceLabels: res,
+          metricLabels: { status: err ? "internal" : "ok" },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(err ? 20 : 80, err ? 900 : 5200)) },
+        },
+        {
+          metricType: "cloudfunctions.googleapis.com/function/execution_times",
+          resourceType: "cloud_function",
+          resourceLabels: res,
+          metricLabels: { status: err ? "internal" : "ok" },
+          metricKind: "DELTA",
+          valueType: "DISTRIBUTION",
+          point: distributionFromMs(
+            err ? jitter(2800, 1600, 200, 20000) : jitter(140, 95, 5, 900),
+            randInt(60, 900),
+            err
+          ),
+        },
+        {
+          metricType: "run.googleapis.com/request_count",
+          resourceType: "cloud_run_revision",
+          resourceLabels: {
+            project_id,
+            service_name: dimVal,
+            revision_name: `${dimVal}-00001-abc`,
+            configuration_name: dimVal,
+            location: region,
+          },
+          metricLabels: { response_code_class: err ? "5xx" : "2xx" },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(10, err ? 4000 : 12000)) },
+        },
+      ];
+    }
+    case "compute": {
+      const zone = `${region}-a`;
+      const instance_id = String(randInt(1000000000000, 9999999999999));
+      const res = { project_id, instance_id, zone };
+      return [
+        {
+          metricType: "compute.googleapis.com/instance/cpu/utilization",
+          resourceType: "gce_instance",
+          resourceLabels: res,
+          extraServiceLabels: { instance_name: dimVal },
+          metricKind: "GAUGE",
+          valueType: "DOUBLE",
+          point: {
+            doubleValue: dp(err ? jitter(0.9, 0.06, 0.75, 1) : jitter(0.36, 0.22, 0.03, 0.92)),
+          },
+        },
+        {
+          metricType: "compute.googleapis.com/instance/disk/read_bytes_count",
+          resourceType: "gce_instance",
+          resourceLabels: res,
+          extraServiceLabels: { instance_name: dimVal },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(0, err ? 95_000_000 : 65_000_000)) },
+        },
+        {
+          metricType: "compute.googleapis.com/instance/network/sent_bytes_count",
+          resourceType: "gce_instance",
+          resourceLabels: res,
+          extraServiceLabels: { instance_name: dimVal },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: {
+            int64Value: toInt64String(randInt(1_000_000, err ? 220_000_000_000 : 160_000_000_000)),
+          },
+        },
+      ];
+    }
+    case "database": {
+      const res = { project_id, database_id: dimVal, region };
+      return [
+        {
+          metricType: "cloudsql.googleapis.com/database/cpu/utilization",
+          resourceType: "cloudsql_database",
+          resourceLabels: res,
+          metricKind: "GAUGE",
+          valueType: "DOUBLE",
+          point: { doubleValue: dp(jitter(0.44, 0.26, 0.05, err ? 0.98 : 0.88)) },
+        },
+        {
+          metricType: "cloudsql.googleapis.com/database/memory/utilization",
+          resourceType: "cloudsql_database",
+          resourceLabels: res,
+          metricKind: "GAUGE",
+          valueType: "DOUBLE",
+          point: { doubleValue: dp(jitter(0.56, 0.18, 0.1, err ? 0.96 : 0.88)) },
+        },
+        {
+          metricType: "redis.googleapis.com/stats/memory/usage_ratio",
+          resourceType: "redis_instance",
+          resourceLabels: { project_id, region, instance_id: dimVal },
+          metricKind: "GAUGE",
+          valueType: "DOUBLE",
+          point: { doubleValue: dp(jitter(0.58, 0.2, 0.12, err ? 0.98 : 0.92)) },
+        },
+      ];
+    }
+    case "networking": {
+      const res = {
+        project_id,
+        url_map_name: dimVal,
+        forwarding_rule_name: "fr-generic",
+        target_proxy_name: "tp-generic",
+        region,
+      };
+      return [
+        {
+          metricType: "loadbalancing.googleapis.com/https/request_count",
+          resourceType: "https_lb_rule",
+          resourceLabels: res,
+          metricLabels: { response_code_class: err ? "4xx" : "2xx" },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(100, err ? 900_000 : 600_000)) },
+        },
+        {
+          metricType: "dns.googleapis.com/query/response_count",
+          resourceType: "dns_query",
+          resourceLabels: { project_id, target_name: dimVal, location: region },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(200, 800_000)) },
+        },
+      ];
+    }
+    case "storage": {
+      const res = { project_id, bucket_name: dimVal, location: region };
+      return [
+        {
+          metricType: "storage.googleapis.com/api/request_count",
+          resourceType: "gcs_bucket",
+          resourceLabels: res,
+          metricLabels: { method: "GET", response_code: err ? "503" : "200" },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(0, err ? 50_000 : 400_000)) },
+        },
+        {
+          metricType: "storage.googleapis.com/storage/total_bytes",
+          resourceType: "gcs_bucket",
+          resourceLabels: res,
+          metricKind: "GAUGE",
+          valueType: "DOUBLE",
+          point: { doubleValue: randInt(50_000_000, 40_000_000_000) },
+        },
+      ];
+    }
+    case "ml": {
+      const res = { project_id, location: region, endpoint_id: dimVal };
+      return [
+        {
+          metricType: "aiplatform.googleapis.com/prediction/online_prediction_request_count",
+          resourceType: "aiplatform.googleapis.com/Endpoint",
+          resourceLabels: res,
+          metricLabels: { deployed_model_id: "dm-generic" },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(0, err ? 800 : 4000)) },
+        },
+        {
+          metricType: "dialogflow.googleapis.com/request_count",
+          resourceType: "global",
+          resourceLabels: { project_id },
+          metricLabels: { agent_name: dimVal },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(0, err ? 12_000 : 80_000)) },
+        },
+      ];
+    }
+    case "orchestration": {
+      return [
+        {
+          metricType: "cloudbuild.googleapis.com/build/build_count",
+          resourceType: "cloud_build",
+          resourceLabels: { project_id, build_id: dimVal },
+          metricLabels: { status: err ? "FAILURE" : "SUCCESS" },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(0, err ? 40 : 200)) },
+        },
+        {
+          metricType: "composer.googleapis.com/environment/dag_processing_duration",
+          resourceType: "cloud_composer_environment",
+          resourceLabels: {
+            project_id,
+            image_version: "composer-2",
+            location: region,
+            environment_name: dimVal,
+          },
+          metricKind: "DELTA",
+          valueType: "DISTRIBUTION",
+          point: distributionFromMs(
+            err
+              ? jitter(420_000, 180_000, 60_000, 3_600_000)
+              : jitter(90_000, 45_000, 5000, 900_000),
+            randInt(20, 200),
+            err
+          ),
+        },
+      ];
+    }
+    case "observability": {
+      return [
+        {
+          metricType: "monitoring.googleapis.com/billing/bytes_ingested",
+          resourceType: "global",
+          resourceLabels: { project_id },
+          metricLabels: { workspace: dimVal },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: {
+            int64Value: toInt64String(randInt(1_000_000, err ? 12_000_000_000 : 8_000_000_000)),
+          },
+        },
+        {
+          metricType: "logging.googleapis.com/log_entry_count",
+          resourceType: "project",
+          resourceLabels: { project_id },
+          metricLabels: { log: dimVal },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(5000, err ? 2_000_000 : 1_200_000)) },
+        },
+      ];
+    }
+    case "messaging": {
+      const res = { project_id, subscription_id: dimVal };
+      return [
+        {
+          metricType: "pubsub.googleapis.com/subscription/num_undelivered_messages",
+          resourceType: "pubsub_subscription",
+          resourceLabels: res,
+          metricKind: "GAUGE",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(0, err ? 5_000_000 : 400_000)) },
+        },
+        {
+          metricType: "cloudtasks.googleapis.com/queue/task_attempt_count",
+          resourceType: "cloud_tasks_queue",
+          resourceLabels: { project_id, queue_id: dimVal, location: region },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(0, err ? 50_000 : 400_000)) },
+        },
+      ];
+    }
+    case "api_gateway": {
+      const res = { project_id, gateway_id: dimVal, location: region };
+      return [
+        {
+          metricType: "serviceruntime.googleapis.com/api/request_count",
+          resourceType: "api",
+          resourceLabels: res,
+          metricLabels: { response_code: err ? "503" : "200" },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(0, err ? 400_000 : 2_000_000)) },
+        },
+        {
+          metricType: "apigee.googleapis.com/environment/analytics.requests",
+          resourceType: "apigee.googleapis.com/Environment",
+          resourceLabels: { project_id, location: region, environment: dimVal },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(0, 900_000)) },
+        },
+      ];
+    }
+    case "iot": {
+      return [
+        {
+          metricType: "cloudiot.googleapis.com/device/active_device_count",
+          resourceType: "cloudiot_device_registry",
+          resourceLabels: { project_id, device_registry_id: "registry-main", location: region },
+          metricKind: "GAUGE",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(10, err ? 120_000 : 80_000)) },
+        },
+        {
+          metricType: "cloudiot.googleapis.com/device/sent_bytes_count",
+          resourceType: "cloudiot_device",
+          resourceLabels: {
+            project_id,
+            device_num_id: "42",
+            registry_id: "registry-main",
+            location: region,
+          },
+          metricLabels: { device_type: dimVal },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(0, err ? 8_000_000 : 4_000_000)) },
+        },
+      ];
+    }
+    case "security": {
+      return [
+        {
+          metricType: "cloudkms.googleapis.com/cryptokey/request_count",
+          resourceType: "cloudkms_cryptokey",
+          resourceLabels: { project_id, location: region, key_ring: "ring-1", crypto_key: dimVal },
+          metricLabels: { response_code: err ? "PERMISSION_DENIED" : "OK" },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(0, err ? 12_000 : 200_000)) },
+        },
+        {
+          metricType: "secretmanager.googleapis.com/secret/version/access_count",
+          resourceType: "secretmanager.googleapis.com/SecretVersion",
+          resourceLabels: { project_id, secret_id: dimVal, version_id: "latest" },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(0, 90_000)) },
+        },
+      ];
+    }
+    default: {
+      return [
+        {
+          metricType: "serviceruntime.googleapis.com/api/request_count",
+          resourceType: "consumed_api",
+          resourceLabels: { project_id, service: "generic.googleapis.com", method: dimKey },
+          metricLabels: { credential_id: dimVal },
+          metricKind: "DELTA",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(randInt(0, err ? 20_000 : 100_000)) },
+        },
+        {
+          metricType: "monitoring.googleapis.com/uptime_check/check_passed",
+          resourceType: "uptime_url",
+          resourceLabels: { project_id, host: dimVal },
+          metricKind: "GAUGE",
+          valueType: "INT64",
+          point: { int64Value: toInt64String(err ? 0 : 1) },
+        },
+      ];
+    }
+  }
+}
+
 export function makeGcpGenericGenerator(serviceId: string, dataset: string): MetricGenerator {
   const templateKey = GCP_TEMPLATE_MAP[serviceId] ?? "default";
   const template = GCP_METRIC_TEMPLATES[templateKey] ?? GCP_METRIC_TEMPLATES.default;
   const dimEntry = template.find((t): t is { dim: string; vals: string[] } => "dim" in t);
-  const metricsFn =
-    template.find((t): t is { metrics: (er: number) => Record<string, unknown> } => "metrics" in t)
-      ?.metrics ?? (() => ({ request_count: counter(randInt(0, 100_000)) }));
+  const tmplPart = template.find((t): t is { templateKey: string } => "templateKey" in t);
+  const specKey = tmplPart?.templateKey ?? templateKey;
 
   return function gcpGenericMetricGenerator(ts: string, er: number) {
     const { region, project } = pickGcpCloudContext();
@@ -219,16 +485,10 @@ export function makeGcpGenericGenerator(serviceId: string, dataset: string): Met
     const numDims = Math.min(randInt(1, 3), dimVals.length);
 
     return Array.from({ length: numDims }, (_, i) => {
-      const dimVal = dimVals[i % dimVals.length];
-      return gcpMetricDoc(
-        ts,
-        serviceId,
-        dataset,
-        region,
-        project,
-        { [dimKey]: dimVal },
-        metricsFn(er)
+      const dimVal = dimVals[i % dimVals.length]!;
+      return specsForTemplate(specKey, dimKey, dimVal, project, region, er).map((spec) =>
+        gcpMetricDoc(ts, serviceId, dataset, region, project, spec)
       );
-    });
+    }).flat();
   };
 }

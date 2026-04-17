@@ -4,7 +4,7 @@ import type { EcsDocument } from "./types.js";
 function generateEmrLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
-  const app = rand(["spark", "hive", "flink", "presto", "hadoop"]);
+  const app = rand(["spark", "spark", "spark", "hive", "flink", "presto"]);
   const job = rand([
     "etl-daily-aggregation",
     "clickstream-processing",
@@ -14,7 +14,9 @@ function generateEmrLog(ts: string, er: number): EcsDocument {
   ]);
   const level = Math.random() < er ? "error" : Math.random() < 0.15 ? "warn" : "info";
   const clusterId = `j-${randId(13)}`;
+  const stepId = `s-${randId(13)}`;
   const appId = `application_${Date.now()}_${randInt(1000, 9999)}`;
+  const containerId = `container_${Date.now()}_${randInt(1, 9999)}_01_${randInt(100000, 999999).toString().padStart(6, "0")}`;
   const executorCount = randInt(4, 64);
   const runState =
     level === "error"
@@ -27,53 +29,68 @@ function generateEmrLog(ts: string, er: number): EcsDocument {
   const durationSec = randInt(60, level === "error" ? 7200 : 3600);
   const numCompletedTasks = randInt(10, 500);
   const numFailedTasks = level === "error" ? randInt(1, 20) : 0;
-  const sparkStageMsg = () =>
-    `Stage ${randInt(0, 8)} (runJob) finished in ${randFloat(1.2, 45.5)} s`;
-  const sparkShuffleMsg = () =>
-    `Shuffle read: ${Number(randFloat(0.1, 5.2)).toFixed(1)} GB, Shuffle write: ${Number(randFloat(0.1, 4.8)).toFixed(1)} GB`;
-  const infoBase = [
-    "Job run started",
-    "Job submitted to YARN ResourceManager",
-    "Writing Parquet to s3://data-lake/processed/",
+
+  // Real EMR CloudWatch log groups follow: /aws/emr/j-XXXXX/... patterns
+  const logSource = rand(["steps", "containers", "spark", "yarn", "hive"]);
+  const logGroupMap: Record<string, string> = {
+    steps: `/aws/emr/${clusterId}/steps/${stepId}`,
+    containers: `/aws/emr/${clusterId}/containers/${appId}/${containerId}`,
+    spark: `/aws/emr/${clusterId}/spark/${appId}`,
+    yarn: `/aws/emr/${clusterId}/yarn/yarn-resourcemanager`,
+    hive: `/aws/emr/${clusterId}/hive/hive-metastore`,
+  };
+  const logGroup = logGroupMap[logSource];
+  const logStreamMap: Record<string, string> = {
+    steps: `stdout`,
+    containers: `stderr`,
+    spark: `driver/stdout`,
+    yarn: `${new Date(ts).toISOString().slice(0, 10)}`,
+    hive: `${new Date(ts).toISOString().slice(0, 10)}`,
+  };
+  const logStream = logStreamMap[logSource];
+
+  const executorId = randInt(0, executorCount);
+  const stageId = randInt(0, 12);
+  const taskId = randInt(0, numCompletedTasks);
+  const tsFormatted = new Date(ts).toISOString().replace("T", " ").replace("Z", "");
+
+  // Real Spark log output formats
+  const sparkInfoMsgs = [
+    `${tsFormatted} INFO DAGScheduler: Stage ${stageId} (${rand(["map", "reduce", "count", "collect", "save"])}) finished in ${Number(randFloat(0.5, 120)).toFixed(1)} s`,
+    `${tsFormatted} INFO TaskSetManager: Finished task ${taskId}.0 in stage ${stageId}.0 (TID ${randInt(0, 10000)}) in ${randInt(50, 30000)} ms on ${rand(["ip-10-0-1", "ip-10-0-2", "ip-10-0-3"])}-${randInt(10, 250)}.${region}.compute.internal (executor ${executorId}) (${randInt(1, numCompletedTasks)}/${numCompletedTasks})`,
+    `${tsFormatted} INFO SparkContext: Created broadcast_${randInt(0, 50)} from broadcast at DAGScheduler.scala:${randInt(1100, 1300)}`,
+    `${tsFormatted} INFO BlockManagerInfo: Added broadcast_${randInt(0, 50)}_piece0 in memory on ${rand(["ip-10-0-1", "ip-10-0-2"])}-${randInt(10, 250)}.${region}.compute.internal:${randInt(30000, 50000)} (size: ${Number(randFloat(1, 500)).toFixed(1)} KiB, free: ${Number(randFloat(1, 12)).toFixed(1)} GiB)`,
+    `${tsFormatted} INFO MemoryStore: Block broadcast_${randInt(0, 50)} stored as values in memory (estimated size ${Number(randFloat(1, 200)).toFixed(1)} KiB, free ${Number(randFloat(1, 12)).toFixed(1)} GiB)`,
+    `${tsFormatted} INFO CodeGenerator: Code generated in ${Number(randFloat(5, 500)).toFixed(1)} ms`,
+    `${tsFormatted} INFO FileOutputCommitter: Saved output of task '${rand(["attempt", "task"])}_${tsFormatted.replace(/[- :]/g, "")}_${randInt(0, 200).toString().padStart(4, "0")}_m_${randInt(0, 50).toString().padStart(6, "0")}_0' to s3a://data-lake/processed/${job}/`,
   ];
-  const infoSpark = [
-    "Job run succeeded",
-    "Stage 0 (Map) completed in 12.4s",
-    sparkStageMsg(),
-    sparkShuffleMsg(),
-    "Executor 7 registered with 4 cores and 8.0 GB RAM",
+  const yarnInfoMsgs = [
+    `${tsFormatted} INFO ResourceManager: Registered node: ${rand(["ip-10-0-1", "ip-10-0-2", "ip-10-0-3"])}-${randInt(10, 250)}.${region}.compute.internal:${randInt(8040, 8050)} with capability: <memory:${randInt(4096, 65536)}, vCores:${randInt(2, 16)}>`,
+    `${tsFormatted} INFO ApplicationMaster: Final app status: ${runState}, exitCode: ${level === "error" ? randInt(1, 143) : 0}`,
+    `${tsFormatted} INFO RMAppImpl: ${appId} State change from ACCEPTED to RUNNING on event START`,
   ];
   const infoMsgs =
-    app === "spark" ? [...infoBase, ...infoSpark] : [...infoBase, "Job run succeeded"];
+    logSource === "yarn" ? yarnInfoMsgs : [...sparkInfoMsgs, ...yarnInfoMsgs.slice(0, 1)];
+  const warnMsgs = [
+    `${tsFormatted} WARN TaskSetManager: Lost task ${taskId}.0 in stage ${stageId}.0 (TID ${randInt(0, 10000)}) (${rand(["ip-10-0-1", "ip-10-0-2"])}-${randInt(10, 250)}.${region}.compute.internal executor ${executorId}): FetchFailed(null, shuffleId=${randInt(0, 10)}, mapIndex=${randInt(0, 200)}, reduceId=${randInt(0, 200)}, message=\norg.apache.spark.shuffle.FetchFailedException)`,
+    `${tsFormatted} WARN HeartbeatReceiver: Removing executor ${executorId} with no recent heartbeats: ${randInt(120000, 300000)} ms exceeds timeout ${randInt(120000, 120000)} ms`,
+    `${tsFormatted} WARN TaskMemoryManager: Failed to allocate a page (${randInt(1, 128)} bytes), try again.`,
+    `${tsFormatted} WARN Executor: Issue communicating with driver: org.apache.spark.rpc.RpcTimeoutException`,
+  ];
   const errorMsgs = [
-    "Job run failed",
-    "ExecutorLostFailure: Executor 11 exited with code 137 (OOMKilled)",
-    "Job aborted due to stage failure: Stage 3 failed 4 times",
-    "S3 access denied: s3://restricted-bucket/data/",
-    "YARN: Container killed on request. Exit code is 143",
+    `${tsFormatted} ERROR Executor: Exception in task ${taskId}.0 in stage ${stageId}.0 (TID ${randInt(0, 10000)})\njava.lang.OutOfMemoryError: Java heap space\n\tat java.base/java.util.Arrays.copyOf(Arrays.java:3512)\n\tat org.apache.spark.unsafe.memory.HeapMemoryAllocator.allocate(HeapMemoryAllocator.java:56)`,
+    `${tsFormatted} ERROR YarnClusterScheduler: Lost executor ${executorId} on ${rand(["ip-10-0-1", "ip-10-0-2"])}-${randInt(10, 250)}.${region}.compute.internal: Container from a bad node: container_${Date.now()}_${randInt(1, 9999)}_01_${randInt(100000, 999999)} on host: Exit status: 137. Diagnostics: Container killed on request.`,
+    `${tsFormatted} ERROR DAGScheduler: Job aborted due to stage failure: Task ${taskId} in stage ${stageId}.0 failed ${randInt(2, 4)} times, most recent failure: Lost task ${taskId}.${randInt(1, 3)} in stage ${stageId}.0 (TID ${randInt(0, 10000)}): ExecutorLostFailure`,
+    `${tsFormatted} ERROR FileFormatWriter: Aborting job ${randId(8).toLowerCase()}: org.apache.spark.SparkException: Job aborted due to stage failure`,
+    `${tsFormatted} ERROR ApplicationMaster: RECEIVED SIGNAL TERM`,
+    `${tsFormatted} ERROR S3AFileSystem: s3a://restricted-bucket/data/: getFileStatus on s3a://restricted-bucket/data/: com.amazonaws.services.s3.model.AmazonS3Exception: Access Denied (Service: Amazon S3; Status Code: 403)`,
   ];
   const MSGS = {
     info: infoMsgs,
-    warn: [
-      "GC overhead limit approaching: 88% heap used",
-      "Executor 3 lost, rescheduling 12 tasks",
-      "Shuffle spill to disk: 4.1 GB (insufficient memory)",
-    ],
+    warn: warnMsgs,
     error: errorMsgs,
   };
-  const plainMessage = rand(MSGS[level]);
-  const useStructuredLogging = Math.random() < 0.6;
-  const message = useStructuredLogging
-    ? JSON.stringify({
-        clusterId,
-        applicationId: appId,
-        containerId: `container_${Date.now()}_${randInt(1, 9999)}_01_${randInt(100000, 999999)}`,
-        logLevel: level.toUpperCase(),
-        message: plainMessage,
-        timestamp: new Date(ts).toISOString(),
-        component: rand(["driver", "executor", "yarn", "spark"]),
-      })
-    : plainMessage;
+  const message = rand(MSGS[level]);
   const heapUsage = randInt(25, 92) / 100;
   const emrMetrics = {
     executor_count: executorCount,
@@ -98,15 +115,17 @@ function generateEmrLog(ts: string, er: number): EcsDocument {
     },
     aws: {
       dimensions: { JobFlowId: clusterId },
+      cloudwatch: { log_group: logGroup, log_stream: logStream },
       emr: {
         cluster_id: clusterId,
         cluster_name: `${job}-cluster`,
         application: app,
-        release: `emr-6.${randInt(8, 15)}.0`,
+        release: `emr-${rand(["6.10", "6.12", "6.15", "7.0", "7.1"])}.0`,
         instance_group: rand(["MASTER", "CORE", "TASK"]),
         executor_count: executorCount,
+        step_id: stepId,
         job: { name: job, id: appId, run_state: runState },
-        structured_logging: useStructuredLogging,
+        log_source: logSource,
         metrics: emrMetrics,
       },
       elasticmapreduce: {
@@ -158,7 +177,7 @@ function generateEmrLog(ts: string, er: number): EcsDocument {
     },
     message: message,
     ...(level === "error"
-      ? { error: { code: "JobFailed", message: rand(MSGS.error), type: "process" } }
+      ? { error: { code: "JobFailed", message: rand(errorMsgs).split("\n")[0], type: "process" } }
       : {}),
   };
 }
@@ -243,19 +262,34 @@ function generateGlueLog(ts: string, er: number): EcsDocument {
     error: [...ERROR_MSGS, "Job run failed"],
   };
   const plainMessage = rand(MSGS[level]);
-  // Continuous logging: emit JSON in message so ingest pipeline can parse into glue.parsed
+  // CloudWatch log group naming matches real Glue patterns
+  const logOutputType = rand(["output", "error", "logs-v2"]);
+  const logGroup =
+    logOutputType === "logs-v2" ? `/aws-glue/jobs/logs-v2` : `/aws-glue/jobs/${logOutputType}`;
+  const logStream = logOutputType === "logs-v2" ? `${runId}/driver` : `${runId}`;
+  // Continuous logging: emit log4j-style format matching real Glue output
   const useContinuousLogging = Math.random() < 0.65;
+  const loggerName = rand([
+    "org.apache.spark.SparkContext",
+    "org.apache.spark.scheduler.DAGScheduler",
+    "org.apache.spark.executor.Executor",
+    "com.amazonaws.services.glue.GlueContext",
+    "com.amazonaws.services.glue.DynamicFrame",
+    "org.apache.hadoop.fs.s3a.S3AFileSystem",
+    "org.apache.spark.storage.BlockManager",
+    "org.apache.spark.shuffle.sort.SortShuffleManager",
+    "org.apache.spark.ui.SparkUI",
+  ]);
+  const threadName = rand([
+    "main",
+    `Executor task launch worker for task ${randInt(0, 200)}`,
+    "dag-scheduler-event-loop",
+    "dispatcher-event-loop-0",
+    `shuffle-client-${randInt(0, 5)}-${randInt(0, 3)}`,
+    "task-result-getter-0",
+  ]);
   const message = useContinuousLogging
-    ? JSON.stringify({
-        jobName: job,
-        jobRunId: runId,
-        level: level.toUpperCase(),
-        message: plainMessage,
-        timestamp: new Date(ts).toISOString(),
-        thread: `driver-${randId(8).toLowerCase()}`,
-        logger: rand(["org.apache.spark", "com.amazonaws.glue", "org.apache.hadoop"]),
-        ...(isErr ? { errorCode: rand(ERROR_CODES) } : {}),
-      })
+    ? `${new Date(ts).toISOString().replace("T", " ").replace("Z", "")} ${level.toUpperCase()} [${threadName}] ${loggerName}: ${plainMessage}`
     : plainMessage;
   // Job metrics (when "Enable job metrics" is on in Glue) — align with AWS Glue Observability metric names
   const heapUsedPct = randInt(25, 92) / 100;
@@ -381,6 +415,7 @@ function generateGlueLog(ts: string, er: number): EcsDocument {
     },
     aws: {
       dimensions: { JobName: job, JobRunId: runId, Type: jobType },
+      cloudwatch: { log_group: logGroup, log_stream: logStream },
       glue: {
         ...(isErr ? { error_category: rand(OBSERVABILITY_ERROR_CATEGORIES) } : {}),
         job: { name: job, run_id: runId, type: jobType, run_state: runState },
@@ -419,43 +454,78 @@ function generateAthenaLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;
+  const catalog = "AwsDataCatalog";
+  const database = rand(["analytics", "raw", "staging", "curated", "data_lake"]);
+  const table = rand([
+    "events",
+    "users",
+    "transactions",
+    "sessions",
+    "products",
+    "clickstream",
+    "orders",
+  ]);
   const queries = [
-    "SELECT date_trunc('day', event_time), count(*) FROM events GROUP BY 1",
-    "SELECT user_id, sum(revenue) FROM transactions WHERE dt >= '2024-01-01' GROUP BY 1",
-    "CREATE TABLE analytics.daily_summary AS SELECT * FROM raw.events",
-    "SELECT p.name, count(o.id) FROM products p JOIN orders o ON p.id = o.product_id GROUP BY 1",
+    `SELECT date_trunc('day', event_time) AS dt, count(*) AS cnt FROM ${database}.${table} WHERE dt >= current_date - interval '7' day GROUP BY 1 ORDER BY 1`,
+    `SELECT user_id, sum(revenue) AS total_revenue FROM ${database}.transactions WHERE dt >= '2024-01-01' GROUP BY 1 ORDER BY 2 DESC LIMIT 100`,
+    `CREATE TABLE ${database}.daily_summary WITH (format = 'PARQUET', external_location = 's3://analytics-output/${database}/daily_summary/') AS SELECT * FROM ${database}.${table}`,
+    `SELECT p.name, count(o.id) AS order_count FROM ${database}.products p JOIN ${database}.orders o ON p.id = o.product_id GROUP BY 1 ORDER BY 2 DESC`,
+    `MSCK REPAIR TABLE ${database}.${table}`,
+    `SELECT "$path" as file, count(*) as records FROM ${database}.${table} GROUP BY 1`,
+    `UNLOAD (SELECT * FROM ${database}.${table} WHERE dt = current_date) TO 's3://unload-output/${database}/${table}/' WITH (format = 'PARQUET', compression = 'SNAPPY')`,
   ];
+  const query = rand(queries);
+  const queryType = query.startsWith("SELECT")
+    ? "DML"
+    : query.startsWith("CREATE")
+      ? "DDL"
+      : query.startsWith("MSCK")
+        ? "UTILITY"
+        : "DML";
   const dur = Number(randFloat(0.5, isErr ? 300 : 60));
   const dataScanned = isErr ? 0 : randInt(1024, 10737418240);
-  const queryId = `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}`.toLowerCase();
-  const workgroup = rand(["primary", "analytics", "bi-users"]);
-  const database = rand(["analytics", "raw", "staging"]);
-  const athenaMsgs = isErr
-    ? [
-        "Query failed",
-        "Query failed",
-        `Athena query FAILED after ${dur.toFixed(1)}s: ${rand(["QUERY_TIMED_OUT", "TABLE_NOT_FOUND", "PERMISSION_DENIED"])}`,
-      ]
-    : [
-        "Query started",
-        "Query succeeded",
-        "Query started",
-        "Query succeeded",
-        `Athena query SUCCEEDED in ${dur.toFixed(1)}s, scanned ${Math.round(dataScanned / 1048576)}MB`,
-      ];
-  const plainMessage = rand(athenaMsgs);
-  const useStructuredLogging = Math.random() < 0.55;
-  const message = useStructuredLogging
-    ? JSON.stringify({
-        queryId,
-        workgroup,
-        database,
-        state: isErr ? "FAILED" : "SUCCEEDED",
-        durationSeconds: dur,
-        dataScannedBytes: dataScanned,
-        timestamp: new Date(ts).toISOString(),
-      })
-    : plainMessage;
+  const queryId = `${randId(8)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase();
+  const workgroup = rand(["primary", "analytics-team", "bi-users", "data-engineering"]);
+  const outputLocation = `s3://aws-athena-query-results-${acct.id}-${region}/${workgroup}/${new Date(ts).toISOString().slice(0, 10)}/${queryId}.csv`;
+  const planningMs = randInt(5, 500);
+  const queueMs = randInt(10, 2000);
+  const engineMs = Math.round(dur * 1000);
+  const serviceProcessingMs = randInt(50, 1000);
+  const totalMs = planningMs + queueMs + engineMs + serviceProcessingMs;
+  const errorCode = isErr
+    ? rand([
+        "GENERIC_INTERNAL_ERROR",
+        "HIVE_PATH_ALREADY_EXISTS",
+        "HIVE_METASTORE_ERROR",
+        "PERMISSION_DENIED",
+        "TABLE_NOT_FOUND",
+        "COLUMN_NOT_FOUND",
+        "SYNTAX_ERROR",
+        "EXCEEDED_MAX_SCANNED_BYTES",
+        "RESOURCE_LIMIT_EXCEEDED",
+      ])
+    : null;
+  const errorMessages: Record<string, string> = {
+    GENERIC_INTERNAL_ERROR: "GENERIC_INTERNAL_ERROR: Null",
+    HIVE_PATH_ALREADY_EXISTS: `HIVE_PATH_ALREADY_EXISTS: Target directory 's3://analytics-output/${database}/${table}/' already exists`,
+    HIVE_METASTORE_ERROR: `HIVE_METASTORE_ERROR: com.amazonaws.services.glue.model.EntityNotFoundException: Table ${database}.${table} not found`,
+    PERMISSION_DENIED: `PERMISSION_DENIED: User: arn:aws:iam::${acct.id}:user/analyst is not authorized to perform: athena:StartQueryExecution on resource: arn:aws:athena:${region}:${acct.id}:workgroup/${workgroup}`,
+    TABLE_NOT_FOUND: `TABLE_NOT_FOUND: Table '${table}' does not exist in database '${database}' in catalog '${catalog}'`,
+    COLUMN_NOT_FOUND: `COLUMN_NOT_FOUND: Column '${rand(["user_id", "event_time", "revenue"])}' cannot be resolved`,
+    SYNTAX_ERROR: `SYNTAX_ERROR: line 1:${randInt(10, 80)}: mismatched input '${rand(["FROM", "WHERE", "GROUP"])}'. Expecting: ...`,
+    EXCEEDED_MAX_SCANNED_BYTES: `EXCEEDED_MAX_SCANNED_BYTES: Query exhausted resources at this scale factor. The query scanned ${Math.round(dataScanned / 1073741824)} GB which exceeds the limit of ${randInt(1, 10)} GB.`,
+    RESOURCE_LIMIT_EXCEEDED: `RESOURCE_LIMIT_EXCEEDED: Too many concurrent queries. Your query queue is full. You can run up to ${rand([5, 20, 25])} queries at the same time.`,
+  };
+
+  // Athena query execution status event (matches GetQueryExecution API response structure)
+  const stateChangeReason = isErr && errorCode ? errorMessages[errorCode] || "Query failed" : "";
+  const message = isErr
+    ? `Query ${queryId} ${errorCode}: ${stateChangeReason}`
+    : queryType === "UTILITY"
+      ? `Query ${queryId} completed: ${query.split(" ").slice(0, 3).join(" ")}...`
+      : `Query ${queryId} completed in ${(totalMs / 1000).toFixed(2)}s, scanned ${dataScanned > 1073741824 ? (dataScanned / 1073741824).toFixed(2) + " GB" : (dataScanned / 1048576).toFixed(1) + " MB"}`;
+
+  const level = isErr ? "error" : dur > 30 ? "warn" : "info";
   return {
     "@timestamp": ts,
     cloud: {
@@ -466,43 +536,54 @@ function generateAthenaLog(ts: string, er: number): EcsDocument {
     },
     aws: {
       athena: {
-        query_id: queryId,
+        query_execution_id: queryId,
+        query_type: queryType,
         workgroup,
+        catalog,
         database,
+        output_location: outputLocation,
         state: isErr ? "FAILED" : "SUCCEEDED",
-        duration_seconds: dur,
-        data_scanned_bytes: dataScanned,
-        data_scanned_mb: Math.round(dataScanned / 1048576),
-        engine_version: rand(["Athena engine version 3", "DuckDB 0.9.1"]),
-        structured_logging: useStructuredLogging,
-        error_code: isErr
-          ? rand(["QUERY_TIMED_OUT", "PERMISSION_DENIED", "TABLE_NOT_FOUND"])
-          : null,
+        state_change_reason: stateChangeReason,
+        submission_date_time: new Date(new Date(ts).getTime() - totalMs).toISOString(),
+        completion_date_time: ts,
+        engine_version: rand(["Athena engine version 3", "Athena engine version 3"]),
+        execution_parameters: [],
+        result_reuse: Math.random() < 0.1,
+        error_code: errorCode,
+        statistics: {
+          DataScannedInBytes: dataScanned,
+          EngineExecutionTimeInMillis: engineMs,
+          QueryPlanningTimeInMillis: planningMs,
+          QueryQueueTimeInMillis: queueMs,
+          ServiceProcessingTimeInMillis: serviceProcessingMs,
+          TotalExecutionTimeInMillis: totalMs,
+          ResultReuseInformation: { ReusedPreviousResult: Math.random() < 0.1 },
+        },
         metrics: {
           DataScannedInBytes: { sum: dataScanned },
-          EngineExecutionTimeInMillis: { avg: Math.round(dur * 1000), max: Math.round(dur * 1500) },
+          EngineExecutionTimeInMillis: { avg: engineMs, max: Math.round(engineMs * 1.2) },
           ProcessedBytes: { sum: dataScanned },
-          QueryQueueTimeInMillis: { avg: randInt(10, 500) },
-          TotalExecutionTimeInMillis: { avg: Math.round(dur * 1000) },
-          QueryPlanningTimeInMillis: { avg: randInt(5, 200) },
+          QueryQueueTimeInMillis: { avg: queueMs },
+          TotalExecutionTimeInMillis: { avg: totalMs },
+          QueryPlanningTimeInMillis: { avg: planningMs },
         },
       },
     },
-    db: { statement: rand(queries), type: "sql" },
+    db: { statement: query, type: "sql" },
     event: {
-      duration: dur * 1e9,
+      duration: totalMs * 1e6,
       outcome: isErr ? "failure" : "success",
       category: ["database", "process"],
       dataset: "aws.athena",
       provider: "athena.amazonaws.com",
     },
     message: message,
-    log: { level: isErr ? "error" : dur > 30 ? "warn" : "info" },
-    ...(isErr
+    log: { level },
+    ...(isErr && errorCode
       ? {
           error: {
-            code: rand(["QUERY_TIMED_OUT", "PERMISSION_DENIED", "TABLE_NOT_FOUND"]),
-            message: "Athena query failed",
+            code: errorCode,
+            message: stateChangeReason,
             type: "db",
           },
         }

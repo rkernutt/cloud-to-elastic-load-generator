@@ -7,7 +7,7 @@
       "description": "Detects unusual transaction latency per service — latency regressions and performance degradations",
       "job": {
         "description": "Detects unusual transaction latency per service — latency regressions and performance degradations",
-        "groups": ["apm", "traces"],
+        "groups": ["apm", "traces", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -22,21 +22,38 @@
           "influencers": ["service.name", "service.environment", "transaction.name"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "64mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["traces-apm-*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "processor.event": "transaction" } }]
+            "filter": [
+              {
+                "term": {
+                  "processor.event": "transaction"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -44,7 +61,7 @@
       "description": "Detects spikes in transaction error rate per service — deployment failures and upstream dependency issues",
       "job": {
         "description": "Detects spikes in transaction error rate per service — deployment failures and upstream dependency issues",
-        "groups": ["apm", "traces"],
+        "groups": ["apm", "traces", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -58,9 +75,16 @@
           "influencers": ["service.name", "service.environment", "transaction.name"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["traces-apm-*"],
@@ -68,14 +92,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "processor.event": "transaction" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "processor.event": "transaction"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -83,7 +119,7 @@
       "description": "Detects drops in transaction throughput per service — upstream failure, routing change, or traffic loss",
       "job": {
         "description": "Detects drops in transaction throughput per service — upstream failure, routing change, or traffic loss",
-        "groups": ["apm", "traces"],
+        "groups": ["apm", "traces", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -97,21 +133,38 @@
           "influencers": ["service.name", "service.environment"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["traces-apm-*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "processor.event": "transaction" } }]
+            "filter": [
+              {
+                "term": {
+                  "processor.event": "transaction"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -119,7 +172,7 @@
       "description": "Detects unusually slow downstream spans by type — slow DB queries, slow external calls, slow cache operations",
       "job": {
         "description": "Detects unusually slow downstream spans by type — slow DB queries, slow external calls, slow cache operations",
-        "groups": ["apm", "traces"],
+        "groups": ["apm", "traces", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -139,29 +192,46 @@
           ]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "64mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["traces-apm-*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "processor.event": "span" } }]
+            "filter": [
+              {
+                "term": {
+                  "processor.event": "span"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
-      "id": "apm-lambda-cold-start-spike",
-      "description": "Detects spikes in Lambda cold start rate per function — scaling events, VPC warming issues, or new deployments",
+      "id": "aws-lambda-apm-cold-start-spike",
+      "description": "Detects spikes in AWS Lambda cold start rate per function — scaling events, VPC warming issues, or new deployments",
       "job": {
         "description": "Detects spikes in Lambda cold start rate per function — scaling events, VPC warming issues, or new deployments",
-        "groups": ["apm", "traces", "lambda"],
+        "groups": ["apm", "traces", "lambda", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -175,9 +245,16 @@
           "influencers": ["service.name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["traces-apm-*"],
@@ -185,22 +262,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "processor.event": "transaction" } },
-              { "term": { "transaction.faas.coldstart": true } }
+              {
+                "term": {
+                  "processor.event": "transaction"
+                }
+              },
+              {
+                "term": {
+                  "transaction.faas.coldstart": true
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
-      "id": "apm-emr-stage-duration-anomaly",
-      "description": "Detects unusually slow EMR Spark stages — data skew, shuffle bottlenecks, or executor resource contention",
+      "id": "aws-emr-apm-stage-duration-anomaly",
+      "description": "Detects unusually slow Amazon EMR Spark stages — data skew, shuffle bottlenecks, or executor resource contention",
       "job": {
         "description": "Detects unusually slow EMR Spark stages — data skew, shuffle bottlenecks, or executor resource contention",
-        "groups": ["apm", "traces", "emr"],
+        "groups": ["apm", "traces", "emr", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "30m",
           "detectors": [
@@ -215,9 +304,16 @@
           "influencers": ["service.name", "labels.spark_stage_id", "labels.emr_cluster_id"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["traces-apm-*"],
@@ -225,14 +321,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "processor.event": "span" } },
-              { "term": { "span.subtype": "spark" } }
+              {
+                "term": {
+                  "processor.event": "span"
+                }
+              },
+              {
+                "term": {
+                  "span.subtype": "spark"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

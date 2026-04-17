@@ -12,31 +12,65 @@ function generateCloudFormationLog(ts: string, er: number): EcsDocument {
     "ecs-services",
     "api-gateway-stack",
   ]);
+  const stackId =
+    `arn:aws:cloudformation:${region}:${acct.id}:stack/${stack}/${randId(8)}`.toLowerCase();
   const action = rand(["CREATE_STACK", "UPDATE_STACK", "DELETE_STACK", "DETECT_DRIFT"]);
-  const status = isErr
-    ? rand(["CREATE_FAILED", "UPDATE_ROLLBACK_COMPLETE", "DELETE_FAILED"])
-    : rand(["CREATE_COMPLETE", "UPDATE_COMPLETE", "DELETE_COMPLETE", "CREATE_IN_PROGRESS"]);
-  const resource = rand([
+  const resourceType = rand([
     "AWS::EC2::VPC",
     "AWS::ECS::Service",
     "AWS::RDS::DBInstance",
     "AWS::Lambda::Function",
     "AWS::IAM::Role",
   ]);
+  const logicalResourceId = rand([
+    "WebServerASG",
+    "DatabaseCluster",
+    "ApiFunction",
+    "TaskRole",
+    "VPC",
+  ]);
+  const physicalResourceId = rand([
+    `vpc-${randId(8)}`,
+    `arn:aws:ecs:${region}:${acct.id}:service/prod/api`,
+    `arn:aws:rds:${region}:${acct.id}:db:prod-001`,
+    `arn:aws:lambda:${region}:${acct.id}:function:api-handler`,
+    `arn:aws:iam::${acct.id}:role/TaskRole`,
+  ]);
+  const resourceStatus = isErr
+    ? rand(["CREATE_FAILED", "UPDATE_FAILED", "DELETE_FAILED"])
+    : rand([
+        "CREATE_IN_PROGRESS",
+        "CREATE_COMPLETE",
+        "UPDATE_IN_PROGRESS",
+        "UPDATE_COMPLETE",
+        "DELETE_IN_PROGRESS",
+        "DELETE_COMPLETE",
+      ]);
+  const resourceStatusReason =
+    isErr || resourceStatus.endsWith("_IN_PROGRESS")
+      ? rand([
+          "Resource creation failed",
+          "Insufficient capacity",
+          "IAM policy error",
+          "User Initiated",
+          "Eventual consistency check initiated",
+        ])
+      : null;
   const plainMessage = isErr
-    ? `CloudFormation ${stack} ${status}: ${resource} failed - ${rand(["Capacity", "IAM denied", "Limit exceeded"])}`
-    : `CloudFormation ${stack}: ${action} -> ${status}`;
+    ? `CloudFormation ${stack} ${resourceStatus}: ${resourceType} failed - ${rand(["Capacity", "IAM denied", "Limit exceeded"])}`
+    : `CloudFormation ${stack}: ${action} -> ${resourceStatus}`;
   const useStructuredLogging = Math.random() < 0.55;
-  const message = useStructuredLogging
-    ? JSON.stringify({
-        stackName: stack,
-        action,
-        stackStatus: status,
-        resourceType: resource,
-        message: plainMessage,
-        timestamp: new Date(ts).toISOString(),
-      })
-    : plainMessage;
+  const stackEventPayload = {
+    StackId: stackId,
+    StackName: stack,
+    ResourceType: resourceType,
+    LogicalResourceId: logicalResourceId,
+    PhysicalResourceId: physicalResourceId,
+    ResourceStatus: resourceStatus,
+    ResourceStatusReason: resourceStatusReason,
+    Timestamp: new Date(ts).toISOString(),
+  };
+  const message = useStructuredLogging ? JSON.stringify(stackEventPayload) : plainMessage;
   return {
     "@timestamp": ts,
     cloud: {
@@ -48,21 +82,17 @@ function generateCloudFormationLog(ts: string, er: number): EcsDocument {
     aws: {
       cloudformation: {
         stack_name: stack,
-        stack_id:
-          `arn:aws:cloudformation:${region}:${acct.id}:stack/${stack}/${randId(8)}`.toLowerCase(),
+        stack_id: stackId,
         action,
-        stack_status: status,
-        resource_type: resource,
-        logical_resource_id: rand([
-          "WebServerASG",
-          "DatabaseCluster",
-          "ApiFunction",
-          "TaskRole",
-          "VPC",
-        ]),
-        resource_status_reason: isErr
-          ? rand(["Resource creation failed", "Insufficient capacity", "IAM policy error"])
-          : null,
+        stack_status:
+          resourceStatus.includes("COMPLETE") && !resourceStatus.includes("ROLLBACK")
+            ? resourceStatus
+            : rand(["CREATE_COMPLETE", "UPDATE_IN_PROGRESS", "UPDATE_COMPLETE"]),
+        resource_type: resourceType,
+        logical_resource_id: logicalResourceId,
+        physical_resource_id: physicalResourceId,
+        resource_status: resourceStatus,
+        resource_status_reason: resourceStatusReason,
         drift_status: rand(["NOT_CHECKED", "IN_SYNC", "DRIFTED"]),
         structured_logging: useStructuredLogging,
         metrics: {
@@ -107,6 +137,8 @@ function generateSsmLog(ts: string, er: number): EcsDocument {
     "PatchInstance",
     "GetParameter",
     "PutParameter",
+    "AssociationCompliance",
+    "PatchBaselineExecution",
   ]);
   const document = rand([
     "AWS-RunShellScript",
@@ -115,20 +147,65 @@ function generateSsmLog(ts: string, er: number): EcsDocument {
     "AWS-ConfigureAWSPackage",
   ]);
   const commandId = `${randId(8)}-${randId(4)}-${randId(4)}`.toLowerCase();
+  const stepName = rand([
+    "runShellScript",
+    "aws:runPowerShellScript",
+    "aws:runCommand",
+    "updateOSSoftware",
+  ]);
+  const stepOutput = isErr
+    ? `failed to run commands: exit status ${rand([1, 2, 127])}`
+    : rand(["stdout: OK\n", "Patching complete\n", "Package installed\n", "No updates needed\n"]);
+  const patchBaselineId = `pb-${randId(8).toLowerCase()}`;
+  const associationId =
+    `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase();
+  const complianceType = rand(["Patch", "Association", "Inventory"]);
+  const complianceStatus = isErr ? "NON_COMPLIANT" : "COMPLIANT";
   const plainMessage = isErr
     ? `SSM ${action} FAILED on ${instance}: exit code ${rand([1, 2, 127])}`
     : `SSM ${action} on ${instance}: ${document}`;
   const useStructuredLogging = Math.random() < 0.55;
-  const message = useStructuredLogging
-    ? JSON.stringify({
-        commandId,
-        documentName: document,
-        instanceId: instance,
-        action,
-        status: isErr ? "Failed" : "Success",
-        timestamp: new Date(ts).toISOString(),
-      })
-    : plainMessage;
+  const structuredPayload: Record<string, unknown> = {
+    commandId,
+    documentName: document,
+    documentVersion: `$DEFAULT`,
+    instanceId: instance,
+    action,
+    status: isErr ? "Failed" : "Success",
+    timestamp: new Date(ts).toISOString(),
+  };
+  if (action === "RunCommand" || action === "SendCommand") {
+    structuredPayload.pluginOutput = {
+      stepName,
+      output: stepOutput,
+      exitCode: isErr ? rand([1, 2, 127]) : 0,
+    };
+  }
+  if (action === "AssociationCompliance") {
+    structuredPayload.complianceSummary = {
+      complianceType,
+      complianceStatus,
+      associationId,
+      detailedStatus: isErr ? rand(["ExecutionTimedOut", "Failed"]) : "Success",
+    };
+  }
+  if (action === "PatchBaselineExecution") {
+    structuredPayload.patchBaseline = {
+      baselineId: patchBaselineId,
+      operation: rand(["Scan", "Install"]),
+      instancePatchState: isErr ? "Failed" : "InstalledPendingReboot",
+      missingCount: isErr ? randInt(1, 20) : randInt(0, 3),
+    };
+  }
+  if (action === "GetParameter" || action === "PutParameter") {
+    structuredPayload.parameterStore = {
+      name: rand(["/prod/db/password", "/prod/api/key", "/app/feature/flags"]),
+      type: rand(["String", "SecureString", "StringList"]),
+      operation: action === "GetParameter" ? "GetParameter" : "PutParameter",
+      dataVersion: randInt(1, 10),
+    };
+  }
+  const message = useStructuredLogging ? JSON.stringify(structuredPayload) : plainMessage;
   return {
     "@timestamp": ts,
     cloud: {
@@ -149,9 +226,16 @@ function generateSsmLog(ts: string, er: number): EcsDocument {
         parameter_name: action.includes("Parameter")
           ? rand(["/prod/db/password", "/prod/api/key"])
           : null,
-        patch_compliance: action.includes("Patch")
-          ? rand(["Compliant", "NonCompliant", "NotApplicable"])
-          : null,
+        patch_compliance:
+          action.includes("Patch") || action === "PatchBaselineExecution"
+            ? rand(["Compliant", "NonCompliant", "NotApplicable"])
+            : null,
+        patch_baseline_id: action === "PatchBaselineExecution" ? patchBaselineId : null,
+        association_id: action === "AssociationCompliance" ? associationId : null,
+        compliance_status: action === "AssociationCompliance" ? complianceStatus : null,
+        step_name: action === "RunCommand" || action === "SendCommand" ? stepName : null,
+        step_output_preview:
+          action === "RunCommand" || action === "SendCommand" ? stepOutput.slice(0, 200) : null,
         structured_logging: useStructuredLogging,
         metrics: {
           CommandsSucceeded: { sum: isErr ? 0 : 1 },

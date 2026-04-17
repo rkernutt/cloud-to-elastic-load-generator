@@ -1,13 +1,7 @@
-/**
- * Firestore OTel trace: multi-document read/write transaction.
- */
-
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-
-const APM_AGENT = { name: "opentelemetry/nodejs", version: "1.x" } as const;
-const APM_DS = { type: "traces", dataset: "apm", namespace: "default" } as const;
+import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
 
 export function generateFirestoreTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -15,6 +9,11 @@ export function generateFirestoreTrace(ts: string, er: number): EcsDocument[] {
   const txId = randSpanId();
   const base = new Date(ts);
   const env = rand(["production", "staging"]);
+  const otel = gcpOtelMeta("python");
+  const svc = gcpServiceBase("inventory-service", env, "python", {
+    runtimeName: "python",
+    runtimeVersion: "3.12",
+  });
 
   const txKind = rand(["batch_write", "transaction"] as const);
   const readCount = randInt(2, 3);
@@ -41,13 +40,6 @@ export function generateFirestoreTrace(ts: string, er: number): EcsDocument[] {
   let offsetMs = 0;
   let si = 0;
 
-  const service = {
-    name: "inventory-service",
-    environment: env,
-    language: { name: "python" },
-    runtime: { name: "python", version: "3.12" },
-  };
-
   const spanBegin: EcsDocument = {
     "@timestamp": offsetTs(base, offsetMs),
     processor: { name: "transaction", event: "span" },
@@ -63,20 +55,22 @@ export function generateFirestoreTrace(ts: string, er: number): EcsDocument[] {
       action: "begin",
       db: { type: "nosql", statement: `BEGIN ${txKind.toUpperCase()} /* inventory */` },
       destination: { service: { resource: "firestore", type: "db", name: "firestore" } },
+      labels: failIdx === si ? { "gcp.rpc.status_code": "ABORTED" } : {},
     },
-    service,
+    service: svc,
     cloud: gcpCloud(region, project, "firestore.googleapis.com"),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: failIdx === si++ ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, spanIds.begin),
   };
   offsetMs += Math.max(1, Math.round(beginUs / 1000));
 
-  const readSpans: EcsDocument[] = [];
   const collections = ["skus", "warehouses", "reservations", "stock_ledger"];
+  const readSpans: EcsDocument[] = [];
   for (let i = 0; i < readCount; i++) {
-    const us = readUsEach[i];
-    const sid = spanIds.reads[i];
+    const us = readUsEach[i]!;
+    const sid = spanIds.reads[i]!;
     readSpans.push({
       "@timestamp": offsetTs(base, offsetMs),
       processor: { name: "transaction", event: "span" },
@@ -95,20 +89,22 @@ export function generateFirestoreTrace(ts: string, er: number): EcsDocument[] {
           statement: `get ${rand(collections)}/${randIdPath()} /* read in ${txKind} */`,
         },
         destination: { service: { resource: "firestore", type: "db", name: "firestore" } },
+        labels: failIdx === si ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {},
       },
-      service,
+      service: svc,
       cloud: gcpCloud(region, project, "firestore.googleapis.com"),
-      agent: APM_AGENT,
       data_stream: APM_DS,
       event: { outcome: failIdx === si++ ? "failure" : "success" },
+      ...otel,
+      ...gcpCloudTraceMeta(project.id, traceId, sid),
     });
     offsetMs += Math.max(1, Math.round(us / 1000));
   }
 
   const writeSpans: EcsDocument[] = [];
   for (let i = 0; i < writeCount; i++) {
-    const us = writeUsEach[i];
-    const sid = spanIds.writes[i];
+    const us = writeUsEach[i]!;
+    const sid = spanIds.writes[i]!;
     writeSpans.push({
       "@timestamp": offsetTs(base, offsetMs),
       processor: { name: "transaction", event: "span" },
@@ -127,12 +123,14 @@ export function generateFirestoreTrace(ts: string, er: number): EcsDocument[] {
           statement: `set ${rand(collections)}/${randIdPath()} merge:true`,
         },
         destination: { service: { resource: "firestore", type: "db", name: "firestore" } },
+        labels: failIdx === si ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" } : {},
       },
-      service,
+      service: svc,
       cloud: gcpCloud(region, project, "firestore.googleapis.com"),
-      agent: APM_AGENT,
       data_stream: APM_DS,
       event: { outcome: failIdx === si++ ? "failure" : "success" },
+      ...otel,
+      ...gcpCloudTraceMeta(project.id, traceId, sid),
     });
     offsetMs += Math.max(1, Math.round(us / 1000));
   }
@@ -152,12 +150,14 @@ export function generateFirestoreTrace(ts: string, er: number): EcsDocument[] {
       action: "commit",
       db: { type: "nosql", statement: "COMMIT" },
       destination: { service: { resource: "firestore", type: "db", name: "firestore" } },
+      labels: failIdx === si ? { "gcp.rpc.status_code": "ABORTED" } : {},
     },
-    service,
+    service: svc,
     cloud: gcpCloud(region, project, "firestore.googleapis.com"),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: failIdx === si++ ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, spanIds.commit),
   };
 
   const totalUs =
@@ -180,11 +180,13 @@ export function generateFirestoreTrace(ts: string, er: number): EcsDocument[] {
       sampled: true,
       span_count: { started: totalSpanCount, dropped: 0 },
     },
-    service,
+    service: svc,
     cloud: gcpCloud(region, project, "firestore.googleapis.com"),
-    agent: APM_AGENT,
+    labels: { "gcp.firestore.database": "(default)" },
     data_stream: APM_DS,
     event: { outcome: isErr ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, txId),
   };
 
   return [txDoc, spanBegin, ...readSpans, ...writeSpans, spanCommit];

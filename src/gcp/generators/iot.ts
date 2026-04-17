@@ -2,7 +2,15 @@
  * GCP IoT Core log generator.
  */
 
-import { type EcsDocument, rand, randInt, randId, gcpCloud, makeGcpSetup } from "./helpers.js";
+import {
+  type EcsDocument,
+  rand,
+  randInt,
+  randId,
+  gcpCloud,
+  makeGcpSetup,
+  randSeverity,
+} from "./helpers.js";
 
 export function generateIotCoreLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -25,13 +33,20 @@ export function generateIotCoreLog(ts: string, er: number): EcsDocument {
       ? randInt(0, isErr ? 30 : 86_400)
       : randInt(0, 7200);
   const firmwareVersion = `${randInt(1, 5)}.${randInt(0, 20)}.${randInt(0, 99)}`;
-  const lastHeartbeat = ts;
+  const severity = randSeverity(isErr);
+  const resourcePath = `projects/${project.id}/locations/${region}/registries/${registryName}/devices/${deviceId}`;
   const message = isErr
-    ? `IoT Core ${eventType} failed for device ${deviceId} (${protocol}): ${rand(["Authentication failed", "Topic not authorized", "Payload too large", "Registry misconfigured"])}`
-    : `IoT Core ${eventType} device=${deviceId} registry=${registryName} (${payloadSizeBytes} bytes${gatewayId ? ` via gateway ${gatewayId}` : ""})`;
+    ? `cloudiot.googleapis.com: ${eventType} FAILED device=${deviceId} registry=${registryName} protocol=${protocol}: ${rand(["MQTT CONNACK 5 Not authorized", "PUBLISH topic not allowed by IAM", "HTTP 413 payload too large", "Certificate not active"])}`
+    : `Device ${eventType}: ${resourcePath} protocol=${protocol} payload_bytes=${payloadSizeBytes} firmware=${firmwareVersion} connection_duration_s=${connectionDurationSeconds}${gatewayId ? ` gateway_id=${gatewayId}` : ""}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: {
+      "resource.type": "cloudiot.googleapis.com/Device",
+      device_id: deviceId,
+      registry_id: registryName,
+    },
     cloud: gcpCloud(region, project, "cloudiot.googleapis.com"),
     gcp: {
       iot_core: {
@@ -43,7 +58,7 @@ export function generateIotCoreLog(ts: string, er: number): EcsDocument {
         gateway_id: gatewayId || null,
         connection_duration_seconds: connectionDurationSeconds,
         firmware_version: firmwareVersion,
-        last_heartbeat: lastHeartbeat,
+        last_heartbeat: ts,
       },
     },
     event: {

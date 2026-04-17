@@ -1,68 +1,71 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "me-south-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "bedrock" }
   },
   "aws": {
-    "dimensions": { "ModelId": "amazon.nova-lite-v1:0", "ModelTier": "lite" },
+    "dimensions": { "ModelId": "amazon.nova-pro-v1:0", "ModelTier": "pro" },
     "nova": {
-      "model_id": "amazon.nova-lite-v1:0",
-      "model_tier": "lite",
+      "model_id": "amazon.nova-pro-v1:0",
+      "model_tier": "pro",
       "modality": "text",
-      "input_token_count": 1633,
-      "output_token_count": 1785,
+      "input_token_count": 2407,
+      "output_token_count": 0,
       "cache_read_input_token_count": 0,
-      "total_token_count": 3418,
-      "invocation_latency_ms": 438,
+      "total_token_count": 2407,
+      "invocation_latency_ms": 1346,
       "streaming": false,
       "use_case": "text-generation",
       "guardrail_action": "NONE",
-      "stop_reason": "max_tokens",
+      "error_code": "ModelTimeoutException",
       "metrics": {
-        "Invocations": { "sum": 497 },
-        "InvocationLatency": { "avg": 438, "p99": 1095 },
-        "InputTokenCount": { "sum": 1633 },
-        "OutputTokenCount": { "sum": 1785 },
+        "Invocations": { "sum": 180 },
+        "InvocationLatency": { "avg": 1346, "p99": 3365 },
+        "InputTokenCount": { "sum": 2407 },
+        "OutputTokenCount": { "sum": 0 },
         "CacheReadInputTokenCount": { "sum": 0 },
-        "Throttles": { "sum": 0 }
+        "Throttles": { "sum": 29 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-nova-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-nova-logs-814726593401"
+        "name": "aws-nova-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-nova-logs-293847561023"
       },
-      "object": {
-        "key": "AWSLogs/814726593401/nova/ca-central-1/2026/04/15/nova_00056R7DFFV54A.log.gz"
-      }
+      "object": { "key": "AWSLogs/293847561023/nova/me-south-1/2026/04/17/nova_9OE61R2T64G.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/nova/logs",
-      "log_stream": "ca-central-1/bpuldtci",
-      "ingestion_time": "2026-04-15T13:24:36.379Z"
+      "log_stream": "me-south-1/vtizydfy",
+      "ingestion_time": "2026-04-17T09:05:19.046Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.nova",
     "provider": "bedrock.amazonaws.com",
-    "duration": 438000000,
+    "duration": 1346000000,
     "module": "aws"
   },
-  "message": "Nova lite 1633->1785 tokens 0.44s",
-  "log": { "level": "info" },
+  "message": "Nova pro [amazon.nova-pro-v1:0] FAILED: ModelTimeoutException",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ModelTimeoutException",
+    "message": "Nova model invocation failed",
+    "type": "ml"
+  },
   "service": { "name": "nova", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.nova", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "lbndepw6a18"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "4xedtyogkz4"
   },
   "input": { "type": "aws-cloudwatch" }
 }

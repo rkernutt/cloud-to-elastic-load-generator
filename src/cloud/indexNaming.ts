@@ -6,6 +6,7 @@ export function awsBulkIndexName(indexPrefix: string, dataset: string): string {
 }
 
 export function awsDocDatasetIndex(indexPrefix: string, __dataset: string): string {
+  if (__dataset === "apm") return "traces-apm-default";
   if (__dataset.startsWith("aws.")) {
     return awsBulkIndexName(indexPrefix, __dataset);
   }
@@ -35,6 +36,7 @@ export function genericVendorDocDataset(
   __dataset: string,
   vendor: CloudId
 ): string {
+  if (__dataset === "apm") return "traces-apm-default";
   if (vendor === "aws") return awsDocDatasetIndex(indexPrefix, __dataset);
   return `logs-${__dataset}-default`;
 }

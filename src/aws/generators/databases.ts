@@ -23,6 +23,8 @@ function generateDynamoDbLog(ts: string, er: number): EcsDocument {
   ]);
   const rcu = Number(randFloat(0.5, isErr ? 500 : 50));
   const wcu = Number(randFloat(0.5, 50));
+  const latencyMs = Math.round(Number(randFloat(0.5, isErr ? 8000 : 120)));
+  const returnedItems = isErr ? 0 : randInt(0, op.includes("Batch") ? 500 : 100);
   const dynamoErrCodes = [
     "ConditionalCheckFailedException",
     "ItemCollectionSizeLimitExceededException",
@@ -39,8 +41,8 @@ function generateDynamoDbLog(ts: string, er: number): EcsDocument {
     "ValidationException",
   ];
   const plainMessage = isErr
-    ? `DynamoDB ${op} ${table}: ${rand(dynamoErrCodes)}`
-    : `DynamoDB ${op} ${table}: consumed ${rcu} RCU, ${wcu} WCU`;
+    ? `DynamoDB ${op} table=${table} latency_ms=${latencyMs} returned_items=${returnedItems}: ${rand(dynamoErrCodes)}`
+    : `DynamoDB ${op} table=${table} consumed_rcu=${rcu} consumed_wcu=${wcu} returned_items=${returnedItems} latency_ms=${latencyMs}`;
   const useStructuredLogging = Math.random() < 0.55;
   const message = useStructuredLogging
     ? JSON.stringify({
@@ -48,6 +50,8 @@ function generateDynamoDbLog(ts: string, er: number): EcsDocument {
         operation: op,
         consumedReadCapacityUnits: rcu,
         consumedWriteCapacityUnits: wcu,
+        returnedItemCount: returnedItems,
+        latencyMs,
         timestamp: new Date(ts).toISOString(),
       })
     : plainMessage;
@@ -66,6 +70,8 @@ function generateDynamoDbLog(ts: string, er: number): EcsDocument {
         operation: op,
         consumed_read_capacity_units: rcu,
         consumed_write_capacity_units: wcu,
+        returned_item_count: returnedItems,
+        latency_ms: latencyMs,
         items_count: randInt(0, 1000),
         structured_logging: useStructuredLogging,
         error_code: isErr ? rand(dynamoErrCodes) : null,
@@ -103,7 +109,7 @@ function generateDynamoDbLog(ts: string, er: number): EcsDocument {
       type: isErr ? ["error"] : ["access"],
       dataset: "aws.dynamodb",
       provider: "dynamodb.amazonaws.com",
-      duration: randInt(1, isErr ? 500 : 50) * 1e6,
+      duration: latencyMs * 1e6,
     },
     message: message,
     log: { level: isErr ? "error" : rcu > 100 ? "warn" : "info" },
@@ -183,6 +189,10 @@ function generateElastiCacheLog(ts: string, er: number): EcsDocument {
   ]);
   const lat = Number(randFloat(0.01, isErr ? 5000 : 50));
   const replicationGroupId = "prod-cache";
+  const logFlavor = rand(["cmd", "slowlog", "engine", "replication", "failover"]);
+  const redisPid = randInt(1, 32);
+  const slowUsecs = randInt(15_000, 8_000_000);
+  const tsHuman = new Date(ts).toISOString().replace("T", " ").slice(0, 23);
   const elastiCacheErrCodes = [
     "CacheClusterNotFound",
     "CacheParameterGroupNotFound",
@@ -256,9 +266,24 @@ function generateElastiCacheLog(ts: string, er: number): EcsDocument {
       dataset: "aws.elasticache",
       provider: "elasticache.amazonaws.com",
     },
-    message: isErr
-      ? `Redis ${cmd} failed: ${rand(["LOADING", "READONLY", "OOM command not allowed"])}`
-      : `Redis ${cmd} ${lat.toFixed(2)}us`,
+    message: (() => {
+      if (isErr) {
+        return `Redis ${cmd} failed: ${rand(["LOADING", "READONLY", "OOM command not allowed"])}`;
+      }
+      if (logFlavor === "slowlog") {
+        return `${redisPid}:M ${tsHuman} * ${slowUsecs} ${cmd} ${rand(["user:*", "session:*", "idx:products:*"])}`;
+      }
+      if (logFlavor === "engine") {
+        return `[${redisPid}] ${tsHuman} # ${rand(["WARN", "INFO"])} ${rand(["Replica is read-only", "AOF rewrite finished", "RDB: 0 MB of memory used by copy-on-write", "Overcommit_memory is set to 0"])}`;
+      }
+      if (logFlavor === "replication") {
+        return `[${redisPid}] ${tsHuman} # INFO Partial resynchronization request accepted. Sending ${randInt(1, 500)} bytes of backlog starting from offset ${randInt(1000, 9_000_000_000)}.`;
+      }
+      if (logFlavor === "failover") {
+        return `[${redisPid}] ${tsHuman} # NOTICE Failover auth granted to replica ${clusterId}-002.${region}.cache.amazonaws.com:6379 for epoch ${randInt(1, 50)}`;
+      }
+      return `Redis ${cmd} ${lat.toFixed(2)}us`;
+    })(),
     log: { level: isErr ? "error" : lat > 1000 ? "warn" : "info" },
     ...(isErr
       ? {
@@ -276,36 +301,120 @@ function generateRedshiftLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;
+  const dbName = rand(["analytics", "warehouse", "prod_dw", "dev_dw"]);
+  const schema = rand(["public", "staging", "analytics", "raw"]);
+  const tables = [
+    "fact_events",
+    "fact_sales",
+    "dim_products",
+    "dim_customers",
+    "staging_orders",
+    "raw_orders",
+    "clickstream",
+    "user_sessions",
+  ];
+  const table = rand(tables);
   const queries = [
-    "SELECT COUNT(*) FROM fact_events WHERE event_date >= CURRENT_DATE - 7",
-    "INSERT INTO staging_orders SELECT * FROM raw_orders WHERE processed_at IS NULL",
-    "COPY events FROM 's3://data-lake/events/2024/' IAM_ROLE 'arn:aws:iam::123456789:role/RedshiftS3' FORMAT AS PARQUET",
-    "UNLOAD ('SELECT * FROM fact_sales WHERE sale_date = CURRENT_DATE') TO 's3://exports/sales/' IAM_ROLE 'arn:aws:iam::123456789:role/RedshiftS3' PARQUET ALLOWOVERWRITE",
-    "VACUUM DELETE ONLY dim_products TO 95 PERCENT",
-    "ANALYZE dim_customers PREDICATE COLUMNS",
+    `SELECT COUNT(*) FROM ${schema}.${table} WHERE event_date >= CURRENT_DATE - 7`,
+    `INSERT INTO ${schema}.staging_orders SELECT * FROM ${schema}.raw_orders WHERE processed_at IS NULL`,
+    `COPY ${schema}.${table} FROM 's3://data-lake/${table}/2024/' IAM_ROLE 'arn:aws:iam::${acct.id}:role/RedshiftCopyRole' FORMAT AS PARQUET`,
+    `UNLOAD ('SELECT * FROM ${schema}.fact_sales WHERE sale_date = CURRENT_DATE') TO 's3://exports/sales/${new Date(ts).toISOString().slice(0, 10)}/' IAM_ROLE 'arn:aws:iam::${acct.id}:role/RedshiftUnloadRole' PARQUET ALLOWOVERWRITE`,
+    `VACUUM DELETE ONLY ${schema}.${table} TO 95 PERCENT`,
+    `ANALYZE ${schema}.${table} PREDICATE COLUMNS`,
+    `CREATE TEMP TABLE tmp_${table} AS SELECT * FROM ${schema}.${table} WHERE dt = CURRENT_DATE`,
+    `SELECT a.user_id, COUNT(DISTINCT a.session_id), SUM(b.revenue) FROM ${schema}.user_sessions a JOIN ${schema}.fact_sales b ON a.user_id = b.user_id WHERE a.dt >= CURRENT_DATE - 30 GROUP BY 1 ORDER BY 3 DESC LIMIT 1000`,
   ];
+  const query = rand(queries);
   const dur = Number(randFloat(0.1, isErr ? 300 : 60));
-  const dbUser = rand(["etl_user", "analyst", "bi_service", "dbt_runner"]);
-  const clusterId = `prod-dw-${region}`;
+  const durMicro = Math.round(dur * 1000000);
+  const dbUser = rand([
+    "etl_user",
+    "analyst",
+    "bi_service",
+    "dbt_runner",
+    "looker_user",
+    "redshift_admin",
+  ]);
+  const clusterId = rand(["prod-dw", "analytics-cluster", "reporting-cluster"]);
+  const nodeType = rand(["ra3.xlplus", "ra3.4xlarge", "ra3.16xlarge", "dc2.large", "dc2.8xlarge"]);
+  const numNodes = rand([2, 4, 8, 16]);
+  const pid = randInt(10000, 99999);
+  const xid = randInt(100000, 9999999);
+  const queryId = randInt(1000000, 9999999);
+  const nodeId = rand(["Leader", ...Array.from({ length: numNodes }, (_, i) => `Compute-${i}`)]);
+
+  // Redshift has 4 log types: connectionlog, userlog, useractivitylog, and system tables
+  const logType = rand([
+    "connectionlog",
+    "useractivitylog",
+    "useractivitylog",
+    "useractivitylog",
+    "userlog",
+  ]);
+  const logGroup = `/aws/redshift/cluster/${clusterId}/${logType}`;
+  const logStream = `${clusterId}/${logType}/${new Date(ts).toISOString().slice(0, 10)}`;
+
+  const sourceIp = randIp();
+  const sourcePort = randInt(1024, 65535);
+  const queryType = query.trim().split(/\s+/)[0].toUpperCase();
+  const wlmQueue = rand([
+    "superuser",
+    "etl_queue",
+    "analyst_queue",
+    "default_queue",
+    "short_query_queue",
+  ]);
+  const wlmSlot = randInt(1, 15);
+  const wlmWaitMs = isErr ? randInt(10000, 300000) : randInt(0, 5000);
+
+  let message: string;
+  if (logType === "connectionlog") {
+    if (Math.random() < 0.5) {
+      message = `initiating session ${pid} from ${sourceIp} port ${sourcePort} to ${clusterId}.${randId(8).toLowerCase()}.${region}.redshift.amazonaws.com port 5439 using SSL: version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 pid=${pid} dbname=${dbName} user=${dbUser} application_name=${rand(["Amazon Redshift JDBC Driver", "psql", "dbt", "Looker", "Python"])}`;
+    } else {
+      message = `disconnecting session ${pid} user=${dbUser} db=${dbName} duration=${Math.round(dur)}s`;
+    }
+  } else if (logType === "useractivitylog") {
+    // Matches real Redshift user activity log format: "'timestamp UTC [ db=... user=... pid=... userid=... xid=... ]' LOG: SQL_TEXT"
+    const tsUtc = new Date(ts).toISOString().replace("T", " ").replace("Z", " UTC");
+    message = `'${tsUtc} [ db=${dbName} user=${dbUser} pid=${pid} userid=${randInt(100, 999)} xid=${xid} ]' LOG: ${query}`;
+  } else {
+    // userlog: DDL changes, user creation, etc.
+    const userlogAction = rand([
+      `create user ${rand(["new_analyst", "etl_svc", "readonly_user"])} password '***' createdb nocreateuser`,
+      `alter user ${dbUser} set search_path to '${schema}'`,
+      `grant select on all tables in schema ${schema} to ${rand(["analyst_group", "readonly_group"])}`,
+      `alter user ${dbUser} connection limit ${randInt(10, 100)}`,
+    ]);
+    message = `'${new Date(ts).toISOString().replace("T", " ").replace("Z", " UTC")} [ db=${dbName} user=rdsdb pid=${pid} userid=1 xid=${xid} ]' LOG: ${userlogAction}`;
+  }
+
+  const rowsReturned = isErr ? 0 : randInt(0, 5000000);
+  const rowsAffected = queryType === "SELECT" ? 0 : rowsReturned;
+  const bytesScanned = randInt(1024, 10737418240);
+
   const redshiftErrCodes = [
-    "AuthorizationAlreadyExists",
-    "AuthorizationNotFound",
-    "ClusterAlreadyExists",
-    "ClusterNotFound",
-    "ClusterParameterGroupNotFound",
-    "ClusterSecurityGroupNotFound",
-    "ClusterSubnetGroupNotFound",
-    "HsmClientCertificateNotFound",
-    "InsufficientClusterCapacity",
-    "InvalidClusterState",
-    "InvalidClusterSubnetGroupStateFault",
-    "LimitExceededException",
-    "SnapshotIdentifierNotFound",
+    "QUERY_TIMED_OUT",
+    "DISK_FULL",
+    "SERIALIZABLE_ISOLATION_VIOLATION",
+    "LOCK_TIMEOUT",
+    "OUT_OF_MEMORY",
+    "PERMISSION_DENIED",
+    "COPY_LOAD_ERROR",
+    "INTERNAL_ERROR",
   ];
-  const nodeId = rand(["Leader", "Compute-0", "Compute-1"]);
-  const queryType = rand(["SELECT", "SELECT", "INSERT", "COPY", "UNLOAD", "VACUUM", "ANALYZE"]);
-  const wlmQueue = rand(["superuser", "etl_queue", "analyst_queue", "default_queue"]);
-  const wlmWaitSec = isErr ? Number(randFloat(10, 300)) : Number(randFloat(0, 5));
+  const redshiftErrMsgs: Record<string, string> = {
+    QUERY_TIMED_OUT: `ERROR: Query (${queryId}) cancelled by the system. Maximum query time exceeded.`,
+    DISK_FULL: `ERROR: Disk Full on ${nodeId}: Cannot write to temp space. (${queryId})`,
+    SERIALIZABLE_ISOLATION_VIOLATION: `ERROR: 1023 DETAIL: Serializable isolation violation on table ${schema}.${table}`,
+    LOCK_TIMEOUT: `ERROR: Lock timeout on table ${schema}.${table}: ${dbUser} waiting for AccessExclusiveLock`,
+    OUT_OF_MEMORY: `ERROR: ${queryId}: out of memory. (${nodeId})`,
+    PERMISSION_DENIED: `ERROR: permission denied for relation ${schema}.${table}`,
+    COPY_LOAD_ERROR: `ERROR: Load into table '${table}' failed.  Check 'stl_load_errors' for details.`,
+    INTERNAL_ERROR: `ERROR: Spectrum Scan Error (${queryId})`,
+  };
+  const errCode = isErr ? rand(redshiftErrCodes) : null;
+
   return {
     "@timestamp": ts,
     cloud: {
@@ -316,19 +425,33 @@ function generateRedshiftLog(ts: string, er: number): EcsDocument {
     },
     aws: {
       dimensions: { ClusterIdentifier: clusterId, NodeID: nodeId },
+      cloudwatch: { log_group: logGroup, log_stream: logStream },
       redshift: {
         cluster_id: clusterId,
-        database: "analytics",
+        node_type: nodeType,
+        number_of_nodes: numNodes,
+        database: dbName,
+        schema,
         user: dbUser,
-        pid: randInt(10000, 99999),
-        query_id: randInt(1000000, 9999999),
-        duration_seconds: dur,
-        rows_returned: isErr ? 0 : randInt(0, 5000000),
-        error_code: isErr ? rand(redshiftErrCodes) : null,
+        pid,
+        xid,
+        query_id: queryId,
+        log_type: logType,
+        duration_microseconds: durMicro,
+        rows_returned: rowsReturned,
+        rows_affected: rowsAffected,
+        bytes_scanned: bytesScanned,
+        error_code: errCode,
+        error_message: errCode ? redshiftErrMsgs[errCode] : null,
         query_type: queryType,
+        source_ip: sourceIp,
+        source_port: sourcePort,
+        application_name: rand(["Amazon Redshift JDBC Driver", "psql", "dbt", "Looker", "Python"]),
         wlm: {
           queue_name: wlmQueue,
-          queue_wait_seconds: wlmWaitSec,
+          slot_count: wlmSlot,
+          queue_wait_ms: wlmWaitMs,
+          service_class: randInt(6, 14),
         },
         metrics: {
           CPUUtilization: { avg: Number(randFloat(1, isErr ? 90 : 60)) },
@@ -357,7 +480,8 @@ function generateRedshiftLog(ts: string, er: number): EcsDocument {
         },
       },
     },
-    db: { user: { name: dbUser }, name: "analytics", statement: rand(queries), type: "sql" },
+    db: { user: { name: dbUser }, name: dbName, statement: query, type: "sql" },
+    source: { ip: sourceIp, port: sourcePort },
     event: {
       duration: dur * 1e9,
       outcome: isErr ? "failure" : "success",
@@ -365,12 +489,16 @@ function generateRedshiftLog(ts: string, er: number): EcsDocument {
       dataset: "aws.redshift",
       provider: "redshift.amazonaws.com",
     },
-    message: isErr
-      ? `Redshift query failed after ${dur}s`
-      : `Redshift query completed in ${dur.toFixed(2)}s`,
+    message,
     log: { level: isErr ? "error" : dur > 60 ? "warn" : "info" },
-    ...(isErr
-      ? { error: { code: rand(redshiftErrCodes), message: "Redshift query failed", type: "db" } }
+    ...(isErr && errCode
+      ? {
+          error: {
+            code: errCode,
+            message: redshiftErrMsgs[errCode] || "Redshift query failed",
+            type: "db",
+          },
+        }
       : {}),
   };
 }
@@ -386,6 +514,51 @@ function generateOpenSearchLog(ts: string, er: number): EcsDocument {
   const status = isErr ? rand([400, 429, 500, 503]) : rand([200, 200, 201]);
   const domainName = `prod-search-${region}`;
   const totalShards = randInt(5, 50);
+  const variant = rand([
+    "http",
+    "index_mgmt",
+    "allocation",
+    "cluster_health",
+    "slow_query",
+    "gc",
+    "circuit_breaker",
+  ]);
+  const queryBody =
+    '{"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"now-1h"}}}],"must":[{"match":{"service.name":"checkout"}}]}},"size":500}';
+  const gcLine = `[${new Date(ts).toISOString()}][INFO ][o.e.m.j.JvmGcMonitorService] [${rand(["data-0", "master-1", "ingest-2"])}] [gc][${randInt(100, 9999)}] overhead, spent [${Number(randFloat(200, isErr ? 5000 : 800)).toFixed(1)}ms] collecting in the last [1s]`;
+  const cbLine = `[${new Date(ts).toISOString()}][WARN ][o.e.i.b.request.RequestBreaker] [${rand(["data-0", "data-1"])}] breaking incoming request: [parent] Data too large, data for [<reused_arrays>] would be [${randInt(512, 4096)}mb], which is larger than the limit of [${randInt(256, 2048)}mb]`;
+  let message: string;
+  let operation = op;
+  let logExtras: Record<string, unknown> = {};
+  if (variant === "index_mgmt") {
+    operation = rand(["create_index", "delete_index", "close_index", "open_index"]);
+    message = `[${new Date(ts).toISOString()}] cluster=${domainName} action=${operation} index=${idx} ack=${isErr ? "false" : "true"}`;
+  } else if (variant === "allocation") {
+    operation = "shard_allocation";
+    message = `[${new Date(ts).toISOString()}] reroute started: allocate replica shard [${idx}][${randInt(0, 9)}] on node [${rand(["i-0abc", "i-0def"])}] reason=CLUSTER_RECOVERED`;
+    logExtras = { allocation_explanation: isErr ? "NO_VALID_SHARD_COPY" : "ALLOCATED" };
+  } else if (variant === "cluster_health") {
+    operation = "cluster_health";
+    const health = isErr ? rand(["red", "yellow"]) : "green";
+    message = `[${new Date(ts).toISOString()}] cluster health changed: ${health} (active_shards=${randInt(40, 200)}, relocating_shards=${randInt(0, 5)}, unassigned_shards=${isErr ? randInt(1, 20) : 0})`;
+    logExtras = { cluster_health: health };
+  } else if (variant === "slow_query") {
+    operation = "slow_search";
+    message = `[${new Date(ts).toISOString()}] [index.search.slowlog.query] [${idx}] took[${dur.toFixed(1)}ms], took_millis[${Math.round(dur)}], types[], stats[], search_type[QUERY_THEN_FETCH], total_shards[${totalShards}], source[${queryBody}]`;
+    logExtras = { slow_query_source: queryBody };
+  } else if (variant === "gc") {
+    operation = "jvm_gc";
+    message = gcLine;
+    logExtras = { gc_event: true };
+  } else if (variant === "circuit_breaker") {
+    operation = "circuit_breaker";
+    message = cbLine;
+    logExtras = { circuit_breaker: "parent" };
+  } else {
+    message = isErr
+      ? `OpenSearch ${op} on ${idx} failed [${status}] after ${dur.toFixed(0)}ms`
+      : `OpenSearch ${op} on ${idx}: ${dur.toFixed(0)}ms`;
+  }
   return {
     "@timestamp": ts,
     cloud: {
@@ -399,7 +572,7 @@ function generateOpenSearchLog(ts: string, er: number): EcsDocument {
       opensearch: {
         domain_name: domainName,
         index: idx,
-        operation: op,
+        operation,
         took_ms: Math.round(dur),
         shards: {
           total: totalShards,
@@ -412,6 +585,7 @@ function generateOpenSearchLog(ts: string, er: number): EcsDocument {
         },
         hits_total: isErr ? 0 : randInt(0, 100000),
         status_code: status,
+        ...logExtras,
         metrics: {
           CPUUtilization: { avg: Number(randFloat(5, isErr ? 95 : 60)) },
           FreeStorageSpace: { avg: randInt(5e9, 500e9) },
@@ -443,9 +617,7 @@ function generateOpenSearchLog(ts: string, er: number): EcsDocument {
       dataset: "aws.opensearch",
       provider: "es.amazonaws.com",
     },
-    message: isErr
-      ? `OpenSearch ${op} on ${idx} failed [${status}] after ${dur.toFixed(0)}ms`
-      : `OpenSearch ${op} on ${idx}: ${dur.toFixed(0)}ms`,
+    message,
     log: { level: isErr ? "error" : dur > 5000 ? "warn" : "info" },
     ...(isErr
       ? { error: { code: String(status), message: `OpenSearch ${op} failed`, type: "db" } }
@@ -534,28 +706,68 @@ function generateAuroraLog(ts: string, er: number): EcsDocument {
   const isErr = Math.random() < er;
   const engine = rand(["aurora-mysql", "aurora-postgresql"]);
   const cluster = rand(["prod-aurora-cluster", "staging-aurora", "analytics-aurora"]);
-  const MSGS = {
-    error: [
-      "Aurora failover initiated: primary instance unhealthy",
-      "ERROR 2013: Lost connection to MySQL",
-      "Replica lag exceeded 60 seconds",
-      "Deadlock detected",
-      "Storage auto-scaling failed",
-    ],
-    warn: [
-      "Aurora replica lag: 8.4 seconds",
-      "Long-running query: 45s",
-      "Connections approaching max_connections",
-      "Slow query: full table scan",
-    ],
-    info: [
-      "Aurora auto-scaling: adding replica",
-      "Multi-AZ failover completed in 22s",
-      "Global Database replication lag: 0.8s",
-      "Cluster endpoint updated",
-    ],
-  };
-  const level = isErr ? "error" : Math.random() < 0.12 ? "warn" : "info";
+  const instanceId = `${cluster}-instance-${randInt(1, 5)}`;
+  const dbUser = rand(["app_rw", "analytics", "rds_superuser", "migration"]);
+  const dbName = rand(["appdb", "warehouse", "events"]);
+  const clientIp = randIp();
+  const auditAction = rand(["QUERY", "CONNECT", "DISCONNECT"]);
+  const sql = rand([
+    `SELECT id, status FROM orders WHERE updated_at > NOW() - INTERVAL 1 HOUR LIMIT 500`,
+    `UPDATE inventory SET qty = qty - 1 WHERE sku = '${randId(8)}'`,
+    `INSERT INTO audit_log (actor, action) VALUES ('${dbUser}', 'checkout')`,
+  ]);
+  const tsAudit = new Date(ts).toISOString().replace("T", " ").replace("Z", " UTC");
+  const isMysql = engine.includes("mysql");
+  const logKind = rand(["audit", "slow", "engine_error", "failover", "generic"]);
+  let message: string;
+  let level: "error" | "warn" | "info";
+  if (logKind === "audit") {
+    message =
+      auditAction === "CONNECT"
+        ? `${tsAudit},${clientIp},${dbUser},${dbName},${randInt(10000, 99999)},CONNECT,,,0`
+        : auditAction === "DISCONNECT"
+          ? `${tsAudit},${clientIp},${dbUser},${dbName},${randInt(10000, 99999)},DISCONNECT,,,0`
+          : `${tsAudit},${clientIp},${dbUser},${dbName},${randInt(10000, 99999)},QUERY,${sql},0`;
+    level = "info";
+  } else if (logKind === "slow") {
+    const qt = Number(randFloat(1.2, isErr ? 120 : 12));
+    level = isErr ? "error" : "warn";
+    message = isMysql
+      ? `# Time: ${tsAudit}\n# User@Host: ${dbUser}[${dbUser}] @ ${clientIp} [${clientIp}]  Id: ${randInt(1000, 99999)}\n# Query_time: ${qt.toFixed(6)}  Lock_time: 0.000045  Rows_sent: ${randInt(0, 5000)}  Rows_examined: ${randInt(100, 500000)}\n${sql};`
+      : `${tsAudit} UTC:${clientIp}(${randInt(30000, 65000)}):${dbUser}@${dbName}:[${randInt(1000, 99999)}]:LOG:  duration: ${(qt * 1000).toFixed(3)} ms  statement: ${sql}`;
+  } else if (logKind === "engine_error") {
+    level = "error";
+    message = isMysql
+      ? `${tsAudit} ${randInt(1000, 99999)} [ERROR] [MY-${randInt(10000, 99999)}] [Server] ${isErr ? "Replica SQL thread stopped because of error" : "InnoDB: Warning: long semaphore wait"}`
+      : `${tsAudit} UTC:${clientIp}(${randInt(30000, 65000)}):${dbUser}@${dbName}:[${randInt(1000, 99999)}]:ERROR:  ${isErr ? "canceling statement due to conflict with recovery" : "checkpoint request timed out"}\nSTATEMENT:  ${sql}`;
+  } else if (logKind === "failover") {
+    level = isErr ? "error" : "warn";
+    message = `[AuroraFailover] cluster=${cluster} old_primary=${instanceId} new_primary=${cluster}-instance-${randInt(1, 5)} reason=${isErr ? "UNRESPONSIVE_PRIMARY" : "USER_INITIATED_SWITCHOVER"} duration_sec=${randInt(8, 95)}`;
+  } else {
+    const MSGS = {
+      error: [
+        "Aurora failover initiated: primary instance unhealthy",
+        "ERROR 2013: Lost connection to MySQL",
+        "Replica lag exceeded 60 seconds",
+        "Deadlock detected",
+        "Storage auto-scaling failed",
+      ],
+      warn: [
+        "Aurora replica lag: 8.4 seconds",
+        "Long-running query: 45s",
+        "Connections approaching max_connections",
+        "Slow query: full table scan",
+      ],
+      info: [
+        "Aurora auto-scaling: adding replica",
+        "Multi-AZ failover completed in 22s",
+        "Global Database replication lag: 0.8s",
+        "Cluster endpoint updated",
+      ],
+    };
+    level = isErr ? "error" : Math.random() < 0.12 ? "warn" : "info";
+    message = rand(MSGS[level]);
+  }
   const durationSec = isErr ? randInt(5, 300) : randInt(1, 60);
   return {
     "@timestamp": ts,
@@ -568,7 +780,7 @@ function generateAuroraLog(ts: string, er: number): EcsDocument {
     aws: {
       aurora: {
         cluster_id: cluster,
-        instance_id: `${cluster}-instance-${randInt(1, 5)}`,
+        instance_id: instanceId,
         engine,
         engine_version: engine.includes("mysql") ? "8.0.36" : "15.4",
         replica_lag_seconds: isErr ? randInt(30, 3600) : Number(randFloat(0, 5)),
@@ -596,9 +808,23 @@ function generateAuroraLog(ts: string, er: number): EcsDocument {
       provider: "rds.amazonaws.com",
       duration: durationSec * 1e9,
     },
-    message: rand(MSGS[level]),
+    message,
     log: { level },
-    ...(isErr ? { error: { code: "AuroraError", message: rand(MSGS.error), type: "db" } } : {}),
+    ...(isErr
+      ? {
+          error: {
+            code: "AuroraError",
+            message: rand([
+              "Aurora failover initiated: primary instance unhealthy",
+              "ERROR 2013: Lost connection to MySQL",
+              "Replica lag exceeded 60 seconds",
+              "Deadlock detected",
+              "Storage auto-scaling failed",
+            ]),
+            type: "db",
+          },
+        }
+      : {}),
   };
 }
 
@@ -1021,10 +1247,45 @@ function generateRdsLog(ts: string, er: number): EcsDocument {
   const hasTrace = Math.random() < 0.35;
   const traceId = hasTrace ? randId(32) : null;
   const qt = Number(randFloat(0.001, isErr ? 30 : 2));
-  const dbUser = rand(["appuser", "readonly", "admin", "replica"]);
-  const instanceId = `prod-db-${rand(["primary", "replica", "analytics"])}`;
-  const engine = rand(["mysql", "postgres", "aurora-mysql"]);
+  const dbUser = rand(["appuser", "readonly", "admin", "replica", "dba", "migration_user"]);
+  const instanceId = `prod-db-${rand(["primary", "replica", "analytics", "reporting"])}`;
+  const engine = rand([
+    "mysql",
+    "mysql",
+    "postgres",
+    "postgres",
+    "aurora-mysql",
+    "aurora-postgresql",
+  ]);
+  const isPostgres = engine.includes("postgres");
+  const instanceClass = rand([
+    "db.t3.medium",
+    "db.t3.large",
+    "db.r5.large",
+    "db.r5.xlarge",
+    "db.r6g.xlarge",
+    "db.r6g.2xlarge",
+    "db.m5.large",
+  ]);
   const useEnhancedMonitoring = Math.random() < 0.55;
+  const dbName = rand(["appdb", "analytics", "users_db", "events_db", "ecommerce"]);
+  const sourceIp = randIp();
+  const pid = randInt(1000, 99999);
+
+  // Real RDS CloudWatch log group naming: /aws/rds/instance/<id>/<log-type> or /aws/rds/cluster/<id>/<log-type>
+  const isCluster = engine.startsWith("aurora");
+  const logTypeByEngine: Record<string, string[]> = {
+    mysql: ["error", "general", "slowquery", "audit"],
+    "aurora-mysql": ["error", "general", "slowquery", "audit"],
+    postgres: ["postgresql"],
+    "aurora-postgresql": ["postgresql"],
+  };
+  const logTypes = logTypeByEngine[engine] || ["error"];
+  const logType = rand(logTypes);
+  const logGroup = isCluster
+    ? `/aws/rds/cluster/${instanceId}/${logType}`
+    : `/aws/rds/instance/${instanceId}/${logType}`;
+  const logStream = instanceId;
 
   // Enhanced Monitoring (RDSOSMetrics) — OS-level metrics published every 1–60 s
   const osMetrics = useEnhancedMonitoring
@@ -1064,34 +1325,96 @@ function generateRdsLog(ts: string, er: number): EcsDocument {
       }
     : null;
 
-  const mysqlErrMessages = [
-    `ERROR 1045 (28000): Access denied for user '${dbUser}'@'${randIp()}' (using password: YES)`,
-    `ERROR 1213 (40001): Deadlock found when trying to get lock; try restarting transaction`,
-    `[Warning] Aborted connection ${randInt(1000, 9999)} to db: 'mydb' user: '${dbUser}' host: '${randIp()}' (Got an error reading communication packets)`,
-  ];
-  const postgresErrMessages = [
-    `FATAL: role "${dbUser}" does not exist`,
-    `ERROR: deadlock detected`,
-    `FATAL: password authentication failed for user "${dbUser}"`,
-    `LOG: duration: ${Number(randFloat(1000, 30000)).toFixed(3)} ms statement: SELECT * FROM orders WHERE customer_id = ${randInt(1, 1e6)}`,
-  ];
-  const engineErrMessages = engine === "postgres" ? postgresErrMessages : mysqlErrMessages;
-  const plainMessage = isErr
-    ? rand(engineErrMessages)
-    : engine === "postgres"
-      ? `LOG: duration: ${(qt * 1000).toFixed(3)} ms statement: SELECT * FROM ${rand(["users", "orders", "products"])} WHERE id = ${randInt(1, 1e6)}`
-      : `Query_time: ${qt.toFixed(6)}  Lock_time: ${Number(randFloat(0, 0.01)).toFixed(6)}  Rows_sent: ${randInt(0, 1000)}  Rows_examined: ${randInt(0, 100000)}`;
-  const message = useEnhancedMonitoring
-    ? JSON.stringify({
-        instanceId,
-        engine,
-        userId: dbUser,
-        queryTime: qt,
-        error: isErr ? plainMessage : null,
-        timestamp: new Date(ts).toISOString(),
-        osMetrics,
-      })
-    : plainMessage;
+  const tableName = rand([
+    "users",
+    "orders",
+    "products",
+    "sessions",
+    "events",
+    "inventory",
+    "transactions",
+    "customers",
+  ]);
+  const tsFormatted = new Date(ts).toISOString().replace("T", " ").replace("Z", "");
+
+  // Realistic log messages matching actual RDS log format per engine/log type
+  let message: string;
+  let dbStatement: string;
+
+  if (isPostgres) {
+    // PostgreSQL log format: timestamp UTC:host(port):user@db:[pid]:LOG/ERROR/FATAL: message
+    const pgPrefix = `${tsFormatted} UTC:${sourceIp}(${randInt(30000, 65000)}):${dbUser}@${dbName}:[${pid}]:`;
+    const pgStatements = [
+      `SELECT * FROM ${tableName} WHERE id = ${randInt(1, 1000000)}`,
+      `SELECT t1.*, t2.name FROM ${tableName} t1 JOIN customers t2 ON t1.customer_id = t2.id WHERE t1.created_at > now() - interval '1 day' ORDER BY t1.id LIMIT 100`,
+      `INSERT INTO ${tableName} (name, email, created_at) VALUES ($1, $2, now())`,
+      `UPDATE ${tableName} SET updated_at = now(), status = $1 WHERE id = $2`,
+      `DELETE FROM ${tableName} WHERE created_at < now() - interval '90 days'`,
+      `BEGIN; UPDATE inventory SET quantity = quantity - $1 WHERE product_id = $2 AND quantity >= $1; COMMIT;`,
+    ];
+    dbStatement = rand(pgStatements);
+
+    if (isErr) {
+      message = rand([
+        `${pgPrefix}ERROR:  deadlock detected\nDETAIL:  Process ${pid} waits for ShareLock on transaction ${randInt(100000, 9999999)}; blocked by process ${randInt(1000, 99999)}.\nProcess ${randInt(1000, 99999)} waits for ShareLock on transaction ${randInt(100000, 9999999)}; blocked by process ${pid}.\nHINT:  See server log for query details.\nCONTEXT:  while updating tuple (${randInt(0, 100)},${randInt(1, 50)}) in relation "${tableName}"\nSTATEMENT:  ${dbStatement}`,
+        `${pgPrefix}FATAL:  too many connections for role "${dbUser}"\nDETAIL:  The server currently has ${randInt(90, 120)} connections to database "${dbName}" from role "${dbUser}".`,
+        `${pgPrefix}ERROR:  relation "${rand(["nonexistent_table", "old_table", "temp_" + tableName])}" does not exist at character ${randInt(15, 80)}\nSTATEMENT:  SELECT * FROM nonexistent_table`,
+        `${pgPrefix}FATAL:  password authentication failed for user "${dbUser}"`,
+        `${pgPrefix}ERROR:  canceling statement due to statement timeout\nSTATEMENT:  ${dbStatement}`,
+        `${pgPrefix}ERROR:  could not extend file "base/${randInt(10000, 99999)}/${randInt(10000, 99999)}": No space left on device\nHINT:  Check free disk space.`,
+        `${pgPrefix}LOG:  checkpoints are occurring too frequently (${randInt(5, 29)} seconds apart)\nHINT:  Consider increasing the configuration parameter "max_wal_size".`,
+      ]);
+    } else if (logType === "postgresql" && Math.random() < 0.4) {
+      // Slow query log style
+      message = `${pgPrefix}LOG:  duration: ${(qt * 1000).toFixed(3)} ms  ${Math.random() < 0.3 ? "parse" : Math.random() < 0.5 ? "bind" : "execute"} <unnamed>: ${dbStatement}`;
+    } else {
+      message = rand([
+        `${pgPrefix}LOG:  duration: ${(qt * 1000).toFixed(3)} ms  statement: ${dbStatement}`,
+        `${pgPrefix}LOG:  connection authorized: user=${dbUser} database=${dbName} SSL enabled (protocol=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384, bits=256)`,
+        `${pgPrefix}LOG:  disconnection: session time: ${randInt(0, 24)}:${randInt(0, 59).toString().padStart(2, "0")}:${randInt(0, 59).toString().padStart(2, "0")}.${randInt(0, 999).toString().padStart(3, "0")} user=${dbUser} database=${dbName} host=${sourceIp} port=${randInt(30000, 65000)}`,
+        `${pgPrefix}LOG:  checkpoint starting: time`,
+        `${pgPrefix}LOG:  checkpoint complete: wrote ${randInt(100, 10000)} buffers (${Number(randFloat(0.1, 15)).toFixed(1)}%); 0 WAL file(s) added, ${randInt(0, 5)} removed, ${randInt(0, 10)} recycled; write=${Number(randFloat(0.1, 30)).toFixed(3)} s, sync=${Number(randFloat(0.001, 5)).toFixed(3)} s, total=${Number(randFloat(0.1, 35)).toFixed(3)} s; sync files=${randInt(10, 500)}, longest=${Number(randFloat(0.001, 2)).toFixed(3)} s, average=${Number(randFloat(0.001, 0.1)).toFixed(6)} s; distance=${randInt(1000, 500000)} kB, estimate=${randInt(1000, 500000)} kB`,
+        `${pgPrefix}LOG:  automatic vacuum of table "${dbName}.public.${tableName}": index scans: ${randInt(0, 3)}, pages: ${randInt(0, 1000)} removed, ${randInt(100, 50000)} remain, ${randInt(0, 5000)} are dead but not yet removable`,
+        `${pgPrefix}LOG:  automatic analyze of table "${dbName}.public.${tableName}"`,
+      ]);
+    }
+  } else {
+    // MySQL log formats vary by log type
+    const mysqlStatements = [
+      `SELECT * FROM ${tableName} WHERE id = ${randInt(1, 1000000)}`,
+      `INSERT INTO ${tableName} (name, email) VALUES ('${rand(["alice", "bob", "carol"])}', '${rand(["a", "b", "c"])}@example.com')`,
+      `UPDATE ${tableName} SET status = 'active' WHERE user_id = ${randInt(1, 100000)}`,
+      `SELECT o.*, p.name FROM orders o INNER JOIN products p ON o.product_id = p.id WHERE o.created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)`,
+    ];
+    dbStatement = rand(mysqlStatements);
+
+    if (logType === "slowquery") {
+      const lockTime = Number(randFloat(0, isErr ? 5 : 0.01));
+      const rowsSent = randInt(0, isErr ? 0 : 10000);
+      const rowsExamined = randInt(rowsSent, rowsSent * 100 + 1);
+      message = `# Time: ${tsFormatted}\n# User@Host: ${dbUser}[${dbUser}] @ ${sourceIp} [${sourceIp}]  Id: ${pid}\n# Query_time: ${qt.toFixed(6)}  Lock_time: ${lockTime.toFixed(6)} Rows_sent: ${rowsSent}  Rows_examined: ${rowsExamined}\nSET timestamp=${Math.floor(new Date(ts).getTime() / 1000)};\n${dbStatement};`;
+    } else if (logType === "error") {
+      if (isErr) {
+        message = rand([
+          `${tsFormatted} ${pid} [ERROR] [MY-${randInt(10000, 99999)}] [Repl] Replica SQL for channel '': Could not execute Write_rows event on table ${dbName}.${tableName}; Duplicate entry '${randInt(1, 100000)}' for key 'PRIMARY', Error_code: 1062; handler error HA_ERR_FOUND_DUPP_KEY; the event's master log ${instanceId}-bin.${randInt(1, 999).toString().padStart(6, "0")}, end_log_pos ${randInt(10000, 99999999)}`,
+          `${tsFormatted} ${pid} [ERROR] [MY-${randInt(10000, 99999)}] [Server] InnoDB: The innodb_system tablespace must be at least ${randInt(10, 100)} MB. Current size: ${randInt(5, 9)} MB.`,
+          `${tsFormatted} ${pid} [ERROR] [MY-${randInt(10000, 99999)}] [Server] Got error ${randInt(1, 200)} from storage engine`,
+          `${tsFormatted} ${pid} [Warning] [MY-${randInt(10000, 99999)}] [Server] Aborted connection ${randInt(1000, 99999)} to db: '${dbName}' user: '${dbUser}' host: '${sourceIp}' (Got an error reading communication packets)`,
+        ]);
+      } else {
+        message = rand([
+          `${tsFormatted} ${pid} [Note] [MY-${randInt(10000, 99999)}] [Server] /rdsdbbin/mysql/bin/mysqld: ready for connections. Version: '8.0.${randInt(32, 40)}'  socket: '/tmp/mysql.sock'  port: 3306`,
+          `${tsFormatted} ${pid} [Note] [MY-${randInt(10000, 99999)}] [InnoDB] Buffer pool(s) load completed at ${tsFormatted}`,
+          `${tsFormatted} ${pid} [Note] [MY-${randInt(10000, 99999)}] [Server] Event Scheduler: Loaded ${randInt(0, 10)} events`,
+        ]);
+      }
+    } else if (logType === "general") {
+      message = `${tsFormatted}\t${pid} ${rand(["Query", "Connect", "Init DB", "Quit"])}\t${dbStatement}`;
+    } else {
+      // audit log
+      message = `${tsFormatted},${sourceIp},${dbUser},${dbName},${pid},${randInt(10000, 99999)},QUERY,${dbStatement},0`;
+    }
+  }
 
   const cpuPct = Number(randFloat(1, isErr ? 95 : 60));
   const rdsErrCodes = [
@@ -1121,19 +1444,27 @@ function generateRdsLog(ts: string, er: number): EcsDocument {
     aws: {
       dimensions: {
         DBInstanceIdentifier: instanceId,
-        DatabaseClass: rand(["db.t3.medium", "db.r5.large", "db.r6g.xlarge"]),
+        DatabaseClass: instanceClass,
         EngineName: engine,
         SourceRegion: region,
       },
+      cloudwatch: { log_group: logGroup, log_stream: logStream },
       rds: {
         db_instance: {
           identifier: instanceId,
-          class: rand(["db.t3.medium", "db.r5.large", "db.r6g.xlarge"]),
+          class: instanceClass,
           engine_name: engine,
+          engine_version: isPostgres
+            ? `${rand(["14", "15", "16"])}.${randInt(1, 8)}`
+            : `8.0.${randInt(32, 40)}`,
           arn: `arn:aws:rds:${region}:${acct.id}:db:${instanceId}`,
           status: isErr ? rand(["failed", "incompatible-parameters", "storage-full"]) : "available",
           role: rand(["instance", "read-replica"]),
+          multi_az: Math.random() < 0.5,
+          storage_type: rand(["gp3", "io1", "io2"]),
+          allocated_storage_gb: rand([100, 200, 500, 1000, 2000]),
         },
+        log_type: logType,
         cpu: { total: { pct: parseFloat((cpuPct / 100).toFixed(4)) } },
         freeable_memory: { bytes: randInt(1e8, 8e9) },
         free_storage: { bytes: randInt(1e9, 500e9) },
@@ -1153,20 +1484,16 @@ function generateRdsLog(ts: string, er: number): EcsDocument {
         replica_lag: { sec: Number(randFloat(0, isErr ? 10000 : 100)) },
         swap_usage: { bytes: randInt(0, 1e8) },
         disk_usage: { bin_log: { bytes: randInt(0, 1e9) } },
+        ...(osMetrics ? { enhanced_monitoring: osMetrics } : {}),
       },
     },
     db: {
       user: { name: dbUser },
-      name: rand(["appdb", "analytics", "users", "events"]),
-      statement:
-        rand([
-          "SELECT * FROM users WHERE",
-          "INSERT INTO orders VALUES",
-          "UPDATE products SET price",
-          "DELETE FROM sessions WHERE",
-        ]) + ` ${randId(6)}`,
+      name: dbName,
+      statement: dbStatement,
       type: "sql",
     },
+    source: { ip: sourceIp },
     event: {
       duration: qt * 1000000000,
       outcome: isErr ? "failure" : "success",
@@ -1178,7 +1505,7 @@ function generateRdsLog(ts: string, er: number): EcsDocument {
     message: message,
     log: { level: isErr ? "error" : qt > 5 ? "warn" : "info" },
     ...(isErr
-      ? { error: { code: rand(rdsErrCodes), message: rand(engineErrMessages), type: "db" } }
+      ? { error: { code: rand(rdsErrCodes), message: message.split("\n")[0], type: "db" } }
       : {}),
     ...(hasTrace ? { trace: { id: traceId } } : {}),
     ...(hasTrace ? { transaction: { id: randId(16) } } : {}),

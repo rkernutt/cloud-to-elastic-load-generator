@@ -1,57 +1,62 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-central-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "verifiedpermissions" }
   },
   "aws": {
-    "dimensions": { "PolicyStoreId": "EFxHR7MJTVF1UJP" },
+    "dimensions": { "PolicyStoreId": "EFxHPWV74JK2X9" },
     "verifiedpermissions": {
-      "policy_store_id": "EFxHR7MJTVF1UJP",
-      "principal_entity_type": "ServiceAccount",
-      "principal_entity_id": "serviceaccount-VHM7E4QS",
-      "action_id": "ListResources",
-      "resource_type": "Resource",
-      "decision": "ALLOW",
-      "determining_policies": 4,
+      "policy_store_id": "EFxHPWV74JK2X9",
+      "principal_entity_type": "Role",
+      "principal_entity_id": "role-2ACA6LUI",
+      "action_id": "AdminAccess",
+      "resource_type": "Endpoint",
+      "decision": "DENY",
+      "determining_policies": 1,
       "errors_count": 0,
-      "evaluation_time_ms": 33
+      "evaluation_time_ms": 26
     },
     "s3": {
       "bucket": {
-        "name": "aws-verifiedpermissions-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-verifiedpermissions-logs-814726593401"
+        "name": "aws-verifiedpermissions-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-verifiedpermissions-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/verifiedpermissions/eu-west-2/2026/04/15/verifiedpermissions_09XZ787M2OJD.log.gz"
+        "key": "AWSLogs/164820739518/verifiedpermissions/eu-central-1/2026/04/17/verifiedpermissions_4OKPOABGB6S.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/verifiedpermissions/logs",
-      "log_stream": "eu-west-2/821ibmgg",
-      "ingestion_time": "2026-04-15T13:24:36.292Z"
+      "log_stream": "eu-central-1/kl2op8rt",
+      "ingestion_time": "2026-04-17T09:05:18.926Z"
     }
   },
   "event": {
-    "action": "BatchIsAuthorized",
+    "action": "IsAuthorized",
     "outcome": "success",
     "category": ["authentication", "iam"],
     "dataset": "aws.verifiedpermissions",
     "provider": "verifiedpermissions.amazonaws.com",
     "module": "aws"
   },
-  "message": "Verified Permissions ALLOW: ServiceAccount/serviceaccount-VHM7E4QS → ListResources",
-  "log": { "level": "info" },
+  "message": "Verified Permissions DENY: Role/role-2ACA6LUI → AdminAccess",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "AccessDenied",
+    "message": "Authorization denied for Role/role-2ACA6LUI to perform AdminAccess",
+    "type": "authorization"
+  },
   "service": { "name": "verifiedpermissions", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.verifiedpermissions", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "yl5xgajwv6"
+    "name": "filebeat-aws-eu-central-1",
+    "ephemeral_id": "y5lz1umbxx"
   },
   "input": { "type": "aws-cloudwatch" }
 }

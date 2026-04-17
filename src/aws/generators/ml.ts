@@ -181,9 +181,19 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
     "Pipeline",
     "Endpoint",
   ]);
-  const jobName = `${model}-${jobType.toLowerCase()}-${randId(6).toLowerCase()}`;
+  const jobName = `${model}-${jobType.toLowerCase()}-${new Date(ts).toISOString().slice(0, 10).replace(/-/g, "")}-${randId(6).toLowerCase()}`;
   const isErr = level === "error";
   const isStudio = Math.random() < 0.45;
+  const instanceType = rand([
+    "ml.p3.2xlarge",
+    "ml.p3.8xlarge",
+    "ml.g4dn.xlarge",
+    "ml.g5.2xlarge",
+    "ml.m5.xlarge",
+    "ml.m5.4xlarge",
+    "ml.c5.xlarge",
+  ]);
+  const instanceCount = rand([1, 1, 2, 4]);
   const STUDIO_APP_TYPES = [
     "JupyterServer",
     "KernelGateway",
@@ -216,63 +226,122 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
     "ResourceNotFound",
     "ValidationException",
     "InternalServerError",
+    "ResourceLimitExceeded",
+    "ClientError",
   ];
   const ERROR_MSGS = [
-    "Training job failed: CUDA out of memory",
-    "Endpoint creation failed: No capacity for ml.p4d.24xlarge",
-    "Model deployment failed: health check timeout",
+    "Training job failed: CUDA out of memory. Tried to allocate 2.00 GiB",
+    "Endpoint creation failed: No capacity for " + instanceType + " in " + region,
+    "Model deployment failed: health check timeout after 300 seconds",
+    "Algorithm Error: framework error from container",
+    "ClientError: Data download failed. Please ensure training data is accessible",
   ];
-  // Lifecycle message pool: explicit started/succeeded/failed per job type (Glue/EMR-style consistency)
+
+  // CloudWatch log group naming matches real SageMaker patterns
+  const logGroupByType: Record<string, string> = {
+    Training: `/aws/sagemaker/TrainingJobs`,
+    Processing: `/aws/sagemaker/ProcessingJobs`,
+    Transform: `/aws/sagemaker/TransformJobs`,
+    HyperparameterTuning: `/aws/sagemaker/TrainingJobs`,
+    Pipeline: `/aws/sagemaker/Pipelines`,
+    Endpoint: `/aws/sagemaker/Endpoints/${model}-endpoint/AllTraffic`,
+  };
+  const logGroup = logGroupByType[jobType] || `/aws/sagemaker/TrainingJobs`;
+  const logStream =
+    jobType === "Endpoint"
+      ? `${model}-endpoint/AllTraffic/${new Date(ts).toISOString().slice(0, 10).replace(/-/g, "/")}/${randId(32).toLowerCase()}`
+      : `${jobName}/algo-${randInt(1, instanceCount)}`;
+
   const lifecycleByType = {
     Training: {
-      start: ["Training job started", "Training job started on ml.p3.2xlarge (4 GPUs)"],
-      success: ["Training job succeeded", "Training job completed successfully"],
-      fail: ["Training job failed"],
+      start: [
+        `Starting - Starting the training job...`,
+        `Starting - Launching requested ML instances...`,
+        `Downloading - Downloading input data channel training from s3://sagemaker-${region}-${acct.id}/training-data/`,
+      ],
+      progress: [
+        `Training - Training image download completed. Training in progress.`,
+        `[${new Date(ts).toISOString().slice(11, 19)}] #quality_metric: host=algo-1, epoch=${randInt(1, 50)}, train loss <${Number(randFloat(0.05, 0.8)).toFixed(4)}>`,
+        `[${new Date(ts).toISOString().slice(11, 19)}] #quality_metric: host=algo-1, epoch=${randInt(1, 50)}, validation:accuracy <${Number(randFloat(0.7, 0.99)).toFixed(4)}>`,
+        `#metrics {"Metrics": {"train:loss": {"count": 1, "max": ${Number(randFloat(0.05, 0.5)).toFixed(4)}, "min": ${Number(randFloat(0.01, 0.1)).toFixed(4)}, "sum": ${Number(randFloat(0.05, 0.5)).toFixed(4)}}}}`,
+      ],
+      success: [
+        `Completed - Training job completed`,
+        `Uploading - Uploading generated training model to s3://sagemaker-${region}-${acct.id}/output/${jobName}/output/model.tar.gz`,
+      ],
+      fail: [
+        `Failed - Training job failed. FailureReason: ClientError: CUDA out of memory`,
+        `Failed - Training job failed. FailureReason: Algorithm Error: framework error from container: ${rand(["OOM", "NCCL timeout", "CUDA driver error"])}`,
+      ],
     },
     Processing: {
-      start: ["Processing job started", "Processing job started"],
-      success: ["Processing job succeeded", "Processing job completed successfully"],
-      fail: ["Processing job failed"],
+      start: [`Starting processing job...`, `Launching requested ML instances...`],
+      progress: [`Processing data...`, `Processing complete. Output uploaded.`],
+      success: [`Completed - Processing job completed`],
+      fail: [
+        `Failed - Processing job failed. FailureReason: ${rand(["InternalServerError", "Algorithm Error"])}`,
+      ],
     },
     Transform: {
-      start: ["Transform job started"],
-      success: ["Transform job succeeded"],
-      fail: ["Transform job failed"],
+      start: [`Starting transform job...`],
+      progress: [`Processing ${randInt(100, 10000)} records...`],
+      success: [`Completed - Transform job completed`],
+      fail: [`Failed - Transform job failed. FailureReason: ClientError`],
     },
     HyperparameterTuning: {
-      start: ["Hyperparameter tuning job started"],
-      success: ["Hyperparameter tuning job succeeded"],
-      fail: ["Hyperparameter tuning job failed"],
+      start: [`Starting hyperparameter tuning job with ${randInt(5, 50)} total trials`],
+      progress: [
+        `Training job ${jobName}-${randInt(1, 20).toString().padStart(3, "0")} completed. Objective metric: ${Number(randFloat(0.7, 0.99)).toFixed(4)}`,
+        `Best trial so far: ${Number(randFloat(0.85, 0.99)).toFixed(4)} (trial ${randInt(1, 20)})`,
+      ],
+      success: [
+        `Completed - Hyperparameter tuning job completed. Best objective: ${Number(randFloat(0.9, 0.99)).toFixed(4)}`,
+      ],
+      fail: [`Failed - Too many training jobs failed (${randInt(3, 10)} out of ${randInt(5, 20)})`],
     },
     Pipeline: {
-      start: ["Pipeline execution started", "Pipeline execution started"],
-      success: ["Pipeline execution succeeded", "Pipeline execution completed successfully"],
-      fail: ["Pipeline execution failed"],
+      start: [
+        `Pipeline execution started`,
+        `Executing step: ${rand(["PreprocessData", "TrainModel", "EvaluateModel", "RegisterModel", "DeployModel"])}`,
+      ],
+      progress: [`Step ${rand(["PreprocessData", "TrainModel"])} completed successfully`],
+      success: [`Pipeline execution completed successfully`],
+      fail: [
+        `Pipeline execution failed at step ${rand(["TrainModel", "EvaluateModel"])}: ${rand(["Step timeout", "Conditional check failed"])}`,
+      ],
     },
     Endpoint: {
-      start: ["Endpoint creation started", "Endpoint deployment started"],
-      success: ["Endpoint creation succeeded", "Endpoint InService: latency p50=12ms p99=47ms"],
-      fail: ["Endpoint creation failed", "Endpoint deployment failed"],
+      start: [
+        `Creating endpoint ${model}-endpoint...`,
+        `Launching requested ML instances for endpoint...`,
+      ],
+      progress: [`Endpoint ${model}-endpoint is being updated...`],
+      success: [
+        `Endpoint ${model}-endpoint is now InService`,
+        `${new Date(ts).toISOString()} Inference request: latency=${randInt(5, 200)}ms, status=200, model=${model}`,
+      ],
+      fail: [
+        `Endpoint creation failed: health check timeout`,
+        `Endpoint ${model}-endpoint update failed: ${rand(["InsufficientCapacity", "ModelError"])}`,
+      ],
     },
   };
   const life = lifecycleByType[jobType as keyof typeof lifecycleByType] || lifecycleByType.Training;
-  const infoLifecycle = [...life.start, ...life.success];
-  const infoOther = [
-    "Epoch 12/50 - loss: 0.2341, val_loss: 0.2518, accuracy: 0.9124",
-    "Model artifact uploaded to s3://models/output/",
-    "Feature Store ingestion complete: 4,829,201 records",
-    "Model registered: fraud-detector v12 (AUC: 0.9923)",
+  const infoLifecycle = [
+    ...life.start,
+    ...((life as Record<string, string[]>).progress || []),
+    ...life.success,
   ];
-  const errorLifecycle = [...life.fail, ...ERROR_MSGS];
   const MSGS = {
-    info: [...infoLifecycle, ...infoOther],
+    info: infoLifecycle,
     warn: [
-      "GPU utilization low: 34%",
-      "Training loss plateau detected at epoch 28",
-      "Model drift detected: PSI=0.18",
-      "Spot instance interruption, checkpointing...",
+      `GPU memory utilization low: ${randInt(10, 35)}% — consider a smaller instance type`,
+      `Training loss plateau detected at epoch ${randInt(20, 80)}: loss=${Number(randFloat(0.3, 0.5)).toFixed(4)}`,
+      `Model drift detected: PSI=${Number(randFloat(0.1, 0.25)).toFixed(2)} (threshold: 0.10)`,
+      `Spot instance interruption warning. Checkpointing to s3://sagemaker-${region}-${acct.id}/checkpoints/${jobName}/`,
+      `Endpoint auto-scaling: scaling from ${randInt(1, 5)} to ${randInt(5, 20)} instances`,
     ],
-    error: errorLifecycle,
+    error: [...life.fail, ...ERROR_MSGS],
   };
   const plainMessage = rand(MSGS[level]);
   const spaceName = rand(STUDIO_SPACES);
@@ -291,11 +360,14 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
       })
     : plainMessage;
   const isTrainingJob = jobType === "Training" || jobType === "HyperparameterTuning";
+  const epoch = randInt(1, 100);
   const trainingMetrics = isTrainingJob
     ? {
-        training_loss: parseFloat((Math.random() * 0.8 + 0.05).toFixed(4)),
-        accuracy: parseFloat((Math.random() * 0.3 + 0.7).toFixed(4)),
-        epoch: randInt(1, 100),
+        "train:loss": parseFloat((Math.random() * 0.8 + 0.05).toFixed(4)),
+        "train:accuracy": parseFloat((Math.random() * 0.3 + 0.7).toFixed(4)),
+        "validation:loss": parseFloat((Math.random() * 0.9 + 0.1).toFixed(4)),
+        "validation:accuracy": parseFloat((Math.random() * 0.25 + 0.7).toFixed(4)),
+        epoch,
         gpu_utilization_pct: randInt(40, 99),
         cpu_utilization_pct: randInt(30, 90),
       }
@@ -314,6 +386,7 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
     },
     aws: {
       dimensions: { TrainingJobName: jobName, JobType: jobType },
+      cloudwatch: { log_group: logGroup, log_stream: logStream },
       sagemaker: {
         domain_id: domainId,
         domain_name: domain,
@@ -321,16 +394,24 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
         job: {
           name: jobName,
           type: jobType,
-          arn: `arn:aws:sagemaker:${region}:${acct.id}:training-job/${jobName}`,
+          arn: `arn:aws:sagemaker:${region}:${acct.id}:${jobType === "Training" ? "training-job" : jobType === "Endpoint" ? "endpoint" : "processing-job"}/${jobName}`,
+          status: isErr ? "Failed" : rand(["InProgress", "Completed", "Completed"]),
+          secondary_status: isErr
+            ? rand(["Failed", "MaxRuntimeExceeded"])
+            : rand(["Training", "Downloading", "Uploading", "Completed"]),
         },
         model: { name: model, version: randInt(1, 25) },
         pipeline: {
-          name: rand(["feature-engineering-pipeline", "model-training-pipeline"]),
+          name: rand([
+            "feature-engineering-pipeline",
+            "model-training-pipeline",
+            "batch-inference-pipeline",
+          ]),
           execution_id: `pipe-${randId(12).toLowerCase()}`,
         },
         instance: {
-          type: rand(["ml.p3.2xlarge", "ml.g4dn.xlarge", "ml.m5.xlarge"]),
-          count: rand([1, 1, 2, 4]),
+          type: instanceType,
+          count: instanceCount,
         },
         metrics: trainingMetrics,
         studio: isStudio
@@ -350,13 +431,16 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
             },
         cloudwatch_metrics: {
           Invocations: { sum: invocations },
-          ModelLatency: { avg: modelLatencyMs },
+          ModelLatency: { avg: modelLatencyMs * 1000 },
+          OverheadLatency: { avg: randInt(1, 50) * 1000 },
           GPUUtilization: { avg: gpuUtil },
+          GPUMemoryUtilization: { avg: randInt(30, isErr ? 99 : 80) },
           CPUUtilization: { avg: cpuUtil },
           DiskUtilization: { avg: randInt(10, isErr ? 95 : 60) },
           MemoryUtilization: { avg: randInt(50, isErr ? 98 : 80) },
           Invocations4XXError: { sum: isErr && Math.random() < 0.3 ? randInt(1, 50) : 0 },
           Invocations5XXError: { sum: isErr ? randInt(1, 100) : 0 },
+          ModelSetupTime: { avg: randInt(100, 5000) },
         },
       },
     },
@@ -390,14 +474,12 @@ function generateBedrockLog(ts: string, er: number): EcsDocument {
     "amazon.nova-pro-v1:0",
   ];
   const model = rand(models);
-  const modelFamily = model.split(".")[0]; // anthropic, amazon, meta, mistral
-  // Token ratios vary by model family: claude tends verbose, titan is concise
+  const modelFamily = model.split(".")[0];
   const maxOutputByFamily = { anthropic: 8192, amazon: 4096, meta: 8192, mistral: 32768 };
   const maxOut = maxOutputByFamily[modelFamily as keyof typeof maxOutputByFamily] || 4096;
   const inputTokens = randInt(50, 8000);
   const outputTokens = isErr ? 0 : Math.min(randInt(50, 2000), maxOut);
   const isStreaming = Math.random() < 0.6;
-  // Time to first token: lower for small models, higher for large
   const ttftMs = isStreaming
     ? modelFamily === "anthropic"
       ? randInt(100, 800)
@@ -408,6 +490,82 @@ function generateBedrockLog(ts: string, er: number): EcsDocument {
   const latencyMs = Math.round(lat * 1000);
   const inputTokensPerSec =
     isStreaming && !isErr ? parseFloat((inputTokens / lat).toFixed(1)) : null;
+  const operation = rand(["InvokeModel", "Converse"]);
+  const schemaType = "ModelInvocationLog";
+  const schemaVersion = "1.0";
+  const clip = (obj: unknown, maxLen: number) => {
+    const s = JSON.stringify(obj);
+    return s.length > maxLen ? `${s.slice(0, maxLen)}...` : s;
+  };
+  const inputBody =
+    operation === "Converse"
+      ? {
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  text: rand([
+                    "Summarize the Q3 results.",
+                    "Draft a reply to the customer.",
+                    "Extract invoice fields from the attached text.",
+                  ]),
+                },
+              ],
+            },
+          ],
+          inferenceConfig: { maxTokens: randInt(256, 4096), temperature: Number(randFloat(0, 1)) },
+        }
+      : {
+          anthropic_version: "bedrock-2023-05-31",
+          max_tokens: randInt(256, 4096),
+          messages: [
+            {
+              role: "user",
+              content: rand([
+                "Explain zero trust in two paragraphs.",
+                "Classify: refund vs exchange.",
+                "Return JSON with keys a,b,c.",
+              ]),
+            },
+          ],
+        };
+  const outputBody = isErr
+    ? { message: "Invocation failed", __type: "ThrottlingException" }
+    : operation === "Converse"
+      ? {
+          output: {
+            message: {
+              role: "assistant",
+              content: [
+                {
+                  text: "Here is a concise summary based on the provided context and figures.".repeat(
+                    Math.min(3, Math.ceil(outputTokens / 80))
+                  ),
+                },
+              ],
+            },
+          },
+          stopReason: rand(["end_turn", "max_tokens"]),
+          usage: { inputTokens, outputTokens, totalTokens: inputTokens + outputTokens },
+        }
+      : {
+          id: `msg_${randId(24).toLowerCase()}`,
+          type: "message",
+          role: "assistant",
+          content: [
+            {
+              type: "text",
+              text: "Response text synthesized for the requested task.".repeat(
+                Math.min(2, Math.ceil(outputTokens / 120))
+              ),
+            },
+          ],
+          stop_reason: rand(["end_turn", "max_tokens", "stop_sequence"]),
+          usage: { input_tokens: inputTokens, output_tokens: outputTokens },
+        };
+  const inputBodyJson = clip(inputBody, 4096);
+  const outputBodyJson = clip(outputBody, 4096);
   return {
     "@timestamp": ts,
     cloud: {
@@ -419,6 +577,15 @@ function generateBedrockLog(ts: string, er: number): EcsDocument {
     aws: {
       dimensions: { ModelId: model },
       bedrock: {
+        modelId: model,
+        inputTokenCount: inputTokens,
+        outputTokenCount: outputTokens,
+        inputBodyJson,
+        outputBodyJson,
+        invocationLatency: latencyMs,
+        operation,
+        schemaType,
+        schemaVersion,
         model_id: model,
         invocation_latency_ms: latencyMs,
         input_token_count: inputTokens,
@@ -545,6 +712,7 @@ function generateRekognitionLog(ts: string, er: number): EcsDocument {
     "DetectLabels",
     "DetectModerationLabels",
     "DetectText",
+    "CompareFaces",
     "IndexFaces",
     "SearchFaces",
     "DetectCustomLabels",
@@ -554,6 +722,86 @@ function generateRekognitionLog(ts: string, er: number): EcsDocument {
   const level = isErr ? "error" : "info";
   const dur = Number(randFloat(50, isErr ? 5000 : 1000));
   const confidence = Number(randFloat(70, 99));
+  const faceDetail = (withFaceId: boolean) => ({
+    BoundingBox: {
+      Width: Number(randFloat(0.08, 0.45)),
+      Height: Number(randFloat(0.1, 0.5)),
+      Left: Number(randFloat(0, 0.6)),
+      Top: Number(randFloat(0, 0.55)),
+    },
+    Confidence: Number(randFloat(92, 99.9)),
+    Landmarks: [
+      { Type: "eyeLeft", X: Number(randFloat(0.2, 0.8)), Y: Number(randFloat(0.2, 0.8)) },
+    ],
+    Pose: {
+      Roll: Number(randFloat(-8, 8)),
+      Yaw: Number(randFloat(-12, 12)),
+      Pitch: Number(randFloat(-6, 6)),
+    },
+    Quality: { Brightness: Number(randFloat(40, 95)), Sharpness: Number(randFloat(50, 99)) },
+    ...(withFaceId ? { FaceId: randId(32).toLowerCase() } : {}),
+  });
+  const nFaces = isErr ? 0 : randInt(1, 5);
+  const isFaceOp = op === "DetectFaces" || op === "CompareFaces" || op === "IndexFaces";
+  const faceDetails = isFaceOp
+    ? Array.from({ length: nFaces }, () => faceDetail(op === "CompareFaces" || op === "IndexFaces"))
+    : [];
+  const labelsSummary =
+    op === "DetectLabels" || op === "RecognizeCelebrities" || op === "DetectModerationLabels"
+      ? {
+          LabelCount: isErr ? 0 : randInt(3, 40),
+          TopLabels: isErr
+            ? []
+            : [
+                {
+                  Name: rand(["Person", "Car", "Desk", "Computer", "Dog"]),
+                  Confidence: Number(randFloat(85, 99)),
+                },
+                {
+                  Name: rand(["Indoor", "Office", "Outdoor", "Building"]),
+                  Confidence: Number(randFloat(72, 96)),
+                },
+              ],
+        }
+      : null;
+  const textDetections =
+    op === "DetectText"
+      ? {
+          TextDetectionCount: isErr ? 0 : randInt(2, 35),
+          Detections: isErr
+            ? []
+            : [
+                {
+                  DetectedText: rand(["INVOICE", "TOTAL", "USD 1,240.00", "Suite 400"]),
+                  Type: rand(["LINE", "WORD"]),
+                  Confidence: Number(randFloat(80, 99)),
+                  Geometry: { BoundingBox: { Width: 0.22, Height: 0.04, Left: 0.12, Top: 0.18 } },
+                },
+              ],
+        }
+      : null;
+  const compareFacesSummary =
+    op === "CompareFaces" && !isErr
+      ? {
+          SourceImageFace: {
+            BoundingBox: { Width: 0.18, Height: 0.22, Left: 0.35, Top: 0.28 },
+            Confidence: Number(randFloat(95, 99.5)),
+          },
+          FaceMatches: [
+            {
+              Similarity: Number(randFloat(88, 99.9)),
+              Face: {
+                FaceId: randId(32).toLowerCase(),
+                BoundingBox: { Width: 0.19, Height: 0.23, Left: 0.34, Top: 0.27 },
+                Confidence: Number(randFloat(94, 99.4)),
+              },
+            },
+          ],
+          UnmatchedFaces: [],
+        }
+      : op === "CompareFaces" && isErr
+        ? { SourceImageFace: null, FaceMatches: [], UnmatchedFaces: [] }
+        : null;
   return {
     "@timestamp": ts,
     cloud: {
@@ -573,6 +821,10 @@ function generateRekognitionLog(ts: string, er: number): EcsDocument {
         faces_detected: isErr ? 0 : randInt(0, 20),
         max_confidence: isErr ? 0 : confidence,
         confidence_threshold: 70,
+        FaceDetails: faceDetails,
+        Labels: labelsSummary,
+        TextDetections: textDetections,
+        CompareFaces: compareFacesSummary,
         moderation_labels:
           op === "DetectModerationLabels" && !isErr
             ? [rand(["Explicit Content", "Violence"])]
@@ -697,6 +949,72 @@ function generateComprehendLog(ts: string, er: number): EcsDocument {
   const lang = rand(["en", "es", "fr", "de", "it", "pt", "ja", "zh"]);
   const sentiment = rand(["POSITIVE", "NEGATIVE", "NEUTRAL", "MIXED"]);
   const level = isErr ? "error" : "info";
+  const isBatch = op.startsWith("Start");
+  const jobId = isBatch ? randId(36).toLowerCase() : null;
+  const sentimentDetection =
+    !isErr && (op === "DetectSentiment" || op === "StartSentimentDetectionJob")
+      ? {
+          Sentiment: sentiment,
+          SentimentScore: {
+            Positive: Number(randFloat(0, 0.95)),
+            Negative: Number(randFloat(0, 0.85)),
+            Neutral: Number(randFloat(0, 0.9)),
+            Mixed: Number(randFloat(0, 0.6)),
+          },
+        }
+      : null;
+  const entityRecognition =
+    !isErr && (op === "DetectEntities" || op === "StartEntitiesDetectionJob")
+      ? {
+          Entities: [
+            {
+              Text: rand(["Acme Corp", "Seattle", "USD 2.4M", "Jane Doe"]),
+              Score: Number(randFloat(0.82, 0.99)),
+              Type: rand(["ORGANIZATION", "LOCATION", "QUANTITY", "PERSON"]),
+            },
+            {
+              Text: rand(["Q3 2025", "invoice", "renewal"]),
+              Score: Number(randFloat(0.75, 0.97)),
+              Type: rand(["DATE", "OTHER", "EVENT"]),
+            },
+          ],
+        }
+      : null;
+  const keyPhraseDetection =
+    !isErr && op === "DetectKeyPhrases"
+      ? {
+          KeyPhrases: [
+            {
+              Text: rand(["customer churn", "service level agreement", "quarterly revenue"]),
+              Score: Number(randFloat(0.78, 0.98)),
+            },
+            {
+              Text: rand(["renewal window", "support ticket backlog"]),
+              Score: Number(randFloat(0.7, 0.95)),
+            },
+          ],
+        }
+      : null;
+  const batchAnalysis =
+    isBatch && !isErr
+      ? {
+          JobId: jobId,
+          JobStatus: rand(["SUBMITTED", "IN_PROGRESS", "COMPLETED"]),
+          LanguageCode: lang,
+          DocumentCount: randInt(50, 5000),
+          DocumentsProcessed: randInt(10, 4500),
+          OutputDataConfig: { S3Uri: `s3://comprehend-out-${acct.id}/${jobId}/` },
+        }
+      : isBatch && isErr
+        ? {
+            JobId: jobId,
+            JobStatus: "FAILED",
+            LanguageCode: lang,
+            DocumentCount: 0,
+            DocumentsProcessed: 0,
+            OutputDataConfig: null,
+          }
+        : null;
   return {
     "@timestamp": ts,
     cloud: {
@@ -709,12 +1027,17 @@ function generateComprehendLog(ts: string, er: number): EcsDocument {
       dimensions: { Operation: op },
       comprehend: {
         operation: op,
+        LanguageCode: lang,
         language_code: lang,
         text_bytes: randInt(100, 100000),
         sentiment: op === "DetectSentiment" ? sentiment : null,
         entities_detected: op === "DetectEntities" ? randInt(0, 20) : 0,
         key_phrases_detected: op === "DetectKeyPhrases" ? randInt(0, 30) : 0,
         pii_entities_detected: op === "DetectPiiEntities" ? randInt(0, 10) : 0,
+        SentimentDetection: sentimentDetection,
+        EntityRecognition: entityRecognition,
+        KeyPhraseDetection: keyPhraseDetection,
+        BatchAnalysis: batchAnalysis,
         error_code: isErr
           ? rand(["TextSizeLimitExceededException", "UnsupportedLanguageException"])
           : null,
@@ -875,6 +1198,10 @@ function generateTranscribeLog(ts: string, er: number): EcsDocument {
   const jobName = `transcribe-${randId(8).toLowerCase()}`;
   const lang = rand(["en-US", "en-GB", "es-US", "fr-FR", "de-DE", "ja-JP"]);
   const audioMins = Number(randFloat(0.5, isErr ? 0 : 120));
+  const mediaFormat = rand(["mp3", "mp4", "wav", "flac", "ogg"]);
+  const sampleRate = rand([8000, 16000, 22050, 44100, 48000]);
+  const jobStatus = isErr ? "FAILED" : rand(["COMPLETED", "COMPLETED", "IN_PROGRESS"]);
+  const outputLocationType = rand(["SERVICE_BUCKET", "CUSTOMER_BUCKET"]);
   return {
     "@timestamp": ts,
     cloud: {
@@ -886,10 +1213,18 @@ function generateTranscribeLog(ts: string, er: number): EcsDocument {
     aws: {
       dimensions: { Operation: "TranscriptionJob", LanguageCode: lang },
       transcribe: {
+        TranscriptionJobName: jobName,
+        TranscriptionJobStatus: jobStatus,
+        LanguageCode: lang,
+        MediaFormat: mediaFormat,
+        MediaSampleRateHertz: sampleRate,
+        OutputLocationType: outputLocationType,
         transcription_job_name: jobName,
-        transcription_job_status: isErr ? "FAILED" : "COMPLETED",
+        transcription_job_status: jobStatus,
         language_code: lang,
-        media_format: rand(["mp3", "mp4", "wav", "flac", "ogg"]),
+        media_format: mediaFormat,
+        media_sample_rate_hertz: sampleRate,
+        output_location_type: outputLocationType,
         media_uri: `s3://audio-bucket/${jobName}.mp3`,
         audio_duration_minutes: audioMins,
         word_count: isErr ? 0 : Math.round(audioMins * 150),

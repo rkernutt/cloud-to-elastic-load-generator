@@ -3,43 +3,56 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-central1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" }
+    "region": "northamerica-northeast2",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-us-central1",
-    "ephemeral_id": "giif1ee6bp"
+    "name": "metricbeat-gcp-northamerica-northeast2",
+    "ephemeral_id": "6ml832f69wu"
+  },
+  "monitoringTimeSeries": {
+    "metric": {
+      "type": "cloudkms.googleapis.com/cryptokey/request_count",
+      "labels": { "response_code": "OK" }
+    },
+    "resource": {
+      "type": "cloudkms_cryptokey",
+      "labels": {
+        "project_id": "globex-security-j0k1l2",
+        "location": "northamerica-northeast2",
+        "key_ring": "ring-1",
+        "crypto_key": "kms-ring-1"
+      }
+    },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "18907" } }
+    ]
   },
   "gcp": {
     "cloud-kms": {
-      "metrics": {
-        "api_request_count": { "avg": 131859, "sum": 131859, "count": 1 },
-        "denied_requests": { "avg": 8, "sum": 8, "count": 1 },
-        "key_operations": { "avg": 13239, "sum": 13239, "count": 1 }
+      "labels": {
+        "project_id": "globex-security-j0k1l2",
+        "location": "northamerica-northeast2",
+        "key_ring": "ring-1",
+        "crypto_key": "kms-ring-1",
+        "response_code": "OK"
       },
-      "labels": { "resource_id": "kms-ring-1" }
+      "metrics": {
+        "cloudkms.googleapis.com/cryptokey/request_count": {
+          "avg": 18907,
+          "sum": 18907,
+          "count": 1
+        }
+      }
     }
   },
   "metricset": { "name": "cloud-kms", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.kms_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.kms_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-kms/api_request_count",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-staging-d4e5f6", "region": "us-central1" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 131859 } }
-    ]
-  }
+  "event": { "dataset": "gcp.kms_metrics", "module": "gcp" }
 }

@@ -3,46 +3,56 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "southamerica-east1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" }
+    "region": "southamerica-west1",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-southamerica-east1",
-    "ephemeral_id": "hw8td9cey34"
+    "name": "metricbeat-gcp-southamerica-west1",
+    "ephemeral_id": "cdl165lzdyg"
+  },
+  "monitoringTimeSeries": {
+    "metric": {
+      "type": "cdn.googleapis.com/http/request_count",
+      "labels": { "cache_decision": "HIT", "response_code_class": "2xx" }
+    },
+    "resource": {
+      "type": "http_load_balancer",
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "url_map_name": "web-frontend-map",
+        "forwarding_rule_name": "fr-assets",
+        "region": "southamerica-west1"
+      }
+    },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      {
+        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
+        "value": { "int64Value": "12651652" }
+      }
+    ]
   },
   "gcp": {
     "cloud-cdn": {
-      "metrics": {
-        "cache_hit_count": { "avg": 12640354, "sum": 12640354, "count": 1 },
-        "cache_miss_count": { "avg": 1219997, "sum": 1219997, "count": 1 },
-        "total_bandwidth": { "avg": 332429573367, "sum": 332429573367, "count": 1 }
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "url_map_name": "web-frontend-map",
+        "forwarding_rule_name": "fr-assets",
+        "region": "southamerica-west1",
+        "cache_decision": "HIT",
+        "response_code_class": "2xx"
       },
-      "labels": { "origin": "cdn.example.com", "cache_result": "hit" }
+      "metrics": {
+        "cdn.googleapis.com/http/request_count": { "avg": 12651652, "sum": 12651652, "count": 1 }
+      }
     }
   },
   "metricset": { "name": "cloud-cdn", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.cdn_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.cdn_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-cdn/cache_hit_count",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-staging-d4e5f6", "region": "southamerica-east1" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      {
-        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "doubleValue": 12640354 }
-      }
-    ]
-  }
+  "event": { "dataset": "gcp.cdn_metrics", "module": "gcp" }
 }

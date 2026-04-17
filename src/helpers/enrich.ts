@@ -84,6 +84,22 @@ function buildAgentMeta(source: string, eventType: string, region: string): Loos
     return {};
   }
   if (eventType === "metrics") {
+    // OTel pipeline sources use OTel collector agent for metrics too
+    if (isOtelPipelineSource(source)) {
+      return {
+        type: "otel",
+        version: otelCollectorAgentVersion(),
+        name: otelCollectorAgentName("aws", source, region),
+      };
+    }
+    if (source === "agent") {
+      return {
+        type: "elastic-agent",
+        version: AGENT_VERSION,
+        name: `elastic-agent-${region}`,
+        id: randId(36).toLowerCase(),
+      };
+    }
     return {
       type: "metricbeat",
       version: AGENT_VERSION,
@@ -171,6 +187,14 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
       const key = `AWSLogs/${accountId}/${serviceId}/${region}/${new Date().toISOString().slice(0, 10).replace(/-/g, "/")}/${serviceId}_${randId(20)}.log.gz`;
       const logGroup = `/aws/${serviceId}/logs`;
       const logStream = `${region}/${randId(8).toLowerCase()}`;
+      const cwDefault = {
+        log_group: logGroup,
+        log_stream: logStream,
+        ingestion_time: new Date().toISOString(),
+      };
+      const cwExtra =
+        doc.aws?.cloudwatch && typeof doc.aws.cloudwatch === "object" ? doc.aws.cloudwatch : {};
+      const cloudwatch = { ...cwDefault, ...cwExtra };
 
       awsContext = {
         ...doc.aws,
@@ -178,11 +202,7 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
           bucket: { name: bucket, arn: `arn:aws:s3:::${bucket}` },
           object: { key },
         },
-        cloudwatch: doc.aws?.cloudwatch ?? {
-          log_group: logGroup,
-          log_stream: logStream,
-          ingestion_time: new Date().toISOString(),
-        },
+        cloudwatch,
       };
 
       if (source === "firehose") {
@@ -229,12 +249,16 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
     }
   }
 
-  // ── OTel fields for otel-sourced logs ──────────────────────────────────────
+  // ── OTel fields for otel-sourced logs and metrics ──────────────────────────
   let otelFields: LooseDoc = {};
-  if (isOtelPipelineSource(source) && eventType === "logs") {
+  if (isOtelPipelineSource(source) && (eventType === "logs" || eventType === "metrics")) {
     otelFields = {
       telemetry: buildOtelLogTelemetry(doc, "aws", source, AGENT_VERSION),
     };
+    // For OTel metrics, override input type to opentelemetry
+    if (eventType === "metrics" && !doc.input) {
+      otelFields.input = { type: "opentelemetry" };
+    }
   }
 
   // ── Assemble ───────────────────────────────────────────────────────────────
@@ -251,7 +275,7 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
   if (input) enriched.input = input;
   if (awsContext) enriched.aws = awsContext;
 
-  if (eventType === "logs" && isOtelPipelineSource(source)) {
+  if ((eventType === "logs" || eventType === "metrics") && isOtelPipelineSource(source)) {
     patchOtelIngestionLabels(enriched, "aws", source);
   }
 

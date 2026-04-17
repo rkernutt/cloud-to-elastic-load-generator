@@ -31,12 +31,12 @@ export function LandingPage({ isUnifiedCloud, onGetStarted }: LandingPageProps) 
     {
       title: "Service Selection",
       description:
-        "Pick which cloud services to simulate (everything except multi-step security/attack pattern generators). Selection drives generators, volume, and which setup assets align when you use Align with Services step.",
+        "Pick which cloud services to simulate (everything except multi-step chained event generators). Selection drives generators, volume, and which setup assets align when you use Align with Services step.",
     },
     {
-      title: "Security / Attack Patterns",
+      title: "Chained Events",
       description:
-        "For logs mode only: optional second picker for linked security findings and attack chains (e.g. AWS GuardDuty→Security Hub→Lake, or GCP SCC→Chronicle→SecOps, Azure Defender→Sentinel). Skipped automatically for metrics or traces.",
+        "For logs mode only: optional second picker for linked multi-step event chains (e.g. AWS GuardDuty→Security Hub→Lake, or GCP SCC→Chronicle→SecOps, Azure Defender→Sentinel). Skipped automatically for metrics or traces.",
     },
     {
       title: "Configure",

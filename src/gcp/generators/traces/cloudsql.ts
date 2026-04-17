@@ -1,13 +1,7 @@
-/**
- * Cloud SQL OTel trace: pooled connection lifecycle and query execution.
- */
-
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-
-const APM_AGENT = { name: "opentelemetry/nodejs", version: "1.x" } as const;
-const APM_DS = { type: "traces", dataset: "apm", namespace: "default" } as const;
+import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
 
 export function generateCloudSqlTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -15,6 +9,13 @@ export function generateCloudSqlTrace(ts: string, er: number): EcsDocument[] {
   const txId = randSpanId();
   const base = new Date(ts);
   const env = rand(["production", "staging"]);
+  const otel = gcpOtelMeta("java");
+  const svc = gcpServiceBase("order-service", env, "java", {
+    framework: "Spring JDBC",
+    runtimeName: "java",
+    runtimeVersion: "17",
+  });
+  const cloudSql = gcpCloud(region, project, "sqladmin.googleapis.com");
 
   const isSelect = Math.random() < 0.55;
   const txName = isSelect
@@ -29,7 +30,7 @@ export function generateCloudSqlTrace(ts: string, er: number): EcsDocument[] {
   const fetchUs = randInt(800, 180_000);
   const releaseUs = randInt(200, 25_000);
 
-  const failAt = isErr ? randInt(0, 3) : -1; // 0=acquire, 1=query, 2=fetch, 3=release
+  const failAt = isErr ? randInt(0, 3) : -1;
 
   let offsetMs = 0;
   const sAcquire = randSpanId();
@@ -51,17 +52,14 @@ export function generateCloudSqlTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: acquireUs },
       action: "connect",
       destination: { service: { resource: "cloudsql", type: "db", name: "cloudsql" } },
+      labels: failAt === 0 ? { "gcp.rpc.status_code": "UNAVAILABLE" } : {},
     },
-    service: {
-      name: "order-service",
-      environment: env,
-      language: { name: "java" },
-      runtime: { name: "java", version: "17" },
-    },
-    cloud: gcpCloud(region, project, "sqladmin.googleapis.com"),
-    agent: APM_AGENT,
+    service: svc,
+    cloud: cloudSql,
     data_stream: APM_DS,
     event: { outcome: failAt === 0 ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sAcquire),
   };
   offsetMs += Math.max(1, Math.round(acquireUs / 1000));
 
@@ -80,17 +78,17 @@ export function generateCloudSqlTrace(ts: string, er: number): EcsDocument[] {
       action: "query",
       db: { type: "sql", statement },
       destination: { service: { resource: "cloudsql", type: "db", name: "cloudsql" } },
+      labels:
+        failAt === 1
+          ? { "gcp.rpc.status_code": rand(["DEADLINE_EXCEEDED", "ABORTED"]) as string }
+          : {},
     },
-    service: {
-      name: "order-service",
-      environment: env,
-      language: { name: "java" },
-      runtime: { name: "java", version: "17" },
-    },
-    cloud: gcpCloud(region, project, "sqladmin.googleapis.com"),
-    agent: APM_AGENT,
+    service: svc,
+    cloud: cloudSql,
     data_stream: APM_DS,
     event: { outcome: failAt === 1 ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sQuery),
   };
   offsetMs += Math.max(1, Math.round(queryUs / 1000));
 
@@ -108,17 +106,14 @@ export function generateCloudSqlTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: fetchUs },
       action: "fetch",
       destination: { service: { resource: "cloudsql", type: "db", name: "cloudsql" } },
+      labels: failAt === 2 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
     },
-    service: {
-      name: "order-service",
-      environment: env,
-      language: { name: "java" },
-      runtime: { name: "java", version: "17" },
-    },
-    cloud: gcpCloud(region, project, "sqladmin.googleapis.com"),
-    agent: APM_AGENT,
+    service: svc,
+    cloud: cloudSql,
     data_stream: APM_DS,
     event: { outcome: failAt === 2 ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sFetch),
   };
   offsetMs += Math.max(1, Math.round(fetchUs / 1000));
 
@@ -136,17 +131,14 @@ export function generateCloudSqlTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: releaseUs },
       action: "release",
       destination: { service: { resource: "cloudsql", type: "db", name: "cloudsql" } },
+      labels: failAt === 3 ? { "gcp.rpc.status_code": "ABORTED" } : {},
     },
-    service: {
-      name: "order-service",
-      environment: env,
-      language: { name: "java" },
-      runtime: { name: "java", version: "17" },
-    },
-    cloud: gcpCloud(region, project, "sqladmin.googleapis.com"),
-    agent: APM_AGENT,
+    service: svc,
+    cloud: cloudSql,
     data_stream: APM_DS,
     event: { outcome: failAt === 3 ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sRelease),
   };
 
   const totalUs = acquireUs + queryUs + fetchUs + releaseUs + randInt(1000, 6000) * 1000;
@@ -164,16 +156,13 @@ export function generateCloudSqlTrace(ts: string, er: number): EcsDocument[] {
       sampled: true,
       span_count: { started: 4, dropped: 0 },
     },
-    service: {
-      name: "order-service",
-      environment: env,
-      language: { name: "java" },
-      runtime: { name: "java", version: "17" },
-    },
-    cloud: gcpCloud(region, project, "sqladmin.googleapis.com"),
-    agent: APM_AGENT,
+    service: svc,
+    cloud: cloudSql,
+    labels: { "gcp.cloud_sql.database": "orders_primary" },
     data_stream: APM_DS,
     event: { outcome: isErr ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, txId),
   };
 
   return [txDoc, spanAcquire, spanQuery, spanFetch, spanRelease];

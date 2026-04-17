@@ -1,45 +1,63 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
+    "region": "us-east-2",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "inspector2" }
   },
   "aws": {
-    "dimensions": { "Severity": "INFORMATIONAL" },
+    "dimensions": { "Severity": "HIGH" },
     "inspector2": {
-      "finding_id": "arn:aws:inspector2:me-central-1:814726593401:finding/6e04dc52-yr76-6azr-pg8t-z884a0q7nx",
-      "finding_type": "PACKAGE_VULNERABILITY",
+      "findingArn": "arn:aws:inspector2:us-east-2:814726593401:finding/2zdzqj0b-sw1e-c4ed-f6zm-ckzwmx6zcnt",
+      "type": "PACKAGE_VULNERABILITY",
+      "title": "CVE-2024-52177: curl 1.1.6 has a known vulnerability",
+      "description": "A package used by the workload has a vulnerability tracked as CVE-2024-52177 with CVSS 7.4.",
+      "remediation": {
+        "recommendation": {
+          "text": "Upgrade curl to 1.11.17 or later to remediate CVE-2024-52177."
+        }
+      },
+      "resources": [
+        {
+          "type": "AWS_LAMBDA_FUNCTION",
+          "id": "arn:aws:lambda:us-east-2:814726593401:function:my-fn",
+          "partition": "aws",
+          "region": "us-east-2",
+          "tags": { "Environment": "staging" }
+        }
+      ],
+      "exploitAvailable": "YES",
+      "fixAvailable": true,
       "finding_status": "ACTIVE",
-      "severity": "INFORMATIONAL",
-      "severity_score": 1.9,
-      "exploitability": "HIGH",
-      "resource_type": "AWS_EC2_INSTANCE",
-      "resource_id": "i-cymcskpqx1o",
-      "first_observed_at": "2026-03-18T13:24:35.775Z",
-      "last_observed_at": "2026-04-15T13:24:35.775Z",
+      "severity": "HIGH",
+      "severity_score": 7.4,
+      "exploitability": "FUNCTIONAL",
+      "resource_type": "AWS_LAMBDA_FUNCTION",
+      "resource_id": "arn:aws:lambda:us-east-2:814726593401:function:my-fn",
+      "first_observed_at": "2026-03-30T09:05:18.304Z",
+      "last_observed_at": "2026-04-17T09:05:18.304Z",
       "package_vulnerability": {
-        "cve_id": "CVE-2020-16202",
+        "cve_id": "CVE-2024-52177",
         "source": "GHSA",
-        "cvss3_score": 1.9255340128113296,
+        "cvss3_score": 7.449307299237293,
         "vulnerable_packages": [
           {
             "name": "curl",
-            "version": "2.20.1",
-            "fixed_in_version": "2.1.18",
-            "package_manager": "DOTNET"
+            "version": "1.1.6",
+            "fixed_in_version": "1.11.17",
+            "package_manager": "JAVA"
           }
         ],
-        "related_vulnerabilities": ["CVE-2020-86013"]
+        "related_vulnerabilities": []
       },
       "metrics": {
-        "TotalFindings": { "sum": 163 },
+        "TotalFindings": { "sum": 293 },
         "CriticalFindings": { "sum": 0 },
-        "HighFindings": { "sum": 0 },
+        "HighFindings": { "sum": 17 },
         "MediumFindings": { "sum": 0 },
-        "LowFindings": { "sum": 49 },
-        "CoveredResources": { "avg": 2456 }
+        "LowFindings": { "sum": 0 },
+        "CoveredResources": { "avg": 1052 }
       }
     },
     "s3": {
@@ -48,39 +66,44 @@
         "arn": "arn:aws:s3:::aws-inspector-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/inspector/me-central-1/2026/04/15/inspector_O9JXH7JZ9CA.log.gz"
+        "key": "AWSLogs/814726593401/inspector/us-east-2/2026/04/17/inspector_R71X17NWUK.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/inspector/logs",
-      "log_stream": "me-central-1/1gwgn3ds",
-      "ingestion_time": "2026-04-15T13:24:36.270Z"
+      "log_stream": "us-east-2/8ipwgiuh",
+      "ingestion_time": "2026-04-17T09:05:18.903Z"
     }
   },
   "vulnerability": {
-    "severity": "INFORMATIONAL",
-    "id": "CVE-2020-16202",
-    "score": { "base": 1.9255340128113296 }
+    "severity": "HIGH",
+    "id": "CVE-2024-52177",
+    "score": { "base": 7.449307299237293 }
   },
-  "package": { "name": "curl", "version": "2.20.1" },
+  "package": { "name": "curl", "version": "1.1.6" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["vulnerability"],
     "type": ["info"],
     "dataset": "aws.inspector2",
     "provider": "inspector2.amazonaws.com",
     "module": "aws"
   },
-  "message": "Inspector2 [INFORMATIONAL]: CVE-2020-16202 in curl 2.20.1 on AWS_EC2_INSTANCE (fix: 2.1.18)",
-  "log": { "level": "info" },
+  "message": "Inspector2 [HIGH]: CVE-2024-52177 in curl 1.1.6 on AWS_LAMBDA_FUNCTION (fix: 1.11.17)",
+  "log": { "level": "error" },
+  "error": {
+    "code": "CVE-2024-52177",
+    "message": "HIGH vulnerability: curl",
+    "type": "vulnerability"
+  },
   "service": { "name": "inspector", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.inspector", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "7ttb7owvti3"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "ez4ajcq012"
   },
   "input": { "type": "http_endpoint" }
 }

@@ -11,6 +11,7 @@ import {
   gcpCloud,
   makeGcpSetup,
   randOperationId,
+  randSeverity,
 } from "./helpers.js";
 
 export function generateTranscoderLog(ts: string, er: number): EcsDocument {
@@ -26,12 +27,15 @@ export function generateTranscoderLog(ts: string, er: number): EcsDocument {
   const resolution = rand(["1280x720", "1920x1080", "3840x2160", "854x480"]);
   const bitrateKbps = randInt(800, 25_000);
   const durationSeconds = isErr ? 0 : randFloat(12, 7200);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Transcoder job ${jobId} ${state}: ${rand(["Invalid input container", "Output bucket not writable", "Hardware encoder unavailable"])}`
-    : `Transcoder job ${jobId} ${state} ${progressPercent}% (${codec}, ${resolution}, ${bitrateKbps} kbps, ${durationSeconds.toFixed(0)}s)`;
+    ? `transcoder.googleapis.com: Job ${jobId} state=${state} input=${inputUri}: ${rand(["InvalidInputUri: unsupported container", "Output GCS bucket permission denied", "Elemental encoder slot unavailable"])}`
+    : `Job ${jobId}: state=${state} progress=${progressPercent}% output_uri=${outputUri} video_codec=${codec} resolution=${resolution} video_bitrate_kbps=${bitrateKbps} duration_sec=${durationSeconds.toFixed(0)} preset=${templateId}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { "resource.type": "transcoder.googleapis.com/Job", job_id: jobId },
     cloud: gcpCloud(region, project, "transcoder.googleapis.com"),
     gcp: {
       transcoder: {
@@ -73,12 +77,15 @@ export function generateLiveStreamLog(ts: string, er: number): EcsDocument {
   const bitrateMbps = randFloat(3, isErr ? 8 : 25);
   const frameRates = [24, 25, 29.97, 30, 50, 60] as const;
   const frameRate = frameRates[randInt(0, frameRates.length - 1)]!;
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Live Stream ${eventType} on ${channelId}: ${rand(["Input signal lost", "Keyframe interval invalid", "Failover to backup failed"])}`
-    : `Live Stream ${eventType} — ${channelId}/${inputName} (${streamProtocol}, ${resolution}@${frameRate}fps, ${bitrateMbps.toFixed(1)} Mbps)`;
+    ? `livestream.googleapis.com: Channel ${channelId} event=${eventType}: ${rand(["Primary input signal lost", "Invalid GOP / keyframe interval", "Automatic failover to backup input failed"])}`
+    : `Channel ${channelId}: ${eventType} input=${inputName} protocol=${streamProtocol} video=${resolution}@${frameRate}fps bitrate_mbps=${bitrateMbps.toFixed(2)}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { "resource.type": "livestream.googleapis.com/Channel", channel_id: channelId },
     cloud: gcpCloud(region, project, "livestream.googleapis.com"),
     gcp: {
       live_stream: {
@@ -114,12 +121,18 @@ export function generateVideoIntelligenceLog(ts: string, er: number): EcsDocumen
   const videoDurationSeconds = randFloat(5, 7200);
   const segmentsAnalyzed = isErr ? randInt(0, 3) : randInt(8, 2000);
   const annotationsCount = isErr ? randInt(0, 20) : randInt(50, 500_000);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Video Intelligence operation ${operationId} failed (${features}): ${rand(["Unsupported codec", "Object not found", "Analysis timeout"])}`
-    : `Video Intelligence ${operationId} completed: ${features} on ${videoDurationSeconds.toFixed(0)}s video (${segmentsAnalyzed} segments, ${annotationsCount} annotations)`;
+    ? `videointelligence.googleapis.com: longrunning.operations/${operationId} FAILED feature=${features} input=${inputUri}: ${rand(["Unsupported video codec", "Object not found", "Processing deadline exceeded"])}`
+    : `AnnotateVideo completed: operation=${operationId} features=${features} input_uri=${inputUri} duration_sec=${videoDurationSeconds.toFixed(0)} segments=${segmentsAnalyzed} annotations=${annotationsCount}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: {
+      "resource.type": "videointelligence.googleapis.com/Operation",
+      operation: operationId,
+    },
     cloud: gcpCloud(region, project, "videointelligence.googleapis.com"),
     gcp: {
       video_intelligence: {

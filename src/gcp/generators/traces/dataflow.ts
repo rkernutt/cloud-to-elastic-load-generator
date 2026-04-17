@@ -1,13 +1,7 @@
-/**
- * Cloud Dataflow / Apache Beam OTel trace: single pipeline step with I/O and transforms.
- */
-
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-
-const APM_AGENT = { name: "opentelemetry/nodejs", version: "1.x" } as const;
-const APM_DS = { type: "traces", dataset: "apm", namespace: "default" } as const;
+import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
 
 export function generateDataflowTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -15,6 +9,12 @@ export function generateDataflowTrace(ts: string, er: number): EcsDocument[] {
   const txId = randSpanId();
   const base = new Date(ts);
   const env = rand(["production", "staging"]);
+  const otel = gcpOtelMeta("java");
+  const svc = gcpServiceBase("event-pipeline", env, "java", {
+    framework: "Apache Beam / Dataflow",
+    runtimeName: "java",
+    runtimeVersion: "17",
+  });
 
   const sourceKind = rand(["pubsub", "gcs"] as const);
   const sinkKind = rand(["bigquery", "gcs"] as const);
@@ -58,18 +58,14 @@ export function generateDataflowTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: readUs },
       action: "receive",
       destination: { service: { resource: readResource, type: readSpanType, name: readResource } },
+      labels: failIdx === 0 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
     },
-    service: {
-      name: "event-pipeline",
-      environment: env,
-      language: { name: "java" },
-      runtime: { name: "java", version: "17" },
-      framework: { name: "Apache Beam / Dataflow" },
-    },
+    service: svc,
     cloud: gcpCloud(region, project, "dataflow.googleapis.com"),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: failIdx === 0 ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sRead),
   };
   offsetMs += Math.max(1, Math.round(readUs / 1000));
 
@@ -87,18 +83,17 @@ export function generateDataflowTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: transformUs },
       action: "execute",
       destination: { service: { resource: "dataflow", type: "app", name: "dataflow" } },
+      labels:
+        failIdx === 1
+          ? { "gcp.dataflow.step": "ParseAndEnrich", "gcp.rpc.status_code": "ABORTED" }
+          : {},
     },
-    service: {
-      name: "event-pipeline",
-      environment: env,
-      language: { name: "java" },
-      runtime: { name: "java", version: "17" },
-      framework: { name: "Apache Beam / Dataflow" },
-    },
+    service: svc,
     cloud: gcpCloud(region, project, "dataflow.googleapis.com"),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: failIdx === 1 ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sTransform),
   };
   offsetMs += Math.max(1, Math.round(transformUs / 1000));
 
@@ -116,18 +111,14 @@ export function generateDataflowTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: gbkUs },
       action: "aggregate",
       destination: { service: { resource: "dataflow", type: "app", name: "dataflow" } },
+      labels: failIdx === 2 ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" } : {},
     },
-    service: {
-      name: "event-pipeline",
-      environment: env,
-      language: { name: "java" },
-      runtime: { name: "java", version: "17" },
-      framework: { name: "Apache Beam / Dataflow" },
-    },
+    service: svc,
     cloud: gcpCloud(region, project, "dataflow.googleapis.com"),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: failIdx === 2 ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sGbk),
   };
   offsetMs += Math.max(1, Math.round(gbkUs / 1000));
 
@@ -159,22 +150,18 @@ export function generateDataflowTrace(ts: string, er: number): EcsDocument[] {
       destination: {
         service: { resource: writeResource, type: writeSpanType, name: writeResource },
       },
+      labels: failIdx === 3 ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {},
     },
-    service: {
-      name: "event-pipeline",
-      environment: env,
-      language: { name: "java" },
-      runtime: { name: "java", version: "17" },
-      framework: { name: "Apache Beam / Dataflow" },
-    },
+    service: svc,
     cloud: gcpCloud(
       region,
       project,
       sinkKind === "bigquery" ? "bigquery.googleapis.com" : "storage.googleapis.com"
     ),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: failIdx === 3 ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sWrite),
   };
 
   const totalUs = readUs + transformUs + gbkUs + writeUs + randInt(2000, 10_000) * 1000;
@@ -192,17 +179,13 @@ export function generateDataflowTrace(ts: string, er: number): EcsDocument[] {
       sampled: true,
       span_count: { started: 4, dropped: 0 },
     },
-    service: {
-      name: "event-pipeline",
-      environment: env,
-      language: { name: "java" },
-      runtime: { name: "java", version: "17" },
-      framework: { name: "Apache Beam / Dataflow" },
-    },
+    service: svc,
     cloud: gcpCloud(region, project, "dataflow.googleapis.com"),
-    agent: APM_AGENT,
+    labels: { "gcp.dataflow.job_name": rand(["events-hourly", "user-enrich", "orders-stream"]) },
     data_stream: APM_DS,
     event: { outcome: isErr ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, txId),
   };
 
   return [txDoc, spanRead, spanTransform, spanGbk, spanWrite];

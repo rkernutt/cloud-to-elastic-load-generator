@@ -3,25 +3,47 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west6",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "us-west1",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west6",
-    "ephemeral_id": "axqldlahxr"
+    "name": "metricbeat-gcp-us-west1",
+    "ephemeral_id": "5x6ekqwqejw"
+  },
+  "monitoringTimeSeries": {
+    "metric": {
+      "type": "storage.googleapis.com/api/request_count",
+      "labels": { "method": "GET", "response_code": "200" }
+    },
+    "resource": {
+      "type": "gcs_bucket",
+      "labels": {
+        "project_id": "globex-dev-g7h8i9",
+        "bucket_name": "data-lake",
+        "location": "us-west1"
+      }
+    },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "215701" } }
+    ]
   },
   "gcp": {
     "persistent-disk": {
-      "metrics": {
-        "storage_bytes": { "avg": 31457102440, "sum": 31457102440, "count": 1 },
-        "object_count": { "avg": 739955, "sum": 739955, "count": 1 },
-        "api_request_count": { "avg": 63234, "sum": 63234, "count": 1 },
-        "errors": { "avg": 0, "sum": 0, "count": 1 }
+      "labels": {
+        "project_id": "globex-dev-g7h8i9",
+        "bucket_name": "data-lake",
+        "location": "us-west1",
+        "method": "GET",
+        "response_code": "200"
       },
-      "labels": { "bucket_name": "data-lake" }
+      "metrics": {
+        "storage.googleapis.com/api/request_count": { "avg": 215701, "sum": 215701, "count": 1 }
+      }
     }
   },
   "metricset": { "name": "persistent-disk", "period": 60000 },
@@ -31,23 +53,5 @@
     "namespace": "default"
   },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.persistentdisk_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/persistent-disk/storage_bytes",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-prod-a1b2c3", "region": "europe-west6" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      {
-        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "doubleValue": 31457102440 }
-      }
-    ]
-  }
+  "event": { "dataset": "gcp.persistentdisk_metrics", "module": "gcp" }
 }

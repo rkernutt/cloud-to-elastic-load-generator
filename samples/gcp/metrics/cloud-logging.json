@@ -3,46 +3,45 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-central1",
+    "region": "europe-north1",
     "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
     "account": { "id": "271828182845", "name": "Globex Staging" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-us-central1",
-    "ephemeral_id": "p1t9h4p8mp"
+    "name": "metricbeat-gcp-europe-north1",
+    "ephemeral_id": "ngnyagnvgzj"
+  },
+  "monitoringTimeSeries": {
+    "metric": {
+      "type": "monitoring.googleapis.com/billing/bytes_ingested",
+      "labels": { "workspace": "ws-global" }
+    },
+    "resource": { "type": "global", "labels": { "project_id": "globex-staging-d4e5f6" } },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      {
+        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
+        "value": { "int64Value": "2413837020" }
+      }
+    ]
   },
   "gcp": {
     "cloud-logging": {
+      "labels": { "project_id": "globex-staging-d4e5f6", "workspace": "ws-global" },
       "metrics": {
-        "ingestion_volume": { "avg": 3147573808, "sum": 3147573808, "count": 1 },
-        "query_count": { "avg": 211908, "sum": 211908, "count": 1 },
-        "dropped_entries": { "avg": 0, "sum": 0, "count": 1 }
-      },
-      "labels": { "resource_type": "global" }
+        "monitoring.googleapis.com/billing/bytes_ingested": {
+          "avg": 2413837020,
+          "sum": 2413837020,
+          "count": 1
+        }
+      }
     }
   },
   "metricset": { "name": "cloud-logging", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.logging_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.logging_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-logging/ingestion_volume",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-staging-d4e5f6", "region": "us-central1" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      {
-        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "doubleValue": 3147573808 }
-      }
-    ]
-  }
+  "event": { "dataset": "gcp.logging_metrics", "module": "gcp" }
 }

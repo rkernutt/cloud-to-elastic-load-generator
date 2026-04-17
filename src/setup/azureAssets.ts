@@ -17,6 +17,7 @@ export const AZURE_SETUP_BUNDLE: CloudSetupBundle = {
   pipelines: PIPELINE_REGISTRY as PipelineEntry[],
   mlJobFiles: valuesFromEagerJsonGlob<MlJobFile>(rawMlJobModules),
   dashboards: valuesFromEagerJsonGlob<DashboardDef>(rawDashboardModules),
+  alertRuleFiles: [],
   fleetPackage: "azure",
   fleetPackageLabel: "Azure Integration",
   showApmToggle: true,

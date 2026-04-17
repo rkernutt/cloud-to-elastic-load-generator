@@ -1,60 +1,66 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-4",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-northeast-3",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "migrationhub" }
   },
   "aws": {
     "migrationhub": {
-      "application_id": "app-hy10p83bhwf",
-      "application_name": "legacy-erp",
-      "server_id": "d-server-40RAR7M5BSB",
-      "server_name": "server-8xlw33ip",
-      "migration_status": "MIGRATION_COMPLETE",
+      "application_id": "app-4g8h106x7et",
+      "application_name": "analytics-platform",
+      "server_id": "d-server-9JLHMNK75E9",
+      "server_name": "server-mr9pan83",
+      "migration_status": "NOT_STARTED",
       "migration_tool": "Carbonite",
-      "progress_update_stream": "DMS-stream",
+      "progress_update_stream": "MGN-stream",
       "task": {
-        "status": "IN_PROGRESS",
-        "progress_percent": 71,
-        "total_objects": 850,
-        "replicated_objects": 652
-      }
+        "status": "FAILED",
+        "progress_percent": 52,
+        "total_objects": 781,
+        "replicated_objects": 288
+      },
+      "error_code": "AccessDeniedException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-migrationhub-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-migrationhub-logs-293847561023"
+        "name": "aws-migrationhub-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-migrationhub-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/migrationhub/ap-southeast-4/2026/04/15/migrationhub_HU2K2BVNU7.log.gz"
+        "key": "AWSLogs/501938274650/migrationhub/ap-northeast-3/2026/04/17/migrationhub_5TQSEZ03ZN.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/migrationhub/logs",
-      "log_stream": "ap-southeast-4/mmwwpc8h",
-      "ingestion_time": "2026-04-15T13:24:36.399Z"
+      "log_stream": "ap-northeast-3/k6tx5xza",
+      "ingestion_time": "2026-04-17T09:05:19.067Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process", "configuration"],
     "dataset": "aws.migrationhub",
     "provider": "mgh.amazonaws.com",
-    "duration": 50963000000000,
+    "duration": 756814000000000,
     "module": "aws"
   },
-  "message": "Migration Hub legacy-erp [Carbonite]: MIGRATION_COMPLETE — server-8xlw33ip",
-  "log": { "level": "info" },
+  "message": "Migration Hub analytics-platform FAILED [Carbonite]: Replication failed:",
+  "log": { "level": "error" },
+  "error": {
+    "code": "MigrationFailed",
+    "message": "Migration Hub task failed",
+    "type": "migration"
+  },
   "service": { "name": "migrationhub", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.migrationhub", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-4",
-    "ephemeral_id": "9ny0w020bdk"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "1nau9keinfq"
   },
   "input": { "type": "aws-cloudwatch" }
 }

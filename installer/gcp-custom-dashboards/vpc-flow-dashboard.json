@@ -1,5 +1,5 @@
 {
-  "title": "GCP VPC Flow — Traffic & Denials",
+  "title": "GCP VPC Flow \u2014 Traffic & Denials",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -186,7 +186,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.vpcflow* | KEEP `@timestamp`, `gcp.vpc_flow.src_ip`, `gcp.vpc_flow.dst_ip`, `gcp.vpc_flow.dst_port`, `gcp.vpc_flow.protocol`, `gcp.vpc_flow.action`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.vpcflow* | KEEP `@timestamp`, `gcp.vpc_flow.src_ip`, `gcp.vpc_flow.dst_ip`, `gcp.vpc_flow.dst_port`, `gcp.vpc_flow.protocol`, `gcp.vpc_flow.action`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
@@ -221,8 +221,8 @@
             },
             {
               "operation": "value",
-              "column": "log.level",
-              "label": "Log level"
+              "column": "event.outcome",
+              "label": "Outcome"
             },
             {
               "operation": "value",

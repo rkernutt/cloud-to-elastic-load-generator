@@ -182,17 +182,36 @@ export function enrichGcpAzureDocument(
   const source = resolveSource(ctx, flavorId, serviceId, opts.ingestionSource);
   const resolvedRegion =
     doc.cloud?.region ?? ctx.regions[Math.floor(Math.random() * ctx.regions.length)];
-  const dataset = resolveDataset(ctx, flavorId, eventType, metricsKind);
+  /** Logs/traces may vary by inferred flavor; metrics must match the ship target index (constant_keyword). */
+  const flavorDataset = resolveDataset(ctx, flavorId, eventType, metricsKind);
+  const indexDataset = resolveDataset(ctx, serviceId, eventType, metricsKind);
+  const dataset = eventType === "metrics" ? indexDataset : flavorDataset;
 
   const ecs = doc.ecs ?? { version: ECS_VERSION };
   const dsType = eventType === "metrics" ? "metrics" : eventType === "traces" ? "traces" : "logs";
-  const dataStream = doc.data_stream ?? {
-    type: dsType,
-    dataset,
-    namespace: "default",
-  };
+  const dataStream =
+    eventType === "metrics"
+      ? {
+          ...(typeof doc.data_stream === "object" && doc.data_stream !== null
+            ? doc.data_stream
+            : {}),
+          type: "metrics",
+          dataset: indexDataset,
+          namespace:
+            typeof doc.data_stream === "object" &&
+            doc.data_stream !== null &&
+            typeof doc.data_stream.namespace === "string"
+              ? doc.data_stream.namespace
+              : "default",
+        }
+      : (doc.data_stream ?? {
+          type: dsType,
+          dataset,
+          namespace: "default",
+        });
 
-  const agentMeta = doc.agent ?? buildAgentMeta(ctx, source, eventType, resolvedRegion, metricsKind);
+  const agentMeta =
+    doc.agent ?? buildAgentMeta(ctx, source, eventType, resolvedRegion, metricsKind);
   const inputType = buildInputType(
     ctx,
     eventType === "traces" ? (isOtelPipelineSource(source) ? source : "otel") : source
@@ -205,7 +224,7 @@ export function enrichGcpAzureDocument(
   const event = {
     ...doc.event,
     module: eventModule,
-    dataset: doc.event?.dataset || dataset,
+    dataset: eventType === "metrics" ? indexDataset : doc.event?.dataset || dataset,
   };
 
   const baseline: LooseDoc = {

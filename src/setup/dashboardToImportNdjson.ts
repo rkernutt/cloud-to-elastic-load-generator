@@ -40,6 +40,35 @@ async function seededUUID(seed: string): Promise<string> {
   ].join("-");
 }
 
+/** Kibana tag shown in Saved Objects / Dashboards — filter on this to bulk-select installer assets. */
+export const LOAD_GENERATOR_KIBANA_TAG_NAME = "cloudloadgen";
+
+const LOAD_GENERATOR_KIBANA_TAG_SEED = "kibana-tag:cloudloadgen";
+const LOAD_GENERATOR_KIBANA_TAG_REF_NAME = "tag-ref-cloudloadgen";
+
+export async function loadGeneratorKibanaTagId(): Promise<string> {
+  return seededUUID(LOAD_GENERATOR_KIBANA_TAG_SEED);
+}
+
+/** One NDJSON line: `tag` saved object (import before dashboards that reference it). */
+export async function buildLoadGeneratorKibanaTagNdjsonLine(): Promise<string> {
+  const id = await loadGeneratorKibanaTagId();
+  const obj = {
+    id,
+    type: "tag",
+    namespaces: ["default"],
+    attributes: {
+      name: LOAD_GENERATOR_KIBANA_TAG_NAME,
+      description:
+        "Installed by Cloud to Elastic Load Generator — filter this tag in Kibana to find or remove these assets.",
+    },
+    references: [] as unknown[],
+    coreMigrationVersion: "8.8.0",
+    typeMigrationVersion: "8.0.0",
+  };
+  return JSON.stringify(obj) + "\n";
+}
+
 /** Same deterministic id as dashboardDefToImportNdjsonLine (saved object import path). */
 export async function dashboardDefToSavedObjectId(def: DashboardDef): Promise<string> {
   return seededUUID(`dashboard:${def.title}`);
@@ -85,13 +114,34 @@ interface PartitionAttrs {
   group_by?: GroupBySpec[];
 }
 
+/** Parse `FROM logs-foo.bar*` → stable data view id + title (same as Kibana ES|QL text-based panels). */
+async function esqlIndexFromQuery(query: string): Promise<{ indexId: string; indexTitle: string }> {
+  const fromMatch = query.match(/FROM\s+([^\s|]+)/i);
+  const indexTitle = fromMatch ? fromMatch[1]! : "logs-gcp.*";
+  const indexId = await sha256Hex(indexTitle);
+  return { indexId, indexTitle };
+}
+
+function adHocEsqlDataView(indexId: string, indexTitle: string) {
+  return {
+    id: indexId,
+    title: indexTitle,
+    sourceFilters: [],
+    type: "esql",
+    fieldFormats: {},
+    runtimeFieldMap: {},
+    allowNoIndex: false,
+    name: indexTitle,
+    allowHidden: false,
+    managed: false,
+  };
+}
+
 async function buildPartitionLens(attrs: PartitionAttrs, panelTitle: string) {
   const { dataset, metrics, group_by = [] } = attrs;
   const layerId = await seededUUID(`layer:${panelTitle}:${dataset.query}`);
 
-  const fromMatch = dataset.query.match(/FROM\s+([^\s|]+)/i);
-  const indexTitle = fromMatch ? fromMatch[1]! : "logs-gcp.*";
-  const indexId = await sha256Hex(indexTitle);
+  const { indexId, indexTitle } = await esqlIndexFromQuery(dataset.query);
 
   const metricCols = metrics.map((m) => ({
     columnId: m.column,
@@ -164,18 +214,7 @@ async function buildPartitionLens(attrs: PartitionAttrs, panelTitle: string) {
       query: { esql: dataset.query },
       filters: [],
       adHocDataViews: {
-        [indexId]: {
-          id: indexId,
-          title: indexTitle,
-          sourceFilters: [],
-          type: "esql",
-          fieldFormats: {},
-          runtimeFieldMap: {},
-          allowNoIndex: false,
-          name: indexTitle,
-          allowHidden: false,
-          managed: false,
-        },
+        [indexId]: adHocEsqlDataView(indexId, indexTitle),
       },
     },
   };
@@ -197,11 +236,14 @@ async function buildXYLens(attrs: XYAttrs, panelTitle: string) {
   const { layers } = attrs;
   const dsLayers: Record<string, unknown> = {};
   const vizLayers: unknown[] = [];
+  const adHocDataViews: Record<string, ReturnType<typeof adHocEsqlDataView>> = {};
 
   for (let i = 0; i < layers.length; i++) {
     const layer = layers[i]!;
     const layerId = await seededUUID(`layer:${panelTitle}:${i}:${layer.dataset.query}`);
     const { type: seriesType, dataset, x, y } = layer;
+    const { indexId, indexTitle } = await esqlIndexFromQuery(dataset.query);
+    adHocDataViews[indexId] = adHocEsqlDataView(indexId, indexTitle);
 
     const xCols = x
       ? [
@@ -219,11 +261,11 @@ async function buildXYLens(attrs: XYAttrs, panelTitle: string) {
     }));
 
     dsLayers[layerId] = {
-      index: layerId,
+      index: indexId,
       query: { esql: dataset.query },
       columns: [...xCols, ...yCols],
       timeField: "@timestamp",
-      indexPatternRefs: [],
+      indexPatternRefs: [{ id: indexId, title: indexTitle }],
     };
 
     vizLayers.push({
@@ -256,6 +298,7 @@ async function buildXYLens(attrs: XYAttrs, panelTitle: string) {
       },
       query: { query: "", language: "kuery" },
       filters: [],
+      adHocDataViews,
     },
   };
 }
@@ -270,6 +313,7 @@ async function buildMetricLens(attrs: MetricLensAttrs, panelTitle: string) {
   const { dataset, metrics } = attrs;
   const layerId = await seededUUID(`layer:${panelTitle}:${dataset.query}`);
   const col = metrics[0]!.column;
+  const { indexId, indexTitle } = await esqlIndexFromQuery(dataset.query);
 
   return {
     title: panelTitle || "",
@@ -282,11 +326,11 @@ async function buildMetricLens(attrs: MetricLensAttrs, panelTitle: string) {
         textBased: {
           layers: {
             [layerId]: {
-              index: layerId,
+              index: indexId,
               query: { esql: dataset.query },
               columns: [{ columnId: col, fieldName: col, meta: { type: "number" } }],
               timeField: "@timestamp",
-              indexPatternRefs: [],
+              indexPatternRefs: [{ id: indexId, title: indexTitle }],
             },
           },
         },
@@ -294,6 +338,9 @@ async function buildMetricLens(attrs: MetricLensAttrs, panelTitle: string) {
       visualization: { layerId, layerType: "data", metricAccessor: col },
       query: { query: "", language: "kuery" },
       filters: [],
+      adHocDataViews: {
+        [indexId]: adHocEsqlDataView(indexId, indexTitle),
+      },
     },
   };
 }
@@ -307,6 +354,7 @@ interface DatatableAttrs {
 async function buildDatatableLens(attrs: DatatableAttrs, panelTitle: string) {
   const { dataset, metrics } = attrs;
   const layerId = await seededUUID(`layer:${panelTitle}:${dataset.query}`);
+  const { indexId, indexTitle } = await esqlIndexFromQuery(dataset.query);
 
   const columns = metrics.map((m) => ({
     columnId: m.column,
@@ -325,11 +373,11 @@ async function buildDatatableLens(attrs: DatatableAttrs, panelTitle: string) {
         textBased: {
           layers: {
             [layerId]: {
-              index: layerId,
+              index: indexId,
               query: { esql: dataset.query },
               columns,
               timeField: "@timestamp",
-              indexPatternRefs: [],
+              indexPatternRefs: [{ id: indexId, title: indexTitle }],
             },
           },
         },
@@ -343,6 +391,9 @@ async function buildDatatableLens(attrs: DatatableAttrs, panelTitle: string) {
       },
       query: { query: "", language: "kuery" },
       filters: [],
+      adHocDataViews: {
+        [indexId]: adHocEsqlDataView(indexId, indexTitle),
+      },
     },
   };
 }
@@ -418,12 +469,15 @@ export type DashboardSavedObjectPayload = {
 };
 
 /** Full saved-object shape for NDJSON import and for PUT /api/saved_objects/dashboard/:id (Serverless). */
-export async function buildDashboardSavedObjectPayload(def: DashboardDef): Promise<DashboardSavedObjectPayload> {
+export async function buildDashboardSavedObjectPayload(
+  def: DashboardDef
+): Promise<DashboardSavedObjectPayload> {
   const panelsRaw = def.panels;
   if (!Array.isArray(panelsRaw)) {
     throw new Error("Dashboard definition missing panels array");
   }
   const id = await seededUUID(`dashboard:${def.title}`);
+  const tagId = await loadGeneratorKibanaTagId();
   const panels = await Promise.all(
     panelsRaw.map((p, i) => buildPanel(p as PanelShape, def.title, i))
   );
@@ -454,13 +508,14 @@ export async function buildDashboardSavedObjectPayload(def: DashboardDef): Promi
   return {
     id,
     attributes,
-    references: [],
+    references: [{ type: "tag", id: tagId, name: LOAD_GENERATOR_KIBANA_TAG_REF_NAME }],
     coreMigrationVersion: "8.8.0",
     typeMigrationVersion: "10.3.0",
   };
 }
 
-export async function dashboardDefToImportNdjsonLine(def: DashboardDef): Promise<string> {
+/** Dashboard saved-object line only (no tag line). */
+export async function dashboardDefToDashboardNdjsonLineOnly(def: DashboardDef): Promise<string> {
   const { id, attributes, references, coreMigrationVersion, typeMigrationVersion } =
     await buildDashboardSavedObjectPayload(def);
   const obj = {
@@ -474,4 +529,11 @@ export async function dashboardDefToImportNdjsonLine(def: DashboardDef): Promise
   };
 
   return JSON.stringify(obj) + "\n";
+}
+
+/** Tag line + dashboard line for `POST /api/saved_objects/_import` (tag must precede dashboard). */
+export async function dashboardDefToImportNdjsonLine(def: DashboardDef): Promise<string> {
+  const tagLine = await buildLoadGeneratorKibanaTagNdjsonLine();
+  const dashLine = await dashboardDefToDashboardNdjsonLineOnly(def);
+  return tagLine + dashLine;
 }

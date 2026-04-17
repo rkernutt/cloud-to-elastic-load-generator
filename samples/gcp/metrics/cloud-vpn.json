@@ -3,43 +3,58 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west4",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "northamerica-northeast1",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-us-west4",
-    "ephemeral_id": "2yh7vcm04sc"
+    "name": "metricbeat-gcp-northamerica-northeast1",
+    "ephemeral_id": "j3uxk4hwmc"
+  },
+  "monitoringTimeSeries": {
+    "metric": {
+      "type": "loadbalancing.googleapis.com/https/request_count",
+      "labels": { "response_code_class": "2xx" }
+    },
+    "resource": {
+      "type": "https_lb_rule",
+      "labels": {
+        "project_id": "globex-dev-g7h8i9",
+        "url_map_name": "api-map",
+        "forwarding_rule_name": "fr-generic",
+        "target_proxy_name": "tp-generic",
+        "region": "northamerica-northeast1"
+      }
+    },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "164715" } }
+    ]
   },
   "gcp": {
     "cloud-vpn": {
-      "metrics": {
-        "request_count": { "avg": 526889, "sum": 526889, "count": 1 },
-        "latency": { "avg": 60.36, "sum": 60.36, "count": 1 },
-        "error_rate": { "avg": 0, "sum": 0, "count": 1 }
+      "labels": {
+        "project_id": "globex-dev-g7h8i9",
+        "url_map_name": "api-map",
+        "forwarding_rule_name": "fr-generic",
+        "target_proxy_name": "tp-generic",
+        "region": "northamerica-northeast1",
+        "response_code_class": "2xx"
       },
-      "labels": { "resource_url": "/api/v1/orders" }
+      "metrics": {
+        "loadbalancing.googleapis.com/https/request_count": {
+          "avg": 164715,
+          "sum": 164715,
+          "count": 1
+        }
+      }
     }
   },
   "metricset": { "name": "cloud-vpn", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.vpn_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.vpn_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-vpn/request_count",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-security-j0k1l2", "region": "us-west4" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 526889 } }
-    ]
-  }
+  "event": { "dataset": "gcp.vpn_metrics", "module": "gcp" }
 }

@@ -1,40 +1,41 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-northeast-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "autoscaling" }
   },
   "aws": {
-    "dimensions": { "AutoScalingGroupName": "web-asg" },
+    "dimensions": { "AutoScalingGroupName": "spot-fleet" },
     "autoscaling": {
-      "group_name": "web-asg",
-      "activity_id": "xgdb19ib-3ndl-45ng",
-      "action_type": "Launch",
-      "instance_id": "i-am1fwf3b51k",
-      "instance_type": "r5.large",
-      "desired_capacity": 4,
+      "group_name": "spot-fleet",
+      "activity_id": "j0k9lfep-f5w4-afsf",
+      "action_type": "PredictiveScalingForecast",
+      "instance_id": "i-qh1yf8588zn",
+      "instance_type": "m5.xlarge",
+      "desired_capacity": 15,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 3,
-      "cause": "Unhealthy instance replaced",
+      "current_capacity": 14,
+      "cause": "PredictiveScaling: forecast shows load increase; preemptive capacity adjustment recommended for spot-fleet",
       "status_code": "Successful",
-      "launch_template": "web-lt:5",
+      "launch_template": "worker-lt:8",
+      "predictive_scaling_forecast": true,
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 4 },
-        "GroupInServiceInstances": { "avg": 3 },
+        "GroupDesiredCapacity": { "avg": 15 },
+        "GroupInServiceInstances": { "avg": 14 },
         "GroupPendingInstances": { "avg": 0 },
         "GroupStandbyInstances": { "avg": 1 },
         "GroupTerminatingInstances": { "avg": 0 },
-        "GroupTotalInstances": { "avg": 4 },
-        "GroupInServiceCapacity": { "avg": 3 },
+        "GroupTotalInstances": { "avg": 15 },
+        "GroupInServiceCapacity": { "avg": 14 },
         "GroupPendingCapacity": { "avg": 0 },
         "GroupStandbyCapacity": { "avg": 1 },
         "GroupTerminatingCapacity": { "avg": 0 },
-        "GroupTotalCapacity": { "avg": 4 },
+        "GroupTotalCapacity": { "avg": 15 },
         "WarmPoolMinSize": { "avg": 0 },
         "WarmPoolDesiredCapacity": { "avg": 0 },
         "WarmPoolPendingCapacity": { "avg": 0 },
@@ -45,17 +46,17 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-autoscaling-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-autoscaling-logs-738291046572"
+        "name": "aws-autoscaling-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-autoscaling-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/autoscaling/ca-west-1/2026/04/15/autoscaling_0HI9D4RUZN4D.log.gz"
+        "key": "AWSLogs/814726593401/autoscaling/ap-northeast-1/2026/04/17/autoscaling_61LRK87K484.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "ca-west-1/af5jov6n",
-      "ingestion_time": "2026-04-15T13:24:36.236Z"
+      "log_stream": "ap-northeast-1/ojkedd06",
+      "ingestion_time": "2026-04-17T09:05:18.859Z"
     }
   },
   "event": {
@@ -63,10 +64,10 @@
     "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 456000000000,
+    "duration": 141000000000,
     "module": "aws"
   },
-  "message": "AutoScaling web-asg: Launch instance",
+  "message": "PredictiveScalingForecast asg=spot-fleet forecastTime=2026-04-17T09:05:18.304Z predictedCPU=65.1% recommendedDesiredCapacity=16",
   "log": { "level": "info" },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -74,8 +75,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "vepb71wnp0r"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "nz948yn3xcg"
   },
   "input": { "type": "aws-cloudwatch" }
 }

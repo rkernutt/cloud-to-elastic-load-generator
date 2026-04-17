@@ -24,6 +24,15 @@ import {
   generateKeyVaultTrace,
   generateLogicAppsTrace,
 } from "./integration.js";
+import { generateCacheForRedisTrace } from "./cache-for-redis.js";
+import { generateBlobStorageTrace } from "./blob-storage.js";
+import { generateContainerAppsTrace } from "./container-apps.js";
+import { generateMachineLearningTrace } from "./machine-learning.js";
+import { generateDatabricksTrace } from "./databricks.js";
+import { generateSynapseWorkspaceTrace } from "./synapse-workspace.js";
+import { generateOpenAiTrace } from "./openai.js";
+import { generateVirtualMachinesTrace } from "./virtual-machines.js";
+import { generateServiceBusTrace } from "./service-bus.js";
 
 const AZURE_TRACE_GENERATORS: Record<
   string,
@@ -45,6 +54,15 @@ const AZURE_TRACE_GENERATORS: Record<
   "event-hubs": generateEventHubsTrace,
   "key-vault": generateKeyVaultTrace,
   "logic-apps": generateLogicAppsTrace,
+  "cache-for-redis": generateCacheForRedisTrace,
+  "blob-storage": generateBlobStorageTrace,
+  "container-apps": generateContainerAppsTrace,
+  "machine-learning": generateMachineLearningTrace,
+  databricks: generateDatabricksTrace,
+  "synapse-workspace": generateSynapseWorkspaceTrace,
+  openai: generateOpenAiTrace,
+  "virtual-machines": generateVirtualMachinesTrace,
+  "service-bus": generateServiceBusTrace,
 };
 
 export { AZURE_TRACE_SERVICES, AZURE_TRACE_GENERATORS };

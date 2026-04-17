@@ -23,12 +23,15 @@ RUN set -eu; \
   aws_ml=$(find installer/aws-custom-ml-jobs/jobs -maxdepth 1 -name '*.json' 2>/dev/null | wc -l); \
   az_d=$(find installer/azure-custom-dashboards -maxdepth 1 -name '*-dashboard.json' 2>/dev/null | wc -l); \
   gcp_d=$(find installer/gcp-custom-dashboards -maxdepth 1 -name '*-dashboard.json' 2>/dev/null | wc -l); \
-  if [ "$aws_d" -lt 1 ] || [ "$aws_ml" -lt 1 ] || [ "$az_d" -lt 1 ] || [ "$gcp_d" -lt 1 ]; then \
+  aws_packs_ok=1; \
+  if [ ! -f installer/aws-loadgen-packs/index.mjs ] || [ ! -f installer/aws-loadgen-packs/registry.mjs ]; then aws_packs_ok=0; fi; \
+  if [ "$aws_d" -lt 1 ] || [ "$aws_ml" -lt 1 ] || [ "$az_d" -lt 1 ] || [ "$gcp_d" -lt 1 ] || [ "$aws_packs_ok" -ne 1 ]; then \
     echo "ERROR: installer/ in this build is incomplete."; \
     echo "  aws *-dashboard.json (top-level): $aws_d (need >= 1)"; \
     echo "  aws ml jobs/*.json:               $aws_ml (need >= 1)"; \
     echo "  azure *-dashboard.json:          $az_d (need >= 1)"; \
     echo "  gcp *-dashboard.json:             $gcp_d (need >= 1)"; \
+    echo "  aws-loadgen-packs (index+registry): $aws_packs_ok (need 1)"; \
     echo ""; \
     echo "Those directories must exist on the Mac/Linux host before docker build — COPY cannot create them."; \
     echo "If the host has AWS files but Docker does not: installer/aws-custom-dashboards or aws-custom-ml-jobs may be symlinks"; \
@@ -46,7 +49,7 @@ RUN set -eu; \
     ls -la installer/aws-custom-ml-jobs/jobs 2>&1 | head -20 || true; \
     echo ""; \
     echo "Fix on the host at the same path you run docker compose from:"; \
-    echo "  • First (normal repo, sparse-checkout OFF): git checkout HEAD -- installer/aws-custom-dashboards installer/aws-custom-ml-jobs"; \
+    echo "  • First (normal repo, sparse-checkout OFF): git checkout HEAD -- installer/aws-custom-dashboards installer/aws-custom-ml-jobs installer/aws-loadgen-packs"; \
     echo "    If pathspec did not match: git fetch && git pull on a branch that contains those paths."; \
     echo "  • If git sparse-checkout add fails with no sparse-checkout: sparse mode is disabled — use checkout above, not sparse-checkout."; \
     echo "  • If core.sparseCheckout is true: git sparse-checkout add ... && git sparse-checkout reapply"; \

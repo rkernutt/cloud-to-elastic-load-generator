@@ -1,42 +1,54 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
-  "processor": { "name": "transaction", "event": "span" },
-  "trace": { "id": "d6267a27c956a1bbf3a9413d22f47790" },
-  "transaction": { "id": "75cad284ce59183d" },
-  "parent": { "id": "75cad284ce59183d" },
-  "span": {
-    "id": "9d47e5ca8e087ee0",
-    "type": "external",
-    "subtype": "openai",
-    "name": "embeddings",
-    "duration": { "us": 56519 }
+  "processor": { "name": "transaction", "event": "transaction" },
+  "trace": { "id": "819388b95ea4da74772db78b2e55b6c1" },
+  "transaction": {
+    "id": "781d3c716de1217a",
+    "name": "POST /v1/rag/query",
+    "type": "request",
+    "duration": { "us": 4559967 },
+    "result": "HTTP 2xx",
+    "sampled": true,
+    "span_count": { "started": 2, "dropped": 0 }
   },
-  "service": { "name": "rag-api" },
+  "service": {
+    "name": "rag-api",
+    "environment": "staging",
+    "version": "1.0.0",
+    "language": { "name": "python" },
+    "framework": { "name": "FastAPI" },
+    "runtime": { "name": "python", "version": "3.12" }
+  },
   "cloud": {
     "provider": "azure",
-    "region": "canadacentral",
+    "region": "centralindia",
     "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" },
     "service": { "name": "Microsoft.CognitiveServices/accounts" }
   },
-  "agent": { "name": "opentelemetry", "version": "1.x" },
+  "event": { "outcome": "success", "module": "azure", "dataset": "azure.openai_chain" },
+  "customDimensions": {
+    "azure_region": "centralindia",
+    "azure_resource_group": "rg-prod-q5lxdl",
+    "azure_subscription_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    "chain": "openai"
+  },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
-  "event": { "outcome": "success", "module": "azure", "dataset": "azure.trace" },
-  "azure": { "trace": { "model": "text-embedding-3-large" } },
   "ecs": { "version": "8.11.0" },
   "input": { "type": "opentelemetry" },
-  "applicationInsights": {
-    "operation_Id": "d6267a27c956a1bbf3a9413d22f47790",
-    "operation_ParentId": "75cad284ce59183d",
-    "id": "9d47e5ca8e087ee0",
-    "name": "embeddings"
-  },
+  "agent": { "name": "opentelemetry/python", "version": "1.x" },
   "telemetry": {
-    "sdk": { "name": "opentelemetry", "language": "go", "version": "1.31.0" },
+    "sdk": { "name": "opentelemetry", "language": "python", "version": "1.29.0" },
     "distro": { "name": "elastic", "version": "8.18.0" },
     "otel_pipeline": {
       "hop": "otel_collector",
       "export_protocol": "otlp",
       "destination": "elastic_managed"
     }
+  },
+  "applicationInsights": {
+    "operation_Id": "819388b95ea4da74772db78b2e55b6c1",
+    "operation_ParentId": "",
+    "id": "781d3c716de1217a",
+    "name": "POST /v1/rag/query"
   }
 }

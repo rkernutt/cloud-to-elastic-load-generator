@@ -1,42 +1,101 @@
 # Setup wizard and uninstall behavior
 
-The **Setup** step in the web UI installs or removes Elastic assets (Fleet integrations, custom ingest pipelines, Kibana dashboards, ML jobs) for the cloud you chose on **Start** (AWS, GCP, or Azure). CLI equivalents live under `installer/` — see [installer/README.md](../installer/README.md).
+The **Setup** step in the web UI installs or removes Elastic assets for the cloud you chose on **Start** (AWS, GCP, or Azure). Assets are organised as **Cloud Loadgen Integrations** — each service gets a bundle of ingest pipelines, data stream templates, Kibana dashboards, ML anomaly detection jobs, and alerting rules, all installed together. CLI equivalents live under `installer/` — see [installer/README.md](../installer/README.md).
 
 ---
 
-## What the wizard can install
+## Cloud Loadgen Integrations
 
-| Asset                   | Target APIs / notes                                                                   |
-| ----------------------- | ------------------------------------------------------------------------------------- |
-| Official integration    | Kibana Fleet (`aws`, `gcp`, `azure`, optional APM)                                    |
-| Custom ingest pipelines | Elasticsearch ingest pipeline API                                                     |
-| Custom dashboards       | Kibana Dashboards API when available; otherwise saved-object import (e.g. Serverless) |
-| ML anomaly jobs         | Elasticsearch ML APIs                                                                 |
+Each service integration can include:
+
+| Asset | Description | API |
+| --- | --- | --- |
+| **Ingest pipeline** | Parses and routes logs into the correct data stream; TSDS for metrics | Elasticsearch Ingest Pipeline API |
+| **Data stream templates** | `logs-*` and `metrics-*` data views for dashboard panels | Kibana Saved Objects API |
+| **Kibana dashboard** | ES\|QL Lens panels tailored to the service | Kibana Dashboards API or Saved Objects import |
+| **ML anomaly detection jobs** | Detect error spikes, latency anomalies, rare activity | Elasticsearch ML API |
+| **Alerting rules** | Elasticsearch query-based rules for critical patterns | Kibana Alerting API |
+
+### The `cloudloadgen` tag
+
+Every installed asset is tagged or labelled **`cloudloadgen`**:
+
+- **Dashboards** — Kibana saved-object tag (deterministic id: `kibana-tag:cloudloadgen`). Filter in **Kibana → Stack Management → Saved Objects → Tags → cloudloadgen** to see all load-generator dashboards
+- **ML jobs** — `cloudloadgen` in job description and custom settings metadata
+- **Ingest pipelines** — `cloudloadgen` in pipeline description
+- **Alerting rules** — tagged with `cloudloadgen` (plus service-specific tags like `data-pipeline`)
+
+This makes it easy to **view**, **bulk-edit**, or **bulk-delete** all load-generator assets in Kibana without affecting production objects.
+
+### Service categories
+
+The Setup page groups integrations by **service category**:
+
+| Category | Examples |
+| --- | --- |
+| Compute | Lambda, EC2, ECS, EKS, Cloud Functions, AKS, Virtual Machines |
+| Networking | ELB, CloudFront, WAF, Cloud Load Balancing, Azure Firewall |
+| Storage | S3, EBS, Cloud Storage, Blob Storage |
+| Databases | DynamoDB, RDS, Aurora, Cloud SQL, Cosmos DB |
+| Streaming & Messaging | Kinesis, SQS, SNS, Pub/Sub, Event Hubs, Service Bus |
+| Analytics | EMR, Glue, Athena, BigQuery, Dataproc, Synapse |
+| AI & Machine Learning | SageMaker, Bedrock, Vertex AI, OpenAI |
+| Security & Identity | GuardDuty, Security Hub, Cloud Armor, Entra ID, Sentinel |
+| Developer Tools | CodeBuild, X-Ray, Cloud Build, Azure Pipeline |
+| IoT | IoT Core, IoT Hub |
+| Management & Governance | CloudWatch, CloudFormation, Cloud Monitoring, Azure Monitor |
+| End User & Media | WorkSpaces, Connect, Media Services |
+| Chained Events | Data & Analytics Pipeline (multi-service correlated scenarios) |
+
+Categories are collapsible, making it easy to navigate even with 200+ services per cloud.
 
 ---
 
-## Selecting assets (pipelines, dashboards, ML)
+## Installing from the CLI
+
+**Per-service bundles (recommended):**
+
+```bash
+# AWS
+npm run setup:aws-loadgen-packs
+
+# GCP
+npm run setup:gcp-loadgen-packs
+
+# Azure
+npm run setup:azure-loadgen-packs
+```
+
+These install the pipeline, dashboard, ML jobs, and alerting rules for each service you select in one run. All assets are tagged `cloudloadgen`.
+
+**Individual asset installers** are also available if you only need one type:
+
+| Cloud | Pipelines | Dashboards | ML Jobs |
+| --- | --- | --- | --- |
+| AWS | `npm run setup:aws-pipelines` | `npm run setup:aws-dashboards` | `npm run setup:aws-ml-jobs` |
+| GCP | `npm run setup:gcp-pipelines` | `npm run setup:gcp-dashboards` | `npm run setup:gcp-ml-jobs` |
+| Azure | `npm run setup:azure-pipelines` | `npm run setup:azure-dashboards` | `npm run setup:azure-ml-jobs` |
+
+---
+
+## Selecting assets in the web UI
 
 You do **not** have to install everything.
 
-- **Filter** — One search box narrows pipelines, dashboards, and ML groups together.
-- **Per-pipeline choice** — Pipelines are grouped in accordions by pipeline `group` (e.g. analytics, compute). Expand a group and tick individual pipeline IDs, or use **All in group** / **None in group**. Human-readable headings use polish helpers (e.g. GCP **Data Warehouse** for the `datawarehouse` group slug).
-- **Dashboards (AWS)** — When the app has loaded the AWS **Services** catalog, dashboard accordions use the **same category titles** as the Services step (_Networking & CDN_, _Developer & CI/CD_, _Storage & Databases_, etc.). Dashboards that cannot be mapped show under **Uncategorized**. Titles that need extra hints (e.g. combined **CI/CD** dashboards, **Augmented AI**, **App Recovery Controller**) are aligned via full-title matching. If the catalog is empty (edge case), grouping falls back to polished title fragments.
-- **ML jobs**
-  - **AWS** — Jobs are grouped in **one accordion per Services category** (merged across all ML JSON bundles, including jobs that ship in `new-services` and similar files). Use **All in group** / **None in group** per category. Matching uses `event.dataset` / `aws.*` fields (and aliases such as `vpcflow` → VPC Flow, `elb_logs` → ALB, `firewall_logs` → Network Firewall, `ecs_metrics` → ECS, `kafka_metrics` → MSK/Kafka under **Streaming & Messaging**, `wafv2` → WAF under **Networking & CDN**). Jobs that still match no service are listed under **Additional Services** (not a separate Uncategorized section). When a datafeed includes `event.dataset`, generic words from the job id are not used for matching, to avoid false positives.
-  - **GCP / Azure** — Jobs stay grouped **per installer file** (each `*-jobs.json` group), with **All in file** / **None in file**.
-- **Select visible / Clear visible** — Applies to whatever the filter currently shows (dashboards and ML groups included).
-- **Align with Services step** — Uses the services you selected on the **Services** page (log/metrics services, or trace services when the app is in traces mode) to pre-select matching pipelines, dashboards, and ML jobs. Matching uses dataset IDs, pipeline naming (`logs-*.{suffix}-default`), dashboard titles (`AWS Lambda — …`, `GCP Alloydb — …`, etc.), and ML job metadata — it is **heuristic**. If nothing matches, adjust Services or pick assets manually.
+- **Filter** — One search box narrows all integrations across categories.
+- **Per-service choice** — Expand a category, then select individual services. Each service shows what it includes (pipeline, dashboard, N ML jobs, alerting rules).
+- **Select visible / Clear visible** — Applies to whatever the filter currently shows.
+- **Align with Services step** — Uses the services you selected on the **Services** page (log/metrics services, or trace services when the app is in traces mode) to pre-select matching integrations. Matching uses dataset IDs, pipeline naming, dashboard titles, and ML job metadata — it is **heuristic**. If nothing matches, adjust Services or pick assets manually.
 
 The **Services** catalog (order and labels) for each cloud lives in `src/data/serviceGroups.ts` (AWS) and the corresponding `src/gcp/data/serviceGroups.ts` / `src/azure/data/serviceGroups.ts` files.
 
-When you switch cloud vendor on **Start**, the Setup page **remounts** and selections reset to “all selected” for that cloud’s bundle so AWS/GCP/Azure lists do not get out of sync.
+When you switch cloud vendor on **Start**, the Setup page **remounts** and selections reset to "all selected" for that cloud's bundle.
 
 ---
 
 ## Session persistence
 
-- **Setup install/uninstall log** — If the app passes a persistence key (unified UI does), the Setup step log is stored in **sessionStorage** and survives a **tab refresh** in the same browsing session. It does not survive closing the tab/window in the same way as `localStorage`.
+- **Setup install/uninstall log** — If the app passes a persistence key (unified UI does), the Setup step log is stored in **sessionStorage** and survives a **tab refresh** in the same browsing session. It does not survive closing the tab/window.
 - **Ship activity log** — Same idea under a separate key per cloud.
 
 ---
@@ -47,24 +106,52 @@ Turn on **Uninstall/Reinstall mode** to remove or reinstall selected assets. Pip
 
 ---
 
-## Dashboard uninstall: Elastic Serverless and API limits
+## Elastic Cloud Serverless: Kibana saved objects
 
-On some **Elastic Cloud Serverless** (and similar) Kibana deployments, HTTP routes exist for saved-object deletion but return **400 Bad Request** with a message such as:
+Elastic **Cloud Serverless** projects use a **restricted Kibana HTTP surface** compared to stateful (hosted or self-managed) stacks. That affects **custom dashboards** in the Setup wizard because they are Kibana saved objects.
 
-> `uri [/api/saved_objects/dashboard/…]` or `uri [/api/saved_objects/_bulk_delete]` … **exists but is not available with the current configuration**
+### What Elastic documents
 
-In that environment the load generator **cannot** remove dashboards programmatically. That is a **platform restriction**, not a bug in the tool.
+For Serverless, the documented **Saved objects** API group is mainly **export** and **import**:
+
+- [Saved objects (Serverless API)](https://www.elastic.co/docs/api/doc/serverless/group/endpoint-saved-objects)
+
+Broader saved-object **CRUD** (for example `GET` / `PUT` / `DELETE` on `/api/saved_objects/dashboard/…`) is **not** part of that minimal list.
+
+### No setting to "turn on" DELETE / GET / PUT
+
+- Serverless **does not expose** user-editable `kibana.yml` (or equivalent) to re-enable full saved-object APIs.
+- There is **no documented Elastic Cloud org/project toggle** that restores stateful-style saved-object **delete** or **update** for arbitrary automation.
+- If an API returns **400** with **"not available with the current configuration"**, that is a **product limit**, not something fixed by a stronger API key.
+
+### Dashboard uninstall on Serverless
+
+On some Serverless Kibana deployments, saved-object **delete** routes exist but return **400 Bad Request**. In that case this app **cannot** remove dashboards via the API. The Setup UI detects that pattern, **stops after the first hit**, and explains the limitation.
 
 **What to do:**
 
-1. Remove dashboards in **Kibana** — e.g. **Management → Saved Objects** (filter by type `dashboard` and tag/title), or delete from the **Dashboards** app.
-2. Or use a deployment type where Kibana exposes those APIs, if your Elastic subscription offers one.
+1. Remove dashboards in **Kibana** — e.g. **Management → Saved Objects** (filter by tag `cloudloadgen`), or the **Dashboards** app.
+2. Or use a **stateful** deployment (Elastic Cloud Hosted or self-managed) where those APIs are available.
 
-The UI detects this case, **stops after the first failure**, and prints a short explanation instead of repeating one error per dashboard.
+### Dashboard reinstall / update on Serverless
 
-**CLI dashboard installers** (`npm run setup:aws-dashboards`, GCP/Azure equivalents) **install** only; they do not change this Serverless limitation for **delete**.
+**Uninstall & reinstall** cannot clear dashboards first when delete is blocked. The web UI implements supported combinations (Dashboards API when present, otherwise saved-object **import**, then conflict handling). If both delete and in-place update are blocked, use the **Kibana UI** or a **stateful** stack.
 
-Pipelines and ML jobs are unaffected by this Kibana saved-object restriction (they use Elasticsearch APIs).
+### Other Setup assets
+
+**Pipelines**, **ML jobs**, and **alerting rules** use **Elasticsearch** APIs and are **not** subject to this Kibana saved-object restriction.
+
+---
+
+## Data streams and TSDS
+
+Generators output data that targets Elasticsearch **data streams**:
+
+- **Logs** → `logs-{vendor}.{service}-default` (e.g. `logs-aws.lambda_logs-default`, `logs-gcp.cloud_functions-default`)
+- **Metrics** → `metrics-{vendor}.{service}-default` — uses **TSDS** (Time Series Data Stream) where appropriate for efficient storage and aggregation
+- **Traces** → `traces-apm-default` — APM trace documents (including Chained Event traces) route here for Service Map visualisation
+
+Ingest pipelines handle routing, parsing, and enrichment so documents land in the correct data stream automatically.
 
 ---
 

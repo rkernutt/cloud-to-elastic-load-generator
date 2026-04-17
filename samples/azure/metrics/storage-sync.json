@@ -3,26 +3,55 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "eastasia",
+    "region": "australiaeast",
     "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-eastasia",
-    "ephemeral_id": "ofjyeknqsf"
+    "name": "metricbeat-azure-australiaeast",
+    "ephemeral_id": "gyt1bzijw1r"
   },
   "azure": {
     "storage_sync": {
       "metrics": {
-        "used_capacity": { "avg": 17557264885, "sum": 17557264885, "count": 1 },
-        "transactions": { "avg": 3811862, "sum": 3811862, "count": 1 },
-        "server_errors": { "avg": 0, "sum": 0, "count": 1 }
-      },
-      "labels": { "resource_group": "rg-data-6l9j0", "account_name": "stprod" }
-    }
+        "StorageSyncUploadBytes": {
+          "avg": 13988464274,
+          "min": 12309848561.12,
+          "max": 15667079986.88,
+          "sum": 13988464274,
+          "count": 1
+        },
+        "ServerSyncSessionApplied": {
+          "avg": 1690,
+          "min": 1487.2,
+          "max": 1892.8,
+          "sum": 1690,
+          "count": 1
+        },
+        "CloudTieringSizeSaved": {
+          "avg": 12099172585,
+          "min": 10647271874.8,
+          "max": 13551073295.2,
+          "sum": 12099172585,
+          "count": 1
+        },
+        "SyncSessionFailures": { "avg": 16, "min": 14.08, "max": 17.92, "sum": 16, "count": 1 }
+      }
+    },
+    "dimensions": {
+      "ServerName": "sync-srv-1",
+      "SyncGroup": "files-prod",
+      "ResourceGroup": "rg-shared-f4x58"
+    },
+    "resource": {
+      "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-shared-f4x58/providers/Microsoft.StorageSync/storageSyncServices/ssc-sto46",
+      "group": "rg-shared-f4x58",
+      "name": "ssc-sto46"
+    },
+    "namespace": "Microsoft.StorageSync/storageSyncServices"
   },
-  "metricset": { "name": "storage_sync", "period": 60000 },
+  "metricset": { "name": "monitor", "period": 60000 },
   "data_stream": {
     "type": "metrics",
     "dataset": "azure.storage_sync_metrics",
@@ -32,9 +61,9 @@
   "event": { "dataset": "azure.storage_sync_metrics", "module": "azure" },
   "azureMonitorMetric": {
     "time": "2026-04-07T12:00:00.000Z",
-    "metricName": "used_capacity",
+    "metricName": "StorageSyncUploadBytes",
     "resourceGroup": "rg-storage-sync",
     "subscriptionId": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
-    "timeseries": [{ "data": [{ "average": 17557264885, "count": 1 }] }]
+    "timeseries": [{ "data": [{ "average": 13988464274, "count": 1 }] }]
   }
 }

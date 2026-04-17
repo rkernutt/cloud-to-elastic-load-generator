@@ -1,22 +1,23 @@
-/**
- * Dedicated Azure metric generators for services that previously fell back
- * to generic implementations.
- */
-
-import { randInt, jitter, dp, stat, counter, azureMetricDoc, pickAzureContext } from "./helpers.js";
+import {
+  randInt,
+  jitter,
+  dp,
+  stat,
+  counter,
+  azureMetricDoc,
+  pickAzureContext,
+  randId,
+} from "./helpers.js";
 import type { EcsDocument } from "../../../aws/generators/types.js";
-
-// ---------------------------------------------------------------------------
-// IoT Hub
-// ---------------------------------------------------------------------------
 
 export function generateIotHubMetrics(ts: string, er: number): EcsDocument[] {
   const { region, subscription, resourceGroup } = pickAzureContext();
+  const hubName = `iot-${randId(6).toLowerCase()}`;
   const dims = ["device-001", "device-002", "sensor-fleet-1"];
-  const numDims = Math.min(randInt(1, 3), dims.length);
-
-  return Array.from({ length: numDims }, (_, i) => {
+  const n = Math.min(randInt(1, 3), dims.length);
+  return Array.from({ length: n }, (_, i) => {
     const deviceId = dims[i];
+    const fail = Math.random() < er;
     return azureMetricDoc(
       ts,
       "iot_hub",
@@ -24,29 +25,32 @@ export function generateIotHubMetrics(ts: string, er: number): EcsDocument[] {
       region,
       subscription,
       resourceGroup,
-      { device_id: deviceId },
       {
-        d2c_messages_sent: counter(randInt(0, 50_000)),
-        c2d_commands_sent: counter(randInt(0, 5_000)),
-        jobs_failed: counter(Math.random() < er ? randInt(1, 100) : 0),
-        routing_deliveries: counter(randInt(0, 40_000)),
-        twin_queries: counter(randInt(0, 10_000)),
+        namespace: "Microsoft.Devices/IotHubs",
+        resourceName: hubName,
+        armProviderSegments: ["Microsoft.Devices", "IotHubs", hubName],
+        dimensions: { IotHub: hubName, DeviceId: deviceId },
+        metrics: {
+          "d2c.telemetry.ingress.allProtocol": counter(randInt(0, 50_000)),
+          "d2c.telemetry.egress.complete": counter(randInt(0, 48_000)),
+          "d2c.endpoints.egress.success": counter(randInt(0, 45_000)),
+          "d2c.endpoints.egress.failure": counter(fail ? randInt(1, 500) : 0),
+          "jobs.createOrUpdate.failure": counter(fail ? randInt(1, 80) : 0),
+          "twinRead.success": counter(randInt(0, 12_000)),
+        },
       }
     );
   });
 }
 
-// ---------------------------------------------------------------------------
-// Logic Apps
-// ---------------------------------------------------------------------------
-
 export function generateLogicAppsMetrics(ts: string, er: number): EcsDocument[] {
   const { region, subscription, resourceGroup } = pickAzureContext();
-  const dims = ["order-flow", "approval-chain", "notification-relay"];
-  const numDims = Math.min(randInt(1, 3), dims.length);
-
-  return Array.from({ length: numDims }, (_, i) => {
-    const workflowName = dims[i];
+  const workflowNames = ["order-flow", "approval-chain", "notification-relay"];
+  const n = Math.min(randInt(1, 3), workflowNames.length);
+  return Array.from({ length: n }, (_, i) => {
+    const workflowName = workflowNames[i];
+    const wfRes = `logic-${workflowName.replace(/-/g, "")}-${randId(4).toLowerCase()}`;
+    const fail = Math.random() < er;
     return azureMetricDoc(
       ts,
       "logic_apps",
@@ -54,30 +58,32 @@ export function generateLogicAppsMetrics(ts: string, er: number): EcsDocument[] 
       region,
       subscription,
       resourceGroup,
-      { workflow_name: workflowName },
       {
-        runs_started: counter(randInt(0, 10_000)),
-        runs_succeeded: counter(randInt(0, 9_500)),
-        runs_failed: counter(Math.random() < er ? randInt(1, 500) : 0),
-        trigger_fires: counter(randInt(0, 10_000)),
-        billable_action_executions: counter(randInt(0, 500_000)),
-        latency_ms: stat(dp(jitter(800, 600, 10, 120_000))),
+        namespace: "Microsoft.Logic/workflows",
+        resourceName: wfRes,
+        armProviderSegments: ["Microsoft.Logic", "workflows", wfRes],
+        dimensions: { ResourceId: wfRes, workflowName },
+        metrics: {
+          RunsStarted: counter(randInt(0, 10_000)),
+          RunsCompleted: counter(randInt(0, fail ? 8_000 : 9_800)),
+          RunsFailed: counter(fail ? randInt(1, 500) : 0),
+          ActionsStarted: counter(randInt(0, 120_000)),
+          BillableActionExecutions: counter(randInt(0, 400_000)),
+          RunLatency: stat(dp(jitter(800 + (fail ? 4000 : 0), 600, 10, 120_000))),
+        },
       }
     );
   });
 }
 
-// ---------------------------------------------------------------------------
-// API Management
-// ---------------------------------------------------------------------------
-
 export function generateApiManagementMetrics(ts: string, er: number): EcsDocument[] {
   const { region, subscription, resourceGroup } = pickAzureContext();
-  const dims = ["orders-api", "users-api", "payments-api"];
-  const numDims = Math.min(randInt(1, 3), dims.length);
-
-  return Array.from({ length: numDims }, (_, i) => {
-    const apiId = dims[i];
+  const apimName = `apim-${randId(5).toLowerCase()}`;
+  const apis = ["orders-api", "users-api", "payments-api"];
+  const n = Math.min(randInt(1, 3), apis.length);
+  return Array.from({ length: n }, (_, i) => {
+    const apiId = apis[i];
+    const fail = Math.random() < er;
     return azureMetricDoc(
       ts,
       "api_management",
@@ -85,30 +91,32 @@ export function generateApiManagementMetrics(ts: string, er: number): EcsDocumen
       region,
       subscription,
       resourceGroup,
-      { api_id: apiId },
       {
-        requests: counter(randInt(0, 2_000_000)),
-        successful_requests: counter(randInt(0, 1_900_000)),
-        failed_requests: counter(Math.random() < er ? randInt(1, 100_000) : 0),
-        other_requests: counter(randInt(0, 50_000)),
-        duration_ms: stat(dp(jitter(120, 100, 1, 30_000))),
-        bandwidth: counter(randInt(0, 10_000_000_000)),
+        namespace: "Microsoft.ApiManagement/service",
+        resourceName: apimName,
+        armProviderSegments: ["Microsoft.ApiManagement", "service", apimName],
+        dimensions: { Gateway: apimName, ApiId: apiId },
+        metrics: {
+          Requests: counter(randInt(0, 2_000_000)),
+          Duration: stat(dp(jitter(120 + (fail ? 800 : 0), 100, 1, 30_000))),
+          Bandwidth: counter(randInt(0, 10_000_000_000)),
+          FailedRequests: counter(fail ? randInt(1, 100_000) : randInt(0, 2_000)),
+          SuccessfulRequests: counter(randInt(0, 1_900_000)),
+          UnauthorizedRequests: counter(fail ? randInt(1, 5000) : randInt(0, 200)),
+        },
       }
     );
   });
 }
 
-// ---------------------------------------------------------------------------
-// Event Grid
-// ---------------------------------------------------------------------------
-
 export function generateEventGridMetrics(ts: string, er: number): EcsDocument[] {
   const { region, subscription, resourceGroup } = pickAzureContext();
-  const dims = ["blob-events", "custom-events", "domain-events"];
-  const numDims = Math.min(randInt(1, 3), dims.length);
-
-  return Array.from({ length: numDims }, (_, i) => {
-    const topicName = dims[i];
+  const topics = ["blob-events", "custom-events", "domain-events"];
+  const n = Math.min(randInt(1, 3), topics.length);
+  return Array.from({ length: n }, (_, i) => {
+    const topicName = topics[i];
+    const topicRes = `egt-${topicName.replace(/-/g, "")}-${randId(4).toLowerCase()}`;
+    const fail = Math.random() < er;
     return azureMetricDoc(
       ts,
       "event_grid",
@@ -116,30 +124,32 @@ export function generateEventGridMetrics(ts: string, er: number): EcsDocument[] 
       region,
       subscription,
       resourceGroup,
-      { topic_name: topicName },
       {
-        publish_success: counter(randInt(0, 5_000_000)),
-        publish_fail: counter(Math.random() < er ? randInt(1, 50_000) : 0),
-        delivery_success: counter(randInt(0, 4_900_000)),
-        delivery_fail: counter(Math.random() < er ? randInt(1, 50_000) : 0),
-        matched_events: counter(randInt(0, 5_000_000)),
-        dropped_events: counter(Math.random() < er ? randInt(1, 10_000) : 0),
+        namespace: "Microsoft.EventGrid/topics",
+        resourceName: topicRes,
+        armProviderSegments: ["Microsoft.EventGrid", "topics", topicRes],
+        dimensions: { Topic: topicRes, EventSubscriptionName: topicName },
+        metrics: {
+          PublishSuccess: counter(randInt(0, 5_000_000)),
+          PublishFail: counter(fail ? randInt(1, 50_000) : 0),
+          DeliveryAttemptSuccessCount: counter(randInt(0, 4_900_000)),
+          DeliveryAttemptFailCount: counter(fail ? randInt(1, 40_000) : 0),
+          MatchedEventCount: counter(randInt(0, 5_000_000)),
+          DroppedEventCount: counter(fail ? randInt(1, 10_000) : 0),
+        },
       }
     );
   });
 }
 
-// ---------------------------------------------------------------------------
-// Synapse Workspace
-// ---------------------------------------------------------------------------
-
 export function generateSynapseWorkspaceMetrics(ts: string, er: number): EcsDocument[] {
   const { region, subscription, resourceGroup } = pickAzureContext();
-  const dims = ["sql-pool-1", "spark-pool-main", "serverless"];
-  const numDims = Math.min(randInt(1, 3), dims.length);
-
-  return Array.from({ length: numDims }, (_, i) => {
-    const poolName = dims[i];
+  const wsName = `syn-${randId(6).toLowerCase()}`;
+  const pools = ["sql-pool-1", "spark-pool-main", "serverless"];
+  const n = Math.min(randInt(1, 3), pools.length);
+  return Array.from({ length: n }, (_, i) => {
+    const poolName = pools[i];
+    const fail = Math.random() < er;
     return azureMetricDoc(
       ts,
       "synapse_workspace",
@@ -147,30 +157,32 @@ export function generateSynapseWorkspaceMetrics(ts: string, er: number): EcsDocu
       region,
       subscription,
       resourceGroup,
-      { pool_name: poolName },
       {
-        dpu_used: stat(dp(jitter(60, 40, 0, 500))),
-        cpu_percent: stat(dp(jitter(45, 30, 0, 100))),
-        memory_percent: stat(dp(jitter(55, 35, 0, 100))),
-        jobs_submitted: counter(randInt(0, 1_000)),
-        jobs_failed: counter(Math.random() < er ? randInt(1, 50) : 0),
-        data_processed_bytes: counter(randInt(0, 500_000_000_000)),
+        namespace: "Microsoft.Synapse/workspaces",
+        resourceName: wsName,
+        armProviderSegments: ["Microsoft.Synapse", "workspaces", wsName],
+        dimensions: { WorkspaceName: wsName, PoolName: poolName },
+        metrics: {
+          IntegrationPipelineRunsEnded: counter(randInt(0, 2_000)),
+          IntegrationActivityRunsEnded: counter(randInt(0, 8_000)),
+          IntegrationTriggerRunsStarted: counter(randInt(0, 1_500)),
+          IntegrationPipelineRunsFailed: counter(fail ? randInt(1, 80) : 0),
+          IntegrationRuntimeAvailableMemory: stat(dp(jitter(45, 25, 5, 95))),
+          IntegrationRuntimeCpuUtilization: stat(dp(jitter(40 + (fail ? 25 : 0), 30, 0, 100))),
+        },
       }
     );
   });
 }
 
-// ---------------------------------------------------------------------------
-// Databricks
-// ---------------------------------------------------------------------------
-
 export function generateDatabricksMetrics(ts: string, er: number): EcsDocument[] {
   const { region, subscription, resourceGroup } = pickAzureContext();
-  const dims = ["job-cluster-1", "interactive-1", "automl-cluster"];
-  const numDims = Math.min(randInt(1, 3), dims.length);
-
-  return Array.from({ length: numDims }, (_, i) => {
-    const clusterId = dims[i];
+  const wsName = `dbw-${randId(6).toLowerCase()}`;
+  const clusters = ["job-cluster-1", "interactive-1", "automl-cluster"];
+  const n = Math.min(randInt(1, 3), clusters.length);
+  return Array.from({ length: n }, (_, i) => {
+    const clusterId = clusters[i];
+    const fail = Math.random() < er;
     return azureMetricDoc(
       ts,
       "databricks",
@@ -178,30 +190,32 @@ export function generateDatabricksMetrics(ts: string, er: number): EcsDocument[]
       region,
       subscription,
       resourceGroup,
-      { cluster_id: clusterId },
       {
-        active_jobs: counter(randInt(0, 20)),
-        failed_tasks: counter(Math.random() < er ? randInt(1, 200) : 0),
-        dbu_consumed: counter(randInt(0, 10_000)),
-        disk_read_bytes: counter(randInt(0, 50_000_000_000)),
-        disk_write_bytes: counter(randInt(0, 30_000_000_000)),
-        jvm_heap_used: stat(dp(jitter(60, 30, 0, 100))),
+        namespace: "Microsoft.Databricks/workspaces",
+        resourceName: wsName,
+        armProviderSegments: ["Microsoft.Databricks", "workspaces", wsName],
+        dimensions: { ClusterId: clusterId, WorkspaceName: wsName },
+        metrics: {
+          ClusterDbuConsumption: counter(randInt(0, 12_000)),
+          JobRunDuration: stat(dp(jitter(240 + (fail ? 600 : 0), 200, 5, 86_400))),
+          JobsFailed: counter(fail ? randInt(1, 200) : 0),
+          ClusterNodesAvailable: counter(randInt(2, 64)),
+          DiskReadBytes: counter(randInt(0, 50_000_000_000)),
+          DiskWriteBytes: counter(randInt(0, 30_000_000_000)),
+        },
       }
     );
   });
 }
 
-// ---------------------------------------------------------------------------
-// Cosmos DB (dedicated — replaces generic database template)
-// ---------------------------------------------------------------------------
-
 export function generateCosmosDbDedicatedMetrics(ts: string, er: number): EcsDocument[] {
   const { region, subscription, resourceGroup } = pickAzureContext();
-  const dims = ["appdb", "catalog", "analytics"];
-  const numDims = Math.min(randInt(1, 3), dims.length);
-
-  return Array.from({ length: numDims }, (_, i) => {
-    const databaseName = dims[i];
+  const account = `cosmos-${randId(6).toLowerCase()}`;
+  const regions = ["East US", "West Europe", "Southeast Asia"];
+  const n = Math.min(randInt(1, 3), regions.length);
+  return Array.from({ length: n }, (_, i) => {
+    const regDim = regions[i];
+    const fail = Math.random() < er;
     return azureMetricDoc(
       ts,
       "cosmos_db",
@@ -209,30 +223,32 @@ export function generateCosmosDbDedicatedMetrics(ts: string, er: number): EcsDoc
       region,
       subscription,
       resourceGroup,
-      { database_name: databaseName },
       {
-        request_units: stat(dp(jitter(500, 400, 1, 1_000_000))),
-        document_count: counter(randInt(0, 100_000_000)),
-        data_usage: counter(randInt(0, 500_000_000_000)),
-        provisioned_throughput: stat(dp(jitter(1000, 500, 400, 10_000))),
-        throttled_requests: counter(Math.random() < er ? randInt(1, 5_000) : 0),
-        replication_latency_ms: stat(dp(jitter(12, 8, 1, 200))),
+        namespace: "Microsoft.DocumentDB/databaseAccounts",
+        resourceName: account,
+        armProviderSegments: ["Microsoft.DocumentDB", "databaseAccounts", account],
+        dimensions: { DatabaseAccount: account, Region: regDim },
+        metrics: {
+          TotalRequests: counter(randInt(10_000, 5_000_000)),
+          TotalRequestUnits: counter(randInt(50_000, 80_000_000)),
+          ProvisionedThroughput: stat(dp(jitter(1000, 400, 400, 10_000))),
+          MongoRequestCharge: counter(randInt(0, 25_000_000)),
+          TotalRequestUnitsCharge: counter(randInt(0, 50_000_000)),
+          ServiceAvailability: stat(dp(jitter(fail ? 92 : 99.9, fail ? 5 : 0.05, 0, 100))),
+        },
       }
     );
   });
 }
 
-// ---------------------------------------------------------------------------
-// Event Hubs (dedicated — replaces generic messaging template)
-// ---------------------------------------------------------------------------
-
 export function generateEventHubsDedicatedMetrics(ts: string, er: number): EcsDocument[] {
   const { region, subscription, resourceGroup } = pickAzureContext();
-  const dims = ["telemetry", "clicks", "audit-log"];
-  const numDims = Math.min(randInt(1, 3), dims.length);
-
-  return Array.from({ length: numDims }, (_, i) => {
-    const eventhubName = dims[i];
+  const nsName = `evhns-${randId(5).toLowerCase()}`;
+  const entities = ["telemetry", "clicks", "audit-log"];
+  const n = Math.min(randInt(1, 3), entities.length);
+  return Array.from({ length: n }, (_, i) => {
+    const entityName = entities[i];
+    const fail = Math.random() < er;
     return azureMetricDoc(
       ts,
       "event_hubs",
@@ -240,15 +256,19 @@ export function generateEventHubsDedicatedMetrics(ts: string, er: number): EcsDo
       region,
       subscription,
       resourceGroup,
-      { eventhub_name: eventhubName },
       {
-        incoming_messages: counter(randInt(0, 10_000_000)),
-        outgoing_messages: counter(randInt(0, 9_800_000)),
-        incoming_bytes: counter(randInt(0, 80_000_000_000)),
-        outgoing_bytes: counter(randInt(0, 75_000_000_000)),
-        throttled_requests: counter(Math.random() < er ? randInt(1, 10_000) : 0),
-        active_connections: counter(randInt(0, 5_000)),
-        capture_backlog: counter(Math.random() < er ? randInt(1, 100_000) : 0),
+        namespace: "Microsoft.EventHub/namespaces",
+        resourceName: nsName,
+        armProviderSegments: ["Microsoft.EventHub", "namespaces", nsName],
+        dimensions: { EntityName: entityName },
+        metrics: {
+          IncomingMessages: counter(randInt(0, 10_000_000)),
+          OutgoingMessages: counter(randInt(0, 9_800_000)),
+          ThrottledRequests: counter(fail ? randInt(1, 10_000) : randInt(0, 50)),
+          ActiveConnections: counter(randInt(0, 5_000)),
+          IncomingBytes: counter(randInt(0, 80_000_000_000)),
+          OutgoingBytes: counter(randInt(0, 75_000_000_000)),
+        },
       }
     );
   });

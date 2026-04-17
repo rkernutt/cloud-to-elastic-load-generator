@@ -53,4 +53,58 @@ export const AZURE_TRACE_SERVICES = [
     desc: "Workflow action chain — trigger + HTTP/ServiceBus/notification action spans",
     group: "Single-Service",
   },
+  {
+    id: "cache-for-redis",
+    label: "Cache for Redis",
+    desc: "Redis client spans — GET, SET, MGET via StackExchange.Redis or equivalent",
+    group: "Single-Service",
+  },
+  {
+    id: "blob-storage",
+    label: "Blob Storage",
+    desc: "Blob metadata, download, and list operation spans",
+    group: "Single-Service",
+  },
+  {
+    id: "container-apps",
+    label: "Container Apps",
+    desc: "HTTP request handling with SQL and Service Bus downstream spans",
+    group: "Single-Service",
+  },
+  {
+    id: "machine-learning",
+    label: "Machine Learning",
+    desc: "Managed endpoint invocation — token acquisition and scoring spans",
+    group: "Single-Service",
+  },
+  {
+    id: "databricks",
+    label: "Databricks",
+    desc: "Spark job run — read, transform, and write stage spans",
+    group: "Single-Service",
+  },
+  {
+    id: "synapse-workspace",
+    label: "Synapse workspace",
+    desc: "Dedicated SQL pool queries and Spark notebook execution spans",
+    group: "Single-Service",
+  },
+  {
+    id: "openai",
+    label: "Azure OpenAI",
+    desc: "Embeddings and chat completion API spans",
+    group: "Single-Service",
+  },
+  {
+    id: "virtual-machines",
+    label: "Virtual Machines",
+    desc: "VM-hosted service request with local database and external HTTP spans",
+    group: "Single-Service",
+  },
+  {
+    id: "service-bus",
+    label: "Service Bus",
+    desc: "Queue receive, message processing, and complete spans",
+    group: "Single-Service",
+  },
 ] as const;

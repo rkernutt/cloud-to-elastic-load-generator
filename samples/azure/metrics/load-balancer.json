@@ -3,26 +3,42 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "eastasia",
+    "region": "switzerlandnorth",
     "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-eastasia",
-    "ephemeral_id": "07uvhl96nw93"
+    "name": "metricbeat-azure-switzerlandnorth",
+    "ephemeral_id": "hdwz2kb9nn"
   },
   "azure": {
     "load_balancer": {
       "metrics": {
-        "byte_count": { "avg": 6525824, "sum": 6525824, "count": 1 },
-        "packet_count": { "avg": 3248323, "sum": 3248323, "count": 1 },
-        "health_probe_failed": { "avg": 0, "sum": 0, "count": 1 }
-      },
-      "labels": { "resource_group": "rg-data-5brsm", "frontend_id": "fe-prod" }
-    }
+        "VipAvailability": { "avg": 89.89, "min": 79.1, "max": 100.68, "sum": 89.89, "count": 1 },
+        "DipAvailability": { "avg": 89.32, "min": 78.6, "max": 100.04, "sum": 89.32, "count": 1 },
+        "SnatConnectionCount": {
+          "avg": 339784,
+          "min": 299009.92,
+          "max": 380558.08,
+          "sum": 339784,
+          "count": 1
+        }
+      }
+    },
+    "dimensions": {
+      "FrontendIPAddress": "fe-prod",
+      "ProtocolType": "UDP",
+      "ResourceGroup": "rg-prod-iy4lj"
+    },
+    "resource": {
+      "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-prod-iy4lj/providers/Microsoft.Network/loadBalancers/lb-yp18l",
+      "group": "rg-prod-iy4lj",
+      "name": "lb-yp18l"
+    },
+    "namespace": "Microsoft.Network/loadBalancers"
   },
-  "metricset": { "name": "load_balancer", "period": 60000 },
+  "metricset": { "name": "monitor", "period": 60000 },
   "data_stream": {
     "type": "metrics",
     "dataset": "azure.load_balancer_metrics",
@@ -32,9 +48,9 @@
   "event": { "dataset": "azure.load_balancer_metrics", "module": "azure" },
   "azureMonitorMetric": {
     "time": "2026-04-07T12:00:00.000Z",
-    "metricName": "byte_count",
+    "metricName": "VipAvailability",
     "resourceGroup": "rg-load-balancer",
     "subscriptionId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-    "timeseries": [{ "data": [{ "average": 6525824, "count": 1 }] }]
+    "timeseries": [{ "data": [{ "average": 89.89, "count": 1 }] }]
   }
 }

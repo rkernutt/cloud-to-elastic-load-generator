@@ -3,45 +3,46 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-east5",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" }
+    "region": "europe-west6",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-us-east5",
-    "ephemeral_id": "nkp8eg1qh9f"
+    "name": "metricbeat-gcp-europe-west6",
+    "ephemeral_id": "rv4l9gchn5"
+  },
+  "monitoringTimeSeries": {
+    "metric": { "type": "cloudsql.googleapis.com/database/cpu/utilization", "labels": {} },
+    "resource": {
+      "type": "cloudsql_database",
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "database_id": "globex-prod-a1b2c3:sql-primary",
+        "region": "europe-west6"
+      }
+    },
+    "metricKind": "GAUGE",
+    "valueType": "DOUBLE",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 0.6 } }
+    ]
   },
   "gcp": {
     "cloud-sql": {
-      "metrics": {
-        "cpu_utilization": { "avg": 31.29, "sum": 31.29, "count": 1 },
-        "memory_utilization": { "avg": 58.3, "sum": 58.3, "count": 1 },
-        "disk_utilization": { "avg": 52.13, "sum": 52.13, "count": 1 },
-        "connections": { "avg": 403, "sum": 403, "count": 1 },
-        "queries": { "avg": 2024, "sum": 2024, "count": 1 }
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "database_id": "globex-prod-a1b2c3:sql-primary",
+        "region": "europe-west6"
       },
-      "labels": { "database_id": "globex-prod-a1b2c3:sql-primary" }
+      "metrics": {
+        "cloudsql.googleapis.com/database/cpu/utilization": { "avg": 0.6, "sum": 0.6, "count": 1 }
+      }
     }
   },
   "metricset": { "name": "cloud-sql", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.cloudsql_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.cloudsql_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-sql/cpu_utilization",
-      "labels": {}
-    },
-    "resource": {
-      "type": "cloudsql_database",
-      "labels": { "project_id": "globex-dev-g7h8i9", "region": "us-east5" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 31.29 } }
-    ]
-  }
+  "event": { "dataset": "gcp.cloudsql_metrics", "module": "gcp" }
 }

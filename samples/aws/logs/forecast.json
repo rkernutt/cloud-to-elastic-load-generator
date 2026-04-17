@@ -1,21 +1,21 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
+    "region": "us-east-1",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "forecast" }
   },
   "aws": {
-    "dimensions": { "DatasetGroup": "web-traffic", "Operation": "CreateForecast" },
+    "dimensions": { "DatasetGroup": "energy-consumption", "Operation": "GetAccuracyMetrics" },
     "forecast": {
-      "dataset_group": "web-traffic",
-      "predictor_name": "web-traffic-predictor-v6",
-      "action": "CreateForecast",
-      "algorithm": "AutoML",
-      "forecast_horizon": 7,
-      "weighted_quantile_loss": 0.24862486957378999,
-      "duration_seconds": 2629,
+      "dataset_group": "energy-consumption",
+      "predictor_name": "energy-consumption-predictor-v4",
+      "action": "GetAccuracyMetrics",
+      "algorithm": "Prophet",
+      "forecast_horizon": 90,
+      "weighted_quantile_loss": 0.14942018019939374,
+      "duration_seconds": 1162,
       "status": "ACTIVE"
     },
     "s3": {
@@ -24,24 +24,24 @@
         "arn": "arn:aws:s3:::aws-forecast-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/forecast/il-central-1/2026/04/15/forecast_GQDVFCHEVL7.log.gz"
+        "key": "AWSLogs/814726593401/forecast/us-east-1/2026/04/17/forecast_8M4MVXQXI54.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/forecast/logs",
-      "log_stream": "il-central-1/ai999okr",
-      "ingestion_time": "2026-04-15T13:24:36.374Z"
+      "log_stream": "us-east-1/3hp1r3hn",
+      "ingestion_time": "2026-04-17T09:05:19.041Z"
     }
   },
   "event": {
-    "duration": 2629000000000,
+    "duration": 1162000000000,
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.forecast",
     "provider": "forecast.amazonaws.com",
     "module": "aws"
   },
-  "message": "Forecast CreateForecast: web-traffic, WQL=0.249",
+  "message": "Forecast GetAccuracyMetrics: energy-consumption, WQL=0.149",
   "log": { "level": "info" },
   "service": { "name": "forecast", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -49,8 +49,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "xrzvf6kkx7"
+    "name": "filebeat-aws-us-east-1",
+    "ephemeral_id": "8iscphhxodo"
   },
   "input": { "type": "aws-cloudwatch" }
 }

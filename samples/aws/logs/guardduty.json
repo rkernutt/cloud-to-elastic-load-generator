@@ -1,29 +1,57 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-south-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "i9743p94upa" },
+    "dimensions": { "DetectorId": "ww64627tgh" },
     "guardduty": {
-      "schema_version": "2.0",
-      "account_id": "164820739518",
-      "region": "us-east-1",
+      "schemaVersion": "2.0",
+      "accountId": "293847561023",
+      "region": "eu-south-1",
       "partition": "aws",
-      "id": "3gqwlcmadkm",
-      "arn": "arn:aws:guardduty:us-east-1:164820739518:detector/i9743p94upa/finding/3gqwlcmadkm",
-      "type": "InitialAccess:IAMUser/AnomalousBehavior",
-      "title": "IAMUser AnomalousBehavior",
-      "description": "Routine check completed.",
-      "created_at": "2026-04-15T13:24:35.775Z",
-      "updated_at": "2026-04-15T13:24:35.775Z",
-      "severity": { "code": 0, "value": "Informational" },
-      "confidence": 64.96410100504082,
-      "resource": { "type": "EKSCluster" },
-      "service": { "detector_id": "i9743p94upa", "count": 140, "archived": false },
+      "id": "m4e3zedtpwq",
+      "arn": "arn:aws:guardduty:eu-south-1:293847561023:detector/ww64627tgh/finding/m4e3zedtpwq",
+      "type": "Trojan:EC2/DNSDataExfiltration",
+      "resource": {
+        "resourceType": "EKSCluster",
+        "eksClusterDetails": {
+          "name": "cluster-pqv96t",
+          "arn": "arn:aws:eks:eu-south-1:293847561023:cluster/cluster-cjeig7",
+          "createdAt": "2026-04-17T07:58:19.304Z",
+          "vpcId": "vpc-fgpb1uqn",
+          "status": "ACTIVE",
+          "tags": [{ "key": "env", "value": "prod" }]
+        }
+      },
+      "service": {
+        "serviceName": "guardduty",
+        "detectorId": "ww64627tgh",
+        "action": {
+          "actionType": "AWS_API_CALL",
+          "awsApiCallAction": {
+            "api": "AssumeRole",
+            "callerType": "Remote IP",
+            "remoteIpDetails": { "ipAddressV4": "67.41.125.181", "organization": {} },
+            "serviceName": "sts.amazonaws.com"
+          }
+        },
+        "resourceRole": "ACTOR",
+        "eventFirstSeen": "2026-04-17T07:58:19.304Z",
+        "eventLastSeen": "2026-04-17T09:05:18.304Z",
+        "archived": false,
+        "count": 201,
+        "additionalInfo": {}
+      },
+      "severity": 0,
+      "title": "EC2 DNSDataExfiltration",
+      "description": "GuardDuty processed telemetry and did not raise a finding for this sample.",
+      "createdAt": "2026-04-17T09:05:18.304Z",
+      "updatedAt": "2026-04-17T09:05:18.304Z",
+      "confidence": 92.28378888117219,
       "metrics": {
         "FindingCount": { "sum": 0 },
         "HighSeverityFindingCount": { "sum": 0 },
@@ -33,26 +61,26 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-guardduty-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-guardduty-logs-164820739518"
+        "name": "aws-guardduty-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-guardduty-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/guardduty/us-east-1/2026/04/15/guardduty_BAMDJN8RUQF.log.gz"
+        "key": "AWSLogs/293847561023/guardduty/eu-south-1/2026/04/17/guardduty_CBU9U7G6CY.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/guardduty/logs",
-      "log_stream": "us-east-1/qxkyhgi5",
-      "ingestion_time": "2026-04-15T13:24:36.266Z"
+      "log_stream": "eu-south-1/8q8rumf7",
+      "ingestion_time": "2026-04-17T09:05:18.899Z"
     }
   },
-  "rule": { "category": "intrusion_detection" },
-  "threat": { "indicator": [{ "type": "ip", "value": "114.48.107.84" }] },
+  "rule": { "category": "malware" },
+  "threat": { "indicator": [{ "type": "domain", "value": "suspicious-vw5qkd0q.example.com" }] },
   "event": {
     "kind": "alert",
     "severity": 0,
     "outcome": "success",
-    "category": ["intrusion_detection"],
+    "category": ["malware"],
     "type": ["indicator"],
     "dataset": "aws.guardduty",
     "provider": "guardduty.amazonaws.com",
@@ -66,8 +94,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "ysbwn8tzxy"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "wiy7dmmxc3"
   },
   "input": { "type": "http_endpoint" }
 }

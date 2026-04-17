@@ -15,6 +15,7 @@ import readline from "readline";
 import { readFileSync, readdirSync } from "fs";
 import { fileURLToPath } from "url";
 import { join, dirname } from "path";
+import { createElasticClient } from "./mlClient.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -90,105 +91,6 @@ async function maybeSkipTls(rl, deploymentType) {
     console.log("  ⚠  TLS verification disabled — ensure you trust this endpoint.");
   }
   console.log("");
-}
-
-// ─── Elasticsearch client ─────────────────────────────────────────────────────
-
-function createElasticClient(baseUrl, apiKey) {
-  const base = baseUrl.replace(/\/$/, "");
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization: `ApiKey ${apiKey}`,
-  };
-
-  async function request(method, path, body) {
-    const url = `${base}${path}`;
-    const options = { method, headers };
-    if (body !== undefined) {
-      options.body = JSON.stringify(body);
-    }
-
-    const res = await fetch(url, options);
-
-    if (res.status === 404) {
-      return null;
-    }
-
-    if (res.status === 410) {
-      return { _not_available: true, status: 410 };
-    }
-
-    if (!res.ok) {
-      let text;
-      try {
-        text = await res.text();
-      } catch {
-        text = "(unable to read response body)";
-      }
-      throw new Error(
-        `Elasticsearch request failed: ${method} ${path} → HTTP ${res.status}\n${text}`
-      );
-    }
-
-    return res.json();
-  }
-
-  return {
-    /** GET / — verify connectivity, returns cluster info */
-    async testConnection() {
-      return request("GET", "/");
-    },
-
-    /** GET /_ml/info — verify ML is available */
-    async getMlInfo() {
-      return request("GET", "/_ml/info");
-    },
-
-    /** GET /_ml/anomaly_detectors/{jobId} — returns job or null if not found */
-    async getJob(jobId) {
-      return request("GET", `/_ml/anomaly_detectors/${encodeURIComponent(jobId)}`);
-    },
-
-    /** PUT /_ml/anomaly_detectors/{jobId} — create ML job */
-    async putJob(jobId, body) {
-      return request("PUT", `/_ml/anomaly_detectors/${encodeURIComponent(jobId)}`, body);
-    },
-
-    /** PUT /_ml/datafeeds/datafeed-{jobId} — create datafeed */
-    async putDatafeed(jobId, body) {
-      return request("PUT", `/_ml/datafeeds/${encodeURIComponent(`datafeed-${jobId}`)}`, body);
-    },
-
-    /** POST /_ml/anomaly_detectors/{jobId}/_open — open job */
-    async openJob(jobId) {
-      return request("POST", `/_ml/anomaly_detectors/${encodeURIComponent(jobId)}/_open`);
-    },
-
-    /** POST /_ml/datafeeds/datafeed-{jobId}/_start — start datafeed */
-    async startDatafeed(jobId) {
-      return request("POST", `/_ml/datafeeds/${encodeURIComponent(`datafeed-${jobId}`)}/_start`);
-    },
-
-    /** POST /_ml/datafeeds/datafeed-{jobId}/_stop — stop datafeed */
-    async stopDatafeed(jobId) {
-      return request("POST", `/_ml/datafeeds/${encodeURIComponent(`datafeed-${jobId}`)}/_stop`);
-    },
-
-    /** POST /_ml/anomaly_detectors/{jobId}/_close — close job */
-    async closeJob(jobId) {
-      return request("POST", `/_ml/anomaly_detectors/${encodeURIComponent(jobId)}/_close`);
-    },
-
-    /** DELETE /_ml/datafeeds/datafeed-{jobId} — delete datafeed */
-    async deleteDatafeed(jobId) {
-      return request("DELETE", `/_ml/datafeeds/${encodeURIComponent(`datafeed-${jobId}`)}`);
-    },
-
-    /** DELETE /_ml/anomaly_detectors/{jobId} — delete job */
-    async deleteJob(jobId) {
-      return request("DELETE", `/_ml/anomaly_detectors/${encodeURIComponent(jobId)}`);
-    },
-  };
 }
 
 // ─── Job definitions loader ───────────────────────────────────────────────────

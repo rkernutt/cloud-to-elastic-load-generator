@@ -3,43 +3,54 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-southeast1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" }
+    "region": "europe-west2",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-southeast1",
-    "ephemeral_id": "5zpaczywyby"
+    "name": "metricbeat-gcp-europe-west2",
+    "ephemeral_id": "zep1mijuoek"
+  },
+  "monitoringTimeSeries": {
+    "metric": {
+      "type": "aiplatform.googleapis.com/prediction/online_prediction_request_count",
+      "labels": { "deployed_model_id": "dm-generic" }
+    },
+    "resource": {
+      "type": "aiplatform.googleapis.com/Endpoint",
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "location": "europe-west2",
+        "endpoint_id": "recommendation-v2"
+      }
+    },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "1435" } }
+    ]
   },
   "gcp": {
     "dialogflow": {
-      "metrics": {
-        "prediction_count": { "avg": 1588133, "sum": 1588133, "count": 1 },
-        "latency": { "avg": 128.64, "sum": 128.64, "count": 1 },
-        "error_count": { "avg": 0, "sum": 0, "count": 1 }
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "location": "europe-west2",
+        "endpoint_id": "recommendation-v2",
+        "deployed_model_id": "dm-generic"
       },
-      "labels": { "model_id": "recommendation-v2" }
+      "metrics": {
+        "aiplatform.googleapis.com/prediction/online_prediction_request_count": {
+          "avg": 1435,
+          "sum": 1435,
+          "count": 1
+        }
+      }
     }
   },
   "metricset": { "name": "dialogflow", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.dialogflow_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.dialogflow_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/dialogflow/prediction_count",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-staging-d4e5f6", "region": "asia-southeast1" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 1588133 } }
-    ]
-  }
+  "event": { "dataset": "gcp.dialogflow_metrics", "module": "gcp" }
 }

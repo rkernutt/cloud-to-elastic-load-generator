@@ -1,13 +1,13 @@
 {
   "group": "serverless",
-  "description": "Serverless & API anomaly detection — API Gateway errors, throttling, latency",
+  "description": "Serverless & API anomaly detection — Amazon API Gateway errors, throttling, latency",
   "jobs": [
     {
       "id": "aws-apigateway-5xx-error-spike",
-      "description": "Detects unusual spikes in API Gateway 5xx server errors per API — may indicate backend failures or misconfigurations",
+      "description": "Detects unusual spikes in Amazon API Gateway 5xx server errors per API — may indicate backend failures or misconfigurations",
       "job": {
         "description": "Detects unusual spikes in API Gateway 5xx server errors per API — may indicate backend failures or misconfigurations",
-        "groups": ["aws", "serverless"],
+        "groups": ["aws", "serverless", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -21,9 +21,16 @@
           "influencers": ["aws.apigateway.stage", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -31,23 +38,41 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.apigateway" } },
-              { "term": { "event.outcome": "failure" } },
-              { "range": { "http.response.status_code": { "gte": 500 } } }
+              {
+                "term": {
+                  "event.dataset": "aws.apigateway"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              },
+              {
+                "range": {
+                  "http.response.status_code": {
+                    "gte": 500
+                  }
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-apigateway-throttle-spike",
-      "description": "Detects unusual spikes in API Gateway throttled requests (429) — quota exhaustion or abuse",
+      "description": "Detects unusual spikes in Amazon API Gateway throttled requests (429) — quota exhaustion or abuse",
       "job": {
         "description": "Detects unusual spikes in API Gateway throttled requests (429) — quota exhaustion or abuse",
-        "groups": ["aws", "serverless"],
+        "groups": ["aws", "serverless", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -60,9 +85,16 @@
           "influencers": ["aws.apigateway.stage", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "16mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "16mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -70,22 +102,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.apigateway" } },
-              { "term": { "http.response.status_code": 429 } }
+              {
+                "term": {
+                  "event.dataset": "aws.apigateway"
+                }
+              },
+              {
+                "term": {
+                  "http.response.status_code": 429
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-apigateway-integration-latency-anomaly",
-      "description": "Detects unusual API Gateway integration latency per stage — backend slowdowns or cold starts",
+      "description": "Detects unusual Amazon API Gateway integration latency per stage — backend slowdowns or cold starts",
       "job": {
         "description": "Detects unusual API Gateway integration latency per stage — backend slowdowns or cold starts",
-        "groups": ["aws", "serverless"],
+        "groups": ["aws", "serverless", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -100,29 +144,46 @@
           "influencers": ["aws.apigateway.stage", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.apigateway" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.apigateway"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-lambda-cold-start-spike",
-      "description": "Detects unusual spikes in Lambda cold start (init) events per function — scaling pressure or deployment issues",
+      "description": "Detects unusual spikes in AWS Lambda cold start (init) events per function — scaling pressure or deployment issues",
       "job": {
         "description": "Detects unusual spikes in Lambda cold start (init) events per function — scaling pressure or deployment issues",
-        "groups": ["aws", "serverless"],
+        "groups": ["aws", "serverless", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -136,9 +197,16 @@
           "influencers": ["aws.lambda.function.name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -146,14 +214,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.lambda_logs" } },
-              { "term": { "aws.lambda.cold_start": true } }
+              {
+                "term": {
+                  "event.dataset": "aws.lambda_logs"
+                }
+              },
+              {
+                "term": {
+                  "aws.lambda.cold_start": true
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

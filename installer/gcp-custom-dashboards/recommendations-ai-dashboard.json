@@ -1,5 +1,5 @@
 {
-  "title": "GCP Recommendations Ai — overview",
+  "title": "GCP Recommendations Ai \u2014 overview",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -42,12 +42,12 @@
         "h": 10
       },
       "config": {
-        "title": "Log level",
+        "title": "Event outcome",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.recommendations* | STATS c = COUNT() BY o = log.level"
+            "query": "FROM logs-gcp.recommendations* | STATS c = COUNT() BY o = event.outcome"
           },
           "metrics": [
             {
@@ -122,18 +122,18 @@
         "h": 12
       },
       "config": {
-        "title": "By region",
+        "title": "By project",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.recommendations* | STATS c = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT c DESC | LIMIT 15"
+            "query": "FROM logs-gcp.recommendations* | STATS c = COUNT() BY region = COALESCE(`cloud.project.id`, \"unknown\") | SORT c DESC | LIMIT 15"
           },
           "metrics": [
             {
               "operation": "value",
               "column": "region",
-              "label": "Region"
+              "label": "Project"
             },
             {
               "operation": "value",

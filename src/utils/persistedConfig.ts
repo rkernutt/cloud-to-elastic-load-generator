@@ -5,6 +5,9 @@
 
 import { validateIndexPrefix } from "./validation";
 
+/** New sessions and imports without a boolean `scheduleEnabled` stay off unless the user opts in. */
+export const DEFAULT_SCHEDULE_ENABLED = false;
+
 export const PERSISTED_CONFIG_KEYS = [
   "logsIndexPrefix",
   "metricsIndexPrefix",

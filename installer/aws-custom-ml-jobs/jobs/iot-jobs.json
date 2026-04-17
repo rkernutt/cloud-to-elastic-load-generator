@@ -4,10 +4,10 @@
   "jobs": [
     {
       "id": "aws-iotcore-connection-failure-spike",
-      "description": "Detects unusual spikes in IoT Core device connection failures — compromised devices, fleet misconfiguration, or network issues",
+      "description": "Detects unusual spikes in AWS IoT Core device connection failures — compromised devices, fleet misconfiguration, or network issues",
       "job": {
         "description": "Detects unusual spikes in IoT Core device connection failures — compromised devices, fleet misconfiguration, or network issues",
-        "groups": ["aws", "iot"],
+        "groups": ["aws", "iot", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -20,9 +20,16 @@
           "influencers": ["aws.iotcore.client_id", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -30,23 +37,39 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.iotcore" } },
-              { "term": { "event.outcome": "failure" } },
-              { "term": { "event.action": "Connect" } }
+              {
+                "term": {
+                  "event.dataset": "aws.iotcore"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              },
+              {
+                "term": {
+                  "event.action": "Connect"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-iotcore-message-volume-anomaly",
-      "description": "Detects unusual changes in IoT Core message volume — device fleet anomalies, unexpected silence, or traffic spikes",
+      "description": "Detects unusual changes in AWS IoT Core message volume — device fleet anomalies, unexpected silence, or traffic spikes",
       "job": {
         "description": "Detects unusual changes in IoT Core message volume — device fleet anomalies, unexpected silence, or traffic spikes",
-        "groups": ["aws", "iot"],
+        "groups": ["aws", "iot", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "30m",
           "detectors": [
@@ -59,9 +82,16 @@
           "influencers": ["cloud.region", "cloud.account.id"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "16mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "16mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -69,22 +99,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.iotcore" } },
-              { "term": { "event.action": "Publish" } }
+              {
+                "term": {
+                  "event.dataset": "aws.iotcore"
+                }
+              },
+              {
+                "term": {
+                  "event.action": "Publish"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-iotcore-rule-error-spike",
-      "description": "Detects unusual spikes in IoT Core rule engine action errors — broken integrations or downstream service failures",
+      "description": "Detects unusual spikes in AWS IoT Core rule engine action errors — broken integrations or downstream service failures",
       "job": {
         "description": "Detects unusual spikes in IoT Core rule engine action errors — broken integrations or downstream service failures",
-        "groups": ["aws", "iot"],
+        "groups": ["aws", "iot", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -98,9 +140,16 @@
           "influencers": ["aws.iotcore.topic", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -108,14 +157,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.iotcore" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.iotcore"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -123,7 +184,7 @@
       "description": "Detects rare or previously unseen IoT device client IDs connecting — potentially unauthorised devices",
       "job": {
         "description": "Detects rare or previously unseen IoT device client IDs connecting — potentially unauthorised devices",
-        "groups": ["aws", "iot"],
+        "groups": ["aws", "iot", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "60m",
           "detectors": [
@@ -137,9 +198,16 @@
           "influencers": ["aws.iotcore.client_id", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "64mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -147,14 +215,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.iotcore" } },
-              { "term": { "event.action": "Connect" } }
+              {
+                "term": {
+                  "event.dataset": "aws.iotcore"
+                }
+              },
+              {
+                "term": {
+                  "event.action": "Connect"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

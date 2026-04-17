@@ -1,54 +1,86 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
-    "service": { "name": "sagemaker-pipelines" }
+    "region": "ca-west-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
+    "service": { "name": "sagemaker" }
   },
   "aws": {
-    "sagemaker_pipelines": {
-      "pipeline_name": "batch-inference",
-      "pipeline_execution_id": "exec-zt3x5vyhmlh",
-      "step_name": "Transform-2",
-      "step_type": "Transform",
-      "status": "Stopped",
-      "execution_duration_seconds": 715,
-      "parallelism": 2,
-      "retry_count": 3,
-      "cache_hit": false
+    "dimensions": {
+      "TrainingJobName": "resnet50-custom-endpoint-20260417-3c0urj",
+      "JobType": "Endpoint"
+    },
+    "cloudwatch": {
+      "log_group": "/aws/sagemaker/Endpoints/resnet50-custom-endpoint/AllTraffic",
+      "log_stream": "resnet50-custom-endpoint/AllTraffic/2026/04/17/gozak9dyafg",
+      "ingestion_time": "2026-04-17T09:05:19.031Z"
+    },
+    "sagemaker": {
+      "domain_id": "d-ti4cfm6ts1",
+      "domain_name": "ml-research",
+      "user_profile": "bob-ml",
+      "job": {
+        "name": "resnet50-custom-endpoint-20260417-3c0urj",
+        "type": "Endpoint",
+        "arn": "arn:aws:sagemaker:ca-west-1:814726593401:endpoint/resnet50-custom-endpoint-20260417-3c0urj",
+        "status": "Failed",
+        "secondary_status": "MaxRuntimeExceeded"
+      },
+      "model": { "name": "resnet50-custom", "version": 18 },
+      "pipeline": { "name": "model-training-pipeline", "execution_id": "pipe-usfimzggkw9" },
+      "instance": { "type": "ml.m5.xlarge", "count": 2 },
+      "metrics": { "gpu_utilization_pct": 56, "cpu_utilization_pct": 65 },
+      "studio": { "lifecycle_config": false, "continuous_logging": false },
+      "cloudwatch_metrics": {
+        "Invocations": { "sum": 4565 },
+        "ModelLatency": { "avg": 3736000 },
+        "OverheadLatency": { "avg": 13000 },
+        "GPUUtilization": { "avg": 70 },
+        "GPUMemoryUtilization": { "avg": 36 },
+        "CPUUtilization": { "avg": 63 },
+        "DiskUtilization": { "avg": 32 },
+        "MemoryUtilization": { "avg": 97 },
+        "Invocations4XXError": { "sum": 0 },
+        "Invocations5XXError": { "sum": 31 },
+        "ModelSetupTime": { "avg": 4985 }
+      }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sagemaker-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-sagemaker-logs-501938274650"
+        "name": "aws-sagemaker-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-sagemaker-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/sagemaker/ap-southeast-3/2026/04/15/sagemaker_WQXUR9XAB2D.log.gz"
+        "key": "AWSLogs/814726593401/sagemaker/ca-west-1/2026/04/17/sagemaker_RQM5UMRI1FA.log.gz"
       }
-    },
-    "cloudwatch": {
-      "log_group": "/aws/sagemaker/logs",
-      "log_stream": "ap-southeast-3/x889kvlp",
-      "ingestion_time": "2026-04-15T13:24:36.366Z"
     }
   },
-  "event": {
-    "outcome": "failure",
-    "duration": 173989888,
-    "module": "aws",
-    "dataset": "aws.sagemaker"
-  },
-  "message": "SageMaker Pipeline batch-inference: step Transform Stopped — Data quality check below threshold",
-  "service": { "name": "sagemaker", "type": "aws" },
   "log": { "level": "error" },
+  "user": { "name": "bob-ml" },
+  "event": {
+    "action": "ProcessingJobStarted",
+    "duration": 222791218238.90778,
+    "outcome": "failure",
+    "category": ["process"],
+    "dataset": "aws.sagemaker",
+    "provider": "sagemaker.amazonaws.com",
+    "module": "aws"
+  },
+  "message": "Algorithm Error: framework error from container",
+  "error": {
+    "code": "CapacityError",
+    "message": "ClientError: Data download failed. Please ensure training data is accessible",
+    "type": "service"
+  },
+  "service": { "name": "sagemaker", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sagemaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "2ft9pbhunzj"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "p3hmxv8izhr"
   },
   "input": { "type": "aws-cloudwatch" }
 }

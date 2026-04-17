@@ -1,12 +1,12 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "cf72d06f3668cf99d938a545a38d6295" },
+  "trace": { "id": "a798f374f58f00d40a5dbd8dfb959334" },
   "transaction": {
-    "id": "67eace75d1d8d548",
-    "name": "POST /v1/projects/globex-shared-m3n4o5/locations/us-east1/endpoints/1234567890123456789:predict",
+    "id": "f4f00e6f3c22f209",
+    "name": "POST /v1/projects/globex-dev-g7h8i9/locations/asia-east1/endpoints/1234567890123456789:predict",
     "type": "request",
-    "duration": { "us": 9356553 },
+    "duration": { "us": 7728214 },
     "result": "HTTP 2xx",
     "sampled": true,
     "span_count": { "started": 5, "dropped": 0 }
@@ -14,30 +14,27 @@
   "service": {
     "name": "vertex-inference",
     "environment": "staging",
+    "version": "1.0.0",
     "language": { "name": "python" },
-    "runtime": { "name": "python", "version": "3.12" },
-    "labels": {
-      "gcp.vertex_ai.model": "gemini-pro",
-      "gcp.vertex_ai.endpoint": "1234567890123456789",
-      "gcp.vertex_ai.accelerator": "NVIDIA_L4"
-    }
+    "runtime": { "name": "python", "version": "3.12" }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-east1",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
+    "region": "asia-east1",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" },
     "service": { "name": "aiplatform.googleapis.com" }
   },
-  "agent": { "name": "opentelemetry/nodejs", "version": "1.x" },
+  "labels": {
+    "gcp.vertex_ai.model": "image-classifier-resnet",
+    "gcp.vertex_ai.endpoint": "1234567890123456789",
+    "gcp.vertex_ai.accelerator": "NVIDIA_A100_40GB"
+  },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
   "event": { "outcome": "success", "module": "gcp", "dataset": "gcp.vertexai" },
   "ecs": { "version": "8.11.0" },
   "input": { "type": "opentelemetry" },
-  "gcpCloudTrace": {
-    "trace": "projects/globex-shared-m3n4o5/traces/cf72d06f3668cf99d938a545a38d6295",
-    "spanId": "67eace75d1d8d548"
-  },
+  "agent": { "name": "opentelemetry/python", "version": "1.x" },
   "telemetry": {
     "sdk": { "name": "opentelemetry", "language": "python", "version": "1.29.0" },
     "distro": { "name": "elastic", "version": "8.18.0" },
@@ -46,5 +43,9 @@
       "export_protocol": "otlp",
       "destination": "elastic_managed"
     }
+  },
+  "gcpCloudTrace": {
+    "trace": "projects/globex-dev-g7h8i9/traces/a798f374f58f00d40a5dbd8dfb959334",
+    "spanId": "f4f00e6f3c22f209"
   }
 }

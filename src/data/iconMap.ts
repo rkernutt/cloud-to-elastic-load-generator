@@ -151,7 +151,7 @@ const AWS_SERVICE_ICON_MAP = {
   cloudhsm: "AWSCloudHSM",
   storagelens: "AmazonS3StorageLens",
   qbusiness: "AmazonQ",
-  qldb: "AmazonQLDB",
+  qldb: "AmazonQLDB.png",
   lookoutmetrics: "AmazonLookoutforMetrics",
   vpclattice: "AmazonVPCLattice",
   mskconnect: "AmazonMSKConnect",

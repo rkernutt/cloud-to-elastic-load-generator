@@ -1,24 +1,27 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-northeast-3",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "macie" }
   },
   "aws": {
-    "dimensions": { "BucketName": "prod-data-ap-east-1" },
+    "dimensions": { "BucketName": "prod-data-ap-northeast-3" },
     "macie": {
-      "finding_id": "eiqp78s7-yh09-ysa6",
-      "finding_type": "none",
-      "severity": "INFORMATIONAL",
-      "s3_bucket": { "name": "prod-data-ap-east-1", "arn": "arn:aws:s3:::prod-data-ap-east-1" },
+      "finding_id": "fp7dwarf-ogmi-k7k9",
+      "finding_type": "SensitiveData:S3Object/Credentials",
+      "severity": "MEDIUM",
+      "s3_bucket": {
+        "name": "prod-data-ap-northeast-3",
+        "arn": "arn:aws:s3:::prod-data-ap-northeast-3"
+      },
       "s3_bucket_full": {
-        "name": "prod-data-ap-east-1",
-        "arn": "arn:aws:s3:::prod-data-ap-east-1",
-        "owner_id": "cd5fouanaxg",
+        "name": "prod-data-ap-northeast-3",
+        "arn": "arn:aws:s3:::prod-data-ap-northeast-3",
+        "owner_id": "39daxv1vyyc",
         "default_server_side_encryption": { "encryption_type": "aws:kms" },
-        "tags": [{ "key": "Environment", "value": "dev" }],
+        "tags": [{ "key": "Environment", "value": "prod" }],
         "public_access": {
           "effective_permission": "NOT_PUBLIC",
           "block_public_acls": true,
@@ -27,43 +30,48 @@
           "restrict_public_buckets": true
         }
       },
-      "occurrences": 0,
-      "sensitive_data_categories": [],
-      "data_identifiers": []
+      "occurrences": 47446,
+      "sensitive_data_categories": ["MEDICAL"],
+      "data_identifiers": ["SSN_US"]
     },
     "s3": {
       "bucket": {
-        "name": "aws-macie-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-macie-logs-501938274650"
+        "name": "aws-macie-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-macie-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/macie/ap-east-1/2026/04/15/macie_GOAZ26MCNVK.log.gz"
+        "key": "AWSLogs/293847561023/macie/ap-northeast-3/2026/04/17/macie_NVNW1DDNXOM.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/macie/logs",
-      "log_stream": "ap-east-1/kqxocfz2",
-      "ingestion_time": "2026-04-15T13:24:36.269Z"
+      "log_stream": "ap-northeast-3/mwl472zf",
+      "ingestion_time": "2026-04-17T09:05:18.902Z"
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "success",
-    "category": ["vulnerability"],
+    "outcome": "failure",
+    "category": ["malware"],
     "dataset": "aws.macie",
     "provider": "macie2.amazonaws.com",
     "module": "aws"
   },
-  "message": "Macie scan complete: no sensitive data found",
-  "log": { "level": "info" },
+  "message": "Macie detected sensitive data in s3://prod-data-ap-northeast-3: SensitiveData:S3Object/Credentials",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "SensitiveDataFound",
+    "message": "Sensitive data in s3://prod-data-ap-northeast-3",
+    "type": "data"
+  },
   "service": { "name": "macie", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.macie", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "gbgr9yfh2pq"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "f1pc3wwcm09"
   },
   "input": { "type": "http_endpoint" }
 }

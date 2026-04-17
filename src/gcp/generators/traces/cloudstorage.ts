@@ -1,13 +1,7 @@
-/**
- * Cloud Storage OTel trace: GCS object operation with optional downstream metadata update.
- */
-
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-
-const APM_AGENT = { name: "opentelemetry/nodejs", version: "1.x" } as const;
-const APM_DS = { type: "traces", dataset: "apm", namespace: "default" } as const;
+import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
 
 const BUCKETS = ["assets-prod", "data-lake-raw", "backups", "ml-training-data"];
 const OBJECTS = [
@@ -26,6 +20,11 @@ export function generateCloudStorageTrace(ts: string, er: number): EcsDocument[]
   const operation = rand(["PutObject", "GetObject", "CopyObject"]);
   const bucket = rand(BUCKETS);
   const object = rand(OBJECTS);
+  const otel = gcpOtelMeta("nodejs");
+  const svc = gcpServiceBase("data-pipeline-worker", env, "nodejs", {
+    runtimeName: "nodejs",
+    runtimeVersion: "20.x",
+  });
 
   const gcsUs = randInt(5_000, 800_000) * (isErr ? randInt(2, 6) : 1);
   const sGcs = randSpanId();
@@ -46,25 +45,24 @@ export function generateCloudStorageTrace(ts: string, er: number): EcsDocument[]
       duration: { us: gcsUs },
       action: operation.toLowerCase(),
       destination: { service: { resource: "gcs", type: "storage", name: "gcs" } },
-      labels: { bucket, object },
+      labels: {
+        bucket,
+        object,
+        ...(isErr ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {}),
+      },
     },
-    service: {
-      name: "data-pipeline-worker",
-      environment: env,
-      language: { name: "nodejs" },
-      runtime: { name: "nodejs", version: "20.x" },
-    },
+    service: svc,
     cloud: gcpCloud(region, project, "storage.googleapis.com"),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: isErr ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sGcs),
   };
   offsetMs += Math.max(1, Math.round(gcsUs / 1000));
 
   const docs: EcsDocument[] = [spanGcs];
   let totalUs = gcsUs;
 
-  // Optional downstream metadata update span (only on successful writes)
   const hasMetaUpdate = !isErr && operation === "PutObject" && Math.random() < 0.6;
   if (hasMetaUpdate) {
     const metaSubtype = rand(["firestore", "bigquery"]);
@@ -89,20 +87,16 @@ export function generateCloudStorageTrace(ts: string, er: number): EcsDocument[]
         action: "write",
         destination: { service: { resource: metaSubtype, type: "db", name: metaSubtype } },
       },
-      service: {
-        name: "data-pipeline-worker",
-        environment: env,
-        language: { name: "nodejs" },
-        runtime: { name: "nodejs", version: "20.x" },
-      },
+      service: svc,
       cloud: gcpCloud(
         region,
         project,
         metaSubtype === "firestore" ? "firestore.googleapis.com" : "bigquery.googleapis.com"
       ),
-      agent: APM_AGENT,
       data_stream: APM_DS,
       event: { outcome: "success" },
+      ...otel,
+      ...gcpCloudTraceMeta(project.id, traceId, sMeta),
     });
     offsetMs += Math.max(1, Math.round(metaUs / 1000));
   }
@@ -121,16 +115,13 @@ export function generateCloudStorageTrace(ts: string, er: number): EcsDocument[]
       sampled: true,
       span_count: { started: docs.length, dropped: 0 },
     },
-    service: {
-      name: "data-pipeline-worker",
-      environment: env,
-      language: { name: "nodejs" },
-      runtime: { name: "nodejs", version: "20.x" },
-    },
+    service: svc,
     cloud: gcpCloud(region, project, "storage.googleapis.com"),
-    agent: APM_AGENT,
+    labels: { "gcp.storage.bucket": bucket },
     data_stream: APM_DS,
     event: { outcome: isErr ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, txId),
   };
 
   return [txDoc, ...docs];

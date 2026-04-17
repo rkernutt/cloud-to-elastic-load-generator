@@ -1,5 +1,5 @@
 {
-  "title": "GCP Dataflow — Jobs & Lag",
+  "title": "GCP Dataflow \u2014 Jobs & Lag",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -154,7 +154,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.dataflow* | KEEP `@timestamp`, `gcp.dataflow.job_name`, `gcp.dataflow.job_type`, `gcp.dataflow.worker_count`, `gcp.dataflow.watermark_lag_seconds`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.dataflow* | KEEP `@timestamp`, `gcp.dataflow.job_name`, `gcp.dataflow.job_type`, `gcp.dataflow.worker_count`, `gcp.dataflow.watermark_lag_seconds`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
@@ -184,8 +184,8 @@
             },
             {
               "operation": "value",
-              "column": "log.level",
-              "label": "Log level"
+              "column": "event.outcome",
+              "label": "Outcome"
             },
             {
               "operation": "value",

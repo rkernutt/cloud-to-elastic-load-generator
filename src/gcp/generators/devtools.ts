@@ -12,6 +12,7 @@ import {
   randProject,
   randHttpStatus,
   randLatencyMs,
+  randSeverity,
   HTTP_METHODS,
 } from "./helpers.js";
 
@@ -22,33 +23,94 @@ function hexSha8(): string {
 export function generateCloudBuildLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const buildId = `${randId(8).toLowerCase()}-${randId(4).toLowerCase()}-${randId(4).toLowerCase()}`;
-  const triggerName = `trigger-${rand(["main", "release", "nightly", "pr"])}`;
+  const triggerId = `trigger-${rand(["main", "release", "nightly", "pr"])}-${randId(6).toLowerCase()}`;
+  const bucket = `${project.id}_cloudbuild`;
+  const objectPath = `source/${randId(10).toLowerCase()}.tgz`;
+  const source = `gs://${bucket}/${objectPath}`;
   const sourceRepo = `github.com/${project.id.split("-")[0]}/${rand(["api", "web", "infra"])}`;
   const branch = rand(["main", "develop", "release/1.4", `feature/${randId(4).toLowerCase()}`]);
   const commitSha = hexSha8();
-  const stepName = rand(["fetch", "docker_build", "run_tests", "push_images", "deploy_manifest"]);
-  const status = isErr
-    ? rand(["FAILURE", "TIMEOUT", "QUEUED"])
-    : rand(["QUEUED", "WORKING", "SUCCESS"]);
-  const buildDurationSeconds = isErr ? randInt(30, 2400) : randInt(120, 3600);
+  const stepNames = [
+    "gcr.io/cloud-builders/git",
+    "gcr.io/cloud-builders/docker",
+    "gcr.io/cloud-builders/gcloud",
+    "gcr.io/kaniko-project/executor:latest",
+    "bash",
+  ];
+  const steps = randInt(3, 8);
+  const currentStep = randInt(0, steps - 1);
+  const stepImage = rand(stepNames);
+  const stepDurationSec = randInt(5, 180);
+  const kind = isErr
+    ? rand(["failure", "docker", "fetch"] as const)
+    : rand(["queued", "working", "success", "step", "fetch", "docker", "trigger"] as const);
+  const severity = randSeverity(isErr);
+  let status = "BUILD_WORKING";
+  let message = "";
+
+  if (kind === "queued") {
+    status = "BUILD_QUEUED";
+    message = `BUILD_QUEUED: build_id=${buildId} trigger_id=${triggerId} branch=${branch} commit=${commitSha}`;
+  } else if (kind === "working") {
+    status = "BUILD_WORKING";
+    message = `BUILD_WORKING: Started build "${buildId}" for ${sourceRepo}@${commitSha} on machineType=E2_HIGHCPU_8`;
+  } else if (kind === "success") {
+    status = "BUILD_SUCCESS";
+    message = `BUILD_SUCCESS: Finished build "${buildId}" total_duration=${randInt(120, 2400)}s images=[gcr.io/${project.id}/api:${commitSha}]`;
+  } else if (kind === "failure") {
+    status = "BUILD_FAILURE";
+    message = `BUILD_FAILURE: build "${buildId}" failed at step ${currentStep}: ${rand(["Step exited with code 1", "Build step failure: unit tests failed", "Build timed out"])}`;
+  } else if (kind === "step") {
+    status = "BUILD_WORKING";
+    message =
+      Math.random() < 0.33
+        ? `Step #${currentStep} - "${stepImage}": Pulling image: ${stepImage}`
+        : Math.random() < 0.5
+          ? `Step #${currentStep} - "${stepImage}": Already have image (with digest): sha256:${hexSha8()}${hexSha8()}`
+          : `Step #${currentStep} - "${stepImage}": Step completed in ${stepDurationSec}s`;
+  } else if (kind === "fetch") {
+    status = "BUILD_WORKING";
+    message = `Fetching storage object: ${source}#${randInt(1000000000000, 9999999999999)}`;
+  } else if (kind === "docker") {
+    status = "BUILD_WORKING";
+    message = isErr
+      ? `ERROR: denied: Permission "artifactregistry.repositories.uploadArtifacts" denied on resource`
+      : `Pushing gcr.io/${project.id}/svc:${commitSha}\nThe push refers to repository [gcr.io/${project.id}/svc]\nLayer ${hexSha8()}: Pushing [=====>     ] ${randInt(10, 90)}%`;
+  } else {
+    status = "BUILD_WORKING";
+    message = `GitHub webhook received: event=push repo=${sourceRepo} ref=refs/heads/${branch}; matched trigger "${triggerId}" starting build ${buildId}`;
+  }
+
   const imagesBuilt = isErr ? randInt(0, 1) : randInt(1, 6);
   const machineType = rand(["E2_MEDIUM", "E2_HIGHCPU_8", "N1_HIGHCPU_32"] as const);
-  const message = isErr
-    ? `Cloud Build ${buildId} ${status} at step "${stepName}": ${rand(["Step exited with code 1", "Docker push denied", "Test suite failed", "Build timeout"])}`
-    : `Cloud Build ${buildId} ${status} for ${branch}@${commitSha} (${imagesBuilt} images, ${buildDurationSeconds}s on ${machineType})`;
+  const buildDurationSeconds = isErr ? randInt(30, 2400) : randInt(120, 3600);
+  const stepList = Array.from(
+    { length: Math.min(steps, 5) },
+    (_, i) => stepNames[i % stepNames.length]!
+  );
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: {
+      build_id: buildId,
+      build_trigger_id: triggerId,
+      project_id: project.id,
+    },
     cloud: gcpCloud(region, project, "cloudbuild.googleapis.com"),
     gcp: {
       cloud_build: {
         build_id: buildId,
-        trigger_name: triggerName,
+        project_id: project.id,
+        status,
+        source,
+        trigger_id: triggerId,
+        steps: stepList,
+        trigger_name: triggerId,
         source_repo: sourceRepo,
         branch,
         commit_sha: commitSha,
-        step_name: stepName,
-        status,
+        step_name: stepImage,
         build_duration_seconds: buildDurationSeconds,
         images_built: imagesBuilt,
         machine_type: machineType,
@@ -74,12 +136,15 @@ export function generateCloudDeployLog(ts: string, er: number): EcsDocument {
   const pipelineName = `pipeline-${rand(["api", "web", "batch"])}`;
   const releaseName = `rel-${randId(6).toLowerCase()}`;
   const rolloutId = `rollout-${randId(10).toLowerCase()}`;
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Cloud Deploy rollout ${rolloutId} failed in ${phase} for ${targetName}: ${rand(["Health check failed", "Canary analysis rejected release", "Verification timeout"])}`
-    : `Cloud Deploy ${releaseName} ${status} — ${phase} on target ${targetName} (approval=${approvalState})`;
+    ? `clouddeploy.googleapis.com: Rollout ${rolloutId} FAILED phase=${phase} target=${targetName}: ${rand(["Cloud Run health check failed", "Canary metrics rejected release", "Verification job timeout"])}`
+    : `Rollout ${rolloutId} ${status} release=${releaseName} pipeline=${pipelineName} phase=${phase} target=${targetName} approval_state=${targetName === "production" ? approvalState : "N/A"}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { "resource.type": "clouddeploy.googleapis.com/Rollout", rollout: rolloutId },
     cloud: gcpCloud(region, project, "clouddeploy.googleapis.com"),
     gcp: {
       cloud_deploy: {
@@ -113,12 +178,15 @@ export function generateSourceRepositoriesLog(ts: string, er: number): EcsDocume
   const authorEmail = rand([`dev@${project.id}.example.com`, `ci@${project.id}.example.com`]);
   const commitCount = randInt(1, isErr ? 1 : 25);
   const filesChanged = isErr ? 0 : randInt(1, 200);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Source Repositories ${eventType} rejected on ${repoName}: ${rand(["Hook validation failed", "Protected branch", "Permission denied"])}`
-    : `Source Repositories ${eventType} on ${refName} by ${authorEmail} (${commitCount} commits, ${filesChanged} files)`;
+    ? `sourcerepo.googleapis.com: ${eventType} rejected on projects/${project.id}/repos/${repoName}: ${rand(["Hook validation failed", "Protected branch update denied", "Permission denied"])}`
+    : `git receive-pack: ${eventType} ${refName} by ${authorEmail} (+${commitCount} commits, ${filesChanged} files) repo=${repoName}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { "resource.type": "sourcerepo.googleapis.com/Repo", repository: repoName },
     cloud: gcpCloud(region, project, "sourcerepo.googleapis.com"),
     gcp: {
       source_repositories: {
@@ -158,12 +226,15 @@ export function generateFirebaseLog(ts: string, er: number): EcsDocument {
   const resource = rand(["hosting", "firestore.rules", "functions:api", "auth", "remoteconfig"]);
   const status = isErr ? rand(["FAILED", "ROLLED_BACK"]) : rand(["SUCCESS", "IN_PROGRESS"]);
   const version = `v${randInt(1, 40)}.${randInt(0, 30)}.${randInt(0, 99)}`;
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Firebase ${eventType} failed for ${resource} (${platform}): ${rand(["Permission denied", "Invalid rules syntax", "Function deploy error"])}`
-    : `Firebase ${eventType} ${status} for app ${appId} — ${resource} ${version}`;
+    ? `firebase.googleapis.com: ${eventType} FAILED for ${resource} app=${appId}: ${rand(["PERMISSION_DENIED on bucket", "Firestore rules compile error", "Cloud Functions deployment error"])}`
+    : `[Hosting] Release ${version} ${status} for site=${project.id} app=${appId} resource=${resource}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { "resource.type": "firebase.googleapis.com/Project", "firebase.app": appId },
     cloud: gcpCloud(region, project, "firebase.googleapis.com"),
     gcp: {
       firebase: {
@@ -193,12 +264,15 @@ export function generateCloudEndpointsLog(ts: string, er: number): EcsDocument {
   const apiVersion = rand(["v1", "v1alpha", "v2"]);
   const requestSizeBytes = randInt(120, 2_000_000);
   const apiKeyUsed = Math.random() < 0.65;
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Cloud Endpoints ${apiMethod} ${apiVersion} returned ${responseCode} (${latencyMs}ms): ${rand(["Invalid API key", "Quota exceeded", "Backend unavailable"])}`
-    : `Cloud Endpoints ${serviceName} ${apiMethod} ${responseCode} in ${latencyMs}ms (consumer=${consumerProject.id}, api_key=${apiKeyUsed})`;
+    ? `endpoints.googleapis.com: ${apiMethod} /${apiVersion}/… ${responseCode} consumer_project=${consumerProject.id} latency_ms=${latencyMs} error_type=${rand(["API_KEY_INVALID", "QUOTA_EXCEEDED", "BACKEND_ERROR"])}`
+    : `ESPv2: ${apiMethod} ${apiVersion} ${responseCode} service=${serviceName} latency_ms=${latencyMs} request_bytes=${requestSizeBytes} api_key=${apiKeyUsed ? "present" : "absent"} consumer=${consumerProject.id}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { "resource.type": "api.googleapis.com/Service", service: serviceName },
     cloud: gcpCloud(region, project, "endpoints.googleapis.com"),
     gcp: {
       cloud_endpoints: {
@@ -246,12 +320,15 @@ export function generateApigeeLog(ts: string, er: number): EcsDocument {
         "Invalid client_id",
       ])
     : "";
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Apigee proxy ${apiProxy} r${revision} fault on ${policyName}: ${policyFault} (${responseCode}, ${latencyMs}ms)`
-    : `Apigee ${verb} ${path} via ${apiProxy} (${environment}) ${responseCode} in ${latencyMs}ms [${developerApp}]`;
+    ? `apigee.googleapis.com: proxy=${apiProxy} rev=${revision} env=${environment} fault_flow_name=${policyName} fault_string="${policyFault}" response_code=${responseCode} total_latency_ms=${latencyMs}`
+    : `${verb} ${path} apigee_proxy=${apiProxy} env=${environment} response_code=${responseCode} client_id=${developerApp} total_ms=${latencyMs}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { "resource.type": "apigee.googleapis.com/Environment", proxy: apiProxy, environment },
     cloud: gcpCloud(region, project, "apigee.googleapis.com"),
     gcp: {
       apigee: {
@@ -289,13 +366,16 @@ export function generateCloudShellLog(ts: string, er: number): EcsDocument {
   ] as const);
   const shellType = rand(["bash", "zsh"] as const);
   const storageUsedMb = isErr ? randInt(4800, 5120) : randInt(50, 4000);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Cloud Shell ${sessionId} ${eventType} failed (${shellType}): ${rand(["Disk full", "Session timeout", "Quota exceeded"])}`
-    : `Cloud Shell ${sessionId} ${eventType} on ${machineType} (${shellType}, ${storageUsedMb}MB used)`;
+    ? `cloudshell.googleapis.com: ${eventType} session=${sessionId} FAILED: ${rand(["Disk quota exceeded on /home", "Session idle timeout", "User environment provisioning error"])}`
+    : `Cloud Shell ${eventType}: session=${sessionId} machine=${machineType} shell=${shellType} disk_used_mb=${storageUsedMb}`;
 
   return {
     "@timestamp": ts,
-    cloud: gcpCloud(region, project, "cloud-shell"),
+    severity,
+    labels: { "resource.type": "cloudshell.googleapis.com/UserEnvironment", session_id: sessionId },
+    cloud: gcpCloud(region, project, "cloudshell.googleapis.com"),
     gcp: {
       cloud_shell: {
         session_id: sessionId,
@@ -321,13 +401,16 @@ export function generateGeminiCodeAssistLog(ts: string, er: number): EcsDocument
   const accepted = !isErr && Math.random() > 0.35;
   const latencyMs = randLatencyMs(randInt(80, 1200), isErr);
   const tokensGenerated = isErr ? randInt(0, 50) : randInt(20, 2048);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Gemini Code Assist ${action} failed in ${editor} (${language}): upstream error`
-    : `Gemini Code Assist ${action} ${language} in ${editor} accepted=${accepted} tokens=${tokensGenerated} (${latencyMs.toFixed(1)}ms)`;
+    ? `cloudaicompanion.googleapis.com: ${action} request FAILED editor=${editor} language=${language}: upstream UNAVAILABLE`
+    : `Code Assist ${action}: language=${language} editor=${editor} latency_ms=${latencyMs.toFixed(1)} suggestion_accepted=${accepted} generated_tokens=${tokensGenerated}`;
 
   return {
     "@timestamp": ts,
-    cloud: gcpCloud(region, project, "gemini-code-assist"),
+    severity,
+    labels: { "resource.type": "cloudaicompanion.googleapis.com/Request", editor, language },
+    cloud: gcpCloud(region, project, "cloudaicompanion.googleapis.com"),
     gcp: {
       gemini_code_assist: {
         editor,
@@ -356,13 +439,16 @@ export function generateApiGatewayLog(ts: string, er: number): EcsDocument {
   const latencyMs = randLatencyMs(randInt(12, 400), isErr);
   const apiKey = isErr ? "" : `AIza${randId(28)}`;
   const consumerProject = randProject().id;
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `API Gateway ${gatewayName} ${method} ${path} -> ${responseCode} (${latencyMs.toFixed(1)}ms)`
-    : `API Gateway ${gatewayName} ${method} ${path} ${responseCode} consumer=${consumerProject}`;
+    ? `apigateway.googleapis.com: ${method} ${path} gateways/${gatewayName} -> ${responseCode} latency_ms=${latencyMs.toFixed(1)} reason=${rand(["API_KEY_INVALID", "BACKEND_TIMEOUT", "UNAUTHENTICATED"])}`
+    : `API Gateway ${gatewayName}: ${method} ${path} ${responseCode} backend_latency_ms=${latencyMs.toFixed(1)} consumer_project=${consumerProject}`;
 
   return {
     "@timestamp": ts,
-    cloud: gcpCloud(region, project, "api-gateway"),
+    severity,
+    labels: { "resource.type": "apigateway.googleapis.com/Gateway", gateway: gatewayName },
+    cloud: gcpCloud(region, project, "apigateway.googleapis.com"),
     gcp: {
       api_gateway: {
         gateway_name: gatewayName,

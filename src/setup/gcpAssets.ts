@@ -17,6 +17,7 @@ export const GCP_SETUP_BUNDLE: CloudSetupBundle = {
   pipelines: PIPELINE_REGISTRY as PipelineEntry[],
   mlJobFiles: valuesFromEagerJsonGlob<MlJobFile>(rawMlJobModules),
   dashboards: valuesFromEagerJsonGlob<DashboardDef>(rawDashboardModules),
+  alertRuleFiles: [],
   fleetPackage: "gcp",
   fleetPackageLabel: "GCP Integration",
   showApmToggle: true,

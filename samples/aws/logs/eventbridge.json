@@ -1,65 +1,71 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-west-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "events" }
   },
   "aws": {
-    "dimensions": { "EventBusName": "custom-events", "RuleName": "cost-alert-rule" },
+    "dimensions": { "EventBusName": "custom-events", "RuleName": "order-created-rule" },
     "eventbridge": {
       "event_bus": "custom-events",
-      "rule": "cost-alert-rule",
-      "source": "custom.app",
-      "detail_type": "EC2 Instance State-change Notification",
-      "targets_invoked": 4,
-      "targets_failed": 0,
-      "event_id": "el7htjvm-mx7v-dey2-r6pt-50bfbmvc6tm",
-      "structured_logging": false,
+      "rule": "order-created-rule",
+      "source": "com.partner.events",
+      "detail_type": "Object Created",
+      "targets_invoked": 1,
+      "targets_failed": 1,
+      "event_id": "gxcqbvql-1agw-2f0r-n97d-zjjhlk2jco",
+      "log_kind": "target_delivery",
+      "structured_logging": true,
       "metrics": {
         "Invocations": { "sum": 1 },
-        "FailedInvocations": { "sum": 0 },
+        "FailedInvocations": { "sum": 1 },
         "TriggeredRules": { "sum": 1 },
-        "MatchedEvents": { "sum": 20 },
-        "ThrottledRules": { "sum": 0 },
+        "MatchedEvents": { "sum": 34 },
+        "ThrottledRules": { "sum": 4 },
         "DeadLetterInvocations": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-eventbridge-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-eventbridge-logs-501938274650"
+        "name": "aws-eventbridge-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-eventbridge-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/eventbridge/ap-northeast-2/2026/04/15/eventbridge_80O64T20XU4.log.gz"
+        "key": "AWSLogs/164820739518/eventbridge/eu-west-2/2026/04/17/eventbridge_E88Q4L14C0R.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/eventbridge/logs",
-      "log_stream": "ap-northeast-2/7zp51658",
-      "ingestion_time": "2026-04-15T13:24:36.334Z"
+      "log_stream": "eu-west-2/lu94ddg8",
+      "ingestion_time": "2026-04-17T09:05:18.991Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
-    "type": ["deletion"],
+    "type": ["creation"],
     "dataset": "aws.eventbridge",
     "provider": "events.amazonaws.com",
-    "duration": 155000000,
+    "duration": 918000000,
     "module": "aws"
   },
-  "message": "EventBridge event routed: custom.app -> cost-alert-rule",
-  "log": { "level": "info" },
+  "message": "{\"id\":\"gxcqbvql-1agw-2f0r-n97d-zjjhlk2jco\",\"source\":\"com.partner.events\",\"detailType\":\"EC2 Instance State-change Notification\",\"rule\":\"order-created-rule\",\"eventBus\":\"custom-events\",\"log_kind\":\"target_delivery\",\"target_arn\":\"arn:aws:lambda:eu-west-2:164820739518:function:fanOut\",\"message\":\"EventBridge TargetDelivery rule=order-created-rule target=arn:aws:lambda:eu-west-2:164820739518:function:fanOut status=FAILED httpStatus=504 attempt=4\",\"timestamp\":\"2026-04-17T09:05:18.304Z\"}",
+  "log": { "level": "error" },
+  "error": {
+    "code": "IllegalStatusException",
+    "message": "EventBridge target invocations failed",
+    "type": "event"
+  },
   "service": { "name": "eventbridge", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.eventbridge", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "4iiumwquazu"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "lct4eklejh"
   },
   "input": { "type": "aws-cloudwatch" }
 }

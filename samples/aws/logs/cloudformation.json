@@ -1,42 +1,45 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "sa-east-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "cloudformation" }
   },
   "aws": {
     "cloudformation": {
-      "stack_name": "prod-web-stack",
-      "stack_id": "arn:aws:cloudformation:us-east-1:293847561023:stack/prod-web-stack/yyjy1vrx",
-      "action": "UPDATE_STACK",
-      "stack_status": "UPDATE_COMPLETE",
+      "stack_name": "vpc-infra",
+      "stack_id": "arn:aws:cloudformation:sa-east-1:814726593401:stack/vpc-infra/2lptaxtp",
+      "action": "DETECT_DRIFT",
+      "stack_status": "UPDATE_IN_PROGRESS",
       "resource_type": "AWS::RDS::DBInstance",
-      "logical_resource_id": "DatabaseCluster",
-      "drift_status": "IN_SYNC",
+      "logical_resource_id": "VPC",
+      "physical_resource_id": "arn:aws:rds:sa-east-1:814726593401:db:prod-001",
+      "resource_status": "DELETE_IN_PROGRESS",
+      "resource_status_reason": "IAM policy error",
+      "drift_status": "NOT_CHECKED",
       "structured_logging": true,
       "metrics": {
-        "TotalStack": { "avg": 328 },
+        "TotalStack": { "avg": 342 },
         "ErroredStack": { "avg": 0 },
         "RollbackStack": { "avg": 0 },
-        "DeletedStack": { "avg": 38 },
-        "StackInstancesDeployed": { "avg": 346 }
+        "DeletedStack": { "avg": 47 },
+        "StackInstancesDeployed": { "avg": 1550 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudformation-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-cloudformation-logs-293847561023"
+        "name": "aws-cloudformation-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-cloudformation-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/cloudformation/us-east-1/2026/04/15/cloudformation_CRJKSY8O4T6.log.gz"
+        "key": "AWSLogs/814726593401/cloudformation/sa-east-1/2026/04/17/cloudformation_XQW0PS6HZ7.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloudformation/logs",
-      "log_stream": "us-east-1/gl7k871v",
-      "ingestion_time": "2026-04-15T13:24:36.390Z"
+      "log_stream": "sa-east-1/nmyjzlx6",
+      "ingestion_time": "2026-04-17T09:05:19.059Z"
     }
   },
   "event": {
@@ -44,10 +47,10 @@
     "category": ["configuration", "process"],
     "dataset": "aws.cloudformation",
     "provider": "cloudformation.amazonaws.com",
-    "duration": 201000000000,
+    "duration": 240000000000,
     "module": "aws"
   },
-  "message": "{\"stackName\":\"prod-web-stack\",\"action\":\"UPDATE_STACK\",\"stackStatus\":\"UPDATE_COMPLETE\",\"resourceType\":\"AWS::RDS::DBInstance\",\"message\":\"CloudFormation prod-web-stack: UPDATE_STACK -> UPDATE_COMPLETE\",\"timestamp\":\"2026-04-15T13:24:35.775Z\"}",
+  "message": "{\"StackId\":\"arn:aws:cloudformation:sa-east-1:814726593401:stack/vpc-infra/2lptaxtp\",\"StackName\":\"vpc-infra\",\"ResourceType\":\"AWS::RDS::DBInstance\",\"LogicalResourceId\":\"VPC\",\"PhysicalResourceId\":\"arn:aws:rds:sa-east-1:814726593401:db:prod-001\",\"ResourceStatus\":\"DELETE_IN_PROGRESS\",\"ResourceStatusReason\":\"IAM policy error\",\"Timestamp\":\"2026-04-17T09:05:18.304Z\"}",
   "log": { "level": "info" },
   "service": { "name": "cloudformation", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -55,8 +58,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "gritmjx5s4m"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "tke4zjiv41"
   },
   "input": { "type": "aws-cloudwatch" }
 }

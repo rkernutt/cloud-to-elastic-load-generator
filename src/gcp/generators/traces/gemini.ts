@@ -1,13 +1,7 @@
-/**
- * Gemini AI OTel trace: model inference with optional RAG retrieval and cache check spans.
- */
-
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-
-const APM_AGENT = { name: "opentelemetry/nodejs", version: "1.x" } as const;
-const APM_DS = { type: "traces", dataset: "apm", namespace: "default" } as const;
+import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
 
 const GEMINI_OPERATIONS = ["generateContent", "streamGenerateContent", "embedContent"] as const;
 
@@ -23,12 +17,16 @@ export function generateGeminiTrace(ts: string, er: number): EcsDocument[] {
   const env = rand(["production", "production", "staging", "dev"]);
   const operation = rand(GEMINI_OPERATIONS);
   const model = rand(GEMINI_MODELS);
+  const otel = gcpOtelMeta("python");
+  const svc = gcpServiceBase("ai-assistant-api", env, "python", {
+    runtimeName: "python",
+    runtimeVersion: "3.12",
+  });
 
   let offsetMs = 0;
   const spanDocs: EcsDocument[] = [];
   let totalUs = 0;
 
-  // Optional span: Firestore cache check (before model call)
   const hasCacheCheck = Math.random() < 0.4;
   if (hasCacheCheck) {
     const cacheUs = randInt(500, 8_000);
@@ -49,21 +47,16 @@ export function generateGeminiTrace(ts: string, er: number): EcsDocument[] {
         action: "query",
         destination: { service: { resource: "firestore", type: "db", name: "firestore" } },
       },
-      service: {
-        name: "ai-assistant-api",
-        environment: env,
-        language: { name: "python" },
-        runtime: { name: "python", version: "3.12" },
-      },
+      service: svc,
       cloud: gcpCloud(region, project, "firestore.googleapis.com"),
-      agent: APM_AGENT,
       data_stream: APM_DS,
       event: { outcome: "success" },
+      ...otel,
+      ...gcpCloudTraceMeta(project.id, traceId, sCache),
     });
     offsetMs += Math.max(1, Math.round(cacheUs / 1000));
   }
 
-  // Optional span: GCS context document retrieval (RAG)
   const hasRagRetrieval = !hasCacheCheck && Math.random() < 0.5;
   if (hasRagRetrieval) {
     const ragUs = randInt(5_000, 80_000);
@@ -85,21 +78,16 @@ export function generateGeminiTrace(ts: string, er: number): EcsDocument[] {
         destination: { service: { resource: "gcs", type: "storage", name: "gcs" } },
         labels: { bucket: rand(CONTEXT_BUCKETS) },
       },
-      service: {
-        name: "ai-assistant-api",
-        environment: env,
-        language: { name: "python" },
-        runtime: { name: "python", version: "3.12" },
-      },
+      service: svc,
       cloud: gcpCloud(region, project, "storage.googleapis.com"),
-      agent: APM_AGENT,
       data_stream: APM_DS,
       event: { outcome: "success" },
+      ...otel,
+      ...gcpCloudTraceMeta(project.id, traceId, sRag),
     });
     offsetMs += Math.max(1, Math.round(ragUs / 1000));
   }
 
-  // Span: Gemini model call
   const promptTokens = randInt(50, 4096);
   const completionTokens = isErr ? 0 : randInt(10, 2048);
   const modelUs = randInt(200_000, 3_000_000) * (isErr ? randInt(2, 5) : 1);
@@ -129,19 +117,17 @@ export function generateGeminiTrace(ts: string, er: number): EcsDocument[] {
         model,
         prompt_token_count: String(promptTokens),
         completion_token_count: String(completionTokens),
+        ...(isErr
+          ? { "gcp.rpc.status_code": rand(["RESOURCE_EXHAUSTED", "DEADLINE_EXCEEDED"]) }
+          : {}),
       },
     },
-    service: {
-      name: "ai-assistant-api",
-      environment: env,
-      language: { name: "python" },
-      runtime: { name: "python", version: "3.12" },
-    },
+    service: svc,
     cloud: gcpCloud(region, project, "generativelanguage.googleapis.com"),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: isErr ? "failure" : "success" },
-    "gcp.trace.model": model,
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sModel),
   });
 
   const txOverhead = randInt(100, 1000) * 1000;
@@ -158,17 +144,13 @@ export function generateGeminiTrace(ts: string, er: number): EcsDocument[] {
       sampled: true,
       span_count: { started: spanDocs.length, dropped: 0 },
     },
-    service: {
-      name: "ai-assistant-api",
-      environment: env,
-      language: { name: "python" },
-      runtime: { name: "python", version: "3.12" },
-    },
+    service: svc,
     cloud: gcpCloud(region, project, "generativelanguage.googleapis.com"),
-    agent: APM_AGENT,
+    labels: { model, "gcp.generative_ai.product": "gemini" },
     data_stream: APM_DS,
     event: { outcome: isErr ? "failure" : "success" },
-    "gcp.trace.model": model,
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, txId),
   };
 
   return [txDoc, ...spanDocs];

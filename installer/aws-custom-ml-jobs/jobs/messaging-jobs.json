@@ -1,13 +1,13 @@
 {
   "group": "messaging",
-  "description": "Messaging & streaming anomaly detection — SNS delivery failures, MSK consumer lag, EventBridge failures, Step Functions execution failures",
+  "description": "Messaging & streaming anomaly detection — SNS delivery failures, Amazon MSK consumer lag, EventBridge failures, AWS Step Functions execution failures",
   "jobs": [
     {
       "id": "aws-sns-delivery-failure-spike",
-      "description": "Detects unusual spikes in SNS notification delivery failures",
+      "description": "Detects unusual spikes in Amazon SNS notification delivery failures",
       "job": {
         "description": "Detects unusual spikes in SNS notification delivery failures",
-        "groups": ["aws", "messaging"],
+        "groups": ["aws", "messaging", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -21,21 +21,38 @@
           "influencers": ["cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "16mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "16mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.sns" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.sns"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -43,7 +60,7 @@
       "description": "Detects unusual Kafka consumer lag in MSK — indicates consumers falling behind producers",
       "job": {
         "description": "Detects unusual Kafka consumer lag in MSK — indicates consumers falling behind producers",
-        "groups": ["aws", "messaging"],
+        "groups": ["aws", "messaging", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -58,21 +75,38 @@
           "influencers": ["aws.msk.cluster_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.msk" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.msk"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -80,7 +114,7 @@
       "description": "Detects unusual number of under-replicated Kafka partitions — indicates broker health issues",
       "job": {
         "description": "Detects unusual number of under-replicated Kafka partitions — indicates broker health issues",
-        "groups": ["aws", "messaging"],
+        "groups": ["aws", "messaging", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -95,29 +129,46 @@
           "influencers": ["aws.msk.cluster_name"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.msk" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.msk"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-eventbridge-failed-invocations",
-      "description": "Detects unusual spikes in EventBridge target invocation failures",
+      "description": "Detects unusual spikes in Amazon EventBridge target invocation failures",
       "job": {
         "description": "Detects unusual spikes in EventBridge target invocation failures",
-        "groups": ["aws", "messaging"],
+        "groups": ["aws", "messaging", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -132,29 +183,46 @@
           "influencers": ["aws.eventbridge.rule", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.eventbridge" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.eventbridge"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-stepfunctions-execution-failure-spike",
-      "description": "Detects unusual Step Functions execution failure rates per state machine",
+      "description": "Detects unusual AWS Step Functions execution failure rates per state machine",
       "job": {
         "description": "Detects unusual Step Functions execution failure rates per state machine",
-        "groups": ["aws", "messaging"],
+        "groups": ["aws", "messaging", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -168,21 +236,38 @@
           "influencers": ["aws.stepfunctions.state_machine_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.stepfunctions" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.stepfunctions"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

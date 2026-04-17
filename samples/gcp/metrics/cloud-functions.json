@@ -3,26 +3,50 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west9",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" }
+    "region": "asia-northeast2",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west9",
-    "ephemeral_id": "g0l5c42ucwb"
+    "name": "metricbeat-gcp-asia-northeast2",
+    "ephemeral_id": "rvij66gxud9"
+  },
+  "monitoringTimeSeries": {
+    "metric": {
+      "type": "cloudfunctions.googleapis.com/function/execution_count",
+      "labels": { "status": "ok" }
+    },
+    "resource": {
+      "type": "cloud_function",
+      "labels": {
+        "project_id": "globex-shared-m3n4o5",
+        "function_name": "checkout-webhook",
+        "region": "asia-northeast2"
+      }
+    },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "1266" } }
+    ]
   },
   "gcp": {
     "cloud-functions": {
-      "metrics": {
-        "execution_count": { "avg": 261, "sum": 261, "count": 1 },
-        "execution_times_ms": { "avg": 425.81, "sum": 425.81, "count": 1 },
-        "memory_utilization": { "avg": 0.39, "sum": 0.39, "count": 1 },
-        "instance_count": { "avg": 36, "sum": 36, "count": 1 },
-        "network_egress": { "avg": 1678685, "sum": 1678685, "count": 1 }
+      "labels": {
+        "project_id": "globex-shared-m3n4o5",
+        "function_name": "checkout-webhook",
+        "region": "asia-northeast2",
+        "status": "ok"
       },
-      "labels": { "function_name": "inventory-sync" }
+      "metrics": {
+        "cloudfunctions.googleapis.com/function/execution_count": {
+          "avg": 1266,
+          "sum": 1266,
+          "count": 1
+        }
+      }
     }
   },
   "metricset": { "name": "cloud-functions", "period": 60000 },
@@ -32,24 +56,5 @@
     "namespace": "default"
   },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.cloudfunctions_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-functions/execution_count",
-      "labels": {}
-    },
-    "resource": {
-      "type": "cloud_function",
-      "labels": {
-        "project_id": "globex-dev-g7h8i9",
-        "function_name": "fn-cloud-functions",
-        "region": "europe-west9"
-      }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 261 } }
-    ]
-  }
+  "event": { "dataset": "gcp.cloudfunctions_metrics", "module": "gcp" }
 }

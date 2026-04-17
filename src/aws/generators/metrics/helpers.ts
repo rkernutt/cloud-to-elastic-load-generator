@@ -9,6 +9,11 @@ import { rand, randId } from "../../../helpers";
 /**
  * Build a single CloudWatch metric document.
  *
+ * The document shape matches the Elastic AWS integration (Metricbeat/CloudWatch input).
+ * The enrichment layer (`enrich.ts`) will patch agent/input/telemetry fields based on
+ * the user's selected ingestion source, so generators should use the default CloudWatch
+ * shape and let enrichment handle the rest.
+ *
  * @param ts         - ISO timestamp string
  * @param service    - metricset name / AWS service key (e.g. "lambda")
  * @param dataset    - data_stream.dataset  (e.g. "aws.lambda")

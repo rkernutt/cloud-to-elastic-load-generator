@@ -33,6 +33,27 @@ function seededUUID(seed) {
   ].join("-");
 }
 
+/** Must match `src/setup/dashboardToImportNdjson.ts` (Kibana Saved Objects tag filter). */
+const LOAD_GENERATOR_KIBANA_TAG_NAME = "cloudloadgen";
+const LOAD_GENERATOR_KIBANA_TAG_ID = seededUUID("kibana-tag:cloudloadgen");
+const LOAD_GENERATOR_KIBANA_TAG_REF_NAME = "tag-ref-cloudloadgen";
+
+function loadGeneratorTagSavedObject() {
+  return {
+    id: LOAD_GENERATOR_KIBANA_TAG_ID,
+    type: "tag",
+    namespaces: ["default"],
+    attributes: {
+      name: LOAD_GENERATOR_KIBANA_TAG_NAME,
+      description:
+        "Installed by Cloud to Elastic Load Generator — filter this tag in Kibana to find or remove these assets.",
+    },
+    references: [],
+    coreMigrationVersion: "8.8.0",
+    typeMigrationVersion: "8.0.0",
+  };
+}
+
 // ─── Column type inference ───────────────────────────────────────────────────
 
 /** Returns "date" when `col` is assigned from BUCKET(@timestamp, ...) in the query. */
@@ -391,7 +412,9 @@ function dashboardToSavedObject(def) {
     type: "dashboard",
     namespaces: ["default"],
     attributes,
-    references: [],
+    references: [
+      { type: "tag", id: LOAD_GENERATOR_KIBANA_TAG_ID, name: LOAD_GENERATOR_KIBANA_TAG_REF_NAME },
+    ],
     coreMigrationVersion: "8.8.0",
     typeMigrationVersion: "10.3.0",
   };
@@ -412,8 +435,9 @@ for (const file of files) {
   const def = JSON.parse(readFileSync(join(__dirname, file), "utf-8"));
   const obj = dashboardToSavedObject(def);
   const outFile = join(OUTPUT_DIR, file.replace(".json", ".ndjson"));
+  const ndjson = JSON.stringify(loadGeneratorTagSavedObject()) + "\n" + JSON.stringify(obj) + "\n";
 
-  writeFileSync(outFile, JSON.stringify(obj) + "\n");
+  writeFileSync(outFile, ndjson);
   console.log(`  ✓ ${outFile.replace(__dirname + "/", "")}`);
 }
 

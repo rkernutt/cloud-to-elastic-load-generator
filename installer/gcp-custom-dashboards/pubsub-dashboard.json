@@ -1,5 +1,5 @@
 {
-  "title": "GCP Pub/Sub — Publish & Subscribe",
+  "title": "GCP Pub/Sub \u2014 Publish & Subscribe",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -47,7 +47,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.pubsub* | EVAL is_err = CASE(log.level == \"error\", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)"
+            "query": "FROM logs-gcp.pubsub* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)"
           },
           "metrics": [
             {
@@ -154,7 +154,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.pubsub* | KEEP `@timestamp`, `gcp.pubsub.topic_name`, `gcp.pubsub.subscription_name`, `gcp.pubsub.action`, `gcp.pubsub.message_size_bytes`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.pubsub* | KEEP `@timestamp`, `gcp.pubsub.topic_name`, `gcp.pubsub.subscription_name`, `gcp.pubsub.action`, `gcp.pubsub.message_size_bytes`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
@@ -184,8 +184,8 @@
             },
             {
               "operation": "value",
-              "column": "log.level",
-              "label": "Log level"
+              "column": "event.outcome",
+              "label": "Outcome"
             },
             {
               "operation": "value",

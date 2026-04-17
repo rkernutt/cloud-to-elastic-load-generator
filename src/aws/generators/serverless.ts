@@ -35,6 +35,10 @@ export function generateLambdaLog(ts: string, er: number): EcsDocument {
     "notification-sender",
     "data-pipeline",
     "api-handler",
+    "order-validator",
+    "inventory-sync",
+    "webhook-receiver",
+    "report-generator",
   ]);
   const region = rand(REGIONS);
   const acct = randAccount();
@@ -47,6 +51,17 @@ export function generateLambdaLog(ts: string, er: number): EcsDocument {
         ? "DEBUG"
         : "INFO";
   const rid = randUUID();
+  const runtime = rand([
+    "nodejs20.x",
+    "nodejs20.x",
+    "python3.12",
+    "python3.12",
+    "java21",
+    "dotnet8",
+    "go1.x",
+  ]);
+  const isNode = runtime.startsWith("nodejs");
+  const isPython = runtime.startsWith("python");
   const dur = Number(randFloat(1, 3000));
   const billedDur = Math.ceil(dur / 100) * 100;
   const memSize = rand([128, 256, 512, 1024, 2048, 3008]);
@@ -57,40 +72,134 @@ export function generateLambdaLog(ts: string, er: number): EcsDocument {
   const hasMapping = Math.random() > 0.5;
   const isColdStart = Math.random() < 0.05;
   const initDur = isColdStart ? Number(randFloat(50, 800)) : null;
-  const MSGS: Record<string, string[]> = {
-    INFO: ["Request received", "Processing complete", "Cache hit", "Event processed"],
-    WARN: ["Retry attempt 1/3", "Memory usage at 80%", "Slow query detected"],
-    ERROR: ["Unhandled exception", "DB connection refused", "Timeout after 30000ms"],
-    DEBUG: ["Entering handler", "Parsed request body", "Exiting with status 200"],
-  };
   const logGroup = `/aws/lambda/${fn}`;
-  const logStream = `${new Date(ts).toISOString().slice(0, 10)}/[$LATEST]${randId(32).toLowerCase()}`;
-  const traceId =
-    Math.random() < 0.5 ? `1-${randId(8).toLowerCase()}-${randId(24).toLowerCase()}` : null;
+  const logStream = `${new Date(ts).toISOString().slice(0, 10).replace(/-/g, "/")}[$LATEST]${randId(32).toLowerCase()}`;
+  const xrayTraceId = `1-${Math.floor(new Date(ts).getTime() / 1000).toString(16)}-${randId(24).toLowerCase()}`;
+  const traceId = Math.random() < 0.5 ? xrayTraceId : null;
 
-  // Randomly emit one of: START, application log, END, or REPORT — matching real Lambda log patterns
   const logEventType = rand(["start", "app", "app", "app", "end", "report"]);
-  const hasXray = logEventType === "report" && Math.random() < 0.2;
+  const hasXray = logEventType === "report" && Math.random() < 0.3;
   let message: string;
+
   if (logEventType === "start") {
     message = `START RequestId: ${rid} Version: $LATEST`;
   } else if (logEventType === "end") {
     message = `END RequestId: ${rid}`;
   } else if (logEventType === "report") {
-    message = `REPORT RequestId: ${rid}\tDuration: ${dur.toFixed(2)} ms\tBilled Duration: ${billedDur} ms\tMemory Size: ${memSize} MB\tMax Memory Used: ${memUsed} MB${isColdStart ? `\tInit Duration: ${initDur!.toFixed(2)} ms` : ""}${hasXray ? `\tXRay TraceId: 1-${randId(8).toLowerCase()}-${randId(24).toLowerCase()}\tSegmentId: ${randId(16).toLowerCase()}\tSampled: true` : ""}`;
+    message = `REPORT RequestId: ${rid}\tDuration: ${dur.toFixed(2)} ms\tBilled Duration: ${billedDur} ms\tMemory Size: ${memSize} MB\tMax Memory Used: ${memUsed} MB${isColdStart ? `\tInit Duration: ${initDur!.toFixed(2)} ms` : ""}${hasXray ? `\tXRay TraceId: ${xrayTraceId}\tSegmentId: ${randId(16).toLowerCase()}\tSampled: true` : ""}`;
   } else {
-    const useStructuredLogging = Math.random() < 0.6;
-    message = useStructuredLogging
-      ? JSON.stringify({
-          requestId: rid,
-          level,
-          message: rand(MSGS[level]),
-          timestamp: new Date(ts).toISOString(),
-          duration_ms: Math.round(dur),
-          memory_used_mb: memUsed,
-          ...(traceId ? { traceId } : {}),
-        })
-      : `[${level}]\t${rid}\t${rand(MSGS[level])}`;
+    const loggingStyle = Math.random();
+    if (loggingStyle < 0.35) {
+      // Lambda Powertools structured logging (most common in production)
+      const powertoolsMsg = isErr
+        ? rand([
+            "Failed to process request",
+            "DynamoDB conditional check failed",
+            "Downstream service timeout",
+            "Invalid payload schema",
+          ])
+        : rand([
+            "Request processed successfully",
+            "Item created in DynamoDB",
+            "Cache hit for user session",
+            "Event dispatched to SQS",
+          ]);
+      message = JSON.stringify({
+        level: level,
+        location: isPython
+          ? `${rand(["handler", "process_event", "validate_input"])}:${randInt(15, 200)}`
+          : `${rand(["handler.ts", "service.ts", "processor.ts"])}:${rand(["handler", "processEvent", "validateInput"])}`,
+        message: powertoolsMsg,
+        timestamp: new Date(ts).toISOString(),
+        service: fn,
+        cold_start: isColdStart,
+        function_name: fn,
+        function_memory_size: memSize,
+        function_arn: `arn:aws:lambda:${region}:${acct.id}:function:${fn}`,
+        function_request_id: rid,
+        ...(traceId ? { xray_trace_id: traceId } : {}),
+        ...(isErr
+          ? {
+              exception: isPython
+                ? `Traceback (most recent call last):\n  File "/var/task/handler.py", line ${randInt(20, 150)}, in handler\n    result = process_event(event)\n  File "/var/task/handler.py", line ${randInt(50, 200)}, in process_event\n    raise ${rand(["ValueError", "KeyError", "ConnectionError", "TimeoutError"])}("${powertoolsMsg}")`
+                : `${rand(["Error", "TypeError", "ReferenceError"])}: ${powertoolsMsg}\n    at handler (/var/task/index.js:${randInt(10, 200)}:${randInt(5, 30)})\n    at Runtime.exports.handler (/var/runtime/index.mjs:${randInt(1, 50)}:${randInt(5, 20)})`,
+              exception_name: isPython
+                ? rand(["ValueError", "KeyError", "ConnectionError", "TimeoutError"])
+                : rand(["Error", "TypeError", "ReferenceError"]),
+            }
+          : {}),
+        sampling_rate: 0,
+      });
+    } else if (loggingStyle < 0.55) {
+      // Lambda native JSON structured logging (Lambda runtime 2023+ feature)
+      const nativeMsg = isErr
+        ? rand([
+            "Task timed out after 30.00 seconds",
+            "Runtime.UnhandledPromiseRejection",
+            "module initialization error",
+            "RequestId: " + rid + " Error: ENOMEM",
+          ])
+        : rand([
+            "Processing batch of 25 records",
+            "Successfully wrote to S3",
+            "DynamoDB query returned 142 items",
+            "SNS notification sent",
+          ]);
+      message = JSON.stringify({
+        timestamp: new Date(ts).toISOString(),
+        level: level,
+        requestId: rid,
+        message: nativeMsg,
+      });
+    } else if (loggingStyle < 0.75) {
+      // Plain-text tab-delimited (classic Lambda console.log / print)
+      const plainMsg = isErr
+        ? rand([
+            `${new Date(ts).toISOString()}\t${rid}\tERROR\tUnhandled exception in handler`,
+            `${new Date(ts).toISOString()}\t${rid}\tERROR\tTask timed out after 30.00 seconds`,
+            `[ERROR]\t${new Date(ts).toISOString()}\t${rid}\tRuntime.HandlerNotFound: ${fn}.handler is undefined or not exported`,
+          ])
+        : rand([
+            `${new Date(ts).toISOString()}\t${rid}\tINFO\tProcessing event from ${rand(["API Gateway", "SQS", "SNS", "EventBridge", "S3"])}`,
+            `${new Date(ts).toISOString()}\t${rid}\tINFO\tCompleted in ${Math.round(dur)}ms`,
+            `[${level}]\t${new Date(ts).toISOString()}\t${rid}\t${rand(["Handler invoked", "Processing complete", "Event dispatched"])}`,
+          ]);
+      message = plainMsg;
+    } else {
+      // Runtime error output (unhandled exceptions from Lambda runtime)
+      if (isErr) {
+        message = isNode
+          ? `${new Date(ts).toISOString()}\t${rid}\tERROR\tInvoke Error \t${JSON.stringify({
+              errorType: rand([
+                "Runtime.UnhandledPromiseRejection",
+                "Runtime.UserCodeSyntaxError",
+                "Error",
+                "TypeError",
+              ]),
+              errorMessage: rand([
+                "Cannot read properties of undefined (reading 'id')",
+                "connect ECONNREFUSED 10.0.1.5:5432",
+                "Unexpected token u in JSON at position 0",
+                "ETIMEDOUT",
+              ]),
+              stack: [
+                `Error: ${rand(["Connection refused", "Timeout", "Parse error"])}`,
+                `    at handler (/var/task/index.js:${randInt(10, 200)}:${randInt(5, 30)})`,
+                `    at Runtime.exports.handler (/var/runtime/index.mjs:${randInt(1, 50)}:${randInt(5, 20)})`,
+              ],
+            })}`
+          : isPython
+            ? `[ERROR] ${new Date(ts).toISOString()} ${rid} ${rand([
+                `Traceback (most recent call last):\n  File "/var/task/handler.py", line ${randInt(20, 150)}, in handler\n    response = table.get_item(Key={'id': event['pathParameters']['id']})\n  File "/var/runtime/botocore/client.py", line ${randInt(200, 500)}, in _api_call\n    raise ClientError(parsed_response, operation_name)\nbotocore.exceptions.ClientError: An error occurred (ConditionalCheckFailedException)`,
+                `Traceback (most recent call last):\n  File "/var/task/handler.py", line ${randInt(20, 150)}, in handler\n    result = json.loads(event['body'])\njson.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)`,
+              ])}`
+            : `[ERROR] ${new Date(ts).toISOString()} ${rid} Runtime error: ${rand(["OutOfMemoryError", "Connection timeout", "Serialization failed"])}`;
+      } else {
+        message = isNode
+          ? `${new Date(ts).toISOString()}\t${rid}\tINFO\t${rand(["Request processed", "Batch complete", "Event forwarded to downstream"])}`
+          : `[INFO]\t${new Date(ts).toISOString()}\t${rid}\t${rand(["Handler execution complete", "Records processed successfully", "Response sent"])}`;
+      }
+    }
   }
 
   const LAMBDA_ERROR_CODES = [
@@ -103,8 +212,11 @@ export function generateLambdaLog(ts: string, er: number): EcsDocument {
     "ServiceException",
     "TooManyRequestsException",
     "CodeStorageExceededException",
+    "Runtime.HandlerNotFound",
+    "Runtime.ImportModuleError",
+    "Runtime.UserCodeSyntaxError",
   ];
-  void errors; // computed but intentionally unused in output (mirrors original)
+  void errors;
   void ACCOUNTS;
   void PROTOCOLS;
   return {
@@ -129,6 +241,12 @@ export function generateLambdaLog(ts: string, er: number): EcsDocument {
           name: fn,
           version: "$LATEST",
           arn: `arn:aws:lambda:${region}:${acct.id}:function:${fn}`,
+          runtime,
+          handler: isNode
+            ? "index.handler"
+            : isPython
+              ? "handler.handler"
+              : "com.example.Handler::handleRequest",
         },
         request_id: rid,
         trace_id: traceId,
@@ -137,12 +255,35 @@ export function generateLambdaLog(ts: string, er: number): EcsDocument {
         ...(isErr
           ? {
               error: {
-                message: rand([
-                  "Unhandled exception",
-                  "DB connection refused",
-                  "Timeout after 30000ms",
-                ]),
-                stack_trace: `Error: Unhandled exception\n    at handler (index.js:${randInt(10, 200)}:${randInt(5, 30)})\n    at Runtime.handler`,
+                message: isNode
+                  ? rand([
+                      "Cannot read properties of undefined",
+                      "connect ECONNREFUSED",
+                      "Task timed out after 30.00 seconds",
+                      "ENOMEM: not enough memory",
+                    ])
+                  : isPython
+                    ? rand([
+                        "ClientError: ConditionalCheckFailedException",
+                        "JSONDecodeError: Expecting value",
+                        "ConnectionError: Max retries exceeded",
+                        "TimeoutError: Task timed out",
+                      ])
+                    : rand([
+                        "OutOfMemoryError",
+                        "NullPointerException",
+                        "ConnectionTimeoutException",
+                      ]),
+                type: isNode
+                  ? rand(["Runtime.UnhandledPromiseRejection", "Error", "TypeError"])
+                  : isPython
+                    ? rand(["ClientError", "ValueError", "ConnectionError", "TimeoutError"])
+                    : rand(["java.lang.OutOfMemoryError", "java.lang.NullPointerException"]),
+                stack_trace: isNode
+                  ? `Error: ${rand(["Connection refused", "Timeout", "Parse error"])}\n    at handler (/var/task/index.js:${randInt(10, 200)}:${randInt(5, 30)})\n    at Runtime.exports.handler (/var/runtime/index.mjs:${randInt(1, 50)}:${randInt(5, 20)})`
+                  : isPython
+                    ? `Traceback (most recent call last):\n  File "/var/task/handler.py", line ${randInt(20, 150)}, in handler\n    result = process_event(event)\n  File "/var/task/handler.py", line ${randInt(50, 200)}, in process_event\n    raise ValueError("${rand(["Invalid input", "Missing required field", "Schema validation failed"])}")`
+                    : `java.lang.${rand(["OutOfMemoryError", "NullPointerException"])}\n\tat com.example.Handler.handleRequest(Handler.java:${randInt(10, 200)})`,
               },
             }
           : {}),
@@ -191,11 +332,16 @@ export function generateLambdaLog(ts: string, er: number): EcsDocument {
       ? {
           error: {
             code: rand(LAMBDA_ERROR_CODES),
-            message: rand([
-              "Unhandled exception",
-              "DB connection refused",
-              "Timeout after 30000ms",
-            ]),
+            message: isNode
+              ? rand([
+                  "Cannot read properties of undefined",
+                  "connect ECONNREFUSED",
+                  "Task timed out",
+                  "ENOMEM",
+                ])
+              : isPython
+                ? rand(["ClientError", "JSONDecodeError", "ConnectionError", "TimeoutError"])
+                : rand(["OutOfMemoryError", "NullPointerException"]),
             type: "lambda",
           },
         }
@@ -223,7 +369,52 @@ export function generateApiGatewayLog(ts: string, er: number): EcsDocument {
   const apiId = randId(10).toLowerCase();
   const apiName = rand(["prod-api", "internal-api", "partner-api", "mobile-api"]);
   const stage = rand(["prod", "v1", "v2", "staging"]);
-  const requestId = `${randId(8)}-${randId(4)}`.toLowerCase();
+  const requestId = randUUID();
+  const clientIp = randIp();
+  const caller = rand([
+    `-`,
+    `arn:aws:iam::${acct.id}:user/api-user`,
+    `AROAI${randId(20).toUpperCase()}:session`,
+  ]);
+  const user = caller === `-` ? `-` : rand([`api-user`, `cognito:username`, `authenticated`]);
+  const dReq = new Date(ts);
+  const mons = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ] as const;
+  const requestTime = `${String(dReq.getUTCDate()).padStart(2, "0")}/${mons[dReq.getUTCMonth()]}/${dReq.getUTCFullYear()}:${String(dReq.getUTCHours()).padStart(2, "0")}:${String(dReq.getUTCMinutes()).padStart(2, "0")}:${String(dReq.getUTCSeconds()).padStart(2, "0")} +0000`;
+  const protocol = rand(["HTTP/1.1", "HTTP/2"]);
+  const responseLength = randInt(0, isErr ? 512 : 10000);
+  const integrationStatus = isErr ? rand([502, 503, 504, 500]) : 200;
+  const integrationError =
+    isErr && Math.random() > 0.4
+      ? rand([
+          "Internal server error",
+          "Execution failed due to configuration error",
+          "Network error connecting to endpoint",
+        ])
+      : null;
+  const authorizerSub = Math.random() > 0.35 ? `sub|${randUUID()}` : null;
+  const errorMessage =
+    isErr && status >= 500
+      ? rand([
+          "Internal server error",
+          "Execution failed due to a deployment error",
+          "Endpoint request timed out",
+        ])
+      : isErr
+        ? rand(["Forbidden", "Unauthorized", "Not found", "Too many requests"])
+        : null;
   const traceId =
     Math.random() < 0.5 ? `1-${randId(8).toLowerCase()}-${randId(24).toLowerCase()}` : null;
   const apiType = rand(["REST", "HTTP", "HTTP", "WEBSOCKET"]);
@@ -294,20 +485,29 @@ export function generateApiGatewayLog(ts: string, er: number): EcsDocument {
     503: "ServiceUnavailableException",
     504: "LimitExceededException",
   };
-  const plainMessage = `${method} ${path} ${status} ${lat}ms`;
-  const useStructuredLogging = Math.random() < 0.55;
-  const message = useStructuredLogging
-    ? JSON.stringify({
-        requestId,
-        requestMethod: method,
-        requestPath: path,
-        status: status,
-        responseLatency: lat,
-        integrationLatency: integrationLat,
-        timestamp: new Date(ts).toISOString(),
-        ...(traceId ? { traceId } : {}),
-      })
-    : plainMessage;
+  const clfMessage = `${requestId} ${clientIp} ${caller} ${user} [${requestTime}] "${method} ${path} ${protocol}" ${status} ${responseLength} ${integrationLat}`;
+  const jsonAccess: Record<string, unknown> = {
+    requestId,
+    ip: clientIp,
+    caller,
+    user,
+    requestTime,
+    httpMethod: method,
+    resourcePath: path,
+    status,
+    protocol,
+    responseLength,
+    integrationLatency: integrationLat,
+    integration: {
+      status: integrationStatus,
+      error: integrationError,
+    },
+  };
+  if (authorizerSub) jsonAccess["authorizer.claims.sub"] = authorizerSub;
+  if (errorMessage) jsonAccess["error.message"] = errorMessage;
+  if (traceId) jsonAccess.traceId = traceId;
+  const logFormat = rand(["json", "json", "json", "clf"]);
+  const message = logFormat === "clf" ? clfMessage : JSON.stringify(jsonAccess);
   return {
     "@timestamp": ts,
     cloud: {
@@ -326,16 +526,20 @@ export function generateApiGatewayLog(ts: string, er: number): EcsDocument {
         stage,
         http_method: method,
         resource_path: path,
-        protocol: "HTTP/1.1",
+        protocol,
         route_key: `${method} ${path}`,
         status,
-        response_length: randInt(200, 10000),
-        ip_address: randIp(),
-        caller: rand([null, `arn:aws:iam::${acct.id}:user/api-user`]),
-        user: rand([null, "api-user"]),
+        response_length: responseLength,
+        ip_address: clientIp,
+        caller: caller === `-` ? null : caller,
+        user: user === `-` ? null : user,
+        authorizer_claims_sub: authorizerSub,
+        integration_status: integrationStatus,
+        integration_error: integrationError,
+        error_message: errorMessage,
         connection_id: rand([null, randId(20)]),
         event_type: rand(["MESSAGE", "CONNECT", "DISCONNECT"]),
-        request_time: ts,
+        request_time: requestTime,
         api_type: apiType,
         integration_latency: integrationLat,
         ...(isWebSocket ? { websocket_route_key: wsRouteKey, connection_id: randId(20) } : {}),
@@ -357,10 +561,10 @@ export function generateApiGatewayLog(ts: string, er: number): EcsDocument {
     },
     http: {
       request: { method, id: requestId, bytes: randInt(100, 5000) },
-      response: { status_code: status, bytes: randInt(200, 10000) },
+      response: { status_code: status, bytes: responseLength },
     },
     url: { path, domain: `${apiId}.execute-api.${region}.amazonaws.com` },
-    client: { ip: randIp(), geo },
+    client: { ip: clientIp, geo },
     user_agent: { original: rand(USER_AGENTS) },
     event: {
       duration: lat * 1000000,
@@ -400,6 +604,46 @@ export function generateAppSyncLog(ts: string, er: number): EcsDocument {
   const dur = Number(randFloat(1, isErr ? 5000 : 500));
   const status = isErr ? rand([400, 401, 403, 500]) : 200;
   const requestCount = randInt(1, 5000);
+  const requestId = randUUID();
+  const graphQLAPIId = randId(12) + randId(14);
+  const parentType = rand(["Query", "Mutation", "Subscription"]);
+  const returnType = rand(["AWSJSON", "User", "[Order]", "Boolean", "ID"]);
+  const t0 = new Date(new Date(ts).getTime() - dur).toISOString();
+  const t1 = new Date(ts).toISOString();
+  const resolverArn = `arn:aws:appsync:${region}:${acct.id}:apis/${graphQLAPIId}/types/${parentType}/resolvers/${resolver}`;
+  const logType = rand(["RequestMapping", "ResponseMapping"]);
+  const errors =
+    isErr && logType === "ResponseMapping"
+      ? [
+          {
+            message: rand(["Unauthorized", "MappingTemplate error", "DatasourceError"]),
+            errorType: "UnauthorizedException",
+            path: [resolver],
+            locations: [{ line: randInt(1, 40), column: randInt(1, 120), sourceName: null }],
+          },
+        ]
+      : isErr && logType === "RequestMapping"
+        ? [
+            {
+              message: "Template transformation yielded invalid input",
+              errorType: "MappingTemplate",
+              path: null,
+            },
+          ]
+        : [];
+  const resolverLogPayload = {
+    requestId,
+    graphQLAPIId,
+    fieldName: resolver,
+    parentType,
+    returnType,
+    startTime: t0,
+    endTime: t1,
+    duration: Math.round(dur),
+    resolverArn,
+    logType,
+    errors,
+  };
   return {
     "@timestamp": ts,
     cloud: {
@@ -410,7 +654,17 @@ export function generateAppSyncLog(ts: string, er: number): EcsDocument {
     },
     aws: {
       appsync: {
-        api_id: randId(26),
+        request_id: requestId,
+        graph_ql_api_id: graphQLAPIId,
+        field_name: resolver,
+        parent_type: parentType,
+        return_type: returnType,
+        start_time: t0,
+        end_time: t1,
+        log_type: logType,
+        resolver_arn: resolverArn,
+        resolver_errors: errors,
+        api_id: graphQLAPIId,
         api_name: api,
         operation_type: op,
         operation_name: resolver,
@@ -446,9 +700,7 @@ export function generateAppSyncLog(ts: string, er: number): EcsDocument {
       dataset: "aws.appsync",
       provider: "appsync.amazonaws.com",
     },
-    message: isErr
-      ? `AppSync ${op}.${resolver} FAILED [${status}]: ${rand(["Unauthorized", "MappingTemplate error", "DatasourceError"])}`
-      : `AppSync ${op}.${resolver}: ${dur.toFixed(0)}ms [${api}]`,
+    message: JSON.stringify(resolverLogPayload),
     log: { level: isErr ? "error" : dur > 1000 ? "warn" : "info" },
     ...(isErr
       ? {
@@ -481,16 +733,80 @@ export function generateAppRunnerLog(ts: string, er: number): EcsDocument {
     "ServiceUnavailable",
     "GatewayTimeout",
   ];
-  const plainMessage = `${rand(HTTP_METHODS)} ${rand(HTTP_PATHS)} ${status} ${latMs}ms`;
+  const eventKind = rand([
+    "application_http",
+    "application_http",
+    "deployment",
+    "health_check",
+    "autoscaling",
+    "build",
+  ]);
+  const deploymentId = randId(12).toLowerCase();
+  const operationId = randId(12).toLowerCase();
+  const healthState = isErr ? "unhealthy" : rand(["healthy", "healthy", "unknown"]);
+  const scaleAction = rand(["scale_out", "scale_in", "none"]);
+  const buildPhase = rand(["DOWNLOAD_SOURCE", "BUILD", "DEPLOY", "COMPLETE"]);
+  const buildProgress = randInt(0, 100);
+  let plainMessage: string;
+  let structuredPayload: Record<string, unknown>;
+  if (eventKind === "deployment") {
+    plainMessage = `[AppRunner] Deployment ${deploymentId} on service ${svc}: ${isErr ? "FAILED" : "SUCCEEDED"}`;
+    structuredPayload = {
+      eventType: "DeploymentStatusChange",
+      serviceName: svc,
+      serviceId: svcId,
+      deploymentId,
+      status: isErr ? "FAILED" : rand(["ROLLBACK_SUCCEEDED", "SUCCEEDED", "IN_PROGRESS"]),
+      operationId,
+      message: plainMessage,
+      timestamp: new Date(ts).toISOString(),
+    };
+  } else if (eventKind === "health_check") {
+    plainMessage = `[AppRunner] Health check ${healthState} for instance ${randId(8)} target port ${rand([8080, 3000, 443])}`;
+    structuredPayload = {
+      eventType: "HealthCheck",
+      serviceName: svc,
+      serviceId: svcId,
+      healthStatus: healthState,
+      httpStatusCode: isErr ? rand([503, 502]) : 200,
+      latencyMs: latMs,
+      path: rand(["/health", "/ready", "/"]),
+      timestamp: new Date(ts).toISOString(),
+    };
+  } else if (eventKind === "autoscaling") {
+    plainMessage = `[AppRunner] Auto scaling ${scaleAction}: desired ${randInt(1, 8)} min ${rand([0, 1])} max ${rand([5, 10, 25])}`;
+    structuredPayload = {
+      eventType: "AutoScalingConfigurationRevision",
+      serviceName: svc,
+      serviceId: svcId,
+      action: scaleAction,
+      desiredCount: randInt(1, 8),
+      activeInstanceCount: randInt(1, 10),
+      timestamp: new Date(ts).toISOString(),
+    };
+  } else if (eventKind === "build") {
+    plainMessage = `[AppRunner] Build ${buildPhase} ${buildProgress}% for ${svc}`;
+    structuredPayload = {
+      eventType: "ServiceBuildProgress",
+      serviceName: svc,
+      serviceId: svcId,
+      phase: buildPhase,
+      percentComplete: buildProgress,
+      logStream: `deployment/${operationId}/build/logs`,
+      timestamp: new Date(ts).toISOString(),
+    };
+  } else {
+    plainMessage = `${rand(HTTP_METHODS)} ${rand(HTTP_PATHS)} ${status} ${latMs}ms`;
+    structuredPayload = {
+      eventType: "Request",
+      service: svc,
+      status,
+      latency_ms: latMs,
+      timestamp: new Date(ts).toISOString(),
+    };
+  }
   const useStructuredLogging = Math.random() < 0.55;
-  const message = useStructuredLogging
-    ? JSON.stringify({
-        service: svc,
-        status,
-        latency_ms: latMs,
-        timestamp: new Date(ts).toISOString(),
-      })
-    : plainMessage;
+  const message = useStructuredLogging ? JSON.stringify(structuredPayload) : plainMessage;
   return {
     "@timestamp": ts,
     cloud: {
@@ -504,6 +820,12 @@ export function generateAppRunnerLog(ts: string, er: number): EcsDocument {
       apprunner: {
         service_name: svc,
         service_arn: `arn:aws:apprunner:${region}:${acct.id}:service/${svc}/${svcId}`,
+        event_kind: eventKind,
+        deployment_id: eventKind === "deployment" ? deploymentId : null,
+        health_status: eventKind === "health_check" ? healthState : null,
+        autoscaling_action: eventKind === "autoscaling" ? scaleAction : null,
+        build_phase: eventKind === "build" ? buildPhase : null,
+        build_percent: eventKind === "build" ? buildProgress : null,
         auto_scaling: {
           min_size: rand([1, 0, 0]),
           max_size: rand([10, 25, 50]),
@@ -512,16 +834,20 @@ export function generateAppRunnerLog(ts: string, er: number): EcsDocument {
         },
         structured_logging: useStructuredLogging,
         metrics: {
-          Requests: { sum: 1 },
-          "2xxStatusResponses": { sum: status < 300 ? 1 : 0 },
-          "4xxStatusResponses": { sum: status >= 400 && status < 500 ? 1 : 0 },
-          "5xxStatusResponses": { sum: status >= 500 ? 1 : 0 },
-          HttpStatusCode2XX: { sum: status < 300 ? 1 : 0 },
+          Requests: { sum: eventKind === "application_http" ? 1 : 0 },
+          "2xxStatusResponses": { sum: status < 300 && eventKind === "application_http" ? 1 : 0 },
+          "4xxStatusResponses": {
+            sum: status >= 400 && status < 500 && eventKind === "application_http" ? 1 : 0,
+          },
+          "5xxStatusResponses": { sum: status >= 500 && eventKind === "application_http" ? 1 : 0 },
+          HttpStatusCode2XX: { sum: status < 300 && eventKind === "application_http" ? 1 : 0 },
           RequestLatency: { avg: latMs, p99: latMs * 3 },
           ActiveInstances: { avg: randInt(1, 10) },
           ConcurrentRequests: { avg: randInt(1, 50) },
           CPUUtilization: { avg: Number(randFloat(5, isErr ? 95 : 60)) },
           MemoryUtilization: { avg: Number(randFloat(10, isErr ? 90 : 70)) },
+          HealthyHostCount: { avg: eventKind === "health_check" && !isErr ? randInt(1, 6) : 0 },
+          UnHealthyHostCount: { avg: eventKind === "health_check" && isErr ? randInt(1, 3) : 0 },
         },
       },
     },
@@ -533,7 +859,7 @@ export function generateAppRunnerLog(ts: string, er: number): EcsDocument {
     client: { ip: randIp() },
     event: {
       duration: latMs * 1000000,
-      outcome: status >= 400 ? "failure" : "success",
+      outcome: status >= 400 || (eventKind === "health_check" && isErr) ? "failure" : "success",
       category: ["web", "process"],
       dataset: "aws.apprunner",
       provider: "apprunner.amazonaws.com",

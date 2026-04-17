@@ -3,43 +3,48 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west1",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "asia-northeast3",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west1",
-    "ephemeral_id": "yekrflry988"
+    "name": "metricbeat-gcp-asia-northeast3",
+    "ephemeral_id": "zuv96x9sc4o"
+  },
+  "monitoringTimeSeries": {
+    "metric": { "type": "bigtable.googleapis.com/cluster/cpu_load", "labels": {} },
+    "resource": {
+      "type": "bigtable_cluster",
+      "labels": {
+        "project_id": "globex-security-j0k1l2",
+        "instance": "bt-sessions",
+        "cluster": "bt-sessions-c1",
+        "zone": "asia-northeast3-a"
+      }
+    },
+    "metricKind": "GAUGE",
+    "valueType": "DOUBLE",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 0.52 } }
+    ]
   },
   "gcp": {
     "bigtable": {
-      "metrics": {
-        "server_latencies": { "avg": 29.05, "sum": 29.05, "count": 1 },
-        "request_count": { "avg": 26466734, "sum": 26466734, "count": 1 },
-        "storage_utilization": { "avg": 72.84, "sum": 72.84, "count": 1 }
+      "labels": {
+        "project_id": "globex-security-j0k1l2",
+        "instance": "bt-sessions",
+        "cluster": "bt-sessions-c1",
+        "zone": "asia-northeast3-a"
       },
-      "labels": { "cluster": "bt-events", "table": "events_raw" }
+      "metrics": {
+        "bigtable.googleapis.com/cluster/cpu_load": { "avg": 0.52, "sum": 0.52, "count": 1 }
+      }
     }
   },
   "metricset": { "name": "bigtable", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.bigtable_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.bigtable_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/bigtable/server_latencies",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-prod-a1b2c3", "region": "europe-west1" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 29.05 } }
-    ]
-  }
+  "event": { "dataset": "gcp.bigtable_metrics", "module": "gcp" }
 }

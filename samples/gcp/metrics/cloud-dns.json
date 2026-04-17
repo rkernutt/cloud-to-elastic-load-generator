@@ -3,43 +3,58 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west6",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" }
+    "region": "europe-west8",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west6",
-    "ephemeral_id": "y7wmr96k1c"
+    "name": "metricbeat-gcp-europe-west8",
+    "ephemeral_id": "h4sfseq517t"
+  },
+  "monitoringTimeSeries": {
+    "metric": {
+      "type": "loadbalancing.googleapis.com/https/request_count",
+      "labels": { "response_code_class": "2xx" }
+    },
+    "resource": {
+      "type": "https_lb_rule",
+      "labels": {
+        "project_id": "globex-security-j0k1l2",
+        "url_map_name": "api-map",
+        "forwarding_rule_name": "fr-generic",
+        "target_proxy_name": "tp-generic",
+        "region": "europe-west8"
+      }
+    },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "304599" } }
+    ]
   },
   "gcp": {
     "cloud-dns": {
-      "metrics": {
-        "request_count": { "avg": 537967, "sum": 537967, "count": 1 },
-        "latency": { "avg": 23.43, "sum": 23.43, "count": 1 },
-        "error_rate": { "avg": 0, "sum": 0, "count": 1 }
+      "labels": {
+        "project_id": "globex-security-j0k1l2",
+        "url_map_name": "api-map",
+        "forwarding_rule_name": "fr-generic",
+        "target_proxy_name": "tp-generic",
+        "region": "europe-west8",
+        "response_code_class": "2xx"
       },
-      "labels": { "resource_url": "/api/v1/orders" }
+      "metrics": {
+        "loadbalancing.googleapis.com/https/request_count": {
+          "avg": 304599,
+          "sum": 304599,
+          "count": 1
+        }
+      }
     }
   },
   "metricset": { "name": "cloud-dns", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.dns_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.dns_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-dns/request_count",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-shared-m3n4o5", "region": "europe-west6" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 537967 } }
-    ]
-  }
+  "event": { "dataset": "gcp.dns_metrics", "module": "gcp" }
 }

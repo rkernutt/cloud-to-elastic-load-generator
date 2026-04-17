@@ -3,24 +3,50 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-south1",
+    "region": "europe-west8",
     "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
     "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-south1",
-    "ephemeral_id": "3mo25e1rr1q"
+    "name": "metricbeat-gcp-europe-west8",
+    "ephemeral_id": "jx4shqqhpk"
+  },
+  "monitoringTimeSeries": {
+    "metric": {
+      "type": "serviceruntime.googleapis.com/api/request_count",
+      "labels": { "credential_id": "resource-a" }
+    },
+    "resource": {
+      "type": "consumed_api",
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "service": "generic.googleapis.com",
+        "method": "resource_id"
+      }
+    },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "31185" } }
+    ]
   },
   "gcp": {
     "vertex-ai-matching-engine": {
-      "metrics": {
-        "request_count": { "avg": 95094, "sum": 95094, "count": 1 },
-        "error_count": { "avg": 0, "sum": 0, "count": 1 },
-        "latency": { "avg": 75.08, "sum": 75.08, "count": 1 }
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "service": "generic.googleapis.com",
+        "method": "resource_id",
+        "credential_id": "resource-a"
       },
-      "labels": { "resource_id": "resource-a" }
+      "metrics": {
+        "serviceruntime.googleapis.com/api/request_count": {
+          "avg": 31185,
+          "sum": 31185,
+          "count": 1
+        }
+      }
     }
   },
   "metricset": { "name": "vertex-ai-matching-engine", "period": 60000 },
@@ -30,20 +56,5 @@
     "namespace": "default"
   },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.matching_engine_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/vertex-ai-matching-engine/request_count",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-prod-a1b2c3", "region": "asia-south1" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 95094 } }
-    ]
-  }
+  "event": { "dataset": "gcp.matching_engine_metrics", "module": "gcp" }
 }

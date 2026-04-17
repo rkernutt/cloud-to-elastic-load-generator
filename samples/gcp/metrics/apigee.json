@@ -3,44 +3,57 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west4",
+    "region": "me-central2",
     "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
     "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west4",
-    "ephemeral_id": "l2sgnlmz9ff"
+    "name": "metricbeat-gcp-me-central2",
+    "ephemeral_id": "yjws16eb8i"
+  },
+  "monitoringTimeSeries": {
+    "metric": {
+      "type": "serviceruntime.googleapis.com/api/request_count",
+      "labels": { "response_code": "200" }
+    },
+    "resource": {
+      "type": "api",
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "gateway_id": "internal-api",
+        "location": "me-central2"
+      }
+    },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      {
+        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
+        "value": { "int64Value": "1708935" }
+      }
+    ]
   },
   "gcp": {
     "apigee": {
-      "metrics": {
-        "request_count": { "avg": 1451379, "sum": 1451379, "count": 1 },
-        "latency_ms": { "avg": 38.51, "sum": 38.51, "count": 1 },
-        "_4xx_count": { "avg": 1221, "sum": 1221, "count": 1 },
-        "_5xx_count": { "avg": 0, "sum": 0, "count": 1 }
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "gateway_id": "internal-api",
+        "location": "me-central2",
+        "response_code": "200"
       },
-      "labels": { "proxy_name": "internal-api" }
+      "metrics": {
+        "serviceruntime.googleapis.com/api/request_count": {
+          "avg": 1708935,
+          "sum": 1708935,
+          "count": 1
+        }
+      }
     }
   },
   "metricset": { "name": "apigee", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.apigee_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.apigee_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/apigee/request_count",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-prod-a1b2c3", "region": "europe-west4" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 1451379 } }
-    ]
-  }
+  "event": { "dataset": "gcp.apigee_metrics", "module": "gcp" }
 }

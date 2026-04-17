@@ -1,76 +1,81 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-3",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "apprunner" }
   },
   "aws": {
-    "dimensions": { "ServiceName": "frontend", "ServiceId": "47zkh0h7a8j" },
+    "dimensions": { "ServiceName": "frontend", "ServiceId": "li5kz94czam" },
     "apprunner": {
       "service_name": "frontend",
-      "service_arn": "arn:aws:apprunner:eu-west-3:738291046572:service/frontend/47zkh0h7a8j",
+      "service_arn": "arn:aws:apprunner:eu-south-1:814726593401:service/frontend/li5kz94czam",
+      "event_kind": "build",
+      "build_phase": "DOWNLOAD_SOURCE",
+      "build_percent": 61,
       "auto_scaling": {
-        "min_size": 0,
+        "min_size": 1,
         "max_size": 10,
-        "desired_count": 4,
-        "scale_from_zero": false
+        "desired_count": 5,
+        "scale_from_zero": true
       },
       "structured_logging": false,
       "metrics": {
-        "Requests": { "sum": 1 },
-        "2xxStatusResponses": { "sum": 1 },
+        "Requests": { "sum": 0 },
+        "2xxStatusResponses": { "sum": 0 },
         "4xxStatusResponses": { "sum": 0 },
         "5xxStatusResponses": { "sum": 0 },
-        "HttpStatusCode2XX": { "sum": 1 },
-        "RequestLatency": { "avg": 118, "p99": 354 },
-        "ActiveInstances": { "avg": 3 },
-        "ConcurrentRequests": { "avg": 19 },
-        "CPUUtilization": { "avg": 49.86989920072206 },
-        "MemoryUtilization": { "avg": 25.36463693957799 }
+        "HttpStatusCode2XX": { "sum": 0 },
+        "RequestLatency": { "avg": 318, "p99": 954 },
+        "ActiveInstances": { "avg": 8 },
+        "ConcurrentRequests": { "avg": 10 },
+        "CPUUtilization": { "avg": 19.726394329216536 },
+        "MemoryUtilization": { "avg": 66.15791518081795 },
+        "HealthyHostCount": { "avg": 0 },
+        "UnHealthyHostCount": { "avg": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-apprunner-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-apprunner-logs-738291046572"
+        "name": "aws-apprunner-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-apprunner-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/apprunner/eu-west-3/2026/04/15/apprunner_JSQZCLM3YSC.log.gz"
+        "key": "AWSLogs/814726593401/apprunner/eu-south-1/2026/04/17/apprunner_4KO54R9B01B.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/apprunner/logs",
-      "log_stream": "eu-west-3/0lc9kqei",
-      "ingestion_time": "2026-04-15T13:24:36.229Z"
+      "log_stream": "eu-south-1/kdhckab2",
+      "ingestion_time": "2026-04-17T09:05:18.850Z"
     }
   },
   "http": {
-    "request": { "method": "PATCH", "bytes": 4238 },
-    "response": { "status_code": 204, "bytes": 6144 }
+    "request": { "method": "PUT", "bytes": 906 },
+    "response": { "status_code": 200, "bytes": 2683 }
   },
-  "url": { "path": "/api/v1/users" },
-  "client": { "ip": "35.217.5.104" },
+  "url": { "path": "/api/v1/auth/login" },
+  "client": { "ip": "115.183.65.186" },
   "event": {
-    "duration": 118000000,
+    "duration": 318000000,
     "outcome": "success",
     "category": ["web", "process"],
     "dataset": "aws.apprunner",
     "provider": "apprunner.amazonaws.com",
     "module": "aws"
   },
-  "message": "DELETE /health 204 118ms",
+  "message": "[AppRunner] Build DOWNLOAD_SOURCE 61% for frontend",
   "log": { "level": "info" },
-  "host": { "name": "ip-45-171-43-115.ec2.internal", "hostname": "apprunner-es7tlfsr" },
+  "host": { "name": "ip-65-167-209-243.ec2.internal", "hostname": "apprunner-x11504e1" },
   "service": { "name": "apprunner", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.apprunner", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-3",
-    "ephemeral_id": "dkx09vk2exq"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "qzu9tl4a7a"
   },
   "input": { "type": "aws-cloudwatch" }
 }

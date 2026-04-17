@@ -1,76 +1,105 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
-  "trace": { "id": "1-69df9193-z9mwdg184b" },
-  "span": { "id": "b5dclcbe8ol" },
+  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "trace": { "id": "1-69e1f7ce-sfy2n9319n" },
+  "span": { "id": "utu7b18sdns" },
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-central-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "xray" }
   },
   "aws": {
-    "dimensions": { "GroupName": "Default", "ServiceType": "AWS::Lambda::Function" },
+    "dimensions": { "GroupName": "Default", "ServiceType": "client" },
     "xray": {
-      "trace_id": "1-69df9193-z9mwdg184b",
-      "segment_id": "b5dclcbe8ol",
-      "parent_id": "o5qjc8n43k",
-      "service": { "name": "lambda-function", "type": "AWS::Lambda::Function" },
-      "duration": 1.4465988407553723,
+      "trace_id": "1-69e1f7ce-sfy2n9319n",
+      "segment_id": "utu7b18sdns",
+      "parent_id": "tp1pw7ibmcn",
+      "start_time": 1776416718.304,
+      "end_time": 1776416720.741889,
+      "origin": "AWS::ECS::Container",
+      "service": { "name": "user-service", "type": "client" },
+      "duration": 2.4378890447847796,
       "fault": false,
       "error": false,
       "throttle": false,
       "http": {
-        "request": { "method": "PUT", "url": "/api/v1/orders" },
-        "response": { "status": 200 }
+        "request": {
+          "method": "GET",
+          "url": "https://app.myapp.io/api/v1/auth/login",
+          "client_ip": "67.210.107.121",
+          "user_agent": "python-requests/2.27.1"
+        },
+        "response": { "status": 200, "content_length": 37826 }
       },
-      "annotations": { "env": "prod", "version": "v20" },
+      "aws": {
+        "account_id": "738291046572",
+        "region": "eu-central-2",
+        "resource_names": ["user-service"]
+      },
+      "annotations": { "environment": "production", "version": "v4.7.82", "team": "data" },
       "subsegments": [
         {
-          "id": "os264qai69b",
-          "name": "S3.GetObject",
-          "namespace": "remote",
-          "duration": 0.21370074318781535,
-          "fault": false
-        },
-        {
-          "id": "oey3urdvxkc",
-          "name": "S3.GetObject",
-          "namespace": "remote",
-          "duration": 0.002247635489788101,
-          "fault": false
-        },
-        {
-          "id": "1s5cvvj1e9s",
-          "name": "S3.GetObject",
+          "id": "m8xmx7flvjp",
+          "name": "DynamoDB",
+          "start_time": 1776416718.4327493,
+          "end_time": 1776416719.9251535,
           "namespace": "aws",
-          "duration": 0.3239071057143439,
-          "fault": false
+          "aws": {
+            "operation": "Query",
+            "region": "eu-central-2",
+            "retries": 0,
+            "table_name": "Users",
+            "request_id": "n9agqjg5lhs",
+            "consumed_capacity": { "TableName": "Users", "CapacityUnits": 5.704641017053592 }
+          },
+          "http": { "response": { "status": 200, "content_length": 1449 } },
+          "fault": false,
+          "error": false,
+          "throttle": false
         }
       ],
       "metrics": {
-        "ErrorRate": { "avg": 0.09375330126627612 },
-        "FaultRate": { "avg": 0.32528193339616357 },
-        "ThrottleRate": { "avg": 0.4335509770183644 },
-        "TotalCount": { "sum": 5380 },
-        "Latency": { "avg": 1446.5988407553723, "p99": 4339.796522266117 }
+        "ErrorRate": { "avg": 0.36292689627456254 },
+        "FaultRate": { "avg": 0.13800524991022467 },
+        "ThrottleRate": { "avg": 0.48638468312059707 },
+        "TotalCount": { "sum": 4710 },
+        "Latency": {
+          "avg": 2437.88904478478,
+          "p50": 1950.3112358278238,
+          "p90": 3656.8335671771692,
+          "p95": 4875.77808956956,
+          "p99": 7313.6671343543385
+        },
+        "OkCount": { "sum": 3635 },
+        "ErrorCount": { "sum": 0 },
+        "FaultCount": { "sum": 0 },
+        "ThrottleCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-xray-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-xray-logs-814726593401"
+        "name": "aws-xray-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-xray-logs-738291046572"
       },
-      "object": { "key": "AWSLogs/814726593401/xray/eu-south-2/2026/04/15/xray_T7D4CP10FRK.log.gz" }
+      "object": {
+        "key": "AWSLogs/738291046572/xray/eu-central-2/2026/04/17/xray_CVYC38I1BT7.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/xray/logs",
-      "log_stream": "eu-south-2/0bhy96qe",
-      "ingestion_time": "2026-04-15T13:24:36.344Z"
+      "log_stream": "eu-central-2/yowelk17",
+      "ingestion_time": "2026-04-17T09:05:19.006Z"
     }
   },
-  "http": { "request": { "method": "PUT" }, "response": { "status_code": 200 } },
+  "http": {
+    "request": { "method": "GET", "body": { "bytes": 3296 } },
+    "response": { "status_code": 200, "body": { "bytes": 18728 } }
+  },
+  "url": { "path": "/api/v1/auth/login", "full": "https://app.myapp.io/api/v1/auth/login" },
+  "user_agent": { "original": "python-requests/2.27.1" },
+  "source": { "ip": "67.210.107.121" },
   "event": {
-    "duration": 1446598841,
+    "duration": 2437889045,
     "outcome": "success",
     "category": ["network"],
     "type": ["connection"],
@@ -78,7 +107,7 @@
     "provider": "xray.amazonaws.com",
     "module": "aws"
   },
-  "message": "X-Ray: lambda-function PUT → 200 (1.447s)",
+  "message": "2026-04-17T09:05:18.304Z [Info] X-Ray daemon 1.37.0 listening on address 127.0.0.1:2000\n2026-04-17T09:05:18.544Z [Info] Buffering segments queueDepth=13\n2026-04-17T09:05:19.144Z [Info] Service map update applied nodes=28 edges=130 version=8\n2026-04-17T09:05:18.304Z [Info] X-Ray daemon 1.37.0 listening on address 127.0.0.1:2000\n2026-04-17T09:05:18.304Z [Info] X-Ray daemon 1.37.0 listening on address 127.0.0.1:2000\n2026-04-17T09:05:18.664Z [Info] Successfully sent batch of 13 segment document(s) to 169.254.100.0:2000\n{\"trace_id\":\"1-69e1f7ce-sfy2n9319n\",\"id\":\"utu7b18sdns\",\"name\":\"user-service\",\"start_time\":1776416718.304,\"end_time\":1776416720.741889,\"parent_id\":\"tp1pw7ibmcn\",\"http\":{\"request\":{\"method\":\"GET\",\"url\":\"https://app.myapp.io/api/v1/auth/login\",\"client_ip\":\"67.210.107.121\",\"user_agent\":\"python-requests/2.27.1\"},\"response\":{\"status\":200,\"content_length\":24050}},\"aws\":{\"account_id\":\"738291046572\",\"region\":\"eu-central-2\",\"resource_names\":[\"user-service\"]},\"annotations\":{\"environment\":\"production\",\"version\":\"v14.8.74\",\"team\":\"data\"},\"metadata\":{\"default\":{\"response_size\":46935}},\"fault\":false,\"error\":false,\"throttle\":false,\"origin\":\"AWS::ECS::Container\",\"resource_arn\":\"arn:aws:lambda:eu-central-2:738291046572:user-service\"}",
   "log": { "level": "info" },
   "service": { "name": "xray", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -86,8 +115,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "xy9ejjp2io"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "lcjrxka715b"
   },
   "input": { "type": "http_endpoint" }
 }

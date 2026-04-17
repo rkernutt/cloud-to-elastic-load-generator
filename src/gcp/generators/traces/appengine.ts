@@ -1,13 +1,7 @@
-/**
- * App Engine OTel trace: HTTP request → Firestore → Memcache → Cloud Tasks.
- */
-
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-
-const APM_AGENT = { name: "opentelemetry/nodejs", version: "1.x" } as const;
-const APM_DS = { type: "traces", dataset: "apm", namespace: "default" } as const;
+import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
 
 const APPS = ["globex-web", "globex-admin", "globex-api"];
 
@@ -18,20 +12,26 @@ export function generateAppEngineTrace(ts: string, er: number): EcsDocument[] {
   const app = rand(APPS);
   const base = new Date(ts);
   const env = rand(["production", "staging", "dev"]);
-  let offsetMs = 0;
+  const otel = gcpOtelMeta("python");
+  const svc = gcpServiceBase(app, env, "python", {
+    framework: "App Engine standard",
+    runtimeName: "python",
+    runtimeVersion: "3.12",
+  });
+  const cloudAe = gcpCloud(region, project, "appengine.googleapis.com");
 
   const fsUs = randInt(1500, 95_000);
   const mcUs = randInt(400, 35_000);
   const tqUs = randInt(1200, 55_000);
+  const bqUs = randInt(4000, 220_000);
 
-  const failIdx = isErr ? randInt(0, 2) : -1;
-  const fsErr = failIdx === 0;
-  const mcErr = failIdx === 1;
-  const tqErr = failIdx === 2;
+  const failIdx = isErr ? randInt(0, 3) : -1;
+  let offsetMs = 0;
 
   const s1 = randSpanId();
   const s2 = randSpanId();
   const s3 = randSpanId();
+  const s4 = randSpanId();
 
   const spanFs: EcsDocument = {
     "@timestamp": offsetTs(base, offsetMs),
@@ -51,18 +51,14 @@ export function generateAppEngineTrace(ts: string, er: number): EcsDocument[] {
         statement: `${rand(["get", "query", "update"])} ${rand(["profiles", "sessions", "preferences"])}/*`,
       },
       destination: { service: { resource: "firestore", type: "db", name: "firestore" } },
+      labels: failIdx === 0 ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {},
     },
-    service: {
-      name: app,
-      environment: env,
-      language: { name: "python" },
-      runtime: { name: "python", version: "3.12" },
-      framework: { name: "App Engine standard" },
-    },
-    cloud: gcpCloud(region, project, "appengine.googleapis.com"),
-    agent: APM_AGENT,
+    service: svc,
+    cloud: gcpCloud(region, project, "firestore.googleapis.com"),
     data_stream: APM_DS,
-    event: { outcome: fsErr ? "failure" : "success" },
+    event: { outcome: failIdx === 0 ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, s1),
   };
   offsetMs += Math.max(1, Math.round(fsUs / 1000));
 
@@ -84,18 +80,14 @@ export function generateAppEngineTrace(ts: string, er: number): EcsDocument[] {
         statement: rand(["GET session:id", "SET rate:user", "DELETE cart:tmp"]),
       },
       destination: { service: { resource: "memcache", type: "db", name: "memcache" } },
+      labels: failIdx === 1 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
     },
-    service: {
-      name: app,
-      environment: env,
-      language: { name: "python" },
-      runtime: { name: "python", version: "3.12" },
-      framework: { name: "App Engine standard" },
-    },
-    cloud: gcpCloud(region, project, "appengine.googleapis.com"),
-    agent: APM_AGENT,
+    service: svc,
+    cloud: cloudAe,
     data_stream: APM_DS,
-    event: { outcome: mcErr ? "failure" : "success" },
+    event: { outcome: failIdx === 1 ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, s2),
   };
   offsetMs += Math.max(1, Math.round(mcUs / 1000));
 
@@ -113,22 +105,44 @@ export function generateAppEngineTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: tqUs },
       action: "send",
       destination: { service: { resource: "cloudtasks", type: "messaging", name: "cloudtasks" } },
+      labels: failIdx === 2 ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" } : {},
     },
-    service: {
-      name: app,
-      environment: env,
-      language: { name: "python" },
-      runtime: { name: "python", version: "3.12" },
-      framework: { name: "App Engine standard" },
-    },
-    cloud: gcpCloud(region, project, "appengine.googleapis.com"),
-    agent: APM_AGENT,
+    service: svc,
+    cloud: gcpCloud(region, project, "cloudtasks.googleapis.com"),
     data_stream: APM_DS,
-    event: { outcome: tqErr ? "failure" : "success" },
+    event: { outcome: failIdx === 2 ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, s3),
+  };
+  offsetMs += Math.max(1, Math.round(tqUs / 1000));
+
+  const spanBq: EcsDocument = {
+    "@timestamp": offsetTs(base, offsetMs),
+    processor: { name: "transaction", event: "span" },
+    trace: { id: traceId },
+    transaction: { id: txId },
+    parent: { id: txId },
+    span: {
+      id: s4,
+      type: "db",
+      subtype: "bigquery",
+      name: "BigQuery.queryJob reporting.user_facts",
+      duration: { us: bqUs },
+      action: "execute",
+      db: { type: "sql", statement: "SELECT ... FROM `reporting.user_facts` WHERE ..." },
+      destination: { service: { resource: "bigquery", type: "db", name: "bigquery" } },
+      labels: failIdx === 3 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+    },
+    service: svc,
+    cloud: gcpCloud(region, project, "bigquery.googleapis.com"),
+    data_stream: APM_DS,
+    event: { outcome: failIdx === 3 ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, s4),
   };
 
-  const totalUs = fsUs + mcUs + tqUs + randInt(300, 6000) * 1000;
-  const txErr = fsErr || mcErr || tqErr;
+  const totalUs = fsUs + mcUs + tqUs + bqUs + randInt(300, 6000) * 1000;
+  const txErr = failIdx >= 0;
 
   const txDoc: EcsDocument = {
     "@timestamp": ts,
@@ -141,20 +155,16 @@ export function generateAppEngineTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: totalUs },
       result: txErr ? "HTTP 5xx" : "HTTP 2xx",
       sampled: true,
-      span_count: { started: 3, dropped: 0 },
+      span_count: { started: 4, dropped: 0 },
     },
-    service: {
-      name: app,
-      environment: env,
-      language: { name: "python" },
-      runtime: { name: "python", version: "3.12" },
-      framework: { name: "App Engine standard" },
-    },
-    cloud: gcpCloud(region, project, "appengine.googleapis.com"),
-    agent: APM_AGENT,
+    service: svc,
+    cloud: cloudAe,
+    labels: { "gcp.project_id": project.id, "gcp.app_engine.service": app },
     data_stream: APM_DS,
     event: { outcome: txErr ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, txId),
   };
 
-  return [txDoc, spanFs, spanMc, spanTq];
+  return [txDoc, spanFs, spanMc, spanTq, spanBq];
 }

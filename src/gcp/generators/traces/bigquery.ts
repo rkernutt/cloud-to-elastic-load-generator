@@ -1,7 +1,3 @@
-/**
- * BigQuery OTel trace: query planning → stage execution (2–3 stages) → result write.
- */
-
 import type { EcsDocument } from "../helpers.js";
 import {
   rand,
@@ -14,9 +10,7 @@ import {
   randSpanId,
 } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-
-const APM_AGENT = { name: "opentelemetry/nodejs", version: "1.x" } as const;
-const APM_DS = { type: "traces", dataset: "apm", namespace: "default" } as const;
+import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
 
 export function generateBigQueryTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -26,13 +20,19 @@ export function generateBigQueryTrace(ts: string, er: number): EcsDocument[] {
   const env = rand(["production", "staging", "dev"]);
   const dataset = randBigQueryDataset();
   const table = randBigQueryTable();
+  const otel = gcpOtelMeta("java");
+  const svc = gcpServiceBase("analytics-queries", env, "java", {
+    framework: "Apache Beam",
+    runtimeName: "java",
+    runtimeVersion: "17",
+  });
 
   const planUs = randInt(5000, 120_000);
   const stageCount = randInt(2, 3);
   const stageUs = Array.from({ length: stageCount }, () => randInt(20_000, 900_000));
   const writeUs = randInt(8000, 250_000);
 
-  const failIdx = isErr ? randInt(-1, stageCount) : -1; // -1=plan, 0..stageCount-1=stages (commit write separate)
+  const failIdx = isErr ? randInt(-1, stageCount) : -1;
 
   let offsetMs = 0;
   const sPlan = randSpanId();
@@ -55,12 +55,14 @@ export function generateBigQueryTrace(ts: string, er: number): EcsDocument[] {
         statement: `SELECT ... FROM \`${project.id}.${dataset}.${table}\` WHERE ...`,
       },
       destination: { service: { resource: "bigquery", type: "db", name: "bigquery" } },
+      labels: failIdx === -1 ? { "gcp.rpc.status_code": "INVALID_ARGUMENT" } : {},
     },
-    service: { name: "analytics-queries", environment: env, language: { name: "sql" } },
+    service: svc,
     cloud: gcpCloud(region, project, "bigquery.googleapis.com"),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: failIdx === -1 ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sPlan),
   };
   offsetMs += Math.max(1, Math.round(planUs / 1000));
 
@@ -68,7 +70,7 @@ export function generateBigQueryTrace(ts: string, er: number): EcsDocument[] {
   let parentId = sPlan;
   for (let i = 0; i < stageCount; i++) {
     const sid = randSpanId();
-    const us = stageUs[i];
+    const us = stageUs[i]!;
     const stageErr = failIdx === i;
     stageSpans.push({
       "@timestamp": offsetTs(base, offsetMs),
@@ -88,19 +90,21 @@ export function generateBigQueryTrace(ts: string, er: number): EcsDocument[] {
           statement: `/* stage ${i + 1} */ EXECUTE ON ${rand(["slot-pool", "reservation"])}`,
         },
         destination: { service: { resource: "bigquery", type: "db", name: "bigquery" } },
+        labels: stageErr ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" } : {},
       },
-      service: { name: "analytics-queries", environment: env, language: { name: "sql" } },
+      service: svc,
       cloud: gcpCloud(region, project, "bigquery.googleapis.com"),
-      agent: APM_AGENT,
       data_stream: APM_DS,
       event: { outcome: stageErr ? "failure" : "success" },
+      ...otel,
+      ...gcpCloudTraceMeta(project.id, traceId, sid),
     });
     offsetMs += Math.max(1, Math.round(us / 1000));
     parentId = sid;
   }
 
   const sWrite = randSpanId();
-  const writeErr = failIdx === stageCount; // when isErr, allow failing write
+  const writeErr = failIdx === stageCount;
   const spanWrite: EcsDocument = {
     "@timestamp": offsetTs(base, offsetMs),
     processor: { name: "transaction", event: "span" },
@@ -115,12 +119,14 @@ export function generateBigQueryTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: writeUs },
       action: "write",
       destination: { service: { resource: "gcs", type: "storage", name: "gcs" } },
+      labels: writeErr ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
     },
-    service: { name: "analytics-queries", environment: env, language: { name: "sql" } },
+    service: svc,
     cloud: gcpCloud(region, project, "bigquery.googleapis.com"),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: writeErr ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sWrite),
   };
 
   const totalUs =
@@ -140,11 +146,16 @@ export function generateBigQueryTrace(ts: string, er: number): EcsDocument[] {
       sampled: true,
       span_count: { started: 2 + stageCount, dropped: 0 },
     },
-    service: { name: "analytics-queries", environment: env, language: { name: "sql" } },
+    service: svc,
     cloud: gcpCloud(region, project, "bigquery.googleapis.com"),
-    agent: APM_AGENT,
+    labels: {
+      "gcp.bigquery.dataset": dataset,
+      "gcp.bigquery.table": table,
+    },
     data_stream: APM_DS,
     event: { outcome: txErr ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, txId),
   };
 
   return [txDoc, spanPlan, ...stageSpans, spanWrite];

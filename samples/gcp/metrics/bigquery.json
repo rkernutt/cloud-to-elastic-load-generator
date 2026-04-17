@@ -3,44 +3,42 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast1",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" }
+    "region": "europe-west3",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-northeast1",
-    "ephemeral_id": "t1pe8ncy0y9"
+    "name": "metricbeat-gcp-europe-west3",
+    "ephemeral_id": "wpo8naiwg8i"
+  },
+  "monitoringTimeSeries": {
+    "metric": { "type": "bigquery.googleapis.com/query/scanned_bytes", "labels": {} },
+    "resource": { "type": "bigquery_project", "labels": { "project_id": "globex-dev-g7h8i9" } },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      {
+        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
+        "value": { "int64Value": "158186785984588" }
+      }
+    ]
   },
   "gcp": {
     "bigquery": {
+      "labels": { "project_id": "globex-dev-g7h8i9" },
       "metrics": {
-        "slots_total": { "avg": 1084, "sum": 1084, "count": 1 },
-        "slots_available": { "avg": 2326, "sum": 2326, "count": 1 },
-        "query_count": { "avg": 1937306, "sum": 1937306, "count": 1 },
-        "stored_bytes": { "avg": 58374091018213, "sum": 58374091018213, "count": 1 }
-      },
-      "labels": { "project_id": "globex-shared-m3n4o5", "dataset_id": "reporting" }
+        "bigquery.googleapis.com/query/scanned_bytes": {
+          "avg": 158186785984588,
+          "sum": 158186785984588,
+          "count": 1
+        }
+      }
     }
   },
   "metricset": { "name": "bigquery", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.bigquery_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.bigquery_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/bigquery/slots_total",
-      "labels": {}
-    },
-    "resource": {
-      "type": "bigquery_dataset",
-      "labels": { "project_id": "globex-shared-m3n4o5", "region": "asia-northeast1" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 1084 } }
-    ]
-  }
+  "event": { "dataset": "gcp.bigquery_metrics", "module": "gcp" }
 }

@@ -1,0 +1,257 @@
+{
+  "title": "Data & Analytics Pipeline — overview",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "dp-k1",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "Pipeline runs",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mwaa* | WHERE aws.mwaa.task_id == \"dag_complete\" | STATS `Total runs` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total runs" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dp-k2",
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "Failure rate",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mwaa* | WHERE aws.mwaa.task_id == \"dag_complete\" | STATS total = COUNT(), failures = COUNT_IF(aws.mwaa.state == \"failed\") | EVAL `Failure %` = ROUND(failures * 100.0 / total, 1)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failure %" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dp-k3",
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "Avg pipeline duration (ms)",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mwaa* | WHERE aws.mwaa.task_id == \"dag_complete\" AND aws.mwaa.duration_ms IS NOT NULL | STATS `Avg duration` = ROUND(AVG(aws.mwaa.duration_ms), 0)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg duration" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dp-k4",
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "Quality check: degraded",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mwaa* | WHERE aws.mwaa.quality_check == \"DEGRADED\" | STATS `Degraded runs` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Degraded runs" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dp-d1",
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Pipeline success vs failure",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mwaa* | WHERE aws.mwaa.task_id == \"dag_complete\" | STATS c = COUNT() BY state = aws.mwaa.state"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "state" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dp-d2",
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Error types (EMR)",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.emr* | WHERE error.type IS NOT NULL | STATS c = COUNT() BY err = error.type"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "err" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dp-l1",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Pipeline events over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.mwaa*, logs-aws.emr*, logs-aws.glue*, logs-aws.athena*, logs-aws.s3access* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Events" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dp-l2",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 10 },
+      "config": {
+        "title": "Spark processing latency (ms)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.emr* | WHERE aws.emr.duration_ms IS NOT NULL | STATS avg_ms = ROUND(AVG(aws.emr.duration_ms), 0), p95_ms = ROUND(PERCENTILE(aws.emr.duration_ms, 95), 0) BY b = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [
+                { "operation": "value", "column": "avg_ms", "label": "Avg latency" },
+                { "operation": "value", "column": "p95_ms", "label": "P95 latency" }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dp-l3",
+      "grid": { "x": 0, "y": 35, "w": 24, "h": 10 },
+      "config": {
+        "title": "Athena data scanned (bytes)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "bar_stacked",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.athena* | WHERE aws.athena.data_scanned_bytes IS NOT NULL | STATS total_scanned = SUM(aws.athena.data_scanned_bytes) BY b = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "total_scanned", "label": "Bytes scanned" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dp-l4",
+      "grid": { "x": 24, "y": 35, "w": 24, "h": 10 },
+      "config": {
+        "title": "Null-data queries (Athena 0 rows)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "bar_stacked",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.athena* | WHERE aws.athena.rows_returned == 0 | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Zero-row queries" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dp-t1",
+      "grid": { "x": 0, "y": 45, "w": 48, "h": 12 },
+      "config": {
+        "title": "Pipeline runs by DAG and status",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mwaa* | WHERE aws.mwaa.task_id == \"dag_complete\" | STATS runs = COUNT(), failures = COUNT_IF(aws.mwaa.state == \"failed\"), degraded = COUNT_IF(aws.mwaa.quality_check == \"DEGRADED\"), avg_ms = ROUND(AVG(aws.mwaa.duration_ms), 0) BY dag = aws.mwaa.dag_id | SORT runs DESC | LIMIT 20"
+          },
+          "metrics": [
+            { "operation": "value", "column": "dag", "label": "DAG" },
+            { "operation": "value", "column": "runs", "label": "Runs" },
+            { "operation": "value", "column": "failures", "label": "Failures" },
+            { "operation": "value", "column": "degraded", "label": "Degraded" },
+            { "operation": "value", "column": "avg_ms", "label": "Avg duration (ms)" }
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dp-t2",
+      "grid": { "x": 0, "y": 57, "w": 48, "h": 12 },
+      "config": {
+        "title": "Pipeline activity by region",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mwaa*, logs-aws.emr*, logs-aws.glue*, logs-aws.athena* | STATS c = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT c DESC | LIMIT 15"
+          },
+          "metrics": [
+            { "operation": "value", "column": "region", "label": "Region" },
+            { "operation": "value", "column": "c", "label": "Events" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

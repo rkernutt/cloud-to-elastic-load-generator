@@ -1,0 +1,225 @@
+{
+  "group": "data-pipeline",
+  "description": "ML anomaly detection jobs for the Data & Analytics Pipeline chained event scenario",
+  "jobs": [
+    {
+      "id": "aws-data-pipeline-duration-anomaly",
+      "description": "Detects unusually slow data pipeline runs via MWAA DAG completion duration",
+      "job": {
+        "description": "Detects unusually slow data pipeline runs",
+        "groups": ["aws", "data-pipeline", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.mwaa.duration_ms) partitionfield=aws.mwaa.dag_id",
+              "function": "high_mean",
+              "field_name": "aws.mwaa.duration_ms",
+              "partition_field_name": "aws.mwaa.dag_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.mwaa.dag_id", "cloud.region", "aws.mwaa.quality_check"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-load-generator-data-pipeline",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.mwaa*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "aws.mwaa.task_id": "dag_complete"
+                }
+              },
+              {
+                "exists": {
+                  "field": "aws.mwaa.duration_ms"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-data-pipeline-error-spike",
+      "description": "Detects spikes in data pipeline failures across all pipeline services",
+      "job": {
+        "description": "Detects spikes in data pipeline failures",
+        "groups": ["aws", "data-pipeline", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count on event.outcome=failure partitionfield=cloud.region",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.dataset", "error.type"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-load-generator-data-pipeline",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.mwaa*", "logs-aws.emr*", "logs-aws.glue*", "logs-aws.athena*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-data-pipeline-null-data",
+      "description": "Detects increase in Athena queries returning zero rows (null data propagation)",
+      "job": {
+        "description": "Detects increase in Athena queries returning zero rows",
+        "groups": ["aws", "data-pipeline", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count on athena zero-row queries partitionfield=aws.athena.workgroup",
+              "function": "high_count",
+              "partition_field_name": "aws.athena.workgroup",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.athena.workgroup", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-load-generator-data-pipeline",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.athena*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "aws.athena.rows_returned": 0
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-data-pipeline-stage-latency",
+      "description": "Detects per-stage latency anomalies in EMR Spark processing",
+      "job": {
+        "description": "Detects per-stage latency anomalies in EMR Spark processing",
+        "groups": ["aws", "data-pipeline", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.emr.duration_ms) partitionfield=aws.emr.compute_mode",
+              "function": "high_mean",
+              "field_name": "aws.emr.duration_ms",
+              "partition_field_name": "aws.emr.compute_mode",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.emr.compute_mode", "aws.emr.cluster_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-load-generator-data-pipeline",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.emr*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "exists": {
+                  "field": "aws.emr.duration_ms"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    }
+  ]
+}

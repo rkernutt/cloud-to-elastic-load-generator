@@ -32,6 +32,16 @@ import { generateComputeEngineTrace } from "./computeengine.js";
 import { generateApigeeTrace } from "./apigee.js";
 import { generateCloudBuildTrace } from "./cloudbuild.js";
 import { generateGeminiTrace } from "./gemini.js";
+import { generateAlloyDbTrace } from "./alloydb.js";
+import { generateBigtableTrace } from "./bigtable.js";
+import { generateMemorystoreTrace } from "./memorystore.js";
+import { generateCloudTasksTrace } from "./cloud-tasks.js";
+import { generateCloudSchedulerTrace } from "./cloud-scheduler.js";
+import { generateComposerTrace } from "./composer.js";
+import { generateDataprocTrace } from "./dataproc.js";
+import { generateCloudRunJobsTrace } from "./cloud-run-jobs.js";
+import { generateDialogflowTrace } from "./dialogflow.js";
+import { generateCloudArmorTrace } from "./cloud-armor.js";
 
 const GCP_TRACE_GENERATORS: Record<string, (ts: string, er: number) => Record<string, unknown>[]> =
   {
@@ -58,6 +68,16 @@ const GCP_TRACE_GENERATORS: Record<string, (ts: string, er: number) => Record<st
     apigee: generateApigeeTrace,
     "cloud-build": generateCloudBuildTrace,
     gemini: generateGeminiTrace,
+    alloydb: generateAlloyDbTrace,
+    bigtable: generateBigtableTrace,
+    memorystore: generateMemorystoreTrace,
+    "cloud-tasks": generateCloudTasksTrace,
+    "cloud-scheduler": generateCloudSchedulerTrace,
+    composer: generateComposerTrace,
+    dataproc: generateDataprocTrace,
+    "cloud-run-jobs": generateCloudRunJobsTrace,
+    dialogflow: generateDialogflowTrace,
+    "cloud-armor": generateCloudArmorTrace,
   };
 
 export { GCP_TRACE_GENERATORS };

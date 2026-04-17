@@ -23,9 +23,9 @@ After `npm install`, **`postinstall`** runs **`copy-icons`** (copies AWS archite
 
 Open **http://localhost:3000**. Configure Elasticsearch URL and API key in the UI; bulk requests go through **`/proxy`** in dev.
 
-The **Setup** wizard (integrations, pipelines, dashboards, ML) supports filtering, **Align with Services**, and session-persisted logs. **Dashboard uninstall** may be blocked on Elastic Serverless Kibana — see [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md).
+The **Setup** wizard installs **Cloud Loadgen Integrations** per service — each integration bundles an ingest pipeline, Kibana dashboard, ML anomaly detection jobs, and alerting rules. All assets are tagged **`cloudloadgen`** so you can filter, view, or bulk-edit them easily in Kibana. Data streams use **TSDS** for metrics where appropriate. **Serverless** may limit uninstall/reinstall — [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md).
 
-**Setup UI implementation (for contributors):** Service-type grouping for AWS dashboards and ML jobs is driven by `src/setup/dashboardServiceGroup.ts` (labels from the Services catalog) and matching helpers in `src/setup/setupAssetMatch.ts`. Pipeline / ML **accordion titles** use `src/setup/setupDisplayPolish.ts` (`polishSetupCategoryLabel`, dashboard title polish). Behavior is documented in [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md).
+**Setup UI implementation (for contributors):** Service-category grouping is built in the `servicePackIndex` `useMemo` in `src/pages/SetupPage.tsx`. Title-fragment extraction uses `src/setup/setupAssetMatch.ts`. Service IDs are normalised via `SERVICE_ALIASES`, `GCP_OVERRIDES`, and `AZURE_OVERRIDES` maps (cloud-aware resolution). Category assignment uses the `SERVICE_CATEGORY` map (~200+ entries per cloud). Labels come from `src/setup/setupDisplayPolish.ts` (`polishSetupCategoryLabel`). Behavior is documented in [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md).
 
 ## Build and preview
 
@@ -90,4 +90,4 @@ npm run typecheck
 
 ## Documentation index
 
-Guides (AWS CloudWatch routing, OTel, ingest reference, diagrams): [docs/README.md](./README.md).
+Guides (AWS CloudWatch routing, OTel, ingest reference, diagrams, chained events): [docs/README.md](./README.md).

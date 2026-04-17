@@ -1,13 +1,13 @@
 {
   "group": "aiml",
-  "description": "AI & ML service anomaly detection — Bedrock model usage & latency",
+  "description": "AI & ML service anomaly detection — Amazon Bedrock model usage & latency",
   "jobs": [
     {
       "id": "aws-bedrock-token-usage-spike",
-      "description": "Detects unusual spikes in Bedrock token consumption per model",
+      "description": "Detects unusual spikes in Amazon Bedrock token consumption per model",
       "job": {
         "description": "Detects unusual spikes in Bedrock token consumption per model",
-        "groups": ["aws", "aiml"],
+        "groups": ["aws", "aiml", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -22,29 +22,46 @@
           "influencers": ["aws.bedrock.model_id", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.bedrock" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.bedrock"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-bedrock-latency-anomaly",
-      "description": "Detects unusual Bedrock model invocation latency per model",
+      "description": "Detects unusual Amazon Bedrock model invocation latency per model",
       "job": {
         "description": "Detects unusual Bedrock model invocation latency per model",
-        "groups": ["aws", "aiml"],
+        "groups": ["aws", "aiml", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -59,29 +76,46 @@
           "influencers": ["aws.bedrock.model_id", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.bedrock" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.bedrock"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-bedrock-error-spike",
-      "description": "Detects spikes in Bedrock invocation errors and throttles per model",
+      "description": "Detects spikes in Amazon Bedrock invocation errors and throttles per model",
       "job": {
         "description": "Detects spikes in Bedrock invocation errors and throttles per model",
-        "groups": ["aws", "aiml"],
+        "groups": ["aws", "aiml", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -95,9 +129,16 @@
           "influencers": ["aws.bedrock.model_id", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -105,22 +146,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.bedrock" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.bedrock"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-bedrock-rare-model",
-      "description": "Detects rare or unusual Bedrock model IDs being called, indicating misconfiguration or abuse",
+      "description": "Detects rare or unusual Amazon Bedrock model IDs being called, indicating misconfiguration or abuse",
       "job": {
         "description": "Detects rare or unusual Bedrock model IDs being called, indicating misconfiguration or abuse",
-        "groups": ["aws", "aiml"],
+        "groups": ["aws", "aiml", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "60m",
           "detectors": [
@@ -134,21 +187,38 @@
           "influencers": ["aws.bedrock.model_id", "cloud.account.id"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "16mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "16mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.bedrock" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.bedrock"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

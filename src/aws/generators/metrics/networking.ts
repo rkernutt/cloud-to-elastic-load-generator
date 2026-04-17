@@ -43,6 +43,10 @@ export function generateAlbMetrics(ts: string, er: number) {
       req * (Math.random() < er ? jitter(0.05, 0.04, 0.001, 0.3) : jitter(0.002, 0.001, 0, 0.01))
     );
     const http4xx = Math.round(req * jitter(0.015, 0.01, 0.001, 0.05));
+    const httpElb3xx = Math.round(req * jitter(0.002, 0.0015, 0, 0.03));
+    const ipv6Req = Math.round(req * jitter(0.08, 0.05, 0, 0.35));
+    const grpcReq = Math.random() < 0.2 ? randInt(1, Math.max(1, Math.round(req * 0.15))) : 0;
+    const tlsErrScale = Math.random() < er ? jitter(1, 0.5, 0.2, 4) : jitter(0.05, 0.03, 0, 0.5);
     return metricDoc(
       ts,
       "elb",
@@ -56,9 +60,17 @@ export function generateAlbMetrics(ts: string, er: number) {
         HTTPCode_Target_4XX_Count: counter(http4xx),
         HTTPCode_Target_5XX_Count: counter(http5xx),
         HTTPCode_ELB_5XX_Count: counter(Math.round(http5xx * 0.1)),
+        HTTPCode_ELB_3XX_Count: counter(httpElb3xx),
         ActiveConnectionCount: counter(randInt(100, 50_000)),
         NewConnectionCount: counter(randInt(10, 5_000)),
         ProcessedBytes: counter(randInt(1_000_000, 10_000_000_000)),
+        IPv6ProcessedBytes: counter(randInt(0, Math.round(req * 8000))),
+        IPv6RequestCount: counter(ipv6Req),
+        RuleEvaluations: counter(randInt(req, req * 3)),
+        ConsumedLCUs: counter(dp(jitter(5, 3, 0.5, 500))),
+        TargetTLSNegotiationErrorCount: counter(Math.round(randInt(0, 200) * tlsErrScale)),
+        ClientTLSNegotiationErrorCount: counter(Math.round(randInt(0, 120) * tlsErrScale)),
+        GrpcRequestCount: counter(grpcReq),
         TargetResponseTime: stat(dp(jitter(0.05, 0.04, 0.001, 10)), {
           max: dp(jitter(5, 4, 0.5, 60)),
           min: dp(jitter(0.005, 0.003, 0.001, 0.05)),
@@ -77,6 +89,9 @@ export function generateNlbMetrics(ts: string, er: number) {
     LB_NAMES.filter((n) => n.includes("nlb")),
     randInt(1, 2)
   ).map((name) => {
+    const processed = randInt(1_000_000, 50_000_000_000);
+    const processedTls = Math.round(processed * jitter(0.55, 0.15, 0.1, 0.95));
+    const isUdpHeavy = Math.random() < 0.25;
     return metricDoc(
       ts,
       "elb",
@@ -87,9 +102,22 @@ export function generateNlbMetrics(ts: string, er: number) {
       {
         ActiveFlowCount: counter(randInt(100, 100_000)),
         NewFlowCount: counter(randInt(10, 10_000)),
-        ProcessedBytes: counter(randInt(1_000_000, 50_000_000_000)),
+        ProcessedBytes: counter(processed),
+        ProcessedBytes_TLS: counter(processedTls),
         TCP_Client_Reset_Count: counter(Math.random() < er ? randInt(1, 500) : 0),
         TCP_Target_Reset_Count: counter(Math.random() < er * 0.5 ? randInt(1, 200) : 0),
+        TCP_ELB_Reset_Count: counter(Math.random() < er * 0.3 ? randInt(1, 150) : randInt(0, 20)),
+        PeakPacketsPerSecond: stat(dp(jitter(50_000, 20_000, 1_000, 500_000)), {
+          max: dp(jitter(800_000, 200_000, 50_000, 2_000_000)),
+          min: dp(jitter(500, 300, 10, 5000)),
+        }),
+        PortAllocErrorCount: counter(
+          isUdpHeavy && Math.random() < er * 0.4
+            ? randInt(1, 500)
+            : Math.random() < er * 0.05
+              ? randInt(0, 50)
+              : 0
+        ),
         HealthyHostCount: stat(randInt(2, 8)),
         UnHealthyHostCount: stat(Math.random() < er ? randInt(1, 2) : 0),
         ConsumedLCUs: counter(dp(jitter(2, 1.5, 0.1, 20))),
@@ -120,6 +148,10 @@ export function generateApigatewayMetrics(ts: string, er: number) {
   const err5 = Math.round(
     count * (Math.random() < er ? jitter(0.04, 0.03, 0.005, 0.25) : jitter(0.003, 0.002, 0, 0.01))
   );
+  const hasCache = Math.random() < 0.3;
+  const cacheHit = hasCache ? randInt(0, Math.round(count * 0.55)) : 0;
+  const cacheMiss = hasCache ? Math.max(0, count - cacheHit - err4 - err5) : 0;
+  const dataProcessed = randInt(50_000, count * 25_000);
   return [
     metricDoc(
       ts,
@@ -130,15 +162,19 @@ export function generateApigatewayMetrics(ts: string, er: number) {
       { ApiName: api, Stage: stage },
       {
         Count: counter(count),
+        DataProcessed: counter(dataProcessed),
         "4XXError": counter(err4),
         "5XXError": counter(err5),
         Latency: stat(dp(jitter(80, 60, 5, 10000)), {
           max: dp(jitter(2000, 1500, 200, 30000)),
           min: dp(jitter(10, 7, 1, 50)),
         }),
-        IntegrationLatency: stat(dp(jitter(50, 40, 3, 9000))),
-        CacheHitCount: counter(randInt(0, Math.round(count * 0.3))),
-        CacheMissCount: counter(randInt(0, Math.round(count * 0.7))),
+        IntegrationLatency: stat(dp(jitter(50, 40, 3, 9000)), {
+          max: dp(jitter(2500, 2000, 50, 45000)),
+          min: dp(jitter(3, 2, 0.5, 80)),
+        }),
+        CacheHitCount: counter(cacheHit),
+        CacheMissCount: counter(cacheMiss),
       }
     ),
   ];
@@ -153,7 +189,20 @@ export function generateCloudfrontMetrics(ts: string, er: number) {
   return sample(CF_DISTRIBUTIONS, randInt(1, 3)).map((distId) => {
     const req = randInt(5_000, 10_000_000);
     const err5xx = Math.round(req * (Math.random() < er ? jitter(0.02, 0.015, 0.001, 0.1) : 0));
+    const err401 = Math.round(req * jitter(0.0005, 0.0003, 0, 0.01));
+    const err403 = Math.round(req * jitter(0.0015, 0.001, 0, 0.02));
+    const err502 = Math.round(
+      req * (Math.random() < er ? jitter(0.008, 0.005, 0, 0.05) : jitter(0.0002, 0.0001, 0, 0.003))
+    );
+    const err503 = Math.round(
+      req * (Math.random() < er ? jitter(0.006, 0.004, 0, 0.04) : jitter(0.0001, 0.00005, 0, 0.002))
+    );
     const hit = dp(jitter(85, 10, 50, 99));
+    const originP50 = dp(jitter(45, 20, 8, 120));
+    const originP99 = dp(jitter(480, 150, 80, 2500));
+    const fnInv = randInt(0, Math.round(req * 0.08));
+    const fnValErr =
+      Math.random() < er ? randInt(0, Math.max(1, Math.round(fnInv * 0.05))) : randInt(0, 3);
     return metricDoc(
       ts,
       "cloudfront",
@@ -167,9 +216,22 @@ export function generateCloudfrontMetrics(ts: string, er: number) {
         BytesUploaded: counter(randInt(1_000, 500_000_000)),
         TotalErrorRate: stat(dp(jitter(0.5, 0.4, 0, 5))),
         "4xxErrorRate": stat(dp(jitter(0.3, 0.2, 0, 3))),
-        "5xxErrorRate": stat(dp((err5xx / req) * 100)),
+        "5xxErrorRate": stat(dp((err5xx / Math.max(1, req)) * 100)),
+        "401ErrorRate": stat(dp((err401 / Math.max(1, req)) * 100)),
+        "403ErrorRate": stat(dp((err403 / Math.max(1, req)) * 100)),
+        "502ErrorRate": stat(dp((err502 / Math.max(1, req)) * 100)),
+        "503ErrorRate": stat(dp((err503 / Math.max(1, req)) * 100)),
         CacheHitRate: stat(hit),
-        OriginLatency: stat(dp(jitter(50, 40, 5, 5000))),
+        OriginLatency: stat(originP50, {
+          max: originP99,
+          min: dp(jitter(4, 2, 1, 25)),
+        }),
+        FunctionInvocations: counter(fnInv),
+        FunctionValidationErrors: counter(fnValErr),
+        FunctionComputeUtilization: stat(dp(jitter(12, 8, 0, 100)), {
+          max: dp(jitter(98, 2, 50, 100)),
+          min: dp(jitter(0.5, 0.3, 0, 5)),
+        }),
       }
     );
   });
@@ -194,10 +256,15 @@ export function generateNatgatewayMetrics(ts: string, er: number) {
         BytesInFromSource: counter(randInt(1_000_000, 10_000_000_000)),
         BytesOutToDestination: counter(randInt(1_000_000, 10_000_000_000)),
         BytesOutToSource: counter(randInt(1_000_000, 10_000_000_000)),
+        PacketsInFromDestination: counter(randInt(10_000, 50_000_000)),
+        PacketsInFromSource: counter(randInt(10_000, 50_000_000)),
+        PacketsOutToDestination: counter(randInt(10_000, 50_000_000)),
+        PacketsOutToSource: counter(randInt(10_000, 50_000_000)),
         ConnectionAttemptCount: counter(randInt(100, 100_000)),
         ConnectionEstablishedCount: counter(randInt(100, 50_000)),
         ErrorPortAllocation: counter(Math.random() < er ? randInt(1, 100) : 0),
-        PacketsDropCount: counter(Math.random() < er ? randInt(0, 1000) : 0),
+        IdleTimeoutCount: counter(randInt(0, Math.random() < er ? 5000 : 800)),
+        PacketsDropCount: counter(Math.random() < er ? randInt(0, 1000) : randInt(0, 50)),
       }
     );
   });
@@ -222,6 +289,9 @@ export function generateTransitgatewayMetrics(ts: string, er: number) {
         PacketsIn: counter(randInt(10_000, 100_000_000)),
         PacketsOut: counter(randInt(10_000, 100_000_000)),
         PacketDropCountBlackhole: counter(Math.random() < er ? randInt(1, 1000) : 0),
+        PacketDropCountNoRoute: counter(
+          Math.random() < er * 0.6 ? randInt(1, 500) : randInt(0, 30)
+        ),
       }
     ),
   ];
@@ -267,6 +337,12 @@ export function generateNetworkfirewallMetrics(ts: string, er: number) {
         DroppedPackets: counter(Math.random() < er ? randInt(0, 5000) : randInt(0, 100)),
         PassedPackets: counter(randInt(10_000, 10_000_000)),
         ReceivedPackets: counter(randInt(10_000, 10_000_000)),
+        StreamExceptionPolicyPackets: counter(
+          Math.random() < er * 0.25 ? randInt(1, 2000) : randInt(0, 80)
+        ),
+        ThreatSignatureMatchedActions: counter(
+          Math.random() < er * 0.35 ? randInt(1, 5000) : randInt(0, 200)
+        ),
       }
     ),
   ];

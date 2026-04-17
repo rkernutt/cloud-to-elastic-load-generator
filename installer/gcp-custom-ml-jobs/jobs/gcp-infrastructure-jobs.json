@@ -1,0 +1,183 @@
+{
+  "group": "gcp-infrastructure",
+  "description": "GCP infrastructure — Cloud Audit Logs and Cloud Load Balancing anomaly detection",
+  "jobs": [
+    {
+      "id": "gcp-cloud-audit-logs-rare-action",
+      "description": "Detects rare administrative API methods in Cloud Audit Logs (unusual or first-seen operations)",
+      "job": {
+        "description": "Detects rare Cloud Audit method_name values for user-driven admin activity",
+        "groups": ["gcp", "management"],
+        "analysis_config": {
+          "bucket_span": "60m",
+          "detectors": [
+            {
+              "detector_description": "rare by=gcp.cloud_audit.method_name",
+              "function": "rare",
+              "by_field_name": "gcp.cloud_audit.method_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "gcp.cloud_audit.method_name",
+            "gcp.cloud_audit.service_name",
+            "cloud.region"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "term": { "event.dataset": "gcp.cloud_audit" } },
+              { "term": { "gcp.cloud_audit.caller_type": "USER" } },
+              { "exists": { "field": "gcp.cloud_audit.method_name" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "gcp-cloud-audit-logs-error-spike",
+      "description": "Detects spikes in Cloud Audit log failures or denials per GCP service",
+      "job": {
+        "description": "Detects spikes in failed or denied Cloud Audit events per service_name",
+        "groups": ["gcp", "management"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.cloud_audit.service_name",
+              "function": "high_count",
+              "partition_field_name": "gcp.cloud_audit.service_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "gcp.cloud_audit.service_name",
+            "gcp.cloud_audit.method_name",
+            "cloud.region"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "term": { "event.dataset": "gcp.cloud_audit" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "gcp-cloud-lb-latency-anomaly",
+      "description": "Detects unusual Cloud Load Balancing request latency per forwarding rule",
+      "job": {
+        "description": "Detects unusual HTTP(S) load balancer latency per forwarding rule",
+        "groups": ["gcp", "networking"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=gcp.cloud_lb.forwarding_rule",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "gcp.cloud_lb.forwarding_rule",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "gcp.cloud_lb.forwarding_rule",
+            "gcp.cloud_lb.backend_service",
+            "cloud.region"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "term": { "event.dataset": "gcp.loadbalancing" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "gcp-cloud-lb-error-rate-spike",
+      "description": "Detects spikes in Cloud Load Balancing 5xx responses per backend service",
+      "job": {
+        "description": "Detects spikes in HTTP 5xx responses from load balancing logs per backend service",
+        "groups": ["gcp", "networking"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.cloud_lb.backend_service",
+              "function": "high_count",
+              "partition_field_name": "gcp.cloud_lb.backend_service",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "gcp.cloud_lb.backend_service",
+            "gcp.cloud_lb.forwarding_rule",
+            "cloud.region"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "gcp" } },
+              { "term": { "event.dataset": "gcp.loadbalancing" } },
+              { "range": { "gcp.cloud_lb.response_code": { "gte": 500 } } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

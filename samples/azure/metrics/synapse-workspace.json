@@ -3,41 +3,77 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "centralus",
-    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
+    "region": "switzerlandnorth",
+    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-centralus",
-    "ephemeral_id": "wbuxec9pn3"
+    "name": "metricbeat-azure-switzerlandnorth",
+    "ephemeral_id": "2zm7u9pzzij"
   },
   "azure": {
     "synapse_workspace": {
       "metrics": {
-        "dpu_used": { "avg": 52.52, "sum": 52.52, "count": 1 },
-        "cpu_percent": { "avg": 52.99, "sum": 52.99, "count": 1 },
-        "memory_percent": { "avg": 89.26, "sum": 89.26, "count": 1 },
-        "jobs_submitted": { "avg": 473, "sum": 473, "count": 1 },
-        "jobs_failed": { "avg": 0, "sum": 0, "count": 1 },
-        "data_processed_bytes": { "avg": 19152186769, "sum": 19152186769, "count": 1 }
-      },
-      "labels": { "resource_group": "rg-prod-edx82", "pool_name": "sql-pool-1" }
-    }
+        "IntegrationPipelineRunsEnded": {
+          "avg": 270,
+          "min": 237.6,
+          "max": 302.4,
+          "sum": 270,
+          "count": 1
+        },
+        "IntegrationActivityRunsEnded": {
+          "avg": 4137,
+          "min": 3640.56,
+          "max": 4633.44,
+          "sum": 4137,
+          "count": 1
+        },
+        "IntegrationTriggerRunsStarted": {
+          "avg": 722,
+          "min": 635.36,
+          "max": 808.64,
+          "sum": 722,
+          "count": 1
+        },
+        "IntegrationPipelineRunsFailed": { "avg": 0, "min": 0, "max": 0, "sum": 0, "count": 1 },
+        "IntegrationRuntimeAvailableMemory": {
+          "avg": 31.38,
+          "min": 27.61,
+          "max": 35.15,
+          "sum": 31.38,
+          "count": 1
+        },
+        "IntegrationRuntimeCpuUtilization": {
+          "avg": 40.99,
+          "min": 36.07,
+          "max": 45.91,
+          "sum": 40.99,
+          "count": 1
+        }
+      }
+    },
+    "dimensions": {
+      "WorkspaceName": "syn-8oep9w",
+      "PoolName": "sql-pool-1",
+      "ResourceGroup": "rg-shared-9x4fz"
+    },
+    "resource": {
+      "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-shared-9x4fz/providers/Microsoft.Synapse/workspaces/syn-8oep9w",
+      "group": "rg-shared-9x4fz",
+      "name": "syn-8oep9w"
+    },
+    "namespace": "Microsoft.Synapse/workspaces"
   },
-  "metricset": { "name": "synapse_workspace", "period": 60000 },
-  "data_stream": {
-    "type": "metrics",
-    "dataset": "azure.synapse_workspace_metrics",
-    "namespace": "default"
-  },
+  "metricset": { "name": "monitor", "period": 60000 },
+  "data_stream": { "type": "metrics", "dataset": "azure.synapse_metrics", "namespace": "default" },
   "input": { "type": "azure-monitor" },
-  "event": { "dataset": "azure.synapse_workspace_metrics", "module": "azure" },
+  "event": { "dataset": "azure.synapse_metrics", "module": "azure" },
   "azureMonitorMetric": {
     "time": "2026-04-07T12:00:00.000Z",
-    "metricName": "dpu_used",
+    "metricName": "IntegrationPipelineRunsEnded",
     "resourceGroup": "rg-synapse-workspace",
-    "subscriptionId": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
-    "timeseries": [{ "data": [{ "average": 52.52, "count": 1 }] }]
+    "subscriptionId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    "timeseries": [{ "data": [{ "average": 270, "count": 1 }] }]
   }
 }

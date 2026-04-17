@@ -38,6 +38,12 @@ export function generateWafMetrics(ts: string, er: number) {
   const blocked = Math.round(
     req * (Math.random() < er ? jitter(0.1, 0.08, 0.01, 0.5) : jitter(0.02, 0.015, 0.001, 0.1))
   );
+  const counted = randInt(0, Math.round(req * 0.05));
+  const passed = Math.max(0, req - blocked - counted);
+  const allowed = Math.round(passed * jitter(0.92, 0.06, 0.55, 1));
+  const captcha = Math.random() < er * 0.15 ? randInt(1, 5_000) : randInt(0, 800);
+  const challenge = Math.random() < er * 0.12 ? randInt(1, 3_000) : randInt(0, 400);
+  const validToken = Math.round(req * jitter(0.88, 0.08, 0.4, 0.99));
   return [
     metricDoc(
       ts,
@@ -47,10 +53,14 @@ export function generateWafMetrics(ts: string, er: number) {
       account,
       { WebACL: waf, Rule: rule, Region: region },
       {
-        AllowedRequests: counter(req - blocked),
+        AllowedRequests: counter(allowed),
         BlockedRequests: counter(blocked),
-        CountedRequests: counter(randInt(0, Math.round(req * 0.05))),
-        PassedRequests: counter(req - blocked),
+        CountedRequests: counter(counted),
+        PassedRequests: counter(passed),
+        SampleCount: counter(randInt(1, Math.max(2, Math.round(req / 50)))),
+        RequestsWithValidToken: counter(validToken),
+        CaptchaRequests: counter(captcha),
+        ChallengeRequests: counter(challenge),
         RequestWithNoRuleActionMatched: counter(randInt(0, 10_000)),
       }
     ),
@@ -83,6 +93,11 @@ export function generateShieldMetrics(ts: string, er: number) {
         DDoSAttackRequestsPerSecond: stat(
           Math.random() < er ? dp(jitter(10_000, 8_000, 100, 1_000_000)) : 0
         ),
+        VolumePacketsPerSecond: stat(
+          Math.random() < er
+            ? dp(jitter(80_000, 60_000, 1_000, 20_000_000))
+            : dp(jitter(500, 200, 0, 50_000))
+        ),
         DDoSDetected: stat(Math.random() < er ? 1 : 0),
       }
     ),
@@ -101,6 +116,13 @@ const KMS_KEY_IDS = [
 export function generateKmsMetrics(ts: string, _er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(KMS_KEY_IDS, randInt(1, 3)).map((keyId) => {
+    const encryptN = randInt(0, 10_000);
+    const decryptN = randInt(0, 50_000);
+    const gdkN = randInt(0, 20_000);
+    const reEncN = randInt(0, 8_000);
+    const signN = randInt(0, 5_000);
+    const verifyN = randInt(0, 5_000);
+    const imported = Math.random() < 0.2;
     return metricDoc(
       ts,
       "kms",
@@ -110,12 +132,19 @@ export function generateKmsMetrics(ts: string, _er: number) {
       { KeyId: keyId },
       {
         SecretsManagerSecretCount: undefined,
-        Encrypt: counter(randInt(0, 10_000)),
-        Decrypt: counter(randInt(0, 50_000)),
-        GenerateDataKey: counter(randInt(0, 20_000)),
-        Sign: counter(randInt(0, 5_000)),
-        Verify: counter(randInt(0, 5_000)),
+        Encrypt: counter(encryptN),
+        Decrypt: counter(decryptN),
+        GenerateDataKey: counter(gdkN),
+        Sign: counter(signN),
+        Verify: counter(verifyN),
         KeyRotation: counter(0),
+        SecondsUntilKeyMaterialExpiration: imported ? stat(randInt(86400, 365 * 86400)) : stat(0),
+        EncryptRequests: counter(encryptN),
+        DecryptRequests: counter(decryptN),
+        GenerateDataKeyRequests: counter(gdkN),
+        ReEncryptRequests: counter(reEncN),
+        SignRequests: counter(signN),
+        VerifyRequests: counter(verifyN),
       }
     );
   });
@@ -149,10 +178,14 @@ export function generateCognitoMetrics(ts: string, er: number) {
           )
         ),
         SignUpSuccesses: counter(signUps),
+        SignUpThrottles: counter(Math.random() < er ? randInt(0, 200) : 0),
         TokenRefreshSuccesses: counter(randInt(0, 100_000)),
         TokenRefreshUserErrors: counter(Math.random() < er ? randInt(1, 500) : 0),
         FederationSuccesses: counter(randInt(0, 10_000)),
+        FederationThrottles: counter(Math.random() < er ? randInt(0, 120) : 0),
+        AccountTakeoverRisk: counter(Math.random() < er * 0.25 ? randInt(0, 40) : 0),
         AccountTakeoverRiskCount: counter(Math.random() < er * 0.3 ? randInt(0, 50) : 0),
+        CompromisedCredentialRisk: counter(Math.random() < er * 0.2 ? randInt(0, 35) : 0),
       }
     );
   });
@@ -162,23 +195,50 @@ export function generateCognitoMetrics(ts: string, er: number) {
 
 export function generateGuarddutyMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  return [
-    metricDoc(
+  const detectorId = `abc123def456ghi789jkl012`;
+  const severities = ["HIGH", "MEDIUM", "LOW", "INFO"] as const;
+  const bySev = severities.map((sev) => {
+    const n =
+      sev === "HIGH"
+        ? Math.random() < er
+          ? randInt(0, 25)
+          : randInt(0, 5)
+        : sev === "MEDIUM"
+          ? randInt(0, 80)
+          : sev === "LOW"
+            ? randInt(0, 200)
+            : randInt(0, 50);
+    return metricDoc(
       ts,
       "guardduty",
       "aws.guardduty",
       region,
       account,
-      { DetectorId: `abc123def456ghi789jkl012` },
-      {
-        FindingsCount: counter(randInt(0, 500)),
-        HighSeverityFindingsCount: counter(Math.random() < er ? randInt(0, 20) : 0),
-        MediumSeverityFindingsCount: counter(randInt(0, 100)),
-        LowSeverityFindingsCount: counter(randInt(0, 300)),
-        ArchivedFindingsCount: counter(randInt(0, 200)),
-      }
-    ),
-  ];
+      { DetectorId: detectorId, Severity: sev },
+      { FindingsCount: counter(n) }
+    );
+  });
+  const detectorWide = metricDoc(
+    ts,
+    "guardduty",
+    "aws.guardduty",
+    region,
+    account,
+    { DetectorId: detectorId },
+    {
+      APICallsAnalyzed: counter(randInt(1_000_000, 500_000_000)),
+      EventsAnalyzed: counter(randInt(5_000_000, 2_000_000_000)),
+      VPCFlowLogsAnalyzed: counter(randInt(0, 50_000_000_000)),
+      DNSRequestsAnalyzed: counter(randInt(0, 80_000_000_000)),
+      S3LogsAnalyzed: counter(randInt(0, 20_000_000_000)),
+      EKSAuditLogsAnalyzed: counter(randInt(0, 5_000_000_000)),
+      HighSeverityFindingsCount: counter(Math.random() < er ? randInt(0, 20) : 0),
+      MediumSeverityFindingsCount: counter(randInt(0, 100)),
+      LowSeverityFindingsCount: counter(randInt(0, 300)),
+      ArchivedFindingsCount: counter(randInt(0, 200)),
+    }
+  );
+  return [...bySev, detectorWide];
 }
 
 // ─── CloudWatch ───────────────────────────────────────────────────────────────
@@ -195,7 +255,10 @@ const CW_NAMESPACES = [
 
 export function generateCloudwatchMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  return sample(CW_NAMESPACES, randInt(2, 4)).map((ns) => {
+  const nsDocs = sample(CW_NAMESPACES, randInt(2, 4)).map((ns) => {
+    const okAlarms = randInt(5, 500);
+    const alarmAlarms = Math.random() < er ? randInt(1, 80) : randInt(0, 25);
+    const insufAlarms = randInt(0, 40);
     return metricDoc(
       ts,
       "cloudwatch",
@@ -212,9 +275,33 @@ export function generateCloudwatchMetrics(ts: string, er: number) {
         ListMetrics: counter(randInt(0, 100_000)),
         PutMetricAlarm: counter(randInt(0, 1_000)),
         AlarmStateChange: counter(randInt(0, 100)),
+        PutMetricDataRequests: counter(randInt(0, 2_000_000)),
+        GetMetricDataRequests: counter(randInt(0, 800_000)),
+        MetricDataPoints: counter(randInt(10_000, 50_000_000)),
+        DashboardCount: counter(randInt(0, 500)),
+        EstimatedCharges: stat(dp(jitter(120, 80, 0, 50_000))),
+        NumberOfAlarmsInState_OK: counter(okAlarms),
+        NumberOfAlarmsInState_ALARM: counter(alarmAlarms),
+        NumberOfAlarmsInState_INSUFFICIENT_DATA: counter(insufAlarms),
       }
     );
   });
+  const billingDoc = metricDoc(
+    ts,
+    "cloudwatch",
+    "aws.cloudwatch_metrics",
+    region,
+    account,
+    { Region: region, ServiceName: "AWS/Billing" },
+    {
+      EstimatedCharges: stat(dp(jitter(2_400, 400, 0, 25_000))),
+      NumberOfAlarmsInState_OK: counter(randInt(0, 200)),
+      NumberOfAlarmsInState_ALARM: counter(Math.random() < er ? randInt(1, 50) : randInt(0, 15)),
+      NumberOfAlarmsInState_INSUFFICIENT_DATA: counter(randInt(0, 30)),
+      DashboardCount: counter(randInt(0, 120)),
+    }
+  );
+  return [...nsDocs, billingDoc];
 }
 
 // ─── Step Functions ───────────────────────────────────────────────────────────
@@ -240,6 +327,8 @@ export function generateStepfunctionsMetrics(ts: string, er: number) {
     const aborted = Math.round(
       started * (Math.random() < er * 0.3 ? jitter(0.02, 0.015, 0, 0.1) : 0)
     );
+    const timedOut = Math.round(failed * jitter(0.15, 0.1, 0, 0.5));
+    const succeeded = Math.max(0, started - failed - aborted - timedOut);
     return metricDoc(
       ts,
       "states",
@@ -249,11 +338,16 @@ export function generateStepfunctionsMetrics(ts: string, er: number) {
       { StateMachineArn: `arn:aws:states:${region}:${account.id}:stateMachine:${machine}` },
       {
         ExecutionsStarted: counter(started),
-        ExecutionsSucceeded: counter(started - failed - aborted),
+        ExecutionsSucceeded: counter(succeeded),
         ExecutionsFailed: counter(failed),
         ExecutionsAborted: counter(aborted),
-        ExecutionsTimedOut: counter(Math.round(failed * 0.2)),
+        ExecutionsTimedOut: counter(timedOut),
         ExecutionTime: stat(dp(jitter(5_000, 4_000, 100, 3_600_000))),
+        ActivityRunTime: stat(dp(jitter(800, 600, 50, 120_000))),
+        LambdaFunctionRunTime: stat(dp(jitter(120, 100, 10, 900_000))),
+        ActivityScheduleTime: stat(dp(jitter(200, 150, 0, 86_400_000))),
+        LambdaFunctionScheduleTime: stat(dp(jitter(50, 40, 0, 60_000))),
+        ConsumedCapacity: stat(dp(jitter(0.4, 0.2, 0, 2))),
         ExecutionThrottled: counter(Math.random() < er * 0.2 ? randInt(1, 100) : 0),
       }
     );
@@ -264,6 +358,8 @@ export function generateStepfunctionsMetrics(ts: string, er: number) {
 
 export function generateSsmMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const compliant = randInt(500, 8_000);
+  const nonCompliant = Math.random() < er ? randInt(1, 400) : randInt(0, 80);
   return [
     metricDoc(
       ts,
@@ -280,6 +376,10 @@ export function generateSsmMetrics(ts: string, er: number) {
         PatchNonCompliantCount: counter(Math.random() < er ? randInt(1, 100) : 0),
         ParameterGetCount: counter(randInt(0, 500_000)),
         ParameterPutCount: counter(randInt(0, 10_000)),
+        "ComplianceSummary.Compliant": counter(compliant),
+        "ComplianceSummary.NonCompliant": counter(nonCompliant),
+        PatchGroupCount: counter(randInt(1, 120)),
+        ManagedInstanceCount: counter(randInt(10, 5_000)),
       }
     ),
   ];
@@ -326,6 +426,15 @@ export function generateCodebuildMetrics(ts: string, er: number) {
     const failed = Math.round(
       builds * (Math.random() < er ? jitter(0.15, 0.12, 0.01, 0.6) : jitter(0.05, 0.04, 0, 0.15))
     );
+    const succeeded = builds - failed;
+    const durationMs = dp(jitter(120_000, 95_000, 8_000, 3_600_000));
+    const queuedMs = dp(jitter(8_000, 6_000, 0, 600_000));
+    const downloadMs = dp(jitter(25_000, 18_000, 500, durationMs * 0.35));
+    const preMs = dp(jitter(35_000, 28_000, 1_000, durationMs * 0.4));
+    const postMs = dp(jitter(12_000, 9_000, 0, durationMs * 0.25));
+    const uploadMs = dp(jitter(10_000, 7_000, 0, durationMs * 0.2));
+    const cacheHitRatio =
+      Math.random() < 0.3 ? stat(dp(jitter(0.52, 0.12, 0.08, 0.98))) : undefined;
     return metricDoc(
       ts,
       "codebuild",
@@ -335,10 +444,19 @@ export function generateCodebuildMetrics(ts: string, er: number) {
       { ProjectName: project },
       {
         Builds: counter(builds),
-        SucceededBuilds: counter(builds - failed),
+        SucceededBuilds: counter(succeeded),
         FailedBuilds: counter(failed),
-        BuildDuration: stat(dp(jitter(180, 150, 10, 3_600))),
+        BuildSucceededCount: counter(succeeded),
+        BuildFailedCount: counter(failed),
+        Duration: stat(durationMs),
+        BuildDuration: stat(durationMs),
+        PostBuildDuration: stat(postMs),
+        PreBuildDuration: stat(preMs),
+        DownloadSourceDuration: stat(downloadMs),
+        UploadArtifactsDuration: stat(uploadMs),
+        QueuedDuration: stat(queuedMs),
         QueuedBuilds: counter(randInt(0, 20)),
+        ...(cacheHitRatio !== undefined ? { CacheHitRatio: cacheHitRatio } : {}),
       }
     );
   });
@@ -361,19 +479,32 @@ export function generateCodepipelineMetrics(ts: string, er: number) {
     const failed = Math.round(
       execs * (Math.random() < er ? jitter(0.2, 0.15, 0.01, 0.7) : jitter(0.05, 0.04, 0, 0.15))
     );
+    const canceled = Math.round(
+      execs *
+        (Math.random() < er * 0.25 ? jitter(0.05, 0.04, 0, 0.2) : jitter(0.01, 0.008, 0, 0.05))
+    );
+    const succeeded = Math.max(0, execs - failed - canceled);
+    const actionsPerExec = randInt(4, 12);
+    const totalActions = Math.max(0, execs * actionsPerExec);
+    const actionFail = Math.min(totalActions, Math.round(failed * randInt(2, 6)));
+    const actionOk = Math.max(0, totalActions - actionFail);
+    const stage = rand(["Source", "Build", "Deploy", "Test", "Approval"]);
     return metricDoc(
       ts,
       "codepipeline",
       "aws.codepipeline",
       region,
       account,
-      { PipelineName: pipeline },
+      { PipelineName: pipeline, Stage: stage },
       {
         PipelineExecutionAttempts: counter(execs),
-        PipelineExecutionSucceeded: counter(execs - failed),
+        PipelineExecutionStarted: counter(execs),
+        PipelineExecutionSucceeded: counter(succeeded),
         PipelineExecutionFailed: counter(failed),
-        ActionExecutionSucceeded: counter(Math.round(execs * 5)),
-        ActionExecutionFailed: counter(Math.round(failed * 2)),
+        PipelineExecutionCanceled: counter(canceled),
+        StageExecutionTime: stat(dp(jitter(95_000, 75_000, 2_000, 1_800_000))),
+        ActionExecutionSucceeded: counter(actionOk),
+        ActionExecutionFailed: counter(actionFail),
       }
     );
   });
@@ -388,6 +519,16 @@ export function generateCodedeployMetrics(ts: string, er: number) {
   const failed = Math.round(
     deploys * (Math.random() < er ? jitter(0.2, 0.15, 0.01, 0.6) : jitter(0.05, 0.04, 0, 0.15))
   );
+  const instTotal = randInt(6, 28);
+  const instFailed =
+    failed > 0 ? randInt(1, Math.min(8, Math.floor(instTotal * 0.4))) : randInt(0, 2);
+  const instSucceeded =
+    failed > 0
+      ? randInt(0, Math.max(0, instTotal - instFailed - 2))
+      : randInt(Math.ceil(instTotal * 0.85), instTotal);
+  const inProg = failed > 0 ? randInt(0, 4) : randInt(0, 2);
+  const pending = randInt(0, failed > 0 ? 5 : 3);
+  const rollbacks = Math.round(failed * (Math.random() < 0.55 ? 1 : 0));
   return [
     metricDoc(
       ts,
@@ -400,7 +541,12 @@ export function generateCodedeployMetrics(ts: string, er: number) {
         DeploymentAttempts: counter(deploys),
         DeploymentSucceeded: counter(deploys - failed),
         DeploymentFailed: counter(failed),
-        DeploymentDuration: stat(dp(jitter(300, 250, 30, 3_600))),
+        DeploymentDuration: stat(dp(jitter(300_000, 240_000, 15_000, 3_600_000))),
+        InstancesSucceeded: counter(instSucceeded),
+        InstancesFailed: counter(instFailed),
+        InstancesInProgress: counter(inProg),
+        InstancesPending: counter(pending),
+        DeploymentRollbacks: counter(rollbacks),
       }
     ),
   ];
@@ -411,6 +557,13 @@ export function generateCodedeployMetrics(ts: string, er: number) {
 export function generateAmplifyMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const req = randInt(0, 1_000_000);
+  const builds = randInt(1, 400);
+  const buildFail = Math.round(
+    builds * (Math.random() < er ? jitter(0.12, 0.09, 0.01, 0.45) : jitter(0.04, 0.03, 0, 0.12))
+  );
+  const buildOk = Math.max(0, builds - buildFail);
+  const successRate = dp((buildOk / Math.max(1, builds)) * 100);
+  const bytesDl = randInt(0, 80_000_000_000);
   return [
     metricDoc(
       ts,
@@ -422,9 +575,12 @@ export function generateAmplifyMetrics(ts: string, er: number) {
       {
         Requests: counter(req),
         BytesServed: counter(randInt(0, 100_000_000_000)),
+        BytesDownloaded: counter(bytesDl),
         "4xxErrors": counter(randInt(0, Math.round(req * 0.02))),
         "5xxErrors": counter(Math.random() < er ? randInt(0, Math.round(req * 0.05)) : 0),
         Latency: stat(dp(jitter(50, 40, 5, 5_000))),
+        BuildDuration: stat(dp(jitter(95_000, 75_000, 5_000, 2_400_000))),
+        BuildSuccessRate: stat(successRate),
       }
     ),
   ];
@@ -482,6 +638,18 @@ export function generateRoute53Metrics(ts: string, er: number) {
           dp(Math.random() < er ? jitter(70, 20, 0, 95) : jitter(100, 0, 95, 100))
         ),
         HealthCheckStatus: stat(Math.random() < er ? 0 : 1),
+        ConnectionTime: stat(dp(jitter(25, 15, 2, 500)), {
+          max: dp(jitter(900, 300, 50, 5000)),
+          min: dp(jitter(1.5, 0.8, 0.2, 80)),
+        }),
+        SSLHandshakeTime: stat(dp(jitter(18, 10, 1, 400)), {
+          max: dp(jitter(600, 200, 30, 4000)),
+          min: dp(jitter(1, 0.5, 0.1, 60)),
+        }),
+        TimeToFirstByte: stat(dp(jitter(40, 25, 3, 800)), {
+          max: dp(jitter(1200, 400, 50, 8000)),
+          min: dp(jitter(2, 1, 0.3, 120)),
+        }),
       }
     );
   });
@@ -556,6 +724,9 @@ export function generateInspectorMetrics(ts: string, er: number) {
         HighFindings: counter(randInt(0, 500)),
         MediumFindings: counter(randInt(0, 2_000)),
         LowFindings: counter(randInt(0, 3_000)),
+        AccountsScanned: counter(randInt(1, 200)),
+        ECRImagesScanComplete: counter(randInt(0, 50_000)),
+        "Lambda.FunctionsScanComplete": counter(randInt(0, 20_000)),
         AutoRemediationSucceeded: counter(randInt(0, 100)),
         AutoRemediationFailed: counter(Math.random() < er ? randInt(0, 10) : 0),
       }
@@ -577,6 +748,13 @@ export function generateMacieMetrics(ts: string, er: number) {
         FindingsCount: counter(Math.random() < er ? randInt(0, 100) : 0),
         PolicyFindingsCount: counter(Math.random() < er ? randInt(0, 50) : 0),
         SensitiveDataFindingsCount: counter(Math.random() < er ? randInt(0, 30) : 0),
+        SensitiveDataDiscoveryJobsCompleted: counter(randInt(0, 500)),
+        SensitiveDataDiscoveryJobsFailed: counter(Math.random() < er ? randInt(0, 15) : 0),
+        ObjectsScanned: counter(randInt(10_000, 500_000_000)),
+        BytesScanned: counter(randInt(1_000_000_000, 200_000_000_000_000)),
+        SensitiveDataOccurrences: counter(
+          Math.random() < er ? randInt(1, 500_000) : randInt(0, 5_000)
+        ),
         ObjectsClassified: counter(randInt(0, 10_000_000)),
         DataClassifiedInBytes: counter(randInt(0, 1_000_000_000_000)),
       }
@@ -586,6 +764,10 @@ export function generateMacieMetrics(ts: string, er: number) {
 
 export function generateConfigMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const compliant = randInt(50, 200);
+  const nonCompliant = Math.random() < er ? randInt(0, 30) : randInt(0, 8);
+  const activeRules = compliant + nonCompliant + randInt(0, 20);
+  const pct = dp((compliant / Math.max(1, activeRules)) * 100);
   return [
     metricDoc(
       ts,
@@ -595,9 +777,12 @@ export function generateConfigMetrics(ts: string, er: number) {
       account,
       { Region: region },
       {
-        CompliantRulesCount: counter(randInt(50, 200)),
-        NonCompliantRulesCount: counter(Math.random() < er ? randInt(0, 30) : 0),
-        ResourcesEvaluated: counter(randInt(0, 10_000)),
+        CompliantRulesCount: counter(compliant),
+        NonCompliantRulesCount: counter(nonCompliant),
+        CompliancePercentage: stat(pct),
+        NonCompliantRules: counter(nonCompliant),
+        ActiveConfigRules: counter(activeRules),
+        ResourcesEvaluated: counter(randInt(5_000, 500_000)),
         RemediationsExecuted: counter(randInt(0, 100)),
         RemediationsFailed: counter(Math.random() < er ? randInt(0, 10) : 0),
       }
@@ -637,14 +822,20 @@ export function generateIotcoreMetrics(ts: string, er: number) {
       account,
       { Protocol: rand(["MQTT", "HTTPS", "WSS"]) },
       {
-        Connect_Success: counter(randInt(0, 50_000)),
-        Connect_Failure: counter(Math.random() < er ? randInt(1, 1_000) : 0),
-        Subscribe_Success: counter(randInt(0, 100_000)),
-        Publish_In_Success: counter(randInt(0, 1_000_000)),
-        Publish_Out_Success: counter(randInt(0, 1_000_000)),
-        PublishIn_Throttle: counter(Math.random() < er ? randInt(1, 10_000) : 0),
         RulesExecuted: counter(randInt(0, 500_000)),
         RuleMessageThrottled: counter(Math.random() < er ? randInt(1, 5_000) : 0),
+        TopicMatch: counter(randInt(0, 2_000_000)),
+        "Connect.Success": counter(randInt(0, 50_000)),
+        "Connect.AuthError": counter(Math.random() < er ? randInt(1, 2_000) : randInt(0, 200)),
+        "Subscribe.Success": counter(randInt(0, 100_000)),
+        "Publish.Success": counter(randInt(0, 800_000)),
+        "PublishIn.Success": counter(randInt(0, 1_000_000)),
+        "PublishOut.Success": counter(randInt(0, 1_000_000)),
+        "MessageBroker.IncomingMessages": counter(randInt(0, 5_000_000)),
+        "MessageBroker.OutgoingMessages": counter(randInt(0, 5_000_000)),
+        "DeviceShadow.Get.Accepted": counter(randInt(0, 200_000)),
+        "DeviceShadow.Update.Accepted": counter(randInt(0, 400_000)),
+        PublishIn_Throttle: counter(Math.random() < er ? randInt(1, 10_000) : 0),
         Disconnect: counter(randInt(0, 50_000)),
       }
     ),
@@ -781,6 +972,14 @@ export function generateAcmMetrics(ts: string, er: number) {
 
 export function generateCloudtrailMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const eventsLogged = randInt(50_000, 20_000_000);
+  const eventsThrottled = Math.random() < er ? randInt(1, 50_000) : randInt(0, 500);
+  const deliveryErrors = Math.random() < er ? randInt(0, 500) : randInt(0, 20);
+  const mgmtMatched = Math.round(eventsLogged * jitter(0.72, 0.12, 0.35, 0.95));
+  const dataMatched = Math.max(
+    0,
+    eventsLogged - mgmtMatched - randInt(0, Math.round(eventsLogged * 0.05))
+  );
   return [
     metricDoc(
       ts,
@@ -791,9 +990,18 @@ export function generateCloudtrailMetrics(ts: string, er: number) {
       { TrailName: rand(["management-events", "data-events", "global-trail"]) },
       {
         DeliveredLogFiles: counter(randInt(0, 1_000)),
-        LogFileDeliveryErrors: counter(Math.random() < er ? randInt(0, 20) : 0),
+        LogFileDeliveryErrors: counter(deliveryErrors),
+        DeliveryErrors: counter(deliveryErrors),
         APICallCount: counter(randInt(0, 10_000_000)),
         ErrorAPICallCount: counter(Math.random() < er ? randInt(0, 100_000) : 0),
+        EventsLogged: counter(eventsLogged),
+        EventsThrottled: counter(eventsThrottled),
+        EventSize: stat(dp(jitter(1_200, 400, 120, 65_536))),
+        InsightEventsAnalyzed: counter(
+          Math.random() < er * 0.4 ? randInt(100, 500_000) : randInt(0, 50_000)
+        ),
+        ManagementEventsMatched: counter(mgmtMatched),
+        DataEventsMatched: counter(dataMatched),
       }
     ),
   ];
@@ -1030,7 +1238,16 @@ export function generateCodecommitMetrics(ts: string, _er: number) {
         RepositoryPullCount: counter(randInt(0, 500)),
         GetBlobCount: counter(randInt(0, 10_000)),
         GetDifferencesCount: counter(randInt(0, 1_000)),
+        GetCommitCount: counter(randInt(0, 50_000)),
+        CreateCommitCount: counter(randInt(0, 8_000)),
         NumberOfRepositories: counter(randInt(1, 50)),
+        GitRequestLatency: stat(dp(jitter(45, 35, 5, 2_400))),
+        SuccessfulGitPull: counter(randInt(0, 2_000)),
+        SuccessfulGitPush: counter(randInt(0, 800)),
+        FailedGitPull: counter(randInt(0, 25)),
+        FailedGitPush: counter(randInt(0, 15)),
+        PullRequestCreatedCount: counter(randInt(0, 120)),
+        PullRequestMergedCount: counter(randInt(0, 200)),
       }
     ),
   ];
@@ -1054,6 +1271,9 @@ export function generateCodeartifactMetrics(ts: string, _er: number) {
         PackagePublishCount: counter(randInt(0, 1_000)),
         RequestCount: counter(randInt(0, 500_000)),
         UpstreamRequestCount: counter(randInt(0, 50_000)),
+        AssetSize: stat(dp(jitter(2_400_000, 1_800_000, 12_000, 180_000_000))),
+        PackageVersionDownloaded: counter(randInt(0, 250_000)),
+        ThrottledRequestCount: counter(randInt(0, 1_200)),
       }
     ),
   ];
@@ -1072,6 +1292,8 @@ export function generateSecurityhubMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const standard = rand(SH_STANDARDS);
   const isFailing = Math.random() < er;
+  const passed = randInt(10, 150);
+  const failed = isFailing ? randInt(5, 50) : randInt(0, 5);
   return [
     metricDoc(
       ts,
@@ -1086,9 +1308,14 @@ export function generateSecurityhubMetrics(ts: string, er: number) {
         FindingsBySeverityHigh: counter(randInt(0, isFailing ? 80 : 10)),
         FindingsBySeverityMedium: counter(randInt(0, isFailing ? 200 : 40)),
         FindingsBySeverityLow: counter(randInt(0, 100)),
+        StandardsSubscriptionCount: counter(randInt(1, 12)),
+        SecurityControlsPassedCount: counter(passed),
+        SecurityControlsFailedCount: counter(failed),
         SecurityScore: stat(dp(jitter(isFailing ? 55 : 82, 15, 0, 100))),
-        ControlsFailed: counter(isFailing ? randInt(5, 50) : randInt(0, 5)),
-        ControlsPassed: counter(randInt(10, 150)),
+        FindingsImported: counter(randInt(0, isFailing ? 2_000 : 200)),
+        FindingsUpdated: counter(randInt(0, 5_000)),
+        ControlsFailed: counter(failed),
+        ControlsPassed: counter(passed),
       }
     ),
   ];

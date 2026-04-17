@@ -1,55 +1,62 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
+  "severity": "NOTICE",
+  "labels": {
+    "resource.type": "discoveryengine.googleapis.com/Engine",
+    "engine": "search-commerce-1mk6"
+  },
   "cloud": {
     "provider": "gcp",
-    "region": "me-central1",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
-    "service": { "name": "aiplatform.googleapis.com" }
+    "region": "asia-southeast1",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" },
+    "service": { "name": "discoveryengine.googleapis.com" }
   },
   "gcp": {
-    "vertex_ai": {
-      "endpoint_id": "ep-t5unnp6i",
-      "model_name": "chirp",
-      "model_version": "v9",
-      "prediction_type": "online",
-      "instances_count": 90,
-      "latency_ms": 524,
-      "accelerator_type": "NVIDIA_H100",
-      "machine_type": "a2-highgpu-1g"
+    "vertex_ai_search": {
+      "engine_name": "search-commerce-1mk6",
+      "query": "api authentication",
+      "results_count": 6,
+      "search_type": "RECOMMEND",
+      "serving_config": "projects/globex-shared-m3n4o5/locations/global/collections/default_collection/engines/search-commerce-1mk6/servingConfigs/default_search",
+      "latency_ms": 88,
+      "session_id": "search-7ctorcib1ky"
     }
   },
-  "event": { "outcome": "success", "duration": 2096, "module": "gcp", "dataset": "gcp.vertexai" },
-  "message": "Vertex AI online prediction completed (21 instances, 524ms)",
-  "service": { "name": "vertex-ai", "type": "gcp" },
+  "event": {
+    "outcome": "success",
+    "duration": 88,
+    "module": "gcp",
+    "dataset": "gcp.vertexaisearch"
+  },
+  "message": "search OK engine=search-commerce-1mk6 type=RECOMMEND query=\"api authentication\" results=6 session=search-7ctorcib1ky latency_ms=88",
+  "service": { "name": "vertex-ai-search", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.vertexai", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.vertexaisearch", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-me-central1",
-    "id": "cigxf9l1cs5"
+    "name": "elastic-agent-gcp-asia-southeast1",
+    "id": "m3fk3pstd4j"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-prod-a1b2c3/logs/vertex-ai",
+  "logName": "projects/globex-shared-m3n4o5/logs/vertex-ai-search",
   "resource": {
-    "type": "aiplatform.googleapis.com/Endpoint",
-    "labels": { "project_id": "globex-prod-a1b2c3", "region": "me-central1" }
+    "type": "global",
+    "labels": { "project_id": "globex-shared-m3n4o5", "region": "asia-southeast1" }
   },
-  "severity": "INFO",
-  "insertId": "7NLJ5GQSHSV",
+  "insertId": "VLHL4PG43A",
   "jsonPayload": {
-    "vertex_ai": {
-      "endpoint_id": "ep-t5unnp6i",
-      "model_name": "chirp",
-      "model_version": "v9",
-      "prediction_type": "online",
-      "instances_count": 90,
-      "latency_ms": 524,
-      "accelerator_type": "NVIDIA_H100",
-      "machine_type": "a2-highgpu-1g"
+    "vertex_ai_search": {
+      "engine_name": "search-commerce-1mk6",
+      "query": "api authentication",
+      "results_count": 6,
+      "search_type": "RECOMMEND",
+      "serving_config": "projects/globex-shared-m3n4o5/locations/global/collections/default_collection/engines/search-commerce-1mk6/servingConfigs/default_search",
+      "latency_ms": 88,
+      "session_id": "search-7ctorcib1ky"
     },
-    "message": "Vertex AI online prediction completed (21 instances, 524ms)"
+    "message": "search OK engine=search-commerce-1mk6 type=RECOMMEND query=\"api authentication\" results=6 session=search-7ctorcib1ky latency_ms=88"
   }
 }

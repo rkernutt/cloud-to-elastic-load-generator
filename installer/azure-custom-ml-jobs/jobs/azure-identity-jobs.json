@@ -1,0 +1,412 @@
+{
+  "group": "azure-identity",
+  "description": "Azure identity, Microsoft 365 audit, Activity Log, Monitor, Spring Apps, and VM failure anomaly detection",
+  "jobs": [
+    {
+      "id": "azure-entra-id-failed-signin-spike",
+      "description": "Detects spikes in failed Entra ID sign-in attempts per user",
+      "job": {
+        "description": "Detects spikes in failed Entra ID SignIn events per user principal",
+        "groups": ["azure", "identity"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.entra_id.user",
+              "function": "high_count",
+              "partition_field_name": "azure.entra_id.user",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.entra_id.user", "azure.entra_id.ip_address", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "event.dataset": "azure.entra_id" } },
+              {
+                "bool": {
+                  "should": [
+                    { "term": { "azure.entra_id.category": "SignInLogs" } },
+                    { "term": { "azure.entra_id.category": "SignIn" } }
+                  ],
+                  "minimum_should_match": 1
+                }
+              },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-entra-id-rare-sign-in-location",
+      "description": "Detects Entra ID sign-ins from unusual countries or regions",
+      "job": {
+        "description": "Detects rare sign-in location (country/region) values in Entra SignInLogs",
+        "groups": ["azure", "identity"],
+        "analysis_config": {
+          "bucket_span": "60m",
+          "detectors": [
+            {
+              "detector_description": "rare by=azure.entra_id.properties.location.countryOrRegion",
+              "function": "rare",
+              "by_field_name": "azure.entra_id.properties.location.countryOrRegion",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "azure.entra_id.properties.location.countryOrRegion",
+            "azure.entra_id.user",
+            "azure.entra_id.ip_address"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "event.dataset": "azure.entra_id" } },
+              {
+                "bool": {
+                  "should": [
+                    { "term": { "azure.entra_id.category": "SignInLogs" } },
+                    { "term": { "azure.entra_id.category": "SignIn" } }
+                  ],
+                  "minimum_should_match": 1
+                }
+              },
+              { "exists": { "field": "azure.entra_id.properties.location.countryOrRegion" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-m365-rare-operation",
+      "description": "Detects rare Microsoft 365 audit record types (unexpected or high-risk operations)",
+      "job": {
+        "description": "Detects rare M365 record_type values across workloads",
+        "groups": ["azure", "identity"],
+        "analysis_config": {
+          "bucket_span": "60m",
+          "detectors": [
+            {
+              "detector_description": "rare by=azure.microsoft_365.record_type",
+              "function": "rare",
+              "by_field_name": "azure.microsoft_365.record_type",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "azure.microsoft_365.record_type",
+            "azure.microsoft_365.workload",
+            "cloud.region"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "event.dataset": "azure.microsoft_365" } },
+              { "exists": { "field": "azure.microsoft_365.record_type" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-m365-admin-activity-spike",
+      "description": "Detects spikes in Azure AD directory audit activity within Microsoft 365 logs",
+      "job": {
+        "description": "Detects spikes in M365 events for the AzureActiveDirectory workload per user",
+        "groups": ["azure", "identity"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.microsoft_365.user_id",
+              "function": "high_count",
+              "partition_field_name": "azure.microsoft_365.user_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "azure.microsoft_365.user_id",
+            "azure.microsoft_365.record_type",
+            "cloud.region"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "event.dataset": "azure.microsoft_365" } },
+              { "term": { "azure.microsoft_365.workload": "AzureActiveDirectory" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-activity-log-error-spike",
+      "description": "Detects spikes in Azure Activity Log failure outcomes per resource group",
+      "job": {
+        "description": "Detects spikes in failed Activity Log events per resource group",
+        "groups": ["azure", "management"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.activity_log.resource_group",
+              "function": "high_count",
+              "partition_field_name": "azure.activity_log.resource_group",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "azure.activity_log.resource_group",
+            "azure.activity_log.operation_name",
+            "cloud.region"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "event.dataset": "azure.activity_log" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-activity-log-rare-operation",
+      "description": "Detects rare ARM operation names in Azure Activity Logs",
+      "job": {
+        "description": "Detects rare azure.activity_log.operation_name values",
+        "groups": ["azure", "management"],
+        "analysis_config": {
+          "bucket_span": "60m",
+          "detectors": [
+            {
+              "detector_description": "rare by=azure.activity_log.operation_name",
+              "function": "rare",
+              "by_field_name": "azure.activity_log.operation_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "azure.activity_log.operation_name",
+            "azure.activity_log.resource_group",
+            "cloud.region"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "event.dataset": "azure.activity_log" } },
+              { "exists": { "field": "azure.activity_log.operation_name" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-monitor-alert-storm",
+      "description": "Detects unusual spikes in Azure Monitor platform log volume per monitored resource",
+      "job": {
+        "description": "Detects unusual event volume for azure.monitor logs per resource name",
+        "groups": ["azure", "management"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.monitor.resource_name",
+              "function": "high_count",
+              "partition_field_name": "azure.monitor.resource_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "azure.monitor.resource_name",
+            "azure.monitor.resource_group",
+            "cloud.region"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "event.dataset": "azure.monitor" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-spring-apps-error-spike",
+      "description": "Detects spikes in Azure Spring Apps failure outcomes per app instance",
+      "job": {
+        "description": "Detects spikes in Spring Apps failure events per resource name",
+        "groups": ["azure", "compute"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.spring_apps.resource_name",
+              "function": "high_count",
+              "partition_field_name": "azure.spring_apps.resource_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "azure.spring_apps.resource_name",
+            "azure.spring_apps.resource_group",
+            "cloud.region"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "event.dataset": "azure.spring_apps" } },
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-virtual-machines-failure-spike",
+      "description": "Detects spikes in Azure Virtual Machine failure-related events per VM",
+      "job": {
+        "description": "Detects spikes in VM failure outcomes per virtual machine name",
+        "groups": ["azure", "compute"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.virtual_machines.vm_name",
+              "function": "high_count",
+              "partition_field_name": "azure.virtual_machines.vm_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.virtual_machines.vm_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "event.dataset": "azure.virtual_machines" } },
+              { "term": { "event.outcome": "failure" } },
+              { "term": { "cloud.service.name": "Microsoft.Compute/virtualMachines" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

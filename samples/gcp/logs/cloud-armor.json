@@ -1,30 +1,95 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
+  "severity": "WARNING",
+  "logName": "projects/globex-shared-m3n4o5/logs/requests",
+  "insertId": "calt4j7p7tj",
+  "resource": {
+    "type": "http_load_balancer",
+    "labels": { "project_id": "globex-shared-m3n4o5", "zone": "global" }
+  },
+  "httpRequest": {
+    "requestMethod": "GET",
+    "requestUrl": "https://api.globex-shared-m3n4o5.example.com/api/v1/products",
+    "status": 200,
+    "userAgent": "Go-http-client/1.1",
+    "remoteIp": "220.86.216.202",
+    "latency": "0.001000s",
+    "protocol": "HTTP/1.1"
+  },
+  "jsonPayload": {
+    "enforcedSecurityPolicy": {
+      "name": "projects/globex-shared-m3n4o5/global/securityPolicies/armor-edge-liva",
+      "priority": 1653,
+      "configuredAction": "DENY",
+      "outcome": "DENY",
+      "preconfiguredExpr": "evaluatePreconfiguredExpr('sqli-v33-stable')",
+      "matchedFieldName": "request.query",
+      "matchedFieldValue": "<script>alert(1)</script>",
+      "preconfiguredExprIds": ["owasp-crs-v030001-id942100-sqli"]
+    },
+    "remoteIp": "220.86.216.202",
+    "backendServiceName": "bes-web-7wos",
+    "enforcedSecurityPolicyRequestHeadersToAdds": []
+  },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-south1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "region": "asia-northeast3",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" },
     "service": { "name": "cloud-armor" }
   },
   "gcp": {
     "cloud_armor": {
-      "policy_name": "armor-edge-gnhv",
-      "rule_name": "allow-corp-hsx1",
-      "action": "ALLOW",
-      "priority": 7817,
-      "source_ip": "135.90.53.71",
-      "matched_expression": "inIpRange(origin.ip, '74.40.30.222/32')",
-      "preview_mode": false
+      "http_request": {
+        "requestMethod": "GET",
+        "requestUrl": "https://api.globex-shared-m3n4o5.example.com/api/v1/products",
+        "status": 200,
+        "userAgent": "Go-http-client/1.1",
+        "remoteIp": "220.86.216.202",
+        "latency": "0.001000s",
+        "protocol": "HTTP/1.1"
+      },
+      "json_payload": {
+        "enforcedSecurityPolicy": {
+          "name": "projects/globex-shared-m3n4o5/global/securityPolicies/armor-edge-liva",
+          "priority": 1653,
+          "configuredAction": "DENY",
+          "outcome": "DENY",
+          "preconfiguredExpr": "evaluatePreconfiguredExpr('sqli-v33-stable')",
+          "matchedFieldName": "request.query",
+          "matchedFieldValue": "<script>alert(1)</script>",
+          "preconfiguredExprIds": ["owasp-crs-v030001-id942100-sqli"]
+        },
+        "remoteIp": "220.86.216.202",
+        "backendServiceName": "bes-web-7wos",
+        "enforcedSecurityPolicyRequestHeadersToAdds": []
+      },
+      "policy_name": "projects/globex-shared-m3n4o5/global/securityPolicies/armor-edge-liva",
+      "rule_name": "owasp-crs-v030001-id942100-sqli",
+      "action": "DENY",
+      "priority": 1653,
+      "source_ip": "220.86.216.202",
+      "matched_expression": "evaluatePreconfiguredExpr('sqli-v33-stable')",
+      "preview_mode": false,
+      "enforced_security_policy": {
+        "name": "projects/globex-shared-m3n4o5/global/securityPolicies/armor-edge-liva",
+        "priority": 1653,
+        "configuredAction": "DENY",
+        "outcome": "DENY",
+        "preconfiguredExpr": "evaluatePreconfiguredExpr('sqli-v33-stable')",
+        "matchedFieldName": "request.query",
+        "matchedFieldValue": "<script>alert(1)</script>",
+        "preconfiguredExprIds": ["owasp-crs-v030001-id942100-sqli"]
+      }
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 2000000,
+    "duration": 1000000,
     "module": "gcp",
     "dataset": "gcp.cloudarmor"
   },
-  "message": "Cloud Armor ALLOW request from 35.142.54.138 policy armor-edge-gnhv",
+  "message": "Cloud Armor DENY projects/globex-shared-m3n4o5/global/securityPolicies/armor-edge-liva expr=evaluatePreconfiguredExpr('sqli-v33-stable')",
   "service": { "name": "cloud-armor", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -32,27 +97,8 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-south1",
-    "id": "vh1zr6121hm"
+    "name": "elastic-agent-gcp-asia-northeast3",
+    "id": "7qxi6u41zl"
   },
-  "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-staging-d4e5f6/logs/cloud-armor",
-  "resource": {
-    "type": "security_policy",
-    "labels": { "project_id": "globex-staging-d4e5f6", "region": "asia-south1" }
-  },
-  "severity": "INFO",
-  "insertId": "ROJ4BVD2P4J",
-  "jsonPayload": {
-    "cloud_armor": {
-      "policy_name": "armor-edge-gnhv",
-      "rule_name": "allow-corp-hsx1",
-      "action": "ALLOW",
-      "priority": 7817,
-      "source_ip": "135.90.53.71",
-      "matched_expression": "inIpRange(origin.ip, '74.40.30.222/32')",
-      "preview_mode": false
-    },
-    "message": "Cloud Armor ALLOW request from 35.142.54.138 policy armor-edge-gnhv"
-  }
+  "input": { "type": "gcp-pubsub" }
 }

@@ -3,47 +3,54 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast2",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" }
+    "region": "us-west4",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-northeast2",
-    "ephemeral_id": "ocnzwvhuhl"
+    "name": "metricbeat-gcp-us-west4",
+    "ephemeral_id": "pi1b47yod08"
   },
-  "gcp": {
-    "sole-tenant-nodes": {
-      "metrics": {
-        "request_count": { "avg": 68993, "sum": 68993, "count": 1 },
-        "error_count": { "avg": 0, "sum": 0, "count": 1 },
-        "latency": { "avg": 80.22, "sum": 80.22, "count": 1 }
-      },
-      "labels": { "resource_id": "resource-a" }
-    }
-  },
-  "metricset": { "name": "sole-tenant-nodes", "period": 60000 },
-  "data_stream": {
-    "type": "metrics",
-    "dataset": "gcp.compute_sole_tenant",
-    "namespace": "default"
-  },
-  "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.compute_sole_tenant", "module": "gcp" },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/sole-tenant-nodes/request_count",
-      "labels": {}
+      "type": "serviceruntime.googleapis.com/api/request_count",
+      "labels": { "credential_id": "resource-a" }
     },
     "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-shared-m3n4o5", "region": "asia-northeast2" }
+      "type": "consumed_api",
+      "labels": {
+        "project_id": "globex-staging-d4e5f6",
+        "service": "generic.googleapis.com",
+        "method": "resource_id"
+      }
     },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
+    "metricKind": "DELTA",
+    "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 68993 } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "40699" } }
     ]
-  }
+  },
+  "gcp": {
+    "confidential-computing": {
+      "labels": {
+        "project_id": "globex-staging-d4e5f6",
+        "service": "generic.googleapis.com",
+        "method": "resource_id",
+        "credential_id": "resource-a"
+      },
+      "metrics": {
+        "serviceruntime.googleapis.com/api/request_count": {
+          "avg": 40699,
+          "sum": 40699,
+          "count": 1
+        }
+      }
+    }
+  },
+  "metricset": { "name": "confidential-computing", "period": 60000 },
+  "data_stream": { "type": "metrics", "dataset": "gcp.compute_metrics", "namespace": "default" },
+  "input": { "type": "gcp-monitoring" },
+  "event": { "dataset": "gcp.compute_metrics", "module": "gcp" }
 }

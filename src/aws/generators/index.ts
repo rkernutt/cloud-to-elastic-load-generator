@@ -82,6 +82,7 @@ import {
   generateNetworkAccessAnalyzerLog,
   generateIncidentManagerLog,
 } from "./security.js";
+import { generateDataPipelineChain } from "./dataPipelineChain.js";
 import {
   generateS3Log,
   generateS3StorageLensLog,
@@ -308,6 +309,7 @@ const GENERATORS = {
   kspm: generateKspmFindings,
   "iam-privesc-chain": generateIamPrivEscChain,
   "data-exfil-chain": generateDataExfilChain,
+  "data-pipeline-chain": generateDataPipelineChain,
   securityir: generateSecurityIrLog,
   cloudhsm: generateCloudHsmLog,
   auditmanager: generateAuditManagerLog,

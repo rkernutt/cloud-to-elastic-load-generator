@@ -1,7 +1,3 @@
-/**
- * Compute Engine OTel trace: VM instance lifecycle management + health check spans.
- */
-
 import type { EcsDocument } from "../helpers.js";
 import {
   rand,
@@ -13,9 +9,7 @@ import {
   randSpanId,
 } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-
-const APM_AGENT = { name: "opentelemetry/nodejs", version: "1.x" } as const;
-const APM_DS = { type: "traces", dataset: "apm", namespace: "default" } as const;
+import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
 
 const OPERATIONS = ["start", "stop", "restart"] as const;
 
@@ -27,10 +21,14 @@ export function generateComputeEngineTrace(ts: string, er: number): EcsDocument[
   const env = rand(["production", "production", "staging", "dev"]);
   const operation = rand(OPERATIONS);
   const instance = randGceInstance();
+  const otel = gcpOtelMeta("python");
+  const svc = gcpServiceBase("infra-manager", env, "python", {
+    runtimeName: "python",
+    runtimeVersion: "3.12",
+  });
 
   let offsetMs = 0;
 
-  // Span 1: Compute Engine API call
   const apiUs = randInt(10_000, 500_000) * (isErr ? randInt(2, 5) : 1);
   const sApi = randSpanId();
   const spanApi: EcsDocument = {
@@ -43,28 +41,27 @@ export function generateComputeEngineTrace(ts: string, er: number): EcsDocument[
       id: sApi,
       type: "external",
       subtype: "http",
-      name: `instances.${operation}`,
+      name: `compute.instances.${operation}`,
       duration: { us: apiUs },
       action: "call",
       destination: {
         service: { resource: "compute.googleapis.com", type: "external", name: "compute-api" },
       },
-      labels: { instance_name: instance.name, instance_id: instance.id },
+      labels: {
+        instance_name: instance.name,
+        instance_id: instance.id,
+        ...(isErr ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {}),
+      },
     },
-    service: {
-      name: "infra-manager",
-      environment: env,
-      language: { name: "python" },
-      runtime: { name: "python", version: "3.12" },
-    },
+    service: svc,
     cloud: gcpCloud(region, project, "compute.googleapis.com"),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: isErr ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sApi),
   };
   offsetMs += Math.max(1, Math.round(apiUs / 1000));
 
-  // Span 2: health check or metadata server call
   const healthUs = randInt(1_000, 20_000);
   const sHealth = randSpanId();
   const isHealthCheck = Math.random() < 0.5;
@@ -79,8 +76,8 @@ export function generateComputeEngineTrace(ts: string, er: number): EcsDocument[
       type: "external",
       subtype: "http",
       name: isHealthCheck
-        ? `GET /healthcheck ${instance.name}`
-        : "GET metadata.google.internal/computeMetadata",
+        ? `GET /healthz ${instance.name}`
+        : "GET metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token",
       duration: { us: healthUs },
       action: "call",
       destination: {
@@ -91,16 +88,12 @@ export function generateComputeEngineTrace(ts: string, er: number): EcsDocument[
         },
       },
     },
-    service: {
-      name: "infra-manager",
-      environment: env,
-      language: { name: "python" },
-      runtime: { name: "python", version: "3.12" },
-    },
+    service: svc,
     cloud: gcpCloud(region, project, "compute.googleapis.com"),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sHealth),
   };
 
   const totalUs = apiUs + healthUs + randInt(500, 3000) * 1000;
@@ -117,16 +110,13 @@ export function generateComputeEngineTrace(ts: string, er: number): EcsDocument[
       sampled: true,
       span_count: { started: 2, dropped: 0 },
     },
-    service: {
-      name: "infra-manager",
-      environment: env,
-      language: { name: "python" },
-      runtime: { name: "python", version: "3.12" },
-    },
+    service: svc,
     cloud: gcpCloud(region, project, "compute.googleapis.com"),
-    agent: APM_AGENT,
+    labels: { "gcp.compute.zone": `${region}-${rand(["a", "b", "c"])}` },
     data_stream: APM_DS,
     event: { outcome: isErr ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, txId),
   };
 
   return [txDoc, spanApi, spanHealth];

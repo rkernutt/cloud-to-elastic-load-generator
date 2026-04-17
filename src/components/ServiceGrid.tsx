@@ -30,7 +30,7 @@ interface ServiceGridProps {
 }
 
 /** Public URL for a file under `iconBaseUrl` (flat names under public/, paths URL-encoded). */
-function fileIconUrl(base: string, file: string): string {
+export function serviceIconPublicUrl(base: string, file: string): string {
   const b = base.replace(/\/$/, "");
   if (file.includes("/")) {
     return `${b}/${file.split("/").map(encodeURIComponent).join("/")}`;
@@ -71,9 +71,7 @@ const ServiceGrid = memo(function ServiceGrid({
       >
         <span style={{ fontSize: 13, fontWeight: 600, color: K.textHeading }}>{gridHeading}</span>
         <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-          {expandAllGroups && (
-            <QuickBtn onClick={expandAllGroups}>Expand all groups</QuickBtn>
-          )}
+          {expandAllGroups && <QuickBtn onClick={expandAllGroups}>Expand all groups</QuickBtn>}
           <QuickBtn onClick={selectAll}>All {totalServices}</QuickBtn>
           <QuickBtn onClick={selectNone}>None</QuickBtn>
           {totalSelected > 0 && (
@@ -174,7 +172,7 @@ const ServiceGrid = memo(function ServiceGrid({
                 {serviceIcons.mode === "file-icons" ? (
                   serviceIcons.categoryFiles[group.id] ? (
                     <img
-                      src={fileIconUrl(
+                      src={serviceIconPublicUrl(
                         serviceIcons.iconBaseUrl,
                         serviceIcons.categoryFiles[group.id]
                       )}
@@ -183,7 +181,7 @@ const ServiceGrid = memo(function ServiceGrid({
                     />
                   ) : serviceIcons.serviceFiles[group.services[0]?.id] ? (
                     <img
-                      src={fileIconUrl(
+                      src={serviceIconPublicUrl(
                         serviceIcons.iconBaseUrl,
                         serviceIcons.serviceFiles[group.services[0].id]
                       )}
@@ -311,7 +309,7 @@ const ServiceGrid = memo(function ServiceGrid({
                         {serviceIcons.mode === "file-icons" ? (
                           serviceIcons.serviceFiles[svc.id] ? (
                             <img
-                              src={fileIconUrl(
+                              src={serviceIconPublicUrl(
                                 serviceIcons.iconBaseUrl,
                                 serviceIcons.serviceFiles[svc.id]
                               )}
@@ -353,17 +351,42 @@ const ServiceGrid = memo(function ServiceGrid({
                         ) : (
                           <div
                             style={{
-                              fontSize: 10,
-                              fontWeight: 600,
-                              color: meta?.color || "#64748b",
-                              background: `${meta?.color || "#64748b"}18`,
-                              border: `1px solid ${meta?.color || "#64748b"}44`,
-                              borderRadius: 4,
-                              padding: "1px 5px",
-                              display: "inline-block",
+                              display: "flex",
+                              gap: 4,
+                              flexWrap: "wrap",
+                              alignItems: "center",
                             }}
                           >
-                            {meta?.label || src}
+                            <div
+                              style={{
+                                fontSize: 10,
+                                fontWeight: 600,
+                                color: meta?.color || "#64748b",
+                                background: `${meta?.color || "#64748b"}18`,
+                                border: `1px solid ${meta?.color || "#64748b"}44`,
+                                borderRadius: 4,
+                                padding: "1px 5px",
+                                display: "inline-block",
+                              }}
+                            >
+                              {meta?.label || src}
+                            </div>
+                            {(svc.id === "lambda" || svc.id === "emr") && (
+                              <div
+                                style={{
+                                  fontSize: 10,
+                                  fontWeight: 600,
+                                  color: "#7c3aed",
+                                  background: "#7c3aed18",
+                                  border: "1px solid #7c3aed44",
+                                  borderRadius: 4,
+                                  padding: "1px 5px",
+                                  display: "inline-block",
+                                }}
+                              >
+                                + APM traces
+                              </div>
+                            )}
                           </div>
                         )}
                       </button>

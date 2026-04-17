@@ -1,82 +1,84 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ca-west-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "opensearch" }
   },
   "aws": {
-    "dimensions": { "DomainName": "prod-search-ap-southeast-3", "ClientId": "738291046572" },
+    "dimensions": { "DomainName": "prod-search-ca-west-1", "ClientId": "293847561023" },
     "opensearch": {
-      "domain_name": "prod-search-ap-southeast-3",
-      "index": "logs-2024",
-      "operation": "msearch",
-      "took_ms": 186,
+      "domain_name": "prod-search-ca-west-1",
+      "index": "traces",
+      "operation": "cluster_health",
+      "took_ms": 22285,
       "shards": {
-        "total": 21,
-        "successful": 21,
-        "failed": 0,
-        "active": 21,
+        "total": 14,
+        "successful": 3,
+        "failed": 2,
+        "active": 13,
         "initializing": 0,
-        "relocating": 0,
-        "unassigned": 0
+        "relocating": 2,
+        "unassigned": 1
       },
-      "hits_total": 45445,
-      "status_code": 201,
+      "hits_total": 0,
+      "status_code": 429,
+      "cluster_health": "yellow",
       "metrics": {
-        "CPUUtilization": { "avg": 52.63147799746932 },
-        "FreeStorageSpace": { "avg": 90571703721 },
-        "ClusterStatus": { "green": 1, "yellow": 0, "red": 0 },
-        "Nodes": { "avg": 6 },
-        "SearchableDocuments": { "avg": 814851342 },
-        "IndexingLatency": { "avg": 14 },
-        "SearchLatency": { "avg": 149 },
-        "IndexingRate": { "avg": 34056 },
-        "SearchRate": { "avg": 7932 },
-        "JVMMemoryPressure": { "avg": 56.76249282947614 },
-        "AutomatedSnapshotFailure": { "sum": 0 },
-        "CoordinatingWriteRejected": { "sum": 0 },
-        "PrimaryWriteRejected": { "sum": 0 },
-        "ReplicaWriteRejected": { "sum": 0 },
-        "WarmStorageSpaceUsage": { "avg": 70.34044077870941 },
-        "DeletedDocuments": { "avg": 24813 }
+        "CPUUtilization": { "avg": 18.456885389066038 },
+        "FreeStorageSpace": { "avg": 116812217342 },
+        "ClusterStatus": { "green": 0, "yellow": 0, "red": 1 },
+        "Nodes": { "avg": 12 },
+        "SearchableDocuments": { "avg": 484843392 },
+        "IndexingLatency": { "avg": 4406 },
+        "SearchLatency": { "avg": 3785 },
+        "IndexingRate": { "avg": 63075 },
+        "SearchRate": { "avg": 9393 },
+        "JVMMemoryPressure": { "avg": 60.64114712862005 },
+        "AutomatedSnapshotFailure": { "sum": 1 },
+        "CoordinatingWriteRejected": { "sum": 603 },
+        "PrimaryWriteRejected": { "sum": 198 },
+        "ReplicaWriteRejected": { "sum": 21 },
+        "WarmStorageSpaceUsage": { "avg": 52.4277684596312 },
+        "DeletedDocuments": { "avg": 42199 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-opensearch-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-opensearch-logs-738291046572"
+        "name": "aws-opensearch-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-opensearch-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/opensearch/ap-southeast-3/2026/04/15/opensearch_BPGDUVFY06W.log.gz"
+        "key": "AWSLogs/293847561023/opensearch/ca-west-1/2026/04/17/opensearch_L4OTO49W3JG.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/opensearch/logs",
-      "log_stream": "ap-southeast-3/91dii7o5",
-      "ingestion_time": "2026-04-15T13:24:36.321Z"
+      "log_stream": "ca-west-1/88qmjbgk",
+      "ingestion_time": "2026-04-17T09:05:18.955Z"
     }
   },
-  "http": { "response": { "status_code": 201 } },
+  "http": { "response": { "status_code": 429 } },
   "event": {
-    "duration": 185526858.5270001,
-    "outcome": "success",
+    "duration": 22284501440.208195,
+    "outcome": "failure",
     "category": "database",
     "dataset": "aws.opensearch",
     "provider": "es.amazonaws.com",
     "module": "aws"
   },
-  "message": "OpenSearch msearch on logs-2024: 186ms",
-  "log": { "level": "info" },
+  "message": "[2026-04-17T09:05:18.304Z] cluster health changed: yellow (active_shards=124, relocating_shards=1, unassigned_shards=7)",
+  "log": { "level": "error" },
+  "error": { "code": "429", "message": "OpenSearch bulk failed", "type": "db" },
   "service": { "name": "opensearch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.opensearch", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "esjljxno6t"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "a34rc2oewep"
   },
   "input": { "type": "aws-cloudwatch" }
 }

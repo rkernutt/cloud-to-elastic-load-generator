@@ -3,46 +3,55 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-southeast2",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "europe-west12",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-southeast2",
-    "ephemeral_id": "eu7973aa60e"
+    "name": "metricbeat-gcp-europe-west12",
+    "ephemeral_id": "u8vpq9ar8mm"
   },
-  "gcp": {
-    "dataproc": {
-      "metrics": {
-        "yarn_memory_available": { "avg": 10699293852.78, "sum": 10699293852.78, "count": 1 },
-        "yarn_vcores_available": { "avg": 46.08, "sum": 46.08, "count": 1 },
-        "hdfs_capacity": { "avg": 336308174578310, "sum": 336308174578310, "count": 1 }
-      },
-      "labels": { "cluster_name": "analytics-spark" }
-    }
-  },
-  "metricset": { "name": "dataproc", "period": 60000 },
-  "data_stream": { "type": "metrics", "dataset": "gcp.dataproc_metrics", "namespace": "default" },
-  "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.dataproc_metrics", "module": "gcp" },
   "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/dataproc/yarn_memory_available",
-      "labels": {}
-    },
+    "metric": { "type": "dataproc.googleapis.com/cluster/yarn/available_memory", "labels": {} },
     "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-prod-a1b2c3", "region": "asia-southeast2" }
+      "type": "cloud_dataproc_cluster",
+      "labels": {
+        "project_id": "globex-staging-d4e5f6",
+        "cluster_name": "etl-daily",
+        "cluster_uuid": "etl-daily-7135",
+        "region": "europe-west12"
+      }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
       {
         "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "doubleValue": 10699293852.78 }
+        "value": { "doubleValue": 11549797259.63 }
       }
     ]
-  }
+  },
+  "gcp": {
+    "dataproc": {
+      "labels": {
+        "project_id": "globex-staging-d4e5f6",
+        "cluster_name": "etl-daily",
+        "cluster_uuid": "etl-daily-7135",
+        "region": "europe-west12"
+      },
+      "metrics": {
+        "dataproc.googleapis.com/cluster/yarn/available_memory": {
+          "avg": 11549797259.63,
+          "sum": 11549797259.63,
+          "count": 1
+        }
+      }
+    }
+  },
+  "metricset": { "name": "dataproc", "period": 60000 },
+  "data_stream": { "type": "metrics", "dataset": "gcp.dataproc_metrics", "namespace": "default" },
+  "input": { "type": "gcp-monitoring" },
+  "event": { "dataset": "gcp.dataproc_metrics", "module": "gcp" }
 }

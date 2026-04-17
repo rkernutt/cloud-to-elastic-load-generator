@@ -9,6 +9,7 @@ import {
   gcpCloud,
   makeGcpSetup,
   randLatencyMs,
+  randSeverity,
   randTraceId,
   randSpanId,
   randZone,
@@ -35,12 +36,19 @@ export function generateCloudTraceLog(ts: string, er: number): EcsDocument {
     "service.name": rand(["checkout-api", "search-bff", "worker", "gateway"]),
     "http.route": rand(["/v1/cart", "/healthz", "/internal/jobs"]),
   };
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Trace span FAILED: ${displayName} [${traceId}/${spanId}] status=${statusCode} after ${latencyMs}ms — ${rand(["DEADLINE_EXCEEDED", "UNAVAILABLE", "INTERNAL"])}`
-    : `Trace span OK: ${displayName} (${kind}) ${latencyMs}ms, attrs=${attributesCount}`;
+    ? `cloudtrace.googleapis.com: Span ended with ERROR trace_id=${traceId} span_id=${spanId} name="${displayName}" latency_ms=${latencyMs} status.code=${statusCode} status.message=${rand(["DEADLINE_EXCEEDED", "UNAVAILABLE", "INTERNAL"])}`
+    : `Exported span: trace_id=${traceId} span_id=${spanId} display_name="${displayName}" kind=${kind} latency_ms=${latencyMs} attribute_count=${attributesCount}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: {
+      ...labels,
+      "resource.type": "cloudtrace.googleapis.com/Project",
+      trace: traceId,
+    },
     cloud: gcpCloud(region, project, "cloudtrace.googleapis.com"),
     gcp: {
       cloud_trace: {
@@ -71,12 +79,15 @@ export function generateCloudProfilerLog(ts: string, er: number): EcsDocument {
   const deploymentTarget = rand(["gce", "gke", "cloud-run"] as const);
   const durationSeconds = randInt(10, isErr ? 120 : 300);
   const zone = randZone(region);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Cloud Profiler ${profileType} profile upload failed for ${serviceName}@${serviceVersion}: ${rand(["Agent version mismatch", "Permission denied", "Upload quota exceeded"])}`
-    : `Cloud Profiler collected ${profileType} profile for ${serviceName}@${serviceVersion} on ${deploymentTarget} (${durationSeconds}s, ${zone})`;
+    ? `cloudprofiler.googleapis.com: UploadProfile FAILED service=${serviceName} version=${serviceVersion}: ${rand(["Agent version incompatible", "PERMISSION_DENIED on profiler.googleapis.com", "Upload quota exceeded"])}`
+    : `Profile uploaded: type=${profileType} deployment.labels.version="${serviceVersion}" service=${serviceName} target=${deploymentTarget} duration_s=${durationSeconds} zone=${zone}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { "resource.type": "cloudprofiler.googleapis.com/Project", service: serviceName },
     cloud: gcpCloud(region, project, "cloudprofiler.googleapis.com"),
     gcp: {
       cloud_profiler: {
@@ -124,12 +135,19 @@ export function generateErrorReportingLog(ts: string, er: number): EcsDocument {
   const affectedUsersCount = isErr ? randInt(5, 12_000) : randInt(0, 3);
   const httpMethod = rand(["GET", "POST", "PUT", "DELETE"] as const);
   const url = rand(["/v1/orders", "/cart", "/graphql", "/batch/import"]);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Error Reporting: spike in ${exceptionType} — "${errMsg}" (${count} events, ~${affectedUsersCount} users) ${httpMethod} ${url}`
-    : `Error Reporting: resolved group ${errorGroupId} for ${serviceName}@${version}`;
+    ? `clouderrorreporting.googleapis.com: Error group ${errorGroupId} (${exceptionType}) event_rate elevated: message="${errMsg}" events=${count} affected_users≈${affectedUsersCount} ${httpMethod} ${url} service=${serviceName}@${version}`
+    : `Error group ${errorGroupId} marked RESOLVED for service=${serviceName}@${version} (last_event_at=${firstSeen})`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: {
+      "resource.type": "clouderrorreporting.googleapis.com/Project",
+      error_group: errorGroupId,
+      service: serviceName,
+    },
     cloud: gcpCloud(region, project, "clouderrorreporting.googleapis.com"),
     gcp: {
       error_reporting: {

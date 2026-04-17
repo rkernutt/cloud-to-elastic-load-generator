@@ -1,0 +1,161 @@
+{
+  "group": "azure-data-pipeline",
+  "description": "ML anomaly detection jobs for the Azure Data & Analytics Pipeline chained event scenario",
+  "jobs": [
+    {
+      "id": "azure-data-pipeline-duration-anomaly",
+      "description": "Detects unusually slow data pipeline runs via Data Factory pipeline completion duration",
+      "job": {
+        "description": "Detects unusually slow data pipeline runs",
+        "groups": ["azure", "data-pipeline", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(azure.data_factory.duration_ms) partitionfield=azure.data_factory.pipeline_name",
+              "function": "high_mean",
+              "field_name": "azure.data_factory.duration_ms",
+              "partition_field_name": "azure.data_factory.pipeline_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.data_factory.pipeline_name", "cloud.region", "azure.data_factory.quality_check"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "64mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-load-generator-data-pipeline", "tags": ["cloudloadgen"] }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.data_factory*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "azure.data_factory.activity_name": "pipeline_complete" } },
+              { "exists": { "field": "azure.data_factory.duration_ms" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-data-pipeline-error-spike",
+      "description": "Detects spikes in data pipeline failures across all pipeline services",
+      "job": {
+        "description": "Detects spikes in data pipeline failures",
+        "groups": ["azure", "data-pipeline", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count on event.outcome=failure partitionfield=cloud.region",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.dataset", "error.type"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "64mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-load-generator-data-pipeline", "tags": ["cloudloadgen"] }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.data_factory*", "logs-azure.databricks*", "logs-azure.purview*", "logs-azure.synapse*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.outcome": "failure" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-data-pipeline-null-data",
+      "description": "Detects increase in Synapse queries returning zero rows (null data propagation)",
+      "job": {
+        "description": "Detects increase in Synapse queries returning zero rows",
+        "groups": ["azure", "data-pipeline", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count on Synapse zero-row queries partitionfield=azure.synapse.sql_pool",
+              "function": "high_count",
+              "partition_field_name": "azure.synapse.sql_pool",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.synapse.sql_pool", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-load-generator-data-pipeline", "tags": ["cloudloadgen"] }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.synapse*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "azure.synapse.rows_returned": 0 } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "azure-data-pipeline-stage-latency",
+      "description": "Detects per-stage latency anomalies in Databricks Spark processing",
+      "job": {
+        "description": "Detects per-stage latency anomalies in Databricks Spark processing",
+        "groups": ["azure", "data-pipeline", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(azure.databricks.duration_ms) partitionfield=azure.databricks.workspace_name",
+              "function": "high_mean",
+              "field_name": "azure.databricks.duration_ms",
+              "partition_field_name": "azure.databricks.workspace_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.databricks.workspace_name", "azure.databricks.cluster_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "64mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "azure-load-generator-data-pipeline", "tags": ["cloudloadgen"] }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.databricks*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "exists": { "field": "azure.databricks.duration_ms" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    }
+  ]
+}

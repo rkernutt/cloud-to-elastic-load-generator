@@ -1,5 +1,5 @@
 {
-  "title": "GCP Cloud Functions — Invocations & Performance",
+  "title": "GCP Cloud Functions \u2014 Invocations & Performance",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -47,7 +47,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudfunctions* | EVAL is_err = CASE(log.level == \"error\", 1, 0) | STATS e = AVG(is_err) | EVAL `Err %` = ROUND(e * 100, 1)"
+            "query": "FROM logs-gcp.cloudfunctions* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Err %` = ROUND(e * 100, 1)"
           },
           "metrics": [
             {
@@ -96,12 +96,12 @@
         "h": 10
       },
       "config": {
-        "title": "Log level",
+        "title": "Event outcome",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudfunctions* | STATS c = COUNT() BY o = log.level"
+            "query": "FROM logs-gcp.cloudfunctions* | STATS c = COUNT() BY o = event.outcome"
           },
           "metrics": [
             {
@@ -293,7 +293,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudfunctions* | KEEP `@timestamp`, `gcp.cloud_functions.function_name`, `gcp.cloud_functions.runtime`, `gcp.cloud_functions.status`, log.level, event.duration, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.cloudfunctions* | KEEP `@timestamp`, `gcp.cloud_functions.function_name`, `gcp.cloud_functions.runtime`, `gcp.cloud_functions.status`, event.outcome, event.duration, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
@@ -318,8 +318,8 @@
             },
             {
               "operation": "value",
-              "column": "log.level",
-              "label": "Log level"
+              "column": "event.outcome",
+              "label": "Outcome"
             },
             {
               "operation": "value",

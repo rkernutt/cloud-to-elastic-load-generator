@@ -3,43 +3,50 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast2",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "europe-west3",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-northeast2",
-    "ephemeral_id": "wwhaj8bojwj"
+    "name": "metricbeat-gcp-europe-west3",
+    "ephemeral_id": "bzvi1ley2kg"
+  },
+  "monitoringTimeSeries": {
+    "metric": {
+      "type": "serviceruntime.googleapis.com/api/request_count",
+      "labels": { "credential_id": "resource-a" }
+    },
+    "resource": {
+      "type": "consumed_api",
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "service": "generic.googleapis.com",
+        "method": "resource_id"
+      }
+    },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "1166" } }
+    ]
   },
   "gcp": {
     "healthcare-api": {
-      "metrics": {
-        "request_count": { "avg": 34331, "sum": 34331, "count": 1 },
-        "error_count": { "avg": 0, "sum": 0, "count": 1 },
-        "latency": { "avg": 56.05, "sum": 56.05, "count": 1 }
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "service": "generic.googleapis.com",
+        "method": "resource_id",
+        "credential_id": "resource-a"
       },
-      "labels": { "resource_id": "resource-a" }
+      "metrics": {
+        "serviceruntime.googleapis.com/api/request_count": { "avg": 1166, "sum": 1166, "count": 1 }
+      }
     }
   },
   "metricset": { "name": "healthcare-api", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.healthcare_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.healthcare_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/healthcare-api/request_count",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-security-j0k1l2", "region": "asia-northeast2" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 34331 } }
-    ]
-  }
+  "event": { "dataset": "gcp.healthcare_metrics", "module": "gcp" }
 }

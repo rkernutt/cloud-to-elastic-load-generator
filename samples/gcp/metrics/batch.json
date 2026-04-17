@@ -3,43 +3,45 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west2",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" }
+    "region": "asia-southeast1",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-us-west2",
-    "ephemeral_id": "km5hr88yqw"
+    "name": "metricbeat-gcp-asia-southeast1",
+    "ephemeral_id": "cqaf31lo187"
+  },
+  "monitoringTimeSeries": {
+    "metric": {
+      "type": "cloudbuild.googleapis.com/build/build_count",
+      "labels": { "status": "SUCCESS" }
+    },
+    "resource": {
+      "type": "cloud_build",
+      "labels": { "project_id": "globex-prod-a1b2c3", "build_id": "build-aa1" }
+    },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "127" } }
+    ]
   },
   "gcp": {
     "batch": {
-      "metrics": {
-        "task_count": { "avg": 7720, "sum": 7720, "count": 1 },
-        "duration_ms": { "avg": 730461.31, "sum": 730461.31, "count": 1 },
-        "failed_tasks": { "avg": 0, "sum": 0, "count": 1 }
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "build_id": "build-aa1",
+        "status": "SUCCESS"
       },
-      "labels": { "job_id": "etl-daily" }
+      "metrics": {
+        "cloudbuild.googleapis.com/build/build_count": { "avg": 127, "sum": 127, "count": 1 }
+      }
     }
   },
   "metricset": { "name": "batch", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.batch_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.batch_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/batch/task_count",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-shared-m3n4o5", "region": "us-west2" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 7720 } }
-    ]
-  }
+  "event": { "dataset": "gcp.batch_metrics", "module": "gcp" }
 }

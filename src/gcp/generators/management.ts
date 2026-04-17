@@ -14,6 +14,7 @@ import {
   randPrincipal,
   randProject,
   randLatencyMs,
+  randSeverity,
 } from "./helpers.js";
 
 export function generateCloudMonitoringLog(ts: string, er: number): EcsDocument {
@@ -33,12 +34,43 @@ export function generateCloudMonitoringLog(ts: string, er: number): EcsDocument 
   const policyKind = rand(["high-cpu", "error-rate", "disk", "latency"] as const);
   const alertPolicyName = `policy-${policyKind}-${randId(4)}`;
   const conditionName = `condition-${randId(6)}`;
-  const message = isErr
-    ? `Monitoring alert "${alertPolicyName}" ${state}: ${metricType} at ${currentValue.toFixed(3)} (threshold ${thresholdValue.toFixed(3)}) — ${rand(["Notification delivery failed", "Channel misconfigured", "MQL evaluation error"])}`
-    : `Monitoring condition "${conditionName}" evaluated: ${metricType}=${currentValue.toFixed(3)} vs ${thresholdValue.toFixed(3)} (${state}, notify=${notificationChannelType})`;
+  const kind = isErr
+    ? rand(["alert_fail", "alert_firing"] as const)
+    : rand(["alert_ok", "uptime", "metric_descriptor", "timeseries", "channel"] as const);
+  const severity = randSeverity(isErr);
+  let message = "";
+
+  if (kind === "alert_firing" || kind === "alert_fail") {
+    message =
+      kind === "alert_fail"
+        ? `Alerting notification delivery failed for policy="${alertPolicyName}" channel=${notificationChannelType}: ${rand(["Invalid OAuth token for Slack", "PagerDuty 429 rate limit", "Pub/Sub topic not found"])}`
+        : `Alerting policy "${alertPolicyName}" triggered: condition "${conditionName}" is TRUE; metric=${metricType} value=${currentValue.toFixed(4)} threshold=${thresholdValue.toFixed(4)}`;
+  } else if (kind === "alert_ok") {
+    message = `Incident cleared: policy="${alertPolicyName}" condition "${conditionName}" returned to OK (metric=${metricType}, value=${currentValue.toFixed(4)})`;
+  } else if (kind === "uptime") {
+    const url = rand([
+      `https://api.${project.id}.example.com/health`,
+      `https://status.${project.id}.example.com/ready`,
+    ]);
+    const checkLatency = randLatencyMs(randInt(20, 800), isErr);
+    message = isErr
+      ? `Uptime check FAILED: checker=us-east4 url=${url} latency_ms=${checkLatency} error=${rand(["HTTP 503", "TLS handshake timeout", "DNS resolution failed"])}`
+      : `Uptime check PASSED: url=${url} latency_ms=${checkLatency} response_code=200 region=${region}`;
+  } else if (kind === "metric_descriptor") {
+    message = `Created metric descriptor projects/${project.id}/metricDescriptors/workload.googleapis.com/${rand(["custom/request_latency", "custom/queue_depth", "custom/job_failures"])}`;
+  } else if (kind === "timeseries") {
+    message = `monitoring.googleapis.com: WriteTimeSeries accepted_points=${randInt(1, 500)} rejected_points=${isErr ? randInt(1, 50) : 0} metric_type=${metricType}`;
+  } else {
+    message = `Notification channel updated: display_name="${rand(["oncall-slack", "sec-email", "billing-pd"])}" type=${notificationChannelType} verified=${!isErr}`;
+  }
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: {
+      "resource.type": "monitoring.googleapis.com/AlertPolicy",
+      policy: alertPolicyName,
+    },
     cloud: gcpCloud(region, project, "monitoring.googleapis.com"),
     gcp: {
       cloud_monitoring: {
@@ -70,12 +102,15 @@ export function generateCloudLoggingLog(ts: string, er: number): EcsDocument {
   const entriesExported = isErr ? randInt(0, 500) : randInt(2000, 500_000);
   const errorsCount = isErr ? randInt(3, 500) : randInt(0, 5);
   const exclusionName = Math.random() < 0.35 ? `exclusion-${randId(4)}` : "";
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Logging sink ${sinkName} export errors: ${errorsCount} failures writing to ${destination} — ${rand(["Permission denied on dataset", "Destination not found", "Invalid filter"])}`
-    : `Logging sink ${sinkName} exported ${entriesExported} entries to ${destination}`;
+    ? `logging.googleapis.com: Sink "${sinkName}" write to ${destination} failed ${errorsCount} times: ${rand(["Permission bigquery.datasets.get denied", "Destination bucket not found", "Invalid sink filter expression"])}`
+    : `Exported ${entriesExported} log entries via sink="${sinkName}" to ${destination} (log_filter matched ${logName})`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { "resource.type": "logging.googleapis.com/Project", sink: sinkName },
     cloud: gcpCloud(region, project, "logging.googleapis.com"),
     gcp: {
       cloud_logging: {
@@ -106,12 +141,15 @@ export function generateResourceManagerLog(ts: string, er: number): EcsDocument 
       : `folders/${randInt(100000000000, 999999999999)}`;
   const parent = `organizations/${randInt(100000000000, 999999999999)}`;
   const actor = randPrincipal(project);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Resource Manager ${action} failed for ${resourceType} ${resourceName}: ${rand(["Policy conflict", "Permission denied", "Resource not empty"])} [actor=${actor}]`
-    : `Resource Manager ${action} on ${resourceType} ${resourceName} by ${actor}`;
+    ? `cloudresourcemanager.googleapis.com: projects.${action} FAILED resource=${resourceName}: ${rand(["FAILED_PRECONDITION: folder not empty", "PERMISSION_DENIED", "ALREADY_EXISTS"])} actor=${actor}`
+    : `SetIamPolicy on ${resourceName} completed; action=${action} caller=${actor} parent=${parent}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { "resource.type": "cloudresourcemanager.googleapis.com/Project", method: action },
     cloud: gcpCloud(region, project, "cloudresourcemanager.googleapis.com"),
     gcp: {
       resource_manager: {
@@ -145,12 +183,18 @@ export function generateDeploymentManagerLog(ts: string, er: number): EcsDocumen
   const operation = rand(["CREATE", "UPDATE", "DELETE"] as const);
   const manifestConfig = `https://www.googleapis.com/deploymentmanager/v2/projects/${project.id}/global/deployments/${deploymentName}`;
   const status = isErr ? rand(["FAILED", "CANCELLED"]) : rand(["DONE", "RUNNING"]);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Deployment Manager ${operation} failed for ${resourceType}/${resourceName}: ${rand(["Reference not found", "API not enabled", "Quota exceeded"])}`
-    : `Deployment Manager ${operation} ${status} on ${deploymentName} (${resourceType}: ${resourceName})`;
+    ? `deploymentmanager.googleapis.com: ${operation} FAILED for ${resourceType}/${resourceName} in deployment ${deploymentName}: ${rand(["Reference not found", "API compute.googleapis.com not enabled", "Quota 'INSTANCES' exceeded"])}`
+    : `Operation ${operation} on deployment ${deploymentName} status=${status} manifest=${manifestConfig} resource=${resourceType}:${resourceName}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: {
+      "resource.type": "deploymentmanager.googleapis.com/Deployment",
+      deployment: deploymentName,
+    },
     cloud: gcpCloud(region, project, "deploymentmanager.googleapis.com"),
     gcp: {
       deployment_manager: {
@@ -184,12 +228,15 @@ export function generateCloudAssetInventoryLog(ts: string, er: number): EcsDocum
   const feedScope = rand(["org", "project", "folder"] as const);
   const feedName = `feed-${feedScope}-${randId(4)}`;
   const policyAnalyzed = Math.random() < 0.5;
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Asset Inventory feed ${feedName} error on ${assetType}: ${rand(["Export to destination failed", "Invalid feed filter", "Permission denied"])}`
-    : `Asset Inventory ${changeType} for ${assetType} (${assetName}), policy_analyzed=${policyAnalyzed}`;
+    ? `cloudasset.googleapis.com: Feed "${feedName}" export error for ${assetType}: ${rand(["Destination Pub/Sub permission denied", "Invalid feed filter expression", "BigQuery streaming insert failed"])}`
+    : `Asset change feed: ${changeType} ${assetName} asset_type=${assetType} feed=${feedName} iam_policy_analyzed=${policyAnalyzed}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { "resource.type": "cloudasset.googleapis.com/Feed", feed: feedName },
     cloud: gcpCloud(region, project, "cloudasset.googleapis.com"),
     gcp: {
       cloud_asset_inventory: {
@@ -225,12 +272,18 @@ export function generateOrgPolicyLog(ts: string, er: number): EcsDocument {
     "organization policy root",
     "",
   ]);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Org policy update rejected for ${constraintName} on ${resource}: ${rand(["Invalid constraint value", "Not authorized", "Conflicting policy"])}`
-    : `Org policy ${constraintName} (${policyType}) set to ${enforcement} on ${resource}${inheritedFrom ? `, inherited_from=${inheritedFrom}` : ""}`;
+    ? `orgpolicy.googleapis.com: SetPolicy FAILED for ${constraintName} on ${resource}: ${rand(["Invalid constraint value", "PERMISSION_DENIED", "Policy etag mismatch"])}`
+    : `Org policy updated: constraint=${constraintName} type=${policyType} enforcement=${enforcement} resource=${resource}${inheritedFrom ? ` inherited_from=${inheritedFrom}` : ""}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: {
+      "resource.type": "cloudresourcemanager.googleapis.com/Project",
+      constraint: constraintName,
+    },
     cloud: gcpCloud(region, project, "orgpolicy.googleapis.com"),
     gcp: {
       org_policy: {
@@ -249,51 +302,6 @@ export function generateOrgPolicyLog(ts: string, er: number): EcsDocument {
   };
 }
 
-export function generateAccessTransparencyLog(ts: string, er: number): EcsDocument {
-  const { region, project, isErr } = makeGcpSetup(er);
-  const product = rand([
-    "BigQuery",
-    "Compute Engine",
-    "Cloud Storage",
-    "Cloud KMS",
-    "Cloud SQL",
-  ] as const);
-  const accessReason = rand([
-    "CUSTOMER_INITIATED_SUPPORT",
-    "GOOGLE_INITIATED_REVIEW",
-    "THIRD_PARTY_DATA_REQUEST",
-  ] as const);
-  const accessorEmail = `google-support-${randId(4)}@google.com`;
-  const justification = rand([
-    "Troubleshooting customer-reported outage",
-    "Abuse and fraud investigation",
-    "Legal process compliance review",
-  ]);
-  const accessDurationSeconds = randInt(60, isErr ? 3600 : 7200);
-  const message = isErr
-    ? `Access Transparency: access to ${product} could not be logged completely: ${rand(["Partial export failure", "Delayed log delivery"])}`
-    : `Access Transparency: ${accessReason} access to ${product} by ${accessorEmail} (${accessDurationSeconds}s) — ${justification}`;
-
-  return {
-    "@timestamp": ts,
-    cloud: gcpCloud(region, project, "accessapproval.googleapis.com"),
-    gcp: {
-      access_transparency: {
-        product,
-        access_reason: accessReason,
-        accessor_email: accessorEmail,
-        justification,
-        access_duration_seconds: accessDurationSeconds,
-      },
-    },
-    event: {
-      outcome: isErr ? "failure" : "success",
-      duration: accessDurationSeconds * 1000,
-    },
-    message,
-  };
-}
-
 export function generateRecommenderLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const recommenderType = rand([
@@ -306,12 +314,18 @@ export function generateRecommenderLog(ts: string, er: number): EcsDocument {
   const priority = rand(["P1", "P2", "P3", "P4"] as const);
   const impactCostMonthlyUsd = isErr ? 0 : randFloat(12, 4500);
   const resourceName = `projects/${project.id}/zones/${region}-a/instances/${randId(6)}`;
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Recommender ${recommenderType} recommendation ${recommendationId} failed: ${rand(["Insufficient metrics", "Resource deleted", "API error"])}`
-    : `Recommender ${recommenderType}: ${recommendationId} is ${state} (${priority}, ~$${impactCostMonthlyUsd.toFixed(0)}/mo savings)`;
+    ? `recommender.googleapis.com: MarkRecommendationFailed name=projects/${project.id}/locations/${region}/recommenders/${recommenderType}/recommendations/${recommendationId}: ${rand(["Insufficient metrics window", "Resource deleted", "Internal error"])}`
+    : `New recommendation: ${recommenderType} id=${recommendationId} state=${state} priority=${priority} primary_impact=Cost (~$${impactCostMonthlyUsd.toFixed(0)}/mo) resource=${resourceName}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: {
+      "resource.type": "recommender.googleapis.com/Recommendation",
+      recommender: recommenderType,
+    },
     cloud: gcpCloud(region, project, "recommender.googleapis.com"),
     gcp: {
       recommender: {
@@ -353,12 +367,18 @@ export function generateBillingLog(ts: string, er: number): EcsDocument {
   const usageUnit = rand(["hour", "gibibyte month", "terabyte", "request", "GiBy.mo"]);
   const creditsAmount = isErr ? 0 : randFloat(0, costAmount * 0.3);
   const proj = randProject();
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Billing export error for ${billingAccountId}: ${rand(["BigQuery insert failed", "Missing permissions on export dataset", "Malformed invoice row"])}`
-    : `Billing: ${serviceDescription} / ${skuDescription} cost $${costAmount.toFixed(2)} ${currency} (usage ${usageAmount.toFixed(2)} ${usageUnit}, credits -$${creditsAmount.toFixed(2)}) project=${proj.id}`;
+    ? `cloudbilling.googleapis.com: Export to BigQuery failed for billing_account=${billingAccountId}: ${rand(["InsertErrors row rejected", "Dataset not writable by billing export SA", "Malformed cost row"])}`
+    : `Billing cost row: service="${serviceDescription}" sku="${skuDescription}" cost=${costAmount.toFixed(2)} ${currency} usage=${usageAmount.toFixed(2)} ${usageUnit} credits=-${creditsAmount.toFixed(2)} project=${proj.id}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: {
+      "resource.type": "cloudbilling.googleapis.com/BillingAccount",
+      billing_account: billingAccountId,
+    },
     cloud: gcpCloud(region, project, "cloudbilling.googleapis.com"),
     gcp: {
       billing: {
@@ -392,12 +412,18 @@ export function generateServiceDirectoryLog(ts: string, er: number): EcsDocument
   const ports = [443, 8080, 50051, 8443] as const;
   const port = ports[randInt(0, ports.length - 1)]!;
   const metadataKeys = ["version", "env", "region", "shard"].slice(0, randInt(1, 4));
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Service Directory ${action} failed for ${serviceName}/${endpointName}: ${rand(["Name already exists", "Invalid endpoint", "Not found"])}`
-    : `Service Directory ${action}: ${namespaceName}/${serviceName} -> ${address}:${port} (metadata: ${metadataKeys.join(",")})`;
+    ? `servicedirectory.googleapis.com: ${action} FAILED projects/${project.id}/locations/${region}/namespaces/${namespaceName}/services/${serviceName}/endpoints/${endpointName}: ${rand(["ALREADY_EXISTS", "INVALID_ARGUMENT", "NOT_FOUND"])}`
+    : `Service Directory ${action}: registered endpoint ${endpointName} -> ${address}:${port} service=${namespaceName}/${serviceName} metadata_keys=[${metadataKeys.join(",")}]`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: {
+      "resource.type": "servicedirectory.googleapis.com/Service",
+      namespace: namespaceName,
+    },
     cloud: gcpCloud(region, project, "servicedirectory.googleapis.com"),
     gcp: {
       service_directory: {
@@ -434,12 +460,15 @@ export function generateConfigConnectorLog(ts: string, er: number): EcsDocument 
     ? rand(["ERROR", "PENDING"] as const)
     : rand(["READY", "IN_PROGRESS", "SYNCED"] as const);
   const reconcileDurationMs = randLatencyMs(randInt(50, 2000), isErr);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Config Connector ${action} ${resourceKind}/${resourceName} in ${namespace} failed (${status})`
-    : `Config Connector reconciled ${resourceKind} ${resourceName} ns=${namespace} in ${reconcileDurationMs.toFixed(1)}ms`;
+    ? `configconnector.cnrm.cloud.google.com: ${resourceKind}/${resourceName} reconcile error in namespace ${namespace}: ${rand(["DependencyNotReady", "PreconditionFailed", "Permission denied creating GCP resource"])} status=${status}`
+    : `Reconcile successful: kind=${resourceKind} name=${resourceName} namespace=${namespace} duration_ms=${reconcileDurationMs.toFixed(1)} status=${status}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { "resource.type": "core.cnrm.cloud.google.com/ConfigConnectorContext", namespace },
     cloud: gcpCloud(region, project, "config-connector"),
     gcp: {
       config_connector: {
@@ -453,7 +482,7 @@ export function generateConfigConnectorLog(ts: string, er: number): EcsDocument 
     },
     event: {
       outcome: isErr ? "failure" : "success",
-      duration: reconcileDurationMs * 1000,
+      duration: reconcileDurationMs,
     },
     message,
   };
@@ -482,13 +511,20 @@ export function generateCloudAuditLog(ts: string, er: number): EcsDocument {
     user_agent: rand(["gcloud/460.0.0", "Terraform/1.7.5", "google-api-nodejs-client/9.0.0"]),
   };
   const durationNs = randInt(1_000_000, isErr ? 50_000_000 : 8_000_000);
+  const severity =
+    authorizationDecision === "DENIED" || isErr ? randSeverity(true) : randSeverity(false);
   const message = isErr
-    ? `Cloud Audit ${serviceName}.${methodName} ${authorizationDecision} for ${resourceName} from ${callerIp}`
-    : `Cloud Audit ${callerType} ${methodName} on ${resourceName} (${authorizationDecision})`;
+    ? `cloudaudit.googleapis.com/activity: ${serviceName}.${methodName} permission_denied principal=${callerType} resource=${resourceName} caller_ip=${callerIp}`
+    : `protoPayload.methodName="${methodName}" serviceName="${serviceName}" resourceName="${resourceName}" authenticationInfo.principalEmail=… authorizationInfo[0].granted=${authorizationDecision === "ALLOWED"}`;
 
   return {
     "@timestamp": ts,
-    cloud: gcpCloud(region, project, "cloud-audit-logs"),
+    severity,
+    labels: {
+      log_name: `projects/${project.id}/logs/cloudaudit.googleapis.com%2Factivity`,
+      method: methodName,
+    },
+    cloud: gcpCloud(region, project, "cloudaudit.googleapis.com"),
     gcp: {
       cloud_audit: {
         service_name: serviceName,
@@ -522,12 +558,15 @@ export function generateActiveAssistLog(ts: string, er: number): EcsDocument {
   const state = isErr
     ? rand(["ACTIVE", "CLAIMED"] as const)
     : rand(["ACTIVE", "CLAIMED", "SUCCEEDED"] as const);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Active Assist ${recommender} insight failed for ${resource}`
-    : `Active Assist ${recommendationType} on ${resource}: ~$${estimatedSavingsMonthlyUsd.toFixed(0)}/mo (${impactCategory}, ${state})`;
+    ? `recommender.googleapis.com (Active Assist): insight generation failed for ${resource} recommender=${recommender}`
+    : `Active Assist insight: category=${recommendationType} impact=${impactCategory} resource=${resource} estimated_monthly_savings_usd=${estimatedSavingsMonthlyUsd.toFixed(0)} state=${state}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { "resource.type": "recommender.googleapis.com/Insight", recommender },
     cloud: gcpCloud(region, project, "active-assist"),
     gcp: {
       active_assist: {
@@ -564,12 +603,18 @@ export function generateEssentialContactsLog(ts: string, er: number): EcsDocumen
   const action = isErr
     ? rand(["BOUNCE", "SEND"] as const)
     : rand(["SEND", "BOUNCE", "SUBSCRIBE", "UNSUBSCRIBE"] as const);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Essential Contacts ${action} failed for ${contactEmail} (${notificationCategory})`
-    : `Essential Contacts ${action}: ${notificationCategory} -> ${contactEmail} (${resource})`;
+    ? `essentialcontacts.googleapis.com: Notification ${action} FAILED category=${notificationCategory} to=${contactEmail}: ${rand(["SMTP 550 mailbox unavailable", "DMARC policy reject"])}`
+    : `Essential Contacts: ${action} category=${notificationCategory} recipient=${contactEmail} resource=${resource}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: {
+      "resource.type": "essentialcontacts.googleapis.com/Contact",
+      category: notificationCategory,
+    },
     cloud: gcpCloud(region, project, "essential-contacts"),
     gcp: {
       essential_contacts: {
@@ -595,12 +640,15 @@ export function generateTagsLog(ts: string, er: number): EcsDocument {
   const action = rand(["BIND", "UNBIND", "CREATE", "DELETE"] as const);
   const inheritedFrom = Math.random() > 0.5 ? `folders/${randInt(100000000000, 999999999999)}` : "";
   const policyAffected = rand(["org-policy-tags", "conditional-binding", "none"]);
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Tags ${action} failed for ${tagKey}=${tagValue} on ${resourceName}`
-    : `Tags ${action} ${tagKey}=${tagValue} on ${resourceName}${inheritedFrom ? ` inherited=${inheritedFrom}` : ""}`;
+    ? `cloudresourcemanager.googleapis.com: ${action} tag binding FAILED on ${resourceName}: ${rand(["Tag value not in allowed list", "PERMISSION_DENIED on tagKeys.get"])}`
+    : `Tag binding ${action}: ${tagKey}=${tagValue} attached_to=${resourceName}${inheritedFrom ? ` inherited_from=${inheritedFrom}` : ""} policy=${policyAffected}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { "resource.type": "cloudresourcemanager.googleapis.com/TagValue", tag_key: tagKey },
     cloud: gcpCloud(region, project, "tags"),
     gcp: {
       tags: {
@@ -628,12 +676,15 @@ export function generateCarbonFootprintLog(ts: string, er: number): EcsDocument 
   const electricityKwh = isErr ? 0 : randFloat(0.5, 120_000);
   const scope = rand(["SCOPE_1", "SCOPE_2", "SCOPE_3"] as const);
   const periodMonth = `${new Date(ts).getUTCFullYear()}-${String(new Date(ts).getUTCMonth() + 1).padStart(2, "0")}`;
+  const severity = randSeverity(isErr);
   const message = isErr
-    ? `Carbon Footprint export error for ${projectId}: incomplete grid factor for ${region}`
-    : `Carbon Footprint ${periodMonth} ${service} ${region}: ${carbonKgCo2e.toFixed(3)} kgCO2e (${electricityKwh.toFixed(1)} kWh, ${scope})`;
+    ? `carbonfootprint.googleapis.com: Export for ${projectId} incomplete: missing grid emission factor for region ${region}`
+    : `Carbon footprint row: month=${periodMonth} service="${service}" region=${region} kgCO2e=${carbonKgCo2e.toFixed(3)} kWh=${electricityKwh.toFixed(1)} scope=${scope}`;
 
   return {
     "@timestamp": ts,
+    severity,
+    labels: { "resource.type": "carbonfootprint.googleapis.com/Project", project_id: projectId },
     cloud: gcpCloud(region, project, "carbon-footprint"),
     gcp: {
       carbon_footprint: {

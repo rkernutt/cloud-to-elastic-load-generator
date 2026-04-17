@@ -12,6 +12,33 @@ function generateKinesisStreamsLog(ts: string, er: number): EcsDocument {
     "iot-telemetry",
     "audit-trail",
   ]);
+  const shardId = `shardId-0000000000${randInt(0, 9)}`;
+  const op = rand([
+    "PutRecord",
+    "PutRecords",
+    "GetRecords",
+    "SubscribeToShard",
+    "SplitShard",
+    "MergeShards",
+  ]);
+  const putBatch = randInt(1, 500);
+  const efoConsumers = randInt(0, isErr ? 120 : 40);
+  const controlPlaneMsg =
+    op === "SplitShard"
+      ? `SplitShard completed: parent ${shardId} -> new shards shardId-0000000000${randInt(0, 9)},shardId-0000000000${randInt(0, 9)} on ${stream}`
+      : op === "MergeShards"
+        ? `MergeShards completed: adjacent shards merged into ${shardId} on ${stream}`
+        : op === "SubscribeToShard"
+          ? `SubscribeToShard: consumer ${randId(8).toLowerCase()} connected to ${shardId} enhanced fan-out (${efoConsumers} concurrent)`
+          : op === "PutRecords"
+            ? `PutRecords succeeded: ${putBatch} records (${randInt(1024, 4_000_000)} bytes) to ${stream}/${shardId}`
+            : op === "PutRecord"
+              ? `PutRecord succeeded: partitionKey=${randId(6)} sequenceNumber=${randInt(1e12, 9e15)} stream=${stream}`
+              : `GetRecords returned ${randInt(1, 2000)} records from ${stream}/${shardId}`;
+  const iteratorWarn =
+    isErr && Math.random() < 0.45
+      ? ` Iterator expired for ${stream}/${shardId}: refresh shard iterator (ExpiredIteratorException).`
+      : "";
   return {
     "@timestamp": ts,
     cloud: {
@@ -23,6 +50,9 @@ function generateKinesisStreamsLog(ts: string, er: number): EcsDocument {
     aws: {
       dimensions: { StreamName: stream },
       kinesis: {
+        operation: op,
+        shard_id: shardId,
+        enhanced_fan_out_subscribers: efoConsumers,
         metrics: {
           GetRecords_Bytes: { avg: randInt(1000, 1e6) },
           GetRecords_IteratorAgeMilliseconds: {
@@ -54,8 +84,8 @@ function generateKinesisStreamsLog(ts: string, er: number): EcsDocument {
       duration: randInt(1, isErr ? 60000 : 5000) * 1e6,
     },
     message: isErr
-      ? `Kinesis WriteProvisionedThroughputExceeded on ${stream}`
-      : `Kinesis ${stream}: ${randInt(1, 10000)} records ingested`,
+      ? `${controlPlaneMsg}${iteratorWarn || ` Kinesis WriteProvisionedThroughputExceeded on ${stream}`}`
+      : `${controlPlaneMsg}`,
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -246,6 +276,35 @@ function generateMskLog(ts: string, er: number): EcsDocument {
   const partition = randInt(0, 23);
   const clusterName = `prod-kafka-${region}`;
   const brokerId = randInt(1, 6);
+  const tsBracket = ts.replace("T", " ").replace("Z", "");
+  const level = isErr ? "ERROR" : Math.random() < 0.12 ? "WARN" : "INFO";
+  const component = rand([
+    "ReplicaFetcherManager",
+    "ReplicaManager",
+    "GroupCoordinator",
+    "KafkaApi",
+    "Controller",
+    "LogManager",
+  ]);
+  const kafkaClass = rand([
+    "kafka.server.ReplicaFetcherManager",
+    "kafka.server.ReplicaManager",
+    "kafka.coordinator.group.GroupCoordinator",
+    "kafka.server.KafkaApis",
+    "kafka.controller.KafkaController",
+    "kafka.log.LogManager",
+  ]);
+  const cg = rand(["analytics-consumer", "etl-pipeline", "alerting-service"]);
+  const brokerLine =
+    level === "ERROR" && Math.random() < 0.5
+      ? `[${tsBracket}] ${level} [${component} broker=${brokerId}] Error processing fetch for partition ${topic}-${partition} (kafka.server.ReplicaManager)`
+      : level === "WARN" || (isErr && Math.random() < 0.4)
+        ? `[${tsBracket}] WARN [${component} broker=${brokerId}] ISR shrink: partition ${topic}-${partition} isr=[${brokerId},${(brokerId % 3) + 1}] -> [${brokerId}] (${kafkaClass})`
+        : Math.random() < 0.25
+          ? `[${tsBracket}] INFO [${component} broker=${brokerId}] Created topic "${topic}" with ${randInt(3, 24)} partitions, replication factor 3 (${kafkaClass})`
+          : Math.random() < 0.35
+            ? `[${tsBracket}] INFO [${component}] [GroupCoordinator ${brokerId}]: Preparing to rebalance group ${cg} with old generation ${randInt(1, 40)} (${kafkaClass})`
+            : `[${tsBracket}] INFO [${component} broker=${brokerId}] Completed fetch of ${randInt(1, 5000)} messages for partition ${topic}-${partition} at offset ${randInt(0, 1e9)} (${kafkaClass})`;
   return {
     "@timestamp": ts,
     cloud: {
@@ -263,7 +322,7 @@ function generateMskLog(ts: string, er: number): EcsDocument {
         topic,
         partition,
         offset: randInt(0, 100000000),
-        consumer_group: rand(["analytics-consumer", "etl-pipeline", "alerting-service"]),
+        consumer_group: cg,
         lag: isErr ? randInt(10000, 1000000) : randInt(0, 100),
         under_replicated_partitions: isErr ? randInt(1, 20) : 0,
         metrics: {
@@ -294,10 +353,8 @@ function generateMskLog(ts: string, er: number): EcsDocument {
       provider: "kafka.amazonaws.com",
       duration: randInt(1, isErr ? 5000 : 100) * 1e6,
     },
-    message: isErr
-      ? `MSK broker issue: under-replicated partitions on ${topic}`
-      : `MSK ${topic}[${partition}] offset=${randInt(0, 100000000)}`,
-    log: { level: isErr ? "error" : "info" },
+    message: brokerLine,
+    log: { level: level === "ERROR" ? "error" : level === "WARN" ? "warn" : "info" },
     ...(isErr
       ? {
           error: {
@@ -326,6 +383,34 @@ function generateSqsLog(ts: string, er: number): EcsDocument {
   const isDlq = queue.includes("dlq");
   const sent = randInt(1, 10000);
   const received = randInt(0, sent);
+  const queueUrl = `https://sqs.${region}.amazonaws.com/${acct.id}/${queue}`;
+  const operation = rand([
+    "SendMessage",
+    "ReceiveMessage",
+    "DeleteMessage",
+    "ChangeMessageVisibility",
+    "PurgeQueue",
+  ]);
+  const approxVisible = randInt(0, isErr ? 250_000 : 8_000);
+  const approxNotVisible = randInt(0, Math.min(approxVisible, 4_000));
+  const approxDelayed = randInt(0, 1_200);
+  const batch =
+    operation === "ReceiveMessage"
+      ? randInt(1, 10)
+      : operation === "DeleteMessage"
+        ? randInt(1, 10)
+        : 1;
+  const visibilityTimeout = operation === "ChangeMessageVisibility" ? randInt(0, 900) : null;
+  const opLine =
+    operation === "SendMessage"
+      ? `SQS SendMessage queue=${queueUrl} sent=${sent} approximate_total=${approxVisible + approxNotVisible + approxDelayed} bodyBytes=${randInt(120, 240_000)}`
+      : operation === "ReceiveMessage"
+        ? `SQS ReceiveMessage queue=${queueUrl} messages_returned=${batch} approximate_receive_count=${randInt(1, 12)} visible≈${approxVisible} notVisible≈${approxNotVisible}`
+        : operation === "DeleteMessage"
+          ? `SQS DeleteMessage queue=${queueUrl} deleted=${batch} remaining_visible≈${Math.max(0, approxVisible - batch)}`
+          : operation === "ChangeMessageVisibility"
+            ? `SQS ChangeMessageVisibility queue=${queueUrl} receipt_batches=${batch} new_timeout_sec=${visibilityTimeout} visible≈${approxVisible}`
+            : `SQS PurgeQueue queue=${queueUrl} purged_inflight_hint visible≈${approxVisible} notVisible≈${approxNotVisible}`;
   return {
     "@timestamp": ts,
     cloud: {
@@ -337,12 +422,13 @@ function generateSqsLog(ts: string, er: number): EcsDocument {
     aws: {
       dimensions: { QueueName: queue },
       sqs: {
-        queue: { name: queue },
+        queue: { name: queue, url: queueUrl },
+        operation,
         oldest_message_age: { sec: randInt(0, isErr ? 86400 : 300) },
         messages: {
-          delayed: randInt(0, 500),
-          not_visible: randInt(0, 1000),
-          visible: randInt(0, isErr ? 100000 : 1000),
+          delayed: approxDelayed,
+          not_visible: approxNotVisible,
+          visible: approxVisible,
           deleted: randInt(1, 1000),
           received: Math.max(1, received),
           sent: sent,
@@ -360,8 +446,8 @@ function generateSqsLog(ts: string, er: number): EcsDocument {
     },
     message:
       isErr || isDlq
-        ? `SQS ${queue}: ${randInt(1, 1000)} messages dead-lettered after max retries`
-        : `SQS ${queue}: ${sent} sent, ${received} received`,
+        ? `${opLine} | error: ${randInt(1, 1000)} messages dead-lettered after max retries`
+        : opLine,
     log: { level: isErr || isDlq ? "warn" : "info" },
     ...(isErr || isDlq
       ? {
@@ -573,9 +659,30 @@ function generateEventBridgeLog(ts: string, er: number): EcsDocument {
   const source = rand(["aws.ec2", "aws.s3", "custom.app", "aws.health", "com.partner.events"]);
   const eventBus = rand(["default", "custom-events", "app-events"]);
   const eventId = randUUID();
-  const plainMessage = isErr
-    ? `EventBridge rule ${rule}: target invocations failed`
-    : `EventBridge event routed: ${source} -> ${rule}`;
+  const logKind = rand([
+    "rule_match",
+    "invocation",
+    "target_delivery",
+    "dead_letter",
+    "pipe_execution",
+    "schema_discovery",
+  ]);
+  const targetArn = `arn:aws:lambda:${region}:${acct.id}:function:${rand(["processOrder", "emitMetric", "fanOut"])}`;
+  const dlqArn = `arn:aws:sqs:${region}:${acct.id}:${rand(["eb-dlq", "rules-dlq"])}`;
+  const pipeName = rand(["orders-to-lambda", "audit-to-sqs", "metrics-to-kinesis"]);
+  const registryName = rand(["partner-events", "internal-schemas"]);
+  const plainMessage =
+    logKind === "rule_match"
+      ? `EventBridge RuleMatch rule=${rule} bus=${eventBus} matched_events=${randInt(1, 500)} pattern_matched=true eventId=${eventId}`
+      : logKind === "invocation"
+        ? `EventBridge Invocation rule=${rule} bus=${eventBus} invocation_id=${randId(12).toLowerCase()} matched=${randInt(1, 200)}`
+        : logKind === "target_delivery"
+          ? `EventBridge TargetDelivery rule=${rule} target=${targetArn} status=${isErr ? "FAILED" : "SUCCESS"} httpStatus=${isErr ? rand([502, 503, 504, 429]) : 200} attempt=${randInt(1, 4)}`
+          : logKind === "dead_letter"
+            ? `EventBridge DeadLetter rule=${rule} failed_invocations=${isErr ? randInt(1, 20) : 0} dlq=${dlqArn} last_error=${isErr ? rand(["Lambda.ServiceException", "ThrottlingException", "TargetUnavailable"]) : "none"}`
+            : logKind === "pipe_execution"
+              ? `EventBridge PipeExecution pipe=${pipeName} execution_id=${randId(10).toLowerCase()} stage=${rand(["Filtering", "Enrichment", "Target"])} records_out=${randInt(0, 5000)}`
+              : `EventBridge SchemaDiscovery registry=${registryName} discovered_type=${rand(["OrderPlaced@v2", "InvoicePaid@v1"])} revision=${randInt(1, 12)}`;
   const useStructuredLogging = Math.random() < 0.6;
   const message = useStructuredLogging
     ? JSON.stringify({
@@ -589,6 +696,11 @@ function generateEventBridgeLog(ts: string, er: number): EcsDocument {
         ]),
         rule,
         eventBus,
+        log_kind: logKind,
+        target_arn: logKind === "target_delivery" ? targetArn : undefined,
+        dlq_arn: logKind === "dead_letter" ? dlqArn : undefined,
+        pipe: logKind === "pipe_execution" ? pipeName : undefined,
+        schema_registry: logKind === "schema_discovery" ? registryName : undefined,
         message: plainMessage,
         timestamp: new Date(ts).toISOString(),
       })
@@ -616,6 +728,7 @@ function generateEventBridgeLog(ts: string, er: number): EcsDocument {
         targets_invoked: targetsInvoked,
         targets_failed: isErr ? randInt(1, Math.min(3, targetsInvoked)) : 0,
         event_id: eventId,
+        log_kind: logKind,
         structured_logging: useStructuredLogging,
         metrics: {
           Invocations: { sum: 1 },
@@ -681,32 +794,73 @@ function generateStepFunctionsLog(ts: string, er: number): EcsDocument {
   ]);
   const workflowType = rand(["STANDARD", "EXPRESS", "EXPRESS"]);
   const isExpress = workflowType === "EXPRESS";
-  // Express: max 5 min; Standard: can run for days
   const maxDurS = isExpress ? 300 : isErr ? 3600 : 86400;
   const dur = Number(randFloat(0.1, isErr ? Math.min(60, maxDurS) : Math.min(maxDurS, 30)));
   const stateDur = Number(randFloat(0.01, dur));
+  const stateMachineArn = `arn:aws:states:${region}:${acct.id}:stateMachine:${machine}`;
   const executionArn = `arn:aws:states:${region}:${acct.id}:execution:${machine}:${randId(8).toLowerCase()}`;
   const startTime = new Date(new Date(ts).getTime() - dur * 1000).toISOString();
-  const stepMsgPool = isErr
-    ? [
-        "Execution failed",
-        `Step Functions ${machine} FAILED at state ${state}: ${rand(["Lambda error", "Timeout", "States.TaskFailed"])}`,
-      ]
-    : [
-        "Execution started",
-        "Execution succeeded",
-        `Step Functions ${machine} SUCCEEDED in ${dur.toFixed(1)}s`,
-      ];
-  const plainMessage = rand(stepMsgPool);
+  const eventId = randInt(2, 500);
+  const prevEventId = eventId - 1;
+  const nextEventId = eventId + 1;
+  const histType = rand([
+    "TaskStateEntered",
+    "TaskStateExited",
+    "LambdaFunctionScheduled",
+    "LambdaFunctionSucceeded",
+    "LambdaFunctionFailed",
+    "ExecutionStarted",
+    "ExecutionSucceeded",
+    "ExecutionFailed",
+    "PassStateEntered",
+    "PassStateExited",
+  ]);
+  const entered = histType.endsWith("Entered") || histType === "ExecutionStarted";
+  const inputPayload = JSON.stringify({
+    orderId: `ord-${randId(6)}`,
+    amount: randInt(10, 5000),
+    traceHeader: randId(16),
+  });
+  const outputPayload = entered
+    ? ""
+    : JSON.stringify({
+        status: isErr ? "error" : "ok",
+        correlationId: randUUID(),
+      });
+  const failureOutput = JSON.stringify({
+    error: "States.TaskFailed",
+    cause: rand(["Lambda.Timeout", "States.Timeout"]),
+  });
+  const outputResolved =
+    histType === "ExecutionFailed" || histType === "LambdaFunctionFailed"
+      ? failureOutput
+      : !entered && histType !== "ExecutionStarted"
+        ? outputPayload
+        : undefined;
+  const executionHistoryEvent = {
+    id: eventId,
+    previousEventId: histType === "ExecutionStarted" ? undefined : prevEventId,
+    nextEventId: entered ? nextEventId : undefined,
+    timestamp: new Date(ts).toISOString(),
+    type: histType,
+    executionArn,
+    stateMachineArn,
+    name: state,
+    input: entered ? inputPayload : undefined,
+    output: outputResolved,
+  };
+  const plainMessage = JSON.stringify(executionHistoryEvent);
   const useStructuredLogging = Math.random() < 0.55;
   const message = useStructuredLogging
     ? JSON.stringify({
         executionArn,
-        stateMachine: machine,
+        stateMachineArn,
+        name: machine,
         workflowType,
         state,
         status: isErr ? "FAILED" : "SUCCEEDED",
         durationSeconds: dur,
+        executionHistoryEvent,
         timestamp: new Date(ts).toISOString(),
       })
     : plainMessage;
@@ -720,11 +874,11 @@ function generateStepFunctionsLog(ts: string, er: number): EcsDocument {
     },
     aws: {
       dimensions: {
-        StateMachineArn: `arn:aws:states:${region}:${acct.id}:stateMachine:${machine}`,
+        StateMachineArn: stateMachineArn,
       },
       stepfunctions: {
         state_machine_name: machine,
-        state_machine_arn: `arn:aws:states:${region}:${acct.id}:stateMachine:${machine}`,
+        state_machine_arn: stateMachineArn,
         execution_arn: executionArn,
         workflow_type: workflowType,
         execution_start_time: startTime,
@@ -733,6 +887,7 @@ function generateStepFunctionsLog(ts: string, er: number): EcsDocument {
         status: isErr ? "FAILED" : "SUCCEEDED",
         duration_seconds: dur,
         structured_logging: useStructuredLogging,
+        execution_history_event: executionHistoryEvent,
         metrics: isExpress
           ? {
               // Express workflows: high-volume, async, no history retention

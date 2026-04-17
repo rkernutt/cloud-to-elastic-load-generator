@@ -19,7 +19,7 @@ export const WIZARD_STEP_TITLE: Record<string, string> = {
   connection: "Start",
   setup: "Setup",
   services: "Service Selection",
-  security: "Security/Attack Patterns",
+  security: "Chained Events",
   config: "Configure",
   ship: "Ship",
 };

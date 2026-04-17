@@ -1,0 +1,203 @@
+{
+  "title": "GCP Data & Analytics Pipeline — overview",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "gdp-k1",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "Pipeline runs",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.composer* | WHERE gcp.composer.task_id == \"dag_complete\" | STATS `Total runs` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total runs" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gdp-k2",
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "Failure rate",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.composer* | WHERE gcp.composer.task_id == \"dag_complete\" | STATS total = COUNT(), failures = COUNT_IF(gcp.composer.state == \"failed\") | EVAL `Failure %` = ROUND(failures * 100.0 / total, 1)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failure %" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gdp-k3",
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "Avg pipeline duration (ms)",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.composer* | WHERE gcp.composer.task_id == \"dag_complete\" AND gcp.composer.duration_ms IS NOT NULL | STATS `Avg duration` = ROUND(AVG(gcp.composer.duration_ms), 0)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg duration" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gdp-k4",
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "Quality degraded runs",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.composer* | WHERE gcp.composer.task_id == \"dag_complete\" AND gcp.composer.quality_check == \"DEGRADED\" | STATS `Degraded` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Degraded" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gdp-ts1",
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Pipeline events over time by service",
+        "attributes": {
+          "type": "xy",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.* | WHERE labels.pipeline_run_id IS NOT NULL | EVAL svc = COALESCE(cloud.service.name, \"unknown\") | STATS count = COUNT() BY svc, bucket = DATE_TRUNC(30 minutes, @timestamp)"
+          },
+          "layers": [{ "seriesType": "bar_stacked", "xAccessor": "bucket", "yAccessor": "count", "splitAccessor": "svc" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gdp-d1",
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Outcome breakdown",
+        "attributes": {
+          "type": "pie",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.* | WHERE labels.pipeline_run_id IS NOT NULL | STATS count = COUNT() BY event.outcome"
+          },
+          "layers": [{ "primaryGroups": ["event.outcome"], "metrics": ["count"] }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gdp-ts2",
+      "grid": { "x": 0, "y": 15, "w": 24, "h": 10 },
+      "config": {
+        "title": "Dataproc Spark — records read vs written",
+        "attributes": {
+          "type": "xy",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.dataproc* | WHERE gcp.dataproc.spark.records_read IS NOT NULL | STATS read = SUM(gcp.dataproc.spark.records_read), written = SUM(gcp.dataproc.spark.records_written) BY bucket = DATE_TRUNC(30 minutes, @timestamp)"
+          },
+          "layers": [
+            { "seriesType": "line", "xAccessor": "bucket", "yAccessor": "read", "label": "Records read" },
+            { "seriesType": "line", "xAccessor": "bucket", "yAccessor": "written", "label": "Records written" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gdp-ts3",
+      "grid": { "x": 24, "y": 15, "w": 24, "h": 10 },
+      "config": {
+        "title": "BigQuery — bytes processed over time",
+        "attributes": {
+          "type": "xy",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.bigquery* | WHERE gcp.bigquery.bytes_processed IS NOT NULL | STATS bytes = SUM(gcp.bigquery.bytes_processed) BY bucket = DATE_TRUNC(30 minutes, @timestamp)"
+          },
+          "layers": [{ "seriesType": "area", "xAccessor": "bucket", "yAccessor": "bytes" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gdp-err1",
+      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
+      "config": {
+        "title": "Errors by type",
+        "attributes": {
+          "type": "xy",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.* | WHERE labels.pipeline_run_id IS NOT NULL AND event.outcome == \"failure\" | STATS count = COUNT() BY error.type, bucket = DATE_TRUNC(30 minutes, @timestamp)"
+          },
+          "layers": [{ "seriesType": "bar_stacked", "xAccessor": "bucket", "yAccessor": "count", "splitAccessor": "error.type" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gdp-d2",
+      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
+      "config": {
+        "title": "GCS bytes by operation",
+        "attributes": {
+          "type": "pie",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.gcs* | WHERE labels.pipeline_run_id IS NOT NULL | STATS bytes = SUM(gcp.cloud_storage.bytes_sent) BY gcp.cloud_storage.method_name"
+          },
+          "layers": [{ "primaryGroups": ["gcp.cloud_storage.method_name"], "metrics": ["bytes"] }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gdp-tbl1",
+      "grid": { "x": 0, "y": 35, "w": 48, "h": 10 },
+      "config": {
+        "title": "Recent pipeline runs",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.composer* | WHERE gcp.composer.task_id == \"dag_complete\" | KEEP @timestamp, gcp.composer.dag_id, gcp.composer.state, gcp.composer.duration_ms, gcp.composer.quality_check, gcp.composer.records_processed, cloud.region | SORT @timestamp DESC | LIMIT 20"
+          }
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gdp-ts4",
+      "grid": { "x": 0, "y": 45, "w": 48, "h": 10 },
+      "config": {
+        "title": "Data Catalog — entries updated over time",
+        "attributes": {
+          "type": "xy",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.data_catalog* | WHERE gcp.data_catalog.tables_updated IS NOT NULL | STATS updated = SUM(gcp.data_catalog.tables_updated) BY bucket = DATE_TRUNC(30 minutes, @timestamp)"
+          },
+          "layers": [{ "seriesType": "bar", "xAccessor": "bucket", "yAccessor": "updated" }]
+        }
+      }
+    }
+  ]
+}

@@ -51,13 +51,17 @@ export function generateLambdaMetrics(ts: string, er: number) {
       inv * (Math.random() < er ? jitter(0.08, 0.06, 0.01, 0.4) : jitter(0.005, 0.004, 0, 0.02))
     );
     const dur = jitter(300, 250, 10, 15000);
+    const throttles = Math.round(inv * (Math.random() < 0.1 ? jitter(0.02, 0.015, 0, 0.1) : 0));
+    const concurrentExec = randInt(0, 300);
+    const isColdStart = Math.random() < 0.05;
+    const hasEventSourceMapping = Math.random() > 0.5;
     return metricDoc(
       ts,
       "lambda",
       "aws.lambda",
       region,
       account,
-      { FunctionName: name, Resource: name },
+      { FunctionName: name, Resource: `${name}:$LATEST`, ExecutedVersion: "$LATEST" },
       {
         Invocations: counter(inv),
         Errors: counter(errs),
@@ -65,11 +69,31 @@ export function generateLambdaMetrics(ts: string, er: number) {
           max: dp(dur * jitter(3, 1.5, 1.5, 8)),
           min: dp(dur * jitter(0.3, 0.15, 0.05, 0.8)),
         }),
-        Throttles: counter(
-          Math.round(inv * (Math.random() < 0.1 ? jitter(0.02, 0.015, 0, 0.1) : 0))
-        ),
-        ConcurrentExecutions: counter(randInt(0, 300)),
+        Throttles: counter(throttles),
+        ConcurrentExecutions: stat(concurrentExec),
+        UnreservedConcurrentExecutions: stat(Math.max(0, concurrentExec - randInt(0, 50))),
         DeadLetterErrors: counter(Math.random() < 0.05 ? randInt(1, 10) : 0),
+        ProvisionedConcurrencyInvocations: counter(Math.random() < 0.3 ? randInt(0, inv) : 0),
+        ProvisionedConcurrencySpilloverInvocations: counter(
+          Math.random() < 0.1 ? randInt(0, 50) : 0
+        ),
+        ProvisionedConcurrencyUtilization: stat(
+          dp(Math.random() < 0.3 ? jitter(0.6, 0.3, 0, 1) : 0)
+        ),
+        ...(isColdStart ? { InitDuration: stat(dp(jitter(300, 200, 50, 2000))) } : {}),
+        PostRuntimeExtensionsDuration: stat(dp(jitter(5, 4, 0, 50))),
+        IteratorAge: stat(
+          dp(Math.random() < er ? jitter(60000, 50000, 0, 3600000) : jitter(100, 90, 0, 5000))
+        ),
+        AsyncEventsReceived: counter(randInt(0, inv)),
+        AsyncEventAge: stat(dp(jitter(500, 400, 0, 30000))),
+        AsyncEventsDropped: counter(Math.random() < er ? randInt(0, 10) : 0),
+        ...(hasEventSourceMapping
+          ? {
+              PolledEventCount: counter(randInt(0, 5000)),
+              FilteredOutEventCount: counter(randInt(0, 500)),
+            }
+          : {}),
       }
     );
   });
@@ -95,6 +119,9 @@ export function generateEc2Metrics(ts: string, er: number) {
   return sample(EC2_INSTANCE_TYPES, randInt(3, 10)).map((itype, idx) => {
     const instanceId = `i-${randId(17).toLowerCase()}`;
     const cpu = Math.random() < er ? jitter(80, 15, 60, 100) : jitter(30, 20, 1, 95);
+    const isTInstance = /^t[0-9]/i.test(itype);
+    const tUnlimited = isTInstance && Math.random() < 0.35;
+    const burstGp2 = Math.random() < 0.45;
     return metricDoc(
       ts,
       "ec2",
@@ -116,6 +143,38 @@ export function generateEc2Metrics(ts: string, er: number) {
         DiskWriteBytes: counter(randInt(0, 80_000_000)),
         DiskReadOps: counter(randInt(0, 5_000)),
         DiskWriteOps: counter(randInt(0, 8_000)),
+        EBSReadOps: counter(randInt(0, 15_000)),
+        EBSWriteOps: counter(randInt(0, 25_000)),
+        EBSReadBytes: counter(randInt(0, 120_000_000)),
+        EBSWriteBytes: counter(randInt(0, 200_000_000)),
+        ...(burstGp2
+          ? {
+              "EBSIOBalance%": stat(
+                dp(Math.random() < er ? jitter(15, 12, 0, 100) : jitter(88, 10, 25, 100))
+              ),
+              "EBSByteBalance%": stat(
+                dp(Math.random() < er ? jitter(20, 15, 0, 100) : jitter(85, 12, 30, 100))
+              ),
+            }
+          : {}),
+        ...(isTInstance
+          ? {
+              CPUCreditBalance: stat(
+                dp(Math.random() < er ? jitter(40, 35, 0, 576) : jitter(420, 120, 0, 576))
+              ),
+              CPUCreditUsage: stat(dp(jitter(2.5, 2, 0, 48))),
+              ...(tUnlimited
+                ? {
+                    CPUSurplusCreditBalance: stat(
+                      dp(Math.random() < er ? jitter(8, 6, 0, 144) : jitter(0.5, 0.4, 0, 24))
+                    ),
+                    CPUSurplusCreditsCharged: counter(
+                      Math.random() < er ? randInt(0, 120) : randInt(0, 8)
+                    ),
+                  }
+                : {}),
+            }
+          : {}),
         StatusCheckFailed: counter(Math.random() < er * 0.3 ? 1 : 0),
         StatusCheckFailed_Instance: counter(Math.random() < er * 0.2 ? 1 : 0),
         StatusCheckFailed_System: counter(Math.random() < er * 0.1 ? 1 : 0),
@@ -145,6 +204,7 @@ export function generateEcsMetrics(ts: string, er: number) {
   return sample(ECS_SERVICES, randInt(2, 5)).map((svc) => {
     const cpu = Math.random() < er ? jitter(85, 10, 70, 100) : jitter(35, 20, 1, 90);
     const mem = jitter(50, 25, 5, 95);
+    const serviceConnect = Math.random() < 0.3;
     return metricDoc(
       ts,
       "ecs",
@@ -160,6 +220,18 @@ export function generateEcsMetrics(ts: string, er: number) {
         DesiredTaskCount: counter(randInt(2, 20)),
         ActiveConnectionCount: counter(randInt(10, 5000)),
         NewConnectionCount: counter(randInt(1, 500)),
+        NetworkTxBytes: counter(randInt(50_000, 800_000_000)),
+        NetworkRxBytes: counter(randInt(80_000, 900_000_000)),
+        StorageReadBytes: counter(randInt(0, 400_000_000)),
+        StorageWriteBytes: counter(randInt(0, 250_000_000)),
+        DeploymentCount: counter(randInt(0, 8)),
+        TaskSetCount: counter(Math.random() < 0.2 ? randInt(2, 4) : 1),
+        ...(serviceConnect
+          ? {
+              ServiceConnectRequestCount: counter(randInt(500, 500_000)),
+              ServiceConnectConnectionCount: counter(randInt(20, 25_000)),
+            }
+          : {}),
       }
     );
   });
@@ -168,9 +240,26 @@ export function generateEcsMetrics(ts: string, er: number) {
 export function generateFargateMetrics(ts: string, er: number) {
   return generateEcsMetrics(ts, er).map((doc) => {
     const d = doc as Record<string, any>;
+    const ecs = d.aws.ecs as Record<string, any>;
+    const metrics = ecs.metrics as Record<string, unknown>;
+    const reservedMiB = randInt(512, 20_480);
+    const utilizedMiB = Math.round(
+      reservedMiB *
+        (Math.random() < er ? jitter(0.92, 0.06, 0.75, 1) : jitter(0.42, 0.2, 0.05, 0.95))
+    );
     return {
       ...d,
-      aws: { ...d.aws, ecs: { ...d.aws.ecs } },
+      aws: {
+        ...d.aws,
+        ecs: {
+          ...ecs,
+          metrics: {
+            ...metrics,
+            EphemeralStorageUtilized: stat(dp(utilizedMiB)),
+            EphemeralStorageReserved: stat(dp(reservedMiB)),
+          },
+        },
+      },
       data_stream: { type: "metrics", dataset: "aws.ecs_metrics", namespace: "default" },
       event: { dataset: "aws.ecs_metrics", module: "aws" },
     };
@@ -206,9 +295,26 @@ export function generateEksMetrics(ts: string, er: number) {
         cluster_failed_node_count: counter(Math.random() < er * 0.2 ? randInt(1, 3) : 0),
         node_cpu_utilization: stat(dp(cpu)),
         node_memory_utilization: stat(dp(mem)),
+        node_cpu_reserved_capacity: stat(dp(jitter(55, 18, 10, 95))),
+        node_memory_reserved_capacity: stat(dp(jitter(62, 18, 12, 96))),
+        node_filesystem_utilization: stat(
+          dp(Math.random() < er ? jitter(88, 8, 70, 99) : jitter(48, 22, 8, 92))
+        ),
+        node_number_of_running_pods: counter(randInt(8, 110)),
+        node_number_of_running_containers: counter(randInt(12, 180)),
         pod_count: counter(randInt(5, 80)),
         pod_cpu_reserved: stat(dp(jitter(20, 10, 0, 80))),
         pod_memory_reserved: stat(dp(jitter(30, 15, 0, 90))),
+        pod_cpu_utilization: stat(
+          dp(Math.random() < er ? jitter(78, 14, 55, 100) : jitter(38, 22, 1, 92))
+        ),
+        pod_memory_utilization: stat(
+          dp(Math.random() < er ? jitter(82, 12, 60, 100) : jitter(52, 24, 5, 94))
+        ),
+        pod_number_of_container_restarts: counter(
+          Math.random() < er ? randInt(1, 45) : randInt(0, 6)
+        ),
+        service_number_of_running_pods: counter(randInt(2, 40)),
       }
     );
   });
@@ -240,6 +346,15 @@ export function generateApprunnerMetrics(ts: string, er: number) {
           min: dp(jitter(5, 3, 1, 50)),
         }),
         ActiveInstances: counter(randInt(1, 10)),
+        ConcurrentConnections: stat(
+          dp(Math.random() < er ? jitter(4200, 800, 800, 12000) : jitter(380, 200, 5, 8000))
+        ),
+        CPUUtilization: stat(
+          dp(Math.random() < er ? jitter(82, 12, 65, 100) : jitter(36, 22, 4, 88))
+        ),
+        MemoryUtilization: stat(
+          dp(Math.random() < er ? jitter(79, 14, 58, 100) : jitter(48, 24, 8, 90))
+        ),
       }
     );
   });
@@ -252,6 +367,13 @@ const BATCH_QUEUES = ["high-priority", "standard", "low-priority", "spot-queue",
 export function generateBatchMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(BATCH_QUEUES, randInt(2, 4)).map((q) => {
+    const desiredV = randInt(0, 2048);
+    const actualV = Math.min(
+      desiredV,
+      Math.round(
+        desiredV * (Math.random() < er ? jitter(0.62, 0.18, 0.12, 1) : jitter(0.94, 0.06, 0.48, 1))
+      )
+    );
     return metricDoc(
       ts,
       "batch",
@@ -260,6 +382,7 @@ export function generateBatchMetrics(ts: string, er: number) {
       account,
       { JobQueueName: q },
       {
+        SubmittedJobCount: counter(randInt(0, 400)),
         PendingJobCount: counter(randInt(0, 200)),
         RunnableJobCount: counter(randInt(0, 100)),
         StartingJobCount: counter(randInt(0, 20)),
@@ -271,6 +394,8 @@ export function generateBatchMetrics(ts: string, er: number) {
               (Math.random() < er ? jitter(0.1, 0.08, 0, 0.5) : jitter(0.01, 0.008, 0, 0.05))
           )
         ),
+        DesiredvCPUs: counter(desiredV),
+        ActualvCPUs: counter(actualV),
       }
     );
   });
@@ -301,8 +426,18 @@ export function generateElasticbeanstalkMetrics(ts: string, er: number) {
         ApplicationLatencyP50: stat(dp(jitter(50, 30, 5, 5000))),
         ApplicationLatencyP99: stat(dp(jitter(500, 300, 50, 30000))),
         CPUUtilization: stat(dp(cpu)),
+        InstanceHealth: stat(
+          dp(Math.random() < er ? jitter(72, 14, 35, 100) : jitter(97, 2, 85, 100))
+        ),
+        RootFilesystemUtil: stat(
+          dp(Math.random() < er ? jitter(86, 8, 70, 98) : jitter(52, 18, 18, 88))
+        ),
         InstancesOk: counter(randInt(2, 10)),
         InstancesDegraded: counter(Math.random() < er * 0.3 ? randInt(1, 3) : 0),
+        InstancesSevere: counter(Math.random() < er * 0.25 ? randInt(1, 4) : 0),
+        InstancesWarning: counter(Math.random() < er * 0.35 ? randInt(1, 3) : randInt(0, 1)),
+        InstancesInfo: counter(randInt(0, 2)),
+        InstancesNoData: counter(Math.random() < er * 0.15 ? randInt(1, 2) : 0),
       }
     );
   });
@@ -322,6 +457,12 @@ const ECR_REPOS = [
 export function generateEcrMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(ECR_REPOS, randInt(2, 5)).map((repo) => {
+    const stress = Math.random() < er;
+    const crit = stress ? randInt(0, 7) : randInt(0, 2);
+    const high = stress ? randInt(0, 14) : randInt(0, 5);
+    const med = stress ? randInt(0, 32) : randInt(0, 14);
+    const low = stress ? randInt(0, 48) : randInt(0, 22);
+    const total = crit + high + med + low;
     return metricDoc(
       ts,
       "ecr",
@@ -334,7 +475,12 @@ export function generateEcrMetrics(ts: string, er: number) {
         ImagePullCount: counter(randInt(0, 5000)),
         StorageBytes: stat(dp(randInt(100_000_000, 50_000_000_000))),
         ScanCount: counter(randInt(0, 100)),
-        ScanFindingsTotal: counter(Math.random() < er ? randInt(1, 30) : 0),
+        ScanFindingsTotal: counter(total),
+        ScanFindingsCritical: counter(crit),
+        ScanFindingsHigh: counter(high),
+        ScanFindingsMedium: counter(med),
+        ScanFindingsLow: counter(low),
+        LifecyclePolicyPreviewImageCount: counter(randInt(0, 120)),
       }
     );
   });

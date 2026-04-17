@@ -11,6 +11,7 @@ import {
   generateGcpIamPrivEscChain,
   generateGcpDataExfilChain,
 } from "./securityChains.js";
+import { generateGcpDataPipelineChain } from "./dataPipelineChain.js";
 import {
   generateCloudFunctionsLog,
   generateCloudRunLog,
@@ -88,6 +89,7 @@ import {
   generateManagedAdLog,
   generateOsLoginLog,
   generateSecurityOperationsLog,
+  generateAccessTransparencyLog,
 } from "./security.js";
 import {
   generateCloudStorageLog,
@@ -107,9 +109,8 @@ import {
   generateDatabaseMigrationLog,
   generateBareMetalOracleLog,
 } from "./databases.js";
-import { generateBigQueryLog } from "./datawarehouse.js";
-import { generatePubSubLog, generateDataflowLog, generatePubSubLiteLog } from "./streaming.js";
 import {
+  generateBigQueryLog,
   generateDataprocLog,
   generateDataFusionLog,
   generateComposerLog,
@@ -119,7 +120,8 @@ import {
   generateAnalyticsHubLog,
   generateDataprepLog,
   generateDatastreamLog,
-} from "./analytics.js";
+} from "./datawarehouse.js";
+import { generatePubSubLog, generateDataflowLog, generatePubSubLiteLog } from "./streaming.js";
 import {
   generateVertexAiLog,
   generateGeminiLog,
@@ -160,7 +162,6 @@ import {
   generateDeploymentManagerLog,
   generateCloudAssetInventoryLog,
   generateOrgPolicyLog,
-  generateAccessTransparencyLog,
   generateRecommenderLog,
   generateBillingLog,
   generateServiceDirectoryLog,
@@ -378,6 +379,7 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
   "gcp-kspm": generateGcpKspmFindings,
   "gcp-iam-privesc-chain": generateGcpIamPrivEscChain,
   "gcp-data-exfil-chain": generateGcpDataExfilChain,
+  "gcp-data-pipeline-chain": generateGcpDataPipelineChain,
 };
 
 export { GCP_GENERATORS };

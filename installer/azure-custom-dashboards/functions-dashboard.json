@@ -95,7 +95,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.functions* | KEEP `@timestamp`, `azure.functions.function_name`, `azure.functions.trigger`, `azure.functions.duration_ms`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-azure.functions* | KEEP `@timestamp`, `azure.functions.function_name`, `azure.functions.trigger`, `azure.functions.duration_ms`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
@@ -120,8 +120,8 @@
             },
             {
               "operation": "value",
-              "column": "log.level",
-              "label": "Log level"
+              "column": "event.outcome",
+              "label": "Outcome"
             },
             {
               "operation": "value",

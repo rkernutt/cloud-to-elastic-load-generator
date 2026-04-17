@@ -1,43 +1,41 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
-  "processor": { "name": "transaction", "event": "span" },
-  "trace": { "id": "609cec5ad5d8623be2c859e9f6ae4740" },
-  "transaction": { "id": "8a4a8ae96b1061c2" },
-  "parent": { "id": "8a4a8ae96b1061c2" },
-  "span": {
-    "id": "f4b6379053aaff9a",
-    "type": "messaging",
-    "subtype": "azure-eventhub",
-    "name": "EventHub produce",
-    "duration": { "us": 19016 },
-    "action": "send",
-    "destination": {
-      "service": { "resource": "eventhubs", "type": "messaging", "name": "telemetry" }
-    }
+  "processor": { "name": "transaction", "event": "transaction" },
+  "trace": { "id": "beaae5ccef954f7bf78d3e982fafe79f" },
+  "transaction": {
+    "id": "f22d1d1573fc62b7",
+    "name": "EventHubTrigger — ingest-fn",
+    "type": "request",
+    "duration": { "us": 2638414 },
+    "result": "success",
+    "sampled": true,
+    "span_count": { "started": 3, "dropped": 0 }
   },
   "service": {
     "name": "ingest-fn",
+    "environment": "production",
+    "version": "1.0.0",
     "language": { "name": "nodejs" },
-    "framework": { "name": "Azure Functions" }
+    "framework": { "name": "Azure Functions" },
+    "runtime": { "name": "nodejs", "version": "20" }
   },
   "cloud": {
     "provider": "azure",
-    "region": "uksouth",
-    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" },
+    "region": "westus3",
+    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" },
     "service": { "name": "Microsoft.Web/sites" }
   },
-  "agent": { "name": "opentelemetry/nodejs", "version": "1.x" },
+  "event": { "outcome": "success", "module": "azure", "dataset": "azure.functions" },
+  "customDimensions": {
+    "azure_region": "westus3",
+    "azure_resource_group": "rg-app-8kby96",
+    "azure_subscription_id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98",
+    "trigger": "eventHub"
+  },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
-  "event": { "outcome": "success", "module": "azure", "dataset": "azure.trace" },
-  "azure": { "trace": { "function_name": "func-7" } },
   "ecs": { "version": "8.11.0" },
   "input": { "type": "opentelemetry" },
-  "applicationInsights": {
-    "operation_Id": "609cec5ad5d8623be2c859e9f6ae4740",
-    "operation_ParentId": "8a4a8ae96b1061c2",
-    "id": "f4b6379053aaff9a",
-    "name": "EventHub produce"
-  },
+  "agent": { "name": "opentelemetry/nodejs", "version": "1.x" },
   "telemetry": {
     "sdk": { "name": "opentelemetry", "language": "nodejs", "version": "1.30.1" },
     "distro": { "name": "elastic", "version": "8.18.0" },
@@ -46,5 +44,11 @@
       "export_protocol": "otlp",
       "destination": "elastic_managed"
     }
+  },
+  "applicationInsights": {
+    "operation_Id": "beaae5ccef954f7bf78d3e982fafe79f",
+    "operation_ParentId": "",
+    "id": "f22d1d1573fc62b7",
+    "name": "EventHubTrigger — ingest-fn"
   }
 }

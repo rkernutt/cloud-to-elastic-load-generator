@@ -1,13 +1,7 @@
-/**
- * Multi-service trace: API Gateway → Cloud Run → Cloud SQL, with DLQ and Error Reporting on failure paths.
- */
-
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-
-const APM_AGENT = { name: "opentelemetry/nodejs", version: "1.x" } as const;
-const APM_DS = { type: "traces", dataset: "apm", namespace: "default" } as const;
+import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
 
 export function generateCascadingFailureTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -15,6 +9,17 @@ export function generateCascadingFailureTrace(ts: string, er: number): EcsDocume
   const txId = randSpanId();
   const base = new Date(ts);
   const env = rand(["production", "staging"]);
+  const otel = gcpOtelMeta("go");
+  const apiGw = gcpServiceBase("api-gateway", env, "go", {
+    framework: "API Gateway",
+    runtimeName: "go",
+    runtimeVersion: "1.22",
+  });
+  const orders = gcpServiceBase("orders-api", env, "go", {
+    framework: "Cloud Run",
+    runtimeName: "go",
+    runtimeVersion: "1.22",
+  });
 
   const runUs = isErr ? randInt(120_000, 900_000) : randInt(8000, 120_000);
   const sqlUs = isErr ? randInt(8_000_000, 35_000_000) : randInt(4000, 180_000);
@@ -43,17 +48,12 @@ export function generateCascadingFailureTrace(ts: string, er: number): EcsDocume
       action: "invoke",
       destination: { service: { resource: "run", type: "request", name: "run" } },
     },
-    service: {
-      name: "orders-api",
-      environment: env,
-      language: { name: "go" },
-      runtime: { name: "go", version: "1.22" },
-      framework: { name: "Cloud Run" },
-    },
+    service: orders,
     cloud: gcpCloud(region, project, "run.googleapis.com"),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sRun),
   };
   offsetMs += Math.max(1, Math.round(runUs / 1000));
 
@@ -75,18 +75,16 @@ export function generateCascadingFailureTrace(ts: string, er: number): EcsDocume
         statement: "SELECT * FROM order_lines WHERE order_id = $1 FOR UPDATE",
       },
       destination: { service: { resource: "cloudsql", type: "db", name: "cloudsql" } },
+      labels: isErr
+        ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED", "gcp.sql.timeout_ms": "30000" }
+        : {},
     },
-    service: {
-      name: "orders-api",
-      environment: env,
-      language: { name: "go" },
-      runtime: { name: "go", version: "1.22" },
-      framework: { name: "Cloud Run" },
-    },
+    service: orders,
     cloud: gcpCloud(region, project, "sqladmin.googleapis.com"),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: isErr ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sSql),
   };
   offsetMs += Math.max(1, Math.round(sqlUs / 1000));
 
@@ -106,20 +104,15 @@ export function generateCascadingFailureTrace(ts: string, er: number): EcsDocume
       subtype: "pubsub",
       name: pubName,
       duration: { us: pubUs },
-      action: isErr ? "send" : "send",
+      action: "send",
       destination: { service: { resource: "pubsub", type: "messaging", name: "pubsub" } },
     },
-    service: {
-      name: "orders-api",
-      environment: env,
-      language: { name: "go" },
-      runtime: { name: "go", version: "1.22" },
-      framework: { name: "Cloud Run" },
-    },
+    service: orders,
     cloud: gcpCloud(region, project, "pubsub.googleapis.com"),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sPub),
   };
   offsetMs += Math.max(1, Math.round(pubUs / 1000));
 
@@ -142,17 +135,12 @@ export function generateCascadingFailureTrace(ts: string, er: number): EcsDocume
         service: { resource: "clouderrorreporting", type: "external", name: "clouderrorreporting" },
       },
     },
-    service: {
-      name: "orders-api",
-      environment: env,
-      language: { name: "go" },
-      runtime: { name: "go", version: "1.22" },
-      framework: { name: "Cloud Run" },
-    },
+    service: orders,
     cloud: gcpCloud(region, project, "clouderrorreporting.googleapis.com"),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sErr),
   };
 
   const totalUs = runUs + sqlUs + pubUs + errUs + randInt(1000, 8000) * 1000;
@@ -170,17 +158,13 @@ export function generateCascadingFailureTrace(ts: string, er: number): EcsDocume
       sampled: true,
       span_count: { started: 4, dropped: 0 },
     },
-    service: {
-      name: "api-gateway",
-      environment: env,
-      language: { name: "go" },
-      runtime: { name: "go", version: "1.22" },
-      framework: { name: "API Gateway" },
-    },
+    service: apiGw,
     cloud: gcpCloud(region, project, "apigateway.googleapis.com"),
-    agent: APM_AGENT,
+    labels: { "gcp.workflow": "cascading_failure" },
     data_stream: APM_DS,
     event: { outcome: isErr ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, txId),
   };
 
   return [txDoc, spanRun, spanSql, spanPub, spanErrReport];

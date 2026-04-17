@@ -215,7 +215,7 @@ const SERVICE_GROUPS: ServiceGroup[] = [
   },
   {
     id: "findings",
-    label: "Security Findings & Attack Patterns",
+    label: "Chained Events",
     color: "#DC2626",
     icon: "⚡",
     services: [
@@ -248,6 +248,12 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         label: "Data Exfil Chain",
         icon: "◂",
         desc: "Attack chain: GuardDuty S3 detection → CloudTrail GetObject burst → VPC Flow high egress",
+      },
+      {
+        id: "data-pipeline-chain",
+        label: "Data Pipeline",
+        icon: "⛁",
+        desc: "Data & Analytics pipeline: MWAA → S3 → EMR/Spark → Glue → Athena with failure cascades + APM traces",
       },
     ],
   },

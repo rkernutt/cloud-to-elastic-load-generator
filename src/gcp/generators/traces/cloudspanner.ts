@@ -1,13 +1,7 @@
-/**
- * Cloud Spanner OTel trace: distributed read-write transaction with split/participant spans.
- */
-
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-
-const APM_AGENT = { name: "opentelemetry/nodejs", version: "1.x" } as const;
-const APM_DS = { type: "traces", dataset: "apm", namespace: "default" } as const;
+import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
 
 const INSTANCES = ["prod-banking", "globex-ledger", "inventory-global"];
 
@@ -19,13 +13,19 @@ export function generateCloudSpannerTrace(ts: string, er: number): EcsDocument[]
   const env = rand(["production", "staging"]);
   const instance = rand(INSTANCES);
   const db = rand(["core", "payments", "inventory"]);
+  const otel = gcpOtelMeta("java");
+  const svc = gcpServiceBase(`spanner-${instance}`, env, "java", {
+    framework: "Spanner JDBC",
+    runtimeName: "java",
+    runtimeVersion: "21",
+  });
 
   const beginUs = randInt(800, 25_000);
   const splitCount = randInt(2, 4);
   const splitUs = Array.from({ length: splitCount }, () => randInt(5000, 220_000));
   const commitUs = randInt(2000, 95_000);
 
-  const failIdx = isErr ? randInt(-1, splitCount) : -1; // -1=begin, 0..n-1=splits, splitCount=commit
+  const failIdx = isErr ? randInt(-1, splitCount) : -1;
 
   let offsetMs = 0;
   const sBegin = randSpanId();
@@ -45,12 +45,14 @@ export function generateCloudSpannerTrace(ts: string, er: number): EcsDocument[]
       action: "begin",
       db: { type: "sql", statement: `BEGIN RW TRANSACTION /* ${instance}/${db} */` },
       destination: { service: { resource: "spanner", type: "db", name: "spanner" } },
+      labels: failIdx === -1 ? { "gcp.rpc.status_code": "ABORTED" } : {},
     },
-    service: { name: `spanner-${instance}`, environment: env, language: { name: "java" } },
+    service: svc,
     cloud: gcpCloud(region, project, "spanner.googleapis.com"),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: failIdx === -1 ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sBegin),
   };
   offsetMs += Math.max(1, Math.round(beginUs / 1000));
 
@@ -58,7 +60,7 @@ export function generateCloudSpannerTrace(ts: string, er: number): EcsDocument[]
   let parentId = sBegin;
   for (let i = 0; i < splitCount; i++) {
     const sid = randSpanId();
-    const us = splitUs[i];
+    const us = splitUs[i]!;
     const regions = ["us-central1", "europe-west1", "asia-east1"];
     const splitRegion = rand(regions);
     const spanErr = failIdx === i;
@@ -84,15 +86,17 @@ export function generateCloudSpannerTrace(ts: string, er: number): EcsDocument[]
           ]),
         },
         destination: { service: { resource: "spanner", type: "db", name: "spanner" } },
+        labels: spanErr ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
       },
-      service: { name: `spanner-${instance}`, environment: env, language: { name: "java" } },
+      service: svc,
       cloud: {
         ...gcpCloud(splitRegion, project, "spanner.googleapis.com"),
         availability_zone: `${splitRegion}-a`,
       },
-      agent: APM_AGENT,
       data_stream: APM_DS,
       event: { outcome: spanErr ? "failure" : "success" },
+      ...otel,
+      ...gcpCloudTraceMeta(project.id, traceId, sid),
     });
     offsetMs += Math.max(1, Math.round(us / 1000));
     parentId = sid;
@@ -115,12 +119,14 @@ export function generateCloudSpannerTrace(ts: string, er: number): EcsDocument[]
       action: "commit",
       db: { type: "sql", statement: "COMMIT TRANSACTION" },
       destination: { service: { resource: "spanner", type: "db", name: "spanner" } },
+      labels: commitErr ? { "gcp.rpc.status_code": "ABORTED" } : {},
     },
-    service: { name: `spanner-${instance}`, environment: env, language: { name: "java" } },
+    service: svc,
     cloud: gcpCloud(region, project, "spanner.googleapis.com"),
-    agent: APM_AGENT,
     data_stream: APM_DS,
     event: { outcome: commitErr ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, sCommit),
   };
 
   const totalUs =
@@ -140,11 +146,13 @@ export function generateCloudSpannerTrace(ts: string, er: number): EcsDocument[]
       sampled: true,
       span_count: { started: 2 + splitCount, dropped: 0 },
     },
-    service: { name: `spanner-${instance}`, environment: env, language: { name: "java" } },
+    service: svc,
     cloud: gcpCloud(region, project, "spanner.googleapis.com"),
-    agent: APM_AGENT,
+    labels: { "gcp.spanner.instance": instance, "gcp.spanner.database": db },
     data_stream: APM_DS,
     event: { outcome: txErr ? "failure" : "success" },
+    ...otel,
+    ...gcpCloudTraceMeta(project.id, traceId, txId),
   };
 
   return [txDoc, spanBegin, ...splitSpans, spanCommit];

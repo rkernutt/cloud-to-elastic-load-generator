@@ -1,82 +1,47 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
     "region": "il-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
-    "service": { "name": "rds" }
+    "account": { "id": "738291046572", "name": "globex-development" },
+    "service": { "name": "rds-proxy" }
   },
   "aws": {
-    "dimensions": {
-      "DBInstanceIdentifier": "prod-db-primary",
-      "DatabaseClass": "db.r6g.xlarge",
-      "EngineName": "postgres",
-      "SourceRegion": "il-central-1"
-    },
-    "rds": {
-      "db_instance": {
-        "identifier": "prod-db-primary",
-        "class": "db.t3.medium",
-        "engine_name": "postgres",
-        "arn": "arn:aws:rds:il-central-1:501938274650:db:prod-db-primary",
-        "status": "available",
-        "role": "read-replica"
-      },
-      "cpu": { "total": { "pct": 0.2985 } },
-      "freeable_memory": { "bytes": 7049812347 },
-      "free_storage": { "bytes": 270311065557 },
-      "database_connections": 71,
-      "read_io": { "ops_per_sec": 2044.770241313799 },
-      "write_io": { "ops_per_sec": 550.7124579234708 },
-      "latency": { "read": 0.013210447868591914, "write": 0.0029244921966365698 },
-      "throughput": {
-        "read": 4840748,
-        "write": 99674986,
-        "network_receive": 97360744,
-        "network_transmit": 10298173
-      },
-      "replica_lag": { "sec": 21.882711136869315 },
-      "swap_usage": { "bytes": 22128643 },
-      "disk_usage": { "bin_log": { "bytes": 325005332 } }
+    "rdsproxy": {
+      "proxy_name": "writer-proxy",
+      "target_group": "writer",
+      "db_user": "admin",
+      "connection_id": 24134,
+      "action": "Query",
+      "active_connections": 47,
+      "max_connections": 200,
+      "borrow_timeout_ms": 409,
+      "client_connections": 260
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-rds-logs-501938274650"
+        "name": "aws-rds-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-rds-logs-738291046572"
       },
-      "object": { "key": "AWSLogs/501938274650/rds/il-central-1/2026/04/15/rds_EMFQH7FOOC6.log.gz" }
+      "object": { "key": "AWSLogs/738291046572/rds/il-central-1/2026/04/17/rds_BQ6H5PYA1PJ.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/rds/logs",
-      "log_stream": "il-central-1/nzzxdanu",
-      "ingestion_time": "2026-04-15T13:24:36.219Z"
+      "log_stream": "il-central-1/t2btwt25",
+      "ingestion_time": "2026-04-17T09:05:18.838Z"
     }
   },
-  "db": {
-    "user": { "name": "admin" },
-    "name": "analytics",
-    "statement": "UPDATE products SET price 9B45E5",
-    "type": "sql"
-  },
-  "event": {
-    "duration": 773436516.6120337,
-    "outcome": "success",
-    "category": ["database"],
-    "type": ["info", "access"],
-    "dataset": "aws.rds",
-    "provider": "rds.amazonaws.com",
-    "module": "aws"
-  },
-  "message": "LOG: duration: 773.437 ms statement: SELECT * FROM orders WHERE id = 322502",
-  "log": { "level": "info" },
+  "event": { "outcome": "success", "duration": 3269439, "module": "aws", "dataset": "aws.rds" },
+  "message": "RDS Proxy writer-proxy: Query on writer (conn 24134)",
   "service": { "name": "rds", "type": "aws" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "zjbg8xphbea"
+    "ephemeral_id": "svt79gkiln"
   },
   "input": { "type": "aws-cloudwatch" }
 }

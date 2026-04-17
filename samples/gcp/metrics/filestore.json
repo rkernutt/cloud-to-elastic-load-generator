@@ -3,47 +3,51 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "southamerica-east1",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "us-east4",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-southamerica-east1",
-    "ephemeral_id": "7kmz1ybag7b"
+    "name": "metricbeat-gcp-us-east4",
+    "ephemeral_id": "rxud2a8pb8m"
+  },
+  "monitoringTimeSeries": {
+    "metric": {
+      "type": "storage.googleapis.com/api/request_count",
+      "labels": { "method": "GET", "response_code": "200" }
+    },
+    "resource": {
+      "type": "gcs_bucket",
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "bucket_name": "data-lake",
+        "location": "us-east4"
+      }
+    },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "140702" } }
+    ]
   },
   "gcp": {
     "filestore": {
-      "metrics": {
-        "storage_bytes": { "avg": 34352282765, "sum": 34352282765, "count": 1 },
-        "object_count": { "avg": 5821978, "sum": 5821978, "count": 1 },
-        "api_request_count": { "avg": 177391, "sum": 177391, "count": 1 },
-        "errors": { "avg": 0, "sum": 0, "count": 1 }
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "bucket_name": "data-lake",
+        "location": "us-east4",
+        "method": "GET",
+        "response_code": "200"
       },
-      "labels": { "bucket_name": "data-lake" }
+      "metrics": {
+        "storage.googleapis.com/api/request_count": { "avg": 140702, "sum": 140702, "count": 1 }
+      }
     }
   },
   "metricset": { "name": "filestore", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.filestore_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.filestore_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/filestore/storage_bytes",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-security-j0k1l2", "region": "southamerica-east1" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      {
-        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "doubleValue": 34352282765 }
-      }
-    ]
-  }
+  "event": { "dataset": "gcp.filestore_metrics", "module": "gcp" }
 }

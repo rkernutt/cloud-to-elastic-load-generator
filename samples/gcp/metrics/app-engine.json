@@ -3,45 +3,56 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "northamerica-northeast2",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" }
+    "region": "us-central1",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-northamerica-northeast2",
-    "ephemeral_id": "szhgy21bf1f"
+    "name": "metricbeat-gcp-us-central1",
+    "ephemeral_id": "wa15m54myc"
+  },
+  "monitoringTimeSeries": {
+    "metric": {
+      "type": "appengine.googleapis.com/http/server/response_count",
+      "labels": { "response_code": "2xx" }
+    },
+    "resource": {
+      "type": "gae_app",
+      "labels": {
+        "project_id": "globex-staging-d4e5f6",
+        "module_id": "default",
+        "version_id": "v2-canary",
+        "zone": "us-central1-b"
+      }
+    },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "24133" } }
+    ]
   },
   "gcp": {
     "app-engine": {
-      "metrics": {
-        "requests": { "avg": 3897, "sum": 3897, "count": 1 },
-        "http_response_count": { "avg": 3375, "sum": 3375, "count": 1 },
-        "latencies_ms": { "avg": 170.86, "sum": 170.86, "count": 1 },
-        "memory_usage": { "avg": 434653375.06, "sum": 434653375.06, "count": 1 },
-        "instances": { "avg": 3, "sum": 3, "count": 1 }
+      "labels": {
+        "project_id": "globex-staging-d4e5f6",
+        "module_id": "default",
+        "version_id": "v2-canary",
+        "zone": "us-central1-b",
+        "response_code": "2xx"
       },
-      "labels": { "version_id": "v2-canary" }
+      "metrics": {
+        "appengine.googleapis.com/http/server/response_count": {
+          "avg": 24133,
+          "sum": 24133,
+          "count": 1
+        }
+      }
     }
   },
   "metricset": { "name": "app-engine", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.appengine_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.appengine_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/app-engine/requests",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-dev-g7h8i9", "region": "northamerica-northeast2" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 3897 } }
-    ]
-  }
+  "event": { "dataset": "gcp.appengine_metrics", "module": "gcp" }
 }

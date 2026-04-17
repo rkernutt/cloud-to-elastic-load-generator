@@ -1,32 +1,35 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-south-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "cloudwatchalarms" }
   },
   "aws": {
     "cloudwatch": {
-      "alarm_name": "api-latency",
+      "log_group": "/aws/cloudwatch/logs",
+      "log_stream": "ap-south-1/chrpwgiz",
+      "ingestion_time": "2026-04-17T09:05:19.060Z",
+      "alarm_name": "rds-connections",
       "alarm_state": "OK",
-      "previous_state": "OK",
+      "previous_state": "INSUFFICIENT_DATA",
       "namespace": "AWS/ApplicationELB",
-      "metric_name": "CPUUtilization",
-      "threshold": 95,
+      "metric_name": "RequestCount",
+      "threshold": 85,
       "evaluation_periods": 1,
-      "metric_value": 58.3639580164543,
-      "statistic": "p99",
+      "metric_value": 16.30284302432445,
+      "statistic": "Average",
       "period_seconds": 60,
-      "treat_missing_data": "missing"
+      "treat_missing_data": "breaching"
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudwatch-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-cloudwatch-logs-814726593401"
+        "name": "aws-cloudwatch-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-cloudwatch-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/814726593401/cloudwatch/eu-west-2/2026/04/15/cloudwatch_O8PMFI025EF.log.gz"
+        "key": "AWSLogs/738291046572/cloudwatch/ap-south-1/2026/04/17/cloudwatch_NZ3XZ723B0A.log.gz"
       }
     }
   },
@@ -36,10 +39,10 @@
     "category": ["configuration", "process"],
     "dataset": "aws.cloudwatch",
     "provider": "monitoring.amazonaws.com",
-    "duration": 300000000000,
+    "duration": 3600000000000,
     "module": "aws"
   },
-  "message": "CloudWatch alarm \"api-latency\": OK (AWS/ApplicationELB/CPUUtilization=58.4)",
+  "message": "CloudWatch alarm \"rds-connections\": OK (AWS/ApplicationELB/RequestCount=16.3)",
   "log": { "level": "info" },
   "service": { "name": "cloudwatch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -47,8 +50,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "58zjijdbr7j"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "qrex0mp9rs9"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,54 +1,60 @@
 {
-  "@timestamp": "2026-04-15T13:24:35.775Z",
+  "@timestamp": "2026-04-17T09:05:18.304Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-west-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "ipam" }
   },
   "aws": {
-    "dimensions": { "PoolId": "ipam-pool-vd16i48a", "ScopeId": "ipam-scope-49a9xpio" },
+    "dimensions": { "PoolId": "ipam-pool-1xunz5ni", "ScopeId": "ipam-scope-h280b7dw" },
     "vpcipam": {
-      "pool_id": "ipam-pool-vd16i48a",
-      "scope_id": "ipam-scope-49a9xpio",
-      "allocation_id": "ipam-alloc-wgn9oa4j",
-      "cidr": "10.0.0.0/16",
-      "allocation_type": "subnet",
-      "metrics": { "allocations_count": 126, "free_count": 248, "used_count": 126 }
+      "pool_id": "ipam-pool-1xunz5ni",
+      "scope_id": "ipam-scope-h280b7dw",
+      "allocation_id": "ipam-alloc-o7nzb3q4",
+      "cidr": "10.1.0.0/16",
+      "allocation_type": "resource",
+      "metrics": { "allocations_count": 182, "free_count": 5, "used_count": 449 },
+      "error_code": "CidrOverlapConflict"
     },
     "s3": {
       "bucket": {
-        "name": "aws-vpcipam-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-vpcipam-logs-738291046572"
+        "name": "aws-vpcipam-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-vpcipam-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/vpcipam/eu-south-1/2026/04/15/vpcipam_QLWTZFK4BVC.log.gz"
+        "key": "AWSLogs/293847561023/vpcipam/eu-west-2/2026/04/17/vpcipam_BLR2QZU4BU.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/vpcipam/logs",
-      "log_stream": "eu-south-1/m6tjwly4",
-      "ingestion_time": "2026-04-15T13:24:36.264Z"
+      "log_stream": "eu-west-2/sohrvn6m",
+      "ingestion_time": "2026-04-17T09:05:18.897Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["network"],
     "dataset": "aws.vpcipam",
     "provider": "ec2.amazonaws.com",
-    "duration": 54000000,
+    "duration": 3000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.vpcipam", "namespace": "default" },
-  "message": "VPC IPAM pool ipam-pool-vd16i48a: allocated 10.0.0.0/16 (subnet), free=248",
-  "log": { "level": "info" },
+  "message": "VPC IPAM pool ipam-pool-1xunz5ni: CidrOverlapConflict for CIDR 10.1.0.0/16",
+  "log": { "level": "error" },
+  "error": {
+    "code": "CidrOverlapConflict",
+    "message": "VPC IPAM allocation failed for CIDR 10.1.0.0/16",
+    "type": "network"
+  },
   "service": { "name": "vpcipam", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "3ucruzgxqck"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "v7jqckik5c"
   },
   "input": { "type": "aws-cloudwatch" }
 }

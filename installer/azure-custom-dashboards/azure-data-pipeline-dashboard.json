@@ -1,0 +1,203 @@
+{
+  "title": "Azure Data & Analytics Pipeline — overview",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "adp-k1",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "Pipeline runs",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.data_factory* | WHERE azure.data_factory.activity_name == \"pipeline_complete\" | STATS `Total runs` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total runs" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "adp-k2",
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "Failure rate",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.data_factory* | WHERE azure.data_factory.activity_name == \"pipeline_complete\" | STATS total = COUNT(), failures = COUNT_IF(azure.data_factory.status == \"Failed\") | EVAL `Failure %` = ROUND(failures * 100.0 / total, 1)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failure %" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "adp-k3",
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "Avg pipeline duration (ms)",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.data_factory* | WHERE azure.data_factory.activity_name == \"pipeline_complete\" AND azure.data_factory.duration_ms IS NOT NULL | STATS `Avg duration` = ROUND(AVG(azure.data_factory.duration_ms), 0)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg duration" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "adp-k4",
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "Quality degraded runs",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.data_factory* | WHERE azure.data_factory.activity_name == \"pipeline_complete\" AND azure.data_factory.quality_check == \"DEGRADED\" | STATS `Degraded` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Degraded" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "adp-ts1",
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Pipeline events over time by service",
+        "attributes": {
+          "type": "xy",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.* | WHERE labels.pipeline_run_id IS NOT NULL | EVAL svc = COALESCE(cloud.service.name, \"unknown\") | STATS count = COUNT() BY svc, bucket = DATE_TRUNC(30 minutes, @timestamp)"
+          },
+          "layers": [{ "seriesType": "bar_stacked", "xAccessor": "bucket", "yAccessor": "count", "splitAccessor": "svc" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "adp-d1",
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Outcome breakdown",
+        "attributes": {
+          "type": "pie",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.* | WHERE labels.pipeline_run_id IS NOT NULL | STATS count = COUNT() BY event.outcome"
+          },
+          "layers": [{ "primaryGroups": ["event.outcome"], "metrics": ["count"] }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "adp-ts2",
+      "grid": { "x": 0, "y": 15, "w": 24, "h": 10 },
+      "config": {
+        "title": "Databricks Spark — records read vs written",
+        "attributes": {
+          "type": "xy",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.databricks* | WHERE azure.databricks.spark.records_read IS NOT NULL | STATS read = SUM(azure.databricks.spark.records_read), written = SUM(azure.databricks.spark.records_written) BY bucket = DATE_TRUNC(30 minutes, @timestamp)"
+          },
+          "layers": [
+            { "seriesType": "line", "xAccessor": "bucket", "yAccessor": "read", "label": "Records read" },
+            { "seriesType": "line", "xAccessor": "bucket", "yAccessor": "written", "label": "Records written" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "adp-ts3",
+      "grid": { "x": 24, "y": 15, "w": 24, "h": 10 },
+      "config": {
+        "title": "Synapse — data processed over time",
+        "attributes": {
+          "type": "xy",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.synapse* | WHERE azure.synapse.data_processed_bytes IS NOT NULL | STATS bytes = SUM(azure.synapse.data_processed_bytes) BY bucket = DATE_TRUNC(30 minutes, @timestamp)"
+          },
+          "layers": [{ "seriesType": "area", "xAccessor": "bucket", "yAccessor": "bytes" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "adp-err1",
+      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
+      "config": {
+        "title": "Errors by type",
+        "attributes": {
+          "type": "xy",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.* | WHERE labels.pipeline_run_id IS NOT NULL AND event.outcome == \"failure\" | STATS count = COUNT() BY error.type, bucket = DATE_TRUNC(30 minutes, @timestamp)"
+          },
+          "layers": [{ "seriesType": "bar_stacked", "xAccessor": "bucket", "yAccessor": "count", "splitAccessor": "error.type" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "adp-d2",
+      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
+      "config": {
+        "title": "Blob Storage bytes by operation",
+        "attributes": {
+          "type": "pie",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.blob_storage* | WHERE labels.pipeline_run_id IS NOT NULL | STATS bytes = SUM(azure.blob_storage.content_length) BY azure.blob_storage.operation_name"
+          },
+          "layers": [{ "primaryGroups": ["azure.blob_storage.operation_name"], "metrics": ["bytes"] }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "adp-tbl1",
+      "grid": { "x": 0, "y": 35, "w": 48, "h": 10 },
+      "config": {
+        "title": "Recent pipeline runs",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.data_factory* | WHERE azure.data_factory.activity_name == \"pipeline_complete\" | KEEP @timestamp, azure.data_factory.pipeline_name, azure.data_factory.status, azure.data_factory.duration_ms, azure.data_factory.quality_check, azure.data_factory.records_processed, cloud.region | SORT @timestamp DESC | LIMIT 20"
+          }
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "adp-ts4",
+      "grid": { "x": 0, "y": 45, "w": 48, "h": 10 },
+      "config": {
+        "title": "Purview — assets discovered over time",
+        "attributes": {
+          "type": "xy",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.purview* | WHERE azure.purview.assets_discovered IS NOT NULL | STATS discovered = SUM(azure.purview.assets_discovered) BY bucket = DATE_TRUNC(30 minutes, @timestamp)"
+          },
+          "layers": [{ "seriesType": "bar", "xAccessor": "bucket", "yAccessor": "discovered" }]
+        }
+      }
+    }
+  ]
+}

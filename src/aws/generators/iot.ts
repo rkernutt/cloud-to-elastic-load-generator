@@ -1,4 +1,13 @@
-import { rand, randInt, randFloat, randId, randIp, randAccount, REGIONS } from "../../helpers";
+import {
+  rand,
+  randInt,
+  randFloat,
+  randId,
+  randIp,
+  randUUID,
+  randAccount,
+  REGIONS,
+} from "../../helpers";
 import type { EcsDocument } from "./types.js";
 
 function generateIotCoreLog(ts: string, er: number): EcsDocument {
@@ -12,27 +21,43 @@ function generateIotCoreLog(ts: string, er: number): EcsDocument {
     "camera-entrance",
     "robot-arm-7",
   ]);
-  const action = rand(["CONNECT", "DISCONNECT", "PUBLISH", "SUBSCRIBE", "RECEIVE", "REJECT"]);
+  const eventType = rand(["Connect", "Subscribe", "Publish", "Disconnect", "RuleMatch"]);
   const topic = rand([
     "dt/factory/sensors/temperature",
     "dt/home/thermostat/status",
     "cmd/device/update",
     "telemetry/metrics",
+    "$aws/things/+/shadow/update",
   ]);
+  const protocolRaw = rand(["MQTT", "HTTPS", "WSS"]);
+  const protocol = protocolRaw === "WSS" ? "WebSocket" : protocolRaw === "MQTT" ? "MQTT" : "HTTPS";
+  const logLevel = isErr ? "ERROR" : rand(["INFO", "INFO", "DEBUG"]);
+  const traceId = randUUID().replace(/-/g, "").slice(0, 32);
+  const principalId = rand([
+    `AROAI${randId(20).toUpperCase()}:session-name`,
+    `AIDAI${randId(16).toUpperCase()}`,
+    `${acct.id}:thing/${device}`,
+  ]);
+  const status = isErr ? "Failure" : "Success";
+  const topicName = eventType === "Connect" || eventType === "Disconnect" ? "" : topic;
+  const logPayload = {
+    logLevel,
+    traceId,
+    accountId: acct.id,
+    status,
+    eventType,
+    protocol,
+    clientId: device,
+    topicName,
+    principalId,
+    clientIp: randIp(),
+    reason: isErr ? rand(["AUTHORIZATION_FAILURE", "THROTTLE", "CERTIFICATE_REVOKED"]) : undefined,
+  };
   const plainMessage = isErr
-    ? `IoT Core ${action} FAILED for ${device}: ${rand(["Unauthorized", "Certificate revoked", "Rate limited"])}`
-    : `IoT Core ${action}: ${device} on ${topic}`;
+    ? `IoT Core ${eventType} FAILED for ${device}: ${rand(["Unauthorized", "Certificate revoked", "Rate limited"])}`
+    : `IoT Core ${eventType}: ${device} on ${topic}`;
   const useStructuredLogging = Math.random() < 0.55;
-  const message = useStructuredLogging
-    ? JSON.stringify({
-        clientId: device,
-        action,
-        topic,
-        message: plainMessage,
-        timestamp: new Date(ts).toISOString(),
-      })
-    : plainMessage;
-  const protocol = rand(["MQTT", "HTTPS", "WSS", "MQTT-SN"]);
+  const message = useStructuredLogging ? JSON.stringify(logPayload) : plainMessage;
   return {
     "@timestamp": ts,
     cloud: {
@@ -47,8 +72,15 @@ function generateIotCoreLog(ts: string, er: number): EcsDocument {
         client_id: device,
         thing_name: device,
         thing_group: rand(["factory-sensors", "home-devices", "fleet", "building-management"]),
-        action,
+        action: eventType.toUpperCase(),
+        event_type: eventType,
+        log_level: logLevel,
+        trace_id: traceId,
+        account_id: acct.id,
+        status,
+        principal_id: principalId,
         topic,
+        topic_name: topicName,
         protocol,
         qos: rand([0, 1]),
         message_bytes: randInt(20, 65536),
@@ -57,7 +89,7 @@ function generateIotCoreLog(ts: string, er: number): EcsDocument {
         error_code: isErr
           ? rand(["UnauthorizedException", "ThrottlingException", "DeviceDisconnected"])
           : null,
-        rules_evaluated: randInt(0, 5),
+        rules_evaluated: eventType === "RuleMatch" ? randInt(1, 5) : randInt(0, 2),
         metrics: {
           "Connect.Success": { sum: randInt(1, 1000) },
           "Connect.Failure": { sum: isErr ? randInt(1, 100) : 0 },
@@ -82,7 +114,7 @@ function generateIotCoreLog(ts: string, er: number): EcsDocument {
     },
     source: { ip: randIp() },
     event: {
-      action,
+      action: eventType,
       outcome: isErr ? "failure" : "success",
       category: ["network", "process"],
       dataset: "aws.iot",
@@ -90,7 +122,7 @@ function generateIotCoreLog(ts: string, er: number): EcsDocument {
       duration: randInt(1, isErr ? 5000 : 200) * 1e6,
     },
     message: message,
-    log: { level: isErr ? "error" : "info" },
+    log: { level: isErr ? "error" : logLevel === "DEBUG" ? "debug" : "info" },
     ...(isErr
       ? {
           error: {
@@ -114,6 +146,27 @@ function generateIotGreengrassLog(ts: string, er: number): EcsDocument {
     "com.example.inference",
     "com.aws.greengrass.StreamManager",
   ]);
+  const lifecycleState = isErr
+    ? rand(["ERRORED", "BROKEN"])
+    : rand(["RUNNING", "RUNNING", "FINISHED"]);
+  const deploymentStatus = isErr
+    ? rand(["FAILED", "ROLLED_BACK"])
+    : rand(["SUCCEEDED", "IN_PROGRESS", "QUEUED"]);
+  const eventCategory = rand([
+    "component_lifecycle",
+    "component_lifecycle",
+    "deployment",
+    "ipc",
+    "lambda_invoke",
+  ]);
+  const deploymentId = randId(36).toLowerCase();
+  const ipcOp = rand([
+    "SubscribeToTopic",
+    "PublishToIoTCore",
+    "InvokeComponent",
+    "DeferComponentUpdate",
+  ]);
+  const lambdaName = rand(["ShadowUpdater", "StreamProcessor", "RulesEngineBridge"]);
   const MSGS = {
     error: [
       "Component failed to start: missing dependency",
@@ -134,6 +187,32 @@ function generateIotGreengrassLog(ts: string, er: number): EcsDocument {
     ],
   };
   const level = isErr ? "error" : Math.random() < 0.1 ? "warn" : "info";
+  const structured = {
+    eventCategory,
+    coreDevice: group,
+    componentName: component,
+    componentVersion: `${randInt(1, 3)}.${randInt(0, 10)}.${randInt(0, 10)}`,
+    lifecycleState,
+    deploymentId,
+    deploymentStatus,
+    ...(eventCategory === "ipc"
+      ? {
+          ipcOperation: ipcOp,
+          ipcNamespace: rand(["aws.greengrass.ipc.pubsub", "aws.greengrass.ipc.mqttproxy"]),
+          topic: rand(["hello/world", "dt/telemetry", "cmd/control"]),
+        }
+      : {}),
+    ...(eventCategory === "lambda_invoke"
+      ? {
+          lambdaArn: `arn:aws:lambda:${region}:${acct.id}:function:${lambdaName}`,
+          invocationPhase: rand(["START", "END"]),
+          durationMs: randInt(5, isErr ? 30000 : 3000),
+        }
+      : {}),
+    timestamp: new Date(ts).toISOString(),
+  };
+  const useJson = Math.random() < 0.5;
+  const message = useJson ? JSON.stringify(structured) : rand(MSGS[level]);
   return {
     "@timestamp": ts,
     cloud: {
@@ -150,7 +229,12 @@ function generateIotGreengrassLog(ts: string, er: number): EcsDocument {
         component_version: `${randInt(1, 3)}.${randInt(0, 10)}.${randInt(0, 10)}`,
         nucleus_version: "2.12.0",
         platform: rand(["linux/amd64", "linux/arm64", "linux/armv7l"]),
-        deployment_id: randId(36).toLowerCase(),
+        deployment_id: deploymentId,
+        deployment_status: deploymentStatus,
+        component_lifecycle_state: lifecycleState,
+        event_category: eventCategory,
+        ipc_operation: eventCategory === "ipc" ? ipcOp : null,
+        lambda_function_name: eventCategory === "lambda_invoke" ? lambdaName : null,
         status: isErr ? "FAILED" : "COMPLETED",
         metrics: {
           ComponentDeployedCount: { sum: randInt(0, 50) },
@@ -169,7 +253,7 @@ function generateIotGreengrassLog(ts: string, er: number): EcsDocument {
       provider: "greengrass.amazonaws.com",
       duration: randInt(5, isErr ? 600 : 120) * 1e9,
     },
-    message: rand(MSGS[level]),
+    message,
     log: { level },
     ...(level === "error"
       ? { error: { code: "GreengrassError", message: rand(MSGS.error), type: "iot" } }

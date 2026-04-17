@@ -27,10 +27,30 @@ export interface DashboardDef {
   [key: string]: unknown;
 }
 
+export interface AlertRuleEntry {
+  id: string;
+  name: string;
+  rule_type_id: string;
+  consumer: string;
+  schedule: { interval: string };
+  tags: string[];
+  enabled: boolean;
+  params: Record<string, unknown>;
+  actions: unknown[];
+  notify_when: string;
+}
+
+export interface AlertRuleFile {
+  group: string;
+  description: string;
+  rules: AlertRuleEntry[];
+}
+
 export interface CloudSetupBundle {
   pipelines: PipelineEntry[];
   mlJobFiles: MlJobFile[];
   dashboards: DashboardDef[];
+  alertRuleFiles: AlertRuleFile[];
   fleetPackage: string;
   fleetPackageLabel: string;
   showApmToggle: boolean;

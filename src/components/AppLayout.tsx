@@ -64,7 +64,7 @@ export function AppLayout({
   totalSelected,
   totalServices,
   scheduleActive,
-  scheduleCurrentRun,
+  scheduleCurrentRun: _scheduleCurrentRun,
   scheduleRunsCompleted,
   scheduleTotalRuns,
   isConnected,

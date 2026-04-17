@@ -3,26 +3,51 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "ukwest",
-    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
+    "region": "eastus2",
+    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-ukwest",
-    "ephemeral_id": "orjqbmqtw2j"
+    "name": "metricbeat-azure-eastus2",
+    "ephemeral_id": "gkpmyn03yv4"
   },
   "azure": {
     "sql_database": {
       "metrics": {
-        "dtu_percent": { "avg": 47.59, "sum": 47.59, "count": 1 },
-        "connections": { "avg": 699, "sum": 699, "count": 1 },
-        "deadlocks": { "avg": 0, "sum": 0, "count": 1 }
-      },
-      "labels": { "resource_group": "rg-prod-q2gds", "database_name": "appdb" }
-    }
+        "cpu_percent": { "avg": 22.48, "min": 19.78, "max": 25.18, "sum": 22.48, "count": 1 },
+        "dtu_consumption_percent": {
+          "avg": 63.46,
+          "min": 55.84,
+          "max": 71.08,
+          "sum": 63.46,
+          "count": 1
+        },
+        "storage_percent": { "avg": 69.18, "min": 60.88, "max": 77.48, "sum": 69.18, "count": 1 },
+        "deadlock": { "avg": 0, "min": 0, "max": 0, "sum": 0, "count": 1 },
+        "connection_successful": {
+          "avg": 356357,
+          "min": 313594.16,
+          "max": 399119.84,
+          "sum": 356357,
+          "count": 1
+        },
+        "connection_failed": { "avg": 20, "min": 17.6, "max": 22.4, "sum": 20, "count": 1 }
+      }
+    },
+    "dimensions": {
+      "DatabaseName": "appdb",
+      "logical_server": "sql-msft",
+      "ResourceGroup": "rg-shared-4n53u"
+    },
+    "resource": {
+      "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-shared-4n53u/providers/Microsoft.Sql/servers/sql-msft/databases/appdb",
+      "group": "rg-shared-4n53u",
+      "name": "appdb"
+    },
+    "namespace": "Microsoft.Sql/servers/databases"
   },
-  "metricset": { "name": "sql_database", "period": 60000 },
+  "metricset": { "name": "monitor", "period": 60000 },
   "data_stream": {
     "type": "metrics",
     "dataset": "azure.sql_database_metrics",
@@ -32,9 +57,9 @@
   "event": { "dataset": "azure.sql_database_metrics", "module": "azure" },
   "azureMonitorMetric": {
     "time": "2026-04-07T12:00:00.000Z",
-    "metricName": "dtu_percent",
+    "metricName": "cpu_percent",
     "resourceGroup": "rg-sql-database",
-    "subscriptionId": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
-    "timeseries": [{ "data": [{ "average": 47.59, "count": 1 }] }]
+    "subscriptionId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    "timeseries": [{ "data": [{ "average": 22.48, "count": 1 }] }]
   }
 }

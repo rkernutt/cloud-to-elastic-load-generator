@@ -1,7 +1,3 @@
-/**
- * Azure metric generators registry.
- */
-
 import {
   AZURE_ELASTIC_DATASET_MAP,
   AZURE_METRICS_DATASET_MAP,

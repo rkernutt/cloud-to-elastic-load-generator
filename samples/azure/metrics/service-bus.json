@@ -3,26 +3,51 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "eastasia",
-    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" }
+    "region": "eastus",
+    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-eastasia",
-    "ephemeral_id": "7du2yn1hxoo"
+    "name": "metricbeat-azure-eastus",
+    "ephemeral_id": "jlqvaujtty"
   },
   "azure": {
     "service_bus": {
       "metrics": {
-        "incoming_messages": { "avg": 1428510, "sum": 1428510, "count": 1 },
-        "outgoing_messages": { "avg": 1359843, "sum": 1359843, "count": 1 },
-        "dead_letter_errors": { "avg": 0, "sum": 0, "count": 1 }
-      },
-      "labels": { "resource_group": "rg-prod-sxjpe", "entity_name": "orders" }
-    }
+        "IncomingMessages": {
+          "avg": 785580,
+          "min": 691310.4,
+          "max": 879849.6,
+          "sum": 785580,
+          "count": 1
+        },
+        "OutgoingMessages": {
+          "avg": 2603013,
+          "min": 2290651.44,
+          "max": 2915374.56,
+          "sum": 2603013,
+          "count": 1
+        },
+        "DeadletteredMessages": { "avg": 45, "min": 39.6, "max": 50.4, "sum": 45, "count": 1 },
+        "ActiveMessages": {
+          "avg": 228082,
+          "min": 200712.16,
+          "max": 255451.84,
+          "sum": 228082,
+          "count": 1
+        }
+      }
+    },
+    "dimensions": { "EntityName": "orders", "ResourceGroup": "rg-data-n8gpj" },
+    "resource": {
+      "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-data-n8gpj/providers/Microsoft.ServiceBus/namespaces/sb-76jn8",
+      "group": "rg-data-n8gpj",
+      "name": "sb-76jn8"
+    },
+    "namespace": "Microsoft.ServiceBus/namespaces"
   },
-  "metricset": { "name": "service_bus", "period": 60000 },
+  "metricset": { "name": "monitor", "period": 60000 },
   "data_stream": {
     "type": "metrics",
     "dataset": "azure.service_bus_metrics",
@@ -32,9 +57,9 @@
   "event": { "dataset": "azure.service_bus_metrics", "module": "azure" },
   "azureMonitorMetric": {
     "time": "2026-04-07T12:00:00.000Z",
-    "metricName": "incoming_messages",
+    "metricName": "IncomingMessages",
     "resourceGroup": "rg-service-bus",
-    "subscriptionId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-    "timeseries": [{ "data": [{ "average": 1428510, "count": 1 }] }]
+    "subscriptionId": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
+    "timeseries": [{ "data": [{ "average": 785580, "count": 1 }] }]
   }
 }

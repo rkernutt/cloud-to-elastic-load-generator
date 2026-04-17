@@ -79,7 +79,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.app_service* | KEEP `@timestamp`, `azure.app_service.app_name`, `azure.app_service.request_method`, `azure.app_service.url_path`, `azure.app_service.latency_ms`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-azure.app_service* | KEEP `@timestamp`, `azure.app_service.app_name`, `azure.app_service.request_method`, `azure.app_service.url_path`, `azure.app_service.latency_ms`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
@@ -109,8 +109,8 @@
             },
             {
               "operation": "value",
-              "column": "log.level",
-              "label": "Log level"
+              "column": "event.outcome",
+              "label": "Outcome"
             },
             {
               "operation": "value",

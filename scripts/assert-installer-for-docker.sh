@@ -10,6 +10,7 @@ missing=""
 for d in \
   installer/aws-custom-dashboards \
   installer/aws-custom-ml-jobs/jobs \
+  installer/aws-loadgen-packs \
   installer/azure-custom-dashboards \
   installer/gcp-custom-dashboards
 do
@@ -26,11 +27,11 @@ if [ -n "$missing" ]; then
   echo ""
   echo "Fix (try in order):"
   echo "  1) Restore from the current commit (normal clone — not sparse):"
-  echo "       git checkout HEAD -- installer/aws-custom-dashboards installer/aws-custom-ml-jobs"
+  echo "       git checkout HEAD -- installer/aws-custom-dashboards installer/aws-custom-ml-jobs installer/aws-loadgen-packs"
   echo "     If Git says pathspec did not match, update the branch: git fetch && git checkout main && git pull"
   echo ""
   echo "  2) Only if sparse-checkout is enabled (git config --get core.sparseCheckout → true):"
-  echo "       git sparse-checkout add installer/aws-custom-dashboards installer/aws-custom-ml-jobs"
+  echo "       git sparse-checkout add installer/aws-custom-dashboards installer/aws-custom-ml-jobs installer/aws-loadgen-packs"
   echo "       git sparse-checkout reapply"
   echo "     If you see 'no sparse-checkout to add to', use step 1 instead — sparse mode is off."
   echo ""
@@ -38,14 +39,14 @@ if [ -n "$missing" ]; then
   echo "       git sparse-checkout disable"
   echo ""
   echo "Verify:"
-  echo "  ls -d installer/aws-custom-dashboards installer/aws-custom-ml-jobs"
+  echo "  ls -d installer/aws-custom-dashboards installer/aws-custom-ml-jobs installer/aws-loadgen-packs"
   exit 1
 fi
 
 # Docker omits symlink targets outside the build context, so the image can miss AWS assets while
 # `find` here still sees files on the Mac. Real dirs under this repo are required.
 REPO_ROOT=$(pwd -P)
-for name in installer/aws-custom-dashboards installer/aws-custom-ml-jobs; do
+for name in installer/aws-custom-dashboards installer/aws-custom-ml-jobs installer/aws-loadgen-packs; do
   if [ -L "$name" ]; then
     echo "ERROR: $name is a symlink. Docker will not ship its contents in the image."
     ls -la "$name" 2>/dev/null || true
@@ -73,6 +74,11 @@ aws_d=$(find installer/aws-custom-dashboards -maxdepth 1 -name '*-dashboard.json
 aws_ml=$(find installer/aws-custom-ml-jobs/jobs -maxdepth 1 -name '*.json' 2>/dev/null | wc -l | tr -d ' ')
 if [ "${aws_d:-0}" -lt 1 ] || [ "${aws_ml:-0}" -lt 1 ]; then
   echo "ERROR: AWS installer dirs exist but have no JSON assets (aws dashboards=$aws_d ml job files=$aws_ml)."
+  exit 1
+fi
+
+if [ ! -f installer/aws-loadgen-packs/index.mjs ] || [ ! -f installer/aws-loadgen-packs/registry.mjs ]; then
+  echo "ERROR: installer/aws-loadgen-packs is missing index.mjs or registry.mjs."
   exit 1
 fi
 

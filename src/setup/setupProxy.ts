@@ -8,9 +8,29 @@ export function isKibanaFeatureUnavailable(msg: string): boolean {
   );
 }
 
+/** Appends to Setup log lines when Kibana returns the “not available with the current configuration” pattern. */
+export function kibanaFeatureBlockedExplanation(msg: string): string {
+  if (!isKibanaFeatureUnavailable(msg)) return "";
+  return " — Kibana is blocking this API for this deployment (typical on Elastic Cloud Serverless). Use the Kibana UI where possible; details: docs/SETUP-WIZARD-AND-UNINSTALL.md.";
+}
+
+/**
+ * `POST /api/dashboards` exists but rejects our payload (e.g. Serverless expects `esql_control` /
+ * Discover session panel types, not legacy Lens-in-panelsJSON). Fall back to saved-object import.
+ */
+export function shouldUseSavedObjectDashboardInstall(msg: string): boolean {
+  if (isKibanaFeatureUnavailable(msg)) return true;
+  if (!msg.includes("HTTP 400")) return false;
+  if (msg.includes("types that failed validation")) return true;
+  if (msg.includes("request body.panels")) return true;
+  return false;
+}
+
 export function isMlResourceAlreadyExists(msg: string): boolean {
   return (
-    msg.includes("resource_already_exists_exception") || msg.includes("The Id is already used")
+    msg.includes("resource_already_exists_exception") ||
+    msg.includes("The Id is already used") ||
+    (msg.includes("datafeed") && msg.includes("already exists"))
   );
 }
 
@@ -83,7 +103,11 @@ export async function proxyCall(opts: {
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    if (res.status === 409) return { alreadyInstalled: true };
+    const upper = (method ?? "PUT").toUpperCase();
+    // Only Fleet package install uses 409 as “already there”. Kibana saved-object PUT uses 409 for version conflicts.
+    if (res.status === 409 && path.includes("/api/fleet/epm/packages/") && upper === "POST") {
+      return { alreadyInstalled: true };
+    }
     if (allow404 && res.status === 404) return null;
     throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`);
   }
@@ -94,7 +118,7 @@ type BulkDeleteStatus = { success?: boolean; error?: { statusCode?: number; mess
 
 /** Shown when both single-object and bulk Saved Object deletes are disabled (e.g. some Serverless projects). */
 export const SAVED_OBJECT_DELETE_UNSUPPORTED_HINT =
-  "This deployment’s Kibana does not allow Saved Object delete APIs. Remove dashboards in the UI (Management → Saved Objects, or the Dashboards app), or use a stack where those APIs are enabled.";
+  "This deployment’s Kibana does not allow Saved Object delete APIs (Kibana feature block, e.g. some Serverless projects). Remove dashboards in the UI (Management → Saved Objects, or the Dashboards app), or use a stack where those APIs are enabled. See docs/SETUP-WIZARD-AND-UNINSTALL.md.";
 
 export type DeleteKibanaDashboardOutcome =
   | { result: "deleted" | "not_found" }

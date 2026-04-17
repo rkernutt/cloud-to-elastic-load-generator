@@ -3,44 +3,46 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-east2",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "europe-central2",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-east2",
-    "ephemeral_id": "cuach1qsvr"
+    "name": "metricbeat-gcp-europe-central2",
+    "ephemeral_id": "6wb3dxv8vlp"
+  },
+  "monitoringTimeSeries": {
+    "metric": { "type": "dataflow.googleapis.com/job/system_lag", "labels": {} },
+    "resource": {
+      "type": "dataflow_job",
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "job_name": "stream-enrich",
+        "region": "europe-central2"
+      }
+    },
+    "metricKind": "GAUGE",
+    "valueType": "DOUBLE",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 10.62 } }
+    ]
   },
   "gcp": {
     "dataflow": {
-      "metrics": {
-        "system_lag": { "avg": 11.61, "sum": 11.61, "count": 1 },
-        "data_watermark_lag": { "avg": 2.34, "sum": 2.34, "count": 1 },
-        "elements_produced": { "avg": 312919278, "sum": 312919278, "count": 1 },
-        "current_num_vcpus": { "avg": 140, "sum": 140, "count": 1 }
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "job_name": "stream-enrich",
+        "region": "europe-central2"
       },
-      "labels": { "job_name": "etl-pipeline", "step": "ReadFromPubSub" }
+      "metrics": {
+        "dataflow.googleapis.com/job/system_lag": { "avg": 10.62, "sum": 10.62, "count": 1 }
+      }
     }
   },
   "metricset": { "name": "dataflow", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.dataflow_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.dataflow_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/dataflow/system_lag",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-security-j0k1l2", "region": "asia-east2" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 11.61 } }
-    ]
-  }
+  "event": { "dataset": "gcp.dataflow_metrics", "module": "gcp" }
 }

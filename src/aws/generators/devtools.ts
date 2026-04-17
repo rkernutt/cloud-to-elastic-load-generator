@@ -8,6 +8,7 @@ import {
   REGIONS,
   HTTP_METHODS,
   HTTP_PATHS,
+  USER_AGENTS,
 } from "../../helpers";
 import type { EcsDocument } from "./types.js";
 
@@ -26,35 +27,142 @@ function generateCodeBuildLog(ts: string, er: number): EcsDocument {
     "test-runner",
     "release-build",
   ]);
-  const dur = randInt(30, isErr ? 3600 : 900);
-  const phase = rand([
+  const phases = [
+    "SUBMITTED",
+    "QUEUED",
+    "PROVISIONING",
     "DOWNLOAD_SOURCE",
     "INSTALL",
     "PRE_BUILD",
     "BUILD",
     "POST_BUILD",
     "UPLOAD_ARTIFACTS",
+    "FINALIZING",
     "COMPLETED",
-  ]);
+  ] as const;
+  const failIdx = isErr ? randInt(4, phases.length - 2) : phases.length;
+  const dur = randInt(45, isErr ? 4200 : 1400);
+  const phase = isErr ? phases[failIdx] : "COMPLETED";
   const buildId = `${project}:${randId(8)}-${randId(4)}`.toLowerCase();
-  const phaseDur = randInt(5, 300);
-  const buildMsgs = isErr
-    ? [
-        "Build failed",
-        "Build failed",
-        `CodeBuild ${project} FAILED at phase ${phase} after ${dur}s`,
-      ]
-    : [
-        "Build started",
-        "Build succeeded",
-        `CodeBuild ${project} SUCCEEDED in ${dur}s`,
-        `Phase ${phase} completed in ${phaseDur}s`,
-        `Build started`,
-        `Phase ${phase} completed in ${phaseDur}s`,
-        "Build succeeded",
-      ];
-  const plainMessage = rand(buildMsgs);
+  const queuedSec = randInt(2, 180);
+  const commit = randId(40).toLowerCase();
+  const img = rand([
+    "aws/codebuild/standard:7.0",
+    "aws/codebuild/amazonlinux2-x86_64-standard:5.0",
+  ]);
+  const t0 = new Date(ts).getTime();
+  const lineTs = (deltaSec: number) => new Date(t0 + deltaSec * 1000).toISOString();
+  let tick = 0;
+  const nextTs = () => lineTs((tick += randFloat(0.4, 2.8)));
+  const lines: string[] = [];
+  lines.push(`[Container] ${nextTs()} Waiting for agent ping`);
+  lines.push(`[Container] ${nextTs()} Agent ping confirmed`);
+  lines.push(`[Container] ${nextTs()} Entering phase SUBMITTED`);
+  lines.push(`[Container] ${nextTs()} Phase complete: SUBMITTED State: SUCCEEDED`);
+  lines.push(`[Container] ${nextTs()} Entering phase QUEUED`);
+  lines.push(`[Container] ${nextTs()} Phase complete: QUEUED State: SUCCEEDED`);
+  lines.push(`[Container] ${nextTs()} Phase duration: ${queuedSec} seconds`);
+  const lastPhaseIdx = isErr ? failIdx : phases.indexOf("UPLOAD_ARTIFACTS");
+  for (let i = 2; i < Math.min(lastPhaseIdx + 1, phases.length); i++) {
+    const p = phases[i];
+    const ps = randInt(3, 120);
+    lines.push(`[Container] ${nextTs()} Entering phase ${p}`);
+    if (p === "PROVISIONING") {
+      lines.push(`[Container] ${nextTs()} CODEBUILD_CONTAINER_TYPE: LINUX_CONTAINER`);
+      lines.push(`[Container] ${nextTs()} Downloading managed image ${img}`);
+      lines.push(
+        `[Container] ${nextTs()} Authenticating with ECR registry 123456789012.dkr.ecr.${region}.amazonaws.com`
+      );
+    }
+    if (p === "DOWNLOAD_SOURCE") {
+      lines.push(
+        `[Container] ${nextTs()} CODEBUILD_SRC_DIR=/codebuild/output/src${randInt(100, 999)}/src/github.com/acme/${project}`
+      );
+      lines.push(`[Container] ${nextTs()} GIT_CLONE_DEPTH=1`);
+      lines.push(`[Container] ${nextTs()} Cloning into '.'...`);
+      lines.push(
+        `[Container] ${nextTs()} remote: Enumerating objects: ${randInt(800, 12000)}, done.`
+      );
+      lines.push(
+        `[Container] ${nextTs()} HEAD is now at ${commit.slice(0, 7)} ${rand(["chore: bump", "feat: pipeline", "fix: tests"])}`
+      );
+    }
+    if (p === "INSTALL") {
+      lines.push(`[Container] ${nextTs()} Running command npm ci --prefer-offline --no-audit`);
+      lines.push(
+        `[Container] ${nextTs()} added ${randInt(800, 2400)} packages in ${randInt(18, 220)}s`
+      );
+    }
+    if (p === "PRE_BUILD") {
+      lines.push(
+        `[Container] ${nextTs()} Running command chmod +x scripts/pre_build.sh && ./scripts/pre_build.sh`
+      );
+      lines.push(`[Container] ${nextTs()} pre_build: lint-staged OK`);
+    }
+    if (p === "BUILD") {
+      lines.push(
+        `[Container] ${nextTs()} Running command docker build -t ${project}:${commit.slice(0, 7)} .`
+      );
+      lines.push(`#1 [internal] load build definition from Dockerfile`);
+      lines.push(
+        `#2 [internal] load metadata for docker.io/library/node:${randInt(18, 22)}-alpine`
+      );
+      if (Math.random() < 0.55) {
+        lines.push(`#4 CACHED [stage-1 2/9] WORKDIR /app`);
+        lines.push(`#5 CACHED [stage-1 3/9] COPY package.json package-lock.json ./`);
+        lines.push(`#6 CACHED [build 4/7] RUN npm ci`);
+        lines.push(`#7 [build 5/7] RUN npm run build`);
+        lines.push(
+          `#7 sha256:${randId(12).toLowerCase()} ${randInt(8, 120)}MB / ${randInt(120, 400)}MB ${randFloat(0.2, 9).toFixed(1)}s`
+        );
+      } else {
+        lines.push(`#4 pulling layer ${randId(12).toLowerCase()}`);
+        lines.push(`#5 exporting layers`);
+        lines.push(
+          `#5 sha256:${randId(12).toLowerCase()} ${randInt(40, 220)}MB / ${randInt(220, 600)}MB ${randFloat(1.2, 18).toFixed(1)}s`
+        );
+      }
+      lines.push(`[Container] ${nextTs()} Running command npm test -- --ci --coverage`);
+      lines.push(` PASS  tests/unit/${rand(["auth", "orders", "users", "payments"])}.spec.ts`);
+      lines.push(` PASS  tests/integration/${rand(["api", "checkout", "webhooks"])}.spec.ts`);
+      lines.push(
+        `Test Suites: ${randInt(4, 28)} passed, ${isErr ? randInt(1, 3) : 0} failed, ${randInt(0, 2)} skipped`
+      );
+      lines.push(
+        `Tests:       ${randInt(12, 240)} passed, ${isErr ? randInt(1, 6) : 0} failed, ${randInt(0, 4)} skipped`
+      );
+    }
+    if (p === "POST_BUILD") {
+      lines.push(`[Container] ${nextTs()} Running command cfn-lint template.yaml || true`);
+      lines.push(
+        `[Container] ${nextTs()} Running command aws s3 sync ./reports s3://${acct.id}-reports-${region}/${project}/ --quiet`
+      );
+    }
+    if (p === "UPLOAD_ARTIFACTS") {
+      lines.push(
+        `[Container] ${nextTs()} Uploading artifacts to s3://${acct.id}-codepipeline-${region}/build/${buildId}/`
+      );
+      lines.push(`[Container] ${nextTs()} UPLOAD_ARTIFACTS: uploaded ${randInt(2, 45)} file(s)`);
+    }
+    if (isErr && p === phase) {
+      lines.push(
+        `[Container] ${nextTs()} Command did not exit successfully on build server, exit code: 1`
+      );
+      lines.push(`[Container] ${nextTs()} Phase complete: ${p} State: FAILED`);
+      break;
+    }
+    lines.push(`[Container] ${nextTs()} Phase complete: ${p} State: SUCCEEDED`);
+    lines.push(`[Container] ${nextTs()} Phase duration: ${ps} seconds`);
+  }
+  if (!isErr) {
+    lines.push(`[Container] ${nextTs()} Entering phase FINALIZING`);
+    lines.push(`[Container] ${nextTs()} Phase complete: FINALIZING State: SUCCEEDED`);
+    lines.push(`[Container] ${nextTs()} Entering phase COMPLETED`);
+    lines.push(`[Container] ${nextTs()} Phase complete: COMPLETED State: SUCCEEDED`);
+  }
+  const plainMessage = lines.join("\n");
   const useStructuredLogging = Math.random() < 0.55;
+  const durationMs = dur * 1000;
   const message = useStructuredLogging
     ? JSON.stringify({
         buildId,
@@ -62,6 +170,9 @@ function generateCodeBuildLog(ts: string, er: number): EcsDocument {
         phase,
         status: isErr ? "FAILED" : "SUCCEEDED",
         durationSeconds: dur,
+        image: img,
+        queuedDurationSeconds: queuedSec,
+        sourceVersion: commit,
         timestamp: new Date(ts).toISOString(),
       })
     : plainMessage;
@@ -81,18 +192,18 @@ function generateCodeBuildLog(ts: string, er: number): EcsDocument {
         build_status: isErr ? "FAILED" : "SUCCEEDED",
         current_phase: phase,
         duration_seconds: dur,
-        queued_duration_seconds: randInt(1, 60),
+        queued_duration_seconds: queuedSec,
         build_number: randInt(1, 5000),
         initiator: rand(["codepipeline", "github-webhook", "manual"]),
-        source_version: randId(40).toLowerCase(),
+        source_version: commit,
         structured_logging: useStructuredLogging,
         metrics: {
           Builds: { sum: 1 },
           SucceededBuilds: { sum: isErr ? 0 : 1 },
           FailedBuilds: { sum: isErr ? 1 : 0 },
-          Duration: { avg: dur },
-          QueuedDuration: { avg: randInt(1, 60) },
-          BuildDuration: { avg: dur },
+          Duration: { avg: durationMs },
+          QueuedDuration: { avg: queuedSec * 1000 },
+          BuildDuration: { avg: durationMs },
         },
       },
     },
@@ -128,16 +239,79 @@ function generateCodePipelineLog(ts: string, er: number): EcsDocument {
     "release-train",
     "hotfix-pipeline",
   ]);
-  const stage = rand(["Source", "Build", "Test", "Staging", "Approval", "Production"]);
+  const flow = ["Source", "Build", "Deploy", "Test"] as const;
+  const stage = rand([...flow, "Staging", "Approval", "Production"]);
   const executionId = randUUID();
-  const pipelineMsgPool = isErr
-    ? ["Pipeline execution failed", `CodePipeline ${pipeline} FAILED at ${stage}`]
-    : [
-        "Pipeline execution started",
-        "Pipeline execution succeeded",
-        `CodePipeline ${pipeline} SUCCEEDED`,
-      ];
-  const plainMessage = rand(pipelineMsgPool);
+  const revision = randId(40).toLowerCase();
+  const artifactBucket = `${acct.id}-codepipeline-${region}`;
+  const sourceZip = `s3://${artifactBucket}/${pipeline}/source_out/${revision}.zip`;
+  const buildOut = `s3://${artifactBucket}/${pipeline}/build_out/${executionId}/BuildOut`;
+  const deployOut = `s3://${artifactBucket}/${pipeline}/deploy/${executionId}/DeploymentBundle`;
+  const srcAction = rand(["Source", "CheckoutSource", "GitHubSource"]);
+  const buildProvider = rand(["CodeBuild", "CodeBuild", "JenkinsProvider"]);
+  const deployProvider = rand(["CodeDeploy", "CloudFormation", "ECS"]);
+  const approvalName = rand(["ManualApproval", "ChangeApproval", "SecuritySignOff"]);
+  const lines: string[] = [];
+  lines.push(
+    `[CodePipeline] executionId=${executionId} pipeline=${pipeline} state=${isErr ? "FAILED" : "SUCCEEDED"} region=${region}`
+  );
+  lines.push(
+    `[CodePipeline] Execution started for pipeline ${pipeline} (pipelineVersion=${randInt(1, 42)})`
+  );
+  lines.push(
+    `[Stage:Source] Transitioning: STARTED action=${srcAction} provider=${rand(["GitHub", "CodeCommit", "S3"])} revision=${revision.slice(0, 7)}`
+  );
+  lines.push(`[Stage:Source] Output artifact location: ${sourceZip}`);
+  lines.push(`[Stage:Source] Transitioning: SUCCEEDED durationMs=${randInt(1200, 45_000)}`);
+  lines.push(
+    `[Stage:Build] Transitioning: STARTED action=${buildProvider} project=${rand(["api-service-build", "web-build", "infra-validate"])}`
+  );
+  lines.push(`[Stage:Build] Input artifact: ${sourceZip}`);
+  lines.push(`[Stage:Build] Output artifact: ${buildOut}`);
+  if (isErr && stage === "Build") {
+    lines.push(
+      `[Stage:Build] Transitioning: FAILED error=BuildActionFailed details=CustomerBuildError`
+    );
+  } else {
+    lines.push(`[Stage:Build] Transitioning: SUCCEEDED durationMs=${randInt(45_000, 520_000)}`);
+    lines.push(
+      `[Stage:Deploy] Transitioning: STARTED action=${deployProvider} deploymentGroup=${rand(["prod", "staging", "canary"])}`
+    );
+    lines.push(`[Stage:Deploy] Output artifact: ${deployOut}`);
+    if (isErr && stage === "Deploy") {
+      lines.push(`[Stage:Deploy] Transitioning: FAILED error=DeploymentFailure`);
+    } else {
+      lines.push(`[Stage:Deploy] Transitioning: SUCCEEDED durationMs=${randInt(30_000, 900_000)}`);
+      lines.push(
+        `[Stage:Test] Transitioning: STARTED action=${rand(["CodeBuild", "LambdaInvoke", "StepFunctions"])}`
+      );
+      if (isErr && stage === "Test") {
+        lines.push(`[Stage:Test] Transitioning: FAILED error=TestActionFailed`);
+      } else {
+        lines.push(`[Stage:Test] Transitioning: SUCCEEDED durationMs=${randInt(20_000, 400_000)}`);
+        if (Math.random() < 0.35) {
+          lines.push(
+            `[Stage:Approval] Transitioning: STARTED action=${approvalName} token=${randId(24)}`
+          );
+          lines.push(
+            `[Stage:Approval] Waiting for manual approval (notificationArn=arn:aws:sns:${region}:${acct.id}:pipeline-approvals)`
+          );
+          lines.push(
+            `[Stage:Approval] Transitioning: SUCCEEDED approvedBy=${rand(["alice", "bob", "release-bot"])}`
+          );
+        }
+      }
+    }
+  }
+  if (isErr && !lines.some((l) => l.includes("FAILED"))) {
+    lines.push(`[Stage:${stage}] Transitioning: FAILED error=StageExecutionFailed`);
+  }
+  if (!isErr) {
+    lines.push(
+      `[CodePipeline] Execution succeeded for pipeline ${pipeline} executionId=${executionId}`
+    );
+  }
+  const plainMessage = lines.join("\n");
   const useStructuredLogging = Math.random() < 0.55;
   const message = useStructuredLogging
     ? JSON.stringify({
@@ -146,6 +320,9 @@ function generateCodePipelineLog(ts: string, er: number): EcsDocument {
         stage,
         state: isErr ? "Failed" : "Succeeded",
         timestamp: new Date(ts).toISOString(),
+        revision,
+        artifacts: { source: sourceZip, build: buildOut, deploy: deployOut },
+        stages: flow,
       })
     : plainMessage;
   return {
@@ -165,7 +342,7 @@ function generateCodePipelineLog(ts: string, er: number): EcsDocument {
         stage_name: stage,
         action_name: rand(["Source", "CodeBuild", "Deploy", "Manual", "Lambda"]),
         state: isErr ? "Failed" : "Succeeded",
-        revision_id: randId(40).toLowerCase(),
+        revision_id: revision,
         structured_logging: useStructuredLogging,
         metrics: {
           PipelineExecutionAttempts: { sum: 1 },
@@ -213,6 +390,32 @@ function generateCodeDeployLog(ts: string, er: number): EcsDocument {
     "AfterAllowTraffic",
   ]);
   const depGroup = rand(["prod", "staging", "canary"]);
+  const deploymentId = `d-${randId(9)}`;
+  const hookOrder = [
+    "BeforeInstall",
+    "Install",
+    "AfterInstall",
+    "ApplicationStart",
+    "ValidateService",
+  ] as const;
+  const instId = `i-${randId(8)}`;
+  const hookLines = hookOrder
+    .map((h) => {
+      const failedHere = isErr && ev === h;
+      const script = `${rand(["scripts/", "appspec/"])}${h.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase()}.sh`;
+      return `[Lifecycle:${h}] instanceId=${instId} script=${script} status=${failedHere ? "FAILED" : "SUCCEEDED"} durationSec=${randInt(2, 180)}`;
+    })
+    .slice(0, randInt(3, hookOrder.length));
+  const summaryLine =
+    isErr && Math.random() < 0.55
+      ? `[CodeDeploy] ROLLBACK_STARTED deploymentId=${deploymentId} reason=${rand(["Health checks failed", "Script failed", "Alarm breached"])} previousRevision=${randId(7)}`
+      : `[CodeDeploy] deploymentId=${deploymentId} status=${isErr ? "FAILED" : "SUCCEEDED"} overallDurationSec=${dur}`;
+  const narrative = [
+    `[CodeDeploy] deploymentId=${deploymentId} application=${app} deploymentGroup=${depGroup} deploymentStyle=${rand(["IN_PLACE", "BLUE_GREEN"])}`,
+    `[CodeDeploy] Targeting instances: count=${randInt(2, 24)} tagSet=Environment:${depGroup}`,
+    ...hookLines,
+    summaryLine,
+  ].join("\n");
   return {
     "@timestamp": ts,
     cloud: {
@@ -226,7 +429,7 @@ function generateCodeDeployLog(ts: string, er: number): EcsDocument {
       codedeploy: {
         application_name: app,
         deployment_group: depGroup,
-        deployment_id: `d-${randId(9)}`,
+        deployment_id: deploymentId,
         deployment_type: rand(["BLUE_GREEN", "IN_PLACE"]),
         lifecycle_event: ev,
         event_status: isErr ? "Failed" : "Succeeded",
@@ -254,18 +457,7 @@ function generateCodeDeployLog(ts: string, er: number): EcsDocument {
       dataset: "aws.codedeploy",
       provider: "codedeploy.amazonaws.com",
     },
-    message: rand(
-      isErr
-        ? [
-            "Deployment failed",
-            `CodeDeploy ${app} FAILED at ${ev}: ${rand(["Script exited with code 1", "Health check failed", "Timeout"])}`,
-          ]
-        : [
-            "Deployment started",
-            "Deployment succeeded",
-            `CodeDeploy ${app} deployment SUCCEEDED in ${dur}s`,
-          ]
-    ),
+    message: narrative,
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -477,34 +669,80 @@ function generateXRayLog(ts: string, er: number): EcsDocument {
   const isThrottle = !isErr && Math.random() < 0.02;
   const isClientErr = !isErr && !isThrottle && Math.random() < 0.05;
 
+  // Service map nodes matching real AWS X-Ray service graph
   const SERVICE_NODES = [
-    { name: "api-gateway", awsType: "AWS::ApiGateway::Stage" },
-    { name: "lambda-function", awsType: "AWS::Lambda::Function" },
-    { name: "dynamodb-client", awsType: "AWS::DynamoDB::Table" },
-    { name: "s3-client", awsType: "AWS::S3::Bucket" },
-    { name: "rds-proxy", awsType: "AWS::RDS::DBInstance" },
-    { name: "sqs-consumer", awsType: "AWS::SQS::Queue" },
-    { name: "user-service", awsType: "remote" },
-    { name: "payment-service", awsType: "remote" },
-    { name: "cache-layer", awsType: "remote" },
-  ];
-  const SUBSEG_OPS = [
-    "DynamoDB.GetItem",
-    "DynamoDB.PutItem",
-    "DynamoDB.Query",
-    "S3.GetObject",
-    "S3.PutObject",
-    "ElastiCache.get",
-    "ElastiCache.set",
-    "SQS.SendMessage",
-    "SNS.Publish",
-    "HTTP.GET",
-    "HTTP.POST",
+    {
+      name: "api-gateway",
+      awsType: "AWS::ApiGateway::Stage",
+      origin: "AWS::ApiGateway::Stage",
+      namespace: "aws",
+    },
+    {
+      name: "user-auth-function",
+      awsType: "AWS::Lambda::Function",
+      origin: "AWS::Lambda::Function",
+      namespace: "aws",
+    },
+    {
+      name: "order-processor",
+      awsType: "AWS::Lambda::Function",
+      origin: "AWS::Lambda::Function",
+      namespace: "aws",
+    },
+    {
+      name: "Users",
+      awsType: "AWS::DynamoDB::Table",
+      origin: "AWS::DynamoDB::Table",
+      namespace: "aws",
+    },
+    {
+      name: "Orders",
+      awsType: "AWS::DynamoDB::Table",
+      origin: "AWS::DynamoDB::Table",
+      namespace: "aws",
+    },
+    {
+      name: "data-bucket",
+      awsType: "AWS::S3::Bucket",
+      origin: "AWS::S3::Bucket",
+      namespace: "aws",
+    },
+    {
+      name: "prod-db-primary",
+      awsType: "AWS::RDS::DBInstance",
+      origin: "AWS::RDS::DBInstance",
+      namespace: "aws",
+    },
+    {
+      name: "order-queue",
+      awsType: "AWS::SQS::Queue",
+      origin: "AWS::SQS::Queue",
+      namespace: "aws",
+    },
+    { name: "user-service", awsType: "client", origin: "AWS::ECS::Container", namespace: "remote" },
+    {
+      name: "payment-service",
+      awsType: "client",
+      origin: "AWS::ECS::Container",
+      namespace: "remote",
+    },
+    {
+      name: "notification-service",
+      awsType: "client",
+      origin: "AWS::ECS::Container",
+      namespace: "remote",
+    },
+    {
+      name: "cache-layer",
+      awsType: "client",
+      origin: "AWS::ElastiCache::CacheCluster",
+      namespace: "remote",
+    },
   ];
 
   // Bucket timestamp into ~10 s slots — documents in the same slot share a trace_id
   const tsBucket = Math.floor(new Date(ts).getTime() / 10000);
-  const slotKey = `${tsBucket}-${randInt(0, 7)}`; // up to 8 concurrent traces per slot
+  const slotKey = `${tsBucket}-${randInt(0, 7)}`;
   if (!_xrayTracePool[slotKey]) {
     _xrayTracePool[slotKey] = {
       id: `1-${Math.floor(new Date(ts).getTime() / 1000).toString(16)}-${randId(24).toLowerCase()}`,
@@ -517,7 +755,9 @@ function generateXRayLog(ts: string, er: number): EcsDocument {
   const isRoot = Math.random() < 0.2;
   const svc = rand(SERVICE_NODES);
   const segmentId = isRoot ? trace.rootSegmentId : randId(16).toLowerCase();
+  const startTime = new Date(ts).getTime() / 1000;
   const dur = Number(randFloat(0.001, isErr ? 30 : 3));
+  const endTime = startTime + dur;
   const status = isErr
     ? rand([500, 502, 503])
     : isThrottle
@@ -526,16 +766,186 @@ function generateXRayLog(ts: string, er: number): EcsDocument {
         ? rand([400, 403, 404])
         : rand([200, 200, 201, 204]);
   const method = rand(HTTP_METHODS);
+  const path = rand(HTTP_PATHS);
+  const url = `https://${rand(["api", "app", "service"])}.${rand(["example.com", "myapp.io", "internal.corp"])}${path}`;
+  const clientIp = `${randInt(10, 223)}.${randInt(0, 255)}.${randInt(0, 255)}.${randInt(1, 254)}`;
+  const userAgent = rand(USER_AGENTS);
+
+  // Build subsegments matching real X-Ray segment document format
+  const SUBSEG_TEMPLATES = [
+    {
+      name: "DynamoDB",
+      ops: ["GetItem", "PutItem", "Query", "Scan", "BatchGetItem", "UpdateItem"],
+      namespace: "aws",
+    },
+    { name: "S3", ops: ["GetObject", "PutObject", "ListObjects", "HeadObject"], namespace: "aws" },
+    { name: "SQS", ops: ["SendMessage", "ReceiveMessage", "DeleteMessage"], namespace: "aws" },
+    { name: "SNS", ops: ["Publish"], namespace: "aws" },
+    { name: "Lambda", ops: ["Invoke"], namespace: "aws" },
+  ];
+  const httpSubsegs = [
+    { host: "user-service.internal:8080", method: "GET", status: isErr ? 500 : 200 },
+    { host: "payment-service.internal:8080", method: "POST", status: isErr ? 503 : 200 },
+    { host: "cache-layer.internal:6379", method: "GET", status: 200 },
+  ];
 
   const subsegments = isRoot
     ? null
-    : Array.from({ length: randInt(1, 3) }, () => ({
-        id: randId(16).toLowerCase(),
-        name: rand(SUBSEG_OPS),
-        namespace: rand(["aws", "remote"]),
-        duration: Number(randFloat(0.001, 0.5)),
-        fault: isErr && Math.random() < 0.5,
-      }));
+    : Array.from({ length: randInt(1, 4) }, () => {
+        const subStart = startTime + Number(randFloat(0, dur * 0.3));
+        const subDur = Number(randFloat(0.001, dur * 0.8));
+        const subEnd = subStart + subDur;
+        const subFault = isErr && Math.random() < 0.5;
+
+        if (Math.random() < 0.6) {
+          // AWS SDK subsegment
+          const tmpl = rand(SUBSEG_TEMPLATES);
+          const op = rand(tmpl.ops);
+          return {
+            id: randId(16).toLowerCase(),
+            name: tmpl.name,
+            start_time: subStart,
+            end_time: subEnd,
+            namespace: tmpl.namespace,
+            aws: {
+              operation: op,
+              region,
+              retries: subFault ? randInt(1, 3) : 0,
+              ...(tmpl.name === "DynamoDB"
+                ? {
+                    table_name: rand(["Users", "Orders", "Sessions", "Products"]),
+                    request_id: randId(32).toLowerCase(),
+                    consumed_capacity: {
+                      TableName: rand(["Users", "Orders"]),
+                      CapacityUnits: Number(randFloat(0.5, 10)),
+                    },
+                  }
+                : {}),
+              ...(tmpl.name === "S3"
+                ? {
+                    bucket_name: rand(["data-bucket", "assets-bucket", "logs-bucket"]),
+                    key: `${rand(["data", "uploads", "exports"])}/${randId(12).toLowerCase()}.${rand(["json", "parquet", "csv"])}`,
+                    request_id: randId(16).toUpperCase(),
+                  }
+                : {}),
+            },
+            http: {
+              response: {
+                status: subFault ? rand([400, 500, 503]) : 200,
+                content_length: randInt(50, 50000),
+              },
+            },
+            fault: subFault,
+            error: false,
+            throttle: false,
+          };
+        } else {
+          // Remote HTTP subsegment
+          const remote = rand(httpSubsegs);
+          return {
+            id: randId(16).toLowerCase(),
+            name: remote.host,
+            start_time: subStart,
+            end_time: subEnd,
+            namespace: "remote",
+            http: {
+              request: { method: remote.method, url: `http://${remote.host}${rand(HTTP_PATHS)}` },
+              response: {
+                status: subFault ? 500 : remote.status,
+                content_length: randInt(50, 10000),
+              },
+            },
+            fault: subFault,
+            error: false,
+            throttle: false,
+          };
+        }
+      });
+
+  // Exception block matching X-Ray segment format
+  const cause = isErr
+    ? {
+        working_directory: "/var/task",
+        paths: [],
+        exceptions: [
+          {
+            id: randId(16).toLowerCase(),
+            message: rand([
+              "Connection refused",
+              "Task timed out after 30.00 seconds",
+              "An error occurred (ConditionalCheckFailedException)",
+              "ECONNRESET: socket hang up",
+              "Rate exceeded",
+            ]),
+            type: rand([
+              "ConnectionError",
+              "TimeoutError",
+              "ConditionalCheckFailedException",
+              "SocketError",
+              "ThrottlingException",
+            ]),
+            remote: Math.random() < 0.5,
+            stack: [
+              {
+                path: rand(["index.js", "handler.py", "service.ts"]),
+                line: randInt(10, 200),
+                label: rand(["processRequest", "handleEvent", "main"]),
+              },
+            ],
+          },
+        ],
+      }
+    : null;
+
+  const segmentJson = JSON.stringify({
+    trace_id: trace.id,
+    id: segmentId,
+    name: svc.name,
+    start_time: startTime,
+    end_time: endTime,
+    ...(isRoot ? {} : { parent_id: trace.rootSegmentId }),
+    http: {
+      request: { method, url, client_ip: clientIp, user_agent: userAgent },
+      response: { status, content_length: randInt(50, 50000) },
+    },
+    aws: {
+      account_id: acct.id,
+      region,
+      operation: svc.awsType.startsWith("AWS::") ? svc.awsType.split("::").pop() : undefined,
+      resource_names: [svc.name],
+    },
+    annotations: {
+      environment: rand(["production", "staging"]),
+      version: `v${randInt(1, 20)}.${randInt(0, 9)}.${randInt(0, 99)}`,
+      team: rand(["platform", "backend", "frontend", "data"]),
+    },
+    metadata: {
+      default: {
+        response_size: randInt(50, 50000),
+        ...(isErr ? { error_details: cause?.exceptions?.[0]?.message } : {}),
+      },
+    },
+    fault: isErr,
+    error: isClientErr,
+    throttle: isThrottle,
+    ...(cause ? { cause } : {}),
+    origin: svc.origin,
+    resource_arn: `arn:aws:${svc.awsType.split("::")[1]?.toLowerCase() || "lambda"}:${region}:${acct.id}:${svc.name}`,
+  });
+  const d0 = new Date(ts).getTime();
+  const dz = (ms: number) => new Date(d0 + ms).toISOString();
+  const daemonPool = [
+    `${dz(0)} [Info] X-Ray daemon ${rand(["1.37.0", "3.3.14", "3.3.13"])} listening on address 127.0.0.1:2000`,
+    `${dz(120)} [Info] Received segment document id=${segmentId} trace_id=${trace.id} bytes=${randInt(900, 120000)}`,
+    `${dz(240)} [Info] Buffering segments queueDepth=${randInt(0, 18)}`,
+    `${dz(360)} [Info] Successfully sent batch of ${randInt(1, 40)} segment document(s) to 169.254.100.0:2000`,
+    `${dz(480)} [Info] Traces uploaded batchBytes=${randInt(4_000, 900_000)} latencyMs=${randInt(8, 220)}`,
+    `${dz(600)} [Info] Sampling decision trace_id=${trace.id} rule=${rand(["Default", "api-high-traffic", "errors-only"])} reservoir=${randInt(0, 2)} outcome=${rand(["Sampled", "NotSampled", "Borrowed"])}`,
+    `${dz(720)} [Info] PublishSlices segments=${randInt(5, 4000)} faults=${isErr ? randInt(1, 120) : randInt(0, 8)} throttles=${isThrottle ? randInt(1, 40) : randInt(0, 3)}`,
+    `${dz(840)} [Info] Service map update applied nodes=${randInt(10, 220)} edges=${randInt(12, 360)} version=${randInt(1, 12)}`,
+  ];
+  const daemonText = Array.from({ length: randInt(3, 6) }, () => rand(daemonPool)).join("\n");
+  const message = Math.random() < 0.65 ? `${daemonText}\n${segmentJson}` : segmentJson;
 
   return {
     "@timestamp": ts,
@@ -553,16 +963,29 @@ function generateXRayLog(ts: string, er: number): EcsDocument {
         trace_id: trace.id,
         segment_id: segmentId,
         parent_id: isRoot ? null : trace.rootSegmentId,
+        start_time: startTime,
+        end_time: endTime,
+        origin: svc.origin,
         service: { name: svc.name, type: svc.awsType },
         duration: dur,
         fault: isErr,
         error: isClientErr,
         throttle: isThrottle,
         http: {
-          request: { method, url: rand(HTTP_PATHS) },
-          response: { status },
+          request: { method, url, client_ip: clientIp, user_agent: userAgent },
+          response: { status, content_length: randInt(50, 50000) },
         },
-        annotations: { env: "prod", version: `v${randInt(1, 20)}` },
+        aws: {
+          account_id: acct.id,
+          region,
+          resource_names: [svc.name],
+        },
+        annotations: {
+          environment: rand(["production", "staging"]),
+          version: `v${randInt(1, 20)}.${randInt(0, 9)}.${randInt(0, 99)}`,
+          team: rand(["platform", "backend", "frontend", "data"]),
+        },
+        ...(cause ? { cause } : {}),
         subsegments,
         metrics: {
           ErrorRate: {
@@ -573,11 +996,27 @@ function generateXRayLog(ts: string, er: number): EcsDocument {
             avg: isThrottle ? Number(randFloat(1, 10)) : Number(randFloat(0, 0.5)),
           },
           TotalCount: { sum: randInt(1, 10000) },
-          Latency: { avg: dur * 1000, p99: dur * 3000 },
+          Latency: {
+            avg: dur * 1000,
+            p50: dur * 800,
+            p90: dur * 1500,
+            p95: dur * 2000,
+            p99: dur * 3000,
+          },
+          OkCount: { sum: !isErr && !isClientErr && !isThrottle ? randInt(1, 10000) : 0 },
+          ErrorCount: { sum: isClientErr ? randInt(1, 100) : 0 },
+          FaultCount: { sum: isErr ? randInt(1, 50) : 0 },
+          ThrottleCount: { sum: isThrottle ? randInt(1, 20) : 0 },
         },
       },
     },
-    http: { request: { method }, response: { status_code: status } },
+    http: {
+      request: { method, body: { bytes: randInt(0, 10000) } },
+      response: { status_code: status, body: { bytes: randInt(50, 50000) } },
+    },
+    url: { path, full: url },
+    user_agent: { original: userAgent },
+    source: { ip: clientIp },
     event: {
       duration: Math.round(dur * 1e9),
       outcome: isErr || isClientErr ? "failure" : "success",
@@ -586,14 +1025,22 @@ function generateXRayLog(ts: string, er: number): EcsDocument {
       dataset: "aws.xray",
       provider: "xray.amazonaws.com",
     },
-    message: isErr
-      ? `X-Ray FAULT: ${svc.name} ${method} → ${status} (${dur.toFixed(3)}s)`
-      : isThrottle
-        ? `X-Ray THROTTLE: ${svc.name} ${method} → 429 (${dur.toFixed(3)}s)`
-        : `X-Ray: ${svc.name} ${method} → ${status} (${dur.toFixed(3)}s)`,
+    message,
     log: { level: isErr ? "error" : isThrottle || isClientErr ? "warn" : "info" },
-    ...(isErr
-      ? { error: { code: "TraceFault", message: `Service fault: HTTP ${status}`, type: "trace" } }
+    ...(isErr && cause
+      ? {
+          error: {
+            code: cause.exceptions[0].type,
+            message: cause.exceptions[0].message,
+            type: "trace",
+            stack_trace: cause.exceptions[0].stack
+              .map(
+                (s: { label: string; path: string; line: number }) =>
+                  `  at ${s.label} (${s.path}:${s.line})`
+              )
+              .join("\n"),
+          },
+        }
       : {}),
   };
 }
@@ -731,6 +1178,47 @@ function generateCodeCatalystLog(ts: string, er: number): EcsDocument {
     "CreateSourceRepository",
   ]);
   const devEnvId = `dev-${randId(16).toLowerCase()}`;
+  const prNumber = randInt(1, 612);
+  const prBranch = rand(["feature/auth-refresh", "fix/payments", "chore/deps", "feat/api-v2"]);
+  const wfSteps = [
+    "Checkout",
+    "Install",
+    "Lint",
+    "UnitTests",
+    "BuildImage",
+    "PublishArtifacts",
+  ] as const;
+  const stepIdx = isErr ? randInt(1, wfSteps.length - 1) : wfSteps.length;
+  const stepLine = wfSteps
+    .slice(0, stepIdx)
+    .map(
+      (s, i) =>
+        `[WorkflowRun:${workflowRunId}] step=${s} status=SUCCEEDED durationMs=${randInt(900, 180_000)} order=${i + 1}`
+    )
+    .join("\n");
+  const failStep = isErr ? (wfSteps[stepIdx] ?? "BuildImage") : null;
+  const prTrigger = Math.random() < 0.5;
+  const devLifecycle =
+    action === "CreateDevEnvironment" || action === "DeleteDevEnvironment"
+      ? `${action} devEnvId=${devEnvId} statusTransition=${rand(["REQUESTED", "PROVISIONING", "READY", "STOPPING", "DELETED"])} machineType=${rand(["STANDARD", "PERFORMANCE"])}`
+      : null;
+  const msgLines = [
+    `[CodeCatalyst] space=${spaceName} project=${projectName} workflow=${workflowName} run=${workflowRunId} status=${runStatus}`,
+    prTrigger
+      ? `[WorkflowRun] trigger=pull_request pr=#${prNumber} head=${prBranch} base=main sha=${randId(40).toLowerCase()}`
+      : `[WorkflowRun] trigger=${rand(["push", "schedule", "manual"])} ref=${rand(["refs/heads/main", "refs/heads/develop"])}`,
+    stepLine,
+    isErr && failStep
+      ? `[WorkflowRun:${workflowRunId}] step=${failStep} status=FAILED exitCode=${randInt(1, 127)}`
+      : null,
+    devLifecycle,
+    !isErr && runStatus === "SUCCEEDED"
+      ? `[WorkflowRun:${workflowRunId}] completed artifacts=${rand(["codecatalyst://artifacts/pkg", "s3://codecatalyst-artifacts/"])}${workflowRunId}`
+      : null,
+  ].filter((l): l is string => Boolean(l));
+  const message = isErr
+    ? `${msgLines.join("\n")}\nCodeCatalyst ${action} FAILED: ${rand(["Workflow run failed", "Dev environment error", "Branch conflict", "Quota exceeded"])}`
+    : msgLines.join("\n");
   return {
     "@timestamp": ts,
     cloud: {
@@ -747,6 +1235,9 @@ function generateCodeCatalystLog(ts: string, er: number): EcsDocument {
         workflow_name: workflowName,
         workflow_run_id: workflowRunId,
         workflow_run_status: runStatus,
+        workflow_steps_completed: isErr ? stepIdx : wfSteps.length,
+        pull_request_number: prTrigger ? prNumber : null,
+        pull_request_head_branch: prTrigger ? prBranch : null,
         dev_environment_id: devEnvId,
         dev_environment_status: isErr
           ? "FAILED"
@@ -769,9 +1260,7 @@ function generateCodeCatalystLog(ts: string, er: number): EcsDocument {
       dataset: "aws.codecatalyst",
       provider: "codecatalyst.amazonaws.com",
     },
-    message: isErr
-      ? `CodeCatalyst ${action} FAILED [${spaceName}/${projectName}]: ${rand(["Workflow run failed", "Dev environment error", "Branch conflict", "Quota exceeded"])}`
-      : `CodeCatalyst ${action}: space=${spaceName}, project=${projectName}, workflow=${workflowName} ${runStatus}`,
+    message,
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {

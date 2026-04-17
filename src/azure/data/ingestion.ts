@@ -16,6 +16,7 @@ const AZURE_SERVICE_INGESTION_DEFAULTS: Record<string, string> = {
   "azure-kspm": "api",
   "azure-iam-privesc-chain": "api",
   "azure-data-exfil-chain": "api",
+  "azure-data-pipeline-chain": "api",
 };
 
 const AZURE_INGESTION_META: Record<string, { label: string; color: string; inputType: string }> = {

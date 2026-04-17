@@ -305,6 +305,23 @@ const METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "panorama",
   "freertos",
   "cloudwatchrum",
+  "a2i",
+  "appfabric",
+  "arc",
+  "artifact",
+  "auditmanager",
+  "b2bi",
+  "chatbot",
+  "cloudhsm",
+  "codecatalyst",
+  "dataexchange",
+  "datazone",
+  "devicefarm",
+  "entityresolution",
+  "paymentcryptography",
+  "proton",
+  "securityir",
+  "supplychain",
 ]);
 
 // Dataset for metrics mode when it differs from logs. Omitted = use ELASTIC_DATASET_MAP.
@@ -339,6 +356,23 @@ const ELASTIC_METRICS_DATASET_MAP = {
   rekognition: "aws.rekognition",
   // IoT
   iotcore: "aws.iot",
+  a2i: "aws.a2i",
+  appfabric: "aws.appfabric",
+  arc: "aws.arc",
+  artifact: "aws.artifact",
+  auditmanager: "aws.auditmanager",
+  b2bi: "aws.b2bi",
+  chatbot: "aws.chatbot",
+  cloudhsm: "aws.cloudhsm",
+  codecatalyst: "aws.codecatalyst",
+  dataexchange: "aws.dataexchange",
+  datazone: "aws.datazone",
+  devicefarm: "aws.devicefarm",
+  entityresolution: "aws.entityresolution",
+  paymentcryptography: "aws.paymentcryptography",
+  proton: "aws.proton",
+  securityir: "aws.securityir",
+  supplychain: "aws.supplychain",
 };
 
 export { ELASTIC_DATASET_MAP, METRICS_SUPPORTED_SERVICE_IDS, ELASTIC_METRICS_DATASET_MAP };

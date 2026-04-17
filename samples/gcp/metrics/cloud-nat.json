@@ -3,43 +3,58 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-southwest1",
+    "region": "southamerica-west1",
     "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
     "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-southwest1",
-    "ephemeral_id": "0dp7vxjzu1z"
+    "name": "metricbeat-gcp-southamerica-west1",
+    "ephemeral_id": "izqce4b7y"
+  },
+  "monitoringTimeSeries": {
+    "metric": {
+      "type": "loadbalancing.googleapis.com/https/request_count",
+      "labels": { "response_code_class": "2xx" }
+    },
+    "resource": {
+      "type": "https_lb_rule",
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "url_map_name": "api-map",
+        "forwarding_rule_name": "fr-generic",
+        "target_proxy_name": "tp-generic",
+        "region": "southamerica-west1"
+      }
+    },
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "points": [
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "143659" } }
+    ]
   },
   "gcp": {
     "cloud-nat": {
-      "metrics": {
-        "request_count": { "avg": 610334, "sum": 610334, "count": 1 },
-        "latency": { "avg": 78.78, "sum": 78.78, "count": 1 },
-        "error_rate": { "avg": 0, "sum": 0, "count": 1 }
+      "labels": {
+        "project_id": "globex-prod-a1b2c3",
+        "url_map_name": "api-map",
+        "forwarding_rule_name": "fr-generic",
+        "target_proxy_name": "tp-generic",
+        "region": "southamerica-west1",
+        "response_code_class": "2xx"
       },
-      "labels": { "resource_url": "/api/v1/orders" }
+      "metrics": {
+        "loadbalancing.googleapis.com/https/request_count": {
+          "avg": 143659,
+          "sum": 143659,
+          "count": 1
+        }
+      }
     }
   },
   "metricset": { "name": "cloud-nat", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.nat_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.nat_metrics", "module": "gcp" },
-  "monitoringTimeSeries": {
-    "metric": {
-      "type": "custom.googleapis.com/opentelemetry/elastic/samples/cloud-nat/request_count",
-      "labels": {}
-    },
-    "resource": {
-      "type": "global",
-      "labels": { "project_id": "globex-prod-a1b2c3", "region": "europe-southwest1" }
-    },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
-    "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 610334 } }
-    ]
-  }
+  "event": { "dataset": "gcp.nat_metrics", "module": "gcp" }
 }

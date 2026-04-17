@@ -5,7 +5,7 @@
  *   ts — ISO timestamp string
  *   er — error rate in [0, 1]
  *
- * Document shape follows Elastic GCP integration–style metrics (synthetic).
+ * Each document is one Cloud Monitoring time series (metric + resource + point).
  */
 
 import {

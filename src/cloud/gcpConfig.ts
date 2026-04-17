@@ -20,8 +20,13 @@ import {
 
 const GCP_ICON_BASE = publicUrl("gcp-icons");
 
+const CHAINED_EVENT_RE = /chain|cspm|kspm/;
+
 const gcpVendorServiceFiles = Object.fromEntries(
-  GCP_ALL_SERVICE_IDS.map((id) => [id, GCP_VENDOR_SERVICE_ICONS[id] ?? GCP_VENDOR_FALLBACK])
+  GCP_ALL_SERVICE_IDS.filter((id) => !CHAINED_EVENT_RE.test(id)).map((id) => [
+    id,
+    GCP_VENDOR_SERVICE_ICONS[id] ?? GCP_VENDOR_FALLBACK,
+  ])
 );
 
 const gcpVendorCategoryFiles = Object.fromEntries(

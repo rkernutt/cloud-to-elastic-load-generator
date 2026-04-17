@@ -1,13 +1,13 @@
 {
   "group": "devtools",
-  "description": "Developer & CI/CD anomaly detection — CodeBuild failures, CodePipeline stage failures, X-Ray trace errors",
+  "description": "Developer & CI/CD anomaly detection — CodeBuild failures, AWS CodePipeline stage failures, X-Ray trace errors",
   "jobs": [
     {
       "id": "aws-codebuild-failure-spike",
-      "description": "Detects unusual spikes in CodeBuild project failures — broken builds or environment regressions",
+      "description": "Detects unusual spikes in AWS CodeBuild project failures — broken builds or environment regressions",
       "job": {
         "description": "Detects unusual spikes in CodeBuild project failures — broken builds or environment regressions",
-        "groups": ["aws", "devtools"],
+        "groups": ["aws", "devtools", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -21,9 +21,16 @@
           "influencers": ["aws.codebuild.project_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -31,22 +38,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.codebuild" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.codebuild"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-codebuild-duration-anomaly",
-      "description": "Detects unusual CodeBuild build durations per project — slow builds indicating dependency or resource issues",
+      "description": "Detects unusual AWS CodeBuild build durations per project — slow builds indicating dependency or resource issues",
       "job": {
         "description": "Detects unusual CodeBuild build durations per project — slow builds indicating dependency or resource issues",
-        "groups": ["aws", "devtools"],
+        "groups": ["aws", "devtools", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "60m",
           "detectors": [
@@ -61,29 +80,46 @@
           "influencers": ["aws.codebuild.project_name"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.codebuild" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.codebuild"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-codepipeline-failure-spike",
-      "description": "Detects unusual spikes in CodePipeline stage failures per pipeline — deployment regressions or environment drift",
+      "description": "Detects unusual spikes in AWS CodePipeline stage failures per pipeline — deployment regressions or environment drift",
       "job": {
         "description": "Detects unusual spikes in CodePipeline stage failures per pipeline — deployment regressions or environment drift",
-        "groups": ["aws", "devtools"],
+        "groups": ["aws", "devtools", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -101,9 +137,16 @@
           ]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -111,22 +154,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.codepipeline" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.codepipeline"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-xray-error-rate-spike",
-      "description": "Detects unusual spikes in X-Ray traced errors per service — application fault detection across distributed services",
+      "description": "Detects unusual spikes in AWS X-Ray traced errors per service — application fault detection across distributed services",
       "job": {
         "description": "Detects unusual spikes in X-Ray traced errors per service — application fault detection across distributed services",
-        "groups": ["aws", "devtools"],
+        "groups": ["aws", "devtools", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -140,9 +195,16 @@
           "influencers": ["aws.xray.service.name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["traces-aws.*"],
@@ -150,22 +212,34 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.xray" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.dataset": "aws.xray"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-xray-latency-anomaly",
-      "description": "Detects unusual response latency per X-Ray service — performance regressions in distributed trace segments",
+      "description": "Detects unusual response latency per AWS X-Ray service — performance regressions in distributed trace segments",
       "job": {
         "description": "Detects unusual response latency per X-Ray service — performance regressions in distributed trace segments",
-        "groups": ["aws", "devtools"],
+        "groups": ["aws", "devtools", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -180,21 +254,38 @@
           "influencers": ["aws.xray.service.name"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["traces-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [{ "term": { "event.dataset": "aws.xray" } }]
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.xray"
+                }
+              }
+            ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

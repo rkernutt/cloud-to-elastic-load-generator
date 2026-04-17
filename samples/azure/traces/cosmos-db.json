@@ -1,31 +1,41 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "9a48898941cf1f560e3b5e5cc4c4d14a" },
-  "transaction": { "id": "464bbc7627749469", "name": "PUT /api/products/{id}" },
+  "trace": { "id": "b5929571dd76ad3f67e030f9ba744c97" },
+  "transaction": {
+    "id": "b60fa93ee3d99cb4",
+    "name": "GET /api/carts/{id}",
+    "type": "request",
+    "duration": { "us": 136629 },
+    "result": "HTTP 429",
+    "sampled": true,
+    "span_count": { "started": 3, "dropped": 0 }
+  },
   "service": {
-    "name": "cart-service",
+    "name": "order-svc",
+    "environment": "production",
+    "version": "1.0.0",
     "language": { "name": "python" },
-    "framework": { "name": "fastapi" }
+    "framework": { "name": "fastapi" },
+    "runtime": { "name": "python", "version": "3.12" }
   },
   "cloud": {
     "provider": "azure",
-    "region": "francecentral",
+    "region": "southcentralus",
     "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" },
     "service": { "name": "Microsoft.DocumentDB/databaseAccounts" }
   },
-  "agent": { "name": "opentelemetry", "version": "1.x" },
+  "event": { "outcome": "failure", "module": "azure", "dataset": "azure.cosmos_db" },
+  "customDimensions": {
+    "azure_region": "southcentralus",
+    "azure_resource_group": "rg-prod-dearzb",
+    "azure_subscription_id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
+    "workload": "cosmos_api"
+  },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
-  "event": { "outcome": "success", "module": "azure", "dataset": "azure.cosmos_db" },
-  "span": { "id": "464bbc7627749469", "duration": { "us": 92281 } },
   "ecs": { "version": "8.11.0" },
   "input": { "type": "opentelemetry" },
-  "applicationInsights": {
-    "operation_Id": "9a48898941cf1f560e3b5e5cc4c4d14a",
-    "operation_ParentId": "",
-    "id": "464bbc7627749469",
-    "name": "PUT /api/products/{id}"
-  },
+  "agent": { "name": "opentelemetry/python", "version": "1.x" },
   "telemetry": {
     "sdk": { "name": "opentelemetry", "language": "python", "version": "1.29.0" },
     "distro": { "name": "elastic", "version": "8.18.0" },
@@ -34,5 +44,11 @@
       "export_protocol": "otlp",
       "destination": "elastic_managed"
     }
+  },
+  "applicationInsights": {
+    "operation_Id": "b5929571dd76ad3f67e030f9ba744c97",
+    "operation_ParentId": "",
+    "id": "b60fa93ee3d99cb4",
+    "name": "GET /api/carts/{id}"
   }
 }
