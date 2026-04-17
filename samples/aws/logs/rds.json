@@ -1,120 +1,125 @@
 {
-  "@timestamp": "2026-04-17T15:00:39.621Z",
+  "@timestamp": "2026-04-17T15:32:46.708Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "sa-east-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "rds" }
   },
   "aws": {
     "dimensions": {
-      "DBInstanceIdentifier": "prod-db-replica",
-      "DatabaseClass": "db.m5.large",
-      "EngineName": "postgres",
-      "SourceRegion": "ap-southeast-1"
+      "DBInstanceIdentifier": "prod-db-primary",
+      "DatabaseClass": "db.r5.xlarge",
+      "EngineName": "aurora-mysql",
+      "SourceRegion": "sa-east-1"
     },
     "cloudwatch": {
-      "log_group": "/aws/rds/instance/prod-db-replica/postgresql",
-      "log_stream": "prod-db-replica",
-      "ingestion_time": "2026-04-17T15:00:40.099Z"
+      "log_group": "/aws/rds/cluster/prod-db-primary/error",
+      "log_stream": "prod-db-primary",
+      "ingestion_time": "2026-04-17T15:32:47.180Z"
     },
     "rds": {
       "db_instance": {
-        "identifier": "prod-db-replica",
-        "class": "db.m5.large",
-        "engine_name": "postgres",
-        "engine_version": "15.8",
-        "arn": "arn:aws:rds:ap-southeast-1:293847561023:db:prod-db-replica",
-        "status": "available",
-        "role": "instance",
-        "multi_az": true,
-        "storage_type": "io1",
-        "allocated_storage_gb": 100
+        "identifier": "prod-db-primary",
+        "class": "db.r5.xlarge",
+        "engine_name": "aurora-mysql",
+        "engine_version": "8.0.40",
+        "arn": "arn:aws:rds:sa-east-1:814726593401:db:prod-db-primary",
+        "status": "failed",
+        "role": "read-replica",
+        "multi_az": false,
+        "storage_type": "gp3",
+        "allocated_storage_gb": 200
       },
-      "log_type": "postgresql",
-      "cpu": { "total": { "pct": 0.3545 } },
-      "freeable_memory": { "bytes": 354485606 },
-      "free_storage": { "bytes": 300508319687 },
-      "database_connections": 488,
-      "read_io": { "ops_per_sec": 62.36114401303483 },
-      "write_io": { "ops_per_sec": 1599.5380121099377 },
-      "latency": { "read": 0.01661623013860018, "write": 0.005218326403412254 },
+      "log_type": "error",
+      "cpu": { "total": { "pct": 0.8476 } },
+      "freeable_memory": { "bytes": 5499188694 },
+      "free_storage": { "bytes": 412796629508 },
+      "database_connections": 386,
+      "read_io": { "ops_per_sec": 767.070057713334 },
+      "write_io": { "ops_per_sec": 1634.9151351309063 },
+      "latency": { "read": 0.35760200878959003, "write": 0.21007455087034763 },
       "throughput": {
-        "read": 80001798,
-        "write": 7087178,
-        "network_receive": 25782333,
-        "network_transmit": 2135532
+        "read": 38512591,
+        "write": 35953224,
+        "network_receive": 81831422,
+        "network_transmit": 94365945
       },
-      "replica_lag": { "sec": 58.87920641360973 },
-      "swap_usage": { "bytes": 13105007 },
-      "disk_usage": { "bin_log": { "bytes": 394821265 } },
+      "replica_lag": { "sec": 352.397160206922 },
+      "swap_usage": { "bytes": 45249933 },
+      "disk_usage": { "bin_log": { "bytes": 975586953 } },
       "enhanced_monitoring": {
         "cpuUtilization": {
-          "guest": 1.8136344727253355,
-          "irq": 0.8614874652330589,
-          "system": 8.924671650319526,
-          "wait": 3.870379909989513,
-          "idle": 76.2,
-          "user": 8.362000021330386,
-          "total": 23.8
+          "guest": 1.3491787534618265,
+          "irq": 0.6846686885663846,
+          "system": 4.528941369441411,
+          "wait": 12.261579197438945,
+          "idle": 77.9,
+          "user": 3.2398310109947293,
+          "total": 22.1
         },
         "memory": {
-          "total": 26967202128,
-          "free": 5596743206,
-          "cached": 4421424715,
-          "active": 5693886325,
-          "inactive": 3242152262,
-          "buffers": 487366012
+          "total": 57740177902,
+          "free": 1136983303,
+          "cached": 2408868721,
+          "active": 14628346083,
+          "inactive": 2043851611,
+          "buffers": 421927939
         },
         "disk": {
-          "readIOsPS": 41.67248514958499,
-          "writeIOsPS": 2612.3136209107333,
-          "readKbPS": 267583.33413140633,
-          "writeKbPS": 5449.667358614761,
-          "avgQueueLen": 5.334646395495604,
-          "await": 19.94942886697429
+          "readIOsPS": 1215.9850961642846,
+          "writeIOsPS": 2007.452173773467,
+          "readKbPS": 7059.375532961951,
+          "writeKbPS": 407353.1120787702,
+          "avgQueueLen": 4.5248401821157955,
+          "await": 117.23613414101095
         },
-        "network": { "rx": 34922183, "tx": 21887846 },
-        "numVCPUs": 32,
-        "uptime": "82 days, 0:49:33"
+        "network": { "rx": 99799596, "tx": 65532869 },
+        "numVCPUs": 64,
+        "uptime": "20 days, 9:28:14"
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-rds-logs-293847561023"
+        "name": "aws-rds-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-rds-logs-814726593401"
       },
-      "object": {
-        "key": "AWSLogs/293847561023/rds/ap-southeast-1/2026/04/17/rds_9MUOOF78KBP.log.gz"
-      }
+      "object": { "key": "AWSLogs/814726593401/rds/sa-east-1/2026/04/17/rds_WMKJBQ1SBN8.log.gz" }
     }
   },
   "db": {
     "user": { "name": "readonly" },
     "name": "analytics",
-    "statement": "DELETE FROM inventory WHERE created_at < now() - interval '90 days'",
+    "statement": "UPDATE transactions SET status = 'active' WHERE user_id = 19170",
     "type": "sql"
   },
-  "source": { "ip": "183.59.187.4" },
+  "source": { "ip": "168.217.91.202" },
   "event": {
-    "duration": 281764179.0114174,
-    "outcome": "success",
+    "duration": 20699161933.106197,
+    "outcome": "failure",
     "category": ["database"],
-    "type": ["info", "access"],
+    "type": ["error"],
     "dataset": "aws.rds",
     "provider": "rds.amazonaws.com",
     "module": "aws"
   },
-  "message": "2026-04-17 15:00:39.621 UTC:183.59.187.4(60390):readonly@analytics:[17558]:LOG:  duration: 281.764 ms  parse <unnamed>: DELETE FROM inventory WHERE created_at < now() - interval '90 days'",
-  "log": { "level": "info" },
+  "message": "2026-04-17 15:32:46.708 27340 [ERROR] [MY-10797] [Server] InnoDB: The innodb_system tablespace must be at least 37 MB. Current size: 5 MB.",
+  "log": { "level": "error" },
+  "error": {
+    "code": "OptionGroupNotFoundFault",
+    "message": "2026-04-17 15:32:46.708 27340 [ERROR] [MY-10797] [Server] InnoDB: The innodb_system tablespace must be at least 37 MB. Current size: 5 MB.",
+    "type": "db"
+  },
+  "trace": { "id": "U4SQU1GUJTF" },
+  "transaction": { "id": "HE44HBA0CBI" },
   "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "hu3m7zrqru7"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "k5jart9v5df"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,69 +1,69 @@
 {
-  "@timestamp": "2026-04-17T15:00:39.621Z",
+  "@timestamp": "2026-04-17T15:32:46.708Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "batch" }
   },
   "aws": {
-    "dimensions": { "JobQueue": "data-export-queue" },
+    "dimensions": { "JobQueue": "cleanup-job-queue" },
     "batch": {
-      "job": { "name": "data-export", "id": "xbec1ipg-452j", "status": "PENDING" },
-      "job_queue": "data-export-queue",
-      "compute_environment": "ce-ondemand",
-      "log_stream_name": "data-export-def/default/wwrsfhehi2",
+      "job": { "name": "cleanup-job", "id": "kz4ap7ab-4lrf", "status": "SUCCEEDED" },
+      "job_queue": "cleanup-job-queue",
+      "compute_environment": "ce-spot",
+      "log_stream_name": "cleanup-job-def/default/ex296lx9hrw",
       "job_attempt": 1,
       "container_exit_code": 0,
-      "structured_logging": false,
+      "structured_logging": true,
       "metrics": {
-        "PendingJobCount": { "avg": 9 },
-        "RunnableJobCount": { "avg": 37 },
-        "StartingJobCount": { "avg": 12 },
-        "RunningJobCount": { "avg": 186 },
+        "PendingJobCount": { "avg": 55 },
+        "RunnableJobCount": { "avg": 0 },
+        "StartingJobCount": { "avg": 9 },
+        "RunningJobCount": { "avg": 21 },
         "SucceededJobCount": { "sum": 1 },
         "FailedJobCount": { "sum": 0 },
-        "CPUReserved": { "avg": 34.10826333551357 },
+        "CPUReserved": { "avg": 13.28476624184297 },
         "GPUReserved": { "avg": 0 },
-        "MemoryReserved": { "avg": 83.27387210776793 }
+        "MemoryReserved": { "avg": 84.06856516230366 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-batch-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-batch-logs-501938274650"
+        "name": "aws-batch-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-batch-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/batch/ap-northeast-1/2026/04/17/batch_82ZGHOS0EB.log.gz"
+        "key": "AWSLogs/814726593401/batch/ap-south-1/2026/04/17/batch_SI87907HOZ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/batch/logs",
-      "log_stream": "ap-northeast-1/s530r3x5",
-      "ingestion_time": "2026-04-17T15:00:40.111Z"
+      "log_stream": "ap-south-1/u6hvnymn",
+      "ingestion_time": "2026-04-17T15:32:47.195Z"
     }
   },
-  "process": { "pid": 33802, "name": "java", "exit_code": 0 },
+  "process": { "pid": 12819, "name": "spark-submit", "exit_code": 0 },
   "log": { "level": "info" },
   "event": {
     "category": ["process"],
     "outcome": "success",
     "dataset": "aws.batch",
     "provider": "batch.amazonaws.com",
-    "duration": 3221000000000,
+    "duration": 3412000000000,
     "module": "aws"
   },
-  "message": "Job submitted to queue",
-  "logStreamName": "data-export-def/default/wwrsfhehi2",
-  "host": { "name": "ip-112-57-141-66.ec2.internal", "hostname": "batch-n0xu6464" },
+  "message": "{\"jobId\":\"kz4ap7ab-4lrf\",\"jobName\":\"cleanup-job\",\"jobQueue\":\"cleanup-job-queue\",\"level\":\"info\",\"message\":\"batch: job kz4ap7ab-4lrf status SUBMITTED -> PENDING\",\"timestamp\":\"2026-04-17T15:32:46.708Z\",\"arrayIndex\":49,\"logStreamName\":\"cleanup-job-def/default/ex296lx9hrw\",\"jobAttempt\":1,\"containerExitCode\":0,\"jobStatus\":\"SUCCEEDED\"}",
+  "logStreamName": "cleanup-job-def/default/ex296lx9hrw",
+  "host": { "name": "ip-62-165-139-149.ec2.internal", "hostname": "batch-ztosjt0s" },
   "service": { "name": "batch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.batch", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "k023tsnqiu"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "mfc64heclmj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-17T15:00:39.621Z",
+  "@timestamp": "2026-04-17T15:32:46.708Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,73 +7,68 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" }
+    "region": "ap-southeast-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" }
   },
   "orchestrator": {
-    "cluster": { "id": "dev-eks", "name": "dev-eks" },
+    "cluster": { "id": "data-processing-eks", "name": "data-processing-eks" },
     "type": "kubernetes",
-    "namespace": "monitoring"
+    "namespace": "kube-system"
   },
   "resource": {
-    "id": "dev-eks/monitoring/pod/worker-su843",
-    "name": "pod/worker-su843",
+    "id": "data-processing-eks/kube-system/pod/backend-ya5dd",
+    "name": "pod/backend-ya5dd",
     "sub_type": "Pod",
     "type": "k8s_object"
   },
   "rule": {
-    "id": "cis_eks_4_4",
-    "name": "Minimize containers wishing to share the host IPC namespace",
-    "section": "4.4",
-    "tags": ["Pod Security"],
+    "id": "cis_eks_4_1",
+    "name": "Prefer using secrets as files over environment variables",
+    "section": "4.1",
+    "tags": ["Workload"],
     "benchmark": {
       "id": "cis_eks",
       "version": "v1.4.0",
-      "rule_number": "4.4",
+      "rule_number": "4.1",
       "posture_type": "kspm"
-    },
-    "impact": "Minimize containers wishing to share the host IPC namespace — non-compliant configuration may allow container escape or lateral movement.",
-    "remediation": "Review and remediate per CIS EKS Benchmark v1.4.0 section 4.4."
+    }
   },
-  "result": { "evaluation": "failed" },
-  "severity": "high",
+  "result": { "evaluation": "passed" },
+  "severity": "none",
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "aws"
   },
-  "message": "KSPM [CIS EKS / 4.4] failed: Minimize containers wishing to share the host IPC namespace [dev-eks]",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "CIS_CIS_EKS_4_4",
-    "message": "KSPM check failed: Minimize containers wishing to share the host IPC namespace",
-    "type": "compliance"
-  },
+  "message": "KSPM [CIS EKS / 4.1] passed: Prefer using secrets as files over environment variables [data-processing-eks]",
+  "log": { "level": "info" },
   "service": { "name": "kspm", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "s8ft3iyvibl"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "thpdz4cwp4e"
   },
   "input": { "type": "http_endpoint" },
   "aws": {
     "s3": {
       "bucket": {
-        "name": "aws-kspm-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-kspm-logs-501938274650"
+        "name": "aws-kspm-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-kspm-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/501938274650/kspm/ap-east-1/2026/04/17/kspm_1HELH59NAMN.log.gz" }
+      "object": {
+        "key": "AWSLogs/164820739518/kspm/ap-southeast-1/2026/04/17/kspm_WBLO0XJG767.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/kspm/logs",
-      "log_stream": "ap-east-1/8myl50sr",
-      "ingestion_time": "2026-04-17T15:00:40.163Z"
+      "log_stream": "ap-southeast-1/g5fo5lul",
+      "ingestion_time": "2026-04-17T15:32:47.249Z"
     }
   }
 }

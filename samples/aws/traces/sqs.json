@@ -1,35 +1,35 @@
 {
-  "@timestamp": "2026-04-17T15:00:39.621Z",
+  "@timestamp": "2026-04-17T15:32:46.708Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "6e7ad08b1d7a8e82f25db364f721e5a8" },
+  "trace": { "id": "212aaf09df2449754af9af1b607a362f" },
   "transaction": {
-    "id": "beacaf6634ce212e",
-    "name": "inventory-updates-queue process",
+    "id": "bc7eadc88336e159",
+    "name": "order-queue-dlq.fifo process",
     "type": "messaging",
-    "duration": { "us": 1121000 },
-    "result": "success",
+    "duration": { "us": 3544000 },
+    "result": "failure",
     "sampled": true,
     "span_count": { "started": 2, "dropped": 0 }
   },
   "labels": {
-    "queue_name": "inventory-updates-queue",
-    "queue_url": "https://sqs.eu-central-1.amazonaws.com/123456789012/inventory-updates-queue",
-    "message_count": "4",
-    "approximate_first_receive_delay_seconds": "36",
-    "parent_trace_id": "152056a5dfadbd3bd7f543040c7139f2"
+    "queue_name": "order-queue-dlq.fifo",
+    "queue_url": "https://sqs.eu-west-2.amazonaws.com/234567890123/order-queue-dlq.fifo",
+    "message_count": "2",
+    "approximate_first_receive_delay_seconds": "20",
+    "parent_trace_id": "9c1806aba6cbc6f560e151f5a83373f9"
   },
   "service": {
-    "name": "inventory-updates-consumer",
-    "environment": "staging",
+    "name": "dead-letter-processor",
+    "environment": "dev",
     "version": "1.0.0",
-    "language": { "name": "nodejs" },
-    "runtime": { "name": "nodejs18.x", "version": "18.18.3" },
+    "language": { "name": "python" },
+    "runtime": { "name": "python3.11", "version": "3.12.5" },
     "framework": { "name": "AWS SQS" }
   },
-  "agent": { "name": "otlp", "version": "1.4.0" },
+  "agent": { "name": "otlp", "version": "0.6.0" },
   "telemetry": {
-    "sdk": { "name": "opentelemetry", "language": "nodejs", "version": "1.30.1" },
-    "distro": { "name": "elastic", "version": "1.4.0" },
+    "sdk": { "name": "opentelemetry", "language": "python", "version": "1.29.0" },
+    "distro": { "name": "elastic", "version": "0.6.0" },
     "otel_pipeline": {
       "hop": "otel_collector",
       "export_protocol": "otlp",
@@ -38,11 +38,11 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "123456789012", "name": "prod-aws" },
+    "region": "eu-west-2",
+    "account": { "id": "234567890123", "name": "staging-aws" },
     "service": { "name": "sqs" }
   },
-  "event": { "outcome": "success", "module": "aws", "dataset": "aws.sqs" },
+  "event": { "outcome": "failure", "module": "aws", "dataset": "aws.sqs" },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
   "ecs": { "version": "8.11.0" },
   "input": { "type": "opentelemetry" }

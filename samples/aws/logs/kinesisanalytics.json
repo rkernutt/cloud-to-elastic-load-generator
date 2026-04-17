@@ -1,62 +1,68 @@
 {
-  "@timestamp": "2026-04-17T15:00:39.621Z",
+  "@timestamp": "2026-04-17T15:32:46.708Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-south-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "kinesisanalytics" }
   },
   "aws": {
     "kinesisanalytics": {
-      "application_name": "clickstream-analytics",
-      "application_arn": "arn:aws:kinesisanalytics:sa-east-1:738291046572:application/clickstream-analytics",
-      "runtime": "FLINK-1_18",
-      "records_per_second": 6320,
-      "input_watermark_lag_ms": 790,
+      "application_name": "fraud-detection-stream",
+      "application_arn": "arn:aws:kinesisanalytics:ap-south-1:164820739518:application/fraud-detection-stream",
+      "runtime": "FLINK-1_15",
+      "records_per_second": 6995,
+      "input_watermark_lag_ms": 32710,
       "checkpointing_enabled": true,
-      "last_checkpoint_duration_ms": 804,
-      "kpu_count": 16,
-      "structured_logging": true,
+      "last_checkpoint_duration_ms": 400,
+      "kpu_count": 18,
+      "structured_logging": false,
       "metrics": {
-        "records_in_per_second": 6320,
-        "input_watermark_lag_ms": 790,
-        "kpu_utilization_pct": 36,
-        "checkpoint_duration_ms": 1228
-      }
+        "records_in_per_second": 6995,
+        "input_watermark_lag_ms": 32710,
+        "kpu_utilization_pct": 32,
+        "checkpoint_duration_ms": 7069
+      },
+      "error": "OutOfMemory"
     },
     "s3": {
       "bucket": {
-        "name": "aws-kinesisanalytics-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-kinesisanalytics-logs-738291046572"
+        "name": "aws-kinesisanalytics-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-kinesisanalytics-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/kinesisanalytics/sa-east-1/2026/04/17/kinesisanalytics_RYWBO1V710P.log.gz"
+        "key": "AWSLogs/164820739518/kinesisanalytics/ap-south-1/2026/04/17/kinesisanalytics_MO5D37AEWUE.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/kinesisanalytics/logs",
-      "log_stream": "sa-east-1/m397ak52",
-      "ingestion_time": "2026-04-17T15:00:40.215Z"
+      "log_stream": "ap-south-1/x5rtq73o",
+      "ingestion_time": "2026-04-17T15:32:47.304Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": "process",
     "dataset": "aws.kinesisanalytics",
     "provider": "kinesisanalytics.amazonaws.com",
-    "duration": 1878000000,
+    "duration": 5062000000,
     "module": "aws"
   },
-  "message": "{\"applicationName\":\"clickstream-analytics\",\"recordsPerSecond\":6320,\"inputWatermarkLagMs\":790,\"level\":\"info\",\"message\":\"Kinesis Analytics clickstream-analytics: 6320 rec/s, lag 445ms\",\"timestamp\":\"2026-04-17T15:00:39.621Z\"}",
-  "log": { "level": "info" },
+  "message": "Kinesis Analytics fraud-detection-stream error: KPU_LIMIT_EXCEEDED",
+  "log": { "level": "error" },
+  "error": {
+    "code": "KPU_LIMIT_EXCEEDED",
+    "message": "Kinesis Analytics application error",
+    "type": "stream"
+  },
   "service": { "name": "kinesisanalytics", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.kinesisanalytics", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "dqg8oxz4r5v"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "jw50t533cv"
   },
   "input": { "type": "aws-cloudwatch" }
 }

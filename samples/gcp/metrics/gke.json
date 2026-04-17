@@ -3,51 +3,53 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-east5",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" }
+    "region": "me-central2",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-us-east5",
-    "ephemeral_id": "wv5rew6d42"
+    "name": "metricbeat-gcp-me-central2",
+    "ephemeral_id": "anoxhv9wuvv"
   },
   "monitoringTimeSeries": {
-    "metric": { "type": "kubernetes.io/container/cpu/request_utilization", "labels": {} },
+    "metric": {
+      "type": "serviceruntime.googleapis.com/api/request_count",
+      "labels": { "credential_id": "resource-a" }
+    },
     "resource": {
-      "type": "k8s_container",
+      "type": "consumed_api",
       "labels": {
-        "project_id": "globex-staging-d4e5f6",
-        "location": "us-east5",
-        "cluster_name": "dev-cluster",
-        "namespace_name": "kube-system",
-        "pod_name": "collector-2qyss-tu64z",
-        "container_name": "nginx"
+        "project_id": "globex-shared-m3n4o5",
+        "service": "generic.googleapis.com",
+        "method": "resource_id"
       }
     },
-    "metricKind": "GAUGE",
-    "valueType": "DOUBLE",
+    "metricKind": "DELTA",
+    "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 0.44 } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "82095" } }
     ]
   },
   "gcp": {
-    "gke": {
+    "config-connector": {
       "labels": {
-        "project_id": "globex-staging-d4e5f6",
-        "location": "us-east5",
-        "cluster_name": "dev-cluster",
-        "namespace_name": "kube-system",
-        "pod_name": "collector-2qyss-tu64z",
-        "container_name": "nginx"
+        "project_id": "globex-shared-m3n4o5",
+        "service": "generic.googleapis.com",
+        "method": "resource_id",
+        "credential_id": "resource-a"
       },
       "metrics": {
-        "kubernetes.io/container/cpu/request_utilization": { "avg": 0.44, "sum": 0.44, "count": 1 }
+        "serviceruntime.googleapis.com/api/request_count": {
+          "avg": 82095,
+          "sum": 82095,
+          "count": 1
+        }
       }
     }
   },
-  "metricset": { "name": "gke", "period": 60000 },
+  "metricset": { "name": "config-connector", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.gke_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "dataset": "gcp.gke_metrics", "module": "gcp" }

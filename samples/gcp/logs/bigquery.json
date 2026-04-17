@@ -1,71 +1,87 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
+  "severity": "NOTICE",
   "labels": {
-    "dataset_id": "reporting",
-    "table_id": "users",
-    "job_id": "globex-shared-m3n4o5:southamerica-west1.u8mxk7ga"
+    "dataset_id": "audit_logs",
+    "table_id": "events",
+    "job_id": "globex-shared-m3n4o5:us-east4.ihepc5uw"
   },
   "jsonPayload": {
-    "eventName": "reservationUtilization",
-    "reservation": {
-      "name": "projects/globex-shared-m3n4o5/locations/southamerica-west1/reservations/etl-pool-qk6x",
-      "slotCapacity": 3483,
-      "slotUtilization": 0.834936250030675
+    "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+    "authenticationInfo": { "principalEmail": "group:engineering@globex.example.com" },
+    "requestMetadata": {
+      "callerIp": "203.0.144.173",
+      "callerSuppliedUserAgent": "google-cloud-sdk gcloud/…"
+    },
+    "serviceName": "bigquery.googleapis.com",
+    "methodName": "jobservice.insert",
+    "resourceName": "projects/globex-shared-m3n4o5/datasets/audit_logs/tables/events",
+    "metadata": {
+      "@type": "type.googleapis.com/google.cloud.bigquery.logging.v1.AuditData",
+      "jobInsertion": {
+        "job": {
+          "jobName": "globex-shared-m3n4o5:us-east4.ihepc5uw",
+          "jobConfiguration": {
+            "query": {
+              "query": "SELECT * FROM `globex-shared-m3n4o5.audit_logs.events` LIMIT 1000"
+            }
+          }
+        }
+      }
     }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "southamerica-west1",
+    "region": "us-east4",
     "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
     "account": { "id": "173205080756", "name": "Globex Shared Services" },
     "service": { "name": "bigquery" }
   },
   "gcp": {
     "bigquery": {
-      "job_id": "globex-shared-m3n4o5:southamerica-west1.u8mxk7ga",
-      "job_type": "LOAD",
+      "job_id": "globex-shared-m3n4o5:us-east4.ihepc5uw",
+      "job_type": "QUERY",
       "project": "globex-shared-m3n4o5",
-      "dataset": "reporting",
-      "table": "users",
+      "dataset": "audit_logs",
+      "table": "events",
       "statement_type": "MERGE",
-      "total_bytes_processed": 18664747106462,
-      "total_bytes_billed": 16033495056006,
-      "total_slot_ms": 607455055,
+      "total_bytes_processed": 862547,
+      "total_bytes_billed": 0,
+      "total_slot_ms": 1733,
       "billing_tier": "STANDARD",
       "cache_hit": false,
-      "referenced_tables_count": 44,
-      "output_rows": 333747620,
-      "creation_time": "2026-04-04T11:55:12.962Z",
-      "start_time": "2026-04-04T11:55:16.687Z",
+      "referenced_tables_count": 9,
+      "output_rows": 4,
+      "creation_time": "2026-04-04T11:53:07.454Z",
+      "start_time": "2026-04-04T11:53:08.582Z",
       "end_time": "2026-04-04T12:00:00.000Z",
       "priority": "BATCH",
-      "reservation_name": "projects/globex-shared-m3n4o5/locations/southamerica-west1/reservations/etl-pool-qk6x",
-      "completion_ratio": 1
+      "reservation_name": "projects/globex-shared-m3n4o5/locations/us-east4/reservations/etl-pool-2rvp",
+      "completion_ratio": 0.15854098765613
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 283313000000,
+    "outcome": "failure",
+    "duration": 411418000000,
     "module": "gcp",
     "dataset": "gcp.bigquery"
   },
-  "message": "bigqueryreservation.googleapis.com/projects/globex-shared-m3n4o5/locations/southamerica-west1/reservations/etl-pool-qk6x: commitment plan FLEX updated slot_ms=607455055",
+  "message": "protoPayload.methodName=\"bigquery.jobs.create\" protoPayload.serviceName=\"bigquery.googleapis.com\" resourceName=\"projects/globex-shared-m3n4o5/datasets/audit_logs/tables/events\"",
   "service": { "name": "bigquery", "type": "gcp" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.bigquery", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-southamerica-west1",
-    "id": "yj9lpnqacs"
+    "name": "elastic-agent-gcp-us-east4",
+    "id": "qgqws5echjq"
   },
   "input": { "type": "gcp-pubsub" },
   "logName": "projects/globex-shared-m3n4o5/logs/bigquery",
   "resource": {
     "type": "bigquery_resource",
-    "labels": { "project_id": "globex-shared-m3n4o5", "region": "southamerica-west1" }
+    "labels": { "project_id": "globex-shared-m3n4o5", "region": "us-east4" }
   },
-  "insertId": "CWO3PV5Q40W"
+  "insertId": "YEWFPS6U27N"
 }

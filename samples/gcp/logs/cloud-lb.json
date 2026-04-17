@@ -1,90 +1,63 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "DEBUG",
-  "logName": "projects/globex-shared-m3n4o5/logs/requests",
-  "insertId": "t99tvxwtnh",
+  "severity": "INFO",
+  "logName": "projects/globex-security-j0k1l2/logs/compute.googleapis.com%2Fserverless_neg",
+  "insertId": "yqv83rgq2q9",
   "resource": {
-    "type": "http_load_balancer",
+    "type": "network_endpoint_group",
     "labels": {
-      "project_id": "globex-shared-m3n4o5",
-      "zone": "global",
-      "url_map_name": "um-rurbkp",
-      "target_proxy_name": "tp-https-1gwk",
-      "forwarding_rule_name": "fr-asia-south1-am7x",
-      "backend_service_name": "bes-grpc-4o34"
+      "project_id": "globex-security-j0k1l2",
+      "neg": "neg-7v1fgocq",
+      "region": "asia-east2"
     }
   },
-  "httpRequest": {
-    "requestMethod": "POST",
-    "requestUrl": "https://api.globex-shared-m3n4o5.io/api/v1/products",
-    "status": 200,
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-    "remoteIp": "241.102.107.5",
-    "latency": "0.053000s",
-    "protocol": "HTTP/2"
-  },
   "jsonPayload": {
-    "cacheDecision": "CACHE_HIT",
-    "backendTargetProjectNumber": "173205080756",
-    "backend_name": "bes-grpc-4o34",
-    "forwarding_rule_name": "fr-asia-south1-am7x",
-    "url_map_name": "um-rurbkp",
-    "target_proxy_name": "tp-https-1gwk"
+    "serverless_neg": "projects/globex-security-j0k1l2/regions/asia-east2/networkEndpointGroups/neg-7v1fgocq",
+    "backend_service": "projects/globex-security-j0k1l2/regions/asia-east2/backendServices/bes-fn-7lqj",
+    "target_type": "cloud-functions",
+    "health_check": { "state": "DRAINING", "consecutive_success": 1, "consecutive_failure": 0 },
+    "stats": { "requests": 1993560, "error_rate": 0.0138 }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-south1",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
-    "service": { "name": "cloud-lb" }
+    "region": "asia-east2",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" },
+    "service": { "name": "serverless-neg" }
   },
   "gcp": {
-    "cloud_lb": {
-      "http_request": {
-        "requestMethod": "POST",
-        "requestUrl": "https://api.globex-shared-m3n4o5.io/api/v1/products",
-        "status": 200,
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        "remoteIp": "241.102.107.5",
-        "latency": "0.053000s",
-        "protocol": "HTTP/2"
-      },
+    "serverless_neg": {
       "json_payload": {
-        "cacheDecision": "CACHE_HIT",
-        "backendTargetProjectNumber": "173205080756",
-        "backend_name": "bes-grpc-4o34",
-        "forwarding_rule_name": "fr-asia-south1-am7x",
-        "url_map_name": "um-rurbkp",
-        "target_proxy_name": "tp-https-1gwk"
+        "serverless_neg": "projects/globex-security-j0k1l2/regions/asia-east2/networkEndpointGroups/neg-7v1fgocq",
+        "backend_service": "projects/globex-security-j0k1l2/regions/asia-east2/backendServices/bes-fn-7lqj",
+        "target_type": "cloud-functions",
+        "health_check": { "state": "DRAINING", "consecutive_success": 1, "consecutive_failure": 0 },
+        "stats": { "requests": 1993560, "error_rate": 0.0138 }
       },
-      "backend_service": "bes-grpc-4o34",
-      "url_map": "um-rurbkp",
-      "forwarding_rule": "fr-asia-south1-am7x",
-      "request_method": "POST",
-      "url_path": "/api/v1/products",
-      "response_code": 200,
-      "latency_ms": 53,
-      "client_ip": "241.102.107.5",
-      "backend_ip": "87.93.88.81",
-      "protocol": "HTTP/2"
+      "neg_name": "neg-7v1fgocq",
+      "backend_service": "bes-fn-7lqj",
+      "target_type": "cloud-functions",
+      "health_status": "DRAINING",
+      "request_count": 1993560,
+      "error_rate": 0.0138
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 53000000,
+    "duration": 136000000,
     "module": "gcp",
-    "dataset": "gcp.loadbalancing"
+    "dataset": "gcp.serverless_neg"
   },
-  "message": "loadbalancing.googleapis.com/requests POST 200 0.053000s https://api.globex-shared-m3n4o5.io/api/v1/products",
-  "service": { "name": "cloud-lb", "type": "gcp" },
+  "message": "compute.googleapis.com/serverless_negs neg-7v1fgocq health=DRAINING",
+  "service": { "name": "serverless-neg", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.loadbalancing", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.serverless_neg", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-south1",
-    "id": "oxhmfhzlamh"
+    "name": "elastic-agent-gcp-asia-east2",
+    "id": "qgddkgy725q"
   },
   "input": { "type": "gcp-pubsub" }
 }

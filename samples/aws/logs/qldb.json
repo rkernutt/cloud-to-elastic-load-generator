@@ -1,20 +1,21 @@
 {
-  "@timestamp": "2026-04-17T15:00:39.621Z",
+  "@timestamp": "2026-04-17T15:32:46.708Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
+    "region": "eu-central-1",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "qldb" }
   },
   "aws": {
     "qldb": {
-      "ledger_name": "supply-chain",
-      "table_name": "Orders",
+      "ledger_name": "financial-records",
+      "table_name": "Users",
       "operation": "CREATE_INDEX",
-      "transaction_id": "0uwfn4m54b7e",
-      "document_id": "y3l40rx0r5",
-      "revision_hash": "b4vzjbba7w5",
-      "duration_ms": 458
+      "transaction_id": "nqbjnukoudc",
+      "document_id": "riiabz8srb",
+      "revision_hash": "9dx1dk47i9",
+      "duration_ms": 277,
+      "error_code": "InvalidSessionException"
     },
     "s3": {
       "bucket": {
@@ -22,33 +23,38 @@
         "arn": "arn:aws:s3:::aws-qldb-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/qldb/ap-northeast-1/2026/04/17/qldb_6LUIINPHK3O.log.gz"
+        "key": "AWSLogs/164820739518/qldb/eu-central-1/2026/04/17/qldb_MQM219F3W4B.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/qldb/logs",
-      "log_stream": "ap-northeast-1/j0bv3i5h",
-      "ingestion_time": "2026-04-17T15:00:40.201Z"
+      "log_stream": "eu-central-1/wm8g4ofu",
+      "ingestion_time": "2026-04-17T15:32:47.291Z"
     }
   },
   "event": {
-    "duration": 457781886.9758597,
-    "outcome": "success",
+    "duration": 276887548.6370284,
+    "outcome": "failure",
     "category": "database",
     "dataset": "aws.qldb",
     "provider": "qldb.amazonaws.com",
     "module": "aws"
   },
-  "message": "QLDB CREATE_INDEX on supply-chain.Orders: 458ms",
-  "log": { "level": "info" },
+  "message": "QLDB CREATE_INDEX on financial-records.Users FAILED: Transaction expired",
+  "log": { "level": "error" },
+  "error": {
+    "code": "TransactionExpiredException",
+    "message": "QLDB transaction failed",
+    "type": "db"
+  },
   "service": { "name": "qldb", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.qldb", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "d9mkxsm4vu8"
+    "name": "filebeat-aws-eu-central-1",
+    "ephemeral_id": "tbsssbi0fl"
   },
   "input": { "type": "aws-cloudwatch" }
 }

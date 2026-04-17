@@ -1,44 +1,53 @@
 {
-  "@timestamp": "2026-04-17T15:00:39.621Z",
+  "@timestamp": "2026-04-17T15:32:46.708Z",
   "cloud": {
     "provider": "aws",
     "region": "us-east-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "organizations" }
   },
   "aws": {
     "organizations": {
-      "action": "InviteAccountToOrganization",
-      "account_id": "738291046572",
-      "account_name": "shared-services",
-      "organizational_unit": "Root"
+      "action": "DetachPolicy",
+      "account_id": "814726593401",
+      "account_name": "sandbox-dev",
+      "organizational_unit": "Security",
+      "policy_id": "p-ib8sqsda",
+      "policy_type": "SERVICE_CONTROL_POLICY",
+      "policy_name": "RequireS3Encryption",
+      "error_code": "AccessDeniedException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-organizations-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-organizations-logs-738291046572"
+        "name": "aws-organizations-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-organizations-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/organizations/us-east-1/2026/04/17/organizations_BY2DCOAZN2C.log.gz"
+        "key": "AWSLogs/814726593401/organizations/us-east-1/2026/04/17/organizations_V46TAXD2TPM.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/organizations/logs",
-      "log_stream": "us-east-1/uu1h4wur",
-      "ingestion_time": "2026-04-17T15:00:40.269Z"
+      "log_stream": "us-east-1/6rs7camz",
+      "ingestion_time": "2026-04-17T15:32:47.363Z"
     }
   },
   "event": {
-    "action": "InviteAccountToOrganization",
-    "outcome": "success",
+    "action": "DetachPolicy",
+    "outcome": "failure",
     "category": ["configuration", "iam"],
     "dataset": "aws.organizations",
     "provider": "organizations.amazonaws.com",
-    "duration": 1582000000,
+    "duration": 1455000000,
     "module": "aws"
   },
-  "message": "Organizations InviteAccountToOrganization: Infrastructure",
-  "log": { "level": "info" },
+  "message": "Organizations DetachPolicy FAILED: Access denied",
+  "error": {
+    "code": "OrganizationsError",
+    "message": "Organizations operation failed",
+    "type": "iam"
+  },
+  "log": { "level": "error" },
   "service": { "name": "organizations", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.organizations", "namespace": "default" },
@@ -46,7 +55,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "9u6rq9d6w3r"
+    "ephemeral_id": "34fmqgl40nr"
   },
   "input": { "type": "aws-cloudwatch" }
 }

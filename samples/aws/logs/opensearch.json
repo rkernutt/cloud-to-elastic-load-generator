@@ -1,73 +1,74 @@
 {
-  "@timestamp": "2026-04-17T15:00:39.621Z",
+  "@timestamp": "2026-04-17T15:32:46.708Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "me-central-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "opensearch" }
   },
   "aws": {
-    "dimensions": { "DomainName": "prod-search-ca-central-1", "ClientId": "293847561023" },
+    "dimensions": { "DomainName": "prod-search-me-central-1", "ClientId": "501938274650" },
     "opensearch": {
-      "domain_name": "prod-search-ca-central-1",
-      "index": "metrics",
-      "operation": "create_index",
-      "took_ms": 628,
+      "domain_name": "prod-search-me-central-1",
+      "index": "audit-events",
+      "operation": "circuit_breaker",
+      "took_ms": 510,
       "shards": {
-        "total": 20,
-        "successful": 20,
+        "total": 21,
+        "successful": 21,
         "failed": 0,
-        "active": 20,
+        "active": 21,
         "initializing": 0,
         "relocating": 0,
         "unassigned": 0
       },
-      "hits_total": 37372,
+      "hits_total": 93203,
       "status_code": 200,
+      "circuit_breaker": "parent",
       "metrics": {
-        "CPUUtilization": { "avg": 26.133819392636887 },
-        "FreeStorageSpace": { "avg": 463351105938 },
+        "CPUUtilization": { "avg": 28.7382005278811 },
+        "FreeStorageSpace": { "avg": 11874354971 },
         "ClusterStatus": { "green": 1, "yellow": 0, "red": 0 },
-        "Nodes": { "avg": 7 },
-        "SearchableDocuments": { "avg": 463551334 },
-        "IndexingLatency": { "avg": 458 },
-        "SearchLatency": { "avg": 522 },
-        "IndexingRate": { "avg": 48308 },
-        "SearchRate": { "avg": 8553 },
-        "JVMMemoryPressure": { "avg": 50.745244381739234 },
+        "Nodes": { "avg": 8 },
+        "SearchableDocuments": { "avg": 559429675 },
+        "IndexingLatency": { "avg": 460 },
+        "SearchLatency": { "avg": 547 },
+        "IndexingRate": { "avg": 66028 },
+        "SearchRate": { "avg": 7941 },
+        "JVMMemoryPressure": { "avg": 57.53611560323098 },
         "AutomatedSnapshotFailure": { "sum": 0 },
         "CoordinatingWriteRejected": { "sum": 0 },
         "PrimaryWriteRejected": { "sum": 0 },
         "ReplicaWriteRejected": { "sum": 0 },
-        "WarmStorageSpaceUsage": { "avg": 20.206536001605446 },
-        "DeletedDocuments": { "avg": 30662 }
+        "WarmStorageSpaceUsage": { "avg": 45.89702081647751 },
+        "DeletedDocuments": { "avg": 90198 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-opensearch-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-opensearch-logs-293847561023"
+        "name": "aws-opensearch-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-opensearch-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/opensearch/ca-central-1/2026/04/17/opensearch_0TC4AVMQ7KU.log.gz"
+        "key": "AWSLogs/501938274650/opensearch/me-central-1/2026/04/17/opensearch_DAUV1JU3R7.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/opensearch/logs",
-      "log_stream": "ca-central-1/ggf1zcfd",
-      "ingestion_time": "2026-04-17T15:00:40.196Z"
+      "log_stream": "me-central-1/51l7yy5t",
+      "ingestion_time": "2026-04-17T15:32:47.286Z"
     }
   },
   "http": { "response": { "status_code": 200 } },
   "event": {
-    "duration": 627651165.1223884,
+    "duration": 510117964.2992592,
     "outcome": "success",
     "category": "database",
     "dataset": "aws.opensearch",
     "provider": "es.amazonaws.com",
     "module": "aws"
   },
-  "message": "[2026-04-17T15:00:39.621Z] cluster=prod-search-ca-central-1 action=create_index index=metrics ack=true",
+  "message": "[2026-04-17T15:32:46.708Z][WARN ][o.e.i.b.request.RequestBreaker] [data-1] breaking incoming request: [parent] Data too large, data for [<reused_arrays>] would be [837mb], which is larger than the limit of [795mb]",
   "log": { "level": "info" },
   "service": { "name": "opensearch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -75,8 +76,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "bkb0knrlvs6"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "tpf69c06ktj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,68 +1,66 @@
 {
-  "@timestamp": "2026-04-17T15:00:39.621Z",
+  "@timestamp": "2026-04-17T15:32:46.708Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-northeast-3",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "databrew" }
   },
   "aws": {
-    "dimensions": { "JobName": "clean-customer-data-job", "DatasetName": "sales-csv" },
+    "dimensions": { "JobName": "normalize-dates-job", "DatasetName": "product-catalog" },
     "databrew": {
-      "project_name": "sales-csv-project",
-      "recipe_name": "clean-customer-data",
-      "job_name": "clean-customer-data-job",
-      "job_type": "RECIPE",
-      "dataset_name": "sales-csv",
-      "job_status": "FAILED",
-      "run_state": "FAILED",
-      "duration_seconds": 1797,
-      "rows_processed": 0,
-      "transform_steps": 8,
-      "output_location": "s3://databrew-output/sales-csv/",
-      "error_message": "Data type mismatch",
+      "project_name": "product-catalog-project",
+      "recipe_name": "normalize-dates",
+      "job_name": "normalize-dates-job",
+      "job_type": "PROFILE",
+      "dataset_name": "product-catalog",
+      "job_status": "SUCCEEDED",
+      "run_state": "SUCCEEDED",
+      "duration_seconds": 135,
+      "rows_processed": 5088639,
+      "transform_steps": 5,
+      "output_location": "s3://databrew-output/product-catalog/",
       "metrics": {
-        "RowsProcessed": { "sum": 0 },
-        "DurationSeconds": { "avg": 1797 },
-        "TransformSteps": { "avg": 8 },
-        "JobSuccessCount": { "sum": 0 },
-        "JobFailureCount": { "sum": 1 }
+        "RowsProcessed": { "sum": 5088639 },
+        "DurationSeconds": { "avg": 135 },
+        "TransformSteps": { "avg": 5 },
+        "JobSuccessCount": { "sum": 1 },
+        "JobFailureCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-databrew-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-databrew-logs-164820739518"
+        "name": "aws-databrew-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-databrew-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/164820739518/databrew/ca-west-1/2026/04/17/databrew_O35YRI5AUG.log.gz"
+        "key": "AWSLogs/738291046572/databrew/ap-northeast-3/2026/04/17/databrew_L9RX5F0AP8L.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/databrew/logs",
-      "log_stream": "ca-west-1/2xq7tnl4",
-      "ingestion_time": "2026-04-17T15:00:40.235Z"
+      "log_stream": "ap-northeast-3/p83x4zd4",
+      "ingestion_time": "2026-04-17T15:32:47.325Z"
     }
   },
   "event": {
-    "duration": 1797000000000,
-    "outcome": "failure",
+    "duration": 135000000000,
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.databrew",
     "provider": "databrew.amazonaws.com",
     "module": "aws"
   },
-  "message": "DataBrew job clean-customer-data FAILED on sales-csv: Type mismatch",
-  "log": { "level": "error" },
-  "error": { "code": "JobFailed", "message": "DataBrew job failed", "type": "process" },
+  "message": "DataBrew job normalize-dates: 5,088,639 rows in 135s",
+  "log": { "level": "info" },
   "service": { "name": "databrew", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.databrew", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "uyp2ib4c4i"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "iadpadhg2n8"
   },
   "input": { "type": "aws-cloudwatch" }
 }

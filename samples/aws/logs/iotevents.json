@@ -1,24 +1,25 @@
 {
-  "@timestamp": "2026-04-17T15:00:39.621Z",
+  "@timestamp": "2026-04-17T15:32:46.708Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
+    "region": "me-south-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "door-sensor-model", "KeyValue": "zone-A" },
+    "dimensions": { "DetectorModelName": "temperature-alert-model", "KeyValue": "unit-02" },
     "iotevents": {
-      "detector_model_name": "door-sensor-model",
-      "detector_id": "zone-A",
-      "key_value": "zone-A",
-      "event_name": "AlarmReset",
-      "from_state": "Acknowledged",
-      "to_state": "Warning",
-      "input_name": "HealthCheck",
-      "action_type": "SQS",
-      "timer_name": "idleTimer",
-      "condition_expression": "$input.data.value < threshold"
+      "detector_model_name": "temperature-alert-model",
+      "detector_id": "unit-02",
+      "key_value": "unit-02",
+      "event_name": "AlarmActivated",
+      "from_state": "Normal",
+      "to_state": "Error",
+      "input_name": "CommandInput",
+      "action_type": "Lambda",
+      "timer_name": "alarmTimer",
+      "condition_expression": "$input.SensorInput.temperature > 85",
+      "error_code": "InvalidRequestException"
     },
     "s3": {
       "bucket": {
@@ -26,33 +27,34 @@
         "arn": "arn:aws:s3:::aws-iotevents-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/iotevents/eu-west-2/2026/04/17/iotevents_QSHGPY68IMC.log.gz"
+        "key": "AWSLogs/293847561023/iotevents/me-south-1/2026/04/17/iotevents_CZYP0MU522H.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "eu-west-2/njrx9zvf",
-      "ingestion_time": "2026-04-17T15:00:40.307Z"
+      "log_stream": "me-south-1/j2mav0le",
+      "ingestion_time": "2026-04-17T15:32:47.398Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 213000000,
+    "duration": 2987000000,
     "module": "aws"
   },
-  "message": "IoT Events door-sensor-model/zone-A: Acknowledged → Warning [AlarmReset]",
-  "log": { "level": "info" },
+  "message": "IoT Events temperature-alert-model/unit-02 ERROR: Input validation error",
+  "log": { "level": "error" },
+  "error": { "code": "ThrottlingException", "message": "IoT Events error", "type": "iot" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iotevents", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "c06e43yy7zi"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "u65apwejexp"
   },
   "input": { "type": "aws-cloudwatch" }
 }

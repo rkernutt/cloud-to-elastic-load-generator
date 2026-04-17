@@ -701,6 +701,12 @@ export function SetupPage({
     "sap-on-azure": "Compute",
     "vmware-solution": "Compute",
     "capacity-reservation": "Compute",
+    "azure-security-chain": "Chained Events",
+    "azure-cspm": "Security & Identity",
+    "azure-kspm": "Security & Identity",
+    "azure-iam-privesc-chain": "Chained Events",
+    "azure-data-exfil-chain": "Chained Events",
+    "azure-data-pipeline-chain": "Chained Events",
 
     // ── GCP services ────────────────────────────────────────────────────────
     "cloud-functions": "Compute",
@@ -1428,9 +1434,24 @@ export function SetupPage({
       firewall: "azure-firewall",
       "kubernetes-service": "aks",
       kubernetesservice: "aks",
+      kubernetes: "aks",
+      "container-registry": "acr",
       devops: "pipeline",
       "devops-pipeline": "pipeline",
       synapse: "synapse-workspace",
+      "express-route": "expressroute-circuit",
+      "proximity-placement-groups": "proximity-placement",
+      "redis-cache": "cache-for-redis",
+      postgresql: "database-for-postgresql",
+      mysql: "database-for-mysql",
+      mariadb: "database-for-mariadb",
+      fabric: "microsoft-fabric",
+      "microsoft-365": "m365",
+      defender: "defender-for-cloud",
+      automation: "automation-account",
+      "dev-center": "devcenter",
+      "azure-stack": "stack",
+      waf: "waf-policy",
     };
 
     function normalize(raw: string, cloud?: CloudId): string {

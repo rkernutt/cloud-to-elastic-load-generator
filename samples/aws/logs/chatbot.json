@@ -1,56 +1,61 @@
 {
-  "@timestamp": "2026-04-17T15:00:39.621Z",
+  "@timestamp": "2026-04-17T15:32:46.708Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "us-west-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "chatbot" }
   },
   "aws": {
-    "dimensions": { "ChannelConfiguration": "security-alerts", "ChannelType": "MicrosoftTeams" },
+    "dimensions": { "ChannelConfiguration": "cost-alerts", "ChannelType": "MicrosoftTeams" },
     "chatbot": {
-      "channel_configuration_name": "security-alerts",
+      "channel_configuration_name": "cost-alerts",
       "channel_type": "MicrosoftTeams",
       "notification_type": "SNSNotification",
-      "workspace_id": "T9CP9IR2B",
-      "channel_id": "C2CNW29MF",
-      "delivery_status": "Delivered",
-      "message_id": "k0lmht4j-y5by-2833-c3nr-v9encfay7n",
-      "sns_topic_arn": "arn:aws:sns:eu-south-1:814726593401:snsnotification-topic"
+      "workspace_id": "TY5RZL4Y0",
+      "channel_id": "C1DNRA9MW",
+      "delivery_status": "Throttled",
+      "message_id": "xjv0drf2-wlx0-tz1k-wiu4-54tnkvoagrx",
+      "sns_topic_arn": "arn:aws:sns:us-west-2:164820739518:snsnotification-topic"
     },
     "s3": {
       "bucket": {
-        "name": "aws-chatbot-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-chatbot-logs-814726593401"
+        "name": "aws-chatbot-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-chatbot-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/chatbot/eu-south-1/2026/04/17/chatbot_M4YYOTFHUS.log.gz"
+        "key": "AWSLogs/164820739518/chatbot/us-west-2/2026/04/17/chatbot_LAX3S4LAHC.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/chatbot/logs",
-      "log_stream": "eu-south-1/t663t3jp",
-      "ingestion_time": "2026-04-17T15:00:40.283Z"
+      "log_stream": "us-west-2/gid9c80z",
+      "ingestion_time": "2026-04-17T15:32:47.376Z"
     }
   },
   "event": {
-    "action": "BotInvitation",
-    "outcome": "success",
+    "action": "AlertSuppression",
+    "outcome": "failure",
     "category": ["configuration"],
     "dataset": "aws.chatbot",
     "provider": "chatbot.amazonaws.com",
     "module": "aws"
   },
-  "message": "Chatbot security-alerts: SNSNotification delivered to MicrosoftTeams",
-  "log": { "level": "info" },
+  "message": "Chatbot cost-alerts (MicrosoftTeams): SNSNotification delivery Throttled",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InvalidParameterException",
+    "message": "Chatbot notification delivery failed",
+    "type": "configuration"
+  },
   "service": { "name": "chatbot", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.chatbot", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "wo0lhph7ol"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "azzqbs2y62"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,27 +1,28 @@
 {
-  "@timestamp": "2026-04-17T15:00:39.621Z",
+  "@timestamp": "2026-04-17T15:32:46.708Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
+    "region": "ap-northeast-3",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "devopsguru" }
   },
   "aws": {
     "devopsguru": {
-      "insight_id": "r51eg43fvdn",
-      "insight_type": "REACTIVE",
+      "insight_id": "mwvn64mqh3",
+      "insight_type": "PROACTIVE",
       "severity": "MEDIUM",
       "resource_collection": {
-        "cloud_formation": { "stack_names": ["prod-stack"] },
+        "cloud_formation": { "stack_names": ["api-stack"] },
         "tags": [{ "key": "environment", "value": "production" }]
       },
-      "anomaly_id": "x4j2kny4609",
-      "anomaly_description": "RDS CPU spike correlated with API latency",
-      "anomaly_sources": ["dynamodb-sessions"],
-      "start_time": "2026-04-17T14:17:31.457Z",
-      "status": "ONGOING",
-      "recommendation": "Scale up resource",
-      "ssm_ops_items": ["oi-c4tjb6ul"]
+      "anomaly_id": "zvytvhzhcz",
+      "anomaly_description": "SQS queue depth growing abnormally",
+      "anomaly_sources": ["lambda-api"],
+      "start_time": "2026-04-17T14:58:55.748Z",
+      "end_time": "2026-04-17T15:32:47.396Z",
+      "status": "CLOSED",
+      "recommendation": "Review alarm thresholds",
+      "ssm_ops_items": []
     },
     "s3": {
       "bucket": {
@@ -29,38 +30,33 @@
         "arn": "arn:aws:s3:::aws-devopsguru-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/devopsguru/ap-southeast-1/2026/04/17/devopsguru_CY893GMOORD.log.gz"
+        "key": "AWSLogs/164820739518/devopsguru/ap-northeast-3/2026/04/17/devopsguru_ESM357G03ET.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/devopsguru/logs",
-      "log_stream": "ap-southeast-1/52q7plpt",
-      "ingestion_time": "2026-04-17T15:00:40.305Z"
+      "log_stream": "ap-northeast-3/57ww53rg",
+      "ingestion_time": "2026-04-17T15:32:47.396Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process", "configuration", "vulnerability"],
     "dataset": "aws.devopsguru",
     "provider": "devops-guru.amazonaws.com",
-    "duration": 2962000000000,
+    "duration": 477000000000,
     "module": "aws"
   },
-  "message": "DevOps Guru ONGOING [MEDIUM]: RDS CPU spike correlated with API latency",
-  "log": { "level": "error" },
-  "error": {
-    "code": "InsightOngoing",
-    "message": "DevOps Guru ongoing anomaly",
-    "type": "process"
-  },
+  "message": "DevOps Guru PROACTIVE insight [MEDIUM]: SQS queue depth growing abnormally",
+  "log": { "level": "info" },
   "service": { "name": "devopsguru", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.devopsguru", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "gtu8k77vn2"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "40bqc7iudnj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,62 +1,62 @@
 {
-  "@timestamp": "2026-04-17T15:00:39.621Z",
+  "@timestamp": "2026-04-17T15:32:46.708Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-south-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "autoscaling" }
   },
   "aws": {
-    "dimensions": { "AutoScalingGroupName": "web-asg" },
+    "dimensions": { "AutoScalingGroupName": "batch-asg" },
     "autoscaling": {
-      "group_name": "web-asg",
-      "activity_id": "ijp2b5lj-i2qg-2nwa",
-      "action_type": "Launch",
-      "instance_id": "i-1rvfdpirc22",
-      "instance_type": "t3.medium",
-      "desired_capacity": 8,
+      "group_name": "batch-asg",
+      "activity_id": "xtzx8tbg-dk8t-fi9k",
+      "action_type": "HealthCheck",
+      "instance_id": "i-8cmsgsezgq",
+      "instance_type": "c5.2xlarge",
+      "desired_capacity": 7,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 7,
-      "cause": "At 2024-01-01T12:00:00Z instance i-0abc123456789abcd failed ELB health checks",
+      "current_capacity": 6,
+      "cause": "EC2 health check passed",
       "status_code": "Successful",
-      "launch_template": "web-lt:5",
+      "launch_template": "worker-lt:8",
       "predictive_scaling_forecast": false,
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 8 },
-        "GroupInServiceInstances": { "avg": 7 },
-        "GroupPendingInstances": { "avg": 1 },
-        "GroupStandbyInstances": { "avg": 0 },
+        "GroupDesiredCapacity": { "avg": 7 },
+        "GroupInServiceInstances": { "avg": 6 },
+        "GroupPendingInstances": { "avg": 0 },
+        "GroupStandbyInstances": { "avg": 1 },
         "GroupTerminatingInstances": { "avg": 0 },
-        "GroupTotalInstances": { "avg": 8 },
-        "GroupInServiceCapacity": { "avg": 7 },
-        "GroupPendingCapacity": { "avg": 1 },
-        "GroupStandbyCapacity": { "avg": 0 },
+        "GroupTotalInstances": { "avg": 7 },
+        "GroupInServiceCapacity": { "avg": 6 },
+        "GroupPendingCapacity": { "avg": 0 },
+        "GroupStandbyCapacity": { "avg": 1 },
         "GroupTerminatingCapacity": { "avg": 0 },
-        "GroupTotalCapacity": { "avg": 8 },
-        "WarmPoolMinSize": { "avg": 0 },
-        "WarmPoolDesiredCapacity": { "avg": 0 },
-        "WarmPoolPendingCapacity": { "avg": 0 },
-        "WarmPoolTerminatingCapacity": { "avg": 0 },
-        "WarmPoolTotalCapacity": { "avg": 0 },
-        "WarmPoolWarmedCapacity": { "avg": 0 }
+        "GroupTotalCapacity": { "avg": 7 },
+        "WarmPoolMinSize": { "avg": 2 },
+        "WarmPoolDesiredCapacity": { "avg": 7 },
+        "WarmPoolPendingCapacity": { "avg": 2 },
+        "WarmPoolTerminatingCapacity": { "avg": 2 },
+        "WarmPoolTotalCapacity": { "avg": 11 },
+        "WarmPoolWarmedCapacity": { "avg": 11 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-autoscaling-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-autoscaling-logs-501938274650"
+        "name": "aws-autoscaling-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-autoscaling-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/autoscaling/il-central-1/2026/04/17/autoscaling_DL88K761EIA.log.gz"
+        "key": "AWSLogs/293847561023/autoscaling/ap-south-1/2026/04/17/autoscaling_1T0MF14YAFS.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "il-central-1/lpv0zeel",
-      "ingestion_time": "2026-04-17T15:00:40.116Z"
+      "log_stream": "ap-south-1/iw9mw5bi",
+      "ingestion_time": "2026-04-17T15:32:47.201Z"
     }
   },
   "event": {
@@ -64,10 +64,10 @@
     "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 505000000000,
+    "duration": 271000000000,
     "module": "aws"
   },
-  "message": "SuccessfulScalingActivity: Launching a new EC2 instance: i-1rvfdpirc22 ActivityId=ijp2b5lj-i2qg-2nwa Cause: At 2024-01-01T12:00:00Z instance i-0abc123456789abcd failed ELB health checks",
+  "message": "AutoScaling batch-asg: HealthCheck instance i-8cmsgsezgq — EC2 health check passed",
   "log": { "level": "info" },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -75,8 +75,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "f5034j8pabc"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "63j0k2fe9yx"
   },
   "input": { "type": "aws-cloudwatch" }
 }

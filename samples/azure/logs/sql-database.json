@@ -1,54 +1,56 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.000Z",
-  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-network-53zzi9/providers/Microsoft.Sql/servers/sql-x6docu/databases/inventory",
+  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-shared-sll8jm/providers/Microsoft.Sql/servers/sql-49th4n/databases/inventory",
   "cloud": {
     "provider": "azure",
-    "region": "westus2",
+    "region": "westeurope",
     "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" },
     "service": { "name": "Microsoft.Sql/servers" }
   },
-  "category": "Errors",
-  "operationName": "Deadlock",
-  "resultType": "Failed",
-  "level": "Error",
-  "correlationId": "r5h7iof9dgr",
-  "callerIpAddress": "166.38.128.28",
+  "category": "SQLInsights",
+  "operationName": "QueryStoreRuntimeStatistics",
+  "resultType": "Succeeded",
+  "level": "Informational",
+  "correlationId": "01g1um8ydig5",
+  "callerIpAddress": "41.28.154.66",
   "properties": {
-    "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-network-53zzi9/providers/Microsoft.Sql/servers/sql-x6docu/databases/inventory",
-    "error_number": 1205,
-    "error_severity": 13,
-    "error_state": 7,
-    "error_message": "Transaction (Process ID 62) was deadlocked on lock resources with another process and has been chosen as the deadlock victim.",
-    "session_id": 350
+    "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-shared-sll8jm/providers/Microsoft.Sql/servers/sql-49th4n/databases/inventory",
+    "QueryText": "UPDATE dbo.customers SET last_login_utc = SYSUTCDATETIME() WHERE customer_id = @id",
+    "Duration": 640785,
+    "WaitType": "SOS_SCHEDULER_YIELD",
+    "CPUTime": 43441814,
+    "LogicalReads": 19716,
+    "PhysicalReads": 4195,
+    "query_hash": "x5fq3078n7"
   },
   "azure": {
     "sql_database": {
-      "server": "sql-x6docu",
+      "server": "sql-49th4n",
       "database": "inventory",
-      "resource_group": "rg-network-53zzi9",
-      "diagnostic_category": "Errors",
-      "dtu_percent": 53.47755216706138,
-      "deadlocks": 1,
+      "resource_group": "rg-shared-sll8jm",
+      "diagnostic_category": "SQLInsights",
+      "dtu_percent": 22.160896475797337,
+      "deadlocks": 0,
       "failed_connections": 1
     }
   },
   "event": {
-    "outcome": "failure",
-    "duration": 1158839252,
+    "outcome": "success",
+    "duration": 404650451,
     "module": "azure",
     "dataset": "azure.sql_database"
   },
-  "message": "Deadlock detected on sql-x6docu/inventory (victim session 350)",
+  "message": "Query completed on sql-49th4n/inventory: cpu 43.44ms, logical reads 19716",
   "service": { "name": "sql-database", "type": "azure" },
-  "log": { "level": "error" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.sql_database", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-westus2",
-    "id": "nf0p8hheeqd"
+    "name": "elastic-agent-azure-westeurope",
+    "id": "j8rlyx245v"
   },
   "input": { "type": "azure-eventhub" }
 }

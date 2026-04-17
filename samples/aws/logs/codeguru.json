@@ -1,56 +1,63 @@
 {
-  "@timestamp": "2026-04-17T15:00:39.621Z",
+  "@timestamp": "2026-04-17T15:32:46.708Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-southeast-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "codeguru" }
   },
   "aws": {
     "codeguru": {
-      "product": "Reviewer",
+      "product": "Profiler",
       "repository_name": "data-pipeline",
-      "association_id": "1n01wuqpy0b",
-      "finding_id": "6qo2exd9w28",
-      "category": "CodeMaintainability",
-      "severity": "High",
-      "finding_description": "Security:TaintedDataUsedInSecurityCheck",
-      "code_file": "app/models.py",
-      "line_number": 439,
-      "pull_request_id": 164
+      "association_id": "ss9f7ysh2yl",
+      "finding_id": "g9zjf536dat",
+      "category": "Latency",
+      "severity": "Info",
+      "finding_description": "Excessive GC overhead",
+      "code_file": "server/routes.js",
+      "line_number": 295,
+      "profiling_group": "data-pipeline-profiling",
+      "frame_percent": 48.7367216546977,
+      "error_code": "ResourceNotFoundException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-codeguru-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-codeguru-logs-293847561023"
+        "name": "aws-codeguru-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-codeguru-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/codeguru/eu-south-1/2026/04/17/codeguru_HC813XNLOUN.log.gz"
+        "key": "AWSLogs/814726593401/codeguru/ap-southeast-2/2026/04/17/codeguru_23153CFMLQ9.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codeguru/logs",
-      "log_stream": "eu-south-1/01le16ie",
-      "ingestion_time": "2026-04-17T15:00:40.224Z"
+      "log_stream": "ap-southeast-2/iffnblgc",
+      "ingestion_time": "2026-04-17T15:32:47.315Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["vulnerability", "process"],
     "dataset": "aws.codeguru",
     "provider": "codeguru.amazonaws.com",
     "module": "aws"
   },
-  "message": "CodeGuru Reviewer [data-pipeline] High: Security",
-  "log": { "level": "warn" },
+  "message": "CodeGuru Profiler FAILED [data-pipeline]: Internal error:",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ThrottlingException",
+    "message": "CodeGuru operation failed",
+    "type": "process"
+  },
   "service": { "name": "codeguru", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.codeguru", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "yx8mat4gy8"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "903n5cvr11i"
   },
   "input": { "type": "aws-cloudwatch" }
 }

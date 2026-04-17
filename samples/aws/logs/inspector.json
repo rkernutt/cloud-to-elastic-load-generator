@@ -1,86 +1,72 @@
 {
-  "@timestamp": "2026-04-17T15:00:39.621Z",
+  "@timestamp": "2026-04-17T15:32:46.708Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ca-central-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "inspector2" }
   },
   "aws": {
-    "dimensions": { "Severity": "LOW" },
+    "dimensions": { "Severity": "INFORMATIONAL" },
     "inspector2": {
-      "findingArn": "arn:aws:inspector2:ap-south-1:293847561023:finding/qr3f5all-80jg-kl3u-hh85-wl4xexu6df",
-      "type": "PACKAGE_VULNERABILITY",
-      "title": "CVE-2022-33531: openssl 3.2.1 has a known vulnerability",
-      "description": "A package used by the workload has a vulnerability tracked as CVE-2022-33531 with CVSS 0.6.",
+      "findingArn": "arn:aws:inspector2:ca-central-1:814726593401:finding/ykswf6u8-4xnh-ywpe-nbnv-co221d2vlv",
+      "type": "NETWORK_REACHABILITY",
+      "title": "Network path to open port on i-fflreodd648",
+      "description": "Inspector determined a network path exists that could allow reachability to a sensitive port from outside the VPC boundary.",
       "remediation": {
         "recommendation": {
-          "text": "Upgrade openssl to 3.4.13 or later to remediate CVE-2022-33531."
+          "text": "Restrict security group ingress, remove overly permissive rules, or place the resource behind a private endpoint."
         }
       },
       "resources": [
         {
           "type": "AWS_EC2_INSTANCE",
-          "id": "i-39vjpvbbrs2",
+          "id": "i-fflreodd648",
           "partition": "aws",
-          "region": "ap-south-1",
-          "tags": { "Environment": "staging" }
+          "region": "ca-central-1",
+          "tags": { "Environment": "prod" }
         }
       ],
-      "exploitAvailable": "YES",
+      "exploitAvailable": "NO",
       "fixAvailable": true,
       "finding_status": "ACTIVE",
-      "severity": "LOW",
-      "severity_score": 0.6,
-      "exploitability": "FUNCTIONAL",
+      "severity": "INFORMATIONAL",
+      "severity_score": 1.8,
+      "exploitability": "NOT_DEFINED",
       "resource_type": "AWS_EC2_INSTANCE",
-      "resource_id": "i-39vjpvbbrs2",
-      "first_observed_at": "2026-03-21T15:00:39.621Z",
-      "last_observed_at": "2026-04-17T15:00:39.621Z",
-      "package_vulnerability": {
-        "cve_id": "CVE-2022-33531",
-        "source": "NVD",
-        "cvss3_score": 0.5735147725123062,
-        "vulnerable_packages": [
-          {
-            "name": "openssl",
-            "version": "3.2.1",
-            "fixed_in_version": "3.4.13",
-            "package_manager": "JAVA"
-          }
-        ],
-        "related_vulnerabilities": []
+      "resource_id": "i-fflreodd648",
+      "first_observed_at": "2026-03-21T15:32:46.708Z",
+      "last_observed_at": "2026-04-17T15:32:46.708Z",
+      "network_reachability": {
+        "protocol": "TCP",
+        "open_port_range": { "begin": 3306, "end": 80 },
+        "network_path": "sg -> nat -> igw"
       },
       "metrics": {
-        "TotalFindings": { "sum": 233 },
+        "TotalFindings": { "sum": 157 },
         "CriticalFindings": { "sum": 0 },
         "HighFindings": { "sum": 0 },
         "MediumFindings": { "sum": 0 },
-        "LowFindings": { "sum": 222 },
-        "CoveredResources": { "avg": 2959 }
+        "LowFindings": { "sum": 245 },
+        "CoveredResources": { "avg": 967 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-inspector-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-inspector-logs-293847561023"
+        "name": "aws-inspector-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-inspector-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/inspector/ap-south-1/2026/04/17/inspector_U7KA3CZJ9AL.log.gz"
+        "key": "AWSLogs/814726593401/inspector/ca-central-1/2026/04/17/inspector_Z996WPI8SF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/inspector/logs",
-      "log_stream": "ap-south-1/tadt571x",
-      "ingestion_time": "2026-04-17T15:00:40.152Z"
+      "log_stream": "ca-central-1/wknxolkf",
+      "ingestion_time": "2026-04-17T15:32:47.236Z"
     }
   },
-  "vulnerability": {
-    "severity": "LOW",
-    "id": "CVE-2022-33531",
-    "score": { "base": 0.5735147725123062 }
-  },
-  "package": { "name": "openssl", "version": "3.2.1" },
+  "vulnerability": { "severity": "INFORMATIONAL", "score": { "base": 1.8485728422599643 } },
   "event": {
     "outcome": "success",
     "category": ["vulnerability"],
@@ -89,7 +75,7 @@
     "provider": "inspector2.amazonaws.com",
     "module": "aws"
   },
-  "message": "Inspector2 [LOW]: CVE-2022-33531 in openssl 3.2.1 on AWS_EC2_INSTANCE (fix: 3.4.13)",
+  "message": "Inspector2 [INFORMATIONAL]: NETWORK_REACHABILITY detected on AWS_EC2_INSTANCE",
   "log": { "level": "info" },
   "service": { "name": "inspector", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -97,8 +83,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "lql0nv9hga"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "satj2j7tdq"
   },
   "input": { "type": "http_endpoint" }
 }

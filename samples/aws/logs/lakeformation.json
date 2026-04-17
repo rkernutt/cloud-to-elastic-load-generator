@@ -1,57 +1,57 @@
 {
-  "@timestamp": "2026-04-17T15:00:39.621Z",
+  "@timestamp": "2026-04-17T15:32:46.708Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-west-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "lakeformation" }
   },
   "aws": {
     "dimensions": {
-      "ResourceArn": "arn:aws:glue:us-east-2:293847561023:table/analytics/products",
-      "Principal": "arn:aws:iam::293847561023:role/analyst-role"
+      "ResourceArn": "arn:aws:glue:eu-west-2:738291046572:table/curated/transactions",
+      "Principal": "arn:aws:iam::738291046572:user/alice"
     },
     "lakeformation": {
-      "database": "analytics",
-      "table": "products",
-      "action": "BatchGrantPermissions",
-      "principal_arn": "arn:aws:iam::293847561023:role/analyst-role",
-      "resource_arn": "arn:aws:glue:us-east-2:293847561023:table/analytics/products",
-      "permissions": ["ALL"],
-      "lf_tag_key": "pii",
-      "lf_tag_values": ["pii"],
+      "database": "curated",
+      "table": "transactions",
+      "action": "Revoke",
+      "principal_arn": "arn:aws:iam::738291046572:user/alice",
+      "resource_arn": "arn:aws:glue:eu-west-2:738291046572:table/curated/transactions",
+      "permissions": ["DESCRIBE"],
+      "lf_tag_key": "environment",
+      "lf_tag_values": ["dev", "staging"],
       "metrics": {
-        "GrantCount": { "sum": 3 },
+        "GrantCount": { "sum": 26 },
         "DatabaseCount": { "avg": 14 },
-        "TableCount": { "avg": 83 },
+        "TableCount": { "avg": 200 },
         "DataLakeSettings": { "avg": 1 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-lakeformation-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-lakeformation-logs-293847561023"
+        "name": "aws-lakeformation-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-lakeformation-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/lakeformation/us-east-2/2026/04/17/lakeformation_LG7ICZOFH5A.log.gz"
+        "key": "AWSLogs/738291046572/lakeformation/eu-west-2/2026/04/17/lakeformation_RSCSITQ21JH.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lakeformation/logs",
-      "log_stream": "us-east-2/7s843349",
-      "ingestion_time": "2026-04-17T15:00:40.233Z"
+      "log_stream": "eu-west-2/d59g4sxz",
+      "ingestion_time": "2026-04-17T15:32:47.324Z"
     }
   },
   "event": {
-    "action": "BatchGrantPermissions",
-    "duration": 679000000,
+    "action": "Revoke",
+    "duration": 359000000,
     "outcome": "success",
     "category": ["database", "iam"],
     "dataset": "aws.lakeformation",
     "provider": "lakeformation.amazonaws.com",
     "module": "aws"
   },
-  "message": "Lake Formation BatchGrantPermissions: ALL on analytics.products",
+  "message": "Lake Formation Revoke: DESCRIBE on curated.transactions",
   "log": { "level": "info" },
   "service": { "name": "lakeformation", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -59,8 +59,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "y7qtbhij7aj"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "cnwwu1284pd"
   },
   "input": { "type": "aws-cloudwatch" }
 }
