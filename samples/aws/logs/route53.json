@@ -1,46 +1,50 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
     "region": "us-east-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "route53" }
   },
   "aws": {
-    "dimensions": { "HostedZoneId": "ZDSXQRI37BYU", "Region": "us-east-1" },
+    "dimensions": { "HostedZoneId": "Z31ZY8ETWU8O", "Region": "us-east-1" },
     "route53": {
-      "hosted_zone_id": "ZDSXQRI37BYU",
-      "edge_location": "LHR65",
-      "edns_client_subnet": "35.53.0.0/24"
+      "hosted_zone_id": "Z31ZY8ETWU8O",
+      "edge_location": "LHR73",
+      "edns_client_subnet": "234.69.0.0/24"
     },
     "s3": {
       "bucket": {
-        "name": "aws-route53-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-route53-logs-814726593401"
+        "name": "aws-route53-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-route53-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/814726593401/route53/us-east-1/2026/04/17/route53_ZVMTA9BN7O.log.gz"
+        "key": "AWSLogs/738291046572/route53/us-east-1/2026/04/17/route53_Z03ADT90NC.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/route53/logs",
-      "log_stream": "us-east-1/irosjpve",
-      "ingestion_time": "2026-04-17T15:32:47.214Z"
+      "log_stream": "us-east-1/wud9tu2f",
+      "ingestion_time": "2026-04-17T16:01:38.278Z"
     }
   },
-  "dns": { "question": { "name": "app.internal", "type": "A" }, "response_code": "NOERROR" },
-  "client": { "ip": "207.41.68.62" },
+  "dns": {
+    "question": { "name": "api.example.com", "type": "CNAME" },
+    "response_code": "NXDOMAIN"
+  },
+  "client": { "ip": "51.145.152.142" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["network"],
     "type": ["protocol"],
     "dataset": "aws.route53",
     "provider": "route53.amazonaws.com",
-    "duration": 40000000,
+    "duration": 437000000,
     "module": "aws"
   },
-  "message": "2026-04-17T15:32:46.708Z 0PGD6E5V ip4 207.41.68.62 53 TXT db.internal. NOERROR",
-  "log": { "level": "info" },
+  "message": "2026-04-17T16:01:37.787Z 7MEJLZOT ip6 51.145.152.142 53 AAAA example.com. NXDOMAIN",
+  "log": { "level": "warn" },
+  "error": { "code": "NXDOMAIN", "message": "DNS query failed: NXDOMAIN", "type": "network" },
   "service": { "name": "route53", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.route53_public_logs", "namespace": "default" },
@@ -48,7 +52,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "599w5iuqj9i"
+    "ephemeral_id": "p69rhwwp6ks"
   },
   "input": { "type": "aws-cloudwatch" }
 }

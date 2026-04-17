@@ -1,53 +1,59 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "us-east-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "timestream" }
   },
   "aws": {
     "timestream": {
-      "database_name": "financial-ticks",
-      "table_name": "cpu_metrics",
+      "database_name": "infra-metrics",
+      "table_name": "sensor_readings",
       "operation": "Query",
       "records_ingested": 0,
-      "rows_returned": 2242,
-      "duration_ms": 62
+      "rows_returned": 2546,
+      "duration_ms": 9767,
+      "error_code": "ResourceNotFoundException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-timestream-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-timestream-logs-164820739518"
+        "name": "aws-timestream-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-timestream-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/164820739518/timestream/eu-north-1/2026/04/17/timestream_KGWQYDGRXQE.log.gz"
+        "key": "AWSLogs/738291046572/timestream/us-east-2/2026/04/17/timestream_T281XWM05IJ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/timestream/logs",
-      "log_stream": "eu-north-1/g31xkdqe",
-      "ingestion_time": "2026-04-17T15:32:47.290Z"
+      "log_stream": "us-east-2/ktiuilzo",
+      "ingestion_time": "2026-04-17T16:01:38.352Z"
     }
   },
   "event": {
-    "duration": 61604332.915985815,
-    "outcome": "success",
+    "duration": 9767193965.800669,
+    "outcome": "failure",
     "category": "database",
     "dataset": "aws.timestream",
     "provider": "timestream.amazonaws.com",
     "module": "aws"
   },
-  "message": "Timestream Query on financial-ticks.cpu_metrics: 62ms",
-  "log": { "level": "info" },
+  "message": "Timestream Query FAILED on infra-metrics.sensor_readings: RejectedRecords",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ThrottlingException",
+    "message": "Timestream operation failed",
+    "type": "db"
+  },
   "service": { "name": "timestream", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.timestream", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "dht64m2266k"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "t5g5rtktwo"
   },
   "input": { "type": "aws-cloudwatch" }
 }

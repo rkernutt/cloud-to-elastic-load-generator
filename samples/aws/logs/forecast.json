@@ -1,21 +1,22 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
+    "region": "ap-northeast-3",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "forecast" }
   },
   "aws": {
-    "dimensions": { "DatasetGroup": "demand-forecast", "Operation": "GetAccuracyMetrics" },
+    "dimensions": { "DatasetGroup": "sales-prediction", "Operation": "CreateForecast" },
     "forecast": {
-      "dataset_group": "demand-forecast",
-      "action": "GetAccuracyMetrics",
-      "algorithm": "CNN-QR",
-      "forecast_horizon": 30,
-      "duration_seconds": 71303,
-      "status": "FAILED",
-      "error_message": "Insufficient training data"
+      "dataset_group": "sales-prediction",
+      "predictor_name": "sales-prediction-predictor-v14",
+      "action": "CreateForecast",
+      "algorithm": "DeepAR+",
+      "forecast_horizon": 14,
+      "weighted_quantile_loss": 0.10383560077638349,
+      "duration_seconds": 6046,
+      "status": "ACTIVE"
     },
     "s3": {
       "bucket": {
@@ -23,34 +24,33 @@
         "arn": "arn:aws:s3:::aws-forecast-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/forecast/sa-east-1/2026/04/17/forecast_92H7A0IKDKG.log.gz"
+        "key": "AWSLogs/164820739518/forecast/ap-northeast-3/2026/04/17/forecast_BT3JW7LBHD.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/forecast/logs",
-      "log_stream": "sa-east-1/bcfizlqg",
-      "ingestion_time": "2026-04-17T15:32:47.342Z"
+      "log_stream": "ap-northeast-3/hcmh4z5n",
+      "ingestion_time": "2026-04-17T16:01:38.402Z"
     }
   },
   "event": {
-    "duration": 71303000000000,
-    "outcome": "failure",
+    "duration": 6046000000000,
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.forecast",
     "provider": "forecast.amazonaws.com",
     "module": "aws"
   },
-  "message": "Forecast GetAccuracyMetrics FAILED for demand-forecast: Training timeout",
-  "log": { "level": "error" },
-  "error": { "code": "ForecastError", "message": "Forecast operation failed", "type": "ml" },
+  "message": "Forecast CreateForecast: sales-prediction, WQL=0.104",
+  "log": { "level": "info" },
   "service": { "name": "forecast", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.forecast", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "su4aws79nbc"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "mpnwc97adja"
   },
   "input": { "type": "aws-cloudwatch" }
 }

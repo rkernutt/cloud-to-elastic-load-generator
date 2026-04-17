@@ -1,61 +1,65 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "DEBUG",
-  "labels": { "flow_name": "dedupe_leads", "job_id": "wrangle-TE6BLDTC" },
+  "severity": "ERROR",
+  "labels": { "flow_name": "standardize_orders", "job_id": "wrangle-GUL5GTF6" },
   "cloud": {
     "provider": "gcp",
-    "region": "southamerica-west1",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
+    "region": "europe-north1",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" },
     "service": { "name": "dataprep" }
   },
   "gcp": {
     "dataprep": {
-      "flow_name": "dedupe_leads",
-      "job_id": "wrangle-TE6BLDTC",
-      "recipe_steps": 10,
-      "input_rows": 3827705,
-      "output_rows": 3704859,
-      "status": "Completed",
+      "flow_name": "standardize_orders",
+      "job_id": "wrangle-GUL5GTF6",
+      "recipe_steps": 32,
+      "input_rows": 8397,
+      "output_rows": 154,
+      "status": "Failed",
       "data_source": "Datastore",
-      "profile_columns_count": 72
+      "profile_columns_count": 0
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 5210000000,
+    "outcome": "failure",
+    "duration": 22069000000,
     "module": "gcp",
     "dataset": "gcp.dataprep"
   },
-  "message": "dataprep.googleapis.com/jobs/wrangle-TE6BLDTC: flow=dedupe_leads status=Completed outputRows=3704859 source=Datastore recipeSteps=10",
+  "message": "dataprep.googleapis.com/jobs/wrangle-GUL5GTF6: flow=standardize_orders status=Failed step=19 Type mismatch casting to TIMESTAMP",
+  "error": {
+    "type": "TransformError",
+    "message": "Column cast to TIMESTAMP failed on non-parseable values"
+  },
   "service": { "name": "dataprep", "type": "gcp" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.dataprep", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-southamerica-west1",
-    "id": "xhzwsi06gt"
+    "name": "elastic-agent-gcp-europe-north1",
+    "id": "vl3a739s45"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-prod-a1b2c3/logs/dataprep",
+  "logName": "projects/globex-staging-d4e5f6/logs/dataprep",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-prod-a1b2c3", "region": "southamerica-west1" }
+    "labels": { "project_id": "globex-staging-d4e5f6", "region": "europe-north1" }
   },
-  "insertId": "ZOSZFAQOCE",
+  "insertId": "DQGCRSN6JS8",
   "jsonPayload": {
     "dataprep": {
-      "flow_name": "dedupe_leads",
-      "job_id": "wrangle-TE6BLDTC",
-      "recipe_steps": 10,
-      "input_rows": 3827705,
-      "output_rows": 3704859,
-      "status": "Completed",
+      "flow_name": "standardize_orders",
+      "job_id": "wrangle-GUL5GTF6",
+      "recipe_steps": 32,
+      "input_rows": 8397,
+      "output_rows": 154,
+      "status": "Failed",
       "data_source": "Datastore",
-      "profile_columns_count": 72
+      "profile_columns_count": 0
     },
-    "message": "dataprep.googleapis.com/jobs/wrangle-TE6BLDTC: flow=dedupe_leads status=Completed outputRows=3704859 source=Datastore recipeSteps=10"
+    "message": "dataprep.googleapis.com/jobs/wrangle-GUL5GTF6: flow=standardize_orders status=Failed step=19 Type mismatch casting to TIMESTAMP"
   }
 }

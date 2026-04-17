@@ -1,46 +1,46 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-west-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "dax" }
   },
   "aws": {
-    "dimensions": { "ClusterName": "prod-dax", "NodeId": "prod-dax-c" },
+    "dimensions": { "ClusterName": "analytics-dax", "NodeId": "analytics-dax-a" },
     "dax": {
-      "cluster_name": "prod-dax",
-      "node_id": "prod-dax-c",
-      "operation": "BatchWriteItem",
+      "cluster_name": "analytics-dax",
+      "node_id": "analytics-dax-a",
+      "operation": "GetItem",
       "cache_hit": true,
-      "item_size_bytes": 10053,
-      "request_latency_ms": 45,
-      "consumed_read_capacity_units": 4.9,
-      "table_name": "products"
+      "item_size_bytes": 6621,
+      "request_latency_ms": 32,
+      "consumed_read_capacity_units": 2.6,
+      "table_name": "sessions"
     },
     "s3": {
       "bucket": {
-        "name": "aws-dax-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-dax-logs-293847561023"
+        "name": "aws-dax-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-dax-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/293847561023/dax/eu-south-1/2026/04/17/dax_6F70L83JNM.log.gz" }
+      "object": { "key": "AWSLogs/164820739518/dax/us-west-1/2026/04/17/dax_6NSUFG4OYVS.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/dax/logs",
-      "log_stream": "eu-south-1/00ikrnk6",
-      "ingestion_time": "2026-04-17T15:32:47.291Z"
+      "log_stream": "us-west-1/y7tcxfdo",
+      "ingestion_time": "2026-04-17T16:01:38.354Z"
     }
   },
   "event": {
-    "action": "CacheMiss",
+    "action": "NodeRestart",
     "outcome": "success",
     "category": ["database"],
     "dataset": "aws.dax",
     "provider": "dax.amazonaws.com",
-    "duration": 45000000,
+    "duration": 32000000,
     "module": "aws"
   },
-  "message": "DAX prod-dax: BatchWriteItem CACHE_HIT 45ms",
+  "message": "DAX analytics-dax: GetItem CACHE_HIT 32ms",
   "log": { "level": "info" },
   "service": { "name": "dax", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -48,8 +48,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "8i3pc0ipmxm"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "duidog3gjfo"
   },
   "input": { "type": "aws-cloudwatch" }
 }

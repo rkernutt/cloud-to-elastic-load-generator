@@ -1,47 +1,46 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.000Z",
-  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-shared-sll8jm/providers/Microsoft.Sql/servers/sql-49th4n/databases/inventory",
+  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-prod-2vk48b/providers/Microsoft.Sql/servers/sql-ve402y/databases/auth",
   "cloud": {
     "provider": "azure",
-    "region": "westeurope",
+    "region": "southeastasia",
     "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" },
     "service": { "name": "Microsoft.Sql/servers" }
   },
-  "category": "SQLInsights",
-  "operationName": "QueryStoreRuntimeStatistics",
+  "category": "SQLSecurityAuditEvents",
+  "operationName": "SCHEMA OBJECT CHANGE",
   "resultType": "Succeeded",
   "level": "Informational",
-  "correlationId": "01g1um8ydig5",
-  "callerIpAddress": "41.28.154.66",
+  "correlationId": "ryb0nvmupf",
+  "callerIpAddress": "38.111.38.208",
   "properties": {
-    "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-shared-sll8jm/providers/Microsoft.Sql/servers/sql-49th4n/databases/inventory",
-    "QueryText": "UPDATE dbo.customers SET last_login_utc = SYSUTCDATETIME() WHERE customer_id = @id",
-    "Duration": 640785,
-    "WaitType": "SOS_SCHEDULER_YIELD",
-    "CPUTime": 43441814,
-    "LogicalReads": 19716,
-    "PhysicalReads": 4195,
-    "query_hash": "x5fq3078n7"
+    "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-prod-2vk48b/providers/Microsoft.Sql/servers/sql-ve402y/databases/auth",
+    "action_id": "SC",
+    "session_server_principal_name": "app_svc",
+    "database_principal_name": "app_role",
+    "schema_name": "dbo",
+    "object_name": "audit_log",
+    "statement": "ALTER TABLE dbo.orders ADD CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES dbo.customers(id)"
   },
   "azure": {
     "sql_database": {
-      "server": "sql-49th4n",
-      "database": "inventory",
-      "resource_group": "rg-shared-sll8jm",
-      "diagnostic_category": "SQLInsights",
-      "dtu_percent": 22.160896475797337,
+      "server": "sql-ve402y",
+      "database": "auth",
+      "resource_group": "rg-prod-2vk48b",
+      "diagnostic_category": "SQLSecurityAuditEvents",
+      "dtu_percent": 39.9895176639214,
       "deadlocks": 0,
       "failed_connections": 1
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 404650451,
+    "duration": 257455120,
     "module": "azure",
     "dataset": "azure.sql_database"
   },
-  "message": "Query completed on sql-49th4n/inventory: cpu 43.44ms, logical reads 19716",
+  "message": "Audit: SCHEMA OBJECT CHANGE on sql-ve402y/auth",
   "service": { "name": "sql-database", "type": "azure" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -49,8 +48,8 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-westeurope",
-    "id": "j8rlyx245v"
+    "name": "elastic-agent-azure-southeastasia",
+    "id": "2oju5g3b9jr"
   },
   "input": { "type": "azure-eventhub" }
 }

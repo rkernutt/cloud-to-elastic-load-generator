@@ -1,0 +1,121 @@
+{
+  "group": "data-pipeline",
+  "description": "Alerting rules for the GCP Data & Analytics Pipeline chained event scenario",
+  "rules": [
+    {
+      "id": "cloudloadgen-gcp-data-pipeline-failure-rate",
+      "name": "[CloudLoadGen] GCP Data Pipeline — High Failure Rate",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [3],
+        "thresholdComparator": ">",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.composer\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}",
+        "index": ["logs-gcp.composer*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-gcp-data-pipeline-null-data",
+      "name": "[CloudLoadGen] GCP Data Pipeline — Null/Empty Data Detected",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.bigquery\"}},{\"term\":{\"gcp.bigquery.rows_returned\":0}}]}}",
+        "index": ["logs-gcp.bigquery*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-gcp-data-pipeline-dataproc-error",
+      "name": "[CloudLoadGen] GCP Data Pipeline — Dataproc/Spark Processing Error",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.dataproc\"}},{\"exists\":{\"field\":\"error.type\"}}]}}",
+        "index": ["logs-gcp.dataproc*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-gcp-data-pipeline-gcs-format-error",
+      "name": "[CloudLoadGen] GCP Data Pipeline — GCS Source File Format Error",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.cloud_storage\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"gcp.cloud_storage.object_name\":{\"value\":\"*%*\"}}},{\"bool\":{\"must_not\":{\"wildcard\":{\"gcp.cloud_storage.object_name\":{\"value\":\"*.avro\"}}}}}]}}]}}",
+        "index": ["logs-gcp.cloud_storage*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-gcp-data-pipeline-slow-run",
+      "name": "[CloudLoadGen] GCP Data Pipeline — Slow Pipeline Run (>60s)",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 30,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.composer\"}},{\"term\":{\"gcp.composer.task_id\":\"dag_complete\"}},{\"range\":{\"gcp.composer.duration_ms\":{\"gt\":60000}}}]}}",
+        "index": ["logs-gcp.composer*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    }
+  ]
+}

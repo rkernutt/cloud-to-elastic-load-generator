@@ -1,47 +1,46 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
+    "region": "ap-northeast-2",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "securityhub" }
   },
   "aws": {
-    "dimensions": { "ComplianceStandard": "pci-dss", "ControlId": "Lambda.2" },
+    "dimensions": {
+      "ComplianceStandard": "aws-foundational-security-best-practices",
+      "ControlId": "EC2.1"
+    },
     "securityhub_findings": {
       "SchemaVersion": "2018-10-08",
-      "Id": "E4PE3E0C-S6TH-5MT6-IVKH-9YSVGB8E32P",
-      "ProductArn": "arn:aws:securityhub:ap-northeast-3::product/aws/securityhub",
-      "GeneratorId": "arn:aws:securityhub:ap-northeast-3::product/aws/securityhub/Lambda.2",
+      "Id": "9L7RSLZ7-8BQN-V2QM-U6V0-4KH5NICYYC8",
+      "ProductArn": "arn:aws:securityhub:ap-northeast-2::product/aws/securityhub",
+      "GeneratorId": "arn:aws:securityhub:ap-northeast-2::product/aws/securityhub/EC2.1",
       "AwsAccountId": "738291046572",
-      "Types": ["Threat Detections/Tactics/Impact"],
-      "CreatedAt": "2026-04-17T01:02:04.630Z",
-      "UpdatedAt": "2026-04-17T15:32:46.708Z",
+      "Types": ["Software and Configuration Checks/AWS Security Best Practices"],
+      "CreatedAt": "2026-04-16T18:28:31.320Z",
+      "UpdatedAt": "2026-04-17T16:01:37.787Z",
       "Severity": { "Label": "INFORMATIONAL", "Normalized": 0, "Original": "INFORMATIONAL" },
-      "Title": "Lambda.2: control passed",
-      "Description": "This control evaluated resources and reported a passing status.",
+      "Title": "EC2.1: Default security group allows all traffic",
+      "Description": "Security check failed: EC2.1 - Default security group allows all traffic",
       "Resources": [
         {
-          "Type": "AwsCloudTrailTrail",
-          "Id": "arn:aws:cloudtrail:ap-northeast-3:738291046572:trail/org-trail",
+          "Type": "AwsS3Bucket",
+          "Id": "arn:aws:s3:::globex-development-bucket-xyxdoc",
           "Partition": "aws",
-          "Region": "ap-northeast-3",
+          "Region": "ap-northeast-2",
           "Details": {}
         }
       ],
-      "Compliance": {
-        "Status": "PASSED",
-        "SecurityControlId": "Lambda.2",
-        "RelatedRequirements": []
-      },
+      "Compliance": { "Status": "FAILED", "SecurityControlId": "EC2.1", "RelatedRequirements": [] },
       "Workflow": { "Status": "RESOLVED" },
-      "RecordState": "ARCHIVED",
+      "RecordState": "ACTIVE",
       "ProductFields": {
         "aws/securityhub/ProductName": "Security Hub",
         "aws/securityhub/CompanyName": "AWS"
       },
       "criticality": 4,
-      "confidence": 81
+      "confidence": 92
     },
     "s3": {
       "bucket": {
@@ -49,36 +48,37 @@
         "arn": "arn:aws:s3:::aws-securityhub-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/738291046572/securityhub/ap-northeast-3/2026/04/17/securityhub_QJQ2HK4X0N.log.gz"
+        "key": "AWSLogs/738291046572/securityhub/ap-northeast-2/2026/04/17/securityhub_4R4AMG9FNHA.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securityhub/logs",
-      "log_stream": "ap-northeast-3/ugcqmai3",
-      "ingestion_time": "2026-04-17T15:32:47.234Z"
+      "log_stream": "ap-northeast-2/532qpw0z",
+      "ingestion_time": "2026-04-17T16:01:38.302Z"
     }
   },
-  "rule": { "id": "Lambda.2", "name": "Lambda.2 — Security group allows all traffic" },
+  "rule": { "id": "EC2.1", "name": "EC2.1 — VPC flow logs disabled" },
   "event": {
     "kind": "alert",
     "severity": 4,
-    "outcome": "success",
-    "category": ["vulnerability"],
-    "type": ["info"],
+    "outcome": "failure",
+    "category": ["compliance"],
+    "type": ["indicator"],
     "dataset": "aws.securityhub_findings",
     "provider": "securityhub.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security Hub: control passed",
+  "message": "Security Hub [INFORMATIONAL]: Compliance check failed",
   "log": { "level": "info" },
+  "error": { "code": "ComplianceFailed", "message": "Control EC2.1 failed", "type": "compliance" },
   "service": { "name": "securityhub", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.securityhub_findings", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "cgxvkpo16i6"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "jlh8eh8zn8p"
   },
   "input": { "type": "http_endpoint" }
 }

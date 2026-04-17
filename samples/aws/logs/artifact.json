@@ -1,22 +1,22 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
+    "region": "ap-northeast-2",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "artifact" }
   },
   "aws": {
-    "dimensions": { "ReportName": "ISO-27001", "ReportCategory": "Agreement" },
+    "dimensions": { "ReportName": "ISO-27001", "ReportCategory": "Regulation" },
     "artifact": {
       "report_name": "ISO-27001",
       "report_arn": "arn:aws:artifact:::report/iso-27001",
-      "report_category": "Agreement",
-      "report_period": "2025-H1",
+      "report_category": "Regulation",
+      "report_period": "2024-Q4",
       "agreement_name": "Non-Disclosure-Agreement",
       "agreement_type": "DEFAULT",
       "accessed_by": "globex-staging",
-      "download_format": "PDF"
+      "download_format": "ZIP"
     },
     "s3": {
       "bucket": {
@@ -24,34 +24,39 @@
         "arn": "arn:aws:s3:::aws-artifact-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/artifact/us-east-2/2026/04/17/artifact_5BHRXN7MARD.log.gz"
+        "key": "AWSLogs/293847561023/artifact/ap-northeast-2/2026/04/17/artifact_TPFVTL5UXII.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/artifact/logs",
-      "log_stream": "us-east-2/wfpllaz1",
-      "ingestion_time": "2026-04-17T15:32:47.258Z"
+      "log_stream": "ap-northeast-2/buuivk79",
+      "ingestion_time": "2026-04-17T16:01:38.325Z"
     }
   },
   "event": {
-    "action": "GetReportMetadata",
-    "outcome": "success",
+    "action": "GetTermsForReport",
+    "outcome": "failure",
     "category": ["audit"],
     "dataset": "aws.artifact",
     "provider": "artifact.amazonaws.com",
     "module": "aws"
   },
-  "message": "Artifact: GetReportMetadata — ISO-27001 (Agreement)",
-  "log": { "level": "info" },
+  "message": "Artifact: access denied to ISO-27001 for globex-staging",
+  "log": { "level": "error" },
   "user": { "name": "globex-staging" },
+  "error": {
+    "code": "ResourceNotFoundException",
+    "message": "Artifact report access denied",
+    "type": "audit"
+  },
   "service": { "name": "artifact", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.artifact", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "bdks9vnm8ob"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "76kqrbw1rmk"
   },
   "input": { "type": "http_endpoint" }
 }

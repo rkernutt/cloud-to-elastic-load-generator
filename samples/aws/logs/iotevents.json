@@ -1,60 +1,58 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-south-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "temperature-alert-model", "KeyValue": "unit-02" },
+    "dimensions": { "DetectorModelName": "temperature-alert-model", "KeyValue": "zone-A" },
     "iotevents": {
       "detector_model_name": "temperature-alert-model",
-      "detector_id": "unit-02",
-      "key_value": "unit-02",
-      "event_name": "AlarmActivated",
+      "detector_id": "zone-A",
+      "key_value": "zone-A",
+      "event_name": "AlarmAcknowledged",
       "from_state": "Normal",
-      "to_state": "Error",
+      "to_state": "Alarm",
       "input_name": "CommandInput",
-      "action_type": "Lambda",
+      "action_type": "SetTimer",
       "timer_name": "alarmTimer",
-      "condition_expression": "$input.SensorInput.temperature > 85",
-      "error_code": "InvalidRequestException"
+      "condition_expression": "$input.SensorInput.temperature > 85"
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotevents-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-iotevents-logs-293847561023"
+        "name": "aws-iotevents-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-iotevents-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/iotevents/me-south-1/2026/04/17/iotevents_CZYP0MU522H.log.gz"
+        "key": "AWSLogs/738291046572/iotevents/eu-south-1/2026/04/17/iotevents_XPT4813FWF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "me-south-1/j2mav0le",
-      "ingestion_time": "2026-04-17T15:32:47.398Z"
+      "log_stream": "eu-south-1/10no22oi",
+      "ingestion_time": "2026-04-17T16:01:38.458Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 2987000000,
+    "duration": 271000000,
     "module": "aws"
   },
-  "message": "IoT Events temperature-alert-model/unit-02 ERROR: Input validation error",
-  "log": { "level": "error" },
-  "error": { "code": "ThrottlingException", "message": "IoT Events error", "type": "iot" },
+  "message": "IoT Events temperature-alert-model/zone-A: Normal → Alarm [AlarmAcknowledged]",
+  "log": { "level": "warn" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iotevents", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "u65apwejexp"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "puejq59gpnb"
   },
   "input": { "type": "aws-cloudwatch" }
 }

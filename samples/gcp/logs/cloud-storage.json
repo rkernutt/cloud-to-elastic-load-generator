@@ -1,56 +1,59 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "severity": "INFO",
-  "labels": { "bucket_name": "globex-security-j0k1l2-exports", "location": "europe-southwest1" },
+  "labels": { "job_name": "transferJobs/CATT5QAQGX" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-southwest1",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" },
-    "service": { "name": "cloud-storage" }
+    "region": "asia-northeast2",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "service": { "name": "storage-transfer-service" }
   },
   "gcp": {
-    "cloud_storage": {
-      "bucket_name": "globex-security-j0k1l2-exports",
-      "object_name": "logs/u1hl6wtg.bin",
-      "object_size": 47861099,
-      "storage_class": "COLDLINE",
-      "operation": "lifecycle.setStorageClass",
-      "content_type": "image/png",
-      "generation": "1776439968364644913",
-      "requester_ip": "203.5.81.138"
+    "storage_transfer": {
+      "job_name": "transferJobs/CATT5QAQGX",
+      "source_bucket": "s3://source-QBNS51",
+      "destination_bucket": "gs://globex-prod-a1b2c3-data",
+      "bytes_transferred": 2310592271878,
+      "objects_transferred": 33059339,
+      "status": "IN_PROGRESS",
+      "transfer_type": "aws-to-gcs"
     }
   },
-  "event": { "outcome": "success", "duration": 94000000, "module": "gcp", "dataset": "gcp.gcs" },
-  "message": "Lifecycle rule \"archive-after-90d\" transitioned gs://globex-security-j0k1l2-exports/logs/u1hl6wtg.bin to NEARLINE",
-  "service": { "name": "cloud-storage", "type": "gcp" },
+  "event": {
+    "outcome": "success",
+    "duration": 58923000000,
+    "module": "gcp",
+    "dataset": "gcp.storagetransfer"
+  },
+  "message": "storagetransfer.googleapis.com/transferJobs/CATT5QAQGX: IN_PROGRESS aws-to-gcs bytesTransferred=2310592271878 objectsTransferred=33059339",
+  "service": { "name": "storage-transfer", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.gcs", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.storagetransfer", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-southwest1",
-    "id": "fq3ef0ulhkp"
+    "name": "elastic-agent-gcp-asia-northeast2",
+    "id": "n1pnmvm9zr"
   },
-  "input": { "type": "gcs-input" },
-  "logName": "projects/globex-security-j0k1l2/logs/cloud-storage",
+  "input": { "type": "gcp-pubsub" },
+  "logName": "projects/globex-staging-d4e5f6/logs/storage-transfer",
   "resource": {
-    "type": "gcs_bucket",
-    "labels": { "project_id": "globex-security-j0k1l2", "region": "europe-southwest1" }
+    "type": "global",
+    "labels": { "project_id": "globex-staging-d4e5f6", "region": "asia-northeast2" }
   },
-  "insertId": "L4QXHWMLFO",
+  "insertId": "GLQ1MQHKXOS",
   "jsonPayload": {
-    "cloud_storage": {
-      "bucket_name": "globex-security-j0k1l2-exports",
-      "object_name": "logs/u1hl6wtg.bin",
-      "object_size": 47861099,
-      "storage_class": "COLDLINE",
-      "operation": "lifecycle.setStorageClass",
-      "content_type": "image/png",
-      "generation": "1776439968364644913",
-      "requester_ip": "203.5.81.138"
+    "storage_transfer": {
+      "job_name": "transferJobs/CATT5QAQGX",
+      "source_bucket": "s3://source-QBNS51",
+      "destination_bucket": "gs://globex-prod-a1b2c3-data",
+      "bytes_transferred": 2310592271878,
+      "objects_transferred": 33059339,
+      "status": "IN_PROGRESS",
+      "transfer_type": "aws-to-gcs"
     },
-    "message": "Lifecycle rule \"archive-after-90d\" transitioned gs://globex-security-j0k1l2-exports/logs/u1hl6wtg.bin to NEARLINE"
+    "message": "storagetransfer.googleapis.com/transferJobs/CATT5QAQGX: IN_PROGRESS aws-to-gcs bytesTransferred=2310592271878 objectsTransferred=33059339"
   }
 }

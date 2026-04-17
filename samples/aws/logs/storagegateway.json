@@ -1,36 +1,36 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
+    "region": "eu-west-2",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "storagegateway" }
   },
   "aws": {
-    "dimensions": { "GatewayId": "sgw-j5unjvl9", "GatewayName": "prod-sgw-primary" },
+    "dimensions": { "GatewayId": "sgw-uqk165sb", "GatewayName": "prod-sgw-backup" },
     "storagegateway": {
-      "gateway_id": "sgw-j5unjvl9",
-      "gateway_name": "prod-sgw-primary",
+      "gateway_id": "sgw-uqk165sb",
+      "gateway_name": "prod-sgw-backup",
       "gateway_type": "VOLUME",
-      "cache_used_percent": 19,
-      "upload_buffer_used_percent": 28,
-      "cloud_bytes_uploaded": 573593955,
+      "cache_used_percent": 96,
+      "upload_buffer_used_percent": 88,
+      "cloud_bytes_uploaded": 847770392,
       "metrics": {
-        "CacheHit.Percent": { "avg": 95.40533560567695 },
-        "CacheMiss.Percent": { "avg": 4.59 },
-        "CacheUsed.Percent": { "avg": 87.60450386498964 },
-        "CloudBytesDownloaded": { "sum": 14772734 },
-        "CloudBytesUploaded": { "sum": 819826684 },
-        "CloudDownloadLatency": { "avg": 132.0610380785571 },
-        "ReadBytes": { "sum": 734831887 },
-        "WriteBytes": { "sum": 803722395 },
-        "QueuedWrites": { "avg": 283 },
-        "UploadBufferUsed": { "avg": 465361827 },
-        "UploadBufferFree": { "avg": 313217692 },
-        "CacheHits": { "sum": 30191 },
-        "CacheMisses": { "sum": 718 },
-        "CachePercentDirty": { "avg": 1.173794174809355 },
-        "CachePercentUsed": { "avg": 46.33889006564303 }
+        "CacheHit.Percent": { "avg": 97.95943160499996 },
+        "CacheMiss.Percent": { "avg": 2.04 },
+        "CacheUsed.Percent": { "avg": 38.1371182357237 },
+        "CloudBytesDownloaded": { "sum": 787898788 },
+        "CloudBytesUploaded": { "sum": 73487791 },
+        "CloudDownloadLatency": { "avg": 3906.4715726351806 },
+        "ReadBytes": { "sum": 374135350 },
+        "WriteBytes": { "sum": 510292436 },
+        "QueuedWrites": { "avg": 462 },
+        "UploadBufferUsed": { "avg": 196516964 },
+        "UploadBufferFree": { "avg": 163699916 },
+        "CacheHits": { "sum": 14609 },
+        "CacheMisses": { "sum": 512 },
+        "CachePercentDirty": { "avg": 11.450043222583988 },
+        "CachePercentUsed": { "avg": 11.225300570590298 }
       }
     },
     "s3": {
@@ -39,33 +39,38 @@
         "arn": "arn:aws:s3:::aws-storagegateway-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/storagegateway/eu-south-2/2026/04/17/storagegateway_99P00DAR1KM.log.gz"
+        "key": "AWSLogs/164820739518/storagegateway/eu-west-2/2026/04/17/storagegateway_KG09WDRVTJN.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/storagegateway/logs",
-      "log_stream": "eu-south-2/219giitk",
-      "ingestion_time": "2026-04-17T15:32:47.282Z"
+      "log_stream": "eu-west-2/giof4rl7",
+      "ingestion_time": "2026-04-17T16:01:38.343Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["host", "file"],
     "dataset": "aws.storagegateway",
     "provider": "storagegateway.amazonaws.com",
-    "duration": 1381000000,
+    "duration": 5247000000,
     "module": "aws"
   },
-  "message": "Cache refreshed",
-  "log": { "level": "info" },
+  "message": "Upload buffer full",
+  "log": { "level": "error" },
+  "error": {
+    "code": "GatewayError",
+    "message": "Cache disk error: I/O failure",
+    "type": "storage"
+  },
   "service": { "name": "storagegateway", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.storagegateway", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "bbmy39w7mjn"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "qa6wjuyujff"
   },
   "input": { "type": "aws-cloudwatch" }
 }

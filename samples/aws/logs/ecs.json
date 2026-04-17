@@ -1,22 +1,22 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
+    "region": "me-south-1",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "ecs" }
   },
   "aws": {
-    "dimensions": { "ClusterName": "prod-cluster", "ServiceName": "web-frontend" },
+    "dimensions": { "ClusterName": "staging", "ServiceName": "auth-service" },
     "ecs": {
-      "ecs_cluster": "prod-cluster",
-      "ecs_task_definition": "web-frontend-td:22",
-      "ecs_task_arn": "arn:aws:ecs:ap-northeast-3:738291046572:task/prod-cluster/ejpx3rxuk9",
+      "ecs_cluster": "staging",
+      "ecs_task_definition": "auth-service-td:42",
+      "ecs_task_arn": "arn:aws:ecs:me-south-1:738291046572:task/staging/2zvwywn1s0k",
       "metrics": {
-        "CPUUtilization": { "avg": 68.8195183966095 },
-        "CPUReservation": { "avg": 34.44943097846941 },
-        "MemoryUtilization": { "avg": 15.488325486604143 },
-        "MemoryReservation": { "avg": 35.62206843678783 },
+        "CPUUtilization": { "avg": 20.408456459260563 },
+        "CPUReservation": { "avg": 66.90980986619456 },
+        "MemoryUtilization": { "avg": 28.71224076263519 },
+        "MemoryReservation": { "avg": 36.244244544360484 },
         "GPUReservation": { "avg": 0 }
       }
     },
@@ -25,45 +25,43 @@
         "name": "aws-ecs-logs-738291046572",
         "arn": "arn:aws:s3:::aws-ecs-logs-738291046572"
       },
-      "object": {
-        "key": "AWSLogs/738291046572/ecs/ap-northeast-3/2026/04/17/ecs_GMPSSAY6P24.log.gz"
-      }
+      "object": { "key": "AWSLogs/738291046572/ecs/me-south-1/2026/04/17/ecs_CSHU74SGGP8.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/ecs/logs",
-      "log_stream": "ap-northeast-3/dqz62yhp",
-      "ingestion_time": "2026-04-17T15:32:47.183Z"
+      "log_stream": "me-south-1/f2zwt7my",
+      "ingestion_time": "2026-04-17T16:01:38.252Z"
     }
   },
   "container": {
-    "id": "8bgwg2alh4k",
-    "name": "web-frontend",
-    "image": { "name": "golang:latest", "tag": "latest" },
+    "id": "38mmd20p2vt",
+    "name": "auth-service",
+    "image": { "name": "nginx:3.11", "tag": "1.24" },
     "runtime": "docker"
   },
-  "process": { "pid": 35993, "name": "web-frontend" },
+  "process": { "pid": 29696, "name": "auth-service" },
   "log": { "level": "info" },
   "event": {
     "category": ["process", "container"],
     "outcome": "success",
     "dataset": "aws.ecs",
     "provider": "ecs.amazonaws.com",
-    "duration": 3377000000000,
+    "duration": 1987000000000,
     "module": "aws"
   },
-  "message": "Task started",
-  "service": { "name": "web-frontend", "type": "ecs" },
-  "ecs_cluster": "prod-cluster",
-  "ecs_task_definition": "web-frontend-td:22",
-  "ecs_task_arn": "arn:aws:ecs:ap-northeast-3:738291046572:task/prod-cluster/ejpx3rxuk9",
-  "host": { "name": "ip-243-200-72-174.ec2.internal", "hostname": "ecs-v8zx331h" },
+  "message": "(service auth-service) registered 1 targets in (target-group tg-H88A2RZ5)",
+  "service": { "name": "auth-service", "type": "ecs" },
+  "ecs_cluster": "staging",
+  "ecs_task_definition": "auth-service-td:42",
+  "ecs_task_arn": "arn:aws:ecs:me-south-1:738291046572:task/staging/2zvwywn1s0k",
+  "host": { "name": "ip-102-29-4-25.ec2.internal", "hostname": "ecs-rjfndrut" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.ecs_metrics", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "urkjnpkiwef"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "afrhddbz2ts"
   },
   "input": { "type": "aws-cloudwatch" }
 }

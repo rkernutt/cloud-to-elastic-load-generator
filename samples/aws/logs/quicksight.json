@@ -1,66 +1,72 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-south-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "quicksight" }
   },
   "aws": {
-    "dimensions": { "DashboardId": "2e3rsrd44ma", "DataSetId": "nobpd7nu1zk" },
+    "dimensions": { "DashboardId": "r2y58dh8nqe", "DataSetId": "jr0864d4yo" },
     "quicksight": {
-      "dashboard_id": "2e3rsrd44ma",
+      "dashboard_id": "r2y58dh8nqe",
       "dashboard_name": "marketing-funnel",
-      "dataset_id": "nobpd7nu1zk",
-      "action": "CreateAnalysis",
+      "dataset_id": "jr0864d4yo",
+      "action": "GetDashboardEmbedUrl",
       "user_name": "alice@corp.com",
-      "data_source_type": "RDS",
-      "query_duration_ms": 3944,
-      "rows_returned": 9548,
+      "data_source_type": "S3",
+      "query_duration_ms": 2174,
+      "rows_returned": 65723,
+      "error_code": "AccessDeniedException",
       "metrics": {
-        "DashboardViewEvents": { "sum": 528 },
-        "SessionEvent": { "sum": 368 },
-        "SPICECapacityUsed": { "avg": 56.09470996075646 },
-        "SPICECapacityScheduled": { "avg": 22.939008942383158 },
-        "EmbedCallCount": { "sum": 448 },
-        "ClientError": { "sum": 0 },
-        "RowLevelSecurityEnabled": { "avg": 0 }
+        "DashboardViewEvents": { "sum": 635 },
+        "SessionEvent": { "sum": 129 },
+        "SPICECapacityUsed": { "avg": 27.05464205877079 },
+        "SPICECapacityScheduled": { "avg": 30.262096851239544 },
+        "EmbedCallCount": { "sum": 301 },
+        "ClientError": { "sum": 44 },
+        "RowLevelSecurityEnabled": { "avg": 1 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-quicksight-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-quicksight-logs-814726593401"
+        "name": "aws-quicksight-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-quicksight-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/quicksight/ap-south-2/2026/04/17/quicksight_XJQR1OUOCJF.log.gz"
+        "key": "AWSLogs/501938274650/quicksight/ap-south-1/2026/04/17/quicksight_86HFF72JQ4L.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/quicksight/logs",
-      "log_stream": "ap-south-2/n6ojvp8h",
-      "ingestion_time": "2026-04-17T15:32:47.324Z"
+      "log_stream": "ap-south-1/guqodwti",
+      "ingestion_time": "2026-04-17T16:01:38.385Z"
     }
   },
   "user": { "name": "alice@corp.com" },
   "event": {
-    "duration": 3944000000,
-    "outcome": "success",
+    "duration": 2174000000,
+    "outcome": "failure",
     "category": ["web", "process"],
     "dataset": "aws.quicksight",
     "provider": "quicksight.amazonaws.com",
     "module": "aws"
   },
-  "message": "QuickSight CreateAnalysis: marketing-funnel loaded in 3944ms for alice@corp.com",
-  "log": { "level": "info" },
+  "message": "QuickSight GetDashboardEmbedUrl FAILED: marketing-funnel for alice@corp.com",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ThrottlingException",
+    "message": "QuickSight operation failed",
+    "type": "bi"
+  },
   "service": { "name": "quicksight", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.quicksight", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "a8aolzo6gfv"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "7s8vfodm10v"
   },
   "input": { "type": "aws-cloudwatch" }
 }

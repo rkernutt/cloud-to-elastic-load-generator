@@ -1,22 +1,25 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
+    "region": "ap-northeast-1",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "chatbot" }
   },
   "aws": {
-    "dimensions": { "ChannelConfiguration": "cost-alerts", "ChannelType": "MicrosoftTeams" },
+    "dimensions": {
+      "ChannelConfiguration": "deploy-notifications",
+      "ChannelType": "MicrosoftTeams"
+    },
     "chatbot": {
-      "channel_configuration_name": "cost-alerts",
+      "channel_configuration_name": "deploy-notifications",
       "channel_type": "MicrosoftTeams",
-      "notification_type": "SNSNotification",
-      "workspace_id": "TY5RZL4Y0",
-      "channel_id": "C1DNRA9MW",
-      "delivery_status": "Throttled",
-      "message_id": "xjv0drf2-wlx0-tz1k-wiu4-54tnkvoagrx",
-      "sns_topic_arn": "arn:aws:sns:us-west-2:164820739518:snsnotification-topic"
+      "notification_type": "AWSHealthEvent",
+      "workspace_id": "TUE3S1GPC",
+      "channel_id": "C6T5AYEUQ",
+      "delivery_status": "Suppressed",
+      "message_id": "vf2nd5lt-yiea-esby-5jnr-ai1fsn5eej",
+      "sns_topic_arn": "arn:aws:sns:ap-northeast-1:164820739518:awshealthevent-topic"
     },
     "s3": {
       "bucket": {
@@ -24,38 +27,33 @@
         "arn": "arn:aws:s3:::aws-chatbot-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/chatbot/us-west-2/2026/04/17/chatbot_LAX3S4LAHC.log.gz"
+        "key": "AWSLogs/164820739518/chatbot/ap-northeast-1/2026/04/17/chatbot_DSJM42CGTJE.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/chatbot/logs",
-      "log_stream": "us-west-2/gid9c80z",
-      "ingestion_time": "2026-04-17T15:32:47.376Z"
+      "log_stream": "ap-northeast-1/5oxz25e4",
+      "ingestion_time": "2026-04-17T16:01:38.437Z"
     }
   },
   "event": {
-    "action": "AlertSuppression",
-    "outcome": "failure",
+    "action": "BotInvitation",
+    "outcome": "success",
     "category": ["configuration"],
     "dataset": "aws.chatbot",
     "provider": "chatbot.amazonaws.com",
     "module": "aws"
   },
-  "message": "Chatbot cost-alerts (MicrosoftTeams): SNSNotification delivery Throttled",
-  "log": { "level": "error" },
-  "error": {
-    "code": "InvalidParameterException",
-    "message": "Chatbot notification delivery failed",
-    "type": "configuration"
-  },
+  "message": "Chatbot deploy-notifications: AWSHealthEvent delivered to MicrosoftTeams",
+  "log": { "level": "info" },
   "service": { "name": "chatbot", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.chatbot", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "azzqbs2y62"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "cc4tukg5mjl"
   },
   "input": { "type": "aws-cloudwatch" }
 }

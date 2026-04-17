@@ -1,72 +1,72 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-northeast-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "inspector2" }
   },
   "aws": {
     "dimensions": { "Severity": "INFORMATIONAL" },
     "inspector2": {
-      "findingArn": "arn:aws:inspector2:ca-central-1:814726593401:finding/ykswf6u8-4xnh-ywpe-nbnv-co221d2vlv",
-      "type": "NETWORK_REACHABILITY",
-      "title": "Network path to open port on i-fflreodd648",
-      "description": "Inspector determined a network path exists that could allow reachability to a sensitive port from outside the VPC boundary.",
+      "findingArn": "arn:aws:inspector2:ap-northeast-2:738291046572:finding/ttc54ux2-vbr1-ltkf-spzd-t0iwqcm71w",
+      "type": "CODE_VULNERABILITY",
+      "title": "Code vulnerability in handler.js",
+      "description": "Inspector identified a code pattern that matches a known weakness category.",
       "remediation": {
         "recommendation": {
-          "text": "Restrict security group ingress, remove overly permissive rules, or place the resource behind a private endpoint."
+          "text": "Apply the suggested code change from your static analysis workflow or suppress with a documented risk acceptance."
         }
       },
       "resources": [
         {
-          "type": "AWS_EC2_INSTANCE",
-          "id": "i-fflreodd648",
+          "type": "AWS_LAMBDA_FUNCTION",
+          "id": "arn:aws:lambda:ap-northeast-2:738291046572:function:my-fn",
           "partition": "aws",
-          "region": "ca-central-1",
-          "tags": { "Environment": "prod" }
+          "region": "ap-northeast-2",
+          "tags": { "Environment": "staging" }
         }
       ],
-      "exploitAvailable": "NO",
+      "exploitAvailable": "YES",
       "fixAvailable": true,
       "finding_status": "ACTIVE",
       "severity": "INFORMATIONAL",
-      "severity_score": 1.8,
-      "exploitability": "NOT_DEFINED",
-      "resource_type": "AWS_EC2_INSTANCE",
-      "resource_id": "i-fflreodd648",
-      "first_observed_at": "2026-03-21T15:32:46.708Z",
-      "last_observed_at": "2026-04-17T15:32:46.708Z",
-      "network_reachability": {
-        "protocol": "TCP",
-        "open_port_range": { "begin": 3306, "end": 80 },
-        "network_path": "sg -> nat -> igw"
+      "severity_score": 1.2,
+      "exploitability": "FUNCTIONAL",
+      "resource_type": "AWS_LAMBDA_FUNCTION",
+      "resource_id": "arn:aws:lambda:ap-northeast-2:738291046572:function:my-fn",
+      "first_observed_at": "2026-03-28T16:01:37.787Z",
+      "last_observed_at": "2026-04-17T16:01:37.787Z",
+      "code_vulnerability": {
+        "cwes": ["CWE-89"],
+        "detector_name": "Semgrep",
+        "file_path": { "name": "handler.js", "line_number": 454 }
       },
       "metrics": {
-        "TotalFindings": { "sum": 157 },
+        "TotalFindings": { "sum": 268 },
         "CriticalFindings": { "sum": 0 },
         "HighFindings": { "sum": 0 },
         "MediumFindings": { "sum": 0 },
-        "LowFindings": { "sum": 245 },
-        "CoveredResources": { "avg": 967 }
+        "LowFindings": { "sum": 134 },
+        "CoveredResources": { "avg": 523 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-inspector-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-inspector-logs-814726593401"
+        "name": "aws-inspector-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-inspector-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/814726593401/inspector/ca-central-1/2026/04/17/inspector_Z996WPI8SF.log.gz"
+        "key": "AWSLogs/738291046572/inspector/ap-northeast-2/2026/04/17/inspector_7WHRL2LISUN.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/inspector/logs",
-      "log_stream": "ca-central-1/wknxolkf",
-      "ingestion_time": "2026-04-17T15:32:47.236Z"
+      "log_stream": "ap-northeast-2/ij43gz5e",
+      "ingestion_time": "2026-04-17T16:01:38.304Z"
     }
   },
-  "vulnerability": { "severity": "INFORMATIONAL", "score": { "base": 1.8485728422599643 } },
+  "vulnerability": { "severity": "INFORMATIONAL", "score": { "base": 1.1565682447023475 } },
   "event": {
     "outcome": "success",
     "category": ["vulnerability"],
@@ -75,7 +75,7 @@
     "provider": "inspector2.amazonaws.com",
     "module": "aws"
   },
-  "message": "Inspector2 [INFORMATIONAL]: NETWORK_REACHABILITY detected on AWS_EC2_INSTANCE",
+  "message": "Inspector2 [INFORMATIONAL]: CODE_VULNERABILITY detected on AWS_LAMBDA_FUNCTION",
   "log": { "level": "info" },
   "service": { "name": "inspector", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -83,8 +83,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "satj2j7tdq"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "2lpyir2l9gu"
   },
   "input": { "type": "http_endpoint" }
 }

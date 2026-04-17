@@ -1,31 +1,30 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ca-central-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "docdb" }
   },
   "aws": {
-    "dimensions": { "DBClusterIdentifier": "docdb-ca-west-1-cluster", "Role": "WRITER" },
+    "dimensions": { "DBClusterIdentifier": "docdb-ca-central-1-cluster", "Role": "WRITER" },
     "docdb": {
-      "cluster_id": "docdb-ca-west-1-cluster",
+      "cluster_id": "docdb-ca-central-1-cluster",
       "database": "appdb",
-      "collection": "orders",
-      "operation": "createIndex",
-      "duration_ms": 5845,
-      "documents_affected": 0,
-      "error": "WriteConflict",
+      "collection": "events",
+      "operation": "insert",
+      "duration_ms": 40,
+      "documents_affected": 563,
       "metrics": {
-        "CPUUtilization": { "avg": 49.26180016858606 },
-        "DatabaseConnections": { "avg": 257 },
-        "FreeLocalStorage": { "avg": 85595739820 },
-        "FreeableMemory": { "avg": 2657427727 },
-        "ReadIOPS": { "avg": 108 },
-        "WriteIOPS": { "avg": 4720 },
-        "ReadLatency": { "avg": 25.13275884035964 },
-        "WriteLatency": { "avg": 27.184890528550067 },
-        "DocumentsInserted": { "sum": 0 },
+        "CPUUtilization": { "avg": 41.15190103170817 },
+        "DatabaseConnections": { "avg": 2 },
+        "FreeLocalStorage": { "avg": 45373732519 },
+        "FreeableMemory": { "avg": 6987208310 },
+        "ReadIOPS": { "avg": 3349 },
+        "WriteIOPS": { "avg": 2183 },
+        "ReadLatency": { "avg": 3.258932336686348 },
+        "WriteLatency": { "avg": 3.8107596054426107 },
+        "DocumentsInserted": { "sum": 80 },
         "DocumentsDeleted": { "sum": 0 },
         "DocumentsUpdated": { "sum": 0 },
         "DocumentsReturned": { "sum": 0 }
@@ -33,43 +32,38 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-docdb-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-docdb-logs-738291046572"
+        "name": "aws-docdb-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-docdb-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/docdb/ca-west-1/2026/04/17/docdb_4FSQIZ5FN6X.log.gz"
+        "key": "AWSLogs/501938274650/docdb/ca-central-1/2026/04/17/docdb_OAFZF9DNE5.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/docdb/logs",
-      "log_stream": "ca-west-1/ok6bzuiw",
-      "ingestion_time": "2026-04-17T15:32:47.287Z"
+      "log_stream": "ca-central-1/fqjl7mzy",
+      "ingestion_time": "2026-04-17T16:01:38.349Z"
     }
   },
-  "db": { "name": "appdb", "operation": "createIndex", "type": "document" },
+  "db": { "name": "appdb", "operation": "insert", "type": "document" },
   "event": {
-    "duration": 5844615876.967306,
-    "outcome": "failure",
+    "duration": 40489205.3943742,
+    "outcome": "success",
     "category": ["database"],
     "dataset": "aws.docdb",
     "provider": "docdb.amazonaws.com",
     "module": "aws"
   },
-  "message": "DocumentDB createIndex on orders failed: WriteConflict",
-  "log": { "level": "error" },
-  "error": {
-    "code": "SnapshotQuotaExceeded",
-    "message": "DocumentDB createIndex failed",
-    "type": "db"
-  },
+  "message": "DocumentDB insert on events: 40.5ms",
+  "log": { "level": "info" },
   "service": { "name": "docdb", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.docdb", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "f561rt9np5"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "nlkqxtbinnq"
   },
   "input": { "type": "aws-cloudwatch" }
 }

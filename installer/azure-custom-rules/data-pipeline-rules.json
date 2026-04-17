@@ -1,0 +1,121 @@
+{
+  "group": "data-pipeline",
+  "description": "Alerting rules for the Azure Data & Analytics Pipeline chained event scenario",
+  "rules": [
+    {
+      "id": "cloudloadgen-azure-data-pipeline-failure-rate",
+      "name": "[CloudLoadGen] Azure Data Pipeline — High Failure Rate",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [3],
+        "thresholdComparator": ">",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.data_factory\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}",
+        "index": ["logs-azure.data_factory*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-azure-data-pipeline-null-data",
+      "name": "[CloudLoadGen] Azure Data Pipeline — Null/Empty Data Detected",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.synapse\"}},{\"term\":{\"azure.synapse.rows_returned\":0}}]}}",
+        "index": ["logs-azure.synapse*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-azure-data-pipeline-databricks-error",
+      "name": "[CloudLoadGen] Azure Data Pipeline — Databricks/Spark Processing Error",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.databricks\"}},{\"exists\":{\"field\":\"error.type\"}}]}}",
+        "index": ["logs-azure.databricks*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-azure-data-pipeline-blob-format-error",
+      "name": "[CloudLoadGen] Azure Data Pipeline — Blob Source File Format Error",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.blob_storage\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"azure.blob_storage.blob_name\":{\"value\":\"*%*\"}}},{\"bool\":{\"must_not\":{\"wildcard\":{\"azure.blob_storage.blob_name\":{\"value\":\"*.avro\"}}}}}]}}]}}",
+        "index": ["logs-azure.blob_storage*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-azure-data-pipeline-slow-run",
+      "name": "[CloudLoadGen] Azure Data Pipeline — Slow Pipeline Run (>60s)",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 30,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.data_factory\"}},{\"term\":{\"azure.data_factory.activity_name\":\"pipeline_complete\"}},{\"range\":{\"azure.data_factory.duration_ms\":{\"gt\":60000}}}]}}",
+        "index": ["logs-azure.data_factory*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    }
+  ]
+}

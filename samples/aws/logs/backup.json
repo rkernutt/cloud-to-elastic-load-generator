@@ -1,39 +1,42 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-southeast-3",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "backup" }
   },
   "aws": {
     "backup": {
-      "event_subtype": "restore_job",
-      "backup_job_id": "76viiglx-r79b-c10b",
-      "restore_job_id": "d9ijyf7q-d7hl-rel1",
-      "backup_plan_name": "compliance-backup",
-      "resource_arn": "arn:aws:backup:ap-southeast-1:164820739518:recovery-point:ieqccuwr85j",
+      "event_subtype": "plan_execution",
+      "backup_job_id": "hdtkmaf8-59hz-4fdk",
+      "backup_plan_name": "critical-data-plan",
+      "backup_plan_execution": {
+        "execution_id": "sbuzwo1y-cxka",
+        "rules_matched": 5,
+        "resources_evaluated": 53,
+        "next_window_utc": "2026-04-17T17:49:30.342Z"
+      },
+      "resource_arn": "arn:aws:backup:ap-southeast-3:738291046572:recovery-point:xolvgwwrsu8",
       "resource_type": "DynamoDB",
-      "backup_vault_name": "prod-vault",
-      "job_phase": "CREATED",
-      "restore_job_lifecycle": ["CREATED", "PENDING", "RUNNING", "COMPLETED"],
+      "backup_vault_name": "compliance-vault",
       "status": "COMPLETED",
-      "backup_size_gb": 388.0425504262752,
-      "lifecycle_delete_after_days": 90
+      "backup_size_gb": 794.6010955449087,
+      "lifecycle_delete_after_days": 365
     },
     "s3": {
       "bucket": {
-        "name": "aws-backup-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-backup-logs-164820739518"
+        "name": "aws-backup-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-backup-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/164820739518/backup/ap-southeast-1/2026/04/17/backup_G3ZR6DZBGO9.log.gz"
+        "key": "AWSLogs/738291046572/backup/ap-southeast-3/2026/04/17/backup_K5K4W6N84J.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/backup/logs",
-      "log_stream": "ap-southeast-1/zb77vqjm",
-      "ingestion_time": "2026-04-17T15:32:47.281Z"
+      "log_stream": "ap-southeast-3/cykdfbnc",
+      "ingestion_time": "2026-04-17T16:01:38.342Z"
     }
   },
   "event": {
@@ -41,10 +44,10 @@
     "category": ["process"],
     "dataset": "aws.backup",
     "provider": "backup.amazonaws.com",
-    "duration": 2400000000000,
+    "duration": 4462000000000,
     "module": "aws"
   },
-  "message": "AWS Backup restore COMPLETED: ec2/i-prod from prod-vault",
+  "message": "AWS Backup plan \"critical-data-plan\" execution sbuzwo1y-cxka: 53 resources",
   "log": { "level": "info" },
   "service": { "name": "backup", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -52,8 +55,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "4n78md7h6x"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "z1qazquvzc"
   },
   "input": { "type": "aws-cloudwatch" }
 }

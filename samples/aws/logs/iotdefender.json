@@ -1,66 +1,60 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-northeast-3",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "iotdefender" }
   },
   "aws": {
-    "dimensions": { "CheckName": "DEVICE_CERTIFICATE_EXPIRING" },
+    "dimensions": { "CheckName": "REVOKED_CA_CERTIFICATE" },
     "iotdefender": {
-      "thing_name": "valve-plant-2",
-      "audit_check_name": "DEVICE_CERTIFICATE_EXPIRING",
-      "finding_id": "6mcfr94cysm",
-      "severity": "MEDIUM",
-      "violation_id": "61wxdyofhq",
-      "violation_type": "blanket-request",
-      "security_profile_name": "critical-devices",
-      "behavior_name": "msg-size",
-      "current_value": 228,
-      "threshold_value": 52,
-      "consecutive_datapoints_to_alarm": 4,
-      "error_code": "ResourceNotFoundException"
+      "thing_name": "camera-lobby",
+      "audit_check_name": "REVOKED_CA_CERTIFICATE",
+      "finding_id": "1zrtox3uryu",
+      "severity": "LOW",
+      "violation_id": "74esncjiajj",
+      "violation_type": "large-msg-size",
+      "security_profile_name": "baseline-security-profile",
+      "behavior_name": "data-bytes-out",
+      "current_value": 910,
+      "threshold_value": 97,
+      "consecutive_datapoints_to_alarm": 5
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotdefender-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-iotdefender-logs-293847561023"
+        "name": "aws-iotdefender-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-iotdefender-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/iotdefender/us-east-1/2026/04/17/iotdefender_UE0DZSXB8K.log.gz"
+        "key": "AWSLogs/164820739518/iotdefender/ap-northeast-3/2026/04/17/iotdefender_54VRF6T1AMV.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotdefender/logs",
-      "log_stream": "us-east-1/qr3v4hh8",
-      "ingestion_time": "2026-04-17T15:32:47.399Z"
+      "log_stream": "ap-northeast-3/e0jwc2cz",
+      "ingestion_time": "2026-04-17T16:01:38.460Z"
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["intrusion_detection", "vulnerability"],
     "dataset": "aws.iotdefender",
     "provider": "iot.amazonaws.com",
-    "duration": 482000000000,
+    "duration": 208000000000,
     "module": "aws"
   },
-  "message": "IoT Defender audit ERROR [valve-plant-2]: Internal failure",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ResourceNotFoundException",
-    "message": "IoT Defender audit error",
-    "type": "iot"
-  },
+  "message": "IoT Defender LOW [camera-lobby]: REVOKED_CA_CERTIFICATE",
+  "log": { "level": "info" },
   "service": { "name": "iotdefender", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iotdefender", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "zdpq7wo14fg"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "brpwkk5vamc"
   },
   "input": { "type": "aws-cloudwatch" }
 }

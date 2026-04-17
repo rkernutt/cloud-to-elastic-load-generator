@@ -1,67 +1,72 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-southeast-3",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "aurora" }
   },
   "aws": {
     "aurora": {
-      "cluster_id": "staging-aurora",
-      "instance_id": "staging-aurora-instance-2",
-      "engine": "aurora-mysql",
-      "engine_version": "8.0.36",
-      "replica_lag_seconds": 4.463523336159314,
-      "db_connections": 345,
+      "cluster_id": "prod-aurora-cluster",
+      "instance_id": "prod-aurora-cluster-instance-1",
+      "engine": "aurora-postgresql",
+      "engine_version": "15.4",
+      "replica_lag_seconds": 3224,
+      "db_connections": 503,
       "max_connections": 1000,
-      "failover_in_progress": false,
+      "failover_in_progress": true,
       "metrics": {
-        "AuroraBinlogReplicaLag": { "avg": 3 },
-        "AuroraGlobalDBReplicatedWriteIO": { "sum": 4892014 },
-        "AuroraGlobalDBDataTransferBytes": { "sum": 698101873 },
-        "AuroraGlobalDBProgressLag": { "avg": 967 },
-        "BacktrackChangeRecordsCreationRate": { "avg": 2448 },
-        "BacktrackChangeRecordsStored": { "avg": 425236660 },
-        "BacktrackWindowActual": { "avg": 16251 },
-        "BacktrackWindowAlert": { "avg": 0 },
-        "ServerlessDatabaseCapacity": { "avg": 99.52154049661668 },
-        "ACUUtilization": { "avg": 14.524095423138846 }
+        "AuroraBinlogReplicaLag": { "avg": 1130 },
+        "AuroraGlobalDBReplicatedWriteIO": { "sum": 96248031 },
+        "AuroraGlobalDBDataTransferBytes": { "sum": 465554812 },
+        "AuroraGlobalDBProgressLag": { "avg": 13540 },
+        "BacktrackChangeRecordsCreationRate": { "avg": 5241 },
+        "BacktrackChangeRecordsStored": { "avg": 473519895 },
+        "BacktrackWindowActual": { "avg": 85943 },
+        "BacktrackWindowAlert": { "avg": 1 },
+        "ServerlessDatabaseCapacity": { "avg": 97.37368616605058 },
+        "ACUUtilization": { "avg": 93.8597198895658 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-aurora-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-aurora-logs-293847561023"
+        "name": "aws-aurora-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-aurora-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/aurora/ca-west-1/2026/04/17/aurora_J1FKZWY0OK.log.gz"
+        "key": "AWSLogs/738291046572/aurora/ap-southeast-3/2026/04/17/aurora_SGB6K2WPWR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/aurora/logs",
-      "log_stream": "ca-west-1/m1el3li8",
-      "ingestion_time": "2026-04-17T15:32:47.288Z"
+      "log_stream": "ap-southeast-3/5gitvu3g",
+      "ingestion_time": "2026-04-17T16:01:38.350Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["database"],
     "dataset": "aws.aurora",
     "provider": "rds.amazonaws.com",
-    "duration": 44000000000,
+    "duration": 37000000000,
     "module": "aws"
   },
-  "message": "2026-04-17 15:32:46.708 UTC 8431 [ERROR] [MY-83263] [Server] InnoDB: Warning: long semaphore wait",
+  "message": "[AuroraFailover] cluster=prod-aurora-cluster old_primary=prod-aurora-cluster-instance-1 new_primary=prod-aurora-cluster-instance-5 reason=UNRESPONSIVE_PRIMARY duration_sec=46",
   "log": { "level": "error" },
+  "error": {
+    "code": "AuroraError",
+    "message": "ERROR 2013: Lost connection to MySQL",
+    "type": "db"
+  },
   "service": { "name": "aurora", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.aurora", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "tncz7ye6his"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "ynczyq1789n"
   },
   "input": { "type": "aws-cloudwatch" }
 }

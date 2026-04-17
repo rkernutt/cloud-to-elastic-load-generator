@@ -1,23 +1,23 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
+    "region": "ca-west-1",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "iotfleetwise" }
   },
   "aws": {
-    "dimensions": { "FleetId": "test-vehicles", "CampaignName": "battery-monitoring" },
+    "dimensions": { "FleetId": "delivery-vans", "CampaignName": "battery-monitoring" },
     "iotfleetwise": {
-      "fleet_id": "test-vehicles",
-      "vehicle_id": "VIN-OERK5TI9NDO",
+      "fleet_id": "delivery-vans",
+      "vehicle_id": "VIN-GXFBYORCOAS",
       "campaign_name": "battery-monitoring",
-      "campaign_status": "RUNNING",
+      "campaign_status": "CREATING",
       "signal_name": "Vehicle.CurrentLocation.Latitude",
-      "signal_value": 0.9973249533697826,
+      "signal_value": 48.81261402055982,
       "collection_scheme": "TIME_BASED",
-      "compression": "OFF",
-      "data_destination": "TIMESTREAM"
+      "compression": "SNAPPY",
+      "data_destination": "S3"
     },
     "s3": {
       "bucket": {
@@ -25,24 +25,24 @@
         "arn": "arn:aws:s3:::aws-iotfleetwise-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/738291046572/iotfleetwise/eu-central-2/2026/04/17/iotfleetwise_9DYAURT5VUO.log.gz"
+        "key": "AWSLogs/738291046572/iotfleetwise/ca-west-1/2026/04/17/iotfleetwise_9E1T1SWAU3Q.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotfleetwise/logs",
-      "log_stream": "eu-central-2/xusbyhtb",
-      "ingestion_time": "2026-04-17T15:32:47.355Z"
+      "log_stream": "ca-west-1/9tg7fkew",
+      "ingestion_time": "2026-04-17T16:01:38.416Z"
     }
   },
   "event": {
-    "action": "CreateSignalCatalog",
+    "action": "CreateVehicle",
     "outcome": "success",
     "category": ["iot", "process"],
     "dataset": "aws.iotfleetwise",
     "provider": "iotfleetwise.amazonaws.com",
     "module": "aws"
   },
-  "message": "IoT FleetWise CreateSignalCatalog: fleet=test-vehicles, vehicle=VIN-OERK5TI9NDO, campaign=battery-monitoring RUNNING",
+  "message": "IoT FleetWise CreateVehicle: fleet=delivery-vans, vehicle=VIN-GXFBYORCOAS, campaign=battery-monitoring CREATING",
   "log": { "level": "info" },
   "service": { "name": "iotfleetwise", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -50,8 +50,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "ojo064zikfn"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "xauvepqh09"
   },
   "input": { "type": "aws-cloudwatch" }
 }

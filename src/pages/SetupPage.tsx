@@ -850,6 +850,12 @@ export function SetupPage({
     "resource-tags": "Management & Governance",
     "vertex-ai-search": "AI & Machine Learning",
     "vpc-service-controls": "Security & Identity",
+    "gcp-security-chain": "Chained Events",
+    "gcp-cspm": "Security & Identity",
+    "gcp-kspm": "Security & Identity",
+    "gcp-iam-privesc-chain": "Chained Events",
+    "gcp-data-exfil-chain": "Chained Events",
+    "gcp-data-pipeline-chain": "Chained Events",
   };
 
   const CATEGORY_ORDER: ServiceCategory[] = [

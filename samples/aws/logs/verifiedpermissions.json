@@ -1,57 +1,62 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ca-west-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "verifiedpermissions" }
   },
   "aws": {
-    "dimensions": { "PolicyStoreId": "EFxHII9B5PNWVR9" },
+    "dimensions": { "PolicyStoreId": "EFxH6V5JDTLA8EJ" },
     "verifiedpermissions": {
-      "policy_store_id": "EFxHII9B5PNWVR9",
+      "policy_store_id": "EFxH6V5JDTLA8EJ",
       "principal_entity_type": "ServiceAccount",
-      "principal_entity_id": "serviceaccount-0C3VL9J6",
-      "action_id": "WriteDocument",
-      "resource_type": "Document",
-      "decision": "ALLOW",
-      "determining_policies": 1,
+      "principal_entity_id": "serviceaccount-H7TXYX0L",
+      "action_id": "InvokeAPI",
+      "resource_type": "Record",
+      "decision": "DENY",
+      "determining_policies": 4,
       "errors_count": 0,
-      "evaluation_time_ms": 39
+      "evaluation_time_ms": 37
     },
     "s3": {
       "bucket": {
-        "name": "aws-verifiedpermissions-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-verifiedpermissions-logs-501938274650"
+        "name": "aws-verifiedpermissions-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-verifiedpermissions-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/verifiedpermissions/eu-central-1/2026/04/17/verifiedpermissions_M7SI6AK6J28.log.gz"
+        "key": "AWSLogs/164820739518/verifiedpermissions/ca-west-1/2026/04/17/verifiedpermissions_UDURJES12ED.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/verifiedpermissions/logs",
-      "log_stream": "eu-central-1/d6gupw5c",
-      "ingestion_time": "2026-04-17T15:32:47.256Z"
+      "log_stream": "ca-west-1/c8n6w2r6",
+      "ingestion_time": "2026-04-17T16:01:38.324Z"
     }
   },
   "event": {
-    "action": "BatchIsAuthorized",
+    "action": "GetAuthorization",
     "outcome": "success",
     "category": ["authentication", "iam"],
     "dataset": "aws.verifiedpermissions",
     "provider": "verifiedpermissions.amazonaws.com",
     "module": "aws"
   },
-  "message": "Verified Permissions ALLOW: ServiceAccount/serviceaccount-0C3VL9J6 → WriteDocument",
-  "log": { "level": "info" },
+  "message": "Verified Permissions DENY: ServiceAccount/serviceaccount-H7TXYX0L → InvokeAPI",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "AccessDenied",
+    "message": "Authorization denied for ServiceAccount/serviceaccount-H7TXYX0L to perform InvokeAPI",
+    "type": "authorization"
+  },
   "service": { "name": "verifiedpermissions", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.verifiedpermissions", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "4l8j34d7rzq"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "ht49y1qcx2k"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,152 +1,147 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
-  "trace": { "id": "1-69e2529e-l2ubycns6ab" },
-  "span": { "id": "btudl19wbzn" },
+  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "trace": { "id": "1-69e25961-wp4owliyv7" },
+  "span": { "id": "dqc9fxj3zbv" },
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "us-east-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "xray" }
   },
   "aws": {
-    "dimensions": { "GroupName": "Default", "ServiceType": "AWS::Lambda::Function" },
+    "dimensions": { "GroupName": "Default", "ServiceType": "AWS::RDS::DBInstance" },
     "xray": {
-      "trace_id": "1-69e2529e-l2ubycns6ab",
-      "segment_id": "btudl19wbzn",
-      "parent_id": "zvsdim4fmdf",
-      "start_time": 1776439966.708,
-      "end_time": 1776439985.4639888,
-      "origin": "AWS::Lambda::Function",
-      "service": { "name": "user-auth-function", "type": "AWS::Lambda::Function" },
-      "duration": 18.755988924038313,
+      "trace_id": "1-69e25961-wp4owliyv7",
+      "segment_id": "dqc9fxj3zbv",
+      "parent_id": "5yypi019ht2",
+      "start_time": 1776441697.787,
+      "end_time": 1776441716.4258864,
+      "origin": "AWS::RDS::DBInstance",
+      "service": { "name": "prod-db-primary", "type": "AWS::RDS::DBInstance" },
+      "duration": 18.638886340357363,
       "fault": true,
       "error": false,
       "throttle": false,
       "http": {
         "request": {
-          "method": "POST",
-          "url": "https://service.internal.corp/api/v2/events",
-          "client_ip": "51.190.143.85",
-          "user_agent": "curl/7.68.0"
+          "method": "PATCH",
+          "url": "https://app.example.com/health",
+          "client_ip": "80.166.18.167",
+          "user_agent": "Go-http-client/1.1"
         },
-        "response": { "status": 503, "content_length": 41936 }
+        "response": { "status": 503, "content_length": 27824 }
       },
       "aws": {
-        "account_id": "738291046572",
-        "region": "us-west-1",
-        "resource_names": ["user-auth-function"]
+        "account_id": "501938274650",
+        "region": "us-east-2",
+        "resource_names": ["prod-db-primary"]
       },
-      "annotations": { "environment": "staging", "version": "v6.1.28", "team": "data" },
+      "annotations": { "environment": "staging", "version": "v3.5.86", "team": "frontend" },
       "cause": {
         "working_directory": "/var/task",
         "paths": [],
         "exceptions": [
           {
-            "id": "pc299ii9bil",
+            "id": "o03rblzx7hs",
             "message": "ECONNRESET: socket hang up",
             "type": "ThrottlingException",
             "remote": false,
-            "stack": [{ "path": "handler.py", "line": 152, "label": "main" }]
+            "stack": [{ "path": "service.ts", "line": 40, "label": "processRequest" }]
           }
         ]
       },
       "subsegments": [
         {
-          "id": "0wb800d5eqp",
-          "name": "DynamoDB",
-          "start_time": 1776439967.0622437,
-          "end_time": 1776439968.8345225,
+          "id": "45x2af7asoc",
+          "name": "S3",
+          "start_time": 1776441700.1873505,
+          "end_time": 1776441713.66613,
           "namespace": "aws",
           "aws": {
-            "operation": "BatchGetItem",
-            "region": "us-west-1",
-            "retries": 0,
+            "operation": "HeadObject",
+            "region": "us-east-2",
+            "retries": 2,
+            "bucket_name": "assets-bucket",
+            "key": "data/nz9s1q3a2s.parquet",
+            "request_id": "NAVHW6X55P"
+          },
+          "http": { "response": { "status": 500, "content_length": 24453 } },
+          "fault": true,
+          "error": false,
+          "throttle": false
+        },
+        {
+          "id": "9l0rdjamlcf",
+          "name": "Lambda",
+          "start_time": 1776441699.4804285,
+          "end_time": 1776441712.6423357,
+          "namespace": "aws",
+          "aws": { "operation": "Invoke", "region": "us-east-2", "retries": 0 },
+          "http": { "response": { "status": 200, "content_length": 24722 } },
+          "fault": false,
+          "error": false,
+          "throttle": false
+        },
+        {
+          "id": "k6xl31l6ydc",
+          "name": "DynamoDB",
+          "start_time": 1776441700.0645597,
+          "end_time": 1776441700.2956295,
+          "namespace": "aws",
+          "aws": {
+            "operation": "PutItem",
+            "region": "us-east-2",
+            "retries": 3,
             "table_name": "Products",
-            "request_id": "rody1y9rzy",
-            "consumed_capacity": { "TableName": "Orders", "CapacityUnits": 2.0072981456261183 }
+            "request_id": "w8rrq6vt57",
+            "consumed_capacity": { "TableName": "Users", "CapacityUnits": 1.364593403591932 }
           },
-          "http": { "response": { "status": 200, "content_length": 31806 } },
-          "fault": false,
-          "error": false,
-          "throttle": false
-        },
-        {
-          "id": "05m4zamusbv",
-          "name": "DynamoDB",
-          "start_time": 1776439969.5205007,
-          "end_time": 1776439974.255581,
-          "namespace": "aws",
-          "aws": {
-            "operation": "BatchGetItem",
-            "region": "us-west-1",
-            "retries": 0,
-            "table_name": "Users",
-            "request_id": "7ko879lnumq",
-            "consumed_capacity": { "TableName": "Users", "CapacityUnits": 4.437374744631223 }
-          },
-          "http": { "response": { "status": 200, "content_length": 38138 } },
-          "fault": false,
-          "error": false,
-          "throttle": false
-        },
-        {
-          "id": "t4fds35yri",
-          "name": "user-service.internal:8080",
-          "start_time": 1776439971.563737,
-          "end_time": 1776439978.3258882,
-          "namespace": "remote",
-          "http": {
-            "request": {
-              "method": "GET",
-              "url": "http://user-service.internal:8080/api/v1/products"
-            },
-            "response": { "status": 500, "content_length": 5804 }
-          },
-          "fault": false,
+          "http": { "response": { "status": 503, "content_length": 17122 } },
+          "fault": true,
           "error": false,
           "throttle": false
         }
       ],
       "metrics": {
-        "ErrorRate": { "avg": 0.37977324059506 },
-        "FaultRate": { "avg": 13.092850723414978 },
-        "ThrottleRate": { "avg": 0.4514920923840422 },
-        "TotalCount": { "sum": 7850 },
+        "ErrorRate": { "avg": 0.7353735868580212 },
+        "FaultRate": { "avg": 10.629382071188827 },
+        "ThrottleRate": { "avg": 0.2017286073214991 },
+        "TotalCount": { "sum": 9217 },
         "Latency": {
-          "avg": 18755.988924038313,
-          "p50": 15004.79113923065,
-          "p90": 28133.98338605747,
-          "p95": 37511.977848076625,
-          "p99": 56267.96677211494
+          "avg": 18638.886340357363,
+          "p50": 14911.10907228589,
+          "p90": 27958.329510536045,
+          "p95": 37277.77268071473,
+          "p99": 55916.65902107209
         },
         "OkCount": { "sum": 0 },
         "ErrorCount": { "sum": 0 },
-        "FaultCount": { "sum": 3 },
+        "FaultCount": { "sum": 20 },
         "ThrottleCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-xray-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-xray-logs-738291046572"
+        "name": "aws-xray-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-xray-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/738291046572/xray/us-west-1/2026/04/17/xray_NHDIK54AP8M.log.gz" }
+      "object": { "key": "AWSLogs/501938274650/xray/us-east-2/2026/04/17/xray_F3NDOKJ088.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/xray/logs",
-      "log_stream": "us-west-1/rqlh88a6",
-      "ingestion_time": "2026-04-17T15:32:47.311Z"
+      "log_stream": "us-east-2/6m7svxvv",
+      "ingestion_time": "2026-04-17T16:01:38.372Z"
     }
   },
   "http": {
-    "request": { "method": "POST", "body": { "bytes": 5446 } },
-    "response": { "status_code": 503, "body": { "bytes": 13913 } }
+    "request": { "method": "PATCH", "body": { "bytes": 7799 } },
+    "response": { "status_code": 503, "body": { "bytes": 48301 } }
   },
-  "url": { "path": "/api/v2/events", "full": "https://service.internal.corp/api/v2/events" },
-  "user_agent": { "original": "curl/7.68.0" },
-  "source": { "ip": "51.190.143.85" },
+  "url": { "path": "/health", "full": "https://app.example.com/health" },
+  "user_agent": { "original": "Go-http-client/1.1" },
+  "source": { "ip": "80.166.18.167" },
   "event": {
-    "duration": 18755988924,
+    "duration": 18638886340,
     "outcome": "failure",
     "category": ["network"],
     "type": ["connection", "denied"],
@@ -154,13 +149,13 @@
     "provider": "xray.amazonaws.com",
     "module": "aws"
   },
-  "message": "2026-04-17T15:32:46.708Z [Info] X-Ray daemon 1.37.0 listening on address 127.0.0.1:2000\n2026-04-17T15:32:46.948Z [Info] Buffering segments queueDepth=18\n2026-04-17T15:32:47.548Z [Info] Service map update applied nodes=70 edges=222 version=9\n2026-04-17T15:32:47.428Z [Info] PublishSlices segments=3718 faults=9 throttles=1\n2026-04-17T15:32:47.308Z [Info] Sampling decision trace_id=1-69e2529e-l2ubycns6ab rule=Default reservoir=1 outcome=NotSampled\n2026-04-17T15:32:47.068Z [Info] Successfully sent batch of 17 segment document(s) to 169.254.100.0:2000\n{\"trace_id\":\"1-69e2529e-l2ubycns6ab\",\"id\":\"btudl19wbzn\",\"name\":\"user-auth-function\",\"start_time\":1776439966.708,\"end_time\":1776439985.4639888,\"parent_id\":\"zvsdim4fmdf\",\"http\":{\"request\":{\"method\":\"POST\",\"url\":\"https://service.internal.corp/api/v2/events\",\"client_ip\":\"51.190.143.85\",\"user_agent\":\"curl/7.68.0\"},\"response\":{\"status\":503,\"content_length\":14906}},\"aws\":{\"account_id\":\"738291046572\",\"region\":\"us-west-1\",\"operation\":\"Function\",\"resource_names\":[\"user-auth-function\"]},\"annotations\":{\"environment\":\"production\",\"version\":\"v15.1.94\",\"team\":\"platform\"},\"metadata\":{\"default\":{\"response_size\":30990,\"error_details\":\"ECONNRESET: socket hang up\"}},\"fault\":true,\"error\":false,\"throttle\":false,\"cause\":{\"working_directory\":\"/var/task\",\"paths\":[],\"exceptions\":[{\"id\":\"pc299ii9bil\",\"message\":\"ECONNRESET: socket hang up\",\"type\":\"ThrottlingException\",\"remote\":false,\"stack\":[{\"path\":\"handler.py\",\"line\":152,\"label\":\"main\"}]}]},\"origin\":\"AWS::Lambda::Function\",\"resource_arn\":\"arn:aws:lambda:us-west-1:738291046572:user-auth-function\"}",
+  "message": "{\"trace_id\":\"1-69e25961-wp4owliyv7\",\"id\":\"dqc9fxj3zbv\",\"name\":\"prod-db-primary\",\"start_time\":1776441697.787,\"end_time\":1776441716.4258864,\"parent_id\":\"5yypi019ht2\",\"http\":{\"request\":{\"method\":\"PATCH\",\"url\":\"https://app.example.com/health\",\"client_ip\":\"80.166.18.167\",\"user_agent\":\"Go-http-client/1.1\"},\"response\":{\"status\":503,\"content_length\":3903}},\"aws\":{\"account_id\":\"501938274650\",\"region\":\"us-east-2\",\"operation\":\"DBInstance\",\"resource_names\":[\"prod-db-primary\"]},\"annotations\":{\"environment\":\"staging\",\"version\":\"v5.8.25\",\"team\":\"backend\"},\"metadata\":{\"default\":{\"response_size\":7060,\"error_details\":\"ECONNRESET: socket hang up\"}},\"fault\":true,\"error\":false,\"throttle\":false,\"cause\":{\"working_directory\":\"/var/task\",\"paths\":[],\"exceptions\":[{\"id\":\"o03rblzx7hs\",\"message\":\"ECONNRESET: socket hang up\",\"type\":\"ThrottlingException\",\"remote\":false,\"stack\":[{\"path\":\"service.ts\",\"line\":40,\"label\":\"processRequest\"}]}]},\"origin\":\"AWS::RDS::DBInstance\",\"resource_arn\":\"arn:aws:rds:us-east-2:501938274650:prod-db-primary\"}",
   "log": { "level": "error" },
   "error": {
     "code": "ThrottlingException",
     "message": "ECONNRESET: socket hang up",
     "type": "trace",
-    "stack_trace": "  at main (handler.py:152)"
+    "stack_trace": "  at processRequest (service.ts:40)"
   },
   "service": { "name": "xray", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -168,8 +163,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "mqtd66xe8t"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "n92up6i63w"
   },
   "input": { "type": "http_endpoint" }
 }

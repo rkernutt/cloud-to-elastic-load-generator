@@ -1,39 +1,39 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
+    "region": "af-south-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "network-firewall" }
   },
   "aws": {
     "dimensions": {
-      "FirewallName": "fw-ca-west-1",
-      "AvailabilityZone": "ca-west-1b",
-      "CustomAction": "CustomPassAction"
+      "FirewallName": "fw-af-south-1",
+      "AvailabilityZone": "af-south-1b",
+      "CustomAction": "CustomBlockAction"
     },
     "firewall_logs": {
-      "flow_id": 620244,
-      "event_timestamp": "2026-04-17T15:32:46.708Z",
-      "action": "PASS",
-      "src_ip": "191.36.66.136",
-      "dest_ip": "252.85.44.85",
-      "src_port": 10388,
-      "dest_port": 5432,
-      "protocol": "ICMP",
-      "firewall_name": "fw-ca-west-1",
-      "availability_zone": "ca-west-1b"
+      "flow_id": 248500,
+      "event_timestamp": "2026-04-17T16:01:37.787Z",
+      "action": "DROP",
+      "src_ip": "52.58.111.214",
+      "dest_ip": "28.206.142.99",
+      "src_port": 4840,
+      "dest_port": 443,
+      "protocol": "TCP",
+      "firewall_name": "fw-af-south-1",
+      "availability_zone": "af-south-1b"
     },
     "network_firewall": {
-      "firewall_name": "fw-ca-west-1",
-      "availability_zone": "ca-west-1b",
+      "firewall_name": "fw-af-south-1",
+      "availability_zone": "af-south-1b",
       "policy_name": "prod-fw-policy",
       "metrics": {
-        "DroppedPackets": { "sum": 0 },
-        "PassedPackets": { "sum": 25176 },
+        "DroppedPackets": { "sum": 633 },
+        "PassedPackets": { "sum": 0 },
         "RejectedPackets": { "sum": 0 },
-        "Packets": { "sum": 59524 },
-        "DroppedBytes": { "sum": 0 }
+        "Packets": { "sum": 7794 },
+        "DroppedBytes": { "sum": 20688 }
       }
     },
     "s3": {
@@ -42,37 +42,42 @@
         "arn": "arn:aws:s3:::aws-networkfirewall-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/networkfirewall/ca-west-1/2026/04/17/networkfirewall_HMZZJSEO7SQ.log.gz"
+        "key": "AWSLogs/293847561023/networkfirewall/af-south-1/2026/04/17/networkfirewall_ZUOCKF39FW.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/networkfirewall/logs",
-      "log_stream": "ca-west-1/zc7mw72y",
-      "ingestion_time": "2026-04-17T15:32:47.215Z"
+      "log_stream": "af-south-1/prbqg21q",
+      "ingestion_time": "2026-04-17T16:01:38.280Z"
     }
   },
-  "source": { "ip": "191.36.66.136", "port": 10388 },
-  "destination": { "ip": "252.85.44.85", "port": 5432 },
-  "network": { "transport": "icmp", "bytes": 37033, "packets": 43 },
+  "source": { "ip": "52.58.111.214", "port": 4840 },
+  "destination": { "ip": "28.206.142.99", "port": 443 },
+  "network": { "transport": "tcp", "bytes": 23186, "packets": 7 },
   "event": {
-    "action": "pass",
-    "outcome": "success",
+    "action": "drop",
+    "outcome": "failure",
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.firewall_logs",
     "provider": "network-firewall.amazonaws.com",
-    "duration": 22000000,
+    "duration": 142000000,
     "module": "aws"
   },
-  "message": "PASS ICMP flow",
-  "log": { "level": "info" },
+  "message": "DROP TCP flow",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "FlowDropped",
+    "message": "Packet dropped by firewall rule",
+    "type": "network"
+  },
   "service": { "name": "networkfirewall", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.firewall_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "tjkmj7ufilc"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "yhr3kxsm8qj"
   },
   "input": { "type": "aws-s3" }
 }

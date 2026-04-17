@@ -1,51 +1,57 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
     "region": "me-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "transferfamily" }
   },
   "aws": {
-    "dimensions": { "ServerId": "s-d14po88yu54", "Protocol": "SFTP" },
+    "dimensions": { "ServerId": "s-7f7ovw6syc5", "Protocol": "FTPS" },
     "transferfamily": {
-      "server_id": "s-d14po88yu54",
-      "protocol": "SFTP",
+      "server_id": "s-7f7ovw6syc5",
+      "protocol": "FTPS",
       "user_name": "backup-user",
-      "session_id": "ow7r8yuadqi",
-      "file_path": "/reports/daily-sales.xlsx",
+      "session_id": "p3pvxnoic1d",
+      "file_path": "/inbound/orders.csv",
       "operation": "DELETE",
-      "bytes_transferred": 4854897304,
-      "transfer_rate_mbps": 406.86121928016144,
-      "duration_seconds": 196.33714436362374,
-      "s3_bucket": "sftp-inbound"
+      "bytes_transferred": 235312117,
+      "transfer_rate_mbps": 22.308052927779613,
+      "duration_seconds": 21.07908937200911,
+      "s3_bucket": "sftp-inbound",
+      "error_code": "AUTH_FAILURE"
     },
     "s3": {
       "bucket": {
-        "name": "aws-transferfamily-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-transferfamily-logs-164820739518"
+        "name": "aws-transferfamily-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-transferfamily-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/transferfamily/me-south-1/2026/04/17/transferfamily_2U4OSW6M4YV.log.gz"
+        "key": "AWSLogs/293847561023/transferfamily/me-south-1/2026/04/17/transferfamily_B9R3AO9TEUJ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/transferfamily/logs",
-      "log_stream": "me-south-1/x844pc4g",
-      "ingestion_time": "2026-04-17T15:32:47.387Z"
+      "log_stream": "me-south-1/pdan5ghn",
+      "ingestion_time": "2026-04-17T16:01:38.449Z"
     }
   },
-  "source": { "ip": "205.1.112.50" },
+  "source": { "ip": "53.78.176.194" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["file", "network"],
     "dataset": "aws.transfer",
     "provider": "transfer.amazonaws.com",
-    "duration": 28517000000,
+    "duration": 257913000000,
     "module": "aws"
   },
-  "message": "Transfer Family SFTP [backup-user] /reports/daily-sales.xlsx: 4630.0MB",
-  "log": { "level": "info" },
+  "message": "Transfer Family FTPS FAILED [backup-user] /inbound/orders.csv: Connection reset:",
+  "log": { "level": "error" },
+  "error": {
+    "code": "CONNECTION_RESET",
+    "message": "Transfer Family operation failed",
+    "type": "file"
+  },
   "service": { "name": "transferfamily", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.transferfamily", "namespace": "default" },
@@ -53,7 +59,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "g68xfe12y1s"
+    "ephemeral_id": "615ygjwu2u3"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,68 +1,77 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
-    "availability_zone": "af-south-1a",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-central-2",
+    "availability_zone": "eu-central-2b",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "ebs" }
   },
   "aws": {
-    "dimensions": { "VolumeId": "vol-zogvx1zddhf", "VolumeType": "io2" },
+    "dimensions": { "VolumeId": "vol-wczaz6lmov", "VolumeType": "io2" },
     "ebs": {
-      "volume_id": "vol-zogvx1zddhf",
-      "volume_type": "io2",
-      "size_gb": 1000,
-      "availability_zone": "af-south-1a",
-      "previous_state": "in-use",
-      "current_state": "available",
-      "state_transition_chain": ["in-use", "available"],
-      "event_type": "state_change",
+      "volume_id": "vol-wczaz6lmov",
+      "modification_state": "failed",
+      "modification_phase": "multi-attach",
+      "original_volume_type": "sc1",
+      "target_volume_type": "gp3",
+      "original_size_gb": 100,
+      "target_size_gb": 300,
+      "original_iops": 6621,
+      "target_iops": 9518,
+      "target_throughput_mbps": 837,
+      "progress_percent": 0,
+      "event_type": "modification",
       "metrics": {
-        "VolumeReadOps": { "avg": 5807 },
-        "VolumeWriteOps": { "avg": 5482 },
-        "VolumeReadBytes": { "avg": 272245094 },
-        "VolumeWriteBytes": { "avg": 427623858 },
-        "VolumeTotalReadTime": { "sum": 5.7080350448301065 },
-        "VolumeTotalWriteTime": { "sum": 8.5498851684801 },
-        "VolumeIdleTime": { "sum": 42.67537590572024 },
-        "VolumeQueueLength": { "avg": 8 },
-        "VolumeThroughputPercentage": { "avg": 75.41148247091151 },
-        "VolumeConsumedReadWriteOps": { "avg": 17925 },
+        "VolumeReadOps": { "avg": 4480 },
+        "VolumeWriteOps": { "avg": 7630 },
+        "VolumeReadBytes": { "avg": 233125560 },
+        "VolumeWriteBytes": { "avg": 149493563 },
+        "VolumeTotalReadTime": { "sum": 9.33557483652349 },
+        "VolumeTotalWriteTime": { "sum": 1.3600546652051315 },
+        "VolumeIdleTime": { "sum": 2.225895672889797 },
+        "VolumeQueueLength": { "avg": 40 },
+        "VolumeThroughputPercentage": { "avg": 88.96386094522306 },
+        "VolumeConsumedReadWriteOps": { "avg": 15755 },
         "BurstBalance": {}
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-ebs-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-ebs-logs-293847561023"
+        "name": "aws-ebs-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-ebs-logs-814726593401"
       },
-      "object": { "key": "AWSLogs/293847561023/ebs/af-south-1/2026/04/17/ebs_UUTFL0HP28.log.gz" }
+      "object": { "key": "AWSLogs/814726593401/ebs/eu-central-2/2026/04/17/ebs_6H49Z1H6GSN.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/ebs/logs",
-      "log_stream": "af-south-1/b6ytsjkc",
-      "ingestion_time": "2026-04-17T15:32:47.265Z"
+      "log_stream": "eu-central-2/tsncc4ia",
+      "ingestion_time": "2026-04-17T16:01:38.329Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["host", "file"],
     "dataset": "aws.ebs",
     "provider": "ec2.amazonaws.com",
-    "duration": 3906000000,
+    "duration": 49433000000,
     "module": "aws"
   },
-  "message": "EBS volume vol-zogvx1zddhf state change: in-use -> available",
-  "log": { "level": "info" },
+  "message": "EBS volume modification FAILED for vol-wczaz6lmov: Instance type does not support requested volume type",
+  "log": { "level": "error" },
+  "error": {
+    "code": "EbsError",
+    "message": "EBS volume modification FAILED for vol-wczaz6lmov: Instance type does not support requested volume type",
+    "type": "storage"
+  },
   "service": { "name": "ebs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.ebs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "9q13fv4f69b"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "wtc7pokcp5"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,105 +1,95 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
-  "logName": "projects/globex-prod-a1b2c3/logs/requests",
-  "insertId": "iihjgfhcne",
+  "severity": "WARNING",
+  "logName": "projects/globex-dev-g7h8i9/logs/requests",
+  "insertId": "miggmf9byu",
   "resource": {
     "type": "http_load_balancer",
-    "labels": { "project_id": "globex-prod-a1b2c3", "zone": "global" }
+    "labels": { "project_id": "globex-dev-g7h8i9", "zone": "global" }
   },
   "httpRequest": {
-    "requestMethod": "POST",
-    "requestUrl": "https://api.globex-prod-a1b2c3.example.com/health",
+    "requestMethod": "DELETE",
+    "requestUrl": "https://api.globex-dev-g7h8i9.example.com/api/v1/search",
     "status": 302,
-    "userAgent": "Go-http-client/1.1",
-    "remoteIp": "96.189.232.102",
-    "latency": "0.002000s",
+    "userAgent": "curl/7.68.0",
+    "remoteIp": "245.145.99.7",
+    "latency": "0.007000s",
     "protocol": "HTTP/1.1"
   },
   "jsonPayload": {
     "enforcedSecurityPolicy": {
-      "name": "projects/globex-prod-a1b2c3/global/securityPolicies/armor-edge-hdg0",
-      "priority": 6350,
+      "name": "projects/globex-dev-g7h8i9/global/securityPolicies/armor-api-qtjk",
+      "priority": 8257,
       "configuredAction": "DENY",
-      "outcome": "ACCEPT",
-      "preconfiguredExpr": "evaluatePreconfiguredExpr('lfi-v33-stable')",
-      "matchedFieldName": "request.query",
-      "matchedFieldValue": "' OR 1=1--",
-      "preconfiguredExprIds": ["owasp-crs-v030001-id941100-xss"]
-    },
-    "previewSecurityPolicy": {
-      "name": "projects/globex-prod-a1b2c3/global/securityPolicies/armor-edge-hdg0",
       "outcome": "DENY",
-      "priority": 6350
+      "preconfiguredExpr": "evaluatePreconfiguredExpr('sqli-v33-stable')",
+      "matchedFieldName": "request.query",
+      "matchedFieldValue": "<script>alert(1)</script>",
+      "preconfiguredExprIds": ["owasp-crs-v030001-id942100-sqli"]
     },
-    "remoteIp": "96.189.232.102",
-    "backendServiceName": "bes-web-ghtz",
+    "remoteIp": "245.145.99.7",
+    "backendServiceName": "bes-api-8k03",
     "enforcedSecurityPolicyRequestHeadersToAdds": []
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west2",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
+    "region": "europe-west6",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" },
     "service": { "name": "cloud-armor" }
   },
   "gcp": {
     "cloud_armor": {
       "http_request": {
-        "requestMethod": "POST",
-        "requestUrl": "https://api.globex-prod-a1b2c3.example.com/health",
+        "requestMethod": "DELETE",
+        "requestUrl": "https://api.globex-dev-g7h8i9.example.com/api/v1/search",
         "status": 302,
-        "userAgent": "Go-http-client/1.1",
-        "remoteIp": "96.189.232.102",
-        "latency": "0.002000s",
+        "userAgent": "curl/7.68.0",
+        "remoteIp": "245.145.99.7",
+        "latency": "0.007000s",
         "protocol": "HTTP/1.1"
       },
       "json_payload": {
         "enforcedSecurityPolicy": {
-          "name": "projects/globex-prod-a1b2c3/global/securityPolicies/armor-edge-hdg0",
-          "priority": 6350,
+          "name": "projects/globex-dev-g7h8i9/global/securityPolicies/armor-api-qtjk",
+          "priority": 8257,
           "configuredAction": "DENY",
-          "outcome": "ACCEPT",
-          "preconfiguredExpr": "evaluatePreconfiguredExpr('lfi-v33-stable')",
-          "matchedFieldName": "request.query",
-          "matchedFieldValue": "' OR 1=1--",
-          "preconfiguredExprIds": ["owasp-crs-v030001-id941100-xss"]
-        },
-        "previewSecurityPolicy": {
-          "name": "projects/globex-prod-a1b2c3/global/securityPolicies/armor-edge-hdg0",
           "outcome": "DENY",
-          "priority": 6350
+          "preconfiguredExpr": "evaluatePreconfiguredExpr('sqli-v33-stable')",
+          "matchedFieldName": "request.query",
+          "matchedFieldValue": "<script>alert(1)</script>",
+          "preconfiguredExprIds": ["owasp-crs-v030001-id942100-sqli"]
         },
-        "remoteIp": "96.189.232.102",
-        "backendServiceName": "bes-web-ghtz",
+        "remoteIp": "245.145.99.7",
+        "backendServiceName": "bes-api-8k03",
         "enforcedSecurityPolicyRequestHeadersToAdds": []
       },
-      "policy_name": "projects/globex-prod-a1b2c3/global/securityPolicies/armor-edge-hdg0",
-      "rule_name": "owasp-crs-v030001-id941100-xss",
-      "action": "ACCEPT",
-      "priority": 6350,
-      "source_ip": "96.189.232.102",
-      "matched_expression": "evaluatePreconfiguredExpr('lfi-v33-stable')",
-      "preview_mode": true,
+      "policy_name": "projects/globex-dev-g7h8i9/global/securityPolicies/armor-api-qtjk",
+      "rule_name": "owasp-crs-v030001-id942100-sqli",
+      "action": "DENY",
+      "priority": 8257,
+      "source_ip": "245.145.99.7",
+      "matched_expression": "evaluatePreconfiguredExpr('sqli-v33-stable')",
+      "preview_mode": false,
       "enforced_security_policy": {
-        "name": "projects/globex-prod-a1b2c3/global/securityPolicies/armor-edge-hdg0",
-        "priority": 6350,
+        "name": "projects/globex-dev-g7h8i9/global/securityPolicies/armor-api-qtjk",
+        "priority": 8257,
         "configuredAction": "DENY",
-        "outcome": "ACCEPT",
-        "preconfiguredExpr": "evaluatePreconfiguredExpr('lfi-v33-stable')",
+        "outcome": "DENY",
+        "preconfiguredExpr": "evaluatePreconfiguredExpr('sqli-v33-stable')",
         "matchedFieldName": "request.query",
-        "matchedFieldValue": "' OR 1=1--",
-        "preconfiguredExprIds": ["owasp-crs-v030001-id941100-xss"]
+        "matchedFieldValue": "<script>alert(1)</script>",
+        "preconfiguredExprIds": ["owasp-crs-v030001-id942100-sqli"]
       }
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 2000000,
+    "duration": 7000000,
     "module": "gcp",
     "dataset": "gcp.cloudarmor"
   },
-  "message": "Cloud Armor preview: would enforce DENY priority=6350 96.189.232.102",
+  "message": "Cloud Armor DENY projects/globex-dev-g7h8i9/global/securityPolicies/armor-api-qtjk expr=evaluatePreconfiguredExpr('sqli-v33-stable')",
   "service": { "name": "cloud-armor", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -107,8 +97,8 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-west2",
-    "id": "ey6dzp6qch7"
+    "name": "elastic-agent-gcp-europe-west6",
+    "id": "t4rlvlqomwm"
   },
   "input": { "type": "gcp-pubsub" }
 }

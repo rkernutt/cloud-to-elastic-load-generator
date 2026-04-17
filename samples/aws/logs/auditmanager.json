@@ -1,57 +1,62 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-central-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "auditmanager" }
   },
   "aws": {
-    "dimensions": { "AssessmentName": "CIS-AWS-Foundations", "ControlSetId": "Data Protection" },
+    "dimensions": { "AssessmentName": "SOC2-Type-II", "ControlSetId": "Change Management" },
     "auditmanager": {
-      "assessment_name": "CIS-AWS-Foundations",
-      "assessment_id": "85d18xh2-lplq-1wdv-uhl6-pxrx0ev9w6",
-      "control_set": "Data Protection",
-      "control_id": "CTRL-4356",
-      "evidence_status": "COMPLIANT",
-      "data_source": "AWS_SECURITY_HUB",
-      "evidence_count": 32,
+      "assessment_name": "SOC2-Type-II",
+      "assessment_id": "x5kajtd2-l2bd-hspd-v3bw-2dpdtfv8vil",
+      "control_set": "Change Management",
+      "control_id": "CTRL-3642",
+      "evidence_status": "NON_COMPLIANT",
+      "data_source": "AWS_CLOUDTRAIL",
+      "evidence_count": 22,
       "compliance_check": "PASSED",
-      "reviewer": "security-ops"
+      "reviewer": "compliance-team"
     },
     "s3": {
       "bucket": {
-        "name": "aws-auditmanager-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-auditmanager-logs-738291046572"
+        "name": "aws-auditmanager-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-auditmanager-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/auditmanager/eu-south-2/2026/04/17/auditmanager_Q9F6GAZTFCG.log.gz"
+        "key": "AWSLogs/501938274650/auditmanager/eu-central-2/2026/04/17/auditmanager_8OSC23PZ55P.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/auditmanager/logs",
-      "log_stream": "eu-south-2/d0gtt485",
-      "ingestion_time": "2026-04-17T15:32:47.256Z"
+      "log_stream": "eu-central-2/x1d0iu9u",
+      "ingestion_time": "2026-04-17T16:01:38.323Z"
     }
   },
   "event": {
-    "action": "CreateAssessment",
-    "outcome": "success",
+    "action": "UpdateAssessmentControl",
+    "outcome": "failure",
     "category": ["audit"],
     "dataset": "aws.auditmanager",
     "provider": "auditmanager.amazonaws.com",
     "module": "aws"
   },
-  "message": "Audit Manager CIS-AWS-Foundations — CTRL-4356 COMPLIANT",
-  "log": { "level": "info" },
+  "message": "Audit Manager SOC2-Type-II — CTRL-3642 NON_COMPLIANT: insufficient evidence in Change Management",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ResourceNotFoundException",
+    "message": "Audit Manager evidence collection failed",
+    "type": "audit"
+  },
   "service": { "name": "auditmanager", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.auditmanager", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "s8xax59szt"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "5rchzx0gsqa"
   },
   "input": { "type": "http_endpoint" }
 }

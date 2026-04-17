@@ -1,55 +1,63 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
+    "region": "eu-central-1",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "sagemaker" }
   },
   "aws": {
     "dimensions": {
-      "TrainingJobName": "bert-finetuned-pipeline-20260417-p5yw4w",
-      "JobType": "Pipeline"
+      "TrainingJobName": "resnet50-custom-training-20260417-8yz2fy",
+      "JobType": "Training"
     },
     "cloudwatch": {
-      "log_group": "/aws/sagemaker/Pipelines",
-      "log_stream": "bert-finetuned-pipeline-20260417-p5yw4w/algo-1",
-      "ingestion_time": "2026-04-17T15:32:47.333Z"
+      "log_group": "/aws/sagemaker/TrainingJobs",
+      "log_stream": "resnet50-custom-training-20260417-8yz2fy/algo-1",
+      "ingestion_time": "2026-04-17T16:01:38.394Z"
     },
     "sagemaker": {
-      "domain_id": "d-1w9r2hj6s0",
+      "domain_id": "d-qn0pglao7c",
       "domain_name": "ml-research",
-      "user_profile": "alice-ds",
+      "user_profile": "dan-platform",
       "job": {
-        "name": "bert-finetuned-pipeline-20260417-p5yw4w",
-        "type": "Pipeline",
-        "arn": "arn:aws:sagemaker:us-west-2:164820739518:processing-job/bert-finetuned-pipeline-20260417-p5yw4w",
+        "name": "resnet50-custom-training-20260417-8yz2fy",
+        "type": "Training",
+        "arn": "arn:aws:sagemaker:eu-central-1:164820739518:training-job/resnet50-custom-training-20260417-8yz2fy",
         "status": "Completed",
-        "secondary_status": "Downloading"
+        "secondary_status": "Completed"
       },
-      "model": { "name": "bert-finetuned", "version": 12 },
-      "pipeline": { "name": "feature-engineering-pipeline", "execution_id": "pipe-bwitlg5vb1v" },
-      "instance": { "type": "ml.m5.4xlarge", "count": 1 },
-      "metrics": { "gpu_utilization_pct": 45, "cpu_utilization_pct": 49 },
+      "model": { "name": "resnet50-custom", "version": 14 },
+      "pipeline": { "name": "batch-inference-pipeline", "execution_id": "pipe-ktj6i7qk1x" },
+      "instance": { "type": "ml.c5.xlarge", "count": 1 },
+      "metrics": {
+        "train:loss": 0.3883,
+        "train:accuracy": 0.7628,
+        "validation:loss": 0.6113,
+        "validation:accuracy": 0.8238,
+        "epoch": 45,
+        "gpu_utilization_pct": 70,
+        "cpu_utilization_pct": 46
+      },
       "studio": {
-        "space_name": "nlp-experiments",
-        "app_type": "RSession",
+        "space_name": "risk-models",
+        "app_type": "KernelGateway",
         "app_name": "default",
         "lifecycle_config": false,
         "continuous_logging": false
       },
       "cloudwatch_metrics": {
-        "Invocations": { "sum": 932 },
-        "ModelLatency": { "avg": 112000 },
-        "OverheadLatency": { "avg": 26000 },
-        "GPUUtilization": { "avg": 69 },
-        "GPUMemoryUtilization": { "avg": 80 },
-        "CPUUtilization": { "avg": 42 },
-        "DiskUtilization": { "avg": 53 },
+        "Invocations": { "sum": 2016 },
+        "ModelLatency": { "avg": 134000 },
+        "OverheadLatency": { "avg": 4000 },
+        "GPUUtilization": { "avg": 61 },
+        "GPUMemoryUtilization": { "avg": 51 },
+        "CPUUtilization": { "avg": 38 },
+        "DiskUtilization": { "avg": 37 },
         "MemoryUtilization": { "avg": 68 },
         "Invocations4XXError": { "sum": 0 },
         "Invocations5XXError": { "sum": 0 },
-        "ModelSetupTime": { "avg": 2832 }
+        "ModelSetupTime": { "avg": 4473 }
       }
     },
     "s3": {
@@ -58,30 +66,30 @@
         "arn": "arn:aws:s3:::aws-sagemaker-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/sagemaker/us-west-2/2026/04/17/sagemaker_6ET5X62V13I.log.gz"
+        "key": "AWSLogs/164820739518/sagemaker/eu-central-1/2026/04/17/sagemaker_HDQ5ZKVY48.log.gz"
       }
     }
   },
   "log": { "level": "info" },
-  "user": { "name": "alice-ds" },
+  "user": { "name": "dan-platform" },
   "event": {
-    "action": "AppCreated",
-    "duration": 12783213346733.37,
+    "action": "SpaceCreated",
+    "duration": 5603982445342.015,
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.sagemaker",
     "provider": "sagemaker.amazonaws.com",
     "module": "aws"
   },
-  "message": "Pipeline execution started",
+  "message": "Uploading - Uploading generated training model to s3://sagemaker-eu-central-1-164820739518/output/resnet50-custom-training-20260417-8yz2fy/output/model.tar.gz",
   "service": { "name": "sagemaker", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sagemaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "2iooymvhaxm"
+    "name": "filebeat-aws-eu-central-1",
+    "ephemeral_id": "5adhy45u4he"
   },
   "input": { "type": "aws-cloudwatch" }
 }

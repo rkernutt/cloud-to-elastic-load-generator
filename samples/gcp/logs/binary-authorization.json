@@ -1,82 +1,84 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
-  "logName": "projects/globex-dev-g7h8i9/logs/binaryauthorization.googleapis.com%2Fpolicy_events",
-  "insertId": "m5ubvxam2tl",
+  "severity": "ERROR",
+  "logName": "projects/globex-staging-d4e5f6/logs/binaryauthorization.googleapis.com%2Fpolicy_events",
+  "insertId": "1uoncev1u71",
   "resource": {
     "type": "gke_cluster",
     "labels": {
-      "project_id": "globex-dev-g7h8i9",
+      "project_id": "globex-staging-d4e5f6",
       "cluster_name": "edge-cluster",
-      "location": "me-west1"
+      "location": "europe-west2"
     }
   },
   "jsonPayload": {
     "typeUrl": "type.googleapis.com/google.cloud.binaryauthorization.v1beta1.ContinuousValidationEvent",
-    "policy": "projects/globex-dev-g7h8i9/platforms/gke/policies/dev-permissive",
-    "cluster": "projects/globex-dev-g7h8i9/locations/me-west1/clusters/edge-cluster",
+    "policy": "projects/globex-staging-d4e5f6/platforms/gke/policies/globex-prod-policy",
+    "cluster": "projects/globex-staging-d4e5f6/locations/europe-west2/clusters/edge-cluster",
     "deployable": {
-      "pod_name": "staging/checkout-4br04-v6mnf",
-      "container_image": "us-docker.pkg.dev/globex-dev-g7h8i9/apps/checkout:v3.17"
+      "pod_name": "kube-system/checkout-aj87i-s1487",
+      "container_image": "gcr.io/globex-staging-d4e5f6/payments-api@sha256:kzhlqfihcbn"
     },
-    "verdict": "ALLOWED",
+    "verdict": "DENIED",
     "attestations": [
       {
-        "attestor": "projects/globex-dev-g7h8i9/attestors/cosign-prod",
-        "pgp_key_id": "0xUV14UK8YFUS"
+        "attestor": "projects/globex-staging-d4e5f6/attestors/build-attestor",
+        "pgp_key_id": "0x3QDDAVQZGU2"
       }
-    ]
+    ],
+    "reason": "No valid attestor for image"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "me-west1",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" },
+    "region": "europe-west2",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" },
     "service": { "name": "binary-authorization" }
   },
   "gcp": {
     "binary_authorization": {
       "json_payload": {
         "typeUrl": "type.googleapis.com/google.cloud.binaryauthorization.v1beta1.ContinuousValidationEvent",
-        "policy": "projects/globex-dev-g7h8i9/platforms/gke/policies/dev-permissive",
-        "cluster": "projects/globex-dev-g7h8i9/locations/me-west1/clusters/edge-cluster",
+        "policy": "projects/globex-staging-d4e5f6/platforms/gke/policies/globex-prod-policy",
+        "cluster": "projects/globex-staging-d4e5f6/locations/europe-west2/clusters/edge-cluster",
         "deployable": {
-          "pod_name": "staging/checkout-4br04-v6mnf",
-          "container_image": "us-docker.pkg.dev/globex-dev-g7h8i9/apps/checkout:v3.17"
+          "pod_name": "kube-system/checkout-aj87i-s1487",
+          "container_image": "gcr.io/globex-staging-d4e5f6/payments-api@sha256:kzhlqfihcbn"
         },
-        "verdict": "ALLOWED",
+        "verdict": "DENIED",
         "attestations": [
           {
-            "attestor": "projects/globex-dev-g7h8i9/attestors/cosign-prod",
-            "pgp_key_id": "0xUV14UK8YFUS"
+            "attestor": "projects/globex-staging-d4e5f6/attestors/build-attestor",
+            "pgp_key_id": "0x3QDDAVQZGU2"
           }
-        ]
+        ],
+        "reason": "No valid attestor for image"
       },
       "cluster": "edge-cluster",
-      "namespace": "staging",
-      "pod": "checkout-4br04-v6mnf",
-      "image": "us-docker.pkg.dev/globex-dev-g7h8i9/apps/checkout:v3.17",
-      "attestor": "cosign-prod",
-      "verdict": "ALLOWED",
-      "policy_name": "dev-permissive"
+      "namespace": "kube-system",
+      "pod": "checkout-aj87i-s1487",
+      "image": "gcr.io/globex-staging-d4e5f6/payments-api@sha256:kzhlqfihcbn",
+      "attestor": "build-attestor",
+      "verdict": "DENIED",
+      "policy_name": "globex-prod-policy"
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 8000000,
+    "outcome": "failure",
+    "duration": 12000000,
     "module": "gcp",
     "dataset": "gcp.binaryauthorization"
   },
-  "message": "binaryauthorization.googleapis.com/Admission ALLOWED cluster=edge-cluster image=us-docker.pkg.dev/globex-dev-g7h8i9/apps/checkout:v3.17",
+  "message": "binaryauthorization.googleapis.com/Admission DENIED cluster=edge-cluster image=gcr.io/globex-staging-d4e5f6/payments-api@sha256:kzhlqfihcbn",
   "service": { "name": "binary-authorization", "type": "gcp" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.binaryauthorization", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-me-west1",
-    "id": "jy8c0nh4rla"
+    "name": "elastic-agent-gcp-europe-west2",
+    "id": "n2ixxzj447"
   },
   "input": { "type": "http_endpoint" }
 }

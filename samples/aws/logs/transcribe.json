@@ -1,70 +1,72 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-central-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "transcribe" }
   },
   "aws": {
-    "dimensions": { "Operation": "TranscriptionJob", "LanguageCode": "es-US" },
+    "dimensions": { "Operation": "TranscriptionJob", "LanguageCode": "fr-FR" },
     "transcribe": {
-      "TranscriptionJobName": "transcribe-og9lju2x",
-      "TranscriptionJobStatus": "COMPLETED",
-      "LanguageCode": "es-US",
+      "TranscriptionJobName": "transcribe-7jvhvg7q",
+      "TranscriptionJobStatus": "FAILED",
+      "LanguageCode": "fr-FR",
       "MediaFormat": "mp4",
-      "MediaSampleRateHertz": 22050,
+      "MediaSampleRateHertz": 8000,
       "OutputLocationType": "CUSTOMER_BUCKET",
-      "transcription_job_name": "transcribe-og9lju2x",
-      "transcription_job_status": "COMPLETED",
-      "language_code": "es-US",
+      "transcription_job_name": "transcribe-7jvhvg7q",
+      "transcription_job_status": "FAILED",
+      "language_code": "fr-FR",
       "media_format": "mp4",
-      "media_sample_rate_hertz": 22050,
+      "media_sample_rate_hertz": 8000,
       "output_location_type": "CUSTOMER_BUCKET",
-      "media_uri": "s3://audio-bucket/transcribe-og9lju2x.mp3",
-      "audio_duration_minutes": 2.9461788125275685,
-      "word_count": 442,
-      "vocabulary_name": "custom-medical-terms",
+      "media_uri": "s3://audio-bucket/transcribe-7jvhvg7q.mp3",
+      "audio_duration_minutes": 0.3399635073435198,
+      "word_count": 0,
+      "speaker_count": 3,
       "content_redaction_enabled": true,
+      "error_code": "BadRequestException",
       "metrics": {
-        "TranscriptionJobsCompleted": { "sum": 1 },
-        "TranscriptionJobsFailed": { "sum": 0 },
-        "TranscriptionJobsPending": { "avg": 8 },
+        "TranscriptionJobsCompleted": { "sum": 0 },
+        "TranscriptionJobsFailed": { "sum": 1 },
+        "TranscriptionJobsPending": { "avg": 1 },
         "TranscriptionJobsRunning": { "avg": 1 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-transcribe-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-transcribe-logs-501938274650"
+        "name": "aws-transcribe-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-transcribe-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/501938274650/transcribe/ap-northeast-3/2026/04/17/transcribe_82VBXXSQL1V.log.gz"
+        "key": "AWSLogs/738291046572/transcribe/eu-central-1/2026/04/17/transcribe_RASK51VMOH.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/transcribe/logs",
-      "log_stream": "ap-northeast-3/99gtdh3s",
-      "ingestion_time": "2026-04-17T15:32:47.341Z"
+      "log_stream": "eu-central-1/qcq8mrsg",
+      "ingestion_time": "2026-04-17T16:01:38.401Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.transcribe",
     "provider": "transcribe.amazonaws.com",
     "module": "aws"
   },
-  "message": "Transcribe job transcribe-og9lju2x: 2.9 min audio (es-US)",
-  "log": { "level": "info" },
+  "message": "Transcribe job transcribe-7jvhvg7q FAILED (fr-FR): Audio too noisy",
+  "log": { "level": "error" },
+  "error": { "code": "TranscribeError", "message": "Transcribe job failed", "type": "ml" },
   "service": { "name": "transcribe", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.transcribe", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "u6ljl3oo11"
+    "name": "filebeat-aws-eu-central-1",
+    "ephemeral_id": "4lcwjlalqdo"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -3,53 +3,50 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west6",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" }
+    "region": "australia-southeast2",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west6",
-    "ephemeral_id": "w4nkaiea1bq"
+    "name": "metricbeat-gcp-australia-southeast2",
+    "ephemeral_id": "gkysv4t5z2l"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "serviceruntime.googleapis.com/api/request_count",
-      "labels": { "credential_id": "resource-a" }
+      "type": "storage.googleapis.com/api/request_count",
+      "labels": { "method": "GET", "response_code": "200" }
     },
     "resource": {
-      "type": "consumed_api",
+      "type": "gcs_bucket",
       "labels": {
-        "project_id": "globex-dev-g7h8i9",
-        "service": "generic.googleapis.com",
-        "method": "resource_id"
+        "project_id": "globex-prod-a1b2c3",
+        "bucket_name": "assets-prod",
+        "location": "australia-southeast2"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "22319" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "41266" } }
     ]
   },
   "gcp": {
-    "storage-transfer": {
+    "cloud-storage": {
       "labels": {
-        "project_id": "globex-dev-g7h8i9",
-        "service": "generic.googleapis.com",
-        "method": "resource_id",
-        "credential_id": "resource-a"
+        "project_id": "globex-prod-a1b2c3",
+        "bucket_name": "assets-prod",
+        "location": "australia-southeast2",
+        "method": "GET",
+        "response_code": "200"
       },
       "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": {
-          "avg": 22319,
-          "sum": 22319,
-          "count": 1
-        }
+        "storage.googleapis.com/api/request_count": { "avg": 41266, "sum": 41266, "count": 1 }
       }
     }
   },
-  "metricset": { "name": "storage-transfer", "period": 60000 },
+  "metricset": { "name": "cloud-storage", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.gcs_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "dataset": "gcp.gcs_metrics", "module": "gcp" }

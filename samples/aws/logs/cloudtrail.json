@@ -1,49 +1,54 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
+    "region": "eu-west-3",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "cloudtrail" }
   },
   "aws": {
-    "dimensions": { "EventName": "DeleteUser", "EventSource": "iam.amazonaws.com" },
+    "dimensions": { "EventName": "ConsoleLogin", "EventSource": "sts.amazonaws.com" },
     "cloudtrail": {
       "eventVersion": "1.11",
       "userIdentity": {
-        "type": "Root",
-        "principalId": "164820739518:carol",
-        "arn": "arn:aws:iam::164820739518:user/carol",
+        "type": "WebIdentityUser",
+        "principalId": "164820739518:alice",
+        "arn": "arn:aws:iam::164820739518:user/alice",
         "accountId": "164820739518",
-        "accessKeyId": "AKIAO17JMDJ6V5O",
-        "userName": "carol",
+        "accessKeyId": "AKIA8KIOSL9ULOP",
+        "userName": "alice",
         "sessionContext": {
           "sessionIssuer": {
             "type": "Role",
-            "principalId": "AROAPNZ0PP28EY",
+            "principalId": "AROAXWXCA9DQ96",
             "arn": "arn:aws:iam::164820739518:role/service-role/execution-role",
             "accountId": "164820739518",
             "userName": "execution-role"
           },
           "webIdFederationData": {},
-          "attributes": { "creationDate": "2026-04-17T14:57:08.708Z", "mfaAuthenticated": "false" }
+          "attributes": { "creationDate": "2026-04-17T15:39:26.787Z", "mfaAuthenticated": "true" }
         }
       },
-      "eventTime": "2026-04-17T15:32:46Z",
-      "eventSource": "iam.amazonaws.com",
-      "eventName": "DeleteUser",
-      "awsRegion": "ap-south-2",
-      "sourceIPAddress": "159.209.41.172",
-      "userAgent": "python-requests/2.27.1",
-      "requestParameters": {},
-      "requestID": "hv9rna89-qtjg-nbp0-z4t5-sjignutuwzg",
-      "eventID": "5d3yfyym-d44g-8g7y-1pzu-zlbvbdzggi8",
-      "eventType": "AwsApiCall",
+      "eventTime": "2026-04-17T16:01:37Z",
+      "eventSource": "sts.amazonaws.com",
+      "eventName": "ConsoleLogin",
+      "awsRegion": "eu-west-3",
+      "sourceIPAddress": "245.79.81.225",
+      "userAgent": "Go-http-client/1.1",
+      "requestParameters": { "userName": "alice" },
+      "requestID": "jc6zdpnz-lynb-5sr0-88rk-3t6uqpif8w1",
+      "eventID": "shec0ydi-nxj4-912z-2hly-81xgvovb87n",
+      "eventType": "AwsConsoleSignIn",
       "recipientAccountId": "164820739518",
       "readOnly": false,
       "eventCategory": "Management",
       "managementEvent": true,
-      "apiVersion": "2012-10-17"
+      "apiVersion": "2012-10-17",
+      "additionalEventData": {
+        "LoginTo": "https://164820739518.signin.aws.amazon.com/console",
+        "MobileVersion": "No",
+        "MFAUsed": "true"
+      }
     },
     "s3": {
       "bucket": {
@@ -51,28 +56,31 @@
         "arn": "arn:aws:s3:::aws-cloudtrail-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/cloudtrail/ap-south-2/2026/04/17/cloudtrail_WR3941J1BC.log.gz"
+        "key": "AWSLogs/164820739518/cloudtrail/eu-west-3/2026/04/17/cloudtrail_VVEAOHRZQ2O.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloudtrail/logs",
-      "log_stream": "ap-south-2/ks4mh5t5",
-      "ingestion_time": "2026-04-17T15:32:47.177Z"
+      "log_stream": "eu-west-3/7ixpvez8",
+      "ingestion_time": "2026-04-17T16:01:38.247Z"
     }
   },
-  "user": { "name": "carol" },
-  "source": { "ip": "159.209.41.172", "geo": { "country_iso_code": "DE", "city_name": "Ashburn" } },
-  "user_agent": { "original": "python-requests/2.27.1" },
+  "user": { "name": "alice" },
+  "source": {
+    "ip": "245.79.81.225",
+    "geo": { "country_iso_code": "IN", "city_name": "Frankfurt" }
+  },
+  "user_agent": { "original": "Go-http-client/1.1" },
   "event": {
-    "action": "DeleteUser",
+    "action": "ConsoleLogin",
     "outcome": "success",
-    "category": ["iam"],
-    "type": ["deletion"],
+    "category": ["authentication", "iam"],
+    "type": ["authentication", "info"],
     "dataset": "aws.cloudtrail",
     "provider": "cloudtrail.amazonaws.com",
     "module": "aws"
   },
-  "message": "CloudTrail: DeleteUser by carol from 159.209.41.172 - Success",
+  "message": "CloudTrail: ConsoleLogin by alice from 245.79.81.225 - Success",
   "log": { "level": "info" },
   "service": { "name": "cloudtrail", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -80,8 +88,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "xpie5nox10h"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "yw2uc9z1qf8"
   },
   "input": { "type": "aws-s3" }
 }

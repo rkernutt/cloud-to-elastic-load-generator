@@ -1,74 +1,74 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "us-east-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "opensearch" }
   },
   "aws": {
-    "dimensions": { "DomainName": "prod-search-me-central-1", "ClientId": "501938274650" },
+    "dimensions": { "DomainName": "prod-search-us-east-2", "ClientId": "738291046572" },
     "opensearch": {
-      "domain_name": "prod-search-me-central-1",
-      "index": "audit-events",
-      "operation": "circuit_breaker",
-      "took_ms": 510,
+      "domain_name": "prod-search-us-east-2",
+      "index": "traces",
+      "operation": "slow_search",
+      "took_ms": 447,
       "shards": {
-        "total": 21,
-        "successful": 21,
+        "total": 49,
+        "successful": 49,
         "failed": 0,
-        "active": 21,
+        "active": 49,
         "initializing": 0,
         "relocating": 0,
         "unassigned": 0
       },
-      "hits_total": 93203,
-      "status_code": 200,
-      "circuit_breaker": "parent",
+      "hits_total": 91437,
+      "status_code": 201,
+      "slow_query_source": "{\"query\":{\"bool\":{\"filter\":[{\"range\":{\"@timestamp\":{\"gte\":\"now-1h\"}}}],\"must\":[{\"match\":{\"service.name\":\"checkout\"}}]}},\"size\":500}",
       "metrics": {
-        "CPUUtilization": { "avg": 28.7382005278811 },
-        "FreeStorageSpace": { "avg": 11874354971 },
+        "CPUUtilization": { "avg": 54.3188463804791 },
+        "FreeStorageSpace": { "avg": 329114324434 },
         "ClusterStatus": { "green": 1, "yellow": 0, "red": 0 },
         "Nodes": { "avg": 8 },
-        "SearchableDocuments": { "avg": 559429675 },
-        "IndexingLatency": { "avg": 460 },
-        "SearchLatency": { "avg": 547 },
-        "IndexingRate": { "avg": 66028 },
-        "SearchRate": { "avg": 7941 },
-        "JVMMemoryPressure": { "avg": 57.53611560323098 },
+        "SearchableDocuments": { "avg": 820707282 },
+        "IndexingLatency": { "avg": 469 },
+        "SearchLatency": { "avg": 164 },
+        "IndexingRate": { "avg": 97888 },
+        "SearchRate": { "avg": 8684 },
+        "JVMMemoryPressure": { "avg": 48.352252452817645 },
         "AutomatedSnapshotFailure": { "sum": 0 },
         "CoordinatingWriteRejected": { "sum": 0 },
         "PrimaryWriteRejected": { "sum": 0 },
         "ReplicaWriteRejected": { "sum": 0 },
-        "WarmStorageSpaceUsage": { "avg": 45.89702081647751 },
-        "DeletedDocuments": { "avg": 90198 }
+        "WarmStorageSpaceUsage": { "avg": 15.28982568648705 },
+        "DeletedDocuments": { "avg": 18495 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-opensearch-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-opensearch-logs-501938274650"
+        "name": "aws-opensearch-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-opensearch-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/501938274650/opensearch/me-central-1/2026/04/17/opensearch_DAUV1JU3R7.log.gz"
+        "key": "AWSLogs/738291046572/opensearch/us-east-2/2026/04/17/opensearch_7GPNKU7GBOL.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/opensearch/logs",
-      "log_stream": "me-central-1/51l7yy5t",
-      "ingestion_time": "2026-04-17T15:32:47.286Z"
+      "log_stream": "us-east-2/9g51phzl",
+      "ingestion_time": "2026-04-17T16:01:38.348Z"
     }
   },
-  "http": { "response": { "status_code": 200 } },
+  "http": { "response": { "status_code": 201 } },
   "event": {
-    "duration": 510117964.2992592,
+    "duration": 446637526.7786225,
     "outcome": "success",
     "category": "database",
     "dataset": "aws.opensearch",
     "provider": "es.amazonaws.com",
     "module": "aws"
   },
-  "message": "[2026-04-17T15:32:46.708Z][WARN ][o.e.i.b.request.RequestBreaker] [data-1] breaking incoming request: [parent] Data too large, data for [<reused_arrays>] would be [837mb], which is larger than the limit of [795mb]",
+  "message": "[2026-04-17T16:01:37.787Z] [index.search.slowlog.query] [traces] took[446.6ms], took_millis[447], types[], stats[], search_type[QUERY_THEN_FETCH], total_shards[49], source[{\"query\":{\"bool\":{\"filter\":[{\"range\":{\"@timestamp\":{\"gte\":\"now-1h\"}}}],\"must\":[{\"match\":{\"service.name\":\"checkout\"}}]}},\"size\":500}]",
   "log": { "level": "info" },
   "service": { "name": "opensearch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -76,8 +76,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "tpf69c06ktj"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "vs7qs0r4om"
   },
   "input": { "type": "aws-cloudwatch" }
 }

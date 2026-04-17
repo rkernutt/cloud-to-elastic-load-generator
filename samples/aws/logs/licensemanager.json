@@ -1,56 +1,61 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-southeast-4",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "licensemanager" }
   },
   "aws": {
-    "dimensions": { "LicenseConfigurationName": "SQL-Server-Enterprise" },
+    "dimensions": { "LicenseConfigurationName": "Oracle-SE2-vCPU" },
     "licensemanager": {
-      "license_configuration_name": "SQL-Server-Enterprise",
-      "license_configuration_arn": "arn:aws:license-manager:me-south-1:501938274650:license-configuration:MM6Z16WA1U",
-      "resource_type": "RDS",
-      "consumed_licenses": 318,
-      "licensed_count": 917,
-      "utilization_percentage": 35,
-      "rule_type": "Cores",
-      "status": "Active"
+      "license_configuration_name": "Oracle-SE2-vCPU",
+      "license_configuration_arn": "arn:aws:license-manager:ap-southeast-4:814726593401:license-configuration:CUR5Q57XPAC",
+      "resource_type": "ROLE",
+      "consumed_licenses": 300,
+      "licensed_count": 977,
+      "utilization_percentage": 31,
+      "rule_type": "Sockets",
+      "status": "LimitExceeded"
     },
     "s3": {
       "bucket": {
-        "name": "aws-licensemanager-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-licensemanager-logs-501938274650"
+        "name": "aws-licensemanager-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-licensemanager-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/licensemanager/me-south-1/2026/04/17/licensemanager_LOX3K091HEM.log.gz"
+        "key": "AWSLogs/814726593401/licensemanager/ap-southeast-4/2026/04/17/licensemanager_XW7CGDDCTFN.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/licensemanager/logs",
-      "log_stream": "me-south-1/qtumwgvd",
-      "ingestion_time": "2026-04-17T15:32:47.375Z"
+      "log_stream": "ap-southeast-4/sdtr5ou5",
+      "ingestion_time": "2026-04-17T16:01:38.437Z"
     }
   },
   "event": {
-    "action": "AssociateResource",
-    "outcome": "success",
+    "action": "DisassociateResource",
+    "outcome": "failure",
     "category": ["configuration"],
     "dataset": "aws.licensemanager",
     "provider": "license-manager.amazonaws.com",
     "module": "aws"
   },
-  "message": "License Manager SQL-Server-Enterprise: 318/917 (35%) RDS",
-  "log": { "level": "info" },
+  "message": "License Manager Oracle-SE2-vCPU: limit exceeded (300/977)",
+  "log": { "level": "error" },
+  "error": {
+    "code": "LicenseUsageException",
+    "message": "License Manager limit exceeded",
+    "type": "configuration"
+  },
   "service": { "name": "licensemanager", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.licensemanager", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "cc9j2t3xq5"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "lgjsriiqcff"
   },
   "input": { "type": "aws-cloudwatch" }
 }

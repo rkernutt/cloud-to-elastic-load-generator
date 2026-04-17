@@ -1,105 +1,108 @@
 {
-  "@timestamp": "2026-04-17T15:32:46.708Z",
+  "@timestamp": "2026-04-17T16:01:37.787Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-east-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "znqmj5t0w5" },
+    "dimensions": { "DetectorId": "56mm62jj90f" },
     "guardduty": {
       "schemaVersion": "2.0",
-      "accountId": "738291046572",
-      "region": "ap-northeast-3",
+      "accountId": "501938274650",
+      "region": "ap-east-1",
       "partition": "aws",
-      "id": "3ych9m4ndvi",
-      "arn": "arn:aws:guardduty:ap-northeast-3:738291046572:detector/znqmj5t0w5/finding/3ych9m4ndvi",
-      "type": "Backdoor:EC2/C&CActivity.B",
+      "id": "f2cf908jyzn",
+      "arn": "arn:aws:guardduty:ap-east-1:501938274650:detector/56mm62jj90f/finding/f2cf908jyzn",
+      "type": "UnauthorizedAccess:IAMUser/MaliciousIPCaller.Custom",
       "resource": {
         "resourceType": "AccessKey",
         "accessKeyDetails": {
-          "accessKeyId": "AKIA723GG3CNZ4",
-          "principalId": "738291046572:deploy-bot",
+          "accessKeyId": "AKIADP37PVZ08Y",
+          "principalId": "501938274650:deploy-bot",
           "userName": "alice",
           "userType": "IAMUser"
         }
       },
       "service": {
         "serviceName": "guardduty",
-        "detectorId": "znqmj5t0w5",
+        "detectorId": "56mm62jj90f",
         "action": {
-          "actionType": "AWS_API_CALL",
-          "awsApiCallAction": {
-            "api": "AssumeRole",
-            "callerType": "Remote IP",
-            "remoteIpDetails": { "ipAddressV4": "97.235.81.205", "organization": {} },
-            "serviceName": "sts.amazonaws.com"
+          "actionType": "DNS_REQUEST",
+          "dnsRequestAction": {
+            "domain": "suspicious-hol1p3k0.example.com",
+            "domainWithSuffix": "suspicious-ddmf9wok.example.com.",
+            "blocked": false
           }
         },
         "resourceRole": "ACTOR",
-        "eventFirstSeen": "2026-04-17T15:00:50.708Z",
-        "eventLastSeen": "2026-04-17T15:32:46.708Z",
+        "eventFirstSeen": "2026-04-17T14:12:51.787Z",
+        "eventLastSeen": "2026-04-17T16:01:37.787Z",
         "archived": false,
-        "count": 496,
+        "count": 499,
         "additionalInfo": {},
         "evidence": { "threatIntelligenceDetails": [] }
       },
-      "severity": 7,
-      "title": "EC2 C&CActivity B",
-      "description": "GuardDuty identified suspicious behavior or a possible compromise based on VPC flow logs, DNS logs, or CloudTrail events. Finding type: Backdoor:EC2/C&CActivity.B.",
-      "createdAt": "2026-04-17T15:32:46.708Z",
-      "updatedAt": "2026-04-17T15:32:46.708Z",
-      "confidence": 97.43483463163088,
+      "severity": 5,
+      "title": "IAMUser MaliciousIPCaller Custom",
+      "description": "GuardDuty identified suspicious behavior or a possible compromise based on VPC flow logs, DNS logs, or CloudTrail events. Finding type: UnauthorizedAccess:IAMUser/MaliciousIPCaller.Custom.",
+      "createdAt": "2026-04-17T16:01:37.787Z",
+      "updatedAt": "2026-04-17T16:01:37.787Z",
+      "confidence": 89.59339418224639,
       "metrics": {
-        "FindingCount": { "sum": 19 },
-        "HighSeverityFindingCount": { "sum": 10 },
-        "MediumSeverityFindingCount": { "sum": 0 },
+        "FindingCount": { "sum": 32 },
+        "HighSeverityFindingCount": { "sum": 0 },
+        "MediumSeverityFindingCount": { "sum": 7 },
         "LowSeverityFindingCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-guardduty-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-guardduty-logs-738291046572"
+        "name": "aws-guardduty-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-guardduty-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/guardduty/ap-northeast-3/2026/04/17/guardduty_UBC652MABW.log.gz"
+        "key": "AWSLogs/501938274650/guardduty/ap-east-1/2026/04/17/guardduty_9K6A9JPRI5S.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/guardduty/logs",
-      "log_stream": "ap-northeast-3/tq8p4xle",
-      "ingestion_time": "2026-04-17T15:32:47.232Z"
+      "log_stream": "ap-east-1/9xvdamdn",
+      "ingestion_time": "2026-04-17T16:01:38.300Z"
     }
   },
-  "rule": { "category": "malware", "ruleset": "Backdoor", "name": "Backdoor:EC2/C&CActivity.B" },
-  "threat": { "indicator": [{ "type": "ip", "value": "97.235.81.205" }] },
+  "rule": {
+    "category": "threat",
+    "ruleset": "UnauthorizedAccess",
+    "name": "UnauthorizedAccess:IAMUser/MaliciousIPCaller.Custom"
+  },
+  "threat": { "indicator": [{ "type": "ip", "value": "162.145.78.177" }] },
   "source": {
-    "ip": "97.235.81.205",
+    "ip": "162.145.78.177",
     "geo": {
-      "country_iso_code": "CN",
-      "country_name": "China",
-      "city_name": "Beijing",
-      "location": { "lat": 39.9042, "lon": 116.4074 }
+      "country_iso_code": "IN",
+      "country_name": "India",
+      "city_name": "Mumbai",
+      "location": { "lat": 19.076, "lon": 72.8777 }
     }
   },
-  "destination": { "ip": "34.172.12.63" },
+  "destination": { "ip": "16.125.149.117" },
   "event": {
     "kind": "alert",
-    "severity": 7,
+    "severity": 5,
     "outcome": "failure",
-    "category": ["malware"],
+    "category": ["threat"],
     "type": ["indicator"],
     "dataset": "aws.guardduty",
     "provider": "guardduty.amazonaws.com",
     "module": "aws"
   },
-  "message": "GuardDuty finding [High]: Backdoor:EC2/C&CActivity.B",
-  "log": { "level": "error" },
+  "message": "GuardDuty finding [Medium]: UnauthorizedAccess:IAMUser/MaliciousIPCaller.Custom",
+  "log": { "level": "warn" },
   "error": {
     "code": "ThreatFinding",
-    "message": "GuardDuty finding: Backdoor:EC2/C&CActivity.B",
+    "message": "GuardDuty finding: UnauthorizedAccess:IAMUser/MaliciousIPCaller.Custom",
     "type": "security"
   },
   "service": { "name": "guardduty", "type": "aws" },
@@ -108,8 +111,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "nr4xdwe1z5q"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "xk4vd5ymol"
   },
   "input": { "type": "http_endpoint" }
 }
