@@ -98,30 +98,30 @@ If you prefer to install one asset type at a time (or need fine-grained control)
 
 ### Installer 1 — Official Elastic Integration
 
-| Cloud | Command | Package |
-| --- | --- | --- |
-| AWS | `npm run setup:aws-integration` | Fleet `aws` |
-| GCP | `npm run setup:gcp-integration` | Fleet `gcp` |
+| Cloud | Command                           | Package       |
+| ----- | --------------------------------- | ------------- |
+| AWS   | `npm run setup:aws-integration`   | Fleet `aws`   |
+| GCP   | `npm run setup:gcp-integration`   | Fleet `gcp`   |
 | Azure | `npm run setup:azure-integration` | Fleet `azure` |
 
 Installs the official Elastic integration package via the Kibana Fleet API (pre-built index templates, ILM policies, pre-built dashboards).
 
 ### Installer 2 — Custom Ingest Pipelines
 
-| Cloud | Command | Data streams |
-| --- | --- | --- |
-| AWS | `npm run setup:aws-pipelines` | `logs-aws.{dataset}-default` |
-| GCP | `npm run setup:gcp-pipelines` | `logs-gcp.{dataset}-default` |
+| Cloud | Command                         | Data streams                   |
+| ----- | ------------------------------- | ------------------------------ |
+| AWS   | `npm run setup:aws-pipelines`   | `logs-aws.{dataset}-default`   |
+| GCP   | `npm run setup:gcp-pipelines`   | `logs-gcp.{dataset}-default`   |
 | Azure | `npm run setup:azure-pipelines` | `logs-azure.{dataset}-default` |
 
 Custom Elasticsearch ingest pipelines for services not covered by the official integration. Pipelines parse the structured JSON `message` field into named fields — making logs fully searchable and aggregatable. Data streams and TSDS are used where appropriate.
 
 ### Installer 3 — Custom Dashboards
 
-| Cloud | Command | Query language |
-| --- | --- | --- |
-| AWS | `npm run setup:aws-dashboards` | ES\|QL on `logs-aws.*` |
-| GCP | `npm run setup:gcp-dashboards` | ES\|QL on `logs-gcp.*` |
+| Cloud | Command                          | Query language           |
+| ----- | -------------------------------- | ------------------------ |
+| AWS   | `npm run setup:aws-dashboards`   | ES\|QL on `logs-aws.*`   |
+| GCP   | `npm run setup:gcp-dashboards`   | ES\|QL on `logs-gcp.*`   |
 | Azure | `npm run setup:azure-dashboards` | ES\|QL on `logs-azure.*` |
 
 Pre-built Kibana dashboards using Lens panels. The `cloudloadgen` tag is applied to all dashboards.
@@ -135,10 +135,10 @@ The dashboard installer automatically selects the best import method for your Ki
 
 ### Installer 4 — ML Anomaly Detection Jobs
 
-| Cloud | Command | Target indices |
-| --- | --- | --- |
-| AWS | `npm run setup:aws-ml-jobs` | `logs-aws.*`, `metrics-aws.*` |
-| GCP | `npm run setup:gcp-ml-jobs` | `logs-gcp.*`, `metrics-gcp.*` |
+| Cloud | Command                       | Target indices                    |
+| ----- | ----------------------------- | --------------------------------- |
+| AWS   | `npm run setup:aws-ml-jobs`   | `logs-aws.*`, `metrics-aws.*`     |
+| GCP   | `npm run setup:gcp-ml-jobs`   | `logs-gcp.*`, `metrics-gcp.*`     |
 | Azure | `npm run setup:azure-ml-jobs` | `logs-azure.*`, `metrics-azure.*` |
 
 ML anomaly detection jobs that detect real operational and security anomalies. Jobs include `cloudloadgen` in their metadata.
@@ -175,10 +175,10 @@ Custom pipelines cover services **not** in the official Elastic AWS integration,
 
 **Two pipelines that overwrite official integration pipelines:**
 
-| Pipeline | Group | Notes |
-| --- | --- | --- |
+| Pipeline               | Group     | Notes                                                        |
+| ---------------------- | --------- | ------------------------------------------------------------ |
 | `logs-aws.rds-default` | databases | Skip if you want to preserve the official RDS field mappings |
-| `logs-aws.eks-default` | compute | Skip if you want to preserve the official EKS field mappings |
+| `logs-aws.eks-default` | compute   | Skip if you want to preserve the official EKS field mappings |
 
 ---
 
@@ -194,10 +194,10 @@ Uses `POST /api/saved_objects/_import`. Pre-generated ndjson files live under `i
 npm run generate:aws-dashboards:ndjson
 ```
 
-| Method               | Kibana version | Command                               |
-| -------------------- | -------------- | ------------------------------------- |
-| Dashboards API       | 9.4+           | `npm run setup:aws-dashboards`        |
-| Saved Objects import | 8.11 – 9.3     | `npm run setup:aws-dashboards:legacy` |
+| Method               | Kibana version | Command                                   |
+| -------------------- | -------------- | ----------------------------------------- |
+| Dashboards API       | 9.4+           | `npm run setup:aws-dashboards`            |
+| Saved Objects import | 8.11 – 9.3     | `npm run setup:aws-dashboards:legacy`     |
 | Manual UI import     | 8.11+          | Stack Management → Saved Objects → Import |
 
 ---

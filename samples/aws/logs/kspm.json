@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,33 +7,33 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" }
+    "region": "ap-east-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" }
   },
   "orchestrator": {
-    "cluster": { "id": "staging-eks", "name": "staging-eks" },
+    "cluster": { "id": "dev-eks", "name": "dev-eks" },
     "type": "kubernetes",
-    "namespace": "logging"
+    "namespace": "monitoring"
   },
   "resource": {
-    "id": "staging-eks/logging/secret/app-secrets-3r6t",
-    "name": "secret/app-secrets-3r6t",
-    "sub_type": "Secret",
+    "id": "dev-eks/monitoring/pod/worker-su843",
+    "name": "pod/worker-su843",
+    "sub_type": "Pod",
     "type": "k8s_object"
   },
   "rule": {
-    "id": "cis_eks_5_5",
-    "name": "Encrypt Kubernetes Secrets at rest using AWS KMS",
-    "section": "5.5",
-    "tags": ["Managed Services"],
+    "id": "cis_eks_4_4",
+    "name": "Minimize containers wishing to share the host IPC namespace",
+    "section": "4.4",
+    "tags": ["Pod Security"],
     "benchmark": {
       "id": "cis_eks",
       "version": "v1.4.0",
-      "rule_number": "5.5",
+      "rule_number": "4.4",
       "posture_type": "kspm"
     },
-    "impact": "Encrypt Kubernetes Secrets at rest using AWS KMS — non-compliant configuration may allow container escape or lateral movement.",
-    "remediation": "Review and remediate per CIS EKS Benchmark v1.4.0 section 5.5."
+    "impact": "Minimize containers wishing to share the host IPC namespace — non-compliant configuration may allow container escape or lateral movement.",
+    "remediation": "Review and remediate per CIS EKS Benchmark v1.4.0 section 4.4."
   },
   "result": { "evaluation": "failed" },
   "severity": "high",
@@ -46,11 +46,11 @@
     "provider": "elastic_kspm",
     "module": "aws"
   },
-  "message": "KSPM [CIS EKS / 5.5] failed: Encrypt Kubernetes Secrets at rest using AWS KMS [staging-eks]",
+  "message": "KSPM [CIS EKS / 4.4] failed: Minimize containers wishing to share the host IPC namespace [dev-eks]",
   "log": { "level": "warn" },
   "error": {
-    "code": "CIS_CIS_EKS_5_5",
-    "message": "KSPM check failed: Encrypt Kubernetes Secrets at rest using AWS KMS",
+    "code": "CIS_CIS_EKS_4_4",
+    "message": "KSPM check failed: Minimize containers wishing to share the host IPC namespace",
     "type": "compliance"
   },
   "service": { "name": "kspm", "type": "aws" },
@@ -58,22 +58,22 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "qjyea6tdbo"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "s8ft3iyvibl"
   },
   "input": { "type": "http_endpoint" },
   "aws": {
     "s3": {
       "bucket": {
-        "name": "aws-kspm-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-kspm-logs-164820739518"
+        "name": "aws-kspm-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-kspm-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/164820739518/kspm/eu-south-2/2026/04/17/kspm_C36HWM51GT.log.gz" }
+      "object": { "key": "AWSLogs/501938274650/kspm/ap-east-1/2026/04/17/kspm_1HELH59NAMN.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/kspm/logs",
-      "log_stream": "eu-south-2/wsf595uo",
-      "ingestion_time": "2026-04-17T09:05:18.916Z"
+      "log_stream": "ap-east-1/8myl50sr",
+      "ingestion_time": "2026-04-17T15:00:40.163Z"
     }
   }
 }

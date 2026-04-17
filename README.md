@@ -18,13 +18,13 @@ The header uses a vendor-neutral cloud mark; AWS, GCP, and Azure logos appear in
 
 Assets are installed **per service** as **Cloud Loadgen Integrations** — each service gets its own bundle of:
 
-| Asset type | Description |
-| --- | --- |
-| **Ingest pipeline** | Routes and parses logs into the correct data stream; uses **TSDS** (Time Series Data Stream) for metrics where appropriate |
-| **Index / data stream templates** | `logs-*` and `metrics-*` data views for dashboard panels |
-| **Kibana dashboard** | ES\|QL-based visualisation (Lens panels) tailored to that service |
-| **ML anomaly detection jobs** | Detect operational and security anomalies (error spikes, latency, rare activity) |
-| **Alerting rules** | Elasticsearch query-based rules for critical patterns (e.g. data pipeline failures) |
+| Asset type                        | Description                                                                                                                |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **Ingest pipeline**               | Routes and parses logs into the correct data stream; uses **TSDS** (Time Series Data Stream) for metrics where appropriate |
+| **Index / data stream templates** | `logs-*` and `metrics-*` data views for dashboard panels                                                                   |
+| **Kibana dashboard**              | ES\|QL-based visualisation (Lens panels) tailored to that service                                                          |
+| **ML anomaly detection jobs**     | Detect operational and security anomalies (error spikes, latency, rare activity)                                           |
+| **Alerting rules**                | Elasticsearch query-based rules for critical patterns (e.g. data pipeline failures)                                        |
 
 All assets are tagged **`cloudloadgen`** so you can:
 

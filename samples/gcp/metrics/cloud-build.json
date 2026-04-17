@@ -3,44 +3,53 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west2",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "us-east4",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west2",
-    "ephemeral_id": "977d67ho5ai"
+    "name": "metricbeat-gcp-us-east4",
+    "ephemeral_id": "ddq6vtx3vri"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "cloudbuild.googleapis.com/build/build_count",
-      "labels": { "status": "SUCCESS" }
+      "type": "serviceruntime.googleapis.com/api/request_count",
+      "labels": { "credential_id": "resource-a" }
     },
     "resource": {
-      "type": "cloud_build",
-      "labels": { "project_id": "globex-security-j0k1l2", "build_id": "build-aa1" }
+      "type": "consumed_api",
+      "labels": {
+        "project_id": "globex-shared-m3n4o5",
+        "service": "generic.googleapis.com",
+        "method": "resource_id"
+      }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "175" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "19819" } }
     ]
   },
   "gcp": {
-    "cloud-build": {
+    "source-repositories": {
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "build_id": "build-aa1",
-        "status": "SUCCESS"
+        "project_id": "globex-shared-m3n4o5",
+        "service": "generic.googleapis.com",
+        "method": "resource_id",
+        "credential_id": "resource-a"
       },
       "metrics": {
-        "cloudbuild.googleapis.com/build/build_count": { "avg": 175, "sum": 175, "count": 1 }
+        "serviceruntime.googleapis.com/api/request_count": {
+          "avg": 19819,
+          "sum": 19819,
+          "count": 1
+        }
       }
     }
   },
-  "metricset": { "name": "cloud-build", "period": 60000 },
+  "metricset": { "name": "source-repositories", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.cloudbuild_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "dataset": "gcp.cloudbuild_metrics", "module": "gcp" }

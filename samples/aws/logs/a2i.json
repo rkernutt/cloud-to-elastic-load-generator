@@ -1,61 +1,59 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-west-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "a2i" }
   },
   "aws": {
     "dimensions": {
-      "FlowDefinitionArn": "arn:aws:sagemaker:ap-northeast-3:164820739518:flow-definition/content-moderation",
-      "Operation": "StopHumanLoop"
+      "FlowDefinitionArn": "arn:aws:sagemaker:eu-west-1:501938274650:flow-definition/fraud-review",
+      "Operation": "CreateHumanLoop"
     },
     "a2i": {
-      "flow_definition_arn": "arn:aws:sagemaker:ap-northeast-3:164820739518:flow-definition/content-moderation",
-      "human_loop_name": "loop-4xdsvb1wdfd",
-      "human_loop_status": "Stopped",
+      "flow_definition_arn": "arn:aws:sagemaker:eu-west-1:501938274650:flow-definition/fraud-review",
+      "human_loop_name": "loop-6rp6k4ufo16",
+      "human_loop_status": "InProgress",
       "input_content_type": "image/png",
       "condition_threshold": 0.85,
       "human_review_required": true,
-      "reviewer_count": 1,
+      "reviewer_count": 3,
       "task_count": 1,
       "task_completed": 1,
       "confidence_threshold_breach": true
     },
     "s3": {
       "bucket": {
-        "name": "aws-a2i-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-a2i-logs-164820739518"
+        "name": "aws-a2i-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-a2i-logs-501938274650"
       },
-      "object": {
-        "key": "AWSLogs/164820739518/a2i/ap-northeast-3/2026/04/17/a2i_8Z1EVAQR0H.log.gz"
-      }
+      "object": { "key": "AWSLogs/501938274650/a2i/eu-west-1/2026/04/17/a2i_RFI3KTZPWL.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/a2i/logs",
-      "log_stream": "ap-northeast-3/uvn3l7hi",
-      "ingestion_time": "2026-04-17T09:05:19.045Z"
+      "log_stream": "eu-west-1/u7j6tsai",
+      "ingestion_time": "2026-04-17T15:00:40.253Z"
     }
   },
   "log": { "level": "warn" },
   "event": {
-    "action": "StopHumanLoop",
+    "action": "CreateHumanLoop",
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.a2i",
     "provider": "sagemaker.amazonaws.com",
     "module": "aws"
   },
-  "message": "A2I StopHumanLoop: loop=loop-4xdsvb1wdfd, status=Stopped, confidence=0.84<0.85 REVIEW REQUIRED",
+  "message": "A2I CreateHumanLoop: loop=loop-6rp6k4ufo16, status=InProgress, confidence=0.75<0.85 REVIEW REQUIRED",
   "service": { "name": "a2i", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.a2i", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "qsqucth3q3h"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "nzidi0z94s"
   },
   "input": { "type": "aws-cloudwatch" }
 }

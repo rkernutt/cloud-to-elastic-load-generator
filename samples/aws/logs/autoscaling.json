@@ -1,41 +1,41 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "il-central-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "autoscaling" }
   },
   "aws": {
-    "dimensions": { "AutoScalingGroupName": "spot-fleet" },
+    "dimensions": { "AutoScalingGroupName": "web-asg" },
     "autoscaling": {
-      "group_name": "spot-fleet",
-      "activity_id": "j0k9lfep-f5w4-afsf",
-      "action_type": "PredictiveScalingForecast",
-      "instance_id": "i-qh1yf8588zn",
-      "instance_type": "m5.xlarge",
-      "desired_capacity": 15,
+      "group_name": "web-asg",
+      "activity_id": "ijp2b5lj-i2qg-2nwa",
+      "action_type": "Launch",
+      "instance_id": "i-1rvfdpirc22",
+      "instance_type": "t3.medium",
+      "desired_capacity": 8,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 14,
-      "cause": "PredictiveScaling: forecast shows load increase; preemptive capacity adjustment recommended for spot-fleet",
+      "current_capacity": 7,
+      "cause": "At 2024-01-01T12:00:00Z instance i-0abc123456789abcd failed ELB health checks",
       "status_code": "Successful",
-      "launch_template": "worker-lt:8",
-      "predictive_scaling_forecast": true,
+      "launch_template": "web-lt:5",
+      "predictive_scaling_forecast": false,
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 15 },
-        "GroupInServiceInstances": { "avg": 14 },
-        "GroupPendingInstances": { "avg": 0 },
-        "GroupStandbyInstances": { "avg": 1 },
+        "GroupDesiredCapacity": { "avg": 8 },
+        "GroupInServiceInstances": { "avg": 7 },
+        "GroupPendingInstances": { "avg": 1 },
+        "GroupStandbyInstances": { "avg": 0 },
         "GroupTerminatingInstances": { "avg": 0 },
-        "GroupTotalInstances": { "avg": 15 },
-        "GroupInServiceCapacity": { "avg": 14 },
-        "GroupPendingCapacity": { "avg": 0 },
-        "GroupStandbyCapacity": { "avg": 1 },
+        "GroupTotalInstances": { "avg": 8 },
+        "GroupInServiceCapacity": { "avg": 7 },
+        "GroupPendingCapacity": { "avg": 1 },
+        "GroupStandbyCapacity": { "avg": 0 },
         "GroupTerminatingCapacity": { "avg": 0 },
-        "GroupTotalCapacity": { "avg": 15 },
+        "GroupTotalCapacity": { "avg": 8 },
         "WarmPoolMinSize": { "avg": 0 },
         "WarmPoolDesiredCapacity": { "avg": 0 },
         "WarmPoolPendingCapacity": { "avg": 0 },
@@ -46,17 +46,17 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-autoscaling-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-autoscaling-logs-814726593401"
+        "name": "aws-autoscaling-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-autoscaling-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/autoscaling/ap-northeast-1/2026/04/17/autoscaling_61LRK87K484.log.gz"
+        "key": "AWSLogs/501938274650/autoscaling/il-central-1/2026/04/17/autoscaling_DL88K761EIA.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "ap-northeast-1/ojkedd06",
-      "ingestion_time": "2026-04-17T09:05:18.859Z"
+      "log_stream": "il-central-1/lpv0zeel",
+      "ingestion_time": "2026-04-17T15:00:40.116Z"
     }
   },
   "event": {
@@ -64,10 +64,10 @@
     "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 141000000000,
+    "duration": 505000000000,
     "module": "aws"
   },
-  "message": "PredictiveScalingForecast asg=spot-fleet forecastTime=2026-04-17T09:05:18.304Z predictedCPU=65.1% recommendedDesiredCapacity=16",
+  "message": "SuccessfulScalingActivity: Launching a new EC2 instance: i-1rvfdpirc22 ActivityId=ijp2b5lj-i2qg-2nwa Cause: At 2024-01-01T12:00:00Z instance i-0abc123456789abcd failed ELB health checks",
   "log": { "level": "info" },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -75,8 +75,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "nz948yn3xcg"
+    "name": "filebeat-aws-il-central-1",
+    "ephemeral_id": "f5034j8pabc"
   },
   "input": { "type": "aws-cloudwatch" }
 }

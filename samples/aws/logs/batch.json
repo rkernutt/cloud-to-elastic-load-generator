@@ -1,66 +1,61 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
     "region": "ap-northeast-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "batch" }
   },
   "aws": {
-    "dimensions": { "JobQueue": "cleanup-job-queue" },
+    "dimensions": { "JobQueue": "data-export-queue" },
     "batch": {
-      "job": { "name": "cleanup-job", "id": "h0hdej9l-6cwc", "status": "FAILED" },
-      "job_queue": "cleanup-job-queue",
+      "job": { "name": "data-export", "id": "xbec1ipg-452j", "status": "PENDING" },
+      "job_queue": "data-export-queue",
       "compute_environment": "ce-ondemand",
-      "log_stream_name": "cleanup-job-def/default/jopqlunfdl",
-      "job_attempt": 2,
-      "container_exit_code": 127,
+      "log_stream_name": "data-export-def/default/wwrsfhehi2",
+      "job_attempt": 1,
+      "container_exit_code": 0,
       "structured_logging": false,
       "metrics": {
-        "PendingJobCount": { "avg": 53 },
+        "PendingJobCount": { "avg": 9 },
         "RunnableJobCount": { "avg": 37 },
-        "StartingJobCount": { "avg": 4 },
-        "RunningJobCount": { "avg": 63 },
-        "SucceededJobCount": { "sum": 0 },
-        "FailedJobCount": { "sum": 1 },
-        "CPUReserved": { "avg": 28.539101976868892 },
+        "StartingJobCount": { "avg": 12 },
+        "RunningJobCount": { "avg": 186 },
+        "SucceededJobCount": { "sum": 1 },
+        "FailedJobCount": { "sum": 0 },
+        "CPUReserved": { "avg": 34.10826333551357 },
         "GPUReserved": { "avg": 0 },
-        "MemoryReserved": { "avg": 84.70245347842571 }
+        "MemoryReserved": { "avg": 83.27387210776793 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-batch-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-batch-logs-814726593401"
+        "name": "aws-batch-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-batch-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/batch/ap-northeast-1/2026/04/17/batch_XZZKB6OZR29.log.gz"
+        "key": "AWSLogs/501938274650/batch/ap-northeast-1/2026/04/17/batch_82ZGHOS0EB.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/batch/logs",
-      "log_stream": "ap-northeast-1/x52pplhw",
-      "ingestion_time": "2026-04-17T09:05:18.851Z"
+      "log_stream": "ap-northeast-1/s530r3x5",
+      "ingestion_time": "2026-04-17T15:00:40.111Z"
     }
   },
-  "process": { "pid": 5741, "name": "java", "exit_code": 127 },
-  "log": { "level": "error" },
+  "process": { "pid": 33802, "name": "java", "exit_code": 0 },
+  "log": { "level": "info" },
   "event": {
     "category": ["process"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "aws.batch",
     "provider": "batch.amazonaws.com",
-    "duration": 6658000000000,
+    "duration": 3221000000000,
     "module": "aws"
   },
-  "message": "Job run failed",
-  "logStreamName": "cleanup-job-def/default/jopqlunfdl",
-  "error": {
-    "code": "CE_INSUFFICIENT_CAPACITY",
-    "message": "StatusReason=Host EC2 (instance i-zz3n5644hps) terminated.",
-    "type": "process"
-  },
-  "host": { "name": "ip-90-141-43-108.ec2.internal", "hostname": "batch-8yd1ccnp" },
+  "message": "Job submitted to queue",
+  "logStreamName": "data-export-def/default/wwrsfhehi2",
+  "host": { "name": "ip-112-57-141-66.ec2.internal", "hostname": "batch-n0xu6464" },
   "service": { "name": "batch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.batch", "namespace": "default" },
@@ -68,7 +63,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "tf6wdulheer"
+    "ephemeral_id": "k023tsnqiu"
   },
   "input": { "type": "aws-cloudwatch" }
 }

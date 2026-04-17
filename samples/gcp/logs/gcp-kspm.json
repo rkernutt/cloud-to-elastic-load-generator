@@ -7,13 +7,13 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west6",
+    "region": "northamerica-northeast2",
     "account": { "id": "globex-dev-g7h8i9", "name": "Globex Development" }
   },
-  "orchestrator": { "cluster": { "name": "ml-cluster" } },
+  "orchestrator": { "cluster": { "name": "edge-cluster" } },
   "resource": {
-    "id": "//container.googleapis.com/ml-cluster",
-    "name": "ml-cluster",
+    "id": "//container.googleapis.com/edge-cluster",
+    "name": "edge-cluster",
     "sub_type": "api-server",
     "type": "k8s_object"
   },
@@ -27,33 +27,35 @@
       "version": "v1.4.0",
       "rule_number": "4.1.1",
       "posture_type": "kspm"
-    }
+    },
+    "impact": "GKE CIS 4.1.1 failure on edge-cluster.",
+    "remediation": "Harden edge-cluster per CIS GKE Benchmark 4.1.1."
   },
-  "result": { "evaluation": "passed" },
-  "severity": "none",
+  "result": { "evaluation": "failed" },
+  "severity": "critical",
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "gcp"
   },
-  "message": "KSPM [CIS GKE / 4.1.1] passed: Ensure anonymous access to the API server is restricted [ml-cluster]",
-  "log": { "level": "info" },
+  "message": "KSPM [CIS GKE / 4.1.1] failed: Ensure anonymous access to the API server is restricted [edge-cluster]",
+  "log": { "level": "error" },
   "service": { "name": "gcp-kspm", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west6",
-    "id": "z0qyrufq9hk"
+    "name": "elastic-agent-gcp-northamerica-northeast2",
+    "id": "6wlw19f9ih"
   },
   "input": { "type": "http_endpoint" },
   "logName": "projects/project-unknown/logs/gcp-kspm",
-  "insertId": "Y07KYN0DKSP",
+  "insertId": "FZR2O9DBM7I",
   "jsonPayload": {
-    "message": "KSPM [CIS GKE / 4.1.1] passed: Ensure anonymous access to the API server is restricted [ml-cluster]"
+    "message": "KSPM [CIS GKE / 4.1.1] failed: Ensure anonymous access to the API server is restricted [edge-cluster]"
   }
 }

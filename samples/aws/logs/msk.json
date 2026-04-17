@@ -1,38 +1,42 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
+    "region": "ap-southeast-2",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "msk" }
   },
   "aws": {
-    "dimensions": { "Cluster Name": "prod-kafka-eu-west-1", "Broker ID": "6", "Topic": "payments" },
+    "dimensions": {
+      "Cluster Name": "prod-kafka-ap-southeast-2",
+      "Broker ID": "4",
+      "Topic": "inventory-changes"
+    },
     "msk": {
-      "cluster_name": "prod-kafka-eu-west-1",
-      "broker_id": 6,
+      "cluster_name": "prod-kafka-ap-southeast-2",
+      "broker_id": 4,
       "kafka_version": "3.5.1",
-      "topic": "payments",
-      "partition": 6,
-      "offset": 59717951,
-      "consumer_group": "etl-pipeline",
-      "lag": 55,
+      "topic": "inventory-changes",
+      "partition": 14,
+      "offset": 16426805,
+      "consumer_group": "alerting-service",
+      "lag": 37,
       "under_replicated_partitions": 0,
       "metrics": {
-        "BytesInPerSec": { "avg": 4338937 },
-        "BytesOutPerSec": { "avg": 1713751 },
-        "MessagesInPerSec": { "avg": 1657 },
-        "FetchConsumerTotalTimeMsMean": { "avg": 1 },
-        "ProduceTotalTimeMsMean": { "avg": 32 },
+        "BytesInPerSec": { "avg": 705604 },
+        "BytesOutPerSec": { "avg": 2363263 },
+        "MessagesInPerSec": { "avg": 8856 },
+        "FetchConsumerTotalTimeMsMean": { "avg": 94 },
+        "ProduceTotalTimeMsMean": { "avg": 10 },
         "UnderReplicatedPartitions": { "avg": 0 },
         "UnderMinIsrPartitionCount": { "avg": 0 },
         "OfflinePartitionsCount": { "avg": 0 },
         "ActiveControllerCount": { "avg": 1 },
-        "GlobalPartitionCount": { "avg": 209 },
-        "GlobalTopicCount": { "avg": 53 },
-        "KafkaDataLogsDiskUsed": { "avg": 69.39419779361418 },
-        "CPUUser": { "avg": 62.74525990347926 },
-        "CPUSystem": { "avg": 19.169495428828043 },
+        "GlobalPartitionCount": { "avg": 239 },
+        "GlobalTopicCount": { "avg": 59 },
+        "KafkaDataLogsDiskUsed": { "avg": 10.061146559731169 },
+        "CPUUser": { "avg": 79.21966697622292 },
+        "CPUSystem": { "avg": 9.28871904647016 },
         "NetworkRxDropped": { "sum": 0 },
         "NetworkTxDropped": { "sum": 0 }
       }
@@ -42,33 +46,35 @@
         "name": "aws-msk-logs-164820739518",
         "arn": "arn:aws:s3:::aws-msk-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/164820739518/msk/eu-west-1/2026/04/17/msk_K9AHHZHAJ2G.log.gz" }
+      "object": {
+        "key": "AWSLogs/164820739518/msk/ap-southeast-2/2026/04/17/msk_C6GK0TDYLNV.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/msk/logs",
-      "log_stream": "eu-west-1/wsg6g0ai",
-      "ingestion_time": "2026-04-17T09:05:18.986Z"
+      "log_stream": "ap-southeast-2/ly0p5wsr",
+      "ingestion_time": "2026-04-17T15:00:40.209Z"
     }
   },
-  "kafka": { "topic": "payments", "partition": 6 },
+  "kafka": { "topic": "inventory-changes", "partition": 14 },
   "event": {
     "outcome": "success",
     "category": ["process", "network"],
     "dataset": "aws.msk",
     "provider": "kafka.amazonaws.com",
-    "duration": 5000000,
+    "duration": 85000000,
     "module": "aws"
   },
-  "message": "[2026-04-17 09:05:18.304] INFO [LogManager] [GroupCoordinator 6]: Preparing to rebalance group etl-pipeline with old generation 2 (kafka.controller.KafkaController)",
-  "log": { "level": "info" },
+  "message": "[2026-04-17 15:00:39.621] WARN [KafkaApi broker=4] ISR shrink: partition inventory-changes-14 isr=[4,2] -> [4] (kafka.server.KafkaApis)",
+  "log": { "level": "warn" },
   "service": { "name": "msk", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.kafka_metrics", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "rncmdm21h18"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "2bjkg6a072g"
   },
   "input": { "type": "aws-cloudwatch" }
 }

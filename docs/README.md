@@ -6,12 +6,12 @@ Reference material for **Cloud to Elastic Load Generator**. All Markdown guides 
 
 ## Essentials
 
-| Document                                                         | Description                                                                                                      |
-| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| [development.md](./development.md)                               | Local dev, Docker, npm scripts, samples, icons, format/lint/typecheck                                            |
-| [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md) | Setup wizard: Cloud Loadgen Integrations, per-service install, **`cloudloadgen`** tag, Serverless limits         |
-| [otel-traces-setup.md](./otel-traces-setup.md)                   | OpenTelemetry-style traces and related setup notes                                                               |
-| [INGEST-PIPELINE-REFERENCE.md](./INGEST-PIPELINE-REFERENCE.md)   | Ingest pipeline conventions and field reference (AWS custom pipelines)                                           |
+| Document                                                         | Description                                                                                              |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| [development.md](./development.md)                               | Local dev, Docker, npm scripts, samples, icons, format/lint/typecheck                                    |
+| [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md) | Setup wizard: Cloud Loadgen Integrations, per-service install, **`cloudloadgen`** tag, Serverless limits |
+| [otel-traces-setup.md](./otel-traces-setup.md)                   | OpenTelemetry-style traces and related setup notes                                                       |
+| [INGEST-PIPELINE-REFERENCE.md](./INGEST-PIPELINE-REFERENCE.md)   | Ingest pipeline conventions and field reference (AWS custom pipelines)                                   |
 
 ---
 
@@ -27,10 +27,10 @@ See [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md) for details
 
 Multi-service correlated scenarios that generate logs, metrics, APM traces (for the Elastic Service Map), dashboards, ML jobs, and alerting rules:
 
-| Scenario | Document |
-| --- | --- |
-| AWS Data & Analytics Pipeline (S3 → EMR → Glue → Athena → MWAA) | [chained-events/data-analytics-pipeline.md](./chained-events/data-analytics-pipeline.md) |
-| GCP Data & Analytics Pipeline (GCS → Dataproc → Data Catalog → BigQuery → Composer) | [chained-events/gcp-data-analytics-pipeline.md](./chained-events/gcp-data-analytics-pipeline.md) |
+| Scenario                                                                               | Document                                                                                             |
+| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| AWS Data & Analytics Pipeline (S3 → EMR → Glue → Athena → MWAA)                        | [chained-events/data-analytics-pipeline.md](./chained-events/data-analytics-pipeline.md)             |
+| GCP Data & Analytics Pipeline (GCS → Dataproc → Data Catalog → BigQuery → Composer)    | [chained-events/gcp-data-analytics-pipeline.md](./chained-events/gcp-data-analytics-pipeline.md)     |
 | Azure Data & Analytics Pipeline (Blob → Databricks → Purview → Synapse → Data Factory) | [chained-events/azure-data-analytics-pipeline.md](./chained-events/azure-data-analytics-pipeline.md) |
 
 ---

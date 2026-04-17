@@ -1,71 +1,73 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "me-south-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "transcribe" }
   },
   "aws": {
-    "dimensions": { "Operation": "TranscriptionJob", "LanguageCode": "en-GB" },
+    "dimensions": { "Operation": "TranscriptionJob", "LanguageCode": "fr-FR" },
     "transcribe": {
-      "TranscriptionJobName": "transcribe-3muwgs94",
-      "TranscriptionJobStatus": "IN_PROGRESS",
-      "LanguageCode": "en-GB",
-      "MediaFormat": "mp3",
+      "TranscriptionJobName": "transcribe-urwpwyaz",
+      "TranscriptionJobStatus": "FAILED",
+      "LanguageCode": "fr-FR",
+      "MediaFormat": "ogg",
       "MediaSampleRateHertz": 44100,
-      "OutputLocationType": "SERVICE_BUCKET",
-      "transcription_job_name": "transcribe-3muwgs94",
-      "transcription_job_status": "IN_PROGRESS",
-      "language_code": "en-GB",
-      "media_format": "mp3",
+      "OutputLocationType": "CUSTOMER_BUCKET",
+      "transcription_job_name": "transcribe-urwpwyaz",
+      "transcription_job_status": "FAILED",
+      "language_code": "fr-FR",
+      "media_format": "ogg",
       "media_sample_rate_hertz": 44100,
-      "output_location_type": "SERVICE_BUCKET",
-      "media_uri": "s3://audio-bucket/transcribe-3muwgs94.mp3",
-      "audio_duration_minutes": 53.00807071653273,
-      "word_count": 7951,
-      "vocabulary_name": "legal-terminology",
-      "speaker_count": 1,
+      "output_location_type": "CUSTOMER_BUCKET",
+      "media_uri": "s3://audio-bucket/transcribe-urwpwyaz.mp3",
+      "audio_duration_minutes": 0.08680000389134762,
+      "word_count": 0,
+      "vocabulary_name": "custom-medical-terms",
+      "speaker_count": 4,
       "content_redaction_enabled": false,
+      "error_code": "BadRequestException",
       "metrics": {
-        "TranscriptionJobsCompleted": { "sum": 1 },
-        "TranscriptionJobsFailed": { "sum": 0 },
-        "TranscriptionJobsPending": { "avg": 10 },
-        "TranscriptionJobsRunning": { "avg": 1 }
+        "TranscriptionJobsCompleted": { "sum": 0 },
+        "TranscriptionJobsFailed": { "sum": 1 },
+        "TranscriptionJobsPending": { "avg": 3 },
+        "TranscriptionJobsRunning": { "avg": 3 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-transcribe-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-transcribe-logs-293847561023"
+        "name": "aws-transcribe-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-transcribe-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/transcribe/eu-central-1/2026/04/17/transcribe_KW68AHOZRXM.log.gz"
+        "key": "AWSLogs/738291046572/transcribe/me-south-1/2026/04/17/transcribe_CQVIBU912M.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/transcribe/logs",
-      "log_stream": "eu-central-1/ogu9nhv4",
-      "ingestion_time": "2026-04-17T09:05:19.038Z"
+      "log_stream": "me-south-1/oaq841nf",
+      "ingestion_time": "2026-04-17T15:00:40.248Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.transcribe",
     "provider": "transcribe.amazonaws.com",
     "module": "aws"
   },
-  "message": "Transcribe job transcribe-3muwgs94: 53.0 min audio (en-GB)",
-  "log": { "level": "info" },
+  "message": "Transcribe job transcribe-urwpwyaz FAILED (fr-FR): Audio too noisy",
+  "log": { "level": "error" },
+  "error": { "code": "TranscribeError", "message": "Transcribe job failed", "type": "ml" },
   "service": { "name": "transcribe", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.transcribe", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "q66rb92un1"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "jh3r995x4fl"
   },
   "input": { "type": "aws-cloudwatch" }
 }

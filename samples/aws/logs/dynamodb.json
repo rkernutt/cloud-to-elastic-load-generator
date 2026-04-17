@@ -1,42 +1,41 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
+    "region": "ap-southeast-2",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "dynamodb" }
   },
   "aws": {
-    "dimensions": { "TableName": "products", "Operation": "PutItem" },
+    "dimensions": { "TableName": "sessions", "Operation": "TransactGetItems" },
     "dynamodb": {
-      "table_name": "products",
-      "operation": "PutItem",
-      "consumed_read_capacity_units": 428.6981202332283,
-      "consumed_write_capacity_units": 23.05526082596327,
-      "returned_item_count": 0,
-      "latency_ms": 2905,
-      "items_count": 996,
+      "table_name": "sessions",
+      "operation": "TransactGetItems",
+      "consumed_read_capacity_units": 44.227241968697,
+      "consumed_write_capacity_units": 20.15773107359273,
+      "returned_item_count": 8,
+      "latency_ms": 78,
+      "items_count": 485,
       "structured_logging": false,
-      "error_code": "LimitExceededException",
       "metrics": {
-        "AccountMaxReads": { "max": 958951 },
-        "AccountMaxWrites": { "max": 949045 },
-        "AccountMaxTableLevelReads": { "max": 99827 },
-        "AccountMaxTableLevelWrites": { "max": 44032 },
-        "AccountProvisionedReadCapacityUtilization": { "avg": 65.26845488735145 },
-        "ConsumedReadCapacityUnits": { "sum": 197 },
-        "ConsumedWriteCapacityUnits": { "sum": 15 },
-        "ProvisionedReadCapacityUnits": { "avg": 106 },
-        "ProvisionedWriteCapacityUnits": { "avg": 2889 },
-        "ReadThrottleEvents": { "sum": 62 },
-        "WriteThrottleEvents": { "sum": 22 },
-        "SystemErrors": { "sum": 1 },
-        "UserErrors": { "sum": 5 },
-        "SuccessfulRequestLatency": { "avg": 13.948112083115474, "max": 130.6990077272287 },
-        "ThrottledRequests": { "sum": 7 },
-        "TransactionConflict": { "sum": 7 },
-        "ReturnedItemCount": { "avg": 331 },
-        "ReturnedBytes": { "avg": 851537 }
+        "AccountMaxReads": { "max": 330411 },
+        "AccountMaxWrites": { "max": 164962 },
+        "AccountMaxTableLevelReads": { "max": 54553 },
+        "AccountMaxTableLevelWrites": { "max": 3411 },
+        "AccountProvisionedReadCapacityUtilization": { "avg": 19.39869301958965 },
+        "ConsumedReadCapacityUnits": { "sum": 216 },
+        "ConsumedWriteCapacityUnits": { "sum": 467 },
+        "ProvisionedReadCapacityUnits": { "avg": 2904 },
+        "ProvisionedWriteCapacityUnits": { "avg": 1653 },
+        "ReadThrottleEvents": { "sum": 0 },
+        "WriteThrottleEvents": { "sum": 0 },
+        "SystemErrors": { "sum": 0 },
+        "UserErrors": { "sum": 0 },
+        "SuccessfulRequestLatency": { "avg": 3.934728444024047, "max": 12.725611226392743 },
+        "ThrottledRequests": { "sum": 0 },
+        "TransactionConflict": { "sum": 0 },
+        "ReturnedItemCount": { "avg": 659 },
+        "ReturnedBytes": { "avg": 556649 }
       }
     },
     "s3": {
@@ -45,42 +44,35 @@
         "arn": "arn:aws:s3:::aws-dynamodb-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/dynamodb/ap-south-2/2026/04/17/dynamodb_P5GWM3VHOU.log.gz"
+        "key": "AWSLogs/814726593401/dynamodb/ap-southeast-2/2026/04/17/dynamodb_XAOI1PA7JA.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/dynamodb/logs",
-      "log_stream": "ap-south-2/mnjlf14m",
-      "ingestion_time": "2026-04-17T09:05:18.951Z"
+      "log_stream": "ap-southeast-2/uu00hjm4",
+      "ingestion_time": "2026-04-17T15:00:40.193Z"
     }
   },
-  "db": { "name": "products", "operation": "PutItem", "type": "nosql" },
+  "db": { "name": "sessions", "operation": "TransactGetItems", "type": "nosql" },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["database"],
-    "type": ["error"],
+    "type": ["access"],
     "dataset": "aws.dynamodb",
     "provider": "dynamodb.amazonaws.com",
-    "duration": 2905000000,
+    "duration": 78000000,
     "module": "aws"
   },
-  "message": "DynamoDB PutItem table=products latency_ms=2905 returned_items=0: ValidationException",
-  "log": { "level": "error" },
-  "error": {
-    "code": "TransactionConflictException",
-    "message": "DynamoDB PutItem failed",
-    "type": "db"
-  },
-  "trace": { "id": "U5YUP86HG1F" },
-  "transaction": { "id": "DMFGDG4XQA8" },
+  "message": "DynamoDB TransactGetItems table=sessions consumed_rcu=44.227241968697 consumed_wcu=20.15773107359273 returned_items=8 latency_ms=78",
+  "log": { "level": "info" },
   "service": { "name": "dynamodb", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.dynamodb", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "igfoupfu8gd"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "vmoadynjk5"
   },
   "input": { "type": "aws-cloudwatch" }
 }

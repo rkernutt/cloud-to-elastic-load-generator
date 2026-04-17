@@ -8,13 +8,13 @@ The **Setup** step in the web UI installs or removes Elastic assets for the clou
 
 Each service integration can include:
 
-| Asset | Description | API |
-| --- | --- | --- |
-| **Ingest pipeline** | Parses and routes logs into the correct data stream; TSDS for metrics | Elasticsearch Ingest Pipeline API |
-| **Data stream templates** | `logs-*` and `metrics-*` data views for dashboard panels | Kibana Saved Objects API |
-| **Kibana dashboard** | ES\|QL Lens panels tailored to the service | Kibana Dashboards API or Saved Objects import |
-| **ML anomaly detection jobs** | Detect error spikes, latency anomalies, rare activity | Elasticsearch ML API |
-| **Alerting rules** | Elasticsearch query-based rules for critical patterns | Kibana Alerting API |
+| Asset                         | Description                                                           | API                                           |
+| ----------------------------- | --------------------------------------------------------------------- | --------------------------------------------- |
+| **Ingest pipeline**           | Parses and routes logs into the correct data stream; TSDS for metrics | Elasticsearch Ingest Pipeline API             |
+| **Data stream templates**     | `logs-*` and `metrics-*` data views for dashboard panels              | Kibana Saved Objects API                      |
+| **Kibana dashboard**          | ES\|QL Lens panels tailored to the service                            | Kibana Dashboards API or Saved Objects import |
+| **ML anomaly detection jobs** | Detect error spikes, latency anomalies, rare activity                 | Elasticsearch ML API                          |
+| **Alerting rules**            | Elasticsearch query-based rules for critical patterns                 | Kibana Alerting API                           |
 
 ### The `cloudloadgen` tag
 
@@ -31,21 +31,21 @@ This makes it easy to **view**, **bulk-edit**, or **bulk-delete** all load-gener
 
 The Setup page groups integrations by **service category**:
 
-| Category | Examples |
-| --- | --- |
-| Compute | Lambda, EC2, ECS, EKS, Cloud Functions, AKS, Virtual Machines |
-| Networking | ELB, CloudFront, WAF, Cloud Load Balancing, Azure Firewall |
-| Storage | S3, EBS, Cloud Storage, Blob Storage |
-| Databases | DynamoDB, RDS, Aurora, Cloud SQL, Cosmos DB |
-| Streaming & Messaging | Kinesis, SQS, SNS, Pub/Sub, Event Hubs, Service Bus |
-| Analytics | EMR, Glue, Athena, BigQuery, Dataproc, Synapse |
-| AI & Machine Learning | SageMaker, Bedrock, Vertex AI, OpenAI |
-| Security & Identity | GuardDuty, Security Hub, Cloud Armor, Entra ID, Sentinel |
-| Developer Tools | CodeBuild, X-Ray, Cloud Build, Azure Pipeline |
-| IoT | IoT Core, IoT Hub |
-| Management & Governance | CloudWatch, CloudFormation, Cloud Monitoring, Azure Monitor |
-| End User & Media | WorkSpaces, Connect, Media Services |
-| Chained Events | Data & Analytics Pipeline (multi-service correlated scenarios) |
+| Category                | Examples                                                       |
+| ----------------------- | -------------------------------------------------------------- |
+| Compute                 | Lambda, EC2, ECS, EKS, Cloud Functions, AKS, Virtual Machines  |
+| Networking              | ELB, CloudFront, WAF, Cloud Load Balancing, Azure Firewall     |
+| Storage                 | S3, EBS, Cloud Storage, Blob Storage                           |
+| Databases               | DynamoDB, RDS, Aurora, Cloud SQL, Cosmos DB                    |
+| Streaming & Messaging   | Kinesis, SQS, SNS, Pub/Sub, Event Hubs, Service Bus            |
+| Analytics               | EMR, Glue, Athena, BigQuery, Dataproc, Synapse                 |
+| AI & Machine Learning   | SageMaker, Bedrock, Vertex AI, OpenAI                          |
+| Security & Identity     | GuardDuty, Security Hub, Cloud Armor, Entra ID, Sentinel       |
+| Developer Tools         | CodeBuild, X-Ray, Cloud Build, Azure Pipeline                  |
+| IoT                     | IoT Core, IoT Hub                                              |
+| Management & Governance | CloudWatch, CloudFormation, Cloud Monitoring, Azure Monitor    |
+| End User & Media        | WorkSpaces, Connect, Media Services                            |
+| Chained Events          | Data & Analytics Pipeline (multi-service correlated scenarios) |
 
 Categories are collapsible, making it easy to navigate even with 200+ services per cloud.
 
@@ -70,10 +70,10 @@ These install the pipeline, dashboard, ML jobs, and alerting rules for each serv
 
 **Individual asset installers** are also available if you only need one type:
 
-| Cloud | Pipelines | Dashboards | ML Jobs |
-| --- | --- | --- | --- |
-| AWS | `npm run setup:aws-pipelines` | `npm run setup:aws-dashboards` | `npm run setup:aws-ml-jobs` |
-| GCP | `npm run setup:gcp-pipelines` | `npm run setup:gcp-dashboards` | `npm run setup:gcp-ml-jobs` |
+| Cloud | Pipelines                       | Dashboards                       | ML Jobs                       |
+| ----- | ------------------------------- | -------------------------------- | ----------------------------- |
+| AWS   | `npm run setup:aws-pipelines`   | `npm run setup:aws-dashboards`   | `npm run setup:aws-ml-jobs`   |
+| GCP   | `npm run setup:gcp-pipelines`   | `npm run setup:gcp-dashboards`   | `npm run setup:gcp-ml-jobs`   |
 | Azure | `npm run setup:azure-pipelines` | `npm run setup:azure-dashboards` | `npm run setup:azure-ml-jobs` |
 
 ---

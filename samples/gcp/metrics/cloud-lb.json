@@ -3,60 +3,49 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast2",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" }
+    "region": "me-central1",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-northeast2",
-    "ephemeral_id": "fmnj95e34bo"
+    "name": "metricbeat-gcp-me-central1",
+    "ephemeral_id": "uje3ivyjy1"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "loadbalancing.googleapis.com/https/request_count",
-      "labels": { "response_code_class": "2xx" }
+      "type": "serviceruntime.googleapis.com/api/request_count",
+      "labels": { "credential_id": "resource-a" }
     },
     "resource": {
-      "type": "https_lb_rule",
+      "type": "consumed_api",
       "labels": {
-        "project_id": "globex-dev-g7h8i9",
-        "url_map_name": "api-map",
-        "forwarding_rule_name": "fr-api-https",
-        "target_proxy_name": "tp-api-https",
-        "region": "asia-northeast2"
+        "project_id": "globex-prod-a1b2c3",
+        "service": "generic.googleapis.com",
+        "method": "resource_id"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      {
-        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "int64Value": "1944117" }
-      }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "5154" } }
     ]
   },
   "gcp": {
-    "cloud-lb": {
+    "serverless-neg": {
       "labels": {
-        "project_id": "globex-dev-g7h8i9",
-        "url_map_name": "api-map",
-        "forwarding_rule_name": "fr-api-https",
-        "target_proxy_name": "tp-api-https",
-        "region": "asia-northeast2",
-        "response_code_class": "2xx"
+        "project_id": "globex-prod-a1b2c3",
+        "service": "generic.googleapis.com",
+        "method": "resource_id",
+        "credential_id": "resource-a"
       },
       "metrics": {
-        "loadbalancing.googleapis.com/https/request_count": {
-          "avg": 1944117,
-          "sum": 1944117,
-          "count": 1
-        }
+        "serviceruntime.googleapis.com/api/request_count": { "avg": 5154, "sum": 5154, "count": 1 }
       }
     }
   },
-  "metricset": { "name": "cloud-lb", "period": 60000 },
+  "metricset": { "name": "serverless-neg", "period": 60000 },
   "data_stream": {
     "type": "metrics",
     "dataset": "gcp.loadbalancing_metrics",

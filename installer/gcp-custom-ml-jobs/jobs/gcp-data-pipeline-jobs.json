@@ -24,7 +24,10 @@
         "allow_lazy_open": true,
         "analysis_limits": { "model_memory_limit": "64mb" },
         "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-load-generator-data-pipeline", "tags": ["cloudloadgen"] }
+        "custom_settings": {
+          "created_by": "gcp-load-generator-data-pipeline",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-gcp.composer*"],
@@ -63,16 +66,22 @@
         "allow_lazy_open": true,
         "analysis_limits": { "model_memory_limit": "64mb" },
         "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-load-generator-data-pipeline", "tags": ["cloudloadgen"] }
+        "custom_settings": {
+          "created_by": "gcp-load-generator-data-pipeline",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
-        "indices": ["logs-gcp.composer*", "logs-gcp.dataproc*", "logs-gcp.data_catalog*", "logs-gcp.bigquery*"],
+        "indices": [
+          "logs-gcp.composer*",
+          "logs-gcp.dataproc*",
+          "logs-gcp.data_catalog*",
+          "logs-gcp.bigquery*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [
-              { "term": { "event.outcome": "failure" } }
-            ]
+            "filter": [{ "term": { "event.outcome": "failure" } }]
           }
         },
         "chunking_config": { "mode": "auto" },
@@ -101,16 +110,17 @@
         "allow_lazy_open": true,
         "analysis_limits": { "model_memory_limit": "32mb" },
         "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-load-generator-data-pipeline", "tags": ["cloudloadgen"] }
+        "custom_settings": {
+          "created_by": "gcp-load-generator-data-pipeline",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-gcp.bigquery*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [
-              { "term": { "gcp.bigquery.rows_returned": 0 } }
-            ]
+            "filter": [{ "term": { "gcp.bigquery.rows_returned": 0 } }]
           }
         },
         "chunking_config": { "mode": "auto" },
@@ -140,16 +150,17 @@
         "allow_lazy_open": true,
         "analysis_limits": { "model_memory_limit": "64mb" },
         "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-load-generator-data-pipeline", "tags": ["cloudloadgen"] }
+        "custom_settings": {
+          "created_by": "gcp-load-generator-data-pipeline",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-gcp.dataproc*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [
-              { "exists": { "field": "gcp.dataproc.duration_ms" } }
-            ]
+            "filter": [{ "exists": { "field": "gcp.dataproc.duration_ms" } }]
           }
         },
         "chunking_config": { "mode": "auto" },

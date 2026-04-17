@@ -45,13 +45,13 @@ flowchart LR
 
 ## Services Involved
 
-| Service | Role | GCP Equivalent of AWS |
-|---|---|---|
-| **Cloud Composer** | Orchestration (managed Airflow) | MWAA |
-| **Cloud Storage (GCS)** | Raw data storage & output | S3 |
-| **Dataproc** | Spark processing (batch ETL) | EMR |
-| **Data Catalog** | Metadata cataloguing | Glue Data Catalog |
-| **BigQuery** | Analytics queries | Athena |
+| Service                 | Role                            | GCP Equivalent of AWS |
+| ----------------------- | ------------------------------- | --------------------- |
+| **Cloud Composer**      | Orchestration (managed Airflow) | MWAA                  |
+| **Cloud Storage (GCS)** | Raw data storage & output       | S3                    |
+| **Dataproc**            | Spark processing (batch ETL)    | EMR                   |
+| **Data Catalog**        | Metadata cataloguing            | Glue Data Catalog     |
+| **BigQuery**            | Analytics queries               | Athena                |
 
 ## Generated Documents
 
@@ -70,6 +70,7 @@ All documents share a `labels.pipeline_run_id` for cross-service correlation.
 ## Failure Modes
 
 ### 1. Null / Empty Source Files (Silent Degradation)
+
 - GCS returns 0 bytes for the source file
 - Dataproc Spark processes 0 records, writes 0 output
 - Data Catalog updates 0 entries
@@ -78,11 +79,13 @@ All documents share a `labels.pipeline_run_id` for cross-service correlation.
 - No hard errors — the issue propagates silently through the chain
 
 ### 2. Incorrect File Format (Pipeline Halt)
+
 - Dataproc Spark throws `AvroParseException`
 - Pipeline halts — no GCS output, no Data Catalog update, no BigQuery query
 - Composer DAG fails with `quality_check: FAILED`
 
 ### 3. Special Characters in GCS Keys (Pipeline Halt)
+
 - Dataproc Spark throws `FileNotFoundException` due to URL-encoding issues
 - Pipeline halts at the same point as incorrect format
 - Composer DAG fails with `quality_check: FAILED`

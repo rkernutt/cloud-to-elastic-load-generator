@@ -1,39 +1,39 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-3",
+    "region": "us-east-2",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "network-firewall" }
   },
   "aws": {
     "dimensions": {
-      "FirewallName": "fw-eu-west-3",
-      "AvailabilityZone": "eu-west-3a",
-      "CustomAction": "CustomPassAction"
+      "FirewallName": "fw-us-east-2",
+      "AvailabilityZone": "us-east-2c",
+      "CustomAction": "CustomBlockAction"
     },
     "firewall_logs": {
-      "flow_id": 740330,
-      "event_timestamp": "2026-04-17T09:05:18.304Z",
-      "action": "PASS",
-      "src_ip": "87.148.127.10",
-      "dest_ip": "143.251.118.191",
-      "src_port": 49255,
-      "dest_port": 80,
+      "flow_id": 884175,
+      "event_timestamp": "2026-04-17T15:00:39.621Z",
+      "action": "DROP",
+      "src_ip": "8.100.158.171",
+      "dest_ip": "120.215.37.156",
+      "src_port": 3425,
+      "dest_port": 3306,
       "protocol": "UDP",
-      "firewall_name": "fw-eu-west-3",
-      "availability_zone": "eu-west-3a"
+      "firewall_name": "fw-us-east-2",
+      "availability_zone": "us-east-2c"
     },
     "network_firewall": {
-      "firewall_name": "fw-eu-west-3",
-      "availability_zone": "eu-west-3a",
+      "firewall_name": "fw-us-east-2",
+      "availability_zone": "us-east-2c",
       "policy_name": "prod-fw-policy",
       "metrics": {
-        "DroppedPackets": { "sum": 0 },
-        "PassedPackets": { "sum": 97493 },
+        "DroppedPackets": { "sum": 60 },
+        "PassedPackets": { "sum": 0 },
         "RejectedPackets": { "sum": 0 },
-        "Packets": { "sum": 7499 },
-        "DroppedBytes": { "sum": 0 }
+        "Packets": { "sum": 19445 },
+        "DroppedBytes": { "sum": 20299 }
       }
     },
     "s3": {
@@ -42,37 +42,42 @@
         "arn": "arn:aws:s3:::aws-networkfirewall-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/networkfirewall/eu-west-3/2026/04/17/networkfirewall_E5I7LNI65M.log.gz"
+        "key": "AWSLogs/293847561023/networkfirewall/us-east-2/2026/04/17/networkfirewall_QIR4YZK8OC.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/networkfirewall/logs",
-      "log_stream": "eu-west-3/j5ev7run",
-      "ingestion_time": "2026-04-17T09:05:18.878Z"
+      "log_stream": "us-east-2/5h84gjxd",
+      "ingestion_time": "2026-04-17T15:00:40.129Z"
     }
   },
-  "source": { "ip": "87.148.127.10", "port": 49255 },
-  "destination": { "ip": "143.251.118.191", "port": 80 },
-  "network": { "transport": "udp", "bytes": 64263, "packets": 31 },
+  "source": { "ip": "8.100.158.171", "port": 3425 },
+  "destination": { "ip": "120.215.37.156", "port": 3306 },
+  "network": { "transport": "udp", "bytes": 36660, "packets": 30 },
   "event": {
-    "action": "pass",
-    "outcome": "success",
+    "action": "drop",
+    "outcome": "failure",
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.firewall_logs",
     "provider": "network-firewall.amazonaws.com",
-    "duration": 42000000,
+    "duration": 21000000,
     "module": "aws"
   },
-  "message": "PASS UDP flow",
-  "log": { "level": "info" },
+  "message": "DROP UDP flow",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "FlowDropped",
+    "message": "Packet dropped by firewall rule",
+    "type": "network"
+  },
   "service": { "name": "networkfirewall", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.firewall_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-3",
-    "ephemeral_id": "io1dwa2vprb"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "9cuoqxkv3x"
   },
   "input": { "type": "aws-s3" }
 }

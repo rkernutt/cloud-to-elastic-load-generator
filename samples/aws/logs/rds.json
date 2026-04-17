@@ -1,47 +1,120 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
-    "service": { "name": "rds-proxy" }
+    "region": "ap-southeast-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
+    "service": { "name": "rds" }
   },
   "aws": {
-    "rdsproxy": {
-      "proxy_name": "writer-proxy",
-      "target_group": "writer",
-      "db_user": "admin",
-      "connection_id": 24134,
-      "action": "Query",
-      "active_connections": 47,
-      "max_connections": 200,
-      "borrow_timeout_ms": 409,
-      "client_connections": 260
+    "dimensions": {
+      "DBInstanceIdentifier": "prod-db-replica",
+      "DatabaseClass": "db.m5.large",
+      "EngineName": "postgres",
+      "SourceRegion": "ap-southeast-1"
+    },
+    "cloudwatch": {
+      "log_group": "/aws/rds/instance/prod-db-replica/postgresql",
+      "log_stream": "prod-db-replica",
+      "ingestion_time": "2026-04-17T15:00:40.099Z"
+    },
+    "rds": {
+      "db_instance": {
+        "identifier": "prod-db-replica",
+        "class": "db.m5.large",
+        "engine_name": "postgres",
+        "engine_version": "15.8",
+        "arn": "arn:aws:rds:ap-southeast-1:293847561023:db:prod-db-replica",
+        "status": "available",
+        "role": "instance",
+        "multi_az": true,
+        "storage_type": "io1",
+        "allocated_storage_gb": 100
+      },
+      "log_type": "postgresql",
+      "cpu": { "total": { "pct": 0.3545 } },
+      "freeable_memory": { "bytes": 354485606 },
+      "free_storage": { "bytes": 300508319687 },
+      "database_connections": 488,
+      "read_io": { "ops_per_sec": 62.36114401303483 },
+      "write_io": { "ops_per_sec": 1599.5380121099377 },
+      "latency": { "read": 0.01661623013860018, "write": 0.005218326403412254 },
+      "throughput": {
+        "read": 80001798,
+        "write": 7087178,
+        "network_receive": 25782333,
+        "network_transmit": 2135532
+      },
+      "replica_lag": { "sec": 58.87920641360973 },
+      "swap_usage": { "bytes": 13105007 },
+      "disk_usage": { "bin_log": { "bytes": 394821265 } },
+      "enhanced_monitoring": {
+        "cpuUtilization": {
+          "guest": 1.8136344727253355,
+          "irq": 0.8614874652330589,
+          "system": 8.924671650319526,
+          "wait": 3.870379909989513,
+          "idle": 76.2,
+          "user": 8.362000021330386,
+          "total": 23.8
+        },
+        "memory": {
+          "total": 26967202128,
+          "free": 5596743206,
+          "cached": 4421424715,
+          "active": 5693886325,
+          "inactive": 3242152262,
+          "buffers": 487366012
+        },
+        "disk": {
+          "readIOsPS": 41.67248514958499,
+          "writeIOsPS": 2612.3136209107333,
+          "readKbPS": 267583.33413140633,
+          "writeKbPS": 5449.667358614761,
+          "avgQueueLen": 5.334646395495604,
+          "await": 19.94942886697429
+        },
+        "network": { "rx": 34922183, "tx": 21887846 },
+        "numVCPUs": 32,
+        "uptime": "82 days, 0:49:33"
+      }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-rds-logs-738291046572"
+        "name": "aws-rds-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-rds-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/738291046572/rds/il-central-1/2026/04/17/rds_BQ6H5PYA1PJ.log.gz" }
-    },
-    "cloudwatch": {
-      "log_group": "/aws/rds/logs",
-      "log_stream": "il-central-1/t2btwt25",
-      "ingestion_time": "2026-04-17T09:05:18.838Z"
+      "object": {
+        "key": "AWSLogs/293847561023/rds/ap-southeast-1/2026/04/17/rds_9MUOOF78KBP.log.gz"
+      }
     }
   },
-  "event": { "outcome": "success", "duration": 3269439, "module": "aws", "dataset": "aws.rds" },
-  "message": "RDS Proxy writer-proxy: Query on writer (conn 24134)",
-  "service": { "name": "rds", "type": "aws" },
+  "db": {
+    "user": { "name": "readonly" },
+    "name": "analytics",
+    "statement": "DELETE FROM inventory WHERE created_at < now() - interval '90 days'",
+    "type": "sql"
+  },
+  "source": { "ip": "183.59.187.4" },
+  "event": {
+    "duration": 281764179.0114174,
+    "outcome": "success",
+    "category": ["database"],
+    "type": ["info", "access"],
+    "dataset": "aws.rds",
+    "provider": "rds.amazonaws.com",
+    "module": "aws"
+  },
+  "message": "2026-04-17 15:00:39.621 UTC:183.59.187.4(60390):readonly@analytics:[17558]:LOG:  duration: 281.764 ms  parse <unnamed>: DELETE FROM inventory WHERE created_at < now() - interval '90 days'",
   "log": { "level": "info" },
+  "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "svt79gkiln"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "hu3m7zrqru7"
   },
   "input": { "type": "aws-cloudwatch" }
 }

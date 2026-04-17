@@ -45,13 +45,13 @@ flowchart LR
 
 ## Services Involved
 
-| Service | Role | Azure Equivalent of AWS |
-|---|---|---|
-| **Azure Data Factory** | Orchestration (pipeline engine) | MWAA |
-| **Blob Storage** | Raw data storage & output | S3 |
-| **Azure Databricks** | Spark processing (batch ETL) | EMR |
-| **Microsoft Purview** | Metadata cataloguing & governance | Glue Data Catalog |
-| **Synapse Analytics** | Analytics queries (dedicated/serverless SQL) | Athena |
+| Service                | Role                                         | Azure Equivalent of AWS |
+| ---------------------- | -------------------------------------------- | ----------------------- |
+| **Azure Data Factory** | Orchestration (pipeline engine)              | MWAA                    |
+| **Blob Storage**       | Raw data storage & output                    | S3                      |
+| **Azure Databricks**   | Spark processing (batch ETL)                 | EMR                     |
+| **Microsoft Purview**  | Metadata cataloguing & governance            | Glue Data Catalog       |
+| **Synapse Analytics**  | Analytics queries (dedicated/serverless SQL) | Athena                  |
 
 ## Generated Documents
 
@@ -70,6 +70,7 @@ All documents share a `labels.pipeline_run_id` for cross-service correlation. Az
 ## Failure Modes
 
 ### 1. Null / Empty Source Files (Silent Degradation)
+
 - Blob Storage returns 0 bytes for the source blob
 - Databricks Spark processes 0 records, writes 0 output
 - Purview discovers 0 assets
@@ -78,11 +79,13 @@ All documents share a `labels.pipeline_run_id` for cross-service correlation. Az
 - No hard errors — the issue propagates silently through the chain
 
 ### 2. Incorrect File Format (Pipeline Halt)
+
 - Databricks Spark throws `AvroParseException`
 - Pipeline halts — no Blob output, no Purview scan, no Synapse query
 - Data Factory pipeline fails with `quality_check: FAILED`
 
 ### 3. Special Characters in Blob Names (Pipeline Halt)
+
 - Databricks Spark throws `FileNotFoundException` on ABFSS path
 - Pipeline halts at the same point as incorrect format
 - Data Factory pipeline fails with `quality_check: FAILED`

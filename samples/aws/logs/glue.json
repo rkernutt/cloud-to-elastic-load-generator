@@ -1,120 +1,116 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-northeast-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "glue" }
   },
   "aws": {
-    "dimensions": {
-      "JobName": "raw-to-curated",
-      "JobRunId": "jr_zosyg7pby6",
-      "Type": "gluestreaming"
-    },
+    "dimensions": { "JobName": "data-quality", "JobRunId": "jr_yqwc1e5lxgp", "Type": "glueetl" },
     "cloudwatch": {
-      "log_group": "/aws-glue/jobs/output",
-      "log_stream": "jr_zosyg7pby6",
-      "ingestion_time": "2026-04-17T09:05:19.018Z"
+      "log_group": "/aws-glue/jobs/error",
+      "log_stream": "jr_yqwc1e5lxgp",
+      "ingestion_time": "2026-04-17T15:00:40.231Z"
     },
     "glue": {
       "job": {
-        "name": "raw-to-curated",
-        "run_id": "jr_zosyg7pby6",
-        "type": "gluestreaming",
+        "name": "data-quality",
+        "run_id": "jr_yqwc1e5lxgp",
+        "type": "glueetl",
         "run_state": "SUCCEEDED"
       },
-      "database": "staging",
+      "database": "analytics",
       "table": "transactions",
-      "dpu_seconds": 63190,
-      "worker": { "type": "G.2X", "count": 10 },
-      "records": { "read": 41718737, "written": 41301549, "errors": 0 },
+      "dpu_seconds": 301300,
+      "worker": { "type": "G.2X", "count": 50 },
+      "records": { "read": 45049696, "written": 44599199, "errors": 0 },
       "glue_version": "3.0",
-      "crawler_name": "curated-crawler",
+      "connection_name": "redshift-prod",
       "continuous_logging": true,
       "metrics": {
         "driver": {
           "aggregate": {
-            "numRecords": 41718737,
+            "numRecords": 45049696,
             "numFailedRecords": 0,
-            "elapsedTime": 6319000,
-            "numCompletedTasks": 377,
+            "elapsedTime": 6026000,
+            "numCompletedTasks": 427,
             "numFailedTasks": 0,
             "numKilledTasks": 0,
-            "numCompletedStages": 3,
-            "bytesRead": 15686245112,
-            "shuffleBytesWritten": 11933796040,
-            "shuffleLocalBytesRead": 10857219704,
-            "gc_time_ms": 43698
+            "numCompletedStages": 8,
+            "bytesRead": 6487156224,
+            "shuffleBytesWritten": 4703981813,
+            "shuffleLocalBytesRead": 905510410,
+            "gc_time_ms": 4529
           },
           "memory": {
-            "heap": { "available": 640412396, "used": 3933961862, "used_percentage": 86 },
-            "non-heap": { "available": 76034586, "used": 109297518, "used_percentage": 37 }
+            "heap": { "available": 1117290271, "used": 1542924660, "used_percentage": 58 },
+            "non-heap": { "available": 182335702, "used": 34648501, "used_percentage": 36 }
           },
-          "jvm": { "heap": { "usage": 0.86 } },
+          "jvm": { "heap": { "usage": 0.58 } },
           "disk": {
-            "available_GB": 154,
-            "used_GB": 273,
-            "used_percentage": 64,
-            "diskSpaceUsed_MB": 241
+            "available_GB": 255,
+            "used_GB": 209,
+            "used_percentage": 45,
+            "diskSpaceUsed_MB": 1948
           },
-          "BlockManager": { "disk": { "diskSpaceUsed_MB": 805 } },
+          "BlockManager": { "disk": { "diskSpaceUsed_MB": 1612 } },
           "ExecutorAllocationManager": {
-            "executors": { "numberAllExecutors": 12, "numberMaxNeededExecutors": 13 }
+            "executors": { "numberAllExecutors": 81, "numberMaxNeededExecutors": 120 }
           },
-          "s3": { "filesystem": { "read_bytes": 2726870412, "write_bytes": 6762447594 } },
+          "s3": { "filesystem": { "read_bytes": 1742665413, "write_bytes": 2089450947 } },
           "system": { "cpuSystemLoad": 0.38 },
-          "workerUtilization": 0.74,
-          "skewness": { "stage": 1.2861145451926785, "job": 1.6706385513849742 }
+          "workerUtilization": 0.85,
+          "skewness": { "stage": 1.089299607306414, "job": 0.5816390699329675 }
         },
         "executor": {
-          "aggregate": { "numCompletedTasks": 377, "numFailedTasks": 0, "gc_time_ms": 18994 }
+          "aggregate": { "numCompletedTasks": 427, "numFailedTasks": 0, "gc_time_ms": 17470 }
         },
         "ALL": {
           "memory": {
-            "heap": { "available": 13780658127, "used": 5797091807, "used_percentage": 76 },
-            "non-heap": { "available": 150665240, "used": 216110222, "used_percentage": 29 }
+            "heap": { "available": 6898768484, "used": 5221025492, "used_percentage": 40 },
+            "non-heap": { "available": 334708084, "used": 237115794, "used_percentage": 29 }
           },
           "jvm": { "heap": { "usage": 0.36 } },
           "disk": {
-            "available_GB": 153,
-            "used_GB": 126,
-            "used_percentage": 59,
-            "diskSpaceUsed_MB": 2895
+            "available_GB": 687,
+            "used_GB": 306,
+            "used_percentage": 65,
+            "diskSpaceUsed_MB": 3242
           },
-          "s3": { "filesystem": { "read_bytes": 15654446456, "write_bytes": 7061652418 } },
-          "system": { "cpuSystemLoad": 0.35 }
+          "s3": { "filesystem": { "read_bytes": 508304722, "write_bytes": 3850559015 } },
+          "system": { "cpuSystemLoad": 0.57 }
         }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-glue-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-glue-logs-738291046572"
+        "name": "aws-glue-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-glue-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/glue/ca-central-1/2026/04/17/glue_PLAB9YHP5HI.log.gz"
+        "key": "AWSLogs/814726593401/glue/ap-northeast-2/2026/04/17/glue_JPWP7PCAKAN.log.gz"
       }
     }
   },
   "log": { "level": "info" },
   "event": {
-    "duration": 6319000000000,
+    "duration": 6026000000000,
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.glue",
     "provider": "glue.amazonaws.com",
     "module": "aws"
   },
-  "message": "2026-04-17 09:05:18.304 INFO [shuffle-client-1-0] org.apache.spark.SparkContext: Bookmark updated: processed up to offset 9823741",
+  "message": "2026-04-17 15:00:39.621 INFO [dispatcher-event-loop-0] org.apache.spark.SparkContext: Reading from S3 path: s3://data-lake/raw/",
   "service": { "name": "glue", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.glue", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "hxszrbuvyi"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "56iov9gymfb"
   },
   "input": { "type": "aws-cloudwatch" }
 }

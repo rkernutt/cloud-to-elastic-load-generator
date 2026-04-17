@@ -1,75 +1,76 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-west-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "bedrock" }
   },
   "aws": {
-    "dimensions": { "ModelId": "amazon.titan-text-express-v1" },
+    "dimensions": { "ModelId": "amazon.nova-pro-v1:0" },
     "bedrock": {
-      "modelId": "amazon.titan-text-express-v1",
-      "inputTokenCount": 4836,
-      "outputTokenCount": 0,
-      "inputBodyJson": "{\"messages\":[{\"role\":\"user\",\"content\":[{\"text\":\"Extract invoice fields from the attached text.\"}]}],\"inferenceConfig\":{\"maxTokens\":2266,\"temperature\":0.2578191081151451}}",
-      "outputBodyJson": "{\"message\":\"Invocation failed\",\"__type\":\"ThrottlingException\"}",
-      "invocationLatency": 1157,
+      "modelId": "amazon.nova-pro-v1:0",
+      "inputTokenCount": 2128,
+      "outputTokenCount": 900,
+      "inputBodyJson": "{\"messages\":[{\"role\":\"user\",\"content\":[{\"text\":\"Summarize the Q3 results.\"}]}],\"inferenceConfig\":{\"maxTokens\":2787,\"temperature\":0.9991752324526318}}",
+      "outputBodyJson": "{\"output\":{\"message\":{\"role\":\"assistant\",\"content\":[{\"text\":\"Here is a concise summary based on the provided context and figures.Here is a concise summary based on the provided context and figures.Here is a concise summary based on the provided context and figures.\"}]}},\"stopReason\":\"end_turn\",\"usage\":{\"inputTokens\":2128,\"outputTokens\":900,\"totalTokens\":3028}}",
+      "invocationLatency": 2953,
       "operation": "Converse",
       "schemaType": "ModelInvocationLog",
       "schemaVersion": "1.0",
-      "model_id": "amazon.titan-text-express-v1",
-      "invocation_latency_ms": 1157,
-      "input_token_count": 4836,
-      "output_token_count": 0,
-      "total_token_count": 4836,
-      "error_code": "ModelTimeoutException",
-      "use_case": "summarization",
+      "model_id": "amazon.nova-pro-v1:0",
+      "invocation_latency_ms": 2953,
+      "input_token_count": 2128,
+      "output_token_count": 900,
+      "total_token_count": 3028,
+      "stop_reason": "stop_sequence",
+      "use_case": "classification",
       "guardrail_action": "NONE",
-      "streaming": false,
+      "streaming": true,
+      "time_to_first_token_ms": 370,
+      "input_tokens_per_sec": 720.6,
       "model_family": "amazon",
       "metrics": {
-        "Invocations": { "sum": 455 },
-        "InvocationLatency": { "avg": 1157, "p99": 2314 },
-        "InputTokenCount": { "sum": 4836 },
-        "OutputTokenCount": { "sum": 0 },
-        "Throttles": { "sum": 19 }
+        "Invocations": { "sum": 490 },
+        "InvocationLatency": { "avg": 2953, "p99": 5906 },
+        "InputTokenCount": { "sum": 2128 },
+        "OutputTokenCount": { "sum": 900 },
+        "Throttles": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-bedrock-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-bedrock-logs-164820739518"
+        "name": "aws-bedrock-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-bedrock-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/bedrock/eu-west-1/2026/04/17/bedrock_3VVSC8U1T5G.log.gz"
+        "key": "AWSLogs/814726593401/bedrock/eu-west-3/2026/04/17/bedrock_VC01C2LT01.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/bedrock/logs",
-      "log_stream": "eu-west-1/ar46i2ro",
-      "ingestion_time": "2026-04-17T09:05:19.032Z"
+      "log_stream": "eu-west-3/u0w42f3m",
+      "ingestion_time": "2026-04-17T15:00:40.243Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.bedrock",
     "provider": "bedrock.amazonaws.com",
-    "duration": 1157144381.8556406,
+    "duration": 2953246389.1360507,
     "module": "aws"
   },
-  "message": "Bedrock titan invocation FAILED: ModelTimeoutException",
-  "log": { "level": "error" },
-  "error": { "code": "ThrottlingException", "message": "Bedrock invocation failed", "type": "ml" },
+  "message": "Bedrock nova 2128->900 tokens 2.95s",
+  "log": { "level": "info" },
   "service": { "name": "bedrock", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.bedrock", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "dkdgzcrjb3t"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "fvfmx6t0mor"
   },
   "input": { "type": "aws-cloudwatch" }
 }

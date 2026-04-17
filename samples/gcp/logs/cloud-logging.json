@@ -1,26 +1,27 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
-  "labels": { "resource.type": "logging.googleapis.com/Project", "sink": "sink-security" },
+  "severity": "DEBUG",
+  "labels": { "resource.type": "logging.googleapis.com/Project", "sink": "sink-to-gcs" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-central2",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" },
+    "region": "northamerica-northeast1",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" },
     "service": { "name": "logging.googleapis.com" }
   },
   "gcp": {
     "cloud_logging": {
-      "log_name": "projects/globex-security-j0k1l2/logs/audit",
-      "sink_name": "sink-security",
-      "destination": "bigquery",
+      "log_name": "projects/globex-dev-g7h8i9/logs/vpc_flow",
+      "sink_name": "sink-to-gcs",
+      "destination": "pubsub",
       "filter_expression": "resource.type=\"gce_instance\" AND severity>=ERROR",
-      "entries_exported": 286094,
-      "errors_count": 0
+      "entries_exported": 32435,
+      "errors_count": 3,
+      "exclusion_name": "exclusion-VISG"
     }
   },
-  "event": { "outcome": "success", "duration": 29766, "module": "gcp", "dataset": "gcp.logging" },
-  "message": "Exported 286094 log entries via sink=\"sink-security\" to bigquery (log_filter matched projects/globex-security-j0k1l2/logs/audit)",
+  "event": { "outcome": "success", "duration": 17300, "module": "gcp", "dataset": "gcp.logging" },
+  "message": "Exported 32435 log entries via sink=\"sink-to-gcs\" to pubsub (log_filter matched projects/globex-dev-g7h8i9/logs/vpc_flow)",
   "service": { "name": "cloud-logging", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -28,25 +29,26 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-central2",
-    "id": "zqqstl3m71"
+    "name": "elastic-agent-gcp-northamerica-northeast1",
+    "id": "lr3hoc40ds"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-security-j0k1l2/logs/cloud-logging",
+  "logName": "projects/globex-dev-g7h8i9/logs/cloud-logging",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-security-j0k1l2", "region": "europe-central2" }
+    "labels": { "project_id": "globex-dev-g7h8i9", "region": "northamerica-northeast1" }
   },
-  "insertId": "9YVI2Y5D8Q",
+  "insertId": "X4MMK9V8W7L",
   "jsonPayload": {
     "cloud_logging": {
-      "log_name": "projects/globex-security-j0k1l2/logs/audit",
-      "sink_name": "sink-security",
-      "destination": "bigquery",
+      "log_name": "projects/globex-dev-g7h8i9/logs/vpc_flow",
+      "sink_name": "sink-to-gcs",
+      "destination": "pubsub",
       "filter_expression": "resource.type=\"gce_instance\" AND severity>=ERROR",
-      "entries_exported": 286094,
-      "errors_count": 0
+      "entries_exported": 32435,
+      "errors_count": 3,
+      "exclusion_name": "exclusion-VISG"
     },
-    "message": "Exported 286094 log entries via sink=\"sink-security\" to bigquery (log_filter matched projects/globex-security-j0k1l2/logs/audit)"
+    "message": "Exported 32435 log entries via sink=\"sink-to-gcs\" to pubsub (log_filter matched projects/globex-dev-g7h8i9/logs/vpc_flow)"
   }
 }

@@ -1,64 +1,66 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-west-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "rekognition" }
   },
   "aws": {
-    "dimensions": { "Operation": "StartFaceDetection" },
+    "dimensions": { "Operation": "IndexFaces" },
     "rekognition": {
-      "operation": "StartFaceDetection",
-      "input_source": "S3Object",
-      "image_bytes": 2026036,
-      "duration_ms": 820,
-      "labels_detected": 44,
-      "faces_detected": 16,
-      "max_confidence": 71.01624407621655,
+      "operation": "IndexFaces",
+      "input_source": "Base64Image",
+      "image_bytes": 6531932,
+      "duration_ms": 2113,
+      "labels_detected": 0,
+      "faces_detected": 0,
+      "max_confidence": 0,
       "confidence_threshold": 70,
       "FaceDetails": [],
+      "error_code": "AccessDeniedException",
       "metrics": {
         "SuccessfulRequestCount": { "sum": 1 },
-        "ThrottledCount": { "sum": 0 },
-        "UserErrorCount": { "sum": 0 },
+        "ThrottledCount": { "sum": 1 },
+        "UserErrorCount": { "sum": 1 },
         "ServerErrorCount": { "sum": 0 },
-        "ResponseTime": { "avg": 398.3021178888671 }
+        "ResponseTime": { "avg": 564.3998959665164 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rekognition-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-rekognition-logs-293847561023"
+        "name": "aws-rekognition-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-rekognition-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/rekognition/us-west-2/2026/04/17/rekognition_A6RP0Q23BMJ.log.gz"
+        "key": "AWSLogs/164820739518/rekognition/eu-west-1/2026/04/17/rekognition_E70XCPD3NH7.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/rekognition/logs",
-      "log_stream": "us-west-2/8rtyo778",
-      "ingestion_time": "2026-04-17T09:05:19.034Z"
+      "log_stream": "eu-west-1/h1ldhofe",
+      "ingestion_time": "2026-04-17T15:00:40.245Z"
     }
   },
   "event": {
-    "duration": 820292521.7577436,
-    "outcome": "success",
+    "duration": 2113137057.705494,
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.rekognition",
     "provider": "rekognition.amazonaws.com",
     "module": "aws"
   },
-  "message": "Rekognition StartFaceDetection: 36 results, 71.0% confidence",
-  "log": { "level": "info" },
+  "message": "Rekognition IndexFaces FAILED: Image too large",
+  "log": { "level": "error" },
+  "error": { "code": "RekognitionError", "message": "Rekognition operation failed", "type": "ml" },
   "service": { "name": "rekognition", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rekognition", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "gxbd6fl8w47"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "ypsfdmuo38k"
   },
   "input": { "type": "aws-cloudwatch" }
 }

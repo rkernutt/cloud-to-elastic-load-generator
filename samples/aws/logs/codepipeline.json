@@ -1,21 +1,21 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-3",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "il-central-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "codepipeline" }
   },
   "aws": {
-    "dimensions": { "PipelineName": "release-train" },
+    "dimensions": { "PipelineName": "infra-pipeline" },
     "codepipeline": {
-      "pipeline_name": "release-train",
-      "pipeline_arn": "arn:aws:codepipeline:eu-west-3:738291046572:release-train",
-      "execution_id": "4ody3w2j-bp1q-earw-0x8t-pvi3z4lejgh",
-      "stage_name": "Build",
-      "action_name": "Deploy",
+      "pipeline_name": "infra-pipeline",
+      "pipeline_arn": "arn:aws:codepipeline:il-central-1:164820739518:infra-pipeline",
+      "execution_id": "kda0ztv4-7xxv-6mk3-6pci-dfkd46fb9xd",
+      "stage_name": "Deploy",
+      "action_name": "Manual",
       "state": "Succeeded",
-      "revision_id": "h6ci0c5sg9j",
+      "revision_id": "mqbwc9hp12b",
       "structured_logging": false,
       "metrics": {
         "PipelineExecutionAttempts": { "sum": 1 },
@@ -28,17 +28,17 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-codepipeline-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-codepipeline-logs-738291046572"
+        "name": "aws-codepipeline-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-codepipeline-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/codepipeline/eu-west-3/2026/04/17/codepipeline_4ATC70KHT12.log.gz"
+        "key": "AWSLogs/164820739518/codepipeline/il-central-1/2026/04/17/codepipeline_5BPD7N5W61.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codepipeline/logs",
-      "log_stream": "eu-west-3/24w6g7k5",
-      "ingestion_time": "2026-04-17T09:05:19.003Z"
+      "log_stream": "il-central-1/1mpjjzdj",
+      "ingestion_time": "2026-04-17T15:00:40.218Z"
     }
   },
   "event": {
@@ -46,10 +46,10 @@
     "category": ["process", "configuration"],
     "dataset": "aws.codepipeline",
     "provider": "codepipeline.amazonaws.com",
-    "duration": 31000000000,
+    "duration": 43000000000,
     "module": "aws"
   },
-  "message": "[CodePipeline] executionId=4ody3w2j-bp1q-earw-0x8t-pvi3z4lejgh pipeline=release-train state=SUCCEEDED region=eu-west-3\n[CodePipeline] Execution started for pipeline release-train (pipelineVersion=31)\n[Stage:Source] Transitioning: STARTED action=GitHubSource provider=GitHub revision=h6ci0c5\n[Stage:Source] Output artifact location: s3://738291046572-codepipeline-eu-west-3/release-train/source_out/h6ci0c5sg9j.zip\n[Stage:Source] Transitioning: SUCCEEDED durationMs=14434\n[Stage:Build] Transitioning: STARTED action=CodeBuild project=web-build\n[Stage:Build] Input artifact: s3://738291046572-codepipeline-eu-west-3/release-train/source_out/h6ci0c5sg9j.zip\n[Stage:Build] Output artifact: s3://738291046572-codepipeline-eu-west-3/release-train/build_out/4ody3w2j-bp1q-earw-0x8t-pvi3z4lejgh/BuildOut\n[Stage:Build] Transitioning: SUCCEEDED durationMs=92862\n[Stage:Deploy] Transitioning: STARTED action=CloudFormation deploymentGroup=staging\n[Stage:Deploy] Output artifact: s3://738291046572-codepipeline-eu-west-3/release-train/deploy/4ody3w2j-bp1q-earw-0x8t-pvi3z4lejgh/DeploymentBundle\n[Stage:Deploy] Transitioning: SUCCEEDED durationMs=656764\n[Stage:Test] Transitioning: STARTED action=CodeBuild\n[Stage:Test] Transitioning: SUCCEEDED durationMs=148209\n[CodePipeline] Execution succeeded for pipeline release-train executionId=4ody3w2j-bp1q-earw-0x8t-pvi3z4lejgh",
+  "message": "[CodePipeline] executionId=kda0ztv4-7xxv-6mk3-6pci-dfkd46fb9xd pipeline=infra-pipeline state=SUCCEEDED region=il-central-1\n[CodePipeline] Execution started for pipeline infra-pipeline (pipelineVersion=11)\n[Stage:Source] Transitioning: STARTED action=Source provider=GitHub revision=mqbwc9h\n[Stage:Source] Output artifact location: s3://164820739518-codepipeline-il-central-1/infra-pipeline/source_out/mqbwc9hp12b.zip\n[Stage:Source] Transitioning: SUCCEEDED durationMs=38841\n[Stage:Build] Transitioning: STARTED action=CodeBuild project=api-service-build\n[Stage:Build] Input artifact: s3://164820739518-codepipeline-il-central-1/infra-pipeline/source_out/mqbwc9hp12b.zip\n[Stage:Build] Output artifact: s3://164820739518-codepipeline-il-central-1/infra-pipeline/build_out/kda0ztv4-7xxv-6mk3-6pci-dfkd46fb9xd/BuildOut\n[Stage:Build] Transitioning: SUCCEEDED durationMs=57266\n[Stage:Deploy] Transitioning: STARTED action=CloudFormation deploymentGroup=prod\n[Stage:Deploy] Output artifact: s3://164820739518-codepipeline-il-central-1/infra-pipeline/deploy/kda0ztv4-7xxv-6mk3-6pci-dfkd46fb9xd/DeploymentBundle\n[Stage:Deploy] Transitioning: SUCCEEDED durationMs=178154\n[Stage:Test] Transitioning: STARTED action=CodeBuild\n[Stage:Test] Transitioning: SUCCEEDED durationMs=337746\n[Stage:Approval] Transitioning: STARTED action=ChangeApproval token=HM0Y405JUF8\n[Stage:Approval] Waiting for manual approval (notificationArn=arn:aws:sns:il-central-1:164820739518:pipeline-approvals)\n[Stage:Approval] Transitioning: SUCCEEDED approvedBy=bob\n[CodePipeline] Execution succeeded for pipeline infra-pipeline executionId=kda0ztv4-7xxv-6mk3-6pci-dfkd46fb9xd",
   "log": { "level": "info" },
   "service": { "name": "codepipeline", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -57,8 +57,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-3",
-    "ephemeral_id": "bq2ncdu1ja"
+    "name": "filebeat-aws-il-central-1",
+    "ephemeral_id": "macpu428u0p"
   },
   "input": { "type": "aws-cloudwatch" }
 }

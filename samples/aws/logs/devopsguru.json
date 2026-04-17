@@ -1,62 +1,66 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-southeast-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "devopsguru" }
   },
   "aws": {
     "devopsguru": {
-      "insight_id": "g245mt7xl9w",
+      "insight_id": "r51eg43fvdn",
       "insight_type": "REACTIVE",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
       "resource_collection": {
-        "cloud_formation": { "stack_names": ["data-stack"] },
+        "cloud_formation": { "stack_names": ["prod-stack"] },
         "tags": [{ "key": "environment", "value": "production" }]
       },
-      "anomaly_id": "95x681v8vk6",
-      "anomaly_description": "DynamoDB throttling pattern detected",
-      "anomaly_sources": ["lambda-api"],
-      "start_time": "2026-04-17T08:46:49.590Z",
-      "end_time": "2026-04-17T09:05:19.100Z",
-      "status": "CLOSED",
-      "recommendation": "Review alarm thresholds",
-      "ssm_ops_items": []
+      "anomaly_id": "x4j2kny4609",
+      "anomaly_description": "RDS CPU spike correlated with API latency",
+      "anomaly_sources": ["dynamodb-sessions"],
+      "start_time": "2026-04-17T14:17:31.457Z",
+      "status": "ONGOING",
+      "recommendation": "Scale up resource",
+      "ssm_ops_items": ["oi-c4tjb6ul"]
     },
     "s3": {
       "bucket": {
-        "name": "aws-devopsguru-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-devopsguru-logs-814726593401"
+        "name": "aws-devopsguru-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-devopsguru-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/devopsguru/eu-west-1/2026/04/17/devopsguru_P3BP8E7GCC.log.gz"
+        "key": "AWSLogs/164820739518/devopsguru/ap-southeast-1/2026/04/17/devopsguru_CY893GMOORD.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/devopsguru/logs",
-      "log_stream": "eu-west-1/3uoflz3n",
-      "ingestion_time": "2026-04-17T09:05:19.100Z"
+      "log_stream": "ap-southeast-1/52q7plpt",
+      "ingestion_time": "2026-04-17T15:00:40.305Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process", "configuration", "vulnerability"],
     "dataset": "aws.devopsguru",
     "provider": "devops-guru.amazonaws.com",
-    "duration": 436000000000,
+    "duration": 2962000000000,
     "module": "aws"
   },
-  "message": "DevOps Guru REACTIVE insight [HIGH]: DynamoDB throttling pattern detected",
-  "log": { "level": "warn" },
+  "message": "DevOps Guru ONGOING [MEDIUM]: RDS CPU spike correlated with API latency",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InsightOngoing",
+    "message": "DevOps Guru ongoing anomaly",
+    "type": "process"
+  },
   "service": { "name": "devopsguru", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.devopsguru", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "u7e0oiqgzwc"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "gtu8k77vn2"
   },
   "input": { "type": "aws-cloudwatch" }
 }

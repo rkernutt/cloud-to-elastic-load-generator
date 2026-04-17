@@ -1,58 +1,64 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-4",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-east-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "groundstation" }
   },
   "aws": {
-    "dimensions": { "GroundStationId": "Dubbo", "ContactId": "contact-0g60emzs7j" },
+    "dimensions": { "GroundStationId": "Punta Arenas", "ContactId": "contact-6f7o06588p" },
     "groundstation": {
-      "contact_id": "contact-0g60emzs7j",
-      "ground_station_id": "Dubbo",
-      "satellite_arn": "arn:aws:groundstation::164820739518:satellite/satellite-j30tjjgy",
-      "mission_profile_id": "profile-30o3d06s",
-      "contact_status": "SCHEDULED",
+      "contact_id": "contact-6f7o06588p",
+      "ground_station_id": "Punta Arenas",
+      "satellite_arn": "arn:aws:groundstation::814726593401:satellite/satellite-ciy16p6r",
+      "mission_profile_id": "profile-dsvpzp3a",
+      "contact_status": "FAILED",
       "metrics": {
-        "data_received_mb": 1709.1507645761199,
-        "elevation_degrees": 72.8167152185627,
-        "contact_duration_sec": 499
-      }
+        "data_received_mb": 0,
+        "elevation_degrees": 66.076965539665,
+        "contact_duration_sec": 53
+      },
+      "error_code": "ContactFailed"
     },
     "s3": {
       "bucket": {
-        "name": "aws-groundstation-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-groundstation-logs-164820739518"
+        "name": "aws-groundstation-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-groundstation-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/groundstation/ap-southeast-4/2026/04/17/groundstation_FY5U11XVTTU.log.gz"
+        "key": "AWSLogs/814726593401/groundstation/ap-east-1/2026/04/17/groundstation_TZU75R3Y8SK.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/groundstation/logs",
-      "log_stream": "ap-southeast-4/xmaglumi",
-      "ingestion_time": "2026-04-17T09:05:19.056Z"
+      "log_stream": "ap-east-1/imn0inmu",
+      "ingestion_time": "2026-04-17T15:00:40.263Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["network"],
     "dataset": "aws.groundstation",
     "provider": "groundstation.amazonaws.com",
-    "duration": 499000000000,
+    "duration": 53000000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.groundstation", "namespace": "default" },
-  "message": "Ground Station Dubbo: contact contact-0g60emzs7j SCHEDULED, received=1709.2MB, elevation=72.8°",
-  "log": { "level": "info" },
+  "message": "Ground Station Punta Arenas: ContactFailed for contact contact-6f7o06588p",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ContactFailed",
+    "message": "Ground Station contact failed at Punta Arenas",
+    "type": "network"
+  },
   "service": { "name": "groundstation", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-4",
-    "ephemeral_id": "wxuk41wvmiq"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "fzw2j3g9b6l"
   },
   "input": { "type": "aws-cloudwatch" }
 }

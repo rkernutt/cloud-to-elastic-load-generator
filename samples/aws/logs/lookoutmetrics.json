@@ -1,64 +1,58 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-north-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "lookoutmetrics" }
   },
   "aws": {
-    "dimensions": { "AnomalyDetector": "latency-outlier", "Metric": "conversion_rate" },
+    "dimensions": { "AnomalyDetector": "conversion-drop", "Metric": "api_calls" },
     "lookoutmetrics": {
-      "anomaly_detector_arn": "arn:aws:lookoutmetrics:ap-south-2:164820739518:AnomalyDetector:latency-outlier",
-      "anomaly_group_id": "0l74x0zpgril",
-      "metric_name": "conversion_rate",
-      "severity": "HIGH",
-      "anomaly_score": 91.35317820170073,
-      "relevant_dates": 14,
-      "impact_value": -8.584677631545176,
-      "expected_value": 2455.009143399893,
-      "actual_value": 14179.816158754367,
-      "dimension": { "environment": "prod" },
-      "sensitivity": "HIGH",
-      "action_taken": "LAMBDA_TRIGGER"
+      "anomaly_detector_arn": "arn:aws:lookoutmetrics:eu-north-1:814726593401:AnomalyDetector:conversion-drop",
+      "anomaly_group_id": "42dgwomw0gp",
+      "metric_name": "api_calls",
+      "severity": "MEDIUM",
+      "anomaly_score": 9.473754327246224,
+      "relevant_dates": 3,
+      "impact_value": 136.62287822543774,
+      "expected_value": 5508.2409808586835,
+      "actual_value": 2782.517036249517,
+      "dimension": { "region": "us-east-1" },
+      "sensitivity": "LOW"
     },
     "s3": {
       "bucket": {
-        "name": "aws-lookoutmetrics-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-lookoutmetrics-logs-164820739518"
+        "name": "aws-lookoutmetrics-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-lookoutmetrics-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/lookoutmetrics/ap-south-2/2026/04/17/lookoutmetrics_1W1H763BC26.log.gz"
+        "key": "AWSLogs/814726593401/lookoutmetrics/eu-north-1/2026/04/17/lookoutmetrics_SMN5OCNFCPL.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lookoutmetrics/logs",
-      "log_stream": "ap-south-2/fufbtimp",
-      "ingestion_time": "2026-04-17T09:05:19.092Z"
+      "log_stream": "eu-north-1/duutbpj1",
+      "ingestion_time": "2026-04-17T15:00:40.301Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.lookoutmetrics",
     "provider": "lookoutmetrics.amazonaws.com",
     "module": "aws"
   },
-  "message": "Lookout for Metrics ANOMALY [latency-outlier]: conversion_rate score=91 [HIGH]",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "AnomalyDetected",
-    "message": "Lookout for Metrics anomaly",
-    "type": "process"
-  },
+  "message": "Lookout for Metrics [conversion-drop]: api_calls anomaly_score=9",
+  "log": { "level": "info" },
   "service": { "name": "lookoutmetrics", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lookoutmetrics", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "g1fqntajll5"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "0isy5rhv1zpj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,57 +1,72 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-southeast-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "ww64627tgh" },
+    "dimensions": { "DetectorId": "zvebolg9c9" },
     "guardduty": {
       "schemaVersion": "2.0",
-      "accountId": "293847561023",
-      "region": "eu-south-1",
+      "accountId": "738291046572",
+      "region": "ap-southeast-1",
       "partition": "aws",
-      "id": "m4e3zedtpwq",
-      "arn": "arn:aws:guardduty:eu-south-1:293847561023:detector/ww64627tgh/finding/m4e3zedtpwq",
+      "id": "kj5ehj2qhke",
+      "arn": "arn:aws:guardduty:ap-southeast-1:738291046572:detector/zvebolg9c9/finding/kj5ehj2qhke",
       "type": "Trojan:EC2/DNSDataExfiltration",
       "resource": {
-        "resourceType": "EKSCluster",
-        "eksClusterDetails": {
-          "name": "cluster-pqv96t",
-          "arn": "arn:aws:eks:eu-south-1:293847561023:cluster/cluster-cjeig7",
-          "createdAt": "2026-04-17T07:58:19.304Z",
-          "vpcId": "vpc-fgpb1uqn",
-          "status": "ACTIVE",
-          "tags": [{ "key": "env", "value": "prod" }]
-        }
+        "resourceType": "S3Bucket",
+        "s3BucketDetails": [
+          {
+            "arn": "arn:aws:s3:::globex-development-data-yinphp",
+            "name": "globex-development-data-vdch4w",
+            "type": "Destination",
+            "createdAt": "2026-04-17T14:31:22.621Z",
+            "owner": { "id": "738291046572" },
+            "publicAccess": {
+              "permissionConfiguration": { "bucketLevel": { "blockPublicAccess": true } }
+            }
+          }
+        ]
       },
       "service": {
         "serviceName": "guardduty",
-        "detectorId": "ww64627tgh",
+        "detectorId": "zvebolg9c9",
         "action": {
-          "actionType": "AWS_API_CALL",
-          "awsApiCallAction": {
-            "api": "AssumeRole",
-            "callerType": "Remote IP",
-            "remoteIpDetails": { "ipAddressV4": "67.41.125.181", "organization": {} },
-            "serviceName": "sts.amazonaws.com"
+          "actionType": "PORT_PROBE",
+          "portProbeAction": {
+            "blocked": false,
+            "portProbeDetails": [
+              {
+                "localPortDetails": { "port": 22 },
+                "remoteIpDetails": {
+                  "ipAddressV4": "127.168.151.204",
+                  "organization": {
+                    "asn": "64496",
+                    "asnOrg": "Example ISP",
+                    "isp": "Example ISP",
+                    "org": "Example Org"
+                  }
+                }
+              }
+            ]
           }
         },
-        "resourceRole": "ACTOR",
-        "eventFirstSeen": "2026-04-17T07:58:19.304Z",
-        "eventLastSeen": "2026-04-17T09:05:18.304Z",
+        "resourceRole": "TARGET",
+        "eventFirstSeen": "2026-04-17T14:31:22.621Z",
+        "eventLastSeen": "2026-04-17T15:00:39.621Z",
         "archived": false,
-        "count": 201,
+        "count": 2,
         "additionalInfo": {}
       },
       "severity": 0,
       "title": "EC2 DNSDataExfiltration",
       "description": "GuardDuty processed telemetry and did not raise a finding for this sample.",
-      "createdAt": "2026-04-17T09:05:18.304Z",
-      "updatedAt": "2026-04-17T09:05:18.304Z",
-      "confidence": 92.28378888117219,
+      "createdAt": "2026-04-17T15:00:39.621Z",
+      "updatedAt": "2026-04-17T15:00:39.621Z",
+      "confidence": 88.9844852740261,
       "metrics": {
         "FindingCount": { "sum": 0 },
         "HighSeverityFindingCount": { "sum": 0 },
@@ -61,21 +76,21 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-guardduty-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-guardduty-logs-293847561023"
+        "name": "aws-guardduty-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-guardduty-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/guardduty/eu-south-1/2026/04/17/guardduty_CBU9U7G6CY.log.gz"
+        "key": "AWSLogs/738291046572/guardduty/ap-southeast-1/2026/04/17/guardduty_ULW94JXKES.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/guardduty/logs",
-      "log_stream": "eu-south-1/8q8rumf7",
-      "ingestion_time": "2026-04-17T09:05:18.899Z"
+      "log_stream": "ap-southeast-1/4a3tpm4e",
+      "ingestion_time": "2026-04-17T15:00:40.149Z"
     }
   },
   "rule": { "category": "malware" },
-  "threat": { "indicator": [{ "type": "domain", "value": "suspicious-vw5qkd0q.example.com" }] },
+  "threat": { "indicator": [{ "type": "domain", "value": "suspicious-3uy7fpzt.example.com" }] },
   "event": {
     "kind": "alert",
     "severity": 0,
@@ -94,8 +109,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "wiy7dmmxc3"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "j3tuuhp7zxc"
   },
   "input": { "type": "http_endpoint" }
 }

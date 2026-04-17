@@ -1,86 +1,95 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "me-south-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "sagemaker" }
   },
   "aws": {
     "dimensions": {
-      "TrainingJobName": "resnet50-custom-endpoint-20260417-3c0urj",
-      "JobType": "Endpoint"
+      "TrainingJobName": "lstm-timeseries-hyperparametertuning-20260417-umwpy4",
+      "JobType": "HyperparameterTuning"
     },
     "cloudwatch": {
-      "log_group": "/aws/sagemaker/Endpoints/resnet50-custom-endpoint/AllTraffic",
-      "log_stream": "resnet50-custom-endpoint/AllTraffic/2026/04/17/gozak9dyafg",
-      "ingestion_time": "2026-04-17T09:05:19.031Z"
+      "log_group": "/aws/sagemaker/TrainingJobs",
+      "log_stream": "lstm-timeseries-hyperparametertuning-20260417-umwpy4/algo-1",
+      "ingestion_time": "2026-04-17T15:00:40.242Z"
     },
     "sagemaker": {
-      "domain_id": "d-ti4cfm6ts1",
-      "domain_name": "ml-research",
-      "user_profile": "bob-ml",
+      "domain_id": "d-1c39n9zxyo",
+      "domain_name": "risk-models",
+      "user_profile": "alice-ds",
       "job": {
-        "name": "resnet50-custom-endpoint-20260417-3c0urj",
-        "type": "Endpoint",
-        "arn": "arn:aws:sagemaker:ca-west-1:814726593401:endpoint/resnet50-custom-endpoint-20260417-3c0urj",
-        "status": "Failed",
-        "secondary_status": "MaxRuntimeExceeded"
+        "name": "lstm-timeseries-hyperparametertuning-20260417-umwpy4",
+        "type": "HyperparameterTuning",
+        "arn": "arn:aws:sagemaker:me-south-1:501938274650:processing-job/lstm-timeseries-hyperparametertuning-20260417-umwpy4",
+        "status": "Completed",
+        "secondary_status": "Completed"
       },
-      "model": { "name": "resnet50-custom", "version": 18 },
-      "pipeline": { "name": "model-training-pipeline", "execution_id": "pipe-usfimzggkw9" },
-      "instance": { "type": "ml.m5.xlarge", "count": 2 },
-      "metrics": { "gpu_utilization_pct": 56, "cpu_utilization_pct": 65 },
-      "studio": { "lifecycle_config": false, "continuous_logging": false },
+      "model": { "name": "lstm-timeseries", "version": 6 },
+      "pipeline": { "name": "batch-inference-pipeline", "execution_id": "pipe-br947l3qte8" },
+      "instance": { "type": "ml.p3.2xlarge", "count": 1 },
+      "metrics": {
+        "train:loss": 0.599,
+        "train:accuracy": 0.992,
+        "validation:loss": 0.4311,
+        "validation:accuracy": 0.7957,
+        "epoch": 95,
+        "gpu_utilization_pct": 57,
+        "cpu_utilization_pct": 71
+      },
+      "studio": {
+        "space_name": "nlp-experiments",
+        "app_type": "RStudio",
+        "app_name": "default",
+        "lifecycle_config": false,
+        "continuous_logging": true
+      },
       "cloudwatch_metrics": {
-        "Invocations": { "sum": 4565 },
-        "ModelLatency": { "avg": 3736000 },
-        "OverheadLatency": { "avg": 13000 },
-        "GPUUtilization": { "avg": 70 },
-        "GPUMemoryUtilization": { "avg": 36 },
-        "CPUUtilization": { "avg": 63 },
-        "DiskUtilization": { "avg": 32 },
-        "MemoryUtilization": { "avg": 97 },
+        "Invocations": { "sum": 893 },
+        "ModelLatency": { "avg": 97000 },
+        "OverheadLatency": { "avg": 22000 },
+        "GPUUtilization": { "avg": 81 },
+        "GPUMemoryUtilization": { "avg": 46 },
+        "CPUUtilization": { "avg": 37 },
+        "DiskUtilization": { "avg": 37 },
+        "MemoryUtilization": { "avg": 67 },
         "Invocations4XXError": { "sum": 0 },
-        "Invocations5XXError": { "sum": 31 },
-        "ModelSetupTime": { "avg": 4985 }
+        "Invocations5XXError": { "sum": 0 },
+        "ModelSetupTime": { "avg": 1327 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sagemaker-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-sagemaker-logs-814726593401"
+        "name": "aws-sagemaker-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-sagemaker-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/sagemaker/ca-west-1/2026/04/17/sagemaker_RQM5UMRI1FA.log.gz"
+        "key": "AWSLogs/501938274650/sagemaker/me-south-1/2026/04/17/sagemaker_UY6WD5AHMXM.log.gz"
       }
     }
   },
-  "log": { "level": "error" },
-  "user": { "name": "bob-ml" },
+  "log": { "level": "info" },
+  "user": { "name": "alice-ds" },
   "event": {
-    "action": "ProcessingJobStarted",
-    "duration": 222791218238.90778,
-    "outcome": "failure",
+    "action": "AppCreated",
+    "duration": 8212235392179.704,
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.sagemaker",
     "provider": "sagemaker.amazonaws.com",
     "module": "aws"
   },
-  "message": "Algorithm Error: framework error from container",
-  "error": {
-    "code": "CapacityError",
-    "message": "ClientError: Data download failed. Please ensure training data is accessible",
-    "type": "service"
-  },
+  "message": "{\"domainId\":\"d-1c39n9zxyo\",\"space\":\"nlp-experiments\",\"appType\":\"RStudio\",\"user\":\"alice-ds\",\"level\":\"INFO\",\"message\":\"Best trial so far: 0.9009 (trial 2)\",\"timestamp\":\"2026-04-17T15:00:39.621Z\",\"event\":\"AppCreated\"}",
   "service": { "name": "sagemaker", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sagemaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "p3hmxv8izhr"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "0q7k2j19b4ll"
   },
   "input": { "type": "aws-cloudwatch" }
 }

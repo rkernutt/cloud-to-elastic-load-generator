@@ -1,56 +1,54 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.000Z",
-  "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-analytics-y7zf1v/providers/Microsoft.Sql/servers/sql-hu9m1n/databases/auth",
+  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-network-53zzi9/providers/Microsoft.Sql/servers/sql-x6docu/databases/inventory",
   "cloud": {
     "provider": "azure",
-    "region": "australiaeast",
-    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" },
+    "region": "westus2",
+    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" },
     "service": { "name": "Microsoft.Sql/servers" }
   },
-  "category": "SQLInsights",
-  "operationName": "QueryStoreRuntimeStatistics",
-  "resultType": "Succeeded",
-  "level": "Informational",
-  "correlationId": "xh0flnmwax",
-  "callerIpAddress": "59.94.161.224",
+  "category": "Errors",
+  "operationName": "Deadlock",
+  "resultType": "Failed",
+  "level": "Error",
+  "correlationId": "r5h7iof9dgr",
+  "callerIpAddress": "166.38.128.28",
   "properties": {
-    "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-analytics-y7zf1v/providers/Microsoft.Sql/servers/sql-hu9m1n/databases/auth",
-    "QueryText": "UPDATE dbo.customers SET last_login_utc = SYSUTCDATETIME() WHERE customer_id = @id",
-    "Duration": 392119,
-    "WaitType": "SOS_SCHEDULER_YIELD",
-    "CPUTime": 34210024,
-    "LogicalReads": 74344,
-    "PhysicalReads": 763,
-    "query_hash": "vjetao8new"
+    "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-network-53zzi9/providers/Microsoft.Sql/servers/sql-x6docu/databases/inventory",
+    "error_number": 1205,
+    "error_severity": 13,
+    "error_state": 7,
+    "error_message": "Transaction (Process ID 62) was deadlocked on lock resources with another process and has been chosen as the deadlock victim.",
+    "session_id": 350
   },
   "azure": {
     "sql_database": {
-      "server": "sql-hu9m1n",
-      "database": "auth",
-      "resource_group": "rg-analytics-y7zf1v",
-      "diagnostic_category": "SQLInsights",
-      "dtu_percent": 61.26246697513032,
-      "deadlocks": 0,
-      "failed_connections": 0
+      "server": "sql-x6docu",
+      "database": "inventory",
+      "resource_group": "rg-network-53zzi9",
+      "diagnostic_category": "Errors",
+      "dtu_percent": 53.47755216706138,
+      "deadlocks": 1,
+      "failed_connections": 1
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 585415037,
+    "outcome": "failure",
+    "duration": 1158839252,
     "module": "azure",
     "dataset": "azure.sql_database"
   },
-  "message": "Query completed on sql-hu9m1n/auth: cpu 34.21ms, logical reads 74344",
+  "message": "Deadlock detected on sql-x6docu/inventory (victim session 350)",
   "service": { "name": "sql-database", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.sql_database", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-australiaeast",
-    "id": "r6183mn0d9h"
+    "name": "elastic-agent-azure-westus2",
+    "id": "nf0p8hheeqd"
   },
   "input": { "type": "azure-eventhub" }
 }

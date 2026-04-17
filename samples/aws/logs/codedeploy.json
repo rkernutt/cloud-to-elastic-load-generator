@@ -1,30 +1,30 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
+    "region": "ap-northeast-3",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "codedeploy" }
   },
   "aws": {
-    "dimensions": { "DeploymentGroupName": "canary", "ApplicationName": "web-app" },
+    "dimensions": { "DeploymentGroupName": "staging", "ApplicationName": "worker-service" },
     "codedeploy": {
-      "application_name": "web-app",
-      "deployment_group": "canary",
-      "deployment_id": "d-FIIAP0IV1",
+      "application_name": "worker-service",
+      "deployment_group": "staging",
+      "deployment_id": "d-BLUWRGV4T",
       "deployment_type": "IN_PLACE",
-      "lifecycle_event": "AfterInstall",
+      "lifecycle_event": "AfterAllowTraffic",
       "event_status": "Succeeded",
-      "duration_seconds": 68,
-      "instances_succeeded": 2,
+      "duration_seconds": 517,
+      "instances_succeeded": 8,
       "instances_failed": 0,
       "metrics": {
         "DeploymentAttempts": { "sum": 1 },
         "DeploymentSuccesses": { "sum": 1 },
         "DeploymentFailures": { "sum": 0 },
         "RollbackAttempts": { "sum": 0 },
-        "DeploymentDuration": { "avg": 68 },
-        "InstanceSuccesses": { "sum": 4 },
+        "DeploymentDuration": { "avg": 517 },
+        "InstanceSuccesses": { "sum": 1 },
         "InstanceFailures": { "sum": 0 }
       }
     },
@@ -34,24 +34,24 @@
         "arn": "arn:aws:s3:::aws-codedeploy-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/codedeploy/il-central-1/2026/04/17/codedeploy_1HD2R390BXA.log.gz"
+        "key": "AWSLogs/293847561023/codedeploy/ap-northeast-3/2026/04/17/codedeploy_GCIYZG1U8UQ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codedeploy/logs",
-      "log_stream": "il-central-1/4oi3nu9l",
-      "ingestion_time": "2026-04-17T09:05:19.004Z"
+      "log_stream": "ap-northeast-3/6ge48b4g",
+      "ingestion_time": "2026-04-17T15:00:40.219Z"
     }
   },
   "event": {
-    "duration": 68000000000,
+    "duration": 517000000000,
     "outcome": "success",
     "category": ["process", "configuration"],
     "dataset": "aws.codedeploy",
     "provider": "codedeploy.amazonaws.com",
     "module": "aws"
   },
-  "message": "[CodeDeploy] deploymentId=d-FIIAP0IV1 application=web-app deploymentGroup=canary deploymentStyle=BLUE_GREEN\n[CodeDeploy] Targeting instances: count=19 tagSet=Environment:canary\n[Lifecycle:BeforeInstall] instanceId=i-63G8HVYL script=appspec/before_install.sh status=SUCCEEDED durationSec=31\n[Lifecycle:Install] instanceId=i-63G8HVYL script=scripts/install.sh status=SUCCEEDED durationSec=102\n[Lifecycle:AfterInstall] instanceId=i-63G8HVYL script=appspec/after_install.sh status=SUCCEEDED durationSec=15\n[Lifecycle:ApplicationStart] instanceId=i-63G8HVYL script=appspec/application_start.sh status=SUCCEEDED durationSec=29\n[Lifecycle:ValidateService] instanceId=i-63G8HVYL script=appspec/validate_service.sh status=SUCCEEDED durationSec=166\n[CodeDeploy] deploymentId=d-FIIAP0IV1 status=SUCCEEDED overallDurationSec=68",
+  "message": "[CodeDeploy] deploymentId=d-BLUWRGV4T application=worker-service deploymentGroup=staging deploymentStyle=IN_PLACE\n[CodeDeploy] Targeting instances: count=9 tagSet=Environment:staging\n[Lifecycle:BeforeInstall] instanceId=i-CGGUM6DA script=scripts/before_install.sh status=SUCCEEDED durationSec=158\n[Lifecycle:Install] instanceId=i-CGGUM6DA script=appspec/install.sh status=SUCCEEDED durationSec=30\n[Lifecycle:AfterInstall] instanceId=i-CGGUM6DA script=appspec/after_install.sh status=SUCCEEDED durationSec=37\n[Lifecycle:ApplicationStart] instanceId=i-CGGUM6DA script=appspec/application_start.sh status=SUCCEEDED durationSec=85\n[Lifecycle:ValidateService] instanceId=i-CGGUM6DA script=appspec/validate_service.sh status=SUCCEEDED durationSec=5\n[CodeDeploy] deploymentId=d-BLUWRGV4T status=SUCCEEDED overallDurationSec=517",
   "log": { "level": "info" },
   "service": { "name": "codedeploy", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -59,8 +59,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "vxhrdoerpog"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "ysnvbdm45hb"
   },
   "input": { "type": "aws-cloudwatch" }
 }

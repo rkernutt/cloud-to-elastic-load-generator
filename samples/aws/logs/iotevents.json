@@ -1,23 +1,24 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
+    "region": "eu-west-2",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "motor-health-detector", "KeyValue": "unit-01" },
+    "dimensions": { "DetectorModelName": "door-sensor-model", "KeyValue": "zone-A" },
     "iotevents": {
-      "detector_model_name": "motor-health-detector",
-      "detector_id": "unit-01",
-      "key_value": "unit-01",
-      "event_name": "AlarmActivated",
-      "from_state": "Alarm",
-      "to_state": "Alarm",
-      "input_name": "CommandInput",
-      "action_type": "Lambda",
-      "condition_expression": "$input.SensorInput.temperature > 85"
+      "detector_model_name": "door-sensor-model",
+      "detector_id": "zone-A",
+      "key_value": "zone-A",
+      "event_name": "AlarmReset",
+      "from_state": "Acknowledged",
+      "to_state": "Warning",
+      "input_name": "HealthCheck",
+      "action_type": "SQS",
+      "timer_name": "idleTimer",
+      "condition_expression": "$input.data.value < threshold"
     },
     "s3": {
       "bucket": {
@@ -25,13 +26,13 @@
         "arn": "arn:aws:s3:::aws-iotevents-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/iotevents/us-west-2/2026/04/17/iotevents_9EYDO9JVZF.log.gz"
+        "key": "AWSLogs/293847561023/iotevents/eu-west-2/2026/04/17/iotevents_QSHGPY68IMC.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "us-west-2/yek8x4wk",
-      "ingestion_time": "2026-04-17T09:05:19.102Z"
+      "log_stream": "eu-west-2/njrx9zvf",
+      "ingestion_time": "2026-04-17T15:00:40.307Z"
     }
   },
   "event": {
@@ -39,19 +40,19 @@
     "category": ["process"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 254000000,
+    "duration": 213000000,
     "module": "aws"
   },
-  "message": "IoT Events motor-health-detector/unit-01: Alarm → Alarm [AlarmActivated]",
-  "log": { "level": "warn" },
+  "message": "IoT Events door-sensor-model/zone-A: Acknowledged → Warning [AlarmReset]",
+  "log": { "level": "info" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iotevents", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "tmzr0waqwfh"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "c06e43yy7zi"
   },
   "input": { "type": "aws-cloudwatch" }
 }

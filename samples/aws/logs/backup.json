@@ -1,38 +1,42 @@
 {
-  "@timestamp": "2026-04-17T09:05:18.304Z",
+  "@timestamp": "2026-04-17T15:00:39.621Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "il-central-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "backup" }
   },
   "aws": {
     "backup": {
-      "event_subtype": "backup_job",
-      "backup_job_id": "b9dgh7l8-iq8o-8eg0",
-      "backup_plan_name": "critical-data-plan",
-      "resource_arn": "arn:aws:backup:eu-west-1:738291046572:recovery-point:ef1woll95jd",
-      "resource_type": "EC2",
+      "event_subtype": "vault_lock",
+      "backup_job_id": "klon834t-evhh-9nuh",
+      "backup_plan_name": "weekly-cold",
+      "resource_arn": "arn:aws:backup:il-central-1:501938274650:recovery-point:ay2bagede36",
+      "resource_type": "EFS",
       "backup_vault_name": "compliance-vault",
-      "job_phase": "CREATED",
-      "job_lifecycle": ["CREATED", "PENDING", "RUNNING", "COMPLETED"],
       "status": "RUNNING",
-      "backup_size_gb": 559.7252365250696,
-      "lifecycle_delete_after_days": 30
+      "backup_size_gb": 1281.4701754526197,
+      "lifecycle_delete_after_days": 365,
+      "vault_lock": {
+        "compliance_lock_enabled": false,
+        "governance_lock_enabled": false,
+        "lock_event": "ComplianceModeCoolingPeriod",
+        "max_retention_days": 90
+      }
     },
     "s3": {
       "bucket": {
-        "name": "aws-backup-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-backup-logs-738291046572"
+        "name": "aws-backup-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-backup-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/backup/eu-west-1/2026/04/17/backup_0JQU2VWU8K6Q.log.gz"
+        "key": "AWSLogs/501938274650/backup/il-central-1/2026/04/17/backup_435HVTND8ZM.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/backup/logs",
-      "log_stream": "eu-west-1/ooqr30o3",
-      "ingestion_time": "2026-04-17T09:05:18.949Z"
+      "log_stream": "il-central-1/hlgi8p7x",
+      "ingestion_time": "2026-04-17T15:00:40.191Z"
     }
   },
   "event": {
@@ -40,10 +44,10 @@
     "category": ["process"],
     "dataset": "aws.backup",
     "provider": "backup.amazonaws.com",
-    "duration": 2263000000000,
+    "duration": 7041000000000,
     "module": "aws"
   },
-  "message": "AWS Backup RUNNING: dynamodb/users-table -> compliance-vault (559.7GB)",
+  "message": "AWS Backup vault compliance-vault: ComplianceModeCoolingPeriod governance=false compliance=false",
   "log": { "level": "info" },
   "service": { "name": "backup", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -51,8 +55,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "9s6z80nmw0w"
+    "name": "filebeat-aws-il-central-1",
+    "ephemeral_id": "40pmm4rcqtr"
   },
   "input": { "type": "aws-cloudwatch" }
 }

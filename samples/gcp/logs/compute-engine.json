@@ -1,61 +1,67 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
+  "severity": "NOTICE",
   "labels": {
-    "instance_name": "web-bhvo",
-    "instance_id": "6959908029934",
-    "zone": "australia-southeast2-b"
+    "instance_name": "worker-z3el",
+    "zone": "australia-southeast1-f",
+    "technology": "INTEL_TDX"
   },
-  "insertId": "7GFP2RASH1T",
+  "insertId": "ATN0DXTSPWK",
   "resource": {
     "type": "gce_instance",
     "labels": {
-      "project_id": "globex-prod-a1b2c3",
-      "instance_id": "6959908029934",
-      "zone": "australia-southeast2-b"
+      "project_id": "globex-security-j0k1l2",
+      "instance_id": "9151479170293",
+      "zone": "australia-southeast1-f"
     }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "australia-southeast2",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
-    "service": { "name": "shielded-vms" }
+    "region": "australia-southeast1",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" },
+    "service": { "name": "confidential-computing" }
   },
   "gcp": {
-    "shielded_vms": {
-      "instance_name": "web-bhvo",
-      "event_type": "INTEGRITY_VIOLATION",
-      "integrity_status": "TRUSTED",
-      "policy_update": "COMPLIANT"
+    "confidential_computing": {
+      "instance_name": "worker-z3el",
+      "technology": "INTEL_TDX",
+      "attestation_status": "VERIFIED",
+      "launch_measurement": "0xc11f3db18a14e08a",
+      "guest_policy": "CUSTOM_POLICY"
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 4989,
+    "duration": 4790,
     "module": "gcp",
-    "dataset": "gcp.shielded_vms"
+    "dataset": "gcp.confidential_computing"
   },
-  "message": "compute.googleapis.com/shieldedvm: instance web-bhvo (australia-southeast2-b) INTEGRITY_VIOLATION OK (TRUSTED, policy COMPLIANT)",
-  "service": { "name": "shielded-vms", "type": "gcp" },
+  "message": "confidentialcomputing.googleapis.com: worker-z3el (australia-southeast1-f) INTEL_TDX attestation VERIFIED (CUSTOM_POLICY)",
+  "service": { "name": "confidential-computing", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.shielded_vms", "namespace": "default" },
+  "data_stream": {
+    "type": "logs",
+    "dataset": "gcp.confidential_computing",
+    "namespace": "default"
+  },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-australia-southeast2",
-    "id": "nfxwwda3wwd"
+    "name": "elastic-agent-gcp-australia-southeast1",
+    "id": "8n1mj9lm7rs"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-prod-a1b2c3/logs/shielded-vms",
+  "logName": "projects/globex-security-j0k1l2/logs/confidential-computing",
   "jsonPayload": {
-    "shielded_vms": {
-      "instance_name": "web-bhvo",
-      "event_type": "INTEGRITY_VIOLATION",
-      "integrity_status": "TRUSTED",
-      "policy_update": "COMPLIANT"
+    "confidential_computing": {
+      "instance_name": "worker-z3el",
+      "technology": "INTEL_TDX",
+      "attestation_status": "VERIFIED",
+      "launch_measurement": "0xc11f3db18a14e08a",
+      "guest_policy": "CUSTOM_POLICY"
     },
-    "message": "compute.googleapis.com/shieldedvm: instance web-bhvo (australia-southeast2-b) INTEGRITY_VIOLATION OK (TRUSTED, policy COMPLIANT)"
+    "message": "confidentialcomputing.googleapis.com: worker-z3el (australia-southeast1-f) INTEL_TDX attestation VERIFIED (CUSTOM_POLICY)"
   }
 }

@@ -2,38 +2,39 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "severity": "WARNING",
   "logName": "projects/globex-shared-m3n4o5/logs/requests",
-  "insertId": "calt4j7p7tj",
+  "insertId": "cbg3bqhdlk",
   "resource": {
     "type": "http_load_balancer",
     "labels": { "project_id": "globex-shared-m3n4o5", "zone": "global" }
   },
   "httpRequest": {
-    "requestMethod": "GET",
-    "requestUrl": "https://api.globex-shared-m3n4o5.example.com/api/v1/products",
-    "status": 200,
-    "userAgent": "Go-http-client/1.1",
-    "remoteIp": "220.86.216.202",
-    "latency": "0.001000s",
+    "requestMethod": "POST",
+    "requestUrl": "https://api.globex-shared-m3n4o5.example.com/api/v1/orders",
+    "status": 301,
+    "userAgent": "python-requests/2.27.1",
+    "remoteIp": "149.175.156.181",
+    "latency": "0.012000s",
     "protocol": "HTTP/1.1"
   },
   "jsonPayload": {
     "enforcedSecurityPolicy": {
-      "name": "projects/globex-shared-m3n4o5/global/securityPolicies/armor-edge-liva",
-      "priority": 1653,
-      "configuredAction": "DENY",
-      "outcome": "DENY",
-      "preconfiguredExpr": "evaluatePreconfiguredExpr('sqli-v33-stable')",
-      "matchedFieldName": "request.query",
-      "matchedFieldValue": "<script>alert(1)</script>",
-      "preconfiguredExprIds": ["owasp-crs-v030001-id942100-sqli"]
+      "name": "projects/globex-shared-m3n4o5/global/securityPolicies/armor-corp-xbrz",
+      "priority": 8554,
+      "configuredAction": "THROTTLE",
+      "outcome": "RATE_LIMITED"
     },
-    "remoteIp": "220.86.216.202",
-    "backendServiceName": "bes-web-7wos",
+    "rateLimitAction": {
+      "key": "http-cookie:session=FS513TM1PS7",
+      "outcome": "RATE_LIMITED",
+      "rateLimitThreshold": { "count": 1296, "intervalSec": 574 }
+    },
+    "remoteIp": "149.175.156.181",
+    "backendServiceName": "bes-web-g0vl",
     "enforcedSecurityPolicyRequestHeadersToAdds": []
   },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast3",
+    "region": "europe-west8",
     "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
     "account": { "id": "173205080756", "name": "Globex Shared Services" },
     "service": { "name": "cloud-armor" }
@@ -41,55 +42,57 @@
   "gcp": {
     "cloud_armor": {
       "http_request": {
-        "requestMethod": "GET",
-        "requestUrl": "https://api.globex-shared-m3n4o5.example.com/api/v1/products",
-        "status": 200,
-        "userAgent": "Go-http-client/1.1",
-        "remoteIp": "220.86.216.202",
-        "latency": "0.001000s",
+        "requestMethod": "POST",
+        "requestUrl": "https://api.globex-shared-m3n4o5.example.com/api/v1/orders",
+        "status": 301,
+        "userAgent": "python-requests/2.27.1",
+        "remoteIp": "149.175.156.181",
+        "latency": "0.012000s",
         "protocol": "HTTP/1.1"
       },
       "json_payload": {
         "enforcedSecurityPolicy": {
-          "name": "projects/globex-shared-m3n4o5/global/securityPolicies/armor-edge-liva",
-          "priority": 1653,
-          "configuredAction": "DENY",
-          "outcome": "DENY",
-          "preconfiguredExpr": "evaluatePreconfiguredExpr('sqli-v33-stable')",
-          "matchedFieldName": "request.query",
-          "matchedFieldValue": "<script>alert(1)</script>",
-          "preconfiguredExprIds": ["owasp-crs-v030001-id942100-sqli"]
+          "name": "projects/globex-shared-m3n4o5/global/securityPolicies/armor-corp-xbrz",
+          "priority": 8554,
+          "configuredAction": "THROTTLE",
+          "outcome": "RATE_LIMITED"
         },
-        "remoteIp": "220.86.216.202",
-        "backendServiceName": "bes-web-7wos",
+        "rateLimitAction": {
+          "key": "http-cookie:session=FS513TM1PS7",
+          "outcome": "RATE_LIMITED",
+          "rateLimitThreshold": { "count": 1296, "intervalSec": 574 }
+        },
+        "remoteIp": "149.175.156.181",
+        "backendServiceName": "bes-web-g0vl",
         "enforcedSecurityPolicyRequestHeadersToAdds": []
       },
-      "policy_name": "projects/globex-shared-m3n4o5/global/securityPolicies/armor-edge-liva",
-      "rule_name": "owasp-crs-v030001-id942100-sqli",
-      "action": "DENY",
-      "priority": 1653,
-      "source_ip": "220.86.216.202",
-      "matched_expression": "evaluatePreconfiguredExpr('sqli-v33-stable')",
+      "policy_name": "projects/globex-shared-m3n4o5/global/securityPolicies/armor-corp-xbrz",
+      "rule_name": "custom-UF8BXE",
+      "action": "RATE_LIMITED",
+      "priority": 8554,
+      "source_ip": "149.175.156.181",
+      "matched_expression": "inIpRange(origin.ip, '90.104.33.3/32')",
       "preview_mode": false,
       "enforced_security_policy": {
-        "name": "projects/globex-shared-m3n4o5/global/securityPolicies/armor-edge-liva",
-        "priority": 1653,
-        "configuredAction": "DENY",
-        "outcome": "DENY",
-        "preconfiguredExpr": "evaluatePreconfiguredExpr('sqli-v33-stable')",
-        "matchedFieldName": "request.query",
-        "matchedFieldValue": "<script>alert(1)</script>",
-        "preconfiguredExprIds": ["owasp-crs-v030001-id942100-sqli"]
+        "name": "projects/globex-shared-m3n4o5/global/securityPolicies/armor-corp-xbrz",
+        "priority": 8554,
+        "configuredAction": "THROTTLE",
+        "outcome": "RATE_LIMITED"
+      },
+      "rate_limit_action": {
+        "key": "http-cookie:session=FS513TM1PS7",
+        "outcome": "RATE_LIMITED",
+        "rateLimitThreshold": { "count": 1296, "intervalSec": 574 }
       }
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 1000000,
+    "duration": 12000000,
     "module": "gcp",
     "dataset": "gcp.cloudarmor"
   },
-  "message": "Cloud Armor DENY projects/globex-shared-m3n4o5/global/securityPolicies/armor-edge-liva expr=evaluatePreconfiguredExpr('sqli-v33-stable')",
+  "message": "Cloud Armor rate limit RATE_LIMITED key=http-cookie:session=FS513TM1PS7",
   "service": { "name": "cloud-armor", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -97,8 +100,8 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-northeast3",
-    "id": "7qxi6u41zl"
+    "name": "elastic-agent-gcp-europe-west8",
+    "id": "wyvunuraqgg"
   },
   "input": { "type": "gcp-pubsub" }
 }

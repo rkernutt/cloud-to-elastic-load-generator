@@ -81,7 +81,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.* | WHERE labels.pipeline_run_id IS NOT NULL | EVAL svc = COALESCE(cloud.service.name, \"unknown\") | STATS count = COUNT() BY svc, bucket = DATE_TRUNC(30 minutes, @timestamp)"
           },
-          "layers": [{ "seriesType": "bar_stacked", "xAccessor": "bucket", "yAccessor": "count", "splitAccessor": "svc" }]
+          "layers": [
+            {
+              "seriesType": "bar_stacked",
+              "xAccessor": "bucket",
+              "yAccessor": "count",
+              "splitAccessor": "svc"
+            }
+          ]
         }
       }
     },
@@ -114,8 +121,18 @@
             "query": "FROM logs-gcp.dataproc* | WHERE gcp.dataproc.spark.records_read IS NOT NULL | STATS read = SUM(gcp.dataproc.spark.records_read), written = SUM(gcp.dataproc.spark.records_written) BY bucket = DATE_TRUNC(30 minutes, @timestamp)"
           },
           "layers": [
-            { "seriesType": "line", "xAccessor": "bucket", "yAccessor": "read", "label": "Records read" },
-            { "seriesType": "line", "xAccessor": "bucket", "yAccessor": "written", "label": "Records written" }
+            {
+              "seriesType": "line",
+              "xAccessor": "bucket",
+              "yAccessor": "read",
+              "label": "Records read"
+            },
+            {
+              "seriesType": "line",
+              "xAccessor": "bucket",
+              "yAccessor": "written",
+              "label": "Records written"
+            }
           ]
         }
       }
@@ -148,7 +165,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.* | WHERE labels.pipeline_run_id IS NOT NULL AND event.outcome == \"failure\" | STATS count = COUNT() BY error.type, bucket = DATE_TRUNC(30 minutes, @timestamp)"
           },
-          "layers": [{ "seriesType": "bar_stacked", "xAccessor": "bucket", "yAccessor": "count", "splitAccessor": "error.type" }]
+          "layers": [
+            {
+              "seriesType": "bar_stacked",
+              "xAccessor": "bucket",
+              "yAccessor": "count",
+              "splitAccessor": "error.type"
+            }
+          ]
         }
       }
     },
