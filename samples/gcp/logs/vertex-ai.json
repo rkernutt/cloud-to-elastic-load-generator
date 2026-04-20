@@ -1,67 +1,62 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
+  "severity": "DEBUG",
   "labels": {
-    "resource.type": "aiplatform.googleapis.com/CustomJob",
-    "location": "australia-southeast1"
+    "resource.type": "discoveryengine.googleapis.com/Engine",
+    "engine": "search-commerce-e73z"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "australia-southeast1",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" },
-    "service": { "name": "aiplatform.googleapis.com" }
+    "region": "asia-northeast1",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
+    "service": { "name": "discoveryengine.googleapis.com" }
   },
   "gcp": {
-    "vertex_ai": {
-      "model_id": "projects/globex-dev-g7h8i9/locations/australia-southeast1/models/0wk6qsjy2m",
-      "endpoint_id": "projects/globex-dev-g7h8i9/locations/australia-southeast1/endpoints/8u52g0p4",
-      "job_type": "training",
-      "framework": "tensorflow",
-      "model_name": "0wk6qsjy2m",
-      "model_version": "v11",
-      "instances_count": 19,
-      "latency_ms": 1234,
-      "training_job_id": "customjob-toqdet7ljnh",
-      "training_state": "CANCELLING",
-      "accelerator_type": "TPU_V5E",
-      "machine_type": "g2-standard-4"
+    "vertex_ai_search": {
+      "engine_name": "search-commerce-e73z",
+      "query": "return policy",
+      "results_count": 12,
+      "search_type": "RECOMMEND",
+      "serving_config": "projects/globex-prod-a1b2c3/locations/global/collections/default_collection/engines/search-commerce-e73z/servingConfigs/default_search",
+      "latency_ms": 71,
+      "session_id": "search-8mprdxpn022"
     }
   },
-  "event": { "outcome": "success", "duration": 4936, "module": "gcp", "dataset": "gcp.vertexai" },
-  "message": "Epoch 73/96: loss=0.1492 accuracy=0.7237 step=1404 lr=9.22e-4",
-  "service": { "name": "vertex-ai", "type": "gcp" },
+  "event": {
+    "outcome": "success",
+    "duration": 71,
+    "module": "gcp",
+    "dataset": "gcp.vertexaisearch"
+  },
+  "message": "search OK engine=search-commerce-e73z type=RECOMMEND query=\"return policy\" results=12 session=search-8mprdxpn022 latency_ms=71",
+  "service": { "name": "vertex-ai-search", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.vertexai", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.vertexaisearch", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-australia-southeast1",
-    "id": "3eiu5tayrj7"
+    "name": "elastic-agent-gcp-asia-northeast1",
+    "id": "ifn5gsck4zl"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-dev-g7h8i9/logs/vertex-ai",
+  "logName": "projects/globex-prod-a1b2c3/logs/vertex-ai-search",
   "resource": {
-    "type": "aiplatform.googleapis.com/Endpoint",
-    "labels": { "project_id": "globex-dev-g7h8i9", "region": "australia-southeast1" }
+    "type": "global",
+    "labels": { "project_id": "globex-prod-a1b2c3", "region": "asia-northeast1" }
   },
-  "insertId": "9CM56DV8HS9",
+  "insertId": "L2B3DEQOVR9",
   "jsonPayload": {
-    "vertex_ai": {
-      "model_id": "projects/globex-dev-g7h8i9/locations/australia-southeast1/models/0wk6qsjy2m",
-      "endpoint_id": "projects/globex-dev-g7h8i9/locations/australia-southeast1/endpoints/8u52g0p4",
-      "job_type": "training",
-      "framework": "tensorflow",
-      "model_name": "0wk6qsjy2m",
-      "model_version": "v11",
-      "instances_count": 19,
-      "latency_ms": 1234,
-      "training_job_id": "customjob-toqdet7ljnh",
-      "training_state": "CANCELLING",
-      "accelerator_type": "TPU_V5E",
-      "machine_type": "g2-standard-4"
+    "vertex_ai_search": {
+      "engine_name": "search-commerce-e73z",
+      "query": "return policy",
+      "results_count": 12,
+      "search_type": "RECOMMEND",
+      "serving_config": "projects/globex-prod-a1b2c3/locations/global/collections/default_collection/engines/search-commerce-e73z/servingConfigs/default_search",
+      "latency_ms": 71,
+      "session_id": "search-8mprdxpn022"
     },
-    "message": "Epoch 73/96: loss=0.1492 accuracy=0.7237 step=1404 lr=9.22e-4"
+    "message": "search OK engine=search-commerce-e73z type=RECOMMEND query=\"return policy\" results=12 session=search-8mprdxpn022 latency_ms=71"
   }
 }

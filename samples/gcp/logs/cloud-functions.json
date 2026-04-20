@@ -1,114 +1,76 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "NOTICE",
+  "severity": "WARNING",
+  "trace": "projects/globex-shared-m3n4o5/traces/fb5f77d40943502d89fd0f821bf4f134",
+  "spanId": "aaa94cc2adfcd10f",
   "labels": {
-    "execution_id": "5zp3zuoc7q7",
-    "function_name": "validate-ep7o",
-    "region": "europe-west9",
-    "runtime": "nodejs20"
+    "execution_id": "1em14893ypy",
+    "function_name": "notify-5i8z",
+    "region": "us-east1",
+    "runtime": "go122"
   },
-  "protoPayload": {
-    "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
-    "authenticationInfo": {
-      "principalEmail": "app-sa@globex-prod-a1b2c3.iam.gserviceaccount.com",
-      "principalSubject": "group:engineering@globex.example.com"
-    },
-    "authorizationInfo": [
-      {
-        "resource": "projects/globex-prod-a1b2c3/locations/europe-west9/functions/validate-ep7o",
-        "permission": "cloudfunctions.functions.update",
-        "granted": true
-      }
-    ],
-    "methodName": "google.cloud.functions.v2.FunctionService.UpdateFunction",
-    "resourceName": "projects/globex-prod-a1b2c3/locations/europe-west9/functions/validate-ep7o",
-    "request": {
-      "@type": "type.googleapis.com/google.cloud.functions.v2.UpdateFunctionRequest",
-      "function": {
-        "name": "projects/globex-prod-a1b2c3/locations/europe-west9/functions/validate-ep7o",
-        "build_config": { "runtime": "nodejs20" }
-      }
-    },
-    "response": {
-      "@type": "type.googleapis.com/google.longrunning.Operation",
-      "name": "operation-ivovb5u2-si4q-6r3a",
-      "done": true
-    }
+  "jsonPayload": {
+    "severity": "WARNING",
+    "message": "Recovered non-fatal error",
+    "execution_id": "1em14893ypy",
+    "function_name": "notify-5i8z",
+    "stack_trace": "panic: assignment to entry in nil map\n\ngoroutine 69 [running]:\nmain.dispatch(...)\n\t/workspace/main.go:54 +0xipu\nreflect.Value.call({0xdtp19c?, 0xbo65x1?}, ...)\n\t/usr/local/go/src/reflect/value.go:620 +0x755"
   },
-  "log": { "level": "notice" },
+  "log": { "level": "warning" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west9",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
+    "region": "us-east1",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" },
     "service": { "name": "cloudfunctions.googleapis.com" }
   },
   "gcp": {
     "cloud_functions": {
-      "function_name": "validate-ep7o",
-      "runtime": "nodejs20",
-      "execution_id": "projects/globex-prod-a1b2c3/locations/europe-west9/functions/validate-ep7o/executions/5zp3zuoc7q7",
-      "memory_mb": 4096,
-      "trigger_type": "firestore",
-      "status": "ok",
-      "execution_time_ms": 371,
+      "function_name": "notify-5i8z",
+      "runtime": "go122",
+      "execution_id": "projects/globex-shared-m3n4o5/locations/us-east1/functions/notify-5i8z/executions/1em14893ypy",
+      "memory_mb": 256,
+      "trigger_type": "pubsub",
+      "status": "completed",
+      "execution_time_ms": 99,
       "cold_start": false,
-      "log_style": "audit",
+      "log_style": "error_stack",
+      "trace": "projects/globex-shared-m3n4o5/traces/fb5f77d40943502d89fd0f821bf4f134",
+      "span_id": "aaa94cc2adfcd10f",
       "metrics": {
         "execution_count": { "sum": 1, "avg": 1 },
-        "user_memory_bytes": { "avg": 1007331051, "max": 4096000000 },
-        "execution_times_ms": { "avg": 371, "max": 464 },
-        "active_instances": { "avg": 13 },
-        "billable_instance_time_ms": { "sum": 371 }
+        "user_memory_bytes": { "avg": 187713285, "max": 256000000 },
+        "execution_times_ms": { "avg": 99, "max": 124 },
+        "active_instances": { "avg": 10 },
+        "billable_instance_time_ms": { "sum": 99 }
       }
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 372,
+    "duration": 110,
     "module": "gcp",
     "dataset": "gcp.cloudfunctions"
   },
-  "message": "audit_log, method: \"google.cloud.functions.v2.FunctionService.UpdateFunction\", resource_name: \"projects/globex-prod-a1b2c3/locations/europe-west9/functions/validate-ep7o\"",
+  "message": "{\"severity\":\"WARNING\",\"message\":\"Recovered non-fatal error\",\"execution_id\":\"1em14893ypy\",\"function_name\":\"notify-5i8z\",\"stack_trace\":\"panic: assignment to entry in nil map\\n\\ngoroutine 69 [running]:\\nmain.dispatch(...)\\n\\t/workspace/main.go:54 +0xipu\\nreflect.Value.call({0xdtp19c?, 0xbo65x1?}, ...)\\n\\t/usr/local/go/src/reflect/value.go:620 +0x755\"}",
   "service": { "name": "cloud-functions", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.cloudfunctions", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west9",
-    "id": "ul5011a3e7"
+    "name": "elastic-agent-gcp-us-east1",
+    "id": "xvbyjgsln6i"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-prod-a1b2c3/logs/cloud-functions",
+  "logName": "projects/globex-shared-m3n4o5/logs/cloud-functions",
   "resource": {
     "type": "cloud_function",
     "labels": {
-      "project_id": "globex-prod-a1b2c3",
-      "function_name": "validate-ep7o",
-      "region": "europe-west9"
+      "project_id": "globex-shared-m3n4o5",
+      "function_name": "notify-5i8z",
+      "region": "us-east1"
     }
   },
-  "insertId": "02OWLRJX6MXK",
-  "jsonPayload": {
-    "cloud_functions": {
-      "function_name": "validate-ep7o",
-      "runtime": "nodejs20",
-      "execution_id": "projects/globex-prod-a1b2c3/locations/europe-west9/functions/validate-ep7o/executions/5zp3zuoc7q7",
-      "memory_mb": 4096,
-      "trigger_type": "firestore",
-      "status": "ok",
-      "execution_time_ms": 371,
-      "cold_start": false,
-      "log_style": "audit",
-      "metrics": {
-        "execution_count": { "sum": 1, "avg": 1 },
-        "user_memory_bytes": { "avg": 1007331051, "max": 4096000000 },
-        "execution_times_ms": { "avg": 371, "max": 464 },
-        "active_instances": { "avg": 13 },
-        "billable_instance_time_ms": { "sum": 371 }
-      }
-    },
-    "message": "audit_log, method: \"google.cloud.functions.v2.FunctionService.UpdateFunction\", resource_name: \"projects/globex-prod-a1b2c3/locations/europe-west9/functions/validate-ep7o\""
-  }
+  "insertId": "XOCYFUXM5P"
 }

@@ -1,65 +1,65 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
+    "region": "us-east-2",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "redshift" }
   },
   "aws": {
-    "dimensions": { "ClusterIdentifier": "analytics-cluster", "NodeID": "Compute-2" },
+    "dimensions": { "ClusterIdentifier": "analytics-cluster", "NodeID": "Compute-4" },
     "cloudwatch": {
-      "log_group": "/aws/redshift/cluster/analytics-cluster/userlog",
-      "log_stream": "analytics-cluster/userlog/2026-04-17",
-      "ingestion_time": "2026-04-17T16:01:38.346Z"
+      "log_group": "/aws/redshift/cluster/analytics-cluster/useractivitylog",
+      "log_stream": "analytics-cluster/useractivitylog/2026-04-20",
+      "ingestion_time": "2026-04-20T13:03:49.646Z"
     },
     "redshift": {
       "cluster_id": "analytics-cluster",
-      "node_type": "dc2.8xlarge",
-      "number_of_nodes": 4,
-      "database": "prod_dw",
-      "schema": "analytics",
-      "user": "looker_user",
-      "pid": 58749,
-      "xid": 8958021,
-      "query_id": 5005232,
-      "log_type": "userlog",
-      "duration_microseconds": 11975337,
-      "rows_returned": 3780777,
+      "node_type": "ra3.xlplus",
+      "number_of_nodes": 8,
+      "database": "analytics",
+      "schema": "staging",
+      "user": "bi_service",
+      "pid": 68623,
+      "xid": 5822273,
+      "query_id": 5155995,
+      "log_type": "useractivitylog",
+      "duration_microseconds": 38738984,
+      "rows_returned": 4260350,
       "rows_affected": 0,
-      "bytes_scanned": 1109413346,
+      "bytes_scanned": 8438738232,
       "query_type": "SELECT",
-      "source_ip": "142.42.208.47",
-      "source_port": 23903,
-      "application_name": "Python",
+      "source_ip": "147.21.88.135",
+      "source_port": 63813,
+      "application_name": "Looker",
       "wlm": {
         "queue_name": "analyst_queue",
-        "slot_count": 3,
-        "queue_wait_ms": 274,
-        "service_class": 14
+        "slot_count": 13,
+        "queue_wait_ms": 1146,
+        "service_class": 12
       },
       "metrics": {
-        "CPUUtilization": { "avg": 15.66108538731595 },
-        "PercentageDiskSpaceUsed": { "avg": 25.346845663304265 },
-        "DatabaseConnections": { "avg": 305 },
+        "CPUUtilization": { "avg": 49.29244234728953 },
+        "PercentageDiskSpaceUsed": { "avg": 22.900453714907968 },
+        "DatabaseConnections": { "avg": 292 },
         "HealthStatus": { "avg": 1 },
         "MaintenanceMode": { "avg": 0 },
-        "NetworkReceiveThroughput": { "avg": 113480951 },
-        "NetworkTransmitThroughput": { "avg": 6121023 },
-        "QueriesCompletedPerSecond": { "avg": 873.8321298120593 },
-        "QueryDuration": { "avg": 607.9810508481695 },
-        "QueryRuntimeBreakdown": { "avg": 11202.994088290654 },
-        "ReadIOPS": { "avg": 2187 },
-        "ReadLatency": { "avg": 0.04623946256818174 },
-        "ReadThroughput": { "avg": 887275122 },
-        "WLMQueriesCompletedPerSecond": { "avg": 237.8507749651491 },
-        "WLMQueryDuration": { "avg": 1172.8064869611949 },
-        "WLMRunningSlotCount": { "avg": 12 },
-        "WLMQueueLength": { "avg": 3 },
-        "WLMQueueWaitTime": { "avg": 541.7720275631551 },
-        "WriteIOPS": { "avg": 2680 },
-        "WriteLatency": { "avg": 0.07829650530053926 },
-        "WriteThroughput": { "avg": 151028220 }
+        "NetworkReceiveThroughput": { "avg": 812166096 },
+        "NetworkTransmitThroughput": { "avg": 8759458 },
+        "QueriesCompletedPerSecond": { "avg": 59.518217156862356 },
+        "QueryDuration": { "avg": 7790.163529242927 },
+        "QueryRuntimeBreakdown": { "avg": 25650.76205846116 },
+        "ReadIOPS": { "avg": 7192 },
+        "ReadLatency": { "avg": 0.04557869612580844 },
+        "ReadThroughput": { "avg": 346505166 },
+        "WLMQueriesCompletedPerSecond": { "avg": 308.7734620670656 },
+        "WLMQueryDuration": { "avg": 26900.184706299126 },
+        "WLMRunningSlotCount": { "avg": 6 },
+        "WLMQueueLength": { "avg": 4 },
+        "WLMQueueWaitTime": { "avg": 918.225321399035 },
+        "WriteIOPS": { "avg": 3895 },
+        "WriteLatency": { "avg": 0.05002301376571236 },
+        "WriteThroughput": { "avg": 33379686 }
       }
     },
     "s3": {
@@ -68,26 +68,26 @@
         "arn": "arn:aws:s3:::aws-redshift-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/redshift/ap-northeast-2/2026/04/17/redshift_IQGXQFW3G6.log.gz"
+        "key": "AWSLogs/501938274650/redshift/us-east-2/2026/04/20/redshift_H818KI2BXYF.log.gz"
       }
     }
   },
   "db": {
-    "user": { "name": "looker_user" },
-    "name": "prod_dw",
-    "statement": "SELECT a.user_id, COUNT(DISTINCT a.session_id), SUM(b.revenue) FROM analytics.user_sessions a JOIN analytics.fact_sales b ON a.user_id = b.user_id WHERE a.dt >= CURRENT_DATE - 30 GROUP BY 1 ORDER BY 3 DESC LIMIT 1000",
+    "user": { "name": "bi_service" },
+    "name": "analytics",
+    "statement": "SELECT COUNT(*) FROM staging.raw_orders WHERE event_date >= CURRENT_DATE - 7",
     "type": "sql"
   },
-  "source": { "ip": "142.42.208.47", "port": 23903 },
+  "source": { "ip": "147.21.88.135", "port": 63813 },
   "event": {
-    "duration": 11975337051.411066,
+    "duration": 38738984103.26422,
     "outcome": "success",
     "category": ["database"],
     "dataset": "aws.redshift",
     "provider": "redshift.amazonaws.com",
     "module": "aws"
   },
-  "message": "'2026-04-17 16:01:37.787 UTC [ db=prod_dw user=rdsdb pid=58749 userid=1 xid=8958021 ]' LOG: grant select on all tables in schema analytics to analyst_group",
+  "message": "'2026-04-20 13:03:48.907 UTC [ db=analytics user=bi_service pid=68623 userid=105 xid=5822273 ]' LOG: SELECT COUNT(*) FROM staging.raw_orders WHERE event_date >= CURRENT_DATE - 7",
   "log": { "level": "info" },
   "service": { "name": "redshift", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -95,8 +95,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "zh30fxqgmrb"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "c3pr53f4y7n"
   },
   "input": { "type": "aws-cloudwatch" }
 }

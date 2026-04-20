@@ -1,118 +1,45 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
-    "service": { "name": "rds" }
+    "region": "eu-north-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
+    "service": { "name": "rds-custom" }
   },
   "aws": {
-    "dimensions": {
-      "DBInstanceIdentifier": "prod-db-replica",
-      "DatabaseClass": "db.t3.medium",
-      "EngineName": "mysql",
-      "SourceRegion": "me-central-1"
-    },
-    "cloudwatch": {
-      "log_group": "/aws/rds/instance/prod-db-replica/slowquery",
-      "log_stream": "prod-db-replica",
-      "ingestion_time": "2026-04-17T16:01:38.249Z"
-    },
-    "rds": {
-      "db_instance": {
-        "identifier": "prod-db-replica",
-        "class": "db.t3.medium",
-        "engine_name": "mysql",
-        "engine_version": "8.0.35",
-        "arn": "arn:aws:rds:me-central-1:164820739518:db:prod-db-replica",
-        "status": "available",
-        "role": "read-replica",
-        "multi_az": false,
-        "storage_type": "io2",
-        "allocated_storage_gb": 500
-      },
-      "log_type": "slowquery",
-      "cpu": { "total": { "pct": 0.5172 } },
-      "freeable_memory": { "bytes": 3882922802 },
-      "free_storage": { "bytes": 363524902964 },
-      "database_connections": 118,
-      "read_io": { "ops_per_sec": 1889.4306932535999 },
-      "write_io": { "ops_per_sec": 2978.647609175622 },
-      "latency": { "read": 0.009256025502104546, "write": 0.003095020532032922 },
-      "throughput": {
-        "read": 72996337,
-        "write": 15141771,
-        "network_receive": 71703803,
-        "network_transmit": 6773027
-      },
-      "replica_lag": { "sec": 96.81541104820795 },
-      "swap_usage": { "bytes": 70813231 },
-      "disk_usage": { "bin_log": { "bytes": 117148443 } },
-      "enhanced_monitoring": {
-        "cpuUtilization": {
-          "guest": 1.0473661550813647,
-          "irq": 0.5704800634526663,
-          "system": 6.650585245201199,
-          "wait": 3.4378865540387205,
-          "idle": 61.7,
-          "user": 26.572920343490416,
-          "total": 38.3
-        },
-        "memory": {
-          "total": 22532350160,
-          "free": 2735561955,
-          "cached": 7008684767,
-          "active": 6857475120,
-          "inactive": 2553668153,
-          "buffers": 466646629
-        },
-        "disk": {
-          "readIOsPS": 1835.2871793440647,
-          "writeIOsPS": 2657.574025026169,
-          "readKbPS": 243902.71178662783,
-          "writeKbPS": 180590.56127048522,
-          "avgQueueLen": 7.539089988803646,
-          "await": 6.172527173456406
-        },
-        "network": { "rx": 56345668, "tx": 12474367 },
-        "numVCPUs": 64,
-        "uptime": "92 days, 21:36:11"
-      }
+    "rdscustom": {
+      "instance_id": "sqlsrv-legacy",
+      "engine": "custom-sqlserver-ee",
+      "cev_id": "cev-t0y8cqki",
+      "event_type": "RestoreFromSnapshot",
+      "automation_id": "exec-yzgbh9igo8o",
+      "pause_automation": false,
+      "os_patch_level": "2024.9.28"
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-rds-logs-164820739518"
+        "name": "aws-rds-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-rds-logs-738291046572"
       },
-      "object": { "key": "AWSLogs/164820739518/rds/me-central-1/2026/04/17/rds_IF915VWNSHE.log.gz" }
+      "object": { "key": "AWSLogs/738291046572/rds/eu-north-1/2026/04/20/rds_6NJN6GESFZE.log.gz" }
+    },
+    "cloudwatch": {
+      "log_group": "/aws/rds/logs",
+      "log_stream": "eu-north-1/0o87osca",
+      "ingestion_time": "2026-04-20T13:03:49.511Z"
     }
   },
-  "db": {
-    "user": { "name": "appuser" },
-    "name": "users_db",
-    "statement": "UPDATE sessions SET status = 'active' WHERE user_id = 56969",
-    "type": "sql"
-  },
-  "source": { "ip": "147.2.109.80" },
-  "event": {
-    "duration": 837800186.1780676,
-    "outcome": "success",
-    "category": ["database"],
-    "type": ["info", "access"],
-    "dataset": "aws.rds",
-    "provider": "rds.amazonaws.com",
-    "module": "aws"
-  },
-  "message": "# Time: 2026-04-17 16:01:37.787\n# User@Host: appuser[appuser] @ 147.2.109.80 [147.2.109.80]  Id: 1018\n# Query_time: 0.837800  Lock_time: 0.005606 Rows_sent: 5130  Rows_examined: 345407\nSET timestamp=1776441697;\nUPDATE sessions SET status = 'active' WHERE user_id = 56969;",
-  "log": { "level": "info" },
+  "event": { "outcome": "success", "duration": 148252484, "module": "aws", "dataset": "aws.rds" },
+  "message": "RDS Custom sqlsrv-legacy: RestoreFromSnapshot completed (custom-sqlserver-ee)",
   "service": { "name": "rds", "type": "aws" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "rlvpo32pthn"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "gk2auzt5uyl"
   },
   "input": { "type": "aws-cloudwatch" }
 }

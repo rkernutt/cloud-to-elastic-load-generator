@@ -1,87 +1,81 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "us-west-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "athena" }
   },
   "aws": {
     "athena": {
-      "query_execution_id": "j9dgzbka-rsvg-wxch-243hnphcrp7",
+      "query_execution_id": "uyk0tlij-7zn8-jksv-k4t2x3udkw",
       "query_type": "DML",
-      "workgroup": "bi-users",
+      "workgroup": "analytics-team",
       "catalog": "AwsDataCatalog",
-      "database": "curated",
-      "output_location": "s3://aws-athena-query-results-164820739518-ap-south-1/bi-users/2026-04-17/j9dgzbka-rsvg-wxch-243hnphcrp7.csv",
-      "state": "FAILED",
-      "state_change_reason": "SYNTAX_ERROR: line 1:79: mismatched input 'GROUP'. Expecting: ...",
-      "submission_date_time": "2026-04-17T16:01:28.578Z",
-      "completion_date_time": "2026-04-17T16:01:37.787Z",
+      "database": "analytics",
+      "output_location": "s3://aws-athena-query-results-501938274650-us-west-1/analytics-team/2026-04-20/uyk0tlij-7zn8-jksv-k4t2x3udkw.csv",
+      "state": "SUCCEEDED",
+      "state_change_reason": "",
+      "submission_date_time": "2026-04-20T13:03:12.973Z",
+      "completion_date_time": "2026-04-20T13:03:48.907Z",
       "engine_version": "Athena engine version 3",
       "execution_parameters": [],
       "result_reuse": false,
-      "error_code": "SYNTAX_ERROR",
       "statistics": {
-        "DataScannedInBytes": 0,
-        "EngineExecutionTimeInMillis": 7351,
-        "QueryPlanningTimeInMillis": 338,
-        "QueryQueueTimeInMillis": 1309,
-        "ServiceProcessingTimeInMillis": 211,
-        "TotalExecutionTimeInMillis": 9209,
+        "DataScannedInBytes": 5121286465,
+        "EngineExecutionTimeInMillis": 34230,
+        "QueryPlanningTimeInMillis": 428,
+        "QueryQueueTimeInMillis": 393,
+        "ServiceProcessingTimeInMillis": 883,
+        "TotalExecutionTimeInMillis": 35934,
         "ResultReuseInformation": { "ReusedPreviousResult": false }
       },
       "metrics": {
-        "DataScannedInBytes": { "sum": 0 },
-        "EngineExecutionTimeInMillis": { "avg": 7351, "max": 8821 },
-        "ProcessedBytes": { "sum": 0 },
-        "QueryQueueTimeInMillis": { "avg": 1309 },
-        "TotalExecutionTimeInMillis": { "avg": 9209 },
-        "QueryPlanningTimeInMillis": { "avg": 338 }
+        "DataScannedInBytes": { "sum": 5121286465 },
+        "EngineExecutionTimeInMillis": { "avg": 34230, "max": 41076 },
+        "ProcessedBytes": { "sum": 5121286465 },
+        "QueryQueueTimeInMillis": { "avg": 393 },
+        "TotalExecutionTimeInMillis": { "avg": 35934 },
+        "QueryPlanningTimeInMillis": { "avg": 428 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-athena-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-athena-logs-164820739518"
+        "name": "aws-athena-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-athena-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/athena/ap-south-1/2026/04/17/athena_GQYH8TV480Q.log.gz"
+        "key": "AWSLogs/501938274650/athena/us-west-1/2026/04/20/athena_5K8L07GOGUU.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/athena/logs",
-      "log_stream": "ap-south-1/ktf3ighk",
-      "ingestion_time": "2026-04-17T16:01:38.384Z"
+      "log_stream": "us-west-1/iyb7s9zk",
+      "ingestion_time": "2026-04-20T13:03:49.687Z"
     }
   },
   "db": {
-    "statement": "SELECT \"$path\" as file, count(*) as records FROM curated.products GROUP BY 1",
+    "statement": "SELECT p.name, count(o.id) AS order_count FROM analytics.products p JOIN analytics.orders o ON p.id = o.product_id GROUP BY 1 ORDER BY 2 DESC",
     "type": "sql"
   },
   "event": {
-    "duration": 9209000000,
-    "outcome": "failure",
+    "duration": 35934000000,
+    "outcome": "success",
     "category": ["database", "process"],
     "dataset": "aws.athena",
     "provider": "athena.amazonaws.com",
     "module": "aws"
   },
-  "message": "Query j9dgzbka-rsvg-wxch-243hnphcrp7 SYNTAX_ERROR: SYNTAX_ERROR: line 1:79: mismatched input 'GROUP'. Expecting: ...",
-  "log": { "level": "error" },
-  "error": {
-    "code": "SYNTAX_ERROR",
-    "message": "SYNTAX_ERROR: line 1:79: mismatched input 'GROUP'. Expecting: ...",
-    "type": "db"
-  },
+  "message": "Query uyk0tlij-7zn8-jksv-k4t2x3udkw completed in 35.93s, scanned 4.77 GB",
+  "log": { "level": "warn" },
   "service": { "name": "athena", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.athena", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "ot96e8iq8go"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "jaxgkh8ux3h"
   },
   "input": { "type": "aws-cloudwatch" }
 }

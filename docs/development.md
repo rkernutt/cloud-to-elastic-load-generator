@@ -23,6 +23,19 @@ After `npm install`, **`postinstall`** runs **`copy-icons`** (copies AWS archite
 
 Open **http://localhost:3000**. Configure Elasticsearch URL and API key in the UI; bulk requests go through **`/proxy`** in dev.
 
+### Proxy environment variables
+
+The proxy (`proxy.cjs`) accepts the following environment variables:
+
+| Variable                     | Default      | Description                                                                                      |
+| ---------------------------- | ------------ | ------------------------------------------------------------------------------------------------ |
+| `PROXY_PORT`                 | `3001`       | Port the proxy listens on                                                                        |
+| `PROXY_HOST`                 | `127.0.0.1`  | Bind address; use `0.0.0.0` only when remote access is needed (e.g. published container)         |
+| `PROXY_REQUEST_TIMEOUT_MS`   | `120000`     | Request timeout in milliseconds (covers large bulk requests)                                     |
+| `PROXY_MAX_BODY_BYTES`       | `52428800`   | Max incoming body size in bytes (50 MiB) before rejecting with 413                               |
+| `PROXY_QUIET`                | _(unset)_    | Set to `1` to disable stderr access logs (metadata only; never logs API keys or bodies)          |
+| `ELASTIC_KIBANA_API_VERSION` | `2023-10-31` | Kibana `Elastic-Api-Version` header; override when your stack requires a different contract date |
+
 The **Setup** wizard installs **Cloud Loadgen Integrations** per service — each integration bundles an ingest pipeline, Kibana dashboard, ML anomaly detection jobs, and alerting rules. All assets are tagged **`cloudloadgen`** so you can filter, view, or bulk-edit them easily in Kibana. Data streams use **TSDS** for metrics where appropriate. **Serverless** may limit uninstall/reinstall — [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md).
 
 **Setup UI implementation (for contributors):** Service-category grouping is built in the `servicePackIndex` `useMemo` in `src/pages/SetupPage.tsx`. Title-fragment extraction uses `src/setup/setupAssetMatch.ts`. Service IDs are normalised via `SERVICE_ALIASES`, `GCP_OVERRIDES`, and `AZURE_OVERRIDES` maps (cloud-aware resolution). Category assignment uses the `SERVICE_CATEGORY` map (~200+ entries per cloud). Labels come from `src/setup/setupDisplayPolish.ts` (`polishSetupCategoryLabel`). Behavior is documented in [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md).

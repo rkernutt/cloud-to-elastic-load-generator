@@ -1,66 +1,72 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ca-west-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "verified-access" }
   },
   "aws": {
-    "dimensions": { "ApplicationId": "va-app-d1r44cvx" },
+    "dimensions": { "ApplicationId": "va-app-dozpftom" },
     "verifiedaccess": {
-      "endpoint_id": "vae-zlc1t256btg",
-      "group_id": "vag-416qrt4jt4k",
-      "instance_id": "vai-pjcpb5p2y7",
+      "endpoint_id": "vae-lz9yumwstkn",
+      "group_id": "vag-75rn5d0b1z6",
+      "instance_id": "vai-qeks3oryyc",
       "policy_name": "corporate-device",
-      "trust_provider_type": "oidc-okta",
-      "device_posture": "UNKNOWN",
-      "verdict": "allow",
-      "http_method": "GET",
-      "http_path": "/api/v1/auth/login",
-      "http_status": 201,
-      "request_id": "4csh61c0-bcmg-nnxt-dwnt-omdvc0w760q",
-      "connection_id": "CF0NXPT3EKB",
-      "session_id": "LDEPCASHY1B",
-      "sni_hostname": "git-server.internal.example.com",
-      "application_name": "git-server"
+      "trust_provider_type": "iam-identity-center",
+      "device_posture": "NON_COMPLIANT",
+      "verdict": "deny",
+      "deny_reason": "policy_evaluation_failed",
+      "http_method": "PATCH",
+      "http_path": "/api/v1/search",
+      "http_status": 403,
+      "request_id": "ga5awa8m-uwng-wv55-a856-3f0c5fqch3j",
+      "connection_id": "EHJK756RON7",
+      "session_id": "JTJCZLL3RB",
+      "sni_hostname": "staging-api.internal.example.com",
+      "application_name": "staging-api"
     },
     "s3": {
       "bucket": {
-        "name": "aws-verifiedaccess-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-verifiedaccess-logs-738291046572"
+        "name": "aws-verifiedaccess-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-verifiedaccess-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/verifiedaccess/eu-south-1/2026/04/17/verifiedaccess_L2DI3UVLSGE.log.gz"
+        "key": "AWSLogs/293847561023/verifiedaccess/ca-west-1/2026/04/20/verifiedaccess_XMW4STD76A.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/verifiedaccess/logs",
-      "log_stream": "eu-south-1/6ytnvdfz",
-      "ingestion_time": "2026-04-17T16:01:38.312Z"
+      "log_stream": "ca-west-1/ayi2kb0t",
+      "ingestion_time": "2026-04-20T13:03:49.598Z"
     }
   },
-  "user": { "email": "carol@example.com", "name": "carol" },
-  "source": { "ip": "224.165.195.95" },
+  "user": { "email": "deploy-svc@example.com", "name": "deploy-svc" },
+  "source": { "ip": "18.220.25.32" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["authentication", "network"],
-    "type": ["allowed"],
+    "type": ["denied"],
     "dataset": "aws.verifiedaccess",
     "provider": "verified-access.amazonaws.com",
-    "duration": 155000000,
+    "duration": 153000000,
     "module": "aws"
   },
-  "message": "Verified Access allowed: carol@example.com -> git-server (UNKNOWN)",
-  "log": { "level": "info" },
+  "message": "Verified Access DENIED: deploy-svc@example.com -> staging-api [policy_evaluation_failed]",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "AccessDenied",
+    "message": "Verified Access policy denied: policy_evaluation_failed",
+    "type": "authentication"
+  },
   "service": { "name": "verifiedaccess", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.verifiedaccess", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "j9fyu9e983h"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "5sjtfoysrmq"
   },
   "input": { "type": "aws-cloudwatch" }
 }

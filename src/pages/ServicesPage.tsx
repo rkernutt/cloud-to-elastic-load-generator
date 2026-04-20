@@ -161,7 +161,7 @@ export function ServicesPage({
   };
 
   if (isTracesMode) {
-    const traceApmColor = "#0B64DD";
+    const traceApmColor = K.primary;
     return (
       <>
         <EuiTitle size="s">

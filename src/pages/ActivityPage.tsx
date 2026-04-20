@@ -9,6 +9,7 @@ import {
   EuiFlexItem,
   EuiText,
 } from "@elastic/eui";
+import K from "../theme";
 
 interface LogEntry {
   id: number;
@@ -24,10 +25,10 @@ interface ActivityPageProps {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  ok: "#017D73",
-  error: "#BD271E",
-  warn: "#F5A700",
-  info: "#98A2B3",
+  ok: K.success,
+  error: K.danger,
+  warn: K.warning,
+  info: K.textSubdued,
 };
 
 export function ActivityPage({ log, preview, onDownloadLog }: ActivityPageProps) {
@@ -100,7 +101,7 @@ export function ActivityPage({ log, preview, onDownloadLog }: ActivityPageProps)
                   color: TYPE_COLORS[entry.type] ?? TYPE_COLORS.info,
                 }}
               >
-                <span style={{ color: "#98A2B3", marginRight: 8 }}>{entry.ts}</span>
+                <span style={{ color: K.textSubdued, marginRight: 8 }}>{entry.ts}</span>
                 {entry.msg}
               </div>
             ))}

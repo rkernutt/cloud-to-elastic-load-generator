@@ -1,55 +1,83 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-shared-yn5m64/providers/Microsoft.ContainerService/managedClusters/aks-dev-pzlw",
-  "operationName": "Microsoft.PolicyInsights/policyStates/read",
-  "category": "Guard",
+  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-network-lnbv1q/providers/Microsoft.ContainerService/managedClusters/aks-stg-3pkp",
+  "operationName": "Microsoft.ContainerService/managedClusters/diagnosticLogs/read",
+  "category": "kube-audit",
   "resultType": "Success",
-  "resultSignature": "Audit",
-  "callerIpAddress": "9.207.142.229",
-  "correlationId": "o3ajwdox-52ro-l6pi-docg-j0euponya",
+  "resultSignature": "204",
+  "callerIpAddress": "136.243.88.133",
+  "correlationId": "out21tyf-z45x-rcia-0805-jo88al8m30c",
   "level": "Information",
   "properties": {
-    "policyAssignmentId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/providers/Microsoft.Authorization/policyAssignments/01R36YPA",
-    "policyDefinitionName": "aks-enforce-labels",
-    "complianceState": "Compliant",
-    "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-shared-yn5m64/providers/Microsoft.ContainerService/managedClusters/aks-dev-pzlw/providers/Microsoft.Network/loadBalancers/internal",
-    "denialReason": "",
-    "deploymentMode": "Incremental"
+    "verb": "update",
+    "auditID": "3xh3x295-cy73-pujc-vxpp-ce1fecwc17d",
+    "level": "Request",
+    "stage": "ResponseComplete",
+    "requestURI": "/api/v1/namespaces/kube-system/deployments/worker-nrp2n",
+    "user": {
+      "username": "system:serviceaccount:kube-system:default",
+      "uid": "lm09nuud-vr93-mssa-yfle-nldky3rjjn9",
+      "groups": ["system:authenticated"]
+    },
+    "objectRef": {
+      "resource": "deployments",
+      "namespace": "kube-system",
+      "name": "worker-nrp2n",
+      "apiGroup": "apps",
+      "apiVersion": "v1"
+    },
+    "responseStatus": { "code": 204, "status": "Success", "reason": "" },
+    "sourceIPs": ["136.243.88.133"],
+    "userAgent": "python-requests/2.27.1"
   },
   "cloud": {
     "provider": "azure",
-    "region": "northcentralus",
+    "region": "westeurope",
     "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" },
     "service": { "name": "Microsoft.ContainerService/managedClusters" }
   },
   "azure": {
     "kubernetes": {
-      "cluster_name": "aks-dev-pzlw",
-      "resource_group": "rg-shared-yn5m64",
-      "node_pool": "user",
-      "reason": "Compliant",
+      "cluster_name": "aks-stg-3pkp",
+      "resource_group": "rg-network-lnbv1q",
+      "node_pool": "system",
+      "reason": "AuditOK",
       "namespace": "kube-system",
-      "pod": "api-4zn32",
-      "category": "Guard",
-      "correlation_id": "o3ajwdox-52ro-l6pi-docg-j0euponya",
+      "pod": "worker-nrp2n",
+      "category": "kube-audit",
+      "correlation_id": "out21tyf-z45x-rcia-0805-jo88al8m30c",
       "properties": {
-        "policyAssignmentId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/providers/Microsoft.Authorization/policyAssignments/01R36YPA",
-        "policyDefinitionName": "aks-enforce-labels",
-        "complianceState": "Compliant",
-        "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-shared-yn5m64/providers/Microsoft.ContainerService/managedClusters/aks-dev-pzlw/providers/Microsoft.Network/loadBalancers/internal",
-        "denialReason": "",
-        "deploymentMode": "Incremental"
+        "verb": "update",
+        "auditID": "3xh3x295-cy73-pujc-vxpp-ce1fecwc17d",
+        "level": "Request",
+        "stage": "ResponseComplete",
+        "requestURI": "/api/v1/namespaces/kube-system/deployments/worker-nrp2n",
+        "user": {
+          "username": "system:serviceaccount:kube-system:default",
+          "uid": "lm09nuud-vr93-mssa-yfle-nldky3rjjn9",
+          "groups": ["system:authenticated"]
+        },
+        "objectRef": {
+          "resource": "deployments",
+          "namespace": "kube-system",
+          "name": "worker-nrp2n",
+          "apiGroup": "apps",
+          "apiVersion": "v1"
+        },
+        "responseStatus": { "code": 204, "status": "Success", "reason": "" },
+        "sourceIPs": ["136.243.88.133"],
+        "userAgent": "python-requests/2.27.1"
       }
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 968825059,
+    "duration": 367813536,
     "module": "azure",
     "dataset": "azure.kubernetes"
   },
-  "message": "Azure Policy audit passed for aks-dev-pzlw",
+  "message": "kube-audit update deployments/worker-nrp2n 204 user=system:serviceaccount:kube-system:default",
   "service": { "name": "kubernetes", "type": "azure" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -57,8 +85,8 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-northcentralus",
-    "id": "l3bokw9tqbi"
+    "name": "elastic-agent-azure-westeurope",
+    "id": "g69dw20sps9"
   },
   "input": { "type": "azure-eventhub" }
 }

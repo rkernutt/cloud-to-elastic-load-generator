@@ -1,25 +1,25 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-2",
+    "region": "ap-northeast-3",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "cloudwatchalarms" }
   },
   "aws": {
     "cloudwatch": {
       "log_group": "/aws/cloudwatch/logs",
-      "log_stream": "ap-southeast-2/us5oz0lq",
-      "ingestion_time": "2026-04-17T16:01:38.422Z",
-      "alarm_name": "lambda-errors",
-      "alarm_state": "ALARM",
+      "log_stream": "ap-northeast-3/r4uvpei6",
+      "ingestion_time": "2026-04-20T13:03:49.729Z",
+      "alarm_name": "high-cpu-alarm",
+      "alarm_state": "OK",
       "previous_state": "ALARM",
-      "namespace": "AWS/ApplicationELB",
-      "metric_name": "Duration",
-      "threshold": 80,
+      "namespace": "AWS/ECS",
+      "metric_name": "QueueDepth",
+      "threshold": 95,
       "evaluation_periods": 2,
-      "metric_value": 99.21792327137995,
-      "statistic": "Sum",
+      "metric_value": 60.66870518607222,
+      "statistic": "p99",
       "period_seconds": 60,
       "treat_missing_data": "missing"
     },
@@ -29,34 +29,29 @@
         "arn": "arn:aws:s3:::aws-cloudwatch-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/cloudwatch/ap-southeast-2/2026/04/17/cloudwatch_G14B8QD6CXN.log.gz"
+        "key": "AWSLogs/293847561023/cloudwatch/ap-northeast-3/2026/04/20/cloudwatch_1J4IZOGR5QS.log.gz"
       }
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["configuration", "process"],
     "dataset": "aws.cloudwatch",
     "provider": "monitoring.amazonaws.com",
-    "duration": 60000000000,
+    "duration": 3600000000000,
     "module": "aws"
   },
-  "message": "CloudWatch alarm \"lambda-errors\": ALARM (AWS/ApplicationELB/Duration=99.2)",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "AlarmTriggered",
-    "message": "Alarm lambda-errors: ALARM",
-    "type": "monitoring"
-  },
+  "message": "CloudWatch alarm \"high-cpu-alarm\": OK (AWS/ECS/QueueDepth=60.7)",
+  "log": { "level": "info" },
   "service": { "name": "cloudwatch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-2",
-    "ephemeral_id": "2b2p9apr87l"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "spekrr0uyzs"
   },
   "input": { "type": "aws-cloudwatch" }
 }

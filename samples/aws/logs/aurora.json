@@ -1,72 +1,67 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-southeast-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "aurora" }
   },
   "aws": {
     "aurora": {
-      "cluster_id": "prod-aurora-cluster",
-      "instance_id": "prod-aurora-cluster-instance-1",
-      "engine": "aurora-postgresql",
-      "engine_version": "15.4",
-      "replica_lag_seconds": 3224,
-      "db_connections": 503,
+      "cluster_id": "staging-aurora",
+      "instance_id": "staging-aurora-instance-2",
+      "engine": "aurora-mysql",
+      "engine_version": "8.0.36",
+      "replica_lag_seconds": 1.9314328157079186,
+      "db_connections": 187,
       "max_connections": 1000,
-      "failover_in_progress": true,
+      "failover_in_progress": false,
       "metrics": {
-        "AuroraBinlogReplicaLag": { "avg": 1130 },
-        "AuroraGlobalDBReplicatedWriteIO": { "sum": 96248031 },
-        "AuroraGlobalDBDataTransferBytes": { "sum": 465554812 },
-        "AuroraGlobalDBProgressLag": { "avg": 13540 },
-        "BacktrackChangeRecordsCreationRate": { "avg": 5241 },
-        "BacktrackChangeRecordsStored": { "avg": 473519895 },
-        "BacktrackWindowActual": { "avg": 85943 },
-        "BacktrackWindowAlert": { "avg": 1 },
-        "ServerlessDatabaseCapacity": { "avg": 97.37368616605058 },
-        "ACUUtilization": { "avg": 93.8597198895658 }
+        "AuroraBinlogReplicaLag": { "avg": 8 },
+        "AuroraGlobalDBReplicatedWriteIO": { "sum": 94853450 },
+        "AuroraGlobalDBDataTransferBytes": { "sum": 789898459 },
+        "AuroraGlobalDBProgressLag": { "avg": 29 },
+        "BacktrackChangeRecordsCreationRate": { "avg": 9793 },
+        "BacktrackChangeRecordsStored": { "avg": 138985737 },
+        "BacktrackWindowActual": { "avg": 19185 },
+        "BacktrackWindowAlert": { "avg": 0 },
+        "ServerlessDatabaseCapacity": { "avg": 120.81330758013868 },
+        "ACUUtilization": { "avg": 47.95307420377812 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-aurora-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-aurora-logs-738291046572"
+        "name": "aws-aurora-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-aurora-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/aurora/ap-southeast-3/2026/04/17/aurora_SGB6K2WPWR.log.gz"
+        "key": "AWSLogs/293847561023/aurora/ap-southeast-2/2026/04/20/aurora_U6GPIL4QET.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/aurora/logs",
-      "log_stream": "ap-southeast-3/5gitvu3g",
-      "ingestion_time": "2026-04-17T16:01:38.350Z"
+      "log_stream": "ap-southeast-2/ihwt0l5g",
+      "ingestion_time": "2026-04-20T13:03:49.651Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["database"],
     "dataset": "aws.aurora",
     "provider": "rds.amazonaws.com",
-    "duration": 37000000000,
+    "duration": 17000000000,
     "module": "aws"
   },
-  "message": "[AuroraFailover] cluster=prod-aurora-cluster old_primary=prod-aurora-cluster-instance-1 new_primary=prod-aurora-cluster-instance-5 reason=UNRESPONSIVE_PRIMARY duration_sec=46",
-  "log": { "level": "error" },
-  "error": {
-    "code": "AuroraError",
-    "message": "ERROR 2013: Lost connection to MySQL",
-    "type": "db"
-  },
+  "message": "# Time: 2026-04-20 13:03:48.907 UTC\n# User@Host: analytics[analytics] @ 184.0.115.94 [184.0.115.94]  Id: 44343\n# Query_time: 3.884350  Lock_time: 0.000045  Rows_sent: 2968  Rows_examined: 41281\nSELECT id, status FROM orders WHERE updated_at > NOW() - INTERVAL 1 HOUR LIMIT 500;",
+  "log": { "level": "warn" },
   "service": { "name": "aurora", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.aurora", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "ynczyq1789n"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "h4cc5lfadb5"
   },
   "input": { "type": "aws-cloudwatch" }
 }

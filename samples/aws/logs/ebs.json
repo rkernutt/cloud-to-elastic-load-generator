@@ -1,77 +1,72 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "availability_zone": "eu-central-2b",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-west-3",
+    "availability_zone": "eu-west-3a",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "ebs" }
   },
   "aws": {
-    "dimensions": { "VolumeId": "vol-wczaz6lmov", "VolumeType": "io2" },
+    "dimensions": { "VolumeId": "vol-oib39fb3own", "VolumeType": "io1" },
     "ebs": {
-      "volume_id": "vol-wczaz6lmov",
-      "modification_state": "failed",
-      "modification_phase": "multi-attach",
-      "original_volume_type": "sc1",
-      "target_volume_type": "gp3",
-      "original_size_gb": 100,
-      "target_size_gb": 300,
-      "original_iops": 6621,
-      "target_iops": 9518,
-      "target_throughput_mbps": 837,
-      "progress_percent": 0,
-      "event_type": "modification",
+      "volume_id": "vol-oib39fb3own",
+      "volume_type": "io1",
+      "size_gb": 100,
+      "snapshot_id": "snap-g14qf4ylus4",
+      "snapshot_state": "completed",
+      "progress": "100%",
+      "duration_seconds": 247,
+      "fast_snapshot_restore_state": "enabled",
+      "fast_snapshot_restore_azs": ["eu-west-3a", "eu-west-3b"],
+      "encrypted": true,
+      "kms_key_id": "arn:aws:kms:eu-west-3:738291046572:key/m5p37de2-a75t",
+      "event_type": "snapshot",
       "metrics": {
-        "VolumeReadOps": { "avg": 4480 },
-        "VolumeWriteOps": { "avg": 7630 },
-        "VolumeReadBytes": { "avg": 233125560 },
-        "VolumeWriteBytes": { "avg": 149493563 },
-        "VolumeTotalReadTime": { "sum": 9.33557483652349 },
-        "VolumeTotalWriteTime": { "sum": 1.3600546652051315 },
-        "VolumeIdleTime": { "sum": 2.225895672889797 },
-        "VolumeQueueLength": { "avg": 40 },
-        "VolumeThroughputPercentage": { "avg": 88.96386094522306 },
-        "VolumeConsumedReadWriteOps": { "avg": 15755 },
+        "VolumeReadOps": { "avg": 4922 },
+        "VolumeWriteOps": { "avg": 378 },
+        "VolumeReadBytes": { "avg": 402198450 },
+        "VolumeWriteBytes": { "avg": 255680372 },
+        "VolumeTotalReadTime": { "sum": 2.553080951206116 },
+        "VolumeTotalWriteTime": { "sum": 2.549363942575422 },
+        "VolumeIdleTime": { "sum": 52.68295439537161 },
+        "VolumeQueueLength": { "avg": 0 },
+        "VolumeThroughputPercentage": { "avg": 33.69777749438878 },
+        "VolumeConsumedReadWriteOps": { "avg": 25466 },
         "BurstBalance": {}
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-ebs-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-ebs-logs-814726593401"
+        "name": "aws-ebs-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-ebs-logs-738291046572"
       },
-      "object": { "key": "AWSLogs/814726593401/ebs/eu-central-2/2026/04/17/ebs_6H49Z1H6GSN.log.gz" }
+      "object": { "key": "AWSLogs/738291046572/ebs/eu-west-3/2026/04/20/ebs_XRP6ZZCSHAN.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/ebs/logs",
-      "log_stream": "eu-central-2/tsncc4ia",
-      "ingestion_time": "2026-04-17T16:01:38.329Z"
+      "log_stream": "eu-west-3/az2nussn",
+      "ingestion_time": "2026-04-20T13:03:49.624Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["host", "file"],
     "dataset": "aws.ebs",
     "provider": "ec2.amazonaws.com",
-    "duration": 49433000000,
+    "duration": 2445000000,
     "module": "aws"
   },
-  "message": "EBS volume modification FAILED for vol-wczaz6lmov: Instance type does not support requested volume type",
-  "log": { "level": "error" },
-  "error": {
-    "code": "EbsError",
-    "message": "EBS volume modification FAILED for vol-wczaz6lmov: Instance type does not support requested volume type",
-    "type": "storage"
-  },
+  "message": "EBS snapshot snap-g14qf4ylus4 of volume vol-oib39fb3own [100GB]: completed (100%)",
+  "log": { "level": "info" },
   "service": { "name": "ebs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.ebs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "wtc7pokcp5"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "fbix6954vf"
   },
   "input": { "type": "aws-cloudwatch" }
 }

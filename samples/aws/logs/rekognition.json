@@ -1,67 +1,72 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-west-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "rekognition" }
   },
   "aws": {
-    "dimensions": { "Operation": "DetectLabels" },
+    "dimensions": { "Operation": "DetectModerationLabels" },
     "rekognition": {
-      "operation": "DetectLabels",
-      "input_source": "Video",
-      "image_bytes": 8027027,
-      "duration_ms": 3665,
-      "labels_detected": 0,
-      "faces_detected": 0,
-      "max_confidence": 0,
+      "operation": "DetectModerationLabels",
+      "input_source": "S3Object",
+      "image_bytes": 433463,
+      "duration_ms": 915,
+      "labels_detected": 32,
+      "faces_detected": 9,
+      "max_confidence": 97.34910533398865,
       "confidence_threshold": 70,
       "FaceDetails": [],
-      "Labels": { "LabelCount": 0, "TopLabels": [] },
-      "error_code": "ThrottlingException",
+      "Labels": {
+        "LabelCount": 15,
+        "TopLabels": [
+          { "Name": "Desk", "Confidence": 87.14792128892323 },
+          { "Name": "Indoor", "Confidence": 79.62652692852102 }
+        ]
+      },
+      "moderation_labels": ["Explicit Content"],
       "metrics": {
         "SuccessfulRequestCount": { "sum": 1 },
-        "ThrottledCount": { "sum": 1 },
-        "UserErrorCount": { "sum": 1 },
+        "ThrottledCount": { "sum": 0 },
+        "UserErrorCount": { "sum": 0 },
         "ServerErrorCount": { "sum": 0 },
-        "ResponseTime": { "avg": 4323.931643891165 }
+        "ResponseTime": { "avg": 587.685225133235 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rekognition-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-rekognition-logs-738291046572"
+        "name": "aws-rekognition-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-rekognition-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/rekognition/ap-south-2/2026/04/17/rekognition_J8DFS60W81.log.gz"
+        "key": "AWSLogs/293847561023/rekognition/eu-west-2/2026/04/20/rekognition_XSDP0LRW8K.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/rekognition/logs",
-      "log_stream": "ap-south-2/l9yhd8yy",
-      "ingestion_time": "2026-04-17T16:01:38.397Z"
+      "log_stream": "eu-west-2/entjb117",
+      "ingestion_time": "2026-04-20T13:03:49.701Z"
     }
   },
   "event": {
-    "duration": 3665185354.4005113,
-    "outcome": "failure",
+    "duration": 915048366.0278192,
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.rekognition",
     "provider": "rekognition.amazonaws.com",
     "module": "aws"
   },
-  "message": "Rekognition DetectLabels FAILED: Image too large",
-  "log": { "level": "error" },
-  "error": { "code": "RekognitionError", "message": "Rekognition operation failed", "type": "ml" },
+  "message": "Rekognition DetectModerationLabels: 24 results, 97.3% confidence",
+  "log": { "level": "info" },
   "service": { "name": "rekognition", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rekognition", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "735sc57w782"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "h3bv5bwik27"
   },
   "input": { "type": "aws-cloudwatch" }
 }

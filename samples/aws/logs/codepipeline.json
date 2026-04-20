@@ -1,22 +1,22 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "sa-east-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "codepipeline" }
   },
   "aws": {
-    "dimensions": { "PipelineName": "hotfix-pipeline" },
+    "dimensions": { "PipelineName": "web-prod-pipeline" },
     "codepipeline": {
-      "pipeline_name": "hotfix-pipeline",
-      "pipeline_arn": "arn:aws:codepipeline:ap-northeast-2:164820739518:hotfix-pipeline",
-      "execution_id": "0tcxhf0m-jo0p-w5ac-7ffz-ggqwrjhd094",
-      "stage_name": "Build",
-      "action_name": "Source",
+      "pipeline_name": "web-prod-pipeline",
+      "pipeline_arn": "arn:aws:codepipeline:sa-east-1:293847561023:web-prod-pipeline",
+      "execution_id": "iv0pyi25-8khs-k8zk-grtu-29289sz1sq4",
+      "stage_name": "Test",
+      "action_name": "Manual",
       "state": "Succeeded",
-      "revision_id": "yd4vwc7dyg",
-      "structured_logging": true,
+      "revision_id": "b2e6z66u9vf",
+      "structured_logging": false,
       "metrics": {
         "PipelineExecutionAttempts": { "sum": 1 },
         "PipelineSuccessCount": { "sum": 1 },
@@ -28,17 +28,17 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-codepipeline-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-codepipeline-logs-164820739518"
+        "name": "aws-codepipeline-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-codepipeline-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/codepipeline/ap-northeast-2/2026/04/17/codepipeline_C81TW92HYL.log.gz"
+        "key": "AWSLogs/293847561023/codepipeline/sa-east-1/2026/04/20/codepipeline_6D6V2NB7R0R.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codepipeline/logs",
-      "log_stream": "ap-northeast-2/5qppwhtc",
-      "ingestion_time": "2026-04-17T16:01:38.370Z"
+      "log_stream": "sa-east-1/n2rkh6v3",
+      "ingestion_time": "2026-04-20T13:03:49.671Z"
     }
   },
   "event": {
@@ -46,10 +46,10 @@
     "category": ["process", "configuration"],
     "dataset": "aws.codepipeline",
     "provider": "codepipeline.amazonaws.com",
-    "duration": 100000000000,
+    "duration": 59000000000,
     "module": "aws"
   },
-  "message": "{\"pipeline\":\"hotfix-pipeline\",\"executionId\":\"0tcxhf0m-jo0p-w5ac-7ffz-ggqwrjhd094\",\"stage\":\"Build\",\"state\":\"Succeeded\",\"timestamp\":\"2026-04-17T16:01:37.787Z\",\"revision\":\"yd4vwc7dyg\",\"artifacts\":{\"source\":\"s3://164820739518-codepipeline-ap-northeast-2/hotfix-pipeline/source_out/yd4vwc7dyg.zip\",\"build\":\"s3://164820739518-codepipeline-ap-northeast-2/hotfix-pipeline/build_out/0tcxhf0m-jo0p-w5ac-7ffz-ggqwrjhd094/BuildOut\",\"deploy\":\"s3://164820739518-codepipeline-ap-northeast-2/hotfix-pipeline/deploy/0tcxhf0m-jo0p-w5ac-7ffz-ggqwrjhd094/DeploymentBundle\"},\"stages\":[\"Source\",\"Build\",\"Deploy\",\"Test\"]}",
+  "message": "[CodePipeline] executionId=iv0pyi25-8khs-k8zk-grtu-29289sz1sq4 pipeline=web-prod-pipeline state=SUCCEEDED region=sa-east-1\n[CodePipeline] Execution started for pipeline web-prod-pipeline (pipelineVersion=15)\n[Stage:Source] Transitioning: STARTED action=GitHubSource provider=CodeCommit revision=b2e6z66\n[Stage:Source] Output artifact location: s3://293847561023-codepipeline-sa-east-1/web-prod-pipeline/source_out/b2e6z66u9vf.zip\n[Stage:Source] Transitioning: SUCCEEDED durationMs=3718\n[Stage:Build] Transitioning: STARTED action=CodeBuild project=infra-validate\n[Stage:Build] Input artifact: s3://293847561023-codepipeline-sa-east-1/web-prod-pipeline/source_out/b2e6z66u9vf.zip\n[Stage:Build] Output artifact: s3://293847561023-codepipeline-sa-east-1/web-prod-pipeline/build_out/iv0pyi25-8khs-k8zk-grtu-29289sz1sq4/BuildOut\n[Stage:Build] Transitioning: SUCCEEDED durationMs=410255\n[Stage:Deploy] Transitioning: STARTED action=CloudFormation deploymentGroup=staging\n[Stage:Deploy] Output artifact: s3://293847561023-codepipeline-sa-east-1/web-prod-pipeline/deploy/iv0pyi25-8khs-k8zk-grtu-29289sz1sq4/DeploymentBundle\n[Stage:Deploy] Transitioning: SUCCEEDED durationMs=798649\n[Stage:Test] Transitioning: STARTED action=StepFunctions\n[Stage:Test] Transitioning: SUCCEEDED durationMs=21869\n[Stage:Approval] Transitioning: STARTED action=SecuritySignOff token=EYYTIJBZGA4\n[Stage:Approval] Waiting for manual approval (notificationArn=arn:aws:sns:sa-east-1:293847561023:pipeline-approvals)\n[Stage:Approval] Transitioning: SUCCEEDED approvedBy=alice\n[CodePipeline] Execution succeeded for pipeline web-prod-pipeline executionId=iv0pyi25-8khs-k8zk-grtu-29289sz1sq4",
   "log": { "level": "info" },
   "service": { "name": "codepipeline", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -57,8 +57,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "s5ae5pt85c"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "3atbn5oua65"
   },
   "input": { "type": "aws-cloudwatch" }
 }

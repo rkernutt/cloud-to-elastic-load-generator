@@ -1,5 +1,6 @@
 import React from "react";
 import packageJson from "../../package.json";
+import K from "../theme";
 import {
   EuiPageTemplate,
   EuiSideNav,
@@ -178,7 +179,7 @@ export function AppLayout({
                     <EuiTitle size="s">
                       <h1
                         style={{
-                          color: "#fff",
+                          color: K.headerText,
                           fontWeight: 700,
                           letterSpacing: "-0.02em",
                           whiteSpace: "nowrap",

@@ -1,95 +1,53 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
-    "service": { "name": "sagemaker" }
+    "region": "ap-northeast-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
+    "service": { "name": "sagemaker-featurestore" }
   },
   "aws": {
-    "dimensions": {
-      "TrainingJobName": "resnet50-custom-training-20260417-8yz2fy",
-      "JobType": "Training"
-    },
-    "cloudwatch": {
-      "log_group": "/aws/sagemaker/TrainingJobs",
-      "log_stream": "resnet50-custom-training-20260417-8yz2fy/algo-1",
-      "ingestion_time": "2026-04-17T16:01:38.394Z"
-    },
-    "sagemaker": {
-      "domain_id": "d-qn0pglao7c",
-      "domain_name": "ml-research",
-      "user_profile": "dan-platform",
-      "job": {
-        "name": "resnet50-custom-training-20260417-8yz2fy",
-        "type": "Training",
-        "arn": "arn:aws:sagemaker:eu-central-1:164820739518:training-job/resnet50-custom-training-20260417-8yz2fy",
-        "status": "Completed",
-        "secondary_status": "Completed"
-      },
-      "model": { "name": "resnet50-custom", "version": 14 },
-      "pipeline": { "name": "batch-inference-pipeline", "execution_id": "pipe-ktj6i7qk1x" },
-      "instance": { "type": "ml.c5.xlarge", "count": 1 },
-      "metrics": {
-        "train:loss": 0.3883,
-        "train:accuracy": 0.7628,
-        "validation:loss": 0.6113,
-        "validation:accuracy": 0.8238,
-        "epoch": 45,
-        "gpu_utilization_pct": 70,
-        "cpu_utilization_pct": 46
-      },
-      "studio": {
-        "space_name": "risk-models",
-        "app_type": "KernelGateway",
-        "app_name": "default",
-        "lifecycle_config": false,
-        "continuous_logging": false
-      },
-      "cloudwatch_metrics": {
-        "Invocations": { "sum": 2016 },
-        "ModelLatency": { "avg": 134000 },
-        "OverheadLatency": { "avg": 4000 },
-        "GPUUtilization": { "avg": 61 },
-        "GPUMemoryUtilization": { "avg": 51 },
-        "CPUUtilization": { "avg": 38 },
-        "DiskUtilization": { "avg": 37 },
-        "MemoryUtilization": { "avg": 68 },
-        "Invocations4XXError": { "sum": 0 },
-        "Invocations5XXError": { "sum": 0 },
-        "ModelSetupTime": { "avg": 4473 }
-      }
+    "sagemaker_featurestore": {
+      "feature_group_name": "recommendation-features",
+      "operation": "DeleteRecord",
+      "record_identifier": "tehjqsv8yw9",
+      "online_store_latency_ms": 19.36359984472376,
+      "offline_store_status": "Deleting",
+      "feature_count": 23,
+      "record_count": 44,
+      "ttl_duration_seconds": 2135115
     },
     "s3": {
       "bucket": {
-        "name": "aws-sagemaker-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-sagemaker-logs-164820739518"
+        "name": "aws-sagemaker-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-sagemaker-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/sagemaker/eu-central-1/2026/04/17/sagemaker_HDQ5ZKVY48.log.gz"
+        "key": "AWSLogs/814726593401/sagemaker/ap-northeast-3/2026/04/20/sagemaker_HR8VGQ6VUE7.log.gz"
       }
+    },
+    "cloudwatch": {
+      "log_group": "/aws/sagemaker/logs",
+      "log_stream": "ap-northeast-3/q48l9d29",
+      "ingestion_time": "2026-04-20T13:03:49.698Z"
     }
   },
-  "log": { "level": "info" },
-  "user": { "name": "dan-platform" },
   "event": {
-    "action": "SpaceCreated",
-    "duration": 5603982445342.015,
     "outcome": "success",
-    "category": ["process"],
-    "dataset": "aws.sagemaker",
-    "provider": "sagemaker.amazonaws.com",
-    "module": "aws"
+    "duration": 121190,
+    "module": "aws",
+    "dataset": "aws.sagemaker"
   },
-  "message": "Uploading - Uploading generated training model to s3://sagemaker-eu-central-1-164820739518/output/resnet50-custom-training-20260417-8yz2fy/output/model.tar.gz",
+  "message": "SageMaker Feature Store recommendation-features: DeleteRecord OK (61 records)",
   "service": { "name": "sagemaker", "type": "aws" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sagemaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "5adhy45u4he"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "nsh19fclmam"
   },
   "input": { "type": "aws-cloudwatch" }
 }

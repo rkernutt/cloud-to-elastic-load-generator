@@ -7,53 +7,55 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "northamerica-northeast2",
-    "account": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" }
+    "region": "europe-north1",
+    "account": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" }
   },
-  "orchestrator": { "cluster": { "name": "dev-cluster" } },
+  "orchestrator": { "cluster": { "name": "data-cluster" } },
   "resource": {
-    "id": "//container.googleapis.com/dev-cluster",
-    "name": "dev-cluster",
+    "id": "//container.googleapis.com/data-cluster",
+    "name": "data-cluster",
     "sub_type": "api-server",
     "type": "k8s_object"
   },
   "rule": {
-    "id": "cis_gke_4_1_1",
-    "name": "Ensure anonymous access to the API server is restricted",
-    "section": "4.1.1",
-    "tags": ["API Server"],
+    "id": "cis_gke_4_2_1",
+    "name": "Ensure audit logging is enabled",
+    "section": "4.2.1",
+    "tags": ["Logging"],
     "benchmark": {
       "id": "cis_gke",
       "version": "v1.4.0",
-      "rule_number": "4.1.1",
+      "rule_number": "4.2.1",
       "posture_type": "kspm"
-    }
+    },
+    "impact": "GKE CIS 4.2.1 failure on data-cluster.",
+    "remediation": "Harden data-cluster per CIS GKE Benchmark 4.2.1."
   },
-  "result": { "evaluation": "passed" },
-  "severity": "none",
+  "result": { "evaluation": "failed" },
+  "severity": "high",
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "gcp"
   },
-  "message": "KSPM [CIS GKE / 4.1.1] passed: Ensure anonymous access to the API server is restricted [dev-cluster]",
-  "log": { "level": "info" },
+  "message": "KSPM [CIS GKE / 4.2.1] failed: Ensure audit logging is enabled [data-cluster]",
+  "log": { "level": "warn" },
   "service": { "name": "gcp-kspm", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-northamerica-northeast2",
-    "id": "rlq3h57jpq8"
+    "name": "elastic-agent-gcp-europe-north1",
+    "id": "kwtmg2177y"
   },
   "input": { "type": "http_endpoint" },
   "logName": "projects/project-unknown/logs/gcp-kspm",
-  "insertId": "JAU6ADTHOFA",
+  "insertId": "3FG1YGJDDYJ",
   "jsonPayload": {
-    "message": "KSPM [CIS GKE / 4.1.1] passed: Ensure anonymous access to the API server is restricted [dev-cluster]"
+    "message": "KSPM [CIS GKE / 4.2.1] failed: Ensure audit logging is enabled [data-cluster]"
   }
 }

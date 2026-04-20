@@ -1,61 +1,56 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-southeast-3",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "paymentcryptography" }
   },
   "aws": {
-    "dimensions": { "KeyAlgorithm": "TDES_3KEY", "Operation": "TranslatePinData" },
+    "dimensions": { "KeyAlgorithm": "TDES_3KEY", "Operation": "GeneratePinData" },
     "paymentcryptography": {
-      "key_arn": "arn:aws:payment-cryptography:eu-west-2:164820739518:key/ZV3TV6R8PV",
-      "key_alias": "alias/payment-mac-key",
+      "key_arn": "arn:aws:payment-cryptography:ap-southeast-3:293847561023:key/J2X9IOZU3S",
+      "key_alias": "alias/payment-pin-key",
       "key_algorithm": "TDES_3KEY",
-      "key_usage": "TR31_B0_BASE_DERIVATION_KEY",
-      "operation": "TranslatePinData",
-      "key_state": "PENDING_DELETE",
+      "key_usage": "TR31_P0_PIN_ENCRYPTION_KEY",
+      "operation": "GeneratePinData",
+      "key_state": "CREATE_COMPLETE",
       "exportable": false,
-      "key_check_value": "G7LQSH"
+      "key_check_value": "K02B8V"
     },
     "s3": {
       "bucket": {
-        "name": "aws-paymentcryptography-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-paymentcryptography-logs-164820739518"
+        "name": "aws-paymentcryptography-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-paymentcryptography-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/paymentcryptography/eu-west-2/2026/04/17/paymentcryptography_P1ENC7P0S.log.gz"
+        "key": "AWSLogs/293847561023/paymentcryptography/ap-southeast-3/2026/04/20/paymentcryptography_YQID6KISHTO.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/paymentcryptography/logs",
-      "log_stream": "eu-west-2/1iqzyj4y",
-      "ingestion_time": "2026-04-17T16:01:38.324Z"
+      "log_stream": "ap-southeast-3/hyotsp7s",
+      "ingestion_time": "2026-04-20T13:03:49.615Z"
     }
   },
   "event": {
-    "action": "DecryptData",
-    "outcome": "failure",
+    "action": "ImportKey",
+    "outcome": "success",
     "category": ["authentication"],
     "dataset": "aws.paymentcryptography",
     "provider": "payment-cryptography.amazonaws.com",
     "module": "aws"
   },
-  "message": "Payment Cryptography TranslatePinData failed — key TDES_3KEY state PENDING_DELETE",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ResourceNotFoundException",
-    "message": "Payment Cryptography operation failed",
-    "type": "authentication"
-  },
+  "message": "Payment Cryptography GeneratePinData using TDES_3KEY (P0)",
+  "log": { "level": "info" },
   "service": { "name": "paymentcryptography", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.paymentcryptography", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "43tfjotsvjd"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "3gml5umhzn2"
   },
   "input": { "type": "aws-cloudwatch" }
 }

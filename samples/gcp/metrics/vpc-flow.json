@@ -3,53 +3,57 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west12",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" }
+    "region": "europe-west8",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west12",
-    "ephemeral_id": "bm9thdgoywf"
+    "name": "metricbeat-gcp-europe-west8",
+    "ephemeral_id": "hrgysp7u4fd"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "serviceruntime.googleapis.com/api/request_count",
-      "labels": { "credential_id": "resource-a" }
+      "type": "loadbalancing.googleapis.com/https/request_count",
+      "labels": { "response_code_class": "2xx" }
     },
     "resource": {
-      "type": "consumed_api",
+      "type": "https_lb_rule",
       "labels": {
-        "project_id": "globex-dev-g7h8i9",
-        "service": "generic.googleapis.com",
-        "method": "resource_id"
+        "project_id": "globex-prod-a1b2c3",
+        "url_map_name": "api-map",
+        "forwarding_rule_name": "fr-generic",
+        "target_proxy_name": "tp-generic",
+        "region": "europe-west8"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "73429" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "227206" } }
     ]
   },
   "gcp": {
-    "network-service-tiers": {
+    "vpc-flow": {
       "labels": {
-        "project_id": "globex-dev-g7h8i9",
-        "service": "generic.googleapis.com",
-        "method": "resource_id",
-        "credential_id": "resource-a"
+        "project_id": "globex-prod-a1b2c3",
+        "url_map_name": "api-map",
+        "forwarding_rule_name": "fr-generic",
+        "target_proxy_name": "tp-generic",
+        "region": "europe-west8",
+        "response_code_class": "2xx"
       },
       "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": {
-          "avg": 73429,
-          "sum": 73429,
+        "loadbalancing.googleapis.com/https/request_count": {
+          "avg": 227206,
+          "sum": 227206,
           "count": 1
         }
       }
     }
   },
-  "metricset": { "name": "network-service-tiers", "period": 60000 },
+  "metricset": { "name": "vpc-flow", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.vpcflow_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "dataset": "gcp.vpcflow_metrics", "module": "gcp" }

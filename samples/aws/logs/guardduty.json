@@ -1,118 +1,105 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-northeast-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "56mm62jj90f" },
+    "dimensions": { "DetectorId": "um8qc3u8rfg" },
     "guardduty": {
       "schemaVersion": "2.0",
-      "accountId": "501938274650",
-      "region": "ap-east-1",
+      "accountId": "293847561023",
+      "region": "ap-northeast-2",
       "partition": "aws",
-      "id": "f2cf908jyzn",
-      "arn": "arn:aws:guardduty:ap-east-1:501938274650:detector/56mm62jj90f/finding/f2cf908jyzn",
-      "type": "UnauthorizedAccess:IAMUser/MaliciousIPCaller.Custom",
+      "id": "tj1y2dzlyy",
+      "arn": "arn:aws:guardduty:ap-northeast-2:293847561023:detector/um8qc3u8rfg/finding/tj1y2dzlyy",
+      "type": "Stealth:IAMUser/PasswordPolicyChange",
       "resource": {
         "resourceType": "AccessKey",
         "accessKeyDetails": {
-          "accessKeyId": "AKIADP37PVZ08Y",
-          "principalId": "501938274650:deploy-bot",
-          "userName": "alice",
+          "accessKeyId": "AKIAD808HKSKXYT",
+          "principalId": "293847561023:alice",
+          "userName": "deploy-bot",
           "userType": "IAMUser"
         }
       },
       "service": {
         "serviceName": "guardduty",
-        "detectorId": "56mm62jj90f",
+        "detectorId": "um8qc3u8rfg",
         "action": {
-          "actionType": "DNS_REQUEST",
-          "dnsRequestAction": {
-            "domain": "suspicious-hol1p3k0.example.com",
-            "domainWithSuffix": "suspicious-ddmf9wok.example.com.",
+          "actionType": "NETWORK_CONNECTION",
+          "networkConnectionAction": {
+            "connectionDirection": "OUTBOUND",
+            "remoteIpDetails": {
+              "ipAddressV4": "107.25.145.130",
+              "geoLocation": {},
+              "organization": {}
+            },
+            "localPortDetails": { "port": 18575 },
+            "remotePortDetails": { "port": 443 },
+            "protocol": "TCP",
             "blocked": false
           }
         },
-        "resourceRole": "ACTOR",
-        "eventFirstSeen": "2026-04-17T14:12:51.787Z",
-        "eventLastSeen": "2026-04-17T16:01:37.787Z",
+        "resourceRole": "TARGET",
+        "eventFirstSeen": "2026-04-20T12:19:10.907Z",
+        "eventLastSeen": "2026-04-20T13:03:48.907Z",
         "archived": false,
-        "count": 499,
-        "additionalInfo": {},
-        "evidence": { "threatIntelligenceDetails": [] }
+        "count": 238,
+        "additionalInfo": {}
       },
-      "severity": 5,
-      "title": "IAMUser MaliciousIPCaller Custom",
-      "description": "GuardDuty identified suspicious behavior or a possible compromise based on VPC flow logs, DNS logs, or CloudTrail events. Finding type: UnauthorizedAccess:IAMUser/MaliciousIPCaller.Custom.",
-      "createdAt": "2026-04-17T16:01:37.787Z",
-      "updatedAt": "2026-04-17T16:01:37.787Z",
-      "confidence": 89.59339418224639,
+      "severity": 0,
+      "title": "IAMUser PasswordPolicyChange",
+      "description": "GuardDuty processed telemetry and did not raise a finding for this sample.",
+      "createdAt": "2026-04-20T13:03:48.907Z",
+      "updatedAt": "2026-04-20T13:03:48.907Z",
+      "confidence": 83.5475680101136,
       "metrics": {
-        "FindingCount": { "sum": 32 },
+        "FindingCount": { "sum": 0 },
         "HighSeverityFindingCount": { "sum": 0 },
-        "MediumSeverityFindingCount": { "sum": 7 },
+        "MediumSeverityFindingCount": { "sum": 0 },
         "LowSeverityFindingCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-guardduty-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-guardduty-logs-501938274650"
+        "name": "aws-guardduty-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-guardduty-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/guardduty/ap-east-1/2026/04/17/guardduty_9K6A9JPRI5S.log.gz"
+        "key": "AWSLogs/293847561023/guardduty/ap-northeast-2/2026/04/20/guardduty_W8B6Q9M4HK.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/guardduty/logs",
-      "log_stream": "ap-east-1/9xvdamdn",
-      "ingestion_time": "2026-04-17T16:01:38.300Z"
+      "log_stream": "ap-northeast-2/ahcy3sfi",
+      "ingestion_time": "2026-04-20T13:03:49.581Z"
     }
   },
-  "rule": {
-    "category": "threat",
-    "ruleset": "UnauthorizedAccess",
-    "name": "UnauthorizedAccess:IAMUser/MaliciousIPCaller.Custom"
-  },
-  "threat": { "indicator": [{ "type": "ip", "value": "162.145.78.177" }] },
-  "source": {
-    "ip": "162.145.78.177",
-    "geo": {
-      "country_iso_code": "IN",
-      "country_name": "India",
-      "city_name": "Mumbai",
-      "location": { "lat": 19.076, "lon": 72.8777 }
-    }
-  },
-  "destination": { "ip": "16.125.149.117" },
+  "rule": { "category": "threat" },
+  "threat": { "indicator": [{ "type": "ip", "value": "128.108.35.130" }] },
   "event": {
     "kind": "alert",
-    "severity": 5,
-    "outcome": "failure",
+    "severity": 0,
+    "outcome": "success",
     "category": ["threat"],
     "type": ["indicator"],
     "dataset": "aws.guardduty",
     "provider": "guardduty.amazonaws.com",
     "module": "aws"
   },
-  "message": "GuardDuty finding [Medium]: UnauthorizedAccess:IAMUser/MaliciousIPCaller.Custom",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "ThreatFinding",
-    "message": "GuardDuty finding: UnauthorizedAccess:IAMUser/MaliciousIPCaller.Custom",
-    "type": "security"
-  },
+  "message": "GuardDuty: no threats detected",
+  "log": { "level": "info" },
   "service": { "name": "guardduty", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.guardduty", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "xk4vd5ymol"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "5aasx7dhn78"
   },
   "input": { "type": "http_endpoint" }
 }

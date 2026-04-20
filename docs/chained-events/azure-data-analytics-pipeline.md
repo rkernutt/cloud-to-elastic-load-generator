@@ -114,3 +114,12 @@ adf-data-pipeline (transaction: pipeline_run:data_pipeline_daily)
   - `azure-data-pipeline-error-spike` — failure rate spike
   - `azure-data-pipeline-null-data` — zero-row Synapse queries
   - `azure-data-pipeline-stage-latency` — Databricks Spark stage anomalies
+- **Alerting Rules**: 5 Kibana ES-query rules (installed disabled by default)
+
+| Rule                                                    | Condition                                                   | Index Pattern              |
+| ------------------------------------------------------- | ----------------------------------------------------------- | -------------------------- |
+| Azure Data Pipeline — High Failure Rate                 | `> 3` Data Factory failures in 15 min                       | `logs-azure.data_factory*` |
+| Azure Data Pipeline — Null/Empty Data Detected          | Synapse query returns 0 rows                                | `logs-azure.synapse*`      |
+| Azure Data Pipeline — Databricks/Spark Processing Error | Databricks log with `error.type` present                    | `logs-azure.databricks*`   |
+| Azure Data Pipeline — Blob Source File Format Error     | Blob name with URL-unsafe chars or non-Avro extension       | `logs-azure.blob_storage*` |
+| Azure Data Pipeline — Slow Pipeline Run (>60s)          | Data Factory pipeline completion with `duration_ms > 60000` | `logs-azure.data_factory*` |

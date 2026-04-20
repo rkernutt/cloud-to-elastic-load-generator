@@ -1,26 +1,29 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
+    "region": "ap-southeast-1",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "vpclattice" }
   },
   "aws": {
-    "dimensions": { "ServiceName": "payment-svc", "ServiceNetworkName": "staging-service-network" },
+    "dimensions": {
+      "ServiceName": "inventory-svc",
+      "ServiceNetworkName": "shared-services-network"
+    },
     "vpclattice": {
-      "service_name": "payment-svc",
-      "service_arn": "arn:aws:vpc-lattice:il-central-1:164820739518:service/payment-svc-ib0fqlll",
-      "service_network_name": "staging-service-network",
-      "target_group_id": "tg-0q79abajmm5",
-      "source_vpc_id": "vpc-70lgarr0",
-      "destination_vpc_id": "vpc-3yqany1r",
-      "request_method": "DELETE",
-      "response_code": 504,
-      "response_time_ms": 19249,
-      "bytes_received": 57394,
-      "bytes_sent": 15012,
-      "tls_cipher_suite": "TLS_AES_128_GCM_SHA256"
+      "service_name": "inventory-svc",
+      "service_arn": "arn:aws:vpc-lattice:ap-southeast-1:164820739518:service/inventory-svc-uheudfis",
+      "service_network_name": "shared-services-network",
+      "target_group_id": "tg-foeupb88ycb",
+      "source_vpc_id": "vpc-4dgdhmlv",
+      "destination_vpc_id": "vpc-brwduqvd",
+      "request_method": "PUT",
+      "response_code": 201,
+      "response_time_ms": 469,
+      "bytes_received": 12437,
+      "bytes_sent": 76246,
+      "tls_cipher_suite": "ECDHE-RSA-AES128-GCM-SHA256"
     },
     "s3": {
       "bucket": {
@@ -28,35 +31,34 @@
         "arn": "arn:aws:s3:::aws-vpclattice-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/vpclattice/il-central-1/2026/04/17/vpclattice_9WRQIZA9N2G.log.gz"
+        "key": "AWSLogs/164820739518/vpclattice/ap-southeast-1/2026/04/20/vpclattice_1574EX3FY03.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/vpclattice/logs",
-      "log_stream": "il-central-1/ylu249fq",
-      "ingestion_time": "2026-04-17T16:01:38.294Z"
+      "log_stream": "ap-southeast-1/35lqg3mb",
+      "ingestion_time": "2026-04-20T13:03:49.574Z"
     }
   },
   "event": {
-    "action": "AuthPolicyCheck",
-    "outcome": "failure",
+    "action": "ServiceNetworkVpcAssociation",
+    "outcome": "success",
     "category": ["network"],
     "dataset": "aws.vpclattice",
     "provider": "vpc-lattice.amazonaws.com",
-    "duration": 19249000000,
+    "duration": 469000000,
     "module": "aws"
   },
-  "message": "VPC Lattice payment-svc: HTTP 504 after 19249ms",
-  "log": { "level": "error" },
-  "error": { "code": "504", "message": "VPC Lattice service error: HTTP 504", "type": "network" },
+  "message": "VPC Lattice inventory-svc: PUT 201 469ms",
+  "log": { "level": "info" },
   "service": { "name": "vpclattice", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.vpclattice", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "jh71fi2wmba"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "x7hjqnl4rsb"
   },
   "input": { "type": "aws-cloudwatch" }
 }

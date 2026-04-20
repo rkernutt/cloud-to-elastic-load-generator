@@ -1,72 +1,67 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-west-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "fargate" }
   },
   "aws": {
     "dimensions": {
-      "ServiceName": "api-backend",
-      "ClusterName": "prod-cluster",
-      "TaskDefinitionFamily": "api-backend"
+      "ServiceName": "worker",
+      "ClusterName": "batch-workers-cluster",
+      "TaskDefinitionFamily": "worker"
     },
     "ecs": {
       "metrics": {
-        "CPUUtilization": { "avg": 96 },
-        "CPUReservation": { "avg": 70.64204845834817 },
-        "MemoryUtilization": { "avg": 50.61777697277443 },
-        "MemoryReservation": { "avg": 63.44703837274226 },
+        "CPUUtilization": { "avg": 61 },
+        "CPUReservation": { "avg": 66.5624936577673 },
+        "MemoryUtilization": { "avg": 20.80657226569457 },
+        "MemoryReservation": { "avg": 22.789471396273647 },
         "GPUReservation": { "avg": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-fargate-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-fargate-logs-814726593401"
+        "name": "aws-fargate-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-fargate-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/fargate/us-east-2/2026/04/17/fargate_KJ25V89EH.log.gz"
+        "key": "AWSLogs/501938274650/fargate/eu-west-2/2026/04/20/fargate_6XN6I6RO1X9.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/fargate/logs",
-      "log_stream": "us-east-2/gbufqe0c",
-      "ingestion_time": "2026-04-17T16:01:38.265Z"
+      "log_stream": "eu-west-2/frsvuc1y",
+      "ingestion_time": "2026-04-20T13:03:49.535Z"
     }
   },
   "container": {
-    "id": "5dl6f28epud",
-    "name": "api-backend",
-    "image": { "name": "myrepo/api-backend:latest", "tag": "latest" },
+    "id": "cqyuy2s7a2",
+    "name": "worker",
+    "image": { "name": "myrepo/worker:latest", "tag": "latest" },
     "runtime": "docker"
   },
-  "process": { "pid": 28006, "name": "api-backend" },
-  "log": { "level": "error" },
+  "process": { "pid": 57008, "name": "worker" },
+  "log": { "level": "info" },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process", "container"],
     "dataset": "aws.ecs_fargate",
     "provider": "ecs.amazonaws.com",
-    "duration": 94000000000,
+    "duration": 933000000000,
     "module": "aws"
   },
-  "message": "{\"cluster\":\"prod-cluster\",\"taskId\":\"8y36n23bdbv\",\"taskDefinition\":\"api-backend:50\",\"container\":\"api-backend\",\"level\":\"error\",\"message\":\"Container health check failed 3 times\",\"timestamp\":\"2026-04-17T16:01:37.787Z\"}",
-  "error": {
-    "code": "TaskStopped",
-    "message": "Task failed to reach RUNNING state",
-    "type": "container"
-  },
-  "host": { "name": "ip-195-211-53-157.ec2.internal", "hostname": "fargate-oncm9rke" },
+  "message": "{\"cluster\":\"batch-workers-cluster\",\"taskId\":\"6v7smie3w9d\",\"taskDefinition\":\"worker:28\",\"container\":\"worker\",\"level\":\"info\",\"message\":\"Task registered with load balancer\",\"timestamp\":\"2026-04-20T13:03:48.907Z\"}",
+  "host": { "name": "ip-42-151-228-242.ec2.internal", "hostname": "fargate-p8ho3fhs" },
   "service": { "name": "fargate", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.fargate", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "pk890sv9y1s"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "3en5sk6hpgh"
   },
   "input": { "type": "aws-cloudwatch" }
 }

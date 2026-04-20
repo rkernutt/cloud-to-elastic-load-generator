@@ -31,7 +31,7 @@ export function InstallerRow({
       <EuiFlexGroup alignItems="flexStart" gutterSize="m" responsive={false}>
         <EuiFlexItem grow={false} style={{ paddingTop: 2 }}>
           <EuiSwitch
-            label=""
+            label={label}
             checked={enabled}
             onChange={(e) => onToggle(e.target.checked)}
             showLabel={false}

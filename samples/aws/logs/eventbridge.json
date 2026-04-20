@@ -1,45 +1,45 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-west-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "events" }
   },
   "aws": {
-    "dimensions": { "EventBusName": "custom-events", "RuleName": "order-created-rule" },
+    "dimensions": { "EventBusName": "default", "RuleName": "security-event-forwarder" },
     "eventbridge": {
-      "event_bus": "custom-events",
-      "rule": "order-created-rule",
+      "event_bus": "default",
+      "rule": "security-event-forwarder",
       "source": "custom.app",
-      "detail_type": "Order Placed",
-      "targets_invoked": 3,
+      "detail_type": "EC2 Instance State-change Notification",
+      "targets_invoked": 4,
       "targets_failed": 0,
-      "event_id": "4n62lq0l-hsjv-bwjr-oi5s-w5i9s9qrxx",
-      "log_kind": "invocation",
+      "event_id": "8s048ce1-qngg-3rw3-g4df-0sm3b7c2j03a",
+      "log_kind": "schema_discovery",
       "structured_logging": false,
       "metrics": {
         "Invocations": { "sum": 1 },
         "FailedInvocations": { "sum": 0 },
         "TriggeredRules": { "sum": 1 },
-        "MatchedEvents": { "sum": 93 },
+        "MatchedEvents": { "sum": 2 },
         "ThrottledRules": { "sum": 0 },
         "DeadLetterInvocations": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-eventbridge-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-eventbridge-logs-164820739518"
+        "name": "aws-eventbridge-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-eventbridge-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/eventbridge/eu-south-2/2026/04/17/eventbridge_52WW4L9WM5.log.gz"
+        "key": "AWSLogs/293847561023/eventbridge/eu-west-2/2026/04/20/eventbridge_AK06AQMWXB.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/eventbridge/logs",
-      "log_stream": "eu-south-2/e2sve371",
-      "ingestion_time": "2026-04-17T16:01:38.362Z"
+      "log_stream": "eu-west-2/wantif7t",
+      "ingestion_time": "2026-04-20T13:03:49.663Z"
     }
   },
   "event": {
@@ -48,10 +48,10 @@
     "type": ["deletion"],
     "dataset": "aws.eventbridge",
     "provider": "events.amazonaws.com",
-    "duration": 51000000,
+    "duration": 173000000,
     "module": "aws"
   },
-  "message": "EventBridge Invocation rule=order-created-rule bus=custom-events invocation_id=2lhakzgo9pp matched=71",
+  "message": "EventBridge SchemaDiscovery registry=partner-events discovered_type=InvoicePaid@v1 revision=11",
   "log": { "level": "info" },
   "service": { "name": "eventbridge", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -59,8 +59,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "o78rzzogmko"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "q5vjqc654p"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,57 +1,59 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-east-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "kms" }
   },
   "aws": {
     "kms": {
-      "key_id": "616h3cfv-k6t9-rrlo-rpvz-aejyr5wzub",
-      "key_alias": "alias/rds-encryption",
-      "operation": "DescribeKey",
-      "principal_arn": "arn:aws:iam::293847561023:role/lambda-role",
-      "key_state": "Enabled",
-      "encryption_algorithm": "SYMMETRIC_DEFAULT",
+      "key_id": "ozy78ewc-w57p-sql1-4a5p-vy1wawo4lt",
+      "key_alias": "alias/secrets-key",
+      "operation": "Decrypt",
+      "principal_arn": "arn:aws:iam::738291046572:role/lambda-role",
+      "key_state": "PendingDeletion",
+      "encryption_algorithm": "RSAES_OAEP_SHA_256",
+      "error_code": "AccessDeniedException",
       "metrics": {
         "SecretsManagerCrossAccountBlocking": { "sum": 0 },
-        "KeysCount": { "avg": 914 },
-        "KeysPendingDeletion": { "avg": 6 },
-        "KeysDisabled": { "avg": 1 }
+        "KeysCount": { "avg": 198 },
+        "KeysPendingDeletion": { "avg": 3 },
+        "KeysDisabled": { "avg": 5 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-kms-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-kms-logs-293847561023"
+        "name": "aws-kms-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-kms-logs-738291046572"
       },
-      "object": { "key": "AWSLogs/293847561023/kms/us-east-2/2026/04/17/kms_WJSSQAXURL.log.gz" }
+      "object": { "key": "AWSLogs/738291046572/kms/us-east-1/2026/04/20/kms_C0FHEE1UU3R.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/kms/logs",
-      "log_stream": "us-east-2/77dp0so9",
-      "ingestion_time": "2026-04-17T16:01:38.308Z"
+      "log_stream": "us-east-1/e23ihg2u",
+      "ingestion_time": "2026-04-20T13:03:49.592Z"
     }
   },
   "event": {
-    "action": "DescribeKey",
-    "outcome": "success",
+    "action": "Decrypt",
+    "outcome": "failure",
     "category": ["authentication", "configuration"],
     "dataset": "aws.kms",
     "provider": "kms.amazonaws.com",
     "module": "aws"
   },
-  "message": "KMS DescribeKey: alias/rds-encryption",
-  "log": { "level": "info" },
+  "message": "KMS Decrypt FAILED on alias/secrets-key: Access denied",
+  "log": { "level": "error" },
+  "error": { "code": "AccessDeniedException", "message": "KMS operation failed", "type": "access" },
   "service": { "name": "kms", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.kms", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "orcry3cqstn"
+    "name": "filebeat-aws-us-east-1",
+    "ephemeral_id": "qzkl15gtn2"
   },
   "input": { "type": "aws-cloudwatch" }
 }

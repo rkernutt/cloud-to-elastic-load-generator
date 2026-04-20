@@ -1,22 +1,22 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
+    "region": "ca-central-1",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "ecs" }
   },
   "aws": {
-    "dimensions": { "ClusterName": "staging", "ServiceName": "auth-service" },
+    "dimensions": { "ClusterName": "prod-cluster", "ServiceName": "worker" },
     "ecs": {
-      "ecs_cluster": "staging",
-      "ecs_task_definition": "auth-service-td:42",
-      "ecs_task_arn": "arn:aws:ecs:me-south-1:738291046572:task/staging/2zvwywn1s0k",
+      "ecs_cluster": "prod-cluster",
+      "ecs_task_definition": "worker-td:24",
+      "ecs_task_arn": "arn:aws:ecs:ca-central-1:738291046572:task/prod-cluster/gqpoo6tsss",
       "metrics": {
-        "CPUUtilization": { "avg": 20.408456459260563 },
-        "CPUReservation": { "avg": 66.90980986619456 },
-        "MemoryUtilization": { "avg": 28.71224076263519 },
-        "MemoryReservation": { "avg": 36.244244544360484 },
+        "CPUUtilization": { "avg": 14.450427891399197 },
+        "CPUReservation": { "avg": 34.22716885360498 },
+        "MemoryUtilization": { "avg": 24.533821417185983 },
+        "MemoryReservation": { "avg": 31.05389485078941 },
         "GPUReservation": { "avg": 0 }
       }
     },
@@ -25,43 +25,43 @@
         "name": "aws-ecs-logs-738291046572",
         "arn": "arn:aws:s3:::aws-ecs-logs-738291046572"
       },
-      "object": { "key": "AWSLogs/738291046572/ecs/me-south-1/2026/04/17/ecs_CSHU74SGGP8.log.gz" }
+      "object": { "key": "AWSLogs/738291046572/ecs/ca-central-1/2026/04/20/ecs_5OX63GK1CJ4.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/ecs/logs",
-      "log_stream": "me-south-1/f2zwt7my",
-      "ingestion_time": "2026-04-17T16:01:38.252Z"
+      "log_stream": "ca-central-1/z94j6030",
+      "ingestion_time": "2026-04-20T13:03:49.513Z"
     }
   },
   "container": {
-    "id": "38mmd20p2vt",
-    "name": "auth-service",
-    "image": { "name": "nginx:3.11", "tag": "1.24" },
+    "id": "cmjsy3jsumg",
+    "name": "worker",
+    "image": { "name": "nginx:18-alpine", "tag": "alpine" },
     "runtime": "docker"
   },
-  "process": { "pid": 29696, "name": "auth-service" },
+  "process": { "pid": 3356, "name": "worker" },
   "log": { "level": "info" },
   "event": {
     "category": ["process", "container"],
     "outcome": "success",
     "dataset": "aws.ecs",
     "provider": "ecs.amazonaws.com",
-    "duration": 1987000000000,
+    "duration": 770000000000,
     "module": "aws"
   },
-  "message": "(service auth-service) registered 1 targets in (target-group tg-H88A2RZ5)",
-  "service": { "name": "auth-service", "type": "ecs" },
-  "ecs_cluster": "staging",
-  "ecs_task_definition": "auth-service-td:42",
-  "ecs_task_arn": "arn:aws:ecs:me-south-1:738291046572:task/staging/2zvwywn1s0k",
-  "host": { "name": "ip-102-29-4-25.ec2.internal", "hostname": "ecs-rjfndrut" },
+  "message": "{\"cluster\":\"prod-cluster\",\"service\":\"worker\",\"taskId\":\"gqpoo6tsss\",\"container\":\"worker\",\"level\":\"info\",\"message\":\"service worker has reached a steady state.\",\"timestamp\":\"2026-04-20T13:03:48.907Z\",\"ecs_cluster\":\"prod-cluster\",\"ecs_task_definition\":\"worker-td:24\",\"ecs_task_arn\":\"arn:aws:ecs:ca-central-1:738291046572:task/prod-cluster/gqpoo6tsss\"}",
+  "service": { "name": "worker", "type": "ecs" },
+  "ecs_cluster": "prod-cluster",
+  "ecs_task_definition": "worker-td:24",
+  "ecs_task_arn": "arn:aws:ecs:ca-central-1:738291046572:task/prod-cluster/gqpoo6tsss",
+  "host": { "name": "ip-36-16-133-197.ec2.internal", "hostname": "ecs-zupv876q" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.ecs_metrics", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "afrhddbz2ts"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "xgs5dk3e8s"
   },
   "input": { "type": "aws-cloudwatch" }
 }

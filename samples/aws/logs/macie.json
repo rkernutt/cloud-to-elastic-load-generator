@@ -1,72 +1,75 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-west-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "macie" }
   },
   "aws": {
-    "dimensions": { "BucketName": "prod-data-il-central-1" },
+    "dimensions": { "BucketName": "analytics-output-eu-west-1" },
     "macie": {
-      "finding_id": "zwz56zf8-bsyx-b0v2",
-      "finding_type": "none",
-      "severity": "INFORMATIONAL",
+      "finding_id": "q9tybxre-4d6u-4yhp",
+      "finding_type": "Policy:IAMUser/S3BucketReplicatedExternally",
+      "severity": "LOW",
       "s3_bucket": {
-        "name": "prod-data-il-central-1",
-        "arn": "arn:aws:s3:::prod-data-il-central-1"
+        "name": "analytics-output-eu-west-1",
+        "arn": "arn:aws:s3:::analytics-output-eu-west-1"
       },
       "s3_bucket_full": {
-        "name": "prod-data-il-central-1",
-        "arn": "arn:aws:s3:::prod-data-il-central-1",
-        "owner_id": "2cz5rmclniu",
-        "default_server_side_encryption": { "encryption_type": "NONE" },
-        "tags": [{ "key": "Environment", "value": "staging" }],
+        "name": "analytics-output-eu-west-1",
+        "arn": "arn:aws:s3:::analytics-output-eu-west-1",
+        "owner_id": "zypt3xa7reh",
+        "default_server_side_encryption": { "encryption_type": "aws:kms" },
+        "tags": [{ "key": "Environment", "value": "prod" }],
         "public_access": {
-          "effective_permission": "NOT_PUBLIC",
-          "block_public_acls": true,
-          "block_public_policy": true,
-          "ignore_public_acls": true,
-          "restrict_public_buckets": true
+          "effective_permission": "PUBLIC",
+          "block_public_acls": false,
+          "block_public_policy": false,
+          "ignore_public_acls": false,
+          "restrict_public_buckets": false
         }
       },
-      "occurrences": 0,
-      "sensitive_data_categories": [],
-      "data_identifiers": []
+      "occurrences": 46943,
+      "sensitive_data_categories": ["CREDENTIALS"],
+      "data_identifiers": ["PASSPORT_NUMBER"]
     },
     "s3": {
       "bucket": {
-        "name": "aws-macie-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-macie-logs-501938274650"
+        "name": "aws-macie-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-macie-logs-164820739518"
       },
-      "object": {
-        "key": "AWSLogs/501938274650/macie/il-central-1/2026/04/17/macie_V5ICXZJGIYC.log.gz"
-      }
+      "object": { "key": "AWSLogs/164820739518/macie/eu-west-1/2026/04/20/macie_KN1JLM5LG9.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/macie/logs",
-      "log_stream": "il-central-1/321vsb3v",
-      "ingestion_time": "2026-04-17T16:01:38.303Z"
+      "log_stream": "eu-west-1/drzy53pz",
+      "ingestion_time": "2026-04-20T13:03:49.584Z"
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "success",
-    "category": ["vulnerability"],
+    "outcome": "failure",
+    "category": ["intrusion_detection"],
     "dataset": "aws.macie",
     "provider": "macie2.amazonaws.com",
     "module": "aws"
   },
-  "message": "Macie scan complete: no sensitive data found",
-  "log": { "level": "info" },
+  "message": "Macie detected sensitive data in s3://analytics-output-eu-west-1: Policy:IAMUser/S3BucketReplicatedExternally",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "SensitiveDataFound",
+    "message": "Sensitive data in s3://analytics-output-eu-west-1",
+    "type": "data"
+  },
   "service": { "name": "macie", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.macie", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "bgi3sh5iks"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "bf9f00052k"
   },
   "input": { "type": "http_endpoint" }
 }

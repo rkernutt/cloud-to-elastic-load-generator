@@ -1,80 +1,88 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-west-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "gamelift" }
   },
   "aws": {
     "dimensions": {
-      "FleetId": "fleet-k3hmefif",
+      "FleetId": "fleet-1umqvy7z",
       "Location": "us-west-2",
       "MetricGroups": "All",
       "OperatingSystem": "AMAZON_LINUX_2"
     },
     "gamelift": {
-      "fleet_id": "fleet-k3hmefif",
-      "fleet_name": "eu-west-battle",
-      "event_type": "GameSessionCreated",
-      "game_session_id": "arn:aws:gamelift:ap-northeast-1::gamesession/eu-west-battle/e07rufsuwrj",
-      "current_player_sessions": 13,
-      "maximum_player_sessions": 200,
-      "instance_type": "c5.xlarge",
-      "instance_count": 28,
-      "desired_instances": 1,
-      "idle_instances": 0,
-      "matchmaking_configuration": "RegionalMatch",
+      "fleet_id": "fleet-1umqvy7z",
+      "fleet_name": "matchmaking-fleet",
+      "event_type": "MatchmakingSucceeded",
+      "game_session_id": "arn:aws:gamelift:us-west-2::gamesession/matchmaking-fleet/w7wbbtm5ggq",
+      "current_player_sessions": 2,
+      "maximum_player_sessions": 50,
+      "instance_type": "c5.large",
+      "instance_count": 10,
+      "desired_instances": 36,
+      "idle_instances": 5,
+      "matchmaking_configuration": "FastMatch",
+      "matchmaking_ticket_id": "ecfrxla05zk",
+      "matchmaking_duration_seconds": 15,
+      "error_code": "InvalidFleetStatus",
       "metrics": {
-        "ActiveInstances": { "avg": 5 },
-        "IdleInstances": { "avg": 7 },
-        "PercentIdleInstances": { "avg": 26.563291740081784 },
-        "DesiredInstances": { "avg": 27 },
+        "ActiveInstances": { "avg": 53 },
+        "IdleInstances": { "avg": 14 },
+        "PercentIdleInstances": { "avg": 9.045343933925693 },
+        "DesiredInstances": { "avg": 91 },
         "MinInstances": { "avg": 2 },
         "MaxInstances": { "avg": 100 },
-        "InstanceInterruptions": { "sum": 0 },
-        "ActiveGameSessions": { "avg": 653 },
-        "ActivatingGameSessions": { "avg": 11 },
-        "AvailableGameSessions": { "avg": 480 },
-        "ActivePlayerSessions": { "avg": 1304 },
-        "CurrentPlayerSessions": { "avg": 3908 },
-        "PlayerSessionActivations": { "sum": 16 }
+        "InstanceInterruptions": { "sum": 3 },
+        "ActiveGameSessions": { "avg": 751 },
+        "ActivatingGameSessions": { "avg": 7 },
+        "AvailableGameSessions": { "avg": 424 },
+        "ActivePlayerSessions": { "avg": 7720 },
+        "CurrentPlayerSessions": { "avg": 4512 },
+        "PlayerSessionActivations": { "sum": 99 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-gamelift-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-gamelift-logs-293847561023"
+        "name": "aws-gamelift-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-gamelift-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/gamelift/ap-northeast-1/2026/04/17/gamelift_6RTMU24GETN.log.gz"
+        "key": "AWSLogs/164820739518/gamelift/us-west-2/2026/04/20/gamelift_BM7IC0VEWC5.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/gamelift/logs",
-      "log_stream": "ap-northeast-1/ra1kmrpa",
-      "ingestion_time": "2026-04-17T16:01:38.454Z"
+      "log_stream": "us-west-2/wejbih9u",
+      "ingestion_time": "2026-04-20T13:03:49.760Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process", "network"],
     "dataset": "aws.gamelift",
     "provider": "gamelift.amazonaws.com",
-    "duration": 3783832000000,
+    "duration": 13692000000,
     "module": "aws"
   },
-  "message": "GameLift eu-west-battle: GameSessionCreated",
-  "log": { "level": "info" },
-  "host": { "name": "ip-21-252-233-190.ec2.internal", "hostname": "gamelift-45tuo2hh" },
+  "message": "GameLift matchmaking-fleet MatchmakingSucceeded FAILED: Instance unavailable:",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InvalidFleetStatus",
+    "message": "GameLift operation failed",
+    "type": "session"
+  },
+  "host": { "name": "ip-122-26-112-72.ec2.internal", "hostname": "gamelift-r75vnywl" },
   "service": { "name": "gamelift", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.gamelift", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "6sxcdmpo0q"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "ft0qxblyfnr"
   },
   "input": { "type": "aws-cloudwatch" }
 }

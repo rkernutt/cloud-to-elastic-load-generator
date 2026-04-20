@@ -1,54 +1,63 @@
 {
-  "@timestamp": "2026-04-17T16:01:37.787Z",
+  "@timestamp": "2026-04-20T13:03:48.907Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
+    "region": "ap-east-1",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "inspector2" }
   },
   "aws": {
-    "dimensions": { "Severity": "INFORMATIONAL" },
+    "dimensions": { "Severity": "HIGH" },
     "inspector2": {
-      "findingArn": "arn:aws:inspector2:ap-northeast-2:738291046572:finding/ttc54ux2-vbr1-ltkf-spzd-t0iwqcm71w",
-      "type": "CODE_VULNERABILITY",
-      "title": "Code vulnerability in handler.js",
-      "description": "Inspector identified a code pattern that matches a known weakness category.",
+      "findingArn": "arn:aws:inspector2:ap-east-1:738291046572:finding/fn83o84e-32nq-a9oe-ibht-kelhg99jg5h",
+      "type": "PACKAGE_VULNERABILITY",
+      "title": "CVE-2022-55922: spring-core 3.19.4 has a known vulnerability",
+      "description": "A package used by the workload has a vulnerability tracked as CVE-2022-55922 with CVSS 7.3.",
       "remediation": {
         "recommendation": {
-          "text": "Apply the suggested code change from your static analysis workflow or suppress with a documented risk acceptance."
+          "text": "Upgrade spring-core to 1.11.17 or later to remediate CVE-2022-55922."
         }
       },
       "resources": [
         {
-          "type": "AWS_LAMBDA_FUNCTION",
-          "id": "arn:aws:lambda:ap-northeast-2:738291046572:function:my-fn",
+          "type": "AWS_EC2_INSTANCE",
+          "id": "i-xzgmjrbpvv",
           "partition": "aws",
-          "region": "ap-northeast-2",
+          "region": "ap-east-1",
           "tags": { "Environment": "staging" }
         }
       ],
       "exploitAvailable": "YES",
       "fixAvailable": true,
-      "finding_status": "ACTIVE",
-      "severity": "INFORMATIONAL",
-      "severity_score": 1.2,
+      "finding_status": "SUPPRESSED",
+      "severity": "HIGH",
+      "severity_score": 7.3,
       "exploitability": "FUNCTIONAL",
-      "resource_type": "AWS_LAMBDA_FUNCTION",
-      "resource_id": "arn:aws:lambda:ap-northeast-2:738291046572:function:my-fn",
-      "first_observed_at": "2026-03-28T16:01:37.787Z",
-      "last_observed_at": "2026-04-17T16:01:37.787Z",
-      "code_vulnerability": {
-        "cwes": ["CWE-89"],
-        "detector_name": "Semgrep",
-        "file_path": { "name": "handler.js", "line_number": 454 }
+      "resource_type": "AWS_EC2_INSTANCE",
+      "resource_id": "i-xzgmjrbpvv",
+      "first_observed_at": "2026-04-11T13:03:48.907Z",
+      "last_observed_at": "2026-04-20T13:03:48.907Z",
+      "package_vulnerability": {
+        "cve_id": "CVE-2022-55922",
+        "source": "GHSA",
+        "cvss3_score": 7.3038223821999075,
+        "vulnerable_packages": [
+          {
+            "name": "spring-core",
+            "version": "3.19.4",
+            "fixed_in_version": "1.11.17",
+            "package_manager": "DOTNET"
+          }
+        ],
+        "related_vulnerabilities": []
       },
       "metrics": {
-        "TotalFindings": { "sum": 268 },
+        "TotalFindings": { "sum": 395 },
         "CriticalFindings": { "sum": 0 },
-        "HighFindings": { "sum": 0 },
+        "HighFindings": { "sum": 36 },
         "MediumFindings": { "sum": 0 },
-        "LowFindings": { "sum": 134 },
-        "CoveredResources": { "avg": 523 }
+        "LowFindings": { "sum": 0 },
+        "CoveredResources": { "avg": 2196 }
       }
     },
     "s3": {
@@ -57,34 +66,44 @@
         "arn": "arn:aws:s3:::aws-inspector-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/738291046572/inspector/ap-northeast-2/2026/04/17/inspector_7WHRL2LISUN.log.gz"
+        "key": "AWSLogs/738291046572/inspector/ap-east-1/2026/04/20/inspector_9XQJB4TONHU.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/inspector/logs",
-      "log_stream": "ap-northeast-2/ij43gz5e",
-      "ingestion_time": "2026-04-17T16:01:38.304Z"
+      "log_stream": "ap-east-1/9tst4b3i",
+      "ingestion_time": "2026-04-20T13:03:49.587Z"
     }
   },
-  "vulnerability": { "severity": "INFORMATIONAL", "score": { "base": 1.1565682447023475 } },
+  "vulnerability": {
+    "severity": "HIGH",
+    "id": "CVE-2022-55922",
+    "score": { "base": 7.3038223821999075 }
+  },
+  "package": { "name": "spring-core", "version": "3.19.4" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["vulnerability"],
     "type": ["info"],
     "dataset": "aws.inspector2",
     "provider": "inspector2.amazonaws.com",
     "module": "aws"
   },
-  "message": "Inspector2 [INFORMATIONAL]: CODE_VULNERABILITY detected on AWS_LAMBDA_FUNCTION",
-  "log": { "level": "info" },
+  "message": "Inspector2 [HIGH]: CVE-2022-55922 in spring-core 3.19.4 on AWS_EC2_INSTANCE (fix: 1.11.17)",
+  "log": { "level": "error" },
+  "error": {
+    "code": "CVE-2022-55922",
+    "message": "HIGH vulnerability: spring-core",
+    "type": "vulnerability"
+  },
   "service": { "name": "inspector", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.inspector", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "2lpyir2l9gu"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "t7u0q898gs"
   },
   "input": { "type": "http_endpoint" }
 }

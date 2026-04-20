@@ -28,6 +28,7 @@ import {
 } from "@elastic/eui";
 
 import type { CloudId } from "../cloud/types";
+import K from "../theme";
 import type { ServiceGroup } from "../data/serviceGroups";
 import type {
   AlertRuleEntry,
@@ -107,6 +108,7 @@ function SetupCollapsible({
     <div style={{ marginBottom: isCategory ? 10 : 6 }}>
       <button
         type="button"
+        aria-expanded={expanded}
         onClick={() =>
           setExpandedSections((prev) => {
             const next = new Set(prev);
@@ -1640,6 +1642,9 @@ export function SetupPage({
         pack.dashboardIndices.some((i) => (DASHBOARDS[i].title ?? "").toLowerCase().includes(q)) ||
         pack.mlJobs.some(
           (j) => j.id.toLowerCase().includes(q) || j.description.toLowerCase().includes(q)
+        ) ||
+        pack.alertRules.some(
+          (r) => r.id.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)
         )
     );
   }, [servicePackIndex, assetFilterQuery, DASHBOARDS]);
@@ -1934,12 +1939,64 @@ export function SetupPage({
     );
   }
 
+  async function uninstallAlertRules() {
+    const files = filteredAlertRulePayload();
+    const entries = files.flatMap((f) => f.rules);
+    if (entries.length === 0) return;
+    addLog(`Removing ${entries.length} alerting rules…`);
+    const kb = kibanaUrl.replace(/\/$/, "");
+    let ok = 0;
+    let fail = 0;
+    let missing = 0;
+
+    for (const rule of entries) {
+      const rulePath = `/api/alerting/rule/${encodeURIComponent(rule.id)}`;
+      try {
+        const existing = await proxyCall({
+          baseUrl: kb,
+          apiKey,
+          path: rulePath,
+          method: "GET",
+          allow404: true,
+        });
+        if (
+          !existing ||
+          typeof existing !== "object" ||
+          !("id" in (existing as Record<string, unknown>))
+        ) {
+          missing++;
+          continue;
+        }
+        await proxyCall({
+          baseUrl: kb,
+          apiKey,
+          path: rulePath,
+          method: "DELETE",
+        });
+        ok++;
+      } catch (e) {
+        const msg = String(e);
+        if (msg.includes("404") || msg.includes("Not Found")) {
+          missing++;
+        } else {
+          fail++;
+          addLog(`  ✗ ${rule.name}: ${msg}`, "error");
+        }
+      }
+    }
+    addLog(
+      `  ✓ Alerting rules: ${ok} removed${missing > 0 ? `, ${missing} not found` : ""}${fail > 0 ? `, ${fail} failed` : ""}`,
+      fail > 0 ? "warn" : "ok"
+    );
+  }
+
   async function performUninstallSteps() {
     if (enableIntegration) await uninstallIntegration();
     if (enableApm) await uninstallApm();
     if (enablePipelines) await uninstallPipelines();
     if (enableDashboards) await uninstallDashboards();
     if (enableMlJobs) await uninstallMlJobs();
+    if (enableLoadgenIntegrations) await uninstallAlertRules();
   }
 
   const runUninstall = async () => {
@@ -2327,7 +2384,7 @@ export function SetupPage({
           {assetFilterQuery.trim() ? <> ({visibleServicePacks.length} visible)</> : null}
           {" — "}
           {derivedPipelineIds.size} pipeline(s), {derivedDashboardKeys.size} dashboard(s),{" "}
-          {derivedMlJobIds.size} ML job(s)
+          {derivedMlJobIds.size} ML job(s), {derivedAlertRuleIds.size} alert rule(s)
         </EuiText>
         <EuiSpacer size="s" />
 
@@ -2365,6 +2422,7 @@ export function SetupPage({
                         });
                       }}
                       label=""
+                      aria-label={`Select all ${group.category}`}
                       onClick={(e: React.MouseEvent) => e.stopPropagation()}
                     />
                   </EuiFlexItem>
@@ -2432,6 +2490,7 @@ export function SetupPage({
                               setSelectedServiceIds((prev) => toggleGroup(prev, pack.serviceId))
                             }
                             label=""
+                            aria-label={`Select ${pack.label}`}
                             onClick={(e: React.MouseEvent) => e.stopPropagation()}
                           />
                         </EuiFlexItem>
@@ -2679,11 +2738,11 @@ export function SetupPage({
                     style={{
                       color:
                         line.type === "ok"
-                          ? "#00bfa5"
+                          ? K.success
                           : line.type === "error"
-                            ? "#ff4040"
+                            ? K.danger
                             : line.type === "warn"
-                              ? "#f5a623"
+                              ? K.warning
                               : "inherit",
                     }}
                   >
@@ -2711,8 +2770,8 @@ export function SetupPage({
         >
           <p>
             This runs the same install steps as normal Setup for your selection (Fleet, pipelines,
-            dashboards, ML). Existing assets may already be present; the log will note skips or
-            conflicts.
+            dashboards, ML, alerting rules). Existing assets may already be present; the log will
+            note skips or conflicts.
           </p>
         </EuiConfirmModal>
       )}

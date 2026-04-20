@@ -114,3 +114,12 @@ composer-data-pipeline (transaction: dag_run:data_pipeline_daily)
   - `gcp-data-pipeline-error-spike` — failure rate spike
   - `gcp-data-pipeline-null-data` — zero-row BigQuery queries
   - `gcp-data-pipeline-stage-latency` — Dataproc Spark stage anomalies
+- **Alerting Rules**: 5 Kibana ES-query rules (installed disabled by default)
+
+| Rule                                                | Condition                                                   | Index Pattern             |
+| --------------------------------------------------- | ----------------------------------------------------------- | ------------------------- |
+| GCP Data Pipeline — High Failure Rate               | `> 3` Composer failures in 15 min                           | `logs-gcp.composer*`      |
+| GCP Data Pipeline — Null/Empty Data Detected        | BigQuery query returns 0 rows                               | `logs-gcp.bigquery*`      |
+| GCP Data Pipeline — Dataproc/Spark Processing Error | Dataproc log with `error.type` present                      | `logs-gcp.dataproc*`      |
+| GCP Data Pipeline — GCS Source File Format Error    | GCS object name with URL-unsafe chars or non-Avro extension | `logs-gcp.cloud_storage*` |
+| GCP Data Pipeline — Slow Pipeline Run (>60s)        | Composer DAG completion with `duration_ms > 60000`          | `logs-gcp.composer*`      |
