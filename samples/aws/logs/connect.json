@@ -1,40 +1,42 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
+    "region": "eu-north-1",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "connect" }
   },
   "aws": {
-    "dimensions": { "InstanceId": "uk16r1dy-k3cq-qi2s-cchn-xkp9sqm8n8", "MetricGroup": "Queue" },
+    "dimensions": { "InstanceId": "75kbc0im-xi3v-c58w-ft2s-swq1fsvalz", "MetricGroup": "Queue" },
     "connect": {
-      "instance_id": "uk16r1dy-k3cq-qi2s-cchn-xkp9sqm8n8",
-      "contact_id": "xgbz8o6c-twjw-fnqu",
-      "channel": "CHAT",
-      "initiation_method": "TRANSFER",
-      "queue_name": "Billing",
-      "duration_seconds": 1550,
-      "hold_duration_seconds": 60,
-      "queue_wait_time_seconds": 84,
+      "instance_id": "75kbc0im-xi3v-c58w-ft2s-swq1fsvalz",
+      "contact_id": "1zmijp8y-6h1d-diue",
+      "channel": "VOICE",
+      "initiation_method": "API",
+      "queue_name": "TechSupport",
+      "agent_id": "agent-alice",
+      "duration_seconds": 1589,
+      "hold_duration_seconds": 115,
+      "queue_wait_time_seconds": 266,
       "disconnect_reason": "CUSTOMER_DISCONNECT",
-      "sentiment_overall": "POSITIVE",
-      "contact_lens_enabled": true,
-      "lex_bot_interacted": false,
-      "initiation_timestamp": "2026-04-20T12:37:58.907Z",
-      "disconnect_timestamp": "2026-04-20T13:03:48.907Z",
-      "customer_endpoint": "+12036508602",
-      "system_endpoint": "+18002606247",
+      "sentiment_overall": "NEGATIVE",
+      "contact_lens_enabled": false,
+      "lex_bot_interacted": true,
+      "initiation_timestamp": "2026-04-20T13:55:25.344Z",
+      "disconnect_timestamp": "2026-04-20T14:21:54.344Z",
+      "customer_endpoint": "+14670124119",
+      "system_endpoint": "+18007559612",
+      "error_code": "QueueCapacityExceeded",
       "metrics": {
         "ContactsQueued": { "sum": 1 },
-        "ContactsHandled": { "sum": 1 },
+        "ContactsHandled": { "sum": 0 },
         "ContactsAbandoned": { "sum": 0 },
         "ContactsHoldAbandonment": { "sum": 0 },
-        "AverageHandleTime": { "avg": 1550 },
-        "AverageAfterContactWorkTime": { "avg": 235 },
-        "AverageQueueAnswerTime": { "avg": 74 },
-        "ServiceLevel": { "avg": 63.85661724053142 },
-        "OccupancyTime": { "avg": 72.35115646074303 }
+        "AverageHandleTime": { "avg": 1589 },
+        "AverageAfterContactWorkTime": { "avg": 155 },
+        "AverageQueueAnswerTime": { "avg": 48 },
+        "ServiceLevel": { "avg": 82.21062944169834 },
+        "OccupancyTime": { "avg": 57.05541666251692 }
       }
     },
     "s3": {
@@ -43,33 +45,34 @@
         "arn": "arn:aws:s3:::aws-connect-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/connect/ap-northeast-2/2026/04/20/connect_A5PHV5VCEXL.log.gz"
+        "key": "AWSLogs/814726593401/connect/eu-north-1/2026/04/20/connect_3UJI4HWZNB.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/connect/logs",
-      "log_stream": "ap-northeast-2/i7ytq75a",
-      "ingestion_time": "2026-04-20T13:03:49.749Z"
+      "log_stream": "eu-north-1/tm2tiuxi",
+      "ingestion_time": "2026-04-20T14:21:55.054Z"
     }
   },
   "event": {
-    "duration": 1550000000000,
-    "outcome": "success",
+    "duration": 1589000000000,
+    "outcome": "failure",
     "category": ["host", "session"],
     "dataset": "aws.connect",
     "provider": "connect.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"ContactId\":\"xgbz8o6c-twjw-fnqu\",\"AWSAccountId\":\"814726593401\",\"InstanceARN\":\"arn:aws:connect:ap-northeast-2:814726593401:instance/uk16r1dy-k3cq-qi2s-cchn-xkp9sqm8n8\",\"Channel\":\"CHAT\",\"InitiationMethod\":\"TRANSFER\",\"InitiationTimestamp\":\"2026-04-20T12:37:58.907Z\",\"DisconnectTimestamp\":\"2026-04-20T13:03:48.907Z\",\"LastUpdateTimestamp\":\"2026-04-20T13:03:48.907Z\",\"TotalPauseCount\":1,\"Queue\":{\"ARN\":\"arn:aws:connect:ap-northeast-2:814726593401:instance/uk16r1dy-k3cq-qi2s-cchn-xkp9sqm8n8/queue/JQUX2HOQ4B\",\"Name\":\"Billing\",\"EnqueueTimestamp\":\"2026-04-20T12:39:27.907Z\",\"DequeueTimestamp\":\"2026-04-20T12:53:57.907Z\"},\"AgentInfo\":{},\"CustomerEndpoint\":{\"Type\":\"EMAIL\",\"Address\":\"+12036508602\"},\"SystemEndpoint\":{\"Type\":\"TELEPHONE_NUMBER\",\"Address\":\"+18002606247\"},\"InitialContactId\":null,\"PreviousContactId\":null,\"InitiationDurationSeconds\":25,\"AfterContactWorkDuration\":240,\"ContactDuration\":1550,\"DisconnectReason\":\"CUSTOMER_DISCONNECT\",\"Tags\":{\"department\":\"support\"}}",
-  "log": { "level": "warn" },
+  "message": "Connect API FAILED: Agent unavailable",
+  "error": { "code": "ConnectError", "message": "Connect operation failed", "type": "session" },
+  "log": { "level": "error" },
   "service": { "name": "connect", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.connect", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "mqvp7v4th3"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "r5lfu1dkhp"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,57 +1,63 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-east-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "networkmanager" }
   },
   "aws": {
     "networkmanager": {
-      "global_network_id": "network-fe0gx0m0fkr",
-      "global_network_name": "global-network-dr",
+      "global_network_id": "network-2o2yxgy4dnj",
+      "global_network_name": "global-network-prod",
       "event_type": "TOPOLOGY_CHANGE",
-      "device_id": "device-ki0zhmdoe2",
-      "link_id": "link-5obc0ov11lw",
-      "site_id": "site-hwheexstsw6",
-      "site_name": "colo-frankfurt",
-      "bandwidth_mbps": 100,
+      "device_id": "device-p8mhwqgq94i",
+      "link_id": "link-j9ghvohnwgd",
+      "site_id": "site-0071j62k2177i",
+      "site_name": "branch-tokyo",
+      "bandwidth_mbps": 10000,
       "provider": "BT",
-      "type": "vpn",
-      "state": "UP"
+      "type": "mpls",
+      "state": "DOWN",
+      "error_code": "ResourceNotFoundException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-networkmanager-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-networkmanager-logs-293847561023"
+        "name": "aws-networkmanager-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-networkmanager-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/networkmanager/eu-central-2/2026/04/20/networkmanager_Q7151Q2D7YO.log.gz"
+        "key": "AWSLogs/501938274650/networkmanager/us-east-1/2026/04/20/networkmanager_GJSYQYQ1UEC.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/networkmanager/logs",
-      "log_stream": "eu-central-2/54aa1gsu",
-      "ingestion_time": "2026-04-20T13:03:49.570Z"
+      "log_stream": "us-east-1/v3y4bsyq",
+      "ingestion_time": "2026-04-20T14:21:54.869Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": "network",
     "dataset": "aws.networkmanager",
     "provider": "networkmanager.amazonaws.com",
     "module": "aws"
   },
-  "message": "Network Manager TOPOLOGY_CHANGE [global-network-dr]: dc-us-east link UP",
-  "log": { "level": "info" },
+  "message": "Network Manager TOPOLOGY_CHANGE [global-network-prod]: connection degraded",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ResourceNotFoundException",
+    "message": "Network Manager connection degraded",
+    "type": "network"
+  },
   "service": { "name": "networkmanager", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.networkmanager", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "swjgdcrdqw"
+    "name": "filebeat-aws-us-east-1",
+    "ephemeral_id": "zvjx4miywx"
   },
   "input": { "type": "aws-cloudwatch" }
 }

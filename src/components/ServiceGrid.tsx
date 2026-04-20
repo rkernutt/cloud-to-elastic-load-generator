@@ -260,7 +260,7 @@ const ServiceGrid = memo(function ServiceGrid({
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(3,1fr)",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
                     gap: 6,
                     padding: "0 10px 10px",
                   }}

@@ -1,75 +1,72 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
+    "region": "eu-west-3",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "macie" }
   },
   "aws": {
-    "dimensions": { "BucketName": "analytics-output-eu-west-1" },
+    "dimensions": { "BucketName": "analytics-output-eu-west-3" },
     "macie": {
-      "finding_id": "q9tybxre-4d6u-4yhp",
-      "finding_type": "Policy:IAMUser/S3BucketReplicatedExternally",
-      "severity": "LOW",
+      "finding_id": "tlvlreiw-dq28-owoz",
+      "finding_type": "none",
+      "severity": "INFORMATIONAL",
       "s3_bucket": {
-        "name": "analytics-output-eu-west-1",
-        "arn": "arn:aws:s3:::analytics-output-eu-west-1"
+        "name": "analytics-output-eu-west-3",
+        "arn": "arn:aws:s3:::analytics-output-eu-west-3"
       },
       "s3_bucket_full": {
-        "name": "analytics-output-eu-west-1",
-        "arn": "arn:aws:s3:::analytics-output-eu-west-1",
-        "owner_id": "zypt3xa7reh",
-        "default_server_side_encryption": { "encryption_type": "aws:kms" },
-        "tags": [{ "key": "Environment", "value": "prod" }],
+        "name": "analytics-output-eu-west-3",
+        "arn": "arn:aws:s3:::analytics-output-eu-west-3",
+        "owner_id": "cvu2r4q85d",
+        "default_server_side_encryption": { "encryption_type": "AES256" },
+        "tags": [{ "key": "Environment", "value": "staging" }],
         "public_access": {
-          "effective_permission": "PUBLIC",
-          "block_public_acls": false,
-          "block_public_policy": false,
-          "ignore_public_acls": false,
-          "restrict_public_buckets": false
+          "effective_permission": "NOT_PUBLIC",
+          "block_public_acls": true,
+          "block_public_policy": true,
+          "ignore_public_acls": true,
+          "restrict_public_buckets": true
         }
       },
-      "occurrences": 46943,
-      "sensitive_data_categories": ["CREDENTIALS"],
-      "data_identifiers": ["PASSPORT_NUMBER"]
+      "occurrences": 0,
+      "sensitive_data_categories": [],
+      "data_identifiers": []
     },
     "s3": {
       "bucket": {
         "name": "aws-macie-logs-164820739518",
         "arn": "arn:aws:s3:::aws-macie-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/164820739518/macie/eu-west-1/2026/04/20/macie_KN1JLM5LG9.log.gz" }
+      "object": {
+        "key": "AWSLogs/164820739518/macie/eu-west-3/2026/04/20/macie_T9FV6AG8QLE.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/macie/logs",
-      "log_stream": "eu-west-1/drzy53pz",
-      "ingestion_time": "2026-04-20T13:03:49.584Z"
+      "log_stream": "eu-west-3/7o21ofdy",
+      "ingestion_time": "2026-04-20T14:21:54.881Z"
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "failure",
-    "category": ["intrusion_detection"],
+    "outcome": "success",
+    "category": ["vulnerability"],
     "dataset": "aws.macie",
     "provider": "macie2.amazonaws.com",
     "module": "aws"
   },
-  "message": "Macie detected sensitive data in s3://analytics-output-eu-west-1: Policy:IAMUser/S3BucketReplicatedExternally",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "SensitiveDataFound",
-    "message": "Sensitive data in s3://analytics-output-eu-west-1",
-    "type": "data"
-  },
+  "message": "Macie scan complete: no sensitive data found",
+  "log": { "level": "info" },
   "service": { "name": "macie", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.macie", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "bf9f00052k"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "68clldhq6y6"
   },
   "input": { "type": "http_endpoint" }
 }

@@ -1,67 +1,67 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-southeast-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "efohbxdx25" },
+    "dimensions": { "DetectorId": "j72mi6rprih" },
     "guardduty": {
       "schema_version": "2.0",
-      "account_id": "501938274650",
-      "region": "eu-north-1",
+      "account_id": "164820739518",
+      "region": "ap-southeast-2",
       "partition": "aws",
-      "id": "6zxq4qp9gk",
-      "arn": "arn:aws:guardduty:eu-north-1:501938274650:detector/efohbxdx25/finding/6zxq4qp9gk",
+      "id": "ihyv8wvjboh",
+      "arn": "arn:aws:guardduty:ap-southeast-2:164820739518:detector/j72mi6rprih/finding/ihyv8wvjboh",
       "type": "Exfiltration:S3/MaliciousIPCaller",
       "title": "S3 object accessed from a known malicious IP",
-      "description": "S3 bucket analytics-output-274650 was accessed by 153.47.230.1, an IP associated with known threat actors",
-      "created_at": "2026-04-20T13:03:48.907Z",
-      "updated_at": "2026-04-20T13:03:48.907Z",
+      "description": "S3 bucket backup-exports-739518 was accessed by 93.34.210.225, an IP associated with known threat actors",
+      "created_at": "2026-04-20T14:21:54.344Z",
+      "updated_at": "2026-04-20T14:21:54.344Z",
       "severity": { "code": 7, "value": "High" },
-      "confidence": 76.94966710155371,
+      "confidence": 83.9610130529289,
       "resource": {
         "type": "S3Bucket",
-        "s3_bucket_detail": { "name": "analytics-output-274650", "type": "Destination" }
+        "s3_bucket_detail": { "name": "backup-exports-739518", "type": "Destination" }
       },
       "service": {
-        "detector_id": "efohbxdx25",
-        "count": 1825,
+        "detector_id": "j72mi6rprih",
+        "count": 974,
         "archived": false,
         "action": {
           "action_type": "AWS_API_CALL",
           "aws_api_call_action": {
             "api": "GetObject",
             "caller_type": "Remote IP",
-            "remote_ip_details": { "ip_address_v4": "153.47.230.1" }
+            "remote_ip_details": { "ip_address_v4": "93.34.210.225" }
           }
         }
       },
-      "metrics": { "FindingCount": { "sum": 20 }, "HighSeverityFindingCount": { "sum": 3 } }
+      "metrics": { "FindingCount": { "sum": 18 }, "HighSeverityFindingCount": { "sum": 2 } }
     },
     "s3": {
       "bucket": {
-        "name": "aws-data-exfil-chain-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-data-exfil-chain-logs-501938274650"
+        "name": "aws-data-exfil-chain-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-data-exfil-chain-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/data-exfil-chain/eu-north-1/2026/04/20/data-exfil-chain_H1DQUHSA7YU.log.gz"
+        "key": "AWSLogs/164820739518/data-exfil-chain/ap-southeast-2/2026/04/20/data-exfil-chain_RLEKEFVN43.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/data-exfil-chain/logs",
-      "log_stream": "eu-north-1/ql3j9ueu",
-      "ingestion_time": "2026-04-20T13:03:49.606Z"
+      "log_stream": "ap-southeast-2/1ncuadm9",
+      "ingestion_time": "2026-04-20T14:21:54.898Z"
     }
   },
-  "source": { "ip": "153.47.230.1" },
+  "source": { "ip": "93.34.210.225" },
   "rule": { "category": "exfiltration", "name": "Exfiltration:S3/MaliciousIPCaller" },
   "threat": {
     "tactic": { "name": "Exfiltration", "id": "TA0010" },
     "technique": { "name": "Transfer Data to Cloud Account", "id": "T1537" },
-    "indicator": [{ "type": "ip", "value": "153.47.230.1" }]
+    "indicator": [{ "type": "ip", "value": "93.34.210.225" }]
   },
   "event": {
     "kind": "alert",
@@ -73,11 +73,11 @@
     "provider": "guardduty.amazonaws.com",
     "module": "aws"
   },
-  "message": "GuardDuty [HIGH]: Exfiltration:S3/MaliciousIPCaller — s3://analytics-output-274650 from 153.47.230.1",
+  "message": "GuardDuty [HIGH]: Exfiltration:S3/MaliciousIPCaller — s3://backup-exports-739518 from 93.34.210.225",
   "log": { "level": "error" },
   "error": {
     "code": "ExfiltrationDetected",
-    "message": "S3 data exfiltration from analytics-output-274650",
+    "message": "S3 data exfiltration from backup-exports-739518",
     "type": "security"
   },
   "service": { "name": "data-exfil-chain", "type": "aws" },
@@ -86,8 +86,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "ih1fnya7zbc"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "bay65awn3ns"
   },
   "input": { "type": "http_endpoint" }
 }

@@ -1,61 +1,58 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "DEBUG",
-  "labels": { "instance_id": "3993151620421", "zone": "me-central2-a", "preemptible": "true" },
-  "insertId": "RUTN6QIHEOS",
+  "severity": "INFO",
+  "labels": {
+    "instance_id": "9886244237602",
+    "zone": "australia-southeast2-a",
+    "machine_type": "e2-micro"
+  },
+  "logName": "projects/globex-prod-a1b2c3/logs/syslog",
+  "insertId": "ZPRCXSYULZL",
   "resource": {
     "type": "gce_instance",
     "labels": {
-      "project_id": "globex-dev-g7h8i9",
-      "instance_id": "3993151620421",
-      "zone": "me-central2-a"
+      "project_id": "globex-prod-a1b2c3",
+      "instance_id": "9886244237602",
+      "zone": "australia-southeast2-a"
     }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "me-central2",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" },
+    "region": "australia-southeast2",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
     "service": { "name": "compute.googleapis.com" }
   },
   "gcp": {
-    "spot_vms": {
-      "instance_name": "api-zooc",
-      "instance_id": "3993151620421",
-      "zone": "me-central2-a",
-      "machine_type": "n2-standard-4",
-      "uptime_seconds": 697059,
-      "spot_price": 0.0071
+    "compute_engine": {
+      "instance_id": "9886244237602",
+      "instance_name": "db-fsik",
+      "machine_type": "e2-micro",
+      "zone": "australia-southeast2-a",
+      "status": "HEALTHY",
+      "preemptible": false,
+      "network_tags": ["egress-nat", "allow-ssh", "allow-ssh", "allow-http"],
+      "event_type": "OPS_AGENT",
+      "disk_size_gb": 901,
+      "metrics": { "cpu_utilization": 20.2, "memory_used_percent": 65.9, "disk_read_iops": 700 }
     }
   },
-  "event": {
-    "outcome": "success",
-    "duration": 240126756,
-    "module": "gcp",
-    "dataset": "gcp.compute_spot"
+  "event": { "outcome": "success", "duration": 924, "module": "gcp", "dataset": "gcp.compute" },
+  "message": "ops-agent: collected 3295 metric points for db-fsik; heartbeat ok",
+  "jsonPayload": {
+    "agentVersion": "2.48.0",
+    "metrics": { "cpu_utilization": 20.2, "memory_used_percent": 65.9, "disk_read_iops": 700 },
+    "host": "db-fsik"
   },
-  "message": "compute.googleapis.com: Spot VM \"api-zooc\" running in me-central2-a on n2-standard-4; uptime 697059s, effective price $0.0071/hr",
-  "service": { "name": "spot-vms", "type": "gcp" },
+  "service": { "name": "compute-engine", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.compute_spot", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.compute", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-me-central2",
-    "id": "t797ppsrnn"
+    "name": "elastic-agent-gcp-australia-southeast2",
+    "id": "5q7gggl834n"
   },
-  "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-dev-g7h8i9/logs/spot-vms",
-  "jsonPayload": {
-    "spot_vms": {
-      "instance_name": "api-zooc",
-      "instance_id": "3993151620421",
-      "zone": "me-central2-a",
-      "machine_type": "n2-standard-4",
-      "uptime_seconds": 697059,
-      "spot_price": 0.0071
-    },
-    "message": "compute.googleapis.com: Spot VM \"api-zooc\" running in me-central2-a on n2-standard-4; uptime 697059s, effective price $0.0071/hr"
-  }
+  "input": { "type": "gcp-pubsub" }
 }

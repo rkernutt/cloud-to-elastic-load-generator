@@ -1,63 +1,61 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-southeast-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "config" }
   },
   "aws": {
-    "dimensions": { "ConfigRuleName": "restricted-ssh", "ResourceType": "AWS::EC2::Instance" },
+    "dimensions": {
+      "ConfigRuleName": "s3-bucket-public-read-prohibited",
+      "ResourceType": "AWS::RDS::DBInstance"
+    },
     "config": {
-      "rule_name": "restricted-ssh",
-      "compliance_type": "NON_COMPLIANT",
-      "resource_type": "AWS::EC2::Instance",
-      "resource_id": "db-dzhw5zte",
-      "annotation": "Resource is not compliant",
+      "rule_name": "s3-bucket-public-read-prohibited",
+      "compliance_type": "COMPLIANT",
+      "resource_type": "AWS::RDS::DBInstance",
+      "resource_id": "sg-7opebi50",
+      "annotation": "Resource is compliant",
       "metrics": {
-        "ComplianceByConfigRule": { "avg": 0 },
-        "NonCompliantRules": { "sum": 1 },
-        "CompliantRules": { "sum": 0 },
-        "ConfigurationItemsRecorded": { "sum": 47 }
+        "ComplianceByConfigRule": { "avg": 1 },
+        "NonCompliantRules": { "sum": 0 },
+        "CompliantRules": { "sum": 1 },
+        "ConfigurationItemsRecorded": { "sum": 72 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-config-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-config-logs-293847561023"
+        "name": "aws-config-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-config-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/config/us-west-1/2026/04/20/config_ZAF21P4ZZ9.log.gz"
+        "key": "AWSLogs/501938274650/config/ap-southeast-1/2026/04/20/config_9AMZL84TZWR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/config/logs",
-      "log_stream": "us-west-1/1v4fdkb2",
-      "ingestion_time": "2026-04-20T13:03:49.588Z"
+      "log_stream": "ap-southeast-1/si5p0vx8",
+      "ingestion_time": "2026-04-20T14:21:54.883Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["configuration", "compliance"],
     "dataset": "aws.config",
     "provider": "config.amazonaws.com",
     "module": "aws"
   },
-  "message": "Config rule FAILED: restricted-ssh",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "NonCompliant",
-    "message": "Config rule restricted-ssh failed",
-    "type": "compliance"
-  },
+  "message": "Config rule PASSED: s3-bucket-public-read-prohibited",
+  "log": { "level": "info" },
   "service": { "name": "config", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.config", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "q58vei5iyi"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "rmjqevzlasl"
   },
   "input": { "type": "http_endpoint" }
 }

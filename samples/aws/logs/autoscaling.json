@@ -1,41 +1,41 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ca-central-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "autoscaling" }
   },
   "aws": {
     "dimensions": { "AutoScalingGroupName": "worker-asg" },
     "autoscaling": {
       "group_name": "worker-asg",
-      "activity_id": "lo4u3k2s-gcka-ajh4",
-      "action_type": "Launch",
-      "instance_id": "i-8in5013q4ul",
-      "instance_type": "m5.xlarge",
-      "desired_capacity": 14,
+      "activity_id": "oekr5gc0-owu7-ktnu",
+      "action_type": "PredictiveScalingForecast",
+      "instance_id": "i-tkeaefy1wc",
+      "instance_type": "c5.2xlarge",
+      "desired_capacity": 19,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 14,
-      "cause": "At 2024-01-01T12:00:00Z a monitor alarm TargetTracking-scale-out-alarm in state ALARM triggered policy scale-out",
+      "current_capacity": 17,
+      "cause": "PredictiveScaling: forecast shows load increase; preemptive capacity adjustment recommended for worker-asg",
       "status_code": "Successful",
-      "launch_template": "web-lt:5",
-      "predictive_scaling_forecast": false,
+      "launch_template": "api-lt:3",
+      "predictive_scaling_forecast": true,
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 14 },
-        "GroupInServiceInstances": { "avg": 14 },
+        "GroupDesiredCapacity": { "avg": 19 },
+        "GroupInServiceInstances": { "avg": 17 },
         "GroupPendingInstances": { "avg": 0 },
-        "GroupStandbyInstances": { "avg": 0 },
+        "GroupStandbyInstances": { "avg": 2 },
         "GroupTerminatingInstances": { "avg": 0 },
-        "GroupTotalInstances": { "avg": 14 },
-        "GroupInServiceCapacity": { "avg": 14 },
+        "GroupTotalInstances": { "avg": 19 },
+        "GroupInServiceCapacity": { "avg": 17 },
         "GroupPendingCapacity": { "avg": 0 },
-        "GroupStandbyCapacity": { "avg": 0 },
+        "GroupStandbyCapacity": { "avg": 2 },
         "GroupTerminatingCapacity": { "avg": 0 },
-        "GroupTotalCapacity": { "avg": 14 },
+        "GroupTotalCapacity": { "avg": 19 },
         "WarmPoolMinSize": { "avg": 0 },
         "WarmPoolDesiredCapacity": { "avg": 0 },
         "WarmPoolPendingCapacity": { "avg": 0 },
@@ -46,17 +46,17 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-autoscaling-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-autoscaling-logs-164820739518"
+        "name": "aws-autoscaling-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-autoscaling-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/autoscaling/af-south-1/2026/04/20/autoscaling_TCG58JOGELG.log.gz"
+        "key": "AWSLogs/293847561023/autoscaling/ca-central-1/2026/04/20/autoscaling_PL2PDAWLN7Q.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "af-south-1/k8g1vnsu",
-      "ingestion_time": "2026-04-20T13:03:49.536Z"
+      "log_stream": "ca-central-1/ywnm6qs1",
+      "ingestion_time": "2026-04-20T14:21:54.844Z"
     }
   },
   "event": {
@@ -64,10 +64,10 @@
     "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 573000000000,
+    "duration": 229000000000,
     "module": "aws"
   },
-  "message": "SuccessfulScalingActivity: Launching a new EC2 instance: i-8in5013q4ul ActivityId=lo4u3k2s-gcka-ajh4 Cause: At 2024-01-01T12:00:00Z a monitor alarm TargetTracking-scale-out-alarm in state ALARM triggered policy scale-out",
+  "message": "PredictiveScalingForecast asg=worker-asg forecastTime=2026-04-20T14:21:54.344Z predictedCPU=87.1% recommendedDesiredCapacity=23",
   "log": { "level": "info" },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -75,8 +75,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "6cynxmjd0hd"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "6wh9fio9nob"
   },
   "input": { "type": "aws-cloudwatch" }
 }

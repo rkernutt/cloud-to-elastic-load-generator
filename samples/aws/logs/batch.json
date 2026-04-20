@@ -1,70 +1,69 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "me-central-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "batch" }
   },
   "aws": {
-    "dimensions": { "JobQueue": "cleanup-job-queue" },
+    "dimensions": { "JobQueue": "report-generation-queue" },
     "batch": {
-      "job": { "name": "cleanup-job", "id": "c78m6nwv-ob4l", "status": "FAILED" },
-      "job_queue": "cleanup-job-queue",
+      "job": { "name": "report-generation", "id": "8e0q38i9-d92a", "status": "SUBMITTED" },
+      "job_queue": "report-generation-queue",
       "compute_environment": "ce-spot",
-      "log_stream_name": "cleanup-job-def/default/lav4cups34",
-      "job_attempt": 3,
-      "container_exit_code": 127,
-      "structured_logging": false,
+      "log_stream_name": "report-generation-def/default/65xahqecpnm",
+      "job_attempt": 1,
+      "container_exit_code": 0,
+      "structured_logging": true,
       "metrics": {
-        "PendingJobCount": { "avg": 86 },
-        "RunnableJobCount": { "avg": 33 },
-        "StartingJobCount": { "avg": 1 },
-        "RunningJobCount": { "avg": 157 },
-        "SucceededJobCount": { "sum": 0 },
-        "FailedJobCount": { "sum": 1 },
-        "CPUReserved": { "avg": 22.4985584143483 },
+        "PendingJobCount": { "avg": 77 },
+        "RunnableJobCount": { "avg": 43 },
+        "StartingJobCount": { "avg": 10 },
+        "RunningJobCount": { "avg": 104 },
+        "SucceededJobCount": { "sum": 1 },
+        "FailedJobCount": { "sum": 0 },
+        "CPUReserved": { "avg": 46.67852233088357 },
         "GPUReserved": { "avg": 0 },
-        "MemoryReserved": { "avg": 56.565718083645095 }
+        "MemoryReserved": { "avg": 23.947631703795924 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-batch-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-batch-logs-501938274650"
+        "name": "aws-batch-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-batch-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/batch/eu-south-1/2026/04/20/batch_TH212S3HOMR.log.gz"
+        "key": "AWSLogs/164820739518/batch/me-central-1/2026/04/20/batch_TS8J0PAGQDQ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/batch/logs",
-      "log_stream": "eu-south-1/thlo1rcx",
-      "ingestion_time": "2026-04-20T13:03:49.528Z"
+      "log_stream": "me-central-1/u84djznw",
+      "ingestion_time": "2026-04-20T14:21:54.837Z"
     }
   },
-  "process": { "pid": 56783, "name": "java", "exit_code": 127 },
-  "log": { "level": "error" },
+  "process": { "pid": 40926, "name": "java", "exit_code": 0 },
+  "log": { "level": "info" },
   "event": {
     "category": ["process"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "aws.batch",
     "provider": "batch.amazonaws.com",
-    "duration": 1575000000000,
+    "duration": 169000000000,
     "module": "aws"
   },
-  "message": "Job queue capacity exceeded",
-  "logStreamName": "cleanup-job-def/default/lav4cups34",
-  "error": { "code": "JQ_DELETED", "message": "Job failed with exit code 1", "type": "process" },
-  "host": { "name": "ip-43-194-220-67.ec2.internal", "hostname": "batch-u0mz22i2" },
+  "message": "{\"jobId\":\"8e0q38i9-d92a\",\"jobName\":\"report-generation\",\"jobQueue\":\"report-generation-queue\",\"level\":\"info\",\"message\":\"batch: job 8e0q38i9-d92a status PENDING -> RUNNABLE\",\"timestamp\":\"2026-04-20T14:21:54.344Z\",\"arrayIndex\":99,\"logStreamName\":\"report-generation-def/default/65xahqecpnm\",\"jobAttempt\":1,\"containerExitCode\":0,\"jobStatus\":\"SUBMITTED\"}",
+  "logStreamName": "report-generation-def/default/65xahqecpnm",
+  "host": { "name": "ip-110-219-12-67.ec2.internal", "hostname": "batch-a6k47qx9" },
   "service": { "name": "batch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.batch", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "dk7qmfts3zi"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "2df47xu5h37"
   },
   "input": { "type": "aws-cloudwatch" }
 }

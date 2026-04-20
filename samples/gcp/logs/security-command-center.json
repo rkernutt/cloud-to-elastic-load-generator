@@ -1,82 +1,61 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "NOTICE",
-  "logName": "projects/globex-staging-d4e5f6/logs/cloudaudit.googleapis.com%2Factivity",
-  "insertId": "d2vcaldtmma",
+  "severity": "INFO",
+  "logName": "projects/globex-staging-d4e5f6/logs/cloudaudit.googleapis.com%2Fpolicy",
+  "insertId": "hd6sfattj1",
   "resource": { "type": "project", "labels": { "project_id": "globex-staging-d4e5f6" } },
   "jsonPayload": {
-    "notificationConfigName": "organizations/972703/notificationConfigs/V12NKEJ0",
-    "finding": {
-      "name": "organizations/972703/sources/SXWMN2GD/findings/fa7dpxam-rlab-y9va-e27m-slgo9loje8",
-      "parent": "organizations/972703/sources/L3LL3IP5",
-      "resourceName": "//cloudsql.googleapis.com/projects/globex-staging-d4e5f6/instances/db-1U1D",
-      "resourceType": "compute.googleapis.com/Instance",
-      "category": "OPEN_FIREWALL",
-      "state": "INACTIVE",
-      "severity": "MEDIUM",
-      "sourceProperties": {
-        "ScannerName": "WEB_SECURITY_SCANNER",
-        "ComplianceFramework": "ISO_27001",
-        "ReactivationCount": 5,
-        "ExceptionInstructions": "Review IAM and firewall rules"
-      },
-      "externalUri": "https://console.cloud.google.com/security/command-center/findings?organizationId=972703&findingId=organizations%2F972703%2Fsources%2FSXWMN2GD%2Ffindings%2Ffa7dpxam-rlab-y9va-e27m-slgo9loje8",
-      "parentDisplayName": "Globex Org 972703",
-      "findingClass": "THREAT"
-    }
+    "servicePerimeter": "accessPolicies/475542/servicePerimeters/prod_default",
+    "violation": {
+      "type": "RESOURCES_NOT_IN_SAME_PERIMETER",
+      "resource": "//storage.googleapis.com/projects/_/buckets/globex-dev-g7h8i9-assets",
+      "apiMethod": "compute.instances.list",
+      "accessLevel": "corp_devices",
+      "dryRun": false
+    },
+    "ingressPolicy": "INGRESS_FROM_ORGANIZATION",
+    "vpc_network": "projects/globex-staging-d4e5f6/global/networks/prod-vpc"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "australia-southeast2",
+    "region": "europe-southwest1",
     "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
     "account": { "id": "271828182845", "name": "Globex Staging" },
-    "service": { "name": "security-command-center" }
+    "service": { "name": "vpc-service-controls" }
   },
   "gcp": {
-    "security_command_center": {
+    "vpc_service_controls": {
       "json_payload": {
-        "notificationConfigName": "organizations/972703/notificationConfigs/V12NKEJ0",
-        "finding": {
-          "name": "organizations/972703/sources/SXWMN2GD/findings/fa7dpxam-rlab-y9va-e27m-slgo9loje8",
-          "parent": "organizations/972703/sources/L3LL3IP5",
-          "resourceName": "//cloudsql.googleapis.com/projects/globex-staging-d4e5f6/instances/db-1U1D",
-          "resourceType": "compute.googleapis.com/Instance",
-          "category": "OPEN_FIREWALL",
-          "state": "INACTIVE",
-          "severity": "MEDIUM",
-          "sourceProperties": {
-            "ScannerName": "WEB_SECURITY_SCANNER",
-            "ComplianceFramework": "ISO_27001",
-            "ReactivationCount": 5,
-            "ExceptionInstructions": "Review IAM and firewall rules"
-          },
-          "externalUri": "https://console.cloud.google.com/security/command-center/findings?organizationId=972703&findingId=organizations%2F972703%2Fsources%2FSXWMN2GD%2Ffindings%2Ffa7dpxam-rlab-y9va-e27m-slgo9loje8",
-          "parentDisplayName": "Globex Org 972703",
-          "findingClass": "THREAT"
-        }
+        "servicePerimeter": "accessPolicies/475542/servicePerimeters/prod_default",
+        "violation": {
+          "type": "RESOURCES_NOT_IN_SAME_PERIMETER",
+          "resource": "//storage.googleapis.com/projects/_/buckets/globex-dev-g7h8i9-assets",
+          "apiMethod": "compute.instances.list",
+          "accessLevel": "corp_devices",
+          "dryRun": false
+        },
+        "ingressPolicy": "INGRESS_FROM_ORGANIZATION",
+        "vpc_network": "projects/globex-staging-d4e5f6/global/networks/prod-vpc"
       },
-      "finding_id": "organizations/972703/sources/SXWMN2GD/findings/fa7dpxam-rlab-y9va-e27m-slgo9loje8",
-      "category": "OPEN_FIREWALL",
-      "severity": "MEDIUM",
-      "resource_name": "//cloudsql.googleapis.com/projects/globex-staging-d4e5f6/instances/db-1U1D",
-      "resource_type": "compute.googleapis.com/Instance",
-      "state": "INACTIVE",
-      "source": "WEB_SECURITY_SCANNER",
-      "parent_display_name": "Globex Org 972703",
-      "organization_id": "organizations/972703"
+      "perimeter_name": "prod_default",
+      "access_level": "corp_devices",
+      "resource": "//storage.googleapis.com/projects/_/buckets/globex-dev-g7h8i9-assets",
+      "api_method": "compute.instances.list",
+      "violation_type": "RESOURCES_NOT_IN_SAME_PERIMETER",
+      "dry_run_mode": false
     }
   },
-  "event": { "outcome": "success", "duration": 129000000, "module": "gcp", "dataset": "gcp.scc" },
-  "message": "securitycenter.googleapis.com/Findings.Notification OPEN_FIREWALL MEDIUM INACTIVE compute.googleapis.com/Instance",
-  "service": { "name": "security-command-center", "type": "gcp" },
+  "event": { "outcome": "success", "duration": 14000000, "module": "gcp", "dataset": "gcp.vpcsc" },
+  "message": "accesscontextmanager.googleapis.com/VpcServiceControls ALLOW compute.instances.list",
+  "service": { "name": "vpc-service-controls", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.scc", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.vpcsc", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-australia-southeast2",
-    "id": "u2h058ivpu"
+    "name": "elastic-agent-gcp-europe-southwest1",
+    "id": "vv6jpjbcizk"
   },
   "input": { "type": "http_endpoint" }
 }

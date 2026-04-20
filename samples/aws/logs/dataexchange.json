@@ -1,58 +1,63 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ca-central-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "dataexchange" }
   },
   "aws": {
-    "dimensions": { "DataSetId": "3sokdihg-02oj-7y7g-hgcn-ehf8em2b9t" },
+    "dimensions": { "DataSetId": "wlz3lag9-4htx-re12-bt2z-gdql0lh3aj5" },
     "dataexchange": {
-      "dataset_id": "3sokdihg-02oj-7y7g-hgcn-ehf8em2b9t",
+      "dataset_id": "wlz3lag9-4htx-re12-bt2z-gdql0lh3aj5",
       "dataset_name": "US-Weather-Data",
-      "data_set_type": "REDSHIFT",
-      "revision_id": "7mte2zkk-9qhx-oogf-yk33-xt6sxl8qy4q",
-      "job_id": "o5be1gr5-vnf0-gqmn-zvlj-o2oxhvfr6f9",
-      "job_type": "IMPORT_ASSET_FROM_API_GATEWAY",
-      "job_status": "COMPLETED",
-      "provider_account_id": "293847561023",
-      "subscriber_account_id": "164820739518",
-      "asset_count": 283
+      "data_set_type": "API_GATEWAY",
+      "revision_id": "vn27ey6g-8vgz-30j1-str0-1ljc2gijc1f",
+      "job_id": "7uwdb50r-lw8o-93b1-rpsn-4qetf924e0k",
+      "job_type": "EXPORT_ASSETS_TO_S3",
+      "job_status": "ERROR",
+      "provider_account_id": "164820739518",
+      "subscriber_account_id": "814726593401",
+      "asset_count": 42
     },
     "s3": {
       "bucket": {
-        "name": "aws-dataexchange-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-dataexchange-logs-164820739518"
+        "name": "aws-dataexchange-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-dataexchange-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/dataexchange/il-central-1/2026/04/20/dataexchange_V726FXU2WQP.log.gz"
+        "key": "AWSLogs/814726593401/dataexchange/ca-central-1/2026/04/20/dataexchange_8B2HA5DVWXI.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/dataexchange/logs",
-      "log_stream": "il-central-1/33ejn05m",
-      "ingestion_time": "2026-04-20T13:03:49.695Z"
+      "log_stream": "ca-central-1/kef63jrw",
+      "ingestion_time": "2026-04-20T14:21:55.000Z"
     }
   },
   "event": {
-    "action": "PublishDataSet",
-    "outcome": "success",
+    "action": "SubscribeToDataSet",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.dataexchange",
     "provider": "dataexchange.amazonaws.com",
     "module": "aws"
   },
-  "message": "Data Exchange US-Weather-Data: IMPORT_ASSET_FROM_API_GATEWAY COMPLETED, 283 assets",
-  "log": { "level": "info" },
+  "message": "Data Exchange US-Weather-Data: job ERROR",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InternalServerException",
+    "message": "Data Exchange job failed",
+    "type": "process"
+  },
   "service": { "name": "dataexchange", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.dataexchange", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "6s9kbljep95"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "gf0zdembznu"
   },
   "input": { "type": "aws-cloudwatch" }
 }

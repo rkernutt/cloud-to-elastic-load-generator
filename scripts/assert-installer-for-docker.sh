@@ -82,4 +82,19 @@ if [ ! -f installer/aws-loadgen-packs/index.mjs ] || [ ! -f installer/aws-loadge
   exit 1
 fi
 
+echo "Validating alert rule files..."
+for f in installer/*-custom-rules/*-rules.json; do
+  if [ -f "$f" ]; then
+    if ! node -e '
+      const fs = require("fs");
+      const p = process.argv[1];
+      const d = JSON.parse(fs.readFileSync(p, "utf8"));
+      if (typeof d.group !== "string" || d.group.length === 0) throw new Error("Missing or invalid group");
+      if (!d.rules || !Array.isArray(d.rules)) throw new Error("Missing rules array");
+    ' "$f" 2>/dev/null; then
+      echo "WARNING: Invalid alert rule file: $f"
+    fi
+  fi
+done
+
 echo "installer/ OK for Docker (aws *-dashboard.json: $aws_d, aws ml *.json: $aws_ml)."

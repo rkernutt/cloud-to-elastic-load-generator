@@ -1,47 +1,47 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
+    "region": "ap-northeast-2",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "opensearch" }
   },
   "aws": {
-    "dimensions": { "DomainName": "prod-search-us-west-2", "ClientId": "293847561023" },
+    "dimensions": { "DomainName": "prod-search-ap-northeast-2", "ClientId": "293847561023" },
     "opensearch": {
-      "domain_name": "prod-search-us-west-2",
-      "index": "metrics",
-      "operation": "circuit_breaker",
-      "took_ms": 514,
+      "domain_name": "prod-search-ap-northeast-2",
+      "index": "logs-2024",
+      "operation": "slow_search",
+      "took_ms": 442,
       "shards": {
-        "total": 16,
-        "successful": 16,
+        "total": 34,
+        "successful": 34,
         "failed": 0,
-        "active": 16,
+        "active": 34,
         "initializing": 0,
         "relocating": 0,
         "unassigned": 0
       },
-      "hits_total": 89449,
+      "hits_total": 12962,
       "status_code": 200,
-      "circuit_breaker": "parent",
+      "slow_query_source": "{\"query\":{\"bool\":{\"filter\":[{\"range\":{\"@timestamp\":{\"gte\":\"now-1h\"}}}],\"must\":[{\"match\":{\"service.name\":\"checkout\"}}]}},\"size\":500}",
       "metrics": {
-        "CPUUtilization": { "avg": 12.017871583779442 },
-        "FreeStorageSpace": { "avg": 371354851630 },
+        "CPUUtilization": { "avg": 47.841901971858626 },
+        "FreeStorageSpace": { "avg": 430998426952 },
         "ClusterStatus": { "green": 1, "yellow": 0, "red": 0 },
-        "Nodes": { "avg": 12 },
-        "SearchableDocuments": { "avg": 843397840 },
-        "IndexingLatency": { "avg": 289 },
-        "SearchLatency": { "avg": 437 },
-        "IndexingRate": { "avg": 76360 },
-        "SearchRate": { "avg": 8522 },
-        "JVMMemoryPressure": { "avg": 17.465367503643876 },
+        "Nodes": { "avg": 20 },
+        "SearchableDocuments": { "avg": 356941725 },
+        "IndexingLatency": { "avg": 335 },
+        "SearchLatency": { "avg": 392 },
+        "IndexingRate": { "avg": 33579 },
+        "SearchRate": { "avg": 7298 },
+        "JVMMemoryPressure": { "avg": 62.34547034938966 },
         "AutomatedSnapshotFailure": { "sum": 0 },
         "CoordinatingWriteRejected": { "sum": 0 },
         "PrimaryWriteRejected": { "sum": 0 },
         "ReplicaWriteRejected": { "sum": 0 },
-        "WarmStorageSpaceUsage": { "avg": 79.63986497829876 },
-        "DeletedDocuments": { "avg": 51968 }
+        "WarmStorageSpaceUsage": { "avg": 69.65314728996432 },
+        "DeletedDocuments": { "avg": 81874 }
       }
     },
     "s3": {
@@ -50,25 +50,25 @@
         "arn": "arn:aws:s3:::aws-opensearch-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/opensearch/us-west-2/2026/04/20/opensearch_G4AFP2UHF2.log.gz"
+        "key": "AWSLogs/293847561023/opensearch/ap-northeast-2/2026/04/20/opensearch_25O610QRJD2.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/opensearch/logs",
-      "log_stream": "us-west-2/wxqu2up3",
-      "ingestion_time": "2026-04-20T13:03:49.648Z"
+      "log_stream": "ap-northeast-2/87q76t24",
+      "ingestion_time": "2026-04-20T14:21:54.940Z"
     }
   },
   "http": { "response": { "status_code": 200 } },
   "event": {
-    "duration": 514080327.4444937,
+    "duration": 441532116.56885076,
     "outcome": "success",
     "category": "database",
     "dataset": "aws.opensearch",
     "provider": "es.amazonaws.com",
     "module": "aws"
   },
-  "message": "[2026-04-20T13:03:48.907Z][WARN ][o.e.i.b.request.RequestBreaker] [data-0] breaking incoming request: [parent] Data too large, data for [<reused_arrays>] would be [3164mb], which is larger than the limit of [362mb]",
+  "message": "[2026-04-20T14:21:54.344Z] [index.search.slowlog.query] [logs-2024] took[441.5ms], took_millis[442], types[], stats[], search_type[QUERY_THEN_FETCH], total_shards[34], source[{\"query\":{\"bool\":{\"filter\":[{\"range\":{\"@timestamp\":{\"gte\":\"now-1h\"}}}],\"must\":[{\"match\":{\"service.name\":\"checkout\"}}]}},\"size\":500}]",
   "log": { "level": "info" },
   "service": { "name": "opensearch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -76,8 +76,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "oemu47yqp2"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "neznkwrn9tn"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,58 +1,57 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-northeast-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "lightsail" }
   },
   "aws": {
     "lightsail": {
-      "resource_name": "wordpress-prod",
-      "resource_type": "Database",
-      "bundle_id": "nano_2_0",
-      "blueprint": "lamp",
-      "state": "ERROR",
-      "event_type": "ALERT_TRIGGERED",
-      "public_ip": "119.139.234.89",
-      "monthly_transfer": { "used_gb": 1424, "limit_gb": 3072 },
-      "alert": { "name": "CPUUtilization", "threshold": 82 }
+      "resource_name": "dev-server",
+      "resource_type": "ContainerService",
+      "bundle_id": "medium_2_0",
+      "blueprint": "django",
+      "state": "pending",
+      "event_type": "MONTHLY_TRANSFER_EXCEEDED",
+      "public_ip": "233.154.143.127",
+      "monthly_transfer": { "used_gb": 1622, "limit_gb": 12288 },
+      "alert": {}
     },
     "s3": {
       "bucket": {
-        "name": "aws-lightsail-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-lightsail-logs-501938274650"
+        "name": "aws-lightsail-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-lightsail-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/lightsail/ap-south-2/2026/04/20/lightsail_F8YWRFX5M9.log.gz"
+        "key": "AWSLogs/164820739518/lightsail/ap-northeast-1/2026/04/20/lightsail_9B9AH9AQU8.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lightsail/logs",
-      "log_stream": "ap-south-2/kiam1vpt",
-      "ingestion_time": "2026-04-20T13:03:49.756Z"
+      "log_stream": "ap-northeast-1/lg9izxko",
+      "ingestion_time": "2026-04-20T14:21:55.061Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["host", "network"],
     "dataset": "aws.lightsail",
     "provider": "lightsail.amazonaws.com",
-    "duration": 6378000000,
+    "duration": 678000000,
     "module": "aws"
   },
-  "message": "Lightsail wordpress-prod ERROR: Instance unreachable:",
-  "log": { "level": "error" },
-  "error": { "code": "LightsailError", "message": "Lightsail instance error", "type": "host" },
-  "host": { "name": "ip-19-212-92-233.ec2.internal", "hostname": "lightsail-jhayricl" },
+  "message": "Lightsail dev-server: MONTHLY_TRANSFER_EXCEEDED [pending]",
+  "log": { "level": "warn" },
+  "host": { "name": "ip-138-251-213-164.ec2.internal", "hostname": "lightsail-jeiw1r2k" },
   "service": { "name": "lightsail", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lightsail", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "nuh7qboyaiq"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "2ktr16tjci8"
   },
   "input": { "type": "aws-cloudwatch" }
 }

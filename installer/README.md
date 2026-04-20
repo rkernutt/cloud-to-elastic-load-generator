@@ -24,16 +24,14 @@ The **Setup** wizard in the web UI installs/uninstalls the same Cloud Loadgen In
 
 ### CLI per-service bundles
 
+**AWS only** — the CLI exposes a single per-service bundle command:
+
 ```bash
 # AWS — install pipeline + dashboard + ML jobs + rules per service
 npm run setup:aws-loadgen-packs
-
-# GCP
-npm run setup:gcp-loadgen-packs
-
-# Azure
-npm run setup:azure-loadgen-packs
 ```
+
+There are **no** `setup:gcp-loadgen-packs` or `setup:azure-loadgen-packs` scripts. For **GCP** and **Azure**, use the **individual asset installers** below (integration, pipelines, dashboards, ML jobs, and alerting rules) or the web UI **Setup** step, which installs the same Cloud Loadgen Integrations for every cloud.
 
 **What happens:**
 
@@ -147,13 +145,13 @@ ML anomaly detection jobs that detect real operational and security anomalies. J
 
 ## Why both approaches exist
 
-|                        | Per-service bundles (`setup:*-loadgen-packs`) | Individual installers (`setup:*-pipelines`, etc.) |
-| ---------------------- | --------------------------------------------- | ------------------------------------------------- |
-| **Scope**              | Pipeline + dashboard + ML + rules per service | One asset type across all services                |
-| **Best for**           | Setting up specific services you plan to use  | Installing all dashboards or all ML jobs at once  |
-| **Tagged**             | Everything tagged `cloudloadgen`              | Dashboards tagged; ML in metadata                 |
-| **Re-runnable**        | Yes — skips existing                          | Yes — skips existing                              |
-| **Credentials needed** | Elasticsearch + Kibana                        | Depends on asset type                             |
+|                        | Per-service bundles (`setup:aws-loadgen-packs`) | Individual installers (`setup:*-pipelines`, etc.) |
+| ---------------------- | ----------------------------------------------- | ------------------------------------------------- |
+| **Scope**              | Pipeline + dashboard + ML + rules per service   | One asset type across all services                |
+| **Best for**           | Setting up specific services you plan to use    | Installing all dashboards or all ML jobs at once  |
+| **Tagged**             | Everything tagged `cloudloadgen`                | Dashboards tagged; ML in metadata                 |
+| **Re-runnable**        | Yes — skips existing                            | Yes — skips existing                              |
+| **Credentials needed** | Elasticsearch + Kibana                          | Depends on asset type                             |
 
 Running **Installer 1** (official Fleet package) plus **per-service bundles** gives you full coverage: official templates + custom load-generator assets.
 
@@ -213,6 +211,7 @@ Any `*-dashboard.json` file placed in the appropriate `installer/{cloud}-custom-
 | Command                             | Path                                   |
 | ----------------------------------- | -------------------------------------- |
 | `npm run setup:aws-loadgen-packs`   | `installer/aws-loadgen-packs/`         |
+| `npm run setup:alert-rules`         | `installer/alert-rules-installer/`     |
 | `npm run setup:aws-integration`     | `installer/aws-elastic-integration/`   |
 | `npm run setup:aws-pipelines`       | `installer/aws-custom-pipelines/`      |
 | `npm run setup:aws-dashboards`      | `installer/aws-custom-dashboards/`     |

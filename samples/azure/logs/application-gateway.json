@@ -2,44 +2,49 @@
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "cloud": {
     "provider": "azure",
-    "region": "westeurope",
-    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" },
+    "region": "mexicocentral",
+    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" },
     "service": { "name": "Microsoft.Network/applicationGateways" }
   },
-  "category": "ApplicationGatewayFirewallLog",
-  "operationName": "MatchedRule",
+  "category": "ApplicationGatewayAccess",
+  "operationName": "ApplicationGatewayAccess",
   "resultType": "Succeeded",
   "level": "Informational",
-  "correlationId": "vb8xszan779",
-  "callerIpAddress": "212.195.81.96",
+  "correlationId": "xpi2q6ir6on",
+  "callerIpAddress": "115.40.19.28",
   "properties": {
-    "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-app-ktetl8/providers/Microsoft.Network/applicationGateways/agw-c1nv",
-    "instanceId": "appgw_PWEZUU1R",
-    "clientIP": "212.195.81.96",
+    "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-network-63uqko/providers/Microsoft.Network/applicationGateways/agw-5he7",
+    "instanceId": "appgw_365EMDRL",
+    "clientIP": "115.40.19.28",
     "httpStatus": 204,
-    "ruleId": "920574",
-    "ruleGroup": "REQUEST-920-PROTOCOL-ENFORCEMENT",
-    "action": "Blocked",
-    "message": "SQL Injection Attack Detected via libinjection",
-    "details": { "match": "SELECT.*FROM", "severity": "Warning" }
+    "httpMethod": "POST",
+    "requestUri": "https://api.fabrikam.com/health",
+    "listener": "listener-https-443",
+    "ruleName": "rule-UWH",
+    "backendPoolName": "pool-web",
+    "backendHostname": "api.internal",
+    "timeTaken": 1.0115717753562612,
+    "receivedBytes": 42910,
+    "sentBytes": 1191191,
+    "userAgent": "Mozilla/5.0"
   },
   "azure": {
     "application_gateway": {
-      "name": "agw-c1nv",
-      "resource_group": "rg-app-ktetl8",
-      "backend_host": "web.internal",
+      "name": "agw-5he7",
+      "resource_group": "rg-network-63uqko",
+      "backend_host": "api.internal",
       "http_status": 204,
-      "latency_ms": 185,
-      "rule": "rule-JIX"
+      "latency_ms": 1012,
+      "rule": "rule-UWH"
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 432926415,
+    "duration": 253548064,
     "module": "azure",
     "dataset": "azure.application_gateway"
   },
-  "message": "Application Gateway agw-c1nv: WAF Blocked rule=REQUEST-920-PROTOCOL-ENFORCEMENT",
+  "message": "Application Gateway agw-5he7: POST 204 backend=api.internal latency=1.012s",
   "service": { "name": "application-gateway", "type": "azure" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -47,9 +52,9 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-westeurope",
-    "id": "io3g6pwaivl"
+    "name": "elastic-agent-azure-mexicocentral",
+    "id": "qw8mpwjto8"
   },
   "input": { "type": "azure-eventhub" },
-  "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourcegroups/rg-app-ktetl8/providers/Microsoft.Network/applicationGateways/application-gateway"
+  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourcegroups/rg-network-63uqko/providers/Microsoft.Network/applicationGateways/application-gateway"
 }

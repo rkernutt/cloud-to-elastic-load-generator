@@ -1,10 +1,10 @@
-import { EuiPanel, EuiTitle, EuiSpacer } from "@elastic/eui";
+import { EuiPanel, EuiTitle, EuiSpacer, EuiFieldSearch } from "@elastic/eui";
 import { ServiceGrid, serviceIconPublicUrl } from "../components/ServiceGrid";
 import { Card, QuickBtn } from "../components/Card";
 import K from "../theme";
 import { SimpleBrandIcon } from "../components/SimpleBrandIcon";
-import { useMemo } from "react";
-import type { ServiceGroup } from "../data/serviceGroups";
+import { useMemo, useState } from "react";
+import { serviceIdsInGroup, type ServiceGroup } from "../data/serviceGroups";
 import type { TraceServiceMeta, ServiceIconMode } from "../cloud/types";
 
 function findAccentServiceGroup(
@@ -117,6 +117,8 @@ export function ServicesPage({
   pageTitle = "Services",
   gridHeading = "Select services",
 }: ServicesPageProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+
   const traceServiceGroups = useMemo(() => {
     const order = [
       "Single-Service",
@@ -144,6 +146,47 @@ export function ServicesPage({
       items: m.get(title)!,
     }));
   }, [traceServices]);
+
+  const filteredTraceServiceGroups = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return traceServiceGroups;
+    return traceServiceGroups
+      .map((group) => ({
+        ...group,
+        items: group.items.filter(
+          (svc) => svc.label.toLowerCase().includes(q) || svc.id.toLowerCase().includes(q)
+        ),
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [traceServiceGroups, searchTerm]);
+
+  const tracesVisibleTotal = useMemo(() => {
+    if (!searchTerm.trim()) return totalServices;
+    return filteredTraceServiceGroups.reduce((acc, g) => acc + g.items.length, 0);
+  }, [searchTerm, filteredTraceServiceGroups, totalServices]);
+
+  const filteredServiceGroups = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return serviceGroups;
+    return serviceGroups
+      .map((g) => ({
+        ...g,
+        services: g.services.filter(
+          (svc) => svc.label.toLowerCase().includes(q) || svc.id.toLowerCase().includes(q)
+        ),
+      }))
+      .filter((g) => g.services.length > 0);
+  }, [serviceGroups, searchTerm]);
+
+  const gridTotalServices = useMemo(() => {
+    if (!searchTerm.trim()) return totalServices;
+    return filteredServiceGroups.reduce((acc, g) => {
+      const ids = serviceIdsInGroup(g);
+      const selectable =
+        eventType === "metrics" ? ids.filter((id) => metricsSupportedServiceIds.has(id)) : ids;
+      return acc + selectable.length;
+    }, 0);
+  }, [searchTerm, filteredServiceGroups, eventType, metricsSupportedServiceIds, totalServices]);
 
   const toggleTraceService = (id: string) => {
     const next = selectedTraceServices.includes(id)
@@ -183,7 +226,7 @@ export function ServicesPage({
                 {gridHeading}
               </span>
               <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                <QuickBtn onClick={selectAllTraces}>All {totalServices}</QuickBtn>
+                <QuickBtn onClick={selectAllTraces}>All {tracesVisibleTotal}</QuickBtn>
                 <QuickBtn onClick={selectNoTraces}>None</QuickBtn>
                 {selectedTraceServices.length > 0 && (
                   <span
@@ -242,8 +285,18 @@ export function ServicesPage({
               </span>
             </div>
 
+            <div style={{ marginBottom: 12 }}>
+              <EuiFieldSearch
+                placeholder="Filter services…"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                isClearable
+                fullWidth
+              />
+            </div>
+
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {traceServiceGroups.map((group) => {
+              {filteredTraceServiceGroups.map((group) => {
                 const accent = findAccentServiceGroup(group.items, serviceGroups, group.title);
                 const ids = group.items.map((i) => i.id);
                 const selCount = ids.filter((id) => selectedTraceServices.includes(id)).length;
@@ -365,7 +418,7 @@ export function ServicesPage({
                     <div
                       style={{
                         display: "grid",
-                        gridTemplateColumns: "repeat(3, 1fr)",
+                        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
                         gap: 6,
                         padding: "0 10px 10px",
                       }}
@@ -479,14 +532,23 @@ export function ServicesPage({
       <EuiSpacer size="m" />
 
       <EuiPanel>
+        <div style={{ marginBottom: 12 }}>
+          <EuiFieldSearch
+            placeholder="Filter services…"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            isClearable
+            fullWidth
+          />
+        </div>
         <ServiceGrid
           eventType={eventType}
           selectedServices={selectedServices}
-          totalServices={totalServices}
+          totalServices={gridTotalServices}
           totalSelected={totalSelected}
           collapsedGroups={collapsedGroups}
           ingestionSource={ingestionSource}
-          serviceGroups={serviceGroups}
+          serviceGroups={filteredServiceGroups}
           ingestionMeta={ingestionMeta}
           metricsSupportedServiceIds={metricsSupportedServiceIds}
           serviceIcons={serviceIcons}

@@ -1,4 +1,4 @@
-import { Fragment, useMemo, type ReactNode } from "react";
+import { Fragment, useMemo, useState, type ReactNode } from "react";
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -14,6 +14,7 @@ import {
   EuiTitle,
   EuiText,
   EuiCheckableCard,
+  EuiConfirmModal,
 } from "@elastic/eui";
 import type { CloudId } from "../cloud/types";
 import { UNIFIED_VENDOR_CARDS } from "../cloud/unifiedVendorMeta";
@@ -122,6 +123,8 @@ export function ConnectionPage({
   ingestionOverrideCompatibleHint,
   unifiedCloudPicker,
 }: ConnectionPageProps) {
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+
   /** Max 3 buttons per row so long labels (e.g. Azure Monitor Distro → EDOT GW) stay readable. */
   const ingestionRows = useMemo(() => {
     const opts = ingestionOverrideOptions;
@@ -407,11 +410,36 @@ export function ConnectionPage({
           </EuiButtonEmpty>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiButtonEmpty iconType="refresh" size="s" color="danger" onClick={onResetConfig}>
+          <EuiButtonEmpty
+            iconType="refresh"
+            size="s"
+            color="danger"
+            onClick={() => setResetConfirmOpen(true)}
+          >
             Reset Config
           </EuiButtonEmpty>
         </EuiFlexItem>
       </EuiFlexGroup>
+
+      {resetConfirmOpen && (
+        <EuiConfirmModal
+          title="Reset all configuration?"
+          onCancel={() => setResetConfirmOpen(false)}
+          onConfirm={() => {
+            onResetConfig();
+            setResetConfirmOpen(false);
+          }}
+          cancelButtonText="Cancel"
+          confirmButtonText="Reset"
+          buttonColor="danger"
+          defaultFocusedButton="confirm"
+        >
+          <p>
+            This will clear all saved URLs, API keys, and preferences. You will need to re-enter
+            your connection details.
+          </p>
+        </EuiConfirmModal>
+      )}
     </>
   );
 }

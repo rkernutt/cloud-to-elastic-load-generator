@@ -7,55 +7,53 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-north1",
+    "region": "europe-west4",
     "account": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" }
   },
-  "orchestrator": { "cluster": { "name": "data-cluster" } },
+  "orchestrator": { "cluster": { "name": "edge-cluster" } },
   "resource": {
-    "id": "//container.googleapis.com/data-cluster",
-    "name": "data-cluster",
-    "sub_type": "api-server",
+    "id": "//container.googleapis.com/edge-cluster",
+    "name": "edge-cluster",
+    "sub_type": "Namespace",
     "type": "k8s_object"
   },
   "rule": {
-    "id": "cis_gke_4_2_1",
-    "name": "Ensure audit logging is enabled",
-    "section": "4.2.1",
-    "tags": ["Logging"],
+    "id": "cis_gke_4_3_2",
+    "name": "Ensure usage of the default namespace is minimized",
+    "section": "4.3.2",
+    "tags": ["Workloads"],
     "benchmark": {
       "id": "cis_gke",
       "version": "v1.4.0",
-      "rule_number": "4.2.1",
+      "rule_number": "4.3.2",
       "posture_type": "kspm"
-    },
-    "impact": "GKE CIS 4.2.1 failure on data-cluster.",
-    "remediation": "Harden data-cluster per CIS GKE Benchmark 4.2.1."
+    }
   },
-  "result": { "evaluation": "failed" },
-  "severity": "high",
+  "result": { "evaluation": "passed" },
+  "severity": "none",
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "gcp"
   },
-  "message": "KSPM [CIS GKE / 4.2.1] failed: Ensure audit logging is enabled [data-cluster]",
-  "log": { "level": "warn" },
+  "message": "KSPM [CIS GKE / 4.3.2] passed: Ensure usage of the default namespace is minimized [edge-cluster]",
+  "log": { "level": "info" },
   "service": { "name": "gcp-kspm", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-north1",
-    "id": "kwtmg2177y"
+    "name": "elastic-agent-gcp-europe-west4",
+    "id": "ddtwvyjae6m"
   },
   "input": { "type": "http_endpoint" },
   "logName": "projects/project-unknown/logs/gcp-kspm",
-  "insertId": "3FG1YGJDDYJ",
+  "insertId": "I31QDY57OO9",
   "jsonPayload": {
-    "message": "KSPM [CIS GKE / 4.2.1] failed: Ensure audit logging is enabled [data-cluster]"
+    "message": "KSPM [CIS GKE / 4.3.2] passed: Ensure usage of the default namespace is minimized [edge-cluster]"
   }
 }

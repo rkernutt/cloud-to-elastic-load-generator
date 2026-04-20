@@ -1,84 +1,82 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "ERROR",
-  "logName": "projects/globex-dev-g7h8i9/logs/binaryauthorization.googleapis.com%2Fpolicy_events",
-  "insertId": "mx27rhcu7t",
+  "severity": "INFO",
+  "logName": "projects/globex-shared-m3n4o5/logs/binaryauthorization.googleapis.com%2Fpolicy_events",
+  "insertId": "p6ziddiwkmp",
   "resource": {
     "type": "gke_cluster",
     "labels": {
-      "project_id": "globex-dev-g7h8i9",
-      "cluster_name": "dev-cluster",
-      "location": "northamerica-northeast2"
+      "project_id": "globex-shared-m3n4o5",
+      "cluster_name": "staging-cluster",
+      "location": "asia-south2"
     }
   },
   "jsonPayload": {
     "typeUrl": "type.googleapis.com/google.cloud.binaryauthorization.v1beta1.ContinuousValidationEvent",
-    "policy": "projects/globex-dev-g7h8i9/platforms/gke/policies/dev-permissive",
-    "cluster": "projects/globex-dev-g7h8i9/locations/northamerica-northeast2/clusters/dev-cluster",
+    "policy": "projects/globex-shared-m3n4o5/platforms/gke/policies/dev-permissive",
+    "cluster": "projects/globex-shared-m3n4o5/locations/asia-south2/clusters/staging-cluster",
     "deployable": {
-      "pod_name": "default/checkout-qdajx-qomis",
-      "container_image": "us-docker.pkg.dev/globex-dev-g7h8i9/apps/checkout:v8.13"
+      "pod_name": "data-pipeline/checkout-v7nt3-a8c7b",
+      "container_image": "us-docker.pkg.dev/globex-shared-m3n4o5/apps/checkout:v4.1"
     },
-    "verdict": "DENIED",
+    "verdict": "BREAK_GLASS",
     "attestations": [
       {
-        "attestor": "projects/globex-dev-g7h8i9/attestors/prod-security",
-        "pgp_key_id": "0x1JMNPG2XV0L"
+        "attestor": "projects/globex-shared-m3n4o5/attestors/build-attestor",
+        "pgp_key_id": "0x7VX9TVVN18W"
       }
-    ],
-    "reason": "No valid attestor for image"
+    ]
   },
   "cloud": {
     "provider": "gcp",
-    "region": "northamerica-northeast2",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" },
+    "region": "asia-south2",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" },
     "service": { "name": "binary-authorization" }
   },
   "gcp": {
     "binary_authorization": {
       "json_payload": {
         "typeUrl": "type.googleapis.com/google.cloud.binaryauthorization.v1beta1.ContinuousValidationEvent",
-        "policy": "projects/globex-dev-g7h8i9/platforms/gke/policies/dev-permissive",
-        "cluster": "projects/globex-dev-g7h8i9/locations/northamerica-northeast2/clusters/dev-cluster",
+        "policy": "projects/globex-shared-m3n4o5/platforms/gke/policies/dev-permissive",
+        "cluster": "projects/globex-shared-m3n4o5/locations/asia-south2/clusters/staging-cluster",
         "deployable": {
-          "pod_name": "default/checkout-qdajx-qomis",
-          "container_image": "us-docker.pkg.dev/globex-dev-g7h8i9/apps/checkout:v8.13"
+          "pod_name": "data-pipeline/checkout-v7nt3-a8c7b",
+          "container_image": "us-docker.pkg.dev/globex-shared-m3n4o5/apps/checkout:v4.1"
         },
-        "verdict": "DENIED",
+        "verdict": "BREAK_GLASS",
         "attestations": [
           {
-            "attestor": "projects/globex-dev-g7h8i9/attestors/prod-security",
-            "pgp_key_id": "0x1JMNPG2XV0L"
+            "attestor": "projects/globex-shared-m3n4o5/attestors/build-attestor",
+            "pgp_key_id": "0x7VX9TVVN18W"
           }
-        ],
-        "reason": "No valid attestor for image"
+        ]
       },
-      "cluster": "dev-cluster",
-      "namespace": "default",
-      "pod": "checkout-qdajx-qomis",
-      "image": "us-docker.pkg.dev/globex-dev-g7h8i9/apps/checkout:v8.13",
-      "attestor": "prod-security",
-      "verdict": "DENIED",
+      "cluster": "staging-cluster",
+      "namespace": "data-pipeline",
+      "pod": "checkout-v7nt3-a8c7b",
+      "image": "us-docker.pkg.dev/globex-shared-m3n4o5/apps/checkout:v4.1",
+      "attestor": "build-attestor",
+      "verdict": "BREAK_GLASS",
       "policy_name": "dev-permissive"
     }
   },
   "event": {
-    "outcome": "failure",
-    "duration": 9000000,
+    "outcome": "success",
+    "duration": 16000000,
     "module": "gcp",
     "dataset": "gcp.binaryauthorization"
   },
-  "message": "binaryauthorization.googleapis.com/Admission DENIED cluster=dev-cluster image=us-docker.pkg.dev/globex-dev-g7h8i9/apps/checkout:v8.13",
+  "message": "binaryauthorization.googleapis.com/Admission BREAK_GLASS cluster=staging-cluster image=us-docker.pkg.dev/globex-shared-m3n4o5/apps/checkout:v4.1",
   "service": { "name": "binary-authorization", "type": "gcp" },
-  "log": { "level": "error" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.binaryauthorization", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-northamerica-northeast2",
-    "id": "80rletd9fpo"
+    "name": "elastic-agent-gcp-asia-south2",
+    "id": "wano6c0fdn9"
   },
   "input": { "type": "http_endpoint" }
 }

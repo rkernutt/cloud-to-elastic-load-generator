@@ -1,4 +1,11 @@
-import { EuiButton, EuiFlexGroup, EuiFlexItem, EuiHorizontalRule, EuiSpacer } from "@elastic/eui";
+import {
+  EuiButton,
+  EuiButtonEmpty,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiHorizontalRule,
+  EuiSpacer,
+} from "@elastic/eui";
 
 interface WizardFooterProps {
   activePage: string;
@@ -16,13 +23,21 @@ export function WizardFooter({ activePage, onNavigate, stepIds, canGoNext }: Wiz
   const idx = stepIds.indexOf(activePage);
   if (idx < 0 || idx >= stepIds.length - 1) return null;
   const nextId = stepIds[idx + 1];
+  const prevId = idx > 0 ? stepIds[idx - 1] : null;
 
   return (
     <>
       <EuiSpacer size="l" />
       <EuiHorizontalRule margin="none" />
       <EuiSpacer size="m" />
-      <EuiFlexGroup justifyContent="flexEnd" alignItems="center">
+      <EuiFlexGroup justifyContent={prevId ? "spaceBetween" : "flexEnd"} alignItems="center">
+        {prevId ? (
+          <EuiFlexItem grow={false}>
+            <EuiButtonEmpty iconType="arrowLeft" onClick={() => onNavigate(prevId)}>
+              Back
+            </EuiButtonEmpty>
+          </EuiFlexItem>
+        ) : null}
         <EuiFlexItem grow={false}>
           <EuiButton
             fill

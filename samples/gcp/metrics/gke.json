@@ -3,53 +3,51 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west1",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "europe-southwest1",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west1",
-    "ephemeral_id": "ucr92qkzq7c"
+    "name": "metricbeat-gcp-europe-southwest1",
+    "ephemeral_id": "5hr7d9g6c86"
   },
   "monitoringTimeSeries": {
-    "metric": {
-      "type": "serviceruntime.googleapis.com/api/request_count",
-      "labels": { "credential_id": "resource-a" }
-    },
+    "metric": { "type": "kubernetes.io/container/cpu/request_utilization", "labels": {} },
     "resource": {
-      "type": "consumed_api",
+      "type": "k8s_container",
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "service": "generic.googleapis.com",
-        "method": "resource_id"
+        "project_id": "globex-shared-m3n4o5",
+        "location": "europe-southwest1",
+        "cluster_name": "staging-cluster",
+        "namespace_name": "kube-system",
+        "pod_name": "postgres-p1r1d-tb3uu",
+        "container_name": "collector"
       }
     },
-    "metricKind": "DELTA",
-    "valueType": "INT64",
+    "metricKind": "GAUGE",
+    "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "56840" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 0.58 } }
     ]
   },
   "gcp": {
-    "config-connector": {
+    "gke": {
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "service": "generic.googleapis.com",
-        "method": "resource_id",
-        "credential_id": "resource-a"
+        "project_id": "globex-shared-m3n4o5",
+        "location": "europe-southwest1",
+        "cluster_name": "staging-cluster",
+        "namespace_name": "kube-system",
+        "pod_name": "postgres-p1r1d-tb3uu",
+        "container_name": "collector"
       },
       "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": {
-          "avg": 56840,
-          "sum": 56840,
-          "count": 1
-        }
+        "kubernetes.io/container/cpu/request_utilization": { "avg": 0.58, "sum": 0.58, "count": 1 }
       }
     }
   },
-  "metricset": { "name": "config-connector", "period": 60000 },
+  "metricset": { "name": "gke", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.gke_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "dataset": "gcp.gke_metrics", "module": "gcp" }

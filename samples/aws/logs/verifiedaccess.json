@@ -1,72 +1,66 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "me-south-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "verified-access" }
   },
   "aws": {
-    "dimensions": { "ApplicationId": "va-app-dozpftom" },
+    "dimensions": { "ApplicationId": "va-app-yf91n2w5" },
     "verifiedaccess": {
-      "endpoint_id": "vae-lz9yumwstkn",
-      "group_id": "vag-75rn5d0b1z6",
-      "instance_id": "vai-qeks3oryyc",
-      "policy_name": "corporate-device",
-      "trust_provider_type": "iam-identity-center",
-      "device_posture": "NON_COMPLIANT",
-      "verdict": "deny",
-      "deny_reason": "policy_evaluation_failed",
-      "http_method": "PATCH",
-      "http_path": "/api/v1/search",
-      "http_status": 403,
-      "request_id": "ga5awa8m-uwng-wv55-a856-3f0c5fqch3j",
-      "connection_id": "EHJK756RON7",
-      "session_id": "JTJCZLL3RB",
-      "sni_hostname": "staging-api.internal.example.com",
-      "application_name": "staging-api"
+      "endpoint_id": "vae-8se1bx30il8",
+      "group_id": "vag-utqkqzfeb19",
+      "instance_id": "vai-oh37ddmvd7n",
+      "policy_name": "require-mfa",
+      "trust_provider_type": "oidc-azure-ad",
+      "device_posture": "COMPLIANT",
+      "verdict": "allow",
+      "http_method": "POST",
+      "http_path": "/api/v1/auth/login",
+      "http_status": 201,
+      "request_id": "t5nylm1y-j91b-c61v-da3f-wik7fhbcf",
+      "connection_id": "U141Z7IDTUI",
+      "session_id": "PGDZM7YLLX9",
+      "sni_hostname": "git-server.internal.example.com",
+      "application_name": "git-server"
     },
     "s3": {
       "bucket": {
-        "name": "aws-verifiedaccess-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-verifiedaccess-logs-293847561023"
+        "name": "aws-verifiedaccess-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-verifiedaccess-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/verifiedaccess/ca-west-1/2026/04/20/verifiedaccess_XMW4STD76A.log.gz"
+        "key": "AWSLogs/164820739518/verifiedaccess/me-south-1/2026/04/20/verifiedaccess_TOP4SGU3JR8.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/verifiedaccess/logs",
-      "log_stream": "ca-west-1/ayi2kb0t",
-      "ingestion_time": "2026-04-20T13:03:49.598Z"
+      "log_stream": "me-south-1/otclzurm",
+      "ingestion_time": "2026-04-20T14:21:54.891Z"
     }
   },
-  "user": { "email": "deploy-svc@example.com", "name": "deploy-svc" },
-  "source": { "ip": "18.220.25.32" },
+  "user": { "email": "carol@example.com", "name": "carol" },
+  "source": { "ip": "67.29.245.132" },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["authentication", "network"],
-    "type": ["denied"],
+    "type": ["allowed"],
     "dataset": "aws.verifiedaccess",
     "provider": "verified-access.amazonaws.com",
-    "duration": 153000000,
+    "duration": 55000000,
     "module": "aws"
   },
-  "message": "Verified Access DENIED: deploy-svc@example.com -> staging-api [policy_evaluation_failed]",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "AccessDenied",
-    "message": "Verified Access policy denied: policy_evaluation_failed",
-    "type": "authentication"
-  },
+  "message": "Verified Access allowed: carol@example.com -> git-server (COMPLIANT)",
+  "log": { "level": "info" },
   "service": { "name": "verifiedaccess", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.verifiedaccess", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "5sjtfoysrmq"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "oh5tpfrrze"
   },
   "input": { "type": "aws-cloudwatch" }
 }

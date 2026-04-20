@@ -53,20 +53,15 @@ Categories are collapsible, making it easy to navigate even with 200+ services p
 
 ## Installing from the CLI
 
-**Per-service bundles (recommended):**
+**Per-service bundles (AWS CLI):**
 
 ```bash
-# AWS
 npm run setup:aws-loadgen-packs
-
-# GCP
-npm run setup:gcp-loadgen-packs
-
-# Azure
-npm run setup:azure-loadgen-packs
 ```
 
-These install the pipeline, dashboard, ML jobs, and alerting rules for each service you select in one run. All assets are tagged `cloudloadgen`.
+This installs the pipeline, dashboard, ML jobs, and alerting rules for each AWS service you select in one run. All assets are tagged `cloudloadgen`.
+
+There is **no** GCP or Azure equivalent CLI bundle — use the **individual asset installers** in the table below for those clouds, or the web UI **Setup** step (same integrations for AWS, GCP, and Azure).
 
 **Individual asset installers** are also available if you only need one type:
 

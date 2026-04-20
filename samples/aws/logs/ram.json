@@ -1,56 +1,55 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-northeast-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "ram" }
   },
   "aws": {
     "ram": {
-      "resource_share_arn": "arn:aws:ram:ap-south-2:164820739518:resource-share/wjwdap0zu3f",
-      "resource_share_name": "transit-gateway-share",
-      "resource_type": "ec2:TransitGateway",
-      "action": "AcceptResourceShareInvitation",
-      "principal": "164820739518",
-      "allow_external_principals": true,
-      "status": "FAILED",
-      "invitation_status": "ACCEPTED",
-      "error_code": "UnknownResourceException"
+      "resource_share_arn": "arn:aws:ram:ap-northeast-1:814726593401:resource-share/6q63rrjlv86",
+      "resource_share_name": "resolver-rules-share",
+      "resource_type": "route53resolver:ResolverRule",
+      "action": "AssociateResourceShare",
+      "principal": "814726593401",
+      "allow_external_principals": false,
+      "status": "PENDING"
     },
     "s3": {
       "bucket": {
-        "name": "aws-ram-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-ram-logs-164820739518"
+        "name": "aws-ram-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-ram-logs-814726593401"
       },
-      "object": { "key": "AWSLogs/164820739518/ram/ap-south-2/2026/04/20/ram_B0HNWW564RQ.log.gz" }
+      "object": {
+        "key": "AWSLogs/814726593401/ram/ap-northeast-1/2026/04/20/ram_5H3NUA0OVZY.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/ram/logs",
-      "log_stream": "ap-south-2/fugzrd9x",
-      "ingestion_time": "2026-04-20T13:03:49.735Z"
+      "log_stream": "ap-northeast-1/u3pszy34",
+      "ingestion_time": "2026-04-20T14:21:55.041Z"
     }
   },
   "event": {
-    "action": "AcceptResourceShareInvitation",
-    "outcome": "failure",
+    "action": "AssociateResourceShare",
+    "outcome": "success",
     "category": ["configuration", "iam"],
     "dataset": "aws.ram",
     "provider": "ram.amazonaws.com",
-    "duration": 499000000,
+    "duration": 50000000,
     "module": "aws"
   },
-  "message": "RAM AcceptResourceShareInvitation FAILED: Invalid principal:",
-  "log": { "level": "error" },
-  "error": { "code": "RAMError", "message": "RAM operation failed", "type": "iam" },
+  "message": "RAM AssociateResourceShare: route53resolver:ResolverRule shared with account 814726593401",
+  "log": { "level": "info" },
   "service": { "name": "ram", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.ram", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "bjpgdtgh8zh"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "k14fid9aj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

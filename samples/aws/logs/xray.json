@@ -1,54 +1,112 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
-  "trace": { "id": "1-69e62434-wc8r3badgk" },
-  "span": { "id": "qb4uofqjnep" },
+  "@timestamp": "2026-04-20T14:21:54.344Z",
+  "trace": { "id": "1-69e63682-qvobz82z74i" },
+  "span": { "id": "tycyxy3jsze" },
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-central-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "xray" }
   },
   "aws": {
-    "dimensions": { "GroupName": "Default", "ServiceType": "AWS::Lambda::Function" },
+    "dimensions": { "GroupName": "Default", "ServiceType": "client" },
     "xray": {
-      "trace_id": "1-69e62434-wc8r3badgk",
-      "segment_id": "qb4uofqjnep",
-      "start_time": 1776690228.907,
-      "end_time": 1776690230.5403159,
-      "origin": "AWS::Lambda::Function",
-      "service": { "name": "order-processor", "type": "AWS::Lambda::Function" },
-      "duration": 1.6333157825565776,
+      "trace_id": "1-69e63682-qvobz82z74i",
+      "segment_id": "tycyxy3jsze",
+      "parent_id": "zmxuyucsei",
+      "start_time": 1776694914.344,
+      "end_time": 1776694914.5736306,
+      "origin": "AWS::ECS::Container",
+      "service": { "name": "payment-service", "type": "client" },
+      "duration": 0.22963038164423402,
       "fault": false,
       "error": false,
       "throttle": false,
       "http": {
         "request": {
           "method": "POST",
-          "url": "https://service.myapp.io/api/v1/auth/login",
-          "client_ip": "58.227.75.146",
-          "user_agent": "curl/7.68.0"
+          "url": "https://service.internal.corp/api/v1/search",
+          "client_ip": "36.23.22.155",
+          "user_agent": "python-requests/2.27.1"
         },
-        "response": { "status": 201, "content_length": 19658 }
+        "response": { "status": 201, "content_length": 31825 }
       },
       "aws": {
-        "account_id": "814726593401",
-        "region": "ca-central-1",
-        "resource_names": ["order-processor"]
+        "account_id": "164820739518",
+        "region": "eu-central-1",
+        "resource_names": ["payment-service"]
       },
-      "annotations": { "environment": "staging", "version": "v10.0.13", "team": "backend" },
-      "metrics": {
-        "ErrorRate": { "avg": 0.9992490429094354 },
-        "FaultRate": { "avg": 0.2565241536883083 },
-        "ThrottleRate": { "avg": 0.05640175204589298 },
-        "TotalCount": { "sum": 2930 },
-        "Latency": {
-          "avg": 1633.3157825565777,
-          "p50": 1306.6526260452622,
-          "p90": 2449.9736738348665,
-          "p95": 3266.6315651131554,
-          "p99": 4899.947347669733
+      "annotations": { "environment": "production", "version": "v4.1.70", "team": "platform" },
+      "subsegments": [
+        {
+          "id": "p5q24pgccss",
+          "name": "payment-service.internal:8080",
+          "start_time": 1776694914.3784506,
+          "end_time": 1776694914.5198371,
+          "namespace": "remote",
+          "http": {
+            "request": {
+              "method": "POST",
+              "url": "http://payment-service.internal:8080/api/v1/orders"
+            },
+            "response": { "status": 200, "content_length": 4201 }
+          },
+          "fault": false,
+          "error": false,
+          "throttle": false
         },
-        "OkCount": { "sum": 2706 },
+        {
+          "id": "nexik2q5ql",
+          "name": "user-service.internal:8080",
+          "start_time": 1776694914.3514419,
+          "end_time": 1776694914.429639,
+          "namespace": "remote",
+          "http": {
+            "request": { "method": "GET", "url": "http://user-service.internal:8080/api/v1/users" },
+            "response": { "status": 200, "content_length": 3584 }
+          },
+          "fault": false,
+          "error": false,
+          "throttle": false
+        },
+        {
+          "id": "yw0pq751jue",
+          "name": "SQS",
+          "start_time": 1776694914.3563683,
+          "end_time": 1776694914.5130532,
+          "namespace": "aws",
+          "aws": { "operation": "DeleteMessage", "region": "eu-central-1", "retries": 0 },
+          "http": { "response": { "status": 200, "content_length": 49121 } },
+          "fault": false,
+          "error": false,
+          "throttle": false
+        },
+        {
+          "id": "v4ur7yg3m4",
+          "name": "Lambda",
+          "start_time": 1776694914.3923342,
+          "end_time": 1776694914.5643396,
+          "namespace": "aws",
+          "aws": { "operation": "Invoke", "region": "eu-central-1", "retries": 0 },
+          "http": { "response": { "status": 200, "content_length": 9670 } },
+          "fault": false,
+          "error": false,
+          "throttle": false
+        }
+      ],
+      "metrics": {
+        "ErrorRate": { "avg": 0.6285717576148467 },
+        "FaultRate": { "avg": 0.3867534627048102 },
+        "ThrottleRate": { "avg": 0.44097549754205445 },
+        "TotalCount": { "sum": 9653 },
+        "Latency": {
+          "avg": 229.63038164423403,
+          "p50": 183.70430531538722,
+          "p90": 344.44557246635105,
+          "p95": 459.26076328846807,
+          "p99": 688.8911449327021
+        },
+        "OkCount": { "sum": 4104 },
         "ErrorCount": { "sum": 0 },
         "FaultCount": { "sum": 0 },
         "ThrottleCount": { "sum": 0 }
@@ -56,28 +114,28 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-xray-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-xray-logs-814726593401"
+        "name": "aws-xray-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-xray-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/xray/ca-central-1/2026/04/20/xray_H0FBF04L8R5.log.gz"
+        "key": "AWSLogs/164820739518/xray/eu-central-1/2026/04/20/xray_1TQANU4D9X7I.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/xray/logs",
-      "log_stream": "ca-central-1/24pz696f",
-      "ingestion_time": "2026-04-20T13:03:49.674Z"
+      "log_stream": "eu-central-1/y1dapfe5",
+      "ingestion_time": "2026-04-20T14:21:54.973Z"
     }
   },
   "http": {
-    "request": { "method": "POST", "body": { "bytes": 7286 } },
-    "response": { "status_code": 201, "body": { "bytes": 11305 } }
+    "request": { "method": "POST", "body": { "bytes": 3714 } },
+    "response": { "status_code": 201, "body": { "bytes": 32411 } }
   },
-  "url": { "path": "/api/v1/auth/login", "full": "https://service.myapp.io/api/v1/auth/login" },
-  "user_agent": { "original": "curl/7.68.0" },
-  "source": { "ip": "58.227.75.146" },
+  "url": { "path": "/api/v1/search", "full": "https://service.internal.corp/api/v1/search" },
+  "user_agent": { "original": "python-requests/2.27.1" },
+  "source": { "ip": "36.23.22.155" },
   "event": {
-    "duration": 1633315783,
+    "duration": 229630382,
     "outcome": "success",
     "category": ["network"],
     "type": ["connection"],
@@ -85,7 +143,7 @@
     "provider": "xray.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"trace_id\":\"1-69e62434-wc8r3badgk\",\"id\":\"qb4uofqjnep\",\"name\":\"order-processor\",\"start_time\":1776690228.907,\"end_time\":1776690230.5403159,\"http\":{\"request\":{\"method\":\"POST\",\"url\":\"https://service.myapp.io/api/v1/auth/login\",\"client_ip\":\"58.227.75.146\",\"user_agent\":\"curl/7.68.0\"},\"response\":{\"status\":201,\"content_length\":34127}},\"aws\":{\"account_id\":\"814726593401\",\"region\":\"ca-central-1\",\"operation\":\"Function\",\"resource_names\":[\"order-processor\"]},\"annotations\":{\"environment\":\"staging\",\"version\":\"v18.2.73\",\"team\":\"platform\"},\"metadata\":{\"default\":{\"response_size\":37423}},\"fault\":false,\"error\":false,\"throttle\":false,\"origin\":\"AWS::Lambda::Function\",\"resource_arn\":\"arn:aws:lambda:ca-central-1:814726593401:order-processor\"}",
+  "message": "2026-04-20T14:21:55.064Z [Info] PublishSlices segments=309 faults=4 throttles=3\n2026-04-20T14:21:54.464Z [Info] Received segment document id=tycyxy3jsze trace_id=1-69e63682-qvobz82z74i bytes=46127\n2026-04-20T14:21:54.944Z [Info] Sampling decision trace_id=1-69e63682-qvobz82z74i rule=errors-only reservoir=0 outcome=Borrowed\n{\"trace_id\":\"1-69e63682-qvobz82z74i\",\"id\":\"tycyxy3jsze\",\"name\":\"payment-service\",\"start_time\":1776694914.344,\"end_time\":1776694914.5736306,\"parent_id\":\"zmxuyucsei\",\"http\":{\"request\":{\"method\":\"POST\",\"url\":\"https://service.internal.corp/api/v1/search\",\"client_ip\":\"36.23.22.155\",\"user_agent\":\"python-requests/2.27.1\"},\"response\":{\"status\":201,\"content_length\":47949}},\"aws\":{\"account_id\":\"164820739518\",\"region\":\"eu-central-1\",\"resource_names\":[\"payment-service\"]},\"annotations\":{\"environment\":\"production\",\"version\":\"v3.7.36\",\"team\":\"data\"},\"metadata\":{\"default\":{\"response_size\":38744}},\"fault\":false,\"error\":false,\"throttle\":false,\"origin\":\"AWS::ECS::Container\",\"resource_arn\":\"arn:aws:lambda:eu-central-1:164820739518:payment-service\"}",
   "log": { "level": "info" },
   "service": { "name": "xray", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -93,8 +151,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "bvulroubtpe"
+    "name": "filebeat-aws-eu-central-1",
+    "ephemeral_id": "90trr693d7"
   },
   "input": { "type": "http_endpoint" }
 }

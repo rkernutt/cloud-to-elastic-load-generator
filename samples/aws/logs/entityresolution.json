@@ -1,23 +1,23 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
+    "region": "us-west-2",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "entityresolution" }
   },
   "aws": {
-    "dimensions": { "WorkflowName": "address-resolution" },
+    "dimensions": { "WorkflowName": "product-matching" },
     "entityresolution": {
-      "matching_workflow_id": "ymd3e59q-499c-49ie-nsa8-yg9hzc9uyj",
-      "matching_workflow_name": "address-resolution",
-      "job_id": "1ngq6sij-7x59-x4ga-rp5x-tnx2ls7q1xh",
-      "job_status": "RUNNING",
-      "matched_record_count": 5124395,
-      "input_record_count": 7363329,
-      "unique_record_count": 3816241,
-      "schema_name": "customer-schema",
-      "matching_technique": "ML_MATCHING"
+      "matching_workflow_id": "sqh4i8hw-auyi-i30p-lciz-0l8anc6vmtl",
+      "matching_workflow_name": "product-matching",
+      "job_id": "xd4vtzqv-4p81-hvfs-hq89-pn3w9ypjwgj",
+      "job_status": "QUEUED_FOR_DELETION",
+      "matched_record_count": 0,
+      "input_record_count": 3029977,
+      "unique_record_count": 0,
+      "schema_name": "contact-schema",
+      "matching_technique": "PROVIDER_SERVICE"
     },
     "s3": {
       "bucket": {
@@ -25,33 +25,38 @@
         "arn": "arn:aws:s3:::aws-entityresolution-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/entityresolution/eu-central-1/2026/04/20/entityresolution_UYG33G8E41O.log.gz"
+        "key": "AWSLogs/293847561023/entityresolution/us-west-2/2026/04/20/entityresolution_TEXGFVI80Q9.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/entityresolution/logs",
-      "log_stream": "eu-central-1/vs9hy3wo",
-      "ingestion_time": "2026-04-20T13:03:49.694Z"
+      "log_stream": "us-west-2/k6mlphan",
+      "ingestion_time": "2026-04-20T14:21:54.999Z"
     }
   },
   "event": {
-    "action": "CreateMatchingWorkflow",
-    "outcome": "success",
+    "action": "StartMatchingJob",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.entityresolution",
     "provider": "entityresolution.amazonaws.com",
     "module": "aws"
   },
-  "message": "Entity Resolution address-resolution: matched 5124395/7363329 records → 3816241 unique",
-  "log": { "level": "info" },
+  "message": "Entity Resolution product-matching: job QUEUED_FOR_DELETION",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InternalServerException",
+    "message": "Entity resolution job failed",
+    "type": "process"
+  },
   "service": { "name": "entityresolution", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.entityresolution", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "iyj13mrsqf"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "quf8pagtunj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,64 +1,69 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-northeast-3",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "deadlinecloud" }
   },
   "aws": {
-    "dimensions": { "FarmId": "farm-qg6fb3c2h6", "QueueId": "queue-l6hwjy9yirm" },
+    "dimensions": { "FarmId": "farm-n4vfckw4ks", "QueueId": "queue-mq1ngtw79sj" },
     "deadlinecloud": {
-      "farm_id": "farm-qg6fb3c2h6",
-      "farm_name": "ad-rendering",
-      "queue_id": "queue-l6hwjy9yirm",
-      "queue_name": "test",
-      "job_id": "job-2iksncnu9k4",
-      "job_name": "fx_simulation_hero",
-      "task_id": "task-5oz4xzvzp8f",
-      "task_status": "QUEUED",
-      "job_status": "SUCCEEDED",
-      "worker_hostname": "render-worker-cpu-02.us-west-1.compute.internal",
-      "frame_start": 104,
-      "frame_end": 195,
-      "duration_seconds": 3273,
-      "renderer": "RenderMan",
-      "priority": 32
+      "farm_id": "farm-n4vfckw4ks",
+      "farm_name": "animation-studio",
+      "queue_id": "queue-mq1ngtw79sj",
+      "queue_name": "high-priority",
+      "job_id": "job-19y3nuooo9q",
+      "job_name": "motion_blur_final",
+      "task_id": "task-ywap1ajej9s",
+      "task_status": "NOT_COMPATIBLE",
+      "job_status": "CANCELED",
+      "worker_hostname": "render-worker-spot-01.ap-northeast-3.compute.internal",
+      "frame_start": 482,
+      "frame_end": 519,
+      "duration_seconds": 936,
+      "renderer": "V-Ray",
+      "priority": 60
     },
     "s3": {
       "bucket": {
-        "name": "aws-deadlinecloud-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-deadlinecloud-logs-501938274650"
+        "name": "aws-deadlinecloud-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-deadlinecloud-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/deadlinecloud/us-west-1/2026/04/20/deadlinecloud_724W4QEIKBH.log.gz"
+        "key": "AWSLogs/293847561023/deadlinecloud/ap-northeast-3/2026/04/20/deadlinecloud_P17PENQC3S.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/deadlinecloud/logs",
-      "log_stream": "us-west-1/ags8l703",
-      "ingestion_time": "2026-04-20T13:03:49.750Z"
+      "log_stream": "ap-northeast-3/r19qbzsf",
+      "ingestion_time": "2026-04-20T14:21:55.056Z"
     }
   },
   "event": {
-    "action": "CreateQueueEnvironment",
-    "outcome": "success",
+    "action": "UpdateJob",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.deadlinecloud",
     "provider": "deadline.amazonaws.com",
-    "duration": 3273000000000,
+    "duration": 936000000000,
     "module": "aws"
   },
-  "message": "Deadline Cloud CreateQueueEnvironment: farm=ad-rendering queue=test job=fx_simulation_hero frames 104-195 QUEUED",
-  "log": { "level": "info" },
+  "message": "Deadline Cloud UpdateJob FAILED [animation-studio/motion_blur_final]: Render task failed",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ValidationException",
+    "message": "Deadline Cloud render task failed",
+    "type": "process"
+  },
   "service": { "name": "deadlinecloud", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.deadlinecloud", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "beegw556mhm"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "2st3iy2nvvf"
   },
   "input": { "type": "aws-cloudwatch" }
 }

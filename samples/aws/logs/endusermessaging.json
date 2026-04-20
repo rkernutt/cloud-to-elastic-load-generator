@@ -1,58 +1,64 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "us-east-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "end-user-messaging" }
   },
   "aws": {
-    "dimensions": { "OriginationIdentity": "orig-wygnhm1f9q", "Channel": "VOICE" },
+    "dimensions": { "OriginationIdentity": "orig-qnpn7l1b6q", "Channel": "VOICE" },
     "endusermessaging": {
-      "origination_identity": "orig-wygnhm1f9q",
-      "message_id": "msg-5b6qgnvf8et",
+      "origination_identity": "orig-qnpn7l1b6q",
+      "message_id": "msg-sbum0ux6opd",
       "channel": "VOICE",
-      "destination_country": "GB",
-      "message_status": "DELIVERED",
+      "destination_country": "FR",
+      "message_status": "FAILED",
       "metrics": {
-        "messages_sent": 93660,
-        "delivery_rate": 0.9315210493745252,
-        "opt_out_rate": 0.0032682051381718513
-      }
+        "messages_sent": 0,
+        "delivery_rate": 0.05695414968183582,
+        "opt_out_rate": 0.062494684727035024
+      },
+      "error_code": "NumberBlocked"
     },
     "s3": {
       "bucket": {
-        "name": "aws-endusermessaging-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-endusermessaging-logs-164820739518"
+        "name": "aws-endusermessaging-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-endusermessaging-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/endusermessaging/eu-west-1/2026/04/20/endusermessaging_ULYU7WE1ASH.log.gz"
+        "key": "AWSLogs/501938274650/endusermessaging/us-east-1/2026/04/20/endusermessaging_PKJEBU2O6B.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/endusermessaging/logs",
-      "log_stream": "eu-west-1/94j45alm",
-      "ingestion_time": "2026-04-20T13:03:49.669Z"
+      "log_stream": "us-east-1/86p82vb7",
+      "ingestion_time": "2026-04-20T14:21:54.968Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["network"],
     "dataset": "aws.endusermessaging",
     "provider": "sms-voice.amazonaws.com",
-    "duration": 922000000,
+    "duration": 4461000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.endusermessaging", "namespace": "default" },
-  "message": "End User Messaging VOICE: 93660 sent to GB, delivery_rate=93.2%",
-  "log": { "level": "info" },
+  "message": "End User Messaging VOICE: NumberBlocked for FR (orig-qnpn7l1b6q)",
+  "log": { "level": "error" },
+  "error": {
+    "code": "NumberBlocked",
+    "message": "End User Messaging delivery failed for VOICE to FR",
+    "type": "network"
+  },
   "service": { "name": "endusermessaging", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "1486gija142"
+    "name": "filebeat-aws-us-east-1",
+    "ephemeral_id": "0x7a3vmgzup"
   },
   "input": { "type": "aws-cloudwatch" }
 }

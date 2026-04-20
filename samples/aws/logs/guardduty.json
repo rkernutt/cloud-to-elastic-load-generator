@@ -1,105 +1,132 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-west-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "um8qc3u8rfg" },
+    "dimensions": { "DetectorId": "ioszpmm42xh" },
     "guardduty": {
       "schemaVersion": "2.0",
-      "accountId": "293847561023",
-      "region": "ap-northeast-2",
+      "accountId": "814726593401",
+      "region": "eu-west-2",
       "partition": "aws",
-      "id": "tj1y2dzlyy",
-      "arn": "arn:aws:guardduty:ap-northeast-2:293847561023:detector/um8qc3u8rfg/finding/tj1y2dzlyy",
-      "type": "Stealth:IAMUser/PasswordPolicyChange",
+      "id": "c8v9e5ynle9",
+      "arn": "arn:aws:guardduty:eu-west-2:814726593401:detector/ioszpmm42xh/finding/c8v9e5ynle9",
+      "type": "Backdoor:EC2/C&CActivity.B",
       "resource": {
-        "resourceType": "AccessKey",
-        "accessKeyDetails": {
-          "accessKeyId": "AKIAD808HKSKXYT",
-          "principalId": "293847561023:alice",
-          "userName": "deploy-bot",
-          "userType": "IAMUser"
-        }
+        "resourceType": "S3Bucket",
+        "s3BucketDetails": [
+          {
+            "arn": "arn:aws:s3:::globex-production-data-rdqq4j",
+            "name": "globex-production-data-d0p7ij",
+            "type": "Destination",
+            "createdAt": "2026-04-20T13:30:03.344Z",
+            "owner": { "id": "814726593401" },
+            "publicAccess": {
+              "permissionConfiguration": { "bucketLevel": { "blockPublicAccess": true } }
+            }
+          }
+        ]
       },
       "service": {
         "serviceName": "guardduty",
-        "detectorId": "um8qc3u8rfg",
+        "detectorId": "ioszpmm42xh",
         "action": {
-          "actionType": "NETWORK_CONNECTION",
-          "networkConnectionAction": {
-            "connectionDirection": "OUTBOUND",
-            "remoteIpDetails": {
-              "ipAddressV4": "107.25.145.130",
-              "geoLocation": {},
-              "organization": {}
-            },
-            "localPortDetails": { "port": 18575 },
-            "remotePortDetails": { "port": 443 },
-            "protocol": "TCP",
-            "blocked": false
+          "actionType": "PORT_PROBE",
+          "portProbeAction": {
+            "blocked": false,
+            "portProbeDetails": [
+              {
+                "localPortDetails": { "port": 3306 },
+                "remoteIpDetails": {
+                  "ipAddressV4": "91.34.151.200",
+                  "organization": {
+                    "asn": "64496",
+                    "asnOrg": "Example ISP",
+                    "isp": "Example ISP",
+                    "org": "Example Org"
+                  }
+                }
+              }
+            ]
           }
         },
-        "resourceRole": "TARGET",
-        "eventFirstSeen": "2026-04-20T12:19:10.907Z",
-        "eventLastSeen": "2026-04-20T13:03:48.907Z",
+        "resourceRole": "ACTOR",
+        "eventFirstSeen": "2026-04-20T13:30:03.344Z",
+        "eventLastSeen": "2026-04-20T14:21:54.344Z",
         "archived": false,
-        "count": 238,
-        "additionalInfo": {}
+        "count": 309,
+        "additionalInfo": {},
+        "evidence": { "threatIntelligenceDetails": [] }
       },
-      "severity": 0,
-      "title": "IAMUser PasswordPolicyChange",
-      "description": "GuardDuty processed telemetry and did not raise a finding for this sample.",
-      "createdAt": "2026-04-20T13:03:48.907Z",
-      "updatedAt": "2026-04-20T13:03:48.907Z",
-      "confidence": 83.5475680101136,
+      "severity": 7,
+      "title": "EC2 C&CActivity B",
+      "description": "GuardDuty identified suspicious behavior or a possible compromise based on VPC flow logs, DNS logs, or CloudTrail events. Finding type: Backdoor:EC2/C&CActivity.B.",
+      "createdAt": "2026-04-20T14:21:54.344Z",
+      "updatedAt": "2026-04-20T14:21:54.344Z",
+      "confidence": 67.06581603855685,
       "metrics": {
-        "FindingCount": { "sum": 0 },
-        "HighSeverityFindingCount": { "sum": 0 },
+        "FindingCount": { "sum": 16 },
+        "HighSeverityFindingCount": { "sum": 6 },
         "MediumSeverityFindingCount": { "sum": 0 },
         "LowSeverityFindingCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-guardduty-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-guardduty-logs-293847561023"
+        "name": "aws-guardduty-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-guardduty-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/guardduty/ap-northeast-2/2026/04/20/guardduty_W8B6Q9M4HK.log.gz"
+        "key": "AWSLogs/814726593401/guardduty/eu-west-2/2026/04/20/guardduty_9CHR977RJN.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/guardduty/logs",
-      "log_stream": "ap-northeast-2/ahcy3sfi",
-      "ingestion_time": "2026-04-20T13:03:49.581Z"
+      "log_stream": "eu-west-2/e40adp4s",
+      "ingestion_time": "2026-04-20T14:21:54.878Z"
     }
   },
-  "rule": { "category": "threat" },
-  "threat": { "indicator": [{ "type": "ip", "value": "128.108.35.130" }] },
+  "rule": { "category": "malware", "ruleset": "Backdoor", "name": "Backdoor:EC2/C&CActivity.B" },
+  "threat": { "indicator": [{ "type": "ip", "value": "91.34.151.200" }] },
+  "source": {
+    "ip": "91.34.151.200",
+    "geo": {
+      "country_iso_code": "US",
+      "country_name": "United States",
+      "city_name": "Ashburn",
+      "location": { "lat": 39.0438, "lon": -77.4874 }
+    }
+  },
+  "destination": { "ip": "16.90.184.92" },
   "event": {
     "kind": "alert",
-    "severity": 0,
-    "outcome": "success",
-    "category": ["threat"],
+    "severity": 7,
+    "outcome": "failure",
+    "category": ["malware"],
     "type": ["indicator"],
     "dataset": "aws.guardduty",
     "provider": "guardduty.amazonaws.com",
     "module": "aws"
   },
-  "message": "GuardDuty: no threats detected",
-  "log": { "level": "info" },
+  "message": "GuardDuty finding [High]: Backdoor:EC2/C&CActivity.B",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ThreatFinding",
+    "message": "GuardDuty finding: Backdoor:EC2/C&CActivity.B",
+    "type": "security"
+  },
   "service": { "name": "guardduty", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.guardduty", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "5aasx7dhn78"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "668vgf724q"
   },
   "input": { "type": "http_endpoint" }
 }

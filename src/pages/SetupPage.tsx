@@ -25,6 +25,7 @@ import {
   EuiSwitch,
   EuiFieldSearch,
   EuiBadge,
+  EuiLoadingSpinner,
 } from "@elastic/eui";
 
 import type { CloudId } from "../cloud/types";
@@ -217,6 +218,7 @@ export function SetupPage({
 
   const [isRunning, setIsRunning] = useState(false);
   const [isDone, setIsDone] = useState(false);
+  const [currentPhaseLabel, setCurrentPhaseLabel] = useState("");
   const initialSetupSnap = setupLogPersistenceKey ? loadSetupLog(setupLogPersistenceKey) : null;
   const [log, setLog] = useState<LogLine[]>(
     () => initialSetupSnap?.entries.map((e) => ({ text: e.text, type: e.type, at: e.at })) ?? []
@@ -243,6 +245,7 @@ export function SetupPage({
   useEffect(() => {
     setLog([]);
     setIsDone(false);
+    setCurrentPhaseLabel("");
     setConfirmUninstallOpen(false);
     setConfirmReinstallOpen(false);
     setConfirmResetOpen(false);
@@ -265,6 +268,13 @@ export function SetupPage({
 
   const addLog = useCallback(
     (text: string, type: LogLine["type"] = "info") => {
+      if (
+        text.startsWith("Installing ") ||
+        text.startsWith("Removing ") ||
+        text.startsWith("Creating TSDS index templates")
+      ) {
+        setCurrentPhaseLabel(text);
+      }
       const at = new Date().toISOString();
       setLog((prev) => {
         const next = [...prev, { text, type, at }].slice(-MAX_SETUP_LOG_ENTRIES);
@@ -290,6 +300,7 @@ export function SetupPage({
     setLog([]);
     logRef.current = [];
     setShowInterruptedBanner(false);
+    setCurrentPhaseLabel("");
     if (setupLogPersistenceKey) clearSetupLog(setupLogPersistenceKey);
   };
 
@@ -1702,6 +1713,7 @@ export function SetupPage({
   const handleInstall = async () => {
     setIsRunning(true);
     setIsDone(false);
+    setCurrentPhaseLabel("");
     installRunActiveRef.current = true;
     addLog(`── Install run started ${new Date().toLocaleString()} ──`, "info");
     try {
@@ -1743,6 +1755,7 @@ export function SetupPage({
         }
       });
       setIsRunning(false);
+      setCurrentPhaseLabel("");
     }
   };
 
@@ -2003,6 +2016,7 @@ export function SetupPage({
     setConfirmUninstallOpen(false);
     setIsRunning(true);
     setIsDone(false);
+    setCurrentPhaseLabel("");
     installRunActiveRef.current = false;
     setLog([]);
     logRef.current = [];
@@ -2019,6 +2033,7 @@ export function SetupPage({
     } finally {
       queueMicrotask(flushSetupSnapshot);
       setIsRunning(false);
+      setCurrentPhaseLabel("");
     }
   };
 
@@ -2026,6 +2041,7 @@ export function SetupPage({
     setConfirmReinstallOpen(false);
     setIsRunning(true);
     setIsDone(false);
+    setCurrentPhaseLabel("");
     installRunActiveRef.current = true;
     setLog([]);
     logRef.current = [];
@@ -2072,6 +2088,7 @@ export function SetupPage({
         }
       });
       setIsRunning(false);
+      setCurrentPhaseLabel("");
     }
   };
 
@@ -2079,6 +2096,7 @@ export function SetupPage({
     setConfirmResetOpen(false);
     setIsRunning(true);
     setIsDone(false);
+    setCurrentPhaseLabel("");
     installRunActiveRef.current = true;
     setLog([]);
     logRef.current = [];
@@ -2126,6 +2144,7 @@ export function SetupPage({
         }
       });
       setIsRunning(false);
+      setCurrentPhaseLabel("");
     }
   };
 
@@ -2699,7 +2718,7 @@ export function SetupPage({
         </>
       )}
 
-      {log.length > 0 && (
+      {(log.length > 0 || isRunning || (isDone && !isRunning)) && (
         <>
           <EuiSpacer size="m" />
           <EuiPanel paddingSize="s" color="subdued">
@@ -2716,6 +2735,41 @@ export function SetupPage({
               </EuiFlexItem>
             </EuiFlexGroup>
             <EuiSpacer size="xs" />
+            {isRunning && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "8px 12px",
+                  marginBottom: 8,
+                  background: K.subdued,
+                  borderRadius: K.radiusSm,
+                  border: `1px solid ${K.border}`,
+                }}
+              >
+                <EuiLoadingSpinner size="s" />
+                <span style={{ fontSize: 12, color: K.textSubdued }}>
+                  {currentPhaseLabel || (removeMode ? "Uninstalling…" : "Installing…")}
+                </span>
+              </div>
+            )}
+            {isDone && !isRunning && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "8px 12px",
+                  marginBottom: 8,
+                  background: `${K.success}12`,
+                  borderRadius: K.radiusSm,
+                  border: `1px solid ${K.success}44`,
+                }}
+              >
+                <span style={{ color: K.success, fontWeight: 600, fontSize: 12 }}>✓ Complete</span>
+              </div>
+            )}
             <div
               style={{
                 fontFamily: "monospace",

@@ -1,42 +1,42 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
+    "region": "me-south-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "msk" }
   },
   "aws": {
     "dimensions": {
-      "Cluster Name": "prod-kafka-ap-northeast-1",
-      "Broker ID": "4",
-      "Topic": "order-updates"
+      "Cluster Name": "prod-kafka-me-south-1",
+      "Broker ID": "2",
+      "Topic": "inventory-changes"
     },
     "msk": {
-      "cluster_name": "prod-kafka-ap-northeast-1",
-      "broker_id": 4,
+      "cluster_name": "prod-kafka-me-south-1",
+      "broker_id": 2,
       "kafka_version": "3.5.1",
-      "topic": "order-updates",
-      "partition": 11,
-      "offset": 25571868,
-      "consumer_group": "alerting-service",
-      "lag": 768638,
-      "under_replicated_partitions": 5,
+      "topic": "inventory-changes",
+      "partition": 15,
+      "offset": 26054526,
+      "consumer_group": "etl-pipeline",
+      "lag": 58,
+      "under_replicated_partitions": 0,
       "metrics": {
-        "BytesInPerSec": { "avg": 4254227 },
-        "BytesOutPerSec": { "avg": 5435525 },
-        "MessagesInPerSec": { "avg": 2577 },
-        "FetchConsumerTotalTimeMsMean": { "avg": 97 },
-        "ProduceTotalTimeMsMean": { "avg": 23 },
-        "UnderReplicatedPartitions": { "avg": 3 },
-        "UnderMinIsrPartitionCount": { "avg": 2 },
-        "OfflinePartitionsCount": { "avg": 1 },
+        "BytesInPerSec": { "avg": 9960560 },
+        "BytesOutPerSec": { "avg": 3078966 },
+        "MessagesInPerSec": { "avg": 6094 },
+        "FetchConsumerTotalTimeMsMean": { "avg": 34 },
+        "ProduceTotalTimeMsMean": { "avg": 32 },
+        "UnderReplicatedPartitions": { "avg": 0 },
+        "UnderMinIsrPartitionCount": { "avg": 0 },
+        "OfflinePartitionsCount": { "avg": 0 },
         "ActiveControllerCount": { "avg": 1 },
-        "GlobalPartitionCount": { "avg": 135 },
-        "GlobalTopicCount": { "avg": 100 },
-        "KafkaDataLogsDiskUsed": { "avg": 56.91640173391872 },
-        "CPUUser": { "avg": 26.474016948436276 },
-        "CPUSystem": { "avg": 10.708577778800667 },
+        "GlobalPartitionCount": { "avg": 216 },
+        "GlobalTopicCount": { "avg": 68 },
+        "KafkaDataLogsDiskUsed": { "avg": 45.004214382957144 },
+        "CPUUser": { "avg": 41.637490877139314 },
+        "CPUSystem": { "avg": 16.911227560081638 },
         "NetworkRxDropped": { "sum": 0 },
         "NetworkTxDropped": { "sum": 0 }
       }
@@ -46,40 +46,33 @@
         "name": "aws-msk-logs-293847561023",
         "arn": "arn:aws:s3:::aws-msk-logs-293847561023"
       },
-      "object": {
-        "key": "AWSLogs/293847561023/msk/ap-northeast-1/2026/04/20/msk_8YJJ10JQRJ3.log.gz"
-      }
+      "object": { "key": "AWSLogs/293847561023/msk/me-south-1/2026/04/20/msk_Q8HU6YT6ZE.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/msk/logs",
-      "log_stream": "ap-northeast-1/axhgd1xs",
-      "ingestion_time": "2026-04-20T13:03:49.661Z"
+      "log_stream": "me-south-1/3qovu48c",
+      "ingestion_time": "2026-04-20T14:21:54.958Z"
     }
   },
-  "kafka": { "topic": "order-updates", "partition": 11 },
+  "kafka": { "topic": "inventory-changes", "partition": 15 },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process", "network"],
     "dataset": "aws.msk",
     "provider": "kafka.amazonaws.com",
-    "duration": 2495000000,
+    "duration": 14000000,
     "module": "aws"
   },
-  "message": "[2026-04-20 13:03:48.907] INFO [ReplicaManager] [GroupCoordinator 4]: Preparing to rebalance group alerting-service with old generation 29 (kafka.log.LogManager)",
-  "log": { "level": "error" },
-  "error": {
-    "code": "UnderReplicatedPartitions",
-    "message": "MSK partition replication lag",
-    "type": "stream"
-  },
+  "message": "[2026-04-20 14:21:54.344] INFO [GroupCoordinator broker=2] Created topic \"inventory-changes\" with 13 partitions, replication factor 3 (kafka.coordinator.group.GroupCoordinator)",
+  "log": { "level": "info" },
   "service": { "name": "msk", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.kafka_metrics", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "jkmgnt1yy19"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "ebxp9rdwoee"
   },
   "input": { "type": "aws-cloudwatch" }
 }

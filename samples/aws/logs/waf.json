@@ -1,19 +1,25 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-east-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "waf" }
   },
   "aws": {
-    "dimensions": { "WebACL": "prod-waf", "Rule": "GeoBlockRule", "Region": "ap-northeast-1" },
+    "dimensions": {
+      "WebACL": "admin-waf",
+      "Rule": "AWSManagedRulesCommonRuleSet",
+      "Region": "ap-east-1"
+    },
     "waf": {
-      "id": "ls8qec1gumn",
-      "arn": "arn:aws:wafv2:ap-northeast-1:738291046572:regional/webacl/prod-waf/gdmhs1li-226s-dn3x-i0jw-t0rk00at5aj",
+      "id": "k4ll1jxkuu9",
+      "arn": "arn:aws:wafv2:ap-east-1:501938274650:regional/webacl/admin-waf/vw3t16uz-rxq2-aivn-5pyi-iox67i9xn7",
       "format_version": "1",
-      "source": { "name": "ALB", "id": "738291046572-app/prod-waf/ni324vftlkf" },
-      "rule_group_list": [{ "ruleGroupId": "GeoBlockRule", "nonTerminatingMatchingRules": [] }],
+      "source": { "name": "ALB", "id": "501938274650-app/admin-waf/8yvsbktzdec" },
+      "rule_group_list": [
+        { "ruleGroupId": "AWSManagedRulesCommonRuleSet", "nonTerminatingMatchingRules": [] }
+      ],
       "non_terminating_matching_rules": [],
       "terminating_rule_match_details": [],
       "request": {
@@ -33,23 +39,23 @@
         "ChallengeRequests": { "sum": 0 },
         "FailedCaptcha": { "sum": 0 }
       },
-      "webaclId": "gdmhs1li-226s-dn3x-i0jw-t0rk00at5aj",
-      "terminatingRuleId": "SQLi_Args",
-      "terminatingRuleType": "GROUP",
+      "webaclId": "vw3t16uz-rxq2-aivn-5pyi-iox67i9xn7",
+      "terminatingRuleId": "GenericRFI_BODY",
+      "terminatingRuleType": "MANAGED_RULE_GROUP",
       "action": "ALLOW",
       "httpRequest": {
-        "clientIp": "124.182.32.158",
-        "country": "DE",
+        "clientIp": "196.93.109.168",
+        "country": "NL",
         "headers": [
           { "name": "Host", "value": "api.example.com" },
           { "name": "User-Agent", "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
           { "name": "Accept", "value": "*/*" }
         ],
-        "httpMethod": "PUT",
+        "httpMethod": "DELETE",
         "httpVersion": "HTTP/1.1",
-        "uri": "/api/v1/orders"
+        "uri": "/api/v1/products"
       },
-      "httpSourceId": "738291046572-app/prod-waf/ni324vftlkf",
+      "httpSourceId": "501938274650-app/admin-waf/8yvsbktzdec",
       "rateBasedRuleList": [],
       "nonTerminatingMatchingRules": [],
       "requestHeadersInserted": [],
@@ -57,38 +63,36 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-waf-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-waf-logs-738291046572"
+        "name": "aws-waf-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-waf-logs-501938274650"
       },
-      "object": {
-        "key": "AWSLogs/738291046572/waf/ap-northeast-1/2026/04/20/waf_W162AJ8C8F.log.gz"
-      }
+      "object": { "key": "AWSLogs/501938274650/waf/ap-east-1/2026/04/20/waf_IXMARMBL0A9.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/waf/logs",
-      "log_stream": "ap-northeast-1/6kw8qu73",
-      "ingestion_time": "2026-04-20T13:03:49.550Z"
+      "log_stream": "ap-east-1/65id5rdm",
+      "ingestion_time": "2026-04-20T14:21:54.854Z"
     }
   },
-  "rule": { "id": "SQLi_Args", "ruleset": "GeoBlockRule" },
-  "http": { "request": { "method": "PUT", "bytes": 4042 } },
-  "url": { "path": "/api/v1/orders" },
+  "rule": { "id": "GenericRFI_BODY", "ruleset": "AWSManagedRulesCommonRuleSet" },
+  "http": { "request": { "method": "DELETE", "bytes": 6170 } },
+  "url": { "path": "/api/v1/products" },
   "source": {
-    "ip": "124.182.32.158",
+    "ip": "196.93.109.168",
     "geo": {
-      "country_iso_code": "DE",
-      "country_name": "Germany",
-      "city_name": "Frankfurt",
-      "location": { "lat": 50.1109, "lon": 8.6821 }
+      "country_iso_code": "NL",
+      "country_name": "Netherlands",
+      "city_name": "Amsterdam",
+      "location": { "lat": 52.3676, "lon": 4.9041 }
     }
   },
   "client": {
-    "ip": "124.182.32.158",
+    "ip": "196.93.109.168",
     "geo": {
-      "country_iso_code": "DE",
-      "country_name": "Germany",
-      "city_name": "Frankfurt",
-      "location": { "lat": 50.1109, "lon": 8.6821 }
+      "country_iso_code": "NL",
+      "country_name": "Netherlands",
+      "city_name": "Amsterdam",
+      "location": { "lat": 52.3676, "lon": 4.9041 }
     }
   },
   "user_agent": { "original": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
@@ -98,10 +102,10 @@
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
-    "duration": 8000000,
+    "duration": 46000000,
     "module": "aws"
   },
-  "message": "{\"timestamp\":\"2026-04-20T13:03:48.907Z\",\"formatVersion\":1,\"webaclId\":\"gdmhs1li-226s-dn3x-i0jw-t0rk00at5aj\",\"terminatingRuleId\":\"SQLi_Args\",\"terminatingRuleType\":\"GROUP\",\"action\":\"ALLOW\",\"httpRequest\":{\"clientIp\":\"124.182.32.158\",\"country\":\"DE\",\"headers\":[{\"name\":\"Host\",\"value\":\"api.example.com\"},{\"name\":\"User-Agent\",\"value\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\"},{\"name\":\"Accept\",\"value\":\"*/*\"}],\"httpMethod\":\"PUT\",\"httpVersion\":\"HTTP/1.1\",\"uri\":\"/api/v1/orders\"},\"httpSourceId\":\"738291046572-app/prod-waf/ni324vftlkf\",\"rateBasedRuleList\":[],\"nonTerminatingMatchingRules\":[],\"requestHeadersInserted\":[],\"responseCodeSent\":200}",
+  "message": "{\"timestamp\":\"2026-04-20T14:21:54.344Z\",\"formatVersion\":1,\"webaclId\":\"vw3t16uz-rxq2-aivn-5pyi-iox67i9xn7\",\"terminatingRuleId\":\"GenericRFI_BODY\",\"terminatingRuleType\":\"MANAGED_RULE_GROUP\",\"action\":\"ALLOW\",\"httpRequest\":{\"clientIp\":\"196.93.109.168\",\"country\":\"NL\",\"headers\":[{\"name\":\"Host\",\"value\":\"api.example.com\"},{\"name\":\"User-Agent\",\"value\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\"},{\"name\":\"Accept\",\"value\":\"*/*\"}],\"httpMethod\":\"DELETE\",\"httpVersion\":\"HTTP/1.1\",\"uri\":\"/api/v1/products\"},\"httpSourceId\":\"501938274650-app/admin-waf/8yvsbktzdec\",\"rateBasedRuleList\":[],\"nonTerminatingMatchingRules\":[],\"requestHeadersInserted\":[],\"responseCodeSent\":200}",
   "log": { "level": "info" },
   "service": { "name": "waf", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -109,8 +113,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "lqnm76c042d"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "g0tqyuma2do"
   },
   "input": { "type": "aws-s3" }
 }

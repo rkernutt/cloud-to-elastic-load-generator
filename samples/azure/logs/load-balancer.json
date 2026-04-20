@@ -2,51 +2,52 @@
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "cloud": {
     "provider": "azure",
-    "region": "ukwest",
-    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" },
+    "region": "qatarcentral",
+    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" },
     "service": { "name": "Microsoft.Network/loadBalancers" }
   },
-  "category": "LoadBalancerOperationEvent",
-  "operationName": "OutboundSnatConnection",
-  "resultType": "Succeeded",
-  "level": "Informational",
-  "correlationId": "xjmvrzq63qa",
-  "callerIpAddress": "67.246.207.167",
+  "category": "LoadBalancerAlertEvent",
+  "operationName": "UnhealthyBackendPool",
+  "resultType": "Failed",
+  "level": "Warning",
+  "correlationId": "yr3mwawxr5k",
+  "callerIpAddress": "138.56.70.66",
   "properties": {
-    "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-prod-ixa9op/providers/Microsoft.Network/loadBalancers/lb-e9cv5",
-    "frontendIP": "52.154.134.43",
-    "backendIPAddress": "12.222.33.25",
-    "backendPort": 14478,
-    "allocatedSnatPorts": 1016,
-    "usedSnatPorts": 70,
-    "snatPortExhaustion": false
+    "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-network-jbtwrp/providers/Microsoft.Network/loadBalancers/lb-59f2g",
+    "frontendIP": "52.131.39.120",
+    "eventName": "BackendHealthProbeFailure",
+    "probePort": 443,
+    "probeProtocol": "Http",
+    "backendIPAddress": "10.3.173.47",
+    "backendPort": 443,
+    "failureReason": "HTTP 502 Bad Gateway"
   },
   "azure": {
     "load_balancer": {
-      "name": "lb-e9cv5",
-      "resource_group": "rg-prod-ixa9op",
-      "sku": "Gateway",
-      "backend_health": "Healthy",
-      "bytes_in": 294022356
+      "name": "lb-59f2g",
+      "resource_group": "rg-network-jbtwrp",
+      "sku": "Standard",
+      "backend_health": "Unhealthy",
+      "bytes_in": 400948708
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 21752808,
+    "outcome": "failure",
+    "duration": 45148709,
     "module": "azure",
     "dataset": "azure.load_balancer"
   },
-  "message": "Load balancer lb-e9cv5: outbound flow 234.49.144.203:47866 → 12.222.33.25:14478",
+  "message": "Load balancer lb-59f2g: health probe failed for backend 10.3.173.47:443 (HTTP 502 Bad Gateway)",
   "service": { "name": "load-balancer", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.load_balancer", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-ukwest",
-    "id": "dgnhzhbj1l"
+    "name": "elastic-agent-azure-qatarcentral",
+    "id": "ws85s2i21p9"
   },
   "input": { "type": "azure-eventhub" },
-  "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourcegroups/rg-prod-ixa9op/providers/Microsoft.Network/loadBalancers/load-balancer"
+  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourcegroups/rg-network-jbtwrp/providers/Microsoft.Network/loadBalancers/load-balancer"
 }

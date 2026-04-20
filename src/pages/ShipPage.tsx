@@ -47,6 +47,10 @@ interface ShipPageProps {
   onScheduleIntervalMinChange: (n: number) => void;
   /** Return to Start to pick another data type and run the wizard again */
   onRestartWizard: () => void;
+  /** Reset ship status so the user can ship the same config again */
+  onShipAgain: () => void;
+  /** Jump to the Config step to tweak settings before shipping again */
+  onReconfigure: () => void;
   preview: string | null;
 }
 
@@ -81,6 +85,8 @@ export function ShipPage({
   onScheduleTotalRunsChange,
   onScheduleIntervalMinChange,
   onRestartWizard,
+  onShipAgain,
+  onReconfigure,
   preview,
 }: ShipPageProps) {
   const isRunning = status === "running";
@@ -247,14 +253,23 @@ export function ShipPage({
               {progress.errors > 0 && ` with ${progress.errors} errors`}.
             </p>
             <EuiSpacer size="s" />
-            <p>
-              Would you like to ship more data types? Go back to <strong>Start</strong> to choose
-              logs, metrics, or traces and step through the wizard again.
-            </p>
-            <EuiSpacer size="s" />
-            <EuiButton iconType="home" onClick={onRestartWizard}>
-              Back to Start
-            </EuiButton>
+            <EuiFlexGroup gutterSize="s" wrap>
+              <EuiFlexItem grow={false}>
+                <EuiButton iconType="refresh" onClick={onShipAgain}>
+                  Ship Again
+                </EuiButton>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiButtonEmpty iconType="gear" onClick={onReconfigure}>
+                  Reconfigure
+                </EuiButtonEmpty>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiButtonEmpty iconType="home" onClick={onRestartWizard}>
+                  Back to Start
+                </EuiButtonEmpty>
+              </EuiFlexItem>
+            </EuiFlexGroup>
           </EuiCallOut>
         </>
       )}
@@ -266,6 +281,19 @@ export function ShipPage({
               {progress.sent.toLocaleString()} of {progress.total.toLocaleString()} documents
               indexed before abort.
             </p>
+            <EuiSpacer size="s" />
+            <EuiFlexGroup gutterSize="s" wrap>
+              <EuiFlexItem grow={false}>
+                <EuiButton iconType="refresh" onClick={onShipAgain}>
+                  Retry
+                </EuiButton>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiButtonEmpty iconType="gear" onClick={onReconfigure}>
+                  Reconfigure
+                </EuiButtonEmpty>
+              </EuiFlexItem>
+            </EuiFlexGroup>
           </EuiCallOut>
         </>
       )}

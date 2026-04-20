@@ -1,49 +1,46 @@
 {
-  "@timestamp": "2026-04-20T13:03:48.907Z",
+  "@timestamp": "2026-04-20T14:21:54.344Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
+    "region": "il-central-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "securityhub" }
   },
   "aws": {
-    "dimensions": { "ComplianceStandard": "pci-dss", "ControlId": "CIS.2.1" },
+    "dimensions": {
+      "ComplianceStandard": "aws-foundational-security-best-practices",
+      "ControlId": "IAM.2"
+    },
     "securityhub_findings": {
       "SchemaVersion": "2018-10-08",
-      "Id": "WBXWRS92-27T5-T5NB-1A3E-NSN79O7GATB",
-      "ProductArn": "arn:aws:securityhub:sa-east-1::product/aws/securityhub",
-      "GeneratorId": "arn:aws:securityhub:sa-east-1::product/aws/securityhub/CIS.2.1",
+      "Id": "H3279ONE-FWYG-WO78-ZD7J-EAN1R8V847I",
+      "ProductArn": "arn:aws:securityhub:il-central-1::product/aws/securityhub",
+      "GeneratorId": "arn:aws:securityhub:il-central-1::product/aws/securityhub/IAM.2",
       "AwsAccountId": "293847561023",
-      "Types": [
-        "Software and Configuration Checks/Industry and Regulatory Standards/CIS AWS Foundations Benchmark"
-      ],
-      "CreatedAt": "2026-04-20T01:50:53.590Z",
-      "UpdatedAt": "2026-04-20T13:03:48.907Z",
-      "Severity": { "Label": "INFORMATIONAL", "Normalized": 0, "Original": "INFORMATIONAL" },
-      "Title": "CIS.2.1: control passed",
-      "Description": "This control evaluated resources and reported a passing status.",
+      "Types": ["Software and Configuration Checks/Vulnerabilities/CVE"],
+      "CreatedAt": "2026-04-19T18:46:49.376Z",
+      "UpdatedAt": "2026-04-20T14:21:54.344Z",
+      "Severity": { "Label": "MEDIUM", "Normalized": 40, "Original": "MEDIUM" },
+      "Title": "IAM.2: MFA not enabled for root",
+      "Description": "Security check failed: IAM.2 - S3 bucket is publicly accessible",
       "Resources": [
         {
-          "Type": "AwsCloudTrailTrail",
-          "Id": "arn:aws:cloudtrail:sa-east-1:293847561023:trail/management-events",
+          "Type": "AwsS3Bucket",
+          "Id": "arn:aws:s3:::globex-staging-bucket-wuvxxv",
           "Partition": "aws",
-          "Region": "sa-east-1",
+          "Region": "il-central-1",
           "Details": {}
         }
       ],
-      "Compliance": {
-        "Status": "PASSED",
-        "SecurityControlId": "CIS.2.1",
-        "RelatedRequirements": ["CIS CIS.2.1"]
-      },
-      "Workflow": { "Status": "RESOLVED" },
-      "RecordState": "ARCHIVED",
+      "Compliance": { "Status": "FAILED", "SecurityControlId": "IAM.2", "RelatedRequirements": [] },
+      "Workflow": { "Status": "SUPPRESSED" },
+      "RecordState": "ACTIVE",
       "ProductFields": {
         "aws/securityhub/ProductName": "Security Hub",
         "aws/securityhub/CompanyName": "AWS"
       },
       "criticality": 4,
-      "confidence": 73
+      "confidence": 71
     },
     "s3": {
       "bucket": {
@@ -51,36 +48,37 @@
         "arn": "arn:aws:s3:::aws-securityhub-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/securityhub/sa-east-1/2026/04/20/securityhub_BFOS2USWQG5.log.gz"
+        "key": "AWSLogs/293847561023/securityhub/il-central-1/2026/04/20/securityhub_AVOMD44BAL4.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securityhub/logs",
-      "log_stream": "sa-east-1/b3uxei0t",
-      "ingestion_time": "2026-04-20T13:03:49.583Z"
+      "log_stream": "il-central-1/fi0x35pp",
+      "ingestion_time": "2026-04-20T14:21:54.880Z"
     }
   },
-  "rule": { "id": "CIS.2.1", "name": "CIS.2.1 — S3 bucket publicly accessible" },
+  "rule": { "id": "IAM.2", "name": "IAM.2 — S3 bucket publicly accessible" },
   "event": {
     "kind": "alert",
     "severity": 4,
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["compliance"],
-    "type": ["info"],
+    "type": ["indicator"],
     "dataset": "aws.securityhub_findings",
     "provider": "securityhub.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security Hub: control passed",
+  "message": "Security Hub [MEDIUM]: Compliance check failed",
   "log": { "level": "info" },
+  "error": { "code": "ComplianceFailed", "message": "Control IAM.2 failed", "type": "compliance" },
   "service": { "name": "securityhub", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.securityhub_findings", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "je9sfztnkd"
+    "name": "filebeat-aws-il-central-1",
+    "ephemeral_id": "564hxxfn61o"
   },
   "input": { "type": "http_endpoint" }
 }

@@ -197,8 +197,8 @@ export function LoadGeneratorApp({
     const urlOk = validateElasticUrl(elasticUrl).valid;
     const keyOk = validateApiKey(apiKey).valid;
     const prefixOk = isTracesMode || validateIndexPrefix(indexPrefix).valid;
-    return urlOk && keyOk && prefixOk;
-  }, [elasticUrl, apiKey, indexPrefix, isTracesMode]);
+    return urlOk && keyOk && prefixOk && connectionStatus === "ok";
+  }, [elasticUrl, apiKey, indexPrefix, isTracesMode, connectionStatus]);
 
   // Auto-derive Kibana URL from ES URL for cloud deployments (.es. → .kb.)
   const effectiveKibanaUrl =
@@ -755,6 +755,17 @@ export function LoadGeneratorApp({
     navigateToPage("connection");
   }, [navigateToPage]);
 
+  const shipAgain = useCallback(() => {
+    setStatus(null);
+    setProgress({ sent: 0, total: 0, errors: 0, phase: "main" });
+  }, []);
+
+  const reconfigure = useCallback(() => {
+    setStatus(null);
+    setProgress({ sent: 0, total: 0, errors: 0, phase: "main" });
+    navigateToPage("config");
+  }, [navigateToPage]);
+
   const layoutBranding = unifiedMode
     ? { headerLogoSrc: UNIFIED_HEADER_CLOUD_MARK_SRC, headerLogoAlt: "Cloud" }
     : config.branding;
@@ -850,6 +861,8 @@ export function LoadGeneratorApp({
             onScheduleTotalRunsChange={setScheduleTotalRuns}
             onScheduleIntervalMinChange={setScheduleIntervalMin}
             onRestartWizard={restartWizard}
+            onShipAgain={shipAgain}
+            onReconfigure={reconfigure}
             preview={preview}
           />
         )}
