@@ -32,7 +32,9 @@ All assets are tagged **`cloudloadgen`** so you can:
 - **Bulk-edit** or **bulk-delete** load-generator assets without touching production objects
 - ML jobs and pipelines include `cloudloadgen` in their metadata/descriptions for the same easy filtering
 
-The **Setup** page in the web UI groups integrations by **service category** (Compute, Networking, Storage, Databases, Analytics, AI & ML, etc.) and lets you install or remove per service. The same assets can be installed from the CLI — see [installer/README.md](installer/README.md).
+The **Setup** page in the web UI groups integrations by **service category** (Compute, Networking, Storage, Databases, Analytics, AI & ML, etc.) and lets you install or remove per service. The same assets can be installed from the CLI — see [installer/README.md](installer/README.md), including **`npm run setup:alert-rules`** for Kibana Elasticsearch-query alert rules.
+
+The shipping wizard supports a **Back** button on each step, **search and filter** on the Services step to find providers quickly, and **connection test gating** (a successful connection test is required before you can continue). When a ship run finishes, **Ship Again** and **Reconfigure** let you repeat or adjust the flow without starting from scratch.
 
 ### Chained Events
 

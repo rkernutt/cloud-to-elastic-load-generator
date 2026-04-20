@@ -1,6 +1,6 @@
 # Data & Analytics Pipeline
 
-A chained event scenario modelling a realistic multi-service AWS data pipeline commonly used by Data & Analytics teams. The chain generates correlated log documents, metrics, and APM traces across S3, EMR (Spark), Glue, Athena, and MWAA (Apache Airflow), enabling end-to-end observability of a production data workflow inside Elastic.
+A chained event scenario modelling a realistic multi-service AWS data pipeline commonly used by Data & Analytics teams. The chain generates correlated **log documents and APM traces** (no dedicated metrics payloads) across S3, EMR (Spark), Glue, Athena, and MWAA (Apache Airflow), enabling end-to-end observability of a production data workflow inside Elastic.
 
 ## Services Involved
 
@@ -64,11 +64,11 @@ flowchart LR
 
 EMR jobs in this pipeline can run on three different compute backends. The generator randomly selects one per pipeline run to produce realistic variety:
 
-| Variant            | Description                            | Key Differences                                                                           |
-| ------------------ | -------------------------------------- | ----------------------------------------------------------------------------------------- |
-| **EMR on EC2**     | Traditional cluster with EC2 instances | Cluster bootstrap logs, YARN resource manager metrics, instance-level Spark executor logs |
-| **EMR Serverless** | Fully managed serverless Spark runtime | Application-level logs only, no cluster bootstrap, auto-scaling events                    |
-| **EMR on EKS**     | Spark running on Amazon EKS            | Kubernetes pod logs, EKS cluster events, container-level Spark metrics                    |
+| Variant            | Description                            | Key Differences                                                                              |
+| ------------------ | -------------------------------------- | -------------------------------------------------------------------------------------------- |
+| **EMR on EC2**     | Traditional cluster with EC2 instances | Cluster bootstrap logs, YARN-style operational log lines, instance-level Spark executor logs |
+| **EMR Serverless** | Fully managed serverless Spark runtime | Application-level logs only, no cluster bootstrap, auto-scaling events                       |
+| **EMR on EKS**     | Spark running on Amazon EKS            | Kubernetes pod logs, EKS cluster events, container-level Spark log lines                     |
 
 ## Generated Documents
 
@@ -302,4 +302,4 @@ These assets are installed as part of the Cloud Loadgen Integration for this cha
 
 ### EMR Compute Variant
 
-The generator randomly selects between EC2, Serverless, and EKS compute for each pipeline run. This produces realistic variety in log formats and metric sources without requiring manual configuration.
+The generator randomly selects between EC2, Serverless, and EKS compute for each pipeline run. This produces realistic variety in log formats without requiring manual configuration.

@@ -234,7 +234,7 @@ This document reviews the load generator’s AWS services against **official AWS
 
 ## Summary: high-priority gaps
 
-1. **EMR** — Add run_state, job-run message signals, and Glue-style metrics (elapsedTime, tasks, JVM/GC, numberAllExecutors). See [enhancement-candidates.md](enhancement-candidates.md).
+1. **EMR** — Add run_state, job-run message signals, and Glue-style metrics (elapsedTime, tasks, JVM/GC, numberAllExecutors). Compare current generator output to AWS docs and [GAP-ANALYSIS-LOGS-AND-METRICS.md](GAP-ANALYSIS-LOGS-AND-METRICS.md).
 2. **Batch** — Add “Job run started/succeeded/failed” in messages and elapsedTime (or Duration) in metrics.
 3. **DataBrew** — Add run_state, message signals, and `aws.databrew.metrics` block.
 4. **AppFlow** — Add message signals and `aws.appflow.metrics` block.
@@ -242,4 +242,4 @@ This document reviews the load generator’s AWS services against **official AWS
 6. **Athena** — Add “Query started/succeeded/failed” in message pool.
 7. **Lambda** — Optional: DestinationDeliveryFailures, granular throttle metrics, async metrics (AsyncEventsReceived, AsyncEventAge, AsyncEventsDropped), provisioned concurrency metrics. Confirm event.duration unit (ms vs µs).
 
-For **Glue**, coverage is documented in [GLUE-METRICS-COVERAGE.md](GLUE-METRICS-COVERAGE.md). For **all services**, baseline ECS alignment (event.duration, error on failure, dimensions) is in [PLAN-ALL-SERVICES.md](PLAN-ALL-SERVICES.md).
+For **Glue**, coverage is documented in [GLUE-METRICS-COVERAGE.md](GLUE-METRICS-COVERAGE.md). For cross-service baseline alignment (logs, metrics, ECS fields), use [GAP-ANALYSIS-LOGS-AND-METRICS.md](GAP-ANALYSIS-LOGS-AND-METRICS.md) and the generator sources under `src/aws/generators/`.

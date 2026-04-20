@@ -4,7 +4,7 @@ This document lists pipeline IDs, target fields, index patterns, and example par
 
 The pattern is simple: one `json` processor on `message` → target field, with `ignore_failure: true` so plain-text messages are left unchanged.
 
-> **Easy install:** `npm run setup:aws-pipelines` installs all 106 pipelines interactively — no manual JSON needed. This document is a reference for understanding what each pipeline does and which fields are available after parsing.
+> **Easy install:** `npm run setup:aws-pipelines` installs all 100 pipelines interactively — no manual JSON needed. This document is a reference for understanding what each pipeline does and which fields are available after parsing.
 
 ---
 
@@ -41,7 +41,7 @@ The pattern is simple: one `json` processor on `message` → target field, with 
 
 ## Apply and attach (all pipelines)
 
-- **Easy way:** `npm run setup:aws-pipelines` — interactive CLI installs all 106 pipelines; skips already-installed ones.
+- **Easy way:** `npm run setup:aws-pipelines` — interactive CLI installs all 100 pipelines; skips already-installed ones.
 
 - **Manual (API):**
   `PUT _ingest/pipeline/<pipeline-id>` with the body below (replace `<target_field>` with the value from the table).
@@ -106,4 +106,4 @@ Each pipeline uses a single processor. Replace `<target_field>` with the value f
 }
 ```
 
-Pipeline JSON files are provided in this folder for **Glue**, **Lambda**, **API Gateway**, **EMR**, and **RDS**. For any other service, copy one of them, change `target_field` and the pipeline ID in the `PUT _ingest/pipeline/<id>` request, then apply.
+Pipeline JSON assets live under **`installer/aws-custom-pipelines/`** (for **Glue**, **Lambda**, **API Gateway**, **EMR**, and **RDS**, among others). For any other service, copy one of them, change `target_field` and the pipeline ID in the `PUT _ingest/pipeline/<id>` request, then apply.

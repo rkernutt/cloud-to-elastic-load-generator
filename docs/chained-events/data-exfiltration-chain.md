@@ -51,5 +51,5 @@ Key signals:
 ## Selecting This Chain
 
 1. Set event type to **Logs** in the wizard.
-2. On the services page, select the **Data Exfiltration Chain** under Chained Events.
+2. On the **Chained Events** step, select the **Data Exfiltration Chain**.
 3. Adjust the **Error rate** slider to control how frequently exfiltration scenarios are generated.

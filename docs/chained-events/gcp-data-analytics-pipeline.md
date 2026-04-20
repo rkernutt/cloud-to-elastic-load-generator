@@ -2,7 +2,7 @@
 
 ## Overview
 
-This chained event models a realistic multi-service data pipeline on Google Cloud Platform, mirroring the AWS data pipeline scenario with GCP-native services. It generates correlated log documents and APM traces across six services, enabling end-to-end observability including Elastic Service Map visualization.
+This chained event models a realistic multi-service data pipeline on Google Cloud Platform, mirroring the AWS data pipeline scenario with GCP-native services. It generates correlated log documents and APM traces across five services, enabling end-to-end observability including Elastic Service Map visualization.
 
 ## Architecture
 

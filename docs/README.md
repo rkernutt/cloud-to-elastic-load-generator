@@ -25,13 +25,16 @@ See [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md) for details
 
 ## Chained Events
 
-Multi-service correlated scenarios that generate logs, metrics, APM traces (for the Elastic Service Map), dashboards, ML jobs, and alerting rules:
+Multi-service correlated scenarios that generate logs, metrics, APM traces (for the Elastic Service Map), dashboards, ML jobs, and alerting rules. The first three guides each document **AWS, GCP, and Azure** variants in one place.
 
-| Scenario                                                                               | Document                                                                                             |
-| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| AWS Data & Analytics Pipeline (S3 → EMR → Glue → Athena → MWAA)                        | [chained-events/data-analytics-pipeline.md](./chained-events/data-analytics-pipeline.md)             |
-| GCP Data & Analytics Pipeline (GCS → Dataproc → Data Catalog → BigQuery → Composer)    | [chained-events/gcp-data-analytics-pipeline.md](./chained-events/gcp-data-analytics-pipeline.md)     |
-| Azure Data & Analytics Pipeline (Blob → Databricks → Purview → Synapse → Data Factory) | [chained-events/azure-data-analytics-pipeline.md](./chained-events/azure-data-analytics-pipeline.md) |
+| Scenario                                                                               | Document                                                                                               |
+| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Security Finding Chain (detect → aggregate → triage)                                   | [chained-events/security-finding-chain.md](./chained-events/security-finding-chain.md)                 |
+| IAM Privilege Escalation Chain                                                         | [chained-events/iam-privilege-escalation-chain.md](./chained-events/iam-privilege-escalation-chain.md) |
+| Data Exfiltration Chain                                                                | [chained-events/data-exfiltration-chain.md](./chained-events/data-exfiltration-chain.md)               |
+| AWS Data & Analytics Pipeline (S3 → EMR → Glue → Athena → MWAA)                        | [chained-events/data-analytics-pipeline.md](./chained-events/data-analytics-pipeline.md)               |
+| GCP Data & Analytics Pipeline (GCS → Dataproc → Data Catalog → BigQuery → Composer)    | [chained-events/gcp-data-analytics-pipeline.md](./chained-events/gcp-data-analytics-pipeline.md)       |
+| Azure Data & Analytics Pipeline (Blob → Databricks → Purview → Synapse → Data Factory) | [chained-events/azure-data-analytics-pipeline.md](./chained-events/azure-data-analytics-pipeline.md)   |
 
 ---
 
@@ -59,4 +62,4 @@ Multi-service correlated scenarios that generate logs, metrics, APM traces (for 
 
 Idempotent onboarding CLIs (AWS, GCP, Azure): **[installer/README.md](../installer/README.md)**.
 
-**Cloud Loadgen Integrations** can be installed from the **Setup** page in the web UI or from the CLI. The CLI provides the same per-service bundle approach: `npm run setup:aws-loadgen-packs` installs pipeline + dashboard + ML jobs + alerting rules together for chosen services. GCP and Azure have equivalent commands. All installed assets carry the **`cloudloadgen`** tag for easy management in Kibana.
+**Cloud Loadgen Integrations** can be installed from the **Setup** page in the web UI or from the CLI. **AWS** is the only cloud with a single-command per-service bundle: `npm run setup:aws-loadgen-packs` installs pipeline + dashboard + ML jobs + alerting rules together for chosen services. **GCP and Azure** do not have that combined CLI — use the **individual asset installers** (see [installer/README.md](../installer/README.md)) or the web UI **Setup** step. You can install alerting rules across clouds with `npm run setup:alert-rules`. All installed assets carry the **`cloudloadgen`** tag for easy management in Kibana.

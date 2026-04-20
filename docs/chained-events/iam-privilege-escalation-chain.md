@@ -50,5 +50,5 @@ All steps produce `event.outcome: "success"` (the attack succeeded in the contro
 ## Selecting This Chain
 
 1. Set event type to **Logs** in the wizard.
-2. On the services page, select the **IAM Privilege Escalation Chain** under Chained Events.
+2. On the **Chained Events** step, select the **IAM Privilege Escalation Chain**.
 3. The error rate slider does not affect this chain — all runs model a successful attack sequence.

@@ -2,7 +2,7 @@
 
 This guide covers everything needed to get distributed traces from AWS services into Elastic APM using OpenTelemetry. Traces land in the `traces-apm-default` data stream and appear in the Elastic APM UI under **Services**.
 
-Services covered: Lambda, EMR Spark, API Gateway, ECS/Fargate, Step Functions, EKS/Kubernetes, SQS, Kinesis, DynamoDB, RDS/Aurora, Amazon Bedrock, and four multi-service workflow patterns.
+Services covered: Lambda, EMR Spark, API Gateway, ECS/Fargate, Step Functions, EKS/Kubernetes, SQS, Kinesis, DynamoDB, RDS/Aurora, Amazon Bedrock, and eight multi-service workflow patterns. In total, the app ships **54** AWS trace generators (**46** single-service profiles plus **8** workflows).
 
 ---
 
@@ -950,7 +950,7 @@ The `bedrock` trace generator produces:
 
 ## Multi-Service Workflow Patterns
 
-The load generator includes four pre-built workflow patterns that produce correlated distributed traces — all documents share a single `trace.id`, so the APM flame graph renders the complete end-to-end call chain across services. Each pattern is selectable independently in the UI.
+The load generator includes eight pre-built workflow patterns that produce correlated distributed traces — all documents share a single `trace.id`, so the APM flame graph renders the complete end-to-end call chain across services. Each pattern is selectable independently in the UI.
 
 ---
 

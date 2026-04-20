@@ -47,5 +47,5 @@ All steps produce `event.outcome: "failure"` and `log.level: "error"` for the al
 ## Selecting This Chain
 
 1. Set event type to **Logs** in the wizard.
-2. On the services page, select the **Security Finding Chain** under Chained Events.
+2. On the **Chained Events** step, select the **Security Finding Chain**.
 3. Adjust the **Error rate** slider to control the mix of threat types generated.

@@ -47,7 +47,7 @@ The Setup page groups integrations by **service category**:
 | End User & Media        | WorkSpaces, Connect, Media Services                            |
 | Chained Events          | Data & Analytics Pipeline (multi-service correlated scenarios) |
 
-Categories are collapsible, making it easy to navigate even with 200+ services per cloud.
+Categories are collapsible, making it easy to navigate large catalogs (**212** AWS log services, **130** GCP, **131** Azure — see `src/data/serviceGroups.ts` and the matching GCP/Azure service group files).
 
 ---
 

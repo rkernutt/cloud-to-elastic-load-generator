@@ -1,4 +1,6 @@
-# AWS Elastic Load Generator — Architecture Diagrams
+# Cloud to Elastic Load Generator — Architecture Diagrams
+
+> **Catalog sizes (log · metric · trace services):** AWS **212 · 206 · 54**; GCP **130 · 124 · 48**; Azure **131 · 120 · 40**.
 
 ---
 
@@ -11,17 +13,17 @@ flowchart LR
     end
 
     subgraph Engine["Load Generator Engine"]
-        SEL["Service Selector\n211 services / 15 groups"]
+        SEL["Service Selector\n212 AWS services / 15 groups"]
         MODE["Mode Switch\nLogs · Metrics · Traces"]
         GEN["Generator Functions\nECS-shaped documents"]
         BUF["Batch Buffer\n50–1,000 docs / request"]
     end
 
     subgraph Elastic["Elastic Stack"]
-        PIPE["Ingest Pipelines\n187 custom pipelines"]
+        PIPE["Ingest Pipelines\n100 custom pipelines"]
         DS[("Data Streams\nlogs-aws.*\nmetrics-aws.*\ntraces-apm.*")]
-        KB["Kibana\n77 custom dashboards"]
-        ML["ML Anomaly Detection\n180 jobs / 25 groups"]
+        KB["Kibana\n217 custom dashboards"]
+        ML["ML Anomaly Detection\n137 jobs / 22 groups"]
     end
 
     UI -->|"select services\nset volume + error rate"| SEL
@@ -84,11 +86,11 @@ flowchart TD
 
 ---
 
-## 3 · Service Groups (211 services)
+## 3 · Service Groups (212 services)
 
 ```mermaid
 mindmap
-  root((211 AWS Services))
+  root((212 AWS Services))
     Serverless and Core
       Lambda
       API Gateway
@@ -318,19 +320,19 @@ flowchart TD
     subgraph I2["setup:aws-pipelines"]
         direction TB
         B1["Elasticsearch Ingest API"]
-        B2["187 custom pipelines\n15 groups\nlogs-aws.service-default"]
+        B2["100 custom pipelines\n15 groups\nlogs-aws.service-default"]
     end
 
     subgraph I3["setup:aws-dashboards"]
         direction TB
         C1["Kibana Saved Objects API\nor legacy NDJSON import"]
-        C2["77 Kibana dashboards\nLens + ES|QL panels\nper-service visualisations"]
+        C2["217 Kibana dashboards\nLens + ES|QL panels\nper-service visualisations"]
     end
 
     subgraph I4["setup:aws-ml-jobs"]
         direction TB
         D1["Elasticsearch ML API"]
-        D2["180 anomaly detection jobs\n25 groups\ndatafeeds auto-started"]
+        D2["137 anomaly detection jobs\n22 groups\ndatafeeds auto-started"]
     end
 
     I1 --> DONE
@@ -358,7 +360,7 @@ flowchart TD
     SWITCH -->|"Metrics"| METRICS
     SWITCH -->|"Traces"| TRACES
 
-    subgraph LOGS["Logs — 211 services"]
+    subgraph LOGS["Logs — 212 services"]
         direction TB
         L1["GENERATORS registry\nsrc/aws/generators/*.ts"]
         L2["fn(ts, er) → single ECS doc"]
@@ -366,7 +368,7 @@ flowchart TD
         L1 --> L2 --> L3
     end
 
-    subgraph METRICS["Metrics — 189 services"]
+    subgraph METRICS["Metrics — 206 services"]
         direction TB
         M1{"Dedicated\ngenerator?"}
         M2["90 specialised generators\nsrc/aws/generators/metrics/*.ts"]
@@ -376,12 +378,12 @@ flowchart TD
         M1 -->|"no"| M3 --> M4
     end
 
-    subgraph TRACES["Traces — 23 generators"]
+    subgraph TRACES["Traces — 54 generators"]
         direction TB
         T1{"Trace\ntype?"}
-        T2["15 single-service traces\nLambda, S3, Glue, Bedrock ..."]
-        T3["5 multi-service workflows\necommerce, ML, ingestion ..."]
-        T4["3 data-pipeline traces\nS3→SQS, EB→SFN, SNS fanout"]
+        T2["46 single-service traces\nLambda, S3, Glue, Bedrock ..."]
+        T3["6 multi-service workflows\necommerce, ML, ingestion, SNS fan-out ..."]
+        T4["2 data-pipeline traces\nS3→SQS, EventBridge→Step Functions"]
         T5["fn(ts, er) → Object[ ] array\nAPM transaction + child spans"]
         T1 -->|"single"| T2 --> T5
         T1 -->|"workflow"| T3 --> T5
@@ -560,23 +562,23 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    subgraph SINGLE["Single-Service Traces (15)"]
+    subgraph SINGLE["Single-Service Traces (46)"]
         direction LR
-        SS["Lambda · S3 · Glue\nBedrock · EMR · ECS\nEKS · SQS · Kinesis\nDynamoDB · RDS\nAPI GW · EventBridge\nSageMaker · Step Functions"]
+        SS["Lambda · S3 · Glue\nBedrock · EMR · ECS\nEKS · SQS · Kinesis\nDynamoDB · RDS\nAPI GW · EventBridge\nSageMaker · Step Functions\n+ additional services"]
         SS_OUT["1 transaction\n+ 2–5 child spans"]
         SS --> SS_OUT
     end
 
-    subgraph WORKFLOW["Multi-Service Workflows (5)"]
+    subgraph WORKFLOW["Multi-Service Workflows (6)"]
         direction LR
-        WF_LIST["Ecommerce Order\nML Inference\nData Ingestion\nStep Functions Orchestration\nCascading Failure"]
+        WF_LIST["Ecommerce Order\nML Inference\nData Ingestion\nStep Functions Orchestration\nCascading Failure\nSNS Event Fan-out"]
         WF_OUT["1 root TX\n+ chained service TXs\n+ intermediate spans\nshared trace.id"]
         WF_LIST --> WF_OUT
     end
 
-    subgraph PIPELINE["Data Pipeline Traces (3)"]
+    subgraph PIPELINE["Data Pipeline Traces (2)"]
         direction LR
-        PL_LIST["S3 → SQS (event chain)\nEventBridge → Step Functions\nSNS Fan-out (parallel)"]
+        PL_LIST["S3 → SQS (event chain)\nEventBridge → Step Functions"]
         PL_OUT["Event-driven TXs\nlinked by trace context\nparent → child propagation"]
         PL_LIST --> PL_OUT
     end
@@ -712,7 +714,7 @@ flowchart TD
 
     DS --> FEED
 
-    subgraph FEED["Datafeeds — 180 jobs"]
+    subgraph FEED["Datafeeds — 137 jobs"]
         direction TB
         F1["Query: event.dataset filter\ne.g. aws.lambda_logs"]
         F2["Indices: logs-aws.* or metrics-aws.*"]
@@ -722,14 +724,14 @@ flowchart TD
 
     FEED --> JOBS
 
-    subgraph JOBS["ML Job Groups — 25 groups"]
+    subgraph JOBS["ML Job Groups — 22 groups"]
         direction TB
         J1["Compute\nLambda error spike\nEC2 CPU anomaly"]
         J2["Databases\nRDS query latency\nDynamo throttle spike"]
         J3["Streaming\nKinesis iterator age\nKDA KPU utilisation"]
         J4["Security\nGuardDuty finding spike\nIAM failed auth"]
         J5["Networking\nALB latency\nVPC flow anomaly"]
-        J6["+ 20 more groups ..."]
+        J6["+ 17 more groups ..."]
     end
 
     JOBS --> DETECT
@@ -827,7 +829,7 @@ flowchart TD
         direction TB
         B1["Enable scheduled mode\n12 runs × 15 min = 3 hrs"]
         B2["Anomaly injection: OFF"]
-        B3["Ship normal traffic\nacross all 211 services"]
+        B3["Ship normal traffic\nacross all 212 services"]
         B4["ML jobs learn patterns\nbaseline established"]
         B1 --> B2 --> B3 --> B4
     end
