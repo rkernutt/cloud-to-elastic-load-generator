@@ -1,52 +1,58 @@
 {
-  "@timestamp": "2026-04-20T14:21:54.344Z",
+  "@timestamp": "2026-04-20T15:59:33.524Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-southeast-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "neptune-graph" }
   },
   "aws": {
-    "dimensions": { "GraphId": "g-kq3j101ib" },
+    "dimensions": { "GraphId": "g-69o1ueu87" },
     "neptuneanalytics": {
-      "graph_id": "g-kq3j101ib",
-      "query_id": "query-e311ljpd",
-      "algorithm": "LouvainCommunityDetection",
-      "metrics": { "nodes_processed": 3014098, "edges_processed": 10532202, "duration_ms": 6991 }
+      "graph_id": "g-69o1ueu87",
+      "query_id": "query-mk659zk4",
+      "algorithm": "PageRank",
+      "metrics": { "nodes_processed": 4992805, "edges_processed": 12392299, "duration_ms": 129902 },
+      "error_code": "GraphAlgorithmTimeout"
     },
     "s3": {
       "bucket": {
-        "name": "aws-neptuneanalytics-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-neptuneanalytics-logs-814726593401"
+        "name": "aws-neptuneanalytics-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-neptuneanalytics-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/neptuneanalytics/us-west-2/2026/04/20/neptuneanalytics_FP2HK88JJAI.log.gz"
+        "key": "AWSLogs/501938274650/neptuneanalytics/ap-southeast-2/2026/04/20/neptuneanalytics_GKNGGO0HOTQ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/neptuneanalytics/logs",
-      "log_stream": "us-west-2/yxereci1",
-      "ingestion_time": "2026-04-20T14:21:54.953Z"
+      "log_stream": "ap-southeast-2/tzvcqe6h",
+      "ingestion_time": "2026-04-20T15:59:34.537Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["database"],
     "dataset": "aws.neptuneanalytics",
     "provider": "neptune-graph.amazonaws.com",
-    "duration": 6991000000,
+    "duration": 129902000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.neptuneanalytics", "namespace": "default" },
-  "message": "Neptune Analytics graph g-kq3j101ib: LouvainCommunityDetection processed 3014098 nodes, 10532202 edges in 6991ms",
-  "log": { "level": "info" },
+  "message": "Neptune Analytics graph g-69o1ueu87: GraphAlgorithmTimeout running PageRank",
+  "log": { "level": "error" },
+  "error": {
+    "code": "GraphAlgorithmTimeout",
+    "message": "Neptune Analytics PageRank failed on graph g-69o1ueu87",
+    "type": "database"
+  },
   "service": { "name": "neptuneanalytics", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "mftkqgy8ff"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "wcmzx9x089e"
   },
   "input": { "type": "aws-cloudwatch" }
 }

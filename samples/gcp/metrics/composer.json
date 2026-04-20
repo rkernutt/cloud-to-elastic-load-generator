@@ -5,34 +5,36 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast2",
+    "region": "europe-north1",
     "project": {
-      "id": "globex-staging-d4e5f6",
-      "name": "Globex Staging"
+      "id": "globex-shared-m3n4o5",
+      "name": "Globex Shared Services"
     },
     "account": {
-      "id": "271828182845",
-      "name": "Globex Staging"
+      "id": "173205080756",
+      "name": "Globex Shared Services"
     }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-northeast2",
-    "ephemeral_id": "4840i8vxxef"
+    "name": "metricbeat-gcp-europe-north1",
+    "ephemeral_id": "63ca5gwzt6j"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "cloudbuild.googleapis.com/build/build_count",
+      "type": "composer.googleapis.com/workflow/run_count",
       "labels": {
-        "status": "FAILURE"
+        "state": "success",
+        "image_version": "composer-2-airflow-2.5"
       }
     },
     "resource": {
-      "type": "cloud_build",
+      "type": "cloud_composer_workflow",
       "labels": {
-        "project_id": "globex-staging-d4e5f6",
-        "build_id": "build-aa1"
+        "project_id": "globex-shared-m3n4o5",
+        "location": "europe-north1",
+        "workflow_name": "daily_curate"
       }
     },
     "metricKind": "DELTA",
@@ -43,7 +45,7 @@
           "endTime": "2026-04-04T12:00:00.000Z"
         },
         "value": {
-          "int64Value": "13"
+          "int64Value": "200"
         }
       }
     ]
@@ -51,14 +53,16 @@
   "gcp": {
     "composer": {
       "labels": {
-        "project_id": "globex-staging-d4e5f6",
-        "build_id": "build-aa1",
-        "status": "FAILURE"
+        "project_id": "globex-shared-m3n4o5",
+        "location": "europe-north1",
+        "workflow_name": "daily_curate",
+        "state": "success",
+        "image_version": "composer-2-airflow-2.5"
       },
       "metrics": {
-        "cloudbuild.googleapis.com/build/build_count": {
-          "avg": 13,
-          "sum": 13,
+        "composer.googleapis.com/workflow/run_count": {
+          "avg": 200,
+          "sum": 200,
           "count": 1
         }
       }

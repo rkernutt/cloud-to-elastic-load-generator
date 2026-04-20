@@ -48,6 +48,21 @@ import { generateDocDbTrace } from "./docdb.js";
 import { generateAuroraTrace } from "./aurora.js";
 import { generateSecretsManagerTrace } from "./secretsmanager.js";
 import { generateKmsTrace } from "./kms.js";
+import { generateAlbTrace } from "./alb.js";
+import { generateAmplifyTrace } from "./amplify.js";
+import { generateApprunnerTrace } from "./apprunner.js";
+import { generateBatchTrace } from "./batch.js";
+import { generateCloudformationTrace } from "./cloudformation.js";
+import { generateCodebuildTrace } from "./codebuild.js";
+import { generateCodepipelineTrace } from "./codepipeline.js";
+import { generateEbsTrace } from "./ebs.js";
+import { generateEfsTrace } from "./efs.js";
+import { generateFargateTrace } from "./fargate.js";
+import { generateGuarddutyTrace } from "./guardduty.js";
+import { generateIotcoreTrace } from "./iotcore.js";
+import { generateMwaaTrace } from "./mwaa.js";
+import { generateQuicksightTrace } from "./quicksight.js";
+import { generateWafTrace } from "./waf.js";
 
 /**
  * Map of service id → trace generator function.
@@ -93,6 +108,21 @@ const TRACE_GENERATORS = {
   aurora: generateAuroraTrace,
   secretsmanager: generateSecretsManagerTrace,
   kms: generateKmsTrace,
+  alb: generateAlbTrace,
+  amplify: generateAmplifyTrace,
+  apprunner: generateApprunnerTrace,
+  batch: generateBatchTrace,
+  cloudformation: generateCloudformationTrace,
+  codebuild: generateCodebuildTrace,
+  codepipeline: generateCodepipelineTrace,
+  ebs: generateEbsTrace,
+  efs: generateEfsTrace,
+  fargate: generateFargateTrace,
+  guardduty: generateGuarddutyTrace,
+  iotcore: generateIotcoreTrace,
+  mwaa: generateMwaaTrace,
+  quicksight: generateQuicksightTrace,
+  waf: generateWafTrace,
 };
 
 export { TRACE_GENERATORS };

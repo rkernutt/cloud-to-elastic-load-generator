@@ -3,51 +3,51 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west4",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" }
+    "region": "europe-west3",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west4",
-    "ephemeral_id": "01s544sycfoh"
+    "name": "metricbeat-gcp-europe-west3",
+    "ephemeral_id": "o8ygqazu4mf"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "loadbalancing.googleapis.com/https/request_count",
-      "labels": { "response_code_class": "2xx" }
+      "type": "networksecurity.googleapis.com/https/request_count",
+      "labels": { "blocked": "false", "backend_target_name": "be-graphql" }
     },
     "resource": {
-      "type": "https_lb_rule",
+      "type": "network_security_policy",
       "labels": {
-        "project_id": "globex-dev-g7h8i9",
-        "url_map_name": "api-map",
-        "forwarding_rule_name": "fr-generic",
-        "target_proxy_name": "tp-generic",
-        "region": "europe-west4"
+        "project_id": "globex-shared-m3n4o5",
+        "location": "europe-west3",
+        "policy_name": "api-shield"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "15728" } }
+      {
+        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
+        "value": { "int64Value": "1209431" }
+      }
     ]
   },
   "gcp": {
     "cloud-armor": {
       "labels": {
-        "project_id": "globex-dev-g7h8i9",
-        "url_map_name": "api-map",
-        "forwarding_rule_name": "fr-generic",
-        "target_proxy_name": "tp-generic",
-        "region": "europe-west4",
-        "response_code_class": "2xx"
+        "project_id": "globex-shared-m3n4o5",
+        "location": "europe-west3",
+        "policy_name": "api-shield",
+        "blocked": "false",
+        "backend_target_name": "be-graphql"
       },
       "metrics": {
-        "loadbalancing.googleapis.com/https/request_count": {
-          "avg": 15728,
-          "sum": 15728,
+        "networksecurity.googleapis.com/https/request_count": {
+          "avg": 1209431,
+          "sum": 1209431,
           "count": 1
         }
       }

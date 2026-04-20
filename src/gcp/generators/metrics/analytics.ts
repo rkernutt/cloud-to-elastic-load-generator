@@ -1,5 +1,5 @@
 /**
- * GCP analytics metric generators: BigQuery, Dataproc.
+ * GCP analytics metric generators: BigQuery, Dataproc, Cloud Composer.
  */
 
 import { GCP_METRICS_DATASET_MAP } from "../../data/elasticMaps.js";
@@ -10,8 +10,9 @@ import {
   gcpMetricDoc,
   pickGcpCloudContext,
   toInt64String,
+  distributionFromMs,
 } from "./helpers.js";
-import { randBigQueryDataset } from "../helpers.js";
+import { rand, randBigQueryDataset } from "../helpers.js";
 import type { EcsDocument } from "../../../aws/generators/types.js";
 
 const DATAPROC_CLUSTERS = ["analytics-spark", "etl-daily", "ml-preprocess", "batch-export"];
@@ -136,6 +137,90 @@ export function generateDataprocMetrics(ts: string, er: number): EcsDocument[] {
       metricKind: "GAUGE",
       valueType: "INT64",
       point: { int64Value: toInt64String(hdfsCap) },
+    }),
+  ];
+}
+
+const COMPOSER_ENVS = ["airflow-prod", "etl-composer-1", "analytics-composer"];
+const COMPOSER_DAGS = ["daily_curate", "ingest_raw", "export_mart", "ml_features"];
+
+export function generateComposerMetrics(ts: string, er: number): EcsDocument[] {
+  const { region, project } = pickGcpCloudContext();
+  const dataset = GCP_METRICS_DATASET_MAP.composer!;
+  const environment_name = rand(COMPOSER_ENVS);
+  const workflow_name = rand(COMPOSER_DAGS);
+  const image_version = rand(["composer-3-airflow-2.7", "composer-2-airflow-2.5"]);
+  const envRes = {
+    project_id: project.id,
+    location: region,
+    environment_name,
+  };
+  const wfRes = {
+    project_id: project.id,
+    location: region,
+    workflow_name,
+  };
+  const fail = Math.random() < er;
+  const dagRuns = randInt(fail ? 40 : 120, fail ? 2_400 : 900);
+  const taskDurMs = fail
+    ? jitter(420_000, 180_000, 12_000, 3_600_000)
+    : jitter(95_000, 42_000, 2000, 900_000);
+  const dagProcMs = fail
+    ? jitter(520_000, 200_000, 60_000, 3_600_000)
+    : jitter(90_000, 45_000, 5000, 900_000);
+  const distN = randInt(30, 400);
+  const heartbeats = randInt(fail ? 400 : 2_000, fail ? 9_000 : 28_000);
+  const workers = randInt(fail ? 2 : 3, fail ? 14 : 22);
+
+  return [
+    gcpMetricDoc(ts, "composer", dataset, region, project, {
+      metricType: "composer.googleapis.com/workflow/run_count",
+      resourceType: "cloud_composer_workflow",
+      resourceLabels: wfRes,
+      metricLabels: { state: fail ? "failed" : "success", image_version },
+      metricKind: "DELTA",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(dagRuns) },
+    }),
+    gcpMetricDoc(ts, "composer", dataset, region, project, {
+      metricType: "composer.googleapis.com/workflow/task_instance/run_duration",
+      resourceType: "cloud_composer_workflow",
+      resourceLabels: wfRes,
+      metricLabels: {
+        state: fail ? "failed" : "success",
+        image_version,
+        task_id: `task_${randInt(1, 80)}`,
+      },
+      metricKind: "GAUGE",
+      valueType: "DOUBLE",
+      point: { doubleValue: dp(taskDurMs) },
+    }),
+    gcpMetricDoc(ts, "composer", dataset, region, project, {
+      metricType: "composer.googleapis.com/environment/dag_processing_duration",
+      resourceType: "cloud_composer_environment",
+      resourceLabels: envRes,
+      metricLabels: { image_version },
+      metricKind: "DELTA",
+      valueType: "DISTRIBUTION",
+      point: distributionFromMs(dagProcMs, distN, fail),
+    }),
+    gcpMetricDoc(ts, "composer", dataset, region, project, {
+      metricType: "composer.googleapis.com/environment/scheduler_heartbeat_count",
+      resourceType: "cloud_composer_environment",
+      resourceLabels: envRes,
+      metricLabels: { image_version },
+      metricKind: "DELTA",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(heartbeats) },
+    }),
+    gcpMetricDoc(ts, "composer", dataset, region, project, {
+      metricType: "composer.googleapis.com/environment/num_celery_workers",
+      resourceType: "cloud_composer_environment",
+      resourceLabels: envRes,
+      metricLabels: { image_version },
+      metricKind: "GAUGE",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(workers) },
     }),
   ];
 }

@@ -1,68 +1,70 @@
 {
-  "@timestamp": "2026-04-20T14:21:54.344Z",
+  "@timestamp": "2026-04-20T15:59:33.524Z",
   "cloud": {
     "provider": "aws",
     "region": "eu-south-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "dms" }
   },
   "aws": {
-    "dimensions": { "ReplicationInstanceIdentifier": "dms-prod-h6oajz7u" },
+    "dimensions": { "ReplicationInstanceIdentifier": "dms-prod-fv8vbr1n" },
     "dms": {
       "replication_task_id": "on-prem-to-rds",
       "migration_type": "full-load-and-cdc",
-      "replication_instance_identifier": "dms-prod-h6oajz7u",
-      "source_engine": "sqlserver",
-      "target_engine": "aurora-postgresql",
+      "replication_instance_identifier": "dms-prod-fv8vbr1n",
+      "source_engine": "oracle",
+      "target_engine": "docdb",
       "replication_instance_class": "dms.r5.large",
-      "task_status": "Load complete",
-      "full_load_rows_transferred": 3001930,
-      "cdc_incoming_changes": 14896,
-      "latency_ms": 1189,
-      "tables_loaded": 221,
-      "tables_errored": 0,
+      "task_status": "Failed",
+      "full_load_rows_transferred": 0,
+      "cdc_incoming_changes": 3689,
+      "latency_ms": 44801,
+      "tables_loaded": 349,
+      "tables_errored": 10,
+      "error_message": "Table does not exist",
       "metrics": {
-        "FullLoadThroughputRowsSource": { "avg": 89453 },
-        "FullLoadThroughputRowsTarget": { "avg": 46722 },
-        "CDCIncomingChanges": { "avg": 9412 },
-        "CDCChangesMemorySource": { "avg": 696 },
-        "CDCChangesMemoryTarget": { "avg": 680 },
-        "CDCChangesDiskSource": { "avg": 73 },
-        "CDCChangesDiskTarget": { "avg": 62 },
-        "CDCLatencySource": { "avg": 1 },
-        "CDCLatencyTarget": { "avg": 0 },
-        "CPUUtilization": { "avg": 24.972373592001613 },
-        "FreeableMemory": { "avg": 917950890 },
-        "FreeStorageSpace": { "avg": 60464710584 },
-        "NetworkReceiveThroughput": { "avg": 93684062 },
-        "NetworkTransmitThroughput": { "avg": 36561196 },
-        "ReadIOPS": { "avg": 2491 },
-        "WriteIOPS": { "avg": 2638 }
+        "FullLoadThroughputRowsSource": { "avg": 25199 },
+        "FullLoadThroughputRowsTarget": { "avg": 37379 },
+        "CDCIncomingChanges": { "avg": 4833 },
+        "CDCChangesMemorySource": { "avg": 346 },
+        "CDCChangesMemoryTarget": { "avg": 588 },
+        "CDCChangesDiskSource": { "avg": 98 },
+        "CDCChangesDiskTarget": { "avg": 66 },
+        "CDCLatencySource": { "avg": 10 },
+        "CDCLatencyTarget": { "avg": 19 },
+        "CPUUtilization": { "avg": 7.173544403758777 },
+        "FreeableMemory": { "avg": 3117364957 },
+        "FreeStorageSpace": { "avg": 60761866586 },
+        "NetworkReceiveThroughput": { "avg": 42200352 },
+        "NetworkTransmitThroughput": { "avg": 85820378 },
+        "ReadIOPS": { "avg": 1177 },
+        "WriteIOPS": { "avg": 2771 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-dms-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-dms-logs-293847561023"
+        "name": "aws-dms-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-dms-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/293847561023/dms/eu-south-1/2026/04/20/dms_U4IZ2OFU86.log.gz" }
+      "object": { "key": "AWSLogs/164820739518/dms/eu-south-1/2026/04/20/dms_A3V725ZSDIU.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/dms/logs",
-      "log_stream": "eu-south-1/ysvuc9kr",
-      "ingestion_time": "2026-04-20T14:21:55.039Z"
+      "log_stream": "eu-south-1/it7ujhuz",
+      "ingestion_time": "2026-04-20T15:59:34.630Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["database", "process"],
     "dataset": "aws.dms",
     "provider": "dms.amazonaws.com",
-    "duration": 24025000000000,
+    "duration": 713000000000,
     "module": "aws"
   },
-  "message": "DMS on-prem-to-rds: 3,001,930 rows (sqlserver->aurora-postgresql full-load-and-cdc)",
-  "log": { "level": "info" },
+  "message": "DMS on-prem-to-rds FAILED (oracle->docdb): Table mapping error",
+  "error": { "code": "DMSError", "message": "DMS task failed", "type": "migration" },
+  "log": { "level": "error" },
   "service": { "name": "dms", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.dms", "namespace": "default" },
@@ -70,7 +72,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "xvvkhd2wy8h"
+    "ephemeral_id": "x6bwx2rozul"
   },
   "input": { "type": "aws-cloudwatch" }
 }

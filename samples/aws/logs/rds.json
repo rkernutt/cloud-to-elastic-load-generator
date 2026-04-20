@@ -1,93 +1,47 @@
 {
-  "@timestamp": "2026-04-20T14:21:54.344Z",
+  "@timestamp": "2026-04-20T15:59:33.524Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
-    "service": { "name": "rds" }
+    "region": "ap-east-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
+    "service": { "name": "rds-proxy" }
   },
   "aws": {
-    "dimensions": {
-      "DBInstanceIdentifier": "prod-db-primary",
-      "DatabaseClass": "db.r5.xlarge",
-      "EngineName": "mysql",
-      "SourceRegion": "us-east-1"
-    },
-    "cloudwatch": {
-      "log_group": "/aws/rds/instance/prod-db-primary/error",
-      "log_stream": "prod-db-primary",
-      "ingestion_time": "2026-04-20T14:21:54.824Z"
-    },
-    "rds": {
-      "db_instance": {
-        "identifier": "prod-db-primary",
-        "class": "db.r5.xlarge",
-        "engine_name": "mysql",
-        "engine_version": "8.0.35",
-        "arn": "arn:aws:rds:us-east-1:814726593401:db:prod-db-primary",
-        "status": "storage-full",
-        "role": "read-replica",
-        "multi_az": false,
-        "storage_type": "gp3",
-        "allocated_storage_gb": 200
-      },
-      "log_type": "error",
-      "cpu": { "total": { "pct": 0.7227 } },
-      "freeable_memory": { "bytes": 7432855133 },
-      "free_storage": { "bytes": 488169207530 },
-      "database_connections": 77,
-      "read_io": { "ops_per_sec": 2081.2520150385094 },
-      "write_io": { "ops_per_sec": 2174.1132205097306 },
-      "latency": { "read": 0.260991300678408, "write": 0.28985869659238206 },
-      "throughput": {
-        "read": 86501052,
-        "write": 89946570,
-        "network_receive": 43516156,
-        "network_transmit": 63484690
-      },
-      "replica_lag": { "sec": 650.2590946656717 },
-      "swap_usage": { "bytes": 24936599 },
-      "disk_usage": { "bin_log": { "bytes": 273533512 } }
+    "rdsproxy": {
+      "proxy_name": "writer-proxy",
+      "target_group": "read-only",
+      "db_user": "readonly_user",
+      "connection_id": 36599,
+      "action": "Query",
+      "active_connections": 90,
+      "max_connections": 200,
+      "borrow_timeout_ms": 242,
+      "client_connections": 279
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-rds-logs-814726593401"
+        "name": "aws-rds-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-rds-logs-738291046572"
       },
-      "object": { "key": "AWSLogs/814726593401/rds/us-east-1/2026/04/20/rds_BUI8GAR5ZZK.log.gz" }
+      "object": { "key": "AWSLogs/738291046572/rds/ap-east-1/2026/04/20/rds_MFD5AHQI90M.log.gz" }
+    },
+    "cloudwatch": {
+      "log_group": "/aws/rds/logs",
+      "log_stream": "ap-east-1/hqsb9mcn",
+      "ingestion_time": "2026-04-20T15:59:34.394Z"
     }
   },
-  "db": {
-    "user": { "name": "replica" },
-    "name": "appdb",
-    "statement": "UPDATE transactions SET status = 'active' WHERE user_id = 4639",
-    "type": "sql"
-  },
-  "source": { "ip": "202.7.248.131" },
-  "event": {
-    "duration": 15046569436.070093,
-    "outcome": "failure",
-    "category": ["database"],
-    "type": ["error"],
-    "dataset": "aws.rds",
-    "provider": "rds.amazonaws.com",
-    "module": "aws"
-  },
-  "message": "2026-04-20 14:21:54.344 21249 [Warning] [MY-90027] [Server] Aborted connection 42578 to db: 'appdb' user: 'replica' host: '202.7.248.131' (Got an error reading communication packets)",
-  "log": { "level": "error" },
-  "error": {
-    "code": "StorageQuotaExceeded",
-    "message": "2026-04-20 14:21:54.344 21249 [Warning] [MY-90027] [Server] Aborted connection 42578 to db: 'appdb' user: 'replica' host: '202.7.248.131' (Got an error reading communication packets)",
-    "type": "db"
-  },
+  "event": { "outcome": "success", "duration": 2019951, "module": "aws", "dataset": "aws.rds" },
+  "message": "RDS Proxy writer-proxy: Query on read-only (conn 36599)",
   "service": { "name": "rds", "type": "aws" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "25slpwr5lgi"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "ayeb97oojrh"
   },
   "input": { "type": "aws-cloudwatch" }
 }

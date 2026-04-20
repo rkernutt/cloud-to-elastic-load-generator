@@ -2,57 +2,60 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "severity": "INFO",
   "labels": {
-    "instance_id": "9886244237602",
-    "zone": "australia-southeast2-a",
-    "machine_type": "e2-micro"
+    "instance_name": "node-zkbb",
+    "instance_id": "1206028027947",
+    "zone": "asia-southeast1-c"
   },
-  "logName": "projects/globex-prod-a1b2c3/logs/syslog",
-  "insertId": "ZPRCXSYULZL",
+  "insertId": "37W3XB84G7R",
   "resource": {
     "type": "gce_instance",
     "labels": {
       "project_id": "globex-prod-a1b2c3",
-      "instance_id": "9886244237602",
-      "zone": "australia-southeast2-a"
+      "instance_id": "1206028027947",
+      "zone": "asia-southeast1-c"
     }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "australia-southeast2",
+    "region": "asia-southeast1",
     "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
     "account": { "id": "314159265358", "name": "Globex Production" },
-    "service": { "name": "compute.googleapis.com" }
+    "service": { "name": "shielded-vms" }
   },
   "gcp": {
-    "compute_engine": {
-      "instance_id": "9886244237602",
-      "instance_name": "db-fsik",
-      "machine_type": "e2-micro",
-      "zone": "australia-southeast2-a",
-      "status": "HEALTHY",
-      "preemptible": false,
-      "network_tags": ["egress-nat", "allow-ssh", "allow-ssh", "allow-http"],
-      "event_type": "OPS_AGENT",
-      "disk_size_gb": 901,
-      "metrics": { "cpu_utilization": 20.2, "memory_used_percent": 65.9, "disk_read_iops": 700 }
+    "shielded_vms": {
+      "instance_name": "node-zkbb",
+      "event_type": "VTPM_ATTESTATION",
+      "integrity_status": "TRUSTED",
+      "policy_update": "NONE"
     }
   },
-  "event": { "outcome": "success", "duration": 924, "module": "gcp", "dataset": "gcp.compute" },
-  "message": "ops-agent: collected 3295 metric points for db-fsik; heartbeat ok",
-  "jsonPayload": {
-    "agentVersion": "2.48.0",
-    "metrics": { "cpu_utilization": 20.2, "memory_used_percent": 65.9, "disk_read_iops": 700 },
-    "host": "db-fsik"
+  "event": {
+    "outcome": "success",
+    "duration": 593,
+    "module": "gcp",
+    "dataset": "gcp.shielded_vms"
   },
-  "service": { "name": "compute-engine", "type": "gcp" },
+  "message": "compute.googleapis.com/shieldedvm: instance node-zkbb (asia-southeast1-c) VTPM_ATTESTATION OK (TRUSTED, policy NONE)",
+  "service": { "name": "shielded-vms", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.compute", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.shielded_vms", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-australia-southeast2",
-    "id": "5q7gggl834n"
+    "name": "elastic-agent-gcp-asia-southeast1",
+    "id": "p1xji71jscr"
   },
-  "input": { "type": "gcp-pubsub" }
+  "input": { "type": "gcp-pubsub" },
+  "logName": "projects/globex-prod-a1b2c3/logs/shielded-vms",
+  "jsonPayload": {
+    "shielded_vms": {
+      "instance_name": "node-zkbb",
+      "event_type": "VTPM_ATTESTATION",
+      "integrity_status": "TRUSTED",
+      "policy_update": "NONE"
+    },
+    "message": "compute.googleapis.com/shieldedvm: instance node-zkbb (asia-southeast1-c) VTPM_ATTESTATION OK (TRUSTED, policy NONE)"
+  }
 }

@@ -1,25 +1,28 @@
 {
-  "@timestamp": "2026-04-20T14:21:54.344Z",
+  "@timestamp": "2026-04-20T15:59:33.524Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
+    "region": "me-central-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "backup" }
   },
   "aws": {
     "backup": {
-      "event_subtype": "restore_job",
-      "backup_job_id": "78l0rdge-m7st-zw7n",
-      "restore_job_id": "tp80g9e1-k085-g4xp",
+      "event_subtype": "vault_lock",
+      "backup_job_id": "brjmh2oy-4r9m-wdpy",
       "backup_plan_name": "weekly-cold",
-      "resource_arn": "arn:aws:backup:ca-west-1:293847561023:recovery-point:fu5nq2ui9iu",
-      "resource_type": "DynamoDB",
-      "backup_vault_name": "Default",
-      "job_phase": "RUNNING",
-      "restore_job_lifecycle": ["CREATED", "PENDING", "RUNNING", "COMPLETED"],
-      "status": "RUNNING",
-      "backup_size_gb": 1114.6271971931633,
-      "lifecycle_delete_after_days": 365
+      "resource_arn": "arn:aws:backup:me-central-1:293847561023:recovery-point:qty48xg1qlm",
+      "resource_type": "RDS",
+      "backup_vault_name": "compliance-vault",
+      "status": "COMPLETED",
+      "backup_size_gb": 836.1694503878422,
+      "lifecycle_delete_after_days": 365,
+      "vault_lock": {
+        "compliance_lock_enabled": false,
+        "governance_lock_enabled": true,
+        "lock_event": "VaultLockConfigurationApplied",
+        "max_retention_days": 2555
+      }
     },
     "s3": {
       "bucket": {
@@ -27,13 +30,13 @@
         "arn": "arn:aws:s3:::aws-backup-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/backup/ca-west-1/2026/04/20/backup_ZC4YVGJIDA9.log.gz"
+        "key": "AWSLogs/293847561023/backup/me-central-1/2026/04/20/backup_GDK628NYDE9.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/backup/logs",
-      "log_stream": "ca-west-1/ykankz3a",
-      "ingestion_time": "2026-04-20T14:21:54.932Z"
+      "log_stream": "me-central-1/5i31guhm",
+      "ingestion_time": "2026-04-20T15:59:34.519Z"
     }
   },
   "event": {
@@ -41,10 +44,10 @@
     "category": ["process"],
     "dataset": "aws.backup",
     "provider": "backup.amazonaws.com",
-    "duration": 5285000000000,
+    "duration": 6803000000000,
     "module": "aws"
   },
-  "message": "AWS Backup restore RUNNING: rds/prod-db from Default",
+  "message": "AWS Backup vault compliance-vault: VaultLockConfigurationApplied governance=true compliance=false",
   "log": { "level": "info" },
   "service": { "name": "backup", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -52,8 +55,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "rau3dqtxicr"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "t82t40hpz3"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -238,6 +238,7 @@ export function generateEcsMetrics(ts: string, er: number) {
 }
 
 export function generateFargateMetrics(ts: string, er: number) {
+  const serviceCount = randInt(4, 28);
   return generateEcsMetrics(ts, er).map((doc) => {
     const d = doc as Record<string, any>;
     const ecs = d.aws.ecs as Record<string, any>;
@@ -257,6 +258,7 @@ export function generateFargateMetrics(ts: string, er: number) {
             ...metrics,
             EphemeralStorageUtilized: stat(dp(utilizedMiB)),
             EphemeralStorageReserved: stat(dp(reservedMiB)),
+            ServiceCount: counter(serviceCount),
           },
         },
       },
@@ -328,7 +330,15 @@ export function generateApprunnerMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(APPRUNNER_SERVICES, randInt(1, 3)).map((svc) => {
     const req = randInt(100, 50_000);
-    const http5xx = Math.round(req * (Math.random() < er ? jitter(0.05, 0.04, 0.001, 0.3) : 0));
+    const http4xx = Math.round(req * jitter(0.012, 0.008, 0, 0.06));
+    const http5xx = Math.round(
+      req * (Math.random() < er ? jitter(0.05, 0.04, 0.001, 0.3) : jitter(0.0015, 0.001, 0, 0.012))
+    );
+    const http2xx = Math.max(0, req - http4xx - http5xx);
+    const p50 = jitter(38, 28, 4, 2500);
+    const p95 = p50 * jitter(4.2, 1.2, 2, 12);
+    const p99 = p95 * jitter(2.4, 0.9, 1.2, 6);
+    const conc = Math.random() < er ? jitter(4200, 800, 800, 12000) : jitter(380, 200, 5, 8000);
     return metricDoc(
       ts,
       "apprunner",
@@ -338,17 +348,28 @@ export function generateApprunnerMetrics(ts: string, er: number) {
       { ServiceName: svc },
       {
         Requests: counter(req),
-        Http2xxRequests: counter(req - http5xx - randInt(0, Math.round(req * 0.02))),
-        Http4xxRequests: counter(randInt(0, Math.round(req * 0.02))),
+        Http2xxRequests: counter(http2xx),
+        Http4xxRequests: counter(http4xx),
         Http5xxRequests: counter(http5xx),
         RequestLatency: stat(dp(jitter(50, 40, 5, 5000)), {
           max: dp(jitter(500, 400, 100, 10000)),
           min: dp(jitter(5, 3, 1, 50)),
         }),
+        RequestLatencyP50: stat(dp(p50), {
+          max: dp(p95 * jitter(1.15, 0.08, 1, 1.4)),
+          min: dp(jitter(3, 2, 0.5, 80)),
+        }),
+        RequestLatencyP95: stat(dp(p95), {
+          max: dp(p99 * jitter(1.2, 0.1, 1, 1.5)),
+          min: dp(p50 * jitter(1.05, 0.05, 1, 1.3)),
+        }),
+        RequestLatencyP99: stat(dp(p99), {
+          max: dp(p99 * jitter(2.5, 0.8, 1.2, 8)),
+          min: dp(p95 * jitter(0.95, 0.05, 0.85, 1.1)),
+        }),
         ActiveInstances: counter(randInt(1, 10)),
-        ConcurrentConnections: stat(
-          dp(Math.random() < er ? jitter(4200, 800, 800, 12000) : jitter(380, 200, 5, 8000))
-        ),
+        ConcurrentConnections: stat(dp(conc)),
+        MaxConcurrentConnections: stat(dp(conc * jitter(1.25, 0.15, 1.05, 2))),
         CPUUtilization: stat(
           dp(Math.random() < er ? jitter(82, 12, 65, 100) : jitter(36, 22, 4, 88))
         ),

@@ -149,6 +149,69 @@ export function generateCloudRunMetrics(ts: string, er: number): EcsDocument[] {
   ];
 }
 
+const TASK_QUEUES = ["checkout-tasks", "webhooks-default", "batch-lowpri", "notifications"];
+
+export function generateCloudTasksMetrics(ts: string, er: number): EcsDocument[] {
+  const { region, project } = pickGcpCloudContext();
+  const dataset = GCP_METRICS_DATASET_MAP["cloud-tasks"]!;
+  const queue_id = rand(TASK_QUEUES);
+  const target_type = rand(["HTTP", "APP_ENGINE", "CLOUD_RUN"]);
+  const res = {
+    project_id: project.id,
+    queue_id,
+    target_type,
+    location: region,
+  };
+  const fail = Math.random() < er;
+  const response_code = fail ? rand(["DEADLINE_EXCEEDED", "UNAVAILABLE", "INTERNAL"]) : "OK";
+  const depth = randInt(fail ? 8_000 : 0, fail ? 120_000 : 8_500);
+  const attempts = randInt(fail ? 400 : 80, fail ? 90_000 : 24_000);
+  const dispatchMs = fail ? jitter(2800, 1600, 120, 25_000) : jitter(95, 55, 4, 1800);
+  const distN = randInt(120, 4000);
+  const apiCalls = randInt(20, fail ? 12_000 : 4_200);
+
+  return [
+    gcpMetricDoc(ts, "cloud-tasks", dataset, region, project, {
+      metricType: "cloudtasks.googleapis.com/queue/depth",
+      resourceType: "cloud_tasks_queue",
+      resourceLabels: res,
+      metricKind: "GAUGE",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(depth) },
+    }),
+    gcpMetricDoc(ts, "cloud-tasks", dataset, region, project, {
+      metricType: "cloudtasks.googleapis.com/queue/task_attempt_delays",
+      resourceType: "cloud_tasks_queue",
+      resourceLabels: res,
+      metricLabels: { response_code },
+      metricKind: "DELTA",
+      valueType: "DISTRIBUTION",
+      point: distributionFromMs(dispatchMs, distN, fail),
+    }),
+    gcpMetricDoc(ts, "cloud-tasks", dataset, region, project, {
+      metricType: "cloudtasks.googleapis.com/queue/task_attempt_count",
+      resourceType: "cloud_tasks_queue",
+      resourceLabels: res,
+      metricLabels: { response_code },
+      metricKind: "DELTA",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(attempts) },
+    }),
+    gcpMetricDoc(ts, "cloud-tasks", dataset, region, project, {
+      metricType: "cloudtasks.googleapis.com/api/request_count",
+      resourceType: "cloud_tasks_queue",
+      resourceLabels: res,
+      metricLabels: {
+        api_method: rand(["CreateTask", "DeleteTask", "GetTask"]),
+        response_code,
+      },
+      metricKind: "DELTA",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(apiCalls) },
+    }),
+  ];
+}
+
 export function generateAppEngineMetrics(ts: string, er: number): EcsDocument[] {
   const { region, project } = pickGcpCloudContext();
   const dataset = GCP_METRICS_DATASET_MAP["app-engine"]!;

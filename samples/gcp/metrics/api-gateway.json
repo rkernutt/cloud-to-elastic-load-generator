@@ -3,15 +3,15 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast1",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" }
+    "region": "us-west1",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-northeast1",
-    "ephemeral_id": "ekxcggkjoa"
+    "name": "metricbeat-gcp-us-west1",
+    "ephemeral_id": "h2f5h3xy9tf"
   },
   "monitoringTimeSeries": {
     "metric": {
@@ -21,7 +21,7 @@
     "resource": {
       "type": "consumed_api",
       "labels": {
-        "project_id": "globex-dev-g7h8i9",
+        "project_id": "globex-prod-a1b2c3",
         "service": "generic.googleapis.com",
         "method": "resource_id"
       }
@@ -29,27 +29,23 @@
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "48167" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "6447" } }
     ]
   },
   "gcp": {
-    "api-hub": {
+    "api-gateway": {
       "labels": {
-        "project_id": "globex-dev-g7h8i9",
+        "project_id": "globex-prod-a1b2c3",
         "service": "generic.googleapis.com",
         "method": "resource_id",
         "credential_id": "resource-a"
       },
       "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": {
-          "avg": 48167,
-          "sum": 48167,
-          "count": 1
-        }
+        "serviceruntime.googleapis.com/api/request_count": { "avg": 6447, "sum": 6447, "count": 1 }
       }
     }
   },
-  "metricset": { "name": "api-hub", "period": 60000 },
+  "metricset": { "name": "api-gateway", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.apigateway_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "dataset": "gcp.apigateway_metrics", "module": "gcp" }

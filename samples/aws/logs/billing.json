@@ -1,62 +1,63 @@
 {
-  "@timestamp": "2026-04-20T14:21:54.344Z",
+  "@timestamp": "2026-04-20T15:59:33.524Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-south-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "billing" }
   },
   "aws": {
     "billing": {
-      "service": "AmazonS3",
-      "usage_type": "Requests-Tier1",
-      "estimated_charges": 66.85254646379886,
+      "service": "AmazonCloudWatch",
+      "usage_type": "InstanceUsage",
+      "estimated_charges": 3549.222023434151,
       "currency": "USD",
       "period_start": "2026-04-01",
-      "linked_account_id": "164820739518",
+      "linked_account_id": "293847561023",
       "dimensions": {
-        "Service": "AmazonS3",
-        "LinkedAccount": "164820739518",
-        "UsageType": "Requests-Tier1"
+        "Service": "AmazonCloudWatch",
+        "LinkedAccount": "293847561023",
+        "UsageType": "InstanceUsage"
       },
       "metrics": {
-        "EstimatedCharges": { "sum": 66.85254646379886 },
-        "NumberOfRequests": { "sum": 699307 }
+        "EstimatedCharges": { "sum": 3549.222023434151 },
+        "NumberOfRequests": { "sum": 400204 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-billing-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-billing-logs-164820739518"
+        "name": "aws-billing-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-billing-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/billing/eu-west-1/2026/04/20/billing_C02YO7LXGZT.log.gz"
+        "key": "AWSLogs/293847561023/billing/ap-south-1/2026/04/20/billing_0N4N1BSEMOI.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/billing/logs",
-      "log_stream": "eu-west-1/9mzh0dw5",
-      "ingestion_time": "2026-04-20T14:21:55.045Z"
+      "log_stream": "ap-south-1/2z2pthi0",
+      "ingestion_time": "2026-04-20T15:59:34.638Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["configuration", "process"],
     "dataset": "aws.billing",
     "provider": "ce.amazonaws.com",
-    "duration": 843000000,
+    "duration": 3569000000,
     "module": "aws"
   },
-  "message": "Billing: AmazonS3 66.85 USD",
-  "log": { "level": "info" },
+  "message": "Billing anomaly: AmazonCloudWatch 3549.22 USD",
+  "log": { "level": "warn" },
+  "error": { "code": "BillingAnomaly", "message": "Unusual cost detected", "type": "billing" },
   "service": { "name": "billing", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.billing", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "48216a6id4x"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "l0hatntovbk"
   },
   "input": { "type": "http_endpoint" }
 }

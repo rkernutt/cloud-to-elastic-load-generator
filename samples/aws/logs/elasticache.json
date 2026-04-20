@@ -1,86 +1,53 @@
 {
-  "@timestamp": "2026-04-20T14:21:54.344Z",
+  "@timestamp": "2026-04-20T15:59:33.524Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
-    "service": { "name": "elasticache" }
+    "region": "ap-south-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "service": { "name": "elasticache-global" }
   },
   "aws": {
-    "dimensions": {
-      "CacheClusterId": "prod-redis-1",
-      "CacheNodeId": "0001",
-      "ReplicationGroupId": "prod-cache"
-    },
-    "elasticache": {
-      "cluster_id": "prod-redis-1",
-      "node_id": "0001",
-      "engine": "redis",
-      "engine_version": "7.1.0",
-      "replication_group_id": "prod-cache",
-      "command": "SCAN",
-      "latency_us": 7.249502662022901,
-      "cache_hit": true,
-      "connected_clients": 98,
-      "used_memory_mb": 10795,
-      "metrics": {
-        "BytesUsedForCache": { "avg": 2182888370 },
-        "CacheHits": { "sum": 32914 },
-        "CacheMisses": { "sum": 612 },
-        "CacheHitRate": { "avg": 0.9073798784928504 },
-        "CurrConnections": { "avg": 314 },
-        "NewConnections": { "sum": 80 },
-        "Evictions": { "sum": 0 },
-        "Reclaimed": { "sum": 5 },
-        "ReplicationBytes": { "avg": 3551869 },
-        "ReplicationLag": { "avg": 1 },
-        "SaveInProgress": { "avg": 0 },
-        "CurrItems": { "avg": 420068 },
-        "NewItems": { "sum": 9492 },
-        "NetworkBytesIn": { "avg": 43846262 },
-        "NetworkBytesOut": { "avg": 93707856 },
-        "CPUUtilization": { "avg": 18.29925826905515 },
-        "EngineCPUUtilization": { "avg": 14.712914849813107 },
-        "FreeableMemory": { "avg": 3509938714 },
-        "SwapUsage": { "avg": 39013719 },
-        "DatabaseMemoryUsagePercentage": { "avg": 11.8117834074807 },
-        "TrafficBasedCmdsLatency": { "avg": 0.27174638865319645 }
-      }
+    "elasticacheglobal": {
+      "global_datastore_name": "global-session-store",
+      "event_type": "IncreaseNodeGroupCount",
+      "primary_region": "ap-south-2",
+      "secondary_regions": ["eu-west-1", "ap-northeast-1", "us-west-2"],
+      "replication_lag_ms": 23.50044368527582,
+      "cross_region_bandwidth_mbps": 180.64139858578147,
+      "global_node_groups": 1,
+      "status": "available"
     },
     "s3": {
       "bucket": {
-        "name": "aws-elasticache-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-elasticache-logs-501938274650"
+        "name": "aws-elasticache-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-elasticache-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/elasticache/sa-east-1/2026/04/20/elasticache_UGA4HEFJMBA.log.gz"
+        "key": "AWSLogs/164820739518/elasticache/ap-south-2/2026/04/20/elasticache_2OVBXVP0QMQ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/elasticache/logs",
-      "log_stream": "sa-east-1/qu0bvowq",
-      "ingestion_time": "2026-04-20T14:21:54.936Z"
+      "log_stream": "ap-south-2/4xb21bqw",
+      "ingestion_time": "2026-04-20T15:59:34.523Z"
     }
   },
-  "db": { "type": "keyvalue", "operation": "SCAN" },
   "event": {
-    "duration": 7249.502662022901,
     "outcome": "success",
-    "category": ["database", "network"],
-    "dataset": "aws.elasticache",
-    "provider": "elasticache.amazonaws.com",
-    "module": "aws"
+    "duration": 25709435,
+    "module": "aws",
+    "dataset": "aws.elasticache"
   },
-  "message": "Redis SCAN 7.25us",
-  "log": { "level": "info" },
+  "message": "ElastiCache Global global-session-store: IncreaseNodeGroupCount completed",
   "service": { "name": "elasticache", "type": "aws" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.elasticache", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "jy5ppl0qgvm"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "hx6cz291qn9"
   },
   "input": { "type": "aws-cloudwatch" }
 }

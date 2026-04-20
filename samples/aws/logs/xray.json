@@ -1,112 +1,76 @@
 {
-  "@timestamp": "2026-04-20T14:21:54.344Z",
-  "trace": { "id": "1-69e63682-qvobz82z74i" },
-  "span": { "id": "tycyxy3jsze" },
+  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "trace": { "id": "1-69e64d65-6ta8ien0g63" },
+  "span": { "id": "8kihricrtzs" },
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-northeast-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "xray" }
   },
   "aws": {
     "dimensions": { "GroupName": "Default", "ServiceType": "client" },
     "xray": {
-      "trace_id": "1-69e63682-qvobz82z74i",
-      "segment_id": "tycyxy3jsze",
-      "parent_id": "zmxuyucsei",
-      "start_time": 1776694914.344,
-      "end_time": 1776694914.5736306,
-      "origin": "AWS::ECS::Container",
-      "service": { "name": "payment-service", "type": "client" },
-      "duration": 0.22963038164423402,
+      "trace_id": "1-69e64d65-6ta8ien0g63",
+      "segment_id": "8kihricrtzs",
+      "parent_id": "mn1a9wx5jis",
+      "start_time": 1776700773.524,
+      "end_time": 1776700775.329554,
+      "origin": "AWS::ElastiCache::CacheCluster",
+      "service": { "name": "cache-layer", "type": "client" },
+      "duration": 1.8055540390856253,
       "fault": false,
       "error": false,
       "throttle": false,
       "http": {
         "request": {
-          "method": "POST",
-          "url": "https://service.internal.corp/api/v1/search",
-          "client_ip": "36.23.22.155",
+          "method": "PUT",
+          "url": "https://service.example.com/api/v1/orders",
+          "client_ip": "26.189.204.202",
           "user_agent": "python-requests/2.27.1"
         },
-        "response": { "status": 201, "content_length": 31825 }
+        "response": { "status": 200, "content_length": 14527 }
       },
       "aws": {
-        "account_id": "164820739518",
-        "region": "eu-central-1",
-        "resource_names": ["payment-service"]
+        "account_id": "814726593401",
+        "region": "ap-northeast-3",
+        "resource_names": ["cache-layer"]
       },
-      "annotations": { "environment": "production", "version": "v4.1.70", "team": "platform" },
+      "annotations": { "environment": "production", "version": "v16.5.40", "team": "frontend" },
       "subsegments": [
         {
-          "id": "p5q24pgccss",
-          "name": "payment-service.internal:8080",
-          "start_time": 1776694914.3784506,
-          "end_time": 1776694914.5198371,
-          "namespace": "remote",
-          "http": {
-            "request": {
-              "method": "POST",
-              "url": "http://payment-service.internal:8080/api/v1/orders"
-            },
-            "response": { "status": 200, "content_length": 4201 }
-          },
-          "fault": false,
-          "error": false,
-          "throttle": false
-        },
-        {
-          "id": "nexik2q5ql",
-          "name": "user-service.internal:8080",
-          "start_time": 1776694914.3514419,
-          "end_time": 1776694914.429639,
-          "namespace": "remote",
-          "http": {
-            "request": { "method": "GET", "url": "http://user-service.internal:8080/api/v1/users" },
-            "response": { "status": 200, "content_length": 3584 }
-          },
-          "fault": false,
-          "error": false,
-          "throttle": false
-        },
-        {
-          "id": "yw0pq751jue",
-          "name": "SQS",
-          "start_time": 1776694914.3563683,
-          "end_time": 1776694914.5130532,
+          "id": "p0kxbi93aui",
+          "name": "DynamoDB",
+          "start_time": 1776700773.934499,
+          "end_time": 1776700774.741647,
           "namespace": "aws",
-          "aws": { "operation": "DeleteMessage", "region": "eu-central-1", "retries": 0 },
-          "http": { "response": { "status": 200, "content_length": 49121 } },
-          "fault": false,
-          "error": false,
-          "throttle": false
-        },
-        {
-          "id": "v4ur7yg3m4",
-          "name": "Lambda",
-          "start_time": 1776694914.3923342,
-          "end_time": 1776694914.5643396,
-          "namespace": "aws",
-          "aws": { "operation": "Invoke", "region": "eu-central-1", "retries": 0 },
-          "http": { "response": { "status": 200, "content_length": 9670 } },
+          "aws": {
+            "operation": "GetItem",
+            "region": "ap-northeast-3",
+            "retries": 0,
+            "table_name": "Sessions",
+            "request_id": "j6c0zfpo5j",
+            "consumed_capacity": { "TableName": "Users", "CapacityUnits": 9.61468001880344 }
+          },
+          "http": { "response": { "status": 200, "content_length": 35769 } },
           "fault": false,
           "error": false,
           "throttle": false
         }
       ],
       "metrics": {
-        "ErrorRate": { "avg": 0.6285717576148467 },
-        "FaultRate": { "avg": 0.3867534627048102 },
-        "ThrottleRate": { "avg": 0.44097549754205445 },
-        "TotalCount": { "sum": 9653 },
+        "ErrorRate": { "avg": 0.8384424612684156 },
+        "FaultRate": { "avg": 0.4408647205008524 },
+        "ThrottleRate": { "avg": 0.3312968384730422 },
+        "TotalCount": { "sum": 4920 },
         "Latency": {
-          "avg": 229.63038164423403,
-          "p50": 183.70430531538722,
-          "p90": 344.44557246635105,
-          "p95": 459.26076328846807,
-          "p99": 688.8911449327021
+          "avg": 1805.5540390856254,
+          "p50": 1444.4432312685003,
+          "p90": 2708.331058628438,
+          "p95": 3611.108078171251,
+          "p99": 5416.662117256876
         },
-        "OkCount": { "sum": 4104 },
+        "OkCount": { "sum": 1025 },
         "ErrorCount": { "sum": 0 },
         "FaultCount": { "sum": 0 },
         "ThrottleCount": { "sum": 0 }
@@ -114,28 +78,28 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-xray-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-xray-logs-164820739518"
+        "name": "aws-xray-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-xray-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/xray/eu-central-1/2026/04/20/xray_1TQANU4D9X7I.log.gz"
+        "key": "AWSLogs/814726593401/xray/ap-northeast-3/2026/04/20/xray_APVSSP6SVE.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/xray/logs",
-      "log_stream": "eu-central-1/y1dapfe5",
-      "ingestion_time": "2026-04-20T14:21:54.973Z"
+      "log_stream": "ap-northeast-3/49pejfv6",
+      "ingestion_time": "2026-04-20T15:59:34.560Z"
     }
   },
   "http": {
-    "request": { "method": "POST", "body": { "bytes": 3714 } },
-    "response": { "status_code": 201, "body": { "bytes": 32411 } }
+    "request": { "method": "PUT", "body": { "bytes": 32 } },
+    "response": { "status_code": 200, "body": { "bytes": 49927 } }
   },
-  "url": { "path": "/api/v1/search", "full": "https://service.internal.corp/api/v1/search" },
+  "url": { "path": "/api/v1/orders", "full": "https://service.example.com/api/v1/orders" },
   "user_agent": { "original": "python-requests/2.27.1" },
-  "source": { "ip": "36.23.22.155" },
+  "source": { "ip": "26.189.204.202" },
   "event": {
-    "duration": 229630382,
+    "duration": 1805554039,
     "outcome": "success",
     "category": ["network"],
     "type": ["connection"],
@@ -143,7 +107,7 @@
     "provider": "xray.amazonaws.com",
     "module": "aws"
   },
-  "message": "2026-04-20T14:21:55.064Z [Info] PublishSlices segments=309 faults=4 throttles=3\n2026-04-20T14:21:54.464Z [Info] Received segment document id=tycyxy3jsze trace_id=1-69e63682-qvobz82z74i bytes=46127\n2026-04-20T14:21:54.944Z [Info] Sampling decision trace_id=1-69e63682-qvobz82z74i rule=errors-only reservoir=0 outcome=Borrowed\n{\"trace_id\":\"1-69e63682-qvobz82z74i\",\"id\":\"tycyxy3jsze\",\"name\":\"payment-service\",\"start_time\":1776694914.344,\"end_time\":1776694914.5736306,\"parent_id\":\"zmxuyucsei\",\"http\":{\"request\":{\"method\":\"POST\",\"url\":\"https://service.internal.corp/api/v1/search\",\"client_ip\":\"36.23.22.155\",\"user_agent\":\"python-requests/2.27.1\"},\"response\":{\"status\":201,\"content_length\":47949}},\"aws\":{\"account_id\":\"164820739518\",\"region\":\"eu-central-1\",\"resource_names\":[\"payment-service\"]},\"annotations\":{\"environment\":\"production\",\"version\":\"v3.7.36\",\"team\":\"data\"},\"metadata\":{\"default\":{\"response_size\":38744}},\"fault\":false,\"error\":false,\"throttle\":false,\"origin\":\"AWS::ECS::Container\",\"resource_arn\":\"arn:aws:lambda:eu-central-1:164820739518:payment-service\"}",
+  "message": "2026-04-20T15:59:33.644Z [Info] Received segment document id=8kihricrtzs trace_id=1-69e64d65-6ta8ien0g63 bytes=29819\n2026-04-20T15:59:34.364Z [Info] Service map update applied nodes=215 edges=327 version=4\n2026-04-20T15:59:33.764Z [Info] Buffering segments queueDepth=14\n{\"trace_id\":\"1-69e64d65-6ta8ien0g63\",\"id\":\"8kihricrtzs\",\"name\":\"cache-layer\",\"start_time\":1776700773.524,\"end_time\":1776700775.329554,\"parent_id\":\"mn1a9wx5jis\",\"http\":{\"request\":{\"method\":\"PUT\",\"url\":\"https://service.example.com/api/v1/orders\",\"client_ip\":\"26.189.204.202\",\"user_agent\":\"python-requests/2.27.1\"},\"response\":{\"status\":200,\"content_length\":42701}},\"aws\":{\"account_id\":\"814726593401\",\"region\":\"ap-northeast-3\",\"resource_names\":[\"cache-layer\"]},\"annotations\":{\"environment\":\"production\",\"version\":\"v3.9.14\",\"team\":\"platform\"},\"metadata\":{\"default\":{\"response_size\":45585}},\"fault\":false,\"error\":false,\"throttle\":false,\"origin\":\"AWS::ElastiCache::CacheCluster\",\"resource_arn\":\"arn:aws:lambda:ap-northeast-3:814726593401:cache-layer\"}",
   "log": { "level": "info" },
   "service": { "name": "xray", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -151,8 +115,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "90trr693d7"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "0266z2mdfn7n"
   },
   "input": { "type": "http_endpoint" }
 }

@@ -41,6 +41,12 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
         desc: "Dedicated host platform events",
       },
       {
+        id: "capacity-reservation",
+        label: "Capacity Reservation",
+        icon: "▤",
+        desc: "Capacity reservation group allocation events",
+      },
+      {
         id: "proximity-placement",
         label: "Proximity Placement Groups",
         icon: "⊕",

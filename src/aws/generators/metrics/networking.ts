@@ -1,7 +1,8 @@
 /**
  * Dimensional metric generators for AWS networking services:
  * ALB, NLB, API Gateway, CloudFront, NAT Gateway, Transit Gateway,
- * VPN, Network Firewall, Global Accelerator, Direct Connect, VPC, PrivateLink.
+ * VPN, Network Firewall, Global Accelerator, Direct Connect, VPC, PrivateLink,
+ * WAF / WAFv2, VPC Lattice.
  */
 
 import {
@@ -9,6 +10,7 @@ import {
   ACCOUNTS,
   rand,
   randInt,
+  randId,
   dp,
   stat,
   counter,
@@ -438,4 +440,114 @@ export function generatePrivatelinkMetrics(ts: string, er: number) {
       }
     ),
   ];
+}
+
+// ─── WAF / WAFv2 (AWS/WAFV2) ───────────────────────────────────────────────────
+
+const WAF_ACLS = ["prod-waf", "api-waf", "staging-waf", "global-waf"];
+
+export function generateWafMetrics(ts: string, er: number) {
+  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const waf = rand(WAF_ACLS);
+  const rule = rand([
+    "RateLimitRule",
+    "SQLiRule",
+    "XSSRule",
+    "GeoBlockRule",
+    "BadBotsRule",
+    "IPBlocklist",
+  ]);
+  const req = randInt(1_000, 5_000_000);
+  const blocked = Math.round(
+    req * (Math.random() < er ? jitter(0.1, 0.08, 0.01, 0.5) : jitter(0.02, 0.015, 0.001, 0.1))
+  );
+  const counted = randInt(0, Math.round(req * 0.05));
+  const passed = Math.max(0, req - blocked - counted);
+  const allowed = Math.round(passed * jitter(0.92, 0.06, 0.55, 1));
+  const captcha = Math.random() < er * 0.15 ? randInt(1, 5_000) : randInt(0, 800);
+  const challenge = Math.random() < er * 0.12 ? randInt(1, 3_000) : randInt(0, 400);
+  const validToken = Math.round(req * jitter(0.88, 0.08, 0.4, 0.99));
+  const ruleEval = randInt(req, req * 4);
+  const wcu = Math.random() < er ? jitter(820, 200, 500, 5000) : jitter(180, 90, 20, 1200);
+  return [
+    metricDoc(
+      ts,
+      "waf",
+      "aws.waf",
+      region,
+      account,
+      { WebACL: waf, Rule: rule, Region: region },
+      {
+        AllowedRequests: counter(allowed),
+        BlockedRequests: counter(blocked),
+        CountedRequests: counter(counted),
+        PassedRequests: counter(passed),
+        RuleEvaluations: counter(ruleEval),
+        WebACLCapacityUnits: stat(dp(wcu), {
+          max: dp(wcu * jitter(1.8, 0.4, 1.1, 3.5)),
+          min: dp(wcu * jitter(0.15, 0.08, 0.02, 0.5)),
+        }),
+        SampleCount: counter(randInt(1, Math.max(2, Math.round(req / 50)))),
+        RequestsWithValidToken: counter(validToken),
+        CaptchaRequests: counter(captcha),
+        ChallengeRequests: counter(challenge),
+        RequestWithNoRuleActionMatched: counter(randInt(0, 10_000)),
+      }
+    ),
+  ];
+}
+
+export const generateWafv2Metrics = generateWafMetrics;
+
+// ─── VPC Lattice ──────────────────────────────────────────────────────────────
+
+const LATTICE_SERVICES = ["checkout-api", "orders-internal", "payments-edge", "inventory-rpc"];
+
+export function generateVpclatticeMetrics(ts: string, er: number) {
+  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const snId = `sn-${randId(10).toLowerCase()}`;
+  return sample(LATTICE_SERVICES, randInt(1, 3)).map((svc) => {
+    const req = randInt(500, 800_000);
+    const healthy = randInt(2, 18);
+    const unhealthy = Math.random() < er ? randInt(1, 4) : 0;
+    const activeConn = randInt(20, 80_000);
+    const processed = Math.round(req * jitter(1800, 900, 200, 120_000));
+    return metricDoc(
+      ts,
+      "vpclattice",
+      "aws.vpclattice",
+      region,
+      account,
+      {
+        ServiceNetworkId: snId,
+        ServiceId: `svc-${randId(10).toLowerCase()}`,
+        TargetGroupId: `tg-${randId(10).toLowerCase()}`,
+        ServiceName: svc,
+      },
+      {
+        RequestCount: counter(req),
+        HealthyTargetCount: stat(healthy),
+        UnhealthyTargetCount: stat(unhealthy),
+        ActiveConnectionCount: counter(activeConn),
+        ProcessedBytes: counter(processed),
+        TargetResponseTime: stat(dp(jitter(14, 10, 0.5, 800)), {
+          max: dp(jitter(900, 500, 50, 8000)),
+          min: dp(jitter(0.8, 0.5, 0.05, 120)),
+        }),
+        HTTPCode_Target_2XX_Count: counter(
+          Math.max(0, Math.round(req * jitter(0.92, 0.05, 0.75, 0.99)))
+        ),
+        HTTPCode_Target_4XX_Count: counter(Math.round(req * jitter(0.04, 0.025, 0, 0.12))),
+        HTTPCode_Target_5XX_Count: counter(
+          Math.round(
+            req *
+              (Math.random() < er
+                ? jitter(0.06, 0.045, 0.001, 0.25)
+                : jitter(0.002, 0.0015, 0, 0.02))
+          )
+        ),
+        NewConnectionCount: counter(randInt(5, 25_000)),
+      }
+    );
+  });
 }

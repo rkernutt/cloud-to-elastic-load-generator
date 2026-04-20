@@ -16,22 +16,35 @@ import {
 import type { MetricGenerator } from "../../../aws/generators/types.js";
 import { makeGcpGenericGenerator } from "./generic.js";
 import { generateComputeEngineMetrics, generateGkeMetrics } from "./compute.js";
-import { generateCloudLbMetrics, generateCloudCdnMetrics } from "./networking.js";
+import {
+  generateCloudLbMetrics,
+  generateCloudCdnMetrics,
+  generateCloudDnsMetrics,
+  generateCloudArmorMetrics,
+} from "./networking.js";
 import {
   generateCloudSqlMetrics,
   generateCloudSpannerMetrics,
   generateBigtableMetrics,
+  generateFirestoreMetrics,
+  generateAlloyDbMetrics,
+  generateMemorystoreMetrics,
 } from "./databases.js";
 import { generatePubSubMetrics, generateDataflowMetrics } from "./streaming.js";
-import { generateBigQueryMetrics, generateDataprocMetrics } from "./analytics.js";
+import {
+  generateBigQueryMetrics,
+  generateDataprocMetrics,
+  generateComposerMetrics,
+} from "./analytics.js";
 import { mergeGcpMetricVariants } from "../mergeHelpers.js";
 import {
   generateCloudFunctionsMetrics,
   generateCloudRunMetrics,
   generateAppEngineMetrics,
+  generateCloudTasksMetrics,
 } from "./serverless.js";
 import { generateCloudStorageMetrics } from "./storage.js";
-import { generateVertexAiMetrics } from "./aiml.js";
+import { generateVertexAiMetrics, generateGeminiMetrics } from "./aiml.js";
 
 function gcpMetricsDataset(svcId: string): string {
   return (
@@ -47,18 +60,26 @@ const DEDICATED: Record<string, MetricGenerator> = {
   "gke-autopilot": generateGkeMetrics,
   "cloud-lb": generateCloudLbMetrics,
   "cloud-cdn": generateCloudCdnMetrics,
+  "cloud-dns": generateCloudDnsMetrics,
+  "cloud-armor": generateCloudArmorMetrics,
   "cloud-sql": generateCloudSqlMetrics,
   "cloud-spanner": generateCloudSpannerMetrics,
   bigtable: generateBigtableMetrics,
+  firestore: generateFirestoreMetrics,
+  alloydb: generateAlloyDbMetrics,
+  memorystore: generateMemorystoreMetrics,
   pubsub: generatePubSubMetrics,
   dataflow: generateDataflowMetrics,
   bigquery: generateBigQueryMetrics,
   dataproc: generateDataprocMetrics,
+  composer: generateComposerMetrics,
   "cloud-functions": generateCloudFunctionsMetrics,
   "cloud-run": generateCloudRunMetrics,
   "app-engine": generateAppEngineMetrics,
+  "cloud-tasks": generateCloudTasksMetrics,
   "cloud-storage": generateCloudStorageMetrics,
   "vertex-ai": generateVertexAiMetrics,
+  gemini: generateGeminiMetrics,
 };
 
 function metricGenForId(id: string): MetricGenerator {

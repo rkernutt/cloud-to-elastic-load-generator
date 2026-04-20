@@ -1,6 +1,6 @@
 /**
  * Dimensional metric generators for AWS security and management services:
- * WAF, Shield, KMS, Cognito, GuardDuty, Macie, Inspector, Config, CloudTrail,
+ * Shield, KMS, Cognito, GuardDuty, Macie, Inspector, Config, CloudTrail,
  * CloudWatch, StepFunctions, SSM, CloudFormation, CodeBuild, CodePipeline,
  * CodeDeploy, Amplify, AutoScaling, Route53, and more.
  */
@@ -18,56 +18,6 @@ import {
   jitter,
   sample,
 } from "./helpers.js";
-
-// ─── WAF / WAFv2 ──────────────────────────────────────────────────────────────
-
-const WAF_ACLS = ["prod-waf", "api-waf", "staging-waf", "global-waf"];
-
-export function generateWafMetrics(ts: string, er: number) {
-  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  const waf = rand(WAF_ACLS);
-  const rule = rand([
-    "RateLimitRule",
-    "SQLiRule",
-    "XSSRule",
-    "GeoBlockRule",
-    "BadBotsRule",
-    "IPBlocklist",
-  ]);
-  const req = randInt(1_000, 5_000_000);
-  const blocked = Math.round(
-    req * (Math.random() < er ? jitter(0.1, 0.08, 0.01, 0.5) : jitter(0.02, 0.015, 0.001, 0.1))
-  );
-  const counted = randInt(0, Math.round(req * 0.05));
-  const passed = Math.max(0, req - blocked - counted);
-  const allowed = Math.round(passed * jitter(0.92, 0.06, 0.55, 1));
-  const captcha = Math.random() < er * 0.15 ? randInt(1, 5_000) : randInt(0, 800);
-  const challenge = Math.random() < er * 0.12 ? randInt(1, 3_000) : randInt(0, 400);
-  const validToken = Math.round(req * jitter(0.88, 0.08, 0.4, 0.99));
-  return [
-    metricDoc(
-      ts,
-      "waf",
-      "aws.waf",
-      region,
-      account,
-      { WebACL: waf, Rule: rule, Region: region },
-      {
-        AllowedRequests: counter(allowed),
-        BlockedRequests: counter(blocked),
-        CountedRequests: counter(counted),
-        PassedRequests: counter(passed),
-        SampleCount: counter(randInt(1, Math.max(2, Math.round(req / 50)))),
-        RequestsWithValidToken: counter(validToken),
-        CaptchaRequests: counter(captcha),
-        ChallengeRequests: counter(challenge),
-        RequestWithNoRuleActionMatched: counter(randInt(0, 10_000)),
-      }
-    ),
-  ];
-}
-
-export const generateWafv2Metrics = generateWafMetrics;
 
 // ─── Shield ───────────────────────────────────────────────────────────────────
 

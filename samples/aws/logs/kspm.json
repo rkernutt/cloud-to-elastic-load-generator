@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-20T14:21:54.344Z",
+  "@timestamp": "2026-04-20T15:59:33.524Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,17 +7,17 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "814726593401", "name": "globex-production" }
+    "region": "ap-south-2",
+    "account": { "id": "293847561023", "name": "globex-staging" }
   },
   "orchestrator": {
-    "cluster": { "id": "data-processing-eks", "name": "data-processing-eks" },
+    "cluster": { "id": "prod-eks-cluster", "name": "prod-eks-cluster" },
     "type": "kubernetes",
-    "namespace": "production"
+    "namespace": "logging"
   },
   "resource": {
-    "id": "data-processing-eks/production/pod/worker-9jo8i",
-    "name": "pod/worker-9jo8i",
+    "id": "prod-eks-cluster/logging/pod/api-gateway-wu620",
+    "name": "pod/api-gateway-wu620",
     "sub_type": "Pod",
     "type": "k8s_object"
   },
@@ -31,49 +31,42 @@
       "version": "v1.4.0",
       "rule_number": "4.1",
       "posture_type": "kspm"
-    },
-    "impact": "Prefer using secrets as files over environment variables — non-compliant configuration may allow container escape or lateral movement.",
-    "remediation": "Review and remediate per CIS EKS Benchmark v1.4.0 section 4.1."
+    }
   },
-  "result": { "evaluation": "failed" },
-  "severity": "medium",
+  "result": { "evaluation": "passed" },
+  "severity": "none",
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "aws"
   },
-  "message": "KSPM [CIS EKS / 4.1] failed: Prefer using secrets as files over environment variables [data-processing-eks]",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "CIS_CIS_EKS_4_1",
-    "message": "KSPM check failed: Prefer using secrets as files over environment variables",
-    "type": "compliance"
-  },
+  "message": "KSPM [CIS EKS / 4.1] passed: Prefer using secrets as files over environment variables [prod-eks-cluster]",
+  "log": { "level": "info" },
   "service": { "name": "kspm", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "edawi1knj0f"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "20of55jnmwk"
   },
   "input": { "type": "http_endpoint" },
   "aws": {
     "s3": {
       "bucket": {
-        "name": "aws-kspm-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-kspm-logs-814726593401"
+        "name": "aws-kspm-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-kspm-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/814726593401/kspm/us-east-2/2026/04/20/kspm_53Q25LO94S4.log.gz" }
+      "object": { "key": "AWSLogs/293847561023/kspm/ap-south-2/2026/04/20/kspm_97CWVX3G0JQ.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/kspm/logs",
-      "log_stream": "us-east-2/roeeyzsf",
-      "ingestion_time": "2026-04-20T14:21:54.895Z"
+      "log_stream": "ap-south-2/s5zg2qcy",
+      "ingestion_time": "2026-04-20T15:59:34.483Z"
     }
   }
 }

@@ -1,58 +1,58 @@
 {
-  "@timestamp": "2026-04-20T14:21:54.344Z",
+  "@timestamp": "2026-04-20T15:59:33.524Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "af-south-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "securitylake" }
   },
   "aws": {
-    "dimensions": { "OcsfClass": "Security Finding", "SourceType": "LAMBDA:SecurityHub" },
+    "dimensions": { "OcsfClass": "HTTP Activity", "SourceType": "LAMBDA:ALB" },
     "securitylake": {
-      "source_type": "LAMBDA:SecurityHub",
-      "class_uid": 2001,
-      "class_name": "Security Finding",
-      "category_uid": 2,
-      "category_name": "Findings",
-      "activity_id": 3,
+      "source_type": "LAMBDA:ALB",
+      "class_uid": 4002,
+      "class_name": "HTTP Activity",
+      "category_uid": 4,
+      "category_name": "Network Activity",
+      "activity_id": 4,
       "activity_name": "Read",
-      "severity_id": 2,
-      "severity": "Low",
+      "severity_id": 3,
+      "severity": "Medium",
       "status_id": 1,
       "status": "Success",
-      "time": 1776694914344,
+      "time": 1776700773524,
       "metadata": {
         "version": "1.1.0",
-        "product": { "name": "SecurityHub", "vendor_name": "AWS" },
-        "uid": "i0pg9vux-y3p6-0i93-926f-u1yl90ed98h"
+        "product": { "name": "ALB", "vendor_name": "AWS" },
+        "uid": "osebxprl-jjy9-y1x9-dpwx-dqc5z658yo"
       },
       "ocsf_cloud": {
         "provider": "AWS",
-        "account": { "uid": "501938274650" },
-        "region": "il-central-1"
+        "account": { "uid": "293847561023" },
+        "region": "af-south-1"
       },
-      "finding": {
-        "uid": "qjpecdtw-iszh-tfkd-xw3z-j6p85c3i548",
-        "title": "Trojan:EC2/DNSDataExfiltration",
-        "types": ["TTPs/Discovery"],
-        "first_seen_time": 1776608514344,
-        "last_seen_time": 1776694914344,
-        "confidence_score": 91
-      }
+      "http_request": {
+        "method": "POST",
+        "url": { "path": "/api/v2/events", "hostname": "api.example.com" },
+        "user_agent": "curl/7.68.0"
+      },
+      "http_response": { "code": 200 },
+      "src_endpoint": { "ip": "63.127.110.247" },
+      "dst_endpoint": { "ip": "218.158.89.46" }
     },
     "s3": {
       "bucket": {
-        "name": "aws-securitylake-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-securitylake-logs-501938274650"
+        "name": "aws-securitylake-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-securitylake-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/securitylake/il-central-1/2026/04/20/securitylake_DEAKTQOCX8D.log.gz"
+        "key": "AWSLogs/293847561023/securitylake/af-south-1/2026/04/20/securitylake_AEVG7Z0BGOQ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securitylake/logs",
-      "log_stream": "il-central-1/2hja2et5",
-      "ingestion_time": "2026-04-20T14:21:54.892Z"
+      "log_stream": "af-south-1/vuwq8r8y",
+      "ingestion_time": "2026-04-20T15:59:34.478Z"
     }
   },
   "event": {
@@ -62,16 +62,16 @@
     "provider": "securitylake.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security Lake [Security Finding/Read] Low: SecurityHub success",
-  "log": { "level": "info" },
+  "message": "Security Lake [HTTP Activity/Read] Medium: ALB success",
+  "log": { "level": "warn" },
   "service": { "name": "securitylake", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.securitylake", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "qmb9mi1dwkh"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "yftc2arid4l"
   },
   "input": { "type": "http_endpoint" }
 }

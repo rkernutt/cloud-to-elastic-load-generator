@@ -1,6 +1,6 @@
 /**
  * Dimensional metric generators for AWS analytics, ML, and AI services:
- * Glue, EMR, Athena, SageMaker, Bedrock, BedrockAgent, LakeFormation,
+ * Glue, EMR, Athena, SageMaker, Bedrock, BedrockAgent, LakeFormation, MWAA,
  * QuickSight, DataBrew, AppFlow, Rekognition, Transcribe, Translate,
  * Comprehend, Polly, Forecast, Personalize, Lex, LookoutMetrics, Textract.
  */
@@ -905,6 +905,53 @@ export function generateLakeformationMetrics(ts: string, er: number) {
   ];
 }
 
+// ─── MWAA (Managed Workflows for Apache Airflow) ──────────────────────────────
+
+const MWAA_ENVS = ["prod-airflow", "analytics-mwaa", "etl-orchestration", "data-platform-mwaa"];
+
+export function generateMwaaMetrics(ts: string, er: number) {
+  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  return sample(MWAA_ENVS, randInt(1, 2)).map((envName) => {
+    const heartbeat = Math.random() < er ? jitter(95, 35, 45, 300) : jitter(4.2, 2.5, 0.5, 25);
+    const running = randInt(0, 48);
+    const succeeded = randInt(0, 500);
+    const failed = Math.random() < er ? randInt(1, 80) : randInt(0, 6);
+    const dagDur = jitter(120, 90, 5, 14_400);
+    return metricDoc(
+      ts,
+      "mwaa",
+      "aws.mwaa",
+      region,
+      account,
+      { EnvironmentName: envName },
+      {
+        SchedulerHeartbeat: stat(dp(heartbeat), {
+          max: dp(heartbeat * jitter(2.2, 0.6, 1.1, 5)),
+          min: dp(Math.min(heartbeat * 0.3, 5)),
+        }),
+        TaskInstanceRunning: stat(running),
+        TaskInstanceSuccess: counter(succeeded),
+        TaskInstanceFailed: counter(failed),
+        TaskInstanceScheduled: counter(randInt(0, succeeded + failed + running + 20)),
+        DAGProcessingDuration: stat(dp(dagDur), {
+          max: dp(dagDur * jitter(3.5, 1.2, 1.5, 12)),
+          min: dp(dagDur * jitter(0.08, 0.05, 0.02, 0.35)),
+        }),
+        DAGDuration: stat(dp(dagDur * jitter(0.92, 0.08, 0.75, 1.05))),
+        OpenSlots: stat(randInt(0, 32)),
+        QueuedTasks: stat(Math.random() < er ? randInt(5, 400) : randInt(0, 35)),
+        CPUUtilization: stat(
+          dp(Math.random() < er ? jitter(78, 14, 55, 100) : jitter(34, 22, 4, 82))
+        ),
+        MemoryUtilization: stat(
+          dp(Math.random() < er ? jitter(81, 12, 58, 100) : jitter(46, 24, 8, 86))
+        ),
+        DatabaseConnections: counter(randInt(2, 120)),
+      }
+    );
+  });
+}
+
 // ─── QuickSight ───────────────────────────────────────────────────────────────
 
 export function generateQuicksightMetrics(ts: string, er: number) {
@@ -914,9 +961,13 @@ export function generateQuicksightMetrics(ts: string, er: number) {
   const dsLoadMax = dp(jitter(12_000, 9_000, 200, 120_000));
   const visualLoad = dp(jitter(400, 320, 30, 25_000));
   const visualLoadMax = dp(jitter(8_000, 6_000, 100, 90_000));
+  const dashLoad = dp(jitter(520, 400, 40, 38_000));
+  const dashLoadMax = dp(jitter(14_000, 10_000, 200, 140_000));
   const queryExec = dp(jitter(600, 480, 40, 35_000));
   const queryExecMax = dp(jitter(15_000, 12_000, 200, 150_000));
   const spiceGb = dp(jitter(12.5, 8, 0.1, 500));
+  const spiceIngestGb = dp(jitter(2.4, 1.8, 0, 180));
+  const concurrentSessions = randInt(1, 800);
   return [
     metricDoc(
       ts,
@@ -930,10 +981,15 @@ export function generateQuicksightMetrics(ts: string, er: number) {
         DashboardsPublished: counter(randInt(0, 10)),
         DashboardsViewed: counter(views),
         DashboardViewCount: counter(views),
+        DashboardUserLoadTime: stat(dashLoad, { max: dashLoadMax }),
         DataSetLoadTime: stat(dsLoad, { max: dsLoadMax }),
         SPICEUsedCapacity: stat(spiceGb, { max: dp(spiceGb * 1.2) }),
+        SPICEIngestionSizeInBytes: stat(dp(spiceIngestGb * 1_073_741_824)),
         VisualLoadTime: stat(visualLoad, { max: visualLoadMax }),
         QueryExecutionTime: stat(queryExec, { max: queryExecMax }),
+        ConcurrentUserSessions: stat(concurrentSessions, {
+          max: dp(concurrentSessions * jitter(1.4, 0.2, 1.05, 2)),
+        }),
         ActiveUsers: stat(dp(jitter(42, 28, 1, 500)), { max: dp(800) }),
         ReaderSessionCount: counter(randInt(0, 5_000)),
         QueriesCount: counter(randInt(0, 50_000)),

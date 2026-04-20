@@ -1,6 +1,7 @@
 /**
  * Dimensional metric generators for AWS messaging and streaming services:
- * SQS, Kinesis Data Streams, MSK, SNS, Kinesis Firehose, EventBridge, AmazonMQ.
+ * SQS, Kinesis Data Streams, MSK, MSK Connect, SNS, Kinesis Firehose, EventBridge,
+ * AmazonMQ, Kinesis Data Analytics.
  */
 
 import {
@@ -425,10 +426,17 @@ export function generateAmazonmqMetrics(ts: string, er: number) {
   ];
 }
 
-// ─── Kinesis Analytics ────────────────────────────────────────────────────────
+// ─── Kinesis Analytics (Managed Service for Apache Flink) ─────────────────────
 
 export function generateKinesisanalyticsMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const inRec = randInt(1_000, 10_000_000);
+  const outRec = Math.round(inRec * jitter(0.95, 0.25, 0.4, 1.4));
+  const inBytes = Math.round(inRec * jitter(900, 400, 120, 8000));
+  const outBytes = Math.round(outRec * jitter(850, 350, 100, 7500));
+  const behind =
+    Math.random() < er ? jitter(120_000, 80_000, 5_000, 7_200_000) : jitter(420, 320, 0, 8_000);
+  const checkpoints = randInt(2, 8_000);
   return [
     metricDoc(
       ts,
@@ -448,24 +456,18 @@ export function generateKinesisanalyticsMetrics(ts: string, er: number) {
         KPUs: counter(randInt(1, 64)),
         uptime: counter(randInt(3_600_000, 86_400_000)),
         downtime: counter(Math.random() < er ? randInt(30_000, 3_600_000) : 0),
-        inputRecords: counter(randInt(1_000, 10_000_000)),
-        outputRecords: counter(randInt(1_000, 10_000_000)),
-        inputBytes: counter(randInt(1_000_000, 10_000_000_000)),
-        outputBytes: counter(randInt(1_000_000, 10_000_000_000)),
-        millisBehindLatest: stat(
-          dp(
+        IncomingRecords: counter(inRec),
+        OutgoingRecords: counter(outRec),
+        IncomingBytes: counter(inBytes),
+        OutgoingBytes: counter(outBytes),
+        MillisBehindLatest: stat(dp(behind), {
+          max: dp(
             Math.random() < er
-              ? jitter(120_000, 80_000, 5_000, 7_200_000)
-              : jitter(420, 320, 0, 8_000)
+              ? jitter(400_000, 200_000, 50_000, 10_000_000)
+              : jitter(2_000, 1_200, 50, 20_000)
           ),
-          {
-            max: dp(
-              Math.random() < er
-                ? jitter(400_000, 200_000, 50_000, 10_000_000)
-                : jitter(2_000, 1_200, 50, 20_000)
-            ),
-          }
-        ),
+          min: dp(behind * jitter(0.02, 0.015, 0, 0.35)),
+        }),
         lastCheckpointDuration: stat(
           dp(
             Math.random() < er
@@ -476,8 +478,61 @@ export function generateKinesisanalyticsMetrics(ts: string, er: number) {
         lastCheckpointSize: stat(
           dp(Math.random() < er ? jitter(48e6, 20e6, 5e5, 250e6) : jitter(4e6, 2e6, 5e4, 80e6))
         ),
+        numberOfCheckpointsCompleted: counter(checkpoints),
+        numberOfFailedCheckpoints: counter(Math.random() < er ? randInt(1, 40) : 0),
         LateRecords: counter(Math.random() < er ? randInt(0, 1_000) : 0),
       }
     ),
   ];
+}
+
+// ─── MSK Connect ──────────────────────────────────────────────────────────────
+
+const MSK_CONNECTORS = [
+  "s3-sink-orders",
+  "debezium-cdc-users",
+  "opensearch-sink-logs",
+  "snowflake-sink-events",
+];
+
+export function generateMskconnectMetrics(ts: string, er: number) {
+  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  return sample(MSK_CONNECTORS, randInt(1, 2)).map((connector) => {
+    const tasks = randInt(1, 24);
+    const bytesIn = randInt(1_000_000, 40_000_000_000);
+    const bytesOut = randInt(1_000_000, 35_000_000_000);
+    const errs = Math.random() < er ? randInt(1, 5_000) : randInt(0, 80);
+    const rebalance = Math.random() < er * 0.4 ? randInt(1, 25) : randInt(0, 3);
+    return metricDoc(
+      ts,
+      "mskconnect",
+      "aws.mskconnect",
+      region,
+      account,
+      {
+        ConnectorName: connector,
+        WorkerType: rand(["msk.m5.large", "msk.m5.xlarge", "msk.m7g.large"]),
+      },
+      {
+        ConnectorState: stat(Math.random() < er * 0.15 ? 0 : 1),
+        TaskCount: stat(tasks),
+        WorkerCount: stat(Math.max(1, Math.round(tasks * jitter(0.45, 0.12, 0.2, 0.9)))),
+        BytesInFromCluster: counter(bytesIn),
+        BytesOutToCluster: counter(bytesOut),
+        CpuUtilization: stat(
+          dp(Math.random() < er ? jitter(82, 12, 55, 100) : jitter(38, 22, 5, 85))
+        ),
+        MemoryUtilization: stat(
+          dp(Math.random() < er ? jitter(79, 14, 52, 100) : jitter(48, 24, 8, 88))
+        ),
+        RebalanceCompletedTotal: counter(rebalance),
+        Errors: counter(errs),
+        DeadletterqueueProduceFailures: counter(
+          Math.random() < er ? randInt(0, 400) : randInt(0, 12)
+        ),
+        SinkRecordReadRate: stat(dp(jitter(2_400, 1_800, 0, 120_000))),
+        SinkRecordSendRate: stat(dp(jitter(2_200, 1_700, 0, 110_000))),
+      }
+    );
+  });
 }

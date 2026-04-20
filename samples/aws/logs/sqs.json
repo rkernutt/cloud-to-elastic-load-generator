@@ -1,42 +1,44 @@
 {
-  "@timestamp": "2026-04-20T14:21:54.344Z",
+  "@timestamp": "2026-04-20T15:59:33.524Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-northeast-3",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "sqs" }
   },
   "aws": {
-    "dimensions": { "QueueName": "email-queue" },
+    "dimensions": { "QueueName": "job-queue" },
     "sqs": {
       "queue": {
-        "name": "email-queue",
-        "url": "https://sqs.eu-north-1.amazonaws.com/501938274650/email-queue"
+        "name": "job-queue",
+        "url": "https://sqs.ap-northeast-3.amazonaws.com/293847561023/job-queue"
       },
-      "operation": "SendMessage",
-      "oldest_message_age": { "sec": 166 },
+      "operation": "PurgeQueue",
+      "oldest_message_age": { "sec": 197 },
       "messages": {
-        "delayed": 969,
-        "not_visible": 2843,
-        "visible": 6025,
-        "deleted": 820,
-        "received": 993,
-        "sent": 3566
+        "delayed": 1190,
+        "not_visible": 234,
+        "visible": 5356,
+        "deleted": 963,
+        "received": 5324,
+        "sent": 7777
       },
-      "empty_receives": 27,
-      "sent_message_size": { "bytes": 164954 }
+      "empty_receives": 15,
+      "sent_message_size": { "bytes": 159503 }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sqs-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-sqs-logs-501938274650"
+        "name": "aws-sqs-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-sqs-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/501938274650/sqs/eu-north-1/2026/04/20/sqs_19QEYWSVI7M.log.gz" }
+      "object": {
+        "key": "AWSLogs/293847561023/sqs/ap-northeast-3/2026/04/20/sqs_UBS99JT88A.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/sqs/logs",
-      "log_stream": "eu-north-1/phfeyvfe",
-      "ingestion_time": "2026-04-20T14:21:54.959Z"
+      "log_stream": "ap-northeast-3/ow5bzf8h",
+      "ingestion_time": "2026-04-20T15:59:34.543Z"
     }
   },
   "event": {
@@ -44,21 +46,21 @@
     "category": ["process"],
     "dataset": "aws.sqs",
     "provider": "sqs.amazonaws.com",
-    "duration": 147000000,
+    "duration": 75000000,
     "module": "aws"
   },
-  "message": "SQS SendMessage queue=https://sqs.eu-north-1.amazonaws.com/501938274650/email-queue sent=3566 approximate_total=9837 bodyBytes=48801",
+  "message": "SQS PurgeQueue queue=https://sqs.ap-northeast-3.amazonaws.com/293847561023/job-queue purged_inflight_hint visible≈5356 notVisible≈234",
   "log": { "level": "info" },
-  "trace": { "id": "892060Q1AHH" },
-  "transaction": { "id": "M5GMYONNJY9" },
+  "trace": { "id": "XDE20F6IJD" },
+  "transaction": { "id": "5DL53HEWVVU" },
   "service": { "name": "sqs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sqs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "1qhppu0owqc"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "6gffzf4fcmb"
   },
   "input": { "type": "aws-cloudwatch" }
 }

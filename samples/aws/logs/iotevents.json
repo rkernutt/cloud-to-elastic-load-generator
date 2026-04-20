@@ -1,57 +1,60 @@
 {
-  "@timestamp": "2026-04-20T14:21:54.344Z",
+  "@timestamp": "2026-04-20T15:59:33.524Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "sa-east-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "door-sensor-model", "KeyValue": "unit-01" },
+    "dimensions": { "DetectorModelName": "pressure-monitor", "KeyValue": "machine-prod-1" },
     "iotevents": {
-      "detector_model_name": "door-sensor-model",
-      "detector_id": "unit-01",
-      "key_value": "unit-01",
-      "event_name": "AlarmAcknowledged",
-      "from_state": "Normal",
-      "to_state": "Normal",
+      "detector_model_name": "pressure-monitor",
+      "detector_id": "machine-prod-1",
+      "key_value": "machine-prod-1",
+      "event_name": "TriggerFired",
+      "from_state": "Alarm",
+      "to_state": "Alarm",
       "input_name": "SensorInput",
-      "action_type": "SNS",
-      "timer_name": "idleTimer"
+      "action_type": "SetTimer",
+      "timer_name": "idleTimer",
+      "condition_expression": "$input.SensorInput.temperature > 85",
+      "error_code": "ResourceNotFound"
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotevents-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-iotevents-logs-164820739518"
+        "name": "aws-iotevents-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-iotevents-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/iotevents/eu-west-2/2026/04/20/iotevents_YDY3J61UD1.log.gz"
+        "key": "AWSLogs/814726593401/iotevents/sa-east-1/2026/04/20/iotevents_XWA039G3P0H.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "eu-west-2/a58nitly",
-      "ingestion_time": "2026-04-20T14:21:55.068Z"
+      "log_stream": "sa-east-1/kocjc626",
+      "ingestion_time": "2026-04-20T15:59:34.668Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 268000000,
+    "duration": 2820000000,
     "module": "aws"
   },
-  "message": "IoT Events door-sensor-model/unit-01: Normal → Normal [AlarmAcknowledged]",
-  "log": { "level": "info" },
+  "message": "IoT Events pressure-monitor/machine-prod-1 ERROR: Input validation error",
+  "log": { "level": "error" },
+  "error": { "code": "InvalidRequestException", "message": "IoT Events error", "type": "iot" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iotevents", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "k5knmcfpxan"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "vrj7xiqo8tb"
   },
   "input": { "type": "aws-cloudwatch" }
 }

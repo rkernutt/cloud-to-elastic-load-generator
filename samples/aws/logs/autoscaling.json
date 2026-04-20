@@ -1,62 +1,62 @@
 {
-  "@timestamp": "2026-04-20T14:21:54.344Z",
+  "@timestamp": "2026-04-20T15:59:33.524Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-east-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "autoscaling" }
   },
   "aws": {
     "dimensions": { "AutoScalingGroupName": "worker-asg" },
     "autoscaling": {
       "group_name": "worker-asg",
-      "activity_id": "oekr5gc0-owu7-ktnu",
-      "action_type": "PredictiveScalingForecast",
-      "instance_id": "i-tkeaefy1wc",
+      "activity_id": "33ehdqfg-ywrx-tj0o",
+      "action_type": "WarmPoolTransition",
+      "instance_id": "i-hk44cf9xa2g",
       "instance_type": "c5.2xlarge",
-      "desired_capacity": 19,
+      "desired_capacity": 16,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 17,
-      "cause": "PredictiveScaling: forecast shows load increase; preemptive capacity adjustment recommended for worker-asg",
+      "current_capacity": 15,
+      "cause": "Warm pool instance transitioned Hibernated -> Warming -> InService",
       "status_code": "Successful",
       "launch_template": "api-lt:3",
-      "predictive_scaling_forecast": true,
+      "predictive_scaling_forecast": false,
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 19 },
-        "GroupInServiceInstances": { "avg": 17 },
+        "GroupDesiredCapacity": { "avg": 16 },
+        "GroupInServiceInstances": { "avg": 15 },
         "GroupPendingInstances": { "avg": 0 },
-        "GroupStandbyInstances": { "avg": 2 },
+        "GroupStandbyInstances": { "avg": 1 },
         "GroupTerminatingInstances": { "avg": 0 },
-        "GroupTotalInstances": { "avg": 19 },
-        "GroupInServiceCapacity": { "avg": 17 },
+        "GroupTotalInstances": { "avg": 16 },
+        "GroupInServiceCapacity": { "avg": 15 },
         "GroupPendingCapacity": { "avg": 0 },
-        "GroupStandbyCapacity": { "avg": 2 },
+        "GroupStandbyCapacity": { "avg": 1 },
         "GroupTerminatingCapacity": { "avg": 0 },
-        "GroupTotalCapacity": { "avg": 19 },
-        "WarmPoolMinSize": { "avg": 0 },
-        "WarmPoolDesiredCapacity": { "avg": 0 },
-        "WarmPoolPendingCapacity": { "avg": 0 },
-        "WarmPoolTerminatingCapacity": { "avg": 0 },
-        "WarmPoolTotalCapacity": { "avg": 0 },
-        "WarmPoolWarmedCapacity": { "avg": 0 }
+        "GroupTotalCapacity": { "avg": 16 },
+        "WarmPoolMinSize": { "avg": 1 },
+        "WarmPoolDesiredCapacity": { "avg": 10 },
+        "WarmPoolPendingCapacity": { "avg": 3 },
+        "WarmPoolTerminatingCapacity": { "avg": 1 },
+        "WarmPoolTotalCapacity": { "avg": 14 },
+        "WarmPoolWarmedCapacity": { "avg": 5 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-autoscaling-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-autoscaling-logs-293847561023"
+        "name": "aws-autoscaling-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-autoscaling-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/autoscaling/ca-central-1/2026/04/20/autoscaling_PL2PDAWLN7Q.log.gz"
+        "key": "AWSLogs/814726593401/autoscaling/us-east-1/2026/04/20/autoscaling_3KY5YORC7EC.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "ca-central-1/ywnm6qs1",
-      "ingestion_time": "2026-04-20T14:21:54.844Z"
+      "log_stream": "us-east-1/vphgc8eo",
+      "ingestion_time": "2026-04-20T15:59:34.415Z"
     }
   },
   "event": {
@@ -64,10 +64,10 @@
     "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 229000000000,
+    "duration": 494000000000,
     "module": "aws"
   },
-  "message": "PredictiveScalingForecast asg=worker-asg forecastTime=2026-04-20T14:21:54.344Z predictedCPU=87.1% recommendedDesiredCapacity=23",
+  "message": "WarmPool state change ASG=worker-asg instance=i-hk44cf9xa2g warmed=5 desired=10 poolStatus=Active",
   "log": { "level": "info" },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -75,8 +75,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "6wh9fio9nob"
+    "name": "filebeat-aws-us-east-1",
+    "ephemeral_id": "0y67q30cpd2"
   },
   "input": { "type": "aws-cloudwatch" }
 }

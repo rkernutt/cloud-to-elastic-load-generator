@@ -1,22 +1,25 @@
 {
-  "@timestamp": "2026-04-20T14:21:54.344Z",
+  "@timestamp": "2026-04-20T15:59:33.524Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
+    "region": "ap-southeast-4",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "lookoutvision" }
   },
   "aws": {
-    "dimensions": { "ProjectName": "bottle-cap-defect", "ModelVersion": "3.0" },
+    "dimensions": { "ProjectName": "turbine-blade-check", "ModelVersion": "4.0" },
     "lookoutvision": {
-      "project_name": "bottle-cap-defect",
-      "model_version": "3.0",
-      "model_arn": "arn:aws:lookoutvision:eu-south-2:814726593401:model/bottle-cap-defect/3.0",
-      "event_type": "DetectAnomalies",
-      "image_source": "local-file",
-      "is_anomalous": false,
-      "confidence": 0.9768709745726953,
-      "inference_latency_ms": 182
+      "project_name": "turbine-blade-check",
+      "model_version": "4.0",
+      "model_arn": "arn:aws:lookoutvision:ap-southeast-4:814726593401:model/turbine-blade-check/4.0",
+      "event_type": "StartModelTrainingJob",
+      "image_source": "camera-stream",
+      "is_anomalous": true,
+      "confidence": 0.6756928897490111,
+      "anomaly_label": "solder-bridge",
+      "anomaly_mask_uri": "s3://lookoutvision-masks-814726593401/turbine-blade-check/8et3al6k.png",
+      "training": { "status": "TRAINING_FAILED" },
+      "error_code": "ServiceQuotaExceededException"
     },
     "s3": {
       "bucket": {
@@ -24,33 +27,38 @@
         "arn": "arn:aws:s3:::aws-lookoutvision-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/lookoutvision/eu-south-2/2026/04/20/lookoutvision_6G35NLXDOU.log.gz"
+        "key": "AWSLogs/814726593401/lookoutvision/ap-southeast-4/2026/04/20/lookoutvision_18V4YV0J375.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lookoutvision/logs",
-      "log_stream": "eu-south-2/dnn65ejf",
-      "ingestion_time": "2026-04-20T14:21:55.021Z"
+      "log_stream": "ap-southeast-4/tdv738fo",
+      "ingestion_time": "2026-04-20T15:59:34.610Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.lookoutvision",
     "provider": "lookoutvision.amazonaws.com",
-    "duration": 182000000,
+    "duration": 522000000,
     "module": "aws"
   },
-  "message": "Lookout for Vision [bottle-cap-defect] OK confidence=0.977 182ms",
-  "log": { "level": "info" },
+  "message": "Lookout for Vision [turbine-blade-check v4.0] StartModelTrainingJob FAILED: Invalid image format",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ServiceQuotaExceededException",
+    "message": "Lookout for Vision operation failed",
+    "type": "process"
+  },
   "service": { "name": "lookoutvision", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lookoutvision", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "sp37takyjfl"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "849dfw26ezg"
   },
   "input": { "type": "aws-cloudwatch" }
 }

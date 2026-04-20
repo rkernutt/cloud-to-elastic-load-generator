@@ -1,5 +1,5 @@
 /**
- * GCP networking metric generators: Cloud Load Balancing, Cloud CDN.
+ * GCP networking metric generators: Cloud Load Balancing, Cloud CDN, Cloud DNS, Cloud Armor.
  */
 
 import { GCP_METRICS_DATASET_MAP } from "../../data/elasticMaps.js";
@@ -123,6 +123,129 @@ export function generateCloudCdnMetrics(ts: string, er: number): EcsDocument[] {
       metricKind: "DELTA",
       valueType: "INT64",
       point: { int64Value: toInt64String(bw) },
+    }),
+  ];
+}
+
+const DNS_TARGETS = ["api.internal.example.com.", "db.prod.example.com.", "external"];
+const DNS_ZONES = ["globex-public", "globex-private", "partner-delegation"];
+
+export function generateCloudDnsMetrics(ts: string, er: number): EcsDocument[] {
+  const { region, project } = pickGcpCloudContext();
+  const dataset = GCP_METRICS_DATASET_MAP["cloud-dns"]!;
+  const target_name = rand(DNS_TARGETS);
+  const noisy = Math.random() < er;
+  const queryRes = {
+    project_id: project.id,
+    target_name,
+    location: region,
+    target_type: rand(["public-zone", "private-zone", "external"]),
+    source_type: rand(["gce-vm", "internet"]),
+  };
+  const rc = noisy
+    ? rand(["SERVFAIL", "NXDOMAIN", "FORMERR"])
+    : rand(["NOERROR", "NOERROR", "NXDOMAIN"]);
+  const qCount = randInt(400, noisy ? 2_200_000 : 1_400_000);
+  const latMs = noisy ? jitter(180, 95, 4, 6000) : jitter(12, 8, 0.5, 220);
+  const distN = randInt(800, 14_000);
+  const zone_name = rand(DNS_ZONES);
+  const zoneRes = {
+    project_id: project.id,
+    zone_name,
+    location: "global",
+  };
+  const rrsets = randInt(8, noisy ? 12_000 : 4_200);
+
+  return [
+    gcpMetricDoc(ts, "cloud-dns", dataset, region, project, {
+      metricType: "dns.googleapis.com/query/response_count",
+      resourceType: "dns_query",
+      resourceLabels: queryRes,
+      metricLabels: { response_code: rc },
+      metricKind: "DELTA",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(qCount) },
+    }),
+    gcpMetricDoc(ts, "cloud-dns", dataset, region, project, {
+      metricType: "dns.googleapis.com/query/latencies",
+      resourceType: "dns_query",
+      resourceLabels: queryRes,
+      metricLabels: { response_code: rc },
+      metricKind: "DELTA",
+      valueType: "DISTRIBUTION",
+      point: distributionFromMs(latMs, distN, noisy),
+    }),
+    gcpMetricDoc(ts, "cloud-dns", dataset, region, project, {
+      metricType: "dns.googleapis.com/managed_zone/rrset_count",
+      resourceType: "dns_managed_zone",
+      resourceLabels: zoneRes,
+      metricKind: "GAUGE",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(rrsets) },
+    }),
+  ];
+}
+
+export function generateCloudArmorMetrics(ts: string, er: number): EcsDocument[] {
+  const { region, project } = pickGcpCloudContext();
+  const dataset = GCP_METRICS_DATASET_MAP["cloud-armor"]!;
+  const policy_name = rand(["edge-waf-prod", "api-shield", "partner-allowlist"]);
+  const backend = rand(["be-checkout", "be-graphql", "be-static"]);
+  const loc = rand(["global", region]);
+  const polRes = {
+    project_id: project.id,
+    location: loc,
+    policy_name,
+  };
+  const attack = Math.random() < er;
+  const allowed = randInt(attack ? 2_000 : 40_000, attack ? 180_000 : 2_200_000);
+  const denied = randInt(attack ? 8_000 : 0, attack ? 420_000 : 18_000);
+  const preview = randInt(attack ? 1_200 : 40, attack ? 90_000 : 6_000);
+  const ruleEval = randInt(attack ? 50_000 : 8_000, attack ? 8_000_000 : 2_400_000);
+
+  return [
+    gcpMetricDoc(ts, "cloud-armor", dataset, region, project, {
+      metricType: "networksecurity.googleapis.com/https/request_count",
+      resourceType: "network_security_policy",
+      resourceLabels: polRes,
+      metricLabels: { blocked: "false", backend_target_name: backend },
+      metricKind: "DELTA",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(allowed) },
+    }),
+    gcpMetricDoc(ts, "cloud-armor", dataset, region, project, {
+      metricType: "networksecurity.googleapis.com/https/request_count",
+      resourceType: "network_security_policy",
+      resourceLabels: polRes,
+      metricLabels: { blocked: "true", backend_target_name: backend },
+      metricKind: "DELTA",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(denied) },
+    }),
+    gcpMetricDoc(ts, "cloud-armor", dataset, region, project, {
+      metricType: "networksecurity.googleapis.com/https/previewed_request_count",
+      resourceType: "network_security_policy",
+      resourceLabels: polRes,
+      metricLabels: { blocked: "false", backend_target_name: backend },
+      metricKind: "DELTA",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(preview) },
+    }),
+    gcpMetricDoc(ts, "cloud-armor", dataset, region, project, {
+      metricType: "networksecurity.googleapis.com/l3/external/packet_count",
+      resourceType: "networksecurity.googleapis.com/RegionalNetworkSecurityPolicy",
+      resourceLabels: {
+        resource_container: project.id,
+        location: region,
+        policy_name,
+      },
+      metricLabels: {
+        rule_number: String(randInt(1000, 2147483000)),
+        blocked: attack ? "true" : "false",
+      },
+      metricKind: "DELTA",
+      valueType: "INT64",
+      point: { int64Value: toInt64String(ruleEval) },
     }),
   ];
 }

@@ -2,7 +2,10 @@
  * Default ingestion source for synthetic Azure logs (conceptual — maps to Elastic Agent / Monitor paths).
  */
 
-const AZURE_SERVICE_INGESTION_DEFAULTS: Record<string, string> = {
+import { AZURE_ALL_SERVICE_IDS } from "./serviceGroups.js";
+
+/** Per-service overrides; all other UI services default to Azure Monitor–style delivery. */
+const AZURE_SERVICE_INGESTION_OVERRIDES: Record<string, string> = {
   monitor: "azure-monitor",
   "activity-log": "azure-monitor",
   "entra-id": "entra",
@@ -17,6 +20,11 @@ const AZURE_SERVICE_INGESTION_DEFAULTS: Record<string, string> = {
   "azure-iam-privesc-chain": "api",
   "azure-data-exfil-chain": "api",
   "azure-data-pipeline-chain": "api",
+};
+
+const AZURE_SERVICE_INGESTION_DEFAULTS: Record<string, string> = {
+  ...Object.fromEntries(AZURE_ALL_SERVICE_IDS.map((id) => [id, "azure-monitor"])),
+  ...AZURE_SERVICE_INGESTION_OVERRIDES,
 };
 
 const AZURE_INGESTION_META: Record<string, { label: string; color: string; inputType: string }> = {

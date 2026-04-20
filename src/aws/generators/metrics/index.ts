@@ -44,6 +44,9 @@ import {
   generateDirectconnectMetrics,
   generateVpcMetrics,
   generatePrivatelinkMetrics,
+  generateWafMetrics,
+  generateWafv2Metrics,
+  generateVpclatticeMetrics,
 } from "./networking.js";
 
 // ─── Databases & storage ──────────────────────────────────────────────────────
@@ -80,6 +83,7 @@ import {
   generateEventbridgeMetrics,
   generateAmazonmqMetrics,
   generateKinesisanalyticsMetrics,
+  generateMskconnectMetrics,
 } from "./streaming.js";
 
 // ─── Analytics & AI / ML ─────────────────────────────────────────────────────
@@ -101,6 +105,7 @@ import {
   generatePersonalizeMetrics,
   generateLookoutmetricsMetrics,
   generateLakeformationMetrics,
+  generateMwaaMetrics,
   generateQuicksightMetrics,
   generateAppflowMetrics,
   generateDatabrewMetrics,
@@ -110,8 +115,6 @@ import {
 
 // ─── Security & management ────────────────────────────────────────────────────
 import {
-  generateWafMetrics,
-  generateWafv2Metrics,
   generateShieldMetrics,
   generateKmsMetrics,
   generateCognitoMetrics,
@@ -220,9 +223,6 @@ const GENERIC_SERVICE_IDS = [
   "freertos",
   "cloudwatchrum",
   // v12.0 — services with confirmed CloudWatch metric emission
-  "vpclattice",
-  "mskconnect",
-  "mwaa",
   "kendra",
   "iottwinmaker",
   "iotfleetwise",
@@ -282,6 +282,9 @@ export const METRICS_GENERATORS = {
   directconnect: generateDirectconnectMetrics,
   vpc: generateVpcMetrics,
   privatelink: generatePrivatelinkMetrics,
+  waf: generateWafMetrics,
+  wafv2: generateWafv2Metrics,
+  vpclattice: generateVpclatticeMetrics,
 
   // Databases & storage
   rds: generateRdsMetrics,
@@ -309,6 +312,7 @@ export const METRICS_GENERATORS = {
   sqs: generateSqsMetrics,
   kinesis: generateKinesisMetrics,
   msk: generateMskMetrics,
+  mskconnect: generateMskconnectMetrics,
   sns: generateSnsMetrics,
   firehose: generateFirehoseMetrics,
   eventbridge: generateEventbridgeMetrics,
@@ -333,6 +337,7 @@ export const METRICS_GENERATORS = {
   personalize: generatePersonalizeMetrics,
   lookoutmetrics: generateLookoutmetricsMetrics,
   lakeformation: generateLakeformationMetrics,
+  mwaa: generateMwaaMetrics,
   quicksight: generateQuicksightMetrics,
   appflow: generateAppflowMetrics,
   databrew: generateDatabrewMetrics,
@@ -340,8 +345,6 @@ export const METRICS_GENERATORS = {
   ses: generateSesMetrics,
 
   // Security & management
-  waf: generateWafMetrics,
-  wafv2: generateWafv2Metrics,
   shield: generateShieldMetrics,
   kms: generateKmsMetrics,
   cognito: generateCognitoMetrics,

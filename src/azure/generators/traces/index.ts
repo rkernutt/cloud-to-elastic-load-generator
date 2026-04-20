@@ -33,6 +33,21 @@ import { generateSynapseWorkspaceTrace } from "./synapse-workspace.js";
 import { generateOpenAiTrace } from "./openai.js";
 import { generateVirtualMachinesTrace } from "./virtual-machines.js";
 import { generateServiceBusTrace } from "./service-bus.js";
+import { generateEventGridTrace } from "./event-grid.js";
+import { generateIotHubTrace } from "./iot-hub.js";
+import { generateEntraIdTrace } from "./entra-id.js";
+import { generateDataFactoryTrace } from "./data-factory.js";
+import { generateLoadBalancerTrace } from "./load-balancer.js";
+import { generateApplicationGatewayTrace } from "./application-gateway.js";
+import { generateAzureFirewallTrace } from "./azure-firewall.js";
+import { generateStreamAnalyticsTrace } from "./stream-analytics.js";
+import { generateCognitiveServicesTrace } from "./cognitive-services.js";
+import { generateAiSearchTrace } from "./ai-search.js";
+import { generateDatabaseForPostgresqlTrace } from "./database-for-postgresql.js";
+import { generateSqlManagedInstanceTrace } from "./sql-managed-instance.js";
+import { generateSentinelTrace } from "./sentinel.js";
+import { generateDefenderForCloudTrace } from "./defender-for-cloud.js";
+import { generateContainerInstancesTrace } from "./container-instances.js";
 
 const AZURE_TRACE_GENERATORS: Record<
   string,
@@ -63,6 +78,21 @@ const AZURE_TRACE_GENERATORS: Record<
   openai: generateOpenAiTrace,
   "virtual-machines": generateVirtualMachinesTrace,
   "service-bus": generateServiceBusTrace,
+  "event-grid": generateEventGridTrace,
+  "iot-hub": generateIotHubTrace,
+  "entra-id": generateEntraIdTrace,
+  "data-factory": generateDataFactoryTrace,
+  "load-balancer": generateLoadBalancerTrace,
+  "application-gateway": generateApplicationGatewayTrace,
+  "azure-firewall": generateAzureFirewallTrace,
+  "stream-analytics": generateStreamAnalyticsTrace,
+  "cognitive-services": generateCognitiveServicesTrace,
+  "ai-search": generateAiSearchTrace,
+  "database-for-postgresql": generateDatabaseForPostgresqlTrace,
+  "sql-managed-instance": generateSqlManagedInstanceTrace,
+  sentinel: generateSentinelTrace,
+  "defender-for-cloud": generateDefenderForCloudTrace,
+  "container-instances": generateContainerInstancesTrace,
 };
 
 export { AZURE_TRACE_SERVICES, AZURE_TRACE_GENERATORS };

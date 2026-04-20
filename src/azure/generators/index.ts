@@ -109,6 +109,13 @@ function buildRegistry(): Record<string, Gen> {
       delete out[c];
     }
   }
+  for (const [parent, children] of Object.entries(AZURE_LOG_MERGE_CHILDREN)) {
+    const parentGen = out[parent];
+    if (!parentGen) continue;
+    for (const c of children) {
+      if (!(c in out)) out[c] = parentGen;
+    }
+  }
   return out;
 }
 

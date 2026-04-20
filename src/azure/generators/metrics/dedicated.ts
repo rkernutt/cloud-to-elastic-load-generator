@@ -7,8 +7,10 @@ import {
   azureMetricDoc,
   pickAzureContext,
   randId,
+  rand,
 } from "./helpers.js";
 import type { EcsDocument } from "../../../aws/generators/types.js";
+import { AZURE_METRICS_DATASET_MAP } from "../../data/elasticMaps.js";
 
 export function generateIotHubMetrics(ts: string, er: number): EcsDocument[] {
   const { region, subscription, resourceGroup } = pickAzureContext();
@@ -238,6 +240,219 @@ export function generateCosmosDbDedicatedMetrics(ts: string, er: number): EcsDoc
         },
       }
     );
+  });
+}
+
+export function generateAppServiceDedicatedMetrics(ts: string, er: number): EcsDocument[] {
+  const { region, subscription, resourceGroup } = pickAzureContext();
+  const dataset = AZURE_METRICS_DATASET_MAP["app-service"]!;
+  const sites = ["web-prod", "api-stg", "portal-app"];
+  const n = Math.min(randInt(1, 3), sites.length);
+  return Array.from({ length: n }, (_, i) => {
+    const site = sites[i]!;
+    const inst = `${site}__${randInt(1, 4)}`;
+    const fail = Math.random() < er;
+    return azureMetricDoc(ts, "app_service", dataset, region, subscription, resourceGroup, {
+      namespace: "Microsoft.Web/sites",
+      resourceName: site,
+      armProviderSegments: ["Microsoft.Web", "sites", site],
+      dimensions: { Instance: inst },
+      metrics: {
+        Requests: counter(randInt(2_000, fail ? 4_000_000 : 2_800_000)),
+        AverageResponseTime: stat(dp(jitter(85 + (fail ? 1200 : 0), 60, 4, 28_000))),
+        CpuPercentage: stat(dp(jitter(28 + (fail ? 45 : 0), 22, 1, 98))),
+        MemoryPercentage: stat(dp(jitter(42 + (fail ? 28 : 0), 20, 5, 95))),
+        Http2xx: counter(randInt(1_800, fail ? 3_800_000 : 2_700_000)),
+        Http4xx: counter(fail ? randInt(200, 180_000) : randInt(0, 12_000)),
+        Http5xx: counter(fail ? randInt(40, 90_000) : randInt(0, 800)),
+        AppConnections: counter(randInt(0, fail ? 18_000 : 4_200)),
+      },
+    });
+  });
+}
+
+export function generateFunctionsDedicatedMetrics(ts: string, er: number): EcsDocument[] {
+  const { region, subscription, resourceGroup } = pickAzureContext();
+  const dataset = AZURE_METRICS_DATASET_MAP.functions!;
+  const fns = ["HttpTrigger1", "QueueProcessor", "TimerCleanup"];
+  const n = Math.min(randInt(1, 3), fns.length);
+  return Array.from({ length: n }, (_, i) => {
+    const fn = fns[i]!;
+    const site = `func-${rand(["prod", "shared"])}-${randId(4).toLowerCase()}`;
+    const fail = Math.random() < er;
+    return azureMetricDoc(ts, "functions", dataset, region, subscription, resourceGroup, {
+      namespace: "Microsoft.Web/sites",
+      resourceName: site,
+      armProviderSegments: ["Microsoft.Web", "sites", site],
+      dimensions: { site, function: fn },
+      metrics: {
+        FunctionExecutionCount: counter(randInt(200, fail ? 6_000_000 : 4_200_000)),
+        FunctionExecutionUnits: counter(randInt(800, fail ? 62_000_000 : 42_000_000)),
+        Http2xx: counter(randInt(180, fail ? 5_600_000 : 4_000_000)),
+        Http5xx: counter(fail ? randInt(10, 80_000) : randInt(0, 400)),
+        Errors: counter(fail ? randInt(20, 120_000) : randInt(0, 2_400)),
+        FunctionExecutionDuration: stat(dp(jitter(240 + (fail ? 4200 : 0), 180, 8, 86_400))),
+      },
+    });
+  });
+}
+
+export function generateAksDedicatedMetrics(ts: string, er: number): EcsDocument[] {
+  const { region, subscription, resourceGroup } = pickAzureContext();
+  const dataset = AZURE_METRICS_DATASET_MAP.aks!;
+  const clusters = ["aks-prod", "aks-staging"];
+  const n = Math.min(randInt(1, 2), clusters.length);
+  return Array.from({ length: n }, (_, i) => {
+    const cluster = clusters[i]!;
+    const fail = Math.random() < er;
+    return azureMetricDoc(ts, "aks", dataset, region, subscription, resourceGroup, {
+      namespace: "Microsoft.ContainerService/managedClusters",
+      resourceName: cluster,
+      armProviderSegments: ["Microsoft.ContainerService", "managedClusters", cluster],
+      dimensions: { resource_name: cluster, location: region, phase: "Running" },
+      metrics: {
+        node_cpu_usage_percentage: stat(dp(jitter(46 + (fail ? 38 : 0), 26, 2, 100))),
+        node_memory_working_set_percentage: stat(dp(jitter(52 + (fail ? 22 : 0), 24, 6, 100))),
+        kube_pod_status_phase: counter(randInt(40, fail ? 9_000 : 5_200)),
+        cluster_autoscaler_cluster_safe_to_autoscale: stat(dp(fail ? 0 : 1)),
+        kube_apiserver_requests_total: counter(randInt(8_000, fail ? 2_200_000 : 1_400_000)),
+      },
+    });
+  });
+}
+
+export function generateBlobStorageDedicatedMetrics(ts: string, er: number): EcsDocument[] {
+  const { region, subscription, resourceGroup } = pickAzureContext();
+  const dataset = AZURE_METRICS_DATASET_MAP["blob-storage"]!;
+  const accounts = ["stprod", "stdatalake", "stlogs"];
+  const n = Math.min(randInt(1, 3), accounts.length);
+  return Array.from({ length: n }, (_, i) => {
+    const acct = accounts[i]!;
+    const fail = Math.random() < er;
+    return azureMetricDoc(ts, "blob_storage", dataset, region, subscription, resourceGroup, {
+      namespace: "Microsoft.Storage/storageAccounts",
+      resourceName: acct,
+      armProviderSegments: ["Microsoft.Storage", "storageAccounts", acct],
+      dimensions: {
+        ApiName: rand(["GetBlob", "PutBlob", "DeleteBlob", "ListBlobs"]),
+        Authentication: rand(["OAuth", "SAS", "AccountKey"]),
+        GeoType: rand(["Primary", "Secondary"]),
+      },
+      metrics: {
+        Transactions: counter(randInt(0, fail ? 12_000_000 : 8_000_000)),
+        Ingress: counter(randInt(0, fail ? 85_000_000_000 : 58_000_000_000)),
+        Egress: counter(randInt(0, fail ? 72_000_000_000 : 48_000_000_000)),
+        Availability: stat(dp(jitter(fail ? 96.5 : 100, fail ? 2.5 : 0.02, 0, 100))),
+        SuccessE2ELatency: stat(dp(jitter(14 + (fail ? 220 : 0), 12, 1, 8_000))),
+        UsedCapacity: stat(dp(jitter(42e9 + (fail ? 8e9 : 0), 12e9, 1e9, 180e9))),
+      },
+    });
+  });
+}
+
+export function generateSqlDatabaseDedicatedMetrics(ts: string, er: number): EcsDocument[] {
+  const { region, subscription, resourceGroup } = pickAzureContext();
+  const dataset = AZURE_METRICS_DATASET_MAP["sql-database"]!;
+  const dbs = ["appdb", "reportdb", "authdb"];
+  const n = Math.min(randInt(1, 3), dbs.length);
+  return Array.from({ length: n }, (_, i) => {
+    const db = dbs[i]!;
+    const srv = `sql-${randId(4).toLowerCase()}`;
+    const fail = Math.random() < er;
+    return azureMetricDoc(ts, "sql_database", dataset, region, subscription, resourceGroup, {
+      namespace: "Microsoft.Sql/servers/databases",
+      resourceName: db,
+      armProviderSegments: ["Microsoft.Sql", "servers", srv, "databases", db],
+      dimensions: { DatabaseName: db, logical_server: srv },
+      metrics: {
+        dtu_consumption_percent: stat(dp(jitter(36 + (fail ? 52 : 0), 28, 0, 100))),
+        cpu_percent: stat(dp(jitter(32 + (fail ? 48 : 0), 26, 0, 100))),
+        data_io_percent: stat(dp(jitter(24 + (fail ? 40 : 0), 20, 0, 100))),
+        log_io_percent: stat(dp(jitter(18 + (fail ? 35 : 0), 16, 0, 100))),
+        deadlocks: counter(fail ? randInt(1, 120) : 0),
+        connection_successful: counter(randInt(400, fail ? 420_000 : 620_000)),
+        connection_failed: counter(fail ? randInt(2, 18_000) : randInt(0, 120)),
+      },
+    });
+  });
+}
+
+export function generateCacheForRedisDedicatedMetrics(ts: string, er: number): EcsDocument[] {
+  const { region, subscription, resourceGroup } = pickAzureContext();
+  const dataset = AZURE_METRICS_DATASET_MAP["cache-for-redis"]!;
+  const shards = ["shard-0", "shard-1", "shard-2"];
+  const n = Math.min(randInt(1, 3), shards.length);
+  return Array.from({ length: n }, (_, i) => {
+    const shard = shards[i]!;
+    const name = `redis-${randId(4).toLowerCase()}`;
+    const fail = Math.random() < er;
+    return azureMetricDoc(ts, "cache_for_redis", dataset, region, subscription, resourceGroup, {
+      namespace: "Microsoft.Cache/Redis",
+      resourceName: name,
+      armProviderSegments: ["Microsoft.Cache", "Redis", name],
+      dimensions: { ShardId: shard },
+      metrics: {
+        cachehits: counter(randInt(50_000, fail ? 12_000_000 : 8_000_000)),
+        cachemisses: counter(randInt(fail ? 8_000 : 400, fail ? 1_800_000 : 420_000)),
+        connectedclients: stat(dp(jitter(120 + (fail ? 900 : 0), 80, 0, 20_000))),
+        percentProcessorTime: stat(dp(jitter(34 + (fail ? 42 : 0), 26, 0, 100))),
+        usedmemory: stat(dp(jitter(1.1e9 + (fail ? 4e8 : 0), 3e8, 5e7, 26e9))),
+        evictedkeys: counter(fail ? randInt(40, 180_000) : randInt(0, 8_000)),
+        operationsPerSecond: stat(dp(jitter(12_000 + (fail ? 28_000 : 0), 9000, 0, 220_000))),
+      },
+    });
+  });
+}
+
+export function generateLoadBalancerDedicatedMetrics(ts: string, er: number): EcsDocument[] {
+  const { region, subscription, resourceGroup } = pickAzureContext();
+  const dataset = AZURE_METRICS_DATASET_MAP["load-balancer"]!;
+  const fes = ["fe-prod", "fe-staging", "fe-internal"];
+  const n = Math.min(randInt(1, 3), fes.length);
+  return Array.from({ length: n }, (_, i) => {
+    const fe = fes[i]!;
+    const lb = `lb-${randId(5).toLowerCase()}`;
+    const fail = Math.random() < er;
+    return azureMetricDoc(ts, "load_balancer", dataset, region, subscription, resourceGroup, {
+      namespace: "Microsoft.Network/loadBalancers",
+      resourceName: lb,
+      armProviderSegments: ["Microsoft.Network", "loadBalancers", lb],
+      dimensions: { FrontendIPAddress: fe, ProtocolType: rand(["TCP", "UDP"]) },
+      metrics: {
+        SnatConnectionCount: counter(randInt(0, fail ? 820_000 : 520_000)),
+        VipAvailability: stat(dp(jitter(fail ? 86 : 100, fail ? 10 : 0.02, 0, 100))),
+        DipAvailability: stat(dp(jitter(fail ? 82 : 99.5, fail ? 14 : 0.2, 0, 100))),
+        ByteCount: counter(randInt(80_000_000, fail ? 520_000_000_000 : 360_000_000_000)),
+        PacketCount: counter(randInt(2_000_000, fail ? 900_000_000 : 620_000_000)),
+        SYNCount: counter(randInt(0, fail ? 420_000 : 180_000)),
+      },
+    });
+  });
+}
+
+export function generateOpenAiDedicatedMetrics(ts: string, er: number): EcsDocument[] {
+  const { region, subscription, resourceGroup } = pickAzureContext();
+  const dataset = AZURE_METRICS_DATASET_MAP.openai!;
+  const depls = ["gpt-deploy", "embed-1", "classifier"];
+  const n = Math.min(randInt(1, 3), depls.length);
+  return Array.from({ length: n }, (_, i) => {
+    const d = depls[i]!;
+    const acct = `oai-${randId(5).toLowerCase()}`;
+    const fail = Math.random() < er;
+    return azureMetricDoc(ts, "openai", dataset, region, subscription, resourceGroup, {
+      namespace: "Microsoft.CognitiveServices/accounts",
+      resourceName: acct,
+      armProviderSegments: ["Microsoft.CognitiveServices", "accounts", acct],
+      dimensions: { ApiName: d, ModelName: rand(["gpt-4o", "gpt-4", "text-embedding-3-large"]) },
+      metrics: {
+        TokenTransaction: counter(randInt(0, fail ? 620_000_000 : 420_000_000)),
+        TotalCalls: counter(randInt(0, fail ? 2_400_000 : 1_800_000)),
+        Latency: stat(dp(jitter(380 + (fail ? 5200 : 0), 260, 20, 72_000))),
+        ThrottledRequests: counter(fail ? randInt(10, 80_000) : randInt(0, 400)),
+        ActiveTokens: stat(dp(jitter(fail ? 1_800_000 : 320_000, 220_000, 20_000, 8_000_000))),
+        ClientErrors: counter(fail ? randInt(20, 120_000) : randInt(0, 3_000)),
+      },
+    });
   });
 }
 

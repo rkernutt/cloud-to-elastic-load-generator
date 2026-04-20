@@ -85,6 +85,10 @@ const AZURE_ELASTIC_DATASET_MAP: Record<string, string> = {
   "entra-id": "azure.entra_id",
   /** Single combined audit stream; `workload` / `record_type` distinguish Exchange, Teams, etc. */
   m365: "azure.microsoft_365",
+  "active-users-services": "azure.o365_active_users",
+  "teams-user-activity": "azure.o365_teams_activity",
+  "outlook-activity": "azure.o365_outlook_activity",
+  "onedrive-usage-storage": "azure.o365_onedrive_storage",
   "key-vault": "azure.key_vault",
   "managed-identity": "azure.managed_identity",
   "defender-for-cloud": "azure.defender",

@@ -42,6 +42,21 @@ import { generateDataprocTrace } from "./dataproc.js";
 import { generateCloudRunJobsTrace } from "./cloud-run-jobs.js";
 import { generateDialogflowTrace } from "./dialogflow.js";
 import { generateCloudArmorTrace } from "./cloud-armor.js";
+import { generateCloudLbTrace } from "./cloud-lb.js";
+import { generateCloudDnsTrace } from "./cloud-dns.js";
+import { generateCloudNatTrace } from "./cloud-nat.js";
+import { generateCloudKmsTrace } from "./cloud-kms.js";
+import { generateSecretManagerTrace } from "./secret-manager.js";
+import { generateArtifactRegistryTrace } from "./artifact-registry.js";
+import { generateWorkflowsTrace } from "./workflows.js";
+import { generateEventarcTrace } from "./eventarc.js";
+import { generateIamTrace } from "./iam.js";
+import { generateLookerTrace } from "./looker.js";
+import { generateDataFusionTrace } from "./data-fusion.js";
+import { generateCloudVpnTrace } from "./cloud-vpn.js";
+import { generateSecurityCommandCenterTrace } from "./security-command-center.js";
+import { generateCloudIdsTrace } from "./cloud-ids.js";
+import { generateBatchTrace } from "./batch.js";
 
 const GCP_TRACE_GENERATORS: Record<string, (ts: string, er: number) => Record<string, unknown>[]> =
   {
@@ -78,6 +93,21 @@ const GCP_TRACE_GENERATORS: Record<string, (ts: string, er: number) => Record<st
     "cloud-run-jobs": generateCloudRunJobsTrace,
     dialogflow: generateDialogflowTrace,
     "cloud-armor": generateCloudArmorTrace,
+    "cloud-lb": generateCloudLbTrace,
+    "cloud-dns": generateCloudDnsTrace,
+    "cloud-nat": generateCloudNatTrace,
+    "cloud-kms": generateCloudKmsTrace,
+    "secret-manager": generateSecretManagerTrace,
+    "artifact-registry": generateArtifactRegistryTrace,
+    workflows: generateWorkflowsTrace,
+    eventarc: generateEventarcTrace,
+    iam: generateIamTrace,
+    looker: generateLookerTrace,
+    "data-fusion": generateDataFusionTrace,
+    "cloud-vpn": generateCloudVpnTrace,
+    "security-command-center": generateSecurityCommandCenterTrace,
+    "cloud-ids": generateCloudIdsTrace,
+    batch: generateBatchTrace,
   };
 
 export { GCP_TRACE_GENERATORS };

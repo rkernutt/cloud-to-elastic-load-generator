@@ -1,66 +1,78 @@
 {
-  "@timestamp": "2026-04-20T14:21:54.344Z",
+  "@timestamp": "2026-04-20T15:59:33.524Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-west-3",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "cognito" }
   },
   "aws": {
-    "dimensions": { "UserPool": "us-east-2_VWZU6L6BO", "UserPoolClient": "us-users-web" },
+    "dimensions": { "UserPool": "eu-west-3_QZY58KUMB", "UserPoolClient": "eu-users-web" },
     "cognito": {
-      "user_pool_id": "us-east-2_VWZU6L6BO",
-      "user_pool_name": "us-users",
-      "event_type": "ConfirmSignUp",
-      "username": "user-yvowemml@example.com",
-      "source_ip": "184.78.18.50",
+      "user_pool_id": "eu-west-3_QZY58KUMB",
+      "user_pool_name": "eu-users",
+      "event_type": "CompromisedCredentials",
+      "username": "user-2otscvyv@example.com",
+      "source_ip": "225.197.142.136",
+      "mfa_type": "SMS_MFA",
+      "risk_type": "CompromisedCredentials",
+      "action_taken": "BLOCK",
+      "advanced_security": {
+        "risk_level": "LOW",
+        "risk_decision": "ALLOW",
+        "compromised_credentials_detected": true,
+        "impossible_travel": false,
+        "previous_location": { "ip": "68.95.68.148", "country": "JP" },
+        "current_location": { "ip": "227.142.107.202", "country": "IN" },
+        "time_between_events_seconds": 32
+      },
       "metrics": {
-        "SignInSuccesses": { "sum": 8514 },
-        "SignInAttempts": { "sum": 8514 },
-        "TokenRefreshSuccesses": { "sum": 37718 },
+        "SignInSuccesses": { "sum": 1289 },
+        "SignInAttempts": { "sum": 1289 },
+        "TokenRefreshSuccesses": { "sum": 27612 },
         "SignUpSuccesses": { "sum": 0 },
-        "FederationSuccesses": { "sum": 431 },
-        "CallCount": { "sum": 14671 },
+        "FederationSuccesses": { "sum": 0 },
+        "CallCount": { "sum": 82157 },
         "ThrottleCount": { "sum": 0 },
         "AccountTakeoverRisk": { "sum": 0 },
-        "CompromisedCredentialsRisk": { "sum": 0 }
+        "CompromisedCredentialsRisk": { "sum": 3 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-cognito-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-cognito-logs-814726593401"
+        "name": "aws-cognito-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-cognito-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/cognito/us-east-2/2026/04/20/cognito_QBTCYSLSCI.log.gz"
+        "key": "AWSLogs/501938274650/cognito/eu-west-3/2026/04/20/cognito_B1T0D8QJ59G.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cognito/logs",
-      "log_stream": "us-east-2/eyp5wrmz",
-      "ingestion_time": "2026-04-20T14:21:54.885Z"
+      "log_stream": "eu-west-3/fejiablt",
+      "ingestion_time": "2026-04-20T15:59:34.471Z"
     }
   },
-  "user": { "name": "user-yvowemml@example.com" },
-  "source": { "ip": "128.94.218.152" },
+  "user": { "name": "user-2otscvyv@example.com" },
+  "source": { "ip": "220.168.80.122" },
   "event": {
-    "action": "ConfirmSignUp",
+    "action": "CompromisedCredentials",
     "outcome": "success",
     "category": ["authentication"],
     "dataset": "aws.cognito",
     "provider": "cognito-idp.amazonaws.com",
     "module": "aws"
   },
-  "message": "Cognito ConfirmSignUp success [us-users]",
-  "log": { "level": "info" },
+  "message": "Cognito CompromisedCredentials detected [LOW]: decision=ALLOW pool=eu-users",
+  "log": { "level": "warn" },
   "service": { "name": "cognito", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cognito", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "pk9jyysjn8f"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "deks5rw14fc"
   },
   "input": { "type": "aws-cloudwatch" }
 }

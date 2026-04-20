@@ -632,6 +632,10 @@ export function generateNeptuneMetrics(ts: string, er: number) {
 export function generateKeyspacesMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   const ks = rand(["prod_keyspace", "analytics", "sessions", "events"]);
+  const readCap = randInt(0, 12_000);
+  const writeCap = randInt(0, 6_000);
+  const storageBytes = randInt(50_000_000, 12_000_000_000_000);
+  const successful = randInt(5_000, 2_000_000);
   return [
     metricDoc(
       ts,
@@ -641,16 +645,19 @@ export function generateKeyspacesMetrics(ts: string, er: number) {
       account,
       { Keyspace: ks, TableName: rand(["orders", "users", "sessions", "events"]) },
       {
-        ConsumedReadCapacityUnits: counter(randInt(0, 10_000)),
-        ConsumedWriteCapacityUnits: counter(randInt(0, 5_000)),
+        ConsumedReadCapacityUnits: counter(readCap),
+        ConsumedWriteCapacityUnits: counter(writeCap),
         ReadThrottleEvents: counter(Math.random() < er ? randInt(1, 200) : 0),
         WriteThrottleEvents: counter(Math.random() < er ? randInt(1, 150) : 0),
+        SuccessfulRequestCount: counter(successful),
         SuccessfulRequestLatency: stat(dp(jitter(3, 2, 0.5, 100)), {
           max: dp(jitter(25, 18, 1, er ? 800 : 200)),
         }),
         SystemErrors: counter(Math.random() < er ? randInt(1, 50) : 0),
         UserErrors: counter(randInt(0, 10)),
         ConditionalCheckFailedRequests: counter(randInt(0, 500)),
+        TableSizeInBytes: stat(dp(storageBytes)),
+        PartitionCount: stat(randInt(1, 500_000)),
       }
     ),
   ];
@@ -660,6 +667,10 @@ export function generateKeyspacesMetrics(ts: string, er: number) {
 
 export function generateMemorydbMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const hits = randInt(50_000, 2_000_000);
+  const misses = randInt(500, 120_000);
+  const memPct = Math.random() < er ? jitter(88, 8, 70, 100) : jitter(52, 22, 12, 88);
+  const replLagSec = Math.random() < er ? jitter(12, 8, 0.5, 120) : jitter(0.08, 0.06, 0, 2.5);
   return [
     metricDoc(
       ts,
@@ -678,13 +689,20 @@ export function generateMemorydbMetrics(ts: string, er: number) {
         EngineCPUUtilization: stat(
           dp(Math.random() < er ? jitter(65, 18, 40, 100) : jitter(18, 12, 1, 55))
         ),
+        DatabaseMemoryUsagePercentage: stat(dp(memPct)),
         FreeableMemory: stat(dp(jitter(2_000_000_000, 1_000_000_000, 100_000_000, 8_000_000_000))),
         NetworkBytesIn: counter(randInt(1_000_000, 5_000_000_000)),
         NetworkBytesOut: counter(randInt(1_000_000, 5_000_000_000)),
+        CacheHits: counter(hits),
+        CacheMisses: counter(misses),
         CurrConnections: counter(randInt(10, 5_000)),
         CurrItems: counter(randInt(1_000, 50_000_000)),
         BytesUsedForData: stat(dp(randInt(100_000_000, 40_000_000_000))),
-        Evictions: counter(Math.random() < er ? randInt(1, 10_000) : 0),
+        ReplicationLag: stat(dp(replLagSec), {
+          max: dp(replLagSec * jitter(4, 1.5, 1.5, 12)),
+          min: dp(0),
+        }),
+        Evictions: counter(Math.random() < er ? randInt(1, 10_000) : randInt(0, 80)),
       }
     ),
   ];

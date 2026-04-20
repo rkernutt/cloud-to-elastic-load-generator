@@ -1,32 +1,31 @@
 {
-  "@timestamp": "2026-04-20T14:21:54.344Z",
+  "@timestamp": "2026-04-20T15:59:33.524Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
+    "region": "us-west-2",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "codedeploy" }
   },
   "aws": {
-    "dimensions": { "DeploymentGroupName": "canary", "ApplicationName": "web-app" },
+    "dimensions": { "DeploymentGroupName": "prod", "ApplicationName": "api-service" },
     "codedeploy": {
-      "application_name": "web-app",
-      "deployment_group": "canary",
-      "deployment_id": "d-Y72159G8Z",
-      "deployment_type": "BLUE_GREEN",
-      "lifecycle_event": "ApplicationStart",
-      "event_status": "Failed",
-      "duration_seconds": 539,
-      "error_code": "HEALTH_CONSTRAINTS_INVALID",
-      "instances_succeeded": 3,
-      "instances_failed": 3,
+      "application_name": "api-service",
+      "deployment_group": "prod",
+      "deployment_id": "d-1LIV6840Q",
+      "deployment_type": "IN_PLACE",
+      "lifecycle_event": "AfterInstall",
+      "event_status": "Succeeded",
+      "duration_seconds": 359,
+      "instances_succeeded": 10,
+      "instances_failed": 0,
       "metrics": {
         "DeploymentAttempts": { "sum": 1 },
-        "DeploymentSuccesses": { "sum": 0 },
-        "DeploymentFailures": { "sum": 1 },
-        "RollbackAttempts": { "sum": 1 },
-        "DeploymentDuration": { "avg": 539 },
-        "InstanceSuccesses": { "sum": 3 },
-        "InstanceFailures": { "sum": 2 }
+        "DeploymentSuccesses": { "sum": 1 },
+        "DeploymentFailures": { "sum": 0 },
+        "RollbackAttempts": { "sum": 0 },
+        "DeploymentDuration": { "avg": 359 },
+        "InstanceSuccesses": { "sum": 8 },
+        "InstanceFailures": { "sum": 0 }
       }
     },
     "s3": {
@@ -35,38 +34,33 @@
         "arn": "arn:aws:s3:::aws-codedeploy-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/codedeploy/ap-southeast-3/2026/04/20/codedeploy_UNU4JQUYYN.log.gz"
+        "key": "AWSLogs/814726593401/codedeploy/us-west-2/2026/04/20/codedeploy_BEAMY9AHS7H.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codedeploy/logs",
-      "log_stream": "ap-southeast-3/02zjowt9",
-      "ingestion_time": "2026-04-20T14:21:54.972Z"
+      "log_stream": "us-west-2/f1md2mfu",
+      "ingestion_time": "2026-04-20T15:59:34.558Z"
     }
   },
   "event": {
-    "duration": 539000000000,
-    "outcome": "failure",
+    "duration": 359000000000,
+    "outcome": "success",
     "category": ["process", "configuration"],
     "dataset": "aws.codedeploy",
     "provider": "codedeploy.amazonaws.com",
     "module": "aws"
   },
-  "message": "[CodeDeploy] deploymentId=d-Y72159G8Z application=web-app deploymentGroup=canary deploymentStyle=BLUE_GREEN\n[CodeDeploy] Targeting instances: count=11 tagSet=Environment:canary\n[Lifecycle:BeforeInstall] instanceId=i-YXKE7W7U script=scripts/before_install.sh status=SUCCEEDED durationSec=79\n[Lifecycle:Install] instanceId=i-YXKE7W7U script=appspec/install.sh status=SUCCEEDED durationSec=61\n[Lifecycle:AfterInstall] instanceId=i-YXKE7W7U script=scripts/after_install.sh status=SUCCEEDED durationSec=106\n[Lifecycle:ApplicationStart] instanceId=i-YXKE7W7U script=appspec/application_start.sh status=FAILED durationSec=96\n[Lifecycle:ValidateService] instanceId=i-YXKE7W7U script=appspec/validate_service.sh status=SUCCEEDED durationSec=41\n[CodeDeploy] ROLLBACK_STARTED deploymentId=d-Y72159G8Z reason=Alarm breached previousRevision=CR5HBS4",
-  "log": { "level": "error" },
-  "error": {
-    "code": "AGENT_ISSUE",
-    "message": "CodeDeploy failed at ApplicationStart",
-    "type": "deployment"
-  },
+  "message": "[CodeDeploy] deploymentId=d-1LIV6840Q application=api-service deploymentGroup=prod deploymentStyle=IN_PLACE\n[CodeDeploy] Targeting instances: count=15 tagSet=Environment:prod\n[Lifecycle:BeforeInstall] instanceId=i-4NKD5HBM script=appspec/before_install.sh status=SUCCEEDED durationSec=95\n[Lifecycle:Install] instanceId=i-4NKD5HBM script=appspec/install.sh status=SUCCEEDED durationSec=96\n[Lifecycle:AfterInstall] instanceId=i-4NKD5HBM script=scripts/after_install.sh status=SUCCEEDED durationSec=21\n[Lifecycle:ApplicationStart] instanceId=i-4NKD5HBM script=appspec/application_start.sh status=SUCCEEDED durationSec=11\n[Lifecycle:ValidateService] instanceId=i-4NKD5HBM script=scripts/validate_service.sh status=SUCCEEDED durationSec=151\n[CodeDeploy] deploymentId=d-1LIV6840Q status=SUCCEEDED overallDurationSec=359",
+  "log": { "level": "info" },
   "service": { "name": "codedeploy", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.codedeploy", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "h8ua7tscdzr"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "vvdhheh3id"
   },
   "input": { "type": "aws-cloudwatch" }
 }

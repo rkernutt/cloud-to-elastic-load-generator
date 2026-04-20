@@ -14,6 +14,14 @@ import {
   generateDatabricksMetrics,
   generateCosmosDbDedicatedMetrics,
   generateEventHubsDedicatedMetrics,
+  generateAppServiceDedicatedMetrics,
+  generateFunctionsDedicatedMetrics,
+  generateAksDedicatedMetrics,
+  generateBlobStorageDedicatedMetrics,
+  generateSqlDatabaseDedicatedMetrics,
+  generateCacheForRedisDedicatedMetrics,
+  generateLoadBalancerDedicatedMetrics,
+  generateOpenAiDedicatedMetrics,
 } from "./dedicated.js";
 import { mergeAzureMetricVariants } from "../mergeHelpers.js";
 import { M365_METRICS_GENERATORS } from "../../../m365/generators/metrics/index.js";
@@ -36,6 +44,14 @@ const DEDICATED_METRICS: Record<string, MetricGenerator> = {
   databricks: generateDatabricksMetrics,
   "cosmos-db": generateCosmosDbDedicatedMetrics,
   "event-hubs": generateEventHubsDedicatedMetrics,
+  "app-service": generateAppServiceDedicatedMetrics,
+  functions: generateFunctionsDedicatedMetrics,
+  aks: generateAksDedicatedMetrics,
+  "blob-storage": generateBlobStorageDedicatedMetrics,
+  "sql-database": generateSqlDatabaseDedicatedMetrics,
+  "cache-for-redis": generateCacheForRedisDedicatedMetrics,
+  "load-balancer": generateLoadBalancerDedicatedMetrics,
+  openai: generateOpenAiDedicatedMetrics,
 };
 
 function metricGenForId(id: string): MetricGenerator {

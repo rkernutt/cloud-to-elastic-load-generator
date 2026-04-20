@@ -145,6 +145,7 @@ const METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "vpc",
   // Networking (private connectivity & WAN)
   "privatelink",
+  "vpclattice",
   "networkmanager",
   "appmesh",
   "clientvpn",
@@ -183,6 +184,7 @@ const METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "kinesis",
   "kinesisanalytics",
   "msk",
+  "mskconnect",
   "firehose",
   "sns",
   "sqs",
@@ -290,6 +292,7 @@ const METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "route53",
   "autoscaling",
   "quicksight",
+  "mwaa",
   "imagebuilder",
   "xray",
   "ses",
