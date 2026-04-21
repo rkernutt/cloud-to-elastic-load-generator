@@ -7,7 +7,9 @@
       "name": "[CloudLoadGen] Azure Data Pipeline — High Failure Rate",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "data-pipeline"],
       "enabled": false,
       "params": {
@@ -17,7 +19,7 @@
         "threshold": [3],
         "thresholdComparator": ">",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.data_factory\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.data_factory\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-azure.data_factory*"],
         "timeField": "@timestamp",
         "aggType": "count"
@@ -30,7 +32,9 @@
       "name": "[CloudLoadGen] Azure Data Pipeline — Null/Empty Data Detected",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "data-pipeline"],
       "enabled": false,
       "params": {
@@ -40,7 +44,7 @@
         "threshold": [1],
         "thresholdComparator": ">=",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.synapse\"}},{\"term\":{\"azure.synapse.rows_returned\":0}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.synapse\"}},{\"term\":{\"azure.synapse.rows_returned\":0}}]}}}",
         "index": ["logs-azure.synapse*"],
         "timeField": "@timestamp",
         "aggType": "count"
@@ -53,7 +57,9 @@
       "name": "[CloudLoadGen] Azure Data Pipeline — Databricks/Spark Processing Error",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "data-pipeline"],
       "enabled": false,
       "params": {
@@ -63,7 +69,7 @@
         "threshold": [1],
         "thresholdComparator": ">=",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.databricks\"}},{\"exists\":{\"field\":\"error.type\"}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.databricks\"}},{\"exists\":{\"field\":\"error.type\"}}]}}}",
         "index": ["logs-azure.databricks*"],
         "timeField": "@timestamp",
         "aggType": "count"
@@ -76,7 +82,9 @@
       "name": "[CloudLoadGen] Azure Data Pipeline — Blob Source File Format Error",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "data-pipeline"],
       "enabled": false,
       "params": {
@@ -86,7 +94,7 @@
         "threshold": [1],
         "thresholdComparator": ">=",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.blob_storage\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"azure.blob_storage.blob_name\":{\"value\":\"*%*\"}}},{\"bool\":{\"must_not\":{\"wildcard\":{\"azure.blob_storage.blob_name\":{\"value\":\"*.avro\"}}}}}]}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.blob_storage\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"azure.blob_storage.blob_name\":{\"value\":\"*%*\"}}},{\"bool\":{\"must_not\":{\"wildcard\":{\"azure.blob_storage.blob_name\":{\"value\":\"*.avro\"}}}}}]}}]}}}",
         "index": ["logs-azure.blob_storage*"],
         "timeField": "@timestamp",
         "aggType": "count"
@@ -99,7 +107,9 @@
       "name": "[CloudLoadGen] Azure Data Pipeline — Slow Pipeline Run (>60s)",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "data-pipeline"],
       "enabled": false,
       "params": {
@@ -109,7 +119,7 @@
         "threshold": [1],
         "thresholdComparator": ">=",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.data_factory\"}},{\"term\":{\"azure.data_factory.activity_name\":\"pipeline_complete\"}},{\"range\":{\"azure.data_factory.duration_ms\":{\"gt\":60000}}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.data_factory\"}},{\"term\":{\"azure.data_factory.activity_name\":\"pipeline_complete\"}},{\"range\":{\"azure.data_factory.duration_ms\":{\"gt\":60000}}}]}}}",
         "index": ["logs-azure.data_factory*"],
         "timeField": "@timestamp",
         "aggType": "count"

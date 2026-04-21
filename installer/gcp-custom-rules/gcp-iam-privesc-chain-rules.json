@@ -7,7 +7,9 @@
       "name": "[CloudLoadGen] GCP IAM PrivEsc Chain — Service Account Key Creation",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp-iam-privesc-chain"],
       "enabled": false,
       "params": {
@@ -17,7 +19,7 @@
         "threshold": [1],
         "thresholdComparator": ">=",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*CreateServiceAccountKey*\"}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*CreateServiceAccountKey*\"}}]}}}",
         "index": ["logs-gcp.audit*"],
         "timeField": "@timestamp",
         "aggType": "count"
@@ -30,7 +32,9 @@
       "name": "[CloudLoadGen] GCP IAM PrivEsc Chain — SetIamPolicy",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp-iam-privesc-chain"],
       "enabled": false,
       "params": {
@@ -40,7 +44,7 @@
         "threshold": [1],
         "thresholdComparator": ">=",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*SetIamPolicy*\"}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*SetIamPolicy*\"}}]}}}",
         "index": ["logs-gcp.audit*"],
         "timeField": "@timestamp",
         "aggType": "count"
@@ -53,7 +57,9 @@
       "name": "[CloudLoadGen] GCP IAM PrivEsc Chain — GenerateAccessToken",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp-iam-privesc-chain"],
       "enabled": false,
       "params": {
@@ -63,7 +69,7 @@
         "threshold": [1],
         "thresholdComparator": ">=",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*GenerateAccessToken*\"}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*GenerateAccessToken*\"}}]}}}",
         "index": ["logs-gcp.audit*"],
         "timeField": "@timestamp",
         "aggType": "count"
@@ -76,7 +82,9 @@
       "name": "[CloudLoadGen] GCP IAM PrivEsc Chain — High Volume of Sensitive IAM API Calls",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp-iam-privesc-chain"],
       "enabled": false,
       "params": {
@@ -86,7 +94,7 @@
         "threshold": [3],
         "thresholdComparator": ">",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*CreateServiceAccountKey*\"}},{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*SetIamPolicy*\"}},{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*GenerateAccessToken*\"}}],\"minimum_should_match\":1}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*CreateServiceAccountKey*\"}},{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*SetIamPolicy*\"}},{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*GenerateAccessToken*\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-gcp.audit*"],
         "timeField": "@timestamp",
         "aggType": "count"

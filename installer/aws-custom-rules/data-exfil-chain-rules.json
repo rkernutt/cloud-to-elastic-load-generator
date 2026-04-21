@@ -7,7 +7,9 @@
       "name": "[CloudLoadGen] Data Exfil Chain — GuardDuty Exfiltration Finding",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "data-exfil-chain"],
       "enabled": false,
       "params": {
@@ -17,7 +19,7 @@
         "threshold": [1],
         "thresholdComparator": ">=",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"wildcard\":{\"aws.guardduty.type\":\"Exfiltration*\"}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"wildcard\":{\"aws.guardduty.type\":\"Exfiltration*\"}}]}}}",
         "index": ["logs-aws.guardduty*"],
         "timeField": "@timestamp",
         "aggType": "count"
@@ -30,7 +32,9 @@
       "name": "[CloudLoadGen] Data Exfil Chain — VPC Flow High Egress Bytes",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "data-exfil-chain"],
       "enabled": false,
       "params": {
@@ -40,7 +44,7 @@
         "threshold": [1],
         "thresholdComparator": ">=",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.vpcflow\"}},{\"term\":{\"network.direction\":\"egress\"}},{\"range\":{\"aws.vpcflow.bytes\":{\"gt\":52428800}}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.vpcflow\"}},{\"term\":{\"network.direction\":\"egress\"}},{\"range\":{\"aws.vpcflow.bytes\":{\"gt\":52428800}}}]}}}",
         "index": ["logs-aws.vpcflow*"],
         "timeField": "@timestamp",
         "aggType": "count"
@@ -53,7 +57,9 @@
       "name": "[CloudLoadGen] Data Exfil Chain — S3 GetObject With High Additional Event Count",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "data-exfil-chain"],
       "enabled": false,
       "params": {
@@ -63,7 +69,7 @@
         "threshold": [1],
         "thresholdComparator": ">=",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"term\":{\"event.action\":\"GetObject\"}},{\"range\":{\"aws.cloudtrail.additional_event_count\":{\"gt\":100}}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"term\":{\"event.action\":\"GetObject\"}},{\"range\":{\"aws.cloudtrail.additional_event_count\":{\"gt\":100}}}]}}}",
         "index": ["logs-aws.cloudtrail*"],
         "timeField": "@timestamp",
         "aggType": "count"
@@ -76,7 +82,9 @@
       "name": "[CloudLoadGen] Data Exfil Chain — Full Chain Correlation",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "data-exfil-chain"],
       "enabled": false,
       "params": {
@@ -86,7 +94,7 @@
         "threshold": [2],
         "thresholdComparator": ">",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"wildcard\":{\"aws.guardduty.type\":\"Exfiltration*\"}}]}},{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"term\":{\"event.action\":\"GetObject\"}},{\"range\":{\"aws.cloudtrail.additional_event_count\":{\"gt\":100}}}]}},{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.vpcflow\"}},{\"term\":{\"network.direction\":\"egress\"}},{\"range\":{\"aws.vpcflow.bytes\":{\"gt\":52428800}}}]}}],\"minimum_should_match\":1}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"wildcard\":{\"aws.guardduty.type\":\"Exfiltration*\"}}]}},{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"term\":{\"event.action\":\"GetObject\"}},{\"range\":{\"aws.cloudtrail.additional_event_count\":{\"gt\":100}}}]}},{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.vpcflow\"}},{\"term\":{\"network.direction\":\"egress\"}},{\"range\":{\"aws.vpcflow.bytes\":{\"gt\":52428800}}}]}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.guardduty*", "logs-aws.vpcflow*", "logs-aws.cloudtrail*"],
         "timeField": "@timestamp",
         "aggType": "count"

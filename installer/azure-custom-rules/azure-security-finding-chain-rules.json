@@ -7,7 +7,9 @@
       "name": "[CloudLoadGen] Azure Security Finding Chain — Defender Alert",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure-security-chain"],
       "enabled": false,
       "params": {
@@ -17,7 +19,7 @@
         "threshold": [1],
         "thresholdComparator": ">=",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.defender\"}},{\"term\":{\"event.kind\":\"alert\"}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.defender\"}},{\"term\":{\"event.kind\":\"alert\"}}]}}}",
         "index": ["logs-azure.defender*"],
         "timeField": "@timestamp",
         "aggType": "count"
@@ -30,7 +32,9 @@
       "name": "[CloudLoadGen] Azure Security Finding Chain — Multi-Stage Chain Burst",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure-security-chain"],
       "enabled": false,
       "params": {
@@ -40,7 +44,7 @@
         "threshold": [2],
         "thresholdComparator": ">",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.kind\":\"alert\"}},{\"bool\":{\"should\":[{\"term\":{\"event.dataset\":\"azure.defender\"}},{\"term\":{\"event.dataset\":\"azure.sentinel\"}},{\"term\":{\"event.dataset\":\"azure.activity_log\"}}],\"minimum_should_match\":1}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.kind\":\"alert\"}},{\"bool\":{\"should\":[{\"term\":{\"event.dataset\":\"azure.defender\"}},{\"term\":{\"event.dataset\":\"azure.sentinel\"}},{\"term\":{\"event.dataset\":\"azure.activity_log\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-azure.defender*", "logs-azure.sentinel*", "logs-azure.activity_log*"],
         "timeField": "@timestamp",
         "aggType": "count"
@@ -53,7 +57,9 @@
       "name": "[CloudLoadGen] Azure Security Finding Chain — Sentinel Incident Created",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure-security-chain"],
       "enabled": false,
       "params": {
@@ -63,7 +69,7 @@
         "threshold": [1],
         "thresholdComparator": ">=",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.sentinel\"}},{\"term\":{\"event.kind\":\"alert\"}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.sentinel\"}},{\"term\":{\"event.kind\":\"alert\"}}]}}}",
         "index": ["logs-azure.sentinel*"],
         "timeField": "@timestamp",
         "aggType": "count"
@@ -76,7 +82,9 @@
       "name": "[CloudLoadGen] Azure Security Finding Chain — Defender High Severity",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure-security-chain"],
       "enabled": false,
       "params": {
@@ -86,7 +94,7 @@
         "threshold": [3],
         "thresholdComparator": ">",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.defender\"}},{\"term\":{\"azure.defender.severity\":\"High\"}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.defender\"}},{\"term\":{\"azure.defender.severity\":\"High\"}}]}}}",
         "index": ["logs-azure.defender*"],
         "timeField": "@timestamp",
         "aggType": "count"

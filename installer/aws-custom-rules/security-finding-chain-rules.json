@@ -7,7 +7,9 @@
       "name": "[CloudLoadGen] Security Finding Chain — GuardDuty HIGH/CRITICAL Findings",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "security-chain"],
       "enabled": false,
       "params": {
@@ -17,7 +19,7 @@
         "threshold": [0],
         "thresholdComparator": ">",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"bool\":{\"should\":[{\"term\":{\"aws.guardduty.severity.value\":\"High\"}},{\"term\":{\"aws.guardduty.severity.value\":\"Critical\"}}],\"minimum_should_match\":1}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"bool\":{\"should\":[{\"term\":{\"aws.guardduty.severity.value\":\"High\"}},{\"term\":{\"aws.guardduty.severity.value\":\"Critical\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.guardduty*"],
         "timeField": "@timestamp",
         "aggType": "count"
@@ -30,7 +32,9 @@
       "name": "[CloudLoadGen] Security Finding Chain — Multi-Stage Chain Burst",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "security-chain"],
       "enabled": false,
       "params": {
@@ -40,7 +44,7 @@
         "threshold": [2],
         "thresholdComparator": ">",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.kind\":\"alert\"}},{\"bool\":{\"should\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"term\":{\"event.dataset\":\"aws.securityhub_findings\"}},{\"term\":{\"event.dataset\":\"aws.securitylake\"}}],\"minimum_should_match\":1}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.kind\":\"alert\"}},{\"bool\":{\"should\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"term\":{\"event.dataset\":\"aws.securityhub_findings\"}},{\"term\":{\"event.dataset\":\"aws.securitylake\"}}],\"minimum_should_match\":1}}]}}}",
         "index": [
           "logs-aws.guardduty*",
           "logs-aws.securityhub_findings*",
@@ -57,7 +61,9 @@
       "name": "[CloudLoadGen] Security Finding Chain — Security Hub Compliance FAILED",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "security-chain"],
       "enabled": false,
       "params": {
@@ -67,7 +73,7 @@
         "threshold": [3],
         "thresholdComparator": ">",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.securityhub_findings\"}},{\"term\":{\"aws.securityhub_findings.Compliance.Status\":\"FAILED\"}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.securityhub_findings\"}},{\"term\":{\"aws.securityhub_findings.Compliance.Status\":\"FAILED\"}}]}}}",
         "index": ["logs-aws.securityhub_findings*"],
         "timeField": "@timestamp",
         "aggType": "count"
@@ -80,7 +86,9 @@
       "name": "[CloudLoadGen] Security Finding Chain — Multiple GuardDuty Alerts With Source IP",
       "rule_type_id": ".es-query",
       "consumer": "stackAlerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "security-chain"],
       "enabled": false,
       "params": {
@@ -90,7 +98,7 @@
         "threshold": [5],
         "thresholdComparator": ">",
         "size": 100,
-        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"term\":{\"event.kind\":\"alert\"}},{\"exists\":{\"field\":\"source.ip\"}}]}}",
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"term\":{\"event.kind\":\"alert\"}},{\"exists\":{\"field\":\"source.ip\"}}]}}}",
         "index": ["logs-aws.guardduty*"],
         "timeField": "@timestamp",
         "aggType": "count"
