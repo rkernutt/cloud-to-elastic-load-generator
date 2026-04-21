@@ -79,13 +79,13 @@ Each scenario has matching **Kibana dashboards**, **Elasticsearch-query alert ru
 
 CSPM and KSPM generators produce findings documents identical to what Elastic's **cloudbeat** agent writes to `logs-cloud_security_posture.findings-default`. Every finding uses **real CIS rule UUIDs, names, sections, and benchmark metadata** sourced from `elastic/cloudbeat` (321 rules total across 5 benchmarks):
 
-| Benchmark | Rules | Sections |
-|-----------|-------|----------|
-| CIS AWS Foundations v1.5.0 | 55 | IAM (16), S3 (4), EC2 (1), RDS (3), Logging (11), Monitoring (16), Networking (4) |
-| CIS GCP Foundations v2.0.0 | 71 | IAM, Logging/Monitoring, Networking, VMs, Storage, SQL, BigQuery |
-| CIS Azure Foundations v2.0.0 | 72 | IAM, Defender, Storage, SQL, Logging, Networking, VMs, Key Vault, App Service |
-| CIS EKS v1.4.0 | 31 | Logging, Authentication, Networking, Pod Security |
-| CIS Kubernetes v1.0.1 | 92 | Control Plane, etcd, RBAC, Worker Nodes, Pod Security Standards |
+| Benchmark                    | Rules | Sections                                                                          |
+| ---------------------------- | ----- | --------------------------------------------------------------------------------- |
+| CIS AWS Foundations v1.5.0   | 55    | IAM (16), S3 (4), EC2 (1), RDS (3), Logging (11), Monitoring (16), Networking (4) |
+| CIS GCP Foundations v2.0.0   | 71    | IAM, Logging/Monitoring, Networking, VMs, Storage, SQL, BigQuery                  |
+| CIS Azure Foundations v2.0.0 | 72    | IAM, Defender, Storage, SQL, Logging, Networking, VMs, Key Vault, App Service     |
+| CIS EKS v1.4.0               | 31    | Logging, Authentication, Networking, Pod Security                                 |
+| CIS Kubernetes v1.0.1        | 92    | Control Plane, etcd, RBAC, Worker Nodes, Pod Security Standards                   |
 
 Failed findings include realistic resource evidence — for example, S3 buckets with `ServerSideEncryptionConfiguration: null`, security groups with `0.0.0.0/0` SSH ingress, IAM users with `mfa_active: false`, or pods with `privileged: true`. When the `cloud_security_posture` Fleet integration is installed (automatic when CSPM/KSPM services are selected in the Setup wizard), Elastic's built-in Posture Dashboard, Findings page, and Benchmark Rules pages display the generated data exactly as they would with real cloud infrastructure.
 
