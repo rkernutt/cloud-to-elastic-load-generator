@@ -1,0 +1,171 @@
+{
+  "group": "data-exfil-chain",
+  "description": "ML anomaly detection jobs for the data exfiltration chain scenario (VPC Flow, GuardDuty)",
+  "jobs": [
+    {
+      "id": "aws-data-exfil-egress-volume",
+      "description": "Detects anomalous VPC egress byte volumes (data exfiltration indicator)",
+      "job": {
+        "description": "Detects anomalous VPC egress byte volumes",
+        "groups": ["aws", "data-exfil-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_sum(aws.vpcflow.bytes) partitionfield=aws.vpcflow.instance_id",
+              "function": "high_sum",
+              "field_name": "aws.vpcflow.bytes",
+              "partition_field_name": "aws.vpcflow.instance_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.vpcflow.instance_id", "destination.ip", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-load-generator-data-exfil-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.vpcflow*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "network.direction": "egress"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-data-exfil-detection-spike",
+      "description": "Detects spikes in GuardDuty exfiltration findings",
+      "job": {
+        "description": "Detects spikes in GuardDuty exfiltration findings",
+        "groups": ["aws", "data-exfil-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "source.ip", "aws.guardduty.type"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-load-generator-data-exfil-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.guardduty*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.kind": "alert"
+                }
+              },
+              {
+                "prefix": {
+                  "aws.guardduty.type": "Exfiltration"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-data-exfil-rare-destination",
+      "description": "Detects connections to rare external IPs during exfil events",
+      "job": {
+        "description": "Detects connections to rare external IPs during exfil events",
+        "groups": ["aws", "data-exfil-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "rare by destination.ip",
+              "function": "rare",
+              "by_field_name": "destination.ip",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["destination.ip", "source.ip", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-load-generator-data-exfil-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.vpcflow*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "network.direction": "egress"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    }
+  ]
+}

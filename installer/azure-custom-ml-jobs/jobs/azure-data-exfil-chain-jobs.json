@@ -1,0 +1,175 @@
+{
+  "group": "azure-data-exfil-chain",
+  "description": "ML anomaly detection jobs for the Azure data exfiltration chain scenario (Blob Storage, Defender)",
+  "jobs": [
+    {
+      "id": "azure-data-exfil-blob-volume",
+      "description": "Detects anomalous blob egress byte volumes (data exfiltration indicator)",
+      "job": {
+        "description": "Detects anomalous blob egress byte volumes",
+        "groups": ["azure", "azure-data-exfil-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_sum(azure.blob_storage.bytes_out) partitionfield=azure.blob_storage.resource_name",
+              "function": "high_sum",
+              "field_name": "azure.blob_storage.bytes_out",
+              "partition_field_name": "azure.blob_storage.resource_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.blob_storage.resource_name", "source.ip", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-load-generator-azure-data-exfil-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.blob_storage*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "range": {
+                  "azure.blob_storage.bytes_out": {
+                    "gt": 0
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-data-exfil-defender-spike",
+      "description": "Detects spikes in Defender exfiltration-related alerts",
+      "job": {
+        "description": "Detects spikes in Defender exfiltration-related alerts",
+        "groups": ["azure", "azure-data-exfil-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.defender.alert_type",
+              "function": "high_count",
+              "partition_field_name": "azure.defender.alert_type",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.defender.alert_type", "source.ip", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-load-generator-azure-data-exfil-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.defender*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.kind": "alert"
+                }
+              },
+              {
+                "wildcard": {
+                  "azure.defender.alert_type": "*Exfiltration*"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-data-exfil-rare-source",
+      "description": "Detects rare source IPs during blob exfiltration events",
+      "job": {
+        "description": "Detects rare source IPs during blob exfiltration events",
+        "groups": ["azure", "azure-data-exfil-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "rare by source.ip",
+              "function": "rare",
+              "by_field_name": "source.ip",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["source.ip", "azure.blob_storage.resource_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-load-generator-azure-data-exfil-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.blob_storage*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "range": {
+                  "azure.blob_storage.bytes_out": {
+                    "gt": 0
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    }
+  ]
+}

@@ -1,52 +1,65 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "severity": "INFO",
-  "logName": "projects/globex-prod-a1b2c3/logs/compute.googleapis.com%2Fnetwork_tier_usage",
-  "insertId": "sm3jdtmgm7e",
-  "resource": { "type": "project", "labels": { "project_id": "globex-prod-a1b2c3" } },
+  "logName": "projects/globex-dev-g7h8i9/logs/compute.googleapis.com%2Fpacket_mirroring",
+  "insertId": "2bp976633ok",
+  "resource": {
+    "type": "packet_mirroring_policy",
+    "labels": {
+      "project_id": "globex-dev-g7h8i9",
+      "policy": "pm-policy-4l4c4",
+      "region": "us-central1"
+    }
+  },
   "jsonPayload": {
-    "network_tier": "PREMIUM",
-    "resource_kind": "VPN",
-    "region": "southamerica-east1",
-    "egress_bytes": "3817057699",
-    "routing_preference": "REGIONAL",
-    "project": "globex-prod-a1b2c3"
+    "packet_mirroring_policy": "projects/globex-dev-g7h8i9/regions/us-central1/packetMirrorings/pm-policy-4l4c4",
+    "mirrored_network": "projects/globex-dev-g7h8i9/global/networks/default",
+    "collector_ilb": "projects/globex-dev-g7h8i9/regions/us-central1/forwardingRules/ilb-web-qdcn",
+    "mirrored_instance_count": 6,
+    "filter": { "ip_cidr_range": "10.221.141.0/24", "protocol": "tcp" },
+    "health": "HEALTHY"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "southamerica-east1",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
-    "service": { "name": "network-service-tiers" }
+    "region": "us-central1",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" },
+    "service": { "name": "packet-mirroring" }
   },
   "gcp": {
-    "network_service_tiers": {
+    "packet_mirroring": {
       "json_payload": {
-        "network_tier": "PREMIUM",
-        "resource_kind": "VPN",
-        "region": "southamerica-east1",
-        "egress_bytes": "3817057699",
-        "routing_preference": "REGIONAL",
-        "project": "globex-prod-a1b2c3"
+        "packet_mirroring_policy": "projects/globex-dev-g7h8i9/regions/us-central1/packetMirrorings/pm-policy-4l4c4",
+        "mirrored_network": "projects/globex-dev-g7h8i9/global/networks/default",
+        "collector_ilb": "projects/globex-dev-g7h8i9/regions/us-central1/forwardingRules/ilb-web-qdcn",
+        "mirrored_instance_count": 6,
+        "filter": { "ip_cidr_range": "10.221.141.0/24", "protocol": "tcp" },
+        "health": "HEALTHY"
       },
-      "tier": "PREMIUM",
-      "resource_type": "VPN",
-      "region": "southamerica-east1",
-      "egress_bytes": 3817057699,
-      "routing_type": "REGIONAL"
+      "policy_name": "pm-policy-4l4c4",
+      "mirrored_network": "default",
+      "collector_instance": "web-qdcn",
+      "mirrored_instances_count": 6,
+      "filter_protocol": "tcp",
+      "filter_cidr": "10.221.141.0/24"
     }
   },
-  "event": { "outcome": "success", "duration": 15000000, "module": "gcp", "dataset": "gcp.nst" },
-  "message": "compute.googleapis.com/network_tiers PREMIUM VPN egress=3817057699",
-  "service": { "name": "network-service-tiers", "type": "gcp" },
+  "event": {
+    "outcome": "success",
+    "duration": 25000000,
+    "module": "gcp",
+    "dataset": "gcp.packetmirroring"
+  },
+  "message": "compute.googleapis.com/packet_mirroring pm-policy-4l4c4 mirrored=6",
+  "service": { "name": "packet-mirroring", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.nst", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.packetmirroring", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-southamerica-east1",
-    "id": "8aalgrnf9d3"
+    "name": "elastic-agent-gcp-us-central1",
+    "id": "23stgqvh9cu"
   },
   "input": { "type": "gcp-pubsub" }
 }

@@ -1,35 +1,36 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-3",
-    "availability_zone": "eu-west-3a",
+    "region": "ap-southeast-4",
+    "availability_zone": "ap-southeast-4a",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "ebs" }
   },
   "aws": {
-    "dimensions": { "VolumeId": "vol-f6kxl5sv6mp", "VolumeType": "gp3" },
+    "dimensions": { "VolumeId": "vol-033imukmtjpm", "VolumeType": "gp2" },
     "ebs": {
-      "volume_id": "vol-f6kxl5sv6mp",
-      "volume_type": "gp3",
-      "size_gb": 500,
-      "snapshot_id": "snap-p8hu8l80oy",
-      "fast_snapshot_restore_state": "enabling",
-      "source_availability_zones": ["eu-west-3a", "eu-west-3b"],
-      "owner_id": "738291046572",
-      "event_type": "fast_snapshot_restore",
+      "volume_id": "vol-033imukmtjpm",
+      "volume_type": "gp2",
+      "size_gb": 2000,
+      "alarm_name": "ebs-volumereadops-vol-033imukmtjpm",
+      "alarm_state": "OK",
+      "metric_name": "VolumeReadOps",
+      "threshold": 58,
+      "current_value": 38,
+      "event_type": "alarm",
       "metrics": {
-        "VolumeReadOps": { "avg": 2821 },
-        "VolumeWriteOps": { "avg": 8524 },
-        "VolumeReadBytes": { "avg": 423472983 },
-        "VolumeWriteBytes": { "avg": 38988800 },
-        "VolumeTotalReadTime": { "sum": 5.489111356419558 },
-        "VolumeTotalWriteTime": { "sum": 0.6521601166537461 },
-        "VolumeIdleTime": { "sum": 43.510616875350316 },
-        "VolumeQueueLength": { "avg": 4 },
-        "VolumeThroughputPercentage": { "avg": 67.01335363236527 },
-        "VolumeConsumedReadWriteOps": { "avg": 7257 },
-        "BurstBalance": {}
+        "VolumeReadOps": { "avg": 9084 },
+        "VolumeWriteOps": { "avg": 245 },
+        "VolumeReadBytes": { "avg": 123160885 },
+        "VolumeWriteBytes": { "avg": 196926872 },
+        "VolumeTotalReadTime": { "sum": 5.529024502458598 },
+        "VolumeTotalWriteTime": { "sum": 4.134480625984653 },
+        "VolumeIdleTime": { "sum": 58.354512061466714 },
+        "VolumeQueueLength": { "avg": 3 },
+        "VolumeThroughputPercentage": { "avg": 24.105609616443992 },
+        "VolumeConsumedReadWriteOps": { "avg": 1245 },
+        "BurstBalance": { "avg": 55 }
       }
     },
     "s3": {
@@ -37,12 +38,14 @@
         "name": "aws-ebs-logs-738291046572",
         "arn": "arn:aws:s3:::aws-ebs-logs-738291046572"
       },
-      "object": { "key": "AWSLogs/738291046572/ebs/eu-west-3/2026/04/20/ebs_M0S0Y8OEKWR.log.gz" }
+      "object": {
+        "key": "AWSLogs/738291046572/ebs/ap-southeast-4/2026/04/21/ebs_PF3XWG6KNQ.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/ebs/logs",
-      "log_stream": "eu-west-3/hhk1tlzi",
-      "ingestion_time": "2026-04-20T15:59:34.503Z"
+      "log_stream": "ap-southeast-4/f2fniin3",
+      "ingestion_time": "2026-04-21T10:21:44.161Z"
     }
   },
   "event": {
@@ -50,10 +53,10 @@
     "category": ["host", "file"],
     "dataset": "aws.ebs",
     "provider": "ec2.amazonaws.com",
-    "duration": 92000000,
+    "duration": 1164000000,
     "module": "aws"
   },
-  "message": "EBS fast snapshot restore enabling for snap-p8hu8l80oy (vol-f6kxl5sv6mp)",
+  "message": "EBS CloudWatch alarm OK: VolumeReadOps on vol-033imukmtjpm within normal range",
   "log": { "level": "info" },
   "service": { "name": "ebs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -61,8 +64,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-3",
-    "ephemeral_id": "10ju6xxuqsjg"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "rj6jez3nfx"
   },
   "input": { "type": "aws-cloudwatch" }
 }

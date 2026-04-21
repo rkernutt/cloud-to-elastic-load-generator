@@ -1,0 +1,125 @@
+{
+  "title": "GCP IAM Privilege Escalation Chain — overview",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "gcp-ipe-k1",
+      "grid": { "x": 0, "y": 0, "w": 24, "h": 5 },
+      "config": {
+        "title": "Total PrivEsc events",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.audit* | WHERE threat.tactic.name IS NOT NULL OR gcp.cloud_audit.method_name IS NOT NULL | STATS c = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-ipe-k2",
+      "grid": { "x": 24, "y": 0, "w": 24, "h": 5 },
+      "config": {
+        "title": "Distinct source IPs",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.audit* | WHERE threat.tactic.name IS NOT NULL OR gcp.cloud_audit.method_name IS NOT NULL | STATS c = COUNT_DISTINCT(source.ip)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-ipe-d1",
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "MITRE tactics",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.audit* | WHERE (threat.tactic.name IS NOT NULL OR gcp.cloud_audit.method_name IS NOT NULL) AND threat.tactic.name IS NOT NULL | STATS c = COUNT() BY tactic = threat.tactic.name"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "tactic" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-ipe-d2",
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "API methods used",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.audit* | WHERE (threat.tactic.name IS NOT NULL OR gcp.cloud_audit.method_name IS NOT NULL) AND gcp.cloud_audit.method_name IS NOT NULL | STATS c = COUNT() BY m = gcp.cloud_audit.method_name"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "m" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-ipe-l1",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Events over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-gcp.audit* | WHERE threat.tactic.name IS NOT NULL OR gcp.cloud_audit.method_name IS NOT NULL | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Events" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-ipe-t1",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
+      "config": {
+        "title": "Callers by IP and project",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.audit* | WHERE threat.tactic.name IS NOT NULL OR gcp.cloud_audit.method_name IS NOT NULL | STATS ops = COUNT(), methods = COUNT_DISTINCT(gcp.cloud_audit.method_name), tgt = MAX(resource.name) BY caller = user.name, src = source.ip, proj = cloud.project.id | SORT ops DESC | LIMIT 25"
+          },
+          "metrics": [
+            { "operation": "value", "column": "caller", "label": "Caller" },
+            { "operation": "value", "column": "src", "label": "Source IP" },
+            { "operation": "value", "column": "proj", "label": "Project" },
+            { "operation": "value", "column": "tgt", "label": "Resource" },
+            { "operation": "value", "column": "methods", "label": "Distinct methods" },
+            { "operation": "value", "column": "ops", "label": "Operations" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

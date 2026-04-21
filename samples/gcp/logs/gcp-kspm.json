@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-04T12:00:00.000Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,53 +7,60 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "southamerica-east1",
-    "account": { "id": "globex-prod-a1b2c3", "name": "Globex Production" }
+    "region": "us-central1",
+    "account": { "id": "globex-prod-42", "name": "globex-prod-42" }
   },
-  "orchestrator": { "cluster": { "name": "prod-cluster" } },
+  "orchestrator": {
+    "cluster": { "name": "gke-prod-primary" },
+    "type": "kubernetes",
+    "namespace": "kube-system"
+  },
   "resource": {
-    "id": "//container.googleapis.com/prod-cluster",
-    "name": "prod-cluster",
-    "sub_type": "Namespace",
-    "type": "k8s_object"
-  },
-  "rule": {
-    "id": "cis_gke_4_3_2",
-    "name": "Ensure usage of the default namespace is minimized",
-    "section": "4.3.2",
-    "tags": ["Workloads"],
-    "benchmark": {
-      "id": "cis_gke",
-      "version": "v1.4.0",
-      "rule_number": "4.3.2",
-      "posture_type": "kspm"
+    "id": "gke-prod-primary/kube-system/pod/kube-apiserver-master-1",
+    "name": "pod/kube-apiserver-master-1",
+    "type": "k8s_object",
+    "sub_type": "Pod",
+    "raw": {
+      "spec": {
+        "containers": [{
+          "name": "kube-apiserver",
+          "command": ["kube-apiserver", "--anonymous-auth=true", "--insecure-port=8080"]
+        }]
+      }
     }
   },
-  "result": { "evaluation": "passed" },
-  "severity": "none",
+  "rule": {
+    "id": "cdd37cb4-f3fa-5ce2-a1e2-a37f0bb9e462",
+    "name": "Ensure that the --anonymous-auth argument is set to false",
+    "section": "1.2.1",
+    "description": "When enabled, requests that are not rejected by other configured authentication methods are treated as anonymous requests.",
+    "tags": ["CIS", "Kubernetes", "CIS 1.2.1", "API Server"],
+    "benchmark": {
+      "id": "cis_k8s",
+      "name": "CIS Kubernetes V1.23",
+      "version": "v1.0.1",
+      "rule_number": "1.2.1",
+      "posture_type": "kspm"
+    },
+    "profile_applicability": "* Level 1",
+    "impact": "Non-compliance with CIS Kubernetes V1.23 1.2.1 — Ensure that the --anonymous-auth argument is set to false",
+    "remediation": "Remediate per CIS Kubernetes V1.23 v1.0.1 section 1.2.1."
+  },
+  "result": {
+    "evaluation": "failed",
+    "evidence": {
+      "containers": [{ "command": ["kube-apiserver", "--anonymous-auth=true"] }]
+    }
+  },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "gcp"
   },
-  "message": "KSPM [CIS GKE / 4.3.2] passed: Ensure usage of the default namespace is minimized [prod-cluster]",
-  "log": { "level": "info" },
-  "service": { "name": "gcp-kspm", "type": "gcp" },
-  "ecs": { "version": "8.11.0" },
-  "agent": {
-    "type": "elastic-agent",
-    "version": "8.18.0",
-    "name": "elastic-agent-gcp-southamerica-east1",
-    "id": "hlakscwcmrv"
-  },
-  "input": { "type": "http_endpoint" },
-  "logName": "projects/project-unknown/logs/gcp-kspm",
-  "insertId": "1OJ8ZX1R0S3",
-  "jsonPayload": {
-    "message": "KSPM [CIS GKE / 4.3.2] passed: Ensure usage of the default namespace is minimized [prod-cluster]"
-  }
+  "message": "[cis_k8s/1.2.1] failed: Ensure that the --anonymous-auth argument is set to false",
+  "log": { "level": "warn" }
 }

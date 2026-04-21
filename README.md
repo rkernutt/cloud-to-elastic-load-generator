@@ -38,12 +38,28 @@ The shipping wizard supports a **Back** button on each step, **search and filter
 
 ### Chained Events
 
-Beyond single-service generators, the app includes **Chained Events** — multi-step correlated scenarios that span several services:
+Beyond single-service generators, the app includes **Chained Events** — multi-step correlated scenarios that span several services. Generators use **time-distributed timestamps** and shared **`labels.*` correlation IDs** (for example `finding_chain_id`, `attack_session_id`, `exfil_chain_id`) so events read like real detections and investigations rather than simultaneous bursts.
 
-- **Data & Analytics Pipeline** (AWS: S3 → EMR → Glue → Athena → MWAA; GCP: GCS → Dataproc → Data Catalog → BigQuery → Composer; Azure: Blob → Databricks → Purview → Synapse → Data Factory) — includes APM traces for the Elastic Service Map, dashboards, ML jobs, and alerting rules
-- **Security / data exfiltration chains** — cross-service attack pattern simulation
+- **Data & Analytics Pipeline** (AWS: S3 → EMR → Glue → Athena → MWAA; GCP: GCS → Dataproc → Data Catalog → BigQuery → Composer; Azure: Blob → Databricks → Purview → Synapse → Data Factory) — includes APM traces for the Elastic Service Map, dashboards, ML jobs, and alerting rules (`data-pipeline-*` assets).
+- **Security Finding Chain** — native detect → hub → lake (or SCC/Chronicle/SecOps, Defender/Sentinel/Activity Log); installer assets per cloud: `security-finding-chain` / `gcp-security-finding-chain` / `azure-security-finding-chain` dashboards, rules, and ML jobs.
+- **IAM Privilege Escalation Chain** — MITRE-aligned IAM audit progression with stable attacker/target identity; `iam-privesc-chain` / `gcp-iam-privesc-chain` / `azure-iam-privesc-chain` assets.
+- **Data Exfiltration Chain** — detection plus storage and network evidence with MB-scale volumes; `data-exfil-chain` / `gcp-data-exfil-chain` / `azure-data-exfil-chain` assets.
 
-See [docs/chained-events/](docs/chained-events/) for architecture diagrams and failure-mode documentation.
+See [docs/chained-events/](docs/chained-events/) for timing, field-level correlation, and failure-mode documentation. Install matching dashboards, ML jobs, and rules with the [installer/README.md](installer/README.md) scripts or the web UI **Setup** step.
+
+### CSPM / KSPM — Real CIS Benchmark Findings
+
+The CSPM and KSPM generators produce findings documents identical to what Elastic's [cloudbeat](https://github.com/elastic/cloudbeat) agent writes to `logs-cloud_security_posture.findings-default`. Every finding uses **real CIS rule UUIDs, names, sections, and benchmark metadata** sourced from the `elastic/cloudbeat` security-policies (321 rules total):
+
+| Benchmark | Rules | Coverage |
+|-----------|-------|----------|
+| CIS AWS Foundations v1.5.0 | 55 | IAM, S3, EC2, RDS, Logging, Monitoring, Networking |
+| CIS GCP Foundations v2.0.0 | 71 | IAM, Logging, Networking, VMs, Storage, SQL, BigQuery |
+| CIS Azure Foundations v2.0.0 | 72 | IAM, Defender, Storage, SQL, Logging, Networking, VMs, Key Vault, App Service |
+| CIS EKS v1.4.0 | 31 | Logging, Authentication, Networking, Pod Security |
+| CIS Kubernetes v1.0.1 | 92 | Control Plane, etcd, RBAC, Worker Nodes, Pod Security Standards |
+
+Failed findings include **realistic resource configurations and evidence** — S3 buckets without encryption, security groups allowing 0.0.0.0/0 SSH, IAM users without MFA, pods running as privileged, etc. When the `cloud_security_posture` Fleet integration is installed (automatic when CSPM/KSPM services are selected in the Setup wizard), Elastic's built-in **Posture Dashboard**, **Findings page**, and **Benchmark Rules** pages display the generated data exactly as they would with real cloud infrastructure.
 
 ---
 

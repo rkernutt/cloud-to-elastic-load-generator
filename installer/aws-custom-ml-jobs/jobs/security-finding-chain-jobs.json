@@ -1,0 +1,254 @@
+{
+  "group": "security-chain",
+  "description": "ML anomaly detection jobs for the Security Finding Chain scenario (GuardDuty, Security Hub, Security Lake)",
+  "jobs": [
+    {
+      "id": "aws-security-finding-severity-spike",
+      "description": "Detects unusual spikes in high-severity GuardDuty findings",
+      "job": {
+        "description": "Detects unusual spikes in high-severity GuardDuty findings",
+        "groups": ["aws", "security-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.guardduty.type",
+              "function": "high_count",
+              "partition_field_name": "aws.guardduty.type",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.guardduty.type", "source.ip", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-load-generator-security-finding-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.guardduty*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.kind": "alert"
+                }
+              },
+              {
+                "term": {
+                  "event.dataset": "aws.guardduty"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-security-finding-chain-rate",
+      "description": "Detects anomalous rate of finding chains (multi-stage detections)",
+      "job": {
+        "description": "Detects anomalous rate of finding chains",
+        "groups": ["aws", "security-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "30m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=event.dataset",
+              "function": "high_count",
+              "partition_field_name": "event.dataset",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["event.dataset", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-load-generator-security-finding-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": [
+          "logs-aws.guardduty*",
+          "logs-aws.securityhub_findings*",
+          "logs-aws.securitylake*"
+        ],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.kind": "alert"
+                }
+              },
+              {
+                "bool": {
+                  "should": [
+                    {
+                      "term": {
+                        "event.dataset": "aws.guardduty"
+                      }
+                    },
+                    {
+                      "term": {
+                        "event.dataset": "aws.securityhub_findings"
+                      }
+                    },
+                    {
+                      "term": {
+                        "event.dataset": "aws.securitylake"
+                      }
+                    }
+                  ],
+                  "minimum_should_match": 1
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-security-hub-compliance-anomaly",
+      "description": "Detects spikes in compliance failures",
+      "job": {
+        "description": "Detects spikes in compliance failures",
+        "groups": ["aws", "security-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "30m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "rule.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-load-generator-security-finding-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.securityhub_findings*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "aws.securityhub_findings.Compliance.Status": "FAILED"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-security-new-source-ip",
+      "description": "Detects rare source IPs in security findings",
+      "job": {
+        "description": "Detects rare source IPs in security findings",
+        "groups": ["aws", "security-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "rare by source.ip",
+              "function": "rare",
+              "by_field_name": "source.ip",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["source.ip", "aws.guardduty.type", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-load-generator-security-finding-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.guardduty*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.kind": "alert"
+                }
+              },
+              {
+                "term": {
+                  "event.dataset": "aws.guardduty"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    }
+  ]
+}

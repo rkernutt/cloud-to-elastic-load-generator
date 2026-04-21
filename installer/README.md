@@ -141,6 +141,10 @@ The dashboard installer automatically selects the best import method for your Ki
 
 ML anomaly detection jobs that detect real operational and security anomalies. Jobs include `cloudloadgen` in their metadata.
 
+### Chained scenario assets (dashboards, rules, ML jobs)
+
+Beyond per-service bundles, the repo ships chained-scenario assets for **Data & Analytics Pipeline** (`data-pipeline-dashboard.json` / `gcp-data-pipeline-dashboard.json` / `azure-data-pipeline-dashboard.json`) and for **Security Finding**, **IAM Privilege Escalation**, and **Data Exfiltration** (`security-finding-chain`, `iam-privesc-chain`, and `data-exfil-chain` name prefixes; GCP and Azure use `gcp-` / `azure-` prefixes). There are **three security-chain dashboards per cloud** (**nine** such dashboards across AWS, GCP, and Azure), each with matching **Elasticsearch-query alert rule** and **ML job** JSON. Rule bundles live in `installer/{aws,gcp,azure}-custom-rules/` (`data-pipeline-rules.json` plus the three chain files); installing **all** rule files for a cloud installs **17** rules. ML definitions include `data-pipeline-jobs` plus the three chain job files per cloud under `installer/{aws,gcp,azure}-custom-ml-jobs/jobs/`. Install with the same `setup:*-dashboards`, `setup:*-ml-jobs`, and `npm run setup:alert-rules` commands as other custom assets.
+
 ---
 
 ## Why both approaches exist
@@ -154,6 +158,16 @@ ML anomaly detection jobs that detect real operational and security anomalies. J
 | **Credentials needed** | Elasticsearch + Kibana                          | Depends on asset type                             |
 
 Running **Installer 1** (official Fleet package) plus **per-service bundles** gives you full coverage: official templates + custom load-generator assets.
+
+### Cloud Security Posture (CSPM/KSPM) auto-install
+
+When **CSPM or KSPM services** are selected in the Setup wizard and the Fleet integration toggle is enabled, the app automatically installs the `cloud_security_posture` Fleet package alongside the cloud vendor integration. This enables Elastic's built-in **Posture Dashboard**, **Findings page**, and **Benchmark Rules** pages. The CSPM/KSPM generators produce findings documents using **321 real CIS benchmark rule UUIDs** from `elastic/cloudbeat`:
+
+- **CIS AWS** (55 rules) — IAM, S3, EC2, RDS, Logging, Monitoring, Networking
+- **CIS GCP** (71 rules) — IAM, Logging, Networking, VMs, Storage, SQL, BigQuery
+- **CIS Azure** (72 rules) — IAM, Defender, Storage, SQL, Logging, Networking, VMs, Key Vault, App Service
+- **CIS EKS** (31 rules) — Logging, Authentication, Networking, Pod Security
+- **CIS Kubernetes** (92 rules) — Control Plane, etcd, RBAC, Worker Nodes, Pod Security Standards
 
 ---
 

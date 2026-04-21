@@ -25,7 +25,7 @@ See [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md) for details
 
 ## Chained Events
 
-Multi-service correlated scenarios that generate logs, metrics, APM traces (for the Elastic Service Map), dashboards, ML jobs, and alerting rules. The first three guides each document **AWS, GCP, and Azure** variants in one place.
+Multi-service correlated scenarios that generate logs, metrics, APM traces (for the Elastic Service Map), dashboards, ML jobs, and alerting rules. Security-oriented chains (**Security Finding**, **IAM Privilege Escalation**, **Data Exfiltration**) use **time-distributed events** and `labels.finding_chain_id`, `labels.attack_session_id`, or `labels.exfil_chain_id` for correlation. The first three guides each document **AWS, GCP, and Azure** variants in one place.
 
 | Scenario                                                                               | Document                                                                                               |
 | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |

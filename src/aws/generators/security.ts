@@ -12,6 +12,19 @@ import {
   HTTP_PATHS,
 } from "../../helpers";
 import type { EcsDocument } from "./types.js";
+import { offsetTs } from "./traces/helpers.js";
+import {
+  CIS_AWS_RULES,
+  CIS_EKS_RULES,
+  type CisBenchmarkRule,
+} from "../../data/cisBenchmarkRules.js";
+import {
+  buildCspFinding,
+  pick,
+  randHex,
+  randBetween,
+  type CspFindingResource,
+} from "../../data/cspFindingsHelpers.js";
 
 function generateGuardDutyLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
@@ -2083,6 +2096,9 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
  * generateSecurityFindingChain — returns 3 linked finding documents modelling
  * the GuardDuty → Security Hub → Security Lake chain.
  *
+ * Time-distributed: GuardDuty at T+0, Security Hub at T+30s–T+2m, Security Lake at T+1m–T+5m
+ * (after Hub). Consistent entity graph + labels.finding_chain_id for correlation.
+ *
  * Each document carries a `__dataset` field used by App.jsx for per-doc index routing.
  * Strip `__dataset` before indexing (App.jsx handles this).
  *
@@ -2093,29 +2109,98 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
 function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
   const region = rand(REGIONS);
   const acct = randAccount();
+  const findingChainId = randUUID();
+  const baseDate = new Date(ts);
 
   const severity = rand(["HIGH", "HIGH", "CRITICAL", "MEDIUM"]);
   const sevCode = severity === "CRITICAL" ? 8.0 : severity === "HIGH" ? 7.0 : 4.0;
   const sevValue = sevCode >= 7 ? "High" : "Medium";
   const findingType = rand([
+    "UnauthorizedAccess:EC2/MaliciousIPCaller",
+    "Recon:EC2/PortProbeUnprotectedPort",
     "UnauthorizedAccess:EC2/SSHBruteForce",
-    "UnauthorizedAccess:IAMUser/MaliciousIPCaller.Custom",
-    "CryptoCurrency:EC2/BitcoinTool.B!DNS",
-    "Trojan:EC2/DNSDataExfiltration",
     "Recon:EC2/PortScan",
+    "Exfiltration:S3/AnomalousBehavior",
     "Backdoor:EC2/C&CActivity.B",
     "InitialAccess:IAMUser/AnomalousBehavior",
     "PrivilegeEscalation:IAMUser/AnomalousBehavior",
   ]);
+  const isReconOnly = findingType.startsWith("Recon:");
+  const isAttackFinding = !isReconOnly;
+
   const detectorId = randId(32).toLowerCase();
   const gdFindingId = randId(32).toLowerCase();
   const gdArn = `arn:aws:guardduty:${region}:${acct.id}:detector/${detectorId}/finding/${gdFindingId}`;
   const shFindingId = `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`;
   const srcIp = randIp();
 
-  // 1. GuardDuty finding
-  const gdDoc = {
-    "@timestamp": ts,
+  const resourceKind = rand(["ec2", "s3"] as const);
+  const instanceId = `i-${randId(17).toLowerCase()}`;
+  const bucketName = `${rand(["app-data", "logs-archive", "customer-exports"])}-${acct.id.slice(-6)}`;
+  const resourceArn =
+    resourceKind === "ec2"
+      ? `arn:aws:ec2:${region}:${acct.id}:instance/${instanceId}`
+      : `arn:aws:s3:::${bucketName}`;
+
+  const asffTypes = findingType.startsWith("Recon:")
+    ? ["Threat Detections/Tactics/Reconnaissance"]
+    : findingType.includes("S3")
+      ? ["Threat Detections/Tactics/Exfiltration"]
+      : findingType.includes("IAM")
+        ? ["Threat Detections/Tactics/Persistence"]
+        : ["Threat Detections/Tactics/Unauthorized Access"];
+
+  const eventFirstSeen = new Date(baseDate.getTime() - randInt(60, 3600) * 1000).toISOString();
+  const gdResource =
+    resourceKind === "ec2"
+      ? {
+          type: "Instance",
+          instance_details: {
+            instance_id: instanceId,
+            instance_type: rand(["t3.medium", "m5.large", "c6i.xlarge"]),
+            image_id: `ami-${randId(8).toLowerCase()}`,
+            availability_zone: `${region}${rand(["a", "b", "c"])}`,
+            network_interfaces: [
+              {
+                network_interface_id: `eni-${randId(8).toLowerCase()}`,
+                private_ip_address: randIp(),
+                subnet_id: `subnet-${randId(8).toLowerCase()}`,
+                vpc_id: `vpc-${randId(8).toLowerCase()}`,
+              },
+            ],
+            tags: [{ key: "Name", value: "app-server" }],
+          },
+        }
+      : {
+          type: "S3Bucket",
+          s3_bucket_detail: {
+            arn: resourceArn,
+            name: bucketName,
+            type: "Destination",
+            created_at: eventFirstSeen,
+            owner: { id: acct.id },
+          },
+        };
+
+  const actionType = rand(["NETWORK_CONNECTION", "PORT_PROBE", "DNS_REQUEST", "AWS_API_CALL"]);
+  const gdTitle =
+    findingType === "Recon:EC2/PortProbeUnprotectedPort"
+      ? "EC2 instance is performing reconnaissance port probes against an unprotected port."
+      : findingType.replace(/^[^:]+:/, "").replace(/[/.!]/g, " ");
+
+  const gdDescription = `GuardDuty identified suspicious behavior based on VPC flow logs, DNS logs, or CloudTrail. Finding type: ${findingType}. Resource: ${resourceArn}.`;
+
+  const chainLabels = {
+    finding_chain_id: findingChainId,
+    guardduty_finding_id: gdFindingId,
+    securityhub_finding_id: shFindingId,
+    resource_arn: resourceArn,
+  };
+
+  // 1. GuardDuty at T+0
+  const gdTs = ts;
+  const gdDoc: EcsDocument = {
+    "@timestamp": gdTs,
     __dataset: "aws.guardduty",
     cloud: {
       provider: "aws",
@@ -2133,19 +2218,32 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
         id: gdFindingId,
         arn: gdArn,
         type: findingType,
-        title: findingType.replace(/^[^:]+:/, "").replace(/[/.!]/g, " "),
-        description: `GuardDuty detected suspicious activity: ${findingType}`,
-        created_at: ts,
-        updated_at: ts,
+        title: gdTitle,
+        description: gdDescription,
+        created_at: gdTs,
+        updated_at: gdTs,
         severity: { code: sevCode, value: sevValue },
         confidence: Number(randFloat(70, 99)),
-        resource: { type: rand(["Instance", "AccessKey", "S3Bucket"]) },
+        resource: gdResource,
         service: {
           detector_id: detectorId,
           count: randInt(1, 100),
           archived: false,
+          resource_role: resourceKind === "ec2" ? "TARGET" : "TARGET",
           action: {
-            action_type: rand(["NETWORK_CONNECTION", "PORT_PROBE", "DNS_REQUEST", "AWS_API_CALL"]),
+            action_type: actionType,
+            ...(actionType === "PORT_PROBE"
+              ? {
+                  port_probe_action: {
+                    port_probe_details: [
+                      {
+                        local_port_details: { port: rand([22, 3389, 443, 8080]) },
+                        remote_ip_details: { ip_address_v4: srcIp },
+                      },
+                    ],
+                  },
+                }
+              : {}),
           },
         },
         metrics: {
@@ -2155,29 +2253,74 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
       },
     },
     source: { ip: srcIp },
-    rule: { category: "intrusion_detection", name: findingType },
+    rule: { category: isReconOnly ? "intrusion_detection" : "threat", name: findingType },
     event: {
       kind: "alert",
       severity: sevCode,
       outcome: "failure",
-      category: ["intrusion_detection"],
+      category: [isReconOnly ? "intrusion_detection" : "threat"],
       type: ["indicator"],
       dataset: "aws.guardduty",
       provider: "guardduty.amazonaws.com",
     },
-    message: `GuardDuty finding [${severity}]: ${findingType}`,
+    message: `GuardDuty finding [${severity}]: ${findingType} — ${resourceArn}`,
     log: { level: sevCode >= 7 ? "error" : "warn" },
-    error: {
-      code: "ThreatFinding",
-      message: `GuardDuty finding: ${findingType}`,
-      type: "security",
-    },
+    labels: chainLabels,
+    ...(isAttackFinding
+      ? {
+          error: {
+            code: "ThreatFinding",
+            message: `GuardDuty finding: ${findingType}`,
+            type: "security",
+          },
+          threat:
+            findingType.startsWith("Exfiltration") || findingType.includes("AnomalousBehavior")
+              ? {
+                  tactic: { name: "Exfiltration", id: "TA0010" },
+                  technique: { name: "Transfer Data to Cloud Account", id: "T1537" },
+                }
+              : findingType.includes("SSH") || findingType.includes("BruteForce")
+                ? {
+                    tactic: { name: "Credential Access", id: "TA0006" },
+                    technique: { name: "Brute Force", id: "T1110" },
+                  }
+                : findingType.startsWith("Backdoor") || findingType.includes("C&C")
+                  ? {
+                      tactic: { name: "Command and Control", id: "TA0011" },
+                      technique: { name: "Application Layer Protocol", id: "T1071" },
+                    }
+                  : {
+                      tactic: { name: "Initial Access", id: "TA0001" },
+                      technique: { name: "Valid Accounts", id: "T1078" },
+                    },
+        }
+      : {}),
   };
 
-  // 2. Security Hub finding — product=GuardDuty, references GuardDuty ARN
+  // 2. Security Hub ASFF aggregation (T+30s – T+2m after detection)
+  let offsetMs = 0;
+  const advance = (minMs: number, maxMs: number) => {
+    offsetMs += randInt(minMs, maxMs);
+    return offsetTs(baseDate, offsetMs);
+  };
+  const shTs = advance(30_000, 120_000);
   const shSevNorm = severity === "CRITICAL" ? 90 : severity === "HIGH" ? 70 : 40;
-  const shDoc = {
-    "@timestamp": ts,
+  const resourceTypeAsff = resourceKind === "ec2" ? "AwsEc2Instance" : "AwsS3Bucket";
+  const resourcesAsff = [
+    {
+      Type: resourceTypeAsff,
+      Id: resourceArn,
+      Partition: "aws",
+      Region: region,
+      Details:
+        resourceKind === "ec2"
+          ? { AwsEc2Instance: { IamInstanceProfileArn: null } }
+          : { AwsS3Bucket: {} },
+    },
+  ];
+
+  const shDoc: EcsDocument = {
+    "@timestamp": shTs,
     __dataset: "aws.securityhub_findings",
     cloud: {
       provider: "aws",
@@ -2191,28 +2334,46 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
         ControlId: "GuardDuty.1",
       },
       securityhub_findings: {
-        id: shFindingId,
-        aws_account_id: acct.id,
-        region,
-        description: `GuardDuty finding promoted to Security Hub: ${findingType}`,
-        created_at: ts,
-        first_observed_at: ts,
-        last_observed_at: ts,
-        generator: { id: "guardduty" },
-        types: ["Threat Detections/Tactics/Impact"],
-        compliance: { security_control_id: "GuardDuty.1", status: "FAILED" },
-        severity: { label: severity, normalized: shSevNorm },
-        workflow: { status: "NEW" },
-        record_state: "ACTIVE",
-        product: {
-          arn: `arn:aws:securityhub:${region}::product/aws/guardduty`,
-          name: "GuardDuty",
+        SchemaVersion: "2018-10-08",
+        Id: shFindingId,
+        ProductArn: `arn:aws:securityhub:${region}::product/aws/guardduty`,
+        GeneratorId: `arn:aws:securityhub:${region}::product/aws/guardduty/${detectorId}`,
+        AwsAccountId: acct.id,
+        Types: asffTypes,
+        CreatedAt: gdTs,
+        UpdatedAt: shTs,
+        FirstObservedAt: gdTs,
+        LastObservedAt: shTs,
+        Severity: {
+          Label: severity,
+          Normalized: shSevNorm,
+          Original: severity,
         },
+        Title: `GuardDuty: ${findingType}`,
+        Description: `Security Hub aggregated GuardDuty finding for ${resourceArn}. ${gdDescription}`,
+        Resources: resourcesAsff,
+        Compliance: {
+          Status: "FAILED",
+          SecurityControlId: "GuardDuty.1",
+          RelatedRequirements: ["AWS Foundational Security Best Practices v1.0.0"],
+        },
+        Workflow: { Status: "NOTIFIED" },
+        RecordState: "ACTIVE",
+        ProductFields: {
+          "aws/securityhub/FindingId": gdFindingId,
+          "aws/securityhub/CompanyName": "Amazon",
+          "aws/securityhub/ProductName": "GuardDuty",
+        },
+        Remediation: {
+          Recommendation: {
+            Text: "Investigate the resource and follow GuardDuty remediation guidance for this finding type.",
+          },
+        },
+        criticality: severity === "CRITICAL" ? 9 : 7,
+        confidence: randInt(70, 99),
         related_findings: [
           { id: gdArn, product_arn: `arn:aws:securityhub:${region}::product/aws/guardduty` },
         ],
-        criticality: severity === "CRITICAL" ? 9 : 7,
-        confidence: randInt(70, 99),
       },
     },
     rule: { id: "GuardDuty.1", name: `GuardDuty.1 — ${findingType}` },
@@ -2225,20 +2386,32 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
       dataset: "aws.securityhub_findings",
       provider: "securityhub.amazonaws.com",
     },
-    message: `Security Hub [${severity}]: GuardDuty finding forwarded — ${findingType}`,
+    message: `Security Hub [${severity}]: ASFF finding NOTIFIED — ${findingType} (${resourceArn})`,
     log: { level: severity === "CRITICAL" ? "error" : "warn" },
-    error: {
-      code: "ThreatFinding",
-      message: `Security Hub forwarded GuardDuty finding: ${findingType}`,
-      type: "security",
-    },
+    labels: chainLabels,
+    ...(isAttackFinding
+      ? {
+          error: {
+            code: "ThreatFinding",
+            message: `Security Hub forwarded GuardDuty finding: ${findingType}`,
+            type: "security",
+          },
+        }
+      : {}),
   };
 
-  // 3. Security Lake OCSF 2001 Security Finding — source=SecurityHub, links to SH finding
+  // 3. Security Lake OCSF normalization (T+1m – T+5m from T+0; ingest after Hub when possible)
+  let slOffsetMs = randInt(60_000, 300_000);
+  if (slOffsetMs <= offsetMs) slOffsetMs = offsetMs + randInt(10_000, 120_000);
+  const slTs = offsetTs(baseDate, slOffsetMs);
+  const useClass2002 = Math.random() < 0.35;
+  const slClassUid = useClass2002 ? 2002 : 2001;
+  const slClassName = useClass2002 ? "Detection Finding" : "Security Finding";
   const slSevId = severity === "CRITICAL" ? 6 : severity === "HIGH" ? 5 : 3;
-  const slSevName = { 6: "Critical", 5: "High", 3: "Medium" }[slSevId];
-  const slDoc = {
-    "@timestamp": ts,
+  const slSevName = ({ 6: "Critical", 5: "High", 3: "Medium" } as const)[slSevId];
+
+  const slDoc: EcsDocument = {
+    "@timestamp": slTs,
     __dataset: "aws.securitylake",
     cloud: {
       provider: "aws",
@@ -2247,11 +2420,11 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
       service: { name: "securitylake" },
     },
     aws: {
-      dimensions: { OcsfClass: "Security Finding", SourceType: "LAMBDA:SecurityHub" },
+      dimensions: { OcsfClass: slClassName, SourceType: "LAMBDA:SecurityHub" },
       securitylake: {
         source_type: "LAMBDA:SecurityHub",
-        class_uid: 2001,
-        class_name: "Security Finding",
+        class_uid: slClassUid,
+        class_name: slClassName,
         category_uid: 2,
         category_name: "Findings",
         activity_id: 1,
@@ -2260,7 +2433,7 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
         severity: slSevName,
         status_id: 1,
         status: "Success",
-        time: new Date(ts).getTime(),
+        time: new Date(slTs).getTime(),
         metadata: {
           version: "1.1.0",
           product: { name: "SecurityHub", vendor_name: "AWS" },
@@ -2270,340 +2443,424 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
         finding: {
           uid: shFindingId,
           title: `GuardDuty: ${findingType}`,
-          types: ["Threat Detections/Tactics/Impact"],
-          first_seen_time: new Date(ts).getTime(),
-          last_seen_time: new Date(ts).getTime(),
+          desc: `OCSF-normalized Security Hub record for ${resourceArn}. Source finding ${gdFindingId}. ${gdDescription}`,
+          types: asffTypes,
+          first_seen_time: new Date(gdTs).getTime(),
+          last_seen_time: new Date(slTs).getTime(),
           confidence_score: randInt(70, 99),
-          related_finding_uid: gdArn,
+          related_finding_uid: gdFindingId,
         },
         src_endpoint: { ip: srcIp },
+        resource: { uid: resourceArn, type: resourceTypeAsff },
       },
     },
     event: {
+      kind: "event",
       outcome: "failure",
       category: ["intrusion_detection"],
+      type: ["info"],
       dataset: "aws.securitylake",
       provider: "securitylake.amazonaws.com",
     },
-    message: `Security Lake [Security Finding/${slSevName}]: GuardDuty→SecurityHub chain — ${findingType}`,
+    message: `Security Lake [OCSF ${slClassUid} / ${slSevName}]: normalized Hub→Lake — ${findingType}`,
     log: { level: slSevId >= 5 ? "error" : "warn" },
-    error: {
-      code: "SecurityFinding",
-      message: `Security Lake OCSF Security Finding: ${findingType}`,
-      type: "security",
-    },
+    labels: chainLabels,
+    ...(isAttackFinding
+      ? {
+          error: {
+            code: "SecurityFinding",
+            message: `Security Lake OCSF ${slClassName}: ${findingType}`,
+            type: "security",
+          },
+        }
+      : {}),
   };
 
   return [gdDoc, shDoc, slDoc];
 }
 
 // ── CSPM Findings (Elastic Cloud Security Posture Management) ─────────────────
-const CIS_AWS_RULES = [
-  {
-    section: "1.1",
-    id: "cis_1_1",
-    name: "Avoid use of the root account",
-    resource_type: "cloud-identity-management",
-    sub_type: "iam-root",
-    severity: "critical",
-    tags: ["IAM"],
-  },
-  {
-    section: "1.2",
-    id: "cis_1_2",
-    name: "Ensure MFA enabled for all IAM users with console access",
-    resource_type: "cloud-identity-management",
-    sub_type: "iam-user",
-    severity: "high",
-    tags: ["IAM"],
-  },
-  {
-    section: "1.3",
-    id: "cis_1_3",
-    name: "Ensure no root account access key exists",
-    resource_type: "cloud-identity-management",
-    sub_type: "iam-root",
-    severity: "critical",
-    tags: ["IAM"],
-  },
-  {
-    section: "1.8",
-    id: "cis_1_8",
-    name: "Ensure IAM password policy requires minimum length of 14",
-    resource_type: "cloud-identity-management",
-    sub_type: "iam-policy",
-    severity: "medium",
-    tags: ["IAM"],
-  },
-  {
-    section: "1.14",
-    id: "cis_1_14",
-    name: "Ensure hardware MFA is enabled for root account",
-    resource_type: "cloud-identity-management",
-    sub_type: "iam-root",
-    severity: "critical",
-    tags: ["IAM"],
-  },
-  {
-    section: "2.1",
-    id: "cis_2_1",
-    name: "Ensure CloudTrail is enabled in all regions",
-    resource_type: "cloud-audit",
-    sub_type: "cloudtrail",
-    severity: "high",
-    tags: ["Logging"],
-  },
-  {
-    section: "2.2",
-    id: "cis_2_2",
-    name: "Ensure CloudTrail log file validation is enabled",
-    resource_type: "cloud-audit",
-    sub_type: "cloudtrail",
-    severity: "medium",
-    tags: ["Logging"],
-  },
-  {
-    section: "2.4",
-    id: "cis_2_4",
-    name: "Ensure CloudTrail trails are encrypted with KMS CMK",
-    resource_type: "cloud-audit",
-    sub_type: "cloudtrail",
-    severity: "medium",
-    tags: ["Logging"],
-  },
-  {
-    section: "2.5",
-    id: "cis_2_5",
-    name: "Ensure AWS Config is enabled in all regions",
-    resource_type: "cloud-configuration",
-    sub_type: "config",
-    severity: "medium",
-    tags: ["Config"],
-  },
-  {
-    section: "3.3",
-    id: "cis_3_3",
-    name: "Ensure a log metric filter for root account usage exists",
-    resource_type: "cloud-audit",
-    sub_type: "cloudwatch",
-    severity: "high",
-    tags: ["Monitoring"],
-  },
-  {
-    section: "4.1",
-    id: "cis_4_1",
-    name: "Ensure no security group allows unrestricted SSH inbound",
-    resource_type: "cloud-network",
-    sub_type: "security-group",
-    severity: "high",
-    tags: ["Networking"],
-  },
-  {
-    section: "4.2",
-    id: "cis_4_2",
-    name: "Ensure no security group allows unrestricted RDP inbound",
-    resource_type: "cloud-network",
-    sub_type: "security-group",
-    severity: "high",
-    tags: ["Networking"],
-  },
-  {
-    section: "5.1",
-    id: "cis_5_1",
-    name: "Ensure VPC Flow Logs are enabled in all VPCs",
-    resource_type: "cloud-network",
-    sub_type: "vpc",
-    severity: "medium",
-    tags: ["Networking"],
-  },
-  {
-    section: "5.4",
-    id: "cis_5_4",
-    name: "Ensure default VPC security group restricts all traffic",
-    resource_type: "cloud-network",
-    sub_type: "security-group",
-    severity: "medium",
-    tags: ["Networking"],
-  },
-];
+
+function awsIsoPastDate(daysAgo: number): string {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - daysAgo);
+  return d.toISOString().replace(/\.\d{3}Z$/, "Z");
+}
+
+function awsS3BucketName(): string {
+  return `corp-${randHex(8)}-${randBetween(1000, 9999)}-data`;
+}
+
+function buildAwsCspmResource(
+  rule: CisBenchmarkRule,
+  region: string,
+  acct: { id: string; name: string }
+): CspFindingResource {
+  const rn = rule.benchmark.rule_number;
+  const user = pick(["alice", "bob", "carol", "svc-deploy", "breakglass-admin"]);
+  const role = pick(["AdminRole", "PowerUser", "ReadOnly"]);
+  const bucket = awsS3BucketName();
+  const vpcId = `vpc-${randId(8).toLowerCase()}`;
+  const sgId = `sg-${randId(8).toLowerCase()}`;
+  const naclId = `acl-${randId(8).toLowerCase()}`;
+  const trailName = `management-events-${randHex(4)}`;
+  const kmsKeyId = `arn:aws:kms:${region}:${acct.id}:key/${randHex(32)}`;
+  const dbId = `db-${randHex(10)}`;
+
+  switch (rule.section) {
+    case "Identity and Access Management": {
+      const rootish = /'root'|root user|root account/i.test(rule.name);
+      const policy =
+        /password policy|minimum length|reuse|IAM password/i.test(rule.name) ||
+        rn === "1.8" ||
+        rn === "1.9";
+      if (policy) {
+        return {
+          id: `arn:aws:iam::${acct.id}:account`,
+          name: `account-password-policy-${acct.id}`,
+          type: "identitymanagement",
+          sub_type: "account-password-policy",
+          raw: {
+            PasswordPolicy: {
+              MinimumPasswordLength: 8,
+              RequireSymbols: false,
+              RequireNumbers: true,
+              RequireUppercaseCharacters: false,
+            },
+          },
+        };
+      }
+      if (rootish && /access key/i.test(rule.name)) {
+        return {
+          id: `arn:aws:iam::${acct.id}:root`,
+          name: "root",
+          type: "identitymanagement",
+          sub_type: "iam-root",
+        };
+      }
+      if (rootish) {
+        return {
+          id: `arn:aws:iam::${acct.id}:root`,
+          name: "root",
+          type: "identitymanagement",
+          sub_type: "iam-root",
+        };
+      }
+      if (
+        /group|Groups|inline|policy attached|support role|Access analyzer|certificate/i.test(
+          rule.name
+        )
+      ) {
+        return {
+          id: `arn:aws:iam::${acct.id}:role/${role}`,
+          name: role,
+          type: "identitymanagement",
+          sub_type: "iam-role",
+        };
+      }
+      return {
+        id: `arn:aws:iam::${acct.id}:user/${user}`,
+        name: user,
+        type: "identitymanagement",
+        sub_type: "iam-user",
+      };
+    }
+    case "Simple Storage Service (S3)":
+      return {
+        id: `arn:aws:s3:::${bucket}`,
+        name: bucket,
+        type: "cloud-storage",
+        sub_type: "s3-bucket",
+      };
+    case "Elastic Compute Cloud (EC2)":
+      return {
+        id: `arn:aws:ec2:${region}:${acct.id}:account`,
+        name: `ebs-default-encryption-${region}`,
+        type: "ec2",
+        sub_type: "ebs-encryption-account",
+      };
+    case "Relational Database Service (RDS)":
+      return {
+        id: `arn:aws:rds:${region}:${acct.id}:db:${dbId}`,
+        name: dbId,
+        type: "cloud-database",
+        sub_type: "rds-db-instance",
+      };
+    case "Logging": {
+      if (/VPC flow|flow log/i.test(rule.name)) {
+        return {
+          id: `arn:aws:ec2:${region}:${acct.id}:vpc/${vpcId}`,
+          name: vpcId,
+          type: "cloud-audit",
+          sub_type: "vpc-flow-logs",
+        };
+      }
+      if (/KMS|CMK|rotation/i.test(rule.name)) {
+        return {
+          id: kmsKeyId,
+          name: `alias/cmk-${randHex(6)}`,
+          type: "cloud-audit",
+          sub_type: "kms-key",
+        };
+      }
+      if (/CloudTrail|trail/i.test(rule.name)) {
+        return {
+          id: `arn:aws:cloudtrail:${region}:${acct.id}:trail/${trailName}`,
+          name: trailName,
+          type: "cloud-audit",
+          sub_type: "cloudtrail",
+        };
+      }
+      if (/Config/i.test(rule.name)) {
+        return {
+          id: `arn:aws:config:${region}:${acct.id}:config-recorder/default`,
+          name: "default",
+          type: "cloud-audit",
+          sub_type: "config-recorder",
+        };
+      }
+      return {
+        id: `arn:aws:s3:::${bucket}`,
+        name: bucket,
+        type: "cloud-audit",
+        sub_type: "s3-bucket",
+      };
+    }
+    case "Monitoring":
+      return {
+        id: `arn:aws:cloudwatch:${region}:${acct.id}:alarm:${rn.replace(/\./g, "-")}-compliance`,
+        name: `cis-${rn}-alarm`,
+        type: "cloud-alarm",
+        sub_type: "cloudwatch-alarm",
+      };
+    case "Networking": {
+      if (/Network ACL|NACL/i.test(rule.name)) {
+        return {
+          id: `arn:aws:ec2:${region}:${acct.id}:network-acl/${naclId}`,
+          name: naclId,
+          type: "cloud-compute",
+          sub_type: "network-acl",
+        };
+      }
+      if (/default security group/i.test(rule.name)) {
+        return {
+          id: `arn:aws:ec2:${region}:${acct.id}:security-group/${sgId}`,
+          name: `default (${sgId})`,
+          type: "cloud-compute",
+          sub_type: "security-group",
+        };
+      }
+      if (/security group/i.test(rule.name)) {
+        return {
+          id: `arn:aws:ec2:${region}:${acct.id}:security-group/${sgId}`,
+          name: sgId,
+          type: "cloud-compute",
+          sub_type: "security-group",
+        };
+      }
+      return {
+        id: `arn:aws:ec2:${region}:${acct.id}:vpc/${vpcId}`,
+        name: vpcId,
+        type: "cloud-compute",
+        sub_type: "vpc",
+      };
+    }
+    default:
+      return {
+        id: `arn:aws:iam::${acct.id}:user/${user}`,
+        name: user,
+        type: "identitymanagement",
+        sub_type: "iam-user",
+      };
+  }
+}
+
+function awsCspmEvidenceForRule(rule: CisBenchmarkRule): Record<string, unknown> {
+  const rn = rule.benchmark.rule_number;
+  const n = rule.name.toLowerCase();
+
+  const monitoringDefault = { MetricFilters: [] as unknown[], AlarmActions: [] as unknown[] };
+
+  switch (rn) {
+    case "1.4":
+      return { access_key_1_active: true, access_key_2_active: false };
+    case "1.5":
+    case "1.10":
+      return { mfa_active: false };
+    case "1.6":
+      return { mfa_serial: null, virtual_mfa_device: null };
+    case "1.7":
+      return { root_user_daily_tasks: true, last_root_login: awsIsoPastDate(3) };
+    case "1.8":
+      return {
+        MinimumPasswordLength: 8,
+        RequireSymbols: false,
+        RequireLowercaseCharacters: false,
+      };
+    case "1.9":
+      return { PasswordReusePrevention: 0 };
+    case "1.11":
+      return { access_key_1_active: true, console_password_enabled: true };
+    case "1.12":
+      return { password_last_used: awsIsoPastDate(60), access_key_1_last_used: awsIsoPastDate(50) };
+    case "1.13":
+      return { access_key_1_active: true, access_key_2_active: true };
+    case "1.14":
+      return { access_key_1_last_rotated: awsIsoPastDate(120) };
+    case "1.15":
+      return {
+        AttachedPolicies: [
+          {
+            PolicyName: "AdministratorAccess",
+            PolicyArn: "arn:aws:iam::aws:policy/AdministratorAccess",
+          },
+        ],
+      };
+    case "1.16":
+      return {
+        AttachedPolicies: [
+          {
+            PolicyName: "FullAdminInline",
+            PolicyDocument: { Statement: [{ Effect: "Allow", Action: "*", Resource: "*" }] },
+          },
+        ],
+      };
+    case "1.17":
+      return { SupportRoleExists: false };
+    case "1.19":
+      return { ServerCertificateList: [{ Expiration: awsIsoPastDate(400), Status: "Expired" }] };
+    case "1.20":
+      return { AccessAnalyzers: [] };
+    case "2.1.1":
+      return { ServerSideEncryptionConfiguration: null };
+    case "2.1.2":
+      return {
+        BucketPolicy: {
+          Statement: [{ Effect: "Allow", Principal: "*", Action: "s3:*", Condition: {} }],
+        },
+      };
+    case "2.1.3":
+      return { VersioningConfiguration: { MFADelete: "Disabled", Status: "Enabled" } };
+    case "2.1.5":
+      return {
+        PublicAccessBlockConfiguration: {
+          BlockPublicAcls: false,
+          BlockPublicPolicy: false,
+          IgnorePublicAcls: false,
+          RestrictPublicBuckets: false,
+        },
+      };
+    case "2.2.1":
+      return { EbsEncryptionByDefault: false };
+    case "2.3.1":
+      return { StorageEncrypted: false };
+    case "2.3.2":
+      return { AutoMinorVersionUpgrade: false };
+    case "2.3.3":
+      return { PubliclyAccessible: true };
+    case "3.1":
+      return { IsMultiRegionTrail: false };
+    case "3.2":
+      return { LogFileValidationEnabled: false };
+    case "3.3":
+      return {
+        PublicAccessBlockConfiguration: {
+          BlockPublicAcls: false,
+          BlockPublicPolicy: false,
+          IgnorePublicAcls: false,
+          RestrictPublicBuckets: false,
+        },
+      };
+    case "3.4":
+      return { CloudWatchLogsLogGroupArn: null };
+    case "3.5":
+      return { ConfigurationRecorders: [{ name: "default", recording: false }] };
+    case "3.6":
+      return { LoggingEnabled: null };
+    case "3.7":
+      return { KmsKeyId: null };
+    case "3.8":
+      return { KeyRotationEnabled: false };
+    case "3.9":
+      return { FlowLogs: [] };
+    case "3.10":
+      return { EventSelectors: [{ ReadWriteType: "WriteOnly", DataResources: [] }] };
+    case "3.11":
+      return { EventSelectors: [{ ReadWriteType: "ReadOnly", DataResources: [] }] };
+    case "5.1":
+      return {
+        Entries: [
+          {
+            RuleAction: "allow",
+            CidrBlock: "0.0.0.0/0",
+            PortRange: { From: 22, To: 22 },
+          },
+        ],
+      };
+    case "5.2":
+      return {
+        IpPermissions: [
+          { FromPort: 22, ToPort: 22, IpProtocol: "tcp", IpRanges: [{ CidrIp: "0.0.0.0/0" }] },
+        ],
+      };
+    case "5.3":
+      return {
+        IpPermissions: [
+          {
+            FromPort: 22,
+            ToPort: 22,
+            IpProtocol: "tcp",
+            Ipv6Ranges: [{ CidrIpv6: "::/0" }],
+          },
+        ],
+      };
+    case "5.4":
+      return {
+        GroupName: "default",
+        IpPermissions: [
+          {
+            FromPort: 0,
+            ToPort: 65535,
+            IpProtocol: "tcp",
+            UserIdGroupPairs: [{ GroupId: "sg-self" }],
+          },
+        ],
+      };
+    default:
+      break;
+  }
+
+  if (rule.section === "Monitoring" || /^4\./.test(rn)) return monitoringDefault;
+  if (rule.section === "Networking" && /VPC/i.test(rule.name))
+    return { IsDefault: true, FlowLogs: [] };
+  if (rule.section === "Logging" && /flow/i.test(n)) return { FlowLogs: [] };
+  if (rule.section === "Identity and Access Management") return { mfa_active: false };
+
+  return { non_compliant: true, rule_number: rn };
+}
 
 function generateCspmFindings(ts: string, er: number): EcsDocument[] {
   const region = rand(REGIONS);
   const acct = randAccount();
-  const rule = rand(CIS_AWS_RULES);
+  const rule = pick(CIS_AWS_RULES);
   const isFailed = Math.random() < er + 0.25;
-  const evaluation = isFailed ? "failed" : "passed";
-  const resourceId =
-    rule.sub_type === "iam-user"
-      ? `arn:aws:iam::${acct.id}:user/${rand(["alice", "bob", "carol", "svc-deploy"])}`
-      : rule.sub_type === "iam-root"
-        ? `arn:aws:iam::${acct.id}:root`
-        : rule.sub_type === "iam-policy"
-          ? `arn:aws:iam::${acct.id}:policy/password-policy`
-          : rule.sub_type === "cloudtrail"
-            ? `arn:aws:cloudtrail:${region}:${acct.id}:trail/management-events`
-            : rule.sub_type === "cloudwatch"
-              ? `arn:aws:cloudwatch:${region}:${acct.id}:alarm/root-login`
-              : rule.sub_type === "config"
-                ? `arn:aws:config:${region}:${acct.id}:config-recorder/default`
-                : rule.sub_type === "vpc"
-                  ? `arn:aws:ec2:${region}:${acct.id}:vpc/vpc-${randId(8).toLowerCase()}`
-                  : rule.sub_type === "security-group"
-                    ? `arn:aws:ec2:${region}:${acct.id}:security-group/sg-${randId(8).toLowerCase()}`
-                    : `arn:aws:${rule.sub_type}:${region}:${acct.id}:${rule.sub_type}-${randId(8).toLowerCase()}`;
-  const resourceName = resourceId.split("/").pop() || resourceId.split(":").pop();
-  return [
-    {
-      "@timestamp": ts,
-      __dataset: "cloud_security_posture.findings",
-      data_stream: {
-        dataset: "cloud_security_posture.findings",
-        namespace: "default",
-        type: "logs",
-      },
-      cloud: { provider: "aws", region, account: { id: acct.id, name: acct.name } },
-      resource: {
-        id: resourceId,
-        name: resourceName,
-        sub_type: rule.sub_type,
-        type: rule.resource_type,
-      },
-      rule: {
-        id: rule.id,
-        name: rule.name,
-        section: rule.section,
-        tags: rule.tags,
-        benchmark: {
-          id: "cis_aws",
-          version: "v1.5.0",
-          rule_number: rule.section,
-          posture_type: "cspm",
-        },
-        impact: isFailed
-          ? `Non-compliance with CIS AWS ${rule.section} may expose account to unauthorized access.`
-          : null,
-        remediation: isFailed
-          ? `Remediate per CIS AWS Foundations Benchmark v1.5.0 section ${rule.section}.`
-          : null,
-      },
-      result: { evaluation },
-      severity: isFailed ? rule.severity : "none",
-      event: {
-        kind: "state",
-        category: ["configuration"],
-        type: ["info"],
-        outcome: isFailed ? "failure" : "success",
-        dataset: "cloud_security_posture.findings",
-        provider: "elastic_cspm",
-      },
-      message: `CSPM [CIS AWS 1.5 / ${rule.section}] ${evaluation}: ${rule.name}`,
-      log: { level: isFailed ? (rule.severity === "critical" ? "error" : "warn") : "info" },
-      ...(isFailed
-        ? {
-            error: {
-              code: `CIS_${rule.id.toUpperCase()}`,
-              message: `CSPM check failed: ${rule.name}`,
-              type: "compliance",
-            },
-          }
-        : {}),
-    },
-  ];
+  const cloud = { provider: "aws", region, account: { id: acct.id, name: acct.name } };
+  const resource = buildAwsCspmResource(rule, region, acct);
+  const evidence = isFailed ? awsCspmEvidenceForRule(rule) : undefined;
+  const doc = buildCspFinding({
+    ts,
+    rule,
+    isFailed,
+    cloud,
+    resource,
+    evidence,
+    cloudModule: "aws",
+  });
+  return [doc as unknown as EcsDocument];
 }
 
 // ── KSPM Findings (Elastic Kubernetes Security Posture Management) ────────────
-const CIS_EKS_RULES = [
-  {
-    section: "1.1",
-    id: "cis_eks_1_1",
-    name: "Restrict anonymous access to the API server",
-    resource_type: "k8s_object",
-    sub_type: "api-server",
-    severity: "critical",
-    tags: ["API Server"],
-  },
-  {
-    section: "2.1",
-    id: "cis_eks_2_1",
-    name: "Enable audit logging",
-    resource_type: "k8s_object",
-    sub_type: "api-server",
-    severity: "high",
-    tags: ["Logging"],
-  },
-  {
-    section: "4.1",
-    id: "cis_eks_4_1",
-    name: "Prefer using secrets as files over environment variables",
-    resource_type: "k8s_object",
-    sub_type: "Pod",
-    severity: "medium",
-    tags: ["Workload"],
-  },
-  {
-    section: "4.2",
-    id: "cis_eks_4_2",
-    name: "Avoid the admission of privileged containers",
-    resource_type: "k8s_object",
-    sub_type: "Pod",
-    severity: "high",
-    tags: ["Pod Security"],
-  },
-  {
-    section: "4.3",
-    id: "cis_eks_4_3",
-    name: "Minimize containers wishing to share the host process ID namespace",
-    resource_type: "k8s_object",
-    sub_type: "Pod",
-    severity: "high",
-    tags: ["Pod Security"],
-  },
-  {
-    section: "4.4",
-    id: "cis_eks_4_4",
-    name: "Minimize containers wishing to share the host IPC namespace",
-    resource_type: "k8s_object",
-    sub_type: "Pod",
-    severity: "high",
-    tags: ["Pod Security"],
-  },
-  {
-    section: "4.6",
-    id: "cis_eks_4_6",
-    name: "Minimize the admission of root containers",
-    resource_type: "k8s_object",
-    sub_type: "Pod",
-    severity: "medium",
-    tags: ["Pod Security"],
-  },
-  {
-    section: "5.1",
-    id: "cis_eks_5_1",
-    name: "Enable network policy on EKS worker nodes",
-    resource_type: "k8s_object",
-    sub_type: "Namespace",
-    severity: "medium",
-    tags: ["Policies"],
-  },
-  {
-    section: "5.4",
-    id: "cis_eks_5_4",
-    name: "Restrict access to the control plane endpoint",
-    resource_type: "k8s_object",
-    sub_type: "api-server",
-    severity: "high",
-    tags: ["Managed Services"],
-  },
-  {
-    section: "5.5",
-    id: "cis_eks_5_5",
-    name: "Encrypt Kubernetes Secrets at rest using AWS KMS",
-    resource_type: "k8s_object",
-    sub_type: "Secret",
-    severity: "high",
-    tags: ["Managed Services"],
-  },
-];
+
 const EKS_CLUSTERS = ["prod-eks-cluster", "staging-eks", "dev-eks", "data-processing-eks"];
 const EKS_NAMESPACES = [
   "default",
@@ -2615,106 +2872,233 @@ const EKS_NAMESPACES = [
   "ingress-nginx",
 ];
 
+function buildKspmResource(
+  rule: CisBenchmarkRule,
+  cluster: string,
+  ns: string,
+  region: string,
+  acct: { id: string; name: string }
+): CspFindingResource {
+  const rn = rule.benchmark.rule_number;
+  const podName = `${pick(["frontend", "backend", "api-gateway", "worker", "cron"])}-${randId(5).toLowerCase()}`;
+  const nodeName = `ip-${randIp().replace(/\./g, "-")}.${region}.compute.internal`;
+  const clusterArn = `arn:aws:eks:${region}:${acct.id}:cluster/${cluster}`;
+
+  switch (rule.section) {
+    case "Logging":
+      return {
+        id: clusterArn,
+        name: cluster,
+        type: "eks-cluster",
+        sub_type: "cluster",
+        raw: { arn: clusterArn },
+      };
+    case "Worker Node Configuration Files":
+      return {
+        id: `/etc/kubernetes/kubelet/kubeconfig`,
+        name: "kubeconfig",
+        type: "k8s_object",
+        sub_type: "file",
+        raw: { path: "/var/lib/kubelet/kubeconfig", mode: "0666" },
+      };
+    case "Kubelet":
+      return {
+        id: `k8s-node/${nodeName}`,
+        name: nodeName,
+        type: "k8s_object",
+        sub_type: "Node",
+        raw: { node: nodeName },
+      };
+    case "Pod Security Policies":
+      return {
+        id: `api/v1/namespaces/${ns}/pods/${podName}`,
+        name: podName,
+        type: "k8s_object",
+        sub_type: "Pod",
+      };
+    case "Image Registry and Image Scanning":
+      return {
+        id: `${cluster}/ecr/${pick(["app", "service", "batch"])}-repo`,
+        name: `${acct.id}.dkr.ecr.${region}.amazonaws.com/app`,
+        type: "k8s_object",
+        sub_type: "ImageRepository",
+      };
+    case "AWS Key Management Service (KMS)":
+      return {
+        id: clusterArn,
+        name: cluster,
+        type: "eks-cluster",
+        sub_type: "cluster",
+      };
+    case "Cluster Networking":
+      return {
+        id: clusterArn,
+        name: cluster,
+        type: "eks-cluster",
+        sub_type: "cluster",
+      };
+    default:
+      return {
+        id: `${cluster}/${ns}/resource/${rn}`,
+        name: `${rule.benchmark.rule_number}-${randHex(4)}`,
+        type: "k8s_object",
+        sub_type: "object",
+      };
+  }
+}
+
+function kspmEvidenceForRule(rule: CisBenchmarkRule): Record<string, unknown> {
+  const rn = rule.benchmark.rule_number;
+
+  switch (rn) {
+    case "2.1.1":
+      return {
+        logging: {
+          clusterLogging: [
+            { types: ["api", "audit"], enabled: false },
+            { types: ["authenticator"], enabled: false },
+          ],
+        },
+      };
+    case "3.1.1":
+    case "3.1.3":
+      return { mode: "0666", path: "/var/lib/kubelet/kubeconfig" };
+    case "3.1.2":
+    case "3.1.4":
+      return { uid: 1000, gid: 1000, path: "/var/lib/kubelet/kubeconfig" };
+    case "3.2.1":
+      return { anonymousAuth: true };
+    case "3.2.2":
+      return { authorizationMode: "AlwaysAllow" };
+    case "3.2.3":
+      return { clientCAFile: null };
+    case "3.2.4":
+      return { spec: { kubeletConfiguration: { readOnlyPort: 10255 } } };
+    case "3.2.5":
+      return { streamingConnectionIdleTimeout: "0" };
+    case "3.2.6":
+      return { protectKernelDefaults: false };
+    case "3.2.7":
+      return { makeIPTablesUtilChains: false };
+    case "3.2.8":
+      return { hostnameOverride: "custom-node" };
+    case "3.2.9":
+      return { eventRecordQPS: 100 };
+    case "3.2.10":
+      return { rotateCertificates: false };
+    case "3.2.11":
+      return { RotateKubeletServerCertificate: false };
+    case "4.2.1":
+      return { spec: { containers: [{ securityContext: { privileged: true } }] } };
+    case "4.2.2":
+      return { spec: { hostPID: true } };
+    case "4.2.3":
+      return { spec: { hostIPC: true } };
+    case "4.2.4":
+      return { spec: { hostNetwork: true } };
+    case "4.2.5":
+      return { spec: { containers: [{ securityContext: { allowPrivilegeEscalation: true } }] } };
+    case "4.2.6":
+      return { spec: { containers: [{ securityContext: { runAsUser: 0 } }] } };
+    case "4.2.7":
+      return {
+        spec: {
+          containers: [{ securityContext: { capabilities: { add: ["NET_RAW"] } } }],
+        },
+      };
+    case "4.2.8":
+      return {
+        spec: {
+          containers: [{ securityContext: { capabilities: { add: ["SYS_ADMIN", "NET_ADMIN"] } } }],
+        },
+      };
+    case "4.2.9":
+      return {
+        spec: { containers: [{ securityContext: { capabilities: { add: ["AUDIT_WRITE"] } } }] },
+      };
+    case "5.1.1":
+      return { imageScanningConfiguration: { scanOnPush: false } };
+    case "5.3.1":
+      return { encryptionConfig: null };
+    case "5.4.1":
+      return {
+        resourcesVpcConfig: { endpointPublicAccess: true, publicAccessCidrs: ["0.0.0.0/0"] },
+      };
+    case "5.4.2":
+      return { resourcesVpcConfig: { endpointPrivateAccess: false, endpointPublicAccess: true } };
+    case "5.4.3":
+      return { nodePublicIp: true };
+    case "5.4.5":
+      return { ingressTls: [{ hosts: ["*"], secretName: null }] };
+    default:
+      return { evaluated: false, rule_number: rn };
+  }
+}
+
 function generateKspmFindings(ts: string, er: number): EcsDocument[] {
   const region = rand(REGIONS);
   const acct = randAccount();
-  const rule = rand(CIS_EKS_RULES);
+  const rule = pick(CIS_EKS_RULES);
   const cluster = rand(EKS_CLUSTERS);
   const ns = rand(EKS_NAMESPACES);
   const isFailed = Math.random() < er + 0.2;
-  const evaluation = isFailed ? "failed" : "passed";
-  const resourceName =
-    rule.sub_type === "Pod"
-      ? `pod/${rand(["frontend", "backend", "api-gateway", "worker", "cron"])}-${randId(5).toLowerCase()}`
-      : rule.sub_type === "Node"
-        ? `node/ip-${randIp().replace(/\./g, "-")}.ec2.internal`
-        : rule.sub_type === "Namespace"
-          ? `namespace/${ns}`
-          : rule.sub_type === "Secret"
-            ? `secret/app-secrets-${randId(4).toLowerCase()}`
-            : `${rule.sub_type.toLowerCase()}/${cluster}`;
-  const resourceId = `${cluster}/${ns}/${resourceName}`;
-  return [
-    {
-      "@timestamp": ts,
-      __dataset: "cloud_security_posture.findings",
-      data_stream: {
-        dataset: "cloud_security_posture.findings",
-        namespace: "default",
-        type: "logs",
-      },
-      cloud: { provider: "aws", region, account: { id: acct.id, name: acct.name } },
-      orchestrator: { cluster: { id: cluster, name: cluster }, type: "kubernetes", namespace: ns },
-      resource: {
-        id: resourceId,
-        name: resourceName,
-        sub_type: rule.sub_type,
-        type: rule.resource_type,
-      },
-      rule: {
-        id: rule.id,
-        name: rule.name,
-        section: rule.section,
-        tags: rule.tags,
-        benchmark: {
-          id: "cis_eks",
-          version: "v1.4.0",
-          rule_number: rule.section,
-          posture_type: "kspm",
-        },
-        impact: isFailed
-          ? `${rule.name} — non-compliant configuration may allow container escape or lateral movement.`
-          : null,
-        remediation: isFailed
-          ? `Review and remediate per CIS EKS Benchmark v1.4.0 section ${rule.section}.`
-          : null,
-      },
-      result: { evaluation },
-      severity: isFailed ? rule.severity : "none",
-      event: {
-        kind: "state",
-        category: ["configuration"],
-        type: ["info"],
-        outcome: isFailed ? "failure" : "success",
-        dataset: "cloud_security_posture.findings",
-        provider: "elastic_kspm",
-      },
-      message: `KSPM [CIS EKS / ${rule.section}] ${evaluation}: ${rule.name} [${cluster}]`,
-      log: { level: isFailed ? (rule.severity === "critical" ? "error" : "warn") : "info" },
-      ...(isFailed
-        ? {
-            error: {
-              code: `CIS_${rule.id.toUpperCase()}`,
-              message: `KSPM check failed: ${rule.name}`,
-              type: "compliance",
-            },
-          }
-        : {}),
-    },
-  ];
+  const cloud = { provider: "aws", region, account: { id: acct.id, name: acct.name } };
+  const resource = buildKspmResource(rule, cluster, ns, region, acct);
+  const evidence = isFailed ? kspmEvidenceForRule(rule) : undefined;
+  const orchestrator = {
+    cluster: { id: cluster, name: cluster },
+    type: "kubernetes",
+    namespace: ns,
+  };
+  const doc = buildCspFinding({
+    ts,
+    rule,
+    isFailed,
+    cloud,
+    resource,
+    evidence,
+    orchestrator,
+    cloudModule: "aws",
+  });
+  return [doc as unknown as EcsDocument];
 }
 
 // ── IAM Privilege Escalation Attack Chain ─────────────────────────────────────
 function generateIamPrivEscChain(ts: string, _er: number): EcsDocument[] {
   const region = rand(REGIONS);
   const acct = randAccount();
-  const attacker = rand(["ci-pipeline", "deploy-bot", "svc-account", "temp-user"]);
-  const targetUser = rand(["alice", "bob", "admin-user", "support-agent"]);
+  const attacker = "compromised-developer";
+  const targetUser = rand(["billing-readonly", "data-analyst", "qa-automation"]);
+  const attackSessionId = randUUID();
   const sourceIp = randIp();
+  const userAgent =
+    "aws-cli/2.15.0 md/awscrt#0.19.0 ua/2.0 os/linux#5.15.0.1024-generic exec-env/EC2";
+  const principalId = `AIDA${randId(16).toUpperCase()}`;
   const accessKeyId = `AKIA${randId(16).toUpperCase()}`;
   const roleArn = `arn:aws:iam::${acct.id}:role/AdminRole`;
-  const sessionName = `session-${randId(8).toLowerCase()}`;
+  const sessionName = `privesc-${randId(8).toLowerCase()}`;
+  const newAccessKeyForTarget = `AKIA${randId(16).toUpperCase()}`;
+  const baseDate = new Date(ts);
+
+  const chainLabels = {
+    attack_session_id: attackSessionId,
+    attacker_user: attacker,
+    target_user: targetUser,
+  };
 
   const ctBase = (
+    eventTs: string,
     eventName: string,
     requestId: string,
     readOnly: boolean,
     reqParams: string | null,
     respElements: string | null,
-    svc = "iam.amazonaws.com"
-  ) => ({
+    eventSource: string,
+    outcome: "success" | "failure",
+    errorCode?: string
+  ): EcsDocument => ({
     __dataset: "aws.cloudtrail",
-    "@timestamp": ts,
+    "@timestamp": eventTs,
     cloud: {
       provider: "aws",
       region,
@@ -2722,7 +3106,7 @@ function generateIamPrivEscChain(ts: string, _er: number): EcsDocument[] {
       service: { name: "cloudtrail" },
     },
     aws: {
-      dimensions: { EventName: eventName, EventSource: svc },
+      dimensions: { EventName: eventName, EventSource: eventSource },
       cloudtrail: {
         event_version: "1.09",
         event_category: "Management",
@@ -2734,36 +3118,53 @@ function generateIamPrivEscChain(ts: string, _er: number): EcsDocument[] {
         aws_region: region,
         user_identity: {
           type: "IAMUser",
-          principal_id: `AIDA${randId(16).toUpperCase()}`,
+          principal_id: principalId,
           arn: `arn:aws:iam::${acct.id}:user/${attacker}`,
           account_id: acct.id,
           access_key_id: accessKeyId,
           session_context: {
             session_issuer: null,
             web_id_federation_data: null,
-            attributes: { creation_date: ts, mfa_authenticated: false },
+            attributes: { creation_date: eventTs, mfa_authenticated: "false" },
           },
         },
         ...(reqParams ? { request_parameters: reqParams } : {}),
         response_elements: respElements,
+        ...(errorCode
+          ? {
+              error_code: errorCode,
+              error_message: "User is not authorized to perform: sts:GetCallerIdentity",
+            }
+          : {}),
       },
     },
-    user: { name: attacker },
+    user: { name: attacker, id: principalId },
     source: { ip: sourceIp },
-    user_agent: { original: "aws-sdk-python/1.26.0 Python/3.11 Linux/5.15 exec-env/EC2" },
+    user_agent: { original: userAgent },
     event: {
+      kind: "event",
       action: eventName,
-      outcome: "success",
+      outcome,
       category: ["iam", "configuration"],
-      type: ["change"],
+      type: outcome === "success" ? ["change"] : ["access"],
       dataset: "aws.cloudtrail",
       provider: "cloudtrail.amazonaws.com",
     },
-    log: { level: "warn" },
+    log: { level: outcome === "success" ? "warn" : "info" },
+    labels: chainLabels,
   });
 
-  const doc1 = {
+  const t0 = offsetTs(baseDate, 0);
+  const t30s = offsetTs(baseDate, 30_000);
+  const t1m = offsetTs(baseDate, 60_000);
+  const t2m = offsetTs(baseDate, 120_000);
+  const tNoise = offsetTs(baseDate, randInt(15_000, 25_000));
+
+  const docs: EcsDocument[] = [];
+
+  docs.push({
     ...ctBase(
+      t0,
       "ListUsers",
       `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase(),
       true,
@@ -2775,40 +3176,74 @@ function generateIamPrivEscChain(ts: string, _er: number): EcsDocument[] {
             userId: `AIDA${randId(16).toUpperCase()}`,
             userName: targetUser,
             path: "/",
-            createDate: ts,
+            createDate: t0,
           },
         ],
-      })
+      }),
+      "iam.amazonaws.com",
+      "success"
     ),
     threat: {
       tactic: { name: "Discovery", id: "TA0007" },
       technique: { name: "Cloud Infrastructure Discovery", id: "T1580" },
     },
-    message: `CloudTrail [PrivEsc Step 1/4]: ListUsers by ${attacker} from ${sourceIp} — enumeration`,
-  };
-  const doc2 = {
+    message: `CloudTrail [PrivEsc 1/4]: ListUsers by ${attacker} from ${sourceIp} — enumeration`,
+  });
+
+  if (Math.random() < 0.35) {
+    docs.push({
+      ...ctBase(
+        tNoise,
+        "GetCallerIdentity",
+        `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase(),
+        true,
+        null,
+        null,
+        "sts.amazonaws.com",
+        "failure",
+        "AccessDenied"
+      ),
+      threat: {
+        tactic: { name: "Discovery", id: "TA0007" },
+        technique: { name: "System Information Discovery", id: "T1082" },
+      },
+      message: `CloudTrail [noise]: GetCallerIdentity denied for ${attacker} (session probe)`,
+      error: {
+        code: "AccessDenied",
+        message: "STS GetCallerIdentity failed — possible credential scope check",
+        type: "access",
+      },
+    });
+  }
+
+  docs.push({
     ...ctBase(
+      t30s,
       "CreateAccessKey",
       `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase(),
       false,
       JSON.stringify({ userName: targetUser }),
       JSON.stringify({
         accessKey: {
-          accessKeyId: `AKIA${randId(16).toUpperCase()}`,
+          accessKeyId: newAccessKeyForTarget,
           status: "Active",
           userName: targetUser,
-          createDate: ts,
+          createDate: t30s,
         },
-      })
+      }),
+      "iam.amazonaws.com",
+      "success"
     ),
     threat: {
-      tactic: { name: "Persistence", id: "TA0003" },
-      technique: { name: "Create Account: Cloud Account", id: "T1136.003" },
+      tactic: { name: "Credential Access", id: "TA0006" },
+      technique: { name: "Unsecured Credentials: Cloud Credentials", id: "T1552.001" },
     },
-    message: `CloudTrail [PrivEsc Step 2/4]: CreateAccessKey for ${targetUser} by ${attacker} — credential creation`,
-  };
-  const doc3 = {
+    message: `CloudTrail [PrivEsc 2/4]: CreateAccessKey for ${targetUser} by ${attacker} — new long-term key`,
+  });
+
+  docs.push({
     ...ctBase(
+      t1m,
       "AttachUserPolicy",
       `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase(),
       false,
@@ -2816,16 +3251,20 @@ function generateIamPrivEscChain(ts: string, _er: number): EcsDocument[] {
         userName: targetUser,
         policyArn: "arn:aws:iam::aws:policy/AdministratorAccess",
       }),
-      "null"
+      "null",
+      "iam.amazonaws.com",
+      "success"
     ),
     threat: {
       tactic: { name: "Privilege Escalation", id: "TA0004" },
       technique: { name: "Abuse Elevation Control Mechanism", id: "T1548" },
     },
-    message: `CloudTrail [PrivEsc Step 3/4]: AttachUserPolicy AdministratorAccess to ${targetUser} by ${attacker}`,
-  };
-  const doc4 = {
+    message: `CloudTrail [PrivEsc 3/4]: AttachUserPolicy AdministratorAccess to ${targetUser} by ${attacker}`,
+  });
+
+  docs.push({
     ...ctBase(
+      t2m,
       "AssumeRole",
       `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase(),
       false,
@@ -2833,30 +3272,37 @@ function generateIamPrivEscChain(ts: string, _er: number): EcsDocument[] {
       JSON.stringify({
         credentials: {
           accessKeyId: `ASIA${randId(16).toUpperCase()}`,
-          expiration: new Date(new Date(ts).getTime() + 3600000).toISOString(),
+          expiration: new Date(new Date(t2m).getTime() + 3600000).toISOString(),
         },
         assumedRoleUser: { arn: `${roleArn}/${sessionName}` },
       }),
-      "sts.amazonaws.com"
+      "sts.amazonaws.com",
+      "success"
     ),
     threat: {
       tactic: { name: "Lateral Movement", id: "TA0008" },
       technique: { name: "Use Alternate Authentication Material: Cloud API", id: "T1550.001" },
     },
-    message: `CloudTrail [PrivEsc Step 4/4]: AssumeRole AdminRole by ${attacker} — lateral movement complete`,
+    message: `CloudTrail [PrivEsc 4/4]: AssumeRole ${roleArn} by ${attacker} — lateral movement`,
     error: {
       code: "PrivilegeEscalation",
-      message: `IAM privilege escalation: ${attacker} assumed AdminRole`,
+      message: `IAM privilege escalation chain: ${attacker} assumed privileged role`,
       type: "security",
     },
-  };
-  return [doc1, doc2, doc3, doc4];
+  });
+
+  return docs.sort(
+    (a, b) =>
+      new Date(String(a["@timestamp"])).getTime() - new Date(String(b["@timestamp"])).getTime()
+  );
 }
 
 // ── Data Exfiltration Attack Chain ────────────────────────────────────────────
 function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
   const region = rand(REGIONS);
   const acct = randAccount();
+  const exfilChainId = randUUID();
+  const baseDate = new Date(ts);
   const bucket = rand([
     "prod-customer-data",
     "financial-records",
@@ -2865,13 +3311,37 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
     "analytics-output",
   ]);
   const bucketName = `${bucket}-${acct.id.slice(-6)}`;
+  const objectKey = `data/export-${randId(8).toLowerCase()}.csv`;
   const attackerIp = randIp();
+  const instanceId = `i-${randId(17).toLowerCase()}`;
+  const instancePrivateIp = `10.${randInt(0, 255)}.${randInt(0, 255)}.${randInt(1, 254)}`;
   const detectorId = randId(32).toLowerCase();
   const gdFindingId = randId(32).toLowerCase();
+  const gdType = rand([
+    "Exfiltration:S3/MaliciousIPCaller.Custom",
+    "Exfiltration:S3/AnomalousBehavior",
+  ] as const);
+  const megabytes = randInt(50, 800);
+  const totalBytes = megabytes * 1024 * 1024;
   const keyCount = randInt(200, 2000);
-  const megabytes = randInt(500, 50000);
 
-  const gdDoc = {
+  const chainLabels = {
+    exfil_chain_id: exfilChainId,
+    s3_bucket: bucketName,
+    s3_key: objectKey,
+    ec2_instance_id: instanceId,
+    attacker_ip: attackerIp,
+  };
+
+  // Access & VPC flow occur in the window [T−5m, T−30s] before GuardDuty detection at T+0
+  const accessOffsetMs = -randInt(30_000, 300_000);
+  const accessTs = offsetTs(baseDate, accessOffsetMs);
+  const flowTs = accessTs;
+
+  const instanceArn = `arn:aws:ec2:${region}:${acct.id}:instance/${instanceId}`;
+  const objectArn = `arn:aws:s3:::${bucketName}/${objectKey}`;
+
+  const gdDoc: EcsDocument = {
     __dataset: "aws.guardduty",
     "@timestamp": ts,
     cloud: {
@@ -2889,14 +3359,24 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
         partition: "aws",
         id: gdFindingId,
         arn: `arn:aws:guardduty:${region}:${acct.id}:detector/${detectorId}/finding/${gdFindingId}`,
-        type: "Exfiltration:S3/MaliciousIPCaller",
-        title: "S3 object accessed from a known malicious IP",
-        description: `S3 bucket ${bucketName} was accessed by ${attackerIp}, an IP associated with known threat actors`,
+        type: gdType,
+        title:
+          gdType === "Exfiltration:S3/AnomalousBehavior"
+            ? "Unusual S3 data access volume or pattern detected"
+            : "S3 object accessed from a known malicious IP address",
+        description: `S3 bucket ${bucketName} in ${region} showed ${gdType.includes("Anomalous") ? "anomalous access patterns" : "access from malicious IP"} ${attackerIp}. Related resource ${instanceArn}.`,
         created_at: ts,
         updated_at: ts,
         severity: { code: 7.0, value: "High" },
         confidence: Number(randFloat(75, 95)),
-        resource: { type: "S3Bucket", s3_bucket_detail: { name: bucketName, type: "Destination" } },
+        resource: {
+          type: "S3Bucket",
+          s3_bucket_detail: {
+            arn: `arn:aws:s3:::${bucketName}`,
+            name: bucketName,
+            type: "Destination",
+          },
+        },
         service: {
           detector_id: detectorId,
           count: keyCount,
@@ -2906,7 +3386,10 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
             aws_api_call_action: {
               api: "GetObject",
               caller_type: "Remote IP",
-              remote_ip_details: { ip_address_v4: attackerIp },
+              remote_ip_details: {
+                ip_address_v4: attackerIp,
+                organization: { asn: "64496", asn_org: "Suspicious ASN", isp: "Example ISP" },
+              },
             },
           },
         },
@@ -2917,7 +3400,7 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
       },
     },
     source: { ip: attackerIp },
-    rule: { category: "exfiltration", name: "Exfiltration:S3/MaliciousIPCaller" },
+    rule: { category: "exfiltration", name: gdType },
     threat: {
       tactic: { name: "Exfiltration", id: "TA0010" },
       technique: { name: "Transfer Data to Cloud Account", id: "T1537" },
@@ -2932,18 +3415,19 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
       dataset: "aws.guardduty",
       provider: "guardduty.amazonaws.com",
     },
-    message: `GuardDuty [HIGH]: Exfiltration:S3/MaliciousIPCaller — s3://${bucketName} from ${attackerIp}`,
+    message: `GuardDuty [HIGH]: ${gdType} — s3://${bucketName} from ${attackerIp} (correlates with ${instanceId})`,
     log: { level: "error" },
     error: {
       code: "ExfiltrationDetected",
-      message: `S3 data exfiltration from ${bucketName}`,
+      message: `S3 data exfiltration indicator for ${bucketName}`,
       type: "security",
     },
+    labels: chainLabels,
   };
 
-  const ctDoc = {
+  const ctDoc: EcsDocument = {
     __dataset: "aws.cloudtrail",
-    "@timestamp": ts,
+    "@timestamp": accessTs,
     cloud: {
       provider: "aws",
       region,
@@ -2963,30 +3447,49 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
         recipient_account_id: acct.id,
         aws_region: region,
         user_identity: {
-          type: "AWSAccount",
-          principal_id: `ASIA${randId(16).toUpperCase()}`,
-          arn: `arn:aws:sts::${acct.id}:assumed-role/ExternalRole/session-${randId(8).toLowerCase()}`,
+          type: "AssumedRole",
+          principal_id: `AROA${randId(16).toUpperCase()}:${instanceId}`,
+          arn: `arn:aws:sts::${acct.id}:assumed-role/compromised-app-role/${instanceId}`,
           account_id: acct.id,
           access_key_id: `ASIA${randId(16).toUpperCase()}`,
           session_context: {
-            session_issuer: null,
-            web_id_federation_data: null,
-            attributes: { creation_date: ts, mfa_authenticated: false },
+            session_issuer: {
+              type: "Role",
+              principal_id: `AROA${randId(16).toUpperCase()}`,
+              arn: `arn:aws:iam::${acct.id}:role/compromised-app-role`,
+              account_id: acct.id,
+              user_name: "compromised-app-role",
+            },
+            attributes: { creation_date: accessTs, mfa_authenticated: "false" },
           },
         },
         resources: [
-          { ARN: `arn:aws:s3:::${bucketName}`, accountId: acct.id, type: "AWS::S3::Object" },
+          {
+            ARN: objectArn,
+            accountId: acct.id,
+            type: "AWS::S3::Object",
+          },
+          { ARN: `arn:aws:s3:::${bucketName}`, accountId: acct.id, type: "AWS::S3::Bucket" },
         ],
         request_parameters: JSON.stringify({
           bucketName,
-          key: `data/export-${randId(8).toLowerCase()}.csv`,
+          Host: `${bucketName}.s3.${region}.amazonaws.com`,
+          key: objectKey,
+          "x-amz-server-side-encryption": "AES256",
+        }),
+        response_elements: JSON.stringify({
+          "x-amz-request-id": randId(16).toUpperCase(),
+          "x-amz-id-2": randId(64),
         }),
         additional_event_count: keyCount,
+        source_ip_address: attackerIp,
+        tls_details: { tls_version: "TLSv1.3", cipher_suite: "TLS_AES_128_GCM_SHA256" },
       },
     },
     source: { ip: attackerIp },
     threat: { tactic: { name: "Exfiltration", id: "TA0010" } },
     event: {
+      kind: "event",
       action: "GetObject",
       outcome: "success",
       category: ["file"],
@@ -2994,13 +3497,19 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
       dataset: "aws.cloudtrail",
       provider: "cloudtrail.amazonaws.com",
     },
-    message: `CloudTrail [Data Exfil]: ${keyCount} S3 GetObject calls on s3://${bucketName} from ${attackerIp}`,
+    message: `CloudTrail: S3 GetObject s3://${bucketName}/${objectKey} via role on ${instanceId} — source ${attackerIp} (${megabytes} MB class volume)`,
     log: { level: "warn" },
+    labels: chainLabels,
   };
 
-  const vpcDoc = {
+  const flowEndSec = Math.floor(new Date(accessTs).getTime() / 1000);
+  const flowStartSec = flowEndSec - randInt(30, 180);
+  const dstPort = randInt(1024, 65535);
+  const srcPort = randInt(32768, 61000);
+
+  const vpcDoc: EcsDocument = {
     __dataset: "aws.vpcflow",
-    "@timestamp": ts,
+    "@timestamp": flowTs,
     cloud: {
       provider: "aws",
       region,
@@ -3012,34 +3521,38 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
         version: "5",
         account_id: acct.id,
         interface_id: `eni-${randId(8).toLowerCase()}`,
-        source_ip: randIp(),
+        srcaddr: instancePrivateIp,
+        dstaddr: attackerIp,
+        source_ip: instancePrivateIp,
         destination_ip: attackerIp,
-        source_port: 443,
-        destination_port: randInt(1024, 65535),
+        source_port: srcPort,
+        destination_port: dstPort,
         protocol: 6,
-        packets: randInt(5000, 100000),
-        bytes: megabytes * 1024 * 1024,
-        start: Math.floor(new Date(ts).getTime() / 1000) - 300,
-        end: Math.floor(new Date(ts).getTime() / 1000),
+        packets: randInt(5000, 500_000),
+        bytes: totalBytes,
+        start: flowStartSec,
+        end: flowEndSec,
         action: "ACCEPT",
         log_status: "OK",
         vpc_id: `vpc-${randId(8).toLowerCase()}`,
         subnet_id: `subnet-${randId(8).toLowerCase()}`,
+        instance_id: instanceId,
         tcp_flags: 18,
         type: "IPv4",
         traffic_path: rand([2, 7]),
       },
     },
-    source: { ip: randIp(), port: 443, bytes: megabytes * 1024 * 1024 },
-    destination: { ip: attackerIp, port: randInt(1024, 65535) },
+    source: { address: instancePrivateIp, ip: instancePrivateIp, port: srcPort, bytes: totalBytes },
+    destination: { address: attackerIp, ip: attackerIp, port: dstPort },
     network: {
-      bytes: megabytes * 1024 * 1024,
-      packets: randInt(5000, 100000),
+      bytes: totalBytes,
+      packets: randInt(5000, 500_000),
       transport: "tcp",
       direction: "egress",
     },
     threat: { tactic: { name: "Exfiltration", id: "TA0010" } },
     event: {
+      kind: "event",
       action: "ACCEPT",
       outcome: "success",
       category: ["network"],
@@ -3047,16 +3560,20 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
       dataset: "aws.vpcflow",
       provider: "ec2.amazonaws.com",
     },
-    message: `VPC Flow [Egress]: ${megabytes}MB to ${attackerIp} — potential data exfiltration from s3://${bucketName}`,
+    message: `VPC Flow [ACCEPT egress]: ${instancePrivateIp} (${instanceId}) → ${attackerIp}:${dstPort} ${megabytes} MB — aligns with S3 exfil from ${bucketName}`,
     log: { level: "error" },
     error: {
       code: "HighEgressBytes",
-      message: `${megabytes}MB egress to external IP ${attackerIp}`,
+      message: `${megabytes} MB TCP egress from ${instancePrivateIp} to ${attackerIp}`,
       type: "network",
     },
+    labels: chainLabels,
   };
 
-  return [gdDoc, ctDoc, vpcDoc];
+  return [ctDoc, vpcDoc, gdDoc].sort(
+    (a, b) =>
+      new Date(String(a["@timestamp"])).getTime() - new Date(String(b["@timestamp"])).getTime()
+  );
 }
 
 function generateSecurityIrLog(ts: string, er: number): EcsDocument {

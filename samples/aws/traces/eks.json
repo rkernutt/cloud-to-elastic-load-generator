@@ -1,37 +1,36 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "9e66932c8cfc4ed9663e74b579a4a4ba" },
+  "trace": { "id": "e43f37c8d4359322612b322abd92b320" },
   "transaction": {
-    "id": "81ad2b9836e12e42",
-    "name": "user-events process",
-    "type": "messaging",
-    "duration": { "us": 354379 },
-    "result": "success",
+    "id": "4b957d97888efe19",
+    "name": "GET /users/{id}/preferences",
+    "type": "request",
+    "duration": { "us": 223832 },
+    "result": "HTTP 500",
     "sampled": true,
     "span_count": { "started": 2, "dropped": 0 }
   },
+  "http": { "request": { "method": "GET" }, "response": { "status_code": 500 } },
+  "url": { "path": "/users/{id}/preferences" },
   "labels": {
     "k8s_namespace": "production",
-    "k8s_pod_name": "event-processor-17747-7cdef",
-    "k8s_deployment": "event-processor",
-    "k8s_node": "ip-116-45-122-19.ec2.internal",
-    "kafka_topic": "user-events",
-    "kafka_partition": "10",
-    "kafka_offset": "995401"
+    "k8s_pod_name": "user-profile-service-2f44f-dda5b",
+    "k8s_deployment": "user-profile-service",
+    "k8s_node": "ip-66-14-231-157.ec2.internal"
   },
   "service": {
-    "name": "event-processor",
+    "name": "user-profile-service",
     "environment": "production",
     "version": "1.0.0",
-    "language": { "name": "java" },
-    "runtime": { "name": "java21", "version": "21.0.3" },
+    "language": { "name": "python" },
+    "runtime": { "name": "python3.12", "version": "3.12.3" },
     "framework": { "name": "Kubernetes" }
   },
-  "agent": { "name": "otlp", "version": "1.6.0" },
+  "agent": { "name": "otlp", "version": "0.6.0" },
   "telemetry": {
-    "sdk": { "name": "opentelemetry", "language": "java", "version": "2.12.0" },
-    "distro": { "name": "elastic", "version": "1.6.0" },
+    "sdk": { "name": "opentelemetry", "language": "python", "version": "1.29.0" },
+    "distro": { "name": "elastic", "version": "0.6.0" },
     "otel_pipeline": {
       "hop": "otel_collector",
       "export_protocol": "otlp",
@@ -40,11 +39,11 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
-    "account": { "id": "345678901234", "name": "dev-aws" },
+    "region": "sa-east-1",
+    "account": { "id": "123456789012", "name": "prod-aws" },
     "service": { "name": "eks" }
   },
-  "event": { "outcome": "success", "module": "aws", "dataset": "aws.eks" },
+  "event": { "outcome": "failure", "module": "aws", "dataset": "aws.eks" },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
   "ecs": { "version": "8.11.0" },
   "input": { "type": "opentelemetry" }

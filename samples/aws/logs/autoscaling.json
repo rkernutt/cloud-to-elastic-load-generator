@@ -1,62 +1,62 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "us-east-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "autoscaling" }
   },
   "aws": {
-    "dimensions": { "AutoScalingGroupName": "worker-asg" },
+    "dimensions": { "AutoScalingGroupName": "batch-asg" },
     "autoscaling": {
-      "group_name": "worker-asg",
-      "activity_id": "33ehdqfg-ywrx-tj0o",
-      "action_type": "WarmPoolTransition",
-      "instance_id": "i-hk44cf9xa2g",
+      "group_name": "batch-asg",
+      "activity_id": "i6010dc8-8q7t-vt2w",
+      "action_type": "Launch",
+      "instance_id": "i-s62txwp9voo",
       "instance_type": "c5.2xlarge",
-      "desired_capacity": 16,
+      "desired_capacity": 6,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 15,
-      "cause": "Warm pool instance transitioned Hibernated -> Warming -> InService",
+      "current_capacity": 4,
+      "cause": "At 2024-01-01T12:00:00Z a monitor alarm TargetTracking-scale-out-alarm in state ALARM triggered policy scale-out",
       "status_code": "Successful",
-      "launch_template": "api-lt:3",
+      "launch_template": "web-lt:5",
       "predictive_scaling_forecast": false,
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 16 },
-        "GroupInServiceInstances": { "avg": 15 },
+        "GroupDesiredCapacity": { "avg": 6 },
+        "GroupInServiceInstances": { "avg": 4 },
         "GroupPendingInstances": { "avg": 0 },
-        "GroupStandbyInstances": { "avg": 1 },
+        "GroupStandbyInstances": { "avg": 2 },
         "GroupTerminatingInstances": { "avg": 0 },
-        "GroupTotalInstances": { "avg": 16 },
-        "GroupInServiceCapacity": { "avg": 15 },
+        "GroupTotalInstances": { "avg": 6 },
+        "GroupInServiceCapacity": { "avg": 4 },
         "GroupPendingCapacity": { "avg": 0 },
-        "GroupStandbyCapacity": { "avg": 1 },
+        "GroupStandbyCapacity": { "avg": 2 },
         "GroupTerminatingCapacity": { "avg": 0 },
-        "GroupTotalCapacity": { "avg": 16 },
+        "GroupTotalCapacity": { "avg": 6 },
         "WarmPoolMinSize": { "avg": 1 },
-        "WarmPoolDesiredCapacity": { "avg": 10 },
+        "WarmPoolDesiredCapacity": { "avg": 5 },
         "WarmPoolPendingCapacity": { "avg": 3 },
         "WarmPoolTerminatingCapacity": { "avg": 1 },
-        "WarmPoolTotalCapacity": { "avg": 14 },
-        "WarmPoolWarmedCapacity": { "avg": 5 }
+        "WarmPoolTotalCapacity": { "avg": 9 },
+        "WarmPoolWarmedCapacity": { "avg": 8 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-autoscaling-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-autoscaling-logs-814726593401"
+        "name": "aws-autoscaling-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-autoscaling-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/814726593401/autoscaling/us-east-1/2026/04/20/autoscaling_3KY5YORC7EC.log.gz"
+        "key": "AWSLogs/738291046572/autoscaling/us-east-2/2026/04/21/autoscaling_PYRIP2ZXSMT.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "us-east-1/vphgc8eo",
-      "ingestion_time": "2026-04-20T15:59:34.415Z"
+      "log_stream": "us-east-2/1loten5o",
+      "ingestion_time": "2026-04-21T10:21:44.053Z"
     }
   },
   "event": {
@@ -64,10 +64,10 @@
     "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 494000000000,
+    "duration": 193000000000,
     "module": "aws"
   },
-  "message": "WarmPool state change ASG=worker-asg instance=i-hk44cf9xa2g warmed=5 desired=10 poolStatus=Active",
+  "message": "SuccessfulScalingActivity: Launching a new EC2 instance: i-s62txwp9voo ActivityId=i6010dc8-8q7t-vt2w Cause: At 2024-01-01T12:00:00Z a monitor alarm TargetTracking-scale-out-alarm in state ALARM triggered policy scale-out",
   "log": { "level": "info" },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -75,8 +75,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "0y67q30cpd2"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "75w0qr1586q"
   },
   "input": { "type": "aws-cloudwatch" }
 }

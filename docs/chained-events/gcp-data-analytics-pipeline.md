@@ -65,7 +65,7 @@ Each pipeline run produces **6-8 correlated log documents** plus **1 APM trace**
 6. **BigQuery query** — `gcp.bigquery` dataset
 7. **Composer DAG completed** — `gcp.composer` dataset (with quality check)
 
-All documents share a `labels.pipeline_run_id` for cross-service correlation.
+All documents share a `labels.pipeline_run_id` for cross-service correlation. Timing is **orchestrated batch analytics** (stages inside one DAG run), unlike the **Security Finding**, **IAM Privilege Escalation**, and **Data Exfiltration** chains, which use wider `@timestamp` spacing and `labels.finding_chain_id`, `labels.attack_session_id`, or `labels.exfil_chain_id`.
 
 ## Failure Modes
 

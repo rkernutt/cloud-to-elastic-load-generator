@@ -1,25 +1,26 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
+    "region": "ap-northeast-2",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "iotdefender" }
   },
   "aws": {
-    "dimensions": { "CheckName": "IOT_POLICY_OVERLY_PERMISSIVE" },
+    "dimensions": { "CheckName": "AUTHENTICATION_FAILURES" },
     "iotdefender": {
-      "thing_name": "valve-plant-2",
-      "audit_check_name": "IOT_POLICY_OVERLY_PERMISSIVE",
-      "finding_id": "bkgwa23lko",
+      "thing_name": "camera-lobby",
+      "audit_check_name": "AUTHENTICATION_FAILURES",
+      "finding_id": "7gweg8tpkbk",
       "severity": "HIGH",
-      "violation_id": "8tqk8rhu5on",
-      "violation_type": "authorization-failure",
-      "security_profile_name": "factory-floor-profile",
-      "behavior_name": "authorized-ip-range",
-      "current_value": 136,
-      "threshold_value": 44,
-      "consecutive_datapoints_to_alarm": 4
+      "violation_id": "e01lk41a9yo",
+      "violation_type": "device-cert-expiring",
+      "security_profile_name": "baseline-security-profile",
+      "behavior_name": "data-bytes-out",
+      "current_value": 212,
+      "threshold_value": 20,
+      "consecutive_datapoints_to_alarm": 2,
+      "error_code": "ResourceNotFoundException"
     },
     "s3": {
       "bucket": {
@@ -27,34 +28,39 @@
         "arn": "arn:aws:s3:::aws-iotdefender-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/iotdefender/me-central-1/2026/04/20/iotdefender_WZQ9FYP0JD.log.gz"
+        "key": "AWSLogs/164820739518/iotdefender/ap-northeast-2/2026/04/21/iotdefender_BAA9VNF2CBN.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotdefender/logs",
-      "log_stream": "me-central-1/nt6hgvgh",
-      "ingestion_time": "2026-04-20T15:59:34.670Z"
+      "log_stream": "ap-northeast-2/dfgh84f4",
+      "ingestion_time": "2026-04-21T10:21:44.328Z"
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["intrusion_detection", "vulnerability"],
     "dataset": "aws.iotdefender",
     "provider": "iot.amazonaws.com",
-    "duration": 211000000000,
+    "duration": 112000000000,
     "module": "aws"
   },
-  "message": "IoT Defender HIGH [valve-plant-2]: IOT_POLICY_OVERLY_PERMISSIVE",
-  "log": { "level": "warn" },
+  "message": "IoT Defender audit ERROR [camera-lobby]: Resource not found",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InternalFailureException",
+    "message": "IoT Defender audit error",
+    "type": "iot"
+  },
   "service": { "name": "iotdefender", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iotdefender", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "rxjblbodn38"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "q7b173gwyuk"
   },
   "input": { "type": "aws-cloudwatch" }
 }

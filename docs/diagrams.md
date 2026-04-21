@@ -2,6 +2,8 @@
 
 > **Catalog sizes (log · metric · trace services):** AWS **212 · 206 · 54**; GCP **130 · 124 · 48**; Azure **131 · 120 · 40**.
 
+> **Installer assets (custom Kibana dashboards · ML anomaly jobs · Elasticsearch-query alert rules):** AWS **220 · 384 · 17**; GCP **128 · 153 · 17**; Azure **120 · 154 · 17**. Rules are defined in `installer/{aws,gcp,azure}-custom-rules/` (including Data & Analytics Pipeline rules plus Security Finding, IAM Privesc, and Data Exfil chains per cloud).
+
 ---
 
 ## 1 · System Architecture
@@ -22,8 +24,8 @@ flowchart LR
     subgraph Elastic["Elastic Stack"]
         PIPE["Ingest Pipelines\n100 custom pipelines"]
         DS[("Data Streams\nlogs-aws.*\nmetrics-aws.*\ntraces-apm.*")]
-        KB["Kibana\n217 custom dashboards"]
-        ML["ML Anomaly Detection\n137 jobs / 22 groups"]
+        KB["Kibana\n220 custom dashboards"]
+        ML["ML Anomaly Detection\n384 jobs / 32 groups"]
     end
 
     UI -->|"select services\nset volume + error rate"| SEL
@@ -151,8 +153,8 @@ mindmap
       Artifact
     Security Findings
       GD to SecHub to Lake Chain
-      CSPM
-      KSPM
+      CSPM (55 real CIS AWS rules)
+      KSPM (31 real CIS EKS rules)
       IAM PrivEsc Chain
       Data Exfil Chain
     Storage and Databases
@@ -326,13 +328,13 @@ flowchart TD
     subgraph I3["setup:aws-dashboards"]
         direction TB
         C1["Kibana Saved Objects API\nor legacy NDJSON import"]
-        C2["217 Kibana dashboards\nLens + ES|QL panels\nper-service visualisations"]
+        C2["220 Kibana dashboards\nLens + ES|QL panels\nper-service visualisations"]
     end
 
     subgraph I4["setup:aws-ml-jobs"]
         direction TB
         D1["Elasticsearch ML API"]
-        D2["137 anomaly detection jobs\n22 groups\ndatafeeds auto-started"]
+        D2["384 anomaly detection jobs\n32 groups\ndatafeeds auto-started"]
     end
 
     I1 --> DONE
@@ -714,7 +716,7 @@ flowchart TD
 
     DS --> FEED
 
-    subgraph FEED["Datafeeds — 137 jobs"]
+    subgraph FEED["Datafeeds — 384 jobs"]
         direction TB
         F1["Query: event.dataset filter\ne.g. aws.lambda_logs"]
         F2["Indices: logs-aws.* or metrics-aws.*"]
@@ -724,7 +726,7 @@ flowchart TD
 
     FEED --> JOBS
 
-    subgraph JOBS["ML Job Groups — 22 groups"]
+    subgraph JOBS["ML Job Groups — 32 groups"]
         direction TB
         J1["Compute\nLambda error spike\nEC2 CPU anomaly"]
         J2["Databases\nRDS query latency\nDynamo throttle spike"]

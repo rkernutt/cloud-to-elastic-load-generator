@@ -1,0 +1,199 @@
+{
+  "group": "gcp-iam-privesc-chain",
+  "description": "ML anomaly detection jobs for the GCP IAM privilege escalation chain scenario (Cloud Audit)",
+  "jobs": [
+    {
+      "id": "gcp-iam-privesc-session-spike",
+      "description": "Detects spikes in IAM privilege escalation chains",
+      "job": {
+        "description": "Detects spikes in IAM privilege escalation chains",
+        "groups": ["gcp", "gcp-iam-privesc-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=user.name",
+              "function": "high_count",
+              "partition_field_name": "user.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["user.name", "source.ip", "gcp.cloud_audit.method_name"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-gcp-iam-privesc-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.audit*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "bool": {
+                  "should": [
+                    {
+                      "wildcard": {
+                        "gcp.cloud_audit.method_name": "*ListServiceAccounts*"
+                      }
+                    },
+                    {
+                      "wildcard": {
+                        "gcp.cloud_audit.method_name": "*CreateServiceAccountKey*"
+                      }
+                    },
+                    {
+                      "wildcard": {
+                        "gcp.cloud_audit.method_name": "*SetIamPolicy*"
+                      }
+                    },
+                    {
+                      "wildcard": {
+                        "gcp.cloud_audit.method_name": "*GenerateAccessToken*"
+                      }
+                    }
+                  ],
+                  "minimum_should_match": 1
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-iam-privesc-rare-method",
+      "description": "Detects unusual API methods during IAM privilege escalation sessions",
+      "job": {
+        "description": "Detects unusual API methods during IAM privilege escalation sessions",
+        "groups": ["gcp", "gcp-iam-privesc-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "rare by gcp.cloud_audit.method_name",
+              "function": "rare",
+              "by_field_name": "gcp.cloud_audit.method_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.cloud_audit.method_name", "user.name", "source.ip"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-gcp-iam-privesc-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.audit*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "bool": {
+                  "should": [
+                    {
+                      "term": {
+                        "gcp.cloud_audit.service_name": "iam.googleapis.com"
+                      }
+                    },
+                    {
+                      "term": {
+                        "event.category": "iam"
+                      }
+                    }
+                  ],
+                  "minimum_should_match": 1
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-iam-token-generation-anomaly",
+      "description": "Detects anomalous access token generation",
+      "job": {
+        "description": "Detects anomalous access token generation",
+        "groups": ["gcp", "gcp-iam-privesc-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=source.ip",
+              "function": "high_count",
+              "partition_field_name": "source.ip",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["source.ip", "user.name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-gcp-iam-privesc-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.audit*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "wildcard": {
+                  "gcp.cloud_audit.method_name": "*GenerateAccessToken*"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    }
+  ]
+}

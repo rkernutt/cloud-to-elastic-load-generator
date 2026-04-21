@@ -1,59 +1,64 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "us-west-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "arc" },
-    "availability_zone": "eu-west-2c"
+    "availability_zone": "us-west-2c"
   },
   "aws": {
     "dimensions": {
-      "ResourceArn": "arn:aws:elasticloadbalancing:eu-west-2:164820739518:loadbalancer/app/prod-alb/m0h1fbv7la",
-      "AwsAccountId": "164820739518"
+      "ResourceArn": "arn:aws:elasticloadbalancing:us-west-2:293847561023:loadbalancer/app/prod-alb/0dg64i6wv0xb",
+      "AwsAccountId": "293847561023"
     },
     "arc": {
-      "shift_id": "e3o7mbd5-1lky-b7hy-69ay-n3xht8g0d5s",
-      "resource_arn": "arn:aws:elasticloadbalancing:eu-west-2:164820739518:loadbalancer/app/prod-alb/m0h1fbv7la",
-      "away_from": "eu-west-2c",
-      "zonal_shift_status": "ACTIVE",
-      "az_status": "AVAILABLE",
-      "comment": "AZ degradation detected",
-      "expiry_time": "2026-04-20T22:26:09.524Z",
-      "routing_control_arn": "arn:aws:route53-recovery-control::164820739518:controlpanel/pk0kkevlw1/routingcontrol/zc24ozxzvg",
-      "routing_control_state": "On"
+      "shift_id": "e9wzvymo-i933-40nd-kibj-o5p8wasx18m",
+      "resource_arn": "arn:aws:elasticloadbalancing:us-west-2:293847561023:loadbalancer/app/prod-alb/0dg64i6wv0xb",
+      "away_from": "us-west-2c",
+      "zonal_shift_status": "FAILED",
+      "az_status": "IMPAIRED",
+      "comment": "Planned maintenance",
+      "expiry_time": "2026-04-21T23:55:08.398Z",
+      "routing_control_arn": "arn:aws:route53-recovery-control::293847561023:controlpanel/hzd01rtufld/routingcontrol/4v3tiwnb36w",
+      "routing_control_state": "Off"
     },
     "s3": {
       "bucket": {
-        "name": "aws-arc-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-arc-logs-164820739518"
+        "name": "aws-arc-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-arc-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/164820739518/arc/eu-west-2/2026/04/20/arc_0CQSGR0N6JPD.log.gz" }
+      "object": { "key": "AWSLogs/293847561023/arc/us-west-2/2026/04/21/arc_1ZK6IL2OO3HH.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/arc/logs",
-      "log_stream": "eu-west-2/t8sv0ku1",
-      "ingestion_time": "2026-04-20T15:59:34.641Z"
+      "log_stream": "us-west-2/adrflrr8",
+      "ingestion_time": "2026-04-21T10:21:44.296Z"
     }
   },
   "event": {
     "action": "CancelZonalShift",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["network", "process"],
     "dataset": "aws.arc",
     "provider": "arc-zonal-shift.amazonaws.com",
     "module": "aws"
   },
-  "message": "ARC CancelZonalShift: shift=e3o7mbd5-1lky-b7hy-69ay-n3xht8g0d5s, az=eu-west-2c status=ACTIVE, AZ degradation detected",
-  "log": { "level": "warn" },
+  "message": "ARC CancelZonalShift FAILED [e9wzvymo-i933-40nd-kibj-o5p8wasx18m]: Invalid state",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ConflictException",
+    "message": "ARC zonal shift operation failed",
+    "type": "network"
+  },
   "service": { "name": "arc", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.arc", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "aj5mzpe6rnp"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "2pl891hbb7t"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,81 +1,83 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-west-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "cloudtrail" }
   },
   "aws": {
-    "dimensions": { "EventName": "PutBucketPolicy", "EventSource": "s3.amazonaws.com" },
+    "dimensions": { "EventName": "ConsoleLogin", "EventSource": "sts.amazonaws.com" },
     "cloudtrail": {
       "eventVersion": "1.11",
       "userIdentity": {
-        "type": "AWSService",
-        "principalId": "738291046572:bob",
-        "arn": "arn:aws:iam::738291046572:user/bob",
-        "accountId": "738291046572",
-        "accessKeyId": "AKIAMATZKG4LANO",
+        "type": "WebIdentityUser",
+        "principalId": "501938274650:bob",
+        "arn": "arn:aws:iam::501938274650:user/bob",
+        "accountId": "501938274650",
+        "accessKeyId": "AKIAY0E0OARNIF",
         "userName": "bob",
         "sessionContext": {
           "sessionIssuer": {
             "type": "Role",
-            "principalId": "AROASA8XL2RB2PD",
-            "arn": "arn:aws:iam::738291046572:role/service-role/execution-role",
-            "accountId": "738291046572",
+            "principalId": "AROATG31Y5IIMIJ",
+            "arn": "arn:aws:iam::501938274650:role/service-role/execution-role",
+            "accountId": "501938274650",
             "userName": "execution-role"
           },
           "webIdFederationData": {},
-          "attributes": { "creationDate": "2026-04-20T15:35:24.524Z", "mfaAuthenticated": "false" }
+          "attributes": { "creationDate": "2026-04-21T09:48:56.398Z", "mfaAuthenticated": "false" }
         }
       },
-      "eventTime": "2026-04-20T15:59:33Z",
-      "eventSource": "s3.amazonaws.com",
-      "eventName": "PutBucketPolicy",
-      "awsRegion": "ca-west-1",
-      "sourceIPAddress": "169.69.91.49",
-      "userAgent": "python-requests/2.27.1",
-      "requestParameters": {
-        "bucket": "globex-development-nxmv2jyt",
-        "policy": "{\"Version\":\"2012-10-17\"}"
-      },
-      "requestID": "w3dz5ok5-74zh-3r8r-hh55-up0mze9nii",
-      "eventID": "jhoz7dkv-3xly-ppul-9rvt-vywjbkkk8f",
-      "eventType": "AwsApiCall",
-      "recipientAccountId": "738291046572",
+      "eventTime": "2026-04-21T10:21:43Z",
+      "eventSource": "sts.amazonaws.com",
+      "eventName": "ConsoleLogin",
+      "awsRegion": "eu-west-1",
+      "sourceIPAddress": "93.8.187.81",
+      "userAgent": "curl/7.68.0",
+      "requestParameters": { "userName": "bob" },
+      "requestID": "zvhwktk1-b2l0-75e4-ubdn-wckrp49adlm",
+      "eventID": "qyek5dje-qd2t-emm8-29f8-l6510zswfyd",
+      "eventType": "AwsConsoleSignIn",
+      "recipientAccountId": "501938274650",
       "readOnly": false,
       "eventCategory": "Management",
       "managementEvent": true,
-      "apiVersion": "2012-10-17"
+      "apiVersion": "2012-10-17",
+      "additionalEventData": {
+        "LoginTo": "https://501938274650.signin.aws.amazon.com/console",
+        "MobileVersion": "No",
+        "MFAUsed": "true"
+      }
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudtrail-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-cloudtrail-logs-738291046572"
+        "name": "aws-cloudtrail-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-cloudtrail-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/cloudtrail/ca-west-1/2026/04/20/cloudtrail_8HX80H8SZD2.log.gz"
+        "key": "AWSLogs/501938274650/cloudtrail/eu-west-1/2026/04/21/cloudtrail_MUKRYE4CJY.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloudtrail/logs",
-      "log_stream": "ca-west-1/c7c8gca7",
-      "ingestion_time": "2026-04-20T15:59:34.392Z"
+      "log_stream": "eu-west-1/t4zp11oh",
+      "ingestion_time": "2026-04-21T10:21:44.024Z"
     }
   },
   "user": { "name": "bob" },
-  "source": { "ip": "169.69.91.49", "geo": { "country_iso_code": "JP", "city_name": "London" } },
-  "user_agent": { "original": "python-requests/2.27.1" },
+  "source": { "ip": "93.8.187.81", "geo": { "country_iso_code": "AU", "city_name": "Frankfurt" } },
+  "user_agent": { "original": "curl/7.68.0" },
   "event": {
-    "action": "PutBucketPolicy",
+    "action": "ConsoleLogin",
     "outcome": "success",
-    "category": ["configuration"],
-    "type": ["change"],
+    "category": ["authentication", "iam"],
+    "type": ["authentication", "info"],
     "dataset": "aws.cloudtrail",
     "provider": "cloudtrail.amazonaws.com",
     "module": "aws"
   },
-  "message": "CloudTrail: PutBucketPolicy by bob from 169.69.91.49 - Success",
+  "message": "CloudTrail: ConsoleLogin by bob from 93.8.187.81 - Success",
   "log": { "level": "info" },
   "service": { "name": "cloudtrail", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -83,8 +85,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "4ik0x346qyy"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "3zf70cu82yl"
   },
   "input": { "type": "aws-s3" }
 }

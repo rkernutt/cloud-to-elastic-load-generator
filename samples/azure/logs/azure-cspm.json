@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-07T12:00:00.000Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,31 +7,45 @@
   },
   "cloud": {
     "provider": "azure",
-    "region": "switzerlandnorth",
-    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" }
+    "region": "eastus",
+    "account": { "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890", "name": "Contoso Production" }
   },
   "resource": {
-    "id": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-security/providers/Microsoft.Storage/storageAccounts/res-VJCH0Y",
-    "name": "res-VJCH0Y",
+    "id": "/subscriptions/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/stcontosoprod01",
+    "name": "stcontosoprod01",
+    "type": "cloud-storage",
     "sub_type": "storage-account",
-    "type": "object-storage"
+    "raw": {
+      "properties": {
+        "supportsHttpsTrafficOnly": false,
+        "allowBlobPublicAccess": true,
+        "minimumTlsVersion": "TLS1_0"
+      }
+    }
   },
   "rule": {
-    "id": "cis_az_3_1",
-    "name": "Ensure storage accounts disallow public access",
+    "id": "6d3c6e07-f6bf-5b1a-b08a-1e9a44c0246e",
+    "name": "Ensure that 'Secure transfer required' is set to 'Enabled'",
     "section": "3.1",
-    "tags": ["Storage"],
+    "description": "The secure transfer option enhances the security of a storage account by only allowing requests to the storage account by a secure connection.",
+    "tags": ["CIS", "Azure", "CIS 3.1", "Storage Accounts"],
     "benchmark": {
       "id": "cis_azure",
+      "name": "CIS Microsoft Azure Foundations",
       "version": "v2.0.0",
       "rule_number": "3.1",
       "posture_type": "cspm"
     },
-    "impact": "CIS Azure 3.1 increases exposure in Contoso-Platform.",
-    "remediation": "Remediate per CIS Microsoft Azure Foundations Benchmark 3.1."
+    "profile_applicability": "* Level 1",
+    "impact": "Non-compliance with CIS Microsoft Azure Foundations 3.1 — Ensure that 'Secure transfer required' is set to 'Enabled'",
+    "remediation": "Remediate per CIS Microsoft Azure Foundations v2.0.0 section 3.1."
   },
-  "result": { "evaluation": "failed" },
-  "severity": "high",
+  "result": {
+    "evaluation": "failed",
+    "evidence": {
+      "supportsHttpsTrafficOnly": false
+    }
+  },
   "event": {
     "kind": "state",
     "category": ["configuration"],
@@ -41,18 +55,6 @@
     "provider": "elastic_cspm",
     "module": "azure"
   },
-  "message": "CSPM [CIS Azure / 3.1] failed: Ensure storage accounts disallow public access",
-  "log": { "level": "warn" },
-  "service": { "name": "azure-cspm", "type": "azure" },
-  "ecs": { "version": "8.11.0" },
-  "agent": {
-    "type": "elastic-agent",
-    "version": "8.18.0",
-    "name": "elastic-agent-azure-switzerlandnorth",
-    "id": "5h7o13sm6c"
-  },
-  "input": { "type": "http_endpoint" },
-  "category": "Administrative",
-  "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourcegroups/rg-app/providers/Microsoft.Resources/azure-cspm/azure-cspm",
-  "operationName": { "localizedValue": "Write", "value": "azure-cspm/action" }
+  "message": "[cis_azure/3.1] failed: Ensure that 'Secure transfer required' is set to 'Enabled'",
+  "log": { "level": "warn" }
 }

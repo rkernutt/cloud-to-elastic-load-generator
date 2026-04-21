@@ -65,7 +65,7 @@ Each pipeline run produces **6-8 correlated log documents** plus **1 APM trace**
 6. **Synapse query** — `azure.synapse` dataset
 7. **Data Factory pipeline completed** — `azure.data_factory` dataset (with quality check)
 
-All documents share a `labels.pipeline_run_id` for cross-service correlation. Azure diagnostic log fields (`time`, `resourceId`, `operationName`, `category`, `resultType`) are included on all documents.
+All documents share a `labels.pipeline_run_id` for cross-service correlation. Azure diagnostic log fields (`time`, `resourceId`, `operationName`, `category`, `resultType`) are included on all documents. Timing is **orchestrated batch analytics** (stages inside one pipeline run), unlike the **Security Finding**, **IAM Privilege Escalation**, and **Data Exfiltration** chains, which use wider `@timestamp` spacing and `labels.finding_chain_id`, `labels.attack_session_id`, or `labels.exfil_chain_id`.
 
 ## Failure Modes
 

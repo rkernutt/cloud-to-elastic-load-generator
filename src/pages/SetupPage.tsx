@@ -163,6 +163,8 @@ function SetupCollapsible({
   );
 }
 
+const CSP_SERVICE_SUFFIXES = ["cspm", "kspm"];
+
 export function SetupPage({
   setupBundle,
   cloudId,
@@ -186,6 +188,7 @@ export function SetupPage({
 
   const [enableIntegration, setEnableIntegration] = useState(false);
   const [enableApm, setEnableApm] = useState(false);
+  const [enableCsp, setEnableCsp] = useState(false);
   const [enablePipelines, setEnablePipelines] = useState(false);
   const [enableDashboards, setEnableDashboards] = useState(false);
   const [enableMlJobs, setEnableMlJobs] = useState(false);
@@ -306,8 +309,8 @@ export function SetupPage({
 
   const hasEs = !!elasticUrl.trim() && !!apiKey.trim();
   const hasKb = !!kibanaUrl.trim() && !!apiKey.trim();
-  const needsKb = enableIntegration || enableApm || enableLoadgenIntegrations;
-  const anyEnabled = enableIntegration || enableApm || enableLoadgenIntegrations;
+  const needsKb = enableIntegration || enableApm || enableCsp || enableLoadgenIntegrations;
+  const anyEnabled = enableIntegration || enableApm || enableCsp || enableLoadgenIntegrations;
   const canRun = anyEnabled && hasEs && (!needsKb || hasKb);
 
   function toggleGroup<T>(set: Set<T>, val: T): Set<T> {
@@ -459,7 +462,13 @@ export function SetupPage({
     dataexchange: "Analytics",
     appfabric: "Analytics",
     b2bi: "Analytics",
+    cspm: "Security & Identity",
+    kspm: "Security & Identity",
+    "security-chain": "Chained Events",
+    "iam-privesc-chain": "Chained Events",
+    "data-exfil-chain": "Chained Events",
     "data-pipeline": "Chained Events",
+    "data-pipeline-chain": "Chained Events",
 
     // AI & Machine Learning
     sagemaker: "AI & Machine Learning",
@@ -720,6 +729,7 @@ export function SetupPage({
     "azure-iam-privesc-chain": "Chained Events",
     "azure-data-exfil-chain": "Chained Events",
     "azure-data-pipeline-chain": "Chained Events",
+    "azure-data-pipeline": "Chained Events",
 
     // ── GCP services ────────────────────────────────────────────────────────
     "cloud-functions": "Compute",
@@ -869,6 +879,7 @@ export function SetupPage({
     "gcp-iam-privesc-chain": "Chained Events",
     "gcp-data-exfil-chain": "Chained Events",
     "gcp-data-pipeline-chain": "Chained Events",
+    "gcp-data-pipeline": "Chained Events",
   };
 
   const CATEGORY_ORDER: ServiceCategory[] = [
@@ -1067,6 +1078,14 @@ export function SetupPage({
       data: "data-pipeline",
       "data-&-analytics-pipeline": "data-pipeline",
       "data-analytics-pipeline": "data-pipeline",
+
+      // Chained-event dashboard title fragments → canonical SERVICE_CATEGORY keys
+      "data-exfiltration-chain": "data-exfil-chain",
+      dataexfiltrationchain: "data-exfil-chain",
+      "security-finding-chain": "security-chain",
+      securityfindingchain: "security-chain",
+      "iam-privilege-escalation-chain": "iam-privesc-chain",
+      iamprivilegeescalationchain: "iam-privesc-chain",
 
       // Dashboard title fragment aliases (multi-word product names → canonical IDs)
       "application-load-balancer": "elb",
@@ -1447,6 +1466,18 @@ export function SetupPage({
       vpcsc: "vpc-service-controls",
       workbench: "vertex-ai-workbench",
       workstations: "cloud-workstations",
+
+      // Chained-event dashboard fragments (unprefixed) → GCP-prefixed canonical IDs
+      "data-exfiltration-chain": "gcp-data-exfil-chain",
+      "data-exfil-chain": "gcp-data-exfil-chain",
+      "security-finding-chain": "gcp-security-chain",
+      "security-chain": "gcp-security-chain",
+      "iam-privilege-escalation-chain": "gcp-iam-privesc-chain",
+      "iam-privesc-chain": "gcp-iam-privesc-chain",
+      "data-pipeline": "gcp-data-pipeline",
+      "data-&-analytics-pipeline": "gcp-data-pipeline",
+      "data-analytics-pipeline": "gcp-data-pipeline",
+      dataanalyticspipeline: "gcp-data-pipeline",
     };
 
     const AZURE_OVERRIDES: Record<string, string> = {
@@ -1471,17 +1502,41 @@ export function SetupPage({
       "dev-center": "devcenter",
       "azure-stack": "stack",
       waf: "waf-policy",
+
+      // Chained-event dashboard fragments (unprefixed) → Azure-prefixed canonical IDs
+      "data-exfiltration-chain": "azure-data-exfil-chain",
+      "data-exfil-chain": "azure-data-exfil-chain",
+      "security-finding-chain": "azure-security-chain",
+      "security-chain": "azure-security-chain",
+      "iam-privilege-escalation-chain": "azure-iam-privesc-chain",
+      "iam-privesc-chain": "azure-iam-privesc-chain",
+      "data-pipeline": "azure-data-pipeline",
+      "data-&-analytics-pipeline": "azure-data-pipeline",
+      "data-analytics-pipeline": "azure-data-pipeline",
+      dataanalyticspipeline: "azure-data-pipeline",
     };
+
+    function resolveCloud(id: string, cloud?: CloudId): string | undefined {
+      if (cloud === "gcp" && GCP_OVERRIDES[id]) return GCP_OVERRIDES[id];
+      if (cloud === "azure" && AZURE_OVERRIDES[id]) return AZURE_OVERRIDES[id];
+      return undefined;
+    }
 
     function normalize(raw: string, cloud?: CloudId): string {
       const lower = raw.toLowerCase().trim();
-      if (cloud === "gcp" && GCP_OVERRIDES[lower]) return GCP_OVERRIDES[lower];
-      if (cloud === "azure" && AZURE_OVERRIDES[lower]) return AZURE_OVERRIDES[lower];
-      if (SERVICE_ALIASES[lower]) return SERVICE_ALIASES[lower];
+      const co = resolveCloud(lower, cloud);
+      if (co) return co;
+      if (SERVICE_ALIASES[lower]) {
+        const aliased = SERVICE_ALIASES[lower];
+        return resolveCloud(aliased, cloud) ?? aliased;
+      }
       const stripped = lower.replace(/[-_\s/]+/g, "");
-      if (cloud === "gcp" && GCP_OVERRIDES[stripped]) return GCP_OVERRIDES[stripped];
-      if (cloud === "azure" && AZURE_OVERRIDES[stripped]) return AZURE_OVERRIDES[stripped];
-      if (SERVICE_ALIASES[stripped]) return SERVICE_ALIASES[stripped];
+      const cos = resolveCloud(stripped, cloud);
+      if (cos) return cos;
+      if (SERVICE_ALIASES[stripped]) {
+        const aliased = SERVICE_ALIASES[stripped];
+        return resolveCloud(aliased, cloud) ?? aliased;
+      }
       return lower;
     }
 
@@ -1542,18 +1597,22 @@ export function SetupPage({
         const vendorMatch = j.id.match(/^(aws|azure|gcp)-(.+)/);
         if (vendorMatch) {
           const rest = vendorMatch[2];
-          if (vendorMatch[1] === "aws") {
+          const parts = rest.split("-");
+          let matched = false;
+          for (let len = Math.min(parts.length - 1, 6); len >= 1; len--) {
+            const candidate = parts.slice(0, len).join("-");
+            const norm = normalize(candidate, cloudId);
+            if (knownIds.has(norm)) {
+              serviceId = candidate;
+              matched = true;
+              break;
+            }
+          }
+          if (!matched) {
             const m = rest.match(/^([a-z0-9]+)-/);
-            if (m) serviceId = m[1];
-          } else {
-            const parts = rest.split("-");
-            for (let len = Math.min(parts.length - 1, 6); len >= 1; len--) {
-              const candidate = parts.slice(0, len).join("-");
-              const norm = normalize(candidate, cloudId);
-              if (knownIds.has(norm)) {
-                serviceId = candidate;
-                break;
-              }
+            if (m) {
+              const norm = normalize(m[1], cloudId);
+              if (knownIds.has(norm)) serviceId = m[1];
             }
           }
         }
@@ -1587,6 +1646,21 @@ export function SetupPage({
   useEffect(() => {
     setSelectedServiceIds(new Set(servicePackIndex.map((p) => p.serviceId)));
   }, [servicePackIndex]);
+
+  const cspServicesSelected = useMemo(
+    () =>
+      [...selectedServiceIds].some((id) =>
+        CSP_SERVICE_SUFFIXES.some((s) => id === s || id.endsWith(`-${s}`))
+      ),
+    [selectedServiceIds]
+  );
+  const extraFleetPackages = useMemo(
+    () =>
+      enableCsp
+        ? [{ name: "cloud_security_posture", label: "Cloud Security Posture (CSPM/KSPM)" }]
+        : [],
+    [enableCsp]
+  );
 
   // Derive which pipelines/dashboards/ML jobs are selected from service selection
   const derivedPipelineIds = useMemo(() => {
@@ -1728,6 +1802,7 @@ export function SetupPage({
         enableDashboards,
         enableMlJobs,
         enableAlertRules: enableLoadgenIntegrations,
+        extraFleetPackages,
         pipelines: filteredPipelines(),
         dashboards: filteredDashboards(),
         mlJobFiles: filteredMlJobPayload(),
@@ -1790,6 +1865,10 @@ export function SetupPage({
 
   async function uninstallApm() {
     await removeFleetPackage("apm", "APM Integration");
+  }
+
+  async function uninstallCsp() {
+    await removeFleetPackage("cloud_security_posture", "Cloud Security Posture (CSPM/KSPM)");
   }
 
   async function uninstallPipelines() {
@@ -2006,6 +2085,7 @@ export function SetupPage({
   async function performUninstallSteps() {
     if (enableIntegration) await uninstallIntegration();
     if (enableApm) await uninstallApm();
+    if (enableCsp) await uninstallCsp();
     if (enablePipelines) await uninstallPipelines();
     if (enableDashboards) await uninstallDashboards();
     if (enableMlJobs) await uninstallMlJobs();
@@ -2061,6 +2141,7 @@ export function SetupPage({
         enableDashboards,
         enableMlJobs,
         enableAlertRules: enableLoadgenIntegrations,
+        extraFleetPackages,
         pipelines: filteredPipelines(),
         dashboards: filteredDashboards(),
         mlJobFiles: filteredMlJobPayload(),
@@ -2117,6 +2198,7 @@ export function SetupPage({
         enableDashboards,
         enableMlJobs,
         enableAlertRules: enableLoadgenIntegrations,
+        extraFleetPackages,
         pipelines: filteredPipelines(),
         dashboards: filteredDashboards(),
         mlJobFiles: filteredMlJobPayload(),
@@ -2293,6 +2375,38 @@ export function SetupPage({
           <EuiSpacer size="m" />
         </>
       )}
+
+      <InstallerRow
+        label="CSPM / KSPM Integration"
+        badge="Kibana"
+        description={
+          removeMode ? (
+            <>
+              <strong>Uninstalls</strong> the Cloud Security Posture Management integration from
+              Fleet.
+            </>
+          ) : (
+            <>
+              Installs the official Elastic <strong>cloud_security_posture</strong> integration via
+              Kibana Fleet — enables the Posture Dashboard, Findings page, and Benchmark Rules using{" "}
+              <strong>321 real CIS rules</strong> (AWS 55, GCP 71, Azure 72, EKS 31, K8s 92).
+              {cspServicesSelected ? (
+                <EuiBadge color="success" style={{ marginLeft: 8 }}>
+                  CSPM/KSPM services selected
+                </EuiBadge>
+              ) : (
+                <EuiBadge color="hollow" style={{ marginLeft: 8 }}>
+                  No CSPM/KSPM services selected
+                </EuiBadge>
+              )}
+            </>
+          )
+        }
+        enabled={enableCsp}
+        onToggle={setEnableCsp}
+      />
+
+      <EuiSpacer size="m" />
 
       <InstallerRow
         label="Cloud Loadgen Integrations"

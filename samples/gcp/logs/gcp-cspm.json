@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-04T12:00:00.000Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,52 +7,52 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-central2",
-    "account": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" }
+    "region": "us-central1",
+    "account": { "id": "globex-prod-42", "name": "globex-prod-42" }
   },
   "resource": {
-    "id": "//storage.googleapis.com/projects/globex-shared-m3n4o5/global/gcs-bucket-3EF8RZ",
-    "name": "gcs-bucket-3EF8RZ",
+    "id": "//storage.googleapis.com/globex-public-assets",
+    "name": "globex-public-assets",
+    "type": "cloud-storage",
     "sub_type": "gcs-bucket",
-    "type": "object-storage"
+    "raw": {
+      "iamConfiguration": { "uniformBucketLevelAccess": { "enabled": false } },
+      "acl": [{ "entity": "allUsers", "role": "READER" }]
+    }
   },
   "rule": {
-    "id": "cis_gcp_5_1",
-    "name": "Ensure that Cloud Storage bucket is not publicly accessible",
+    "id": "c2bde184-6506-5003-996a-05df4bbbf988",
+    "name": "Ensure That Cloud Storage Bucket Is Not Anonymously or Publicly Accessible",
     "section": "5.1",
-    "tags": ["Storage"],
+    "description": "It is recommended that IAM policy on Cloud Storage bucket does not allows anonymous or public access.",
+    "tags": ["CIS", "GCP", "CIS 5.1", "Storage"],
     "benchmark": {
       "id": "cis_gcp",
+      "name": "CIS Google Cloud Platform Foundation",
       "version": "v2.0.0",
       "rule_number": "5.1",
       "posture_type": "cspm"
+    },
+    "profile_applicability": "* Level 1",
+    "impact": "Non-compliance with CIS Google Cloud Platform Foundation 5.1 — Ensure That Cloud Storage Bucket Is Not Anonymously or Publicly Accessible",
+    "remediation": "Remediate per CIS Google Cloud Platform Foundation v2.0.0 section 5.1."
+  },
+  "result": {
+    "evaluation": "failed",
+    "evidence": {
+      "iamConfiguration": { "uniformBucketLevelAccess": { "enabled": false } },
+      "acl": [{ "entity": "allUsers" }]
     }
   },
-  "result": { "evaluation": "passed" },
-  "severity": "none",
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_cspm",
     "module": "gcp"
   },
-  "message": "CSPM [CIS GCP / 5.1] passed: Ensure that Cloud Storage bucket is not publicly accessible",
-  "log": { "level": "info" },
-  "service": { "name": "gcp-cspm", "type": "gcp" },
-  "ecs": { "version": "8.11.0" },
-  "agent": {
-    "type": "elastic-agent",
-    "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-central2",
-    "id": "capcfvzf90m"
-  },
-  "input": { "type": "http_endpoint" },
-  "logName": "projects/project-unknown/logs/gcp-cspm",
-  "insertId": "QHTCT4M2CUD",
-  "jsonPayload": {
-    "message": "CSPM [CIS GCP / 5.1] passed: Ensure that Cloud Storage bucket is not publicly accessible"
-  }
+  "message": "[cis_gcp/5.1] failed: Ensure That Cloud Storage Bucket Is Not Anonymously or Publicly Accessible",
+  "log": { "level": "warn" }
 }

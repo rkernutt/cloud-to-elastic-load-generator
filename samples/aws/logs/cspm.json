@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,61 +7,52 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" }
+    "region": "us-east-1",
+    "account": { "id": "293847561023", "name": "globex-staging" }
   },
   "resource": {
-    "id": "arn:aws:cloudwatch:me-south-1:501938274650:alarm/root-login",
-    "name": "root-login",
-    "sub_type": "cloudwatch",
-    "type": "cloud-audit"
-  },
-  "rule": {
-    "id": "cis_3_3",
-    "name": "Ensure a log metric filter for root account usage exists",
-    "section": "3.3",
-    "tags": ["Monitoring"],
-    "benchmark": {
-      "id": "cis_aws",
-      "version": "v1.5.0",
-      "rule_number": "3.3",
-      "posture_type": "cspm"
+    "id": "arn:aws:s3:::globex-data-lake-293847561023",
+    "name": "globex-data-lake-293847561023",
+    "type": "cloud-storage",
+    "sub_type": "s3-bucket",
+    "raw": {
+      "ServerSideEncryptionConfiguration": null,
+      "BucketName": "globex-data-lake-293847561023",
+      "CreationDate": "2025-06-12T08:22:01Z"
     }
   },
-  "result": { "evaluation": "passed" },
-  "severity": "none",
+  "rule": {
+    "id": "76be4dd2-a77a-5981-a893-db6770b35911",
+    "name": "Ensure all S3 buckets employ encryption-at-rest",
+    "section": "2.1.1",
+    "description": "Amazon S3 provides a variety of no, or low, cost encryption options to protect data at rest.",
+    "tags": ["CIS", "AWS", "CIS 2.1.1", "Simple Storage Service (S3)"],
+    "benchmark": {
+      "id": "cis_aws",
+      "name": "CIS Amazon Web Services Foundations",
+      "version": "v1.5.0",
+      "rule_number": "2.1.1",
+      "posture_type": "cspm"
+    },
+    "profile_applicability": "* Level 2",
+    "impact": "Non-compliance with CIS Amazon Web Services Foundations 2.1.1 — Ensure all S3 buckets employ encryption-at-rest",
+    "remediation": "Remediate per CIS Amazon Web Services Foundations v1.5.0 section 2.1.1."
+  },
+  "result": {
+    "evaluation": "failed",
+    "evidence": {
+      "ServerSideEncryptionConfiguration": null
+    }
+  },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_cspm",
     "module": "aws"
   },
-  "message": "CSPM [CIS AWS 1.5 / 3.3] passed: Ensure a log metric filter for root account usage exists",
-  "log": { "level": "info" },
-  "service": { "name": "cspm", "type": "aws" },
-  "ecs": { "version": "8.11.0" },
-  "agent": {
-    "type": "filebeat",
-    "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "gweh1qc7xbe"
-  },
-  "input": { "type": "http_endpoint" },
-  "aws": {
-    "s3": {
-      "bucket": {
-        "name": "aws-cspm-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-cspm-logs-501938274650"
-      },
-      "object": { "key": "AWSLogs/501938274650/cspm/me-south-1/2026/04/20/cspm_C17Y4J1UM1O.log.gz" }
-    },
-    "cloudwatch": {
-      "log_group": "/aws/cspm/logs",
-      "log_stream": "me-south-1/aopjmcks",
-      "ingestion_time": "2026-04-20T15:59:34.481Z"
-    }
-  }
+  "message": "[cis_aws/2.1.1] failed: Ensure all S3 buckets employ encryption-at-rest",
+  "log": { "level": "warn" }
 }

@@ -1,0 +1,98 @@
+{
+  "group": "iam-privesc-chain",
+  "description": "Alerting rules for the IAM Privilege Escalation Chain scenario (CloudTrail)",
+  "rules": [
+    {
+      "id": "cloudloadgen-aws-iam-create-access-key",
+      "name": "[CloudLoadGen] IAM PrivEsc Chain — CreateAccessKey (Non-Admin)",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "iam-privesc-chain"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"term\":{\"event.action\":\"CreateAccessKey\"}}],\"must_not\":[{\"wildcard\":{\"user.name\":{\"value\":\"*admin*\",\"case_insensitive\":true}}}]}}",
+        "index": ["logs-aws.cloudtrail*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-aws-iam-admin-policy-attach",
+      "name": "[CloudLoadGen] IAM PrivEsc Chain — AdministratorAccess Policy Attached",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "iam-privesc-chain"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"term\":{\"event.action\":\"AttachUserPolicy\"}},{\"match_phrase\":{\"aws.cloudtrail.request_parameters\":\"AdministratorAccess\"}}],\"must_not\":[{\"wildcard\":{\"user.name\":{\"value\":\"*admin*\",\"case_insensitive\":true}}}]}}",
+        "index": ["logs-aws.cloudtrail*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-aws-iam-assume-role-chain",
+      "name": "[CloudLoadGen] IAM PrivEsc Chain — AssumeRole With Privilege-Escalation Tactic",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "iam-privesc-chain"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"term\":{\"event.action\":\"AssumeRole\"}},{\"exists\":{\"field\":\"threat.tactic.name\"}}]}}",
+        "index": ["logs-aws.cloudtrail*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-aws-iam-privesc-full-chain",
+      "name": "[CloudLoadGen] IAM PrivEsc Chain — High Volume of Dangerous IAM Actions",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "iam-privesc-chain"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 30,
+        "timeWindowUnit": "m",
+        "threshold": [3],
+        "thresholdComparator": ">",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"exists\":{\"field\":\"user.name\"}},{\"bool\":{\"should\":[{\"term\":{\"event.action\":\"CreateAccessKey\"}},{\"bool\":{\"filter\":[{\"term\":{\"event.action\":\"AttachUserPolicy\"}},{\"match_phrase\":{\"aws.cloudtrail.request_parameters\":\"AdministratorAccess\"}}]}},{\"term\":{\"event.action\":\"AssumeRole\"}}],\"minimum_should_match\":1}}]}}",
+        "index": ["logs-aws.cloudtrail*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    }
+  ]
+}

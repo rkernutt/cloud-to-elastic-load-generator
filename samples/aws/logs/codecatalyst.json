@@ -1,66 +1,59 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-southeast-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "codecatalyst" }
   },
   "aws": {
-    "dimensions": { "SpaceName": "platform-team", "ProjectName": "api-gateway" },
+    "dimensions": { "SpaceName": "mobile-team", "ProjectName": "infrastructure" },
     "codecatalyst": {
-      "space_name": "platform-team",
-      "project_name": "api-gateway",
-      "workflow_name": "cd-pipeline",
-      "workflow_run_id": "run-hni8384tem",
-      "workflow_run_status": "TIMED_OUT",
-      "workflow_steps_completed": 5,
-      "pull_request_number": 551,
-      "pull_request_head_branch": "feat/api-v2",
-      "dev_environment_id": "dev-imztjfftio",
-      "dev_environment_status": "FAILED",
-      "ide": "AWS Cloud9",
-      "branch_name": "feature/new-api",
-      "event_type": "SOURCE_REPOSITORY"
+      "space_name": "mobile-team",
+      "project_name": "infrastructure",
+      "workflow_name": "security-scan",
+      "workflow_run_id": "run-20tq4arxla5",
+      "workflow_run_status": "QUEUED",
+      "workflow_steps_completed": 6,
+      "dev_environment_id": "dev-seusmcvy63e",
+      "dev_environment_status": "STOPPED",
+      "ide": "IntelliJ IDEA",
+      "branch_name": "develop",
+      "event_type": "WORKFLOW_RUN"
     },
     "s3": {
       "bucket": {
-        "name": "aws-codecatalyst-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-codecatalyst-logs-293847561023"
+        "name": "aws-codecatalyst-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-codecatalyst-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/codecatalyst/af-south-1/2026/04/20/codecatalyst_9DXJL2LGCX.log.gz"
+        "key": "AWSLogs/738291046572/codecatalyst/ap-southeast-2/2026/04/21/codecatalyst_C8TA8ZPJTM9.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codecatalyst/logs",
-      "log_stream": "af-south-1/lp1oni29",
-      "ingestion_time": "2026-04-20T15:59:34.565Z"
+      "log_stream": "ap-southeast-2/8xfu6teg",
+      "ingestion_time": "2026-04-21T10:21:44.217Z"
     }
   },
   "event": {
-    "action": "MergeSourceBranchesToTarget",
-    "outcome": "failure",
+    "action": "CreateDevEnvironment",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.codecatalyst",
     "provider": "codecatalyst.amazonaws.com",
     "module": "aws"
   },
-  "message": "[CodeCatalyst] space=platform-team project=api-gateway workflow=cd-pipeline run=run-hni8384tem status=TIMED_OUT\n[WorkflowRun] trigger=pull_request pr=#551 head=feat/api-v2 base=main sha=1vufzfbf6dl\n[WorkflowRun:run-hni8384tem] step=Checkout status=SUCCEEDED durationMs=8827 order=1\n[WorkflowRun:run-hni8384tem] step=Install status=SUCCEEDED durationMs=131641 order=2\n[WorkflowRun:run-hni8384tem] step=Lint status=SUCCEEDED durationMs=128014 order=3\n[WorkflowRun:run-hni8384tem] step=UnitTests status=SUCCEEDED durationMs=169839 order=4\n[WorkflowRun:run-hni8384tem] step=BuildImage status=SUCCEEDED durationMs=44143 order=5\n[WorkflowRun:run-hni8384tem] step=PublishArtifacts status=FAILED exitCode=34\nCodeCatalyst MergeSourceBranchesToTarget FAILED: Quota exceeded",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ValidationException",
-    "message": "CodeCatalyst operation failed",
-    "type": "process"
-  },
+  "message": "[CodeCatalyst] space=mobile-team project=infrastructure workflow=security-scan run=run-20tq4arxla5 status=QUEUED\n[WorkflowRun] trigger=schedule ref=refs/heads/develop\n[WorkflowRun:run-20tq4arxla5] step=Checkout status=SUCCEEDED durationMs=129617 order=1\n[WorkflowRun:run-20tq4arxla5] step=Install status=SUCCEEDED durationMs=132961 order=2\n[WorkflowRun:run-20tq4arxla5] step=Lint status=SUCCEEDED durationMs=54451 order=3\n[WorkflowRun:run-20tq4arxla5] step=UnitTests status=SUCCEEDED durationMs=2775 order=4\n[WorkflowRun:run-20tq4arxla5] step=BuildImage status=SUCCEEDED durationMs=60334 order=5\n[WorkflowRun:run-20tq4arxla5] step=PublishArtifacts status=SUCCEEDED durationMs=113858 order=6\nCreateDevEnvironment devEnvId=dev-seusmcvy63e statusTransition=STOPPING machineType=PERFORMANCE",
+  "log": { "level": "info" },
   "service": { "name": "codecatalyst", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.codecatalyst", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "145bpny38a3"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "r1lvw6onelj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

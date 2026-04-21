@@ -1,101 +1,127 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "us-east-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "evfl63loe3m" },
+    "dimensions": { "DetectorId": "bl8h51440su" },
     "guardduty": {
       "schemaVersion": "2.0",
-      "accountId": "501938274650",
-      "region": "ap-southeast-1",
+      "accountId": "814726593401",
+      "region": "us-east-2",
       "partition": "aws",
-      "id": "7x56m16mkut",
-      "arn": "arn:aws:guardduty:ap-southeast-1:501938274650:detector/evfl63loe3m/finding/7x56m16mkut",
-      "type": "InitialAccess:IAMUser/AnomalousBehavior",
+      "id": "2yl2ix2pr0b",
+      "arn": "arn:aws:guardduty:us-east-2:814726593401:detector/bl8h51440su/finding/2yl2ix2pr0b",
+      "type": "Exfiltration:S3/MaliciousIPCaller",
       "resource": {
         "resourceType": "EKSCluster",
         "eksClusterDetails": {
-          "name": "cluster-mkk5ad",
-          "arn": "arn:aws:eks:ap-southeast-1:501938274650:cluster/cluster-np2fin",
-          "createdAt": "2026-04-20T14:29:26.524Z",
-          "vpcId": "vpc-7hkw3mzh",
+          "name": "cluster-huik2x",
+          "arn": "arn:aws:eks:us-east-2:814726593401:cluster/cluster-4gmviw",
+          "createdAt": "2026-04-21T08:23:46.398Z",
+          "vpcId": "vpc-a50k6owv",
           "status": "ACTIVE",
           "tags": [{ "key": "env", "value": "prod" }]
         }
       },
       "service": {
         "serviceName": "guardduty",
-        "detectorId": "evfl63loe3m",
+        "detectorId": "bl8h51440su",
         "action": {
-          "actionType": "AWS_API_CALL",
-          "awsApiCallAction": {
-            "api": "AssumeRole",
-            "callerType": "Remote IP",
-            "remoteIpDetails": { "ipAddressV4": "80.21.33.29", "organization": {} },
-            "serviceName": "sts.amazonaws.com"
+          "actionType": "NETWORK_CONNECTION",
+          "networkConnectionAction": {
+            "connectionDirection": "OUTBOUND",
+            "remoteIpDetails": {
+              "ipAddressV4": "185.44.179.76",
+              "geoLocation": {},
+              "organization": {}
+            },
+            "localPortDetails": { "port": 33394 },
+            "remotePortDetails": { "port": 22 },
+            "protocol": "TCP",
+            "blocked": false
           }
         },
         "resourceRole": "ACTOR",
-        "eventFirstSeen": "2026-04-20T14:29:26.524Z",
-        "eventLastSeen": "2026-04-20T15:59:33.524Z",
+        "eventFirstSeen": "2026-04-21T08:23:46.398Z",
+        "eventLastSeen": "2026-04-21T10:21:43.398Z",
         "archived": false,
-        "count": 470,
-        "additionalInfo": {}
+        "count": 269,
+        "additionalInfo": {},
+        "evidence": { "threatIntelligenceDetails": [] }
       },
-      "severity": 0,
-      "title": "IAMUser AnomalousBehavior",
-      "description": "GuardDuty processed telemetry and did not raise a finding for this sample.",
-      "createdAt": "2026-04-20T15:59:33.524Z",
-      "updatedAt": "2026-04-20T15:59:33.524Z",
-      "confidence": 73.1013089385518,
+      "severity": 2,
+      "title": "S3 MaliciousIPCaller",
+      "description": "GuardDuty identified suspicious behavior or a possible compromise based on VPC flow logs, DNS logs, or CloudTrail events. Finding type: Exfiltration:S3/MaliciousIPCaller.",
+      "createdAt": "2026-04-21T10:21:43.398Z",
+      "updatedAt": "2026-04-21T10:21:43.398Z",
+      "confidence": 72.0932615351236,
       "metrics": {
-        "FindingCount": { "sum": 0 },
+        "FindingCount": { "sum": 33 },
         "HighSeverityFindingCount": { "sum": 0 },
         "MediumSeverityFindingCount": { "sum": 0 },
-        "LowSeverityFindingCount": { "sum": 0 }
+        "LowSeverityFindingCount": { "sum": 16 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-guardduty-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-guardduty-logs-501938274650"
+        "name": "aws-guardduty-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-guardduty-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/guardduty/ap-southeast-1/2026/04/20/guardduty_PBAC96FD8UB.log.gz"
+        "key": "AWSLogs/814726593401/guardduty/us-east-2/2026/04/21/guardduty_AO92FOTWSX.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/guardduty/logs",
-      "log_stream": "ap-southeast-1/l73ism46",
-      "ingestion_time": "2026-04-20T15:59:34.462Z"
+      "log_stream": "us-east-2/5cgktp6p",
+      "ingestion_time": "2026-04-21T10:21:44.104Z"
     }
   },
-  "rule": { "category": "intrusion_detection" },
-  "threat": { "indicator": [{ "type": "ip", "value": "80.21.33.29" }] },
+  "rule": {
+    "category": "threat",
+    "ruleset": "Exfiltration",
+    "name": "Exfiltration:S3/MaliciousIPCaller"
+  },
+  "threat": { "indicator": [{ "type": "ip", "value": "128.60.241.189" }] },
+  "source": {
+    "ip": "128.60.241.189",
+    "geo": {
+      "country_iso_code": "US",
+      "country_name": "United States",
+      "city_name": "Ashburn",
+      "location": { "lat": 39.0438, "lon": -77.4874 }
+    }
+  },
+  "destination": { "ip": "185.44.179.76" },
   "event": {
     "kind": "alert",
-    "severity": 0,
-    "outcome": "success",
-    "category": ["intrusion_detection"],
+    "severity": 2,
+    "outcome": "failure",
+    "category": ["threat"],
     "type": ["indicator"],
     "dataset": "aws.guardduty",
     "provider": "guardduty.amazonaws.com",
     "module": "aws"
   },
-  "message": "GuardDuty: no threats detected",
+  "message": "GuardDuty finding [Low]: Exfiltration:S3/MaliciousIPCaller",
   "log": { "level": "info" },
+  "error": {
+    "code": "ThreatFinding",
+    "message": "GuardDuty finding: Exfiltration:S3/MaliciousIPCaller",
+    "type": "security"
+  },
   "service": { "name": "guardduty", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.guardduty", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "vonuzr0c0bk"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "2jqoy6fwmfh"
   },
   "input": { "type": "http_endpoint" }
 }

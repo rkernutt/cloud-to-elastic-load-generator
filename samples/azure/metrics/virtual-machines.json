@@ -3,63 +3,34 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "westus2",
+    "region": "centralus",
     "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-westus2",
-    "ephemeral_id": "7e0e863aase"
+    "name": "metricbeat-azure-centralus",
+    "ephemeral_id": "rap2injxac"
   },
   "azure": {
-    "virtual_machines": {
+    "capacity_reservation": {
       "metrics": {
-        "Percentage CPU": { "avg": 27.97, "min": 24.61, "max": 31.33, "sum": 27.97, "count": 1 },
-        "Available Memory Bytes": {
-          "avg": 5660489582.27,
-          "min": 4981230832.4,
-          "max": 6339748332.14,
-          "sum": 5660489582.27,
-          "count": 1
-        },
-        "Disk Read Bytes": {
-          "avg": 10051452866,
-          "min": 8845278522.08,
-          "max": 11257627209.92,
-          "sum": 10051452866,
-          "count": 1
-        },
-        "Disk Write Bytes": {
-          "avg": 6943258297,
-          "min": 6110067301.36,
-          "max": 7776449292.64,
-          "sum": 6943258297,
-          "count": 1
-        },
-        "Network In Total": {
-          "avg": 707317559,
-          "min": 622439451.92,
-          "max": 792195666.08,
-          "sum": 707317559,
-          "count": 1
-        },
-        "Network Out Total": {
-          "avg": 2295237767,
-          "min": 2019809234.96,
-          "max": 2570666299.04,
-          "sum": 2295237767,
-          "count": 1
-        }
+        "Used vCPUs": { "avg": 38.55, "min": 33.92, "max": 43.18, "sum": 38.55, "count": 1 },
+        "Reserved vCPUs": { "avg": 71.95, "min": 63.32, "max": 80.58, "sum": 71.95, "count": 1 },
+        "Utilization %": { "avg": 66.3, "min": 58.34, "max": 74.26, "sum": 66.3, "count": 1 }
       }
     },
-    "dimensions": { "VMName": "vm-web-01", "ResourceGroup": "rg-shared-zn2cl" },
-    "resource": {
-      "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-shared-zn2cl/providers/Microsoft.Compute/virtualMachines/vm-web-01",
-      "group": "rg-shared-zn2cl",
-      "name": "vm-web-01"
+    "dimensions": {
+      "capacityReservationGroup": "crg-avvn",
+      "capacityReservation": "cr-general",
+      "ResourceGroup": "rg-data-if2mb"
     },
-    "namespace": "Microsoft.Compute/virtualMachines"
+    "resource": {
+      "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-data-if2mb/providers/Microsoft.Compute/capacityReservationGroups/crg-avvn/capacityReservations/cr-general",
+      "group": "rg-data-if2mb",
+      "name": "cr-general"
+    },
+    "namespace": "Microsoft.Compute/capacityReservations"
   },
   "metricset": { "name": "monitor", "period": 60000 },
   "data_stream": {
@@ -68,12 +39,5 @@
     "namespace": "default"
   },
   "input": { "type": "azure-monitor" },
-  "event": { "dataset": "azure.virtual_machines_metrics", "module": "azure" },
-  "azureMonitorMetric": {
-    "time": "2026-04-07T12:00:00.000Z",
-    "metricName": "Percentage CPU",
-    "resourceGroup": "rg-virtual-machines",
-    "subscriptionId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-    "timeseries": [{ "data": [{ "average": 27.97, "count": 1 }] }]
-  }
+  "event": { "dataset": "azure.virtual_machines_metrics", "module": "azure" }
 }

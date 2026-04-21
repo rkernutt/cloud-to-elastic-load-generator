@@ -1,0 +1,306 @@
+{
+  "group": "gcp-security-chain",
+  "description": "ML anomaly detection jobs for the GCP Security Finding Chain scenario (SCC, Chronicle, SecOps)",
+  "jobs": [
+    {
+      "id": "gcp-security-scc-severity-spike",
+      "description": "Detects unusual spikes in high-severity SCC findings",
+      "job": {
+        "description": "Detects unusual spikes in SCC findings by category",
+        "groups": ["gcp", "gcp-security-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.security_command_center.category",
+              "function": "high_count",
+              "partition_field_name": "gcp.security_command_center.category",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "gcp.security_command_center.category",
+            "source.ip",
+            "gcp.security_command_center.severity"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-gcp-security-finding-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.scc*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.kind": "alert"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-security-chain-rate",
+      "description": "Detects anomalous rate of finding chains across SCC, Chronicle, and SecOps",
+      "job": {
+        "description": "Detects anomalous rate of finding chains",
+        "groups": ["gcp", "gcp-security-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "30m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=event.dataset",
+              "function": "high_count",
+              "partition_field_name": "event.dataset",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["event.dataset", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-gcp-security-finding-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.scc*", "logs-gcp.chronicle*", "logs-gcp.secops*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "bool": {
+                  "should": [
+                    {
+                      "bool": {
+                        "filter": [
+                          {
+                            "bool": {
+                              "should": [
+                                {
+                                  "term": {
+                                    "event.dataset": "gcp.scc"
+                                  }
+                                },
+                                {
+                                  "term": {
+                                    "data_stream.dataset": "gcp.scc"
+                                  }
+                                }
+                              ],
+                              "minimum_should_match": 1
+                            }
+                          },
+                          {
+                            "term": {
+                              "event.kind": "alert"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "bool": {
+                        "filter": [
+                          {
+                            "bool": {
+                              "should": [
+                                {
+                                  "term": {
+                                    "event.dataset": "gcp.chronicle"
+                                  }
+                                },
+                                {
+                                  "term": {
+                                    "data_stream.dataset": "gcp.chronicle"
+                                  }
+                                }
+                              ],
+                              "minimum_should_match": 1
+                            }
+                          },
+                          {
+                            "exists": {
+                              "field": "gcp.chronicle.detection_type"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "bool": {
+                        "filter": [
+                          {
+                            "bool": {
+                              "should": [
+                                {
+                                  "term": {
+                                    "event.dataset": "gcp.secops"
+                                  }
+                                },
+                                {
+                                  "term": {
+                                    "data_stream.dataset": "gcp.secops"
+                                  }
+                                }
+                              ],
+                              "minimum_should_match": 1
+                            }
+                          },
+                          {
+                            "exists": {
+                              "field": "gcp.security_operations.action_type"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "minimum_should_match": 1
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-security-chronicle-detection-anomaly",
+      "description": "Detects unusual spikes in Chronicle rule detections",
+      "job": {
+        "description": "Detects unusual spikes in Chronicle rule detections",
+        "groups": ["gcp", "gcp-security-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.chronicle.rule_name",
+              "function": "high_count",
+              "partition_field_name": "gcp.chronicle.rule_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.chronicle.rule_name", "source.ip", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-gcp-security-finding-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.chronicle*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "match_all": {}
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-security-rare-source-ip",
+      "description": "Detects rare source IPs in SCC security findings",
+      "job": {
+        "description": "Detects rare source IPs in SCC security findings",
+        "groups": ["gcp", "gcp-security-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "rare by source.ip",
+              "function": "rare",
+              "by_field_name": "source.ip",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["source.ip", "gcp.security_command_center.category", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-gcp-security-finding-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.scc*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.kind": "alert"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    }
+  ]
+}

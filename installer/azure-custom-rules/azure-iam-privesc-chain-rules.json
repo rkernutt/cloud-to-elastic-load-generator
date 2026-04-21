@@ -1,0 +1,98 @@
+{
+  "group": "azure-iam-privesc-chain",
+  "description": "Alerting rules for the Azure IAM Privilege Escalation Chain scenario (Entra ID, Activity Log)",
+  "rules": [
+    {
+      "id": "cloudloadgen-azure-iam-risky-signin",
+      "name": "[CloudLoadGen] Azure IAM PrivEsc Chain — Entra Risky Sign-In",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "azure-iam-privesc-chain"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"azure.entra_id.riskLevel\":\"high\"}}]}}",
+        "index": ["logs-azure.entra_id*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-azure-iam-owner-assignment",
+      "name": "[CloudLoadGen] Azure IAM PrivEsc Chain — Owner Role Assignment",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "azure-iam-privesc-chain"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.activity_log\"}},{\"wildcard\":{\"azure.activity_log.operation_name\":\"*roleAssignments/write*\"}},{\"term\":{\"azure.activity_log.role_definition\":\"Owner\"}}]}}",
+        "index": ["logs-azure.activity_log*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-azure-iam-subscription-enum",
+      "name": "[CloudLoadGen] Azure IAM PrivEsc Chain — Subscription Enumeration",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "azure-iam-privesc-chain"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.activity_log\"}},{\"wildcard\":{\"azure.activity_log.operation_name\":\"*subscriptions/read*\"}}]}}",
+        "index": ["logs-azure.activity_log*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-azure-iam-full-chain",
+      "name": "[CloudLoadGen] Azure IAM PrivEsc Chain — High Volume Entra Risk and IAM Activity Log Events",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "azure-iam-privesc-chain"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 30,
+        "timeWindowUnit": "m",
+        "threshold": [2],
+        "thresholdComparator": ">",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"term\":{\"azure.entra_id.riskLevel\":\"high\"}},{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.activity_log\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"azure.activity_log.operation_name\":\"*roleAssignments*\"}},{\"wildcard\":{\"azure.activity_log.operation_name\":\"*roleDefinitions*\"}},{\"wildcard\":{\"azure.activity_log.operation_name\":\"*Microsoft.Authorization*\"}}],\"minimum_should_match\":1}}]}}],\"minimum_should_match\":1}}]}}",
+        "index": ["logs-azure.entra_id*", "logs-azure.activity_log*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "group": "azure-data-exfil-chain",
+  "description": "Alerting rules for the Azure Data Exfiltration Chain scenario (Defender, Blob Storage, NSG)",
+  "rules": [
+    {
+      "id": "cloudloadgen-azure-exfil-defender-alert",
+      "name": "[CloudLoadGen] Azure Data Exfil Chain — Defender Exfiltration Alert",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "azure-data-exfil-chain"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.defender\"}},{\"wildcard\":{\"azure.defender.alert_type\":\"*Exfiltration*\"}}]}}",
+        "index": ["logs-azure.defender*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-azure-exfil-high-blob-egress",
+      "name": "[CloudLoadGen] Azure Data Exfil Chain — Large Blob Read",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "azure-data-exfil-chain"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.blob_storage\"}},{\"range\":{\"azure.blob_storage.bytes_out\":{\"gt\":52428800}}}]}}",
+        "index": ["logs-azure.blob_storage*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-azure-exfil-nsg-outbound",
+      "name": "[CloudLoadGen] Azure Data Exfil Chain — NSG Outbound Flow",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "azure-data-exfil-chain"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.network_security_groups\"}},{\"term\":{\"azure.network_security_groups.direction\":\"Outbound\"}}]}}",
+        "index": ["logs-azure.network_security_groups*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    },
+    {
+      "id": "cloudloadgen-azure-exfil-full-chain",
+      "name": "[CloudLoadGen] Azure Data Exfil Chain — Full Chain Correlation",
+      "rule_type_id": ".es-query",
+      "consumer": "stackAlerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "azure-data-exfil-chain"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [2],
+        "thresholdComparator": ">",
+        "size": 100,
+        "esQuery": "{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.defender\"}},{\"wildcard\":{\"azure.defender.alert_type\":\"*Exfiltration*\"}}]}},{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.blob_storage\"}},{\"range\":{\"azure.blob_storage.bytes_out\":{\"gt\":52428800}}}]}},{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.network_security_groups\"}},{\"term\":{\"azure.network_security_groups.direction\":\"Outbound\"}}]}}],\"minimum_should_match\":1}}]}}",
+        "index": [
+          "logs-azure.defender*",
+          "logs-azure.blob_storage*",
+          "logs-azure.network_security_groups*"
+        ],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert"
+    }
+  ]
+}

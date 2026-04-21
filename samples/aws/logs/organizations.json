@@ -1,44 +1,53 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
     "region": "us-east-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "organizations" }
   },
   "aws": {
     "organizations": {
-      "action": "CreateOrganizationalUnit",
-      "account_id": "738291046572",
-      "account_name": "prod-workloads",
-      "organizational_unit": "Sandbox"
+      "action": "AttachPolicy",
+      "account_id": "293847561023",
+      "account_name": "security-audit",
+      "organizational_unit": "Infrastructure",
+      "policy_id": "p-klbigv01",
+      "policy_type": "SERVICE_CONTROL_POLICY",
+      "policy_name": "DenyRootUserActions",
+      "error_code": "ConstraintViolationException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-organizations-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-organizations-logs-738291046572"
+        "name": "aws-organizations-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-organizations-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/organizations/us-east-1/2026/04/20/organizations_JXG00U55NMR.log.gz"
+        "key": "AWSLogs/293847561023/organizations/us-east-1/2026/04/21/organizations_9KROL712HTQ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/organizations/logs",
-      "log_stream": "us-east-1/hxlbblta",
-      "ingestion_time": "2026-04-20T15:59:34.629Z"
+      "log_stream": "us-east-1/5qidavme",
+      "ingestion_time": "2026-04-21T10:21:44.284Z"
     }
   },
   "event": {
-    "action": "CreateOrganizationalUnit",
-    "outcome": "success",
+    "action": "AttachPolicy",
+    "outcome": "failure",
     "category": ["configuration", "iam"],
     "dataset": "aws.organizations",
     "provider": "organizations.amazonaws.com",
-    "duration": 1364000000,
+    "duration": 2189000000,
     "module": "aws"
   },
-  "message": "Organizations CreateOrganizationalUnit: Workloads",
-  "log": { "level": "info" },
+  "message": "Organizations AttachPolicy FAILED: Duplicate account",
+  "error": {
+    "code": "OrganizationsError",
+    "message": "Organizations operation failed",
+    "type": "iam"
+  },
+  "log": { "level": "error" },
   "service": { "name": "organizations", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.organizations", "namespace": "default" },
@@ -46,7 +55,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "s3trcvrmz3s"
+    "ephemeral_id": "deoj5t6e2kr"
   },
   "input": { "type": "aws-cloudwatch" }
 }

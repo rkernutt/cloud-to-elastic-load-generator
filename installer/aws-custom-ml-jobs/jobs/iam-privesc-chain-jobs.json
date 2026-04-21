@@ -1,0 +1,183 @@
+{
+  "group": "iam-privesc-chain",
+  "description": "ML anomaly detection jobs for the IAM privilege escalation chain scenario (CloudTrail)",
+  "jobs": [
+    {
+      "id": "aws-iam-privesc-session-spike",
+      "description": "Detects spikes in IAM privilege escalation chains",
+      "job": {
+        "description": "Detects spikes in IAM privilege escalation chains",
+        "groups": ["aws", "iam-privesc-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=user.name",
+              "function": "high_count",
+              "partition_field_name": "user.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["user.name", "source.ip", "event.action"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-load-generator-iam-privesc-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.cloudtrail*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.cloudtrail"
+                }
+              },
+              {
+                "terms": {
+                  "event.action": [
+                    "ListUsers",
+                    "CreateAccessKey",
+                    "AttachUserPolicy",
+                    "AssumeRole",
+                    "PutUserPolicy",
+                    "PutRolePolicy",
+                    "CreateRole"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-iam-privesc-unusual-action-sequence",
+      "description": "Detects unusual API call patterns",
+      "job": {
+        "description": "Detects unusual API call patterns",
+        "groups": ["aws", "iam-privesc-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "rare by event.action",
+              "function": "rare",
+              "by_field_name": "event.action",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["event.action", "user.name", "source.ip"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-load-generator-iam-privesc-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.cloudtrail*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.cloudtrail"
+                }
+              },
+              {
+                "term": {
+                  "event.category": "iam"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-iam-assume-role-anomaly",
+      "description": "Detects anomalous AssumeRole activity",
+      "job": {
+        "description": "Detects anomalous AssumeRole activity",
+        "groups": ["aws", "iam-privesc-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=source.ip",
+              "function": "high_count",
+              "partition_field_name": "source.ip",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["source.ip", "user.name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-load-generator-iam-privesc-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.cloudtrail*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.action": "AssumeRole"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    }
+  ]
+}

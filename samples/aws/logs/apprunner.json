@@ -1,80 +1,79 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "af-south-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "apprunner" }
   },
   "aws": {
-    "dimensions": { "ServiceName": "web-api", "ServiceId": "u9lsynrmn0e" },
+    "dimensions": { "ServiceName": "web-api", "ServiceId": "t7090fgawng" },
     "apprunner": {
       "service_name": "web-api",
-      "service_arn": "arn:aws:apprunner:eu-central-1:738291046572:service/web-api/u9lsynrmn0e",
-      "event_kind": "health_check",
-      "health_status": "unknown",
+      "service_arn": "arn:aws:apprunner:af-south-1:293847561023:service/web-api/t7090fgawng",
+      "event_kind": "application_http",
       "auto_scaling": {
         "min_size": 0,
-        "max_size": 25,
-        "desired_count": 1,
+        "max_size": 10,
+        "desired_count": 6,
         "scale_from_zero": false
       },
       "structured_logging": true,
       "metrics": {
-        "Requests": { "sum": 0 },
-        "2xxStatusResponses": { "sum": 0 },
+        "Requests": { "sum": 1 },
+        "2xxStatusResponses": { "sum": 1 },
         "4xxStatusResponses": { "sum": 0 },
         "5xxStatusResponses": { "sum": 0 },
-        "HttpStatusCode2XX": { "sum": 0 },
-        "RequestLatency": { "avg": 262, "p99": 786 },
-        "ActiveInstances": { "avg": 2 },
-        "ConcurrentRequests": { "avg": 46 },
-        "CPUUtilization": { "avg": 11.816515374122694 },
-        "MemoryUtilization": { "avg": 31.309332973220354 },
-        "HealthyHostCount": { "avg": 2 },
+        "HttpStatusCode2XX": { "sum": 1 },
+        "RequestLatency": { "avg": 419, "p99": 1257 },
+        "ActiveInstances": { "avg": 6 },
+        "ConcurrentRequests": { "avg": 2 },
+        "CPUUtilization": { "avg": 6.851516312148204 },
+        "MemoryUtilization": { "avg": 45.03202148384666 },
+        "HealthyHostCount": { "avg": 0 },
         "UnHealthyHostCount": { "avg": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-apprunner-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-apprunner-logs-738291046572"
+        "name": "aws-apprunner-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-apprunner-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/apprunner/eu-central-1/2026/04/20/apprunner_K6PUGGZUEH.log.gz"
+        "key": "AWSLogs/293847561023/apprunner/af-south-1/2026/04/21/apprunner_Q3J2BI9OBNR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/apprunner/logs",
-      "log_stream": "eu-central-1/iz1jqzp8",
-      "ingestion_time": "2026-04-20T15:59:34.407Z"
+      "log_stream": "af-south-1/mnzbwj1v",
+      "ingestion_time": "2026-04-21T10:21:44.042Z"
     }
   },
   "http": {
-    "request": { "method": "PUT", "bytes": 3555 },
-    "response": { "status_code": 201, "bytes": 6898 }
+    "request": { "method": "GET", "bytes": 3237 },
+    "response": { "status_code": 201, "bytes": 1501 }
   },
-  "url": { "path": "/api/v1/users" },
-  "client": { "ip": "65.62.183.207" },
+  "url": { "path": "/api/v2/events" },
+  "client": { "ip": "204.21.150.133" },
   "event": {
-    "duration": 262000000,
+    "duration": 419000000,
     "outcome": "success",
     "category": ["web", "process"],
     "dataset": "aws.apprunner",
     "provider": "apprunner.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"eventType\":\"HealthCheck\",\"serviceName\":\"web-api\",\"serviceId\":\"u9lsynrmn0e\",\"healthStatus\":\"unknown\",\"httpStatusCode\":200,\"latencyMs\":262,\"path\":\"/ready\",\"timestamp\":\"2026-04-20T15:59:33.524Z\"}",
+  "message": "{\"eventType\":\"Request\",\"service\":\"web-api\",\"status\":201,\"latency_ms\":419,\"timestamp\":\"2026-04-21T10:21:43.398Z\"}",
   "log": { "level": "info" },
-  "host": { "name": "ip-90-245-160-40.ec2.internal", "hostname": "apprunner-odjrddra" },
+  "host": { "name": "ip-26-67-228-252.ec2.internal", "hostname": "apprunner-elg2k484" },
   "service": { "name": "apprunner", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.apprunner", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "npufg9kd8qj"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "u36uvv3kqj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

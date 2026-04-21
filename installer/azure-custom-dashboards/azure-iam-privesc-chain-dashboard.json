@@ -1,0 +1,123 @@
+{
+  "title": "Azure IAM Privilege Escalation Chain — overview",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "az-ipe-k1",
+      "grid": { "x": 0, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Risky sign-ins",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.entra_id* | WHERE azure.entra_id.riskLevel == \"high\" | STATS c = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-ipe-k2",
+      "grid": { "x": 16, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Role assignments",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.activity_log* | WHERE azure.activity_log.operation_name == \"Microsoft.Authorization/roleAssignments/write\" | STATS c = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-ipe-k3",
+      "grid": { "x": 32, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Distinct source IPs",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.entra_id*, logs-azure.activity_log* | WHERE azure.entra_id.riskLevel IS NOT NULL OR azure.activity_log.operation_name IN (\"Microsoft.Authorization/roleAssignments/write\", \"Microsoft.Resources/subscriptions/read\") | STATS c = COUNT_DISTINCT(source.ip)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-ipe-d1",
+      "grid": { "x": 0, "y": 5, "w": 48, "h": 10 },
+      "config": {
+        "title": "Risk levels",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.entra_id* | WHERE azure.entra_id.riskLevel IS NOT NULL | STATS c = COUNT() BY r = azure.entra_id.riskLevel"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "r" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-ipe-l1",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Events over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-azure.entra_id*, logs-azure.activity_log* | WHERE azure.entra_id.riskLevel IS NOT NULL OR azure.activity_log.operation_name IN (\"Microsoft.Authorization/roleAssignments/write\", \"Microsoft.Resources/subscriptions/read\") | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Events" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-ipe-t1",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
+      "config": {
+        "title": "Risky sign-ins and IAM activity by IP and user",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.entra_id*, logs-azure.activity_log* | WHERE azure.entra_id.riskLevel IS NOT NULL OR azure.activity_log.operation_name IN (\"Microsoft.Authorization/roleAssignments/write\", \"Microsoft.Resources/subscriptions/read\") | STATS ops = COUNT(), upn = MAX(azure.entra_id.user_principal_name), op = MAX(azure.activity_log.operation_name) BY src = source.ip, user = user.name | SORT ops DESC | LIMIT 25"
+          },
+          "metrics": [
+            { "operation": "value", "column": "src", "label": "Source IP" },
+            { "operation": "value", "column": "user", "label": "User name" },
+            { "operation": "value", "column": "upn", "label": "UPN" },
+            { "operation": "value", "column": "op", "label": "Sample operation" },
+            { "operation": "value", "column": "ops", "label": "Operations" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

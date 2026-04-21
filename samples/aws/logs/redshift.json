@@ -1,65 +1,65 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
+    "region": "il-central-1",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "redshift" }
   },
   "aws": {
-    "dimensions": { "ClusterIdentifier": "analytics-cluster", "NodeID": "Compute-2" },
+    "dimensions": { "ClusterIdentifier": "analytics-cluster", "NodeID": "Compute-5" },
     "cloudwatch": {
       "log_group": "/aws/redshift/cluster/analytics-cluster/useractivitylog",
-      "log_stream": "analytics-cluster/useractivitylog/2026-04-20",
-      "ingestion_time": "2026-04-20T15:59:34.524Z"
+      "log_stream": "analytics-cluster/useractivitylog/2026-04-21",
+      "ingestion_time": "2026-04-21T10:21:44.178Z"
     },
     "redshift": {
       "cluster_id": "analytics-cluster",
-      "node_type": "ra3.16xlarge",
-      "number_of_nodes": 4,
-      "database": "dev_dw",
-      "schema": "analytics",
-      "user": "analyst",
-      "pid": 44689,
-      "xid": 4563173,
-      "query_id": 8337162,
+      "node_type": "ra3.xlplus",
+      "number_of_nodes": 8,
+      "database": "prod_dw",
+      "schema": "public",
+      "user": "dbt_runner",
+      "pid": 56432,
+      "xid": 5376294,
+      "query_id": 5391369,
       "log_type": "useractivitylog",
-      "duration_microseconds": 45869114,
-      "rows_returned": 3640641,
-      "rows_affected": 0,
-      "bytes_scanned": 6994728958,
-      "query_type": "SELECT",
-      "source_ip": "133.197.137.211",
-      "source_port": 35332,
-      "application_name": "Python",
+      "duration_microseconds": 46985556,
+      "rows_returned": 3101872,
+      "rows_affected": 3101872,
+      "bytes_scanned": 625943666,
+      "query_type": "INSERT",
+      "source_ip": "86.89.67.231",
+      "source_port": 37891,
+      "application_name": "psql",
       "wlm": {
-        "queue_name": "superuser",
-        "slot_count": 1,
-        "queue_wait_ms": 1212,
-        "service_class": 12
+        "queue_name": "etl_queue",
+        "slot_count": 14,
+        "queue_wait_ms": 2942,
+        "service_class": 11
       },
       "metrics": {
-        "CPUUtilization": { "avg": 46.297199492677365 },
-        "PercentageDiskSpaceUsed": { "avg": 31.697606163533084 },
-        "DatabaseConnections": { "avg": 328 },
+        "CPUUtilization": { "avg": 53.8411599186826 },
+        "PercentageDiskSpaceUsed": { "avg": 31.528254951593883 },
+        "DatabaseConnections": { "avg": 423 },
         "HealthStatus": { "avg": 1 },
         "MaintenanceMode": { "avg": 0 },
-        "NetworkReceiveThroughput": { "avg": 212037135 },
-        "NetworkTransmitThroughput": { "avg": 139953722 },
-        "QueriesCompletedPerSecond": { "avg": 424.10126935987097 },
-        "QueryDuration": { "avg": 22284.423482550024 },
-        "QueryRuntimeBreakdown": { "avg": 8356.28437480031 },
-        "ReadIOPS": { "avg": 6486 },
-        "ReadLatency": { "avg": 0.08287220187223847 },
-        "ReadThroughput": { "avg": 37138539 },
-        "WLMQueriesCompletedPerSecond": { "avg": 314.95951742055246 },
-        "WLMQueryDuration": { "avg": 57103.667590506746 },
-        "WLMRunningSlotCount": { "avg": 2 },
-        "WLMQueueLength": { "avg": 1 },
-        "WLMQueueWaitTime": { "avg": 158.12830998080196 },
-        "WriteIOPS": { "avg": 4625 },
-        "WriteLatency": { "avg": 0.06492759497682742 },
-        "WriteThroughput": { "avg": 489160606 }
+        "NetworkReceiveThroughput": { "avg": 527352450 },
+        "NetworkTransmitThroughput": { "avg": 469071818 },
+        "QueriesCompletedPerSecond": { "avg": 707.8781412280425 },
+        "QueryDuration": { "avg": 10190.837984318263 },
+        "QueryRuntimeBreakdown": { "avg": 27549.37227561573 },
+        "ReadIOPS": { "avg": 6401 },
+        "ReadLatency": { "avg": 0.02872155565631426 },
+        "ReadThroughput": { "avg": 477439590 },
+        "WLMQueriesCompletedPerSecond": { "avg": 141.39957469891294 },
+        "WLMQueryDuration": { "avg": 42474.58978854687 },
+        "WLMRunningSlotCount": { "avg": 8 },
+        "WLMQueueLength": { "avg": 5 },
+        "WLMQueueWaitTime": { "avg": 76.33852093419846 },
+        "WriteIOPS": { "avg": 1609 },
+        "WriteLatency": { "avg": 0.09708678851841157 },
+        "WriteThroughput": { "avg": 92863929 }
       }
     },
     "s3": {
@@ -68,26 +68,26 @@
         "arn": "arn:aws:s3:::aws-redshift-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/redshift/ap-south-1/2026/04/20/redshift_18287WQELRD.log.gz"
+        "key": "AWSLogs/501938274650/redshift/il-central-1/2026/04/21/redshift_N2PSTVI20H.log.gz"
       }
     }
   },
   "db": {
-    "user": { "name": "analyst" },
-    "name": "dev_dw",
-    "statement": "SELECT a.user_id, COUNT(DISTINCT a.session_id), SUM(b.revenue) FROM analytics.user_sessions a JOIN analytics.fact_sales b ON a.user_id = b.user_id WHERE a.dt >= CURRENT_DATE - 30 GROUP BY 1 ORDER BY 3 DESC LIMIT 1000",
+    "user": { "name": "dbt_runner" },
+    "name": "prod_dw",
+    "statement": "INSERT INTO public.staging_orders SELECT * FROM public.raw_orders WHERE processed_at IS NULL",
     "type": "sql"
   },
-  "source": { "ip": "133.197.137.211", "port": 35332 },
+  "source": { "ip": "86.89.67.231", "port": 37891 },
   "event": {
-    "duration": 45869114345.05286,
+    "duration": 46985556270.1198,
     "outcome": "success",
     "category": ["database"],
     "dataset": "aws.redshift",
     "provider": "redshift.amazonaws.com",
     "module": "aws"
   },
-  "message": "'2026-04-20 15:59:33.524 UTC [ db=dev_dw user=analyst pid=44689 userid=678 xid=4563173 ]' LOG: SELECT a.user_id, COUNT(DISTINCT a.session_id), SUM(b.revenue) FROM analytics.user_sessions a JOIN analytics.fact_sales b ON a.user_id = b.user_id WHERE a.dt >= CURRENT_DATE - 30 GROUP BY 1 ORDER BY 3 DESC LIMIT 1000",
+  "message": "'2026-04-21 10:21:43.398 UTC [ db=prod_dw user=dbt_runner pid=56432 userid=255 xid=5376294 ]' LOG: INSERT INTO public.staging_orders SELECT * FROM public.raw_orders WHERE processed_at IS NULL",
   "log": { "level": "info" },
   "service": { "name": "redshift", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -95,8 +95,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "vsmn31cozg"
+    "name": "filebeat-aws-il-central-1",
+    "ephemeral_id": "7mljkbhzmt6"
   },
   "input": { "type": "aws-cloudwatch" }
 }

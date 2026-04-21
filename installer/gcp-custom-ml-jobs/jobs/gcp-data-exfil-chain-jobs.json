@@ -1,0 +1,171 @@
+{
+  "group": "gcp-data-exfil-chain",
+  "description": "ML anomaly detection jobs for the GCP data exfiltration chain scenario (VPC Flow, DLP)",
+  "jobs": [
+    {
+      "id": "gcp-data-exfil-egress-volume",
+      "description": "Detects anomalous VPC egress byte volumes (data exfiltration indicator)",
+      "job": {
+        "description": "Detects anomalous VPC egress byte volumes",
+        "groups": ["gcp", "gcp-data-exfil-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_sum(gcp.vpc_flow.bytes_sent) partitionfield=source.ip",
+              "function": "high_sum",
+              "field_name": "gcp.vpc_flow.bytes_sent",
+              "partition_field_name": "source.ip",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["source.ip", "gcp.vpc_flow.dst_ip", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-gcp-data-exfil-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.vpcflow*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "gcp.vpc_flow.direction": "egress"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-data-exfil-dlp-spike",
+      "description": "Detects spikes in DLP findings by sensitive info type",
+      "job": {
+        "description": "Detects spikes in DLP findings by sensitive info type",
+        "groups": ["gcp", "gcp-data-exfil-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.dlp.info_type",
+              "function": "high_count",
+              "partition_field_name": "gcp.dlp.info_type",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.dlp.info_type", "cloud.region", "user.name"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-gcp-data-exfil-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.dlp*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.kind": "alert"
+                }
+              },
+              {
+                "exists": {
+                  "field": "gcp.dlp.info_type"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-data-exfil-rare-destination",
+      "description": "Detects connections to rare destination IPs during exfil events",
+      "job": {
+        "description": "Detects connections to rare destination IPs during exfil events",
+        "groups": ["gcp", "gcp-data-exfil-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "rare by gcp.vpc_flow.dst_ip",
+              "function": "rare",
+              "by_field_name": "gcp.vpc_flow.dst_ip",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.vpc_flow.dst_ip", "source.ip", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-gcp-data-exfil-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.vpcflow*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "gcp.vpc_flow.direction": "egress"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    }
+  ]
+}

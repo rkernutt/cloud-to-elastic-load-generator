@@ -128,6 +128,7 @@ export async function runSetupInstall(opts: {
   enableDashboards: boolean;
   enableMlJobs: boolean;
   enableAlertRules: boolean;
+  extraFleetPackages?: { name: string; label: string }[];
   pipelines: PipelineEntry[];
   dashboards: DashboardDef[];
   mlJobFiles: MlJobFile[];
@@ -145,6 +146,7 @@ export async function runSetupInstall(opts: {
     enableDashboards,
     enableMlJobs,
     enableAlertRules,
+    extraFleetPackages = [],
     pipelines,
     dashboards,
     mlJobFiles,
@@ -152,8 +154,9 @@ export async function runSetupInstall(opts: {
     addLog,
   } = opts;
 
-  const installIntegration = async (pkgName: string) => {
-    const label = pkgName === "apm" ? "APM Integration" : `${setupBundle.fleetPackageLabel}`;
+  const installIntegration = async (pkgName: string, labelOverride?: string) => {
+    const label =
+      labelOverride ?? (pkgName === "apm" ? "APM Integration" : `${setupBundle.fleetPackageLabel}`);
     addLog(`Installing ${label}…`);
     const kb = kibanaUrl.replace(/\/$/, "");
     const version = await resolveFleetPackageVersion(kb, apiKey, pkgName);
@@ -563,6 +566,9 @@ export async function runSetupInstall(opts: {
 
   if (enableIntegration) await installIntegration(setupBundle.fleetPackage);
   if (enableApm) await installIntegration("apm");
+  for (const pkg of extraFleetPackages) {
+    await installIntegration(pkg.name, pkg.label);
+  }
   if (enablePipelines) {
     await installPipelines();
     await installTsdsTemplates();

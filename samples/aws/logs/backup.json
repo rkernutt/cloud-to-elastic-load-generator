@@ -1,42 +1,39 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-northeast-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "backup" }
   },
   "aws": {
     "backup": {
-      "event_subtype": "vault_lock",
-      "backup_job_id": "brjmh2oy-4r9m-wdpy",
-      "backup_plan_name": "weekly-cold",
-      "resource_arn": "arn:aws:backup:me-central-1:293847561023:recovery-point:qty48xg1qlm",
-      "resource_type": "RDS",
-      "backup_vault_name": "compliance-vault",
-      "status": "COMPLETED",
-      "backup_size_gb": 836.1694503878422,
-      "lifecycle_delete_after_days": 365,
-      "vault_lock": {
-        "compliance_lock_enabled": false,
-        "governance_lock_enabled": true,
-        "lock_event": "VaultLockConfigurationApplied",
-        "max_retention_days": 2555
-      }
+      "event_subtype": "restore_job",
+      "backup_job_id": "mg78d77v-nz2u-ki3b",
+      "restore_job_id": "27fr5nb3-x64z-cyui",
+      "backup_plan_name": "compliance-backup",
+      "resource_arn": "arn:aws:backup:ap-northeast-3:814726593401:recovery-point:o2oyaj40vu",
+      "resource_type": "FSx",
+      "backup_vault_name": "Default",
+      "job_phase": "PENDING",
+      "restore_job_lifecycle": ["CREATED", "PENDING", "RUNNING", "COMPLETED"],
+      "status": "RUNNING",
+      "backup_size_gb": 366.27289568281793,
+      "lifecycle_delete_after_days": 7
     },
     "s3": {
       "bucket": {
-        "name": "aws-backup-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-backup-logs-293847561023"
+        "name": "aws-backup-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-backup-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/backup/me-central-1/2026/04/20/backup_GDK628NYDE9.log.gz"
+        "key": "AWSLogs/814726593401/backup/ap-northeast-3/2026/04/21/backup_JQJJE7HHNLJ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/backup/logs",
-      "log_stream": "me-central-1/5i31guhm",
-      "ingestion_time": "2026-04-20T15:59:34.519Z"
+      "log_stream": "ap-northeast-3/01fxw1bd",
+      "ingestion_time": "2026-04-21T10:21:44.169Z"
     }
   },
   "event": {
@@ -44,10 +41,10 @@
     "category": ["process"],
     "dataset": "aws.backup",
     "provider": "backup.amazonaws.com",
-    "duration": 6803000000000,
+    "duration": 5929000000000,
     "module": "aws"
   },
-  "message": "AWS Backup vault compliance-vault: VaultLockConfigurationApplied governance=true compliance=false",
+  "message": "AWS Backup restore RUNNING: dynamodb/users-table from Default",
   "log": { "level": "info" },
   "service": { "name": "backup", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -55,8 +52,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "t82t40hpz3"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "f4tuakfoofl"
   },
   "input": { "type": "aws-cloudwatch" }
 }

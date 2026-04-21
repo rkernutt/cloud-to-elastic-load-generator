@@ -1,8 +1,8 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
+    "region": "eu-north-1",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "cloudtrail" }
   },
@@ -12,23 +12,26 @@
       "event_version": "1.09",
       "event_category": "Management",
       "event_type": "AwsApiCall",
-      "request_id": "igidzrv7-6b8o-tv82-ynnd-xh4c5vne5d",
+      "request_id": "nvji6mlf-88ep-wz8i-zo91-x4yue4hg7rd",
       "management_event": true,
       "read_only": true,
       "recipient_account_id": "501938274650",
-      "aws_region": "ap-east-1",
+      "aws_region": "eu-north-1",
       "user_identity": {
         "type": "IAMUser",
-        "principal_id": "AIDA5W1Q77VEQ5Q",
-        "arn": "arn:aws:iam::501938274650:user/temp-user",
+        "principal_id": "AIDABEWA0KMFGS",
+        "arn": "arn:aws:iam::501938274650:user/compromised-developer",
         "account_id": "501938274650",
-        "access_key_id": "AKIAL5ULG861839",
+        "access_key_id": "AKIAS9Y2NUSH7WP",
         "session_context": {
-          "attributes": { "creation_date": "2026-04-20T15:59:33.524Z", "mfa_authenticated": false }
+          "attributes": {
+            "creation_date": "2026-04-21T10:21:43.398Z",
+            "mfa_authenticated": "false"
+          }
         }
       },
       "request_parameters": "{\"maxItems\":100}",
-      "response_elements": "{\"users\":[{\"arn\":\"arn:aws:iam::501938274650:user/alice\",\"userId\":\"AIDAZZ2V3FFW2NN\",\"userName\":\"alice\",\"path\":\"/\",\"createDate\":\"2026-04-20T15:59:33.524Z\"}]}"
+      "response_elements": "{\"users\":[{\"arn\":\"arn:aws:iam::501938274650:user/data-analyst\",\"userId\":\"AIDAUKSXFRKEO4L\",\"userName\":\"data-analyst\",\"path\":\"/\",\"createDate\":\"2026-04-21T10:21:43.398Z\"}]}"
     },
     "s3": {
       "bucket": {
@@ -36,19 +39,22 @@
         "arn": "arn:aws:s3:::aws-iam-privesc-chain-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/iam-privesc-chain/ap-east-1/2026/04/20/iam-privesc-chain_V7NS5WT91RB.log.gz"
+        "key": "AWSLogs/501938274650/iam-privesc-chain/eu-north-1/2026/04/21/iam-privesc-chain_KUFQC7R8Z4D.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iam-privesc-chain/logs",
-      "log_stream": "ap-east-1/0qiskuh1",
-      "ingestion_time": "2026-04-20T15:59:34.484Z"
+      "log_stream": "eu-north-1/hiebqlub",
+      "ingestion_time": "2026-04-21T10:21:44.129Z"
     }
   },
-  "user": { "name": "temp-user" },
-  "source": { "ip": "207.11.163.31" },
-  "user_agent": { "original": "aws-sdk-python/1.26.0 Python/3.11 Linux/5.15 exec-env/EC2" },
+  "user": { "name": "compromised-developer", "id": "AIDABEWA0KMFGS" },
+  "source": { "ip": "112.61.179.26" },
+  "user_agent": {
+    "original": "aws-cli/2.15.0 md/awscrt#0.19.0 ua/2.0 os/linux#5.15.0.1024-generic exec-env/EC2"
+  },
   "event": {
+    "kind": "event",
     "action": "ListUsers",
     "outcome": "success",
     "category": ["iam", "configuration"],
@@ -58,19 +64,24 @@
     "module": "aws"
   },
   "log": { "level": "warn" },
+  "labels": {
+    "attack_session_id": "m1tp75zz-2hsf-wt3m-x5u0-nnx2t2fjem",
+    "attacker_user": "compromised-developer",
+    "target_user": "data-analyst"
+  },
   "threat": {
     "tactic": { "name": "Discovery", "id": "TA0007" },
     "technique": { "name": "Cloud Infrastructure Discovery", "id": "T1580" }
   },
-  "message": "CloudTrail [PrivEsc Step 1/4]: ListUsers by temp-user from 207.11.163.31 — enumeration",
+  "message": "CloudTrail [PrivEsc 1/4]: ListUsers by compromised-developer from 112.61.179.26 — enumeration",
   "service": { "name": "iam-privesc-chain", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iam-privesc-chain", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "u7mstzzcn8h"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "qvcrrr8e1m"
   },
   "input": { "type": "http_endpoint" }
 }

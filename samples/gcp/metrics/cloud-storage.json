@@ -3,50 +3,53 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-south1",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "asia-southeast1",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-south1",
-    "ephemeral_id": "lbwee6f1w5n"
+    "name": "metricbeat-gcp-asia-southeast1",
+    "ephemeral_id": "cad1gd6lkgt"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "storage.googleapis.com/api/request_count",
-      "labels": { "method": "GET", "response_code": "200" }
+      "type": "serviceruntime.googleapis.com/api/request_count",
+      "labels": { "credential_id": "resource-a" }
     },
     "resource": {
-      "type": "gcs_bucket",
+      "type": "consumed_api",
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "bucket_name": "ml-training-data",
-        "location": "asia-south1"
+        "project_id": "globex-shared-m3n4o5",
+        "service": "generic.googleapis.com",
+        "method": "resource_id"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "90138" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "48897" } }
     ]
   },
   "gcp": {
-    "cloud-storage": {
+    "storage-transfer": {
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "bucket_name": "ml-training-data",
-        "location": "asia-south1",
-        "method": "GET",
-        "response_code": "200"
+        "project_id": "globex-shared-m3n4o5",
+        "service": "generic.googleapis.com",
+        "method": "resource_id",
+        "credential_id": "resource-a"
       },
       "metrics": {
-        "storage.googleapis.com/api/request_count": { "avg": 90138, "sum": 90138, "count": 1 }
+        "serviceruntime.googleapis.com/api/request_count": {
+          "avg": 48897,
+          "sum": 48897,
+          "count": 1
+        }
       }
     }
   },
-  "metricset": { "name": "cloud-storage", "period": 60000 },
+  "metricset": { "name": "storage-transfer", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.gcs_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "dataset": "gcp.gcs_metrics", "module": "gcp" }

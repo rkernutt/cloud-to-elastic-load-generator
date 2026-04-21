@@ -3,52 +3,49 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-north1",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "europe-west1",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-north1",
-    "ephemeral_id": "gj4ua21lej"
+    "name": "metricbeat-gcp-europe-west1",
+    "ephemeral_id": "5vio3t25qox"
   },
   "monitoringTimeSeries": {
     "metric": {
       "type": "dns.googleapis.com/query/response_count",
-      "labels": { "response_code": "NOERROR" }
+      "labels": { "response_code": "NXDOMAIN" }
     },
     "resource": {
       "type": "dns_query",
       "labels": {
-        "project_id": "globex-security-j0k1l2",
+        "project_id": "globex-shared-m3n4o5",
         "target_name": "db.prod.example.com.",
-        "location": "europe-north1",
-        "target_type": "public-zone",
-        "source_type": "internet"
+        "location": "europe-west1",
+        "target_type": "external",
+        "source_type": "gce-vm"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      {
-        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "int64Value": "1272509" }
-      }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "299562" } }
     ]
   },
   "gcp": {
     "cloud-dns": {
       "labels": {
-        "project_id": "globex-security-j0k1l2",
+        "project_id": "globex-shared-m3n4o5",
         "target_name": "db.prod.example.com.",
-        "location": "europe-north1",
-        "target_type": "public-zone",
-        "source_type": "internet",
-        "response_code": "NOERROR"
+        "location": "europe-west1",
+        "target_type": "external",
+        "source_type": "gce-vm",
+        "response_code": "NXDOMAIN"
       },
       "metrics": {
-        "dns.googleapis.com/query/response_count": { "avg": 1272509, "sum": 1272509, "count": 1 }
+        "dns.googleapis.com/query/response_count": { "avg": 299562, "sum": 299562, "count": 1 }
       }
     }
   },

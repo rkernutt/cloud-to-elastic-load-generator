@@ -1,32 +1,32 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "af-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "kinesis" }
   },
   "aws": {
-    "dimensions": { "StreamName": "clickstream" },
+    "dimensions": { "StreamName": "audit-trail" },
     "kinesis": {
-      "operation": "SubscribeToShard",
-      "shard_id": "shardId-00000000003",
-      "enhanced_fan_out_subscribers": 1,
+      "operation": "SplitShard",
+      "shard_id": "shardId-00000000002",
+      "enhanced_fan_out_subscribers": 2,
       "metrics": {
-        "GetRecords_Bytes": { "avg": 923682 },
-        "GetRecords_IteratorAgeMilliseconds": { "avg": 167 },
-        "GetRecords_Latency": { "avg": 21 },
-        "GetRecords_Records": { "avg": 264, "sum": 487 },
+        "GetRecords_Bytes": { "avg": 816992 },
+        "GetRecords_IteratorAgeMilliseconds": { "avg": 463 },
+        "GetRecords_Latency": { "avg": 43 },
+        "GetRecords_Records": { "avg": 104, "sum": 639 },
         "GetRecords_Success": { "sum": 1 },
-        "IncomingBytes": { "avg": 5758972 },
-        "IncomingRecords": { "avg": 8405 },
-        "PutRecord_Bytes": { "avg": 574271 },
-        "PutRecord_Latency": { "avg": 79 },
-        "PutRecords_Latency": { "avg": 183 },
+        "IncomingBytes": { "avg": 3467027 },
+        "IncomingRecords": { "avg": 8049 },
+        "PutRecord_Bytes": { "avg": 315724 },
+        "PutRecord_Latency": { "avg": 45 },
+        "PutRecords_Latency": { "avg": 104 },
         "PutRecord_Success": { "avg": 1 },
-        "PutRecords_Bytes": { "avg": 2106919 },
+        "PutRecords_Bytes": { "avg": 8407974 },
         "PutRecords_FailedRecords": { "sum": 0 },
-        "PutRecords_SuccessfulRecords": { "sum": 978 },
+        "PutRecords_SuccessfulRecords": { "sum": 475 },
         "PutRecords_ThrottledRecords": { "sum": 0 },
         "ReadProvisionedThroughputExceeded": { "avg": 0 },
         "WriteProvisionedThroughputExceeded": { "avg": 0 }
@@ -34,17 +34,17 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-kinesis-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-kinesis-logs-164820739518"
+        "name": "aws-kinesis-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-kinesis-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/kinesis/eu-south-1/2026/04/20/kinesis_HHC2B2CMRS.log.gz"
+        "key": "AWSLogs/814726593401/kinesis/af-south-1/2026/04/21/kinesis_PCL1DFIS1AI.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/kinesis/logs",
-      "log_stream": "eu-south-1/gw3r6veg",
-      "ingestion_time": "2026-04-20T15:59:34.540Z"
+      "log_stream": "af-south-1/15ot4y81",
+      "ingestion_time": "2026-04-21T10:21:44.191Z"
     }
   },
   "event": {
@@ -52,10 +52,10 @@
     "category": ["network"],
     "dataset": "aws.kinesis",
     "provider": "kinesis.amazonaws.com",
-    "duration": 42000000,
+    "duration": 4605000000,
     "module": "aws"
   },
-  "message": "SubscribeToShard: consumer 0b09sxj4 connected to shardId-00000000003 enhanced fan-out (1 concurrent)",
+  "message": "SplitShard completed: parent shardId-00000000002 -> new shards shardId-00000000003,shardId-00000000009 on audit-trail",
   "log": { "level": "info" },
   "service": { "name": "kinesis", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -63,8 +63,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "jycwc4a2xze"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "9h5ammgv08f"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,60 +1,57 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-central-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "pressure-monitor", "KeyValue": "machine-prod-1" },
+    "dimensions": { "DetectorModelName": "motor-health-detector", "KeyValue": "zone-A" },
     "iotevents": {
-      "detector_model_name": "pressure-monitor",
-      "detector_id": "machine-prod-1",
-      "key_value": "machine-prod-1",
-      "event_name": "TriggerFired",
-      "from_state": "Alarm",
+      "detector_model_name": "motor-health-detector",
+      "detector_id": "zone-A",
+      "key_value": "zone-A",
+      "event_name": "ActionExecuted",
+      "from_state": "Acknowledged",
       "to_state": "Alarm",
-      "input_name": "SensorInput",
-      "action_type": "SetTimer",
-      "timer_name": "idleTimer",
-      "condition_expression": "$input.SensorInput.temperature > 85",
-      "error_code": "ResourceNotFound"
+      "input_name": "HealthCheck",
+      "action_type": "SetVariable",
+      "condition_expression": "$input.SensorInput.temperature > 85"
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotevents-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-iotevents-logs-814726593401"
+        "name": "aws-iotevents-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-iotevents-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/iotevents/sa-east-1/2026/04/20/iotevents_XWA039G3P0H.log.gz"
+        "key": "AWSLogs/164820739518/iotevents/eu-central-2/2026/04/21/iotevents_7MB6ZR81LFI.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "sa-east-1/kocjc626",
-      "ingestion_time": "2026-04-20T15:59:34.668Z"
+      "log_stream": "eu-central-2/xvq37h9q",
+      "ingestion_time": "2026-04-21T10:21:44.326Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 2820000000,
+    "duration": 159000000,
     "module": "aws"
   },
-  "message": "IoT Events pressure-monitor/machine-prod-1 ERROR: Input validation error",
-  "log": { "level": "error" },
-  "error": { "code": "InvalidRequestException", "message": "IoT Events error", "type": "iot" },
+  "message": "IoT Events motor-health-detector/zone-A: Acknowledged → Alarm [ActionExecuted]",
+  "log": { "level": "warn" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iotevents", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "vrj7xiqo8tb"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "a0lt7926qba"
   },
   "input": { "type": "aws-cloudwatch" }
 }

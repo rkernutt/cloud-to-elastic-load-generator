@@ -1,52 +1,57 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-northeast-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "detective" }
   },
   "aws": {
     "detective": {
-      "entity_type": "Ec2Instance",
-      "entity_id": "i-t4gnoehb5wd",
-      "behavior_type": "Normal",
-      "severity_score": 1.042285721481646,
-      "finding_count": 0
+      "entity_type": "AwsIamRole",
+      "entity_id": "arn:aws:iam::814726593401:user/suspicious",
+      "behavior_type": "Credential Compromise",
+      "severity_score": 80.61057255748217,
+      "finding_count": 2
     },
     "s3": {
       "bucket": {
-        "name": "aws-detective-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-detective-logs-501938274650"
+        "name": "aws-detective-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-detective-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/detective/eu-central-2/2026/04/20/detective_AGTT3J0DOLT.log.gz"
+        "key": "AWSLogs/814726593401/detective/ap-northeast-3/2026/04/21/detective_HE5U2BPMOD7.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/detective/logs",
-      "log_stream": "eu-central-2/hjj2ccy4",
-      "ingestion_time": "2026-04-20T15:59:34.476Z"
+      "log_stream": "ap-northeast-3/cl54n0cs",
+      "ingestion_time": "2026-04-21T10:21:44.120Z"
     }
   },
   "event": {
-    "kind": "event",
-    "outcome": "success",
+    "kind": "alert",
+    "outcome": "failure",
     "category": "intrusion_detection",
     "dataset": "aws.detective",
     "provider": "detective.amazonaws.com",
     "module": "aws"
   },
-  "message": "Detective: entity behavior within normal baseline",
+  "message": "Detective [MEDIUM]: Credential Compromise detected - 18 related findings",
   "log": { "level": "info" },
+  "error": {
+    "code": "AnomalousBehavior",
+    "message": "Credential Compromise detected",
+    "type": "security"
+  },
   "service": { "name": "detective", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.detective", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "4nnj8e10kn6"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "gffxmn7vmt6"
   },
   "input": { "type": "http_endpoint" }
 }

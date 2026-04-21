@@ -1,55 +1,69 @@
 {
-  "@timestamp": "2026-04-07T12:00:00.000Z",
+  "@timestamp": "2026-04-07T11:55:00.000Z",
+  "labels": {
+    "exfil_chain_id": "p3gzrv8s-howw-hvnb-9tpj-ntzigi4q42g",
+    "subscription_id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
+    "storage_account": "sttgw7zkq0cq",
+    "source_ip": "79.55.143.95"
+  },
   "cloud": {
     "provider": "azure",
-    "region": "qatarcentral",
+    "region": "eastasia",
     "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" },
-    "service": { "name": "Microsoft.Security/alerts" }
+    "service": { "name": "Microsoft.Storage/storageAccounts" }
   },
   "azure": {
-    "defender": {
-      "alert_id": "fdh17wwbyl",
-      "alert_name": "Unusual volume of data extracted from storage account",
-      "severity": "High",
-      "status": "Active",
-      "resource_group": "rg-prod-1mhuse",
-      "compromised_entity": "st8yttnvqio8",
-      "source_ip": "72.191.191.37",
-      "intent": "Exfiltration"
+    "blob_storage": {
+      "resource_group": "rg-analytics-kc7rpr",
+      "resource_name": "sttgw7zkq0cq",
+      "resource_id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-analytics-kc7rpr/providers/Microsoft.Storage/storageAccounts/sttgw7zkq0cq",
+      "operation_name": "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read",
+      "status": "Succeeded",
+      "correlation_id": "qkrllr4nxve",
+      "http_status": 206,
+      "duration_ms": 1311,
+      "caller_ip_address": "79.55.143.95",
+      "properties": { "contentLength": 361758720, "contentLengthMb": 345 },
+      "bytes_out": 361758720,
+      "client_ip": "79.55.143.95"
     }
   },
-  "source": { "ip": "72.191.191.37" },
+  "source": { "ip": "79.55.143.95" },
   "event": {
-    "kind": "alert",
-    "outcome": "failure",
+    "outcome": "success",
+    "duration": 3452881,
     "module": "azure",
-    "dataset": "azure.defender"
+    "dataset": "azure.blob_storage"
   },
-  "message": "Defender: possible data exfiltration from st8yttnvqio8",
-  "log": { "level": "error" },
-  "service": { "name": "defender", "type": "azure" },
+  "message": "Blob Storage: large GetBlob from sttgw7zkq0cq by 79.55.143.95",
+  "log": { "level": "warn" },
+  "service": { "name": "blob-storage", "type": "azure" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "azure.defender", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "azure.blob_storage", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-qatarcentral",
-    "id": "wlxdl1ksvnb"
+    "name": "elastic-agent-azure-eastasia",
+    "id": "rv1t7tt4r9a"
   },
   "input": { "type": "http_endpoint" },
-  "category": "Administrative",
-  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourcegroups/rg-prod-1mhuse/providers/Microsoft.Security/alerts/defender",
-  "operationName": { "localizedValue": "Write", "value": "defender/action" },
+  "category": "StorageRead",
+  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourcegroups/rg-analytics-kc7rpr/providers/Microsoft.Storage/storageAccounts/blob-storage",
+  "operationName": { "localizedValue": "Write", "value": "blob-storage/action" },
   "properties": {
-    "defender": {
-      "alert_id": "fdh17wwbyl",
-      "alert_name": "Unusual volume of data extracted from storage account",
-      "severity": "High",
-      "status": "Active",
-      "resource_group": "rg-prod-1mhuse",
-      "compromised_entity": "st8yttnvqio8",
-      "source_ip": "72.191.191.37",
-      "intent": "Exfiltration"
+    "blob_storage": {
+      "resource_group": "rg-analytics-kc7rpr",
+      "resource_name": "sttgw7zkq0cq",
+      "resource_id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-analytics-kc7rpr/providers/Microsoft.Storage/storageAccounts/sttgw7zkq0cq",
+      "operation_name": "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read",
+      "status": "Succeeded",
+      "correlation_id": "qkrllr4nxve",
+      "http_status": 206,
+      "duration_ms": 1311,
+      "caller_ip_address": "79.55.143.95",
+      "properties": { "contentLength": 361758720, "contentLengthMb": 345 },
+      "bytes_out": 361758720,
+      "client_ip": "79.55.143.95"
     }
   }
 }

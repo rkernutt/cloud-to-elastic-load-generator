@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-07T12:00:00.000Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,51 +7,65 @@
   },
   "cloud": {
     "provider": "azure",
-    "region": "centralus",
-    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" }
+    "region": "eastus",
+    "account": { "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890", "name": "Contoso Production" }
   },
-  "orchestrator": { "cluster": { "name": "aks-data-OH37" } },
+  "orchestrator": {
+    "cluster": {
+      "name": "aks-prod-east",
+      "id": "aks-prod-east",
+      "resource_id": "/subscriptions/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resourceGroups/rg-aks/providers/Microsoft.ContainerService/managedClusters/aks-prod-east"
+    },
+    "type": "kubernetes",
+    "namespace": "default"
+  },
   "resource": {
-    "id": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-aks/providers/Microsoft.ContainerService/managedClusters/aks-data-OH37",
-    "name": "aks-data-OH37",
-    "sub_type": "managed-cluster",
-    "type": "k8s_object"
-  },
-  "rule": {
-    "id": "cis_aks_az_4_1_2",
-    "name": "Ensure private clusters are used where possible",
-    "section": "4.1.2",
-    "tags": ["AKS"],
-    "benchmark": {
-      "id": "cis_aks",
-      "version": "v1.3.0",
-      "rule_number": "4.1.2",
-      "posture_type": "kspm"
+    "id": "aks-prod-east/default/pod/nginx-deployment-abc12",
+    "name": "pod/nginx-deployment-abc12",
+    "type": "k8s_object",
+    "sub_type": "Pod",
+    "raw": {
+      "spec": {
+        "hostNetwork": true,
+        "containers": [{
+          "name": "nginx",
+          "securityContext": { "privileged": true }
+        }]
+      }
     }
   },
-  "result": { "evaluation": "passed" },
-  "severity": "none",
+  "rule": {
+    "id": "b64adcd7-aafe-52c7-b076-b7c3a0a20feb",
+    "name": "Minimize the admission of containers wishing to share the host network namespace",
+    "section": "5.2.4",
+    "description": "A container running in the host's network namespace could access the local loopback device, and could access network traffic to and from other pods.",
+    "tags": ["CIS", "Kubernetes", "CIS 5.2.4", "Pod Security Standards"],
+    "benchmark": {
+      "id": "cis_k8s",
+      "name": "CIS Kubernetes V1.23",
+      "version": "v1.0.1",
+      "rule_number": "5.2.4",
+      "posture_type": "kspm"
+    },
+    "profile_applicability": "* Level 1",
+    "impact": "Non-compliance with CIS Kubernetes V1.23 5.2.4 — Minimize the admission of containers wishing to share the host network namespace",
+    "remediation": "Remediate per CIS Kubernetes V1.23 v1.0.1 section 5.2.4."
+  },
+  "result": {
+    "evaluation": "failed",
+    "evidence": {
+      "spec": { "hostNetwork": true }
+    }
+  },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "azure"
   },
-  "message": "KSPM [CIS AKS / 4.1.2] passed: Ensure private clusters are used where possible [aks-data-OH37]",
-  "log": { "level": "info" },
-  "service": { "name": "azure-kspm", "type": "azure" },
-  "ecs": { "version": "8.11.0" },
-  "agent": {
-    "type": "elastic-agent",
-    "version": "8.18.0",
-    "name": "elastic-agent-azure-centralus",
-    "id": "hqj2aeqc6e4"
-  },
-  "input": { "type": "http_endpoint" },
-  "category": "Administrative",
-  "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourcegroups/rg-app/providers/Microsoft.Resources/azure-kspm/azure-kspm",
-  "operationName": { "localizedValue": "Write", "value": "azure-kspm/action" }
+  "message": "[cis_k8s/5.2.4] failed: Minimize the admission of containers wishing to share the host network namespace",
+  "log": { "level": "warn" }
 }

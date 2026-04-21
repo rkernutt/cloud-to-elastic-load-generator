@@ -1,6 +1,6 @@
 # Gap Analysis: Complete Logs and Metrics for All Services
 
-> **Last updated:** 2026-04-20
+> **Last updated:** 2026-04-21
 
 This document compares what the **Cloud to Elastic Load Generator** (AWS catalog) currently emits per service with what is needed for **complete** logs and metrics as defined by **Elastic AWS integration** and **AWS service documentation**. Use it to prioritize additions (fields, message types, metrics) for full fidelity in Elastic dashboards, rules, and ML.
 
@@ -61,6 +61,33 @@ From Elastic’s reference table, the following services have **Metrics** and/or
 - **Structured `message`:** Many services probabilistically emit JSON in `message` (see [INGEST-PIPELINE-REFERENCE.md](INGEST-PIPELINE-REFERENCE.md)); not all do.
 - **`event.duration`:** Present on all time-bound services (closed in v7.5).
 - **`aws.dimensions`:** Always-present on all generators (closed in v8.0).
+
+### 1.3 Chained event scenarios (security and data pipeline)
+
+Multi-step **Chained Events** generators emit **time-distributed** logs with explicit correlation labels so dashboards, detection rules, and ML jobs can group related documents:
+
+| Scenario                                       | AWS                                      | GCP                      | Azure                              | Correlation label(s)                                                                 |
+| ---------------------------------------------- | ---------------------------------------- | ------------------------ | ---------------------------------- | ------------------------------------------------------------------------------------ |
+| Security Finding (detect → aggregate → triage) | GuardDuty → Security Hub → Security Lake | SCC → Chronicle → SecOps | Defender → Sentinel → Activity Log | `labels.finding_chain_id`                                                            |
+| IAM privilege escalation                       | CloudTrail IAM/STS                       | Cloud Audit (IAM)        | Entra ID + Activity Log            | `labels.attack_session_id`                                                           |
+| Data exfiltration                              | GuardDuty + CloudTrail + VPC Flow        | DLP + VPC + GCS          | Defender + Blob + NSG              | `labels.exfil_chain_id`                                                              |
+| Data & Analytics Pipeline                      | S3 → EMR → Glue → Athena → MWAA          | GCS → Dataproc → …       | Blob → Databricks → …              | `pipeline_run_id` (and related fields; see [chained-events docs](./chained-events/)) |
+
+Each scenario has matching **Kibana dashboards**, **Elasticsearch-query alert rules**, and **ML anomaly detection jobs** under `installer/{aws,gcp,azure}-custom-{dashboards,rules,ml-jobs}/` (file names include `security-finding-chain`, `iam-privesc-chain`, `data-exfil-chain`, and `data-pipeline` where applicable). Counts per cloud are summarized in [diagrams.md](./diagrams.md).
+
+### 1.4 CSPM / KSPM — Real CIS benchmark findings
+
+CSPM and KSPM generators produce findings documents identical to what Elastic's **cloudbeat** agent writes to `logs-cloud_security_posture.findings-default`. Every finding uses **real CIS rule UUIDs, names, sections, and benchmark metadata** sourced from `elastic/cloudbeat` (321 rules total across 5 benchmarks):
+
+| Benchmark | Rules | Sections |
+|-----------|-------|----------|
+| CIS AWS Foundations v1.5.0 | 55 | IAM (16), S3 (4), EC2 (1), RDS (3), Logging (11), Monitoring (16), Networking (4) |
+| CIS GCP Foundations v2.0.0 | 71 | IAM, Logging/Monitoring, Networking, VMs, Storage, SQL, BigQuery |
+| CIS Azure Foundations v2.0.0 | 72 | IAM, Defender, Storage, SQL, Logging, Networking, VMs, Key Vault, App Service |
+| CIS EKS v1.4.0 | 31 | Logging, Authentication, Networking, Pod Security |
+| CIS Kubernetes v1.0.1 | 92 | Control Plane, etcd, RBAC, Worker Nodes, Pod Security Standards |
+
+Failed findings include realistic resource evidence — for example, S3 buckets with `ServerSideEncryptionConfiguration: null`, security groups with `0.0.0.0/0` SSH ingress, IAM users with `mfa_active: false`, or pods with `privileged: true`. When the `cloud_security_posture` Fleet integration is installed (automatic when CSPM/KSPM services are selected in the Setup wizard), Elastic's built-in Posture Dashboard, Findings page, and Benchmark Rules pages display the generated data exactly as they would with real cloud infrastructure.
 
 ---
 

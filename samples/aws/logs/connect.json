@@ -1,75 +1,78 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ca-west-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "connect" }
   },
   "aws": {
-    "dimensions": { "InstanceId": "sxsomu3f-9ge8-71uj-niy3-puvtiy7nh8", "MetricGroup": "Queue" },
+    "dimensions": { "InstanceId": "ls8ayuvk-6sk0-irec-05mh-um0qbspqk7r", "MetricGroup": "Queue" },
     "connect": {
-      "instance_id": "sxsomu3f-9ge8-71uj-niy3-puvtiy7nh8",
-      "contact_id": "y3oevdag-cqdw-4v1j",
-      "channel": "VOICE",
-      "initiation_method": "INBOUND",
-      "queue_name": "BasicQueue",
-      "duration_seconds": 1250,
-      "hold_duration_seconds": 7,
-      "queue_wait_time_seconds": 184,
-      "disconnect_reason": "AGENT_DISCONNECT",
-      "sentiment_overall": "MIXED",
-      "contact_lens_enabled": false,
+      "instance_id": "ls8ayuvk-6sk0-irec-05mh-um0qbspqk7r",
+      "contact_id": "n7iyf1sm-8kj3-9fws",
+      "channel": "TASK",
+      "initiation_method": "TRANSFER",
+      "queue_name": "Sales",
+      "agent_id": "agent-bob",
+      "duration_seconds": 905,
+      "hold_duration_seconds": 64,
+      "queue_wait_time_seconds": 34,
+      "disconnect_reason": "CUSTOMER_DISCONNECT",
+      "sentiment_overall": "NEUTRAL",
+      "contact_lens_enabled": true,
       "lex_bot_interacted": false,
-      "initiation_timestamp": "2026-04-20T15:38:43.524Z",
-      "disconnect_timestamp": "2026-04-20T15:59:33.524Z",
-      "customer_endpoint": "+12448260573",
-      "system_endpoint": "+18006162153",
+      "initiation_timestamp": "2026-04-21T10:06:38.398Z",
+      "disconnect_timestamp": "2026-04-21T10:21:43.398Z",
+      "customer_endpoint": "+12622844041",
+      "system_endpoint": "+18003821144",
+      "error_code": "QueueCapacityExceeded",
       "metrics": {
         "ContactsQueued": { "sum": 1 },
-        "ContactsHandled": { "sum": 1 },
-        "ContactsAbandoned": { "sum": 0 },
+        "ContactsHandled": { "sum": 0 },
+        "ContactsAbandoned": { "sum": 1 },
         "ContactsHoldAbandonment": { "sum": 0 },
-        "AverageHandleTime": { "avg": 1250 },
-        "AverageAfterContactWorkTime": { "avg": 111 },
-        "AverageQueueAnswerTime": { "avg": 118 },
-        "ServiceLevel": { "avg": 86.34773789577221 },
-        "OccupancyTime": { "avg": 45.005832291343374 }
+        "AverageHandleTime": { "avg": 905 },
+        "AverageAfterContactWorkTime": { "avg": 128 },
+        "AverageQueueAnswerTime": { "avg": 40 },
+        "ServiceLevel": { "avg": 87.71901433431131 },
+        "OccupancyTime": { "avg": 85.258455245604 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-connect-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-connect-logs-293847561023"
+        "name": "aws-connect-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-connect-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/connect/ap-southeast-2/2026/04/20/connect_9L1F52WP1JM.log.gz"
+        "key": "AWSLogs/501938274650/connect/ca-west-1/2026/04/21/connect_HTWDDO0FBN.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/connect/logs",
-      "log_stream": "ap-southeast-2/vpihcte5",
-      "ingestion_time": "2026-04-20T15:59:34.650Z"
+      "log_stream": "ca-west-1/pfmr90h9",
+      "ingestion_time": "2026-04-21T10:21:44.307Z"
     }
   },
   "event": {
-    "duration": 1250000000000,
-    "outcome": "success",
+    "duration": 905000000000,
+    "outcome": "failure",
     "category": ["host", "session"],
     "dataset": "aws.connect",
     "provider": "connect.amazonaws.com",
     "module": "aws"
   },
-  "message": "Connect INBOUND: BasicQueue, 1250s, MIXED",
-  "log": { "level": "warn" },
+  "message": "Connect TRANSFER FAILED: Agent unavailable",
+  "error": { "code": "ConnectError", "message": "Connect operation failed", "type": "session" },
+  "log": { "level": "error" },
   "service": { "name": "connect", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.connect", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-2",
-    "ephemeral_id": "qk9k03ieq9"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "y87eww4i8an"
   },
   "input": { "type": "aws-cloudwatch" }
 }

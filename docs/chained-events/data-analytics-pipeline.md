@@ -107,6 +107,8 @@ flowchart TD
 
 ### Document Correlation
 
+This pipeline is tuned for **orchestrated batch analytics**: events for a run share a base timeline and `pipeline_run_id`, with realistic spacing between stages inside a single workflow (minutes-scale DAG duration). That differs from the **Security Finding**, **IAM Privilege Escalation**, and **Data Exfiltration** chains, which deliberately spread `@timestamp` across longer windows and use `labels.finding_chain_id`, `labels.attack_session_id`, or `labels.exfil_chain_id` for cross-service security correlation.
+
 All documents in a single pipeline run are linked by shared identifiers:
 
 ```mermaid

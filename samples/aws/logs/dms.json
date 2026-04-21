@@ -1,57 +1,50 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "us-west-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "dms" }
   },
   "aws": {
-    "dimensions": { "ReplicationInstanceIdentifier": "dms-prod-fv8vbr1n" },
+    "dimensions": { "ReplicationInstanceIdentifier": "dms-staging-hgup69y8" },
     "dms": {
-      "replication_task_id": "on-prem-to-rds",
-      "migration_type": "full-load-and-cdc",
-      "replication_instance_identifier": "dms-prod-fv8vbr1n",
-      "source_engine": "oracle",
-      "target_engine": "docdb",
+      "replication_task_id": "oracle-to-rds",
+      "migration_type": "full-load",
+      "replication_instance_identifier": "dms-staging-hgup69y8",
+      "source_engine": "mongodb",
+      "target_engine": "aurora-postgresql",
       "replication_instance_class": "dms.r5.large",
       "task_status": "Failed",
       "full_load_rows_transferred": 0,
-      "cdc_incoming_changes": 3689,
-      "latency_ms": 44801,
-      "tables_loaded": 349,
-      "tables_errored": 10,
+      "cdc_incoming_changes": 0,
+      "latency_ms": 0,
+      "tables_loaded": 434,
+      "tables_errored": 2,
       "error_message": "Table does not exist",
       "metrics": {
-        "FullLoadThroughputRowsSource": { "avg": 25199 },
-        "FullLoadThroughputRowsTarget": { "avg": 37379 },
-        "CDCIncomingChanges": { "avg": 4833 },
-        "CDCChangesMemorySource": { "avg": 346 },
-        "CDCChangesMemoryTarget": { "avg": 588 },
-        "CDCChangesDiskSource": { "avg": 98 },
-        "CDCChangesDiskTarget": { "avg": 66 },
-        "CDCLatencySource": { "avg": 10 },
-        "CDCLatencyTarget": { "avg": 19 },
-        "CPUUtilization": { "avg": 7.173544403758777 },
-        "FreeableMemory": { "avg": 3117364957 },
-        "FreeStorageSpace": { "avg": 60761866586 },
-        "NetworkReceiveThroughput": { "avg": 42200352 },
-        "NetworkTransmitThroughput": { "avg": 85820378 },
-        "ReadIOPS": { "avg": 1177 },
-        "WriteIOPS": { "avg": 2771 }
+        "FullLoadThroughputRowsSource": { "avg": 22360 },
+        "FullLoadThroughputRowsTarget": { "avg": 78771 },
+        "CPUUtilization": { "avg": 62.98479095381073 },
+        "FreeableMemory": { "avg": 6940006395 },
+        "FreeStorageSpace": { "avg": 27614072393 },
+        "NetworkReceiveThroughput": { "avg": 4088414 },
+        "NetworkTransmitThroughput": { "avg": 2046817 },
+        "ReadIOPS": { "avg": 1681 },
+        "WriteIOPS": { "avg": 1679 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-dms-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-dms-logs-164820739518"
+        "name": "aws-dms-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-dms-logs-814726593401"
       },
-      "object": { "key": "AWSLogs/164820739518/dms/eu-south-1/2026/04/20/dms_A3V725ZSDIU.log.gz" }
+      "object": { "key": "AWSLogs/814726593401/dms/us-west-1/2026/04/21/dms_CBZLZS4Y7P.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/dms/logs",
-      "log_stream": "eu-south-1/it7ujhuz",
-      "ingestion_time": "2026-04-20T15:59:34.630Z"
+      "log_stream": "us-west-1/4upodwoq",
+      "ingestion_time": "2026-04-21T10:21:44.285Z"
     }
   },
   "event": {
@@ -59,10 +52,10 @@
     "category": ["database", "process"],
     "dataset": "aws.dms",
     "provider": "dms.amazonaws.com",
-    "duration": 713000000000,
+    "duration": 29274000000000,
     "module": "aws"
   },
-  "message": "DMS on-prem-to-rds FAILED (oracle->docdb): Table mapping error",
+  "message": "DMS oracle-to-rds FAILED (mongodb->aurora-postgresql): Table mapping error",
   "error": { "code": "DMSError", "message": "DMS task failed", "type": "migration" },
   "log": { "level": "error" },
   "service": { "name": "dms", "type": "aws" },
@@ -71,8 +64,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "x6bwx2rozul"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "gpy4hjlikq5"
   },
   "input": { "type": "aws-cloudwatch" }
 }

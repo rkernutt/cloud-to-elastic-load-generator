@@ -1,0 +1,245 @@
+{
+  "group": "azure-security-chain",
+  "description": "ML anomaly detection jobs for the Azure Security Finding Chain scenario (Defender, Sentinel, Activity Log)",
+  "jobs": [
+    {
+      "id": "azure-security-defender-alert-spike",
+      "description": "Detects unusual spikes in Defender for Cloud alerts by alert type",
+      "job": {
+        "description": "Detects unusual spikes in Defender alerts by alert type",
+        "groups": ["azure", "azure-security-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.defender.alert_type",
+              "function": "high_count",
+              "partition_field_name": "azure.defender.alert_type",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.defender.alert_type", "source.ip", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-load-generator-azure-security-finding-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.defender*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.kind": "alert"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-security-chain-rate",
+      "description": "Detects anomalous rate of finding chains across Defender, Sentinel, and Activity Log",
+      "job": {
+        "description": "Detects anomalous rate of finding chains",
+        "groups": ["azure", "azure-security-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "30m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=event.dataset",
+              "function": "high_count",
+              "partition_field_name": "event.dataset",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["event.dataset", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-load-generator-azure-security-finding-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.defender*", "logs-azure.sentinel*", "logs-azure.activity_log*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.kind": "alert"
+                }
+              },
+              {
+                "bool": {
+                  "should": [
+                    {
+                      "term": {
+                        "event.dataset": "azure.defender"
+                      }
+                    },
+                    {
+                      "term": {
+                        "event.dataset": "azure.sentinel"
+                      }
+                    },
+                    {
+                      "term": {
+                        "event.dataset": "azure.activity_log"
+                      }
+                    }
+                  ],
+                  "minimum_should_match": 1
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-security-sentinel-incident-anomaly",
+      "description": "Detects unusual spikes in Sentinel incidents by severity",
+      "job": {
+        "description": "Detects unusual spikes in Sentinel incidents by severity",
+        "groups": ["azure", "azure-security-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.sentinel.severity",
+              "function": "high_count",
+              "partition_field_name": "azure.sentinel.severity",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.sentinel.severity", "source.ip", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-load-generator-azure-security-finding-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.sentinel*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.kind": "alert"
+                }
+              },
+              {
+                "exists": {
+                  "field": "azure.sentinel.severity"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-security-rare-source-ip",
+      "description": "Detects rare source IPs in Defender security alerts",
+      "job": {
+        "description": "Detects rare source IPs in Defender security alerts",
+        "groups": ["azure", "azure-security-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "rare by source.ip",
+              "function": "rare",
+              "by_field_name": "source.ip",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["source.ip", "azure.defender.alert_type", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-load-generator-azure-security-finding-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.defender*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.kind": "alert"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    }
+  ]
+}

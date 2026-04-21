@@ -1,42 +1,55 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
+  "labels": {
+    "attack_session_id": "1kjk7rd9-2mre-plyf-ag2f-suabqcg0nc",
+    "project_id": "globex-dev-g7h8i9",
+    "target_service_account": "persistence-sa@globex-dev-g7h8i9.iam.gserviceaccount.com"
+  },
   "cloud": {
     "provider": "gcp",
-    "region": "africa-south1",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
+    "region": "australia-southeast1",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" },
     "service": { "name": "cloud-audit-logs" }
   },
   "gcp": {
     "cloud_audit": {
       "service_name": "iam.googleapis.com",
       "method_name": "google.iam.admin.v1.ListServiceAccounts",
-      "resource_name": "projects/globex-prod-a1b2c3",
-      "caller_ip": "206.253.183.9",
+      "resource_name": "projects/globex-dev-g7h8i9",
+      "caller_ip": "101.70.57.151",
       "caller_type": "USER",
       "authorization_decision": "ALLOWED",
+      "authorization_info": [
+        {
+          "resource": "projects/globex-dev-g7h8i9",
+          "permission": "iam.serviceAccounts.list",
+          "granted": true,
+          "permission_type": "ADMIN_WRITE"
+        }
+      ],
       "request_metadata": {
-        "caller_network": "projects/globex-prod-a1b2c3/global/networks/default",
-        "request_id": "qqyt9g6pxu",
+        "caller_network": "projects/globex-dev-g7h8i9/global/networks/default",
+        "request_id": "opfu51k7le",
         "user_agent": "Terraform/1.7.5"
       }
     }
   },
-  "user": { "name": "user:admin@globex.example.com" },
-  "source": { "ip": "206.253.183.9" },
+  "user": { "name": "attacker-BRLTDX@globex.example.com" },
+  "source": { "ip": "101.70.57.151" },
   "threat": {
     "tactic": { "name": "Discovery", "id": "TA0007" },
-    "technique": { "name": "Cloud Service Discovery", "id": "T1580" }
+    "technique": { "name": "Cloud Service Discovery", "id": "T1526" }
   },
   "event": {
     "outcome": "success",
     "category": ["iam", "configuration"],
     "type": ["change"],
-    "duration": 5921045,
+    "duration": 6707856,
     "module": "gcp",
     "dataset": "gcp.cloud_audit"
   },
-  "message": "Cloud Audit [PrivEsc 1/4]: ListServiceAccounts by compromised-sa@globex-prod-a1b2c3.iam.gserviceaccount.com",
+  "message": "Cloud Audit [PrivEsc 1/4]: ListServiceAccounts by attacker-BRLTDX@globex.example.com",
   "log": { "level": "warn" },
   "service": { "name": "cloud-audit", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
@@ -44,31 +57,39 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-africa-south1",
-    "id": "kb6eaqzzhzf"
+    "name": "elastic-agent-gcp-australia-southeast1",
+    "id": "g5vk3et0xpt"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-prod-a1b2c3/logs/cloud-audit",
+  "logName": "projects/globex-dev-g7h8i9/logs/cloud-audit",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-prod-a1b2c3", "region": "africa-south1" }
+    "labels": { "project_id": "globex-dev-g7h8i9", "region": "australia-southeast1" }
   },
   "severity": "WARNING",
-  "insertId": "N5GQBHIU47Q",
+  "insertId": "NMNP4WISC4",
   "jsonPayload": {
     "cloud_audit": {
       "service_name": "iam.googleapis.com",
       "method_name": "google.iam.admin.v1.ListServiceAccounts",
-      "resource_name": "projects/globex-prod-a1b2c3",
-      "caller_ip": "206.253.183.9",
+      "resource_name": "projects/globex-dev-g7h8i9",
+      "caller_ip": "101.70.57.151",
       "caller_type": "USER",
       "authorization_decision": "ALLOWED",
+      "authorization_info": [
+        {
+          "resource": "projects/globex-dev-g7h8i9",
+          "permission": "iam.serviceAccounts.list",
+          "granted": true,
+          "permission_type": "ADMIN_WRITE"
+        }
+      ],
       "request_metadata": {
-        "caller_network": "projects/globex-prod-a1b2c3/global/networks/default",
-        "request_id": "qqyt9g6pxu",
+        "caller_network": "projects/globex-dev-g7h8i9/global/networks/default",
+        "request_id": "opfu51k7le",
         "user_agent": "Terraform/1.7.5"
       }
     },
-    "message": "Cloud Audit [PrivEsc 1/4]: ListServiceAccounts by compromised-sa@globex-prod-a1b2c3.iam.gserviceaccount.com"
+    "message": "Cloud Audit [PrivEsc 1/4]: ListServiceAccounts by attacker-BRLTDX@globex.example.com"
   }
 }

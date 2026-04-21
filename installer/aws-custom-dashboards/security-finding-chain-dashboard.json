@@ -1,0 +1,188 @@
+{
+  "title": "Security Finding Chain — overview",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "aws-sfc-k1",
+      "grid": { "x": 0, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Total GuardDuty findings",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.guardduty* | WHERE event.kind == \"alert\" | STATS `Total findings` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total findings" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-sfc-k2",
+      "grid": { "x": 16, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "High / Critical severity",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.guardduty* | WHERE event.kind == \"alert\" AND aws.guardduty.severity.value IN (\"High\", \"Critical\") | STATS `High/Critical` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "High/Critical" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-sfc-k3",
+      "grid": { "x": 32, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Security Hub NOTIFIED",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.securityhub_findings* | WHERE aws.securityhub_findings.Workflow.Status == \"NOTIFIED\" | STATS c = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-sfc-d1",
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Finding types distribution",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.guardduty* | WHERE event.kind == \"alert\" AND aws.guardduty.type IS NOT NULL | STATS c = COUNT() BY ft = aws.guardduty.type"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "ft" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-sfc-d2",
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Severity breakdown",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.guardduty* | WHERE event.kind == \"alert\" AND aws.guardduty.severity.value IS NOT NULL | STATS c = COUNT() BY sev = aws.guardduty.severity.value"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "sev" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-sfc-l1",
+      "grid": { "x": 0, "y": 15, "w": 24, "h": 10 },
+      "config": {
+        "title": "Finding chain events over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.guardduty*, logs-aws.securityhub_findings*, logs-aws.securitylake* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Events" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-sfc-l2",
+      "grid": { "x": 24, "y": 15, "w": 24, "h": 10 },
+      "config": {
+        "title": "Source IP frequency over time (GuardDuty)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.guardduty* | WHERE event.kind == \"alert\" AND source.ip IS NOT NULL | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Events with source IP" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-sfc-t1",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
+      "config": {
+        "title": "Top findings by type, severity, count, resource ARN",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.guardduty* | WHERE event.kind == \"alert\" | STATS cnt = COUNT() BY ft = aws.guardduty.type, sev = aws.guardduty.severity.value, fid = aws.guardduty.id | SORT cnt DESC | LIMIT 25"
+          },
+          "metrics": [
+            { "operation": "value", "column": "ft", "label": "Finding type" },
+            { "operation": "value", "column": "sev", "label": "Severity" },
+            { "operation": "value", "column": "cnt", "label": "Count" },
+            { "operation": "value", "column": "fid", "label": "Finding ID" }
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-sfc-t2",
+      "grid": { "x": 0, "y": 37, "w": 48, "h": 12 },
+      "config": {
+        "title": "Chain correlation",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.guardduty*, logs-aws.securityhub_findings*, logs-aws.securitylake* | WHERE source.ip IS NOT NULL AND cloud.account.id IS NOT NULL | STATS evts = COUNT(), stages = COUNT_DISTINCT(event.dataset), ftype = MAX(aws.guardduty.type) BY src = source.ip, acct = cloud.account.id | SORT evts DESC | LIMIT 25"
+          },
+          "metrics": [
+            { "operation": "value", "column": "src", "label": "Source IP" },
+            { "operation": "value", "column": "acct", "label": "Account" },
+            { "operation": "value", "column": "ftype", "label": "Finding type" },
+            { "operation": "value", "column": "stages", "label": "Stages seen" },
+            { "operation": "value", "column": "evts", "label": "Events" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

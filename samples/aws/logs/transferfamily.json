@@ -1,65 +1,59 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ca-west-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "transferfamily" }
   },
   "aws": {
-    "dimensions": { "ServerId": "s-g4ktvv9zqo4", "Protocol": "FTPS" },
+    "dimensions": { "ServerId": "s-4oalir78k2x", "Protocol": "FTP" },
     "transferfamily": {
-      "server_id": "s-g4ktvv9zqo4",
-      "protocol": "FTPS",
-      "user_name": "etl-transfer",
-      "session_id": "8l9djwy3m7g",
-      "file_path": "/uploads/inventory.xml",
-      "operation": "MKDIR",
-      "bytes_transferred": 2247888346,
-      "transfer_rate_mbps": 169.6164965273008,
-      "duration_seconds": 77.24442394207873,
-      "s3_bucket": "transfer-landing",
-      "error_code": "CONNECTION_RESET"
+      "server_id": "s-4oalir78k2x",
+      "protocol": "FTP",
+      "user_name": "backup-user",
+      "session_id": "0uoe2z6meyg",
+      "file_path": "/inbound/orders.csv",
+      "operation": "GET",
+      "bytes_transferred": 817377411,
+      "transfer_rate_mbps": 162.62535442436382,
+      "duration_seconds": 133.89518834752334,
+      "s3_bucket": "sftp-inbound"
     },
     "s3": {
       "bucket": {
-        "name": "aws-transferfamily-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-transferfamily-logs-814726593401"
+        "name": "aws-transferfamily-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-transferfamily-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/814726593401/transferfamily/us-east-1/2026/04/20/transferfamily_8MZB3QM0LGG.log.gz"
+        "key": "AWSLogs/738291046572/transferfamily/ca-west-1/2026/04/21/transferfamily_6UAXPP0Y5B8.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/transferfamily/logs",
-      "log_stream": "us-east-1/wkvzrxjq",
-      "ingestion_time": "2026-04-20T15:59:34.659Z"
+      "log_stream": "ca-west-1/v58jghda",
+      "ingestion_time": "2026-04-21T10:21:44.315Z"
     }
   },
-  "source": { "ip": "166.35.225.249" },
+  "source": { "ip": "223.103.212.224" },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["file", "network"],
     "dataset": "aws.transfer",
     "provider": "transfer.amazonaws.com",
-    "duration": 98079000000,
+    "duration": 3839000000,
     "module": "aws"
   },
-  "message": "Transfer Family FTPS FAILED [etl-transfer] /uploads/inventory.xml: Connection reset:",
-  "log": { "level": "error" },
-  "error": {
-    "code": "FILE_NOT_FOUND",
-    "message": "Transfer Family operation failed",
-    "type": "file"
-  },
+  "message": "Transfer Family FTP [backup-user] /inbound/orders.csv: 779.5MB",
+  "log": { "level": "info" },
   "service": { "name": "transferfamily", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.transferfamily", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "hlf5kq8n2jv"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "hig6hr1eaqk"
   },
   "input": { "type": "aws-cloudwatch" }
 }

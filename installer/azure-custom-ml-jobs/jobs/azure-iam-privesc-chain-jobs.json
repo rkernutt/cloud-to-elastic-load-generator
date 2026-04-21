@@ -1,0 +1,190 @@
+{
+  "group": "azure-iam-privesc-chain",
+  "description": "ML anomaly detection jobs for the Azure IAM privilege escalation chain scenario (Entra ID, Activity Log)",
+  "jobs": [
+    {
+      "id": "azure-iam-privesc-session-spike",
+      "description": "Detects spikes in IAM privilege escalation chains",
+      "job": {
+        "description": "Detects spikes in IAM privilege escalation chains",
+        "groups": ["azure", "azure-iam-privesc-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.entra_id.user_principal_name",
+              "function": "high_count",
+              "partition_field_name": "azure.entra_id.user_principal_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "azure.entra_id.user_principal_name",
+            "source.ip",
+            "azure.activity_log.operation_name"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-load-generator-azure-iam-privesc-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.entra_id*", "logs-azure.activity_log*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "bool": {
+                  "should": [
+                    {
+                      "term": {
+                        "azure.entra_id.riskState": "AtRisk"
+                      }
+                    },
+                    {
+                      "term": {
+                        "azure.activity_log.operation_name": "Microsoft.Authorization/roleAssignments/write"
+                      }
+                    },
+                    {
+                      "wildcard": {
+                        "azure.activity_log.operation_name": "*roleAssignment*"
+                      }
+                    }
+                  ],
+                  "minimum_should_match": 1
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-iam-risky-signin-anomaly",
+      "description": "Detects unusual volume of at-risk Entra ID sign-ins by risk level",
+      "job": {
+        "description": "Detects unusual volume of at-risk Entra ID sign-ins",
+        "groups": ["azure", "azure-iam-privesc-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.entra_id.riskLevel",
+              "function": "high_count",
+              "partition_field_name": "azure.entra_id.riskLevel",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "azure.entra_id.riskLevel",
+            "source.ip",
+            "azure.entra_id.user_principal_name"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "64mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-load-generator-azure-iam-privesc-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.entra_id*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "azure.entra_id.riskState": "AtRisk"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-iam-role-assignment-anomaly",
+      "description": "Detects anomalous Azure role assignment activity",
+      "job": {
+        "description": "Detects anomalous Azure role assignment activity",
+        "groups": ["azure", "azure-iam-privesc-chain", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=source.ip",
+              "function": "high_count",
+              "partition_field_name": "source.ip",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["source.ip", "azure.activity_log.user_principal_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-load-generator-azure-iam-privesc-chain",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.activity_log*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "azure.activity_log.operation_name": "Microsoft.Authorization/roleAssignments/write"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    }
+  ]
+}

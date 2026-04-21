@@ -1,45 +1,59 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:18:46.628Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
+    "region": "us-east-2",
     "account": { "id": "738291046572", "name": "globex-development" },
-    "service": { "name": "guardduty" }
+    "service": { "name": "cloudtrail" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "rcbj2bp1o4" },
-    "guardduty": {
-      "schema_version": "2.0",
-      "account_id": "738291046572",
-      "region": "ap-northeast-3",
-      "partition": "aws",
-      "id": "tmsal9qkc9",
-      "arn": "arn:aws:guardduty:ap-northeast-3:738291046572:detector/rcbj2bp1o4/finding/tmsal9qkc9",
-      "type": "Exfiltration:S3/MaliciousIPCaller",
-      "title": "S3 object accessed from a known malicious IP",
-      "description": "S3 bucket analytics-output-046572 was accessed by 78.85.167.35, an IP associated with known threat actors",
-      "created_at": "2026-04-20T15:59:33.524Z",
-      "updated_at": "2026-04-20T15:59:33.524Z",
-      "severity": { "code": 7, "value": "High" },
-      "confidence": 89.21727862619065,
-      "resource": {
-        "type": "S3Bucket",
-        "s3_bucket_detail": { "name": "analytics-output-046572", "type": "Destination" }
-      },
-      "service": {
-        "detector_id": "rcbj2bp1o4",
-        "count": 398,
-        "archived": false,
-        "action": {
-          "action_type": "AWS_API_CALL",
-          "aws_api_call_action": {
-            "api": "GetObject",
-            "caller_type": "Remote IP",
-            "remote_ip_details": { "ip_address_v4": "78.85.167.35" }
+    "dimensions": { "EventName": "GetObject", "EventSource": "s3.amazonaws.com" },
+    "cloudtrail": {
+      "event_version": "1.09",
+      "event_category": "Data",
+      "event_type": "AwsApiCall",
+      "request_id": "cuh42d6c-k7y1-73rt-ymtq-csrmiojiwaj",
+      "management_event": false,
+      "read_only": true,
+      "recipient_account_id": "738291046572",
+      "aws_region": "us-east-2",
+      "user_identity": {
+        "type": "AssumedRole",
+        "principal_id": "AROAGXQEWO8BIY:i-m0cs29okmpi",
+        "arn": "arn:aws:sts::738291046572:assumed-role/compromised-app-role/i-m0cs29okmpi",
+        "account_id": "738291046572",
+        "access_key_id": "ASIAU8DZBIQ17K",
+        "session_context": {
+          "session_issuer": {
+            "type": "Role",
+            "principal_id": "AROAUWYI4UHGWB",
+            "arn": "arn:aws:iam::738291046572:role/compromised-app-role",
+            "account_id": "738291046572",
+            "user_name": "compromised-app-role"
+          },
+          "attributes": {
+            "creation_date": "2026-04-21T10:18:46.628Z",
+            "mfa_authenticated": "false"
           }
         }
       },
-      "metrics": { "FindingCount": { "sum": 4 }, "HighSeverityFindingCount": { "sum": 4 } }
+      "resources": [
+        {
+          "ARN": "arn:aws:s3:::backup-exports-046572/data/export-lemhu26j.csv",
+          "accountId": "738291046572",
+          "type": "AWS::S3::Object"
+        },
+        {
+          "ARN": "arn:aws:s3:::backup-exports-046572",
+          "accountId": "738291046572",
+          "type": "AWS::S3::Bucket"
+        }
+      ],
+      "request_parameters": "{\"bucketName\":\"backup-exports-046572\",\"Host\":\"backup-exports-046572.s3.us-east-2.amazonaws.com\",\"key\":\"data/export-lemhu26j.csv\",\"x-amz-server-side-encryption\":\"AES256\"}",
+      "response_elements": "{\"x-amz-request-id\":\"0FG36UJSAH3I\",\"x-amz-id-2\":\"SKVFJQY21QO\"}",
+      "additional_event_count": 1492,
+      "source_ip_address": "184.185.52.237",
+      "tls_details": { "tls_version": "TLSv1.3", "cipher_suite": "TLS_AES_128_GCM_SHA256" }
     },
     "s3": {
       "bucket": {
@@ -47,38 +61,35 @@
         "arn": "arn:aws:s3:::aws-data-exfil-chain-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/738291046572/data-exfil-chain/ap-northeast-3/2026/04/20/data-exfil-chain_WKC6DWR02ZO.log.gz"
+        "key": "AWSLogs/738291046572/data-exfil-chain/us-east-2/2026/04/21/data-exfil-chain_J9A4X55KQRO.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/data-exfil-chain/logs",
-      "log_stream": "ap-northeast-3/cff7opjx",
-      "ingestion_time": "2026-04-20T15:59:34.486Z"
+      "log_stream": "us-east-2/24j59t7m",
+      "ingestion_time": "2026-04-21T10:21:44.132Z"
     }
   },
-  "source": { "ip": "78.85.167.35" },
-  "rule": { "category": "exfiltration", "name": "Exfiltration:S3/MaliciousIPCaller" },
-  "threat": {
-    "tactic": { "name": "Exfiltration", "id": "TA0010" },
-    "technique": { "name": "Transfer Data to Cloud Account", "id": "T1537" },
-    "indicator": [{ "type": "ip", "value": "78.85.167.35" }]
-  },
+  "source": { "ip": "184.185.52.237" },
+  "threat": { "tactic": { "name": "Exfiltration", "id": "TA0010" } },
   "event": {
-    "kind": "alert",
-    "severity": 7,
-    "outcome": "failure",
-    "category": ["intrusion_detection"],
-    "type": ["indicator"],
-    "dataset": "aws.guardduty",
-    "provider": "guardduty.amazonaws.com",
+    "kind": "event",
+    "action": "GetObject",
+    "outcome": "success",
+    "category": ["file"],
+    "type": ["access"],
+    "dataset": "aws.cloudtrail",
+    "provider": "cloudtrail.amazonaws.com",
     "module": "aws"
   },
-  "message": "GuardDuty [HIGH]: Exfiltration:S3/MaliciousIPCaller — s3://analytics-output-046572 from 78.85.167.35",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ExfiltrationDetected",
-    "message": "S3 data exfiltration from analytics-output-046572",
-    "type": "security"
+  "message": "CloudTrail: S3 GetObject s3://backup-exports-046572/data/export-lemhu26j.csv via role on i-m0cs29okmpi — source 184.185.52.237 (408 MB class volume)",
+  "log": { "level": "warn" },
+  "labels": {
+    "exfil_chain_id": "ygmscw3r-k5j6-8jpk-kukc-ud99ceq53lp",
+    "s3_bucket": "backup-exports-046572",
+    "s3_key": "data/export-lemhu26j.csv",
+    "ec2_instance_id": "i-m0cs29okmpi",
+    "attacker_ip": "184.185.52.237"
   },
   "service": { "name": "data-exfil-chain", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -86,8 +97,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "vbb64rdt9c"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "igenleyb9q"
   },
   "input": { "type": "http_endpoint" }
 }

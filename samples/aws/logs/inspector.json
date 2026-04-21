@@ -1,90 +1,107 @@
 {
-  "@timestamp": "2026-04-20T15:59:33.524Z",
+  "@timestamp": "2026-04-21T10:21:43.398Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-west-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "inspector2" }
   },
   "aws": {
-    "dimensions": { "Severity": "MEDIUM" },
+    "dimensions": { "Severity": "HIGH" },
     "inspector2": {
-      "findingArn": "arn:aws:inspector2:us-east-1:164820739518:finding/2hv9707m-q2n5-ogo9-ppt2-vbhftw85ka",
-      "type": "NETWORK_REACHABILITY",
-      "title": "Network path to open port on i-yb9kv7qjlrq",
-      "description": "Inspector determined a network path exists that could allow reachability to a sensitive port from outside the VPC boundary.",
+      "findingArn": "arn:aws:inspector2:eu-west-3:814726593401:finding/wg037ose-7out-fttq-8k37-hugfjb70c17",
+      "type": "PACKAGE_VULNERABILITY",
+      "title": "CVE-2024-41825: curl 1.5.2 has a known vulnerability",
+      "description": "A package used by the workload has a vulnerability tracked as CVE-2024-41825 with CVSS 8.4.",
       "remediation": {
-        "recommendation": {
-          "text": "Restrict security group ingress, remove overly permissive rules, or place the resource behind a private endpoint."
-        }
+        "recommendation": { "text": "Upgrade curl to 1.3.12 or later to remediate CVE-2024-41825." }
       },
       "resources": [
         {
           "type": "AWS_EC2_INSTANCE",
-          "id": "i-yb9kv7qjlrq",
+          "id": "i-i91742hvvu",
           "partition": "aws",
-          "region": "us-east-1",
+          "region": "eu-west-3",
           "tags": { "Environment": "staging" }
         }
       ],
       "exploitAvailable": "NO",
       "fixAvailable": true,
       "finding_status": "ACTIVE",
-      "severity": "MEDIUM",
-      "severity_score": 6.8,
+      "severity": "HIGH",
+      "severity_score": 8.4,
       "exploitability": "NOT_DEFINED",
       "resource_type": "AWS_EC2_INSTANCE",
-      "resource_id": "i-yb9kv7qjlrq",
-      "first_observed_at": "2026-04-04T15:59:33.524Z",
-      "last_observed_at": "2026-04-20T15:59:33.524Z",
-      "network_reachability": {
-        "protocol": "TCP",
-        "open_port_range": { "begin": 80, "end": 5432 },
-        "network_path": "sg -> igw"
+      "resource_id": "i-i91742hvvu",
+      "first_observed_at": "2026-04-15T10:21:43.398Z",
+      "last_observed_at": "2026-04-21T10:21:43.398Z",
+      "package_vulnerability": {
+        "cve_id": "CVE-2024-41825",
+        "source": "GHSA",
+        "cvss3_score": 8.392475681857558,
+        "vulnerable_packages": [
+          {
+            "name": "curl",
+            "version": "1.5.2",
+            "fixed_in_version": "1.3.12",
+            "package_manager": "DOTNET"
+          }
+        ],
+        "related_vulnerabilities": []
       },
       "metrics": {
-        "TotalFindings": { "sum": 471 },
+        "TotalFindings": { "sum": 279 },
         "CriticalFindings": { "sum": 0 },
-        "HighFindings": { "sum": 0 },
-        "MediumFindings": { "sum": 190 },
+        "HighFindings": { "sum": 76 },
+        "MediumFindings": { "sum": 0 },
         "LowFindings": { "sum": 0 },
-        "CoveredResources": { "avg": 2047 }
+        "CoveredResources": { "avg": 4988 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-inspector-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-inspector-logs-164820739518"
+        "name": "aws-inspector-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-inspector-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/inspector/us-east-1/2026/04/20/inspector_S60CF9LUWR.log.gz"
+        "key": "AWSLogs/814726593401/inspector/eu-west-3/2026/04/21/inspector_WBK2RL725GR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/inspector/logs",
-      "log_stream": "us-east-1/i25p5jd1",
-      "ingestion_time": "2026-04-20T15:59:34.467Z"
+      "log_stream": "eu-west-3/d41t50sh",
+      "ingestion_time": "2026-04-21T10:21:44.109Z"
     }
   },
-  "vulnerability": { "severity": "MEDIUM", "score": { "base": 6.8041326851672945 } },
+  "vulnerability": {
+    "severity": "HIGH",
+    "id": "CVE-2024-41825",
+    "score": { "base": 8.392475681857558 }
+  },
+  "package": { "name": "curl", "version": "1.5.2" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["vulnerability"],
     "type": ["info"],
     "dataset": "aws.inspector2",
     "provider": "inspector2.amazonaws.com",
     "module": "aws"
   },
-  "message": "Inspector2 [MEDIUM]: NETWORK_REACHABILITY detected on AWS_EC2_INSTANCE",
-  "log": { "level": "warn" },
+  "message": "Inspector2 [HIGH]: CVE-2024-41825 in curl 1.5.2 on AWS_EC2_INSTANCE (fix: 1.3.12)",
+  "log": { "level": "error" },
+  "error": {
+    "code": "CVE-2024-41825",
+    "message": "HIGH vulnerability: curl",
+    "type": "vulnerability"
+  },
   "service": { "name": "inspector", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.inspector", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "po9ov51pt2"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "49n1r64wuqu"
   },
   "input": { "type": "http_endpoint" }
 }
