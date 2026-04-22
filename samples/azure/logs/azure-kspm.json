@@ -7,47 +7,45 @@
   },
   "cloud": {
     "provider": "azure",
-    "region": "swedencentral",
-    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" }
+    "region": "eastus",
+    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
   },
   "orchestrator": {
     "cluster": {
-      "name": "aks-prod-MBOK",
-      "id": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-analytics-4ejni3/providers/Microsoft.ContainerService/managedClusters/aks-prod-MBOK",
-      "resource_id": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-analytics-4ejni3/providers/Microsoft.ContainerService/managedClusters/aks-prod-MBOK"
+      "name": "aks-data-Q1JM",
+      "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-analytics-ynjj9p/providers/Microsoft.ContainerService/managedClusters/aks-data-Q1JM",
+      "resource_id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-analytics-ynjj9p/providers/Microsoft.ContainerService/managedClusters/aks-data-Q1JM"
     }
   },
   "resource": {
-    "id": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-analytics-4ejni3/providers/Microsoft.ContainerService/managedClusters/aks-prod-MBOK/namespaces/kube-system/scheduler/1-4-1-f65f",
-    "name": "1-4-1-f65f",
+    "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-analytics-ynjj9p/providers/Microsoft.ContainerService/managedClusters/aks-data-Q1JM/nodes/aks-node-96a1",
+    "name": "aks-node-96a1",
     "type": "k8s_object",
-    "sub_type": "scheduler"
+    "sub_type": "kubelet"
   },
   "rule": {
-    "id": "9fc74adb-6ddd-5838-be72-cfd17fbfb74b",
-    "name": "Ensure that the --profiling argument is set to false",
-    "section": "1.4.1",
-    "description": "Disable profiling, if not needed.",
-    "tags": ["CIS", "Kubernetes", "CIS 1.4.1", "Scheduler"],
+    "id": "c2b36f84-34b5-57fd-b9b0-f225be981497",
+    "name": "Ensure that the --protect-kernel-defaults argument is set to true",
+    "section": "4.2.6",
+    "description": "Protect tuned kernel parameters from overriding kubelet default kernel parameter values.",
+    "tags": ["CIS", "Kubernetes", "CIS 4.2.6", "Kubelet"],
     "benchmark": {
       "id": "cis_k8s",
       "name": "CIS Kubernetes V1.23",
       "version": "v1.0.1",
-      "rule_number": "1.4.1",
+      "rule_number": "4.2.6",
       "posture_type": "kspm"
     },
     "profile_applicability": "* Level 1",
-    "impact": "Non-compliance with CIS Kubernetes V1.23 1.4.1 — Ensure that the --profiling argument is set to false",
-    "remediation": "Remediate per CIS Kubernetes V1.23 v1.0.1 section 1.4.1."
+    "impact": "Non-compliance with CIS Kubernetes V1.23 4.2.6 — Ensure that the --protect-kernel-defaults argument is set to true",
+    "remediation": "Remediate per CIS Kubernetes V1.23 v1.0.1 section 4.2.6."
   },
   "result": {
     "evaluation": "failed",
     "evidence": {
-      "evaluatedObject": {
-        "apiVersion": "v1",
-        "kind": "scheduler",
-        "metadata": { "name": "1-4-1-f65f", "namespace": "kube-system" },
-        "nonCompliant": true
+      "kubeletConfig": {
+        "authentication": { "anonymous": { "enabled": true } },
+        "authorization": { "mode": "AlwaysAllow" }
       }
     }
   },
@@ -60,18 +58,18 @@
     "provider": "elastic_kspm",
     "module": "kubernetes"
   },
-  "message": "[cis_k8s/1.4.1] failed: Ensure that the --profiling argument is set to false",
+  "message": "[cis_k8s/4.2.6] failed: Ensure that the --protect-kernel-defaults argument is set to true",
   "log": { "level": "warn" },
   "service": { "name": "azure-kspm", "type": "azure" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-swedencentral",
-    "id": "8otsdyh2xxq"
+    "name": "elastic-agent-azure-eastus",
+    "id": "w674n5nuz1n"
   },
   "input": { "type": "http_endpoint" },
   "category": "Administrative",
-  "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourcegroups/rg-app/providers/Microsoft.Resources/azure-kspm/azure-kspm",
+  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourcegroups/rg-app/providers/Microsoft.Resources/azure-kspm/azure-kspm",
   "operationName": { "localizedValue": "Write", "value": "azure-kspm/action" }
 }

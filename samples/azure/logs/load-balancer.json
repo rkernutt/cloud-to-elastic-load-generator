@@ -2,51 +2,52 @@
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "cloud": {
     "provider": "azure",
-    "region": "qatarcentral",
-    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" },
+    "region": "francecentral",
+    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" },
     "service": { "name": "Microsoft.Network/loadBalancers" }
   },
-  "category": "LoadBalancerOperationEvent",
-  "operationName": "OutboundSnatConnection",
-  "resultType": "Succeeded",
-  "level": "Informational",
-  "correlationId": "n0v8v2cr2k",
-  "callerIpAddress": "94.130.42.213",
+  "category": "LoadBalancerAlertEvent",
+  "operationName": "UnhealthyBackendPool",
+  "resultType": "Failed",
+  "level": "Warning",
+  "correlationId": "6usq25xrfak",
+  "callerIpAddress": "120.225.76.175",
   "properties": {
-    "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-data-gt98j9/providers/Microsoft.Network/loadBalancers/lb-16r71",
-    "frontendIP": "52.65.17.250",
-    "backendIPAddress": "25.9.194.35",
-    "backendPort": 55345,
-    "allocatedSnatPorts": 372,
-    "usedSnatPorts": 292,
-    "snatPortExhaustion": false
+    "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-shared-uk1bsz/providers/Microsoft.Network/loadBalancers/lb-ozf06",
+    "frontendIP": "52.122.193.31",
+    "eventName": "BackendHealthProbeFailure",
+    "probePort": 443,
+    "probeProtocol": "Http",
+    "backendIPAddress": "10.1.85.111",
+    "backendPort": 443,
+    "failureReason": "Reset from backend"
   },
   "azure": {
     "load_balancer": {
-      "name": "lb-16r71",
-      "resource_group": "rg-data-gt98j9",
+      "name": "lb-ozf06",
+      "resource_group": "rg-shared-uk1bsz",
       "sku": "Gateway",
-      "backend_health": "Healthy",
-      "bytes_in": 246101422
+      "backend_health": "Unhealthy",
+      "bytes_in": 257790814
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 46647701,
+    "outcome": "failure",
+    "duration": 140184093,
     "module": "azure",
     "dataset": "azure.load_balancer"
   },
-  "message": "Load balancer lb-16r71: outbound flow 78.28.127.33:57487 → 25.9.194.35:55345",
+  "message": "Load balancer lb-ozf06: health probe failed for backend 10.1.85.111:443 (Reset from backend)",
   "service": { "name": "load-balancer", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.load_balancer", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-qatarcentral",
-    "id": "lsc6uv5pry"
+    "name": "elastic-agent-azure-francecentral",
+    "id": "bxtc5zyvaj"
   },
   "input": { "type": "azure-eventhub" },
-  "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourcegroups/rg-data-gt98j9/providers/Microsoft.Network/loadBalancers/load-balancer"
+  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourcegroups/rg-shared-uk1bsz/providers/Microsoft.Network/loadBalancers/load-balancer"
 }

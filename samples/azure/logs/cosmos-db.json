@@ -1,52 +1,49 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.000Z",
-  "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-prod-xc938d/providers/Microsoft.DocumentDB/databaseAccounts/cosmos-pbv2da",
+  "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-data-0zkbhi/providers/Microsoft.DocumentDB/databaseAccounts/cosmos-cq9fai",
   "cloud": {
     "provider": "azure",
-    "region": "uaenorth",
-    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" },
+    "region": "centralus",
+    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" },
     "service": { "name": "Microsoft.DocumentDB/databaseAccounts" }
   },
-  "category": "QueryRuntimeStatistics",
-  "operationName": "Query",
+  "category": "DataPlaneRequests",
+  "operationName": "Execute",
   "resultType": "Failed",
   "level": "Warning",
-  "correlationId": "yyrjzedeoxs",
-  "callerIpAddress": "70.117.60.31",
+  "correlationId": "vj5t6idt1c9",
+  "callerIpAddress": "17.179.143.2",
   "properties": {
-    "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-prod-xc938d/providers/Microsoft.DocumentDB/databaseAccounts/cosmos-pbv2da",
-    "databaseName": "catalog",
+    "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-data-0zkbhi/providers/Microsoft.DocumentDB/databaseAccounts/cosmos-cq9fai",
+    "databaseName": "main",
     "collectionName": "sessions",
-    "activityId": "tbds4mln-wcuc-3bs4-2u56-zepl9wgu6x",
-    "queryText": "SELECT * FROM c WHERE c.region = @region ORDER BY c._ts DESC",
-    "indexUtilizationRatio": 0.15061655261935236,
-    "retrievedDocumentCount": 45991,
-    "retrievedDocumentSize": 27785614,
-    "outputDocumentCount": 2714,
-    "vmExecutionTimeMs": 4716.7373305666615,
-    "totalQueryExecutionTimeMs": 4716.7373305666615,
-    "crossPartition": true,
-    "statusCode": 400
+    "activityId": "4jtsebgx-tn5h-4xbm-0pqg-nj9nrza45ik",
+    "statusCode": 429,
+    "substatus": 3200,
+    "requestCharge": 1.5603147502479142,
+    "duration": 2.2859232907482627,
+    "partitionKey": "/partition12",
+    "retryAfterInMs": 395
   },
   "azure": {
     "cosmos_db": {
-      "account": "cosmos-pbv2da",
-      "resource_group": "rg-prod-xc938d",
-      "database": "catalog",
+      "account": "cosmos-cq9fai",
+      "resource_group": "rg-data-0zkbhi",
+      "database": "main",
       "container": "sessions",
-      "partition_key": "/partition0",
-      "ru_consumed": 2743,
-      "status_code": 400
+      "partition_key": "/partition12",
+      "ru_consumed": 1.5603147502479142,
+      "status_code": 429
     }
   },
   "event": {
     "outcome": "failure",
-    "duration": 3949524281,
+    "duration": 2409854896,
     "module": "azure",
     "dataset": "azure.cosmos_db"
   },
-  "message": "Cosmos DB cosmos-pbv2da: cross-partition query high latency indexUtil=0.15",
+  "message": "Cosmos DB cosmos-cq9fai: request rate is large (429) partition /partition12 retryAfterMs=395",
   "service": { "name": "cosmos-db", "type": "azure" },
   "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
@@ -54,8 +51,8 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-uaenorth",
-    "id": "tk0r9443htm"
+    "name": "elastic-agent-azure-centralus",
+    "id": "dxuxjnbj5ut"
   },
   "input": { "type": "azure-eventhub" }
 }

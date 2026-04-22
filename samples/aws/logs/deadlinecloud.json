@@ -1,64 +1,69 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-west-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "deadlinecloud" }
   },
   "aws": {
-    "dimensions": { "FarmId": "farm-ygjraj538zk", "QueueId": "queue-deikeiye2n" },
+    "dimensions": { "FarmId": "farm-s1ntsqdl63", "QueueId": "queue-nfqg2gzvl" },
     "deadlinecloud": {
-      "farm_id": "farm-ygjraj538zk",
-      "farm_name": "ad-rendering",
-      "queue_id": "queue-deikeiye2n",
-      "queue_name": "batch-overnight",
-      "job_id": "job-6qso409jjbx",
-      "job_name": "fx_simulation_hero",
-      "task_id": "task-cyedz22vc2l",
-      "task_status": "STARTING",
-      "job_status": "IN_PROGRESS",
-      "worker_hostname": "render-worker-cpu-02.sa-east-1.compute.internal",
-      "frame_start": 480,
-      "frame_end": 565,
-      "duration_seconds": 1705,
-      "renderer": "Arnold",
-      "priority": 31
+      "farm_id": "farm-s1ntsqdl63",
+      "farm_name": "post-production",
+      "queue_id": "queue-nfqg2gzvl",
+      "queue_name": "standard",
+      "job_id": "job-1fnwwxrgj5k",
+      "job_name": "grade_master",
+      "task_id": "task-2pjcq3h6w4m",
+      "task_status": "INTERRUPTED",
+      "job_status": "FAILED",
+      "worker_hostname": "render-worker-cpu-02.eu-west-2.compute.internal",
+      "frame_start": 335,
+      "frame_end": 342,
+      "duration_seconds": 3377,
+      "renderer": "Cycles",
+      "priority": 61
     },
     "s3": {
       "bucket": {
-        "name": "aws-deadlinecloud-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-deadlinecloud-logs-814726593401"
+        "name": "aws-deadlinecloud-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-deadlinecloud-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/814726593401/deadlinecloud/sa-east-1/2026/04/22/deadlinecloud_L593XBIXIEO.log.gz"
+        "key": "AWSLogs/738291046572/deadlinecloud/eu-west-2/2026/04/22/deadlinecloud_4CMNAA578D4.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/deadlinecloud/logs",
-      "log_stream": "sa-east-1/kkxsiopc",
-      "ingestion_time": "2026-04-22T18:06:17.656Z"
+      "log_stream": "eu-west-2/jyj07nd7",
+      "ingestion_time": "2026-04-22T18:07:54.500Z"
     }
   },
   "event": {
-    "action": "StartJob",
-    "outcome": "success",
+    "action": "CreateQueueEnvironment",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.deadlinecloud",
     "provider": "deadline.amazonaws.com",
-    "duration": 1705000000000,
+    "duration": 3377000000000,
     "module": "aws"
   },
-  "message": "Deadline Cloud StartJob: farm=ad-rendering queue=batch-overnight job=fx_simulation_hero frames 480-565 STARTING",
-  "log": { "level": "info" },
+  "message": "Deadline Cloud CreateQueueEnvironment FAILED [post-production/grade_master]: License unavailable",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ThrottlingException",
+    "message": "Deadline Cloud render task failed",
+    "type": "process"
+  },
   "service": { "name": "deadlinecloud", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.deadlinecloud", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "bo3sqrny008"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "1g6u6cdbhc6"
   },
   "input": { "type": "aws-cloudwatch" }
 }

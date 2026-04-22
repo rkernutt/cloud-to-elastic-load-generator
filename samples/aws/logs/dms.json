@@ -1,56 +1,58 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-northeast-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "dms" }
   },
   "aws": {
-    "dimensions": { "ReplicationInstanceIdentifier": "dms-prod-u8vblmgu" },
+    "dimensions": { "ReplicationInstanceIdentifier": "dms-staging-6r7mqtb4" },
     "dms": {
       "replication_task_id": "mongodb-to-documentdb",
-      "migration_type": "full-load-and-cdc",
-      "replication_instance_identifier": "dms-prod-u8vblmgu",
-      "source_engine": "sqlserver",
-      "target_engine": "dynamodb",
+      "migration_type": "cdc",
+      "replication_instance_identifier": "dms-staging-6r7mqtb4",
+      "source_engine": "mongodb",
+      "target_engine": "docdb",
       "replication_instance_class": "dms.r5.large",
       "task_status": "Load complete",
-      "full_load_rows_transferred": 873098,
-      "cdc_incoming_changes": 2091,
-      "latency_ms": 1825,
-      "tables_loaded": 276,
+      "full_load_rows_transferred": 5386615,
+      "cdc_incoming_changes": 28274,
+      "latency_ms": 122,
+      "tables_loaded": 465,
       "tables_errored": 0,
       "metrics": {
-        "FullLoadThroughputRowsSource": { "avg": 5202 },
-        "FullLoadThroughputRowsTarget": { "avg": 44845 },
-        "CDCIncomingChanges": { "avg": 4299 },
-        "CDCChangesMemorySource": { "avg": 697 },
-        "CDCChangesMemoryTarget": { "avg": 383 },
-        "CDCChangesDiskSource": { "avg": 9 },
-        "CDCChangesDiskTarget": { "avg": 43 },
+        "FullLoadThroughputRowsSource": { "avg": 49149 },
+        "FullLoadThroughputRowsTarget": { "avg": 32502 },
+        "CDCIncomingChanges": { "avg": 6724 },
+        "CDCChangesMemorySource": { "avg": 477 },
+        "CDCChangesMemoryTarget": { "avg": 519 },
+        "CDCChangesDiskSource": { "avg": 48 },
+        "CDCChangesDiskTarget": { "avg": 8 },
         "CDCLatencySource": { "avg": 5 },
-        "CDCLatencyTarget": { "avg": 2 },
-        "CPUUtilization": { "avg": 25.7929934684665 },
-        "FreeableMemory": { "avg": 322907573 },
-        "FreeStorageSpace": { "avg": 80838500723 },
-        "NetworkReceiveThroughput": { "avg": 35949901 },
-        "NetworkTransmitThroughput": { "avg": 18088930 },
-        "ReadIOPS": { "avg": 2198 },
-        "WriteIOPS": { "avg": 245 }
+        "CDCLatencyTarget": { "avg": 0 },
+        "CPUUtilization": { "avg": 6.036539609214849 },
+        "FreeableMemory": { "avg": 2604214881 },
+        "FreeStorageSpace": { "avg": 76317968132 },
+        "NetworkReceiveThroughput": { "avg": 97210226 },
+        "NetworkTransmitThroughput": { "avg": 76032223 },
+        "ReadIOPS": { "avg": 2627 },
+        "WriteIOPS": { "avg": 1126 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-dms-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-dms-logs-814726593401"
+        "name": "aws-dms-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-dms-logs-738291046572"
       },
-      "object": { "key": "AWSLogs/814726593401/dms/me-central-1/2026/04/22/dms_XBXL8MIV7AQ.log.gz" }
+      "object": {
+        "key": "AWSLogs/738291046572/dms/ap-northeast-1/2026/04/22/dms_IZWB9UJ2MT.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/dms/logs",
-      "log_stream": "me-central-1/d6pa9qwv",
-      "ingestion_time": "2026-04-22T18:06:17.638Z"
+      "log_stream": "ap-northeast-1/074a5t01",
+      "ingestion_time": "2026-04-22T18:07:54.479Z"
     }
   },
   "event": {
@@ -58,10 +60,10 @@
     "category": ["database", "process"],
     "dataset": "aws.dms",
     "provider": "dms.amazonaws.com",
-    "duration": 25259000000000,
+    "duration": 22396000000000,
     "module": "aws"
   },
-  "message": "DMS mongodb-to-documentdb: 873,098 rows (sqlserver->dynamodb full-load-and-cdc)",
+  "message": "DMS mongodb-to-documentdb: 5,386,615 rows (mongodb->docdb cdc)",
   "log": { "level": "info" },
   "service": { "name": "dms", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -69,8 +71,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "czf7ryu7onk"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "93lynnckx6e"
   },
   "input": { "type": "aws-cloudwatch" }
 }

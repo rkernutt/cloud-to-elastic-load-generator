@@ -1,21 +1,22 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
+    "region": "eu-south-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "servicecatalog" }
   },
   "aws": {
     "servicecatalog": {
-      "operation": "AssociatePrincipal",
-      "product_name": "RDS PostgreSQL",
-      "product_id": "prod-DC5SS258G6",
-      "portfolio_id": "port-59B870WOMXH",
-      "provisioned_product_name": "rds-postgresql-tusqee",
-      "record_id": "rec-67BK09O95W",
-      "status": "SUCCEEDED",
-      "requester_arn": "arn:aws:iam::293847561023:user/contractor-dan"
+      "operation": "SearchProducts",
+      "product_name": "EKS Cluster",
+      "product_id": "prod-QM24EMZR0FG",
+      "portfolio_id": "port-IILSY57XE8",
+      "provisioned_product_name": "eks-cluster-cforh8",
+      "record_id": "rec-DXUVIV5BLQ7",
+      "status": "ERROR",
+      "requester_arn": "arn:aws:iam::293847561023:user/contractor-dan",
+      "error": "Invalid parameters"
     },
     "s3": {
       "bucket": {
@@ -23,35 +24,40 @@
         "arn": "arn:aws:s3:::aws-servicecatalog-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/servicecatalog/me-central-1/2026/04/22/servicecatalog_CRQFBDK021D.log.gz"
+        "key": "AWSLogs/293847561023/servicecatalog/eu-south-1/2026/04/22/servicecatalog_OGHKV8BFGB.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/servicecatalog/logs",
-      "log_stream": "me-central-1/w9gam9x9",
-      "ingestion_time": "2026-04-22T18:06:17.643Z"
+      "log_stream": "eu-south-1/a6s1mbg2",
+      "ingestion_time": "2026-04-22T18:07:54.484Z"
     }
   },
   "user": { "name": "contractor-dan" },
   "event": {
-    "action": "AssociatePrincipal",
-    "outcome": "success",
+    "action": "SearchProducts",
+    "outcome": "failure",
     "category": ["configuration", "process"],
     "dataset": "aws.servicecatalog",
     "provider": "servicecatalog.amazonaws.com",
-    "duration": 89000000000,
+    "duration": 3090000000000,
     "module": "aws"
   },
-  "message": "ServiceCatalog AssociatePrincipal: contractor-dan → RDS PostgreSQL [SUCCEEDED]",
-  "log": { "level": "info" },
+  "message": "ServiceCatalog SearchProducts FAILED [EKS Cluster]: Unauthorized:",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ProvisioningFailed",
+    "message": "Service Catalog operation failed",
+    "type": "provisioning"
+  },
   "service": { "name": "servicecatalog", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.servicecatalog", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "sqy6d1ts3l"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "kxz6zgk7qre"
   },
   "input": { "type": "aws-cloudwatch" }
 }

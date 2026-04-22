@@ -1,66 +1,72 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "me-south-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "quicksight" }
   },
   "aws": {
-    "dimensions": { "DashboardId": "6g2cpcf73ph", "DataSetId": "g64zapu3n4" },
+    "dimensions": { "DashboardId": "zwdgeseaqh", "DataSetId": "jemgdz0icvc" },
     "quicksight": {
-      "dashboard_id": "6g2cpcf73ph",
-      "dashboard_name": "ops-metrics",
-      "dataset_id": "g64zapu3n4",
+      "dashboard_id": "zwdgeseaqh",
+      "dashboard_name": "marketing-funnel",
+      "dataset_id": "jemgdz0icvc",
       "action": "ListDashboards",
       "user_name": "carol@corp.com",
-      "data_source_type": "RDS",
-      "query_duration_ms": 2715,
-      "rows_returned": 90398,
+      "data_source_type": "REDSHIFT",
+      "query_duration_ms": 15751,
+      "rows_returned": 13726,
+      "error_code": "AccessDeniedException",
       "metrics": {
-        "DashboardViewEvents": { "sum": 661 },
-        "SessionEvent": { "sum": 222 },
-        "SPICECapacityUsed": { "avg": 29.519108785556618 },
-        "SPICECapacityScheduled": { "avg": 21.433961288835434 },
-        "EmbedCallCount": { "sum": 62 },
-        "ClientError": { "sum": 0 },
+        "DashboardViewEvents": { "sum": 623 },
+        "SessionEvent": { "sum": 410 },
+        "SPICECapacityUsed": { "avg": 40.948644669692584 },
+        "SPICECapacityScheduled": { "avg": 19.07691361969923 },
+        "EmbedCallCount": { "sum": 236 },
+        "ClientError": { "sum": 45 },
         "RowLevelSecurityEnabled": { "avg": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-quicksight-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-quicksight-logs-293847561023"
+        "name": "aws-quicksight-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-quicksight-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/quicksight/eu-south-2/2026/04/22/quicksight_ZZHYF882RK.log.gz"
+        "key": "AWSLogs/501938274650/quicksight/me-south-1/2026/04/22/quicksight_XG6ZMN7762.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/quicksight/logs",
-      "log_stream": "eu-south-2/w1mktw1u",
-      "ingestion_time": "2026-04-22T18:06:17.587Z"
+      "log_stream": "me-south-1/tju1hdm0",
+      "ingestion_time": "2026-04-22T18:07:54.437Z"
     }
   },
   "user": { "name": "carol@corp.com" },
   "event": {
-    "duration": 2715000000,
-    "outcome": "success",
+    "duration": 15751000000,
+    "outcome": "failure",
     "category": ["web", "process"],
     "dataset": "aws.quicksight",
     "provider": "quicksight.amazonaws.com",
     "module": "aws"
   },
-  "message": "QuickSight ListDashboards: ops-metrics loaded in 2715ms for carol@corp.com",
-  "log": { "level": "info" },
+  "message": "QuickSight ListDashboards FAILED: marketing-funnel for carol@corp.com",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ThrottlingException",
+    "message": "QuickSight operation failed",
+    "type": "bi"
+  },
   "service": { "name": "quicksight", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.quicksight", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "nmxx2d89gtl"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "0s38p7lu0j0h"
   },
   "input": { "type": "aws-cloudwatch" }
 }

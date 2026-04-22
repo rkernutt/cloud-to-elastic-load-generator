@@ -1,71 +1,71 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
+    "region": "eu-south-2",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "rds" }
   },
   "aws": {
     "dimensions": {
-      "DBInstanceIdentifier": "prod-db-reporting",
+      "DBInstanceIdentifier": "prod-db-analytics",
       "DatabaseClass": "db.r5.large",
-      "EngineName": "postgres",
-      "SourceRegion": "eu-west-1"
+      "EngineName": "aurora-mysql",
+      "SourceRegion": "eu-south-2"
     },
     "cloudwatch": {
-      "log_group": "/aws/rds/instance/prod-db-reporting/postgresql",
-      "log_stream": "prod-db-reporting",
-      "ingestion_time": "2026-04-22T18:06:17.439Z"
+      "log_group": "/aws/rds/cluster/prod-db-analytics/audit",
+      "log_stream": "prod-db-analytics",
+      "ingestion_time": "2026-04-22T18:07:54.289Z"
     },
     "rds": {
       "db_instance": {
-        "identifier": "prod-db-reporting",
+        "identifier": "prod-db-analytics",
         "class": "db.r5.large",
-        "engine_name": "postgres",
-        "engine_version": "15.1",
-        "arn": "arn:aws:rds:eu-west-1:501938274650:db:prod-db-reporting",
+        "engine_name": "aurora-mysql",
+        "engine_version": "8.0.36",
+        "arn": "arn:aws:rds:eu-south-2:501938274650:db:prod-db-analytics",
         "status": "available",
         "role": "instance",
-        "multi_az": true,
-        "storage_type": "gp3",
-        "allocated_storage_gb": 500
+        "multi_az": false,
+        "storage_type": "io2",
+        "allocated_storage_gb": 200
       },
-      "log_type": "postgresql",
-      "cpu": { "total": { "pct": 0.2773 } },
-      "freeable_memory": { "bytes": 2049993573 },
-      "free_storage": { "bytes": 53612347827 },
-      "database_connections": 420,
-      "read_io": { "ops_per_sec": 1836.7611105559022 },
-      "write_io": { "ops_per_sec": 872.328758534854 },
-      "latency": { "read": 0.015197503308291609, "write": 0.0060653371283003995 },
+      "log_type": "audit",
+      "cpu": { "total": { "pct": 0.1421 } },
+      "freeable_memory": { "bytes": 7141132644 },
+      "free_storage": { "bytes": 59838032927 },
+      "database_connections": 305,
+      "read_io": { "ops_per_sec": 1672.6856407164837 },
+      "write_io": { "ops_per_sec": 1486.246856557759 },
+      "latency": { "read": 0.011532144107423599, "write": 0.0013986169974544525 },
       "throughput": {
-        "read": 95304082,
-        "write": 34184568,
-        "network_receive": 38684013,
-        "network_transmit": 90927285
+        "read": 37974035,
+        "write": 97925870,
+        "network_receive": 36790392,
+        "network_transmit": 35176043
       },
-      "replica_lag": { "sec": 41.414319061102965 },
-      "swap_usage": { "bytes": 54257918 },
-      "disk_usage": { "bin_log": { "bytes": 146230670 } }
+      "replica_lag": { "sec": 46.24229009556912 },
+      "swap_usage": { "bytes": 67753631 },
+      "disk_usage": { "bin_log": { "bytes": 392552942 } }
     },
     "s3": {
       "bucket": {
         "name": "aws-rds-logs-501938274650",
         "arn": "arn:aws:s3:::aws-rds-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/501938274650/rds/eu-west-1/2026/04/22/rds_471D78CWGJ7.log.gz" }
+      "object": { "key": "AWSLogs/501938274650/rds/eu-south-2/2026/04/22/rds_7IZ2PX38F7.log.gz" }
     }
   },
   "db": {
-    "user": { "name": "migration_user" },
-    "name": "users_db",
-    "statement": "BEGIN; UPDATE inventory SET quantity = quantity - $1 WHERE product_id = $2 AND quantity >= $1; COMMIT;",
+    "user": { "name": "appuser" },
+    "name": "analytics",
+    "statement": "UPDATE users SET status = 'active' WHERE user_id = 27230",
     "type": "sql"
   },
-  "source": { "ip": "77.161.10.183" },
+  "source": { "ip": "171.37.237.191" },
   "event": {
-    "duration": 960808215.3120543,
+    "duration": 1716393241.7184107,
     "outcome": "success",
     "category": ["database"],
     "type": ["info", "access"],
@@ -73,16 +73,18 @@
     "provider": "rds.amazonaws.com",
     "module": "aws"
   },
-  "message": "2026-04-22 18:06:16.823 UTC:77.161.10.183(50433):migration_user@users_db:[1419]:LOG:  disconnection: session time: 14:44:29.864 user=migration_user database=users_db host=77.161.10.183 port=61330",
+  "message": "2026-04-22 18:07:53.671,171.37.237.191,appuser,analytics,94473,54628,QUERY,UPDATE users SET status = 'active' WHERE user_id = 27230,0",
   "log": { "level": "info" },
+  "trace": { "id": "66MP8WVGJ6N" },
+  "transaction": { "id": "RYWG111WNIE" },
   "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "5k2jyek9s2c"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "u45g851232"
   },
   "input": { "type": "aws-cloudwatch" }
 }

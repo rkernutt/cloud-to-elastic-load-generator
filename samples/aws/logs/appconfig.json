@@ -1,61 +1,56 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-southeast-4",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "appconfig" }
   },
   "aws": {
-    "dimensions": { "Application": "DataPipeline", "Environment": "qa" },
+    "dimensions": { "Application": "MobileAPI", "Environment": "staging" },
     "appconfig": {
-      "application_name": "DataPipeline",
-      "environment_name": "qa",
+      "application_name": "MobileAPI",
+      "environment_name": "staging",
       "configuration_profile": "AppSettings",
-      "deployment_number": 454,
-      "deployment_strategy": "Linear50PercentEvery30Seconds",
+      "deployment_number": 102,
+      "deployment_strategy": "Canary10Percent20Minutes",
       "growth_factor": 20,
-      "percentage_complete": 42,
-      "state": "BAKING"
+      "percentage_complete": 100,
+      "state": "DEPLOYING"
     },
     "s3": {
       "bucket": {
-        "name": "aws-appconfig-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-appconfig-logs-814726593401"
+        "name": "aws-appconfig-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-appconfig-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/appconfig/ap-northeast-1/2026/04/22/appconfig_WMQ83D8LMV.log.gz"
+        "key": "AWSLogs/164820739518/appconfig/ap-southeast-4/2026/04/22/appconfig_EWS6OFD8E7.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/appconfig/logs",
-      "log_stream": "ap-northeast-1/rpmpgdo8",
-      "ingestion_time": "2026-04-22T18:06:17.648Z"
+      "log_stream": "ap-southeast-4/h31o8b4d",
+      "ingestion_time": "2026-04-22T18:07:54.489Z"
     }
   },
   "event": {
-    "action": "StopDeployment",
-    "outcome": "failure",
+    "action": "ValidateConfiguration",
+    "outcome": "success",
     "category": ["configuration"],
     "dataset": "aws.appconfig",
     "provider": "appconfig.amazonaws.com",
     "module": "aws"
   },
-  "message": "AppConfig DataPipeline/qa: deployment #454 ROLLED_BACK at 42%",
-  "log": { "level": "error" },
-  "error": {
-    "code": "InternalServerException",
-    "message": "AppConfig deployment failed",
-    "type": "configuration"
-  },
+  "message": "AppConfig MobileAPI/staging: AppSettings deployment #102 DEPLOYING",
+  "log": { "level": "info" },
   "service": { "name": "appconfig", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.appconfig", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "vhlq1jb54r8"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "x9trvrs9rm"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,58 +1,66 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ca-west-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "config" }
   },
   "aws": {
-    "dimensions": { "ConfigRuleName": "eip-attached", "ResourceType": "AWS::S3::Bucket" },
+    "dimensions": {
+      "ConfigRuleName": "cloud-trail-encryption-enabled",
+      "ResourceType": "AWS::RDS::DBInstance"
+    },
     "config": {
-      "rule_name": "eip-attached",
-      "compliance_type": "COMPLIANT",
-      "resource_type": "AWS::S3::Bucket",
-      "resource_id": "db-5ufgks95",
-      "annotation": "Resource is compliant",
+      "rule_name": "cloud-trail-encryption-enabled",
+      "compliance_type": "NON_COMPLIANT",
+      "resource_type": "AWS::RDS::DBInstance",
+      "resource_id": "db-7w17vxbf",
+      "annotation": "Resource is not compliant",
       "metrics": {
-        "ComplianceByConfigRule": { "avg": 1 },
-        "NonCompliantRules": { "sum": 0 },
-        "CompliantRules": { "sum": 1 },
-        "ConfigurationItemsRecorded": { "sum": 86 }
+        "ComplianceByConfigRule": { "avg": 0 },
+        "NonCompliantRules": { "sum": 1 },
+        "CompliantRules": { "sum": 0 },
+        "ConfigurationItemsRecorded": { "sum": 59 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-config-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-config-logs-501938274650"
+        "name": "aws-config-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-config-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/config/us-east-1/2026/04/22/config_18QH1P4BWFT.log.gz"
+        "key": "AWSLogs/814726593401/config/ca-west-1/2026/04/22/config_10ZT88PH11A.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/config/logs",
-      "log_stream": "us-east-1/nw93wbo5",
-      "ingestion_time": "2026-04-22T18:06:17.505Z"
+      "log_stream": "ca-west-1/9g3c5105",
+      "ingestion_time": "2026-04-22T18:07:54.346Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["configuration", "compliance"],
     "dataset": "aws.config",
     "provider": "config.amazonaws.com",
     "module": "aws"
   },
-  "message": "Config rule PASSED: eip-attached",
-  "log": { "level": "info" },
+  "message": "Config rule FAILED: cloud-trail-encryption-enabled",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "NonCompliant",
+    "message": "Config rule cloud-trail-encryption-enabled failed",
+    "type": "compliance"
+  },
   "service": { "name": "config", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.config", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "kvkwabl5mo"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "bfebqjvb1kj"
   },
   "input": { "type": "http_endpoint" }
 }

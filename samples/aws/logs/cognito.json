@@ -1,67 +1,82 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "me-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "cognito" }
   },
   "aws": {
-    "dimensions": { "UserPool": "ap-southeast-3_6KUATYG7U", "UserPoolClient": "eu-users-web" },
+    "dimensions": { "UserPool": "me-south-1_M6YEKRMEC", "UserPoolClient": "mobile-users-web" },
     "cognito": {
-      "user_pool_id": "ap-southeast-3_6KUATYG7U",
-      "user_pool_name": "eu-users",
-      "event_type": "UserMigration",
-      "username": "user-lhuaeru9@example.com",
-      "source_ip": "70.75.222.192",
+      "user_pool_id": "me-south-1_M6YEKRMEC",
+      "user_pool_name": "mobile-users",
+      "event_type": "AccountTakeoverRisk",
+      "username": "user-w0fzqqr9@example.com",
+      "source_ip": "224.178.152.92",
       "mfa_type": "SMS_MFA",
+      "risk_type": "AccountTakeoverRisk",
+      "advanced_security": {
+        "risk_level": "HIGH",
+        "risk_decision": "BLOCK",
+        "compromised_credentials_detected": false,
+        "impossible_travel": false,
+        "previous_location": { "ip": "168.49.136.166", "country": "DE" },
+        "current_location": { "ip": "108.66.103.15", "country": "BR" },
+        "time_between_events_seconds": 182
+      },
       "metrics": {
-        "SignInSuccesses": { "sum": 4296 },
-        "SignInAttempts": { "sum": 4296 },
-        "TokenRefreshSuccesses": { "sum": 8401 },
+        "SignInSuccesses": { "sum": 4586 },
+        "SignInAttempts": { "sum": 4586 },
+        "TokenRefreshSuccesses": { "sum": 36992 },
         "SignUpSuccesses": { "sum": 0 },
-        "FederationSuccesses": { "sum": 43 },
-        "CallCount": { "sum": 43735 },
+        "FederationSuccesses": { "sum": 0 },
+        "CallCount": { "sum": 82623 },
         "ThrottleCount": { "sum": 0 },
-        "AccountTakeoverRisk": { "sum": 0 },
+        "AccountTakeoverRisk": { "sum": 7 },
         "CompromisedCredentialsRisk": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-cognito-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-cognito-logs-293847561023"
+        "name": "aws-cognito-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-cognito-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/cognito/ap-southeast-3/2026/04/22/cognito_Z7UODYPN0XL.log.gz"
+        "key": "AWSLogs/814726593401/cognito/me-south-1/2026/04/22/cognito_VC15MWTKMFA.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cognito/logs",
-      "log_stream": "ap-southeast-3/md2y227b",
-      "ingestion_time": "2026-04-22T18:06:17.506Z"
+      "log_stream": "me-south-1/zidwcz1b",
+      "ingestion_time": "2026-04-22T18:07:54.348Z"
     }
   },
-  "user": { "name": "user-lhuaeru9@example.com" },
-  "source": { "ip": "237.7.247.14" },
+  "user": { "name": "user-w0fzqqr9@example.com" },
+  "source": { "ip": "6.71.105.184" },
   "event": {
-    "action": "UserMigration",
-    "outcome": "success",
+    "action": "AccountTakeoverRisk",
+    "outcome": "failure",
     "category": ["authentication"],
     "dataset": "aws.cognito",
     "provider": "cognito-idp.amazonaws.com",
     "module": "aws"
   },
-  "message": "Cognito UserMigration success [eu-users]",
-  "log": { "level": "info" },
+  "message": "Cognito AccountTakeoverRisk detected [HIGH]: decision=BLOCK pool=mobile-users",
+  "log": { "level": "error" },
+  "error": {
+    "code": "AccountTakeoverRisk",
+    "message": "Cognito advanced security blocked: AccountTakeoverRisk",
+    "type": "security"
+  },
   "service": { "name": "cognito", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cognito", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "d9djitjhnii"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "o41fxoa1z4"
   },
   "input": { "type": "aws-cloudwatch" }
 }

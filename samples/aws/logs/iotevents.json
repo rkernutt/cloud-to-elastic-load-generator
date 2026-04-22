@@ -1,24 +1,24 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
+    "region": "ap-east-1",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "motor-health-detector", "KeyValue": "machine-prod-1" },
+    "dimensions": { "DetectorModelName": "temperature-alert-model", "KeyValue": "unit-02" },
     "iotevents": {
-      "detector_model_name": "motor-health-detector",
-      "detector_id": "machine-prod-1",
-      "key_value": "machine-prod-1",
-      "event_name": "TriggerFired",
-      "from_state": "Normal",
-      "to_state": "Normal",
-      "input_name": "SensorInput",
-      "action_type": "Lambda",
-      "timer_name": "alarmTimer",
-      "condition_expression": "$input.SensorInput.temperature > 85"
+      "detector_model_name": "temperature-alert-model",
+      "detector_id": "unit-02",
+      "key_value": "unit-02",
+      "event_name": "ActionExecuted",
+      "from_state": "Warning",
+      "to_state": "Warning",
+      "input_name": "HealthCheck",
+      "action_type": "SNS",
+      "timer_name": "idleTimer",
+      "condition_expression": "$input.data.value < threshold"
     },
     "s3": {
       "bucket": {
@@ -26,13 +26,13 @@
         "arn": "arn:aws:s3:::aws-iotevents-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/iotevents/eu-south-1/2026/04/22/iotevents_DS2JDGRLZR8.log.gz"
+        "key": "AWSLogs/501938274650/iotevents/ap-east-1/2026/04/22/iotevents_YZZLCEXYB6Q.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "eu-south-1/chyr9ozg",
-      "ingestion_time": "2026-04-22T18:06:17.670Z"
+      "log_stream": "ap-east-1/7z427ruq",
+      "ingestion_time": "2026-04-22T18:07:54.514Z"
     }
   },
   "event": {
@@ -40,10 +40,10 @@
     "category": ["process"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 332000000,
+    "duration": 249000000,
     "module": "aws"
   },
-  "message": "IoT Events motor-health-detector/machine-prod-1: Normal → Normal [TriggerFired]",
+  "message": "IoT Events temperature-alert-model/unit-02: Warning → Warning [ActionExecuted]",
   "log": { "level": "info" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -51,8 +51,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "js6zao0h7h"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "f9lkk2v2mr"
   },
   "input": { "type": "aws-cloudwatch" }
 }

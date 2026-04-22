@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,32 +7,31 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": { "id": "293847561023", "name": "globex-staging" }
+    "region": "eu-south-2",
+    "account": { "id": "814726593401", "name": "globex-production" }
   },
   "orchestrator": {
-    "cluster": { "id": "data-processing-eks", "name": "data-processing-eks" },
+    "cluster": { "id": "prod-eks-cluster", "name": "prod-eks-cluster" },
     "type": "kubernetes",
-    "namespace": "staging"
+    "namespace": "production"
   },
   "resource": {
-    "id": "k8s-node/ip-114-237-123-206.ap-southeast-1.compute.internal",
-    "name": "ip-114-237-123-206.ap-southeast-1.compute.internal",
-    "type": "k8s_object",
-    "sub_type": "Node",
-    "raw": { "node": "ip-114-237-123-206.ap-southeast-1.compute.internal" }
+    "id": "arn:aws:eks:eu-south-2:814726593401:cluster/prod-eks-cluster",
+    "name": "prod-eks-cluster",
+    "type": "eks-cluster",
+    "sub_type": "cluster"
   },
   "rule": {
-    "id": "d1d73385-2909-598a-acf7-bf1d8130f314",
-    "name": "Ensure that the --protect-kernel-defaults argument is set to true",
-    "section": "3.2.6",
-    "description": "Protect tuned kernel parameters from overriding kubelet default kernel parameter values.",
-    "tags": ["CIS", "EKS", "CIS 3.2.6", "Kubelet"],
+    "id": "b449135c-8747-58fe-9d46-218728745520",
+    "name": "Ensure Kubernetes Secrets are encrypted using Customer Master Keys (CMKs) managed in AWS KMS",
+    "section": "5.3.1",
+    "description": "Encrypt Kubernetes secrets, stored in etcd, using secrets encryption feature during Amazon EKS cluster creation.",
+    "tags": ["CIS", "EKS", "CIS 5.3.1", "AWS Key Management Service (KMS)"],
     "benchmark": {
       "id": "cis_eks",
       "name": "CIS Amazon Elastic Kubernetes Service (EKS)",
       "version": "v1.0.1",
-      "rule_number": "3.2.6",
+      "rule_number": "5.3.1",
       "posture_type": "kspm"
     },
     "profile_applicability": "* Level 1"
@@ -47,31 +46,29 @@
     "provider": "elastic_kspm",
     "module": "aws"
   },
-  "message": "[cis_eks/3.2.6] passed: Ensure that the --protect-kernel-defaults argument is set to true",
+  "message": "[cis_eks/5.3.1] passed: Ensure Kubernetes Secrets are encrypted using Customer Master Keys (CMKs) managed in AWS KMS",
   "log": { "level": "info" },
   "service": { "name": "kspm", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "ih7uerq78br"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "z122xxodooh"
   },
   "input": { "type": "http_endpoint" },
   "aws": {
     "s3": {
       "bucket": {
-        "name": "aws-kspm-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-kspm-logs-293847561023"
+        "name": "aws-kspm-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-kspm-logs-814726593401"
       },
-      "object": {
-        "key": "AWSLogs/293847561023/kspm/ap-southeast-1/2026/04/22/kspm_M9R13VCZC7R.log.gz"
-      }
+      "object": { "key": "AWSLogs/814726593401/kspm/eu-south-2/2026/04/22/kspm_2JRX44LUJZB.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/kspm/logs",
-      "log_stream": "ap-southeast-1/3p1xhsb9",
-      "ingestion_time": "2026-04-22T18:06:17.518Z"
+      "log_stream": "eu-south-2/ns3g8br9",
+      "ingestion_time": "2026-04-22T18:07:54.359Z"
     }
   }
 }

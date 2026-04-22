@@ -7,56 +7,66 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "africa-south1",
+    "region": "me-west1",
     "account": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" }
   },
   "orchestrator": { "cluster": { "name": "staging-cluster" } },
   "resource": {
-    "id": "kube-system/pod/kube-apiserver-master-2",
-    "name": "kube-apiserver-master-2",
+    "id": "node/gke-staging-cluster-np-5ef1",
+    "name": "gke-staging-cluster-np-5ef1",
     "type": "k8s_object",
-    "sub_type": "kube-apiserver"
+    "sub_type": "kubelet"
   },
   "rule": {
-    "id": "ef3852ff-b0f9-51d5-af6d-b1b1fed72005",
-    "name": "Ensure that the --tls-cert-file and --tls-private-key-file arguments are set as appropriate",
-    "section": "1.2.27",
-    "description": "Setup TLS connection on the API server.",
-    "tags": ["CIS", "Kubernetes", "CIS 1.2.27", "API Server"],
+    "id": "551e7bcf-b231-500d-a193-d0a98163a680",
+    "name": "Ensure that the --client-ca-file argument is set as appropriate",
+    "section": "4.2.3",
+    "description": "Enable Kubelet authentication using certificates.",
+    "tags": ["CIS", "Kubernetes", "CIS 4.2.3", "Kubelet"],
     "benchmark": {
       "id": "cis_k8s",
       "name": "CIS Kubernetes V1.23",
       "version": "v1.0.1",
-      "rule_number": "1.2.27",
+      "rule_number": "4.2.3",
       "posture_type": "kspm"
     },
-    "profile_applicability": "* Level 1"
+    "profile_applicability": "* Level 1",
+    "impact": "Non-compliance with CIS Kubernetes V1.23 4.2.3 — Ensure that the --client-ca-file argument is set as appropriate",
+    "remediation": "Remediate per CIS Kubernetes V1.23 v1.0.1 section 4.2.3."
   },
-  "result": { "evaluation": "passed" },
+  "result": {
+    "evaluation": "failed",
+    "evidence": {
+      "config": {
+        "authentication": { "anonymous": { "enabled": true } },
+        "authorization": { "mode": "AlwaysAllow" }
+      }
+    }
+  },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "gcp"
   },
-  "message": "[cis_k8s/1.2.27] passed: Ensure that the --tls-cert-file and --tls-private-key-file arguments are set as appropriate",
-  "log": { "level": "info" },
+  "message": "[cis_k8s/4.2.3] failed: Ensure that the --client-ca-file argument is set as appropriate",
+  "log": { "level": "warn" },
   "service": { "name": "gcp-kspm", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-africa-south1",
-    "id": "5m7auyk7lbd"
+    "name": "elastic-agent-gcp-me-west1",
+    "id": "als5l865xfj"
   },
   "input": { "type": "http_endpoint" },
   "logName": "projects/project-unknown/logs/gcp-kspm",
-  "severity": "INFO",
-  "insertId": "YSML2NL8LF",
+  "severity": "WARNING",
+  "insertId": "49388C73JB3",
   "jsonPayload": {
-    "message": "[cis_k8s/1.2.27] passed: Ensure that the --tls-cert-file and --tls-private-key-file arguments are set as appropriate"
+    "message": "[cis_k8s/4.2.3] failed: Ensure that the --client-ca-file argument is set as appropriate"
   }
 }

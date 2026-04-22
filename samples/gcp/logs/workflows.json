@@ -1,63 +1,64 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
-  "trace": "projects/globex-staging-d4e5f6/traces/5be390f116b5704d4e481d3e4e659f43",
-  "spanId": "326f3dab4a903751",
+  "severity": "ERROR",
   "labels": {
-    "workflow_id": "orders-workflow",
-    "execution_id": "6bmvfvgzmh",
-    "region": "us-west4"
+    "workflow_id": "etl-workflow",
+    "execution_id": "afompyglfj",
+    "region": "europe-west3"
   },
   "jsonPayload": {
-    "workflow": "orders-workflow",
-    "executionId": "projects/globex-staging-d4e5f6/locations/us-west4/workflows/orders-workflow/executions/6bmvfvgzmh",
-    "state": "ACTIVE",
-    "step": "callPaymentApi",
-    "durationMs": 7917,
-    "attempt": 1
+    "workflow": "etl-workflow",
+    "executionId": "projects/globex-staging-d4e5f6/locations/europe-west3/workflows/etl-workflow/executions/afompyglfj",
+    "state": "TIMEOUT",
+    "step": "validateInput",
+    "durationMs": 22194,
+    "attempt": 3,
+    "error": {
+      "code": 5,
+      "message": "Step returned non-JSON body",
+      "position": { "line": 53, "column": 18 }
+    }
   },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west4",
+    "region": "europe-west3",
     "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
     "account": { "id": "271828182845", "name": "Globex Staging" },
     "service": { "name": "workflows.googleapis.com" }
   },
   "gcp": {
     "workflows": {
-      "workflow_name": "orders-workflow",
-      "execution_id": "projects/globex-staging-d4e5f6/locations/us-west4/workflows/orders-workflow/executions/6bmvfvgzmh",
-      "state": "ACTIVE",
-      "step_name": "callPaymentApi",
-      "start_time": "2026-04-04T11:55:27.579Z",
-      "duration_ms": 7917,
-      "log_style": "step_ok",
-      "trace": "projects/globex-staging-d4e5f6/traces/5be390f116b5704d4e481d3e4e659f43",
-      "span_id": "326f3dab4a903751",
+      "workflow_name": "etl-workflow",
+      "execution_id": "projects/globex-staging-d4e5f6/locations/europe-west3/workflows/etl-workflow/executions/afompyglfj",
+      "state": "TIMEOUT",
+      "step_name": "validateInput",
+      "start_time": "2026-04-04T11:56:54.175Z",
+      "duration_ms": 22194,
+      "log_style": "step_error",
       "metrics": {
-        "step_duration_ms": { "avg": 7917, "max": 17417 },
-        "state_transitions": { "sum": 29 },
-        "external_calls": { "sum": 16, "errors": 0 }
+        "step_duration_ms": { "avg": 22194, "max": 48827 },
+        "state_transitions": { "sum": 38 },
+        "external_calls": { "sum": 9, "errors": 8 }
       }
     }
   },
-  "event": { "outcome": "success", "duration": 7994, "module": "gcp", "dataset": "gcp.workflows" },
-  "message": "{\"workflow\":\"orders-workflow\",\"executionId\":\"projects/globex-staging-d4e5f6/locations/us-west4/workflows/orders-workflow/executions/6bmvfvgzmh\",\"state\":\"ACTIVE\",\"step\":\"callPaymentApi\",\"durationMs\":7917,\"attempt\":1}",
+  "event": { "outcome": "failure", "duration": 22294, "module": "gcp", "dataset": "gcp.workflows" },
+  "message": "{\"workflow\":\"etl-workflow\",\"executionId\":\"projects/globex-staging-d4e5f6/locations/europe-west3/workflows/etl-workflow/executions/afompyglfj\",\"state\":\"TIMEOUT\",\"step\":\"validateInput\",\"durationMs\":22194,\"attempt\":3,\"error\":{\"code\":5,\"message\":\"Step returned non-JSON body\",\"position\":{\"line\":53,\"column\":18}}}",
   "service": { "name": "workflows", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.workflows", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-west4",
-    "id": "9kolz8l5vub"
+    "name": "elastic-agent-gcp-europe-west3",
+    "id": "hy9x6uydxl4"
   },
   "input": { "type": "gcp-pubsub" },
   "logName": "projects/globex-staging-d4e5f6/logs/workflows",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-staging-d4e5f6", "region": "us-west4" }
+    "labels": { "project_id": "globex-staging-d4e5f6", "region": "europe-west3" }
   },
-  "insertId": "28RIR21BCPZ"
+  "insertId": "9RSHY0JEY4"
 }

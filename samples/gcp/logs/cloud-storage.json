@@ -1,56 +1,59 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
-  "labels": { "bucket_name": "globex-shared-m3n4o5-logs", "location": "asia-south1" },
+  "severity": "NOTICE",
+  "labels": { "job_name": "transferJobs/S4L9E21DM0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-south1",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
-    "service": { "name": "cloud-storage" }
+    "region": "europe-north1",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" },
+    "service": { "name": "storage-transfer-service" }
   },
   "gcp": {
-    "cloud_storage": {
-      "bucket_name": "globex-shared-m3n4o5-logs",
-      "object_name": "uploads/nmdc1e4v.bin",
-      "object_size": 293054368,
-      "storage_class": "ARCHIVE",
-      "operation": "storage.objects.get",
-      "content_type": "text/csv",
-      "generation": "1776881178831427612",
-      "requester_ip": "219.142.226.71"
+    "storage_transfer": {
+      "job_name": "transferJobs/S4L9E21DM0",
+      "source_bucket": "s3://source-CXNV2V",
+      "destination_bucket": "gs://globex-dev-g7h8i9-backups",
+      "bytes_transferred": 97669950532,
+      "objects_transferred": 46190157,
+      "status": "IN_PROGRESS",
+      "transfer_type": "aws-to-gcs"
     }
   },
-  "event": { "outcome": "success", "duration": 217000000, "module": "gcp", "dataset": "gcp.gcs" },
-  "message": "jsonPayload.@type=type.googleapis.com/google.cloud.audit.AuditLog methodName=\"storage.objects.get\" resourceName=\"projects/_/buckets/globex-shared-m3n4o5-logs/objects/uploads/nmdc1e4v.bin\" status.code=200",
-  "service": { "name": "cloud-storage", "type": "gcp" },
+  "event": {
+    "outcome": "success",
+    "duration": 13337000000,
+    "module": "gcp",
+    "dataset": "gcp.storagetransfer"
+  },
+  "message": "storagetransfer.googleapis.com/transferJobs/S4L9E21DM0: IN_PROGRESS aws-to-gcs bytesTransferred=97669950532 objectsTransferred=46190157",
+  "service": { "name": "storage-transfer", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.gcs", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.storagetransfer", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-south1",
-    "id": "0vwudgmslup"
+    "name": "elastic-agent-gcp-europe-north1",
+    "id": "rrtog8osfee"
   },
-  "input": { "type": "gcs-input" },
-  "logName": "projects/globex-shared-m3n4o5/logs/cloud-storage",
+  "input": { "type": "gcp-pubsub" },
+  "logName": "projects/globex-security-j0k1l2/logs/storage-transfer",
   "resource": {
-    "type": "gcs_bucket",
-    "labels": { "project_id": "globex-shared-m3n4o5", "region": "asia-south1" }
+    "type": "global",
+    "labels": { "project_id": "globex-security-j0k1l2", "region": "europe-north1" }
   },
-  "insertId": "5PE6WU4RBK3",
+  "insertId": "4GVSPR80NFA",
   "jsonPayload": {
-    "cloud_storage": {
-      "bucket_name": "globex-shared-m3n4o5-logs",
-      "object_name": "uploads/nmdc1e4v.bin",
-      "object_size": 293054368,
-      "storage_class": "ARCHIVE",
-      "operation": "storage.objects.get",
-      "content_type": "text/csv",
-      "generation": "1776881178831427612",
-      "requester_ip": "219.142.226.71"
+    "storage_transfer": {
+      "job_name": "transferJobs/S4L9E21DM0",
+      "source_bucket": "s3://source-CXNV2V",
+      "destination_bucket": "gs://globex-dev-g7h8i9-backups",
+      "bytes_transferred": 97669950532,
+      "objects_transferred": 46190157,
+      "status": "IN_PROGRESS",
+      "transfer_type": "aws-to-gcs"
     },
-    "message": "jsonPayload.@type=type.googleapis.com/google.cloud.audit.AuditLog methodName=\"storage.objects.get\" resourceName=\"projects/_/buckets/globex-shared-m3n4o5-logs/objects/uploads/nmdc1e4v.bin\" status.code=200"
+    "message": "storagetransfer.googleapis.com/transferJobs/S4L9E21DM0: IN_PROGRESS aws-to-gcs bytesTransferred=97669950532 objectsTransferred=46190157"
   }
 }

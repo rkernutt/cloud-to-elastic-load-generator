@@ -1,58 +1,59 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "il-central-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "budgets" }
   },
   "aws": {
     "budgets": {
-      "budget_name": "ec2-prod",
+      "budget_name": "data-transfer",
       "budget_type": "USAGE",
       "time_period": "QUARTERLY",
       "currency": "USD",
-      "budget_limit": 1814.66,
-      "actual_spend": 1162.96,
-      "forecasted_spend": 1334.97,
-      "threshold_exceeded": false,
-      "threshold_percentage": 60,
+      "budget_limit": 7944.91,
+      "actual_spend": 9203.19,
+      "forecasted_spend": 10452.93,
+      "threshold_exceeded": true,
+      "threshold_percentage": 90,
       "notification_type": "ACTUAL",
       "subscribers": "finance@company.com"
     },
     "s3": {
       "bucket": {
-        "name": "aws-budgets-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-budgets-logs-738291046572"
+        "name": "aws-budgets-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-budgets-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/budgets/ap-northeast-3/2026/04/22/budgets_53C9VD96NIC.log.gz"
+        "key": "AWSLogs/814726593401/budgets/il-central-1/2026/04/22/budgets_7JAP18W9054.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/budgets/logs",
-      "log_stream": "ap-northeast-3/ud1bn1mx",
-      "ingestion_time": "2026-04-22T18:06:17.643Z"
+      "log_stream": "il-central-1/9r71bl5t",
+      "ingestion_time": "2026-04-22T18:07:54.485Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["configuration", "process"],
     "dataset": "aws.budgets",
     "provider": "budgets.amazonaws.com",
-    "duration": 5000000000,
+    "duration": 23000000000,
     "module": "aws"
   },
-  "message": "Budget OK: ec2-prod at 1163/1815 (64%)",
-  "log": { "level": "info" },
+  "message": "Budget ALERT: data-transfer exceeded 90% — 9203 of 7945",
+  "log": { "level": "warn" },
+  "error": { "code": "BudgetExceeded", "message": "Budget threshold exceeded", "type": "billing" },
   "service": { "name": "budgets", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.budgets", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "eb3yy6miwn6"
+    "name": "filebeat-aws-il-central-1",
+    "ephemeral_id": "nnrc7eh9dqd"
   },
   "input": { "type": "http_endpoint" }
 }

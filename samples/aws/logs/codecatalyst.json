@@ -1,39 +1,41 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-west-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "codecatalyst" }
   },
   "aws": {
-    "dimensions": { "SpaceName": "mobile-team", "ProjectName": "data-pipeline" },
+    "dimensions": { "SpaceName": "infra-team", "ProjectName": "infrastructure" },
     "codecatalyst": {
-      "space_name": "mobile-team",
-      "project_name": "data-pipeline",
-      "workflow_name": "ci-pipeline",
-      "workflow_run_id": "run-1yo1mff56id",
+      "space_name": "infra-team",
+      "project_name": "infrastructure",
+      "workflow_name": "nightly-build",
+      "workflow_run_id": "run-kuxc8hcsyv",
       "workflow_run_status": "QUEUED",
       "workflow_steps_completed": 6,
-      "dev_environment_id": "dev-vthx2pfk73r",
+      "pull_request_number": 220,
+      "pull_request_head_branch": "fix/payments",
+      "dev_environment_id": "dev-8koaqoeekl",
       "dev_environment_status": "STOPPED",
-      "ide": "IntelliJ IDEA",
-      "branch_name": "feature/new-api",
-      "event_type": "SOURCE_REPOSITORY"
+      "ide": "AWS Cloud9",
+      "branch_name": "develop",
+      "event_type": "WORKFLOW_RUN"
     },
     "s3": {
       "bucket": {
-        "name": "aws-codecatalyst-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-codecatalyst-logs-501938274650"
+        "name": "aws-codecatalyst-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-codecatalyst-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/501938274650/codecatalyst/ap-northeast-2/2026/04/22/codecatalyst_L02QDXW4CGM.log.gz"
+        "key": "AWSLogs/738291046572/codecatalyst/eu-west-2/2026/04/22/codecatalyst_XM7KPVNRLXQ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codecatalyst/logs",
-      "log_stream": "ap-northeast-2/xei9eyud",
-      "ingestion_time": "2026-04-22T18:06:17.578Z"
+      "log_stream": "eu-west-2/ardamejo",
+      "ingestion_time": "2026-04-22T18:07:54.427Z"
     }
   },
   "event": {
@@ -44,7 +46,7 @@
     "provider": "codecatalyst.amazonaws.com",
     "module": "aws"
   },
-  "message": "[CodeCatalyst] space=mobile-team project=data-pipeline workflow=ci-pipeline run=run-1yo1mff56id status=QUEUED\n[WorkflowRun] trigger=manual ref=refs/heads/develop\n[WorkflowRun:run-1yo1mff56id] step=Checkout status=SUCCEEDED durationMs=8217 order=1\n[WorkflowRun:run-1yo1mff56id] step=Install status=SUCCEEDED durationMs=73454 order=2\n[WorkflowRun:run-1yo1mff56id] step=Lint status=SUCCEEDED durationMs=27092 order=3\n[WorkflowRun:run-1yo1mff56id] step=UnitTests status=SUCCEEDED durationMs=53004 order=4\n[WorkflowRun:run-1yo1mff56id] step=BuildImage status=SUCCEEDED durationMs=70858 order=5\n[WorkflowRun:run-1yo1mff56id] step=PublishArtifacts status=SUCCEEDED durationMs=18843 order=6\nCreateDevEnvironment devEnvId=dev-vthx2pfk73r statusTransition=DELETED machineType=STANDARD",
+  "message": "[CodeCatalyst] space=infra-team project=infrastructure workflow=nightly-build run=run-kuxc8hcsyv status=QUEUED\n[WorkflowRun] trigger=pull_request pr=#220 head=fix/payments base=main sha=tm4smafwgwe\n[WorkflowRun:run-kuxc8hcsyv] step=Checkout status=SUCCEEDED durationMs=147903 order=1\n[WorkflowRun:run-kuxc8hcsyv] step=Install status=SUCCEEDED durationMs=95021 order=2\n[WorkflowRun:run-kuxc8hcsyv] step=Lint status=SUCCEEDED durationMs=59706 order=3\n[WorkflowRun:run-kuxc8hcsyv] step=UnitTests status=SUCCEEDED durationMs=101604 order=4\n[WorkflowRun:run-kuxc8hcsyv] step=BuildImage status=SUCCEEDED durationMs=13979 order=5\n[WorkflowRun:run-kuxc8hcsyv] step=PublishArtifacts status=SUCCEEDED durationMs=82569 order=6\nCreateDevEnvironment devEnvId=dev-8koaqoeekl statusTransition=STOPPING machineType=STANDARD",
   "log": { "level": "info" },
   "service": { "name": "codecatalyst", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -52,8 +54,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "3qi7ljcdb9q"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "bv32hzd9ke8"
   },
   "input": { "type": "aws-cloudwatch" }
 }

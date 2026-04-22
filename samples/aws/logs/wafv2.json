@@ -1,27 +1,31 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-south-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "wafv2" }
   },
   "aws": {
-    "dimensions": { "WebACL": "prod-api-acl", "Rule": "NoUserAgent", "Region": "ap-northeast-2" },
+    "dimensions": {
+      "WebACL": "admin-portal-waf",
+      "Rule": "SizeRestrictions_BODY",
+      "Region": "eu-south-1"
+    },
     "waf": {
-      "id": "xuub1eiy66p",
-      "arn": "arn:aws:wafv2:ap-northeast-2:293847561023:regional/webacl/prod-api-acl/n0bo05jv-u5qi-jw4l-q3g4-7pspv73arl",
+      "id": "a21775n899",
+      "arn": "arn:aws:wafv2:eu-south-1:738291046572:regional/webacl/admin-portal-waf/8pc0yixx-d1mi-587n-0x47-4ef6f0eb8jr",
       "format_version": "1",
-      "source": { "name": "ALB", "id": "293847561023-app/prod-api-acl/9y8zdpg8vln" },
+      "source": { "name": "APIGW", "id": "738291046572-app/admin-portal-waf/f5mravrjrum" },
       "rule_group_list": [
-        { "ruleGroupId": "AWSManagedRulesSQLiRuleSet", "nonTerminatingMatchingRules": [] }
+        { "ruleGroupId": "AWSManagedRulesWordPressRuleSet", "nonTerminatingMatchingRules": [] }
       ],
       "non_terminating_matching_rules": [],
       "terminating_rule_match_details": [],
       "request": {
         "headers": [
           { "name": "Host", "value": "api.example.com" },
-          { "name": "User-Agent", "value": "Go-http-client/1.1" },
+          { "name": "User-Agent", "value": "curl/7.68.0" },
           { "name": "Accept", "value": "*/*" }
         ]
       },
@@ -35,65 +39,67 @@
         "ChallengeRequests": { "sum": 0 },
         "FailedCaptcha": { "sum": 0 }
       },
-      "webaclId": "n0bo05jv-u5qi-jw4l-q3g4-7pspv73arl",
-      "terminatingRuleId": "NoUserAgent",
+      "webaclId": "8pc0yixx-d1mi-587n-0x47-4ef6f0eb8jr",
+      "terminatingRuleId": "SizeRestrictions_BODY",
       "terminatingRuleType": "MANAGED_RULE_GROUP",
       "action": "ALLOW",
       "httpRequest": {
-        "clientIp": "122.67.47.141",
-        "country": "US",
+        "clientIp": "175.63.252.245",
+        "country": "CA",
         "headers": [
           { "name": "Host", "value": "api.example.com" },
-          { "name": "User-Agent", "value": "Go-http-client/1.1" },
+          { "name": "User-Agent", "value": "curl/7.68.0" },
           { "name": "Accept", "value": "*/*" }
         ],
-        "httpMethod": "PUT",
+        "httpMethod": "PATCH",
         "httpVersion": "HTTP/1.1",
-        "uri": "/api/v1/orders"
+        "uri": "/api/v2/events"
       },
-      "httpSourceId": "293847561023-app/prod-api-acl/9y8zdpg8vln",
+      "httpSourceId": "738291046572-app/admin-portal-waf/f5mravrjrum",
       "rateBasedRuleList": [],
-      "nonTerminatingMatchingRules": [],
+      "nonTerminatingMatchingRules": [
+        { "ruleId": "GeoBlockRule", "action": "COUNT", "ruleMatchDetails": [] }
+      ],
       "requestHeadersInserted": [],
       "responseCodeSent": 200
     },
     "s3": {
       "bucket": {
-        "name": "aws-wafv2-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-wafv2-logs-293847561023"
+        "name": "aws-wafv2-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-wafv2-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/wafv2/ap-northeast-2/2026/04/22/wafv2_EWY2G6PYVTL.log.gz"
+        "key": "AWSLogs/738291046572/wafv2/eu-south-1/2026/04/22/wafv2_ZO6F1KT9F8H.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/wafv2/logs",
-      "log_stream": "ap-northeast-2/m3fukmqh",
-      "ingestion_time": "2026-04-22T18:06:17.672Z"
+      "log_stream": "eu-south-1/zhr3g3my",
+      "ingestion_time": "2026-04-22T18:07:54.516Z"
     }
   },
   "source": {
-    "ip": "122.67.47.141",
+    "ip": "175.63.252.245",
     "geo": {
-      "country_iso_code": "US",
-      "country_name": "United States",
-      "city_name": "New York",
-      "location": { "lat": 40.7128, "lon": -74.006 }
+      "country_iso_code": "CA",
+      "country_name": "Canada",
+      "city_name": "Toronto",
+      "location": { "lat": 43.6532, "lon": -79.3832 }
     }
   },
-  "http": { "request": { "method": "PUT", "bytes": 1499 } },
-  "url": { "path": "/api/v1/orders" },
-  "user_agent": { "original": "Go-http-client/1.1" },
+  "http": { "request": { "method": "PATCH", "bytes": 6578 } },
+  "url": { "path": "/api/v2/events" },
+  "user_agent": { "original": "curl/7.68.0" },
   "event": {
     "action": "allow",
     "outcome": "success",
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
-    "duration": 12000000,
+    "duration": 50000000,
     "module": "aws"
   },
-  "message": "{\"timestamp\":\"2026-04-22T18:06:16.823Z\",\"formatVersion\":1,\"webaclId\":\"n0bo05jv-u5qi-jw4l-q3g4-7pspv73arl\",\"terminatingRuleId\":\"NoUserAgent\",\"terminatingRuleType\":\"MANAGED_RULE_GROUP\",\"action\":\"ALLOW\",\"httpRequest\":{\"clientIp\":\"122.67.47.141\",\"country\":\"US\",\"headers\":[{\"name\":\"Host\",\"value\":\"api.example.com\"},{\"name\":\"User-Agent\",\"value\":\"Go-http-client/1.1\"},{\"name\":\"Accept\",\"value\":\"*/*\"}],\"httpMethod\":\"PUT\",\"httpVersion\":\"HTTP/1.1\",\"uri\":\"/api/v1/orders\"},\"httpSourceId\":\"293847561023-app/prod-api-acl/9y8zdpg8vln\",\"rateBasedRuleList\":[],\"nonTerminatingMatchingRules\":[],\"requestHeadersInserted\":[],\"responseCodeSent\":200}",
+  "message": "{\"timestamp\":\"2026-04-22T18:07:53.671Z\",\"formatVersion\":1,\"webaclId\":\"8pc0yixx-d1mi-587n-0x47-4ef6f0eb8jr\",\"terminatingRuleId\":\"SizeRestrictions_BODY\",\"terminatingRuleType\":\"MANAGED_RULE_GROUP\",\"action\":\"ALLOW\",\"httpRequest\":{\"clientIp\":\"175.63.252.245\",\"country\":\"CA\",\"headers\":[{\"name\":\"Host\",\"value\":\"api.example.com\"},{\"name\":\"User-Agent\",\"value\":\"curl/7.68.0\"},{\"name\":\"Accept\",\"value\":\"*/*\"}],\"httpMethod\":\"PATCH\",\"httpVersion\":\"HTTP/1.1\",\"uri\":\"/api/v2/events\"},\"httpSourceId\":\"738291046572-app/admin-portal-waf/f5mravrjrum\",\"rateBasedRuleList\":[],\"nonTerminatingMatchingRules\":[{\"ruleId\":\"GeoBlockRule\",\"action\":\"COUNT\",\"ruleMatchDetails\":[]}],\"requestHeadersInserted\":[],\"responseCodeSent\":200}",
   "log": { "level": "info" },
   "service": { "name": "wafv2", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -101,8 +107,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "or6xm2lhw6a"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "lh3bsz005on"
   },
   "input": { "type": "aws-s3" }
 }

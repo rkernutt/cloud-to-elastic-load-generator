@@ -2,34 +2,34 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "severity": "INFO",
   "logName": "projects/globex-shared-m3n4o5/logs/binaryauthorization.googleapis.com%2Fpolicy_events",
-  "insertId": "85gbqovgst",
+  "insertId": "9p7v190qpa6",
   "resource": {
     "type": "gke_cluster",
     "labels": {
       "project_id": "globex-shared-m3n4o5",
-      "cluster_name": "dev-cluster",
-      "location": "europe-west12"
+      "cluster_name": "staging-cluster",
+      "location": "europe-west6"
     }
   },
   "jsonPayload": {
     "typeUrl": "type.googleapis.com/google.cloud.binaryauthorization.v1beta1.ContinuousValidationEvent",
-    "policy": "projects/globex-shared-m3n4o5/platforms/gke/policies/globex-prod-policy",
-    "cluster": "projects/globex-shared-m3n4o5/locations/europe-west12/clusters/dev-cluster",
+    "policy": "projects/globex-shared-m3n4o5/platforms/gke/policies/pci-images-only",
+    "cluster": "projects/globex-shared-m3n4o5/locations/europe-west6/clusters/staging-cluster",
     "deployable": {
-      "pod_name": "default/checkout-t5o08-3q7xd",
-      "container_image": "us-docker.pkg.dev/globex-shared-m3n4o5/apps/checkout:v3.15"
+      "pod_name": "production/checkout-25hdw-b0iu8",
+      "container_image": "us-docker.pkg.dev/globex-shared-m3n4o5/apps/checkout:v8.20"
     },
-    "verdict": "BREAK_GLASS",
+    "verdict": "ALLOWED",
     "attestations": [
       {
-        "attestor": "projects/globex-shared-m3n4o5/attestors/build-attestor",
-        "pgp_key_id": "0xQCP44AITI3D"
+        "attestor": "projects/globex-shared-m3n4o5/attestors/prod-security",
+        "pgp_key_id": "0xW9QZR5LNQI8"
       }
     ]
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west12",
+    "region": "europe-west6",
     "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
     "account": { "id": "173205080756", "name": "Globex Shared Services" },
     "service": { "name": "binary-authorization" }
@@ -38,36 +38,36 @@
     "binary_authorization": {
       "json_payload": {
         "typeUrl": "type.googleapis.com/google.cloud.binaryauthorization.v1beta1.ContinuousValidationEvent",
-        "policy": "projects/globex-shared-m3n4o5/platforms/gke/policies/globex-prod-policy",
-        "cluster": "projects/globex-shared-m3n4o5/locations/europe-west12/clusters/dev-cluster",
+        "policy": "projects/globex-shared-m3n4o5/platforms/gke/policies/pci-images-only",
+        "cluster": "projects/globex-shared-m3n4o5/locations/europe-west6/clusters/staging-cluster",
         "deployable": {
-          "pod_name": "default/checkout-t5o08-3q7xd",
-          "container_image": "us-docker.pkg.dev/globex-shared-m3n4o5/apps/checkout:v3.15"
+          "pod_name": "production/checkout-25hdw-b0iu8",
+          "container_image": "us-docker.pkg.dev/globex-shared-m3n4o5/apps/checkout:v8.20"
         },
-        "verdict": "BREAK_GLASS",
+        "verdict": "ALLOWED",
         "attestations": [
           {
-            "attestor": "projects/globex-shared-m3n4o5/attestors/build-attestor",
-            "pgp_key_id": "0xQCP44AITI3D"
+            "attestor": "projects/globex-shared-m3n4o5/attestors/prod-security",
+            "pgp_key_id": "0xW9QZR5LNQI8"
           }
         ]
       },
-      "cluster": "dev-cluster",
-      "namespace": "default",
-      "pod": "checkout-t5o08-3q7xd",
-      "image": "us-docker.pkg.dev/globex-shared-m3n4o5/apps/checkout:v3.15",
-      "attestor": "build-attestor",
-      "verdict": "BREAK_GLASS",
-      "policy_name": "globex-prod-policy"
+      "cluster": "staging-cluster",
+      "namespace": "production",
+      "pod": "checkout-25hdw-b0iu8",
+      "image": "us-docker.pkg.dev/globex-shared-m3n4o5/apps/checkout:v8.20",
+      "attestor": "prod-security",
+      "verdict": "ALLOWED",
+      "policy_name": "pci-images-only"
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 14000000,
+    "duration": 15000000,
     "module": "gcp",
     "dataset": "gcp.binaryauthorization"
   },
-  "message": "binaryauthorization.googleapis.com/Admission BREAK_GLASS cluster=dev-cluster image=us-docker.pkg.dev/globex-shared-m3n4o5/apps/checkout:v3.15",
+  "message": "binaryauthorization.googleapis.com/Admission ALLOWED cluster=staging-cluster image=us-docker.pkg.dev/globex-shared-m3n4o5/apps/checkout:v8.20",
   "service": { "name": "binary-authorization", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -75,8 +75,8 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west12",
-    "id": "7ugd7ovxox6"
+    "name": "elastic-agent-gcp-europe-west6",
+    "id": "it2oxedlbnp"
   },
   "input": { "type": "http_endpoint" }
 }

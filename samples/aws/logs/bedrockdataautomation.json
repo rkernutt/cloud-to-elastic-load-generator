@@ -1,58 +1,60 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "sa-east-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "bedrock-data-automation" }
   },
   "aws": {
-    "dimensions": { "ProjectId": "proj-aqnkm82i", "InvocationId": "inv-191tgmfo2v" },
+    "dimensions": { "ProjectId": "proj-z2osuvi6", "InvocationId": "inv-vm0g9wfz2w" },
     "bedrockdataautomation": {
-      "project_id": "proj-aqnkm82i",
-      "invocation_id": "inv-191tgmfo2v",
-      "input_type": "pdf",
-      "blueprint_id": "bp-u3qkvw4k",
-      "status": "Success",
-      "metrics": {
-        "pages_processed": 368,
-        "tokens_used": 91414,
-        "confidence_score": 0.9992856184059702
-      }
+      "project_id": "proj-z2osuvi6",
+      "invocation_id": "inv-vm0g9wfz2w",
+      "input_type": "image",
+      "blueprint_id": "bp-6fb3136f",
+      "status": "Failed",
+      "metrics": { "pages_processed": 0, "tokens_used": 0, "confidence_score": 0 },
+      "error_code": "BlueprintMismatch"
     },
     "s3": {
       "bucket": {
-        "name": "aws-bedrockdataautomation-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-bedrockdataautomation-logs-814726593401"
+        "name": "aws-bedrockdataautomation-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-bedrockdataautomation-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/814726593401/bedrockdataautomation/me-south-1/2026/04/22/bedrockdataautomation_OJ9NQNEFGH.log.gz"
+        "key": "AWSLogs/293847561023/bedrockdataautomation/sa-east-1/2026/04/22/bedrockdataautomation_2KPGKRI24O4.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/bedrockdataautomation/logs",
-      "log_stream": "me-south-1/jyc3q5hp",
-      "ingestion_time": "2026-04-22T18:06:17.622Z"
+      "log_stream": "sa-east-1/ii0xzjac",
+      "ingestion_time": "2026-04-22T18:07:54.464Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.bedrockdataautomation",
     "provider": "bedrock-data-automation.amazonaws.com",
-    "duration": 898000000,
+    "duration": 26540000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.bedrockdataautomation", "namespace": "default" },
-  "message": "Bedrock Data Automation project proj-aqnkm82i: Success, pages=368, tokens=91414, confidence=0.999",
-  "log": { "level": "info" },
+  "message": "Bedrock Data Automation project proj-z2osuvi6: BlueprintMismatch for image input",
+  "log": { "level": "error" },
+  "error": {
+    "code": "BlueprintMismatch",
+    "message": "Bedrock Data Automation extraction failed for project proj-z2osuvi6",
+    "type": "process"
+  },
   "service": { "name": "bedrockdataautomation", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "p37xgnks6go"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "mrq1eb5o4"
   },
   "input": { "type": "aws-cloudwatch" }
 }

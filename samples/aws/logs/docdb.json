@@ -1,73 +1,69 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-west-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "docdb" }
   },
   "aws": {
-    "dimensions": { "DBClusterIdentifier": "docdb-eu-west-2-cluster", "Role": "WRITER" },
+    "dimensions": { "DBClusterIdentifier": "docdb-eu-west-3-cluster", "Role": "READER" },
     "docdb": {
-      "cluster_id": "docdb-eu-west-2-cluster",
+      "cluster_id": "docdb-eu-west-3-cluster",
       "database": "appdb",
-      "collection": "users",
-      "operation": "aggregate",
-      "duration_ms": 3420,
-      "documents_affected": 0,
-      "error": "WriteConflict",
+      "collection": "events",
+      "operation": "find",
+      "duration_ms": 290,
+      "documents_affected": 949,
       "metrics": {
-        "CPUUtilization": { "avg": 70.77294107059608 },
-        "DatabaseConnections": { "avg": 226 },
-        "FreeLocalStorage": { "avg": 47746183359 },
-        "FreeableMemory": { "avg": 926070707 },
-        "ReadIOPS": { "avg": 730 },
-        "WriteIOPS": { "avg": 4311 },
-        "ReadLatency": { "avg": 34.00288716741653 },
-        "WriteLatency": { "avg": 13.122154183222206 },
+        "CPUUtilization": { "avg": 29.536533781977 },
+        "DatabaseConnections": { "avg": 8 },
+        "FreeLocalStorage": { "avg": 66924615570 },
+        "FreeableMemory": { "avg": 1690371129 },
+        "ReadIOPS": { "avg": 1807 },
+        "WriteIOPS": { "avg": 3106 },
+        "ReadLatency": { "avg": 2.737078049403573 },
+        "WriteLatency": { "avg": 4.177264326492244 },
         "DocumentsInserted": { "sum": 0 },
         "DocumentsDeleted": { "sum": 0 },
         "DocumentsUpdated": { "sum": 0 },
-        "DocumentsReturned": { "sum": 3252 }
+        "DocumentsReturned": { "sum": 7550 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-docdb-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-docdb-logs-501938274650"
+        "name": "aws-docdb-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-docdb-logs-814726593401"
       },
-      "object": { "key": "AWSLogs/501938274650/docdb/eu-west-2/2026/04/22/docdb_OOBF660LF2.log.gz" }
+      "object": {
+        "key": "AWSLogs/814726593401/docdb/eu-west-3/2026/04/22/docdb_196JDV0XHM8.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/docdb/logs",
-      "log_stream": "eu-west-2/icca54p6",
-      "ingestion_time": "2026-04-22T18:06:17.549Z"
+      "log_stream": "eu-west-3/z5h2ouub",
+      "ingestion_time": "2026-04-22T18:07:54.399Z"
     }
   },
-  "db": { "name": "appdb", "operation": "aggregate", "type": "document" },
+  "db": { "name": "appdb", "operation": "find", "type": "document" },
   "event": {
-    "duration": 3419603999.5050235,
-    "outcome": "failure",
+    "duration": 289697889.197298,
+    "outcome": "success",
     "category": ["database"],
     "dataset": "aws.docdb",
     "provider": "docdb.amazonaws.com",
     "module": "aws"
   },
-  "message": "DocumentDB aggregate on users failed: DuplicateKey",
-  "log": { "level": "error" },
-  "error": {
-    "code": "StorageQuotaExceeded",
-    "message": "DocumentDB aggregate failed",
-    "type": "db"
-  },
+  "message": "DocumentDB find on events: 289.7ms",
+  "log": { "level": "info" },
   "service": { "name": "docdb", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.docdb", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "olvu932pfdq"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "hjzrvuto677"
   },
   "input": { "type": "aws-cloudwatch" }
 }

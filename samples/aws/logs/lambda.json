@@ -1,46 +1,55 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
+    "region": "eu-west-2",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "lambda" }
   },
+  "trace": { "id": "1-69e90e79-wn4puxpj2ij" },
   "aws": {
     "dimensions": {
-      "FunctionName": "webhook-receiver",
-      "Resource": "webhook-receiver:$LATEST",
-      "ExecutedVersion": "$LATEST"
+      "FunctionName": "payment-processor",
+      "Resource": "payment-processor:$LATEST",
+      "ExecutedVersion": "$LATEST",
+      "EventSourceMappingUUID": "m24h9jxv-80v0-0jk4-2n9k-qlgbvdmsabe"
     },
     "cloudwatch": {
-      "log_group": "/aws/lambda/webhook-receiver",
-      "log_stream": "2026/04/22[$LATEST]45vt7b9nimk",
-      "ingestion_time": "2026-04-22T18:06:17.408Z"
+      "log_group": "/aws/lambda/payment-processor",
+      "log_stream": "2026/04/22[$LATEST]mlz0kjhi4a",
+      "ingestion_time": "2026-04-22T18:07:54.258Z"
     },
     "lambda": {
       "function": {
-        "name": "webhook-receiver",
+        "name": "payment-processor",
         "version": "$LATEST",
-        "arn": "arn:aws:lambda:af-south-1:501938274650:function:webhook-receiver",
-        "runtime": "nodejs20.x",
-        "handler": "index.handler"
+        "arn": "arn:aws:lambda:eu-west-2:501938274650:function:payment-processor",
+        "runtime": "java21",
+        "handler": "com.example.Handler::handleRequest"
       },
-      "request_id": "ulrndbh4-jdt6-pbrf-ssh0-fnmooy0r50q",
-      "event_type": "start",
+      "request_id": "d5an521r-0luj-661z-j5a5-6gleatsdkpg",
+      "trace_id": "1-69e90e79-wn4puxpj2ij",
+      "event_type": "end",
       "metrics": {
         "Invocations": { "sum": 1, "avg": 1 },
         "Errors": { "sum": 0, "avg": 0 },
         "Throttles": { "sum": 0, "avg": 0 },
-        "Duration": { "avg": 113.51671070332922, "max": 136.22005284399506 },
-        "ConcurrentExecutions": { "avg": 135 },
-        "UnreservedConcurrentExecutions": { "avg": 551 },
+        "Duration": { "avg": 2802.413680777215, "max": 3362.896416932658 },
+        "ConcurrentExecutions": { "avg": 377 },
+        "UnreservedConcurrentExecutions": { "avg": 561 },
         "DeadLetterErrors": { "sum": 0, "avg": 0 },
         "IteratorAge": { "avg": 0 },
-        "AsyncEventsReceived": { "sum": 71 },
-        "AsyncEventAge": { "avg": 1800 },
-        "memory_size_mb": 1024,
-        "max_memory_used_mb": 227,
-        "instance_max_memory": 1024
+        "AsyncEventsReceived": { "sum": 75 },
+        "AsyncEventAge": { "avg": 3795 },
+        "memory_size_mb": 128,
+        "max_memory_used_mb": 33,
+        "instance_max_memory": 128,
+        "PolledEventCount": { "sum": 722 },
+        "InvokedEventCount": { "sum": 335 },
+        "FilteredOutEventCount": { "sum": 19 },
+        "FailedInvokeEventCount": { "sum": 0 },
+        "DeletedEventCount": { "sum": 9 },
+        "OnFailureDestinationDeliveredEventCount": { "sum": 0 }
       }
     },
     "s3": {
@@ -49,14 +58,14 @@
         "arn": "arn:aws:s3:::aws-lambda-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/lambda/af-south-1/2026/04/22/lambda_R0105JP0XP.log.gz"
+        "key": "AWSLogs/501938274650/lambda/eu-west-2/2026/04/22/lambda_SKT0Q44FZOR.log.gz"
       }
     }
   },
-  "log": { "level": "info" },
-  "message": "START RequestId: ulrndbh4-jdt6-pbrf-ssh0-fnmooy0r50q Version: $LATEST",
+  "log": { "level": "debug" },
+  "message": "END RequestId: d5an521r-0luj-661z-j5a5-6gleatsdkpg",
   "event": {
-    "duration": 113516710.70332922,
+    "duration": 2802413680.777215,
     "outcome": "success",
     "category": ["process"],
     "type": ["info"],
@@ -64,15 +73,15 @@
     "provider": "lambda.amazonaws.com",
     "module": "aws"
   },
-  "service": { "name": "webhook-receiver", "type": "lambda" },
-  "host": { "name": "ip-135-57-166-119.ec2.internal", "hostname": "lambda-wq1r15ft" },
+  "service": { "name": "payment-processor", "type": "lambda" },
+  "host": { "name": "ip-216-133-187-226.ec2.internal", "hostname": "lambda-jpj4phyf" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lambda_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "1uhoyzt57fr"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "f67e6bmgrun"
   },
   "input": { "type": "aws-cloudwatch" }
 }

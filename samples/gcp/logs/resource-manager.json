@@ -1,55 +1,68 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
-  "labels": { "resource.type": "cloudresourcemanager.googleapis.com/Project", "method": "CREATE" },
+  "severity": "NOTICE",
+  "logName": "projects/globex-prod-a1b2c3/logs/cloudaudit.googleapis.com%2Faccess_transparency",
+  "insertId": "tukamxxfk1i",
+  "resource": { "type": "project", "labels": { "project_id": "globex-prod-a1b2c3" } },
+  "jsonPayload": {
+    "id": "AX-F2RYG6NYKEV",
+    "actor": { "email": "google-support-1L9D@google.com", "title": "Support Engineer" },
+    "target": { "customerId": "CEEFOO6BSWX", "projectNumber": "314159265358" },
+    "product": "DRIVE",
+    "reason": "THIRD_PARTY_DATA_REQUEST",
+    "action": "DATA_ACCESS",
+    "status": "COMPLETED",
+    "ipAddress": "89.170.219.154",
+    "justification": "Troubleshooting customer-reported outage",
+    "accessDurationSeconds": 5407
+  },
+  "labels": { "resource.type": "accessapproval.googleapis.com/Note", "product": "DRIVE" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-central1",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" },
-    "service": { "name": "cloudresourcemanager.googleapis.com" }
+    "region": "europe-west12",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
+    "service": { "name": "accessapproval.googleapis.com" }
   },
   "gcp": {
-    "resource_manager": {
-      "resource_type": "project",
-      "action": "CREATE",
-      "resource_name": "projects/globex-security-j0k1l2",
-      "parent": "organizations/698312709962",
-      "actor": "serviceAccount:pipeline-sa@globex-security-j0k1l2.iam.gserviceaccount.com"
+    "access_transparency": {
+      "json_payload": {
+        "id": "AX-F2RYG6NYKEV",
+        "actor": { "email": "google-support-1L9D@google.com", "title": "Support Engineer" },
+        "target": { "customerId": "CEEFOO6BSWX", "projectNumber": "314159265358" },
+        "product": "DRIVE",
+        "reason": "THIRD_PARTY_DATA_REQUEST",
+        "action": "DATA_ACCESS",
+        "status": "COMPLETED",
+        "ipAddress": "89.170.219.154",
+        "justification": "Troubleshooting customer-reported outage",
+        "accessDurationSeconds": 5407
+      },
+      "product": "DRIVE",
+      "access_reason": "THIRD_PARTY_DATA_REQUEST",
+      "accessor_email": "google-support-1L9D@google.com",
+      "principal_email": "worker-sa@globex-prod-a1b2c3.iam.gserviceaccount.com",
+      "justification": "Troubleshooting customer-reported outage",
+      "access_duration_seconds": 5407,
+      "status": "COMPLETED"
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 1906,
+    "duration": 5407000,
     "module": "gcp",
-    "dataset": "gcp.resourcemanager"
+    "dataset": "gcp.accesstransparency"
   },
-  "message": "SetIamPolicy on projects/globex-security-j0k1l2 completed; action=CREATE caller=serviceAccount:pipeline-sa@globex-security-j0k1l2.iam.gserviceaccount.com parent=organizations/698312709962",
-  "service": { "name": "resource-manager", "type": "gcp" },
+  "message": "cloudaudit.googleapis.com/access_transparency THIRD_PARTY_DATA_REQUEST DRIVE by google-support-1L9D@google.com",
+  "service": { "name": "access-transparency", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.resourcemanager", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.accesstransparency", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-central1",
-    "id": "kfgre7bupm"
+    "name": "elastic-agent-gcp-europe-west12",
+    "id": "00nsfe78bjz8"
   },
-  "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-security-j0k1l2/logs/resource-manager",
-  "resource": {
-    "type": "global",
-    "labels": { "project_id": "globex-security-j0k1l2", "region": "us-central1" }
-  },
-  "insertId": "K6AFUK3IVM",
-  "jsonPayload": {
-    "resource_manager": {
-      "resource_type": "project",
-      "action": "CREATE",
-      "resource_name": "projects/globex-security-j0k1l2",
-      "parent": "organizations/698312709962",
-      "actor": "serviceAccount:pipeline-sa@globex-security-j0k1l2.iam.gserviceaccount.com"
-    },
-    "message": "SetIamPolicy on projects/globex-security-j0k1l2 completed; action=CREATE caller=serviceAccount:pipeline-sa@globex-security-j0k1l2.iam.gserviceaccount.com parent=organizations/698312709962"
-  }
+  "input": { "type": "gcp-pubsub" }
 }

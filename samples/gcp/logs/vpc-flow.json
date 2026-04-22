@@ -1,52 +1,65 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "severity": "INFO",
-  "logName": "projects/globex-shared-m3n4o5/logs/compute.googleapis.com%2Fnetwork_tier_usage",
-  "insertId": "lbuucfu8af",
-  "resource": { "type": "project", "labels": { "project_id": "globex-shared-m3n4o5" } },
+  "logName": "projects/globex-security-j0k1l2/logs/compute.googleapis.com%2Fpacket_mirroring",
+  "insertId": "4jibvsq09rx",
+  "resource": {
+    "type": "packet_mirroring_policy",
+    "labels": {
+      "project_id": "globex-security-j0k1l2",
+      "policy": "pm-policy-n9g4m",
+      "region": "us-east5"
+    }
+  },
   "jsonPayload": {
-    "network_tier": "PREMIUM",
-    "resource_kind": "VPN",
-    "region": "australia-southeast1",
-    "egress_bytes": "3288646221",
-    "routing_preference": "HOT_POTATO",
-    "project": "globex-shared-m3n4o5"
+    "packet_mirroring_policy": "projects/globex-security-j0k1l2/regions/us-east5/packetMirrorings/pm-policy-n9g4m",
+    "mirrored_network": "projects/globex-security-j0k1l2/global/networks/shared-vpc",
+    "collector_ilb": "projects/globex-security-j0k1l2/regions/us-east5/forwardingRules/ilb-worker-ve46",
+    "mirrored_instance_count": 55,
+    "filter": { "ip_cidr_range": "10.52.34.0/24", "protocol": "tcp" },
+    "health": "HEALTHY"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "australia-southeast1",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
-    "service": { "name": "network-service-tiers" }
+    "region": "us-east5",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" },
+    "service": { "name": "packet-mirroring" }
   },
   "gcp": {
-    "network_service_tiers": {
+    "packet_mirroring": {
       "json_payload": {
-        "network_tier": "PREMIUM",
-        "resource_kind": "VPN",
-        "region": "australia-southeast1",
-        "egress_bytes": "3288646221",
-        "routing_preference": "HOT_POTATO",
-        "project": "globex-shared-m3n4o5"
+        "packet_mirroring_policy": "projects/globex-security-j0k1l2/regions/us-east5/packetMirrorings/pm-policy-n9g4m",
+        "mirrored_network": "projects/globex-security-j0k1l2/global/networks/shared-vpc",
+        "collector_ilb": "projects/globex-security-j0k1l2/regions/us-east5/forwardingRules/ilb-worker-ve46",
+        "mirrored_instance_count": 55,
+        "filter": { "ip_cidr_range": "10.52.34.0/24", "protocol": "tcp" },
+        "health": "HEALTHY"
       },
-      "tier": "PREMIUM",
-      "resource_type": "VPN",
-      "region": "australia-southeast1",
-      "egress_bytes": 3288646221,
-      "routing_type": "HOT_POTATO"
+      "policy_name": "pm-policy-n9g4m",
+      "mirrored_network": "shared-vpc",
+      "collector_instance": "worker-ve46",
+      "mirrored_instances_count": 55,
+      "filter_protocol": "tcp",
+      "filter_cidr": "10.52.34.0/24"
     }
   },
-  "event": { "outcome": "success", "duration": 49000000, "module": "gcp", "dataset": "gcp.nst" },
-  "message": "compute.googleapis.com/network_tiers PREMIUM VPN egress=3288646221",
-  "service": { "name": "network-service-tiers", "type": "gcp" },
+  "event": {
+    "outcome": "success",
+    "duration": 151000000,
+    "module": "gcp",
+    "dataset": "gcp.packetmirroring"
+  },
+  "message": "compute.googleapis.com/packet_mirroring pm-policy-n9g4m mirrored=55",
+  "service": { "name": "packet-mirroring", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.nst", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.packetmirroring", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-australia-southeast1",
-    "id": "w6yxfv93yv"
+    "name": "elastic-agent-gcp-us-east5",
+    "id": "lvz1p1q5kjq"
   },
   "input": { "type": "gcp-pubsub" }
 }

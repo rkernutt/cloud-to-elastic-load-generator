@@ -1,71 +1,70 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-northeast-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "firehose" }
   },
   "aws": {
-    "dimensions": { "DeliveryStreamName": "metrics-to-opensearch" },
+    "dimensions": { "DeliveryStreamName": "events-to-redshift" },
     "firehose": {
-      "delivery_stream_name": "metrics-to-opensearch",
-      "destination": "S3",
-      "incoming_records": 5630,
-      "incoming_bytes": 4881210,
-      "delivery_success": false,
-      "delivery_records": 0,
-      "data_freshness_seconds": 2100,
+      "delivery_stream_name": "events-to-redshift",
+      "destination": "Redshift",
+      "incoming_records": 24534,
+      "incoming_bytes": 35696970,
+      "delivery_success": true,
+      "delivery_records": 24534,
+      "data_freshness_seconds": 136,
       "metrics": {
-        "DeliveryToS3.Bytes": { "sum": 69270972 },
-        "DeliveryToS3.DataFreshness": { "avg": 583 },
-        "DeliveryToS3.Records": { "sum": 5675 },
-        "DeliveryToS3.Success": { "avg": 0 },
-        "IncomingBytes": { "sum": 88338127 },
-        "IncomingRecords": { "sum": 2265 },
-        "BackupToS3.Bytes": { "sum": 583227 },
-        "BackupToS3.Records": { "sum": 797 },
+        "DeliveryToS3.Bytes": { "sum": 65024431 },
+        "DeliveryToS3.DataFreshness": { "avg": 1204 },
+        "DeliveryToS3.Records": { "sum": 1795 },
+        "DeliveryToS3.Success": { "avg": 1 },
+        "IncomingBytes": { "sum": 10598878 },
+        "IncomingRecords": { "sum": 6630 },
+        "BackupToS3.Bytes": { "sum": 505219 },
+        "BackupToS3.Records": { "sum": 159 },
         "BackupToS3.Success": { "avg": 1 },
-        "DataReadFromKinesisStream.Bytes": { "sum": 23819712 },
-        "DataReadFromKinesisStream.Records": { "sum": 1241 },
-        "ThrottledGetRecords": { "sum": 9 },
+        "DataReadFromKinesisStream.Bytes": { "sum": 16198251 },
+        "DataReadFromKinesisStream.Records": { "sum": 5766 },
+        "ThrottledGetRecords": { "sum": 0 },
         "ThrottledGetShardIterator": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-firehose-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-firehose-logs-814726593401"
+        "name": "aws-firehose-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-firehose-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/firehose/us-east-2/2026/04/22/firehose_G7YH2TM107L.log.gz"
+        "key": "AWSLogs/501938274650/firehose/ap-northeast-2/2026/04/22/firehose_0LOZDUAVIKJB.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/firehose/logs",
-      "log_stream": "us-east-2/23xhxyz9",
-      "ingestion_time": "2026-04-22T18:06:17.561Z"
+      "log_stream": "ap-northeast-2/m4csqcai",
+      "ingestion_time": "2026-04-22T18:07:54.409Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.firehose",
     "provider": "firehose.amazonaws.com",
-    "duration": 159000000000,
+    "duration": 39000000000,
     "module": "aws"
   },
-  "message": "Firehose metrics-to-opensearch delivery failure: Buffer full",
-  "log": { "level": "error" },
-  "error": { "code": "DeliveryFailure", "message": "Firehose delivery failed", "type": "stream" },
+  "message": "Firehose events-to-redshift: 24534 records delivered",
+  "log": { "level": "info" },
   "service": { "name": "firehose", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.firehose", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "q278p2v1n9"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "yylrp1q70ld"
   },
   "input": { "type": "aws-firehose" }
 }

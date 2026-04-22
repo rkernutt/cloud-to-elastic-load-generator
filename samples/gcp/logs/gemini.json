@@ -1,61 +1,71 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "WARNING",
+  "severity": "DEBUG",
   "labels": {
-    "resource.type": "cloudaicompanion.googleapis.com/Request",
-    "editor": "vscode",
-    "language": "terraform"
+    "resource.type": "generativelanguage.googleapis.com/Model",
+    "location": "europe-southwest1"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-east2",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
-    "service": { "name": "cloudaicompanion.googleapis.com" }
+    "region": "europe-southwest1",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
+    "service": { "name": "generativelanguage.googleapis.com" }
   },
   "gcp": {
-    "gemini_code_assist": {
-      "editor": "vscode",
-      "action": "TRANSFORMATION",
-      "language": "terraform",
-      "accepted": false,
-      "latency_ms": 7672,
-      "tokens_generated": 44
+    "gemini": {
+      "model": "gemini-2.0-flash-thinking-exp",
+      "input_tokens": 842,
+      "output_tokens": 2246,
+      "total_tokens": 3088,
+      "finish_reason": "STOP",
+      "prompt_token_count": 842,
+      "candidates_token_count": 2246,
+      "total_token_count": 3088,
+      "safety_ratings": [
+        { "category": "HARM_CATEGORY_HARASSMENT", "probability": "MEDIUM" },
+        { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "probability": "NEGLIGIBLE" }
+      ],
+      "latency_ms": 820,
+      "grounding_used": false
     }
   },
-  "event": {
-    "outcome": "failure",
-    "duration": 7672,
-    "module": "gcp",
-    "dataset": "gcp.gemini_code_assist"
-  },
-  "message": "cloudaicompanion.googleapis.com: TRANSFORMATION request FAILED editor=vscode language=terraform: upstream UNAVAILABLE",
-  "service": { "name": "gemini-code-assist", "type": "gcp" },
-  "log": { "level": "error" },
+  "event": { "outcome": "success", "duration": 820, "module": "gcp", "dataset": "gcp.gemini" },
+  "message": "POST /v1beta/models/gemini-2.0-flash-thinking-exp:generateContent 200 OK latency_ms=820 prompt_tokens=842 candidates_tokens=2246 total=3088",
+  "service": { "name": "gemini", "type": "gcp" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.gemini_code_assist", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.gemini", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-east2",
-    "id": "ashi9ffdj6u"
+    "name": "elastic-agent-gcp-europe-southwest1",
+    "id": "s9cdafgw5j"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-staging-d4e5f6/logs/gemini-code-assist",
+  "logName": "projects/globex-prod-a1b2c3/logs/gemini",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-staging-d4e5f6", "region": "asia-east2" }
+    "labels": { "project_id": "globex-prod-a1b2c3", "region": "europe-southwest1" }
   },
-  "insertId": "IFN3XWSE9M8",
+  "insertId": "3UVVWGB7CJR",
   "jsonPayload": {
-    "gemini_code_assist": {
-      "editor": "vscode",
-      "action": "TRANSFORMATION",
-      "language": "terraform",
-      "accepted": false,
-      "latency_ms": 7672,
-      "tokens_generated": 44
+    "gemini": {
+      "model": "gemini-2.0-flash-thinking-exp",
+      "input_tokens": 842,
+      "output_tokens": 2246,
+      "total_tokens": 3088,
+      "finish_reason": "STOP",
+      "prompt_token_count": 842,
+      "candidates_token_count": 2246,
+      "total_token_count": 3088,
+      "safety_ratings": [
+        { "category": "HARM_CATEGORY_HARASSMENT", "probability": "MEDIUM" },
+        { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "probability": "NEGLIGIBLE" }
+      ],
+      "latency_ms": 820,
+      "grounding_used": false
     },
-    "message": "cloudaicompanion.googleapis.com: TRANSFORMATION request FAILED editor=vscode language=terraform: upstream UNAVAILABLE"
+    "message": "POST /v1beta/models/gemini-2.0-flash-thinking-exp:generateContent 200 OK latency_ms=820 prompt_tokens=842 candidates_tokens=2246 total=3088"
   }
 }

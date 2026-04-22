@@ -1,66 +1,72 @@
 {
-  "@timestamp": "2026-04-22T18:06:16.823Z",
+  "@timestamp": "2026-04-22T18:07:53.671Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-4",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-north-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "codedeploy" }
   },
   "aws": {
-    "dimensions": { "DeploymentGroupName": "prod", "ApplicationName": "worker-service" },
+    "dimensions": { "DeploymentGroupName": "prod", "ApplicationName": "api-service" },
     "codedeploy": {
-      "application_name": "worker-service",
+      "application_name": "api-service",
       "deployment_group": "prod",
-      "deployment_id": "d-ZEFD3JGYQ",
-      "deployment_type": "IN_PLACE",
-      "lifecycle_event": "AfterAllowTraffic",
-      "event_status": "Succeeded",
-      "duration_seconds": 319,
-      "instances_succeeded": 1,
-      "instances_failed": 0,
+      "deployment_id": "d-ZUX7JEZ8U",
+      "deployment_type": "BLUE_GREEN",
+      "lifecycle_event": "AfterInstall",
+      "event_status": "Failed",
+      "duration_seconds": 1060,
+      "error_code": "SCRIPT_FAILED",
+      "instances_succeeded": 2,
+      "instances_failed": 3,
       "metrics": {
         "DeploymentAttempts": { "sum": 1 },
-        "DeploymentSuccesses": { "sum": 1 },
-        "DeploymentFailures": { "sum": 0 },
+        "DeploymentSuccesses": { "sum": 0 },
+        "DeploymentFailures": { "sum": 1 },
         "RollbackAttempts": { "sum": 0 },
-        "DeploymentDuration": { "avg": 319 },
+        "DeploymentDuration": { "avg": 1060 },
         "InstanceSuccesses": { "sum": 5 },
-        "InstanceFailures": { "sum": 0 }
+        "InstanceFailures": { "sum": 2 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-codedeploy-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-codedeploy-logs-293847561023"
+        "name": "aws-codedeploy-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-codedeploy-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/codedeploy/ap-southeast-4/2026/04/22/codedeploy_1QJZ7HT0XI.log.gz"
+        "key": "AWSLogs/501938274650/codedeploy/eu-north-1/2026/04/22/codedeploy_PP6ADCKZCH.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codedeploy/logs",
-      "log_stream": "ap-southeast-4/0fm75tqq",
-      "ingestion_time": "2026-04-22T18:06:17.573Z"
+      "log_stream": "eu-north-1/lk7w7eob",
+      "ingestion_time": "2026-04-22T18:07:54.421Z"
     }
   },
   "event": {
-    "duration": 319000000000,
-    "outcome": "success",
+    "duration": 1060000000000,
+    "outcome": "failure",
     "category": ["process", "configuration"],
     "dataset": "aws.codedeploy",
     "provider": "codedeploy.amazonaws.com",
     "module": "aws"
   },
-  "message": "[CodeDeploy] deploymentId=d-ZEFD3JGYQ application=worker-service deploymentGroup=prod deploymentStyle=BLUE_GREEN\n[CodeDeploy] Targeting instances: count=8 tagSet=Environment:prod\n[Lifecycle:BeforeInstall] instanceId=i-72ZOB9KD script=scripts/before_install.sh status=SUCCEEDED durationSec=86\n[Lifecycle:Install] instanceId=i-72ZOB9KD script=appspec/install.sh status=SUCCEEDED durationSec=102\n[Lifecycle:AfterInstall] instanceId=i-72ZOB9KD script=appspec/after_install.sh status=SUCCEEDED durationSec=165\n[Lifecycle:ApplicationStart] instanceId=i-72ZOB9KD script=scripts/application_start.sh status=SUCCEEDED durationSec=63\n[Lifecycle:ValidateService] instanceId=i-72ZOB9KD script=scripts/validate_service.sh status=SUCCEEDED durationSec=80\n[CodeDeploy] deploymentId=d-ZEFD3JGYQ status=SUCCEEDED overallDurationSec=319",
-  "log": { "level": "info" },
+  "message": "[CodeDeploy] deploymentId=d-ZUX7JEZ8U application=api-service deploymentGroup=prod deploymentStyle=IN_PLACE\n[CodeDeploy] Targeting instances: count=7 tagSet=Environment:prod\n[Lifecycle:BeforeInstall] instanceId=i-W3D1U9P5 script=scripts/before_install.sh status=SUCCEEDED durationSec=88\n[Lifecycle:Install] instanceId=i-W3D1U9P5 script=scripts/install.sh status=SUCCEEDED durationSec=41\n[Lifecycle:AfterInstall] instanceId=i-W3D1U9P5 script=appspec/after_install.sh status=FAILED durationSec=110\n[CodeDeploy] deploymentId=d-ZUX7JEZ8U status=FAILED overallDurationSec=1060",
+  "log": { "level": "error" },
+  "error": {
+    "code": "AGENT_ISSUE",
+    "message": "CodeDeploy failed at AfterInstall",
+    "type": "deployment"
+  },
   "service": { "name": "codedeploy", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.codedeploy", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-4",
-    "ephemeral_id": "mzi5y8rhpbm"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "rkn4kn50jcd"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,66 +1,73 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "NOTICE",
-  "logName": "projects/globex-staging-d4e5f6/logs/chronicle.googleapis.com%2Falert",
-  "insertId": "6xh4cba4uld",
+  "severity": "ALERT",
+  "logName": "projects/globex-prod-a1b2c3/logs/chronicle.googleapis.com%2Fsoar_events",
+  "insertId": "ild1z69mcs",
   "resource": {
-    "type": "chronicle_instance",
-    "labels": { "project_id": "globex-staging-d4e5f6", "region": "northamerica-northeast1" }
+    "type": "security_operations_case",
+    "labels": { "project_id": "globex-prod-a1b2c3", "case_id": "case-v33xw1wko2" }
   },
   "jsonPayload": {
-    "result": {
-      "ruleName": "lateral_movement_rdp",
-      "versionId": "ru_CIRTNVNK",
-      "detections": [{ "type": "RULE_DETECTION", "severity": "NOTICE", "eventsMatched": 41545 }],
-      "ioc": { "type": "IP", "value": "171.224.247.56" }
+    "case": {
+      "name": "projects/globex-prod-a1b2c3/locations/global/cases/case-v33xw1wko2",
+      "displayName": "Investigation case-v33xw1wko2",
+      "stage": "OPEN",
+      "priority": "CRITICAL"
     },
-    "case": { "name": "CASE-ERDK24", "stage": "ACKNOWLEDGED" }
+    "playbook": { "name": "data_exfil", "revisionId": "rev_BE31T7" },
+    "action": { "type": "CASE_CREATED", "entitiesTouched": 119, "indicatorsTouched": 15 },
+    "siem": {
+      "product": "Google Security Operations",
+      "instance": "projects/globex-prod-a1b2c3/locations/global"
+    }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "northamerica-northeast1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "region": "australia-southeast2",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
     "service": { "name": "security-operations" }
   },
   "gcp": {
-    "secops_detection": {
+    "security_operations": {
       "json_payload": {
-        "result": {
-          "ruleName": "lateral_movement_rdp",
-          "versionId": "ru_CIRTNVNK",
-          "detections": [
-            { "type": "RULE_DETECTION", "severity": "NOTICE", "eventsMatched": 41545 }
-          ],
-          "ioc": { "type": "IP", "value": "171.224.247.56" }
+        "case": {
+          "name": "projects/globex-prod-a1b2c3/locations/global/cases/case-v33xw1wko2",
+          "displayName": "Investigation case-v33xw1wko2",
+          "stage": "OPEN",
+          "priority": "CRITICAL"
         },
-        "case": { "name": "CASE-ERDK24", "stage": "ACKNOWLEDGED" }
+        "playbook": { "name": "data_exfil", "revisionId": "rev_BE31T7" },
+        "action": { "type": "CASE_CREATED", "entitiesTouched": 119, "indicatorsTouched": 15 },
+        "siem": {
+          "product": "Google Security Operations",
+          "instance": "projects/globex-prod-a1b2c3/locations/global"
+        }
       },
-      "rule_name": "lateral_movement_rdp",
-      "detection_type": "RULE_DETECTION",
-      "severity": "NOTICE",
-      "alert_state": "ACKNOWLEDGED",
-      "ioc_type": "IP",
-      "matched_events_count": 41545,
-      "case_name": "CASE-KW4KKD"
+      "case_id": "case-v33xw1wko2",
+      "playbook_name": "data_exfil",
+      "action_type": "CASE_CREATED",
+      "severity": "CRITICAL",
+      "entities_count": 119,
+      "indicators_count": 15
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 63000000,
+    "duration": 135000000,
     "module": "gcp",
-    "dataset": "gcp.secops_detection"
+    "dataset": "gcp.secops"
   },
-  "message": "chronicle.googleapis.com/Detections lateral_movement_rdp RULE_DETECTION events=41545",
-  "service": { "name": "secops-detection", "type": "gcp" },
+  "message": "securityoperations.googleapis.com/CASE_CREATED case=case-v33xw1wko2 playbook=data_exfil",
+  "service": { "name": "security-operations", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.secops_detection", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.secops", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-northamerica-northeast1",
-    "id": "jhqx01wjgfa"
+    "name": "elastic-agent-gcp-australia-southeast2",
+    "id": "cko9so4v9k"
   },
-  "input": { "type": "gcp-pubsub" }
+  "input": { "type": "http_endpoint" }
 }
