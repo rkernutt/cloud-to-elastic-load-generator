@@ -34,9 +34,25 @@ describe("bulk helpers", () => {
     });
 
     it("retries on 503 then succeeds", async () => {
+      const jsonHeaders = {
+        get: (k: string) => (k === "content-type" ? "application/json" : null),
+      };
       mockFetch
         .mockResolvedValueOnce({ ok: false, status: 503 })
-        .mockResolvedValueOnce({ ok: true, status: 200 });
+        .mockResolvedValueOnce({ ok: true, status: 200, headers: jsonHeaders });
+      const res = await fetchWithRetry("http://x", {}, 2);
+      expect(res.ok).toBe(true);
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
+
+    it("retries when proxy returns HTML instead of JSON", async () => {
+      const htmlHeaders = { get: (k: string) => (k === "content-type" ? "text/html" : null) };
+      const jsonHeaders = {
+        get: (k: string) => (k === "content-type" ? "application/json" : null),
+      };
+      mockFetch
+        .mockResolvedValueOnce({ ok: true, status: 200, headers: htmlHeaders })
+        .mockResolvedValueOnce({ ok: true, status: 200, headers: jsonHeaders });
       const res = await fetchWithRetry("http://x", {}, 2);
       expect(res.ok).toBe(true);
       expect(mockFetch).toHaveBeenCalledTimes(2);

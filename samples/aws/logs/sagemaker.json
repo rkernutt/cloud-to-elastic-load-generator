@@ -1,87 +1,87 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "me-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "sagemaker" }
   },
   "aws": {
     "dimensions": {
-      "TrainingJobName": "resnet50-custom-processing-20260421-wcpvu5",
+      "TrainingJobName": "lstm-timeseries-processing-20260421-3it6h4",
       "JobType": "Processing"
     },
     "cloudwatch": {
       "log_group": "/aws/sagemaker/ProcessingJobs",
-      "log_stream": "resnet50-custom-processing-20260421-wcpvu5/algo-1",
-      "ingestion_time": "2026-04-21T10:21:44.244Z"
+      "log_stream": "lstm-timeseries-processing-20260421-3it6h4/algo-2",
+      "ingestion_time": "2026-04-21T16:58:55.831Z"
     },
     "sagemaker": {
-      "domain_id": "d-pjupcgxj0j",
+      "domain_id": "d-8dwxpsg47f",
       "domain_name": "risk-models",
-      "user_profile": "carol-research",
+      "user_profile": "alice-ds",
       "job": {
-        "name": "resnet50-custom-processing-20260421-wcpvu5",
+        "name": "lstm-timeseries-processing-20260421-3it6h4",
         "type": "Processing",
-        "arn": "arn:aws:sagemaker:ap-southeast-2:738291046572:processing-job/resnet50-custom-processing-20260421-wcpvu5",
-        "status": "InProgress",
+        "arn": "arn:aws:sagemaker:me-south-1:814726593401:processing-job/lstm-timeseries-processing-20260421-3it6h4",
+        "status": "Completed",
         "secondary_status": "Downloading"
       },
-      "model": { "name": "resnet50-custom", "version": 5 },
-      "pipeline": { "name": "feature-engineering-pipeline", "execution_id": "pipe-9rf0yicgkwq" },
-      "instance": { "type": "ml.g5.2xlarge", "count": 2 },
-      "metrics": { "gpu_utilization_pct": 59, "cpu_utilization_pct": 61 },
+      "model": { "name": "lstm-timeseries", "version": 12 },
+      "pipeline": { "name": "batch-inference-pipeline", "execution_id": "pipe-16wtvixn2hp" },
+      "instance": { "type": "ml.c5.xlarge", "count": 4 },
+      "metrics": { "gpu_utilization_pct": 63, "cpu_utilization_pct": 58 },
       "studio": {
-        "space_name": "ds-platform",
+        "space_name": "risk-models",
         "app_type": "CodeEditor",
         "app_name": "default",
         "lifecycle_config": false,
         "continuous_logging": true
       },
       "cloudwatch_metrics": {
-        "Invocations": { "sum": 3438 },
-        "ModelLatency": { "avg": 36000 },
-        "OverheadLatency": { "avg": 3000 },
-        "GPUUtilization": { "avg": 45 },
-        "GPUMemoryUtilization": { "avg": 48 },
-        "CPUUtilization": { "avg": 30 },
-        "DiskUtilization": { "avg": 22 },
-        "MemoryUtilization": { "avg": 55 },
+        "Invocations": { "sum": 4607 },
+        "ModelLatency": { "avg": 141000 },
+        "OverheadLatency": { "avg": 5000 },
+        "GPUUtilization": { "avg": 76 },
+        "GPUMemoryUtilization": { "avg": 70 },
+        "CPUUtilization": { "avg": 56 },
+        "DiskUtilization": { "avg": 44 },
+        "MemoryUtilization": { "avg": 69 },
         "Invocations4XXError": { "sum": 0 },
         "Invocations5XXError": { "sum": 0 },
-        "ModelSetupTime": { "avg": 4104 }
+        "ModelSetupTime": { "avg": 346 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sagemaker-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-sagemaker-logs-738291046572"
+        "name": "aws-sagemaker-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-sagemaker-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/sagemaker/ap-southeast-2/2026/04/21/sagemaker_F6SJHNB98G9.log.gz"
+        "key": "AWSLogs/814726593401/sagemaker/me-south-1/2026/04/21/sagemaker_QA1XMEJ1TG.log.gz"
       }
     }
   },
-  "log": { "level": "info" },
-  "user": { "name": "carol-research" },
+  "log": { "level": "warn" },
+  "user": { "name": "alice-ds" },
   "event": {
-    "action": "AppCreated",
-    "duration": 2093181174831.4417,
+    "action": "SpaceCreated",
+    "duration": 9000110596129.102,
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.sagemaker",
     "provider": "sagemaker.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"domainId\":\"d-pjupcgxj0j\",\"space\":\"ds-platform\",\"appType\":\"CodeEditor\",\"user\":\"carol-research\",\"level\":\"INFO\",\"message\":\"Starting processing job...\",\"timestamp\":\"2026-04-21T10:21:43.398Z\",\"event\":\"AppCreated\"}",
+  "message": "{\"domainId\":\"d-8dwxpsg47f\",\"space\":\"risk-models\",\"appType\":\"CodeEditor\",\"user\":\"alice-ds\",\"level\":\"WARN\",\"message\":\"Spot instance interruption warning. Checkpointing to s3://sagemaker-me-south-1-814726593401/checkpoints/lstm-timeseries-processing-20260421-3it6h4/\",\"timestamp\":\"2026-04-21T16:58:54.847Z\",\"event\":\"SpaceCreated\"}",
   "service": { "name": "sagemaker", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sagemaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-2",
-    "ephemeral_id": "maej68iwlxs"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "16d921w6n0o"
   },
   "input": { "type": "aws-cloudwatch" }
 }

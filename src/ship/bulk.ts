@@ -12,7 +12,10 @@ export function dryRunResponse(): Response {
   });
 }
 
-/** Fetch with exponential-backoff retry for transient network errors and 5xx responses. */
+/**
+ * Fetch with exponential-backoff retry for transient network errors, 5xx responses,
+ * and non-JSON proxy error pages (nginx 502/504 returning HTML).
+ */
 export async function fetchWithRetry(
   url: string,
   options: RequestInit,
@@ -22,8 +25,18 @@ export async function fetchWithRetry(
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       const res = await fetch(url, options);
-      if (res.ok || (res.status >= 400 && res.status < 500)) return res;
-      lastErr = new Error(`HTTP ${res.status}`);
+      if (res.status >= 500) {
+        lastErr = new Error(`HTTP ${res.status}`);
+      } else if (res.ok) {
+        const ct = res.headers.get("content-type") ?? "";
+        if (!ct.includes("json") && !ct.includes("ndjson")) {
+          lastErr = new Error(`Proxy returned non-JSON response (${ct || "no content-type"})`);
+        } else {
+          return res;
+        }
+      } else {
+        return res;
+      }
     } catch (e) {
       lastErr = e;
     }

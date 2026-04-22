@@ -233,7 +233,6 @@ export const GCP_VENDOR_SERVICE_ICONS: Record<string, string> = {
   vpc: "vpc.svg",
   "vpc-flow": "vpc-flow.svg",
   "cloud-lb": "cloud-lb.svg",
-  chronicle: "chronicle.png",
   dlp: "dlp.svg",
   "natural-language": "natural-language.svg",
   translation: "translation.svg",

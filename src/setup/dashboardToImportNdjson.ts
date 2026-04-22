@@ -487,6 +487,7 @@ export async function buildDashboardSavedObjectPayload(
   const attributes: Record<string, unknown> = {
     title: def.title,
     description: "",
+    version: 1,
     panelsJSON: JSON.stringify(panels),
     optionsJSON: JSON.stringify({
       useMargins: true,

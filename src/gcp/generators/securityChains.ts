@@ -1,5 +1,5 @@
 /**
- * Multi-document security / attack-pattern generators for GCP (SCC, Chronicle, SecOps, CSPM, etc.).
+ * Multi-document security / attack-pattern generators for GCP (SCC, Security Operations / SecOps, CSPM, etc.).
  */
 import { offsetTs } from "../../aws/generators/traces/helpers.js";
 import {
@@ -39,7 +39,7 @@ const SCC_CATEGORIES = [
   "C2_COMMUNICATION",
 ] as const;
 
-/** SCC finding → Chronicle SIEM rule match → Security Operations SOAR case (time-correlated). */
+/** SCC finding → SecOps SIEM detection → SecOps SOAR case (time-correlated). */
 export function generateGcpSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
   const { region, project } = makeGcpSetup(0);
   const baseDate = new Date(ts);
@@ -50,7 +50,7 @@ export function generateGcpSecurityFindingChain(ts: string, _er: number): EcsDoc
   const resourceName = `//compute.googleapis.com/projects/${project.id}/zones/${zone}/instances/${instanceName}`;
   const category = rand([...SCC_CATEGORIES]);
   const severity = rand(["CRITICAL", "HIGH", "MEDIUM", "LOW"] as const);
-  const chronicleRule = `gcp_scc_chronicle_${category.toLowerCase()}_${randId(6)}`;
+  const secopsRule = `gcp_scc_secops_${category.toLowerCase()}_${randId(6)}`;
   const caseId = `cases/${randUUID()}`;
   const srcIp = randIp();
   const assignee = rand([
@@ -68,7 +68,7 @@ export function generateGcpSecurityFindingChain(ts: string, _er: number): EcsDoc
   };
 
   const sccTs = ts;
-  const chronicleTs = offsetTs(baseDate, 60_000);
+  const detectionTs = offsetTs(baseDate, 60_000);
   const secopsTs = offsetTs(baseDate, 180_000);
 
   const scc: EcsDocument = {
@@ -104,14 +104,14 @@ export function generateGcpSecurityFindingChain(ts: string, _er: number): EcsDoc
     log: { level: "error" },
   };
 
-  const chronicle: EcsDocument = {
-    "@timestamp": chronicleTs,
-    __dataset: "gcp.chronicle",
+  const detection: EcsDocument = {
+    "@timestamp": detectionTs,
+    __dataset: "gcp.secops",
     labels: chainLabels,
-    cloud: gcpCloud(region, project, "chronicle"),
+    cloud: gcpCloud(region, project, "security-operations"),
     gcp: {
-      chronicle: {
-        rule_name: chronicleRule,
+      secops_detection: {
+        rule_name: secopsRule,
         detection_type: "RULE_DETECTION",
         severity: randSeverity(false),
         alert_state: "NEW",
@@ -119,11 +119,11 @@ export function generateGcpSecurityFindingChain(ts: string, _er: number): EcsDoc
         matched_events_count: randInt(12, 8000),
         case_name: caseId,
         related_scc_finding_id: findingId,
-        match_timestamp: chronicleTs,
+        match_timestamp: detectionTs,
         udm_event: {
           metadata: {
-            event_timestamp: chronicleTs,
-            product_name: "Chronicle",
+            event_timestamp: detectionTs,
+            product_name: "Google Security Operations",
             vendor_name: "Google",
             log_type: "GCP_SCC_FINDING",
           },
@@ -136,16 +136,16 @@ export function generateGcpSecurityFindingChain(ts: string, _er: number): EcsDoc
             project_id: project.id,
           },
           security_result: {
-            rule_name: chronicleRule,
+            rule_name: secopsRule,
             severity: severity === "CRITICAL" ? "HIGH" : severity,
-            summary: `Chronicle rule matched SCC finding ${findingId}`,
+            summary: `SecOps SIEM rule matched SCC finding ${findingId}`,
           },
         },
       },
     },
     source: { ip: srcIp },
     event: { kind: "alert", category: ["intrusion_detection"], outcome: "failure" },
-    message: `Chronicle: SCC finding ${findingId} promoted — rule ${chronicleRule}`,
+    message: `SecOps: SCC finding ${findingId} promoted — rule ${secopsRule}`,
     log: { level: "error" },
   };
 
@@ -163,18 +163,18 @@ export function generateGcpSecurityFindingChain(ts: string, _er: number): EcsDoc
         entities_count: randInt(4, 120),
         indicators_count: randInt(2, 40),
         source_finding_id: findingId,
-        chronicle_rule: chronicleRule,
+        siem_rule: secopsRule,
         status: "NEW",
         priority,
         assignee,
       },
     },
     event: { kind: "alert", outcome: "failure" },
-    message: `SecOps case ${caseId} opened for SCC→Chronicle chain (${category})`,
+    message: `SecOps case ${caseId} opened for SCC→SecOps chain (${category})`,
     log: { level: "error" },
   };
 
-  return [scc, chronicle, secops];
+  return [scc, detection, secops];
 }
 
 function gcpCspmResourceForRule(

@@ -101,7 +101,6 @@ const GCP_SERVICE_INGESTION_DEFAULTS: Record<string, string> = {
   "vpc-service-controls": "api",
   "access-context-manager": "api",
   "assured-workloads": "api",
-  chronicle: "api",
   "recaptcha-enterprise": "api",
   "web-security-scanner": "api",
   "cloud-storage": "gcs",

@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,70 +7,71 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
+    "region": "me-central-1",
     "account": { "id": "293847561023", "name": "globex-staging" }
   },
   "orchestrator": {
-    "cluster": {
-      "id": "eks-prod-data",
-      "name": "eks-prod-data"
-    },
+    "cluster": { "id": "dev-eks", "name": "dev-eks" },
     "type": "kubernetes",
     "namespace": "production"
   },
   "resource": {
-    "id": "eks-prod-data/production/pod/api-gateway-7f4d8",
-    "name": "pod/api-gateway-7f4d8",
+    "id": "k8s-node/ip-119-183-45-120.me-central-1.compute.internal",
+    "name": "ip-119-183-45-120.me-central-1.compute.internal",
     "type": "k8s_object",
-    "sub_type": "Pod",
-    "raw": {
-      "spec": {
-        "containers": [
-          {
-            "name": "api-gateway",
-            "securityContext": {
-              "privileged": true,
-              "runAsUser": 0
-            }
-          }
-        ]
-      }
-    }
+    "sub_type": "Node",
+    "raw": { "node": "ip-119-183-45-120.me-central-1.compute.internal" }
   },
   "rule": {
-    "id": "1fbb8ccd-2596-5812-9a26-c0c5f6e24b0d",
-    "name": "Minimize the admission of privileged containers",
-    "section": "5.2.2",
-    "description": "Do not generally permit containers to be run with the securityContext.privileged flag set to true.",
-    "tags": ["CIS", "EKS", "CIS 5.2.2", "Pod Security Policies"],
+    "id": "1a8ee966-458a-5ff9-a6e9-436aba157ebd",
+    "name": "Ensure that the --eventRecordQPS argument is set to 0 or a level which ensures appropriate event capture",
+    "section": "3.2.9",
+    "description": "Security relevant information should be captured.",
+    "tags": ["CIS", "EKS", "CIS 3.2.9", "Kubelet"],
     "benchmark": {
       "id": "cis_eks",
       "name": "CIS Amazon Elastic Kubernetes Service (EKS)",
-      "version": "v1.4.0",
-      "rule_number": "5.2.2",
+      "version": "v1.0.1",
+      "rule_number": "3.2.9",
       "posture_type": "kspm"
     },
-    "profile_applicability": "* Level 1",
-    "impact": "Non-compliance with CIS Amazon Elastic Kubernetes Service (EKS) 5.2.2 — Minimize the admission of privileged containers",
-    "remediation": "Remediate per CIS Amazon Elastic Kubernetes Service (EKS) v1.4.0 section 5.2.2."
+    "profile_applicability": "* Level 2"
   },
-  "result": {
-    "evaluation": "failed",
-    "evidence": {
-      "spec": {
-        "containers": [{ "securityContext": { "privileged": true } }]
-      }
-    }
-  },
+  "result": { "evaluation": "passed" },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "aws"
   },
-  "message": "[cis_eks/5.2.2] failed: Minimize the admission of privileged containers",
-  "log": { "level": "warn" }
+  "message": "[cis_eks/3.2.9] passed: Ensure that the --eventRecordQPS argument is set to 0 or a level which ensures appropriate event capture",
+  "log": { "level": "info" },
+  "service": { "name": "kspm", "type": "aws" },
+  "ecs": { "version": "8.11.0" },
+  "agent": {
+    "type": "filebeat",
+    "version": "8.18.0",
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "gf6akadcnql"
+  },
+  "input": { "type": "http_endpoint" },
+  "aws": {
+    "s3": {
+      "bucket": {
+        "name": "aws-kspm-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-kspm-logs-293847561023"
+      },
+      "object": {
+        "key": "AWSLogs/293847561023/kspm/me-central-1/2026/04/21/kspm_O7UAIQXWD7B.log.gz"
+      }
+    },
+    "cloudwatch": {
+      "log_group": "/aws/kspm/logs",
+      "log_stream": "me-central-1/eijid41g",
+      "ingestion_time": "2026-04-21T16:58:55.709Z"
+    }
+  }
 }

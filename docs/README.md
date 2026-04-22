@@ -19,7 +19,7 @@ Reference material for **Cloud to Elastic Load Generator**. All Markdown guides 
 
 All Elastic assets — **ingest pipelines**, **data stream templates**, **Kibana dashboards**, **ML anomaly detection jobs**, and **alerting rules** — are installed together **per service** as **Cloud Loadgen Integrations**. Every asset is tagged or labelled **`cloudloadgen`** so you can filter, view, or bulk-edit them in Kibana without affecting production objects. The Setup page groups integrations by service category (Compute, Networking, Databases, etc.) across all three clouds.
 
-See [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md) for details on installing, filtering, and removing integrations.
+See [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md) for details on installing, filtering, removing integrations, **post-install options** (enabling rules and starting ML jobs), dashboard installation fallback strategy, and alerting rule compatibility.
 
 ---
 

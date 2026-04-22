@@ -1,63 +1,73 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ca-west-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "bvig4pxhhiv" },
+    "dimensions": { "DetectorId": "81iud23hmau" },
     "guardduty": {
       "schema_version": "2.0",
-      "account_id": "293847561023",
-      "region": "ap-northeast-3",
+      "account_id": "738291046572",
+      "region": "ca-west-1",
       "partition": "aws",
-      "id": "n9pz00y79q",
-      "arn": "arn:aws:guardduty:ap-northeast-3:293847561023:detector/bvig4pxhhiv/finding/n9pz00y79q",
-      "type": "Exfiltration:S3/AnomalousBehavior",
-      "title": "S3 AnomalousBehavior",
-      "description": "GuardDuty identified suspicious behavior based on VPC flow logs, DNS logs, or CloudTrail. Finding type: Exfiltration:S3/AnomalousBehavior. Resource: arn:aws:s3:::app-data-561023.",
-      "created_at": "2026-04-21T10:21:43.398Z",
-      "updated_at": "2026-04-21T10:21:43.398Z",
+      "id": "q7f8y4fpbol",
+      "arn": "arn:aws:guardduty:ca-west-1:738291046572:detector/81iud23hmau/finding/q7f8y4fpbol",
+      "type": "UnauthorizedAccess:EC2/MaliciousIPCaller",
+      "title": "EC2 MaliciousIPCaller",
+      "description": "GuardDuty identified suspicious behavior based on VPC flow logs, DNS logs, or CloudTrail. Finding type: UnauthorizedAccess:EC2/MaliciousIPCaller. Resource: arn:aws:s3:::customer-exports-046572.",
+      "created_at": "2026-04-21T16:58:54.847Z",
+      "updated_at": "2026-04-21T16:58:54.847Z",
       "severity": { "code": 4, "value": "Medium" },
-      "confidence": 89.28608828060035,
+      "confidence": 77.9925471715709,
       "resource": {
         "type": "S3Bucket",
         "s3_bucket_detail": {
-          "arn": "arn:aws:s3:::app-data-561023",
-          "name": "app-data-561023",
+          "arn": "arn:aws:s3:::customer-exports-046572",
+          "name": "customer-exports-046572",
           "type": "Destination",
-          "created_at": "2026-04-21T10:15:15.398Z",
-          "owner": { "id": "293847561023" }
+          "created_at": "2026-04-21T16:07:47.847Z",
+          "owner": { "id": "738291046572" }
         }
       },
       "service": {
-        "detector_id": "bvig4pxhhiv",
-        "count": 74,
+        "detector_id": "81iud23hmau",
+        "count": 37,
         "archived": false,
         "resource_role": "TARGET",
-        "action": { "action_type": "DNS_REQUEST" }
+        "action": {
+          "action_type": "PORT_PROBE",
+          "port_probe_action": {
+            "port_probe_details": [
+              {
+                "local_port_details": { "port": 8080 },
+                "remote_ip_details": { "ip_address_v4": "72.200.10.84" }
+              }
+            ]
+          }
+        }
       },
-      "metrics": { "FindingCount": { "sum": 48 }, "HighSeverityFindingCount": { "sum": 0 } }
+      "metrics": { "FindingCount": { "sum": 4 }, "HighSeverityFindingCount": { "sum": 0 } }
     },
     "s3": {
       "bucket": {
-        "name": "aws-security-chain-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-security-chain-logs-293847561023"
+        "name": "aws-security-chain-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-security-chain-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/security-chain/ap-northeast-3/2026/04/21/security-chain_40G0E1XCLXR.log.gz"
+        "key": "AWSLogs/738291046572/security-chain/ca-west-1/2026/04/21/security-chain_EFVPWXR95LR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/security-chain/logs",
-      "log_stream": "ap-northeast-3/jv09oktc",
-      "ingestion_time": "2026-04-21T10:21:44.125Z"
+      "log_stream": "ca-west-1/kc8k5r28",
+      "ingestion_time": "2026-04-21T16:58:55.704Z"
     }
   },
-  "source": { "ip": "172.80.244.188" },
-  "rule": { "category": "threat", "name": "Exfiltration:S3/AnomalousBehavior" },
+  "source": { "ip": "72.200.10.84" },
+  "rule": { "category": "threat", "name": "UnauthorizedAccess:EC2/MaliciousIPCaller" },
   "event": {
     "kind": "alert",
     "severity": 4,
@@ -68,22 +78,22 @@
     "provider": "guardduty.amazonaws.com",
     "module": "aws"
   },
-  "message": "GuardDuty finding [MEDIUM]: Exfiltration:S3/AnomalousBehavior — arn:aws:s3:::app-data-561023",
+  "message": "GuardDuty finding [MEDIUM]: UnauthorizedAccess:EC2/MaliciousIPCaller — arn:aws:s3:::customer-exports-046572",
   "log": { "level": "warn" },
   "labels": {
-    "finding_chain_id": "iivfm9lz-06w2-ow69-djfa-lu4h5owz01i",
-    "guardduty_finding_id": "n9pz00y79q",
-    "securityhub_finding_id": "DVH10BXL-RM45-47KZ-DI88-QHPTMKHEFE",
-    "resource_arn": "arn:aws:s3:::app-data-561023"
+    "finding_chain_id": "2a6gkw6i-ez9c-zj7q-dwm1-oor4crybhn",
+    "guardduty_finding_id": "q7f8y4fpbol",
+    "securityhub_finding_id": "8K0BKPGF-Q6NV-CTKT-RH1Z-TT8D8EEVKB",
+    "resource_arn": "arn:aws:s3:::customer-exports-046572"
   },
   "error": {
     "code": "ThreatFinding",
-    "message": "GuardDuty finding: Exfiltration:S3/AnomalousBehavior",
+    "message": "GuardDuty finding: UnauthorizedAccess:EC2/MaliciousIPCaller",
     "type": "security"
   },
   "threat": {
-    "tactic": { "name": "Exfiltration", "id": "TA0010" },
-    "technique": { "name": "Transfer Data to Cloud Account", "id": "T1537" }
+    "tactic": { "name": "Initial Access", "id": "TA0001" },
+    "technique": { "name": "Valid Accounts", "id": "T1078" }
   },
   "service": { "name": "security-chain", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -91,8 +101,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "8y4xndgox1"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "tvxn6pxf3wi"
   },
   "input": { "type": "http_endpoint" }
 }

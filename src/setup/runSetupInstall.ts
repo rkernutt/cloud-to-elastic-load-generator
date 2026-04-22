@@ -10,6 +10,8 @@ import type {
 import {
   buildDashboardSavedObjectPayload,
   dashboardDefToImportNdjsonLine,
+  loadGeneratorKibanaTagId,
+  LOAD_GENERATOR_KIBANA_TAG_NAME,
 } from "./dashboardToImportNdjson";
 import {
   proxyCall,
@@ -128,6 +130,8 @@ export async function runSetupInstall(opts: {
   enableDashboards: boolean;
   enableMlJobs: boolean;
   enableAlertRules: boolean;
+  activateAlertRules: boolean;
+  startMlJobs: boolean;
   extraFleetPackages?: { name: string; label: string }[];
   pipelines: PipelineEntry[];
   dashboards: DashboardDef[];
@@ -146,6 +150,8 @@ export async function runSetupInstall(opts: {
     enableDashboards,
     enableMlJobs,
     enableAlertRules,
+    activateAlertRules,
+    startMlJobs,
     extraFleetPackages = [],
     pipelines,
     dashboards,
@@ -209,14 +215,57 @@ export async function runSetupInstall(opts: {
     );
   };
 
+  const ensureKibanaTag = async (kb: string): Promise<void> => {
+    const tagId = await loadGeneratorKibanaTagId();
+    const encTagId = encodeURIComponent(tagId);
+    try {
+      const existing = await proxyCall({
+        baseUrl: kb,
+        apiKey,
+        path: `/api/saved_objects/tag/${encTagId}`,
+        method: "GET",
+        allow404: true,
+      });
+      if (existing !== null) return;
+    } catch {
+      /* GET unavailable — try create anyway */
+    }
+    try {
+      await proxyCall({
+        baseUrl: kb,
+        apiKey,
+        path: `/api/saved_objects/tag/${encTagId}`,
+        method: "POST",
+        body: {
+          attributes: {
+            name: LOAD_GENERATOR_KIBANA_TAG_NAME,
+            description:
+              "Installed by Cloud to Elastic Load Generator — filter this tag to find or remove these assets.",
+          },
+        },
+      });
+    } catch (tagErr) {
+      const m = String(tagErr);
+      if (!m.includes("409") && !m.includes("conflict")) {
+        addLog(`  ⚠ Could not create Kibana tag: ${tagErr}`, "warn");
+      }
+    }
+  };
+
   const installDashboards = async () => {
     addLog(`Installing ${dashboards.length} dashboards…`);
     const kb = kibanaUrl.replace(/\/$/, "");
     let ok = 0;
     let fail = 0;
-    let loggedWhyDashboardFallback = false;
+    let loggedFallbackNote = false;
+
+    await ensureKibanaTag(kb);
+
     for (const dash of dashboards) {
       const { id: _id, spaces: _spaces, ...body } = dash;
+
+      // 1) Try the newer Kibana Dashboards API first.
+      let dashApiOk = false;
       try {
         await proxyCall({
           baseUrl: kb,
@@ -226,6 +275,7 @@ export async function runSetupInstall(opts: {
           body,
         });
         ok++;
+        dashApiOk = true;
       } catch (e) {
         const msg = String(e);
         if (!shouldUseSavedObjectDashboardInstall(msg)) {
@@ -236,106 +286,119 @@ export async function runSetupInstall(opts: {
           );
           continue;
         }
-        if (!loggedWhyDashboardFallback) {
-          loggedWhyDashboardFallback = true;
-          if (isKibanaFeatureUnavailable(msg)) {
-            addLog(
-              "  Note: Kibana Dashboards API is not available here — continuing with saved-object import.",
-              "info"
-            );
-          } else {
-            addLog(
-              "  Note: Kibana Dashboards API does not accept this dashboard shape (common on Serverless) — continuing with saved-object import.",
-              "info"
-            );
-          }
+        if (!loggedFallbackNote) {
+          loggedFallbackNote = true;
+          addLog(
+            "  Note: Kibana Dashboards API is not available — installing via saved objects.",
+            "info"
+          );
         }
-        try {
-          const payload = await buildDashboardSavedObjectPayload(dash);
-          const encId = encodeURIComponent(payload.id);
+      }
+      if (dashApiOk) continue;
 
-          let getOutcome: SoGetOutcome = "unavailable";
-          let existingVersion: string | undefined;
+      // 2) Saved-object POST/PUT — no multipart needed, works on Cloud Hosted & Serverless.
+      try {
+        const payload = await buildDashboardSavedObjectPayload(dash);
+        const encId = encodeURIComponent(payload.id);
+        const soBody = { attributes: payload.attributes, references: payload.references };
+
+        let getOutcome: SoGetOutcome = "unavailable";
+        let existingVersion: string | undefined;
+        try {
+          const got = await proxyCall({
+            baseUrl: kb,
+            apiKey,
+            path: `/api/saved_objects/dashboard/${encId}`,
+            method: "GET",
+            allow404: true,
+          });
+          if (got === null) {
+            getOutcome = "missing";
+          } else if (isSavedObjectDashboardHit(got)) {
+            getOutcome = "hit";
+            if (got.version !== undefined) existingVersion = String(got.version);
+          }
+        } catch (eG) {
+          if (!isKibanaFeatureUnavailable(String(eG))) throw eG;
+        }
+
+        if (getOutcome === "hit") {
+          await putDashboardSavedObject(
+            kb,
+            apiKey,
+            encId,
+            payload.attributes,
+            payload.references,
+            existingVersion
+          );
+          ok++;
+          continue;
+        }
+
+        if (getOutcome === "missing") {
           try {
-            const got = await proxyCall({
+            await proxyCall({
               baseUrl: kb,
               apiKey,
               path: `/api/saved_objects/dashboard/${encId}`,
-              method: "GET",
-              allow404: true,
+              method: "POST",
+              body: soBody,
             });
-            if (got === null) {
-              getOutcome = "missing";
-            } else if (isSavedObjectDashboardHit(got)) {
-              getOutcome = "hit";
-              if (got.version !== undefined) {
-                existingVersion = String(got.version);
-              }
-            } else {
-              getOutcome = "unavailable";
-            }
-          } catch (eG) {
-            if (!isKibanaFeatureUnavailable(String(eG))) throw eG;
-            getOutcome = "unavailable";
-          }
-
-          if (getOutcome === "hit") {
-            await putDashboardSavedObject(
-              kb,
-              apiKey,
-              encId,
-              payload.attributes,
-              payload.references,
-              existingVersion
-            );
             ok++;
-            addLog(`  ✓ Dashboard "${dash.title}" (saved object update)`, "ok");
             continue;
+          } catch (postErr) {
+            const pm = String(postErr);
+            if (pm.includes("409") || pm.includes("conflict")) {
+              await putDashboardSavedObject(
+                kb,
+                apiKey,
+                encId,
+                payload.attributes,
+                payload.references,
+                undefined
+              );
+              ok++;
+              continue;
+            }
+            if (!isKibanaFeatureUnavailable(pm)) throw postErr;
           }
+        }
 
-          const ndjson = await dashboardDefToImportNdjsonLine(dash);
-          const importQuery = getOutcome === "missing" ? "overwrite=false" : "overwrite=true";
-          const raw = (await proxyCall({
-            baseUrl: kb,
+        // 3) Last resort: NDJSON import (handles edge-case deployments where POST/PUT are blocked).
+        const ndjson = await dashboardDefToImportNdjsonLine(dash);
+        const raw = (await proxyCall({
+          baseUrl: kb,
+          apiKey,
+          path: `/api/saved_objects/_import?overwrite=true`,
+          method: "POST",
+          kibanaSavedObjectsNdjson: ndjson,
+        })) as { success?: boolean; successCount?: number; errors?: unknown[] };
+        const importedOk =
+          raw?.success === true || (typeof raw?.successCount === "number" && raw.successCount > 0);
+        if (importedOk) {
+          ok++;
+        } else if (savedObjectImportHasConflict(raw)) {
+          await putDashboardSavedObject(
+            kb,
             apiKey,
-            path: `/api/saved_objects/_import?${importQuery}`,
-            method: "POST",
-            kibanaSavedObjectsNdjson: ndjson,
-          })) as {
-            success?: boolean;
-            successCount?: number;
-            errors?: unknown[];
-          };
-          const importedOk =
-            raw?.success === true ||
-            (typeof raw?.successCount === "number" && raw.successCount > 0);
-          if (importedOk) {
-            ok++;
-            addLog(`  ✓ Dashboard "${dash.title}" (saved objects import)`, "ok");
-          } else if (savedObjectImportHasConflict(raw)) {
-            await putDashboardSavedObject(
-              kb,
-              apiKey,
-              encId,
-              payload.attributes,
-              payload.references,
-              undefined
-            );
-            ok++;
-            addLog(`  ✓ Dashboard "${dash.title}" (saved object update)`, "ok");
-          } else {
-            throw new Error(
-              `Saved objects import: ${JSON.stringify(raw?.errors ?? raw).slice(0, 400)}`
-            );
-          }
-        } catch (e2) {
-          fail++;
-          const m2 = String(e2);
-          addLog(
-            `  ✗ Dashboard "${dash.title}": ${e2}${kibanaFeatureBlockedExplanation(m2)}`,
-            "error"
+            encId,
+            payload.attributes,
+            payload.references,
+            undefined
+          );
+          ok++;
+        } else {
+          throw new Error(
+            `Saved objects import: ${JSON.stringify(raw?.errors ?? raw).slice(0, 400)}`
           );
         }
+      } catch (e2) {
+        fail++;
+        const m2 = String(e2);
+        addLog(
+          `  ✗ Dashboard "${dash.title}": ${e2}${kibanaFeatureBlockedExplanation(m2)}`,
+          "error"
+        );
       }
     }
     addLog(
@@ -564,6 +627,83 @@ export async function runSetupInstall(opts: {
     );
   };
 
+  const activateRules = async () => {
+    const entries: AlertRuleEntry[] = alertRuleFiles.flatMap((f) => f.rules);
+    if (entries.length === 0) return;
+    addLog(`Enabling ${entries.length} alerting rules…`);
+    const kb = kibanaUrl.replace(/\/$/, "");
+    let ok = 0;
+    let fail = 0;
+    for (const rule of entries) {
+      try {
+        await proxyCall({
+          baseUrl: kb,
+          apiKey,
+          path: `/api/alerting/rule/${encodeURIComponent(rule.id)}/_enable`,
+          method: "POST",
+          body: {},
+        });
+        ok++;
+      } catch (e) {
+        fail++;
+        addLog(`  ✗ Enable "${rule.name}": ${e}`, "error");
+      }
+    }
+    addLog(
+      `  ✓ Rules enabled: ${ok}${fail > 0 ? `, ${fail} failed` : ""}`,
+      fail > 0 ? "warn" : "ok"
+    );
+  };
+
+  const openAndStartMlJobs = async () => {
+    const entries = mlJobFiles.flatMap((f) => f.jobs);
+    if (entries.length === 0) return;
+    addLog(`Opening & starting ${entries.length} ML jobs…`);
+    let ok = 0;
+    let fail = 0;
+    for (const entry of entries) {
+      const encId = encodeURIComponent(entry.id);
+      try {
+        await proxyCall({
+          baseUrl: elasticUrl,
+          apiKey,
+          path: `/_ml/anomaly_detectors/${encId}/_open`,
+          method: "POST",
+          body: {},
+        });
+      } catch (e) {
+        const msg = String(e);
+        if (!msg.includes("already opened") && !msg.includes("status_exception")) {
+          fail++;
+          addLog(`  ✗ Open job "${entry.id}": ${e}`, "error");
+          continue;
+        }
+      }
+      try {
+        await proxyCall({
+          baseUrl: elasticUrl,
+          apiKey,
+          path: `/_ml/datafeeds/datafeed-${encId}/_start`,
+          method: "POST",
+          body: {},
+        });
+        ok++;
+      } catch (e) {
+        const msg = String(e);
+        if (msg.includes("already started") || msg.includes("status_exception")) {
+          ok++;
+        } else {
+          fail++;
+          addLog(`  ✗ Start datafeed "datafeed-${entry.id}": ${e}`, "error");
+        }
+      }
+    }
+    addLog(
+      `  ✓ ML jobs started: ${ok}${fail > 0 ? `, ${fail} failed` : ""}`,
+      fail > 0 ? "warn" : "ok"
+    );
+  };
+
   if (enableIntegration) await installIntegration(setupBundle.fleetPackage);
   if (enableApm) await installIntegration("apm");
   for (const pkg of extraFleetPackages) {
@@ -576,4 +716,6 @@ export async function runSetupInstall(opts: {
   if (enableDashboards) await installDashboards();
   if (enableMlJobs) await installMlJobs();
   if (enableAlertRules) await installAlertRules();
+  if (activateAlertRules && enableAlertRules) await activateRules();
+  if (startMlJobs && enableMlJobs) await openAndStartMlJobs();
 }

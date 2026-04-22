@@ -16,15 +16,15 @@ A chained event scenario modelling a realistic multi-stage threat detection work
 
 **Correlation:** GuardDuty finding ARN → Security Hub `related_findings[].id` → Security Lake `finding.related_finding_uid`. Documents share `labels.finding_chain_id`, account, region, and source IP; `@timestamp` reflects the staged delays above.
 
-### GCP: Security Command Center → Chronicle → Security Operations
+### GCP: Security Command Center → SecOps SIEM → SecOps SOAR
 
-| Step | Service                 | Dataset         | Description                                                                                  |
-| ---- | ----------------------- | --------------- | -------------------------------------------------------------------------------------------- |
-| 1    | Security Command Center | `gcp.scc`       | Event Threat Detection raises a finding with severity, category, and resource name — **T+0** |
-| 2    | Chronicle               | `gcp.chronicle` | Rule detection promotes the finding, opens a case, and records matched events — **T+1m**     |
-| 3    | Security Operations     | `gcp.secops`    | Case creation for SOC triage with linked finding and playbook — **T+3m**                     |
+| Step | Service                    | Dataset      | Description                                                                                  |
+| ---- | -------------------------- | ------------ | -------------------------------------------------------------------------------------------- |
+| 1    | Security Command Center    | `gcp.scc`    | Event Threat Detection raises a finding with severity, category, and resource name — **T+0** |
+| 2    | Security Operations (SIEM) | `gcp.secops` | Rule detection promotes the finding, opens a case, and records matched events — **T+1m**     |
+| 3    | Security Operations (SOAR) | `gcp.secops` | Case creation for SOC triage with linked finding and playbook — **T+3m**                     |
 
-**Correlation:** SCC `finding_id` → Chronicle `related_scc_finding_id` → SecOps `source_finding_id`. Case ID links Chronicle `case_name` to SecOps `case_id`. Shared `labels.finding_chain_id`, source IP, and severity across all documents.
+**Correlation:** SCC `finding_id` → SecOps `related_scc_finding_id` → SecOps `source_finding_id`. Case ID links the SIEM detection `case_name` to the SOAR `case_id`. Shared `labels.finding_chain_id`, source IP, and severity across all documents.
 
 ### Azure: Defender for Cloud → Sentinel → Activity Log
 

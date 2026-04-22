@@ -1,54 +1,61 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-southeast-4",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "vpn" }
   },
   "aws": {
     "vpn": {
-      "vpn_connection_id": "vpn-3v09iii3",
-      "vpn_gateway_id": "vgw-0km70asd",
-      "customer_gateway_ip": "198.173.30.1",
-      "tunnel_state": "UP",
-      "tunnel_outside_ip": "43.113.29.144",
-      "tunnel_inside_cidr": "169.254.10.0/30",
-      "phase1_status": "ESTABLISHED",
-      "phase2_status": "ESTABLISHED",
-      "bytes_in": 27100560,
-      "bytes_out": 16618615
+      "vpn_connection_id": "vpn-2tzsub2v",
+      "vpn_gateway_id": "vgw-f7jgum6b",
+      "customer_gateway_ip": "120.243.185.204",
+      "tunnel_state": "DOWN",
+      "tunnel_outside_ip": "67.59.147.66",
+      "tunnel_inside_cidr": "169.254.11.0/30",
+      "phase1_status": "FAILED",
+      "phase2_status": "FAILED",
+      "bytes_in": 59493726,
+      "bytes_out": 65844363
     },
     "s3": {
       "bucket": {
-        "name": "aws-vpn-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-vpn-logs-501938274650"
+        "name": "aws-vpn-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-vpn-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/501938274650/vpn/ca-west-1/2026/04/21/vpn_SMLWSFQGOE.log.gz" }
+      "object": {
+        "key": "AWSLogs/164820739518/vpn/ap-southeast-4/2026/04/21/vpn_VTDZSLT14PO.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/vpn/logs",
-      "log_stream": "ca-west-1/1za1xsf9",
-      "ingestion_time": "2026-04-21T10:21:44.086Z"
+      "log_stream": "ap-southeast-4/12p2dmt3",
+      "ingestion_time": "2026-04-21T16:58:55.660Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": "network",
     "dataset": "aws.vpn",
     "provider": "ec2.amazonaws.com",
     "module": "aws"
   },
-  "message": "Site-to-Site VPN vpn-3v09iii3 tunnel UP",
-  "log": { "level": "info" },
+  "message": "Site-to-Site VPN vpn-2tzsub2v tunnel DOWN - IKE negotiation failed",
+  "log": { "level": "error" },
+  "error": {
+    "code": "TunnelDown",
+    "message": "VPN tunnel DOWN - IKE negotiation failed",
+    "type": "network"
+  },
   "service": { "name": "vpn", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.vpn", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "gy62x3pys0r"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "ylr63z17xdc"
   },
   "input": { "type": "aws-cloudwatch" }
 }

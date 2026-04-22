@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-04T12:00:00.000Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,52 +7,56 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-central1",
-    "account": { "id": "globex-prod-42", "name": "globex-prod-42" }
+    "region": "asia-south2",
+    "account": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" }
   },
   "resource": {
-    "id": "//storage.googleapis.com/globex-public-assets",
-    "name": "globex-public-assets",
-    "type": "cloud-storage",
-    "sub_type": "gcs-bucket",
-    "raw": {
-      "iamConfiguration": { "uniformBucketLevelAccess": { "enabled": false } },
-      "acl": [{ "entity": "allUsers", "role": "READER" }]
-    }
+    "id": "//cloudresourcemanager.googleapis.com/projects/globex-staging-d4e5f6",
+    "name": "globex-staging-d4e5f6",
+    "type": "cloudresourcemanager.googleapis.com/Project",
+    "sub_type": "audit-logging",
+    "raw": { "projectId": "globex-staging-d4e5f6" }
   },
   "rule": {
-    "id": "c2bde184-6506-5003-996a-05df4bbbf988",
-    "name": "Ensure That Cloud Storage Bucket Is Not Anonymously or Publicly Accessible",
-    "section": "5.1",
-    "description": "It is recommended that IAM policy on Cloud Storage bucket does not allows anonymous or public access.",
-    "tags": ["CIS", "GCP", "CIS 5.1", "Storage"],
+    "id": "756e1a54-b2ce-56b9-a13f-17f652d7767c",
+    "name": "Ensure That the Log Metric Filter and Alerts Exist for Audit Configuration Changes",
+    "section": "2.5",
+    "description": "Google Cloud Platform (GCP) services write audit log entries to the Admin Activity and Data Access logs to help answer the questions of, \"who did what, where, and when?\" within GCP projects.",
+    "tags": ["CIS", "GCP", "CIS 2.5", "Logging and Monitoring"],
     "benchmark": {
       "id": "cis_gcp",
       "name": "CIS Google Cloud Platform Foundation",
       "version": "v2.0.0",
-      "rule_number": "5.1",
+      "rule_number": "2.5",
       "posture_type": "cspm"
     },
-    "profile_applicability": "* Level 1",
-    "impact": "Non-compliance with CIS Google Cloud Platform Foundation 5.1 — Ensure That Cloud Storage Bucket Is Not Anonymously or Publicly Accessible",
-    "remediation": "Remediate per CIS Google Cloud Platform Foundation v2.0.0 section 5.1."
+    "profile_applicability": "* Level 1"
   },
-  "result": {
-    "evaluation": "failed",
-    "evidence": {
-      "iamConfiguration": { "uniformBucketLevelAccess": { "enabled": false } },
-      "acl": [{ "entity": "allUsers" }]
-    }
-  },
+  "result": { "evaluation": "passed" },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_cspm",
     "module": "gcp"
   },
-  "message": "[cis_gcp/5.1] failed: Ensure That Cloud Storage Bucket Is Not Anonymously or Publicly Accessible",
-  "log": { "level": "warn" }
+  "message": "[cis_gcp/2.5] passed: Ensure That the Log Metric Filter and Alerts Exist for Audit Configuration Changes",
+  "log": { "level": "info" },
+  "service": { "name": "gcp-cspm", "type": "gcp" },
+  "ecs": { "version": "8.11.0" },
+  "agent": {
+    "type": "elastic-agent",
+    "version": "8.18.0",
+    "name": "elastic-agent-gcp-asia-south2",
+    "id": "sgs3v2wn7s"
+  },
+  "input": { "type": "http_endpoint" },
+  "logName": "projects/project-unknown/logs/gcp-cspm",
+  "severity": "INFO",
+  "insertId": "Q97VM1RVBG",
+  "jsonPayload": {
+    "message": "[cis_gcp/2.5] passed: Ensure That the Log Metric Filter and Alerts Exist for Audit Configuration Changes"
+  }
 }

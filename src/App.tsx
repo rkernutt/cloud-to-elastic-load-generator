@@ -150,9 +150,7 @@ export function LoadGeneratorApp({
   );
   const [batchDelayMs, setBatchDelayMs] = useState(savedConfig.batchDelayMs ?? 20);
   const [injectAnomalies, setInjectAnomalies] = useState(savedConfig.injectAnomalies ?? false);
-  const [scheduleEnabled, setScheduleEnabled] = useState(
-    () => savedConfig.scheduleEnabled ?? DEFAULT_SCHEDULE_ENABLED
-  );
+  const [scheduleEnabled, setScheduleEnabled] = useState(DEFAULT_SCHEDULE_ENABLED);
   const [scheduleTotalRuns, setScheduleTotalRuns] = useState(savedConfig.scheduleTotalRuns ?? 12);
   const [scheduleIntervalMin, setScheduleIntervalMin] = useState(
     savedConfig.scheduleIntervalMin ?? 15

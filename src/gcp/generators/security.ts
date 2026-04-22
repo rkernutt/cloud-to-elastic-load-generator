@@ -902,9 +902,9 @@ export function generateChronicleLog(ts: string, er: number): EcsDocument {
     insertId: randId(16).toLowerCase(),
     resource: { type: "chronicle_instance", labels: { project_id: project.id, region } },
     jsonPayload,
-    cloud: gcpCloud(region, project, "chronicle"),
+    cloud: gcpCloud(region, project, "security-operations"),
     gcp: {
-      chronicle: {
+      secops_detection: {
         json_payload: jsonPayload,
         rule_name: ruleName,
         detection_type: detectionType,

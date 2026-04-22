@@ -1,45 +1,47 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-southeast-3",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "fis" }
   },
   "aws": {
-    "dimensions": { "ExperimentTemplateId": "EXTKHPZ4QJ3" },
+    "dimensions": { "ExperimentTemplateId": "EXTHUQI09Q4" },
     "fis": {
-      "experiment_id": "EXPCZSUIGE6",
-      "experiment_template_id": "EXTKHPZ4QJ3",
-      "experiment_name": "cpu-stress-test",
+      "experiment_id": "EXPH92GBS0K",
+      "experiment_template_id": "EXTHUQI09Q4",
+      "experiment_name": "network-latency-inject",
       "experiment_state": "pending",
       "target_resource_type": "EKS nodes",
-      "action_type": "aws:network-acl:replace-entries",
+      "action_type": "aws:ecs:drain-container-instances",
       "stop_condition": "none",
-      "role_arn": "arn:aws:iam::814726593401:role/FISRole-cpu-stress-test"
+      "role_arn": "arn:aws:iam::738291046572:role/FISRole-network-latency-inject"
     },
     "s3": {
       "bucket": {
-        "name": "aws-fis-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-fis-logs-814726593401"
+        "name": "aws-fis-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-fis-logs-738291046572"
       },
-      "object": { "key": "AWSLogs/814726593401/fis/ca-central-1/2026/04/21/fis_Q4WVY8SVMR.log.gz" }
+      "object": {
+        "key": "AWSLogs/738291046572/fis/ap-southeast-3/2026/04/21/fis_SW50JYCCAF.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/fis/logs",
-      "log_stream": "ca-central-1/dczc7mvy",
-      "ingestion_time": "2026-04-21T10:21:44.293Z"
+      "log_stream": "ap-southeast-3/seqtmreq",
+      "ingestion_time": "2026-04-21T16:58:55.911Z"
     }
   },
   "event": {
-    "action": "CreateExperimentTemplate",
+    "action": "GetExperiment",
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.fis",
     "provider": "fis.amazonaws.com",
     "module": "aws"
   },
-  "message": "FIS CreateExperimentTemplate: exp=EXPCZSUIGE6 (cpu-stress-test) state=pending, target=EKS nodes",
+  "message": "FIS GetExperiment: exp=EXPH92GBS0K (network-latency-inject) state=pending, target=EKS nodes",
   "log": { "level": "info" },
   "service": { "name": "fis", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -47,8 +49,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "cosxncnjpl"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "b8okdxzq51q"
   },
   "input": { "type": "aws-cloudwatch" }
 }

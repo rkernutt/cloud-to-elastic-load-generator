@@ -265,7 +265,6 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
   "binary-authorization": generateBinaryAuthorizationLog,
   "access-context-manager": generateAccessContextManagerLog,
   "assured-workloads": generateAssuredWorkloadsLog,
-  chronicle: generateChronicleLog,
   "recaptcha-enterprise": generateRecaptchaEnterpriseLog,
   "web-security-scanner": generateWebSecurityScannerLog,
   "identity-aware-proxy": generateIdentityAwareProxyLog,
@@ -273,7 +272,7 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
   "web-risk": generateWebRiskLog,
   "cloud-identity": generateCloudIdentityLog,
   "managed-ad": generateManagedAdLog,
-  "security-operations": generateSecurityOperationsLog,
+  "security-operations": mergeGcpLogVariants([generateSecurityOperationsLog, generateChronicleLog]),
 
   // Storage
   "cloud-storage": mergeGcpLogVariants([generateCloudStorageLog, generateStorageTransferLog]),

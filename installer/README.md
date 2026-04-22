@@ -43,6 +43,8 @@ There are **no** `setup:gcp-loadgen-packs` or `setup:azure-loadgen-packs` script
 
 Idempotent: existing pipelines, dashboards (by title), jobs, and rules are skipped.
 
+The web UI **Setup** page also provides **post-install options**: toggles to **enable alerting rules** and **start ML jobs** immediately after installation. Both are off by default — rules are created disabled and ML jobs are created closed. See [docs/SETUP-WIZARD-AND-UNINSTALL.md](../docs/SETUP-WIZARD-AND-UNINSTALL.md) for details.
+
 ---
 
 ## Deployment types
@@ -126,10 +128,13 @@ Pre-built Kibana dashboards using Lens panels. The `cloudloadgen` tag is applied
 
 **Removing dashboards:** CLI installers are **install-only**. Use the app's **Setup** step (Uninstall mode) or delete objects in Kibana (filter by the `cloudloadgen` tag). On **Serverless** deployments, removal may need to be done in the Kibana UI — see **[docs/SETUP-WIZARD-AND-UNINSTALL.md](../docs/SETUP-WIZARD-AND-UNINSTALL.md)**.
 
-The dashboard installer automatically selects the best import method for your Kibana version:
+The dashboard installer uses a 3-tier fallback strategy:
 
-- **Kibana 9.4+** — uses the Dashboards API as primary, falls back to Saved Objects import
-- **Kibana 8.11–9.3** — uses Saved Objects ndjson import as primary, falls back to Dashboards API
+1. **Dashboards API** (`POST /api/dashboards`) — preferred on Kibana 9.4+
+2. **Saved Objects CRUD** (`POST/PUT /api/saved_objects/dashboard/:id`) — primary fallback for Cloud Hosted Kibana 9.x
+3. **NDJSON import** (`POST /api/saved_objects/_import`) — last resort when both above are unavailable
+
+All dashboards include `version: 1` in saved-object attributes for Kibana 9.x compatibility.
 
 ### Installer 4 — ML Anomaly Detection Jobs
 

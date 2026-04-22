@@ -1,62 +1,62 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-central-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "autoscaling" }
   },
   "aws": {
-    "dimensions": { "AutoScalingGroupName": "batch-asg" },
+    "dimensions": { "AutoScalingGroupName": "web-asg" },
     "autoscaling": {
-      "group_name": "batch-asg",
-      "activity_id": "i6010dc8-8q7t-vt2w",
+      "group_name": "web-asg",
+      "activity_id": "zlbe49s4-5lyd-uvfo",
       "action_type": "Launch",
-      "instance_id": "i-s62txwp9voo",
-      "instance_type": "c5.2xlarge",
-      "desired_capacity": 6,
+      "instance_id": "i-cymch9srp9t",
+      "instance_type": "t3.medium",
+      "desired_capacity": 4,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 4,
-      "cause": "At 2024-01-01T12:00:00Z a monitor alarm TargetTracking-scale-out-alarm in state ALARM triggered policy scale-out",
+      "current_capacity": 1,
+      "cause": "At 2024-01-01T12:00:00Z a user request update of AutoScalingGroup constraints to min: 2, max: 50, desired: 8 changing the desired capacity from 6 to 8",
       "status_code": "Successful",
-      "launch_template": "web-lt:5",
+      "launch_template": "api-lt:3",
       "predictive_scaling_forecast": false,
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 6 },
-        "GroupInServiceInstances": { "avg": 4 },
-        "GroupPendingInstances": { "avg": 0 },
-        "GroupStandbyInstances": { "avg": 2 },
+        "GroupDesiredCapacity": { "avg": 4 },
+        "GroupInServiceInstances": { "avg": 1 },
+        "GroupPendingInstances": { "avg": 2 },
+        "GroupStandbyInstances": { "avg": 1 },
         "GroupTerminatingInstances": { "avg": 0 },
-        "GroupTotalInstances": { "avg": 6 },
-        "GroupInServiceCapacity": { "avg": 4 },
-        "GroupPendingCapacity": { "avg": 0 },
-        "GroupStandbyCapacity": { "avg": 2 },
+        "GroupTotalInstances": { "avg": 4 },
+        "GroupInServiceCapacity": { "avg": 1 },
+        "GroupPendingCapacity": { "avg": 2 },
+        "GroupStandbyCapacity": { "avg": 1 },
         "GroupTerminatingCapacity": { "avg": 0 },
-        "GroupTotalCapacity": { "avg": 6 },
-        "WarmPoolMinSize": { "avg": 1 },
-        "WarmPoolDesiredCapacity": { "avg": 5 },
-        "WarmPoolPendingCapacity": { "avg": 3 },
-        "WarmPoolTerminatingCapacity": { "avg": 1 },
-        "WarmPoolTotalCapacity": { "avg": 9 },
-        "WarmPoolWarmedCapacity": { "avg": 8 }
+        "GroupTotalCapacity": { "avg": 4 },
+        "WarmPoolMinSize": { "avg": 0 },
+        "WarmPoolDesiredCapacity": { "avg": 0 },
+        "WarmPoolPendingCapacity": { "avg": 0 },
+        "WarmPoolTerminatingCapacity": { "avg": 0 },
+        "WarmPoolTotalCapacity": { "avg": 0 },
+        "WarmPoolWarmedCapacity": { "avg": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-autoscaling-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-autoscaling-logs-738291046572"
+        "name": "aws-autoscaling-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-autoscaling-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/autoscaling/us-east-2/2026/04/21/autoscaling_PYRIP2ZXSMT.log.gz"
+        "key": "AWSLogs/164820739518/autoscaling/eu-central-1/2026/04/21/autoscaling_7W0HLB4J93V.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "us-east-2/1loten5o",
-      "ingestion_time": "2026-04-21T10:21:44.053Z"
+      "log_stream": "eu-central-1/024wus3q",
+      "ingestion_time": "2026-04-21T16:58:55.622Z"
     }
   },
   "event": {
@@ -64,10 +64,10 @@
     "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 193000000000,
+    "duration": 396000000000,
     "module": "aws"
   },
-  "message": "SuccessfulScalingActivity: Launching a new EC2 instance: i-s62txwp9voo ActivityId=i6010dc8-8q7t-vt2w Cause: At 2024-01-01T12:00:00Z a monitor alarm TargetTracking-scale-out-alarm in state ALARM triggered policy scale-out",
+  "message": "SuccessfulScalingActivity: Launching a new EC2 instance: i-cymch9srp9t ActivityId=zlbe49s4-5lyd-uvfo Cause: At 2024-01-01T12:00:00Z a user request update of AutoScalingGroup constraints to min: 2, max: 50, desired: 8 changing the desired capacity from 6 to 8",
   "log": { "level": "info" },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -75,8 +75,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "75w0qr1586q"
+    "name": "filebeat-aws-eu-central-1",
+    "ephemeral_id": "kg300515ad"
   },
   "input": { "type": "aws-cloudwatch" }
 }

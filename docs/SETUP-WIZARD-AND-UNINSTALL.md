@@ -47,7 +47,7 @@ The Setup page groups integrations by **service category**:
 | End User & Media        | WorkSpaces, Connect, Media Services                            |
 | Chained Events          | Data & Analytics Pipeline (multi-service correlated scenarios) |
 
-Categories are collapsible, making it easy to navigate large catalogs (**212** AWS log services, **130** GCP, **131** Azure — see `src/data/serviceGroups.ts` and the matching GCP/Azure service group files).
+Categories are collapsible, making it easy to navigate large catalogs (**212** AWS log services, **130** GCP, **131** Azure — see `src/data/serviceGroups.ts` and the matching GCP/Azure service group files). AWS services are distributed across specific categories — there is no catch-all "Additional Services" group; every service belongs to a logically appropriate category.
 
 ---
 
@@ -85,6 +85,19 @@ You do **not** have to install everything.
 The **Services** catalog (order and labels) for each cloud lives in `src/data/serviceGroups.ts` (AWS) and the corresponding `src/gcp/data/serviceGroups.ts` / `src/azure/data/serviceGroups.ts` files.
 
 When you switch cloud vendor on **Start**, the Setup page **remounts** and selections reset to "all selected" for that cloud's bundle.
+
+---
+
+## Post-install options
+
+Below the Cloud Loadgen Integrations row, a **Post-install options** panel provides two toggles:
+
+| Toggle                                  | Default | What it does                                                                                                                             |
+| --------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **Enable alerting rules after install** | Off     | After all alerting rules are created, calls `POST /api/alerting/rule/{id}/_enable` on each rule so they begin evaluating immediately     |
+| **Start ML jobs after install**         | Off     | After all ML jobs are created, opens each anomaly detector (`/_open`) and starts its datafeed (`/_start`) so analysis begins immediately |
+
+Both toggles are disabled when Cloud Loadgen Integrations is toggled off. When off (the default), rules are created disabled and ML jobs are created in a closed state — you can enable/start them later from Kibana.
 
 ---
 
@@ -135,6 +148,24 @@ On some Serverless Kibana deployments, saved-object **delete** routes exist but 
 ### Other Setup assets
 
 **Pipelines**, **ML jobs**, and **alerting rules** use **Elasticsearch** APIs and are **not** subject to this Kibana saved-object restriction.
+
+---
+
+## Dashboard installation — 3-tier fallback
+
+The installer uses a robust 3-tier strategy for dashboard installation:
+
+1. **Dashboards API** (`POST /api/dashboards`) — preferred on Kibana 9.4+
+2. **Saved Objects CRUD** (`POST /api/saved_objects/dashboard/:id` for new, `PUT` for updates) — primary fallback, used on Cloud Hosted Kibana 9.x where the Dashboards API may return 400 or 404
+3. **NDJSON import** (`POST /api/saved_objects/_import`) — last resort, used when both (1) and (2) are unavailable
+
+All dashboards include a `version: 1` attribute in their saved-object payload for Kibana 9.x compatibility. The `cloudloadgen` tag is created explicitly before dashboard import.
+
+---
+
+## Alerting rules — compatibility
+
+All alerting rules use `consumer: "alerts"` (not `stackAlerts`) to ensure they appear in **Kibana → Stack Management → Rules** and in the **Alerts** section of Observability and Security. Rules use the `.es-query` rule type with the `esQuery` parameter wrapped in a `{"query": ...}` envelope as required by Kibana 9.x.
 
 ---
 

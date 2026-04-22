@@ -75,7 +75,7 @@ describe("setupAssetMatch", () => {
         "aws",
         SERVICE_GROUPS
       )
-    ).toBe("Additional Services");
+    ).toBe("Management & Governance");
   });
 
   it("maps AWS ML dataset segments to catalog ids for grouping (vpcflow, rdscustom, s3_intelligent_tiering, pcs)", () => {
@@ -181,7 +181,7 @@ describe("setupAssetMatch", () => {
       },
     };
     expect(inferMlJobServiceGroupLabel(unknownDataset, "aws", SERVICE_GROUPS)).toBe(
-      "Additional Services"
+      "Uncategorized"
     );
   });
 

@@ -255,7 +255,6 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
         icon: "◈",
         desc: "Compliance environment logs",
       },
-      { id: "chronicle", label: "Chronicle", icon: "◎", desc: "Security operations & SIEM logs" },
       {
         id: "recaptcha-enterprise",
         label: "reCAPTCHA Enterprise",
@@ -295,9 +294,9 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
       },
       {
         id: "security-operations",
-        label: "Security Operations",
+        label: "Security Operations (SecOps)",
         icon: "◈",
-        desc: "SOAR playbook & case logs",
+        desc: "SIEM detections, SOAR playbooks & case logs (formerly Chronicle)",
       },
     ],
   },
@@ -638,9 +637,9 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
     services: [
       {
         id: "gcp-security-chain",
-        label: "SCC -> Chronicle -> SecOps",
+        label: "SCC -> SecOps Detection -> SecOps Case",
         icon: "⛓",
-        desc: "Linked Security Command Center finding, Chronicle detection, and Security Operations case",
+        desc: "Linked Security Command Center finding, SecOps SIEM detection, and SecOps SOAR case",
       },
       {
         id: "gcp-cspm",

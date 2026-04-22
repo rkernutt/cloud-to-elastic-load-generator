@@ -1,54 +1,60 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-south-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "ipam" }
   },
   "aws": {
-    "dimensions": { "PoolId": "ipam-pool-tqnzjc1m", "ScopeId": "ipam-scope-g8vkl0pv" },
+    "dimensions": { "PoolId": "ipam-pool-vo8t4vv1", "ScopeId": "ipam-scope-xoo571wt" },
     "vpcipam": {
-      "pool_id": "ipam-pool-tqnzjc1m",
-      "scope_id": "ipam-scope-g8vkl0pv",
-      "allocation_id": "ipam-alloc-kqbtkib7",
-      "cidr": "192.168.0.0/24",
-      "allocation_type": "resource",
-      "metrics": { "allocations_count": 173, "free_count": 66, "used_count": 173 }
+      "pool_id": "ipam-pool-vo8t4vv1",
+      "scope_id": "ipam-scope-xoo571wt",
+      "allocation_id": "ipam-alloc-qjty3tfe",
+      "cidr": "10.0.0.0/16",
+      "allocation_type": "subnet",
+      "metrics": { "allocations_count": 39, "free_count": 4, "used_count": 339 },
+      "error_code": "AllocationFailure"
     },
     "s3": {
       "bucket": {
-        "name": "aws-vpcipam-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-vpcipam-logs-501938274650"
+        "name": "aws-vpcipam-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-vpcipam-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/vpcipam/il-central-1/2026/04/21/vpcipam_NJJKWF80WVB.log.gz"
+        "key": "AWSLogs/164820739518/vpcipam/ap-south-1/2026/04/21/vpcipam_S4YPUO7K6X.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/vpcipam/logs",
-      "log_stream": "il-central-1/1o0o53e1",
-      "ingestion_time": "2026-04-21T10:21:44.100Z"
+      "log_stream": "ap-south-1/fdx9dsib",
+      "ingestion_time": "2026-04-21T16:58:55.679Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["network"],
     "dataset": "aws.vpcipam",
     "provider": "ec2.amazonaws.com",
-    "duration": 24000000,
+    "duration": 159000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.vpcipam", "namespace": "default" },
-  "message": "VPC IPAM pool ipam-pool-tqnzjc1m: allocated 192.168.0.0/24 (resource), free=66",
-  "log": { "level": "info" },
+  "message": "VPC IPAM pool ipam-pool-vo8t4vv1: AllocationFailure for CIDR 10.0.0.0/16",
+  "log": { "level": "error" },
+  "error": {
+    "code": "AllocationFailure",
+    "message": "VPC IPAM allocation failed for CIDR 10.0.0.0/16",
+    "type": "network"
+  },
   "service": { "name": "vpcipam", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "mo7e1z02p7d"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "vat93zrwh3m"
   },
   "input": { "type": "aws-cloudwatch" }
 }

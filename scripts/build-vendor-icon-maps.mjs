@@ -176,7 +176,6 @@ function buildGcpServiceMap(/** @type {readonly string[]} */ validServiceIds) {
     "private-service-connect": "private-service-connect",
     "network-intelligence-center": "network-intelligence-center",
     "anthos-service-mesh": "anthos-service-mesh",
-    chronicle: "security",
     dlp: "data-loss-prevention-api",
     "natural-language": "cloud-natural-language-api",
     translation: "cloud-translation-api",

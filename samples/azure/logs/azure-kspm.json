@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-07T12:00:00.000Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,65 +7,59 @@
   },
   "cloud": {
     "provider": "azure",
-    "region": "eastus",
-    "account": { "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890", "name": "Contoso Production" }
+    "region": "brazilsouth",
+    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" }
   },
   "orchestrator": {
     "cluster": {
-      "name": "aks-prod-east",
-      "id": "aks-prod-east",
-      "resource_id": "/subscriptions/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resourceGroups/rg-aks/providers/Microsoft.ContainerService/managedClusters/aks-prod-east"
-    },
-    "type": "kubernetes",
-    "namespace": "default"
-  },
-  "resource": {
-    "id": "aks-prod-east/default/pod/nginx-deployment-abc12",
-    "name": "pod/nginx-deployment-abc12",
-    "type": "k8s_object",
-    "sub_type": "Pod",
-    "raw": {
-      "spec": {
-        "hostNetwork": true,
-        "containers": [{
-          "name": "nginx",
-          "securityContext": { "privileged": true }
-        }]
-      }
+      "name": "aks-shared-3N0R",
+      "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-app-n1f45f/providers/Microsoft.ContainerService/managedClusters/aks-shared-3N0R",
+      "resource_id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-app-n1f45f/providers/Microsoft.ContainerService/managedClusters/aks-shared-3N0R"
     }
   },
+  "resource": {
+    "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-app-n1f45f/providers/Microsoft.ContainerService/managedClusters/aks-shared-3N0R/nodes/control-plane/config/1-1-20-6192",
+    "name": "1-1-20-6192",
+    "type": "k8s_object",
+    "sub_type": "node-file"
+  },
   "rule": {
-    "id": "b64adcd7-aafe-52c7-b076-b7c3a0a20feb",
-    "name": "Minimize the admission of containers wishing to share the host network namespace",
-    "section": "5.2.4",
-    "description": "A container running in the host's network namespace could access the local loopback device, and could access network traffic to and from other pods.",
-    "tags": ["CIS", "Kubernetes", "CIS 5.2.4", "Pod Security Standards"],
+    "id": "93808f1f-f05e-5e48-b130-5527795e6158",
+    "name": "Ensure that the Kubernetes PKI certificate file permissions are set to 644 or more restrictive",
+    "section": "1.1.20",
+    "description": "Ensure that Kubernetes PKI certificate files have permissions of `644` or more restrictive.",
+    "tags": ["CIS", "Kubernetes", "CIS 1.1.20", "Control Plane Node Configuration Files"],
     "benchmark": {
       "id": "cis_k8s",
       "name": "CIS Kubernetes V1.23",
       "version": "v1.0.1",
-      "rule_number": "5.2.4",
+      "rule_number": "1.1.20",
       "posture_type": "kspm"
     },
-    "profile_applicability": "* Level 1",
-    "impact": "Non-compliance with CIS Kubernetes V1.23 5.2.4 — Minimize the admission of containers wishing to share the host network namespace",
-    "remediation": "Remediate per CIS Kubernetes V1.23 v1.0.1 section 5.2.4."
+    "profile_applicability": "* Level 1"
   },
-  "result": {
-    "evaluation": "failed",
-    "evidence": {
-      "spec": { "hostNetwork": true }
-    }
-  },
+  "result": { "evaluation": "passed" },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
-    "module": "azure"
+    "module": "kubernetes"
   },
-  "message": "[cis_k8s/5.2.4] failed: Minimize the admission of containers wishing to share the host network namespace",
-  "log": { "level": "warn" }
+  "message": "[cis_k8s/1.1.20] passed: Ensure that the Kubernetes PKI certificate file permissions are set to 644 or more restrictive",
+  "log": { "level": "info" },
+  "service": { "name": "azure-kspm", "type": "azure" },
+  "ecs": { "version": "8.11.0" },
+  "agent": {
+    "type": "elastic-agent",
+    "version": "8.18.0",
+    "name": "elastic-agent-azure-brazilsouth",
+    "id": "p6dvhn5lw2o"
+  },
+  "input": { "type": "http_endpoint" },
+  "category": "Administrative",
+  "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourcegroups/rg-app/providers/Microsoft.Resources/azure-kspm/azure-kspm",
+  "operationName": { "localizedValue": "Write", "value": "azure-kspm/action" }
 }

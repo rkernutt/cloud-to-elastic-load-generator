@@ -66,12 +66,12 @@ From Elastic’s reference table, the following services have **Metrics** and/or
 
 Multi-step **Chained Events** generators emit **time-distributed** logs with explicit correlation labels so dashboards, detection rules, and ML jobs can group related documents:
 
-| Scenario                                       | AWS                                      | GCP                      | Azure                              | Correlation label(s)                                                                 |
-| ---------------------------------------------- | ---------------------------------------- | ------------------------ | ---------------------------------- | ------------------------------------------------------------------------------------ |
-| Security Finding (detect → aggregate → triage) | GuardDuty → Security Hub → Security Lake | SCC → Chronicle → SecOps | Defender → Sentinel → Activity Log | `labels.finding_chain_id`                                                            |
-| IAM privilege escalation                       | CloudTrail IAM/STS                       | Cloud Audit (IAM)        | Entra ID + Activity Log            | `labels.attack_session_id`                                                           |
-| Data exfiltration                              | GuardDuty + CloudTrail + VPC Flow        | DLP + VPC + GCS          | Defender + Blob + NSG              | `labels.exfil_chain_id`                                                              |
-| Data & Analytics Pipeline                      | S3 → EMR → Glue → Athena → MWAA          | GCS → Dataproc → …       | Blob → Databricks → …              | `pipeline_run_id` (and related fields; see [chained-events docs](./chained-events/)) |
+| Scenario                                       | AWS                                      | GCP                             | Azure                              | Correlation label(s)                                                                 |
+| ---------------------------------------------- | ---------------------------------------- | ------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------ |
+| Security Finding (detect → aggregate → triage) | GuardDuty → Security Hub → Security Lake | SCC → SecOps SIEM → SecOps SOAR | Defender → Sentinel → Activity Log | `labels.finding_chain_id`                                                            |
+| IAM privilege escalation                       | CloudTrail IAM/STS                       | Cloud Audit (IAM)               | Entra ID + Activity Log            | `labels.attack_session_id`                                                           |
+| Data exfiltration                              | GuardDuty + CloudTrail + VPC Flow        | DLP + VPC + GCS                 | Defender + Blob + NSG              | `labels.exfil_chain_id`                                                              |
+| Data & Analytics Pipeline                      | S3 → EMR → Glue → Athena → MWAA          | GCS → Dataproc → …              | Blob → Databricks → …              | `pipeline_run_id` (and related fields; see [chained-events docs](./chained-events/)) |
 
 Each scenario has matching **Kibana dashboards**, **Elasticsearch-query alert rules**, and **ML anomaly detection jobs** under `installer/{aws,gcp,azure}-custom-{dashboards,rules,ml-jobs}/` (file names include `security-finding-chain`, `iam-privesc-chain`, `data-exfil-chain`, and `data-pipeline` where applicable). Counts per cloud are summarized in [diagrams.md](./diagrams.md).
 

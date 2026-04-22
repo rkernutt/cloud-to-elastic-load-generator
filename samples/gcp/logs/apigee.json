@@ -1,64 +1,66 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "NOTICE",
+  "severity": "WARNING",
   "labels": {
     "resource.type": "apigee.googleapis.com/Environment",
-    "proxy": "payments-api",
-    "environment": "prod"
+    "proxy": "inventory-api",
+    "environment": "dev"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west3",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
+    "region": "asia-east2",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" },
     "service": { "name": "apigee.googleapis.com" }
   },
   "gcp": {
     "apigee": {
       "org_name": "globex-apigee",
-      "environment": "prod",
-      "api_proxy": "payments-api",
-      "revision": "96",
+      "environment": "dev",
+      "api_proxy": "inventory-api",
+      "revision": "31",
       "verb": "POST",
-      "path": "/webhooks/stripe",
-      "response_code": 201,
-      "latency_ms": 770,
-      "developer_app": "app-407vp7",
-      "policy_name": "JSONThreatProtection"
+      "path": "/v2/items",
+      "response_code": 503,
+      "latency_ms": 1365,
+      "developer_app": "app-znfxw1",
+      "policy_name": "SpikeArrest",
+      "policy_fault": "Spike arrest violated"
     }
   },
-  "event": { "outcome": "success", "duration": 770, "module": "gcp", "dataset": "gcp.apigee" },
-  "message": "POST /webhooks/stripe apigee_proxy=payments-api env=prod response_code=201 client_id=app-407vp7 total_ms=770",
+  "event": { "outcome": "failure", "duration": 1365, "module": "gcp", "dataset": "gcp.apigee" },
+  "message": "apigee.googleapis.com: proxy=inventory-api rev=31 env=dev fault_flow_name=SpikeArrest fault_string=\"Spike arrest violated\" response_code=503 total_latency_ms=1365",
   "service": { "name": "apigee", "type": "gcp" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.apigee", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west3",
-    "id": "55etgkbqj3a"
+    "name": "elastic-agent-gcp-asia-east2",
+    "id": "pgsibksm7fd"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-m3n4o5/logs/apigee",
+  "logName": "projects/globex-staging-d4e5f6/logs/apigee",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-shared-m3n4o5", "region": "europe-west3" }
+    "labels": { "project_id": "globex-staging-d4e5f6", "region": "asia-east2" }
   },
-  "insertId": "N03ZG7QV8R",
+  "insertId": "AU8T5PNWHKQ",
   "jsonPayload": {
     "apigee": {
       "org_name": "globex-apigee",
-      "environment": "prod",
-      "api_proxy": "payments-api",
-      "revision": "96",
+      "environment": "dev",
+      "api_proxy": "inventory-api",
+      "revision": "31",
       "verb": "POST",
-      "path": "/webhooks/stripe",
-      "response_code": 201,
-      "latency_ms": 770,
-      "developer_app": "app-407vp7",
-      "policy_name": "JSONThreatProtection"
+      "path": "/v2/items",
+      "response_code": 503,
+      "latency_ms": 1365,
+      "developer_app": "app-znfxw1",
+      "policy_name": "SpikeArrest",
+      "policy_fault": "Spike arrest violated"
     },
-    "message": "POST /webhooks/stripe apigee_proxy=payments-api env=prod response_code=201 client_id=app-407vp7 total_ms=770"
+    "message": "apigee.googleapis.com: proxy=inventory-api rev=31 env=dev fault_flow_name=SpikeArrest fault_string=\"Spike arrest violated\" response_code=503 total_latency_ms=1365"
   }
 }

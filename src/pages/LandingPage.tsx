@@ -36,7 +36,7 @@ export function LandingPage({ isUnifiedCloud, onGetStarted }: LandingPageProps) 
     {
       title: "Chained Events",
       description:
-        "For logs mode only: optional second picker for linked multi-step event chains (e.g. AWS GuardDuty→Security Hub→Lake, or GCP SCC→Chronicle→SecOps, Azure Defender→Sentinel). Skipped automatically for metrics or traces.",
+        "For logs mode only: optional second picker for linked multi-step event chains (e.g. AWS GuardDuty→Security Hub→Lake, or GCP SCC→SecOps SIEM→SecOps SOAR, Azure Defender→Sentinel). Skipped automatically for metrics or traces.",
     },
     {
       title: "Configure",

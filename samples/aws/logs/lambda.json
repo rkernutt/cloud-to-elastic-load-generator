@@ -1,69 +1,64 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-3",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-central-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "lambda" }
   },
+  "trace": { "id": "1-69e7acce-w9ywacf5zj" },
   "aws": {
     "dimensions": {
-      "FunctionName": "webhook-receiver",
-      "Resource": "webhook-receiver:$LATEST",
-      "ExecutedVersion": "$LATEST",
-      "EventSourceMappingUUID": "lig68ahj-zduy-q0a0-cvdh-43p2ovf6v37"
+      "FunctionName": "order-validator",
+      "Resource": "order-validator:$LATEST",
+      "ExecutedVersion": "$LATEST"
     },
     "cloudwatch": {
-      "log_group": "/aws/lambda/webhook-receiver",
-      "log_stream": "2026/04/21[$LATEST]8woj212get",
-      "ingestion_time": "2026-04-21T10:21:43.990Z"
+      "log_group": "/aws/lambda/order-validator",
+      "log_stream": "2026/04/21[$LATEST]148ulxkyghw",
+      "ingestion_time": "2026-04-21T16:58:55.547Z"
     },
     "lambda": {
       "function": {
-        "name": "webhook-receiver",
+        "name": "order-validator",
         "version": "$LATEST",
-        "arn": "arn:aws:lambda:eu-west-3:814726593401:function:webhook-receiver",
-        "runtime": "python3.12",
-        "handler": "handler.handler"
+        "arn": "arn:aws:lambda:eu-central-1:164820739518:function:order-validator",
+        "runtime": "dotnet8",
+        "handler": "com.example.Handler::handleRequest"
       },
-      "request_id": "cdzk46fo-konx-tg72-6dz0-9k19u3r13y",
-      "event_type": "end",
+      "request_id": "bh897q3i-94bp-f6hy-kvqh-9jsjog54zds",
+      "trace_id": "1-69e7acce-w9ywacf5zj",
+      "event_type": "start",
       "metrics": {
         "Invocations": { "sum": 1, "avg": 1 },
         "Errors": { "sum": 0, "avg": 0 },
         "Throttles": { "sum": 0, "avg": 0 },
-        "Duration": { "avg": 1605.644959739445, "max": 1926.773951687334 },
-        "ConcurrentExecutions": { "avg": 297 },
-        "UnreservedConcurrentExecutions": { "avg": 945 },
+        "Duration": { "avg": 1689.846976963769, "max": 2027.8163723565228 },
+        "ConcurrentExecutions": { "avg": 489 },
+        "UnreservedConcurrentExecutions": { "avg": 413 },
         "DeadLetterErrors": { "sum": 0, "avg": 0 },
         "IteratorAge": { "avg": 0 },
-        "AsyncEventsReceived": { "sum": 21 },
-        "AsyncEventAge": { "avg": 646 },
-        "memory_size_mb": 2048,
-        "max_memory_used_mb": 601,
-        "instance_max_memory": 2048,
-        "PolledEventCount": { "sum": 922 },
-        "InvokedEventCount": { "sum": 164 },
-        "FilteredOutEventCount": { "sum": 1 },
-        "FailedInvokeEventCount": { "sum": 0 },
-        "DeletedEventCount": { "sum": 9 },
-        "OnFailureDestinationDeliveredEventCount": { "sum": 0 }
+        "AsyncEventsReceived": { "sum": 25 },
+        "AsyncEventAge": { "avg": 2301 },
+        "memory_size_mb": 1024,
+        "max_memory_used_mb": 671,
+        "instance_max_memory": 1024
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-lambda-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-lambda-logs-814726593401"
+        "name": "aws-lambda-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-lambda-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/lambda/eu-west-3/2026/04/21/lambda_J4N6TJTSEXO.log.gz"
+        "key": "AWSLogs/164820739518/lambda/eu-central-1/2026/04/21/lambda_VG14U4O4WF.log.gz"
       }
     }
   },
   "log": { "level": "info" },
-  "message": "END RequestId: cdzk46fo-konx-tg72-6dz0-9k19u3r13y",
+  "message": "START RequestId: bh897q3i-94bp-f6hy-kvqh-9jsjog54zds Version: $LATEST",
   "event": {
-    "duration": 1605644959.739445,
+    "duration": 1689846976.963769,
     "outcome": "success",
     "category": ["process"],
     "type": ["info"],
@@ -71,15 +66,15 @@
     "provider": "lambda.amazonaws.com",
     "module": "aws"
   },
-  "service": { "name": "webhook-receiver", "type": "lambda" },
-  "host": { "name": "ip-136-120-232-248.ec2.internal", "hostname": "lambda-9b6x83u2" },
+  "service": { "name": "order-validator", "type": "lambda" },
+  "host": { "name": "ip-180-175-204-174.ec2.internal", "hostname": "lambda-tff2isey" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lambda_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-3",
-    "ephemeral_id": "d7yz8q2ukq"
+    "name": "filebeat-aws-eu-central-1",
+    "ephemeral_id": "7vxc177w3sx"
   },
   "input": { "type": "aws-cloudwatch" }
 }

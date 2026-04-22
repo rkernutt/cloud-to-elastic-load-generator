@@ -1,8 +1,8 @@
 # Cloud to Elastic Load Generator — Architecture Diagrams
 
-> **Catalog sizes (log · metric · trace services):** AWS **212 · 206 · 54**; GCP **130 · 124 · 48**; Azure **131 · 120 · 40**.
+> **Catalog sizes (log · metric · trace services):** AWS **212 · 206 · 54**; GCP **129 · 123 · 48**; Azure **131 · 120 · 40**.
 
-> **Installer assets (custom Kibana dashboards · ML anomaly jobs · Elasticsearch-query alert rules):** AWS **220 · 384 · 17**; GCP **128 · 153 · 17**; Azure **120 · 154 · 17**. Rules are defined in `installer/{aws,gcp,azure}-custom-rules/` (including Data & Analytics Pipeline rules plus Security Finding, IAM Privesc, and Data Exfil chains per cloud).
+> **Installer assets (custom Kibana dashboards · ML anomaly jobs · Elasticsearch-query alert rules):** AWS **220 · 384 · 17**; GCP **127 · 152 · 17**; Azure **120 · 154 · 17**. Rules are defined in `installer/{aws,gcp,azure}-custom-rules/` (including Data & Analytics Pipeline rules plus Security Finding, IAM Privesc, and Data Exfil chains per cloud).
 
 ---
 
@@ -282,20 +282,6 @@ mindmap
     Messaging and Communications
       SES
       Pinpoint
-    Additional Services
-      Transfer Family
-      Lightsail
-      Fraud Detector
-      Lookout for Metrics
-      Comprehend Medical
-      Location Service
-      Managed Blockchain
-      CodeGuru
-      DevOps Guru
-      WAF v2
-      IoT Events
-      IoT SiteWise
-      IoT Defender
 ```
 
 ---
@@ -334,7 +320,7 @@ flowchart TD
     subgraph I4["setup:aws-ml-jobs"]
         direction TB
         D1["Elasticsearch ML API"]
-        D2["384 anomaly detection jobs\n32 groups\ndatafeeds auto-started"]
+        D2["384 anomaly detection jobs\n32 groups\noptional auto-start"]
     end
 
     I1 --> DONE
@@ -493,8 +479,8 @@ flowchart TD
         P1["Validate headers\nx-elastic-url · x-elastic-key"]
         P2["Forward to Elasticsearch\nPOST /_bulk"]
         P3{"Response?"}
-        P4["5xx / timeout\nretry with backoff\n1s → 2s → 4s + jitter"]
-        P5["2xx — parse items\ncount indexed vs errors"]
+        P4["5xx / timeout / non-JSON\nretry with backoff\n1s → 2s → 4s"]
+        P5["2xx + JSON — parse items\ncount indexed vs errors"]
         P3 -->|"error"| P4 -->|"≤ 3 retries"| P2
         P3 -->|"success"| P5
     end
@@ -517,7 +503,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    CONFIG(["Configure schedule\nN runs × M-minute interval\n+ optional anomaly injection"]) --> RUN1
+    CONFIG(["Configure schedule (off by default)\nN runs × M-minute interval\n+ optional anomaly injection"]) --> RUN1
 
     subgraph SCHED["Scheduled Shipping Loop"]
         direction TB
@@ -829,7 +815,7 @@ flowchart TD
 
     subgraph BASELINE["Phase 1 — Build Baseline"]
         direction TB
-        B1["Enable scheduled mode\n12 runs × 15 min = 3 hrs"]
+        B1["Enable scheduled mode\n(off by default)\n12 runs × 15 min = 3 hrs"]
         B2["Anomaly injection: OFF"]
         B3["Ship normal traffic\nacross all 212 services"]
         B4["ML jobs learn patterns\nbaseline established"]

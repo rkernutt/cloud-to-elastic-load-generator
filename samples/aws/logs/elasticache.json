@@ -1,86 +1,53 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
-    "service": { "name": "elasticache" }
+    "region": "eu-north-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "service": { "name": "elasticache-global" }
   },
   "aws": {
-    "dimensions": {
-      "CacheClusterId": "prod-redis-2",
-      "CacheNodeId": "0001",
-      "ReplicationGroupId": "prod-cache"
-    },
-    "elasticache": {
-      "cluster_id": "prod-redis-2",
-      "node_id": "0001",
-      "engine": "redis",
-      "engine_version": "7.1.0",
-      "replication_group_id": "prod-cache",
-      "command": "HSET",
-      "latency_us": 11.764090246814918,
-      "cache_hit": false,
-      "connected_clients": 351,
-      "used_memory_mb": 11311,
-      "metrics": {
-        "BytesUsedForCache": { "avg": 1141988021 },
-        "CacheHits": { "sum": 46818 },
-        "CacheMisses": { "sum": 719 },
-        "CacheHitRate": { "avg": 0.9899680932065318 },
-        "CurrConnections": { "avg": 940 },
-        "NewConnections": { "sum": 36 },
-        "Evictions": { "sum": 0 },
-        "Reclaimed": { "sum": 60 },
-        "ReplicationBytes": { "avg": 4007780 },
-        "ReplicationLag": { "avg": 0 },
-        "SaveInProgress": { "avg": 0 },
-        "CurrItems": { "avg": 385660 },
-        "NewItems": { "sum": 9860 },
-        "NetworkBytesIn": { "avg": 40883905 },
-        "NetworkBytesOut": { "avg": 20441226 },
-        "CPUUtilization": { "avg": 21.57443934807197 },
-        "EngineCPUUtilization": { "avg": 29.367353831872133 },
-        "FreeableMemory": { "avg": 698576974 },
-        "SwapUsage": { "avg": 31632646 },
-        "DatabaseMemoryUsagePercentage": { "avg": 50.354421997637814 },
-        "TrafficBasedCmdsLatency": { "avg": 0.2927812726481981 }
-      }
+    "elasticacheglobal": {
+      "global_datastore_name": "global-feature-flags",
+      "event_type": "Failover",
+      "primary_region": "eu-north-1",
+      "secondary_regions": ["eu-west-1", "ap-northeast-1", "us-west-2"],
+      "replication_lag_ms": 36.41688664839142,
+      "cross_region_bandwidth_mbps": 227.17226700592445,
+      "global_node_groups": 3,
+      "status": "available"
     },
     "s3": {
       "bucket": {
-        "name": "aws-elasticache-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-elasticache-logs-738291046572"
+        "name": "aws-elasticache-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-elasticache-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/elasticache/ap-northeast-1/2026/04/21/elasticache_GFERAEJK9J.log.gz"
+        "key": "AWSLogs/164820739518/elasticache/eu-north-1/2026/04/21/elasticache_39EHHCADG3L.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/elasticache/logs",
-      "log_stream": "ap-northeast-1/ult1y4zp",
-      "ingestion_time": "2026-04-21T10:21:44.176Z"
+      "log_stream": "eu-north-1/99l22wxi",
+      "ingestion_time": "2026-04-21T16:58:55.755Z"
     }
   },
-  "db": { "type": "keyvalue", "operation": "HSET" },
   "event": {
-    "duration": 11764.090246814918,
     "outcome": "success",
-    "category": ["database", "network"],
-    "dataset": "aws.elasticache",
-    "provider": "elasticache.amazonaws.com",
-    "module": "aws"
+    "duration": 7657285,
+    "module": "aws",
+    "dataset": "aws.elasticache"
   },
-  "message": "1:M 2026-04-21 10:21:43.398 * 2106214 HSET user:*",
-  "log": { "level": "info" },
+  "message": "ElastiCache Global global-feature-flags: Failover completed",
   "service": { "name": "elasticache", "type": "aws" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.elasticache", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "nxypk5y0hmq"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "1ssva1nntqm"
   },
   "input": { "type": "aws-cloudwatch" }
 }

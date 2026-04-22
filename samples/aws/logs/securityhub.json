@@ -1,89 +1,84 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "me-central-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "securityhub" }
   },
   "aws": {
-    "dimensions": { "ComplianceStandard": "cis-aws-foundations-benchmark", "ControlId": "CIS.3.1" },
+    "dimensions": { "ComplianceStandard": "pci-dss", "ControlId": "CIS.1.2" },
     "securityhub_findings": {
       "SchemaVersion": "2018-10-08",
-      "Id": "XDUD5VEK-XJ4Z-B1WI-R0VO-VDRYHNGIG2",
-      "ProductArn": "arn:aws:securityhub:ap-northeast-1::product/aws/securityhub",
-      "GeneratorId": "arn:aws:securityhub:ap-northeast-1::product/aws/securityhub/CIS.3.1",
-      "AwsAccountId": "164820739518",
-      "Types": ["Threat Detections/Tactics/Impact"],
-      "CreatedAt": "2026-04-21T08:07:44.026Z",
-      "UpdatedAt": "2026-04-21T10:21:43.398Z",
-      "Severity": { "Label": "CRITICAL", "Normalized": 90, "Original": "CRITICAL" },
-      "Title": "CIS.3.1: S3 bucket is publicly accessible",
-      "Description": "Security check failed: CIS.3.1 - MFA not enabled for root",
+      "Id": "4GHGK4QG-5PU1-L44U-HHXA-A57YS4GNOO",
+      "ProductArn": "arn:aws:securityhub:me-central-1::product/aws/securityhub",
+      "GeneratorId": "arn:aws:securityhub:me-central-1::product/aws/securityhub/CIS.1.2",
+      "AwsAccountId": "738291046572",
+      "Types": ["Effects/Data Exposure"],
+      "CreatedAt": "2026-04-21T02:00:42.402Z",
+      "UpdatedAt": "2026-04-21T16:58:54.847Z",
+      "Severity": { "Label": "INFORMATIONAL", "Normalized": 0, "Original": "INFORMATIONAL" },
+      "Title": "CIS.1.2: control passed",
+      "Description": "This control evaluated resources and reported a passing status.",
       "Resources": [
         {
-          "Type": "AwsIamUser",
-          "Id": "arn:aws:iam::164820739518:user/alice",
+          "Type": "AwsS3Bucket",
+          "Id": "arn:aws:s3:::globex-development-bucket-c9n1wq",
           "Partition": "aws",
-          "Region": "ap-northeast-1",
+          "Region": "me-central-1",
           "Details": {}
         }
       ],
       "Compliance": {
-        "Status": "FAILED",
-        "SecurityControlId": "CIS.3.1",
-        "RelatedRequirements": ["CIS CIS.3.1"]
+        "Status": "PASSED",
+        "SecurityControlId": "CIS.1.2",
+        "RelatedRequirements": ["CIS CIS.1.2"]
       },
-      "Workflow": { "Status": "NEW" },
-      "RecordState": "ACTIVE",
+      "Workflow": { "Status": "RESOLVED" },
+      "RecordState": "ARCHIVED",
       "ProductFields": {
         "aws/securityhub/ProductName": "Security Hub",
         "aws/securityhub/CompanyName": "AWS"
       },
-      "criticality": 9,
-      "confidence": 79
+      "criticality": 4,
+      "confidence": 95
     },
     "s3": {
       "bucket": {
-        "name": "aws-securityhub-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-securityhub-logs-164820739518"
+        "name": "aws-securityhub-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-securityhub-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/164820739518/securityhub/ap-northeast-1/2026/04/21/securityhub_IQ28BJXBA2.log.gz"
+        "key": "AWSLogs/738291046572/securityhub/me-central-1/2026/04/21/securityhub_4H75KK86PUH.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securityhub/logs",
-      "log_stream": "ap-northeast-1/681zb4k0",
-      "ingestion_time": "2026-04-21T10:21:44.107Z"
+      "log_stream": "me-central-1/hpammdhg",
+      "ingestion_time": "2026-04-21T16:58:55.683Z"
     }
   },
-  "rule": { "id": "CIS.3.1", "name": "CIS.3.1 — MFA not enabled for root" },
+  "rule": { "id": "CIS.1.2", "name": "CIS.1.2 — Security group allows all traffic" },
   "event": {
     "kind": "alert",
-    "severity": 9,
-    "outcome": "failure",
+    "severity": 4,
+    "outcome": "success",
     "category": ["vulnerability"],
-    "type": ["indicator"],
+    "type": ["info"],
     "dataset": "aws.securityhub_findings",
     "provider": "securityhub.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security Hub [CRITICAL]: Compliance check failed",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ComplianceFailed",
-    "message": "Control CIS.3.1 failed",
-    "type": "compliance"
-  },
+  "message": "Security Hub: control passed",
+  "log": { "level": "info" },
   "service": { "name": "securityhub", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.securityhub_findings", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "np2gcgmv34t"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "88515zngu7l"
   },
   "input": { "type": "http_endpoint" }
 }

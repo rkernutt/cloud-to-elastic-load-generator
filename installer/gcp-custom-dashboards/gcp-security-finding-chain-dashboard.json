@@ -26,12 +26,12 @@
       "uid": "gcp-sfc-k2",
       "grid": { "x": 16, "y": 0, "w": 16, "h": 5 },
       "config": {
-        "title": "Chronicle rule detections",
+        "title": "SecOps SIEM detections",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.chronicle* | STATS c = COUNT()"
+            "query": "FROM logs-gcp.secops* | WHERE gcp.secops_detection.detection_type IS NOT NULL | STATS c = COUNT()"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
         }
@@ -104,7 +104,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.scc*, logs-gcp.chronicle*, logs-gcp.secops* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.scc*, logs-gcp.secops* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "c", "label": "Events" }]

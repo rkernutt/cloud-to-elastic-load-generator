@@ -1,88 +1,45 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
-    "service": { "name": "rds" }
+    "region": "il-central-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
+    "service": { "name": "rds-custom" }
   },
   "aws": {
-    "dimensions": {
-      "DBInstanceIdentifier": "prod-db-replica",
-      "DatabaseClass": "db.m5.large",
-      "EngineName": "aurora-postgresql",
-      "SourceRegion": "eu-north-1"
-    },
-    "cloudwatch": {
-      "log_group": "/aws/rds/cluster/prod-db-replica/postgresql",
-      "log_stream": "prod-db-replica",
-      "ingestion_time": "2026-04-21T10:21:44.027Z"
-    },
-    "rds": {
-      "db_instance": {
-        "identifier": "prod-db-replica",
-        "class": "db.m5.large",
-        "engine_name": "aurora-postgresql",
-        "engine_version": "16.8",
-        "arn": "arn:aws:rds:eu-north-1:164820739518:db:prod-db-replica",
-        "status": "available",
-        "role": "read-replica",
-        "multi_az": true,
-        "storage_type": "gp3",
-        "allocated_storage_gb": 500
-      },
-      "log_type": "postgresql",
-      "cpu": { "total": { "pct": 0.1051 } },
-      "freeable_memory": { "bytes": 2964356148 },
-      "free_storage": { "bytes": 349787710882 },
-      "database_connections": 315,
-      "read_io": { "ops_per_sec": 2058.8220624374267 },
-      "write_io": { "ops_per_sec": 1361.0671099243184 },
-      "latency": { "read": 0.01079264027675635, "write": 0.007870556933095877 },
-      "throughput": {
-        "read": 59216190,
-        "write": 38566884,
-        "network_receive": 12062152,
-        "network_transmit": 63073061
-      },
-      "replica_lag": { "sec": 99.81162846451855 },
-      "swap_usage": { "bytes": 71323942 },
-      "disk_usage": { "bin_log": { "bytes": 817570162 } }
+    "rdscustom": {
+      "instance_id": "orcl-prod-01",
+      "engine": "custom-sqlserver-ee",
+      "cev_id": "cev-fqszpsol",
+      "event_type": "ModifyInstance",
+      "automation_id": "exec-c9ihfmps6mk",
+      "pause_automation": false,
+      "os_patch_level": "2023.7.6"
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-rds-logs-164820739518"
+        "name": "aws-rds-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-rds-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/164820739518/rds/eu-north-1/2026/04/21/rds_Z72AY4LUCX.log.gz" }
+      "object": { "key": "AWSLogs/293847561023/rds/il-central-1/2026/04/21/rds_YX85C1YPIR.log.gz" }
+    },
+    "cloudwatch": {
+      "log_group": "/aws/rds/logs",
+      "log_stream": "il-central-1/ckzavf4e",
+      "ingestion_time": "2026-04-21T16:58:55.591Z"
     }
   },
-  "db": {
-    "user": { "name": "dba" },
-    "name": "events_db",
-    "statement": "INSERT INTO sessions (name, email, created_at) VALUES ($1, $2, now())",
-    "type": "sql"
-  },
-  "source": { "ip": "140.246.83.75" },
-  "event": {
-    "duration": 1875175092.0296845,
-    "outcome": "success",
-    "category": ["database"],
-    "type": ["info", "access"],
-    "dataset": "aws.rds",
-    "provider": "rds.amazonaws.com",
-    "module": "aws"
-  },
-  "message": "2026-04-21 10:21:43.398 UTC:140.246.83.75(58406):dba@events_db:[94595]:LOG:  automatic analyze of table \"events_db.public.sessions\"",
-  "log": { "level": "info" },
+  "event": { "outcome": "success", "duration": 270999280, "module": "aws", "dataset": "aws.rds" },
+  "message": "RDS Custom orcl-prod-01: ModifyInstance completed (custom-sqlserver-ee)",
   "service": { "name": "rds", "type": "aws" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "2jfbqc6t3tk"
+    "name": "filebeat-aws-il-central-1",
+    "ephemeral_id": "2j0c7c62zlk"
   },
   "input": { "type": "aws-cloudwatch" }
 }

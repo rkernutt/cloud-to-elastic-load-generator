@@ -193,6 +193,8 @@ export function SetupPage({
   const [enableDashboards, setEnableDashboards] = useState(false);
   const [enableMlJobs, setEnableMlJobs] = useState(false);
   const [enableLoadgenIntegrations, setEnableLoadgenIntegrations] = useState(false);
+  const [activateAlertRules, setActivateAlertRules] = useState(false);
+  const [startMlJobs, setStartMlJobs] = useState(false);
   /** Pipeline / dashboard / ML group section keys the user has expanded (default: none). */
   const [expandedSetupSections, setExpandedSetupSections] = useState<Set<string>>(() => new Set());
 
@@ -592,12 +594,12 @@ export function SetupPage({
     wickr: "End User & Media",
     ses: "End User & Media",
     pinpoint: "End User & Media",
-    transferfamily: "End User & Media",
-    frauddetector: "End User & Media",
+    transferfamily: "Management & Governance",
+    frauddetector: "Security & Identity",
     gamelift: "End User & Media",
     locationservice: "End User & Media",
     managedblockchain: "End User & Media",
-    devopsguru: "End User & Media",
+    devopsguru: "Management & Governance",
     appsync: "End User & Media",
 
     // ── Azure services ──────────────────────────────────────────────────────
@@ -778,7 +780,6 @@ export function SetupPage({
     "binary-authorization": "Security & Identity",
     "access-context-manager": "Security & Identity",
     "assured-workloads": "Security & Identity",
-    chronicle: "Security & Identity",
     "recaptcha-enterprise": "Security & Identity",
     "web-security-scanner": "Security & Identity",
     "identity-aware-proxy": "Security & Identity",
@@ -1802,6 +1803,8 @@ export function SetupPage({
         enableDashboards,
         enableMlJobs,
         enableAlertRules: enableLoadgenIntegrations,
+        activateAlertRules,
+        startMlJobs,
         extraFleetPackages,
         pipelines: filteredPipelines(),
         dashboards: filteredDashboards(),
@@ -2141,6 +2144,8 @@ export function SetupPage({
         enableDashboards,
         enableMlJobs,
         enableAlertRules: enableLoadgenIntegrations,
+        activateAlertRules,
+        startMlJobs,
         extraFleetPackages,
         pipelines: filteredPipelines(),
         dashboards: filteredDashboards(),
@@ -2198,6 +2203,8 @@ export function SetupPage({
         enableDashboards,
         enableMlJobs,
         enableAlertRules: enableLoadgenIntegrations,
+        activateAlertRules,
+        startMlJobs,
         extraFleetPackages,
         pipelines: filteredPipelines(),
         dashboards: filteredDashboards(),
@@ -2764,6 +2771,40 @@ export function SetupPage({
           </EuiText>
         ) : null}
       </InstallerRow>
+
+      <EuiSpacer size="m" />
+
+      <EuiPanel paddingSize="m" hasBorder color="subdued">
+        <EuiTitle size="xxs">
+          <h4>Post-install options</h4>
+        </EuiTitle>
+        <EuiSpacer size="s" />
+        <EuiFlexGroup gutterSize="l" wrap responsive={false}>
+          <EuiFlexItem grow={false}>
+            <EuiSwitch
+              label="Enable alerting rules after install"
+              checked={activateAlertRules}
+              onChange={(e) => setActivateAlertRules(e.target.checked)}
+              disabled={!enableLoadgenIntegrations}
+            />
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiSwitch
+              label="Start ML jobs after install"
+              checked={startMlJobs}
+              onChange={(e) => setStartMlJobs(e.target.checked)}
+              disabled={!enableLoadgenIntegrations}
+            />
+          </EuiFlexItem>
+        </EuiFlexGroup>
+        <EuiSpacer size="xs" />
+        <EuiText size="xs" color="subdued">
+          <p>
+            Rules are created disabled and ML jobs are created closed by default. Enable these to
+            activate them immediately after installation.
+          </p>
+        </EuiText>
+      </EuiPanel>
 
       <EuiSpacer size="xl" />
       <EuiHorizontalRule margin="none" />

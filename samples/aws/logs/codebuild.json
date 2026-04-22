@@ -1,66 +1,71 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-northeast-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "codebuild" }
   },
   "aws": {
-    "dimensions": { "ProjectName": "test-runner", "BuildId": "test-runner:yatke27r-ml0z" },
+    "dimensions": { "ProjectName": "infra-terraform", "BuildId": "infra-terraform:ut16vu47-f7up" },
     "codebuild": {
-      "project_name": "test-runner",
-      "build_id": "test-runner:yatke27r-ml0z",
-      "build_status": "SUCCEEDED",
-      "current_phase": "COMPLETED",
-      "duration_seconds": 216,
-      "queued_duration_seconds": 65,
-      "build_number": 2358,
-      "initiator": "codepipeline",
-      "source_version": "cdysep9y5tt",
-      "structured_logging": false,
+      "project_name": "infra-terraform",
+      "build_id": "infra-terraform:ut16vu47-f7up",
+      "build_status": "FAILED",
+      "current_phase": "FINALIZING",
+      "duration_seconds": 3615,
+      "queued_duration_seconds": 129,
+      "build_number": 1425,
+      "initiator": "github-webhook",
+      "source_version": "l4uu102xqwl",
+      "structured_logging": true,
       "metrics": {
         "Builds": { "sum": 1 },
-        "SucceededBuilds": { "sum": 1 },
-        "FailedBuilds": { "sum": 0 },
-        "Duration": { "avg": 216000 },
-        "QueuedDuration": { "avg": 65000 },
-        "BuildDuration": { "avg": 216000 }
+        "SucceededBuilds": { "sum": 0 },
+        "FailedBuilds": { "sum": 1 },
+        "Duration": { "avg": 3615000 },
+        "QueuedDuration": { "avg": 129000 },
+        "BuildDuration": { "avg": 3615000 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-codebuild-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-codebuild-logs-501938274650"
+        "name": "aws-codebuild-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-codebuild-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/codebuild/ap-south-1/2026/04/21/codebuild_885X664CZGV.log.gz"
+        "key": "AWSLogs/814726593401/codebuild/ap-northeast-3/2026/04/21/codebuild_41KC6AXSVVR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codebuild/logs",
-      "log_stream": "ap-south-1/6ljv2par",
-      "ingestion_time": "2026-04-21T10:21:44.206Z"
+      "log_stream": "ap-northeast-3/mxrzwjnd",
+      "ingestion_time": "2026-04-21T16:58:55.786Z"
     }
   },
   "event": {
-    "duration": 216000000000,
-    "outcome": "success",
+    "duration": 3615000000000,
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.codebuild",
     "provider": "codebuild.amazonaws.com",
     "module": "aws"
   },
-  "message": "[Container] 2026-04-21T10:21:45.987Z Waiting for agent ping\n[Container] 2026-04-21T10:21:47.016Z Agent ping confirmed\n[Container] 2026-04-21T10:21:48.449Z Entering phase SUBMITTED\n[Container] 2026-04-21T10:21:49.011Z Phase complete: SUBMITTED State: SUCCEEDED\n[Container] 2026-04-21T10:21:50.163Z Entering phase QUEUED\n[Container] 2026-04-21T10:21:51.199Z Phase complete: QUEUED State: SUCCEEDED\n[Container] 2026-04-21T10:21:52.658Z Phase duration: 65 seconds\n[Container] 2026-04-21T10:21:55.070Z Entering phase PROVISIONING\n[Container] 2026-04-21T10:21:57.260Z CODEBUILD_CONTAINER_TYPE: LINUX_CONTAINER\n[Container] 2026-04-21T10:21:58.322Z Downloading managed image aws/codebuild/amazonlinux2-x86_64-standard:5.0\n[Container] 2026-04-21T10:22:00.235Z Authenticating with ECR registry 123456789012.dkr.ecr.ap-south-1.amazonaws.com\n[Container] 2026-04-21T10:22:02.036Z Phase complete: PROVISIONING State: SUCCEEDED\n[Container] 2026-04-21T10:22:03.855Z Phase duration: 44 seconds\n[Container] 2026-04-21T10:22:06.529Z Entering phase DOWNLOAD_SOURCE\n[Container] 2026-04-21T10:22:08.210Z CODEBUILD_SRC_DIR=/codebuild/output/src852/src/github.com/acme/test-runner\n[Container] 2026-04-21T10:22:09.979Z GIT_CLONE_DEPTH=1\n[Container] 2026-04-21T10:22:11.344Z Cloning into '.'...\n[Container] 2026-04-21T10:22:12.845Z remote: Enumerating objects: 11500, done.\n[Container] 2026-04-21T10:22:14.308Z HEAD is now at cdysep9 chore: bump\n[Container] 2026-04-21T10:22:15.635Z Phase complete: DOWNLOAD_SOURCE State: SUCCEEDED\n[Container] 2026-04-21T10:22:16.616Z Phase duration: 120 seconds\n[Container] 2026-04-21T10:22:17.497Z Entering phase INSTALL\n[Container] 2026-04-21T10:22:18.951Z Running command npm ci --prefer-offline --no-audit\n[Container] 2026-04-21T10:22:20.489Z added 1790 packages in 48s\n[Container] 2026-04-21T10:22:22.436Z Phase complete: INSTALL State: SUCCEEDED\n[Container] 2026-04-21T10:22:25.121Z Phase duration: 8 seconds\n[Container] 2026-04-21T10:22:26.975Z Entering phase PRE_BUILD\n[Container] 2026-04-21T10:22:27.742Z Running command chmod +x scripts/pre_build.sh && ./scripts/pre_build.sh\n[Container] 2026-04-21T10:22:30.475Z pre_build: lint-staged OK\n[Container] 2026-04-21T10:22:32.858Z Phase complete: PRE_BUILD State: SUCCEEDED\n[Container] 2026-04-21T10:22:34.047Z Phase duration: 38 seconds\n[Container] 2026-04-21T10:22:36.304Z Entering phase BUILD\n[Container] 2026-04-21T10:22:37.103Z Running command docker build -t test-runner:cdysep9 .\n#1 [internal] load build definition from Dockerfile\n#2 [internal] load metadata for docker.io/library/node:18-alpine\n#4 pulling layer mkjlsld9sic\n#5 exporting layers\n#5 sha256:qfl4560u92 161MB / 464MB 10.3s\n[Container] 2026-04-21T10:22:38.858Z Running command npm test -- --ci --coverage\n PASS  tests/unit/auth.spec.ts\n PASS  tests/integration/api.spec.ts\nTest Suites: 14 passed, 0 failed, 2 skipped\nTests:       33 passed, 0 failed, 2 skipped\n[Container] 2026-04-21T10:22:41.302Z Phase complete: BUILD State: SUCCEEDED\n[Container] 2026-04-21T10:22:43.260Z Phase duration: 21 seconds\n[Container] 2026-04-21T10:22:45.368Z Entering phase POST_BUILD\n[Container] 2026-04-21T10:22:46.843Z Running command cfn-lint template.yaml || true\n[Container] 2026-04-21T10:22:48.631Z Running command aws s3 sync ./reports s3://501938274650-reports-ap-south-1/test-runner/ --quiet\n[Container] 2026-04-21T10:22:49.460Z Phase complete: POST_BUILD State: SUCCEEDED\n[Container] 2026-04-21T10:22:50.324Z Phase duration: 107 seconds\n[Container] 2026-04-21T10:22:51.166Z Entering phase UPLOAD_ARTIFACTS\n[Container] 2026-04-21T10:22:53.013Z Uploading artifacts to s3://501938274650-codepipeline-ap-south-1/build/test-runner:yatke27r-ml0z/\n[Container] 2026-04-21T10:22:53.620Z UPLOAD_ARTIFACTS: uploaded 2 file(s)\n[Container] 2026-04-21T10:22:55.263Z Phase complete: UPLOAD_ARTIFACTS State: SUCCEEDED\n[Container] 2026-04-21T10:22:56.563Z Phase duration: 25 seconds\n[Container] 2026-04-21T10:22:57.217Z Entering phase FINALIZING\n[Container] 2026-04-21T10:22:59.161Z Phase complete: FINALIZING State: SUCCEEDED\n[Container] 2026-04-21T10:22:59.987Z Entering phase COMPLETED\n[Container] 2026-04-21T10:23:00.547Z Phase complete: COMPLETED State: SUCCEEDED",
-  "log": { "level": "info" },
+  "message": "{\"buildId\":\"infra-terraform:ut16vu47-f7up\",\"project\":\"infra-terraform\",\"phase\":\"FINALIZING\",\"status\":\"FAILED\",\"durationSeconds\":3615,\"image\":\"aws/codebuild/standard:7.0\",\"queuedDurationSeconds\":129,\"sourceVersion\":\"l4uu102xqwl\",\"timestamp\":\"2026-04-21T16:58:54.847Z\"}",
+  "log": { "level": "error" },
+  "error": {
+    "code": "BuildFailed",
+    "message": "CodeBuild failed at phase FINALIZING",
+    "type": "build"
+  },
   "service": { "name": "codebuild", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.codebuild", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "5aymxxdm3xc"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "jkuhtt8bxhf"
   },
   "input": { "type": "aws-cloudwatch" }
 }

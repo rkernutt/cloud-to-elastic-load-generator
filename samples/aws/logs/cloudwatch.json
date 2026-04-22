@@ -1,58 +1,57 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-southeast-3",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "cloudwatchalarms" }
   },
   "aws": {
     "cloudwatch": {
       "log_group": "/aws/cloudwatch/logs",
-      "log_stream": "ca-west-1/ltafza2x",
-      "ingestion_time": "2026-04-21T10:21:44.280Z",
-      "alarm_name": "ecs-memory",
-      "alarm_state": "ALARM",
-      "previous_state": "INSUFFICIENT_DATA",
+      "log_stream": "ap-southeast-3/imibysmv",
+      "ingestion_time": "2026-04-21T16:58:55.890Z",
+      "alarm_name": "lambda-errors",
+      "alarm_state": "OK",
+      "previous_state": "ALARM",
       "namespace": "Custom/Application",
-      "metric_name": "DatabaseConnections",
-      "threshold": 85,
-      "evaluation_periods": 2,
-      "metric_value": 94.36689990489526,
+      "metric_name": "QueueDepth",
+      "threshold": 95,
+      "evaluation_periods": 1,
+      "metric_value": 39.42042646151701,
       "statistic": "Sum",
-      "period_seconds": 3600,
+      "period_seconds": 60,
       "treat_missing_data": "missing"
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudwatch-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-cloudwatch-logs-814726593401"
+        "name": "aws-cloudwatch-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-cloudwatch-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/814726593401/cloudwatch/ca-west-1/2026/04/21/cloudwatch_OWVR375K2U.log.gz"
+        "key": "AWSLogs/738291046572/cloudwatch/ap-southeast-3/2026/04/21/cloudwatch_KZBJF464PIS.log.gz"
       }
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["configuration", "process"],
     "dataset": "aws.cloudwatch",
     "provider": "monitoring.amazonaws.com",
     "duration": 300000000000,
     "module": "aws"
   },
-  "message": "CloudWatch alarm \"ecs-memory\": ALARM (Custom/Application/DatabaseConnections=94.4)",
-  "log": { "level": "warn" },
-  "error": { "code": "AlarmTriggered", "message": "Alarm ecs-memory: ALARM", "type": "monitoring" },
+  "message": "CloudWatch alarm \"lambda-errors\": OK (Custom/Application/QueueDepth=39.4)",
+  "log": { "level": "info" },
   "service": { "name": "cloudwatch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "bxmlic0cbqi"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "9h16jm47j8d"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -623,7 +623,6 @@ const CATEGORY_FULL_LABEL_OVERRIDES: Record<string, string> = {
   "binary-authorization": "Binary Authorization",
   "access-context-manager": "Access Context Manager",
   "assured-workloads": "Assured Workloads",
-  chronicle: "Chronicle",
   "recaptcha-enterprise": "reCAPTCHA Enterprise",
   "web-security-scanner": "Web Security Scanner",
   "identity-aware-proxy": "Identity-Aware Proxy",

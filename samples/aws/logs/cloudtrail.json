@@ -1,92 +1,94 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-north-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "cloudtrail" }
   },
   "aws": {
-    "dimensions": { "EventName": "ConsoleLogin", "EventSource": "sts.amazonaws.com" },
+    "dimensions": { "EventName": "ListBuckets", "EventSource": "s3.amazonaws.com" },
     "cloudtrail": {
       "eventVersion": "1.11",
       "userIdentity": {
-        "type": "WebIdentityUser",
-        "principalId": "501938274650:bob",
-        "arn": "arn:aws:iam::501938274650:user/bob",
-        "accountId": "501938274650",
-        "accessKeyId": "AKIAY0E0OARNIF",
-        "userName": "bob",
+        "type": "IAMUser",
+        "principalId": "293847561023:ci-pipeline",
+        "arn": "arn:aws:iam::293847561023:user/ci-pipeline",
+        "accountId": "293847561023",
+        "accessKeyId": "AKIAFAM1JJ7HKK6",
+        "userName": "ci-pipeline",
         "sessionContext": {
           "sessionIssuer": {
             "type": "Role",
-            "principalId": "AROATG31Y5IIMIJ",
-            "arn": "arn:aws:iam::501938274650:role/service-role/execution-role",
-            "accountId": "501938274650",
+            "principalId": "AROAEW5LQ97PUOP",
+            "arn": "arn:aws:iam::293847561023:role/service-role/execution-role",
+            "accountId": "293847561023",
             "userName": "execution-role"
           },
           "webIdFederationData": {},
-          "attributes": { "creationDate": "2026-04-21T09:48:56.398Z", "mfaAuthenticated": "false" }
+          "attributes": { "creationDate": "2026-04-21T16:27:31.847Z", "mfaAuthenticated": "true" }
         }
       },
-      "eventTime": "2026-04-21T10:21:43Z",
-      "eventSource": "sts.amazonaws.com",
-      "eventName": "ConsoleLogin",
-      "awsRegion": "eu-west-1",
-      "sourceIPAddress": "93.8.187.81",
-      "userAgent": "curl/7.68.0",
-      "requestParameters": { "userName": "bob" },
-      "requestID": "zvhwktk1-b2l0-75e4-ubdn-wckrp49adlm",
-      "eventID": "qyek5dje-qd2t-emm8-29f8-l6510zswfyd",
-      "eventType": "AwsConsoleSignIn",
-      "recipientAccountId": "501938274650",
-      "readOnly": false,
+      "eventTime": "2026-04-21T16:58:54Z",
+      "eventSource": "s3.amazonaws.com",
+      "eventName": "ListBuckets",
+      "awsRegion": "eu-north-1",
+      "sourceIPAddress": "146.120.42.21",
+      "userAgent": "Go-http-client/1.1",
+      "requestParameters": {},
+      "requestID": "q9f2lidu-kl0s-0ljx-a0mt-vqxv723agqq",
+      "eventID": "oiqxxuwo-dhq0-vjfs-cpys-2lkzq310i55",
+      "eventType": "AwsApiCall",
+      "recipientAccountId": "293847561023",
+      "readOnly": true,
       "eventCategory": "Management",
       "managementEvent": true,
       "apiVersion": "2012-10-17",
-      "additionalEventData": {
-        "LoginTo": "https://501938274650.signin.aws.amazon.com/console",
-        "MobileVersion": "No",
-        "MFAUsed": "true"
-      }
+      "errorCode": "DeleteConflictException",
+      "errorMessage": "User is not authorized to perform this operation"
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudtrail-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-cloudtrail-logs-501938274650"
+        "name": "aws-cloudtrail-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-cloudtrail-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/cloudtrail/eu-west-1/2026/04/21/cloudtrail_MUKRYE4CJY.log.gz"
+        "key": "AWSLogs/293847561023/cloudtrail/eu-north-1/2026/04/21/cloudtrail_2NVF5CL3FBY.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloudtrail/logs",
-      "log_stream": "eu-west-1/t4zp11oh",
-      "ingestion_time": "2026-04-21T10:21:44.024Z"
+      "log_stream": "eu-north-1/3x53yht4",
+      "ingestion_time": "2026-04-21T16:58:55.586Z"
     }
   },
-  "user": { "name": "bob" },
-  "source": { "ip": "93.8.187.81", "geo": { "country_iso_code": "AU", "city_name": "Frankfurt" } },
-  "user_agent": { "original": "curl/7.68.0" },
+  "user": { "name": "ci-pipeline" },
+  "source": { "ip": "146.120.42.21", "geo": { "country_iso_code": "FR", "city_name": "London" } },
+  "user_agent": { "original": "Go-http-client/1.1" },
   "event": {
-    "action": "ConsoleLogin",
-    "outcome": "success",
-    "category": ["authentication", "iam"],
-    "type": ["authentication", "info"],
+    "action": "ListBuckets",
+    "outcome": "failure",
+    "category": ["configuration"],
+    "type": ["access", "info"],
     "dataset": "aws.cloudtrail",
     "provider": "cloudtrail.amazonaws.com",
     "module": "aws"
   },
-  "message": "CloudTrail: ConsoleLogin by bob from 93.8.187.81 - Success",
-  "log": { "level": "info" },
+  "message": "CloudTrail: ListBuckets by ci-pipeline from 146.120.42.21 - DeleteConflictException",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "DeleteConflictException",
+    "message": "User is not authorized to perform this operation",
+    "type": "access"
+  },
   "service": { "name": "cloudtrail", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudtrail", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "3zf70cu82yl"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "7hg9y9moadx"
   },
   "input": { "type": "aws-s3" }
 }

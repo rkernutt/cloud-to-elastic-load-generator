@@ -226,13 +226,6 @@ export const PIPELINE_REGISTRY = [
     processors: [{ json: { field: "message", target_field: "gcp.parsed", ignore_failure: true } }],
   },
   {
-    id: "logs-gcp.chronicle-default",
-    dataset: "gcp.chronicle",
-    group: "security",
-    description: "Parse JSON from message field for gcp.chronicle (service chronicle)",
-    processors: [{ json: { field: "message", target_field: "gcp.parsed", ignore_failure: true } }],
-  },
-  {
     id: "logs-gcp.cloud_ids-default",
     dataset: "gcp.cloud_ids",
     group: "networking",

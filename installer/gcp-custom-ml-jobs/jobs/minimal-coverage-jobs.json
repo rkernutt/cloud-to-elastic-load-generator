@@ -1257,63 +1257,6 @@
       }
     },
     {
-      "id": "gcp-chronicle-failure-spike",
-      "description": "Unusual spike in failure events for gcp.chronicle (load generator baseline)",
-      "job": {
-        "description": "Unusual spike in failure events for gcp.chronicle",
-        "groups": ["gcp", "minimal-coverage"],
-        "analysis_config": {
-          "bucket_span": "15m",
-          "detectors": [
-            {
-              "detector_description": "high_count partitionfield=cloud.region gcp.chronicle",
-              "function": "high_count",
-              "partition_field_name": "cloud.region",
-              "detector_index": 0
-            }
-          ],
-          "influencers": ["cloud.region", "event.outcome"]
-        },
-        "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
-        "custom_settings": {
-          "created_by": "gcp-load-generator-minimal-coverage"
-        }
-      },
-      "datafeed": {
-        "indices": ["logs-gcp.*"],
-        "max_empty_searches": 10,
-        "query": {
-          "bool": {
-            "filter": [
-              {
-                "term": {
-                  "event.dataset": "gcp.chronicle"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
-            ]
-          }
-        },
-        "chunking_config": {
-          "mode": "auto"
-        },
-        "query_delay": "60s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
-      }
-    },
-    {
       "id": "gcp-cloud-armor-failure-spike",
       "description": "Unusual spike in failure events for gcp.cloudarmor (load generator baseline)",
       "job": {

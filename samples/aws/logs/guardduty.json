@@ -1,105 +1,103 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-northeast-3",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "bl8h51440su" },
+    "dimensions": { "DetectorId": "8ugf7lbce64" },
     "guardduty": {
       "schemaVersion": "2.0",
-      "accountId": "814726593401",
-      "region": "us-east-2",
+      "accountId": "164820739518",
+      "region": "ap-northeast-3",
       "partition": "aws",
-      "id": "2yl2ix2pr0b",
-      "arn": "arn:aws:guardduty:us-east-2:814726593401:detector/bl8h51440su/finding/2yl2ix2pr0b",
-      "type": "Exfiltration:S3/MaliciousIPCaller",
+      "id": "9ot9m9bssr",
+      "arn": "arn:aws:guardduty:ap-northeast-3:164820739518:detector/8ugf7lbce64/finding/9ot9m9bssr",
+      "type": "UnauthorizedAccess:EC2/RDPBruteForce",
       "resource": {
-        "resourceType": "EKSCluster",
-        "eksClusterDetails": {
-          "name": "cluster-huik2x",
-          "arn": "arn:aws:eks:us-east-2:814726593401:cluster/cluster-4gmviw",
-          "createdAt": "2026-04-21T08:23:46.398Z",
-          "vpcId": "vpc-a50k6owv",
-          "status": "ACTIVE",
-          "tags": [{ "key": "env", "value": "prod" }]
-        }
+        "resourceType": "S3Bucket",
+        "s3BucketDetails": [
+          {
+            "arn": "arn:aws:s3:::globex-shared-services-data-21db16",
+            "name": "globex-shared-services-data-cc7p3m",
+            "type": "Destination",
+            "createdAt": "2026-04-21T16:14:24.847Z",
+            "owner": { "id": "164820739518" },
+            "publicAccess": {
+              "permissionConfiguration": { "bucketLevel": { "blockPublicAccess": true } }
+            }
+          }
+        ]
       },
       "service": {
         "serviceName": "guardduty",
-        "detectorId": "bl8h51440su",
+        "detectorId": "8ugf7lbce64",
         "action": {
-          "actionType": "NETWORK_CONNECTION",
-          "networkConnectionAction": {
-            "connectionDirection": "OUTBOUND",
-            "remoteIpDetails": {
-              "ipAddressV4": "185.44.179.76",
-              "geoLocation": {},
-              "organization": {}
-            },
-            "localPortDetails": { "port": 33394 },
-            "remotePortDetails": { "port": 22 },
-            "protocol": "TCP",
-            "blocked": false
+          "actionType": "AWS_API_CALL",
+          "awsApiCallAction": {
+            "api": "AssumeRole",
+            "callerType": "Remote IP",
+            "remoteIpDetails": { "ipAddressV4": "239.186.169.193", "organization": {} },
+            "serviceName": "sts.amazonaws.com"
           }
         },
-        "resourceRole": "ACTOR",
-        "eventFirstSeen": "2026-04-21T08:23:46.398Z",
-        "eventLastSeen": "2026-04-21T10:21:43.398Z",
+        "resourceRole": "TARGET",
+        "eventFirstSeen": "2026-04-21T16:14:24.847Z",
+        "eventLastSeen": "2026-04-21T16:58:54.847Z",
         "archived": false,
-        "count": 269,
+        "count": 168,
         "additionalInfo": {},
         "evidence": { "threatIntelligenceDetails": [] }
       },
-      "severity": 2,
-      "title": "S3 MaliciousIPCaller",
-      "description": "GuardDuty identified suspicious behavior or a possible compromise based on VPC flow logs, DNS logs, or CloudTrail events. Finding type: Exfiltration:S3/MaliciousIPCaller.",
-      "createdAt": "2026-04-21T10:21:43.398Z",
-      "updatedAt": "2026-04-21T10:21:43.398Z",
-      "confidence": 72.0932615351236,
+      "severity": 8,
+      "title": "EC2 RDPBruteForce",
+      "description": "GuardDuty identified suspicious behavior or a possible compromise based on VPC flow logs, DNS logs, or CloudTrail events. Finding type: UnauthorizedAccess:EC2/RDPBruteForce.",
+      "createdAt": "2026-04-21T16:58:54.847Z",
+      "updatedAt": "2026-04-21T16:58:54.847Z",
+      "confidence": 62.23417076070383,
       "metrics": {
-        "FindingCount": { "sum": 33 },
-        "HighSeverityFindingCount": { "sum": 0 },
+        "FindingCount": { "sum": 9 },
+        "HighSeverityFindingCount": { "sum": 4 },
         "MediumSeverityFindingCount": { "sum": 0 },
-        "LowSeverityFindingCount": { "sum": 16 }
+        "LowSeverityFindingCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-guardduty-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-guardduty-logs-814726593401"
+        "name": "aws-guardduty-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-guardduty-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/guardduty/us-east-2/2026/04/21/guardduty_AO92FOTWSX.log.gz"
+        "key": "AWSLogs/164820739518/guardduty/ap-northeast-3/2026/04/21/guardduty_U7GL9CINFI.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/guardduty/logs",
-      "log_stream": "us-east-2/5cgktp6p",
-      "ingestion_time": "2026-04-21T10:21:44.104Z"
+      "log_stream": "ap-northeast-3/2yo2jszc",
+      "ingestion_time": "2026-04-21T16:58:55.681Z"
     }
   },
   "rule": {
     "category": "threat",
-    "ruleset": "Exfiltration",
-    "name": "Exfiltration:S3/MaliciousIPCaller"
+    "ruleset": "UnauthorizedAccess",
+    "name": "UnauthorizedAccess:EC2/RDPBruteForce"
   },
-  "threat": { "indicator": [{ "type": "ip", "value": "128.60.241.189" }] },
+  "threat": { "indicator": [{ "type": "ip", "value": "239.186.169.193" }] },
   "source": {
-    "ip": "128.60.241.189",
+    "ip": "239.186.169.193",
     "geo": {
-      "country_iso_code": "US",
-      "country_name": "United States",
-      "city_name": "Ashburn",
-      "location": { "lat": 39.0438, "lon": -77.4874 }
+      "country_iso_code": "IN",
+      "country_name": "India",
+      "city_name": "Mumbai",
+      "location": { "lat": 19.076, "lon": 72.8777 }
     }
   },
-  "destination": { "ip": "185.44.179.76" },
+  "destination": { "ip": "73.143.175.196" },
   "event": {
     "kind": "alert",
-    "severity": 2,
+    "severity": 8,
     "outcome": "failure",
     "category": ["threat"],
     "type": ["indicator"],
@@ -107,11 +105,11 @@
     "provider": "guardduty.amazonaws.com",
     "module": "aws"
   },
-  "message": "GuardDuty finding [Low]: Exfiltration:S3/MaliciousIPCaller",
-  "log": { "level": "info" },
+  "message": "GuardDuty finding [High]: UnauthorizedAccess:EC2/RDPBruteForce",
+  "log": { "level": "error" },
   "error": {
     "code": "ThreatFinding",
-    "message": "GuardDuty finding: Exfiltration:S3/MaliciousIPCaller",
+    "message": "GuardDuty finding: UnauthorizedAccess:EC2/RDPBruteForce",
     "type": "security"
   },
   "service": { "name": "guardduty", "type": "aws" },
@@ -120,8 +118,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "2jqoy6fwmfh"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "wchhog0ws7"
   },
   "input": { "type": "http_endpoint" }
 }

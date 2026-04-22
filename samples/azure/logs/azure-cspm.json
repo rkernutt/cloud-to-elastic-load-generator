@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-07T12:00:00.000Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,43 +7,41 @@
   },
   "cloud": {
     "provider": "azure",
-    "region": "eastus",
-    "account": { "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890", "name": "Contoso Production" }
+    "region": "southcentralus",
+    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" }
   },
   "resource": {
-    "id": "/subscriptions/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/stcontosoprod01",
-    "name": "stcontosoprod01",
-    "type": "cloud-storage",
-    "sub_type": "storage-account",
-    "raw": {
-      "properties": {
-        "supportsHttpsTrafficOnly": false,
-        "allowBlobPublicAccess": true,
-        "minimumTlsVersion": "TLS1_0"
-      }
-    }
+    "id": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-app-e5std2/providers/Microsoft.Web/sites/app-appc1599c",
+    "name": "app-appc1599c",
+    "type": "web-app",
+    "sub_type": "app-service"
   },
   "rule": {
-    "id": "6d3c6e07-f6bf-5b1a-b08a-1e9a44c0246e",
-    "name": "Ensure that 'Secure transfer required' is set to 'Enabled'",
-    "section": "3.1",
-    "description": "The secure transfer option enhances the security of a storage account by only allowing requests to the storage account by a secure connection.",
-    "tags": ["CIS", "Azure", "CIS 3.1", "Storage Accounts"],
+    "id": "d7011f2f-cd60-58cf-a184-eb2d5fb7339a",
+    "name": "Ensure Web App Redirects All HTTP traffic to HTTPS in Azure App Service",
+    "section": "9.2",
+    "description": "Azure Web Apps allows sites to run under both HTTP and HTTPS by default.",
+    "tags": ["CIS", "AZURE", "CIS 9.2", "AppService"],
     "benchmark": {
       "id": "cis_azure",
       "name": "CIS Microsoft Azure Foundations",
       "version": "v2.0.0",
-      "rule_number": "3.1",
+      "rule_number": "9.2",
       "posture_type": "cspm"
     },
     "profile_applicability": "* Level 1",
-    "impact": "Non-compliance with CIS Microsoft Azure Foundations 3.1 — Ensure that 'Secure transfer required' is set to 'Enabled'",
-    "remediation": "Remediate per CIS Microsoft Azure Foundations v2.0.0 section 3.1."
+    "impact": "Non-compliance with CIS Microsoft Azure Foundations 9.2 — Ensure Web App Redirects All HTTP traffic to HTTPS in Azure App Service",
+    "remediation": "Remediate per CIS Microsoft Azure Foundations v2.0.0 section 9.2."
   },
   "result": {
     "evaluation": "failed",
     "evidence": {
-      "supportsHttpsTrafficOnly": false
+      "properties": {
+        "httpsOnly": false,
+        "clientCertEnabled": false,
+        "siteConfig": { "minTlsVersion": "1.0", "ftpsState": "AllAllowed", "http20Enabled": false },
+        "identity": { "type": "None" }
+      }
     }
   },
   "event": {
@@ -55,6 +53,18 @@
     "provider": "elastic_cspm",
     "module": "azure"
   },
-  "message": "[cis_azure/3.1] failed: Ensure that 'Secure transfer required' is set to 'Enabled'",
-  "log": { "level": "warn" }
+  "message": "[cis_azure/9.2] failed: Ensure Web App Redirects All HTTP traffic to HTTPS in Azure App Service",
+  "log": { "level": "warn" },
+  "service": { "name": "azure-cspm", "type": "azure" },
+  "ecs": { "version": "8.11.0" },
+  "agent": {
+    "type": "elastic-agent",
+    "version": "8.18.0",
+    "name": "elastic-agent-azure-southcentralus",
+    "id": "al8un1qlg6"
+  },
+  "input": { "type": "http_endpoint" },
+  "category": "Administrative",
+  "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourcegroups/rg-app/providers/Microsoft.Resources/azure-cspm/azure-cspm",
+  "operationName": { "localizedValue": "Write", "value": "azure-cspm/action" }
 }

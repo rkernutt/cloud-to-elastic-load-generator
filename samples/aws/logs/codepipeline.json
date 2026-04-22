@@ -1,22 +1,22 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-east-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "codepipeline" }
   },
   "aws": {
     "dimensions": { "PipelineName": "hotfix-pipeline" },
     "codepipeline": {
       "pipeline_name": "hotfix-pipeline",
-      "pipeline_arn": "arn:aws:codepipeline:me-central-1:501938274650:hotfix-pipeline",
-      "execution_id": "y1c3hwpn-916f-ppoo-ojq8-mu3lfk3597i",
-      "stage_name": "Production",
-      "action_name": "Lambda",
+      "pipeline_arn": "arn:aws:codepipeline:ap-east-1:814726593401:hotfix-pipeline",
+      "execution_id": "m1k96xnz-4wc2-8nzd-g7o2-iyo089z1cud",
+      "stage_name": "Deploy",
+      "action_name": "Manual",
       "state": "Succeeded",
-      "revision_id": "wubd7c31hg",
-      "structured_logging": true,
+      "revision_id": "5slch8bi3x5",
+      "structured_logging": false,
       "metrics": {
         "PipelineExecutionAttempts": { "sum": 1 },
         "PipelineSuccessCount": { "sum": 1 },
@@ -28,17 +28,17 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-codepipeline-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-codepipeline-logs-501938274650"
+        "name": "aws-codepipeline-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-codepipeline-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/codepipeline/me-central-1/2026/04/21/codepipeline_B0OXDE9A5A.log.gz"
+        "key": "AWSLogs/814726593401/codepipeline/ap-east-1/2026/04/21/codepipeline_KTNHNEXN91.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codepipeline/logs",
-      "log_stream": "me-central-1/ppeixvtq",
-      "ingestion_time": "2026-04-21T10:21:44.208Z"
+      "log_stream": "ap-east-1/i8dh75gc",
+      "ingestion_time": "2026-04-21T16:58:55.787Z"
     }
   },
   "event": {
@@ -46,10 +46,10 @@
     "category": ["process", "configuration"],
     "dataset": "aws.codepipeline",
     "provider": "codepipeline.amazonaws.com",
-    "duration": 54000000000,
+    "duration": 13000000000,
     "module": "aws"
   },
-  "message": "{\"pipeline\":\"hotfix-pipeline\",\"executionId\":\"y1c3hwpn-916f-ppoo-ojq8-mu3lfk3597i\",\"stage\":\"Production\",\"state\":\"Succeeded\",\"timestamp\":\"2026-04-21T10:21:43.398Z\",\"revision\":\"wubd7c31hg\",\"artifacts\":{\"source\":\"s3://501938274650-codepipeline-me-central-1/hotfix-pipeline/source_out/wubd7c31hg.zip\",\"build\":\"s3://501938274650-codepipeline-me-central-1/hotfix-pipeline/build_out/y1c3hwpn-916f-ppoo-ojq8-mu3lfk3597i/BuildOut\",\"deploy\":\"s3://501938274650-codepipeline-me-central-1/hotfix-pipeline/deploy/y1c3hwpn-916f-ppoo-ojq8-mu3lfk3597i/DeploymentBundle\"},\"stages\":[\"Source\",\"Build\",\"Deploy\",\"Test\"]}",
+  "message": "[CodePipeline] executionId=m1k96xnz-4wc2-8nzd-g7o2-iyo089z1cud pipeline=hotfix-pipeline state=SUCCEEDED region=ap-east-1\n[CodePipeline] Execution started for pipeline hotfix-pipeline (pipelineVersion=42)\n[Stage:Source] Transitioning: STARTED action=GitHubSource provider=CodeCommit revision=5slch8b\n[Stage:Source] Output artifact location: s3://814726593401-codepipeline-ap-east-1/hotfix-pipeline/source_out/5slch8bi3x5.zip\n[Stage:Source] Transitioning: SUCCEEDED durationMs=17092\n[Stage:Build] Transitioning: STARTED action=CodeBuild project=api-service-build\n[Stage:Build] Input artifact: s3://814726593401-codepipeline-ap-east-1/hotfix-pipeline/source_out/5slch8bi3x5.zip\n[Stage:Build] Output artifact: s3://814726593401-codepipeline-ap-east-1/hotfix-pipeline/build_out/m1k96xnz-4wc2-8nzd-g7o2-iyo089z1cud/BuildOut\n[Stage:Build] Transitioning: SUCCEEDED durationMs=367571\n[Stage:Deploy] Transitioning: STARTED action=CodeDeploy deploymentGroup=staging\n[Stage:Deploy] Output artifact: s3://814726593401-codepipeline-ap-east-1/hotfix-pipeline/deploy/m1k96xnz-4wc2-8nzd-g7o2-iyo089z1cud/DeploymentBundle\n[Stage:Deploy] Transitioning: SUCCEEDED durationMs=364174\n[Stage:Test] Transitioning: STARTED action=LambdaInvoke\n[Stage:Test] Transitioning: SUCCEEDED durationMs=128009\n[CodePipeline] Execution succeeded for pipeline hotfix-pipeline executionId=m1k96xnz-4wc2-8nzd-g7o2-iyo089z1cud",
   "log": { "level": "info" },
   "service": { "name": "codepipeline", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -57,8 +57,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "qfhg8154v1"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "uxw4opb99kk"
   },
   "input": { "type": "aws-cloudwatch" }
 }

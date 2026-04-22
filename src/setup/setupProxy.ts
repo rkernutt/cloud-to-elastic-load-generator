@@ -15,11 +15,12 @@ export function kibanaFeatureBlockedExplanation(msg: string): string {
 }
 
 /**
- * `POST /api/dashboards` exists but rejects our payload (e.g. Serverless expects `esql_control` /
- * Discover session panel types, not legacy Lens-in-panelsJSON). Fall back to saved-object import.
+ * `POST /api/dashboards` may not exist (404) or may reject our payload (400). Fall back to
+ * saved-object create/update when any of these conditions match.
  */
 export function shouldUseSavedObjectDashboardInstall(msg: string): boolean {
   if (isKibanaFeatureUnavailable(msg)) return true;
+  if (msg.includes("HTTP 404")) return true;
   if (!msg.includes("HTTP 400")) return false;
   if (msg.includes("types that failed validation")) return true;
   if (msg.includes("request body.panels")) return true;

@@ -1,60 +1,59 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "cloud": {
     "provider": "aws",
     "region": "me-central-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "aurora" }
   },
   "aws": {
     "aurora": {
       "cluster_id": "staging-aurora",
-      "instance_id": "staging-aurora-instance-3",
-      "engine": "aurora-postgresql",
-      "engine_version": "15.4",
-      "replica_lag_seconds": 547,
-      "db_connections": 494,
+      "instance_id": "staging-aurora-instance-5",
+      "engine": "aurora-mysql",
+      "engine_version": "8.0.36",
+      "replica_lag_seconds": 2.8110220922221174,
+      "db_connections": 469,
       "max_connections": 1000,
-      "failover_in_progress": true,
+      "failover_in_progress": false,
       "metrics": {
-        "AuroraBinlogReplicaLag": { "avg": 1180 },
-        "AuroraGlobalDBReplicatedWriteIO": { "sum": 21625416 },
-        "AuroraGlobalDBDataTransferBytes": { "sum": 37053636 },
-        "AuroraGlobalDBProgressLag": { "avg": 45637 },
-        "BacktrackChangeRecordsCreationRate": { "avg": 9151 },
-        "BacktrackChangeRecordsStored": { "avg": 594254338 },
-        "BacktrackWindowActual": { "avg": 33803 },
+        "AuroraBinlogReplicaLag": { "avg": 9 },
+        "AuroraGlobalDBReplicatedWriteIO": { "sum": 70771858 },
+        "AuroraGlobalDBDataTransferBytes": { "sum": 484280845 },
+        "AuroraGlobalDBProgressLag": { "avg": 174 },
+        "BacktrackChangeRecordsCreationRate": { "avg": 2258 },
+        "BacktrackChangeRecordsStored": { "avg": 594281263 },
+        "BacktrackWindowActual": { "avg": 2842 },
         "BacktrackWindowAlert": { "avg": 0 },
-        "ServerlessDatabaseCapacity": { "avg": 114.58276823071864 },
-        "ACUUtilization": { "avg": 6.614080796642458 }
+        "ServerlessDatabaseCapacity": { "avg": 100.2437866153819 },
+        "ACUUtilization": { "avg": 56.96702780608553 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-aurora-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-aurora-logs-164820739518"
+        "name": "aws-aurora-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-aurora-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/164820739518/aurora/me-central-1/2026/04/21/aurora_83IF0Y5L47O.log.gz"
+        "key": "AWSLogs/738291046572/aurora/me-central-1/2026/04/21/aurora_GLSXV6R0NET.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/aurora/logs",
-      "log_stream": "me-central-1/loi0mi70",
-      "ingestion_time": "2026-04-21T10:21:44.182Z"
+      "log_stream": "me-central-1/lfsetq2e",
+      "ingestion_time": "2026-04-21T16:58:55.760Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["database"],
     "dataset": "aws.aurora",
     "provider": "rds.amazonaws.com",
-    "duration": 44000000000,
+    "duration": 56000000000,
     "module": "aws"
   },
-  "message": "2026-04-21 10:21:43.398 UTC,117.153.243.219,app_rw,events,72883,CONNECT,,,0",
-  "log": { "level": "info" },
-  "error": { "code": "AuroraError", "message": "Deadlock detected", "type": "db" },
+  "message": "[AuroraFailover] cluster=staging-aurora old_primary=staging-aurora-instance-5 new_primary=staging-aurora-instance-2 reason=USER_INITIATED_SWITCHOVER duration_sec=17",
+  "log": { "level": "warn" },
   "service": { "name": "aurora", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.aurora", "namespace": "default" },
@@ -62,7 +61,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "3lpex9eyr07"
+    "ephemeral_id": "jnx03amnd2"
   },
   "input": { "type": "aws-cloudwatch" }
 }

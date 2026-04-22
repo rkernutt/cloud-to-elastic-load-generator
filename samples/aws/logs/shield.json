@@ -1,58 +1,65 @@
 {
-  "@timestamp": "2026-04-21T10:21:43.398Z",
+  "@timestamp": "2026-04-21T16:58:54.847Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-west-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "shield" }
   },
   "aws": {
-    "dimensions": { "AttackVector": "NONE" },
+    "dimensions": { "AttackVector": "UDP_REFLECTION" },
     "shield": {
-      "mitigation_started": false,
+      "attack_id": "50clhsvb-cq8p",
+      "attack_vector": "UDP_REFLECTION",
+      "mitigation_started": true,
       "subscription_type": "ADVANCED",
-      "protected_resource": "arn:aws:elasticloadbalancing:eu-north-1:293847561023:loadbalancer/app/prod/c1r37ek8yl",
+      "protected_resource": "arn:aws:elasticloadbalancing:us-west-1:814726593401:loadbalancer/app/prod/2xace7itbwg",
       "metrics": {
-        "DDoSAttackBitsPerSecond": { "avg": 0 },
-        "DDoSAttackPacketsPerSecond": { "avg": 0 },
-        "DDoSAttackRequestsPerSecond": { "avg": 0 }
+        "DDoSAttackBitsPerSecond": { "avg": 97708694277 },
+        "DDoSAttackPacketsPerSecond": { "avg": 51771581 },
+        "DDoSAttackRequestsPerSecond": { "avg": 474075 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-shield-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-shield-logs-293847561023"
+        "name": "aws-shield-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-shield-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/shield/eu-north-1/2026/04/21/shield_86868XY84QW.log.gz"
+        "key": "AWSLogs/814726593401/shield/us-west-1/2026/04/21/shield_AK156EE7K9D.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/shield/logs",
-      "log_stream": "eu-north-1/iphrum0z",
-      "ingestion_time": "2026-04-21T10:21:44.079Z"
+      "log_stream": "us-west-1/j3xay5ne",
+      "ingestion_time": "2026-04-21T16:58:55.650Z"
     }
   },
-  "network": { "bytes": 936026142, "packets": 227420 },
+  "network": { "bytes": 464317403, "packets": 18741 },
   "event": {
-    "action": "health_check",
-    "outcome": "success",
+    "action": "ddos_detected",
+    "outcome": "failure",
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.shield",
     "provider": "shield.amazonaws.com",
-    "duration": 45000000000,
+    "duration": 3348000000000,
     "module": "aws"
   },
-  "message": "DDoS mitigation active: 0 attacks detected in last 60s",
-  "log": { "level": "info" },
+  "message": "DDoS attack detected: vector=VOLUMETRIC magnitude=13.1Gbps pps=17480414 mitigation=ACTIVE",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "DDoSAttack",
+    "message": "Attack vector: VOLUMETRIC at 13.1Gbps - mitigation active",
+    "type": "network"
+  },
   "service": { "name": "shield", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.shield", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "bkke9x63oyf"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "8uez174xztf"
   },
   "input": { "type": "aws-cloudwatch" }
 }

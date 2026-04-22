@@ -23,7 +23,6 @@ const SERVICE_GROUPS: ServiceGroup[] = [
     services: [
       { id: "lambda", label: "Lambda", icon: "λ", desc: "Function execution logs" },
       { id: "apigateway", label: "API Gateway", icon: "⇌", desc: "HTTP access logs" },
-      { id: "cloudtrail", label: "CloudTrail", icon: "☁", desc: "API audit events" },
       { id: "ecs", label: "ECS", icon: "▣", desc: "Container task logs" },
     ],
   },
@@ -73,6 +72,7 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         icon: "⊙",
         desc: "Spatial simulation partition logs",
       },
+      { id: "lightsail", label: "Lightsail", icon: "⊙", desc: "Simple compute & container logs" },
     ],
   },
   {
@@ -86,6 +86,7 @@ const SERVICE_GROUPS: ServiceGroup[] = [
       { id: "nlb", label: "NLB", icon: "⚡", desc: "TCP/TLS load balancer logs" },
       { id: "cloudfront", label: "CloudFront", icon: "◌", desc: "CDN access & cache logs" },
       { id: "waf", label: "WAF", icon: "◈", desc: "Web ACL block/allow events" },
+      { id: "wafv2", label: "WAF v2", icon: "◈", desc: "Web ACL allow/block rules" },
       { id: "route53", label: "Route 53", icon: "◉", desc: "DNS query logs" },
       { id: "networkfirewall", label: "Network FW", icon: "⊘", desc: "Firewall flow logs" },
       { id: "shield", label: "Shield", icon: "⬡", desc: "DDoS detection events" },
@@ -211,6 +212,7 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         icon: "⚠",
         desc: "Incident response plan & runbook events",
       },
+      { id: "frauddetector", label: "Fraud Detector", icon: "⚠", desc: "ML fraud risk decisions" },
     ],
   },
   {
@@ -373,6 +375,7 @@ const SERVICE_GROUPS: ServiceGroup[] = [
       { id: "cloudshell", label: "CloudShell", icon: "⊙", desc: "Managed shell session logs" },
       { id: "cloud9", label: "Cloud9", icon: "⊟", desc: "IDE environment usage logs" },
       { id: "robomaker", label: "RoboMaker", icon: "⊛", desc: "Robotics simulation & fleet logs" },
+      { id: "codeguru", label: "CodeGuru", icon: "◎", desc: "Code quality findings" },
     ],
   },
   {
@@ -475,6 +478,18 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         desc: "Industrial equipment anomaly detection",
       },
       { id: "monitron", label: "Monitron", icon: "◉", desc: "Equipment health sensor monitoring" },
+      {
+        id: "lookoutmetrics",
+        label: "Lookout for Metrics",
+        icon: "◎",
+        desc: "Anomaly detection alerts",
+      },
+      {
+        id: "comprehendmedical",
+        label: "Comprehend Medical",
+        icon: "⊛",
+        desc: "Clinical NLP & PHI logs",
+      },
     ],
   },
   {
@@ -507,6 +522,9 @@ const SERVICE_GROUPS: ServiceGroup[] = [
       },
       { id: "panorama", label: "Panorama", icon: "◎", desc: "Edge computer vision appliance logs" },
       { id: "freertos", label: "FreeRTOS", icon: "⊛", desc: "Embedded OS device telemetry" },
+      { id: "iotevents", label: "IoT Events", icon: "⬡", desc: "Device state machine logs" },
+      { id: "iotsitewise", label: "IoT SiteWise", icon: "⌚", desc: "Industrial asset telemetry" },
+      { id: "iotdefender", label: "IoT Defender", icon: "⚠", desc: "Device security audit logs" },
     ],
   },
   {
@@ -515,6 +533,7 @@ const SERVICE_GROUPS: ServiceGroup[] = [
     color: "#64748B",
     icon: "⚙",
     services: [
+      { id: "cloudtrail", label: "CloudTrail", icon: "☁", desc: "API audit events" },
       {
         id: "cloudformation",
         label: "CloudFormation",
@@ -524,9 +543,9 @@ const SERVICE_GROUPS: ServiceGroup[] = [
       { id: "ssm", label: "Systems Manager", icon: "⚙", desc: "Run Command & Patch logs" },
       {
         id: "cloudwatch",
-        label: "CloudWatch Alarms",
+        label: "CloudWatch",
         icon: "⚠",
-        desc: "Metric alarm state changes",
+        desc: "Metric alarms, logs & monitoring events",
       },
       { id: "health", label: "AWS Health", icon: "⊕", desc: "Service health events" },
       { id: "trustedadvisor", label: "Trusted Advisor", icon: "◎", desc: "Cost & security checks" },
@@ -610,6 +629,19 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         icon: "◎",
         desc: "Real user monitoring & web vitals",
       },
+      {
+        id: "arc",
+        label: "App Recovery Controller",
+        icon: "⊛",
+        desc: "Zonal shift & routing control logs",
+      },
+      {
+        id: "transferfamily",
+        label: "Transfer Family",
+        icon: "⟺",
+        desc: "SFTP/FTPS/AS2 transfers",
+      },
+      { id: "devopsguru", label: "DevOps Guru", icon: "⊙", desc: "ML ops anomaly insights" },
     ],
   },
   {
@@ -633,50 +665,6 @@ const SERVICE_GROUPS: ServiceGroup[] = [
       },
       { id: "workmail", label: "WorkMail", icon: "✉", desc: "Email delivery & mailbox events" },
       { id: "wickr", label: "Wickr", icon: "⬡", desc: "Encrypted messaging & compliance logs" },
-    ],
-  },
-  {
-    id: "messaging",
-    label: "Messaging & Communications",
-    color: "#DB2777",
-    icon: "◉",
-    services: [
-      { id: "ses", label: "SES", icon: "◉", desc: "Email send/bounce/complaint" },
-      { id: "pinpoint", label: "Pinpoint", icon: "◎", desc: "Campaign & journey delivery" },
-    ],
-  },
-  {
-    id: "additional",
-    label: "Additional Services",
-    color: "#7C3AED",
-    icon: "⊛",
-    services: [
-      {
-        id: "arc",
-        label: "App Recovery Controller",
-        icon: "⊛",
-        desc: "Zonal shift & routing control logs",
-      },
-      {
-        id: "transferfamily",
-        label: "Transfer Family",
-        icon: "⟺",
-        desc: "SFTP/FTPS/AS2 transfers",
-      },
-      { id: "lightsail", label: "Lightsail", icon: "⊙", desc: "Simple compute instance logs" },
-      { id: "frauddetector", label: "Fraud Detector", icon: "⚠", desc: "ML fraud risk decisions" },
-      {
-        id: "lookoutmetrics",
-        label: "Lookout for Metrics",
-        icon: "◎",
-        desc: "Anomaly detection alerts",
-      },
-      {
-        id: "comprehendmedical",
-        label: "Comprehend Medical",
-        icon: "⊛",
-        desc: "Clinical NLP & PHI logs",
-      },
       {
         id: "locationservice",
         label: "Location Service",
@@ -689,12 +677,16 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         icon: "⟺",
         desc: "Transaction & network logs",
       },
-      { id: "codeguru", label: "CodeGuru", icon: "◎", desc: "Code quality findings" },
-      { id: "devopsguru", label: "DevOps Guru", icon: "⊙", desc: "ML ops anomaly insights" },
-      { id: "iotevents", label: "IoT Events", icon: "⬡", desc: "Device state machine logs" },
-      { id: "iotsitewise", label: "IoT SiteWise", icon: "⌚", desc: "Industrial asset telemetry" },
-      { id: "iotdefender", label: "IoT Defender", icon: "⚠", desc: "Device security audit logs" },
-      { id: "wafv2", label: "WAF v2", icon: "◈", desc: "Web ACL allow/block rules" },
+    ],
+  },
+  {
+    id: "messaging",
+    label: "Messaging & Communications",
+    color: "#DB2777",
+    icon: "◉",
+    services: [
+      { id: "ses", label: "SES", icon: "◉", desc: "Email send/bounce/complaint" },
+      { id: "pinpoint", label: "Pinpoint", icon: "◎", desc: "Campaign & journey delivery" },
     ],
   },
 ];
