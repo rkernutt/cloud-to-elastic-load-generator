@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,45 +7,33 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-4",
-    "account": { "id": "293847561023", "name": "globex-staging" }
+    "region": "eu-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" }
   },
   "resource": {
-    "id": "arn:aws:ec2:ap-southeast-4:293847561023:security-group/sg-i3etopgm",
-    "name": "sg-i3etopgm",
-    "type": "cloud-compute",
-    "sub_type": "security-group"
+    "id": "arn:aws:cloudwatch:eu-south-1:814726593401:alarm:4-16-compliance",
+    "name": "cis-4.16-alarm",
+    "type": "cloud-alarm",
+    "sub_type": "cloudwatch-alarm"
   },
   "rule": {
-    "id": "f9dfc7e7-d067-5be5-8fc1-5d9043a4cd06",
-    "name": "Ensure no security groups allow ingress from ::/0 to remote server administration ports",
-    "section": "5.3",
-    "description": "Security groups provide stateful filtering of ingress and egress network traffic to AWS resources.",
-    "tags": ["CIS", "AWS", "CIS 5.3", "Networking"],
+    "id": "3851b212-b300-545d-8d6b-54ef71c86661",
+    "name": "Ensure AWS Security Hub is enabled",
+    "section": "4.16",
+    "description": "Security Hub collects security data from across AWS accounts, services, and supported third-party partner products and helps you analyze your security trends and identify the highest priority security issues.",
+    "tags": ["CIS", "AWS", "CIS 4.16", "Monitoring"],
     "benchmark": {
       "id": "cis_aws",
       "name": "CIS Amazon Web Services Foundations",
       "version": "v1.5.0",
-      "rule_number": "5.3",
+      "rule_number": "4.16",
       "posture_type": "cspm"
     },
-    "profile_applicability": "* Level 1",
-    "impact": "Non-compliance with CIS Amazon Web Services Foundations 5.3 — Ensure no security groups allow ingress from ::/0 to remote server administration ports",
-    "remediation": "Remediate per CIS Amazon Web Services Foundations v1.5.0 section 5.3."
+    "profile_applicability": "* Level 2",
+    "impact": "Non-compliance with CIS Amazon Web Services Foundations 4.16 — Ensure AWS Security Hub is enabled",
+    "remediation": "Remediate per CIS Amazon Web Services Foundations v1.5.0 section 4.16."
   },
-  "result": {
-    "evaluation": "failed",
-    "evidence": {
-      "IpPermissions": [
-        {
-          "FromPort": 22,
-          "ToPort": 22,
-          "IpProtocol": "tcp",
-          "Ipv6Ranges": [{ "CidrIpv6": "::/0" }]
-        }
-      ]
-    }
-  },
+  "result": { "evaluation": "failed", "evidence": { "MetricFilters": [], "AlarmActions": [] } },
   "event": {
     "kind": "state",
     "category": ["configuration"],
@@ -55,31 +43,29 @@
     "provider": "elastic_cspm",
     "module": "aws"
   },
-  "message": "[cis_aws/5.3] failed: Ensure no security groups allow ingress from ::/0 to remote server administration ports",
+  "message": "[cis_aws/4.16] failed: Ensure AWS Security Hub is enabled",
   "log": { "level": "warn" },
   "service": { "name": "cspm", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-4",
-    "ephemeral_id": "btk8xm1rfqu"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "bm2gzyfy0bi"
   },
   "input": { "type": "http_endpoint" },
   "aws": {
     "s3": {
       "bucket": {
-        "name": "aws-cspm-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-cspm-logs-293847561023"
+        "name": "aws-cspm-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-cspm-logs-814726593401"
       },
-      "object": {
-        "key": "AWSLogs/293847561023/cspm/ap-southeast-4/2026/04/21/cspm_P75AWGE3V2.log.gz"
-      }
+      "object": { "key": "AWSLogs/814726593401/cspm/eu-south-1/2026/04/22/cspm_OJ1D9NZJC5.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/cspm/logs",
-      "log_stream": "ap-southeast-4/p7c356qd",
-      "ingestion_time": "2026-04-21T16:58:55.707Z"
+      "log_stream": "eu-south-1/tz8nl7f6",
+      "ingestion_time": "2026-04-22T16:10:08.288Z"
     }
   }
 }

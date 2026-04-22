@@ -25,6 +25,12 @@ import {
   randBetween,
   type CspFindingResource,
 } from "../../data/cspFindingsHelpers.js";
+import {
+  randHumanUser,
+  randSourceIp,
+  randPipelineUserAgent,
+  ecsIdentityFields,
+} from "../../helpers/identity.js";
 
 function generateGuardDutyLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
@@ -2112,6 +2118,11 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
   const findingChainId = randUUID();
   const baseDate = new Date(ts);
 
+  const attacker = randHumanUser();
+  const attackerIp = randSourceIp();
+  const attackerUa = randPipelineUserAgent();
+  const attackerIdentity = ecsIdentityFields(attacker, attackerIp, attackerUa);
+
   const severity = rand(["HIGH", "HIGH", "CRITICAL", "MEDIUM"]);
   const sevCode = severity === "CRITICAL" ? 8.0 : severity === "HIGH" ? 7.0 : 4.0;
   const sevValue = sevCode >= 7 ? "High" : "Medium";
@@ -2200,6 +2211,7 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
   // 1. GuardDuty at T+0
   const gdTs = ts;
   const gdDoc: EcsDocument = {
+    ...attackerIdentity,
     "@timestamp": gdTs,
     __dataset: "aws.guardduty",
     cloud: {
@@ -2252,7 +2264,10 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
         },
       },
     },
-    source: { ip: srcIp },
+    source: {
+      ...(attackerIdentity.source as { ip: string; geo: unknown }),
+      ip: srcIp,
+    },
     rule: { category: isReconOnly ? "intrusion_detection" : "threat", name: findingType },
     event: {
       kind: "alert",
@@ -2320,6 +2335,7 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
   ];
 
   const shDoc: EcsDocument = {
+    ...attackerIdentity,
     "@timestamp": shTs,
     __dataset: "aws.securityhub_findings",
     cloud: {
@@ -2411,6 +2427,7 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
   const slSevName = ({ 6: "Critical", 5: "High", 3: "Medium" } as const)[slSevId];
 
   const slDoc: EcsDocument = {
+    ...attackerIdentity,
     "@timestamp": slTs,
     __dataset: "aws.securitylake",
     cloud: {
@@ -3303,6 +3320,9 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
   const acct = randAccount();
   const exfilChainId = randUUID();
   const baseDate = new Date(ts);
+  const attacker = randHumanUser();
+  const attackerIp = randSourceIp();
+  const attackerUa = randPipelineUserAgent();
   const bucket = rand([
     "prod-customer-data",
     "financial-records",
@@ -3312,7 +3332,7 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
   ]);
   const bucketName = `${bucket}-${acct.id.slice(-6)}`;
   const objectKey = `data/export-${randId(8).toLowerCase()}.csv`;
-  const attackerIp = randIp();
+  const exfilSourceIp = randIp();
   const instanceId = `i-${randId(17).toLowerCase()}`;
   const instancePrivateIp = `10.${randInt(0, 255)}.${randInt(0, 255)}.${randInt(1, 254)}`;
   const detectorId = randId(32).toLowerCase();
@@ -3330,7 +3350,8 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
     s3_bucket: bucketName,
     s3_key: objectKey,
     ec2_instance_id: instanceId,
-    attacker_ip: attackerIp,
+    attacker_ip: exfilSourceIp,
+    identity_source_ip: attackerIp,
   };
 
   // Access & VPC flow occur in the window [T−5m, T−30s] before GuardDuty detection at T+0
@@ -3342,6 +3363,8 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
   const objectArn = `arn:aws:s3:::${bucketName}/${objectKey}`;
 
   const gdDoc: EcsDocument = {
+    user: { name: attacker.name, email: attacker.email },
+    user_agent: { original: attackerUa },
     __dataset: "aws.guardduty",
     "@timestamp": ts,
     cloud: {
@@ -3364,7 +3387,7 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
           gdType === "Exfiltration:S3/AnomalousBehavior"
             ? "Unusual S3 data access volume or pattern detected"
             : "S3 object accessed from a known malicious IP address",
-        description: `S3 bucket ${bucketName} in ${region} showed ${gdType.includes("Anomalous") ? "anomalous access patterns" : "access from malicious IP"} ${attackerIp}. Related resource ${instanceArn}.`,
+        description: `S3 bucket ${bucketName} in ${region} showed ${gdType.includes("Anomalous") ? "anomalous access patterns" : "access from malicious IP"} ${exfilSourceIp}. Related resource ${instanceArn}.`,
         created_at: ts,
         updated_at: ts,
         severity: { code: 7.0, value: "High" },
@@ -3387,7 +3410,7 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
               api: "GetObject",
               caller_type: "Remote IP",
               remote_ip_details: {
-                ip_address_v4: attackerIp,
+                ip_address_v4: exfilSourceIp,
                 organization: { asn: "64496", asn_org: "Suspicious ASN", isp: "Example ISP" },
               },
             },
@@ -3399,12 +3422,12 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
         },
       },
     },
-    source: { ip: attackerIp },
+    source: { ip: exfilSourceIp },
     rule: { category: "exfiltration", name: gdType },
     threat: {
       tactic: { name: "Exfiltration", id: "TA0010" },
       technique: { name: "Transfer Data to Cloud Account", id: "T1537" },
-      indicator: [{ type: "ip", value: attackerIp }],
+      indicator: [{ type: "ip", value: exfilSourceIp }],
     },
     event: {
       kind: "alert",
@@ -3415,7 +3438,7 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
       dataset: "aws.guardduty",
       provider: "guardduty.amazonaws.com",
     },
-    message: `GuardDuty [HIGH]: ${gdType} — s3://${bucketName} from ${attackerIp} (correlates with ${instanceId})`,
+    message: `GuardDuty [HIGH]: ${gdType} — s3://${bucketName} from ${exfilSourceIp} (correlates with ${instanceId})`,
     log: { level: "error" },
     error: {
       code: "ExfiltrationDetected",
@@ -3426,6 +3449,8 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
   };
 
   const ctDoc: EcsDocument = {
+    user: { name: attacker.name, email: attacker.email },
+    user_agent: { original: attackerUa },
     __dataset: "aws.cloudtrail",
     "@timestamp": accessTs,
     cloud: {
@@ -3482,11 +3507,11 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
           "x-amz-id-2": randId(64),
         }),
         additional_event_count: keyCount,
-        source_ip_address: attackerIp,
+        source_ip_address: exfilSourceIp,
         tls_details: { tls_version: "TLSv1.3", cipher_suite: "TLS_AES_128_GCM_SHA256" },
       },
     },
-    source: { ip: attackerIp },
+    source: { ip: exfilSourceIp },
     threat: { tactic: { name: "Exfiltration", id: "TA0010" } },
     event: {
       kind: "event",
@@ -3497,7 +3522,7 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
       dataset: "aws.cloudtrail",
       provider: "cloudtrail.amazonaws.com",
     },
-    message: `CloudTrail: S3 GetObject s3://${bucketName}/${objectKey} via role on ${instanceId} — source ${attackerIp} (${megabytes} MB class volume)`,
+    message: `CloudTrail: S3 GetObject s3://${bucketName}/${objectKey} via role on ${instanceId} — source ${exfilSourceIp} (${megabytes} MB class volume)`,
     log: { level: "warn" },
     labels: chainLabels,
   };
@@ -3508,6 +3533,8 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
   const srcPort = randInt(32768, 61000);
 
   const vpcDoc: EcsDocument = {
+    user: { name: attacker.name, email: attacker.email },
+    user_agent: { original: attackerUa },
     __dataset: "aws.vpcflow",
     "@timestamp": flowTs,
     cloud: {
@@ -3522,9 +3549,9 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
         account_id: acct.id,
         interface_id: `eni-${randId(8).toLowerCase()}`,
         srcaddr: instancePrivateIp,
-        dstaddr: attackerIp,
+        dstaddr: exfilSourceIp,
         source_ip: instancePrivateIp,
-        destination_ip: attackerIp,
+        destination_ip: exfilSourceIp,
         source_port: srcPort,
         destination_port: dstPort,
         protocol: 6,
@@ -3543,7 +3570,7 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
       },
     },
     source: { address: instancePrivateIp, ip: instancePrivateIp, port: srcPort, bytes: totalBytes },
-    destination: { address: attackerIp, ip: attackerIp, port: dstPort },
+    destination: { address: exfilSourceIp, ip: exfilSourceIp, port: dstPort },
     network: {
       bytes: totalBytes,
       packets: randInt(5000, 500_000),
@@ -3560,11 +3587,11 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
       dataset: "aws.vpcflow",
       provider: "ec2.amazonaws.com",
     },
-    message: `VPC Flow [ACCEPT egress]: ${instancePrivateIp} (${instanceId}) → ${attackerIp}:${dstPort} ${megabytes} MB — aligns with S3 exfil from ${bucketName}`,
+    message: `VPC Flow [ACCEPT egress]: ${instancePrivateIp} (${instanceId}) → ${exfilSourceIp}:${dstPort} ${megabytes} MB — aligns with S3 exfil from ${bucketName}`,
     log: { level: "error" },
     error: {
       code: "HighEgressBytes",
-      message: `${megabytes} MB TCP egress from ${instancePrivateIp} to ${attackerIp}`,
+      message: `${megabytes} MB TCP egress from ${instancePrivateIp} to ${exfilSourceIp}`,
       type: "network",
     },
     labels: chainLabels,

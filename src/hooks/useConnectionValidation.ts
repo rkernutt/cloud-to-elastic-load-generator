@@ -19,6 +19,7 @@ export function useConnectionValidation(
   >;
   connectionStatus: ConnectionStatus;
   connectionMsg: string;
+  isServerless: boolean;
   runConnectionValidation: () => boolean;
   handleTestConnection: () => Promise<void>;
 } {
@@ -29,6 +30,7 @@ export function useConnectionValidation(
   });
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("idle");
   const [connectionMsg, setConnectionMsg] = useState("");
+  const [isServerless, setIsServerless] = useState(false);
 
   const runConnectionValidation = useCallback(() => {
     const urlResult = validateElasticUrl(elasticUrl);
@@ -52,10 +54,13 @@ export function useConnectionValidation(
     const result = await testConnection(elasticUrl, apiKey);
     if (result.valid) {
       setConnectionStatus("ok");
+      setIsServerless(result.isServerless === true);
       const ver = result.version ? ` (Elasticsearch ${result.version})` : "";
-      setConnectionMsg(`Connected successfully${ver}`);
+      const flavor = result.isServerless ? " — Serverless" : "";
+      setConnectionMsg(`Connected successfully${ver}${flavor}`);
     } else {
       setConnectionStatus("fail");
+      setIsServerless(false);
       setConnectionMsg(result.message ?? "Connection failed");
     }
   }, [elasticUrl, apiKey, runConnectionValidation]);
@@ -65,6 +70,7 @@ export function useConnectionValidation(
     setValidationErrors,
     connectionStatus,
     connectionMsg,
+    isServerless,
     runConnectionValidation,
     handleTestConnection,
   };

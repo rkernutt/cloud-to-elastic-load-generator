@@ -1,99 +1,93 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "user": { "name": "maya.patel", "email": "maya.patel@globex.example.com" },
+  "source": {
+    "ip": "200.124.195.47",
+    "geo": { "country_iso_code": "GB", "city_name": "London", "region_name": "England" }
+  },
+  "user_agent": { "original": "apache-airflow/2.8.1" },
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-southeast-3",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "81iud23hmau" },
+    "dimensions": { "DetectorId": "uc9j9p5msnf" },
     "guardduty": {
       "schema_version": "2.0",
-      "account_id": "738291046572",
-      "region": "ca-west-1",
+      "account_id": "501938274650",
+      "region": "ap-southeast-3",
       "partition": "aws",
-      "id": "q7f8y4fpbol",
-      "arn": "arn:aws:guardduty:ca-west-1:738291046572:detector/81iud23hmau/finding/q7f8y4fpbol",
-      "type": "UnauthorizedAccess:EC2/MaliciousIPCaller",
-      "title": "EC2 MaliciousIPCaller",
-      "description": "GuardDuty identified suspicious behavior based on VPC flow logs, DNS logs, or CloudTrail. Finding type: UnauthorizedAccess:EC2/MaliciousIPCaller. Resource: arn:aws:s3:::customer-exports-046572.",
-      "created_at": "2026-04-21T16:58:54.847Z",
-      "updated_at": "2026-04-21T16:58:54.847Z",
+      "id": "lxrugwbjmu",
+      "arn": "arn:aws:guardduty:ap-southeast-3:501938274650:detector/uc9j9p5msnf/finding/lxrugwbjmu",
+      "type": "Recon:EC2/PortScan",
+      "title": "EC2 PortScan",
+      "description": "GuardDuty identified suspicious behavior based on VPC flow logs, DNS logs, or CloudTrail. Finding type: Recon:EC2/PortScan. Resource: arn:aws:ec2:ap-southeast-3:501938274650:instance/i-nn01w5chdan.",
+      "created_at": "2026-04-22T16:10:07.528Z",
+      "updated_at": "2026-04-22T16:10:07.528Z",
       "severity": { "code": 4, "value": "Medium" },
-      "confidence": 77.9925471715709,
+      "confidence": 84.25397398628216,
       "resource": {
-        "type": "S3Bucket",
-        "s3_bucket_detail": {
-          "arn": "arn:aws:s3:::customer-exports-046572",
-          "name": "customer-exports-046572",
-          "type": "Destination",
-          "created_at": "2026-04-21T16:07:47.847Z",
-          "owner": { "id": "738291046572" }
+        "type": "Instance",
+        "instance_details": {
+          "instance_id": "i-nn01w5chdan",
+          "instance_type": "m5.large",
+          "image_id": "ami-kv3arge3",
+          "availability_zone": "ap-southeast-3c",
+          "network_interfaces": [
+            {
+              "network_interface_id": "eni-e0louanc",
+              "private_ip_address": "154.78.131.99",
+              "subnet_id": "subnet-dmysykue",
+              "vpc_id": "vpc-0qduz0ar"
+            }
+          ],
+          "tags": [{ "key": "Name", "value": "app-server" }]
         }
       },
       "service": {
-        "detector_id": "81iud23hmau",
-        "count": 37,
+        "detector_id": "uc9j9p5msnf",
+        "count": 66,
         "archived": false,
         "resource_role": "TARGET",
-        "action": {
-          "action_type": "PORT_PROBE",
-          "port_probe_action": {
-            "port_probe_details": [
-              {
-                "local_port_details": { "port": 8080 },
-                "remote_ip_details": { "ip_address_v4": "72.200.10.84" }
-              }
-            ]
-          }
-        }
+        "action": { "action_type": "DNS_REQUEST" }
       },
       "metrics": { "FindingCount": { "sum": 4 }, "HighSeverityFindingCount": { "sum": 0 } }
     },
     "s3": {
       "bucket": {
-        "name": "aws-security-chain-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-security-chain-logs-738291046572"
+        "name": "aws-security-chain-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-security-chain-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/security-chain/ca-west-1/2026/04/21/security-chain_EFVPWXR95LR.log.gz"
+        "key": "AWSLogs/501938274650/security-chain/ap-southeast-3/2026/04/22/security-chain_GLYNTOVWF7F.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/security-chain/logs",
-      "log_stream": "ca-west-1/kc8k5r28",
-      "ingestion_time": "2026-04-21T16:58:55.704Z"
+      "log_stream": "ap-southeast-3/6ug0y46g",
+      "ingestion_time": "2026-04-22T16:10:08.286Z"
     }
   },
-  "source": { "ip": "72.200.10.84" },
-  "rule": { "category": "threat", "name": "UnauthorizedAccess:EC2/MaliciousIPCaller" },
+  "rule": { "category": "intrusion_detection", "name": "Recon:EC2/PortScan" },
   "event": {
     "kind": "alert",
     "severity": 4,
     "outcome": "failure",
-    "category": ["threat"],
+    "category": ["intrusion_detection"],
     "type": ["indicator"],
     "dataset": "aws.guardduty",
     "provider": "guardduty.amazonaws.com",
     "module": "aws"
   },
-  "message": "GuardDuty finding [MEDIUM]: UnauthorizedAccess:EC2/MaliciousIPCaller — arn:aws:s3:::customer-exports-046572",
+  "message": "GuardDuty finding [MEDIUM]: Recon:EC2/PortScan — arn:aws:ec2:ap-southeast-3:501938274650:instance/i-nn01w5chdan",
   "log": { "level": "warn" },
   "labels": {
-    "finding_chain_id": "2a6gkw6i-ez9c-zj7q-dwm1-oor4crybhn",
-    "guardduty_finding_id": "q7f8y4fpbol",
-    "securityhub_finding_id": "8K0BKPGF-Q6NV-CTKT-RH1Z-TT8D8EEVKB",
-    "resource_arn": "arn:aws:s3:::customer-exports-046572"
-  },
-  "error": {
-    "code": "ThreatFinding",
-    "message": "GuardDuty finding: UnauthorizedAccess:EC2/MaliciousIPCaller",
-    "type": "security"
-  },
-  "threat": {
-    "tactic": { "name": "Initial Access", "id": "TA0001" },
-    "technique": { "name": "Valid Accounts", "id": "T1078" }
+    "finding_chain_id": "hdd9xcp0-py30-yk6h-yuc4-5nvl8vjafin",
+    "guardduty_finding_id": "lxrugwbjmu",
+    "securityhub_finding_id": "S6BXZAKI-SRSO-36OD-Y5O5-KTG7ZBB7MJR",
+    "resource_arn": "arn:aws:ec2:ap-southeast-3:501938274650:instance/i-nn01w5chdan"
   },
   "service": { "name": "security-chain", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -101,8 +95,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "tvxn6pxf3wi"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "49numwjvo4b"
   },
   "input": { "type": "http_endpoint" }
 }

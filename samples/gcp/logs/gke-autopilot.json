@@ -1,67 +1,67 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "NOTICE",
+  "severity": "ERROR",
   "labels": {
     "cluster_name": "edge-cluster-autopilot",
-    "namespace_name": "production",
-    "scaling_event": "SCALE_DOWN"
+    "namespace_name": "default",
+    "scaling_event": "ADMISSION_DENIED"
   },
-  "insertId": "PS9E5P13HK",
+  "insertId": "VUKP07UZLP",
   "resource": {
     "type": "k8s_cluster",
     "labels": {
-      "project_id": "globex-prod-a1b2c3",
-      "location": "europe-west3",
+      "project_id": "globex-security-j0k1l2",
+      "location": "northamerica-northeast1",
       "cluster_name": "edge-cluster-autopilot"
     }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west3",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
+    "region": "northamerica-northeast1",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" },
     "service": { "name": "container.googleapis.com" }
   },
   "gcp": {
     "gke_autopilot": {
       "cluster": "edge-cluster-autopilot",
-      "namespace": "production",
-      "pod": "collector-y6v43-1lw68",
-      "workload_type": "Deployment",
-      "resource_request_cpu": "2m",
-      "resource_request_memory": "1401Mi",
-      "scaling_event": "SCALE_DOWN"
+      "namespace": "default",
+      "pod": "postgres-g8gfv-83u0k",
+      "workload_type": "Job",
+      "resource_request_cpu": "6m",
+      "resource_request_memory": "1971Mi",
+      "scaling_event": "ADMISSION_DENIED"
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 44927,
+    "outcome": "failure",
+    "duration": 103717,
     "module": "gcp",
     "dataset": "gcp.gke_autopilot"
   },
-  "message": "container.googleapis.com/autopilot: cluster \"edge-cluster-autopilot\" SCALE_DOWN: Deployment collector-y6v43-1lw68 (production) sized to 2m CPU, 1401Mi RAM",
+  "message": "container.googleapis.com/autopilot: cluster \"edge-cluster-autopilot\" ADMISSION_DENIED for Job/postgres-g8gfv-83u0k in default (requests 6m/1971Mi)",
   "service": { "name": "gke-autopilot", "type": "gcp" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.gke_autopilot", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west3",
-    "id": "0ma6mqcu3rb"
+    "name": "elastic-agent-gcp-northamerica-northeast1",
+    "id": "jjf9t85wlbq"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-prod-a1b2c3/logs/gke-autopilot",
+  "logName": "projects/globex-security-j0k1l2/logs/gke-autopilot",
   "jsonPayload": {
     "gke_autopilot": {
       "cluster": "edge-cluster-autopilot",
-      "namespace": "production",
-      "pod": "collector-y6v43-1lw68",
-      "workload_type": "Deployment",
-      "resource_request_cpu": "2m",
-      "resource_request_memory": "1401Mi",
-      "scaling_event": "SCALE_DOWN"
+      "namespace": "default",
+      "pod": "postgres-g8gfv-83u0k",
+      "workload_type": "Job",
+      "resource_request_cpu": "6m",
+      "resource_request_memory": "1971Mi",
+      "scaling_event": "ADMISSION_DENIED"
     },
-    "message": "container.googleapis.com/autopilot: cluster \"edge-cluster-autopilot\" SCALE_DOWN: Deployment collector-y6v43-1lw68 (production) sized to 2m CPU, 1401Mi RAM"
+    "message": "container.googleapis.com/autopilot: cluster \"edge-cluster-autopilot\" ADMISSION_DENIED for Job/postgres-g8gfv-83u0k in default (requests 6m/1971Mi)"
   }
 }

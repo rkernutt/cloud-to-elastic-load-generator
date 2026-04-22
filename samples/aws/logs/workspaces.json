@@ -1,71 +1,77 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ca-west-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "workspaces" }
   },
   "aws": {
-    "dimensions": { "DirectoryId": "d-76xsw8o1e2", "WorkspaceId": "ws-0k126mu535" },
+    "dimensions": { "DirectoryId": "d-4rluz23uv6", "WorkspaceId": "ws-vs1pskrjyl" },
     "workspaces": {
-      "workspace_id": "ws-0k126mu535",
-      "user_name": "david",
-      "bundle_type": "Standard",
-      "workspace_state": "AVAILABLE",
-      "action": "Login",
+      "workspace_id": "ws-vs1pskrjyl",
+      "user_name": "carol",
+      "bundle_type": "Power",
+      "workspace_state": "STOPPED",
+      "action": "Disconnect",
       "compute_type": "POWER",
-      "running_mode": "AUTO_STOP",
-      "client_ip": "23.231.157.205",
-      "client_os": "Windows 11",
+      "running_mode": "ALWAYS_ON",
+      "client_ip": "235.83.28.199",
+      "client_os": "macOS 14",
+      "error_code": "InvalidUser",
       "metrics": {
-        "Available": { "sum": 1 },
-        "Unhealthy": { "sum": 0 },
-        "ConnectionSuccess": { "sum": 1 },
+        "Available": { "sum": 0 },
+        "Unhealthy": { "sum": 1 },
+        "ConnectionSuccess": { "sum": 0 },
         "ConnectionFailure": { "sum": 0 },
-        "ConnectionAttempt": { "sum": 1 },
+        "ConnectionAttempt": { "sum": 0 },
         "UserConnected": { "sum": 0 },
-        "Stopped": { "sum": 0 },
+        "Stopped": { "sum": 1 },
         "Maintenance": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-workspaces-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-workspaces-logs-501938274650"
+        "name": "aws-workspaces-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-workspaces-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/workspaces/ap-south-2/2026/04/21/workspaces_BTUJA1ZRU0I.log.gz"
+        "key": "AWSLogs/164820739518/workspaces/ca-west-1/2026/04/22/workspaces_KNU5UDYFVI.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/workspaces/logs",
-      "log_stream": "ap-south-2/fd3ukip1",
-      "ingestion_time": "2026-04-21T16:58:55.927Z"
+      "log_stream": "ca-west-1/t7ndgar5",
+      "ingestion_time": "2026-04-22T16:10:08.439Z"
     }
   },
-  "user": { "name": "david" },
-  "source": { "ip": "43.231.72.23" },
+  "user": { "name": "carol" },
+  "source": { "ip": "16.137.59.81" },
   "event": {
-    "action": "Login",
-    "outcome": "success",
+    "action": "Disconnect",
+    "outcome": "failure",
     "category": ["host", "session"],
     "dataset": "aws.workspaces",
     "provider": "workspaces.amazonaws.com",
-    "duration": 266000000,
+    "duration": 1789000000,
     "module": "aws"
   },
-  "message": "WorkSpaces Login: david on ws-0k126mu535 [AVAILABLE]",
-  "log": { "level": "info" },
-  "host": { "name": "ip-175-188-134-218.ec2.internal", "hostname": "workspaces-ufrr8107" },
+  "message": "{\"eventType\":\"Disconnect\",\"directoryId\":\"d-4rluz23uv6\",\"workspaceId\":\"ws-vs1pskrjyl\",\"userName\":\"carol\",\"timestamp\":\"2026-04-22T16:10:07.528Z\"}",
+  "error": {
+    "code": "WorkSpacesError",
+    "message": "WorkSpaces operation failed",
+    "type": "session"
+  },
+  "log": { "level": "error" },
+  "host": { "name": "ip-218-110-101-38.ec2.internal", "hostname": "workspaces-jriazsvp" },
   "service": { "name": "workspaces", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.workspaces", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "csbp4h4vlro"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "hzl476oyxw"
   },
   "input": { "type": "aws-cloudwatch" }
 }

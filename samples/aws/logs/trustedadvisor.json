@@ -1,53 +1,59 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-west-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "trustedadvisor" }
   },
   "aws": {
     "trustedadvisor": {
-      "check_name": "Large Number of Rules in Security Group",
-      "category": "performance",
-      "status": "ok",
-      "affected_resource": "sg-us9nw7wz",
-      "flagged_resources": 0
+      "check_name": "Idle Load Balancers",
+      "category": "cost_optimizing",
+      "status": "error",
+      "affected_resource": "arn:aws:s3:::my-bucket",
+      "estimated_monthly_savings": 4786.024271517207,
+      "flagged_resources": 3
     },
     "s3": {
       "bucket": {
-        "name": "aws-trustedadvisor-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-trustedadvisor-logs-814726593401"
+        "name": "aws-trustedadvisor-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-trustedadvisor-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/trustedadvisor/eu-west-1/2026/04/21/trustedadvisor_DF5OAVXJQ95.log.gz"
+        "key": "AWSLogs/501938274650/trustedadvisor/eu-west-2/2026/04/22/trustedadvisor_L3ZEABB8W9M.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/trustedadvisor/logs",
-      "log_stream": "eu-west-1/bv0yehb9",
-      "ingestion_time": "2026-04-21T16:58:55.893Z"
+      "log_stream": "eu-west-2/au1klr6y",
+      "ingestion_time": "2026-04-22T16:10:08.420Z"
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["configuration", "vulnerability"],
     "dataset": "aws.trustedadvisor",
     "provider": "trustedadvisor.amazonaws.com",
-    "duration": 11000000000,
+    "duration": 33000000000,
     "module": "aws"
   },
-  "message": "Trusted Advisor OK: Large Number of Rules in Security Group",
-  "log": { "level": "info" },
+  "message": "Trusted Advisor [ERROR]: Idle Load Balancers - 18 resources affected",
+  "error": {
+    "code": "TrustedAdvisorFinding",
+    "message": "Idle Load Balancers: error",
+    "type": "configuration"
+  },
+  "log": { "level": "error" },
   "service": { "name": "trustedadvisor", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.trustedadvisor", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "1y49t88kybc"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "k8jib820chb"
   },
   "input": { "type": "http_endpoint" }
 }

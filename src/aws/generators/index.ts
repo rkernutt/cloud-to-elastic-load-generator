@@ -83,6 +83,7 @@ import {
   generateIncidentManagerLog,
 } from "./security.js";
 import { generateDataPipelineChain } from "./dataPipelineChain.js";
+import { generateServiceNowCmdbLog } from "../../servicenow/generators/index.js";
 import {
   generateS3Log,
   generateS3StorageLensLog,
@@ -472,6 +473,8 @@ const GENERATORS = {
   iotsitewise: generateIotSiteWiseLog,
   iotdefender: generateIotDefenderLog,
   wafv2: generateWafv2Log,
+  // Cross-cloud ITSM
+  servicenow_cmdb: generateServiceNowCmdbLog,
 };
 
 /**

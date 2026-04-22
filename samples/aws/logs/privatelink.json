@@ -1,52 +1,57 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-southeast-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "privatelink" }
   },
   "aws": {
     "privatelink": {
-      "endpoint_id": "vpce-ilhiojaitg",
-      "service_name": "com.amazonaws.vpce.ap-northeast-2.s3",
-      "endpoint_type": "GatewayLoadBalancer",
-      "vpc_id": "vpc-qrgjfp1i",
-      "state": "pending",
-      "private_dns_enabled": false
+      "endpoint_id": "vpce-qyzlsdfn60l",
+      "service_name": "com.amazonaws.vpce.ap-southeast-3.ssm",
+      "endpoint_type": "Interface",
+      "vpc_id": "vpc-xh9eucbn",
+      "state": "failed",
+      "private_dns_enabled": true
     },
     "s3": {
       "bucket": {
-        "name": "aws-privatelink-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-privatelink-logs-738291046572"
+        "name": "aws-privatelink-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-privatelink-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/privatelink/ap-northeast-2/2026/04/21/privatelink_58TN6NAGIPB.log.gz"
+        "key": "AWSLogs/814726593401/privatelink/ap-southeast-3/2026/04/22/privatelink_0HIK50C7VCR8.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/privatelink/logs",
-      "log_stream": "ap-northeast-2/3cx9qivt",
-      "ingestion_time": "2026-04-21T16:58:55.662Z"
+      "log_stream": "ap-southeast-3/6hxvvmbf",
+      "ingestion_time": "2026-04-22T16:10:08.253Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": "network",
     "dataset": "aws.privatelink",
     "provider": "ec2.amazonaws.com",
     "module": "aws"
   },
-  "message": "PrivateLink endpoint vpce-ilhiojaitg for com.amazonaws.vpce.ap-northeast-2.s3: pending",
-  "log": { "level": "info" },
+  "message": "PrivateLink endpoint vpce-qyzlsdfn60l: failed - Request rejected",
+  "log": { "level": "error" },
+  "error": {
+    "code": "failed",
+    "message": "PrivateLink endpoint vpce-qyzlsdfn60l: failed",
+    "type": "network"
+  },
   "service": { "name": "privatelink", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.privatelink", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "u7ntd08zvi"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "pbcs7goyw9"
   },
   "input": { "type": "aws-cloudwatch" }
 }

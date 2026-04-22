@@ -1,9 +1,9 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-south-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "events" }
   },
   "aws": {
@@ -11,61 +11,56 @@
     "eventbridge": {
       "event_bus": "app-events",
       "rule": "order-created-rule",
-      "source": "aws.ec2",
-      "detail_type": "Object Created",
-      "targets_invoked": 2,
-      "targets_failed": 2,
-      "event_id": "fefrcvbf-tnso-rtdu-4et7-u8p9zwr9adb",
-      "log_kind": "invocation",
+      "source": "com.partner.events",
+      "detail_type": "EC2 Instance State-change Notification",
+      "targets_invoked": 4,
+      "targets_failed": 0,
+      "event_id": "tc14fc57-3gx4-qequ-urzs-4u4ssdo1cva",
+      "log_kind": "schema_discovery",
       "structured_logging": true,
       "metrics": {
         "Invocations": { "sum": 1 },
-        "FailedInvocations": { "sum": 1 },
+        "FailedInvocations": { "sum": 0 },
         "TriggeredRules": { "sum": 1 },
-        "MatchedEvents": { "sum": 88 },
-        "ThrottledRules": { "sum": 1 },
+        "MatchedEvents": { "sum": 37 },
+        "ThrottledRules": { "sum": 0 },
         "DeadLetterInvocations": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-eventbridge-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-eventbridge-logs-738291046572"
+        "name": "aws-eventbridge-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-eventbridge-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/eventbridge/eu-central-1/2026/04/21/eventbridge_4II0NZGN4K9.log.gz"
+        "key": "AWSLogs/293847561023/eventbridge/eu-south-2/2026/04/22/eventbridge_QQI8JFAJFKH.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/eventbridge/logs",
-      "log_stream": "eu-central-1/tztt8gwt",
-      "ingestion_time": "2026-04-21T16:58:55.776Z"
+      "log_stream": "eu-south-2/7pxferth",
+      "ingestion_time": "2026-04-22T16:10:08.351Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
-    "type": ["creation"],
+    "type": ["change"],
     "dataset": "aws.eventbridge",
     "provider": "events.amazonaws.com",
-    "duration": 1296000000,
+    "duration": 24000000,
     "module": "aws"
   },
-  "message": "{\"id\":\"fefrcvbf-tnso-rtdu-4et7-u8p9zwr9adb\",\"source\":\"aws.ec2\",\"detailType\":\"Health Event\",\"rule\":\"order-created-rule\",\"eventBus\":\"app-events\",\"log_kind\":\"invocation\",\"message\":\"EventBridge Invocation rule=order-created-rule bus=app-events invocation_id=f6afmzlwutr matched=15\",\"timestamp\":\"2026-04-21T16:58:54.847Z\"}",
-  "log": { "level": "error" },
-  "error": {
-    "code": "InvalidStateException",
-    "message": "EventBridge target invocations failed",
-    "type": "event"
-  },
+  "message": "{\"id\":\"tc14fc57-3gx4-qequ-urzs-4u4ssdo1cva\",\"source\":\"com.partner.events\",\"detailType\":\"Health Event\",\"rule\":\"order-created-rule\",\"eventBus\":\"app-events\",\"log_kind\":\"schema_discovery\",\"schema_registry\":\"partner-events\",\"message\":\"EventBridge SchemaDiscovery registry=partner-events discovered_type=OrderPlaced@v2 revision=7\",\"timestamp\":\"2026-04-22T16:10:07.528Z\"}",
+  "log": { "level": "info" },
   "service": { "name": "eventbridge", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.eventbridge", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "x80g7fgwlb"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "pr3e7zndl3"
   },
   "input": { "type": "aws-cloudwatch" }
 }

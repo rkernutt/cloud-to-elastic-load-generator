@@ -1,28 +1,30 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
+    "region": "us-west-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "textract" }
   },
   "aws": {
-    "dimensions": { "Operation": "AnalyzeDocument" },
+    "dimensions": { "Operation": "StartExpenseAnalysis" },
     "textract": {
-      "operation": "AnalyzeDocument",
-      "document_type": "contract",
-      "pages_processed": 17,
-      "blocks_detected": 1581,
-      "words_detected": 3043,
-      "form_key_value_pairs": 47,
-      "tables_detected": 4,
-      "confidence_mean": 97.81018887617063,
+      "operation": "StartExpenseAnalysis",
+      "document_type": "tax-form",
+      "job_id": "9gmj93jd5av",
+      "pages_processed": 0,
+      "blocks_detected": 0,
+      "words_detected": 0,
+      "form_key_value_pairs": 0,
+      "tables_detected": 0,
+      "confidence_mean": 86.99686501904735,
+      "error_code": "DocumentTooLargeException",
       "metrics": {
         "DocumentsProcessed": { "sum": 1 },
-        "ThrottledRequests": { "sum": 0 },
-        "ResponseTime": { "avg": 2702.4497669702423 },
-        "SuccessfulRequests": { "sum": 1 },
-        "UserErrorRequests": { "sum": 0 },
+        "ThrottledRequests": { "sum": 1 },
+        "ResponseTime": { "avg": 18497.61615033975 },
+        "SuccessfulRequests": { "sum": 0 },
+        "UserErrorRequests": { "sum": 2 },
         "ServerErrorRequests": { "sum": 0 }
       }
     },
@@ -32,32 +34,33 @@
         "arn": "arn:aws:s3:::aws-textract-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/textract/ap-east-1/2026/04/21/textract_97G0MDUMNT.log.gz"
+        "key": "AWSLogs/293847561023/textract/us-west-1/2026/04/22/textract_MPLK59A6ZR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/textract/logs",
-      "log_stream": "ap-east-1/19nplfn8",
-      "ingestion_time": "2026-04-21T16:58:55.843Z"
+      "log_stream": "us-west-1/ja3n2wto",
+      "ingestion_time": "2026-04-22T16:10:08.393Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process", "file"],
     "dataset": "aws.textract",
     "provider": "textract.amazonaws.com",
     "module": "aws"
   },
-  "message": "Textract AnalyzeDocument: contract, 17 pages, 3740 words",
-  "log": { "level": "info" },
+  "message": "Textract StartExpenseAnalysis FAILED on tax-form: Document too large",
+  "log": { "level": "error" },
+  "error": { "code": "TextractError", "message": "Textract operation failed", "type": "ml" },
   "service": { "name": "textract", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.textract", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "206wftv9naq"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "ddm2k790vxn"
   },
   "input": { "type": "aws-cloudwatch" }
 }

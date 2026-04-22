@@ -31,7 +31,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.composer* | WHERE gcp.composer.task_id == \"dag_complete\" | STATS total = COUNT(), failures = COUNT_IF(gcp.composer.state == \"failed\") | EVAL `Failure %` = ROUND(failures * 100.0 / total, 1)"
+            "query": "FROM logs-gcp.composer* | WHERE gcp.composer.task_id == \"dag_complete\" | STATS total = COUNT(), failures = SUM(CASE(event.outcome == \"failure\", 1, 0)) | EVAL `Failure %` = ROUND(failures * 100.0 / total, 1)"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Failure %" }]
         }
@@ -97,14 +97,15 @@
       "uid": "gdp-d1",
       "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
       "config": {
-        "title": "Outcome breakdown",
+        "title": "Pipeline outcome",
         "attributes": {
-          "type": "pie",
+          "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.* | WHERE labels.pipeline_run_id IS NOT NULL | STATS count = COUNT() BY event.outcome"
+            "query": "FROM logs-gcp.composer* | WHERE gcp.composer.task_id == \"dag_complete\" | EVAL status = CASE(event.outcome == \"failure\", \"Failed\", gcp.composer.quality_check == \"DEGRADED\", \"Degraded\", \"Success\") | STATS count = COUNT() BY status"
           },
-          "layers": [{ "primaryGroups": ["event.outcome"], "metrics": ["count"] }]
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "status" }]
         }
       }
     },

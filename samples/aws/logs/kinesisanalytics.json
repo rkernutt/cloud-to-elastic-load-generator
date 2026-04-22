@@ -1,43 +1,43 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-north-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "kinesisanalytics" }
   },
   "aws": {
     "kinesisanalytics": {
-      "application_name": "clickstream-analytics",
-      "application_arn": "arn:aws:kinesisanalytics:ap-east-1:164820739518:application/clickstream-analytics",
-      "runtime": "FLINK-1_18",
-      "records_per_second": 38013,
-      "input_watermark_lag_ms": 51371,
+      "application_name": "session-aggregator",
+      "application_arn": "arn:aws:kinesisanalytics:eu-north-1:293847561023:application/session-aggregator",
+      "runtime": "SQL-1_0",
+      "records_per_second": 10841,
+      "input_watermark_lag_ms": 20017,
       "checkpointing_enabled": true,
-      "last_checkpoint_duration_ms": 21226,
-      "kpu_count": 62,
-      "structured_logging": true,
+      "last_checkpoint_duration_ms": 13833,
+      "kpu_count": 5,
+      "structured_logging": false,
       "metrics": {
-        "records_in_per_second": 38013,
-        "input_watermark_lag_ms": 51371,
-        "kpu_utilization_pct": 79,
-        "checkpoint_duration_ms": 8334
+        "records_in_per_second": 10841,
+        "input_watermark_lag_ms": 20017,
+        "kpu_utilization_pct": 87,
+        "checkpoint_duration_ms": 26621
       },
-      "error": "CheckpointFailure"
+      "error": "OutOfMemory"
     },
     "s3": {
       "bucket": {
-        "name": "aws-kinesisanalytics-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-kinesisanalytics-logs-164820739518"
+        "name": "aws-kinesisanalytics-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-kinesisanalytics-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/kinesisanalytics/ap-east-1/2026/04/21/kinesisanalytics_58B1K9KTBVX.log.gz"
+        "key": "AWSLogs/293847561023/kinesisanalytics/eu-north-1/2026/04/22/kinesisanalytics_GGS7Q9AWT1I.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/kinesisanalytics/logs",
-      "log_stream": "ap-east-1/ucxgc92g",
-      "ingestion_time": "2026-04-21T16:58:55.782Z"
+      "log_stream": "eu-north-1/qn28hf52",
+      "ingestion_time": "2026-04-22T16:10:08.356Z"
     }
   },
   "event": {
@@ -45,13 +45,13 @@
     "category": "process",
     "dataset": "aws.kinesisanalytics",
     "provider": "kinesisanalytics.amazonaws.com",
-    "duration": 19847000000,
+    "duration": 4048000000,
     "module": "aws"
   },
-  "message": "{\"applicationName\":\"clickstream-analytics\",\"recordsPerSecond\":38013,\"inputWatermarkLagMs\":51371,\"level\":\"error\",\"message\":\"Application failed\",\"timestamp\":\"2026-04-21T16:58:54.847Z\"}",
+  "message": "Application failed",
   "log": { "level": "error" },
   "error": {
-    "code": "CheckpointFailure",
+    "code": "OutOfMemory",
     "message": "Kinesis Analytics application error",
     "type": "stream"
   },
@@ -61,8 +61,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "qof32lfraea"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "72ay7cq5yzy"
   },
   "input": { "type": "aws-cloudwatch" }
 }

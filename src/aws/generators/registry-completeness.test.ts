@@ -34,14 +34,17 @@ describe("Generator registry completeness", () => {
     expect(missingIngestion).toEqual([]);
   });
 
+  const CROSS_CLOUD_IDS = new Set(["servicenow_cmdb"]);
+
   it("all generators return valid ECS documents", () => {
     const ts = new Date().toISOString();
-    for (const [, gen] of Object.entries(GENERATORS)) {
+    for (const [id, gen] of Object.entries(GENERATORS)) {
       const doc = gen(ts, 0);
       const result = Array.isArray(doc) ? doc[0] : doc;
       expect(result).toBeDefined();
       expect(result["@timestamp"]).toBeDefined();
-      expect((result.cloud as Record<string, unknown>)?.provider).toBe("aws");
+      if (!CROSS_CLOUD_IDS.has(id))
+        expect((result.cloud as Record<string, unknown>)?.provider).toBe("aws");
     }
   });
 });

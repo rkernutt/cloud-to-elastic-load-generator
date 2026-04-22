@@ -10,6 +10,14 @@ import {
 import type { CspFindingResource } from "../../data/cspFindingsHelpers.js";
 import { buildCspFinding, pick, randBetween, randHex } from "../../data/cspFindingsHelpers.js";
 import {
+  randHumanUser,
+  randSourceIp,
+  randPipelineUserAgent,
+  ecsIdentityFields,
+  ecsUserBlock,
+  ecsUserAgentBlock,
+} from "../../helpers/identity.js";
+import {
   type EcsDocument,
   rand,
   randInt,
@@ -45,7 +53,11 @@ export function generateAzureSecurityFindingChain(ts: string, _er: number): EcsD
   const alertId = randUUID();
   const incidentId = randUUID();
   const workspace = `law-${randId(6)}`;
-  const srcIp = randIp();
+  const attacker = randHumanUser();
+  const attackerIp = randSourceIp();
+  const attackerUa = randPipelineUserAgent();
+  const attackerIdentity = ecsIdentityFields(attacker, attackerIp, attackerUa);
+  const srcIp = attackerIp;
   const tactic = rand([...MITRE_INTENTS]);
   const alertType = rand([...DEFENDER_ALERT_TYPES]);
   const severity = rand(["High", "Medium", "Low"] as const);
@@ -63,6 +75,7 @@ export function generateAzureSecurityFindingChain(ts: string, _er: number): EcsD
   const activityTs = offsetTs(baseDate, 5 * 60_000);
 
   const defender: EcsDocument = {
+    ...attackerIdentity,
     "@timestamp": ts,
     __dataset: "azure.defender",
     labels: chainLabels,
@@ -81,13 +94,14 @@ export function generateAzureSecurityFindingChain(ts: string, _er: number): EcsD
         source_ip: srcIp,
       },
     },
-    source: { ip: srcIp },
+    source: { ...attackerIdentity.source, ip: srcIp },
     event: { kind: "alert", category: ["intrusion_detection"], outcome: "failure" },
     message: `Defender for Cloud: alert ${alertId} (${alertType})`,
     log: { level: "error" },
   };
 
   const sentinel: EcsDocument = {
+    ...attackerIdentity,
     "@timestamp": sentinelTs,
     __dataset: "azure.sentinel",
     labels: chainLabels,
@@ -106,13 +120,14 @@ export function generateAzureSecurityFindingChain(ts: string, _er: number): EcsD
         product_name: "Microsoft Sentinel",
       },
     },
-    source: { ip: srcIp },
+    source: { ...attackerIdentity.source, ip: srcIp },
     event: { kind: "alert", outcome: "failure" },
     message: `Sentinel incident ${incidentId} created from Defender ${alertId}`,
     log: { level: "error" },
   };
 
   const activity: EcsDocument = {
+    ...attackerIdentity,
     "@timestamp": activityTs,
     __dataset: "azure.activity_log",
     labels: chainLabels,
@@ -967,6 +982,7 @@ export function generateAzureIamPrivEscChain(ts: string, _er: number): EcsDocume
   const attackSessionId = randUUID();
   const principalId = randUUID();
   const userPrincipalName = `attacker${randInt(100, 999)}@contoso.com`;
+  const privEscUserAgent = randPipelineUserAgent();
   const ipAddress = randIp();
   const roleAssignmentId = randUUID();
 
@@ -982,6 +998,8 @@ export function generateAzureIamPrivEscChain(ts: string, _er: number): EcsDocume
   const ownerRoleArm = `/subscriptions/${subscription.id}/providers/Microsoft.Authorization/roleDefinitions/${OWNER_ROLE_DEFINITION_ID}`;
 
   const entra: EcsDocument = {
+    user: { name: userPrincipalName, email: userPrincipalName },
+    user_agent: { original: privEscUserAgent },
     "@timestamp": ts,
     __dataset: "azure.entra_id",
     labels: sessionLabels,
@@ -1009,6 +1027,8 @@ export function generateAzureIamPrivEscChain(ts: string, _er: number): EcsDocume
   };
 
   const roleAssign: EcsDocument = {
+    user: { name: userPrincipalName, email: userPrincipalName },
+    user_agent: { original: privEscUserAgent },
     "@timestamp": roleTs,
     __dataset: "azure.activity_log",
     labels: sessionLabels,
@@ -1043,6 +1063,8 @@ export function generateAzureIamPrivEscChain(ts: string, _er: number): EcsDocume
   ];
 
   const arm: EcsDocument = {
+    user: { name: userPrincipalName, email: userPrincipalName },
+    user_agent: { original: privEscUserAgent },
     "@timestamp": enumTs,
     __dataset: "azure.activity_log",
     labels: sessionLabels,
@@ -1083,6 +1105,9 @@ export function generateAzureDataExfilChain(ts: string, _er: number): EcsDocumen
   const baseDate = new Date(ts);
   const exfilChainId = randUUID();
   const account = `st${randId(10).toLowerCase()}`;
+  const attacker = randHumanUser();
+  const attackerUa = randPipelineUserAgent();
+  const exfilUserAgent = { ...ecsUserBlock(attacker), ...ecsUserAgentBlock(attackerUa) };
   const srcIp = randIp();
   const contentLengthMb = randInt(120, 980);
   const blobTs = offsetTs(baseDate, -5 * 60_000);
@@ -1099,6 +1124,7 @@ export function generateAzureDataExfilChain(ts: string, _er: number): EcsDocumen
   const defenderAlertId = randUUID();
 
   const blob: EcsDocument = {
+    ...exfilUserAgent,
     "@timestamp": blobTs,
     __dataset: "azure.blob_storage",
     labels: exfilLabels,
@@ -1129,6 +1155,7 @@ export function generateAzureDataExfilChain(ts: string, _er: number): EcsDocumen
   };
 
   const nsg: EcsDocument = {
+    ...exfilUserAgent,
     "@timestamp": blobTs,
     __dataset: "azure.network_security_groups",
     labels: exfilLabels,
@@ -1160,6 +1187,7 @@ export function generateAzureDataExfilChain(ts: string, _er: number): EcsDocumen
   };
 
   const defender: EcsDocument = {
+    ...exfilUserAgent,
     "@timestamp": ts,
     __dataset: "azure.defender",
     labels: exfilLabels,

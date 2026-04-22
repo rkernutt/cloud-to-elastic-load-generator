@@ -27,6 +27,13 @@ import {
   randTraceId,
   randSpanId,
 } from "./helpers.js";
+import {
+  randHumanUser,
+  randSourceIp,
+  randPipelineUserAgent,
+  ecsIdentityFields,
+  gcpCloudAuditEvent,
+} from "../../helpers/identity.js";
 import { gcpServiceBase, enrichGcpTraceDoc } from "./traces/trace-kit.js";
 
 const DAG_NAMES = [
@@ -143,6 +150,12 @@ export function generateGcpDataPipelineChain(ts: string, er: number): EcsDocumen
   const crawlerName = `catalog-${rand(["updater", "scanner", "discovery"])}`;
   const bqJobId = `bqjob_${randId(12)}`;
 
+  // Pick a consistent user identity for the entire pipeline run
+  const triggerUser = randHumanUser();
+  const triggerIp = randSourceIp();
+  const triggerUa = randPipelineUserAgent();
+  const identity = ecsIdentityFields(triggerUser, triggerIp, triggerUa);
+
   const isFailure = Math.random() < er;
   const failureMode: FailureMode | null = isFailure ? rand([...FAILURE_MODES]) : null;
 
@@ -172,8 +185,26 @@ export function generateGcpDataPipelineChain(ts: string, er: number): EcsDocumen
       operator: "TriggerDagRunOperator",
       ...pipelineLabels,
     }),
+    ...identity,
     labels: pipelineLabels,
   });
+
+  // Cloud Audit: user triggered the DAG via Composer API
+  docs.push(
+    gcpCloudAuditEvent(
+      ts,
+      region,
+      project,
+      triggerUser,
+      triggerIp,
+      triggerUa,
+      "google.cloud.orchestration.airflow.service.v1.Environments.ExecuteAirflowCommand",
+      "composer.googleapis.com",
+      `projects/${project.id}/locations/${region}/environments/composer-${project.id.split("-")[0]}-prod`,
+      "success",
+      { request: { command: "dags trigger", subcommand: dagId } }
+    ) as EcsDocument
+  );
 
   // 2. GCS GetObject (source file)
   const gcsGetTs = advance(100, 500);
@@ -203,6 +234,7 @@ export function generateGcpDataPipelineChain(ts: string, er: number): EcsDocumen
     },
     message: `GCS GetObject gs://${sourceBucket}/${sourceKey} (${sourceBytes} bytes)`,
     log: { level: "info" },
+    ...identity,
     labels: pipelineLabels,
   });
 
@@ -242,6 +274,7 @@ export function generateGcpDataPipelineChain(ts: string, er: number): EcsDocumen
       },
       message: `Dataproc Spark [${sparkAppId}]: ERROR — FileNotFoundException: gs://${sourceBucket}/${sourceKey}`,
       log: { level: "error" },
+      ...identity,
       labels: pipelineLabels,
     });
   } else if (failureMode === "wrong_format") {
@@ -275,6 +308,7 @@ export function generateGcpDataPipelineChain(ts: string, er: number): EcsDocumen
       },
       message: `Dataproc Spark [${sparkAppId}]: ERROR — AvroParseException: not an Avro data file`,
       log: { level: "error" },
+      ...identity,
       labels: pipelineLabels,
     });
   } else {
@@ -310,9 +344,26 @@ export function generateGcpDataPipelineChain(ts: string, er: number): EcsDocumen
       },
       message: `Dataproc Spark [${sparkAppId}]: DONE — ${sparkRecordsRead} records read, ${recordsWritten} written`,
       log: { level: isNullFile ? "warn" : "info" },
+      ...identity,
       labels: pipelineLabels,
     });
   }
+
+  // Cloud Audit: Dataproc SubmitJob
+  docs.push(
+    gcpCloudAuditEvent(
+      dpStartTs,
+      region,
+      project,
+      triggerUser,
+      triggerIp,
+      triggerUa,
+      "google.cloud.dataproc.v1.JobController.SubmitJob",
+      "dataproc.googleapis.com",
+      `projects/${project.id}/regions/${region}/clusters/${clusterName}`,
+      pipelineHalted ? "failure" : "success"
+    ) as EcsDocument
+  );
 
   if (!pipelineHalted) {
     // 4. GCS PutObject (output)
@@ -344,6 +395,7 @@ export function generateGcpDataPipelineChain(ts: string, er: number): EcsDocumen
       },
       message: `GCS PutObject gs://${outputBucket}/${outputKey} (${outputBytes} bytes)`,
       log: { level: "info" },
+      ...identity,
       labels: { ...pipelineLabels, gcs_output_bucket: outputBucket, gcs_output_key: outputKey },
     });
 
@@ -374,6 +426,7 @@ export function generateGcpDataPipelineChain(ts: string, er: number): EcsDocumen
       },
       message: `Data Catalog [${crawlerName}]: SUCCEEDED — ${tablesUpdated} entries updated`,
       log: { level: "info" },
+      ...identity,
       labels: pipelineLabels,
     });
 
@@ -408,8 +461,25 @@ export function generateGcpDataPipelineChain(ts: string, er: number): EcsDocumen
       },
       message: `BigQuery [${bqDataset}]: DONE — processed ${bytesProcessed} bytes, returned ${rowsReturned} rows`,
       log: { level: isNullFile && rowsReturned === 0 ? "warn" : "info" },
+      ...identity,
       labels: pipelineLabels,
     });
+
+    // Cloud Audit: BigQuery jobs.insert
+    docs.push(
+      gcpCloudAuditEvent(
+        bqTs,
+        region,
+        project,
+        triggerUser,
+        triggerIp,
+        triggerUa,
+        "google.cloud.bigquery.v2.JobService.InsertJob",
+        "bigquery.googleapis.com",
+        `projects/${project.id}/jobs/${bqJobId}`,
+        "success"
+      ) as EcsDocument
+    );
   }
 
   // 7. Composer DAG completed
@@ -424,6 +494,7 @@ export function generateGcpDataPipelineChain(ts: string, er: number): EcsDocumen
       records_processed: isNullFile ? 0 : pipelineHalted ? 0 : sparkRecordsRead,
       ...pipelineLabels,
     }),
+    ...identity,
     labels: { ...pipelineLabels, quality_check: qualityCheck },
   });
 

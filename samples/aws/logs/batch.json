@@ -1,69 +1,67 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-west-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "batch" }
   },
   "aws": {
-    "dimensions": { "JobQueue": "data-export-queue" },
+    "dimensions": { "JobQueue": "cleanup-job-queue" },
     "batch": {
-      "job": { "name": "data-export", "id": "d6e91ogt-ot4p", "status": "RUNNABLE" },
-      "job_queue": "data-export-queue",
-      "compute_environment": "ce-spot",
-      "log_stream_name": "data-export-def/default/mfzr45ztg",
+      "job": { "name": "cleanup-job", "id": "0zzzuj25-32n3", "status": "PENDING" },
+      "job_queue": "cleanup-job-queue",
+      "compute_environment": "ce-ondemand",
+      "log_stream_name": "cleanup-job-def/default/66pnuovzhx5",
       "job_attempt": 1,
       "container_exit_code": 0,
       "structured_logging": false,
       "metrics": {
-        "PendingJobCount": { "avg": 45 },
-        "RunnableJobCount": { "avg": 32 },
-        "StartingJobCount": { "avg": 20 },
-        "RunningJobCount": { "avg": 106 },
+        "PendingJobCount": { "avg": 62 },
+        "RunnableJobCount": { "avg": 22 },
+        "StartingJobCount": { "avg": 5 },
+        "RunningJobCount": { "avg": 197 },
         "SucceededJobCount": { "sum": 1 },
         "FailedJobCount": { "sum": 0 },
-        "CPUReserved": { "avg": 27.177736118876716 },
+        "CPUReserved": { "avg": 10.623309811202809 },
         "GPUReserved": { "avg": 0 },
-        "MemoryReserved": { "avg": 22.43564241375679 }
+        "MemoryReserved": { "avg": 17.45227750160078 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-batch-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-batch-logs-164820739518"
+        "name": "aws-batch-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-batch-logs-738291046572"
       },
-      "object": {
-        "key": "AWSLogs/164820739518/batch/sa-east-1/2026/04/21/batch_6RAYO3ZKYTA.log.gz"
-      }
+      "object": { "key": "AWSLogs/738291046572/batch/eu-west-2/2026/04/22/batch_R6SMVPCEJQ.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/batch/logs",
-      "log_stream": "sa-east-1/4n3wigf3",
-      "ingestion_time": "2026-04-21T16:58:55.613Z"
+      "log_stream": "eu-west-2/uvpwk6yx",
+      "ingestion_time": "2026-04-22T16:10:08.218Z"
     }
   },
-  "process": { "pid": 1190, "name": "python", "exit_code": 0 },
+  "process": { "pid": 11183, "name": "bash", "exit_code": 0 },
   "log": { "level": "info" },
   "event": {
     "category": ["process"],
     "outcome": "success",
     "dataset": "aws.batch",
     "provider": "batch.amazonaws.com",
-    "duration": 249000000000,
+    "duration": 2575000000000,
     "module": "aws"
   },
-  "message": "stdout:2026-04-21T16:58:54.847Z INFO spark.SparkContext: Running job 0 stage 16",
-  "logStreamName": "data-export-def/default/mfzr45ztg",
-  "host": { "name": "ip-210-36-109-42.ec2.internal", "hostname": "batch-t2tk2r07" },
+  "message": "batch: job 0zzzuj25-32n3 status SUBMITTED -> PENDING",
+  "logStreamName": "cleanup-job-def/default/66pnuovzhx5",
+  "host": { "name": "ip-75-176-12-206.ec2.internal", "hostname": "batch-3w7xj76h" },
   "service": { "name": "batch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.batch", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "62zibzcqu8s"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "qr270112h7s"
   },
   "input": { "type": "aws-cloudwatch" }
 }

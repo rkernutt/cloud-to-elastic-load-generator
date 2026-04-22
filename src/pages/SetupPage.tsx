@@ -67,6 +67,10 @@ interface SetupPageProps {
   elasticUrl: string;
   kibanaUrl: string;
   apiKey: string;
+  /** True when the connected cluster is an Elastic Cloud Serverless project. */
+  isServerless?: boolean;
+  /** Serverless project type — gates feature availability (e.g. CSPM needs Security). */
+  serverlessProjectType?: "observability" | "security" | "elasticsearch";
   onInstallComplete: () => void;
   onUninstallComplete?: () => void;
   onReinstallComplete?: () => void;
@@ -172,6 +176,8 @@ export function SetupPage({
   elasticUrl,
   kibanaUrl,
   apiKey,
+  isServerless = false,
+  serverlessProjectType,
   onInstallComplete,
   onUninstallComplete,
   onReinstallComplete,
@@ -189,6 +195,7 @@ export function SetupPage({
   const [enableIntegration, setEnableIntegration] = useState(false);
   const [enableApm, setEnableApm] = useState(false);
   const [enableCsp, setEnableCsp] = useState(false);
+  const [enableServiceNow, setEnableServiceNow] = useState(false);
   const [enablePipelines, setEnablePipelines] = useState(false);
   const [enableDashboards, setEnableDashboards] = useState(false);
   const [enableMlJobs, setEnableMlJobs] = useState(false);
@@ -311,8 +318,10 @@ export function SetupPage({
 
   const hasEs = !!elasticUrl.trim() && !!apiKey.trim();
   const hasKb = !!kibanaUrl.trim() && !!apiKey.trim();
-  const needsKb = enableIntegration || enableApm || enableCsp || enableLoadgenIntegrations;
-  const anyEnabled = enableIntegration || enableApm || enableCsp || enableLoadgenIntegrations;
+  const needsKb =
+    enableIntegration || enableApm || enableCsp || enableServiceNow || enableLoadgenIntegrations;
+  const anyEnabled =
+    enableIntegration || enableApm || enableCsp || enableServiceNow || enableLoadgenIntegrations;
   const canRun = anyEnabled && hasEs && (!needsKb || hasKb);
 
   function toggleGroup<T>(set: Set<T>, val: T): Set<T> {
@@ -364,6 +373,7 @@ export function SetupPage({
     | "Management & Governance"
     | "End User & Media"
     | "Chained Events"
+    | "ITSM & Service Management"
     | "Other";
 
   const SERVICE_CATEGORY: Record<string, ServiceCategory> = {
@@ -471,6 +481,9 @@ export function SetupPage({
     "data-exfil-chain": "Chained Events",
     "data-pipeline": "Chained Events",
     "data-pipeline-chain": "Chained Events",
+
+    // ITSM & Service Management
+    servicenow_cmdb: "ITSM & Service Management",
 
     // AI & Machine Learning
     sagemaker: "AI & Machine Learning",
@@ -897,6 +910,7 @@ export function SetupPage({
     "Management & Governance",
     "End User & Media",
     "Chained Events",
+    "ITSM & Service Management",
     "Other",
   ];
 
@@ -1655,13 +1669,15 @@ export function SetupPage({
       ),
     [selectedServiceIds]
   );
-  const extraFleetPackages = useMemo(
-    () =>
-      enableCsp
-        ? [{ name: "cloud_security_posture", label: "Cloud Security Posture (CSPM/KSPM)" }]
-        : [],
-    [enableCsp]
-  );
+  const cspBlockedByProjectType =
+    isServerless && serverlessProjectType !== undefined && serverlessProjectType !== "security";
+  const extraFleetPackages = useMemo(() => {
+    const pkgs: { name: string; label: string }[] = [];
+    if (enableCsp && !cspBlockedByProjectType)
+      pkgs.push({ name: "cloud_security_posture", label: "Cloud Security Posture (CSPM/KSPM)" });
+    if (enableServiceNow) pkgs.push({ name: "servicenow", label: "ServiceNow" });
+    return pkgs;
+  }, [enableCsp, cspBlockedByProjectType, enableServiceNow]);
 
   // Derive which pipelines/dashboards/ML jobs are selected from service selection
   const derivedPipelineIds = useMemo(() => {
@@ -1797,6 +1813,7 @@ export function SetupPage({
         elasticUrl,
         kibanaUrl,
         apiKey,
+        isServerless,
         enableIntegration,
         enableApm,
         enablePipelines,
@@ -2138,6 +2155,7 @@ export function SetupPage({
         elasticUrl,
         kibanaUrl,
         apiKey,
+        isServerless,
         enableIntegration,
         enableApm,
         enablePipelines,
@@ -2197,6 +2215,7 @@ export function SetupPage({
         elasticUrl,
         kibanaUrl,
         apiKey,
+        isServerless,
         enableIntegration,
         enableApm,
         enablePipelines,
@@ -2268,6 +2287,43 @@ export function SetupPage({
       <EuiTitle size="s">
         <h2>Setup</h2>
       </EuiTitle>
+
+      {isServerless && serverlessProjectType && (
+        <>
+          <EuiSpacer size="m" />
+          <EuiCallOut
+            title={`Serverless ${serverlessProjectType.charAt(0).toUpperCase() + serverlessProjectType.slice(1)} project`}
+            color={serverlessProjectType === "security" ? "success" : "primary"}
+            iconType="iInCircle"
+            size="s"
+          >
+            <p>
+              {serverlessProjectType === "security" && (
+                <>
+                  All features available — CSPM/KSPM, security chained events, ML jobs, dashboards,
+                  and alerting rules.
+                </>
+              )}
+              {serverlessProjectType === "observability" && (
+                <>
+                  CSPM/KSPM integration is not available on Observability projects. Security-focused
+                  chained events (Finding Chain, IAM PrivEsc, Data Exfiltration) can still ship data
+                  but are best paired with a Security project. Data Pipeline chains, ML jobs,
+                  dashboards, and alerting rules work fully.
+                </>
+              )}
+              {serverlessProjectType === "elasticsearch" && (
+                <>
+                  Elasticsearch projects focus on search. Fleet integrations, ML jobs, dashboards,
+                  and alerting rules work, but CSPM/KSPM is not available and
+                  observability/security-specific features may be limited.
+                </>
+              )}{" "}
+              Saved-object tags are not available on Serverless — dashboards install without tags.
+            </p>
+          </EuiCallOut>
+        </>
+      )}
 
       <EuiSpacer size="m" />
       <EuiFlexGroup alignItems="flexStart" gutterSize="l" responsive={true}>
@@ -2386,17 +2442,29 @@ export function SetupPage({
       <InstallerRow
         label="CSPM / KSPM Integration"
         badge="Kibana"
+        disabled={cspBlockedByProjectType}
         description={
           removeMode ? (
             <>
               <strong>Uninstalls</strong> the Cloud Security Posture Management integration from
               Fleet.
             </>
+          ) : cspBlockedByProjectType ? (
+            <>
+              The <strong>cloud_security_posture</strong> integration requires a{" "}
+              <strong>Security</strong> Serverless project. Switch project type on the Start page or
+              use a Cloud Hosted / self-managed deployment.
+            </>
           ) : (
             <>
               Installs the official Elastic <strong>cloud_security_posture</strong> integration via
               Kibana Fleet — enables the Posture Dashboard, Findings page, and Benchmark Rules using{" "}
               <strong>321 real CIS rules</strong> (AWS 55, GCP 71, Azure 72, EKS 31, K8s 92).
+              {isServerless && serverlessProjectType === "security" && (
+                <EuiBadge color="success" style={{ marginLeft: 8 }}>
+                  Security project
+                </EuiBadge>
+              )}
               {cspServicesSelected ? (
                 <EuiBadge color="success" style={{ marginLeft: 8 }}>
                   CSPM/KSPM services selected
@@ -2411,6 +2479,16 @@ export function SetupPage({
         }
         enabled={enableCsp}
         onToggle={setEnableCsp}
+      />
+
+      <EuiSpacer size="m" />
+
+      <InstallerRow
+        label="ServiceNow CMDB Integration"
+        badge="Kibana"
+        description="Install the Elastic ServiceNow integration to ingest CMDB, incident, and change request data. This enables asset enrichment for alerts — look up CI owners, support groups, and related incidents when a pipeline failure is detected."
+        enabled={enableServiceNow}
+        onToggle={setEnableServiceNow}
       />
 
       <EuiSpacer size="m" />

@@ -673,6 +673,20 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
       },
     ],
   },
+  {
+    id: "itsm",
+    label: "ITSM & Service Management",
+    color: "#7B68EE",
+    icon: "☰",
+    services: [
+      {
+        id: "servicenow_cmdb",
+        label: "ServiceNow CMDB",
+        icon: "⎈",
+        desc: "CMDB configuration items, incidents, change requests, users, and support groups for asset enrichment",
+      },
+    ],
+  },
 ];
 
 const GCP_ALL_SERVICE_IDS = GCP_SERVICE_GROUPS.flatMap((g) => g.services.map((s) => s.id));

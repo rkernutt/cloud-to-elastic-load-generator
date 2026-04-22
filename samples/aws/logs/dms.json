@@ -1,56 +1,51 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-northeast-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "dms" }
   },
   "aws": {
-    "dimensions": { "ReplicationInstanceIdentifier": "dms-staging-090jk35g" },
+    "dimensions": { "ReplicationInstanceIdentifier": "dms-prod-y7n96el4" },
     "dms": {
-      "replication_task_id": "prod-mysql-to-aurora",
-      "migration_type": "full-load-and-cdc",
-      "replication_instance_identifier": "dms-staging-090jk35g",
-      "source_engine": "mysql",
-      "target_engine": "docdb",
+      "replication_task_id": "on-prem-to-rds",
+      "migration_type": "full-load",
+      "replication_instance_identifier": "dms-prod-y7n96el4",
+      "source_engine": "postgresql",
+      "target_engine": "aurora-mysql",
       "replication_instance_class": "dms.t3.medium",
       "task_status": "Load complete",
-      "full_load_rows_transferred": 6161985,
-      "cdc_incoming_changes": 80094,
-      "latency_ms": 932,
-      "tables_loaded": 73,
+      "full_load_rows_transferred": 9545605,
+      "cdc_incoming_changes": 0,
+      "latency_ms": 0,
+      "tables_loaded": 119,
       "tables_errored": 0,
       "metrics": {
-        "FullLoadThroughputRowsSource": { "avg": 15155 },
-        "FullLoadThroughputRowsTarget": { "avg": 87997 },
-        "CDCIncomingChanges": { "avg": 9044 },
-        "CDCChangesMemorySource": { "avg": 559 },
-        "CDCChangesMemoryTarget": { "avg": 202 },
-        "CDCChangesDiskSource": { "avg": 83 },
-        "CDCChangesDiskTarget": { "avg": 97 },
-        "CDCLatencySource": { "avg": 4 },
-        "CDCLatencyTarget": { "avg": 8 },
-        "CPUUtilization": { "avg": 22.43068944475109 },
-        "FreeableMemory": { "avg": 7700916427 },
-        "FreeStorageSpace": { "avg": 58570334633 },
-        "NetworkReceiveThroughput": { "avg": 37669984 },
-        "NetworkTransmitThroughput": { "avg": 11515368 },
-        "ReadIOPS": { "avg": 1564 },
-        "WriteIOPS": { "avg": 1619 }
+        "FullLoadThroughputRowsSource": { "avg": 96000 },
+        "FullLoadThroughputRowsTarget": { "avg": 73313 },
+        "CPUUtilization": { "avg": 26.45938982701564 },
+        "FreeableMemory": { "avg": 3646953754 },
+        "FreeStorageSpace": { "avg": 30884648195 },
+        "NetworkReceiveThroughput": { "avg": 38337828 },
+        "NetworkTransmitThroughput": { "avg": 47074154 },
+        "ReadIOPS": { "avg": 522 },
+        "WriteIOPS": { "avg": 2547 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-dms-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-dms-logs-164820739518"
+        "name": "aws-dms-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-dms-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/164820739518/dms/af-south-1/2026/04/21/dms_XW9W12H07L.log.gz" }
+      "object": {
+        "key": "AWSLogs/501938274650/dms/ap-northeast-1/2026/04/22/dms_JU2CHLOLG9.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/dms/logs",
-      "log_stream": "af-south-1/kpbwlbad",
-      "ingestion_time": "2026-04-21T16:58:55.896Z"
+      "log_stream": "ap-northeast-1/w8bcpdgy",
+      "ingestion_time": "2026-04-22T16:10:08.422Z"
     }
   },
   "event": {
@@ -58,10 +53,10 @@
     "category": ["database", "process"],
     "dataset": "aws.dms",
     "provider": "dms.amazonaws.com",
-    "duration": 16348000000000,
+    "duration": 8812000000000,
     "module": "aws"
   },
-  "message": "DMS prod-mysql-to-aurora: 6,161,985 rows (mysql->docdb full-load-and-cdc)",
+  "message": "DMS on-prem-to-rds: 9,545,605 rows (postgresql->aurora-mysql full-load)",
   "log": { "level": "info" },
   "service": { "name": "dms", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -69,8 +64,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "z07th1axd1d"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "cn7pcy4yii"
   },
   "input": { "type": "aws-cloudwatch" }
 }

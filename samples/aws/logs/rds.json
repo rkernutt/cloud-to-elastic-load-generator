@@ -1,45 +1,120 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
+    "region": "eu-west-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
-    "service": { "name": "rds-custom" }
+    "service": { "name": "rds" }
   },
   "aws": {
-    "rdscustom": {
-      "instance_id": "orcl-prod-01",
-      "engine": "custom-sqlserver-ee",
-      "cev_id": "cev-fqszpsol",
-      "event_type": "ModifyInstance",
-      "automation_id": "exec-c9ihfmps6mk",
-      "pause_automation": false,
-      "os_patch_level": "2023.7.6"
+    "dimensions": {
+      "DBInstanceIdentifier": "prod-db-replica",
+      "DatabaseClass": "db.r6g.2xlarge",
+      "EngineName": "mysql",
+      "SourceRegion": "eu-west-1"
+    },
+    "cloudwatch": {
+      "log_group": "/aws/rds/instance/prod-db-replica/general",
+      "log_stream": "prod-db-replica",
+      "ingestion_time": "2026-04-22T16:10:08.205Z"
+    },
+    "rds": {
+      "db_instance": {
+        "identifier": "prod-db-replica",
+        "class": "db.r6g.2xlarge",
+        "engine_name": "mysql",
+        "engine_version": "8.0.40",
+        "arn": "arn:aws:rds:eu-west-1:293847561023:db:prod-db-replica",
+        "status": "available",
+        "role": "read-replica",
+        "multi_az": true,
+        "storage_type": "io2",
+        "allocated_storage_gb": 1000
+      },
+      "log_type": "general",
+      "cpu": { "total": { "pct": 0.1094 } },
+      "freeable_memory": { "bytes": 5794367019 },
+      "free_storage": { "bytes": 48373857849 },
+      "database_connections": 8,
+      "read_io": { "ops_per_sec": 1189.6975611609134 },
+      "write_io": { "ops_per_sec": 823.2826444431149 },
+      "latency": { "read": 0.004438816548206512, "write": 0.00897946618606012 },
+      "throughput": {
+        "read": 32690299,
+        "write": 49919734,
+        "network_receive": 2838643,
+        "network_transmit": 68389098
+      },
+      "replica_lag": { "sec": 18.269557067379306 },
+      "swap_usage": { "bytes": 67401554 },
+      "disk_usage": { "bin_log": { "bytes": 348340733 } },
+      "enhanced_monitoring": {
+        "cpuUtilization": {
+          "guest": 1.64242204071976,
+          "irq": 0.8436961694544143,
+          "system": 8.905760298058798,
+          "wait": 2.757734489396913,
+          "idle": 70.1,
+          "user": 15.73673359053284,
+          "total": 29.9
+        },
+        "memory": {
+          "total": 35483708057,
+          "free": 1256340688,
+          "cached": 2958036322,
+          "active": 12599664609,
+          "inactive": 2638433056,
+          "buffers": 292085661
+        },
+        "disk": {
+          "readIOsPS": 597.7310484494436,
+          "writeIOsPS": 2510.745558387492,
+          "readKbPS": 143667.8244068508,
+          "writeKbPS": 451810.9398958537,
+          "avgQueueLen": 6.096241374129721,
+          "await": 12.346126423412397
+        },
+        "network": { "rx": 67589867, "tx": 44217113 },
+        "numVCPUs": 16,
+        "uptime": "29 days, 1:30:05"
+      }
     },
     "s3": {
       "bucket": {
         "name": "aws-rds-logs-293847561023",
         "arn": "arn:aws:s3:::aws-rds-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/293847561023/rds/il-central-1/2026/04/21/rds_YX85C1YPIR.log.gz" }
-    },
-    "cloudwatch": {
-      "log_group": "/aws/rds/logs",
-      "log_stream": "il-central-1/ckzavf4e",
-      "ingestion_time": "2026-04-21T16:58:55.591Z"
+      "object": { "key": "AWSLogs/293847561023/rds/eu-west-1/2026/04/22/rds_SO3UKZ8UFRM.log.gz" }
     }
   },
-  "event": { "outcome": "success", "duration": 270999280, "module": "aws", "dataset": "aws.rds" },
-  "message": "RDS Custom orcl-prod-01: ModifyInstance completed (custom-sqlserver-ee)",
-  "service": { "name": "rds", "type": "aws" },
+  "db": {
+    "user": { "name": "replica" },
+    "name": "ecommerce",
+    "statement": "SELECT * FROM transactions WHERE id = 824620",
+    "type": "sql"
+  },
+  "source": { "ip": "194.9.30.24" },
+  "event": {
+    "duration": 1220264630.4377453,
+    "outcome": "success",
+    "category": ["database"],
+    "type": ["info", "access"],
+    "dataset": "aws.rds",
+    "provider": "rds.amazonaws.com",
+    "module": "aws"
+  },
+  "message": "2026-04-22 16:10:07.528\t93019 Quit\tSELECT * FROM transactions WHERE id = 824620",
   "log": { "level": "info" },
+  "trace": { "id": "9BR5QN69OJM" },
+  "transaction": { "id": "EP9F5QW5E5E" },
+  "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "2j0c7c62zlk"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "8rb3woou6ur"
   },
   "input": { "type": "aws-cloudwatch" }
 }

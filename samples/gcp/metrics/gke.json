@@ -3,53 +3,51 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-central1",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "europe-west1",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-us-central1",
-    "ephemeral_id": "11cvej1g7zk"
+    "name": "metricbeat-gcp-europe-west1",
+    "ephemeral_id": "yeijz6w02zi"
   },
   "monitoringTimeSeries": {
-    "metric": {
-      "type": "serviceruntime.googleapis.com/api/request_count",
-      "labels": { "credential_id": "resource-a" }
-    },
+    "metric": { "type": "kubernetes.io/container/cpu/request_utilization", "labels": {} },
     "resource": {
-      "type": "consumed_api",
+      "type": "k8s_container",
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "service": "generic.googleapis.com",
-        "method": "resource_id"
+        "project_id": "globex-staging-d4e5f6",
+        "location": "europe-west1",
+        "cluster_name": "ml-cluster",
+        "namespace_name": "kube-system",
+        "pod_name": "worker-6pxeg-ictf3",
+        "container_name": "app"
       }
     },
-    "metricKind": "DELTA",
-    "valueType": "INT64",
+    "metricKind": "GAUGE",
+    "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "49807" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 0.45 } }
     ]
   },
   "gcp": {
-    "config-connector": {
+    "gke": {
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "service": "generic.googleapis.com",
-        "method": "resource_id",
-        "credential_id": "resource-a"
+        "project_id": "globex-staging-d4e5f6",
+        "location": "europe-west1",
+        "cluster_name": "ml-cluster",
+        "namespace_name": "kube-system",
+        "pod_name": "worker-6pxeg-ictf3",
+        "container_name": "app"
       },
       "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": {
-          "avg": 49807,
-          "sum": 49807,
-          "count": 1
-        }
+        "kubernetes.io/container/cpu/request_utilization": { "avg": 0.45, "sum": 0.45, "count": 1 }
       }
     }
   },
-  "metricset": { "name": "config-connector", "period": 60000 },
+  "metricset": { "name": "gke", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.gke_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "dataset": "gcp.gke_metrics", "module": "gcp" }

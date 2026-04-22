@@ -12,6 +12,7 @@ import {
   generateGcpDataExfilChain,
 } from "./securityChains.js";
 import { generateGcpDataPipelineChain } from "./dataPipelineChain.js";
+import { generateServiceNowCmdbLog } from "../../servicenow/generators/index.js";
 import {
   generateCloudFunctionsLog,
   generateCloudRunLog,
@@ -379,6 +380,8 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
   "gcp-iam-privesc-chain": generateGcpIamPrivEscChain,
   "gcp-data-exfil-chain": generateGcpDataExfilChain,
   "gcp-data-pipeline-chain": generateGcpDataPipelineChain,
+  // Cross-cloud ITSM
+  servicenow_cmdb: generateServiceNowCmdbLog,
 };
 
 export { GCP_GENERATORS };

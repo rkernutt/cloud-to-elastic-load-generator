@@ -98,7 +98,7 @@ export function validateApiKey(value: unknown): ValidationResult {
 export async function testConnection(
   elasticUrl: string,
   apiKey: string
-): Promise<ValidationResult & { version?: string }> {
+): Promise<ValidationResult & { version?: string; isServerless?: boolean }> {
   try {
     const url = elasticUrl.replace(/\/$/, "");
     const res = await fetch(`/proxy`, {
@@ -129,14 +129,22 @@ export async function testConnection(
       };
     }
     let version: string | undefined;
+    let isServerless: boolean | undefined;
     try {
-      const data = (await res.json()) as { version?: { number?: string } };
+      const data = (await res.json()) as {
+        version?: { number?: string; build_flavor?: string };
+      };
       const n = data?.version?.number;
       if (typeof n === "string" && n.length > 0) version = n;
+      if (data?.version?.build_flavor === "serverless") isServerless = true;
     } catch {
       /* non-JSON body — still connected */
     }
-    return { valid: true, ...(version ? { version } : {}) };
+    return {
+      valid: true,
+      ...(version ? { version } : {}),
+      ...(isServerless ? { isServerless } : {}),
+    };
   } catch (e) {
     return {
       valid: false,

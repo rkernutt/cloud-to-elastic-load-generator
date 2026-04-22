@@ -159,6 +159,8 @@ const GCP_ELASTIC_DATASET_MAP: Record<string, string> = {
   "gcp-iam-privesc-chain": "gcp.audit",
   "gcp-data-exfil-chain": "gcp.dlp",
   "gcp-data-pipeline-chain": "gcp.composer",
+  // Cross-cloud ITSM
+  servicenow_cmdb: "servicenow.event",
 };
 
 const GCP_METRICS_SUPPORTED_SERVICE_IDS = new Set([

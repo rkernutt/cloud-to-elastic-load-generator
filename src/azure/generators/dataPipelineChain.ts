@@ -27,6 +27,13 @@ import {
   randResourceGroup,
   azureCloud,
 } from "./helpers.js";
+import {
+  randHumanUser,
+  randSourceIp,
+  randPipelineUserAgent,
+  ecsIdentityFields,
+  azureActivityLogEvent,
+} from "../../helpers/identity.js";
 import { azureServiceBase, enrichAzureTraceDoc } from "./traces/trace-kit.js";
 
 const PIPELINE_NAMES = [
@@ -157,6 +164,12 @@ export function generateAzureDataPipelineChain(ts: string, er: number): EcsDocum
   const synapsePool = rand(SYNAPSE_POOLS);
   const synapseWorkspace = `syn-${randId(8).toLowerCase()}`;
 
+  // Pick a consistent user identity for the entire pipeline run
+  const triggerUser = randHumanUser();
+  const triggerIp = randSourceIp();
+  const triggerUa = randPipelineUserAgent();
+  const identity = ecsIdentityFields(triggerUser, triggerIp, triggerUa);
+
   const isFailure = Math.random() < er;
   const failureMode: FailureMode | null = isFailure ? rand([...FAILURE_MODES]) : null;
 
@@ -185,8 +198,26 @@ export function generateAzureDataPipelineChain(ts: string, er: number): EcsDocum
     ...adfDoc(ts, region, sub, rg, pipelineName, runId, "trigger_pipeline", "InProgress", {
       ...pipelineLabels,
     }),
+    ...identity,
     labels: pipelineLabels,
   });
+
+  // Activity Log: user triggered the ADF pipeline
+  docs.push(
+    azureActivityLogEvent(
+      ts,
+      region,
+      sub,
+      rg,
+      triggerUser,
+      triggerIp,
+      triggerUa,
+      "Microsoft.DataFactory/factories/pipelines/createrun/action",
+      "Microsoft.DataFactory/factories",
+      `adf-${rg}/pipelines/${pipelineName}`,
+      "success"
+    ) as EcsDocument
+  );
 
   // 2. Blob Storage GetBlob (source file)
   const blobGetTs = advance(100, 500);
@@ -222,6 +253,7 @@ export function generateAzureDataPipelineChain(ts: string, er: number): EcsDocum
     },
     message: `Blob GetBlob ${storageAccount}/${sourceContainer}/${sourceBlob} (${sourceBytes} bytes)`,
     log: { level: "info" },
+    ...identity,
     labels: pipelineLabels,
   });
 
@@ -266,6 +298,7 @@ export function generateAzureDataPipelineChain(ts: string, er: number): EcsDocum
       },
       message: `Databricks Spark [${sparkAppId}]: FAILED — FileNotFoundException: ${sourceBlob}`,
       log: { level: "error" },
+      ...identity,
       labels: pipelineLabels,
     });
   } else if (failureMode === "wrong_format") {
@@ -303,6 +336,7 @@ export function generateAzureDataPipelineChain(ts: string, er: number): EcsDocum
       },
       message: `Databricks Spark [${sparkAppId}]: FAILED — AvroParseException: not an Avro data file`,
       log: { level: "error" },
+      ...identity,
       labels: pipelineLabels,
     });
   } else {
@@ -342,9 +376,27 @@ export function generateAzureDataPipelineChain(ts: string, er: number): EcsDocum
       },
       message: `Databricks Spark [${sparkAppId}]: SUCCEEDED — ${sparkRecordsRead} records read, ${recordsWritten} written`,
       log: { level: isNullFile ? "warn" : "info" },
+      ...identity,
       labels: pipelineLabels,
     });
   }
+
+  // Activity Log: Databricks job run
+  docs.push(
+    azureActivityLogEvent(
+      dbrStartTs,
+      region,
+      sub,
+      rg,
+      triggerUser,
+      triggerIp,
+      triggerUa,
+      "Microsoft.Databricks/workspaces/jobs/runs/submit/action",
+      "Microsoft.Databricks/workspaces",
+      `dbw-${workspaceName}/jobs/${sparkAppId}`,
+      pipelineHalted ? "failure" : "success"
+    ) as EcsDocument
+  );
 
   if (!pipelineHalted) {
     // 4. Blob Storage PutBlob (output)
@@ -381,6 +433,7 @@ export function generateAzureDataPipelineChain(ts: string, er: number): EcsDocum
       },
       message: `Blob PutBlob ${storageAccount}/${outputContainer}/${outputBlob} (${outputBytes} bytes)`,
       log: { level: "info" },
+      ...identity,
       labels: {
         ...pipelineLabels,
         blob_output_container: outputContainer,
@@ -420,6 +473,7 @@ export function generateAzureDataPipelineChain(ts: string, er: number): EcsDocum
       },
       message: `Purview [scan-${pipelineName}]: Succeeded — ${assetsDiscovered} assets discovered`,
       log: { level: "info" },
+      ...identity,
       labels: pipelineLabels,
     });
 
@@ -458,8 +512,26 @@ export function generateAzureDataPipelineChain(ts: string, er: number): EcsDocum
       },
       message: `Synapse [${synapsePool}]: Succeeded — processed ${dataProcessed} bytes, returned ${rowsReturned} rows`,
       log: { level: isNullFile && rowsReturned === 0 ? "warn" : "info" },
+      ...identity,
       labels: pipelineLabels,
     });
+
+    // Activity Log: Synapse SQL query
+    docs.push(
+      azureActivityLogEvent(
+        synapseTs,
+        region,
+        sub,
+        rg,
+        triggerUser,
+        triggerIp,
+        triggerUa,
+        "Microsoft.Synapse/workspaces/sqlPools/query/action",
+        "Microsoft.Synapse/workspaces",
+        `${synapseWorkspace}/sqlPools/${synapsePool}`,
+        "success"
+      ) as EcsDocument
+    );
   }
 
   // 7. Data Factory pipeline completed
@@ -473,6 +545,7 @@ export function generateAzureDataPipelineChain(ts: string, er: number): EcsDocum
       records_processed: isNullFile ? 0 : pipelineHalted ? 0 : sparkRecordsRead,
       ...pipelineLabels,
     }),
+    ...identity,
     labels: { ...pipelineLabels, quality_check: qualityCheck },
   });
 

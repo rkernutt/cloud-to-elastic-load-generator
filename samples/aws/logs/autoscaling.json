@@ -1,41 +1,41 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-northeast-3",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "autoscaling" }
   },
   "aws": {
-    "dimensions": { "AutoScalingGroupName": "web-asg" },
+    "dimensions": { "AutoScalingGroupName": "worker-asg" },
     "autoscaling": {
-      "group_name": "web-asg",
-      "activity_id": "zlbe49s4-5lyd-uvfo",
-      "action_type": "Launch",
-      "instance_id": "i-cymch9srp9t",
-      "instance_type": "t3.medium",
-      "desired_capacity": 4,
+      "group_name": "worker-asg",
+      "activity_id": "wko29y0v-33ay-7l2s",
+      "action_type": "HealthCheck",
+      "instance_id": "i-mkprpqvl74",
+      "instance_type": "c5.2xlarge",
+      "desired_capacity": 7,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 1,
-      "cause": "At 2024-01-01T12:00:00Z a user request update of AutoScalingGroup constraints to min: 2, max: 50, desired: 8 changing the desired capacity from 6 to 8",
+      "current_capacity": 5,
+      "cause": "EC2 health check passed",
       "status_code": "Successful",
-      "launch_template": "api-lt:3",
+      "launch_template": "web-lt:5",
       "predictive_scaling_forecast": false,
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 4 },
-        "GroupInServiceInstances": { "avg": 1 },
-        "GroupPendingInstances": { "avg": 2 },
-        "GroupStandbyInstances": { "avg": 1 },
+        "GroupDesiredCapacity": { "avg": 7 },
+        "GroupInServiceInstances": { "avg": 5 },
+        "GroupPendingInstances": { "avg": 0 },
+        "GroupStandbyInstances": { "avg": 2 },
         "GroupTerminatingInstances": { "avg": 0 },
-        "GroupTotalInstances": { "avg": 4 },
-        "GroupInServiceCapacity": { "avg": 1 },
-        "GroupPendingCapacity": { "avg": 2 },
-        "GroupStandbyCapacity": { "avg": 1 },
+        "GroupTotalInstances": { "avg": 7 },
+        "GroupInServiceCapacity": { "avg": 5 },
+        "GroupPendingCapacity": { "avg": 0 },
+        "GroupStandbyCapacity": { "avg": 2 },
         "GroupTerminatingCapacity": { "avg": 0 },
-        "GroupTotalCapacity": { "avg": 4 },
+        "GroupTotalCapacity": { "avg": 7 },
         "WarmPoolMinSize": { "avg": 0 },
         "WarmPoolDesiredCapacity": { "avg": 0 },
         "WarmPoolPendingCapacity": { "avg": 0 },
@@ -46,17 +46,17 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-autoscaling-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-autoscaling-logs-164820739518"
+        "name": "aws-autoscaling-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-autoscaling-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/autoscaling/eu-central-1/2026/04/21/autoscaling_7W0HLB4J93V.log.gz"
+        "key": "AWSLogs/293847561023/autoscaling/ap-northeast-3/2026/04/22/autoscaling_IIPH7F9VKWI.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "eu-central-1/024wus3q",
-      "ingestion_time": "2026-04-21T16:58:55.622Z"
+      "log_stream": "ap-northeast-3/2ivs4h4t",
+      "ingestion_time": "2026-04-22T16:10:08.225Z"
     }
   },
   "event": {
@@ -64,10 +64,10 @@
     "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 396000000000,
+    "duration": 191000000000,
     "module": "aws"
   },
-  "message": "SuccessfulScalingActivity: Launching a new EC2 instance: i-cymch9srp9t ActivityId=zlbe49s4-5lyd-uvfo Cause: At 2024-01-01T12:00:00Z a user request update of AutoScalingGroup constraints to min: 2, max: 50, desired: 8 changing the desired capacity from 6 to 8",
+  "message": "AutoScaling worker-asg: HealthCheck instance i-mkprpqvl74 — EC2 health check passed",
   "log": { "level": "info" },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -75,8 +75,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "kg300515ad"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "ylhruftywxo"
   },
   "input": { "type": "aws-cloudwatch" }
 }

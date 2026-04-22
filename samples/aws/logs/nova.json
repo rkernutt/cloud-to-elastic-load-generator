@@ -1,8 +1,8 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
+    "region": "ap-northeast-1",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "bedrock" }
   },
@@ -11,23 +11,25 @@
     "nova": {
       "model_id": "amazon.nova-premier-v1:0",
       "model_tier": "premier",
-      "modality": "image",
-      "input_token_count": 8385,
-      "output_token_count": 0,
+      "modality": "text",
+      "input_token_count": 6399,
+      "output_token_count": 2588,
       "cache_read_input_token_count": 0,
-      "total_token_count": 8385,
-      "invocation_latency_ms": 21471,
-      "streaming": false,
-      "use_case": "document-qa",
-      "guardrail_action": "NONE",
-      "error_code": "ValidationException",
+      "total_token_count": 8987,
+      "invocation_latency_ms": 558,
+      "time_to_first_token_ms": 374,
+      "throughput_tokens_per_sec": 4638,
+      "streaming": true,
+      "use_case": "image-understanding",
+      "guardrail_action": "INTERVENED",
+      "stop_reason": "max_tokens",
       "metrics": {
-        "Invocations": { "sum": 700 },
-        "InvocationLatency": { "avg": 21471, "p99": 53678 },
-        "InputTokenCount": { "sum": 8385 },
-        "OutputTokenCount": { "sum": 0 },
+        "Invocations": { "sum": 385 },
+        "InvocationLatency": { "avg": 558, "p99": 1395 },
+        "InputTokenCount": { "sum": 6399 },
+        "OutputTokenCount": { "sum": 2588 },
         "CacheReadInputTokenCount": { "sum": 0 },
-        "Throttles": { "sum": 9 }
+        "Throttles": { "sum": 0 }
       }
     },
     "s3": {
@@ -36,38 +38,33 @@
         "arn": "arn:aws:s3:::aws-nova-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/nova/eu-central-1/2026/04/21/nova_9FLL6T0EXDK.log.gz"
+        "key": "AWSLogs/164820739518/nova/ap-northeast-1/2026/04/22/nova_W6F9AWNZZY.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/nova/logs",
-      "log_stream": "eu-central-1/0g8iadzk",
-      "ingestion_time": "2026-04-21T16:58:55.857Z"
+      "log_stream": "ap-northeast-1/hbzgx2jy",
+      "ingestion_time": "2026-04-22T16:10:08.403Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.nova",
     "provider": "bedrock.amazonaws.com",
-    "duration": 21471000000,
+    "duration": 558000000,
     "module": "aws"
   },
-  "message": "Nova premier [amazon.nova-premier-v1:0] FAILED: ValidationException",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ValidationException",
-    "message": "Nova model invocation failed",
-    "type": "ml"
-  },
+  "message": "Nova premier 6399->2588 tokens 0.56s",
+  "log": { "level": "info" },
   "service": { "name": "nova", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.nova", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "iyqnszxn5jn"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "ikwzoli5y"
   },
   "input": { "type": "aws-cloudwatch" }
 }

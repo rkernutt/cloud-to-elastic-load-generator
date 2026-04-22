@@ -1,4 +1,14 @@
-import { useState, useCallback, useRef, useEffect, useMemo, lazy, Suspense } from "react";
+import {
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  useMemo,
+  lazy,
+  Suspense,
+  type ReactNode,
+} from "react";
+import { EuiCallOut } from "@elastic/eui";
 import { rand, stripNulls } from "./helpers";
 import { enrichForCloud } from "./helpers/enrichGcpAzure";
 import { serviceIdsInGroup } from "./data/serviceGroups";
@@ -17,6 +27,11 @@ import {
 import { validateElasticUrl, validateApiKey, validateIndexPrefix } from "./utils/validation";
 import { useConnectionValidation } from "./hooks/useConnectionValidation";
 import { useScheduleLoop } from "./hooks/useScheduleLoop";
+import {
+  useMLTrainingLoop,
+  ML_TRAINING_DEFAULTS,
+  type MLTrainingConfig,
+} from "./hooks/useMLTrainingLoop";
 import {
   DEFAULT_SCHEDULE_ENABLED,
   loadAndScrubSavedConfig,
@@ -130,6 +145,16 @@ export function LoadGeneratorApp({
       | undefined;
     return d ?? "serverless";
   });
+  const [serverlessProjectType, setServerlessProjectType] = useState<
+    "observability" | "security" | "elasticsearch"
+  >(
+    () =>
+      (savedConfig.serverlessProjectType as
+        | "observability"
+        | "security"
+        | "elasticsearch"
+        | undefined) ?? "observability"
+  );
   const [elasticUrl, setElasticUrl] = useState("");
   const [kibanaUrl, setKibanaUrl] = useState("");
   const [apiKey, setApiKey] = useState("");
@@ -187,6 +212,7 @@ export function LoadGeneratorApp({
     setValidationErrors,
     connectionStatus,
     connectionMsg,
+    isServerless,
     runConnectionValidation,
     handleTestConnection,
   } = useConnectionValidation(elasticUrl, apiKey, indexPrefix);
@@ -242,6 +268,43 @@ export function LoadGeneratorApp({
     }
     return config.serviceGroups.filter((g) => g.id !== FINDINGS_GROUP_ID);
   }, [config.serviceGroups, activePage, isTracesMode, eventType, includeSecurityPatterns]);
+
+  const chainedEventsServerlessCallout: ReactNode = useMemo(() => {
+    const pt = serverlessProjectType;
+    return (
+      <EuiCallOut
+        title={`Serverless ${pt.charAt(0).toUpperCase() + pt.slice(1)} project`}
+        color={pt === "security" ? "success" : "warning"}
+        iconType="iInCircle"
+        size="s"
+      >
+        <p style={{ margin: 0 }}>
+          {pt === "security" && (
+            <>
+              All chained events are fully supported. Security Finding, IAM Privilege Escalation,
+              and Data Exfiltration chains align with Security project features (SIEM, detection
+              engine). Data Pipeline chains also work for operational visibility.
+            </>
+          )}
+          {pt === "observability" && (
+            <>
+              Data Pipeline chains are ideal for Observability projects. Security-focused chains
+              (Security Finding, IAM PrivEsc, Data Exfiltration) can ship data, but detection and
+              SIEM features are only available on Security projects.
+            </>
+          )}
+          {pt === "elasticsearch" && (
+            <>
+              All chained event data can be shipped and indexed. However, SIEM detection and
+              observability-specific features require a Security or Observability project
+              respectively.
+            </>
+          )}
+        </p>
+      </EuiCallOut>
+    );
+  }, [serverlessProjectType]);
+
   const navigateToPage = useCallback(
     (page: string) => {
       setActivePageState(page);
@@ -330,6 +393,7 @@ export function LoadGeneratorApp({
             scheduleTotalRuns,
             scheduleIntervalMin,
             deploymentType,
+            serverlessProjectType,
           })
         )
       );
@@ -352,6 +416,7 @@ export function LoadGeneratorApp({
     scheduleTotalRuns,
     scheduleIntervalMin,
     deploymentType,
+    serverlessProjectType,
   ]);
 
   const clearSavedConfig = () => {
@@ -374,6 +439,7 @@ export function LoadGeneratorApp({
     setScheduleTotalRuns(12);
     setScheduleIntervalMin(15);
     setDeploymentType("serverless");
+    setServerlessProjectType("observability");
   };
 
   // toggleTraceService, selectAllTraces, selectNoneTraces moved to ServicesPage inline handlers
@@ -695,6 +761,66 @@ export function LoadGeneratorApp({
     scheduleLoopRef,
   } = useScheduleLoop(LS_KEY, scheduleTotalRuns, scheduleIntervalMin, ship, abortRef);
 
+  const shipWithOverride = useCallback(
+    async (inject: boolean) => {
+      await runShipWorkload({
+        config,
+        isTracesMode,
+        selectedServices,
+        selectedTraceServices,
+        tracesPerService,
+        logsPerService,
+        errorRate,
+        batchSize,
+        batchDelayMs,
+        elasticUrl,
+        apiKey,
+        indexPrefix,
+        eventType,
+        traceIngestionSource,
+        dryRun,
+        injectAnomalies: inject,
+        enrichDoc,
+        getEffectiveSource,
+        getIngestionClampDetail,
+        runConnectionValidation,
+        abortRef,
+        addLog,
+        setStatus,
+        setLog,
+        setProgress,
+      });
+    },
+    [
+      selectedServices,
+      selectedTraceServices,
+      logsPerService,
+      tracesPerService,
+      errorRate,
+      batchSize,
+      batchDelayMs,
+      elasticUrl,
+      apiKey,
+      indexPrefix,
+      enrichDoc,
+      getEffectiveSource,
+      getIngestionClampDetail,
+      eventType,
+      isTracesMode,
+      traceIngestionSource,
+      runConnectionValidation,
+      dryRun,
+      config,
+      addLog,
+    ]
+  );
+
+  const [mlTrainingConfig, setMLTrainingConfig] = useState<MLTrainingConfig>(ML_TRAINING_DEFAULTS);
+  const { mlState, startMLTraining, stopMLTraining, mlLoopRef } = useMLTrainingLoop(
+    shipWithOverride,
+    abortRef
+  );
+
   const pct = progress.total > 0 ? Math.round((progress.sent / progress.total) * 100) : 0;
   const totalSelected = isTracesMode ? selectedTraceServices.length : selectedServices.length;
 
@@ -848,10 +974,11 @@ export function LoadGeneratorApp({
             countdown={countdown}
             scheduleResumeNotice={scheduleResumeNotice}
             canShip={canShip}
-            onShip={scheduleEnabled ? startSchedule : ship}
+            onShip={mlState.active ? () => {} : scheduleEnabled ? startSchedule : ship}
             onStop={() => {
               abortRef.current = true;
               scheduleLoopRef.current?.abort();
+              mlLoopRef.current?.abort();
             }}
             onPreview={generatePreview}
             onDryRunChange={setDryRun}
@@ -862,6 +989,11 @@ export function LoadGeneratorApp({
             onShipAgain={shipAgain}
             onReconfigure={reconfigure}
             preview={preview}
+            mlState={mlState}
+            mlTrainingConfig={mlTrainingConfig}
+            onMLTrainingConfigChange={setMLTrainingConfig}
+            onStartMLTraining={() => startMLTraining(mlTrainingConfig)}
+            onStopMLTraining={stopMLTraining}
           />
         )}
 
@@ -873,6 +1005,7 @@ export function LoadGeneratorApp({
                 : undefined
             }
             deploymentType={deploymentType}
+            serverlessProjectType={serverlessProjectType}
             elasticUrl={elasticUrl}
             kibanaUrl={effectiveKibanaUrl}
             apiKey={apiKey}
@@ -884,6 +1017,7 @@ export function LoadGeneratorApp({
             validationErrors={validationErrors}
             ingestionSource={ingestionSource}
             onDeploymentTypeChange={setDeploymentType}
+            onServerlessProjectTypeChange={setServerlessProjectType}
             onElasticUrlChange={(val) => {
               setElasticUrl(val);
               setValidationErrors((prev) => ({ ...prev, elasticUrl: "" }));
@@ -941,6 +1075,10 @@ export function LoadGeneratorApp({
             elasticUrl={elasticUrl}
             kibanaUrl={effectiveKibanaUrl}
             apiKey={apiKey}
+            isServerless={deploymentType === "serverless" || isServerless}
+            serverlessProjectType={
+              deploymentType === "serverless" ? serverlessProjectType : undefined
+            }
             setupLogPersistenceKey={`${LS_KEY}:setupActivity`}
             onInstallComplete={() => setSetupHasInstalled(true)}
             onUninstallComplete={() => setSetupHasInstalled(false)}
@@ -969,6 +1107,11 @@ export function LoadGeneratorApp({
             serviceIcons={config.serviceIcons}
             pageTitle={activePage === "security" ? "Chained events" : "Service selection"}
             gridHeading={activePage === "security" ? "Select chained events" : "Select services"}
+            pageCallout={
+              activePage === "security" && deploymentType === "serverless"
+                ? chainedEventsServerlessCallout
+                : undefined
+            }
             selectAll={() => {
               if (isTracesMode) {
                 setSelectedTraceServices(config.traceServices.map((s) => s.id));

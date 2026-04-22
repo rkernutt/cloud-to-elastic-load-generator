@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,35 +7,35 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "293847561023", "name": "globex-staging" }
+    "region": "me-south-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" }
   },
   "orchestrator": {
     "cluster": { "id": "dev-eks", "name": "dev-eks" },
     "type": "kubernetes",
-    "namespace": "production"
+    "namespace": "default"
   },
   "resource": {
-    "id": "k8s-node/ip-119-183-45-120.me-central-1.compute.internal",
-    "name": "ip-119-183-45-120.me-central-1.compute.internal",
+    "id": "/etc/kubernetes/kubelet/kubeconfig",
+    "name": "kubeconfig",
     "type": "k8s_object",
-    "sub_type": "Node",
-    "raw": { "node": "ip-119-183-45-120.me-central-1.compute.internal" }
+    "sub_type": "file",
+    "raw": { "path": "/var/lib/kubelet/kubeconfig", "mode": "0666" }
   },
   "rule": {
-    "id": "1a8ee966-458a-5ff9-a6e9-436aba157ebd",
-    "name": "Ensure that the --eventRecordQPS argument is set to 0 or a level which ensures appropriate event capture",
-    "section": "3.2.9",
-    "description": "Security relevant information should be captured.",
-    "tags": ["CIS", "EKS", "CIS 3.2.9", "Kubelet"],
+    "id": "90b8ae5e-df30-5ba6-9fe9-03aab2b7a1c3",
+    "name": "Ensure that the kubeconfig file permissions are set to 644 or more restrictive",
+    "section": "3.1.1",
+    "description": "If `kubelet` is running, and if it is using a file-based kubeconfig file, ensure that the proxy kubeconfig file has permissions of `644` or more restrictive.",
+    "tags": ["CIS", "EKS", "CIS 3.1.1", "Worker Node Configuration Files"],
     "benchmark": {
       "id": "cis_eks",
       "name": "CIS Amazon Elastic Kubernetes Service (EKS)",
       "version": "v1.0.1",
-      "rule_number": "3.2.9",
+      "rule_number": "3.1.1",
       "posture_type": "kspm"
     },
-    "profile_applicability": "* Level 2"
+    "profile_applicability": "* Level 1"
   },
   "result": { "evaluation": "passed" },
   "event": {
@@ -47,31 +47,29 @@
     "provider": "elastic_kspm",
     "module": "aws"
   },
-  "message": "[cis_eks/3.2.9] passed: Ensure that the --eventRecordQPS argument is set to 0 or a level which ensures appropriate event capture",
+  "message": "[cis_eks/3.1.1] passed: Ensure that the kubeconfig file permissions are set to 644 or more restrictive",
   "log": { "level": "info" },
   "service": { "name": "kspm", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "gf6akadcnql"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "86rw3q94486"
   },
   "input": { "type": "http_endpoint" },
   "aws": {
     "s3": {
       "bucket": {
-        "name": "aws-kspm-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-kspm-logs-293847561023"
+        "name": "aws-kspm-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-kspm-logs-501938274650"
       },
-      "object": {
-        "key": "AWSLogs/293847561023/kspm/me-central-1/2026/04/21/kspm_O7UAIQXWD7B.log.gz"
-      }
+      "object": { "key": "AWSLogs/501938274650/kspm/me-south-1/2026/04/22/kspm_ZN6PRHR2F4A.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/kspm/logs",
-      "log_stream": "me-central-1/eijid41g",
-      "ingestion_time": "2026-04-21T16:58:55.709Z"
+      "log_stream": "me-south-1/11awodaq",
+      "ingestion_time": "2026-04-22T16:10:08.289Z"
     }
   }
 }

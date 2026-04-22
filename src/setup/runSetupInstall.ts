@@ -124,6 +124,7 @@ export async function runSetupInstall(opts: {
   elasticUrl: string;
   kibanaUrl: string;
   apiKey: string;
+  isServerless?: boolean;
   enableIntegration: boolean;
   enableApm: boolean;
   enablePipelines: boolean;
@@ -144,6 +145,7 @@ export async function runSetupInstall(opts: {
     elasticUrl,
     kibanaUrl,
     apiKey,
+    isServerless = false,
     enableIntegration,
     enableApm,
     enablePipelines,
@@ -167,7 +169,14 @@ export async function runSetupInstall(opts: {
     const kb = kibanaUrl.replace(/\/$/, "");
     const version = await resolveFleetPackageVersion(kb, apiKey, pkgName);
     if (!version) {
-      addLog(`  ✗ ${label}: could not resolve package version (Kibana Fleet or EPR).`, "error");
+      const hint =
+        isServerless && pkgName === "cloud_security_posture"
+          ? " This integration is only available on Security Serverless projects."
+          : "";
+      addLog(
+        `  ✗ ${label}: could not resolve package version (Kibana Fleet or EPR).${hint}`,
+        "error"
+      );
       return;
     }
 
@@ -247,7 +256,13 @@ export async function runSetupInstall(opts: {
     } catch (tagErr) {
       const m = String(tagErr);
       if (!m.includes("409") && !m.includes("conflict")) {
-        addLog(`  ⚠ Could not create Kibana tag: ${tagErr}`, "warn");
+        const hint = isServerless
+          ? " (saved-object tags may not be available on this Serverless project type)"
+          : "";
+        addLog(
+          `  ⚠ Could not create Kibana tag${hint} — dashboards still install normally.`,
+          "warn"
+        );
       }
     }
   };

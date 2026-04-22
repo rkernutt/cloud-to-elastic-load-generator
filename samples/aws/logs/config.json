@@ -1,58 +1,66 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-southeast-4",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "config" }
   },
   "aws": {
-    "dimensions": { "ConfigRuleName": "access-keys-rotated", "ResourceType": "AWS::IAM::User" },
+    "dimensions": {
+      "ConfigRuleName": "iam-user-mfa-enabled",
+      "ResourceType": "AWS::EC2::Instance"
+    },
     "config": {
-      "rule_name": "access-keys-rotated",
-      "compliance_type": "INSUFFICIENT_DATA",
-      "resource_type": "AWS::IAM::User",
-      "resource_id": "i-eczvtntf",
-      "annotation": "Resource is compliant",
+      "rule_name": "iam-user-mfa-enabled",
+      "compliance_type": "NON_COMPLIANT",
+      "resource_type": "AWS::EC2::Instance",
+      "resource_id": "db-lpf0v19v",
+      "annotation": "Encryption not enabled",
       "metrics": {
-        "ComplianceByConfigRule": { "avg": 1 },
-        "NonCompliantRules": { "sum": 0 },
-        "CompliantRules": { "sum": 1 },
-        "ConfigurationItemsRecorded": { "sum": 90 }
+        "ComplianceByConfigRule": { "avg": 0 },
+        "NonCompliantRules": { "sum": 1 },
+        "CompliantRules": { "sum": 0 },
+        "ConfigurationItemsRecorded": { "sum": 49 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-config-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-config-logs-814726593401"
+        "name": "aws-config-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-config-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/config/eu-west-1/2026/04/21/config_X4PIU9YRW4.log.gz"
+        "key": "AWSLogs/501938274650/config/ap-southeast-4/2026/04/22/config_I7TUF4SZJM.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/config/logs",
-      "log_stream": "eu-west-1/d445fkr0",
-      "ingestion_time": "2026-04-21T16:58:55.688Z"
+      "log_stream": "ap-southeast-4/ppukkqaa",
+      "ingestion_time": "2026-04-22T16:10:08.274Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["configuration", "compliance"],
     "dataset": "aws.config",
     "provider": "config.amazonaws.com",
     "module": "aws"
   },
-  "message": "Config rule PASSED: access-keys-rotated",
-  "log": { "level": "info" },
+  "message": "Config rule FAILED: iam-user-mfa-enabled",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "NonCompliant",
+    "message": "Config rule iam-user-mfa-enabled failed",
+    "type": "compliance"
+  },
   "service": { "name": "config", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.config", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "2m8dnnxg5ao"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "3r1g6kqw05q"
   },
   "input": { "type": "http_endpoint" }
 }

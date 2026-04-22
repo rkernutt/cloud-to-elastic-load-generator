@@ -31,7 +31,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mwaa* | WHERE aws.mwaa.task_id == \"dag_complete\" | STATS total = COUNT(), failures = COUNT_IF(aws.mwaa.state == \"failed\") | EVAL `Failure %` = ROUND(failures * 100.0 / total, 1)"
+            "query": "FROM logs-aws.mwaa* | WHERE aws.mwaa.task_id == \"dag_complete\" | STATS total = COUNT(), failures = SUM(CASE(event.outcome == \"failure\", 1, 0)) | EVAL `Failure %` = ROUND(failures * 100.0 / total, 1)"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Failure %" }]
         }
@@ -74,15 +74,15 @@
       "uid": "dp-d1",
       "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
       "config": {
-        "title": "Pipeline success vs failure",
+        "title": "Pipeline outcome",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mwaa* | WHERE aws.mwaa.task_id == \"dag_complete\" | STATS c = COUNT() BY state = aws.mwaa.state"
+            "query": "FROM logs-aws.mwaa* | WHERE aws.mwaa.task_id == \"dag_complete\" | EVAL status = CASE(event.outcome == \"failure\", \"Failed\", aws.mwaa.quality_check == \"DEGRADED\", \"Degraded\", \"Success\") | STATS c = COUNT() BY status"
           },
           "metrics": [{ "operation": "value", "column": "c" }],
-          "group_by": [{ "operation": "value", "column": "state" }]
+          "group_by": [{ "operation": "value", "column": "status" }]
         }
       }
     },
@@ -220,7 +220,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mwaa* | WHERE aws.mwaa.task_id == \"dag_complete\" | STATS runs = COUNT(), failures = COUNT_IF(aws.mwaa.state == \"failed\"), degraded = COUNT_IF(aws.mwaa.quality_check == \"DEGRADED\"), avg_ms = ROUND(AVG(aws.mwaa.duration_ms), 0) BY dag = aws.mwaa.dag_id | SORT runs DESC | LIMIT 20"
+            "query": "FROM logs-aws.mwaa* | WHERE aws.mwaa.task_id == \"dag_complete\" | STATS runs = COUNT(), failures = SUM(CASE(event.outcome == \"failure\", 1, 0)), degraded = SUM(CASE(aws.mwaa.quality_check == \"DEGRADED\", 1, 0)), avg_ms = ROUND(AVG(aws.mwaa.duration_ms), 0) BY dag = aws.mwaa.dag_id | SORT runs DESC | LIMIT 20"
           },
           "metrics": [
             { "operation": "value", "column": "dag", "label": "DAG" },
@@ -243,11 +243,11 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mwaa*, logs-aws.emr*, logs-aws.glue*, logs-aws.athena* | STATS c = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT c DESC | LIMIT 15"
+            "query": "FROM logs-aws.mwaa*, logs-aws.emr*, logs-aws.glue*, logs-aws.athena* | STATS Events = COUNT() BY Region = COALESCE(cloud.region, \"unknown\") | SORT Events DESC | LIMIT 15"
           },
           "metrics": [
-            { "operation": "value", "column": "region", "label": "Region" },
-            { "operation": "value", "column": "c", "label": "Events" }
+            { "operation": "value", "column": "Region", "label": "Region" },
+            { "operation": "value", "column": "Events", "label": "Events" }
           ],
           "rows": []
         }

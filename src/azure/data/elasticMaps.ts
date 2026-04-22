@@ -153,6 +153,8 @@ const AZURE_ELASTIC_DATASET_MAP: Record<string, string> = {
   "azure-iam-privesc-chain": "azure.activity_log",
   "azure-data-exfil-chain": "azure.defender",
   "azure-data-pipeline-chain": "azure.data_factory",
+  // Cross-cloud ITSM
+  servicenow_cmdb: "servicenow.event",
 };
 
 const AZURE_METRICS_SUPPORTED_SERVICE_IDS = new Set([

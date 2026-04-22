@@ -8,6 +8,13 @@ import { validateIndexPrefix } from "./validation";
 /** New sessions and imports without a boolean `scheduleEnabled` stay off unless the user opts in. */
 export const DEFAULT_SCHEDULE_ENABLED = false;
 
+export type ServerlessProjectType = "observability" | "security" | "elasticsearch";
+export const SERVERLESS_PROJECT_TYPES: ServerlessProjectType[] = [
+  "observability",
+  "security",
+  "elasticsearch",
+];
+
 export const PERSISTED_CONFIG_KEYS = [
   "logsIndexPrefix",
   "metricsIndexPrefix",
@@ -23,6 +30,7 @@ export const PERSISTED_CONFIG_KEYS = [
   "scheduleTotalRuns",
   "scheduleIntervalMin",
   "deploymentType",
+  "serverlessProjectType",
 ] as const;
 
 export type PersistedConfigKey = (typeof PERSISTED_CONFIG_KEYS)[number];
@@ -44,6 +52,7 @@ export type PersistedConfigShape = Partial<{
   scheduleTotalRuns: number;
   scheduleIntervalMin: number;
   deploymentType: string;
+  serverlessProjectType: string;
 }>;
 
 /** Live React state shape — same keys as persisted (for save effect). */
@@ -62,6 +71,7 @@ export type PersistedStateSlice = {
   scheduleTotalRuns: number;
   scheduleIntervalMin: number;
   deploymentType: string;
+  serverlessProjectType: string;
 };
 
 /** Compile-time guard: PersistedStateSlice keys must match PERSISTED_CONFIG_KEYS exactly. */
@@ -150,6 +160,11 @@ export function parsePersistedRecord(raw: Record<string, unknown>): PersistedCon
   if ("deploymentType" in raw) {
     const v = raw.deploymentType;
     if (v === "self-managed" || v === "cloud-hosted" || v === "serverless") out.deploymentType = v;
+  }
+  if ("serverlessProjectType" in raw) {
+    const v = raw.serverlessProjectType;
+    if (v === "observability" || v === "security" || v === "elasticsearch")
+      out.serverlessProjectType = v;
   }
   return out;
 }

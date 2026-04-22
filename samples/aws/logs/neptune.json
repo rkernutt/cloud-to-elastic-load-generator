@@ -1,52 +1,52 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-3",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "us-east-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "neptune" }
   },
   "aws": {
     "neptune": {
-      "cluster_id": "prod-neptune",
+      "cluster_id": "knowledge-graph",
       "query_language": "Gremlin",
-      "query": "g.V().hasLabel('user').out('follows').count()",
-      "duration_ms": 4334,
+      "query": "g.V(userId).repeat(out('knows')).times(3).path()",
+      "duration_ms": 3905,
       "http_status": 200,
-      "db_connections": 192,
+      "db_connections": 195,
       "metrics": {
-        "CPUUtilization": { "avg": 16.711661381995086 },
-        "FreeableMemory": { "avg": 4764552699 },
-        "DatabaseConnections": { "avg": 172 },
-        "GremlinRequestsPerSec": { "avg": 656.9766871378697 },
+        "CPUUtilization": { "avg": 56.54447771396954 },
+        "FreeableMemory": { "avg": 134168730 },
+        "DatabaseConnections": { "avg": 169 },
+        "GremlinRequestsPerSec": { "avg": 582.3510008382991 },
         "SparqlRequestsPerSec": { "avg": 0 },
-        "ServerlessDBCapacity": { "avg": 31.63774110253439 }
+        "ServerlessDBCapacity": { "avg": 115.06905595607385 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-neptune-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-neptune-logs-738291046572"
+        "name": "aws-neptune-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-neptune-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/neptune/eu-west-3/2026/04/21/neptune_E6Z1Z3AH4JT.log.gz"
+        "key": "AWSLogs/814726593401/neptune/us-east-2/2026/04/22/neptune_2L0Y34PURYS.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/neptune/logs",
-      "log_stream": "eu-west-3/tanfycqx",
-      "ingestion_time": "2026-04-21T16:58:55.761Z"
+      "log_stream": "us-east-2/wv8svwwp",
+      "ingestion_time": "2026-04-22T16:10:08.336Z"
     }
   },
   "event": {
-    "duration": 4334178166.810314,
+    "duration": 3904668893.759832,
     "outcome": "success",
     "category": ["database"],
     "dataset": "aws.neptune",
     "provider": "neptune.amazonaws.com",
     "module": "aws"
   },
-  "message": "Neptune Gremlin: 4334ms",
+  "message": "Neptune Gremlin: 3905ms",
   "log": { "level": "info" },
   "service": { "name": "neptune", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -54,8 +54,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-3",
-    "ephemeral_id": "03fb4tna617a"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "hs9kwjetmzg"
   },
   "input": { "type": "aws-cloudwatch" }
 }

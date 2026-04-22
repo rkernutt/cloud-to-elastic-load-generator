@@ -15,6 +15,7 @@ export interface InstallerRowProps {
   description: ReactNode;
   enabled: boolean;
   onToggle: (val: boolean) => void;
+  disabled?: boolean;
   children?: ReactNode;
 }
 
@@ -24,10 +25,11 @@ export function InstallerRow({
   description,
   enabled,
   onToggle,
+  disabled = false,
   children,
 }: InstallerRowProps) {
   return (
-    <EuiPanel paddingSize="m" hasBorder>
+    <EuiPanel paddingSize="m" hasBorder style={disabled ? { opacity: 0.6 } : undefined}>
       <EuiFlexGroup alignItems="flexStart" gutterSize="m" responsive={false}>
         <EuiFlexItem grow={false} style={{ paddingTop: 2 }}>
           <EuiSwitch
@@ -35,6 +37,7 @@ export function InstallerRow({
             checked={enabled}
             onChange={(e) => onToggle(e.target.checked)}
             showLabel={false}
+            disabled={disabled}
           />
         </EuiFlexItem>
         <EuiFlexItem>

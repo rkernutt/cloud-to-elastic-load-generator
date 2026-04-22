@@ -3,53 +3,60 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "africa-south1",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "europe-west1",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-africa-south1",
-    "ephemeral_id": "zqpg34ubw9e"
+    "name": "metricbeat-gcp-europe-west1",
+    "ephemeral_id": "yzv4rjmpkqj"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "serviceruntime.googleapis.com/api/request_count",
-      "labels": { "credential_id": "resource-a" }
+      "type": "loadbalancing.googleapis.com/https/request_count",
+      "labels": { "response_code_class": "2xx" }
     },
     "resource": {
-      "type": "consumed_api",
+      "type": "https_lb_rule",
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "service": "generic.googleapis.com",
-        "method": "resource_id"
+        "project_id": "globex-dev-g7h8i9",
+        "url_map_name": "grpc-services-map",
+        "forwarding_rule_name": "fr-grpc",
+        "target_proxy_name": "tp-grpc",
+        "region": "europe-west1"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "61957" } }
+      {
+        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
+        "value": { "int64Value": "4072251" }
+      }
     ]
   },
   "gcp": {
-    "serverless-neg": {
+    "cloud-lb": {
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "service": "generic.googleapis.com",
-        "method": "resource_id",
-        "credential_id": "resource-a"
+        "project_id": "globex-dev-g7h8i9",
+        "url_map_name": "grpc-services-map",
+        "forwarding_rule_name": "fr-grpc",
+        "target_proxy_name": "tp-grpc",
+        "region": "europe-west1",
+        "response_code_class": "2xx"
       },
       "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": {
-          "avg": 61957,
-          "sum": 61957,
+        "loadbalancing.googleapis.com/https/request_count": {
+          "avg": 4072251,
+          "sum": 4072251,
           "count": 1
         }
       }
     }
   },
-  "metricset": { "name": "serverless-neg", "period": 60000 },
+  "metricset": { "name": "cloud-lb", "period": 60000 },
   "data_stream": {
     "type": "metrics",
     "dataset": "gcp.loadbalancing_metrics",

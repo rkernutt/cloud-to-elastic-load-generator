@@ -1,57 +1,57 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-south-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "lakeformation" }
   },
   "aws": {
     "dimensions": {
-      "ResourceArn": "arn:aws:glue:ap-south-1:293847561023:table/raw_data/transactions",
-      "Principal": "arn:aws:iam::293847561023:user/alice"
+      "ResourceArn": "arn:aws:glue:eu-south-2:738291046572:table/analytics/events",
+      "Principal": "arn:aws:iam::738291046572:role/analyst-role"
     },
     "lakeformation": {
-      "database": "raw_data",
-      "table": "transactions",
+      "database": "analytics",
+      "table": "events",
       "action": "BatchGrantPermissions",
-      "principal_arn": "arn:aws:iam::293847561023:user/alice",
-      "resource_arn": "arn:aws:glue:ap-south-1:293847561023:table/raw_data/transactions",
+      "principal_arn": "arn:aws:iam::738291046572:role/analyst-role",
+      "resource_arn": "arn:aws:glue:eu-south-2:738291046572:table/analytics/events",
       "permissions": ["SELECT", "INSERT"],
       "lf_tag_key": "pii",
-      "lf_tag_values": ["prod"],
+      "lf_tag_values": ["dev", "staging"],
       "metrics": {
-        "GrantCount": { "sum": 47 },
-        "DatabaseCount": { "avg": 14 },
-        "TableCount": { "avg": 129 },
+        "GrantCount": { "sum": 10 },
+        "DatabaseCount": { "avg": 3 },
+        "TableCount": { "avg": 22 },
         "DataLakeSettings": { "avg": 1 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-lakeformation-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-lakeformation-logs-293847561023"
+        "name": "aws-lakeformation-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-lakeformation-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/lakeformation/ap-south-1/2026/04/21/lakeformation_DQM46BRMPTL.log.gz"
+        "key": "AWSLogs/738291046572/lakeformation/eu-south-2/2026/04/22/lakeformation_WBTJYJ9KGHR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lakeformation/logs",
-      "log_stream": "ap-south-1/4w5akbn7",
-      "ingestion_time": "2026-04-21T16:58:55.812Z"
+      "log_stream": "eu-south-2/j1u45rth",
+      "ingestion_time": "2026-04-22T16:10:08.377Z"
     }
   },
   "event": {
     "action": "BatchGrantPermissions",
-    "duration": 674000000,
+    "duration": 966000000,
     "outcome": "success",
     "category": ["database", "iam"],
     "dataset": "aws.lakeformation",
     "provider": "lakeformation.amazonaws.com",
     "module": "aws"
   },
-  "message": "Lake Formation BatchGrantPermissions: SELECT,INSERT on raw_data.transactions",
+  "message": "Lake Formation BatchGrantPermissions: SELECT,INSERT on analytics.events",
   "log": { "level": "info" },
   "service": { "name": "lakeformation", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -59,8 +59,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "6hqo40i1qup"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "5cj0uh6ml8b"
   },
   "input": { "type": "aws-cloudwatch" }
 }

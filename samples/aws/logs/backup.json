@@ -1,62 +1,64 @@
 {
-  "@timestamp": "2026-04-21T16:58:54.847Z",
+  "@timestamp": "2026-04-22T16:10:07.528Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "backup" }
   },
   "aws": {
     "backup": {
-      "event_subtype": "vault_lock",
-      "backup_job_id": "rmsd79ru-ju42-9yo2",
-      "backup_plan_name": "compliance-backup",
-      "resource_arn": "arn:aws:backup:ca-west-1:293847561023:recovery-point:o3goo66p4s",
-      "resource_type": "EC2",
-      "backup_vault_name": "prod-vault",
-      "status": "RUNNING",
-      "backup_size_gb": 825.3964931554118,
+      "event_subtype": "plan_execution",
+      "backup_job_id": "ilydvykj-ofg2-wm2x",
+      "backup_plan_name": "weekly-cold",
+      "backup_plan_execution": {
+        "execution_id": "194xo3zl-tpie",
+        "rules_matched": 7,
+        "resources_evaluated": 118,
+        "next_window_utc": "2026-04-23T14:19:51.326Z"
+      },
+      "resource_arn": "arn:aws:backup:eu-south-1:814726593401:recovery-point:cicrwsr9qu4",
+      "resource_type": "EFS",
+      "backup_vault_name": "Default",
+      "status": "FAILED",
+      "backup_size_gb": 1484.3369981635424,
       "lifecycle_delete_after_days": 365,
-      "vault_lock": {
-        "compliance_lock_enabled": false,
-        "governance_lock_enabled": true,
-        "lock_event": "GovernanceModeUnlocked",
-        "max_retention_days": 90
-      }
+      "error_code": "RESOURCE_NOT_FOUND"
     },
     "s3": {
       "bucket": {
-        "name": "aws-backup-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-backup-logs-293847561023"
+        "name": "aws-backup-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-backup-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/backup/ca-west-1/2026/04/21/backup_3AXAG9IL8XF.log.gz"
+        "key": "AWSLogs/814726593401/backup/eu-south-1/2026/04/22/backup_FOG42ZB4MON.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/backup/logs",
-      "log_stream": "ca-west-1/3urkzry1",
-      "ingestion_time": "2026-04-21T16:58:55.751Z"
+      "log_stream": "eu-south-1/rgp0bk40",
+      "ingestion_time": "2026-04-22T16:10:08.326Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.backup",
     "provider": "backup.amazonaws.com",
-    "duration": 4341000000000,
+    "duration": 3004000000000,
     "module": "aws"
   },
-  "message": "AWS Backup vault prod-vault: GovernanceModeUnlocked governance=true compliance=false",
-  "log": { "level": "info" },
+  "message": "AWS Backup plan \"weekly-cold\" execution 194xo3zl-tpie: 118 resources",
+  "log": { "level": "error" },
+  "error": { "code": "LIMIT_EXCEEDED", "message": "Backup job failed", "type": "storage" },
   "service": { "name": "backup", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.backup", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "sisfwzjxdv"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "89ojobse0g4"
   },
   "input": { "type": "aws-cloudwatch" }
 }

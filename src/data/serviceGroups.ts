@@ -260,6 +260,20 @@ const SERVICE_GROUPS: ServiceGroup[] = [
     ],
   },
   {
+    id: "itsm",
+    label: "ITSM & Service Management",
+    color: "#7B68EE",
+    icon: "☰",
+    services: [
+      {
+        id: "servicenow_cmdb",
+        label: "ServiceNow CMDB",
+        icon: "⎈",
+        desc: "CMDB configuration items, incidents, change requests, users, and support groups for asset enrichment",
+      },
+    ],
+  },
+  {
     id: "storage",
     label: "Storage & Databases",
     color: "#93C90E",

@@ -3,7 +3,7 @@ import { ServiceGrid, serviceIconPublicUrl } from "../components/ServiceGrid";
 import { Card, QuickBtn } from "../components/Card";
 import K from "../theme";
 import { SimpleBrandIcon } from "../components/SimpleBrandIcon";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { serviceIdsInGroup, type ServiceGroup } from "../data/serviceGroups";
 import type { TraceServiceMeta, ServiceIconMode } from "../cloud/types";
 
@@ -89,6 +89,8 @@ interface ServicesPageProps {
   pageTitle?: string;
   /** Card toolbar label for the grid (default: Select Services) */
   gridHeading?: string;
+  /** Optional callout rendered below the page title. */
+  pageCallout?: ReactNode;
 }
 
 export function ServicesPage({
@@ -116,6 +118,7 @@ export function ServicesPage({
   onExpandAllGroups,
   pageTitle = "Services",
   gridHeading = "Select services",
+  pageCallout,
 }: ServicesPageProps) {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -210,6 +213,12 @@ export function ServicesPage({
         <EuiTitle size="s">
           <h2>{pageTitle}</h2>
         </EuiTitle>
+        {pageCallout && (
+          <>
+            <EuiSpacer size="m" />
+            {pageCallout}
+          </>
+        )}
         <EuiSpacer size="m" />
 
         <EuiPanel>
@@ -529,6 +538,12 @@ export function ServicesPage({
       <EuiTitle size="s">
         <h2>{pageTitle}</h2>
       </EuiTitle>
+      {pageCallout && (
+        <>
+          <EuiSpacer size="m" />
+          {pageCallout}
+        </>
+      )}
       <EuiSpacer size="m" />
 
       <EuiPanel>

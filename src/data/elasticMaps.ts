@@ -112,6 +112,8 @@ const ELASTIC_DATASET_MAP = {
   panorama: "aws.panorama",
   freertos: "aws.freertos",
   cloudwatchrum: "aws.cloudwatch_rum",
+  // Cross-cloud ITSM
+  servicenow_cmdb: "servicenow.event",
 };
 
 // ═══════════════════════════════════════════════════════════════════════════

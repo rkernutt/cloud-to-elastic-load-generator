@@ -214,6 +214,7 @@ const SERVICE_INGESTION_DEFAULTS = {
   "iam-privesc-chain": "api",
   "data-exfil-chain": "api",
   "data-pipeline-chain": "api",
+  servicenow_cmdb: "api",
   storagelens: "s3",
   qbusiness: "cloudwatch",
   // v11.5 new services

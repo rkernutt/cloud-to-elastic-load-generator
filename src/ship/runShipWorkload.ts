@@ -7,6 +7,34 @@ type BulkRespItem = {
   index?: { error?: { type?: string; reason?: string } };
 };
 
+/**
+ * Walk a log document and multiply any field ending in `_ms`, `_us`, `_sec`,
+ * `duration`, `execution_time_ms`, `total_time`, or `turn_around_time` by
+ * the given factor. This makes duration-based ML detectors (high_mean) fire
+ * during the anomaly injection window.
+ */
+function scaleLogDurationFields(doc: LooseDoc, factor: number): void {
+  const DURATION_SUFFIXES = [
+    "_ms",
+    "_us",
+    "_sec",
+    "duration",
+    "total_time",
+    "turn_around_time",
+    "execution_time",
+  ];
+  const walk = (obj: Record<string, unknown>) => {
+    for (const [key, val] of Object.entries(obj)) {
+      if (typeof val === "number" && DURATION_SUFFIXES.some((s) => key.endsWith(s) || key === s)) {
+        obj[key] = Math.round(val * factor);
+      } else if (val && typeof val === "object" && !Array.isArray(val)) {
+        walk(val as Record<string, unknown>);
+      }
+    }
+  };
+  walk(doc);
+}
+
 export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> {
   const {
     config,
@@ -310,6 +338,10 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
     let totalSent = 0,
       totalErrors = 0;
 
+    const REFERENCE_DATA_CAPS: Record<string, number> = {
+      servicenow_cmdb: 50,
+    };
+
     const docCountByIdx: number[] = new Array(activeServices.length);
     const servicesWithIngestionClamp: string[] = [];
 
@@ -326,13 +358,16 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
       const src = ingestDetail.source;
       addLog(`▶ ${svc} → ${indexName} [${config.ingestionMeta[src]?.label || src}]`, "info");
       const isDimensionalMetrics = METRICS_GENERATORS?.[svc] != null;
+      const svcDocCount = REFERENCE_DATA_CAPS[svc]
+        ? Math.min(logsPerService, REFERENCE_DATA_CAPS[svc])
+        : logsPerService;
       const allDocs = isDimensionalMetrics
-        ? Array.from({ length: logsPerService }, () =>
+        ? Array.from({ length: svcDocCount }, () =>
             METRICS_GENERATORS![svc](randTs(startDate, endDate), errorRate)
           )
             .flat()
             .map((d) => stripNulls(d as LooseDoc))
-        : Array.from({ length: logsPerService }, () => {
+        : Array.from({ length: svcDocCount }, () => {
             const result = GENERATORS![svc](randTs(startDate, endDate), errorRate);
             if (Array.isArray(result)) {
               return result.map((d) => stripNulls(d as LooseDoc));
@@ -529,7 +564,11 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
                       enrichDoc(result as LooseDoc, svc, getEffectiveSource(svc), eventType)
                     ),
                   ]
-            ).map((d) => stripNulls(d as LooseDoc));
+            ).map((d: unknown) => {
+              const out = stripNulls(d as LooseDoc) as LooseDoc;
+              scaleLogDurationFields(out, 15);
+              return out;
+            });
           }).flat() as LooseDoc[];
         }
         if (injDocs?.length) injWork.push({ svc, indexName, docs: injDocs });

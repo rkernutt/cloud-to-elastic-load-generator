@@ -5,9 +5,12 @@
  *   MWAA (Airflow) → S3 (source Avro) → EMR/Spark (process)
  *     → S3 (output) → Glue (catalog) → Athena (query)
  *
- * Returns 6-8 correlated log documents (each with __dataset for per-doc
- * index routing) PLUS 1 APM trace (transaction + 5-7 spans) that powers
- * the Elastic Service Map.
+ * Returns correlated log documents (each with __dataset for per-doc
+ * index routing), companion CloudTrail audit events for every API call,
+ * and 1 APM trace (transaction + spans) that powers the Elastic Service Map.
+ *
+ * Every document carries ECS user identity (`user.name`, `user.email`,
+ * `source.ip`, `user_agent.original`) for cross-event correlation.
  *
  * Failure modes (selected by errorRate):
  *   1. Null / empty source files  – silent degradation through the full chain
@@ -16,6 +19,14 @@
  */
 
 import { rand, randInt, randFloat, randId, randUUID, randAccount, REGIONS } from "../../helpers";
+import {
+  randHumanUser,
+  randSourceIp,
+  randPipelineUserAgent,
+  ecsIdentityFields,
+  awsCloudTrailIdentity,
+  awsCloudTrailEvent,
+} from "../../helpers/identity.js";
 import {
   TRACE_ACCOUNTS,
   newTraceId,
@@ -155,6 +166,20 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
   const stepId = `s-${randId(13).toUpperCase()}`;
   const sparkAppId = `application_${Date.now()}_${randInt(1000, 9999)}`;
 
+  // Pick a consistent user identity for the entire pipeline run
+  const triggerUser = randHumanUser();
+  const triggerIp = randSourceIp();
+  const triggerUa = randPipelineUserAgent();
+  const identity = ecsIdentityFields(triggerUser, triggerIp, triggerUa);
+  const ctIdentity = awsCloudTrailIdentity(acct.id, triggerUser, triggerIp, triggerUa);
+  const svcRoleIdentity = awsCloudTrailIdentity(
+    acct.id,
+    { name: "mwaa-execution-role", email: "mwaa@internal", department: "service" },
+    triggerIp,
+    "aws-internal/2",
+    true
+  );
+
   const isFailure = Math.random() < er;
   const failureMode: FailureMode | null = isFailure ? rand([...FAILURE_MODES]) : null;
 
@@ -185,8 +210,24 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
       operator: "TriggerDagRunOperator",
       ...pipelineLabels,
     }),
+    ...identity,
     labels: pipelineLabels,
   });
+
+  // CloudTrail: user triggered the DAG via MWAA API
+  docs.push(
+    awsCloudTrailEvent(
+      ts,
+      region,
+      acct,
+      ctIdentity,
+      "InvokeRestApi",
+      "airflow.amazonaws.com",
+      { Name: dagId, RestApiPath: `/dags/${dagId}/dagRuns`, RestApiMethod: "POST" },
+      { RestApiStatusCode: 200, RestApiResponse: JSON.stringify({ dag_run_id: runId }) },
+      "success"
+    ) as EcsDocument
+  );
 
   // ── 2. S3 GetObject (source file) ─────────────────────────────────────────
   const s3GetTs = advance(100, 500);
@@ -223,8 +264,25 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
     },
     message: `S3 GetObject s3://${sourceBucket}/${sourceKey} (${sourceBytes} bytes)`,
     log: { level: "info" },
+    ...identity,
     labels: pipelineLabels,
   });
+
+  // CloudTrail: S3 GetObject data event (service role)
+  docs.push(
+    awsCloudTrailEvent(
+      s3GetTs,
+      region,
+      acct,
+      svcRoleIdentity,
+      "GetObject",
+      "s3.amazonaws.com",
+      { bucketName: sourceBucket, key: sourceKey },
+      { "x-amz-request-id": randId(16).toUpperCase() },
+      "success",
+      { event_category: "Data" }
+    ) as EcsDocument
+  );
 
   // ── 3. EMR Step / Spark job ───────────────────────────────────────────────
   const emrStartTs = advance(500, 2000);
@@ -267,6 +325,7 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
       },
       message: `EMR Spark [${sparkAppId}]: FAILED — FileNotFoundException: s3://${sourceBucket}/${sourceKey}`,
       log: { level: "error" },
+      ...identity,
       labels: pipelineLabels,
     });
   } else if (failureMode === "wrong_format") {
@@ -305,6 +364,7 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
       },
       message: `EMR Spark [${sparkAppId}]: FAILED — AvroParseException: not an Avro data file`,
       log: { level: "error" },
+      ...identity,
       labels: pipelineLabels,
     });
   } else {
@@ -346,9 +406,25 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
       },
       message: `EMR Spark [${sparkAppId}]: COMPLETED — ${sparkRecordsRead} records read, ${recordsWritten} written`,
       log: { level: isNullFile ? "warn" : "info" },
+      ...identity,
       labels: pipelineLabels,
     });
   }
+
+  // CloudTrail: EMR AddJobFlowSteps (service role submitted the step)
+  docs.push(
+    awsCloudTrailEvent(
+      emrStartTs,
+      region,
+      acct,
+      svcRoleIdentity,
+      "AddJobFlowSteps",
+      "elasticmapreduce.amazonaws.com",
+      { JobFlowId: clusterId, Steps: [{ Name: `spark-${dagId}`, ActionOnFailure: "CONTINUE" }] },
+      pipelineHalted ? null : { StepIds: [stepId] },
+      pipelineHalted ? "failure" : "success"
+    ) as EcsDocument
+  );
 
   // If pipeline halted, skip S3 output, Glue, Athena — jump to MWAA failure
   if (!pipelineHalted) {
@@ -388,8 +464,25 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
       },
       message: `S3 PutObject s3://${outputBucket}/${outputKey} (${outputBytes} bytes)`,
       log: { level: "info" },
+      ...identity,
       labels: { ...pipelineLabels, s3_output_bucket: outputBucket, s3_output_key: outputKey },
     });
+
+    // CloudTrail: S3 PutObject data event (service role)
+    docs.push(
+      awsCloudTrailEvent(
+        s3PutTs,
+        region,
+        acct,
+        svcRoleIdentity,
+        "PutObject",
+        "s3.amazonaws.com",
+        { bucketName: outputBucket, key: outputKey },
+        { "x-amz-request-id": randId(16).toUpperCase() },
+        "success",
+        { event_category: "Data" }
+      ) as EcsDocument
+    );
 
     // ── 5. Glue Crawler run ─────────────────────────────────────────────────
     const glueTs = advance(2000, 8000);
@@ -427,8 +520,24 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
       },
       message: `Glue Crawler [${crawlerName}]: SUCCEEDED — ${tablesUpdated} tables updated, ${partitionsAdded} partitions added`,
       log: { level: "info" },
+      ...identity,
       labels: pipelineLabels,
     });
+
+    // CloudTrail: Glue StartCrawler (service role)
+    docs.push(
+      awsCloudTrailEvent(
+        glueTs,
+        region,
+        acct,
+        svcRoleIdentity,
+        "StartCrawler",
+        "glue.amazonaws.com",
+        { Name: crawlerName },
+        null,
+        "success"
+      ) as EcsDocument
+    );
 
     // ── 6. Athena query execution ───────────────────────────────────────────
     const athenaTs = advance(2000, 10000);
@@ -467,8 +576,28 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
       },
       message: `Athena [${workgroup}]: ${athenaState} — scanned ${dataScanned} bytes, returned ${rowsReturned} rows`,
       log: { level: isNullFile && rowsReturned === 0 ? "warn" : "info" },
+      ...identity,
       labels: pipelineLabels,
     });
+
+    // CloudTrail: Athena StartQueryExecution (service role)
+    docs.push(
+      awsCloudTrailEvent(
+        athenaTs,
+        region,
+        acct,
+        svcRoleIdentity,
+        "StartQueryExecution",
+        "athena.amazonaws.com",
+        {
+          QueryString: `SELECT ... FROM ${dagId}_db.processed_data`,
+          WorkGroup: workgroup,
+          QueryExecutionContext: { Database: `${dagId}_db` },
+        },
+        { QueryExecutionId: queryExecutionId },
+        "success"
+      ) as EcsDocument
+    );
   }
 
   // ── 7. MWAA DAG completed ─────────────────────────────────────────────────
@@ -483,6 +612,7 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
       records_processed: isNullFile ? 0 : pipelineHalted ? 0 : sparkRecordsRead,
       ...pipelineLabels,
     }),
+    ...identity,
     labels: { ...pipelineLabels, quality_check: qualityCheck },
   });
 

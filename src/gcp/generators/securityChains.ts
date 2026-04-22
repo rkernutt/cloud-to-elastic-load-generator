@@ -10,6 +10,12 @@ import {
 import type { CspFindingResource } from "../../data/cspFindingsHelpers.js";
 import { buildCspFinding, pick, randHex, randBetween } from "../../data/cspFindingsHelpers.js";
 import {
+  randHumanUser,
+  randSourceIp,
+  randPipelineUserAgent,
+  ecsIdentityFields,
+} from "../../helpers/identity.js";
+import {
   type EcsDocument,
   rand,
   randInt,
@@ -43,6 +49,10 @@ const SCC_CATEGORIES = [
 export function generateGcpSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
   const { region, project } = makeGcpSetup(0);
   const baseDate = new Date(ts);
+  const attacker = randHumanUser();
+  const attackerIp = randSourceIp();
+  const attackerUa = randPipelineUserAgent();
+  const attackerIdentity = ecsIdentityFields(attacker, attackerIp, attackerUa);
   const findingChainId = randUUID();
   const findingId = `organizations/${randInt(1, 9)}/sources/${randId(8)}/findings/${uuidLike()}`;
   const zone = randZone(region);
@@ -72,6 +82,7 @@ export function generateGcpSecurityFindingChain(ts: string, _er: number): EcsDoc
   const secopsTs = offsetTs(baseDate, 180_000);
 
   const scc: EcsDocument = {
+    ...attackerIdentity,
     "@timestamp": sccTs,
     __dataset: "gcp.scc",
     labels: chainLabels,
@@ -105,6 +116,7 @@ export function generateGcpSecurityFindingChain(ts: string, _er: number): EcsDoc
   };
 
   const detection: EcsDocument = {
+    ...attackerIdentity,
     "@timestamp": detectionTs,
     __dataset: "gcp.secops",
     labels: chainLabels,
@@ -150,6 +162,7 @@ export function generateGcpSecurityFindingChain(ts: string, _er: number): EcsDoc
   };
 
   const secops: EcsDocument = {
+    ...attackerIdentity,
     "@timestamp": secopsTs,
     __dataset: "gcp.secops",
     labels: chainLabels,
@@ -810,9 +823,11 @@ const DLP_INFO_TYPES = [
 export function generateGcpDataExfilChain(ts: string, _er: number): EcsDocument[] {
   const { region, project } = makeGcpSetup(0);
   const baseDate = new Date(ts);
+  const attacker = randHumanUser();
+  const attackerIp = randSourceIp();
+  const attackerUa = randPipelineUserAgent();
   const exfilChainId = randUUID();
   const bucket = randBucket();
-  const attackerIp = randIp();
   const instanceSrcIp = `10.${randInt(10, 120)}.${randInt(1, 250)}.${randInt(2, 250)}`;
   const jobName = `dlp-exfil-${randId(6)}`;
   const infoType = rand([...DLP_INFO_TYPES]);
@@ -830,6 +845,8 @@ export function generateGcpDataExfilChain(ts: string, _er: number): EcsDocument[
   const gcsTs = offsetTs(baseDate, -3 * 60_000);
 
   const vpc: EcsDocument = {
+    user: { name: attacker.name, email: attacker.email },
+    user_agent: { original: attackerUa },
     "@timestamp": vpcTs,
     __dataset: "gcp.vpcflow",
     labels: exfilLabels,
@@ -857,6 +874,8 @@ export function generateGcpDataExfilChain(ts: string, _er: number): EcsDocument[
   };
 
   const gcs: EcsDocument = {
+    user: { name: attacker.name, email: attacker.email },
+    user_agent: { original: attackerUa },
     "@timestamp": gcsTs,
     __dataset: "gcp.gcs",
     labels: exfilLabels,
@@ -879,6 +898,8 @@ export function generateGcpDataExfilChain(ts: string, _er: number): EcsDocument[
   };
 
   const dlp: EcsDocument = {
+    user: { name: attacker.name, email: attacker.email },
+    user_agent: { original: attackerUa },
     "@timestamp": ts,
     __dataset: "gcp.dlp",
     labels: exfilLabels,

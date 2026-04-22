@@ -31,7 +31,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.data_factory* | WHERE azure.data_factory.activity_name == \"pipeline_complete\" | STATS total = COUNT(), failures = COUNT_IF(azure.data_factory.status == \"Failed\") | EVAL `Failure %` = ROUND(failures * 100.0 / total, 1)"
+            "query": "FROM logs-azure.data_factory* | WHERE azure.data_factory.activity_name == \"pipeline_complete\" | STATS total = COUNT(), failures = SUM(CASE(event.outcome == \"failure\", 1, 0)) | EVAL `Failure %` = ROUND(failures * 100.0 / total, 1)"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Failure %" }]
         }
@@ -97,14 +97,15 @@
       "uid": "adp-d1",
       "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
       "config": {
-        "title": "Outcome breakdown",
+        "title": "Pipeline outcome",
         "attributes": {
-          "type": "pie",
+          "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.* | WHERE labels.pipeline_run_id IS NOT NULL | STATS count = COUNT() BY event.outcome"
+            "query": "FROM logs-azure.data_factory* | WHERE azure.data_factory.activity_name == \"pipeline_complete\" | EVAL status = CASE(event.outcome == \"failure\", \"Failed\", azure.data_factory.quality_check == \"DEGRADED\", \"Degraded\", \"Success\") | STATS count = COUNT() BY status"
           },
-          "layers": [{ "primaryGroups": ["event.outcome"], "metrics": ["count"] }]
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "status" }]
         }
       }
     },

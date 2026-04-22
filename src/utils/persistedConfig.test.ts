@@ -73,6 +73,7 @@ describe("toPersistedStorageObject", () => {
       scheduleTotalRuns: 12,
       scheduleIntervalMin: 15,
       deploymentType: "cloud-hosted",
+      serverlessProjectType: "observability",
     };
     const obj = toPersistedStorageObject(slice);
     const keys = Object.keys(obj).sort();

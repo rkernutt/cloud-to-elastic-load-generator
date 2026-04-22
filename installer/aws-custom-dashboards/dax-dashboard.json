@@ -47,7 +47,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.dax* | STATS total = COUNT(), hits = COUNT_IF(`event.action` == \"cache-hit\") | EVAL `Cache Hit Rate (%)` = ROUND(hits * 100.0 / total, 1)"
+            "query": "FROM logs-aws.dax* | STATS total = COUNT(), hits = SUM(CASE(`event.action` == \"cache-hit\", 1, 0)) | EVAL `Cache Hit Rate (%)` = ROUND(hits * 100.0 / total, 1)"
           },
           "metrics": [
             {

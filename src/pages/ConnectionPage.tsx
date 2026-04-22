@@ -20,9 +20,11 @@ import type { CloudId } from "../cloud/types";
 import { UNIFIED_VENDOR_CARDS } from "../cloud/unifiedVendorMeta";
 
 type DeploymentType = "self-managed" | "cloud-hosted" | "serverless";
+type ServerlessProjectType = "observability" | "security" | "elasticsearch";
 
 interface ConnectionPageProps {
   deploymentType: DeploymentType;
+  serverlessProjectType: ServerlessProjectType;
   elasticUrl: string;
   kibanaUrl: string;
   apiKey: string;
@@ -34,6 +36,7 @@ interface ConnectionPageProps {
   validationErrors: { elasticUrl: string; apiKey: string; indexPrefix: string };
   ingestionSource: string;
   onDeploymentTypeChange: (val: DeploymentType) => void;
+  onServerlessProjectTypeChange: (val: ServerlessProjectType) => void;
   onElasticUrlChange: (val: string) => void;
   onKibanaUrlChange: (val: string) => void;
   onApiKeyChange: (val: string) => void;
@@ -67,6 +70,12 @@ const EVENT_TYPE_OPTIONS = [
   { id: "traces", label: "Traces" },
 ];
 
+const SERVERLESS_PROJECT_TYPE_OPTIONS = [
+  { id: "observability", label: "Observability" },
+  { id: "security", label: "Security" },
+  { id: "elasticsearch", label: "Elasticsearch" },
+];
+
 /** Same typography for every subsection title on Start. */
 function ConnectionSubheading({ children }: { children: ReactNode }) {
   return (
@@ -94,6 +103,7 @@ function kbUrlPlaceholder(deploymentType: DeploymentType): string {
 
 export function ConnectionPage({
   deploymentType,
+  serverlessProjectType,
   elasticUrl,
   kibanaUrl,
   apiKey,
@@ -105,6 +115,7 @@ export function ConnectionPage({
   validationErrors,
   ingestionSource,
   onDeploymentTypeChange,
+  onServerlessProjectTypeChange,
   onElasticUrlChange,
   onKibanaUrlChange,
   onApiKeyChange,
@@ -226,6 +237,23 @@ export function ConnectionPage({
           onChange={(id) => onDeploymentTypeChange(id as DeploymentType)}
         />
       </EuiFormRow>
+
+      {deploymentType === "serverless" && (
+        <>
+          <EuiSpacer size="m" />
+          <EuiFormRow
+            label={<ConnectionSubheading>Serverless Project Type</ConnectionSubheading>}
+            helpText="Determines feature availability — CSPM/KSPM requires a Security project"
+          >
+            <EuiButtonGroup
+              legend="Serverless project type selection"
+              options={SERVERLESS_PROJECT_TYPE_OPTIONS}
+              idSelected={serverlessProjectType}
+              onChange={(id) => onServerlessProjectTypeChange(id as ServerlessProjectType)}
+            />
+          </EuiFormRow>
+        </>
+      )}
 
       <EuiSpacer size="l" />
 

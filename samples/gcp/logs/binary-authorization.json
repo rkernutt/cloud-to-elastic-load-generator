@@ -1,84 +1,82 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "ERROR",
-  "logName": "projects/globex-shared-m3n4o5/logs/binaryauthorization.googleapis.com%2Fpolicy_events",
-  "insertId": "33j7vp5z84j",
+  "severity": "INFO",
+  "logName": "projects/globex-prod-a1b2c3/logs/binaryauthorization.googleapis.com%2Fpolicy_events",
+  "insertId": "aps9od0ckt8",
   "resource": {
     "type": "gke_cluster",
     "labels": {
-      "project_id": "globex-shared-m3n4o5",
-      "cluster_name": "data-cluster",
-      "location": "us-east4"
+      "project_id": "globex-prod-a1b2c3",
+      "cluster_name": "edge-cluster",
+      "location": "us-west2"
     }
   },
   "jsonPayload": {
     "typeUrl": "type.googleapis.com/google.cloud.binaryauthorization.v1beta1.ContinuousValidationEvent",
-    "policy": "projects/globex-shared-m3n4o5/platforms/gke/policies/dev-permissive",
-    "cluster": "projects/globex-shared-m3n4o5/locations/us-east4/clusters/data-cluster",
+    "policy": "projects/globex-prod-a1b2c3/platforms/gke/policies/dev-permissive",
+    "cluster": "projects/globex-prod-a1b2c3/locations/us-west2/clusters/edge-cluster",
     "deployable": {
-      "pod_name": "data-pipeline/checkout-5hvia-2tr43",
-      "container_image": "gcr.io/globex-shared-m3n4o5/payments-api@sha256:efh13ykug1"
+      "pod_name": "kube-system/checkout-fga2g-w66hw",
+      "container_image": "gcr.io/globex-prod-a1b2c3/payments-api@sha256:eijxydr0x2r"
     },
-    "verdict": "DENIED",
+    "verdict": "BREAK_GLASS",
     "attestations": [
       {
-        "attestor": "projects/globex-shared-m3n4o5/attestors/prod-security",
-        "pgp_key_id": "0x4JF0FEGK1FH"
+        "attestor": "projects/globex-prod-a1b2c3/attestors/prod-security",
+        "pgp_key_id": "0x4W5Y60J3L8L"
       }
-    ],
-    "reason": "No valid attestor for image"
+    ]
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-east4",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
+    "region": "us-west2",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
     "service": { "name": "binary-authorization" }
   },
   "gcp": {
     "binary_authorization": {
       "json_payload": {
         "typeUrl": "type.googleapis.com/google.cloud.binaryauthorization.v1beta1.ContinuousValidationEvent",
-        "policy": "projects/globex-shared-m3n4o5/platforms/gke/policies/dev-permissive",
-        "cluster": "projects/globex-shared-m3n4o5/locations/us-east4/clusters/data-cluster",
+        "policy": "projects/globex-prod-a1b2c3/platforms/gke/policies/dev-permissive",
+        "cluster": "projects/globex-prod-a1b2c3/locations/us-west2/clusters/edge-cluster",
         "deployable": {
-          "pod_name": "data-pipeline/checkout-5hvia-2tr43",
-          "container_image": "gcr.io/globex-shared-m3n4o5/payments-api@sha256:efh13ykug1"
+          "pod_name": "kube-system/checkout-fga2g-w66hw",
+          "container_image": "gcr.io/globex-prod-a1b2c3/payments-api@sha256:eijxydr0x2r"
         },
-        "verdict": "DENIED",
+        "verdict": "BREAK_GLASS",
         "attestations": [
           {
-            "attestor": "projects/globex-shared-m3n4o5/attestors/prod-security",
-            "pgp_key_id": "0x4JF0FEGK1FH"
+            "attestor": "projects/globex-prod-a1b2c3/attestors/prod-security",
+            "pgp_key_id": "0x4W5Y60J3L8L"
           }
-        ],
-        "reason": "No valid attestor for image"
+        ]
       },
-      "cluster": "data-cluster",
-      "namespace": "data-pipeline",
-      "pod": "checkout-5hvia-2tr43",
-      "image": "gcr.io/globex-shared-m3n4o5/payments-api@sha256:efh13ykug1",
+      "cluster": "edge-cluster",
+      "namespace": "kube-system",
+      "pod": "checkout-fga2g-w66hw",
+      "image": "gcr.io/globex-prod-a1b2c3/payments-api@sha256:eijxydr0x2r",
       "attestor": "prod-security",
-      "verdict": "DENIED",
+      "verdict": "BREAK_GLASS",
       "policy_name": "dev-permissive"
     }
   },
   "event": {
-    "outcome": "failure",
-    "duration": 8000000,
+    "outcome": "success",
+    "duration": 19000000,
     "module": "gcp",
     "dataset": "gcp.binaryauthorization"
   },
-  "message": "binaryauthorization.googleapis.com/Admission DENIED cluster=data-cluster image=gcr.io/globex-shared-m3n4o5/payments-api@sha256:efh13ykug1",
+  "message": "binaryauthorization.googleapis.com/Admission BREAK_GLASS cluster=edge-cluster image=gcr.io/globex-prod-a1b2c3/payments-api@sha256:eijxydr0x2r",
   "service": { "name": "binary-authorization", "type": "gcp" },
-  "log": { "level": "error" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.binaryauthorization", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-east4",
-    "id": "4v0afhz5o9k"
+    "name": "elastic-agent-gcp-us-west2",
+    "id": "2iitthvkf12"
   },
   "input": { "type": "http_endpoint" }
 }

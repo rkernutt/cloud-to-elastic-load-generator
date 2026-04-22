@@ -36,6 +36,7 @@ import {
   generateAzureDataExfilChain,
 } from "./securityChains.js";
 import { generateAzureDataPipelineChain } from "./dataPipelineChain.js";
+import { generateServiceNowCmdbLog } from "../../servicenow/generators/index.js";
 import {
   generateIotHubLog,
   generateLogicAppsLog,
@@ -83,6 +84,8 @@ const DEDICATED: Record<string, Gen> = {
   "azure-iam-privesc-chain": generateAzureIamPrivEscChain,
   "azure-data-exfil-chain": generateAzureDataExfilChain,
   "azure-data-pipeline-chain": generateAzureDataPipelineChain,
+  // Cross-cloud ITSM
+  servicenow_cmdb: generateServiceNowCmdbLog,
 };
 
 const AZURE_LOG_MERGE_CHILDREN: Record<string, readonly string[]> = {
