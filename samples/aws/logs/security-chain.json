@@ -1,11 +1,11 @@
 {
-  "user": { "name": "maya.patel", "email": "maya.patel@globex.example.com" },
+  "user": { "name": "alex.rodriguez", "email": "alex.rodriguez@globex.example.com" },
   "source": {
-    "ip": "200.124.195.47",
-    "geo": { "country_iso_code": "GB", "city_name": "London", "region_name": "England" }
+    "ip": "204.219.236.126",
+    "geo": { "country_iso_code": "US", "city_name": "Ashburn", "region_name": "Virginia" }
   },
-  "user_agent": { "original": "apache-airflow/2.8.1" },
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "user_agent": { "original": "Boto3/1.34.84 md/Botocore#1.34.84 ua/2.0 os/linux#5.15.0" },
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
     "region": "ap-southeast-3",
@@ -13,47 +13,39 @@
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "uc9j9p5msnf" },
+    "dimensions": { "DetectorId": "u3otr6oo4y" },
     "guardduty": {
       "schema_version": "2.0",
       "account_id": "501938274650",
       "region": "ap-southeast-3",
       "partition": "aws",
-      "id": "lxrugwbjmu",
-      "arn": "arn:aws:guardduty:ap-southeast-3:501938274650:detector/uc9j9p5msnf/finding/lxrugwbjmu",
-      "type": "Recon:EC2/PortScan",
-      "title": "EC2 PortScan",
-      "description": "GuardDuty identified suspicious behavior based on VPC flow logs, DNS logs, or CloudTrail. Finding type: Recon:EC2/PortScan. Resource: arn:aws:ec2:ap-southeast-3:501938274650:instance/i-nn01w5chdan.",
-      "created_at": "2026-04-22T16:10:07.528Z",
-      "updated_at": "2026-04-22T16:10:07.528Z",
-      "severity": { "code": 4, "value": "Medium" },
-      "confidence": 84.25397398628216,
+      "id": "kb9zmdlih5q",
+      "arn": "arn:aws:guardduty:ap-southeast-3:501938274650:detector/u3otr6oo4y/finding/kb9zmdlih5q",
+      "type": "Recon:EC2/PortProbeUnprotectedPort",
+      "title": "EC2 instance is performing reconnaissance port probes against an unprotected port.",
+      "description": "GuardDuty identified suspicious behavior based on VPC flow logs, DNS logs, or CloudTrail. Finding type: Recon:EC2/PortProbeUnprotectedPort. Resource: arn:aws:s3:::customer-exports-274650.",
+      "created_at": "2026-04-22T18:06:16.823Z",
+      "updated_at": "2026-04-22T18:06:16.823Z",
+      "severity": { "code": 8, "value": "High" },
+      "confidence": 74.85181378741979,
       "resource": {
-        "type": "Instance",
-        "instance_details": {
-          "instance_id": "i-nn01w5chdan",
-          "instance_type": "m5.large",
-          "image_id": "ami-kv3arge3",
-          "availability_zone": "ap-southeast-3c",
-          "network_interfaces": [
-            {
-              "network_interface_id": "eni-e0louanc",
-              "private_ip_address": "154.78.131.99",
-              "subnet_id": "subnet-dmysykue",
-              "vpc_id": "vpc-0qduz0ar"
-            }
-          ],
-          "tags": [{ "key": "Name", "value": "app-server" }]
+        "type": "S3Bucket",
+        "s3_bucket_detail": {
+          "arn": "arn:aws:s3:::customer-exports-274650",
+          "name": "customer-exports-274650",
+          "type": "Destination",
+          "created_at": "2026-04-22T17:15:56.823Z",
+          "owner": { "id": "501938274650" }
         }
       },
       "service": {
-        "detector_id": "uc9j9p5msnf",
-        "count": 66,
+        "detector_id": "u3otr6oo4y",
+        "count": 91,
         "archived": false,
         "resource_role": "TARGET",
-        "action": { "action_type": "DNS_REQUEST" }
+        "action": { "action_type": "AWS_API_CALL" }
       },
-      "metrics": { "FindingCount": { "sum": 4 }, "HighSeverityFindingCount": { "sum": 0 } }
+      "metrics": { "FindingCount": { "sum": 35 }, "HighSeverityFindingCount": { "sum": 1 } }
     },
     "s3": {
       "bucket": {
@@ -61,19 +53,19 @@
         "arn": "arn:aws:s3:::aws-security-chain-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/security-chain/ap-southeast-3/2026/04/22/security-chain_GLYNTOVWF7F.log.gz"
+        "key": "AWSLogs/501938274650/security-chain/ap-southeast-3/2026/04/22/security-chain_NZ72DY20ER.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/security-chain/logs",
-      "log_stream": "ap-southeast-3/6ug0y46g",
-      "ingestion_time": "2026-04-22T16:10:08.286Z"
+      "log_stream": "ap-southeast-3/igocg7hd",
+      "ingestion_time": "2026-04-22T18:06:17.514Z"
     }
   },
-  "rule": { "category": "intrusion_detection", "name": "Recon:EC2/PortScan" },
+  "rule": { "category": "intrusion_detection", "name": "Recon:EC2/PortProbeUnprotectedPort" },
   "event": {
     "kind": "alert",
-    "severity": 4,
+    "severity": 8,
     "outcome": "failure",
     "category": ["intrusion_detection"],
     "type": ["indicator"],
@@ -81,13 +73,13 @@
     "provider": "guardduty.amazonaws.com",
     "module": "aws"
   },
-  "message": "GuardDuty finding [MEDIUM]: Recon:EC2/PortScan — arn:aws:ec2:ap-southeast-3:501938274650:instance/i-nn01w5chdan",
-  "log": { "level": "warn" },
+  "message": "GuardDuty finding [CRITICAL]: Recon:EC2/PortProbeUnprotectedPort — arn:aws:s3:::customer-exports-274650",
+  "log": { "level": "error" },
   "labels": {
-    "finding_chain_id": "hdd9xcp0-py30-yk6h-yuc4-5nvl8vjafin",
-    "guardduty_finding_id": "lxrugwbjmu",
-    "securityhub_finding_id": "S6BXZAKI-SRSO-36OD-Y5O5-KTG7ZBB7MJR",
-    "resource_arn": "arn:aws:ec2:ap-southeast-3:501938274650:instance/i-nn01w5chdan"
+    "finding_chain_id": "7itcb5q0-je41-xsb7-9deu-xff0qrqcxl",
+    "guardduty_finding_id": "kb9zmdlih5q",
+    "securityhub_finding_id": "F85GOJUL-8S1X-M1R0-79XV-NZVRYSGT7J",
+    "resource_arn": "arn:aws:s3:::customer-exports-274650"
   },
   "service": { "name": "security-chain", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -96,7 +88,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "49numwjvo4b"
+    "ephemeral_id": "gqnhix123ma"
   },
   "input": { "type": "http_endpoint" }
 }

@@ -1,47 +1,47 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-southeast-4",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "fis" }
   },
   "aws": {
-    "dimensions": { "ExperimentTemplateId": "EXTZCL1Z2DE" },
+    "dimensions": { "ExperimentTemplateId": "EXT1FBWSI93" },
     "fis": {
-      "experiment_id": "EXPGD972KTM",
-      "experiment_template_id": "EXTZCL1Z2DE",
-      "experiment_name": "database-failover",
+      "experiment_id": "EXPUUWHUMZ9",
+      "experiment_template_id": "EXT1FBWSI93",
+      "experiment_name": "spot-interrupt-test",
       "experiment_state": "running",
-      "target_resource_type": "ECS tasks",
-      "action_type": "aws:rds:failover-db-cluster",
-      "stop_condition": "none",
-      "role_arn": "arn:aws:iam::501938274650:role/FISRole-database-failover"
+      "target_resource_type": "RDS clusters",
+      "action_type": "aws:ecs:drain-container-instances",
+      "stop_condition": "aws:cloudwatch:alarm",
+      "role_arn": "arn:aws:iam::814726593401:role/FISRole-spot-interrupt-test"
     },
     "s3": {
       "bucket": {
-        "name": "aws-fis-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-fis-logs-501938274650"
+        "name": "aws-fis-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-fis-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/fis/ap-northeast-3/2026/04/22/fis_87FHJ7GA50U.log.gz"
+        "key": "AWSLogs/814726593401/fis/ap-southeast-4/2026/04/22/fis_BQ7BUUKTKW.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/fis/logs",
-      "log_stream": "ap-northeast-3/nxst9mlk",
-      "ingestion_time": "2026-04-22T16:10:08.430Z"
+      "log_stream": "ap-southeast-4/57n23sy6",
+      "ingestion_time": "2026-04-22T18:06:17.645Z"
     }
   },
   "event": {
-    "action": "StartExperiment",
+    "action": "GetExperiment",
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.fis",
     "provider": "fis.amazonaws.com",
     "module": "aws"
   },
-  "message": "FIS StartExperiment: exp=EXPGD972KTM (database-failover) state=running, target=ECS tasks",
+  "message": "FIS GetExperiment: exp=EXPUUWHUMZ9 (spot-interrupt-test) state=running, target=RDS clusters",
   "log": { "level": "info" },
   "service": { "name": "fis", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -49,8 +49,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "6nlxty3chtf"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "cdhxxzsbcf"
   },
   "input": { "type": "aws-cloudwatch" }
 }

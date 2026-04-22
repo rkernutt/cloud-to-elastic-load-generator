@@ -20,13 +20,13 @@ Reference material for **Cloud to Elastic Load Generator**. All Markdown guides 
 
 All Elastic assets — **ingest pipelines**, **data stream templates**, **Kibana dashboards**, **ML anomaly detection jobs**, and **alerting rules** — are installed together **per service** as **Cloud Loadgen Integrations**. Every asset is tagged or labelled **`cloudloadgen`** so you can filter, view, or bulk-edit them in Kibana without affecting production objects. The Setup page groups integrations by service category (Compute, Networking, Databases, etc.) across all three clouds.
 
-See [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md) for details on installing, filtering, removing integrations, **post-install options** (enabling rules and starting ML jobs), dashboard installation fallback strategy, and alerting rule compatibility.
+See [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md) for details on installing, filtering, removing integrations, **post-install options** (enabling rules and starting ML jobs), **ServiceNow CMDB integration**, **ML Training Mode**, **Serverless use-case selector**, dashboard installation fallback strategy, and alerting rule compatibility.
 
 ---
 
 ## Chained Events
 
-Multi-service correlated scenarios that generate logs, metrics, APM traces (for the Elastic Service Map), dashboards, ML jobs, and alerting rules. Security-oriented chains (**Security Finding**, **IAM Privilege Escalation**, **Data Exfiltration**) use **time-distributed events** and `labels.finding_chain_id`, `labels.attack_session_id`, or `labels.exfil_chain_id` for correlation. The first three guides each document **AWS, GCP, and Azure** variants in one place.
+Multi-service correlated scenarios that generate logs, metrics, APM traces (for the Elastic Service Map), dashboards, ML jobs, and alerting rules. Security-oriented chains (**Security Finding**, **IAM Privilege Escalation**, **Data Exfiltration**) use **time-distributed events** and `labels.finding_chain_id`, `labels.attack_session_id`, or `labels.exfil_chain_id` for correlation. All chains include **ECS user identity fields** and **companion audit trail events** for realistic attribution. The first three guides each document **AWS, GCP, and Azure** variants in one place.
 
 | Scenario                                                                               | Document                                                                                               |
 | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
@@ -56,6 +56,20 @@ Multi-service correlated scenarios that generate logs, metrics, APM traces (for 
 | [GAP-ANALYSIS-LOGS-AND-METRICS.md](./GAP-ANALYSIS-LOGS-AND-METRICS.md)         | Logs/metrics coverage notes     |
 | [GLUE-METRICS-COVERAGE.md](./GLUE-METRICS-COVERAGE.md)                         | Glue metrics detail             |
 | [diagrams.md](./diagrams.md)                                                   | Diagrams and architecture notes |
+
+---
+
+## ServiceNow CMDB & Enrichment
+
+The app includes a **ServiceNow CMDB log generator** that produces realistic records across 9 CMDB/ITSM tables (`cmdb_ci`, `incident`, `change_request`, `sys_user`, etc.) with CIs correlated to cloud infrastructure and users aligned with the data pipeline operators. Data ships to `logs-servicenow.event-*`. See the [project README](../README.md#servicenow-cmdb-integration) for table details.
+
+A sample **Elastic Workflow** for automated alert enrichment is in [`workflows/data-pipeline-alert-enrichment.yaml`](../workflows/data-pipeline-alert-enrichment.yaml).
+
+---
+
+## ML Training Mode
+
+The **Ship** page includes an **ML Training Mode** that automates the full anomaly detection workflow: baseline shipping → ML learning wait → anomaly injection. Anomaly injection uses 100% error rate, 15x duration scaling (logs and traces), and 20x metric scaling in a 5-minute window. See the [project README](../README.md#ml-training-mode) for configuration details.
 
 ---
 

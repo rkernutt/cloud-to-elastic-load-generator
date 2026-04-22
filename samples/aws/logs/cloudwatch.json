@@ -1,35 +1,35 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "sa-east-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "cloudwatchalarms" }
   },
   "aws": {
     "cloudwatch": {
       "log_group": "/aws/cloudwatch/logs",
-      "log_stream": "ap-south-1/nb5iugqk",
-      "ingestion_time": "2026-04-22T16:10:08.419Z",
-      "alarm_name": "high-cpu-alarm",
+      "log_stream": "sa-east-1/0wrbnjxx",
+      "ingestion_time": "2026-04-22T18:06:17.634Z",
+      "alarm_name": "rds-connections",
       "alarm_state": "OK",
-      "previous_state": "INSUFFICIENT_DATA",
-      "namespace": "AWS/EC2",
-      "metric_name": "MemoryUtilization",
-      "threshold": 85,
-      "evaluation_periods": 1,
-      "metric_value": 39.61072077149862,
-      "statistic": "Maximum",
-      "period_seconds": 300,
-      "treat_missing_data": "missing"
+      "previous_state": "OK",
+      "namespace": "AWS/ApplicationELB",
+      "metric_name": "CPUUtilization",
+      "threshold": 95,
+      "evaluation_periods": 2,
+      "metric_value": 20.080820155072388,
+      "statistic": "Average",
+      "period_seconds": 3600,
+      "treat_missing_data": "breaching"
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudwatch-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-cloudwatch-logs-164820739518"
+        "name": "aws-cloudwatch-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-cloudwatch-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/cloudwatch/ap-south-1/2026/04/22/cloudwatch_19CNYN88N31.log.gz"
+        "key": "AWSLogs/814726593401/cloudwatch/sa-east-1/2026/04/22/cloudwatch_I3FUDOQ4D49.log.gz"
       }
     }
   },
@@ -39,10 +39,10 @@
     "category": ["configuration", "process"],
     "dataset": "aws.cloudwatch",
     "provider": "monitoring.amazonaws.com",
-    "duration": 3600000000000,
+    "duration": 60000000000,
     "module": "aws"
   },
-  "message": "CloudWatch alarm \"high-cpu-alarm\": OK (AWS/EC2/MemoryUtilization=39.6)",
+  "message": "CloudWatch alarm \"rds-connections\": OK (AWS/ApplicationELB/CPUUtilization=20.1)",
   "log": { "level": "info" },
   "service": { "name": "cloudwatch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -50,8 +50,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "iu4ug7kazvb"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "d8qk6x8ysn"
   },
   "input": { "type": "aws-cloudwatch" }
 }

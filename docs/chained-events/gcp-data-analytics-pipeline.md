@@ -67,6 +67,10 @@ Each pipeline run produces **6-8 correlated log documents** plus **1 APM trace**
 
 All documents share a `labels.pipeline_run_id` for cross-service correlation. Timing is **orchestrated batch analytics** (stages inside one DAG run), unlike the **Security Finding**, **IAM Privilege Escalation**, and **Data Exfiltration** chains, which use wider `@timestamp` spacing and `labels.finding_chain_id`, `labels.attack_session_id`, or `labels.exfil_chain_id`.
 
+### User Identity & Audit Trail
+
+Every pipeline run includes **ECS user identity fields** (`user.name`, `user.email`, `source.ip`, `user_agent.original`) on all operational log documents plus **companion GCP Cloud Audit Log events** for key API calls (e.g. `RunJob`, `CreateEntry`, `InsertJob`). Audit events include `gcp.audit.authentication_info` with the caller's principal email and service account delegation chain. Users are drawn from the shared `DATA_ENGINEERING_USERS` pool (same identities as ServiceNow CMDB records) for cross-index correlation.
+
 ## Failure Modes
 
 ### 1. Null / Empty Source Files (Silent Degradation)
@@ -123,3 +127,11 @@ composer-data-pipeline (transaction: dag_run:data_pipeline_daily)
 | GCP Data Pipeline — Dataproc/Spark Processing Error | Dataproc log with `error.type` present                      | `logs-gcp.dataproc*`      |
 | GCP Data Pipeline — GCS Source File Format Error    | GCS object name with URL-unsafe chars or non-Avro extension | `logs-gcp.cloud_storage*` |
 | GCP Data Pipeline — Slow Pipeline Run (>60s)        | Composer DAG completion with `duration_ms > 60000`          | `logs-gcp.composer*`      |
+
+## ServiceNow CMDB Correlation
+
+CMDB records include GCP-specific CIs (`composer-globex-prod`, `dataproc-etl`, `bigquery-analytics`) that correlate with this chain's infrastructure. See the [AWS pipeline docs](./data-analytics-pipeline.md#servicenow-cmdb-correlation) for the full enrichment workflow pattern, which applies identically to GCP.
+
+## ML Training Mode
+
+See the [AWS pipeline docs](./data-analytics-pipeline.md#ml-training-mode) for ML training guidance — the same baseline → wait → anomaly injection pattern applies to GCP pipeline ML jobs.

@@ -1,77 +1,83 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-west-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "efs" }
   },
   "aws": {
-    "dimensions": { "FileSystemId": "fs-qbf4afjf", "StorageClass": "InfrequentAccess" },
+    "dimensions": { "FileSystemId": "fs-iglajsi4", "StorageClass": "InfrequentAccess" },
     "efs": {
-      "file_system_id": "fs-qbf4afjf",
-      "file_system_name": "ml-datasets",
-      "mount_target_id": "fsmt-0f8faovc",
-      "availability_zone": "ap-northeast-2b",
-      "throughput_mode": "provisioned",
-      "performance_mode": "generalPurpose",
-      "throughput_mbps": 180.71049567332622,
-      "iops": 1964,
-      "client_connections": 207,
-      "percent_io_limit": 19,
-      "event_kind": "mount_target",
-      "mount_target_event": "MountTargetCreated",
-      "subnet_id": "subnet-g7jbqrk2",
-      "network_interface_id": "eni-evp23xoa",
-      "ip_address": "124.30.18.207",
+      "file_system_id": "fs-iglajsi4",
+      "file_system_name": "jenkins-home",
+      "mount_target_id": "fsmt-5i8vwqym",
+      "availability_zone": "eu-west-1a",
+      "throughput_mode": "bursting",
+      "performance_mode": "maxIO",
+      "throughput_mbps": 128.18633054931837,
+      "iops": 32279,
+      "client_connections": 472,
+      "percent_io_limit": 98,
+      "error_code": "FileLimitExceeded",
+      "event_kind": "access_point",
+      "access_point": {
+        "access_point_id": "fsap-0n9uwifvrsp",
+        "posix_user": { "uid": 42670, "gid": 5689 },
+        "root_directory": "/shared",
+        "event": "CreateAccessPointFailed"
+      },
       "metrics": {
-        "BurstCreditBalance": { "avg": 451960909890 },
-        "ClientConnections": { "avg": 370 },
-        "DataReadIOBytes": { "sum": 168335159 },
-        "DataWriteIOBytes": { "sum": 860613163 },
-        "MetadataIOBytes": { "sum": 5127602 },
-        "TotalIOBytes": { "sum": 398890408 },
-        "PermittedThroughput": { "avg": 2036.2715164209915 },
-        "MeteredIOBytes": { "sum": 912028894 },
-        "StorageBytes": { "avg": 853339177394 },
-        "PercentIOLimit": { "avg": 33.86072025862443 },
-        "DataReadIOBytesWithQuota": { "sum": 841548465 },
-        "DataWriteIOBytesWithQuota": { "sum": 942472867 }
+        "BurstCreditBalance": { "avg": 1341401071506 },
+        "ClientConnections": { "avg": 109 },
+        "DataReadIOBytes": { "sum": 63584256 },
+        "DataWriteIOBytes": { "sum": 587446231 },
+        "MetadataIOBytes": { "sum": 6173314 },
+        "TotalIOBytes": { "sum": 56925647 },
+        "PermittedThroughput": { "avg": 562.7207329673731 },
+        "MeteredIOBytes": { "sum": 939163963 },
+        "StorageBytes": { "avg": 738199661303 },
+        "PercentIOLimit": { "avg": 14.331842243580912 },
+        "DataReadIOBytesWithQuota": { "sum": 647365713 },
+        "DataWriteIOBytesWithQuota": { "sum": 655160313 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-efs-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-efs-logs-738291046572"
+        "name": "aws-efs-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-efs-logs-164820739518"
       },
-      "object": {
-        "key": "AWSLogs/738291046572/efs/ap-northeast-2/2026/04/22/efs_EM9JZ6GE58B.log.gz"
-      }
+      "object": { "key": "AWSLogs/164820739518/efs/eu-west-1/2026/04/22/efs_D4Y4EIGJFXI.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/efs/logs",
-      "log_stream": "ap-northeast-2/1um6ozqa",
-      "ingestion_time": "2026-04-22T16:10:08.312Z"
+      "log_stream": "eu-west-1/vxtu2qkr",
+      "ingestion_time": "2026-04-22T18:06:17.537Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["host", "file"],
     "dataset": "aws.efs",
     "provider": "elasticfilesystem.amazonaws.com",
-    "duration": 10000000,
+    "duration": 2256000000,
     "module": "aws"
   },
-  "message": "EFS fs-qbf4afjf: mount target created in ap-northeast-2b",
-  "log": { "level": "info" },
+  "message": "EFS fs-iglajsi4: access point fsap-0n9uwifvrsp creation failed",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ThroughputLimitExceeded",
+    "message": "EFS operation failed",
+    "type": "storage"
+  },
   "service": { "name": "efs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.efs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "y33natjxv38"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "27vflw7wp2b"
   },
   "input": { "type": "aws-cloudwatch" }
 }

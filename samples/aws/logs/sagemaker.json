@@ -1,81 +1,53 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
-    "service": { "name": "sagemaker" }
+    "region": "af-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
+    "service": { "name": "sagemaker-featurestore" }
   },
   "aws": {
-    "dimensions": {
-      "TrainingJobName": "resnet50-custom-processing-20260422-q5nf1x",
-      "JobType": "Processing"
-    },
-    "cloudwatch": {
-      "log_group": "/aws/sagemaker/ProcessingJobs",
-      "log_stream": "resnet50-custom-processing-20260422-q5nf1x/algo-2",
-      "ingestion_time": "2026-04-22T16:10:08.388Z"
-    },
-    "sagemaker": {
-      "domain_id": "d-vzkuvadeqr",
-      "domain_name": "risk-models",
-      "user_profile": "carol-research",
-      "job": {
-        "name": "resnet50-custom-processing-20260422-q5nf1x",
-        "type": "Processing",
-        "arn": "arn:aws:sagemaker:me-central-1:164820739518:processing-job/resnet50-custom-processing-20260422-q5nf1x",
-        "status": "Completed",
-        "secondary_status": "Training"
-      },
-      "model": { "name": "resnet50-custom", "version": 17 },
-      "pipeline": { "name": "feature-engineering-pipeline", "execution_id": "pipe-g2ulhl2nd8r" },
-      "instance": { "type": "ml.m5.xlarge", "count": 2 },
-      "metrics": { "gpu_utilization_pct": 67, "cpu_utilization_pct": 56 },
-      "studio": { "lifecycle_config": false, "continuous_logging": false },
-      "cloudwatch_metrics": {
-        "Invocations": { "sum": 3475 },
-        "ModelLatency": { "avg": 15000 },
-        "OverheadLatency": { "avg": 36000 },
-        "GPUUtilization": { "avg": 55 },
-        "GPUMemoryUtilization": { "avg": 49 },
-        "CPUUtilization": { "avg": 67 },
-        "DiskUtilization": { "avg": 50 },
-        "MemoryUtilization": { "avg": 62 },
-        "Invocations4XXError": { "sum": 0 },
-        "Invocations5XXError": { "sum": 0 },
-        "ModelSetupTime": { "avg": 520 }
-      }
+    "sagemaker_featurestore": {
+      "feature_group_name": "product-embeddings",
+      "operation": "GetRecord",
+      "record_identifier": "t9r81mo8mym",
+      "online_store_latency_ms": 19.724326244734097,
+      "offline_store_status": "Deleting",
+      "feature_count": 25,
+      "record_count": 29,
+      "ttl_duration_seconds": 406006
     },
     "s3": {
       "bucket": {
-        "name": "aws-sagemaker-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-sagemaker-logs-164820739518"
+        "name": "aws-sagemaker-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-sagemaker-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/sagemaker/me-central-1/2026/04/22/sagemaker_7UUECM99YKH.log.gz"
+        "key": "AWSLogs/814726593401/sagemaker/af-south-1/2026/04/22/sagemaker_TBOV3T3V0I.log.gz"
       }
+    },
+    "cloudwatch": {
+      "log_group": "/aws/sagemaker/logs",
+      "log_stream": "af-south-1/cwjxmbuk",
+      "ingestion_time": "2026-04-22T18:06:17.606Z"
     }
   },
-  "log": { "level": "info" },
-  "user": { "name": "carol-research" },
   "event": {
-    "action": "PipelineExecutionStarted",
-    "duration": 9146543147920.088,
     "outcome": "success",
-    "category": ["process"],
-    "dataset": "aws.sagemaker",
-    "provider": "sagemaker.amazonaws.com",
-    "module": "aws"
+    "duration": 154610,
+    "module": "aws",
+    "dataset": "aws.sagemaker"
   },
-  "message": "Starting processing job...",
+  "message": "SageMaker Feature Store product-embeddings: GetRecord OK (38 records)",
   "service": { "name": "sagemaker", "type": "aws" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sagemaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "ntn37dtmjeb"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "bq73wej6nu"
   },
   "input": { "type": "aws-cloudwatch" }
 }

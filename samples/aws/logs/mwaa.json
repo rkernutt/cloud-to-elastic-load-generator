@@ -1,37 +1,35 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "us-west-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "mwaa" }
   },
   "aws": {
-    "dimensions": { "EnvironmentName": "ml-pipelines" },
+    "dimensions": { "EnvironmentName": "data-platform" },
     "mwaa": {
-      "environment_name": "ml-pipelines",
-      "dag_id": "s3_to_redshift",
-      "run_id": "scheduled__2026-04-22T15:49:56.528Z",
-      "task_id": "cleanup",
-      "run_state": "success",
-      "duration_seconds": 92,
-      "worker_count": 10,
-      "queue_name": "high_priority",
-      "airflow_version": "2.6.3"
+      "environment_name": "data-platform",
+      "dag_id": "data_quality_check",
+      "run_id": "scheduled__2026-04-22T17:50:42.823Z",
+      "task_id": "notify",
+      "run_state": "running",
+      "duration_seconds": 11,
+      "worker_count": 6,
+      "queue_name": "default",
+      "airflow_version": "2.7.3"
     },
     "s3": {
       "bucket": {
-        "name": "aws-mwaa-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-mwaa-logs-814726593401"
+        "name": "aws-mwaa-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-mwaa-logs-738291046572"
       },
-      "object": {
-        "key": "AWSLogs/814726593401/mwaa/me-central-1/2026/04/22/mwaa_DG4U9G8J2B.log.gz"
-      }
+      "object": { "key": "AWSLogs/738291046572/mwaa/us-west-2/2026/04/22/mwaa_61HOT4CWROB.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/mwaa/logs",
-      "log_stream": "me-central-1/91nm3iej",
-      "ingestion_time": "2026-04-22T16:10:08.380Z"
+      "log_stream": "us-west-2/fn9ji3ma",
+      "ingestion_time": "2026-04-22T18:06:17.599Z"
     }
   },
   "event": {
@@ -40,10 +38,10 @@
     "category": ["process"],
     "dataset": "aws.mwaa",
     "provider": "airflow.amazonaws.com",
-    "duration": 92000000000,
+    "duration": 11000000000,
     "module": "aws"
   },
-  "message": "MWAA ml-pipelines: DAG s3_to_redshift task cleanup success (92s)",
+  "message": "MWAA data-platform: DAG data_quality_check task notify running (11s)",
   "log": { "level": "info" },
   "service": { "name": "mwaa", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -51,8 +49,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "hnahjaktqt"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "jep1xt1qz2o"
   },
   "input": { "type": "aws-cloudwatch" }
 }

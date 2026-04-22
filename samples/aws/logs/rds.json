@@ -1,101 +1,71 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
     "region": "eu-west-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "rds" }
   },
   "aws": {
     "dimensions": {
-      "DBInstanceIdentifier": "prod-db-replica",
-      "DatabaseClass": "db.r6g.2xlarge",
-      "EngineName": "mysql",
+      "DBInstanceIdentifier": "prod-db-reporting",
+      "DatabaseClass": "db.r5.large",
+      "EngineName": "postgres",
       "SourceRegion": "eu-west-1"
     },
     "cloudwatch": {
-      "log_group": "/aws/rds/instance/prod-db-replica/general",
-      "log_stream": "prod-db-replica",
-      "ingestion_time": "2026-04-22T16:10:08.205Z"
+      "log_group": "/aws/rds/instance/prod-db-reporting/postgresql",
+      "log_stream": "prod-db-reporting",
+      "ingestion_time": "2026-04-22T18:06:17.439Z"
     },
     "rds": {
       "db_instance": {
-        "identifier": "prod-db-replica",
-        "class": "db.r6g.2xlarge",
-        "engine_name": "mysql",
-        "engine_version": "8.0.40",
-        "arn": "arn:aws:rds:eu-west-1:293847561023:db:prod-db-replica",
+        "identifier": "prod-db-reporting",
+        "class": "db.r5.large",
+        "engine_name": "postgres",
+        "engine_version": "15.1",
+        "arn": "arn:aws:rds:eu-west-1:501938274650:db:prod-db-reporting",
         "status": "available",
-        "role": "read-replica",
+        "role": "instance",
         "multi_az": true,
-        "storage_type": "io2",
-        "allocated_storage_gb": 1000
+        "storage_type": "gp3",
+        "allocated_storage_gb": 500
       },
-      "log_type": "general",
-      "cpu": { "total": { "pct": 0.1094 } },
-      "freeable_memory": { "bytes": 5794367019 },
-      "free_storage": { "bytes": 48373857849 },
-      "database_connections": 8,
-      "read_io": { "ops_per_sec": 1189.6975611609134 },
-      "write_io": { "ops_per_sec": 823.2826444431149 },
-      "latency": { "read": 0.004438816548206512, "write": 0.00897946618606012 },
+      "log_type": "postgresql",
+      "cpu": { "total": { "pct": 0.2773 } },
+      "freeable_memory": { "bytes": 2049993573 },
+      "free_storage": { "bytes": 53612347827 },
+      "database_connections": 420,
+      "read_io": { "ops_per_sec": 1836.7611105559022 },
+      "write_io": { "ops_per_sec": 872.328758534854 },
+      "latency": { "read": 0.015197503308291609, "write": 0.0060653371283003995 },
       "throughput": {
-        "read": 32690299,
-        "write": 49919734,
-        "network_receive": 2838643,
-        "network_transmit": 68389098
+        "read": 95304082,
+        "write": 34184568,
+        "network_receive": 38684013,
+        "network_transmit": 90927285
       },
-      "replica_lag": { "sec": 18.269557067379306 },
-      "swap_usage": { "bytes": 67401554 },
-      "disk_usage": { "bin_log": { "bytes": 348340733 } },
-      "enhanced_monitoring": {
-        "cpuUtilization": {
-          "guest": 1.64242204071976,
-          "irq": 0.8436961694544143,
-          "system": 8.905760298058798,
-          "wait": 2.757734489396913,
-          "idle": 70.1,
-          "user": 15.73673359053284,
-          "total": 29.9
-        },
-        "memory": {
-          "total": 35483708057,
-          "free": 1256340688,
-          "cached": 2958036322,
-          "active": 12599664609,
-          "inactive": 2638433056,
-          "buffers": 292085661
-        },
-        "disk": {
-          "readIOsPS": 597.7310484494436,
-          "writeIOsPS": 2510.745558387492,
-          "readKbPS": 143667.8244068508,
-          "writeKbPS": 451810.9398958537,
-          "avgQueueLen": 6.096241374129721,
-          "await": 12.346126423412397
-        },
-        "network": { "rx": 67589867, "tx": 44217113 },
-        "numVCPUs": 16,
-        "uptime": "29 days, 1:30:05"
-      }
+      "replica_lag": { "sec": 41.414319061102965 },
+      "swap_usage": { "bytes": 54257918 },
+      "disk_usage": { "bin_log": { "bytes": 146230670 } }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-rds-logs-293847561023"
+        "name": "aws-rds-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-rds-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/293847561023/rds/eu-west-1/2026/04/22/rds_SO3UKZ8UFRM.log.gz" }
+      "object": { "key": "AWSLogs/501938274650/rds/eu-west-1/2026/04/22/rds_471D78CWGJ7.log.gz" }
     }
   },
   "db": {
-    "user": { "name": "replica" },
-    "name": "ecommerce",
-    "statement": "SELECT * FROM transactions WHERE id = 824620",
+    "user": { "name": "migration_user" },
+    "name": "users_db",
+    "statement": "BEGIN; UPDATE inventory SET quantity = quantity - $1 WHERE product_id = $2 AND quantity >= $1; COMMIT;",
     "type": "sql"
   },
-  "source": { "ip": "194.9.30.24" },
+  "source": { "ip": "77.161.10.183" },
   "event": {
-    "duration": 1220264630.4377453,
+    "duration": 960808215.3120543,
     "outcome": "success",
     "category": ["database"],
     "type": ["info", "access"],
@@ -103,10 +73,8 @@
     "provider": "rds.amazonaws.com",
     "module": "aws"
   },
-  "message": "2026-04-22 16:10:07.528\t93019 Quit\tSELECT * FROM transactions WHERE id = 824620",
+  "message": "2026-04-22 18:06:16.823 UTC:77.161.10.183(50433):migration_user@users_db:[1419]:LOG:  disconnection: session time: 14:44:29.864 user=migration_user database=users_db host=77.161.10.183 port=61330",
   "log": { "level": "info" },
-  "trace": { "id": "9BR5QN69OJM" },
-  "transaction": { "id": "EP9F5QW5E5E" },
   "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
@@ -114,7 +82,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "8rb3woou6ur"
+    "ephemeral_id": "5k2jyek9s2c"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -164,6 +164,10 @@ Beyond per-service bundles, the repo ships chained-scenario assets for **Data & 
 
 Running **Installer 1** (official Fleet package) plus **per-service bundles** gives you full coverage: official templates + custom load-generator assets.
 
+### ServiceNow CMDB Integration auto-install
+
+When the **ServiceNow CMDB Integration** toggle is enabled in the Setup wizard, the app installs the `servicenow` Fleet integration package. This enables Elastic's ServiceNow data views and allows cross-index enrichment between pipeline alerts and CMDB records (CI ownership, support groups, incidents, change requests). The ServiceNow CMDB generator produces realistic records across 9 CMDB/ITSM tables with CIs correlated to cloud infrastructure names. Data ships to `logs-servicenow.event-*`.
+
 ### Cloud Security Posture (CSPM/KSPM) auto-install
 
 When **CSPM or KSPM services** are selected in the Setup wizard and the Fleet integration toggle is enabled, the app automatically installs the `cloud_security_posture` Fleet package alongside the cloud vendor integration. This enables Elastic's built-in **Posture Dashboard**, **Findings page**, and **Benchmark Rules** pages. The CSPM/KSPM generators produce findings documents using **321 real CIS benchmark rule UUIDs** from `elastic/cloudbeat`:

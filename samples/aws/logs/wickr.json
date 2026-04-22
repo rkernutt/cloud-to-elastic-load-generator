@@ -1,54 +1,60 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "me-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "wickr" }
   },
   "aws": {
-    "dimensions": { "NetworkId": "wickr-l3jbwg3y", "RoomId": "room-h5gxqg1t" },
+    "dimensions": { "NetworkId": "wickr-4e19fgct", "RoomId": "room-i9ugi2ex" },
     "wickr": {
-      "network_id": "wickr-l3jbwg3y",
-      "room_id": "room-h5gxqg1t",
-      "message_type": "file",
-      "retention_policy": "90d",
-      "metrics": { "messages_sent": 5961, "active_users": 478, "files_shared": 45 }
+      "network_id": "wickr-4e19fgct",
+      "room_id": "room-i9ugi2ex",
+      "message_type": "call",
+      "retention_policy": "7d",
+      "metrics": { "messages_sent": 0, "active_users": 125, "files_shared": 0 },
+      "error_code": "MessageRetentionViolation"
     },
     "s3": {
       "bucket": {
-        "name": "aws-wickr-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-wickr-logs-164820739518"
+        "name": "aws-wickr-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-wickr-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/wickr/eu-central-2/2026/04/22/wickr_N61HSLD9TFD.log.gz"
+        "key": "AWSLogs/814726593401/wickr/me-south-1/2026/04/22/wickr_I8Z4I40LI6.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/wickr/logs",
-      "log_stream": "eu-central-2/2wlx4hcy",
-      "ingestion_time": "2026-04-22T16:10:08.445Z"
+      "log_stream": "me-south-1/2tfj9y3v",
+      "ingestion_time": "2026-04-22T18:06:17.659Z"
     }
   },
-  "user": { "name": "eva.martin" },
+  "user": { "name": "david.brown" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["authentication"],
     "dataset": "aws.wickr",
     "provider": "wickr.amazonaws.com",
-    "duration": 54000000,
+    "duration": 188000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.wickr", "namespace": "default" },
-  "message": "Wickr network wickr-l3jbwg3y: 5961 messages sent, 478 active users",
-  "log": { "level": "info" },
+  "message": "Wickr network wickr-4e19fgct: MessageRetentionViolation for user david.brown",
+  "log": { "level": "error" },
+  "error": {
+    "code": "MessageRetentionViolation",
+    "message": "Wickr compliance event in network wickr-4e19fgct",
+    "type": "authentication"
+  },
   "service": { "name": "wickr", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "mvxsjpvrvx"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "lwo6nzl74jq"
   },
   "input": { "type": "aws-cloudwatch" }
 }

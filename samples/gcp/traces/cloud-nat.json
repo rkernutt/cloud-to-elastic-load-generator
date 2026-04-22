@@ -1,33 +1,36 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "cba6ff644c830ddd41f46f1344892193" },
+  "trace": { "id": "baee51768dc674687db68a71e206c65a" },
   "transaction": {
-    "id": "ee66e712cf66717a",
-    "name": "Egress via Cloud NAT (nat-gw-data)",
+    "id": "65c1e721381631b7",
+    "name": "Egress via Cloud NAT (nat-gw-egress)",
     "type": "request",
-    "duration": { "us": 3903339 },
-    "result": "success",
+    "duration": { "us": 4292058 },
+    "result": "failure",
     "sampled": true,
     "span_count": { "started": 4, "dropped": 0 }
   },
   "service": {
     "name": "vpc-egress-controller",
-    "environment": "production",
+    "environment": "staging",
     "version": "1.0.0",
     "language": { "name": "go" },
     "runtime": { "name": "go", "version": "1.22" }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west4",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
+    "region": "me-central2",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" },
     "service": { "name": "compute.googleapis.com" }
   },
-  "labels": { "gcp.nat.name": "nat-gw-data", "gcp.egress.destination": "registry.npmjs.org:443" },
+  "labels": {
+    "gcp.nat.name": "nat-gw-egress",
+    "gcp.egress.destination": "packages.elastic.co:443"
+  },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
-  "event": { "outcome": "success", "module": "gcp", "dataset": "gcp.nat" },
+  "event": { "outcome": "failure", "module": "gcp", "dataset": "gcp.nat" },
   "ecs": { "version": "8.11.0" },
   "input": { "type": "opentelemetry" },
   "agent": { "name": "opentelemetry/go", "version": "1.x" },
@@ -41,7 +44,7 @@
     }
   },
   "gcpCloudTrace": {
-    "trace": "projects/globex-prod-a1b2c3/traces/cba6ff644c830ddd41f46f1344892193",
-    "spanId": "ee66e712cf66717a"
+    "trace": "projects/globex-shared-m3n4o5/traces/baee51768dc674687db68a71e206c65a",
+    "spanId": "65c1e721381631b7"
   }
 }

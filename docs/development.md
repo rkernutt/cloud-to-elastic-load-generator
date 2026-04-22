@@ -101,6 +101,20 @@ npm run lint
 npm run typecheck
 ```
 
+## Key source directories
+
+| Path                             | Description                                                           |
+| -------------------------------- | --------------------------------------------------------------------- |
+| `src/aws/generators/`            | AWS log, metric, trace, and chained-event generators                  |
+| `src/gcp/generators/`            | GCP generators                                                        |
+| `src/azure/generators/`          | Azure generators                                                      |
+| `src/servicenow/generators/`     | ServiceNow CMDB log generator (cross-cloud reference data)            |
+| `src/helpers/identity.ts`        | Shared user identity pool and audit trail event builders              |
+| `src/hooks/useMLTrainingLoop.ts` | React hook for automated ML baseline → wait → anomaly workflow        |
+| `src/pages/`                     | React page components (Landing, Connection, Services, Setup, Ship)    |
+| `installer/`                     | CLI installers and asset JSON (dashboards, ML jobs, rules, pipelines) |
+| `workflows/`                     | Elastic Workflow YAML definitions (alert enrichment automation)       |
+
 ## Documentation index
 
 Guides (AWS CloudWatch routing, OTel, ingest reference, diagrams, chained events): [docs/README.md](./README.md).

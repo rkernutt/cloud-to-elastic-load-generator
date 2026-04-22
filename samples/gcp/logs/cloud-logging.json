@@ -1,52 +1,54 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "ERROR",
-  "labels": { "resource.type": "logging.googleapis.com/Project", "sink": "sink-security" },
+  "severity": "INFO",
+  "labels": { "resource.type": "logging.googleapis.com/Project", "sink": "sink-archive" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "region": "europe-west9",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
     "service": { "name": "logging.googleapis.com" }
   },
   "gcp": {
     "cloud_logging": {
-      "log_name": "projects/globex-staging-d4e5f6/logs/application",
-      "sink_name": "sink-security",
-      "destination": "pubsub",
+      "log_name": "projects/globex-prod-a1b2c3/logs/audit",
+      "sink_name": "sink-archive",
+      "destination": "cloud-storage",
       "filter_expression": "resource.type=\"gce_instance\" AND severity>=ERROR",
-      "entries_exported": 234,
-      "errors_count": 219
+      "entries_exported": 478131,
+      "errors_count": 5,
+      "exclusion_name": "exclusion-7UDK"
     }
   },
-  "event": { "outcome": "failure", "duration": 96915, "module": "gcp", "dataset": "gcp.logging" },
-  "message": "logging.googleapis.com: Sink \"sink-security\" write to pubsub failed 219 times: Destination bucket not found",
+  "event": { "outcome": "success", "duration": 56147, "module": "gcp", "dataset": "gcp.logging" },
+  "message": "Exported 478131 log entries via sink=\"sink-archive\" to cloud-storage (log_filter matched projects/globex-prod-a1b2c3/logs/audit)",
   "service": { "name": "cloud-logging", "type": "gcp" },
-  "log": { "level": "error" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.logging", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west1",
-    "id": "nu4wz2g3iv"
+    "name": "elastic-agent-gcp-europe-west9",
+    "id": "otohb5t647h"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-staging-d4e5f6/logs/cloud-logging",
+  "logName": "projects/globex-prod-a1b2c3/logs/cloud-logging",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-staging-d4e5f6", "region": "europe-west1" }
+    "labels": { "project_id": "globex-prod-a1b2c3", "region": "europe-west9" }
   },
-  "insertId": "KY2WG8G34DI",
+  "insertId": "Y7F3FWXN49",
   "jsonPayload": {
     "cloud_logging": {
-      "log_name": "projects/globex-staging-d4e5f6/logs/application",
-      "sink_name": "sink-security",
-      "destination": "pubsub",
+      "log_name": "projects/globex-prod-a1b2c3/logs/audit",
+      "sink_name": "sink-archive",
+      "destination": "cloud-storage",
       "filter_expression": "resource.type=\"gce_instance\" AND severity>=ERROR",
-      "entries_exported": 234,
-      "errors_count": 219
+      "entries_exported": 478131,
+      "errors_count": 5,
+      "exclusion_name": "exclusion-7UDK"
     },
-    "message": "logging.googleapis.com: Sink \"sink-security\" write to pubsub failed 219 times: Destination bucket not found"
+    "message": "Exported 478131 log entries via sink=\"sink-archive\" to cloud-storage (log_filter matched projects/globex-prod-a1b2c3/logs/audit)"
   }
 }

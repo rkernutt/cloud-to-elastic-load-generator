@@ -1,53 +1,59 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-northeast-3",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "comprehendmedical" }
   },
   "aws": {
-    "dimensions": { "Operation": "DetectPHI" },
+    "dimensions": { "Operation": "DetectEntitiesV2" },
     "comprehendmedical": {
-      "operation": "DetectPHI",
-      "entities_detected": 7,
-      "phi_entities": 1,
-      "text_characters": 2593,
-      "data_access_role_arn": "arn:aws:iam::814726593401:role/ComprehendMedicalRole",
-      "s3_bucket": "ehr-processed"
+      "operation": "DetectEntitiesV2",
+      "entities_detected": 20,
+      "phi_entities": 0,
+      "text_characters": 2408,
+      "data_access_role_arn": "arn:aws:iam::501938274650:role/ComprehendMedicalRole",
+      "s3_bucket": "ehr-processed",
+      "error_code": "TextSizeLimitExceededException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-comprehendmedical-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-comprehendmedical-logs-814726593401"
+        "name": "aws-comprehendmedical-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-comprehendmedical-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/comprehendmedical/eu-north-1/2026/04/22/comprehendmedical_BRSUKK1FG3A.log.gz"
+        "key": "AWSLogs/501938274650/comprehendmedical/ap-northeast-3/2026/04/22/comprehendmedical_TJ82VXTY1TP.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/comprehendmedical/logs",
-      "log_stream": "eu-north-1/umgms826",
-      "ingestion_time": "2026-04-22T16:10:08.451Z"
+      "log_stream": "ap-northeast-3/6dauke5u",
+      "ingestion_time": "2026-04-22T18:06:17.664Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.comprehendmedical",
     "provider": "comprehendmedical.amazonaws.com",
     "module": "aws"
   },
-  "message": "Comprehend Medical DetectPHI: 7 entities, 1 PHI",
-  "log": { "level": "info" },
+  "message": "Comprehend Medical DetectEntitiesV2 FAILED: Rate limit exceeded",
+  "log": { "level": "error" },
+  "error": {
+    "code": "TextSizeLimitExceededException",
+    "message": "Comprehend Medical failed",
+    "type": "ml"
+  },
   "service": { "name": "comprehendmedical", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.comprehendmedical", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "vn72vflve1"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "1ph903owg64j"
   },
   "input": { "type": "aws-cloudwatch" }
 }

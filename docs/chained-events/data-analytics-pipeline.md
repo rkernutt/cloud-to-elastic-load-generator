@@ -105,6 +105,21 @@ flowchart TD
     TX --> SpanAthena["Span: athena.StartQueryExecution\nspan.destination.service.resource: athena-workgroup\nduration: ~3s"]
 ```
 
+### User Identity & Audit Trail
+
+Every pipeline run includes **ECS user identity fields** on all operational log documents:
+
+| Field                 | Example                                      | Description                       |
+| --------------------- | -------------------------------------------- | --------------------------------- |
+| `user.name`           | `jordan.chen`                                | Pipeline operator                 |
+| `user.email`          | `jordan.chen@globex.example.com`             | Operator email                    |
+| `source.ip`           | `10.0.12.34`                                 | Office/VPN source IP              |
+| `user_agent.original` | `aws-cli/2.15.0 Python/3.11.6 Darwin/23.4.0` | Tool used to trigger the pipeline |
+
+In addition, the generator produces **companion AWS CloudTrail audit events** for key API calls (e.g. `StartJobRun`, `StartCrawler`, `StartQueryExecution`). These CloudTrail documents include the full `aws.cloudtrail.user_identity` block with `type`, `arn`, `access_key_id`, and `session_context` — matching what a real CloudTrail trail would record for these API calls.
+
+Users are drawn from a shared `DATA_ENGINEERING_USERS` pool (defined in `src/helpers/identity.ts`) that is also used by the **ServiceNow CMDB generator**, enabling **cross-index correlation**: an alert about a failed pipeline run can be enriched with the operator's ServiceNow profile (department, manager, phone, support group).
+
 ### Document Correlation
 
 This pipeline is tuned for **orchestrated batch analytics**: events for a run share a base timeline and `pipeline_run_id`, with realistic spacing between stages inside a single workflow (minutes-scale DAG duration). That differs from the **Security Finding**, **IAM Privilege Escalation**, and **Data Exfiltration** chains, which deliberately spread `@timestamp` across longer windows and use `labels.finding_chain_id`, `labels.attack_session_id`, or `labels.exfil_chain_id` for cross-service security correlation.
@@ -305,3 +320,25 @@ These assets are installed as part of the Cloud Loadgen Integration for this cha
 ### EMR Compute Variant
 
 The generator randomly selects between EC2, Serverless, and EKS compute for each pipeline run. This produces realistic variety in log formats without requiring manual configuration.
+
+## ServiceNow CMDB Correlation
+
+When the **ServiceNow CMDB** generator is enabled (see [README](../../README.md#servicenow-cmdb-integration)), CMDB records include configuration items that match the cloud infrastructure used in this chain (e.g. `mwaa-globex-prod`, `emr-analytics-cluster`, `analytics-raw-ingest`). This enables enrichment workflows that:
+
+1. Take a pipeline failure alert (e.g. "Null/Empty Data Detected")
+2. Look up the affected CI in `logs-servicenow.event-*` (tag: `cmdb_ci`)
+3. Find the CI owner, support group, and department
+4. Check for open incidents and recent change requests
+5. Contact the responsible engineer with full context
+
+A sample Elastic Workflow automating this pattern is provided in [`workflows/data-pipeline-alert-enrichment.yaml`](../../workflows/data-pipeline-alert-enrichment.yaml).
+
+## ML Training Mode
+
+To get ML anomaly detection working effectively with this chain:
+
+1. **Build a baseline** — ship 5-10 batches of normal data (error rate ≈ 0%) to establish the "normal" pattern
+2. **Wait for ML to learn** — allow 15-30 minutes for the ML jobs to model the baseline
+3. **Inject anomalies** — ship one batch with anomalies enabled (the app applies 100% error rate, 15x duration scaling on logs and traces, 20x metric scaling)
+
+The **Ship** page's **ML Training Mode** automates this entire process. See the [README](../../README.md#ml-training-mode) for configuration details.

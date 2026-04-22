@@ -1,58 +1,64 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "il-central-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "groundstation" }
   },
   "aws": {
-    "dimensions": { "GroundStationId": "Punta Arenas", "ContactId": "contact-g7hbn2z31w" },
+    "dimensions": { "GroundStationId": "Punta Arenas", "ContactId": "contact-lzby9hdlvf" },
     "groundstation": {
-      "contact_id": "contact-g7hbn2z31w",
+      "contact_id": "contact-lzby9hdlvf",
       "ground_station_id": "Punta Arenas",
-      "satellite_arn": "arn:aws:groundstation::164820739518:satellite/satellite-etv97y9r",
-      "mission_profile_id": "profile-eymhsk06",
-      "contact_status": "COMPLETED",
+      "satellite_arn": "arn:aws:groundstation::293847561023:satellite/satellite-das66lgu",
+      "mission_profile_id": "profile-vtrjrhjp",
+      "contact_status": "FAILED",
       "metrics": {
-        "data_received_mb": 2293.8616992356556,
-        "elevation_degrees": 67.86519480754896,
-        "contact_duration_sec": 1272
-      }
+        "data_received_mb": 0,
+        "elevation_degrees": 79.22220146288163,
+        "contact_duration_sec": 24
+      },
+      "error_code": "AntennaDepointing"
     },
     "s3": {
       "bucket": {
-        "name": "aws-groundstation-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-groundstation-logs-164820739518"
+        "name": "aws-groundstation-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-groundstation-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/groundstation/eu-central-2/2026/04/22/groundstation_ECM1GYLN26J.log.gz"
+        "key": "AWSLogs/293847561023/groundstation/il-central-1/2026/04/22/groundstation_H2DSFUQCWQ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/groundstation/logs",
-      "log_stream": "eu-central-2/3r0m4e0w",
-      "ingestion_time": "2026-04-22T16:10:08.414Z"
+      "log_stream": "il-central-1/glkudxsj",
+      "ingestion_time": "2026-04-22T18:06:17.629Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["network"],
     "dataset": "aws.groundstation",
     "provider": "groundstation.amazonaws.com",
-    "duration": 1272000000000,
+    "duration": 24000000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.groundstation", "namespace": "default" },
-  "message": "Ground Station Punta Arenas: contact contact-g7hbn2z31w COMPLETED, received=2293.9MB, elevation=67.9°",
-  "log": { "level": "info" },
+  "message": "Ground Station Punta Arenas: AntennaDepointing for contact contact-lzby9hdlvf",
+  "log": { "level": "error" },
+  "error": {
+    "code": "AntennaDepointing",
+    "message": "Ground Station contact failed at Punta Arenas",
+    "type": "network"
+  },
   "service": { "name": "groundstation", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "og3gj84xfqi"
+    "name": "filebeat-aws-il-central-1",
+    "ephemeral_id": "htmznkdpay7"
   },
   "input": { "type": "aws-cloudwatch" }
 }

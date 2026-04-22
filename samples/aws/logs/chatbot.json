@@ -1,22 +1,22 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
+    "region": "me-south-1",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "chatbot" }
   },
   "aws": {
-    "dimensions": { "ChannelConfiguration": "security-alerts", "ChannelType": "MicrosoftTeams" },
+    "dimensions": { "ChannelConfiguration": "ops-alerts", "ChannelType": "Slack" },
     "chatbot": {
-      "channel_configuration_name": "security-alerts",
-      "channel_type": "MicrosoftTeams",
+      "channel_configuration_name": "ops-alerts",
+      "channel_type": "Slack",
       "notification_type": "AWSHealthEvent",
-      "workspace_id": "TYLZGYPNZ",
-      "channel_id": "C80CBAJ1H",
-      "delivery_status": "Delivered",
-      "message_id": "69bjj8nd-yrx6-ym7d-1zyv-xm211bhijro",
-      "sns_topic_arn": "arn:aws:sns:ap-northeast-2:814726593401:awshealthevent-topic"
+      "workspace_id": "TQZTJ0QLU",
+      "channel_id": "CQ001SR3A",
+      "delivery_status": "Unauthorized",
+      "message_id": "zfc4e61l-ke0y-1l4m-migq-5n622v3ydeo",
+      "sns_topic_arn": "arn:aws:sns:me-south-1:814726593401:awshealthevent-topic"
     },
     "s3": {
       "bucket": {
@@ -24,33 +24,38 @@
         "arn": "arn:aws:s3:::aws-chatbot-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/chatbot/ap-northeast-2/2026/04/22/chatbot_YGW9YY0ARN.log.gz"
+        "key": "AWSLogs/814726593401/chatbot/me-south-1/2026/04/22/chatbot_JLW8RACGTGE.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/chatbot/logs",
-      "log_stream": "ap-northeast-2/w6njk7dn",
-      "ingestion_time": "2026-04-22T16:10:08.436Z"
+      "log_stream": "me-south-1/e7vggfb6",
+      "ingestion_time": "2026-04-22T18:06:17.650Z"
     }
   },
   "event": {
-    "action": "BotInvitation",
-    "outcome": "success",
+    "action": "NotificationDelivery",
+    "outcome": "failure",
     "category": ["configuration"],
     "dataset": "aws.chatbot",
     "provider": "chatbot.amazonaws.com",
     "module": "aws"
   },
-  "message": "Chatbot security-alerts: AWSHealthEvent delivered to MicrosoftTeams",
-  "log": { "level": "info" },
+  "message": "Chatbot ops-alerts (Slack): AWSHealthEvent delivery Unauthorized",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ConflictException",
+    "message": "Chatbot notification delivery failed",
+    "type": "configuration"
+  },
   "service": { "name": "chatbot", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.chatbot", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "k7oidx7no6"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "riu4xti7h7n"
   },
   "input": { "type": "aws-cloudwatch" }
 }

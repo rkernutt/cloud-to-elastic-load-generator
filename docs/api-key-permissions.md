@@ -84,6 +84,7 @@ This key can bulk-index documents but cannot create or modify any Elastic assets
 | --------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------- |
 | `logs-aws.*`, `logs-gcp.*`, `logs-azure.*`          | `auto_configure`, `create_doc`, `create_index`, `view_index_metadata` | Write log documents via `_bulk` |
 | `logs-cloud_security_posture.findings*`             | same                                                                  | CSPM / KSPM findings            |
+| `logs-servicenow.event-*`                           | same                                                                  | ServiceNow CMDB records         |
 | `metrics-aws.*`, `metrics-gcp.*`, `metrics-azure.*` | same                                                                  | Write metric documents          |
 | `metrics-o365_metrics.*`                            | same                                                                  | Azure M365 / Office 365 metrics |
 | `traces-apm*`, `traces-aws.*`                       | same                                                                  | APM traces and AWS X-Ray traces |

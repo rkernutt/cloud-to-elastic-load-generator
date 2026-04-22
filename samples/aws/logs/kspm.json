@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,32 +7,32 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" }
+    "region": "ap-southeast-1",
+    "account": { "id": "293847561023", "name": "globex-staging" }
   },
   "orchestrator": {
-    "cluster": { "id": "dev-eks", "name": "dev-eks" },
+    "cluster": { "id": "data-processing-eks", "name": "data-processing-eks" },
     "type": "kubernetes",
-    "namespace": "default"
+    "namespace": "staging"
   },
   "resource": {
-    "id": "/etc/kubernetes/kubelet/kubeconfig",
-    "name": "kubeconfig",
+    "id": "k8s-node/ip-114-237-123-206.ap-southeast-1.compute.internal",
+    "name": "ip-114-237-123-206.ap-southeast-1.compute.internal",
     "type": "k8s_object",
-    "sub_type": "file",
-    "raw": { "path": "/var/lib/kubelet/kubeconfig", "mode": "0666" }
+    "sub_type": "Node",
+    "raw": { "node": "ip-114-237-123-206.ap-southeast-1.compute.internal" }
   },
   "rule": {
-    "id": "90b8ae5e-df30-5ba6-9fe9-03aab2b7a1c3",
-    "name": "Ensure that the kubeconfig file permissions are set to 644 or more restrictive",
-    "section": "3.1.1",
-    "description": "If `kubelet` is running, and if it is using a file-based kubeconfig file, ensure that the proxy kubeconfig file has permissions of `644` or more restrictive.",
-    "tags": ["CIS", "EKS", "CIS 3.1.1", "Worker Node Configuration Files"],
+    "id": "d1d73385-2909-598a-acf7-bf1d8130f314",
+    "name": "Ensure that the --protect-kernel-defaults argument is set to true",
+    "section": "3.2.6",
+    "description": "Protect tuned kernel parameters from overriding kubelet default kernel parameter values.",
+    "tags": ["CIS", "EKS", "CIS 3.2.6", "Kubelet"],
     "benchmark": {
       "id": "cis_eks",
       "name": "CIS Amazon Elastic Kubernetes Service (EKS)",
       "version": "v1.0.1",
-      "rule_number": "3.1.1",
+      "rule_number": "3.2.6",
       "posture_type": "kspm"
     },
     "profile_applicability": "* Level 1"
@@ -47,29 +47,31 @@
     "provider": "elastic_kspm",
     "module": "aws"
   },
-  "message": "[cis_eks/3.1.1] passed: Ensure that the kubeconfig file permissions are set to 644 or more restrictive",
+  "message": "[cis_eks/3.2.6] passed: Ensure that the --protect-kernel-defaults argument is set to true",
   "log": { "level": "info" },
   "service": { "name": "kspm", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "86rw3q94486"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "ih7uerq78br"
   },
   "input": { "type": "http_endpoint" },
   "aws": {
     "s3": {
       "bucket": {
-        "name": "aws-kspm-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-kspm-logs-501938274650"
+        "name": "aws-kspm-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-kspm-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/501938274650/kspm/me-south-1/2026/04/22/kspm_ZN6PRHR2F4A.log.gz" }
+      "object": {
+        "key": "AWSLogs/293847561023/kspm/ap-southeast-1/2026/04/22/kspm_M9R13VCZC7R.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/kspm/logs",
-      "log_stream": "me-south-1/11awodaq",
-      "ingestion_time": "2026-04-22T16:10:08.289Z"
+      "log_stream": "ap-southeast-1/3p1xhsb9",
+      "ingestion_time": "2026-04-22T18:06:17.518Z"
     }
   }
 }

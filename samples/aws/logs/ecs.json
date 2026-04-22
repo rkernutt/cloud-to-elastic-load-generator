@@ -1,22 +1,22 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
+    "region": "us-west-1",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "ecs" }
   },
   "aws": {
-    "dimensions": { "ClusterName": "workers", "ServiceName": "web-frontend" },
+    "dimensions": { "ClusterName": "prod-cluster", "ServiceName": "api-backend" },
     "ecs": {
-      "ecs_cluster": "workers",
-      "ecs_task_definition": "web-frontend-td:16",
-      "ecs_task_arn": "arn:aws:ecs:ap-southeast-1:814726593401:task/workers/6thv7x3rzke",
+      "ecs_cluster": "prod-cluster",
+      "ecs_task_definition": "api-backend-td:33",
+      "ecs_task_arn": "arn:aws:ecs:us-west-1:814726593401:task/prod-cluster/2wj16yua61w",
       "metrics": {
-        "CPUUtilization": { "avg": 59.449380043448414 },
-        "CPUReservation": { "avg": 17.401762731647914 },
-        "MemoryUtilization": { "avg": 20.343231700751346 },
-        "MemoryReservation": { "avg": 24.462066560326445 },
+        "CPUUtilization": { "avg": 52.0702368990443 },
+        "CPUReservation": { "avg": 75.42820304072343 },
+        "MemoryUtilization": { "avg": 49.16390955210296 },
+        "MemoryReservation": { "avg": 57.91547774037188 },
         "GPUReservation": { "avg": 0 }
       }
     },
@@ -25,50 +25,43 @@
         "name": "aws-ecs-logs-814726593401",
         "arn": "arn:aws:s3:::aws-ecs-logs-814726593401"
       },
-      "object": {
-        "key": "AWSLogs/814726593401/ecs/ap-southeast-1/2026/04/22/ecs_62T60L7NX83.log.gz"
-      }
+      "object": { "key": "AWSLogs/814726593401/ecs/us-west-1/2026/04/22/ecs_7NQTZ47VFVP.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/ecs/logs",
-      "log_stream": "ap-southeast-1/v5swhfcl",
-      "ingestion_time": "2026-04-22T16:10:08.208Z"
+      "log_stream": "us-west-1/l1641geb",
+      "ingestion_time": "2026-04-22T18:06:17.441Z"
     }
   },
   "container": {
-    "id": "2dolal85r9h",
-    "name": "web-frontend",
-    "image": { "name": "nginx:1.24", "tag": "alpine" },
+    "id": "ls98dbmdu19",
+    "name": "api-backend",
+    "image": { "name": "python:latest", "tag": "alpine" },
     "runtime": "docker"
   },
-  "process": { "pid": 25884, "name": "web-frontend" },
-  "log": { "level": "error" },
+  "process": { "pid": 18828, "name": "api-backend" },
+  "log": { "level": "info" },
   "event": {
     "category": ["process", "container"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "aws.ecs",
     "provider": "ecs.amazonaws.com",
-    "duration": 255000000000,
+    "duration": 1255000000000,
     "module": "aws"
   },
-  "message": "{\"cluster\":\"workers\",\"service\":\"web-frontend\",\"taskId\":\"6thv7x3rzke\",\"container\":\"web-frontend\",\"level\":\"error\",\"message\":\"ecs-agent: [ERROR] TaskEngine: error transitioning container [web-frontend] to [CREATED]: DockerTimeoutError\",\"timestamp\":\"2026-04-22T16:10:07.528Z\",\"ecs_cluster\":\"workers\",\"ecs_task_definition\":\"web-frontend-td:16\",\"ecs_task_arn\":\"arn:aws:ecs:ap-southeast-1:814726593401:task/workers/6thv7x3rzke\"}",
-  "service": { "name": "web-frontend", "type": "ecs" },
-  "ecs_cluster": "workers",
-  "ecs_task_definition": "web-frontend-td:16",
-  "ecs_task_arn": "arn:aws:ecs:ap-southeast-1:814726593401:task/workers/6thv7x3rzke",
-  "error": {
-    "code": "ServiceNotFoundException",
-    "message": "containerd: failed to pull and unpack image \"814726593401.dkr.ecr.ap-southeast-1.amazonaws.com/web-frontend:latest\": failed to resolve reference: unexpected status 403",
-    "type": "container"
-  },
-  "host": { "name": "ip-96-226-2-148.ec2.internal", "hostname": "ecs-b9m2ngoz" },
+  "message": "{\"cluster\":\"prod-cluster\",\"service\":\"api-backend\",\"taskId\":\"2wj16yua61w\",\"container\":\"api-backend\",\"level\":\"info\",\"message\":\"(service api-backend) registered 1 targets in (target-group tg-G6XVB0B9)\",\"timestamp\":\"2026-04-22T18:06:16.823Z\",\"ecs_cluster\":\"prod-cluster\",\"ecs_task_definition\":\"api-backend-td:33\",\"ecs_task_arn\":\"arn:aws:ecs:us-west-1:814726593401:task/prod-cluster/2wj16yua61w\"}",
+  "service": { "name": "api-backend", "type": "ecs" },
+  "ecs_cluster": "prod-cluster",
+  "ecs_task_definition": "api-backend-td:33",
+  "ecs_task_arn": "arn:aws:ecs:us-west-1:814726593401:task/prod-cluster/2wj16yua61w",
+  "host": { "name": "ip-170-170-136-120.ec2.internal", "hostname": "ecs-fmq82x16" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.ecs_metrics", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "ecmkywt3xel"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "y2xizuoj1pm"
   },
   "input": { "type": "aws-cloudwatch" }
 }

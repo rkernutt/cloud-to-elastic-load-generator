@@ -1,57 +1,63 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-northeast-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "networkmanager" }
   },
   "aws": {
     "networkmanager": {
-      "global_network_id": "network-8pqaw6u64q",
-      "global_network_name": "global-network-dr",
-      "event_type": "CONNECTION_STATUS_DOWN",
-      "device_id": "device-y6p7w7y2v2s",
-      "link_id": "link-2wzv1o8z4r4",
-      "site_id": "site-nzt8bgzm9g",
-      "site_name": "colo-frankfurt",
+      "global_network_id": "network-wvtk307tubd",
+      "global_network_name": "enterprise-wan",
+      "event_type": "LINK_STATUS_DOWN",
+      "device_id": "device-yxt0rd5hjfl",
+      "link_id": "link-o0zmxd4r8s",
+      "site_id": "site-baq7xfloz3d",
+      "site_name": "dc-us-east",
       "bandwidth_mbps": 500,
-      "provider": "NTT",
-      "type": "broadband",
-      "state": "UP"
+      "provider": "AT&T",
+      "type": "direct-connect",
+      "state": "DOWN",
+      "error_code": "ResourceNotFoundException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-networkmanager-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-networkmanager-logs-164820739518"
+        "name": "aws-networkmanager-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-networkmanager-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/164820739518/networkmanager/eu-west-2/2026/04/22/networkmanager_W3VJGDFVJAQ.log.gz"
+        "key": "AWSLogs/738291046572/networkmanager/ap-northeast-1/2026/04/22/networkmanager_AZR6XJ536OF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/networkmanager/logs",
-      "log_stream": "eu-west-2/b76k6vh6",
-      "ingestion_time": "2026-04-22T16:10:08.254Z"
+      "log_stream": "ap-northeast-1/csh5ct3x",
+      "ingestion_time": "2026-04-22T18:06:17.488Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": "network",
     "dataset": "aws.networkmanager",
     "provider": "networkmanager.amazonaws.com",
     "module": "aws"
   },
-  "message": "Network Manager CONNECTION_STATUS_DOWN [global-network-dr]: hq-london link UP",
-  "log": { "level": "warn" },
+  "message": "Network Manager LINK_STATUS_DOWN [enterprise-wan]: connection degraded",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ThrottlingException",
+    "message": "Network Manager connection degraded",
+    "type": "network"
+  },
   "service": { "name": "networkmanager", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.networkmanager", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "l5wt1x1w76i"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "9xk6g8gj8a"
   },
   "input": { "type": "aws-cloudwatch" }
 }

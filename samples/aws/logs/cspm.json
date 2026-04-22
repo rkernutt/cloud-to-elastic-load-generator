@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,33 +7,48 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
+    "region": "ap-southeast-2",
     "account": { "id": "814726593401", "name": "globex-production" }
   },
   "resource": {
-    "id": "arn:aws:cloudwatch:eu-south-1:814726593401:alarm:4-16-compliance",
-    "name": "cis-4.16-alarm",
-    "type": "cloud-alarm",
-    "sub_type": "cloudwatch-alarm"
+    "id": "arn:aws:iam::814726593401:account",
+    "name": "account-password-policy-814726593401",
+    "type": "identitymanagement",
+    "sub_type": "account-password-policy",
+    "raw": {
+      "PasswordPolicy": {
+        "MinimumPasswordLength": 8,
+        "RequireSymbols": false,
+        "RequireNumbers": true,
+        "RequireUppercaseCharacters": false
+      }
+    }
   },
   "rule": {
-    "id": "3851b212-b300-545d-8d6b-54ef71c86661",
-    "name": "Ensure AWS Security Hub is enabled",
-    "section": "4.16",
-    "description": "Security Hub collects security data from across AWS accounts, services, and supported third-party partner products and helps you analyze your security trends and identify the highest priority security issues.",
-    "tags": ["CIS", "AWS", "CIS 4.16", "Monitoring"],
+    "id": "89b58088-54f6-55dc-96a3-f08ac4b27ea3",
+    "name": "Ensure IAM password policy requires minimum length of 14 or greater",
+    "section": "1.8",
+    "description": "Password policies are, in part, used to enforce password complexity requirements.",
+    "tags": ["CIS", "AWS", "CIS 1.8", "Identity and Access Management"],
     "benchmark": {
       "id": "cis_aws",
       "name": "CIS Amazon Web Services Foundations",
       "version": "v1.5.0",
-      "rule_number": "4.16",
+      "rule_number": "1.8",
       "posture_type": "cspm"
     },
-    "profile_applicability": "* Level 2",
-    "impact": "Non-compliance with CIS Amazon Web Services Foundations 4.16 — Ensure AWS Security Hub is enabled",
-    "remediation": "Remediate per CIS Amazon Web Services Foundations v1.5.0 section 4.16."
+    "profile_applicability": "* Level 1",
+    "impact": "Non-compliance with CIS Amazon Web Services Foundations 1.8 — Ensure IAM password policy requires minimum length of 14 or greater",
+    "remediation": "Remediate per CIS Amazon Web Services Foundations v1.5.0 section 1.8."
   },
-  "result": { "evaluation": "failed", "evidence": { "MetricFilters": [], "AlarmActions": [] } },
+  "result": {
+    "evaluation": "failed",
+    "evidence": {
+      "MinimumPasswordLength": 8,
+      "RequireSymbols": false,
+      "RequireLowercaseCharacters": false
+    }
+  },
   "event": {
     "kind": "state",
     "category": ["configuration"],
@@ -43,15 +58,15 @@
     "provider": "elastic_cspm",
     "module": "aws"
   },
-  "message": "[cis_aws/4.16] failed: Ensure AWS Security Hub is enabled",
+  "message": "[cis_aws/1.8] failed: Ensure IAM password policy requires minimum length of 14 or greater",
   "log": { "level": "warn" },
   "service": { "name": "cspm", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "bm2gzyfy0bi"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "s133m7vsw7k"
   },
   "input": { "type": "http_endpoint" },
   "aws": {
@@ -60,12 +75,14 @@
         "name": "aws-cspm-logs-814726593401",
         "arn": "arn:aws:s3:::aws-cspm-logs-814726593401"
       },
-      "object": { "key": "AWSLogs/814726593401/cspm/eu-south-1/2026/04/22/cspm_OJ1D9NZJC5.log.gz" }
+      "object": {
+        "key": "AWSLogs/814726593401/cspm/ap-southeast-2/2026/04/22/cspm_6ES1082RHDO.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/cspm/logs",
-      "log_stream": "eu-south-1/tz8nl7f6",
-      "ingestion_time": "2026-04-22T16:10:08.288Z"
+      "log_stream": "ap-southeast-2/zjk26kc1",
+      "ingestion_time": "2026-04-22T18:06:17.516Z"
     }
   }
 }

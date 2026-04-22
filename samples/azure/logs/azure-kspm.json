@@ -7,59 +7,71 @@
   },
   "cloud": {
     "provider": "azure",
-    "region": "switzerlandnorth",
-    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
+    "region": "swedencentral",
+    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" }
   },
   "orchestrator": {
     "cluster": {
-      "name": "aks-prod-1VR4",
-      "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-app-q467s0/providers/Microsoft.ContainerService/managedClusters/aks-prod-1VR4",
-      "resource_id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-app-q467s0/providers/Microsoft.ContainerService/managedClusters/aks-prod-1VR4"
+      "name": "aks-prod-MBOK",
+      "id": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-analytics-4ejni3/providers/Microsoft.ContainerService/managedClusters/aks-prod-MBOK",
+      "resource_id": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-analytics-4ejni3/providers/Microsoft.ContainerService/managedClusters/aks-prod-MBOK"
     }
   },
   "resource": {
-    "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-app-q467s0/providers/Microsoft.ContainerService/managedClusters/aks-prod-1VR4/nodes/control-plane/config/1-1-6-0257",
-    "name": "1-1-6-0257",
+    "id": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-analytics-4ejni3/providers/Microsoft.ContainerService/managedClusters/aks-prod-MBOK/namespaces/kube-system/scheduler/1-4-1-f65f",
+    "name": "1-4-1-f65f",
     "type": "k8s_object",
-    "sub_type": "node-file"
+    "sub_type": "scheduler"
   },
   "rule": {
-    "id": "3fb6051e-31f8-5fb5-bd45-4f140fa4442e",
-    "name": "Ensure that the scheduler pod specification file ownership is set to root:root",
-    "section": "1.1.6",
-    "description": "Ensure that the scheduler pod specification file ownership is set to `root:root`.",
-    "tags": ["CIS", "Kubernetes", "CIS 1.1.6", "Control Plane Node Configuration Files"],
+    "id": "9fc74adb-6ddd-5838-be72-cfd17fbfb74b",
+    "name": "Ensure that the --profiling argument is set to false",
+    "section": "1.4.1",
+    "description": "Disable profiling, if not needed.",
+    "tags": ["CIS", "Kubernetes", "CIS 1.4.1", "Scheduler"],
     "benchmark": {
       "id": "cis_k8s",
       "name": "CIS Kubernetes V1.23",
       "version": "v1.0.1",
-      "rule_number": "1.1.6",
+      "rule_number": "1.4.1",
       "posture_type": "kspm"
     },
-    "profile_applicability": "* Level 1"
+    "profile_applicability": "* Level 1",
+    "impact": "Non-compliance with CIS Kubernetes V1.23 1.4.1 — Ensure that the --profiling argument is set to false",
+    "remediation": "Remediate per CIS Kubernetes V1.23 v1.0.1 section 1.4.1."
   },
-  "result": { "evaluation": "passed" },
+  "result": {
+    "evaluation": "failed",
+    "evidence": {
+      "evaluatedObject": {
+        "apiVersion": "v1",
+        "kind": "scheduler",
+        "metadata": { "name": "1-4-1-f65f", "namespace": "kube-system" },
+        "nonCompliant": true
+      }
+    }
+  },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "kubernetes"
   },
-  "message": "[cis_k8s/1.1.6] passed: Ensure that the scheduler pod specification file ownership is set to root:root",
-  "log": { "level": "info" },
+  "message": "[cis_k8s/1.4.1] failed: Ensure that the --profiling argument is set to false",
+  "log": { "level": "warn" },
   "service": { "name": "azure-kspm", "type": "azure" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-switzerlandnorth",
-    "id": "m6k5fbfmupj"
+    "name": "elastic-agent-azure-swedencentral",
+    "id": "8otsdyh2xxq"
   },
   "input": { "type": "http_endpoint" },
   "category": "Administrative",
-  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourcegroups/rg-app/providers/Microsoft.Resources/azure-kspm/azure-kspm",
+  "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourcegroups/rg-app/providers/Microsoft.Resources/azure-kspm/azure-kspm",
   "operationName": { "localizedValue": "Write", "value": "azure-kspm/action" }
 }

@@ -42,6 +42,8 @@ The shipping wizard supports a **Back** button on each step, **search and filter
 
 Beyond single-service generators, the app includes **Chained Events** — multi-step correlated scenarios that span several services. Generators use **time-distributed timestamps** and shared **`labels.*` correlation IDs** (for example `finding_chain_id`, `attack_session_id`, `exfil_chain_id`) so events read like real detections and investigations rather than simultaneous bursts.
 
+All chained event generators include **ECS user identity fields** (`user.name`, `user.email`, `source.ip`, `user_agent.original`) and produce **companion cloud audit trail events** (CloudTrail for AWS, Cloud Audit Logs for GCP, Activity Logs for Azure) alongside the operational logs. This provides realistic attribution and enables correlation with ServiceNow CMDB records for alert enrichment (e.g. "who triggered the pipeline that failed?").
+
 - **Data & Analytics Pipeline** (AWS: S3 → EMR → Glue → Athena → MWAA; GCP: GCS → Dataproc → Data Catalog → BigQuery → Composer; Azure: Blob → Databricks → Purview → Synapse → Data Factory) — includes APM traces for the Elastic Service Map, dashboards, ML jobs, and alerting rules (`data-pipeline-*` assets).
 - **Security Finding Chain** — native detect → hub → lake (or SCC/SecOps, Defender/Sentinel/Activity Log); installer assets per cloud: `security-finding-chain` / `gcp-security-finding-chain` / `azure-security-finding-chain` dashboards, rules, and ML jobs.
 - **IAM Privilege Escalation Chain** — MITRE-aligned IAM audit progression with stable attacker/target identity; `iam-privesc-chain` / `gcp-iam-privesc-chain` / `azure-iam-privesc-chain` assets.
@@ -62,6 +64,60 @@ The CSPM and KSPM generators produce findings documents identical to what Elasti
 | CIS Kubernetes v1.0.1        | 92    | Control Plane, etcd, RBAC, Worker Nodes, Pod Security Standards               |
 
 Failed findings include **realistic resource configurations and evidence** — S3 buckets without encryption, security groups allowing 0.0.0.0/0 SSH, IAM users without MFA, pods running as privileged, etc. When the `cloud_security_posture` Fleet integration is installed (automatic when CSPM/KSPM services are selected in the Setup wizard), Elastic's built-in **Posture Dashboard**, **Findings page**, and **Benchmark Rules** pages display the generated data exactly as they would with real cloud infrastructure.
+
+### ServiceNow CMDB Integration
+
+The app includes a **ServiceNow CMDB log generator** that produces realistic records across key CMDB and ITSM tables:
+
+| Table             | Description                                              |
+| ----------------- | -------------------------------------------------------- |
+| `cmdb_ci`         | Configuration items (cloud infrastructure mapped to CIs) |
+| `cmdb_ci_service` | Business services (Data Pipeline Service, etc.)          |
+| `cmdb_rel_ci`     | CI-to-CI relationships (depends-on, runs-on, etc.)       |
+| `incident`        | Incidents with priority, assignment, and resolution      |
+| `change_request`  | Change requests with risk, approval, and test plans      |
+| `sys_user`        | User records correlated with pipeline operators          |
+| `sys_user_group`  | Support groups (Data Engineering Team, etc.)             |
+| `cmn_department`  | Departments and department heads                         |
+| `cmn_location`    | Office locations                                         |
+
+Data uses the `servicenow.event` dataset (routed to `logs-servicenow.event-*`) and follows the integration's `.value` / `.display_value` field convention. CIs are correlated with cloud infrastructure names from the data pipeline chains (e.g. `mwaa-globex-prod`, `emr-analytics-cluster`) and users align with the same `DATA_ENGINEERING_USERS` pool used by chained event generators — enabling **cross-index correlation** between pipeline alerts and ServiceNow CMDB records.
+
+ServiceNow CMDB is treated as **reference data** — capped at 50 documents per ship run. Enable the **ServiceNow** Fleet integration toggle in the Setup wizard to install the `servicenow` integration package.
+
+### Elastic Workflows
+
+A sample **Elastic Workflow** YAML is provided in [`workflows/data-pipeline-alert-enrichment.yaml`](workflows/data-pipeline-alert-enrichment.yaml). This workflow:
+
+1. Triggers on any data pipeline alerting rule
+2. Queries pipeline logs for the triggering user's identity
+3. Looks up the user and affected CI in ServiceNow CMDB
+4. Checks for open incidents and recent change requests
+5. Creates a Kibana case when multiple incidents are found
+6. Sends an enriched Slack notification with contact information
+7. Indexes the enrichment result back to Elasticsearch
+
+### ML Training Mode
+
+The **Ship** page includes an **ML Training Mode** that automates the full anomaly detection training workflow:
+
+1. **Baseline phase** — ships normal data for a configurable number of runs to establish an ML baseline
+2. **Learning wait** — pauses for a configurable duration while ML jobs learn the baseline pattern
+3. **Anomaly injection** — ships one batch with anomalies (100% error rate, 15x duration scaling for logs and traces, 20x metric scaling) to create a detectable anomaly
+
+This removes the manual work of shipping normal data, waiting, then injecting anomalies. Configuration options include baseline run count, learning wait duration, and interval between runs.
+
+### Serverless Use-Case Selector
+
+The **Start** (Connection) page includes an **Elastic use-case** selector for Serverless deployments:
+
+| Use Case          | Available Features                                                            |
+| ----------------- | ----------------------------------------------------------------------------- |
+| **Security**      | Full feature set including CSPM/KSPM, all chained events, all Security assets |
+| **Observability** | All observability features; CSPM/KSPM not available                           |
+| **Elasticsearch** | Data shipping and search-focused features only                                |
+
+This restricts the Setup and Services pages to features compatible with the chosen Serverless project type, preventing installation errors from attempting to use unsupported APIs.
 
 ---
 

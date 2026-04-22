@@ -1,45 +1,48 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-west-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "cloudtrail" }
   },
   "aws": {
-    "dimensions": { "EventName": "ModifyInstanceAttribute", "EventSource": "ec2.amazonaws.com" },
+    "dimensions": { "EventName": "AssumeRole", "EventSource": "sts.amazonaws.com" },
     "cloudtrail": {
       "eventVersion": "1.11",
       "userIdentity": {
-        "type": "AWSService",
-        "principalId": "501938274650:deploy-bot",
-        "arn": "arn:aws:iam::501938274650:user/deploy-bot",
-        "accountId": "501938274650",
-        "accessKeyId": "AKIA31VK512O8X3",
+        "type": "IAMUser",
+        "principalId": "293847561023:deploy-bot",
+        "arn": "arn:aws:iam::293847561023:user/deploy-bot",
+        "accountId": "293847561023",
+        "accessKeyId": "AKIANG6FIDERD1Q",
         "userName": "deploy-bot",
         "sessionContext": {
           "sessionIssuer": {
             "type": "Role",
-            "principalId": "AROAHTEBBAZVJB",
-            "arn": "arn:aws:iam::501938274650:role/service-role/execution-role",
-            "accountId": "501938274650",
+            "principalId": "AROA3I1EYWTWWX7",
+            "arn": "arn:aws:iam::293847561023:role/service-role/execution-role",
+            "accountId": "293847561023",
             "userName": "execution-role"
           },
           "webIdFederationData": {},
-          "attributes": { "creationDate": "2026-04-22T15:26:02.528Z", "mfaAuthenticated": "true" }
+          "attributes": { "creationDate": "2026-04-22T17:40:16.823Z", "mfaAuthenticated": "false" }
         }
       },
-      "eventTime": "2026-04-22T16:10:07Z",
-      "eventSource": "ec2.amazonaws.com",
-      "eventName": "ModifyInstanceAttribute",
-      "awsRegion": "ap-south-1",
-      "sourceIPAddress": "173.133.164.17",
-      "userAgent": "Go-http-client/1.1",
-      "requestParameters": {},
-      "requestID": "2d3edhx1-pkks-njg4-h35q-sgwsyhh8vmb",
-      "eventID": "81itiux3-ktfj-8vuo-lmub-w2w6zs7jdwq",
+      "eventTime": "2026-04-22T18:06:16Z",
+      "eventSource": "sts.amazonaws.com",
+      "eventName": "AssumeRole",
+      "awsRegion": "eu-west-2",
+      "sourceIPAddress": "223.52.138.234",
+      "userAgent": "curl/7.68.0",
+      "requestParameters": {
+        "roleArn": "arn:aws:iam::293847561023:role/CrossAccountRole",
+        "roleSessionName": "session-nxigzq9c"
+      },
+      "requestID": "6jgyi70l-kpai-6vlp-ar5l-5xa30wtfbb",
+      "eventID": "0x39ae0d-sm5a-4zfe-xukw-ibw1fz2122",
       "eventType": "AwsApiCall",
-      "recipientAccountId": "501938274650",
+      "recipientAccountId": "293847561023",
       "readOnly": false,
       "eventCategory": "Management",
       "managementEvent": true,
@@ -47,32 +50,32 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudtrail-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-cloudtrail-logs-501938274650"
+        "name": "aws-cloudtrail-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-cloudtrail-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/cloudtrail/ap-south-1/2026/04/22/cloudtrail_AKRZFCURL5A.log.gz"
+        "key": "AWSLogs/293847561023/cloudtrail/eu-west-2/2026/04/22/cloudtrail_74L64YEBF4F.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloudtrail/logs",
-      "log_stream": "ap-south-1/mz1ccz6a",
-      "ingestion_time": "2026-04-22T16:10:08.202Z"
+      "log_stream": "eu-west-2/xr70pkdl",
+      "ingestion_time": "2026-04-22T18:06:17.437Z"
     }
   },
   "user": { "name": "deploy-bot" },
-  "source": { "ip": "173.133.164.17", "geo": { "country_iso_code": "AU", "city_name": "Sydney" } },
-  "user_agent": { "original": "Go-http-client/1.1" },
+  "source": { "ip": "223.52.138.234", "geo": { "country_iso_code": "DE", "city_name": "Sydney" } },
+  "user_agent": { "original": "curl/7.68.0" },
   "event": {
-    "action": "ModifyInstanceAttribute",
+    "action": "AssumeRole",
     "outcome": "success",
-    "category": ["configuration"],
-    "type": ["change"],
+    "category": ["authentication", "iam"],
+    "type": ["access"],
     "dataset": "aws.cloudtrail",
     "provider": "cloudtrail.amazonaws.com",
     "module": "aws"
   },
-  "message": "CloudTrail: ModifyInstanceAttribute by deploy-bot from 173.133.164.17 - Success",
+  "message": "CloudTrail: AssumeRole by deploy-bot from 223.52.138.234 - Success",
   "log": { "level": "info" },
   "service": { "name": "cloudtrail", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -80,8 +83,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "mi8car3f1va"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "vutfr2lxw1m"
   },
   "input": { "type": "aws-s3" }
 }

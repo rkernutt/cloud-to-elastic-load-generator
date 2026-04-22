@@ -1,74 +1,74 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-southeast-4",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "opensearch" }
   },
   "aws": {
-    "dimensions": { "DomainName": "prod-search-ap-northeast-2", "ClientId": "814726593401" },
+    "dimensions": { "DomainName": "prod-search-ap-southeast-4", "ClientId": "293847561023" },
     "opensearch": {
-      "domain_name": "prod-search-ap-northeast-2",
+      "domain_name": "prod-search-ap-southeast-4",
       "index": "app-logs",
-      "operation": "cluster_health",
-      "took_ms": 918,
+      "operation": "circuit_breaker",
+      "took_ms": 481,
       "shards": {
-        "total": 15,
-        "successful": 15,
+        "total": 7,
+        "successful": 7,
         "failed": 0,
-        "active": 15,
+        "active": 7,
         "initializing": 0,
         "relocating": 0,
         "unassigned": 0
       },
-      "hits_total": 52822,
-      "status_code": 201,
-      "cluster_health": "green",
+      "hits_total": 74609,
+      "status_code": 200,
+      "circuit_breaker": "parent",
       "metrics": {
-        "CPUUtilization": { "avg": 34.14369984427081 },
-        "FreeStorageSpace": { "avg": 131904437679 },
+        "CPUUtilization": { "avg": 32.658298428039934 },
+        "FreeStorageSpace": { "avg": 414405840653 },
         "ClusterStatus": { "green": 1, "yellow": 0, "red": 0 },
-        "Nodes": { "avg": 4 },
-        "SearchableDocuments": { "avg": 876292285 },
-        "IndexingLatency": { "avg": 63 },
-        "SearchLatency": { "avg": 622 },
-        "IndexingRate": { "avg": 71873 },
-        "SearchRate": { "avg": 2139 },
-        "JVMMemoryPressure": { "avg": 23.138959821195293 },
+        "Nodes": { "avg": 18 },
+        "SearchableDocuments": { "avg": 101810011 },
+        "IndexingLatency": { "avg": 285 },
+        "SearchLatency": { "avg": 708 },
+        "IndexingRate": { "avg": 38730 },
+        "SearchRate": { "avg": 9943 },
+        "JVMMemoryPressure": { "avg": 53.41811999377679 },
         "AutomatedSnapshotFailure": { "sum": 0 },
         "CoordinatingWriteRejected": { "sum": 0 },
         "PrimaryWriteRejected": { "sum": 0 },
         "ReplicaWriteRejected": { "sum": 0 },
-        "WarmStorageSpaceUsage": { "avg": 65.06690735626049 },
-        "DeletedDocuments": { "avg": 76300 }
+        "WarmStorageSpaceUsage": { "avg": 49.7365972743635 },
+        "DeletedDocuments": { "avg": 35668 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-opensearch-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-opensearch-logs-814726593401"
+        "name": "aws-opensearch-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-opensearch-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/814726593401/opensearch/ap-northeast-2/2026/04/22/opensearch_AK8SML2FL8.log.gz"
+        "key": "AWSLogs/293847561023/opensearch/ap-southeast-4/2026/04/22/opensearch_D9RE5HCSHJ6.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/opensearch/logs",
-      "log_stream": "ap-northeast-2/t5x6itvs",
-      "ingestion_time": "2026-04-22T16:10:08.333Z"
+      "log_stream": "ap-southeast-4/xq6tvksr",
+      "ingestion_time": "2026-04-22T18:06:17.548Z"
     }
   },
-  "http": { "response": { "status_code": 201 } },
+  "http": { "response": { "status_code": 200 } },
   "event": {
-    "duration": 918288046.4639976,
+    "duration": 481046132.98736185,
     "outcome": "success",
     "category": "database",
     "dataset": "aws.opensearch",
     "provider": "es.amazonaws.com",
     "module": "aws"
   },
-  "message": "[2026-04-22T16:10:07.528Z] cluster health changed: green (active_shards=101, relocating_shards=2, unassigned_shards=0)",
+  "message": "[2026-04-22T18:06:16.823Z][WARN ][o.e.i.b.request.RequestBreaker] [data-0] breaking incoming request: [parent] Data too large, data for [<reused_arrays>] would be [3069mb], which is larger than the limit of [1245mb]",
   "log": { "level": "info" },
   "service": { "name": "opensearch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -76,8 +76,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "lkvs6a9fmf"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "zwc9f7406j"
   },
   "input": { "type": "aws-cloudwatch" }
 }

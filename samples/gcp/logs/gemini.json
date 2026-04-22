@@ -1,71 +1,61 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
+  "severity": "WARNING",
   "labels": {
-    "resource.type": "generativelanguage.googleapis.com/Model",
-    "location": "northamerica-northeast2"
+    "resource.type": "cloudaicompanion.googleapis.com/Request",
+    "editor": "vscode",
+    "language": "terraform"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "northamerica-northeast2",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" },
-    "service": { "name": "generativelanguage.googleapis.com" }
+    "region": "asia-east2",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "service": { "name": "cloudaicompanion.googleapis.com" }
   },
   "gcp": {
-    "gemini": {
-      "model": "gemini-2.0-flash",
-      "input_tokens": 2198,
-      "output_tokens": 2440,
-      "total_tokens": 4638,
-      "finish_reason": "STOP",
-      "prompt_token_count": 2198,
-      "candidates_token_count": 2440,
-      "total_token_count": 4638,
-      "safety_ratings": [
-        { "category": "HARM_CATEGORY_HARASSMENT", "probability": "LOW" },
-        { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "probability": "LOW" }
-      ],
-      "latency_ms": 1314,
-      "grounding_used": true
+    "gemini_code_assist": {
+      "editor": "vscode",
+      "action": "TRANSFORMATION",
+      "language": "terraform",
+      "accepted": false,
+      "latency_ms": 7672,
+      "tokens_generated": 44
     }
   },
-  "event": { "outcome": "success", "duration": 1314, "module": "gcp", "dataset": "gcp.gemini" },
-  "message": "POST /v1beta/models/gemini-2.0-flash:generateContent 200 OK latency_ms=1314 prompt_tokens=2198 candidates_tokens=2440 total=4638",
-  "service": { "name": "gemini", "type": "gcp" },
-  "log": { "level": "info" },
+  "event": {
+    "outcome": "failure",
+    "duration": 7672,
+    "module": "gcp",
+    "dataset": "gcp.gemini_code_assist"
+  },
+  "message": "cloudaicompanion.googleapis.com: TRANSFORMATION request FAILED editor=vscode language=terraform: upstream UNAVAILABLE",
+  "service": { "name": "gemini-code-assist", "type": "gcp" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.gemini", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.gemini_code_assist", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-northamerica-northeast2",
-    "id": "7ixetl96mba"
+    "name": "elastic-agent-gcp-asia-east2",
+    "id": "ashi9ffdj6u"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-dev-g7h8i9/logs/gemini",
+  "logName": "projects/globex-staging-d4e5f6/logs/gemini-code-assist",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-dev-g7h8i9", "region": "northamerica-northeast2" }
+    "labels": { "project_id": "globex-staging-d4e5f6", "region": "asia-east2" }
   },
-  "insertId": "JNZX1IKL0KH",
+  "insertId": "IFN3XWSE9M8",
   "jsonPayload": {
-    "gemini": {
-      "model": "gemini-2.0-flash",
-      "input_tokens": 2198,
-      "output_tokens": 2440,
-      "total_tokens": 4638,
-      "finish_reason": "STOP",
-      "prompt_token_count": 2198,
-      "candidates_token_count": 2440,
-      "total_token_count": 4638,
-      "safety_ratings": [
-        { "category": "HARM_CATEGORY_HARASSMENT", "probability": "LOW" },
-        { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "probability": "LOW" }
-      ],
-      "latency_ms": 1314,
-      "grounding_used": true
+    "gemini_code_assist": {
+      "editor": "vscode",
+      "action": "TRANSFORMATION",
+      "language": "terraform",
+      "accepted": false,
+      "latency_ms": 7672,
+      "tokens_generated": 44
     },
-    "message": "POST /v1beta/models/gemini-2.0-flash:generateContent 200 OK latency_ms=1314 prompt_tokens=2198 candidates_tokens=2440 total=4638"
+    "message": "cloudaicompanion.googleapis.com: TRANSFORMATION request FAILED editor=vscode language=terraform: upstream UNAVAILABLE"
   }
 }

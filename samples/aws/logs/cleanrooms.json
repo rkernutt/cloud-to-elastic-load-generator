@@ -1,56 +1,61 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-northeast-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "cleanrooms" }
   },
   "aws": {
-    "dimensions": { "CollaborationId": "tg5spa9b-on66-7d3o-w6w9-ragxip18ebk" },
+    "dimensions": { "CollaborationId": "coatj7g4-awn8-bu7r-87bm-ymxrsxn3qjs" },
     "cleanrooms": {
-      "collaboration_id": "tg5spa9b-on66-7d3o-w6w9-ragxip18ebk",
-      "collaboration_name": "retail-analytics-collab",
-      "configured_table_name": "loyalty_events",
-      "protected_query_id": "pq-ih1hm125amr",
-      "query_status": "RUNNING",
-      "protected_query_type": "SELECT",
-      "rows_returned": 16842,
-      "member_account_id": "164820739518"
+      "collaboration_id": "coatj7g4-awn8-bu7r-87bm-ymxrsxn3qjs",
+      "collaboration_name": "ad-measurement-collab",
+      "configured_table_name": "customer_transactions",
+      "protected_query_id": "pq-smyhr363qr",
+      "query_status": "CANCELLED",
+      "protected_query_type": "JOIN",
+      "rows_returned": 0,
+      "member_account_id": "501938274650"
     },
     "s3": {
       "bucket": {
-        "name": "aws-cleanrooms-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-cleanrooms-logs-814726593401"
+        "name": "aws-cleanrooms-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-cleanrooms-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/cleanrooms/eu-central-2/2026/04/22/cleanrooms_XGR4L4VBB7.log.gz"
+        "key": "AWSLogs/164820739518/cleanrooms/ap-northeast-2/2026/04/22/cleanrooms_KYJ2EHAH7IA.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cleanrooms/logs",
-      "log_stream": "eu-central-2/qwngvm1l",
-      "ingestion_time": "2026-04-22T16:10:08.381Z"
+      "log_stream": "ap-northeast-2/mgwdz9dy",
+      "ingestion_time": "2026-04-22T18:06:17.600Z"
     }
   },
   "event": {
-    "action": "BatchGetCollaborationAnalysisTemplate",
-    "outcome": "success",
+    "action": "StartProtectedQuery",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.cleanrooms",
     "provider": "cleanrooms.amazonaws.com",
     "module": "aws"
   },
-  "message": "Clean Rooms retail-analytics-collab: SELECT on loyalty_events returned 16842 rows",
-  "log": { "level": "info" },
+  "message": "Clean Rooms ad-measurement-collab: query CANCELLED on customer_transactions",
+  "log": { "level": "error" },
+  "error": {
+    "code": "AccessDeniedException",
+    "message": "Clean Rooms protected query failed",
+    "type": "process"
+  },
   "service": { "name": "cleanrooms", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cleanrooms", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "k3c7hbu8sai"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "z91x5vcayz"
   },
   "input": { "type": "aws-cloudwatch" }
 }

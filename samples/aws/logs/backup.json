@@ -1,29 +1,24 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
+    "region": "eu-west-3",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "backup" }
   },
   "aws": {
     "backup": {
-      "event_subtype": "plan_execution",
-      "backup_job_id": "ilydvykj-ofg2-wm2x",
+      "event_subtype": "backup_job",
+      "backup_job_id": "bdbclnxt-usvk-t72q",
       "backup_plan_name": "weekly-cold",
-      "backup_plan_execution": {
-        "execution_id": "194xo3zl-tpie",
-        "rules_matched": 7,
-        "resources_evaluated": 118,
-        "next_window_utc": "2026-04-23T14:19:51.326Z"
-      },
-      "resource_arn": "arn:aws:backup:eu-south-1:814726593401:recovery-point:cicrwsr9qu4",
-      "resource_type": "EFS",
-      "backup_vault_name": "Default",
-      "status": "FAILED",
-      "backup_size_gb": 1484.3369981635424,
-      "lifecycle_delete_after_days": 365,
-      "error_code": "RESOURCE_NOT_FOUND"
+      "resource_arn": "arn:aws:backup:eu-west-3:814726593401:recovery-point:4pqmr6d6vil",
+      "resource_type": "RDS",
+      "backup_vault_name": "compliance-vault",
+      "job_phase": "CREATED",
+      "job_lifecycle": ["CREATED", "PENDING", "RUNNING", "COMPLETED"],
+      "status": "COMPLETED",
+      "backup_size_gb": 771.3946942259787,
+      "lifecycle_delete_after_days": 7
     },
     "s3": {
       "bucket": {
@@ -31,34 +26,33 @@
         "arn": "arn:aws:s3:::aws-backup-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/backup/eu-south-1/2026/04/22/backup_FOG42ZB4MON.log.gz"
+        "key": "AWSLogs/814726593401/backup/eu-west-3/2026/04/22/backup_ABHJTLNDPWR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/backup/logs",
-      "log_stream": "eu-south-1/rgp0bk40",
-      "ingestion_time": "2026-04-22T16:10:08.326Z"
+      "log_stream": "eu-west-3/m2g3s7hw",
+      "ingestion_time": "2026-04-22T18:06:17.542Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.backup",
     "provider": "backup.amazonaws.com",
-    "duration": 3004000000000,
+    "duration": 2709000000000,
     "module": "aws"
   },
-  "message": "AWS Backup plan \"weekly-cold\" execution 194xo3zl-tpie: 118 resources",
-  "log": { "level": "error" },
-  "error": { "code": "LIMIT_EXCEEDED", "message": "Backup job failed", "type": "storage" },
+  "message": "AWS Backup COMPLETED: efs/fs-prod -> compliance-vault (771.4GB)",
+  "log": { "level": "info" },
   "service": { "name": "backup", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.backup", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "89ojobse0g4"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "9imuvbxceo"
   },
   "input": { "type": "aws-cloudwatch" }
 }

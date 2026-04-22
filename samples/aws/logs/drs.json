@@ -1,45 +1,48 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-southeast-4",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "drs" }
   },
   "aws": {
-    "dimensions": { "SourceServerId": "s-d74v4atufbf" },
+    "dimensions": { "SourceServerId": "s-bc3g6u2260v" },
     "drs": {
-      "source_server_id": "s-d74v4atufbf",
-      "source_hostname": "web-server-01",
-      "replication_status": "InProgress",
-      "lag_duration_seconds": 22,
-      "data_replication_state": "Continuous",
-      "ebs_volume_count": 1,
+      "source_server_id": "s-bc3g6u2260v",
+      "source_hostname": "app-server-03",
+      "replication_status": "Continuous",
+      "lag_duration_seconds": 0,
+      "recovery_instance_id": "i-4qnn702vqpq",
+      "data_replication_state": "Disconnected",
+      "ebs_volume_count": 8,
       "staging_area": "us-west-2",
-      "recovery_point_objective_seconds": 30
+      "recovery_point_objective_seconds": 21
     },
     "s3": {
       "bucket": {
-        "name": "aws-drs-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-drs-logs-293847561023"
+        "name": "aws-drs-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-drs-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/293847561023/drs/eu-south-1/2026/04/22/drs_NO2VNQZ0NL.log.gz" }
+      "object": {
+        "key": "AWSLogs/164820739518/drs/ap-southeast-4/2026/04/22/drs_QRCOQVFMROO.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/drs/logs",
-      "log_stream": "eu-south-1/8yhzilf6",
-      "ingestion_time": "2026-04-22T16:10:08.435Z"
+      "log_stream": "ap-southeast-4/f3wl8asr",
+      "ingestion_time": "2026-04-22T18:06:17.649Z"
     }
   },
   "event": {
-    "action": "SourceServerDisconnected",
+    "action": "TerminateRecoveryInstance",
     "outcome": "success",
     "category": ["host"],
     "dataset": "aws.drs",
     "provider": "drs.amazonaws.com",
     "module": "aws"
   },
-  "message": "DRS web-server-01: replication InProgress, RPO 30s",
+  "message": "DRS app-server-03: replication Continuous, RPO 21s",
   "log": { "level": "info" },
   "service": { "name": "drs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -47,8 +50,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "3vxnfeygvtn"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "559prcxr5h3"
   },
   "input": { "type": "aws-cloudwatch" }
 }

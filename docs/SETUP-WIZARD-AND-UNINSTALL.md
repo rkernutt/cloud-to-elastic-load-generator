@@ -31,21 +31,22 @@ This makes it easy to **view**, **bulk-edit**, or **bulk-delete** all load-gener
 
 The Setup page groups integrations by **service category**:
 
-| Category                | Examples                                                       |
-| ----------------------- | -------------------------------------------------------------- |
-| Compute                 | Lambda, EC2, ECS, EKS, Cloud Functions, AKS, Virtual Machines  |
-| Networking              | ELB, CloudFront, WAF, Cloud Load Balancing, Azure Firewall     |
-| Storage                 | S3, EBS, Cloud Storage, Blob Storage                           |
-| Databases               | DynamoDB, RDS, Aurora, Cloud SQL, Cosmos DB                    |
-| Streaming & Messaging   | Kinesis, SQS, SNS, Pub/Sub, Event Hubs, Service Bus            |
-| Analytics               | EMR, Glue, Athena, BigQuery, Dataproc, Synapse                 |
-| AI & Machine Learning   | SageMaker, Bedrock, Vertex AI, OpenAI                          |
-| Security & Identity     | GuardDuty, Security Hub, Cloud Armor, Entra ID, Sentinel       |
-| Developer Tools         | CodeBuild, X-Ray, Cloud Build, Azure Pipeline                  |
-| IoT                     | IoT Core, IoT Hub                                              |
-| Management & Governance | CloudWatch, CloudFormation, Cloud Monitoring, Azure Monitor    |
-| End User & Media        | WorkSpaces, Connect, Media Services                            |
-| Chained Events          | Data & Analytics Pipeline (multi-service correlated scenarios) |
+| Category                  | Examples                                                       |
+| ------------------------- | -------------------------------------------------------------- |
+| Compute                   | Lambda, EC2, ECS, EKS, Cloud Functions, AKS, Virtual Machines  |
+| Networking                | ELB, CloudFront, WAF, Cloud Load Balancing, Azure Firewall     |
+| Storage                   | S3, EBS, Cloud Storage, Blob Storage                           |
+| Databases                 | DynamoDB, RDS, Aurora, Cloud SQL, Cosmos DB                    |
+| Streaming & Messaging     | Kinesis, SQS, SNS, Pub/Sub, Event Hubs, Service Bus            |
+| Analytics                 | EMR, Glue, Athena, BigQuery, Dataproc, Synapse                 |
+| AI & Machine Learning     | SageMaker, Bedrock, Vertex AI, OpenAI                          |
+| Security & Identity       | GuardDuty, Security Hub, Cloud Armor, Entra ID, Sentinel       |
+| Developer Tools           | CodeBuild, X-Ray, Cloud Build, Azure Pipeline                  |
+| IoT                       | IoT Core, IoT Hub                                              |
+| Management & Governance   | CloudWatch, CloudFormation, Cloud Monitoring, Azure Monitor    |
+| End User & Media          | WorkSpaces, Connect, Media Services                            |
+| ITSM & Service Management | ServiceNow CMDB                                                |
+| Chained Events            | Data & Analytics Pipeline (multi-service correlated scenarios) |
 
 Categories are collapsible, making it easy to navigate large catalogs (**212** AWS log services, **130** GCP, **131** Azure — see `src/data/serviceGroups.ts` and the matching GCP/Azure service group files). AWS services are distributed across specific categories — there is no catch-all "Additional Services" group; every service belongs to a logically appropriate category.
 
@@ -98,6 +99,30 @@ Below the Cloud Loadgen Integrations row, a **Post-install options** panel provi
 | **Start ML jobs after install**         | Off     | After all ML jobs are created, opens each anomaly detector (`/_open`) and starts its datafeed (`/_start`) so analysis begins immediately |
 
 Both toggles are disabled when Cloud Loadgen Integrations is toggled off. When off (the default), rules are created disabled and ML jobs are created in a closed state — you can enable/start them later from Kibana.
+
+### ServiceNow CMDB Integration
+
+A dedicated toggle for **ServiceNow CMDB Integration** is available in the Setup wizard under the **ITSM & Service Management** category. When enabled, the installer adds the `servicenow` Fleet integration package alongside the cloud vendor integration. This enables Elastic's ServiceNow data views and allows cross-index correlation between pipeline alerts and CMDB records (CI ownership, support groups, open incidents, change requests). ServiceNow CMDB logs are shipped to `logs-servicenow.event-*`.
+
+### ML Training Mode
+
+The **Ship** page provides an **ML Training Mode** that automates the baseline → learning → anomaly injection workflow required for ML anomaly detection. See the [README](../README.md#ml-training-mode) for configuration details. This feature is independent of Setup and works with any combination of installed assets.
+
+---
+
+## Serverless use-case selector
+
+The **Start** (Connection) page detects Serverless deployments (`build_flavor: "serverless"`) and presents an **Elastic use-case** selector:
+
+| Use Case          | CSPM/KSPM | Security chains | Observability features | Search features |
+| ----------------- | --------- | --------------- | ---------------------- | --------------- |
+| **Security**      | Yes       | Yes             | Yes                    | Yes             |
+| **Observability** | No        | Limited         | Yes                    | Yes             |
+| **Elasticsearch** | No        | Limited         | Limited                | Yes             |
+
+The chosen use case restricts which services, integrations, and chained events appear in the Setup and Services pages. For example, CSPM/KSPM is only available on **Security** Serverless projects because the `cloud_security_posture` Fleet package is not available on Observability or Elasticsearch projects.
+
+Incompatibility notes are also shown inline in the Setup and Chained Events sections.
 
 ---
 

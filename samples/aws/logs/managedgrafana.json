@@ -1,57 +1,62 @@
 {
-  "@timestamp": "2026-04-22T16:10:07.528Z",
+  "@timestamp": "2026-04-22T18:06:16.823Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-south-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "managedgrafana" }
   },
   "aws": {
-    "dimensions": { "WorkspaceId": "g-q1quwlz1kx" },
+    "dimensions": { "WorkspaceId": "g-gkgubk17xc" },
     "managedgrafana": {
-      "workspace_id": "g-q1quwlz1kx",
-      "workspace_name": "prod-observability",
-      "workspace_status": "CREATING",
+      "workspace_id": "g-gkgubk17xc",
+      "workspace_name": "ops-dashboards",
+      "workspace_status": "FAILED",
       "grafana_version": "10.4",
-      "alert_state": "no_data",
+      "alert_state": "alerting",
       "dashboard_title": "EKS Cluster Health",
-      "datasource_type": "athena",
+      "datasource_type": "prometheus",
       "authentication_providers": "SAML",
-      "notification_destinations": "SNS"
+      "notification_destinations": "PAGERDUTY"
     },
     "s3": {
       "bucket": {
-        "name": "aws-managedgrafana-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-managedgrafana-logs-738291046572"
+        "name": "aws-managedgrafana-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-managedgrafana-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/managedgrafana/ap-south-2/2026/04/22/managedgrafana_LVZLNAPZPYD.log.gz"
+        "key": "AWSLogs/293847561023/managedgrafana/eu-south-2/2026/04/22/managedgrafana_9STDIQ0HVP.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/managedgrafana/logs",
-      "log_stream": "ap-south-2/iatzlsl6",
-      "ingestion_time": "2026-04-22T16:10:08.431Z"
+      "log_stream": "eu-south-2/j55t1c7j",
+      "ingestion_time": "2026-04-22T18:06:17.646Z"
     }
   },
   "event": {
-    "action": "UpdatePermissions",
-    "outcome": "success",
+    "action": "DeleteApiKey",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.managedgrafana",
     "provider": "grafana.amazonaws.com",
     "module": "aws"
   },
-  "message": "Managed Grafana UpdatePermissions: workspace=prod-observability alert=no_data dashboard=\"EKS Cluster Health\"",
-  "log": { "level": "info" },
+  "message": "Managed Grafana DeleteApiKey FAILED [ops-dashboards]: Workspace not active",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ResourceNotFoundException",
+    "message": "Managed Grafana operation failed",
+    "type": "process"
+  },
   "service": { "name": "managedgrafana", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.managedgrafana", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "rinb45xb0ti"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "lcamcfexwi"
   },
   "input": { "type": "aws-cloudwatch" }
 }
