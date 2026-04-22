@@ -1,0 +1,65 @@
+{
+  "name": "cloudloadgen-full",
+  "metadata": {
+    "application": "cloud-to-elastic-load-generator",
+    "tags": ["cloudloadgen"],
+    "purpose": "Ship data plus install and manage dashboards, ML jobs, alerting rules, ingest pipelines, and Fleet integrations"
+  },
+  "role_descriptors": {
+    "cloudloadgen_ship": {
+      "cluster": ["monitor"],
+      "indices": [
+        {
+          "names": [
+            "logs-aws.*",
+            "logs-gcp.*",
+            "logs-azure.*",
+            "logs-cloud_security_posture.findings*",
+            "metrics-aws.*",
+            "metrics-gcp.*",
+            "metrics-azure.*",
+            "metrics-o365_metrics.*",
+            "traces-apm*",
+            "traces-aws.*"
+          ],
+          "privileges": ["auto_configure", "create_doc", "create_index", "view_index_metadata"]
+        }
+      ]
+    },
+    "cloudloadgen_setup": {
+      "cluster": ["manage_ml", "manage_ingest_pipelines", "manage_index_templates"],
+      "indices": [
+        {
+          "names": [
+            "logs-aws.*",
+            "logs-gcp.*",
+            "logs-azure.*",
+            "logs-cloud_security_posture.findings*",
+            "metrics-aws.*",
+            "metrics-gcp.*",
+            "metrics-azure.*",
+            "metrics-o365_metrics.*",
+            "traces-apm*",
+            "traces-aws.*"
+          ],
+          "privileges": ["read", "view_index_metadata"]
+        }
+      ],
+      "applications": [
+        {
+          "application": "kibana-.kibana",
+          "privileges": [
+            "feature_dashboard.all",
+            "feature_savedObjectsManagement.all",
+            "feature_savedObjectsTagging.all",
+            "feature_stackAlerts.all",
+            "feature_fleet.all",
+            "feature_ml.all",
+            "feature_indexPatterns.all"
+          ],
+          "resources": ["space:*"]
+        }
+      ]
+    }
+  }
+}

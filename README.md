@@ -109,6 +109,21 @@ npm run dev
 
 ---
 
+## API key permissions
+
+The load generator connects to Elasticsearch with an API key. Two least-privilege key definitions are provided in [`installer/api-keys/`](installer/api-keys/):
+
+| Key             | File               | Grants                                                                                                             |
+| --------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| **Ship-only**   | `ship-only.json`   | Bulk-index logs, metrics, and traces — nothing else                                                                |
+| **Full-access** | `full-access.json` | Ship data **plus** install/uninstall dashboards, ML jobs, alerting rules, ingest pipelines, and Fleet integrations |
+
+Both keys include `metadata.tags: ["cloudloadgen"]` so they are easy to find alongside the assets they manage.
+
+Create a key via **Dev Tools** (`POST /_security/api_key`) or cURL using the JSON file as the request body. For full details — privilege breakdown, API operations reference, Serverless notes, and revocation — see [docs/api-key-permissions.md](docs/api-key-permissions.md).
+
+---
+
 ## Testing and quality
 
 | Command                                   | Purpose                                                                                                                     |
