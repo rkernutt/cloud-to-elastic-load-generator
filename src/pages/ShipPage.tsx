@@ -101,7 +101,10 @@ function MLTrainingSection({
     baseline_wait: "Waiting between baseline runs",
     ml_learning: "Waiting for ML to learn baseline",
     injection: "Shipping anomaly injection",
-    done: "Complete",
+    stabilising: "Stabilising — waiting for ML to score anomalies",
+    done: mlTrainingConfig.stopDatafeedsOnComplete
+      ? "Complete — datafeeds stopped, anomaly scores frozen"
+      : "Complete",
   };
 
   const stepStatus = (phase: string, targetPhase: string, completedPhases: string[]) => {
@@ -110,9 +113,11 @@ function MLTrainingSection({
     return "incomplete" as const;
   };
 
+  const postInjection = mlState.phase === "stabilising" || mlState.phase === "done";
   const baselineCompleted =
-    mlState.phase === "ml_learning" || mlState.phase === "injection" || mlState.phase === "done";
-  const mlWaitCompleted = mlState.phase === "injection" || mlState.phase === "done";
+    mlState.phase === "ml_learning" || mlState.phase === "injection" || postInjection;
+  const mlWaitCompleted = mlState.phase === "injection" || postInjection;
+  const injectionCompleted = postInjection;
 
   const steps = [
     {
@@ -161,16 +166,43 @@ function MLTrainingSection({
     },
     {
       title: "Anomaly injection: 1 run with 15x duration spike",
-      status: stepStatus(mlState.phase, "injection", mlState.phase === "done" ? ["injection"] : []),
+      status: stepStatus(mlState.phase, "injection", injectionCompleted ? ["injection"] : []),
       children:
         mlState.phase === "injection" ? (
           <EuiText size="s">
             <p>Shipping anomaly data with 100% error rate and 15x duration scaling…</p>
           </EuiText>
-        ) : mlState.phase === "done" ? (
+        ) : injectionCompleted ? (
           <EuiBadge color="success">Complete</EuiBadge>
         ) : null,
     },
+    ...(mlTrainingConfig.stopDatafeedsOnComplete
+      ? [
+          {
+            title: "Stabilise & freeze: stop datafeeds after 2 min",
+            status: stepStatus(
+              mlState.phase,
+              "stabilising",
+              mlState.phase === "done" ? ["stabilising"] : []
+            ),
+            children:
+              mlState.phase === "stabilising" ? (
+                <EuiText size="s">
+                  <p>
+                    Waiting for ML to score the anomalies before stopping datafeeds.{" "}
+                    {mlState.countdown > 0 && (
+                      <>
+                        Stopping in <strong>{formatCountdown(mlState.countdown)}</strong>
+                      </>
+                    )}
+                  </p>
+                </EuiText>
+              ) : mlState.phase === "done" ? (
+                <EuiBadge color="success">Datafeeds stopped — scores preserved</EuiBadge>
+              ) : null,
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -245,15 +277,29 @@ function MLTrainingSection({
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="m" />
+          <EuiSwitch
+            label="Stop datafeeds after training (prevents re-baselining)"
+            checked={mlTrainingConfig.stopDatafeedsOnComplete}
+            onChange={(e) =>
+              onMLTrainingConfigChange({
+                ...mlTrainingConfig,
+                stopDatafeedsOnComplete: e.target.checked,
+              })
+            }
+            compressed
+          />
+          <EuiSpacer size="m" />
           <EuiCallOut title="Estimated duration" color="primary" iconType="clock" size="s">
             <p>
               {mlTrainingConfig.baselineRuns} baseline runs × {mlTrainingConfig.baselineIntervalMin}{" "}
-              min + {mlTrainingConfig.mlWaitMin} min ML wait + 1 injection run ≈{" "}
+              min + {mlTrainingConfig.mlWaitMin} min ML wait + 1 injection run
+              {mlTrainingConfig.stopDatafeedsOnComplete ? " + 2 min stabilisation" : ""} ≈{" "}
               <strong>
                 {Math.round(
                   (mlTrainingConfig.baselineRuns - 1) * mlTrainingConfig.baselineIntervalMin +
                     mlTrainingConfig.mlWaitMin +
-                    5
+                    5 +
+                    (mlTrainingConfig.stopDatafeedsOnComplete ? 2 : 0)
                 )}{" "}
                 minutes
               </strong>{" "}

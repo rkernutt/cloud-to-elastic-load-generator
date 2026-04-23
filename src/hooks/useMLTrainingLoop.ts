@@ -6,6 +6,7 @@ export type MLTrainingPhase =
   | "baseline_wait"
   | "ml_learning"
   | "injection"
+  | "stabilising"
   | "done";
 
 export interface MLTrainingState {
@@ -25,12 +26,14 @@ export interface MLTrainingConfig {
   baselineRuns: number;
   baselineIntervalMin: number;
   mlWaitMin: number;
+  stopDatafeedsOnComplete: boolean;
 }
 
 export const ML_TRAINING_DEFAULTS: MLTrainingConfig = {
   baselineRuns: 5,
   baselineIntervalMin: 15,
   mlWaitMin: 30,
+  stopDatafeedsOnComplete: true,
 };
 
 /**
@@ -38,10 +41,12 @@ export const ML_TRAINING_DEFAULTS: MLTrainingConfig = {
  *   1. Ship N baseline batches (injectAnomalies = false), spaced by baselineIntervalMin
  *   2. Wait mlWaitMin for ML to learn the baseline
  *   3. Ship 1 anomaly injection batch (injectAnomalies = true)
+ *   4. Wait a short stabilisation period then stop datafeeds to freeze anomaly scores
  */
 export function useMLTrainingLoop(
   shipFn: (injectAnomalies: boolean) => Promise<void>,
-  abortRef: { current: boolean }
+  abortRef: { current: boolean },
+  onComplete?: () => Promise<void>
 ): {
   mlState: MLTrainingState;
   startMLTraining: (cfg: MLTrainingConfig) => Promise<void>;
@@ -58,6 +63,8 @@ export function useMLTrainingLoop(
   const mlLoopRef = useRef<AbortController | null>(null);
   const shipRef = useRef(shipFn);
   shipRef.current = shipFn;
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
   const countdownTargetRef = useRef<Date | null>(null);
 
   useEffect(() => {
@@ -155,6 +162,27 @@ export function useMLTrainingLoop(
       setPhase("injection");
       abortRef.current = false;
       await shipRef.current(true);
+
+      if (controller.signal.aborted) {
+        setActive(false);
+        setPhase("idle");
+        mlLoopRef.current = null;
+        return;
+      }
+
+      if (cfg.stopDatafeedsOnComplete) {
+        // Phase 4: Stabilisation — wait 2 min for ML to score the anomalies,
+        // then stop datafeeds to freeze the model and preserve anomaly scores.
+        setPhase("stabilising");
+        const stabiliseMs = 2 * 60 * 1000;
+        countdownTargetRef.current = new Date(Date.now() + stabiliseMs);
+        const stabOk = await waitWithAbort(stabiliseMs, controller);
+        countdownTargetRef.current = null;
+
+        if (stabOk && !controller.signal.aborted && onCompleteRef.current) {
+          await onCompleteRef.current();
+        }
+      }
 
       setInjectionComplete(true);
       setPhase("done");

@@ -37,6 +37,7 @@ import {
   loadAndScrubSavedConfig,
   toPersistedStorageObject,
 } from "./utils/persistedConfig";
+import { proxyCall } from "./setup/setupProxy";
 import { isOtelPipelineSource } from "./helpers/otelPipeline";
 import {
   analyzeIngestionConflicts,
@@ -816,9 +817,45 @@ export function LoadGeneratorApp({
   );
 
   const [mlTrainingConfig, setMLTrainingConfig] = useState<MLTrainingConfig>(ML_TRAINING_DEFAULTS);
+
+  const stopMlDatafeeds = useCallback(async () => {
+    if (!elasticUrl || !apiKey) return;
+    try {
+      const res = await proxyCall({
+        baseUrl: elasticUrl,
+        apiKey,
+        path: "/_ml/datafeeds/_stats",
+        method: "GET",
+      });
+      const feeds = (res as { datafeeds?: { datafeed_id: string; state: string }[] }).datafeeds;
+      if (!feeds) return;
+      const started = feeds.filter((f) => f.state === "started");
+      addLog(`Stopping ${started.length} ML datafeed(s) to preserve anomaly scores…`);
+      let stopped = 0;
+      for (const f of started) {
+        try {
+          await proxyCall({
+            baseUrl: elasticUrl,
+            apiKey,
+            path: `/_ml/datafeeds/${encodeURIComponent(f.datafeed_id)}/_stop`,
+            method: "POST",
+            body: {},
+          });
+          stopped++;
+        } catch {
+          /* best-effort */
+        }
+      }
+      addLog(`  ✓ Stopped ${stopped} datafeed(s) — anomaly scores are now frozen`);
+    } catch {
+      addLog("  ⚠ Could not stop ML datafeeds — stop them manually in Kibana to preserve scores");
+    }
+  }, [elasticUrl, apiKey, addLog]);
+
   const { mlState, startMLTraining, stopMLTraining, mlLoopRef } = useMLTrainingLoop(
     shipWithOverride,
-    abortRef
+    abortRef,
+    stopMlDatafeeds
   );
 
   const pct = progress.total > 0 ? Math.round((progress.sent / progress.total) * 100) : 0;
