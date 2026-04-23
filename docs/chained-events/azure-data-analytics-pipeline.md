@@ -134,4 +134,4 @@ CMDB records include Azure-specific CIs (`adf-globex-prod`, `dbw-analytics-works
 
 ## ML Training Mode
 
-See the [AWS pipeline docs](./data-analytics-pipeline.md#ml-training-mode) for ML training guidance — the same baseline → wait → anomaly injection pattern applies to Azure pipeline ML jobs.
+See the [AWS pipeline docs](./data-analytics-pipeline.md#ml-training-mode) for ML training guidance — the same reset → baseline → wait → inject → stabilise workflow applies to Azure pipeline ML jobs.

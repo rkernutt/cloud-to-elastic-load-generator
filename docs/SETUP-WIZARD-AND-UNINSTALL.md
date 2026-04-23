@@ -106,7 +106,7 @@ A dedicated toggle for **ServiceNow CMDB Integration** is available in the Setup
 
 ### ML Training Mode
 
-The **Ship** page provides an **ML Training Mode** that automates the baseline → learning → anomaly injection workflow required for ML anomaly detection. See the [README](../README.md#ml-training-mode) for configuration details. This feature is independent of Setup and works with any combination of installed assets.
+The **Ship** page provides an **ML Training Mode** that automates the full ML anomaly detection workflow: **reset → baseline → learning wait → anomaly injection → stabilise & freeze**. The reset phase clears stale model state from previous runs to prevent score renormalization. The optional "Stop datafeeds after training" toggle (on by default) freezes anomaly scores by stopping datafeeds after the stabilisation period. See the [README](../README.md#ml-training-mode) for configuration details. This feature is independent of Setup and works with any combination of installed assets.
 
 ---
 

@@ -337,8 +337,10 @@ A sample Elastic Workflow automating this pattern is provided in [`workflows/dat
 
 To get ML anomaly detection working effectively with this chain:
 
-1. **Build a baseline** — ship 5-10 batches of normal data (error rate ≈ 0%) to establish the "normal" pattern
-2. **Wait for ML to learn** — allow 15-30 minutes for the ML jobs to model the baseline
-3. **Inject anomalies** — ship one batch with anomalies enabled (the app applies 100% error rate, 15x duration scaling on logs and traces, 20x metric scaling)
+1. **Reset ML jobs** — clears stale model state from any previous training runs (prevents score renormalization)
+2. **Build a baseline** — ship 5-10 batches of normal data (error rate ≈ 0%) to establish the "normal" pattern
+3. **Wait for ML to learn** — allow 15-30 minutes for the ML jobs to model the baseline
+4. **Inject anomalies** — ship one batch with anomalies enabled (the app applies 100% error rate, 15x duration scaling on logs and traces, 20x metric scaling)
+5. **Stabilise & freeze** _(optional)_ — wait 2 minutes for ML to score the anomalies, then stop datafeeds to lock in the anomaly scores
 
-The **Ship** page's **ML Training Mode** automates this entire process. See the [README](../../README.md#ml-training-mode) for configuration details.
+The reset step is essential when re-running training — without it, the ML model retains learned patterns from previous runs and may normalize new anomaly spikes to zero. The **Ship** page's **ML Training Mode** automates all five steps. See the [README](../../README.md#ml-training-mode) for configuration details.

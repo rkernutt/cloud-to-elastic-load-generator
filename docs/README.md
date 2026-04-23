@@ -69,7 +69,7 @@ A sample **Elastic Workflow** for automated alert enrichment is in [`workflows/d
 
 ## ML Training Mode
 
-The **Ship** page includes an **ML Training Mode** that automates the full anomaly detection workflow: baseline shipping → ML learning wait → anomaly injection. Anomaly injection uses 100% error rate, 15x duration scaling (logs and traces), and 20x metric scaling in a 5-minute window. See the [project README](../README.md#ml-training-mode) for configuration details.
+The **Ship** page includes an **ML Training Mode** that automates the full anomaly detection workflow: **reset → baseline → ML learning wait → anomaly injection → stabilise & freeze**. The reset phase clears stale model state from previous runs to prevent score renormalization. Anomaly injection uses 100% error rate, 15x duration scaling (logs and traces), and 20x metric scaling in a 5-minute window. An optional "Stop datafeeds after training" toggle freezes anomaly scores by stopping datafeeds after injection. See the [project README](../README.md#ml-training-mode) for configuration details.
 
 ---
 

@@ -811,13 +811,23 @@ flowchart TD
         I4["npm run\nsetup:aws-ml-jobs\n(ML jobs)"]
     end
 
-    SETUP --> BASELINE
+    SETUP --> RESET
+
+    subgraph RESET["Phase 0 — Reset ML Jobs"]
+        direction TB
+        R1["Stop datafeeds\n& close jobs"]
+        R2["Reset model state\n(clear stale data)"]
+        R3["Reopen jobs\n& restart datafeeds"]
+        R1 --> R2 --> R3
+    end
+
+    RESET --> BASELINE
 
     subgraph BASELINE["Phase 1 — Build Baseline"]
         direction TB
-        B1["Enable scheduled mode\n(off by default)\n12 runs × 15 min = 3 hrs"]
+        B1["ML Training Mode\n5 runs × 15 min apart"]
         B2["Anomaly injection: OFF"]
-        B3["Ship normal traffic\nacross all 212 services"]
+        B3["Ship normal traffic\nacross all services"]
         B4["ML jobs learn patterns\nbaseline established"]
         B1 --> B2 --> B3 --> B4
     end
@@ -826,15 +836,25 @@ flowchart TD
 
     subgraph SPIKE["Phase 2 — Inject Anomalies"]
         direction TB
-        SP1["Enable anomaly injection"]
+        SP1["Single anomaly batch"]
         SP2["Ship with spike pass\nmetrics × 20 · errors 100%\ntrace durations × 15"]
         SP3["ML detectors fire\nseverity scores 0–100"]
         SP1 --> SP2 --> SP3
     end
 
-    SPIKE --> OBSERVE
+    SPIKE --> FREEZE
 
-    subgraph OBSERVE["Phase 3 — Observe and Investigate"]
+    subgraph FREEZE["Phase 3 — Stabilise & Freeze"]
+        direction TB
+        F1["Wait 2 min for ML\nto score anomalies"]
+        F2["Stop all datafeeds\n(prevents re-baselining)"]
+        F3["Anomaly scores frozen\nin Anomaly Explorer"]
+        F1 --> F2 --> F3
+    end
+
+    FREEZE --> OBSERVE
+
+    subgraph OBSERVE["Phase 4 — Observe and Investigate"]
         direction TB
         O1["Kibana Dashboards\nper-service health panels"]
         O2["ML Anomaly Explorer\nswimlane · timeline · drill-down"]
@@ -843,7 +863,9 @@ flowchart TD
     end
 
     style SETUP fill:#232F3E,color:#fff
+    style RESET fill:#BD271E,color:#fff
     style BASELINE fill:#1BA9F5,color:#fff
     style SPIKE fill:#FF9900,color:#000
+    style FREEZE fill:#6092C0,color:#fff
     style OBSERVE fill:#00BFB3,color:#000
 ```

@@ -97,6 +97,7 @@ function MLTrainingSection({
 
   const phaseLabel: Record<string, string> = {
     idle: "Not started",
+    resetting: "Resetting ML jobs — clearing stale model state",
     baseline: "Shipping baseline data",
     baseline_wait: "Waiting between baseline runs",
     ml_learning: "Waiting for ML to learn baseline",
@@ -113,6 +114,7 @@ function MLTrainingSection({
     return "incomplete" as const;
   };
 
+  const pastReset = mlState.phase !== "idle" && mlState.phase !== "resetting";
   const postInjection = mlState.phase === "stabilising" || mlState.phase === "done";
   const baselineCompleted =
     mlState.phase === "ml_learning" || mlState.phase === "injection" || postInjection;
@@ -120,6 +122,18 @@ function MLTrainingSection({
   const injectionCompleted = postInjection;
 
   const steps = [
+    {
+      title: "Reset ML jobs",
+      status: stepStatus(mlState.phase, "resetting", pastReset ? ["resetting"] : []),
+      children:
+        mlState.phase === "resetting" ? (
+          <EuiText size="s">
+            <p>Stopping datafeeds, closing jobs, resetting model state, then reopening…</p>
+          </EuiText>
+        ) : pastReset ? (
+          <EuiBadge color="success">Complete</EuiBadge>
+        ) : null,
+    },
     {
       title: `Baseline: ${mlTrainingConfig.baselineRuns} runs, ${mlTrainingConfig.baselineIntervalMin} min apart`,
       status: stepStatus(

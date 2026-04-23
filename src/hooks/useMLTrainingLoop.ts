@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 
 export type MLTrainingPhase =
   | "idle"
+  | "resetting"
   | "baseline"
   | "baseline_wait"
   | "ml_learning"
@@ -38,6 +39,7 @@ export const ML_TRAINING_DEFAULTS: MLTrainingConfig = {
 
 /**
  * Orchestrates the full ML anomaly detection workflow:
+ *   0. Reset ML jobs to clear stale model state from previous runs
  *   1. Ship N baseline batches (injectAnomalies = false), spaced by baselineIntervalMin
  *   2. Wait mlWaitMin for ML to learn the baseline
  *   3. Ship 1 anomaly injection batch (injectAnomalies = true)
@@ -46,7 +48,10 @@ export const ML_TRAINING_DEFAULTS: MLTrainingConfig = {
 export function useMLTrainingLoop(
   shipFn: (injectAnomalies: boolean) => Promise<void>,
   abortRef: { current: boolean },
-  onComplete?: () => Promise<void>
+  callbacks?: {
+    onResetJobs?: () => Promise<void>;
+    onStopDatafeeds?: () => Promise<void>;
+  }
 ): {
   mlState: MLTrainingState;
   startMLTraining: (cfg: MLTrainingConfig) => Promise<void>;
@@ -63,8 +68,10 @@ export function useMLTrainingLoop(
   const mlLoopRef = useRef<AbortController | null>(null);
   const shipRef = useRef(shipFn);
   shipRef.current = shipFn;
-  const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
+  const onResetRef = useRef(callbacks?.onResetJobs);
+  onResetRef.current = callbacks?.onResetJobs;
+  const onStopRef = useRef(callbacks?.onStopDatafeeds);
+  onStopRef.current = callbacks?.onStopDatafeeds;
   const countdownTargetRef = useRef<Date | null>(null);
 
   useEffect(() => {
@@ -109,6 +116,19 @@ export function useMLTrainingLoop(
       setInjectionComplete(false);
       setBaselineTotal(cfg.baselineRuns);
       setBaselineRun(0);
+
+      // Phase 0: Reset ML jobs to clear stale model state
+      if (onResetRef.current) {
+        setPhase("resetting");
+        countdownTargetRef.current = null;
+        await onResetRef.current();
+        if (controller.signal.aborted) {
+          setActive(false);
+          setPhase("idle");
+          mlLoopRef.current = null;
+          return;
+        }
+      }
 
       // Phase 1: Baseline runs
       for (let run = 1; run <= cfg.baselineRuns; run++) {
@@ -179,8 +199,8 @@ export function useMLTrainingLoop(
         const stabOk = await waitWithAbort(stabiliseMs, controller);
         countdownTargetRef.current = null;
 
-        if (stabOk && !controller.signal.aborted && onCompleteRef.current) {
-          await onCompleteRef.current();
+        if (stabOk && !controller.signal.aborted && onStopRef.current) {
+          await onStopRef.current();
         }
       }
 

@@ -101,11 +101,13 @@ A sample **Elastic Workflow** YAML is provided in [`workflows/data-pipeline-aler
 
 The **Ship** page includes an **ML Training Mode** that automates the full anomaly detection training workflow:
 
-1. **Baseline phase** — ships normal data for a configurable number of runs to establish an ML baseline
-2. **Learning wait** — pauses for a configurable duration while ML jobs learn the baseline pattern
-3. **Anomaly injection** — ships one batch with anomalies (100% error rate, 15x duration scaling for logs and traces, 20x metric scaling) to create a detectable anomaly
+1. **Reset** — stops datafeeds, closes jobs, resets model state (clears stale data from previous runs), then reopens and restarts datafeeds so the model starts from scratch
+2. **Baseline phase** — ships normal data for a configurable number of runs to establish an ML baseline
+3. **Learning wait** — pauses for a configurable duration while ML jobs learn the baseline pattern
+4. **Anomaly injection** — ships one batch with anomalies (100% error rate, 15x duration scaling for logs and traces, 20x metric scaling) to create a detectable anomaly
+5. **Stabilise & freeze** _(optional, on by default)_ — waits 2 minutes for ML to score the anomalies, then stops all datafeeds to prevent re-baselining
 
-This removes the manual work of shipping normal data, waiting, then injecting anomalies. Configuration options include baseline run count, learning wait duration, and interval between runs.
+The reset step is critical — without it, ML jobs retain model state from previous training runs and may renormalize anomaly scores to zero. The "Stop datafeeds after training" toggle controls step 5; when enabled, anomaly scores are frozen in place so they remain visible in the Anomaly Explorer.
 
 ### Serverless Use-Case Selector
 

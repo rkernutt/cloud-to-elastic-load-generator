@@ -134,4 +134,4 @@ CMDB records include GCP-specific CIs (`composer-globex-prod`, `dataproc-etl`, `
 
 ## ML Training Mode
 
-See the [AWS pipeline docs](./data-analytics-pipeline.md#ml-training-mode) for ML training guidance — the same baseline → wait → anomaly injection pattern applies to GCP pipeline ML jobs.
+See the [AWS pipeline docs](./data-analytics-pipeline.md#ml-training-mode) for ML training guidance — the same reset → baseline → wait → inject → stabilise workflow applies to GCP pipeline ML jobs.
