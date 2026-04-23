@@ -676,7 +676,9 @@ export async function runSetupInstall(opts: {
     addLog(`Opening & starting ${entries.length} ML jobs…`);
     let ok = 0;
     let fail = 0;
-    for (const entry of entries) {
+    const retryQueue: typeof entries = [];
+
+    const startOne = async (entry: (typeof entries)[0], isRetry = false) => {
       const encId = encodeURIComponent(entry.id);
       try {
         await proxyCall({
@@ -689,9 +691,13 @@ export async function runSetupInstall(opts: {
       } catch (e) {
         const msg = String(e);
         if (!msg.includes("already opened") && !msg.includes("status_exception")) {
+          if (!isRetry) {
+            retryQueue.push(entry);
+            return;
+          }
           fail++;
           addLog(`  ✗ Open job "${entry.id}": ${e}`, "error");
-          continue;
+          return;
         }
       }
       try {
@@ -707,12 +713,28 @@ export async function runSetupInstall(opts: {
         const msg = String(e);
         if (msg.includes("already started") || msg.includes("status_exception")) {
           ok++;
+        } else if (!isRetry) {
+          retryQueue.push(entry);
         } else {
           fail++;
           addLog(`  ✗ Start datafeed "datafeed-${entry.id}": ${e}`, "error");
         }
       }
+    };
+
+    const BATCH = 8;
+    for (let i = 0; i < entries.length; i += BATCH) {
+      await Promise.all(entries.slice(i, i + BATCH).map((e) => startOne(e)));
     }
+
+    if (retryQueue.length > 0) {
+      addLog(`  Retrying ${retryQueue.length} jobs after brief delay…`);
+      await new Promise((r) => setTimeout(r, 3000));
+      for (let i = 0; i < retryQueue.length; i += BATCH) {
+        await Promise.all(retryQueue.slice(i, i + BATCH).map((e) => startOne(e, true)));
+      }
+    }
+
     addLog(
       `  ✓ ML jobs started: ${ok}${fail > 0 ? `, ${fail} failed` : ""}`,
       fail > 0 ? "warn" : "ok"
