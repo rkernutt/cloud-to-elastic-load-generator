@@ -372,8 +372,7 @@ export function SetupPage({
     | "IoT"
     | "Management & Governance"
     | "End User & Media"
-    | "Chained Events"
-    | "ITSM & Service Management"
+    | "Advanced Data Types"
     | "Other";
 
   const SERVICE_CATEGORY: Record<string, ServiceCategory> = {
@@ -476,14 +475,12 @@ export function SetupPage({
     b2bi: "Analytics",
     cspm: "Security & Identity",
     kspm: "Security & Identity",
-    "security-chain": "Chained Events",
-    "iam-privesc-chain": "Chained Events",
-    "data-exfil-chain": "Chained Events",
-    "data-pipeline": "Chained Events",
-    "data-pipeline-chain": "Chained Events",
-
-    // ITSM & Service Management
-    servicenow_cmdb: "ITSM & Service Management",
+    "security-chain": "Advanced Data Types",
+    "iam-privesc-chain": "Advanced Data Types",
+    "data-exfil-chain": "Advanced Data Types",
+    "data-pipeline": "Advanced Data Types",
+    "data-pipeline-chain": "Advanced Data Types",
+    servicenow_cmdb: "Advanced Data Types",
 
     // AI & Machine Learning
     sagemaker: "AI & Machine Learning",
@@ -738,13 +735,13 @@ export function SetupPage({
     "sap-on-azure": "Compute",
     "vmware-solution": "Compute",
     "capacity-reservation": "Compute",
-    "azure-security-chain": "Chained Events",
+    "azure-security-chain": "Advanced Data Types",
     "azure-cspm": "Security & Identity",
     "azure-kspm": "Security & Identity",
-    "azure-iam-privesc-chain": "Chained Events",
-    "azure-data-exfil-chain": "Chained Events",
-    "azure-data-pipeline-chain": "Chained Events",
-    "azure-data-pipeline": "Chained Events",
+    "azure-iam-privesc-chain": "Advanced Data Types",
+    "azure-data-exfil-chain": "Advanced Data Types",
+    "azure-data-pipeline-chain": "Advanced Data Types",
+    "azure-data-pipeline": "Advanced Data Types",
 
     // ── GCP services ────────────────────────────────────────────────────────
     "cloud-functions": "Compute",
@@ -887,13 +884,13 @@ export function SetupPage({
     "resource-tags": "Management & Governance",
     "vertex-ai-search": "AI & Machine Learning",
     "vpc-service-controls": "Security & Identity",
-    "gcp-security-chain": "Chained Events",
+    "gcp-security-chain": "Advanced Data Types",
     "gcp-cspm": "Security & Identity",
     "gcp-kspm": "Security & Identity",
-    "gcp-iam-privesc-chain": "Chained Events",
-    "gcp-data-exfil-chain": "Chained Events",
-    "gcp-data-pipeline-chain": "Chained Events",
-    "gcp-data-pipeline": "Chained Events",
+    "gcp-iam-privesc-chain": "Advanced Data Types",
+    "gcp-data-exfil-chain": "Advanced Data Types",
+    "gcp-data-pipeline-chain": "Advanced Data Types",
+    "gcp-data-pipeline": "Advanced Data Types",
   };
 
   const CATEGORY_ORDER: ServiceCategory[] = [
@@ -909,8 +906,7 @@ export function SetupPage({
     "IoT",
     "Management & Governance",
     "End User & Media",
-    "Chained Events",
-    "ITSM & Service Management",
+    "Advanced Data Types",
     "Other",
   ];
 
@@ -2300,16 +2296,16 @@ export function SetupPage({
             <p>
               {serverlessProjectType === "security" && (
                 <>
-                  All features available — CSPM/KSPM, security chained events, ML jobs, dashboards,
+                  All features available — CSPM/KSPM, all advanced data types, ML jobs, dashboards,
                   and alerting rules.
                 </>
               )}
               {serverlessProjectType === "observability" && (
                 <>
                   CSPM/KSPM integration is not available on Observability projects. Security-focused
-                  chained events (Finding Chain, IAM PrivEsc, Data Exfiltration) can still ship data
-                  but are best paired with a Security project. Data Pipeline chains, ML jobs,
-                  dashboards, and alerting rules work fully.
+                  chains (Finding Chain, IAM PrivEsc, Data Exfiltration) can still ship data but are
+                  best paired with a Security project. Data Pipeline chains, ServiceNow CMDB, ML
+                  jobs, dashboards, and alerting rules work fully.
                 </>
               )}
               {serverlessProjectType === "elasticsearch" && (

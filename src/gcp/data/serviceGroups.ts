@@ -631,7 +631,7 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
   },
   {
     id: "findings",
-    label: "Chained Events",
+    label: "Advanced Data Types",
     color: "#DC2626",
     icon: "⚡",
     services: [
@@ -671,14 +671,6 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
         icon: "⛁",
         desc: "Data & Analytics pipeline: Composer → GCS → Dataproc/Spark → Data Catalog → BigQuery with failure cascades + APM traces",
       },
-    ],
-  },
-  {
-    id: "itsm",
-    label: "ITSM & Service Management",
-    color: "#7B68EE",
-    icon: "☰",
-    services: [
       {
         id: "servicenow_cmdb",
         label: "ServiceNow CMDB",

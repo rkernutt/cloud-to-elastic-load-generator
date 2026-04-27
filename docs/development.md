@@ -117,4 +117,4 @@ npm run typecheck
 
 ## Documentation index
 
-Guides (AWS CloudWatch routing, OTel, ingest reference, diagrams, chained events): [docs/README.md](./README.md).
+Guides (AWS CloudWatch routing, OTel, ingest reference, diagrams, advanced data types): [docs/README.md](./README.md).

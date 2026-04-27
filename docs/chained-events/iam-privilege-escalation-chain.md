@@ -62,5 +62,5 @@ Install via `npm run setup:{aws,gcp,azure}-dashboards`, `npm run setup:{aws,gcp,
 ## Selecting This Chain
 
 1. Set event type to **Logs** in the wizard.
-2. On the **Chained Events** step, select the **IAM Privilege Escalation Chain**.
+2. On the **Advanced Data Types** step, select the **IAM Privilege Escalation Chain**.
 3. The error rate slider does not affect this chain — all runs model a successful attack sequence.

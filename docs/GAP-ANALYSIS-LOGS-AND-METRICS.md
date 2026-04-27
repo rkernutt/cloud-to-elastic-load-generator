@@ -64,7 +64,7 @@ From Elastic’s reference table, the following services have **Metrics** and/or
 
 ### 1.3 Chained event scenarios (security and data pipeline)
 
-Multi-step **Chained Events** generators emit **time-distributed** logs with explicit correlation labels so dashboards, detection rules, and ML jobs can group related documents:
+Multi-step **Advanced Data Type** generators emit **time-distributed** logs with explicit correlation labels so dashboards, detection rules, and ML jobs can group related documents:
 
 | Scenario                                       | AWS                                      | GCP                             | Azure                              | Correlation label(s)                                                                 |
 | ---------------------------------------------- | ---------------------------------------- | ------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------ |

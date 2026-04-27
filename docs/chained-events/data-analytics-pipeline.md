@@ -305,7 +305,7 @@ These assets are installed as part of the Cloud Loadgen Integration for this cha
 ### Selecting this Chain in the UI
 
 1. Set event type to **Logs** in the wizard.
-2. On the **Chained Events** step, select **Data & Analytics Pipeline**.
+2. On the **Advanced Data Types** step, select **Data & Analytics Pipeline**.
 3. Adjust the **Error rate** slider to control how frequently failure scenarios are injected (0% = all successful runs, higher values = more failures mixed in).
 
 ### Error Rate Behaviour

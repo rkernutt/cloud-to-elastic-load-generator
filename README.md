@@ -38,9 +38,9 @@ The shipping wizard supports a **Back** button on each step, **search and filter
 
 **Post-install options:** After installing integrations, you can optionally **enable alerting rules** and **start ML jobs** immediately. Both toggles are off by default — rules are created disabled and ML jobs are created closed unless you opt in.
 
-### Chained Events
+### Advanced Data Types
 
-Beyond single-service generators, the app includes **Chained Events** — multi-step correlated scenarios that span several services. Generators use **time-distributed timestamps** and shared **`labels.*` correlation IDs** (for example `finding_chain_id`, `attack_session_id`, `exfil_chain_id`) so events read like real detections and investigations rather than simultaneous bursts.
+Beyond single-service generators, the app includes **Advanced Data Types** — multi-step correlated scenarios that span several services, plus reference data sources like ServiceNow CMDB. Generators use **time-distributed timestamps** and shared **`labels.*` correlation IDs** (for example `finding_chain_id`, `attack_session_id`, `exfil_chain_id`) so events read like real detections and investigations rather than simultaneous bursts.
 
 All chained event generators include **ECS user identity fields** (`user.name`, `user.email`, `source.ip`, `user_agent.original`) and produce **companion cloud audit trail events** (CloudTrail for AWS, Cloud Audit Logs for GCP, Activity Logs for Azure) alongside the operational logs. This provides realistic attribution and enables correlation with ServiceNow CMDB records for alert enrichment (e.g. "who triggered the pipeline that failed?").
 
@@ -113,11 +113,11 @@ The reset step is critical — without it, ML jobs retain model state from previ
 
 The **Start** (Connection) page includes an **Elastic use-case** selector for Serverless deployments:
 
-| Use Case          | Available Features                                                            |
-| ----------------- | ----------------------------------------------------------------------------- |
-| **Security**      | Full feature set including CSPM/KSPM, all chained events, all Security assets |
-| **Observability** | All observability features; CSPM/KSPM not available                           |
-| **Elasticsearch** | Data shipping and search-focused features only                                |
+| Use Case          | Available Features                                                                 |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| **Security**      | Full feature set including CSPM/KSPM, all advanced data types, all Security assets |
+| **Observability** | All observability features; CSPM/KSPM not available                                |
+| **Elasticsearch** | Data shipping and search-focused features only                                     |
 
 This restricts the Setup and Services pages to features compatible with the chosen Serverless project type, preventing installation errors from attempting to use unsupported APIs.
 

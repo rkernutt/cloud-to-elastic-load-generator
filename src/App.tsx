@@ -282,9 +282,10 @@ export function LoadGeneratorApp({
         <p style={{ margin: 0 }}>
           {pt === "security" && (
             <>
-              All chained events are fully supported. Security Finding, IAM Privilege Escalation,
-              and Data Exfiltration chains align with Security project features (SIEM, detection
-              engine). Data Pipeline chains also work for operational visibility.
+              All advanced data types are fully supported. Security Finding, IAM Privilege
+              Escalation, and Data Exfiltration chains align with Security project features (SIEM,
+              detection engine). Data Pipeline chains and ServiceNow CMDB also work for operational
+              visibility.
             </>
           )}
           {pt === "observability" && (
@@ -296,7 +297,7 @@ export function LoadGeneratorApp({
           )}
           {pt === "elasticsearch" && (
             <>
-              All chained event data can be shipped and indexed. However, SIEM detection and
+              All advanced data type data can be shipped and indexed. However, SIEM detection and
               observability-specific features require a Security or Observability project
               respectively.
             </>
@@ -1188,8 +1189,10 @@ export function LoadGeneratorApp({
             ingestionMeta={config.ingestionMeta}
             metricsSupportedServiceIds={config.metricsSupportedServiceIds}
             serviceIcons={config.serviceIcons}
-            pageTitle={activePage === "security" ? "Chained events" : "Service selection"}
-            gridHeading={activePage === "security" ? "Select chained events" : "Select services"}
+            pageTitle={activePage === "security" ? "Advanced data types" : "Service selection"}
+            gridHeading={
+              activePage === "security" ? "Select advanced data types" : "Select services"
+            }
             pageCallout={
               activePage === "security" && deploymentType === "serverless"
                 ? chainedEventsServerlessCallout

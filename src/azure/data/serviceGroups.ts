@@ -389,7 +389,7 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
   },
   {
     id: "findings",
-    label: "Chained Events",
+    label: "Advanced Data Types",
     color: "#DC2626",
     icon: "⚡",
     services: [
@@ -429,14 +429,6 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
         icon: "⛁",
         desc: "Data & Analytics pipeline: Data Factory → Blob → Databricks/Spark → Purview → Synapse with failure cascades + APM traces",
       },
-    ],
-  },
-  {
-    id: "itsm",
-    label: "ITSM & Service Management",
-    color: "#7B68EE",
-    icon: "☰",
-    services: [
       {
         id: "servicenow_cmdb",
         label: "ServiceNow CMDB",

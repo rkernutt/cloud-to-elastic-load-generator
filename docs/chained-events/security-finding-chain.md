@@ -61,5 +61,5 @@ Use `npm run setup:{aws,gcp,azure}-dashboards`, `npm run setup:{aws,gcp,azure}-m
 ## Selecting This Chain
 
 1. Set event type to **Logs** in the wizard.
-2. On the **Chained Events** step, select the **Security Finding Chain**.
+2. On the **Advanced Data Types** step, select the **Security Finding Chain**.
 3. Adjust the **Error rate** slider to control the mix of threat types generated.

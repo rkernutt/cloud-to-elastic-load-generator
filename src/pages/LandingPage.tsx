@@ -31,12 +31,12 @@ export function LandingPage({ isUnifiedCloud, onGetStarted }: LandingPageProps) 
     {
       title: "Service Selection",
       description:
-        "Pick which cloud services to simulate (everything except multi-step chained event generators). Selection drives generators, volume, and which setup assets align when you use Align with Services step.",
+        "Pick which cloud services to simulate (everything except advanced data type generators). Selection drives generators, volume, and which setup assets align when you use Align with Services step.",
     },
     {
-      title: "Chained Events",
+      title: "Advanced Data Types",
       description:
-        "For logs mode only: optional second picker for linked multi-step event chains (e.g. AWS GuardDuty→Security Hub→Lake, or GCP SCC→SecOps SIEM→SecOps SOAR, Azure Defender→Sentinel). Skipped automatically for metrics or traces.",
+        "For logs mode only: optional picker for multi-step event chains, CMDB reference data, and posture management (e.g. AWS GuardDuty→Security Hub→Lake, ServiceNow CMDB, CSPM/KSPM). Skipped automatically for metrics or traces.",
     },
     {
       title: "Configure",

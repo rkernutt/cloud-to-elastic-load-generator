@@ -63,5 +63,5 @@ Install via `npm run setup:{aws,gcp,azure}-dashboards`, `npm run setup:{aws,gcp,
 ## Selecting This Chain
 
 1. Set event type to **Logs** in the wizard.
-2. On the **Chained Events** step, select the **Data Exfiltration Chain**.
+2. On the **Advanced Data Types** step, select the **Data Exfiltration Chain**.
 3. Adjust the **Error rate** slider to control how frequently exfiltration scenarios are generated.
