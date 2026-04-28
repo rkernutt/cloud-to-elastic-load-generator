@@ -10,24 +10,17 @@
   "schedule": {
     "interval": "5m"
   },
-  "tags": [
-    "cloudloadgen",
-    "security-chain"
-  ],
+  "tags": ["cloudloadgen", "security-chain"],
   "enabled": false,
   "params": {
     "searchType": "esQuery",
     "timeWindowSize": 15,
     "timeWindowUnit": "m",
-    "threshold": [
-      0
-    ],
+    "threshold": [0],
     "thresholdComparator": ">",
     "size": 100,
     "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"bool\":{\"should\":[{\"term\":{\"aws.guardduty.severity.value\":\"High\"}},{\"term\":{\"aws.guardduty.severity.value\":\"Critical\"}}],\"minimum_should_match\":1}}]}}}",
-    "index": [
-      "logs-aws.guardduty*"
-    ],
+    "index": ["logs-aws.guardduty*"],
     "timeField": "@timestamp",
     "aggType": "count"
   },

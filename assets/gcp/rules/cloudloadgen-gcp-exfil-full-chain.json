@@ -10,26 +10,17 @@
   "schedule": {
     "interval": "5m"
   },
-  "tags": [
-    "cloudloadgen",
-    "gcp-data-exfil-chain"
-  ],
+  "tags": ["cloudloadgen", "gcp-data-exfil-chain"],
   "enabled": false,
   "params": {
     "searchType": "esQuery",
     "timeWindowSize": 15,
     "timeWindowUnit": "m",
-    "threshold": [
-      2
-    ],
+    "threshold": [2],
     "thresholdComparator": ">",
     "size": 100,
     "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"bool\":{\"filter\":[{\"term\":{\"event.kind\":\"alert\"}},{\"bool\":{\"should\":[{\"term\":{\"event.dataset\":\"gcp.dlp\"}},{\"term\":{\"data_stream.dataset\":\"gcp.dlp\"}}],\"minimum_should_match\":1}}]}},{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"term\":{\"event.dataset\":\"gcp.vpcflow\"}},{\"term\":{\"data_stream.dataset\":\"gcp.vpcflow\"}}],\"minimum_should_match\":1}},{\"term\":{\"gcp.vpc_flow.direction\":\"egress\"}},{\"range\":{\"gcp.vpc_flow.bytes_sent\":{\"gt\":52428800}}}]}},{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"term\":{\"event.dataset\":\"gcp.gcs\"}},{\"term\":{\"data_stream.dataset\":\"gcp.gcs\"}}],\"minimum_should_match\":1}},{\"term\":{\"gcp.cloud_storage.operation\":\"storage.objects.get\"}},{\"range\":{\"gcp.cloud_storage.object_size\":{\"gt\":52428800}}}]}}],\"minimum_should_match\":1}}]}}}",
-    "index": [
-      "logs-gcp.dlp*",
-      "logs-gcp.vpcflow*",
-      "logs-gcp.gcs*"
-    ],
+    "index": ["logs-gcp.dlp*", "logs-gcp.vpcflow*", "logs-gcp.gcs*"],
     "timeField": "@timestamp",
     "aggType": "count"
   },

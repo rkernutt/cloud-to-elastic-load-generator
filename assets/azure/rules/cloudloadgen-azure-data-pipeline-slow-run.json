@@ -10,24 +10,17 @@
   "schedule": {
     "interval": "5m"
   },
-  "tags": [
-    "cloudloadgen",
-    "data-pipeline"
-  ],
+  "tags": ["cloudloadgen", "data-pipeline"],
   "enabled": false,
   "params": {
     "searchType": "esQuery",
     "timeWindowSize": 30,
     "timeWindowUnit": "m",
-    "threshold": [
-      1
-    ],
+    "threshold": [1],
     "thresholdComparator": ">=",
     "size": 100,
     "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.data_factory\"}},{\"term\":{\"azure.data_factory.activity_name\":\"pipeline_complete\"}},{\"range\":{\"azure.data_factory.duration_ms\":{\"gt\":60000}}}]}}}",
-    "index": [
-      "logs-azure.data_factory*"
-    ],
+    "index": ["logs-azure.data_factory*"],
     "timeField": "@timestamp",
     "aggType": "count"
   },
