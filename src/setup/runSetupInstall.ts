@@ -210,7 +210,11 @@ export async function runSetupInstall(opts: {
           apiKey,
           path: `/_ingest/pipeline/${encodeURIComponent(pipeline.id)}`,
           method: "PUT",
-          body: { processors: pipeline.processors },
+          body: {
+            description: pipeline.description,
+            processors: pipeline.processors,
+            ...(pipeline.on_failure ? { on_failure: pipeline.on_failure } : {}),
+          },
         });
         ok++;
       } catch (e) {

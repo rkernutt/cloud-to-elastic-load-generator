@@ -5,6 +5,7 @@ export interface PipelineEntry {
   group: string;
   description: string;
   processors: unknown[];
+  on_failure?: unknown[];
 }
 
 export interface MlJobEntry {

@@ -8,22 +8,371 @@
   "description": "Parse Lambda log lines — START/END/REPORT structured extraction plus JSON fallback",
   "processors": [
     {
+      "json": {
+        "field": "message",
+        "target_field": "lambda_logs.parsed",
+        "ignore_failure": true
+      }
+    },
+    {
       "grok": {
         "field": "message",
         "patterns": [
-          "REPORT RequestId: %{DATA:lambda.requestId}\\s+Duration: %{NUMBER:lambda.durationMs:float} ms\\s+Billed Duration: %{NUMBER:lambda.billedDurationMs:float} ms\\s+Memory Size: %{NUMBER:lambda.memorySizeMB:int} MB\\s+Max Memory Used: %{NUMBER:lambda.maxMemoryUsedMB:int} MB",
-          "START RequestId: %{DATA:lambda.requestId}\\s+Version: %{DATA:lambda.version}",
-          "END RequestId: %{DATA:lambda.requestId}"
+          "REPORT RequestId: %{DATA:lambda.request_id}\\s+Duration: %{NUMBER:lambda.duration_ms:float} ms\\s+Billed Duration: %{NUMBER:lambda.billed_duration_ms:float} ms\\s+Memory Size: %{NUMBER:lambda.memory_size_mb:int} MB\\s+Max Memory Used: %{NUMBER:lambda.max_memory_used_mb:int} MB",
+          "START RequestId: %{DATA:lambda.request_id}\\s+Version: %{DATA:lambda.version}",
+          "END RequestId: %{DATA:lambda.request_id}"
         ],
         "ignore_failure": true,
         "ignore_missing": true
       }
     },
     {
-      "json": {
-        "field": "message",
-        "target_field": "lambda.parsed",
+      "script": {
+        "lang": "painless",
+        "description": "Convert Lambda billed duration to event.duration (nanoseconds)",
+        "source": "if (ctx.lambda?.billed_duration_ms != null && ctx.event?.duration == null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.duration = (long)(ctx.lambda.billed_duration_ms * 1000000L); }",
         "ignore_failure": true
+      }
+    },
+    {
+      "script": {
+        "lang": "painless",
+        "description": "Calculate Lambda memory utilisation percentage",
+        "source": "if (ctx.lambda?.memory_size_mb != null && ctx.lambda?.max_memory_used_mb != null && ctx.lambda.memory_size_mb > 0) { ctx.lambda.memory_utilization_pct = Math.round((ctx.lambda.max_memory_used_mb * 10000.0) / ctx.lambda.memory_size_mb) / 100.0; }",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "lambda_logs.parsed.function_name",
+        "target_field": "lambda_logs.function_name",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "lambda_logs.parsed.functionName",
+        "target_field": "lambda_logs.function_name",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "lambda_logs.parsed.request_id",
+        "target_field": "lambda_logs.request_id",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "lambda_logs.parsed.requestId",
+        "target_field": "lambda_logs.request_id",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "lambda_logs.parsed.cold_start",
+        "target_field": "lambda_logs.cold_start",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "lambda_logs.parsed.memory_used",
+        "target_field": "lambda_logs.memory_used_mb",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "lambda_logs.parsed.billed_duration_ms",
+        "target_field": "lambda_logs.billed_duration_ms",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "lambda_logs.parsed.errorCode",
+        "target_field": "error.code",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "lambda_logs.parsed.error_code",
+        "target_field": "error.code",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "lambda_logs.parsed.errorMessage",
+        "target_field": "error.message",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "lambda_logs.parsed.error_message",
+        "target_field": "error.message",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "lambda_logs.parsed.errorType",
+        "target_field": "error.type",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "lambda_logs.parsed.error_type",
+        "target_field": "error.type",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "lambda_logs.parsed.level",
+        "target_field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "lambda_logs.parsed.logLevel",
+        "target_field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "lambda_logs.parsed.severity",
+        "target_field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "lowercase": {
+        "field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "event.kind",
+        "value": "event",
+        "override": false,
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "event.category",
+        "value": [
+          "process"
+        ],
+        "override": false,
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "event.type",
+        "value": [
+          "info"
+        ],
+        "override": false,
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "event.type",
+        "value": [
+          "error"
+        ],
+        "override": true,
+        "if": "ctx.event?.outcome == 'failure'",
+        "ignore_failure": true
+      }
+    },
+    {
+      "script": {
+        "lang": "painless",
+        "description": "Normalise duration fields to event.duration (nanoseconds)",
+        "source": "long nanos = 0L;\n          // Check parsed duration_ms, durationMs, durationSeconds, latency_ms, execution_time_ms\n          def p = ctx['lambda_logs']?.parsed;\n          if (p != null) {\n            if (p.containsKey('duration_ms'))        { nanos = (long)(p.duration_ms * 1000000L); }\n            else if (p.containsKey('durationMs'))     { nanos = (long)(p.durationMs * 1000000L); }\n            else if (p.containsKey('durationSeconds')){ nanos = (long)(p.durationSeconds * 1000000000L); }\n            else if (p.containsKey('latency_ms'))     { nanos = (long)(p.latency_ms * 1000000L); }\n            else if (p.containsKey('execution_time_ms')) { nanos = (long)(p.execution_time_ms * 1000000L); }\n            else if (p.containsKey('elapsed_ms'))     { nanos = (long)(p.elapsed_ms * 1000000L); }\n          }\n          if (nanos > 0 && ctx.event?.duration == null) {\n            if (ctx.event == null) { ctx.event = new HashMap(); }\n            ctx.event.duration = nanos;\n          }",
+        "ignore_failure": true
+      }
+    },
+    {
+      "geoip": {
+        "field": "source.ip",
+        "target_field": "source.geo",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "geoip": {
+        "field": "client.ip",
+        "target_field": "client.geo",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "geoip": {
+        "field": "destination.ip",
+        "target_field": "destination.geo",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "user_agent": {
+        "field": "user_agent.original",
+        "target_field": "user_agent",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.ip",
+        "value": [
+          "{{{source.ip}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.source?.ip != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.ip",
+        "value": [
+          "{{{destination.ip}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.destination?.ip != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.ip",
+        "value": [
+          "{{{client.ip}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.client?.ip != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.user",
+        "value": [
+          "{{{user.name}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.user?.name != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.user",
+        "value": [
+          "{{{user.email}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.user?.email != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.user",
+        "value": [
+          "{{{user.id}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.user?.id != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.hosts",
+        "value": [
+          "{{{host.name}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.host?.name != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.hosts",
+        "value": [
+          "{{{host.hostname}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.host?.hostname != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "remove": {
+        "field": "lambda_logs.parsed",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    }
+  ],
+  "on_failure": [
+    {
+      "set": {
+        "field": "error.message",
+        "value": "{{ _ingest.on_failure_message }}"
+      }
+    },
+    {
+      "append": {
+        "field": "tags",
+        "value": [
+          "_ingest_pipeline_failure"
+        ]
+      }
+    },
+    {
+      "append": {
+        "field": "tags",
+        "value": [
+          "_logs-aws.lambda_logs-default_failure"
+        ]
       }
     }
   ]

@@ -5,13 +5,380 @@
     "group": "networking",
     "api": "PUT _ingest/pipeline/logs-gcp.mediacdn-default"
   },
-  "description": "Parse JSON from message field for gcp.mediacdn (service media-cdn)",
+  "description": "Enrich and normalise GCP mediacdn logs (service media-cdn)",
   "processors": [
     {
       "json": {
         "field": "message",
         "target_field": "gcp.parsed",
         "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "user.email",
+        "value": "{{{gcp.parsed.protoPayload.authenticationInfo.principalEmail}}}",
+        "override": false,
+        "if": "ctx.gcp?.parsed?.protoPayload?.authenticationInfo?.principalEmail != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "source.ip",
+        "value": "{{{gcp.parsed.protoPayload.requestMetadata.callerIp}}}",
+        "override": false,
+        "if": "ctx.gcp?.parsed?.protoPayload?.requestMetadata?.callerIp != null && ctx.source?.ip == null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.src_addr",
+        "target_field": "source.ip",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.dst_addr",
+        "target_field": "destination.ip",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.src_port",
+        "target_field": "source.port",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.dst_port",
+        "target_field": "destination.port",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.protocol",
+        "target_field": "network.transport",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.bytes_in",
+        "target_field": "source.bytes",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.bytes_out",
+        "target_field": "destination.bytes",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.action",
+        "target_field": "event.action",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.rule_id",
+        "target_field": "rule.id",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.errorCode",
+        "target_field": "error.code",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.error_code",
+        "target_field": "error.code",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.errorMessage",
+        "target_field": "error.message",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.error_message",
+        "target_field": "error.message",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.errorType",
+        "target_field": "error.type",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.error_type",
+        "target_field": "error.type",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.level",
+        "target_field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.logLevel",
+        "target_field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "gcp.parsed.severity",
+        "target_field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "lowercase": {
+        "field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "event.kind",
+        "value": "event",
+        "override": false,
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "event.category",
+        "value": [
+          "network"
+        ],
+        "override": false,
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "event.type",
+        "value": [
+          "info"
+        ],
+        "override": false,
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "event.type",
+        "value": [
+          "error"
+        ],
+        "override": true,
+        "if": "ctx.event?.outcome == 'failure'",
+        "ignore_failure": true
+      }
+    },
+    {
+      "script": {
+        "lang": "painless",
+        "description": "Normalise duration fields to event.duration (nanoseconds)",
+        "source": "long nanos = 0L;\n          // Check parsed duration_ms, durationMs, durationSeconds, latency_ms, execution_time_ms\n          def p = ctx['gcp']?.parsed;\n          if (p != null) {\n            if (p.containsKey('duration_ms'))        { nanos = (long)(p.duration_ms * 1000000L); }\n            else if (p.containsKey('durationMs'))     { nanos = (long)(p.durationMs * 1000000L); }\n            else if (p.containsKey('durationSeconds')){ nanos = (long)(p.durationSeconds * 1000000000L); }\n            else if (p.containsKey('latency_ms'))     { nanos = (long)(p.latency_ms * 1000000L); }\n            else if (p.containsKey('execution_time_ms')) { nanos = (long)(p.execution_time_ms * 1000000L); }\n            else if (p.containsKey('elapsed_ms'))     { nanos = (long)(p.elapsed_ms * 1000000L); }\n          }\n          if (nanos > 0 && ctx.event?.duration == null) {\n            if (ctx.event == null) { ctx.event = new HashMap(); }\n            ctx.event.duration = nanos;\n          }",
+        "ignore_failure": true
+      }
+    },
+    {
+      "geoip": {
+        "field": "source.ip",
+        "target_field": "source.geo",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "geoip": {
+        "field": "client.ip",
+        "target_field": "client.geo",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "geoip": {
+        "field": "destination.ip",
+        "target_field": "destination.geo",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "user_agent": {
+        "field": "user_agent.original",
+        "target_field": "user_agent",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.ip",
+        "value": [
+          "{{{source.ip}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.source?.ip != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.ip",
+        "value": [
+          "{{{destination.ip}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.destination?.ip != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.ip",
+        "value": [
+          "{{{client.ip}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.client?.ip != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.user",
+        "value": [
+          "{{{user.name}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.user?.name != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.user",
+        "value": [
+          "{{{user.email}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.user?.email != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.user",
+        "value": [
+          "{{{user.id}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.user?.id != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.hosts",
+        "value": [
+          "{{{host.name}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.host?.name != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.hosts",
+        "value": [
+          "{{{host.hostname}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.host?.hostname != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "remove": {
+        "field": "gcp.parsed",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    }
+  ],
+  "on_failure": [
+    {
+      "set": {
+        "field": "error.message",
+        "value": "{{ _ingest.on_failure_message }}"
+      }
+    },
+    {
+      "append": {
+        "field": "tags",
+        "value": [
+          "_ingest_pipeline_failure"
+        ]
+      }
+    },
+    {
+      "append": {
+        "field": "tags",
+        "value": [
+          "_logs-gcp.mediacdn-default_failure"
+        ]
       }
     }
   ]

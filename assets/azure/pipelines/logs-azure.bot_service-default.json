@@ -5,13 +5,380 @@
     "group": "data-ai",
     "api": "PUT _ingest/pipeline/logs-azure.bot_service-default"
   },
-  "description": "Parse JSON from message for azure.bot_service (bot-service)",
+  "description": "Enrich and normalise Azure bot_service logs (bot-service)",
   "processors": [
     {
       "json": {
         "field": "message",
         "target_field": "azure.parsed",
         "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "user.email",
+        "value": "{{{identity.claims.http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn}}}",
+        "override": false,
+        "if": "ctx.identity?.claims != null && ctx.identity.claims.containsKey('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn')",
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "source.ip",
+        "value": "{{{callerIpAddress}}}",
+        "override": false,
+        "if": "ctx.callerIpAddress != null && ctx.source?.ip == null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.jobId",
+        "target_field": "azure.job_id",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.job_id",
+        "target_field": "azure.job_id",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.jobName",
+        "target_field": "azure.job_name",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.job_name",
+        "target_field": "azure.job_name",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.state",
+        "target_field": "azure.state",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.status",
+        "target_field": "azure.status",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.query",
+        "target_field": "azure.query",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.records_processed",
+        "target_field": "azure.records_processed",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.bytes_scanned",
+        "target_field": "azure.bytes_scanned",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.errorCode",
+        "target_field": "error.code",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.error_code",
+        "target_field": "error.code",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.errorMessage",
+        "target_field": "error.message",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.error_message",
+        "target_field": "error.message",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.errorType",
+        "target_field": "error.type",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.error_type",
+        "target_field": "error.type",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.level",
+        "target_field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.logLevel",
+        "target_field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "azure.parsed.severity",
+        "target_field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "lowercase": {
+        "field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "event.kind",
+        "value": "event",
+        "override": false,
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "event.category",
+        "value": [
+          "database"
+        ],
+        "override": false,
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "event.type",
+        "value": [
+          "info"
+        ],
+        "override": false,
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "event.type",
+        "value": [
+          "error"
+        ],
+        "override": true,
+        "if": "ctx.event?.outcome == 'failure'",
+        "ignore_failure": true
+      }
+    },
+    {
+      "script": {
+        "lang": "painless",
+        "description": "Normalise duration fields to event.duration (nanoseconds)",
+        "source": "long nanos = 0L;\n          // Check parsed duration_ms, durationMs, durationSeconds, latency_ms, execution_time_ms\n          def p = ctx['azure']?.parsed;\n          if (p != null) {\n            if (p.containsKey('duration_ms'))        { nanos = (long)(p.duration_ms * 1000000L); }\n            else if (p.containsKey('durationMs'))     { nanos = (long)(p.durationMs * 1000000L); }\n            else if (p.containsKey('durationSeconds')){ nanos = (long)(p.durationSeconds * 1000000000L); }\n            else if (p.containsKey('latency_ms'))     { nanos = (long)(p.latency_ms * 1000000L); }\n            else if (p.containsKey('execution_time_ms')) { nanos = (long)(p.execution_time_ms * 1000000L); }\n            else if (p.containsKey('elapsed_ms'))     { nanos = (long)(p.elapsed_ms * 1000000L); }\n          }\n          if (nanos > 0 && ctx.event?.duration == null) {\n            if (ctx.event == null) { ctx.event = new HashMap(); }\n            ctx.event.duration = nanos;\n          }",
+        "ignore_failure": true
+      }
+    },
+    {
+      "geoip": {
+        "field": "source.ip",
+        "target_field": "source.geo",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "geoip": {
+        "field": "client.ip",
+        "target_field": "client.geo",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "geoip": {
+        "field": "destination.ip",
+        "target_field": "destination.geo",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "user_agent": {
+        "field": "user_agent.original",
+        "target_field": "user_agent",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.ip",
+        "value": [
+          "{{{source.ip}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.source?.ip != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.ip",
+        "value": [
+          "{{{destination.ip}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.destination?.ip != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.ip",
+        "value": [
+          "{{{client.ip}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.client?.ip != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.user",
+        "value": [
+          "{{{user.name}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.user?.name != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.user",
+        "value": [
+          "{{{user.email}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.user?.email != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.user",
+        "value": [
+          "{{{user.id}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.user?.id != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.hosts",
+        "value": [
+          "{{{host.name}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.host?.name != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "append": {
+        "field": "related.hosts",
+        "value": [
+          "{{{host.hostname}}}"
+        ],
+        "allow_duplicates": false,
+        "if": "ctx.host?.hostname != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "remove": {
+        "field": "azure.parsed",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    }
+  ],
+  "on_failure": [
+    {
+      "set": {
+        "field": "error.message",
+        "value": "{{ _ingest.on_failure_message }}"
+      }
+    },
+    {
+      "append": {
+        "field": "tags",
+        "value": [
+          "_ingest_pipeline_failure"
+        ]
+      }
+    },
+    {
+      "append": {
+        "field": "tags",
+        "value": [
+          "_logs-azure.bot_service-default_failure"
+        ]
       }
     }
   ]
