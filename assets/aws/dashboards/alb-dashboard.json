@@ -1,0 +1,468 @@
+{
+  "title": "AWS Application Load Balancer — HTTP Performance",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "alb-k1",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS Requests = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Requests"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "alb-k2",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | EVAL s5 = CASE(`http.response.status_code` >= 500, 1, 0) | STATS m = AVG(s5) | EVAL `5xx %` = ROUND(m * 100, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "5xx %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "alb-k3",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS a = AVG(event.duration) | EVAL `Avg latency (ms)` = ROUND(a / 1000000.0, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg latency (ms)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "alb-k4",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS `Bytes out` = SUM(`http.response.bytes`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Bytes out"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "alb-d1",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "HTTP status",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS c = COUNT() BY st = `http.response.status_code` | SORT c DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "st"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "alb-d2",
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Top load balancers",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS c = COUNT() BY lb = `aws.elb.name` | SORT c DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "lb"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "alb-d3",
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Outcome",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS c = COUNT() BY o = event.outcome"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "o"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "alb-l1",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Request volume",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c",
+                  "label": "Requests"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "alb-l2",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "5xx and 4xx over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS c5 = SUM(CASE(`http.response.status_code` >= 500, 1, 0)), c4 = SUM(CASE(`http.response.status_code` >= 400 AND `http.response.status_code` < 500, 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c5",
+                  "label": "5xx"
+                },
+                {
+                  "operation": "value",
+                  "column": "c4",
+                  "label": "4xx"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "alb-l3",
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Avg response time (ms)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS avg_ms = AVG(`aws.elb.backend_processing_time.sec` + `aws.elb.request_processing_time.sec` + `aws.elb.response_processing_time.sec`) * 1000 BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_ms",
+                  "label": "Avg proc (ms)"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "alb-b1",
+      "grid": {
+        "x": 0,
+        "y": 35,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Top target groups",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS c = COUNT() BY tg = `aws.elb.target_group.arn` | SORT c DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "tg"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c",
+                  "label": "Requests"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "alb-t1",
+      "grid": {
+        "x": 0,
+        "y": 45,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Recent access",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | KEEP `@timestamp`, `aws.elb.name`, `http.request.method`, `http.response.status_code`, event.outcome, `client.ip`, `aws.elb.trace_id` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Time"
+            },
+            {
+              "operation": "value",
+              "column": "aws.elb.name",
+              "label": "ALB"
+            },
+            {
+              "operation": "value",
+              "column": "http.request.method",
+              "label": "Method"
+            },
+            {
+              "operation": "value",
+              "column": "http.response.status_code",
+              "label": "Status"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
+            },
+            {
+              "operation": "value",
+              "column": "client.ip",
+              "label": "Client IP"
+            },
+            {
+              "operation": "value",
+              "column": "aws.elb.trace_id",
+              "label": "Trace"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

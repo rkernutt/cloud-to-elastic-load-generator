@@ -1,0 +1,142 @@
+{
+  "title": "Azure Security Finding Chain — overview",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "az-sfc-k1",
+      "grid": { "x": 0, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Defender alerts",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.defender* | WHERE event.kind == \"alert\" | STATS c = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-sfc-k2",
+      "grid": { "x": 16, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Sentinel incidents",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.sentinel* | STATS c = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-sfc-k3",
+      "grid": { "x": 32, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Activity log: incident writes",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.activity_log* | WHERE azure.activity_log.operation_name == \"Microsoft.SecurityInsights/incidents/write\" | STATS c = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-sfc-d1",
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Alert types",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.defender* | WHERE azure.defender.alert_type IS NOT NULL | STATS c = COUNT() BY t = azure.defender.alert_type"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "t" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-sfc-d2",
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Severity",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.defender* | WHERE azure.defender.severity IS NOT NULL | STATS c = COUNT() BY sev = azure.defender.severity"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "sev" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-sfc-l1",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Events over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-azure.defender*, logs-azure.sentinel*, logs-azure.activity_log* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Events" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-sfc-t1",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
+      "config": {
+        "title": "Defender / Sentinel correlation by source IP and account",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.defender*, logs-azure.sentinel* | WHERE source.ip IS NOT NULL AND cloud.account.id IS NOT NULL | STATS def_sev = MAX(azure.defender.severity), sent_sev = MAX(azure.sentinel.severity), entity = MAX(azure.defender.compromised_entity), alert_t = MAX(azure.defender.alert_type), inc = MAX(azure.sentinel.incident_id) BY src = source.ip, acct = cloud.account.id | SORT def_sev DESC | LIMIT 25"
+          },
+          "metrics": [
+            { "operation": "value", "column": "src", "label": "Source IP" },
+            { "operation": "value", "column": "acct", "label": "Subscription / account" },
+            { "operation": "value", "column": "alert_t", "label": "Defender alert type" },
+            { "operation": "value", "column": "inc", "label": "Sentinel incident" },
+            { "operation": "value", "column": "def_sev", "label": "Defender severity" },
+            { "operation": "value", "column": "sent_sev", "label": "Sentinel severity" },
+            { "operation": "value", "column": "entity", "label": "Compromised entity" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

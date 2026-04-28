@@ -1,0 +1,76 @@
+{
+  "_meta": {
+    "job_id": "aws-datazone-subscription-rejection-spike",
+    "group": "new-services",
+    "api_job": "PUT _ml/anomaly_detectors/aws-datazone-subscription-rejection-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-datazone-subscription-rejection-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-datazone-subscription-rejection-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-datazone-subscription-rejection-spike/_start"
+  },
+  "job": {
+    "description": "Detects unusual spikes in DataZone subscription rejections (data governance policy friction or misconfiguration)",
+    "groups": [
+      "aws",
+      "new-services",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "count",
+          "function": "count",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.datazone.subscription_status",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "16mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-datazone-subscription-rejection-spike",
+    "job_id": "aws-datazone-subscription-rejection-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.datazone"
+            }
+          },
+          {
+            "term": {
+              "aws.datazone.subscription_status": "REJECTED"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "_meta": {
+    "job_id": "aws-apigateway-5xx-error-spike",
+    "group": "serverless",
+    "api_job": "PUT _ml/anomaly_detectors/aws-apigateway-5xx-error-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-apigateway-5xx-error-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-apigateway-5xx-error-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-apigateway-5xx-error-spike/_start"
+  },
+  "job": {
+    "description": "Detects unusual spikes in API Gateway 5xx server errors per API — may indicate backend failures or misconfigurations",
+    "groups": [
+      "aws",
+      "serverless",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.apigateway.request_id",
+          "function": "high_count",
+          "partition_field_name": "aws.apigateway.stage",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.apigateway.stage",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-apigateway-5xx-error-spike",
+    "job_id": "aws-apigateway-5xx-error-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.apigateway"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          },
+          {
+            "range": {
+              "http.response.status_code": {
+                "gte": 500
+              }
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

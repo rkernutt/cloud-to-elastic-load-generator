@@ -1,0 +1,71 @@
+{
+  "_meta": {
+    "job_id": "aws-opensearch-write-rejections",
+    "group": "databases-extended",
+    "api_job": "PUT _ml/anomaly_detectors/aws-opensearch-write-rejections",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-opensearch-write-rejections",
+    "api_open": "POST _ml/anomaly_detectors/aws-opensearch-write-rejections/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-opensearch-write-rejections/_start"
+  },
+  "job": {
+    "description": "Detects unusual write rejection spikes in OpenSearch — indexing backpressure detection",
+    "groups": [
+      "aws",
+      "databases-extended",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.opensearch.domain_name",
+          "function": "high_count",
+          "partition_field_name": "aws.opensearch.domain_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.opensearch.domain_name"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-opensearch-write-rejections",
+    "job_id": "aws-opensearch-write-rejections",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.opensearch"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

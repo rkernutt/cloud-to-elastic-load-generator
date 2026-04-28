@@ -1,0 +1,57 @@
+{
+  "_meta": {
+    "pipeline_id": "logs-aws.glue-default",
+    "dataset": "aws.glue",
+    "group": "analytics",
+    "api": "PUT _ingest/pipeline/logs-aws.glue-default"
+  },
+  "description": "Parse AWS Glue continuous logging JSON from message field",
+  "processors": [
+    {
+      "json": {
+        "field": "message",
+        "target_field": "glue.parsed",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "glue.parsed.jobName",
+        "target_field": "glue.jobName",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "glue.parsed.jobRunId",
+        "target_field": "glue.jobRunId",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "glue.parsed.level",
+        "target_field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "lowercase": {
+        "field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "glue.parsed.errorCode",
+        "target_field": "error.code",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    }
+  ]
+}

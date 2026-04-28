@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "azure-virtual-wan-failure-spike",
+    "group": "minimal-coverage",
+    "api_job": "PUT _ml/anomaly_detectors/azure-virtual-wan-failure-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-virtual-wan-failure-spike",
+    "api_open": "POST _ml/anomaly_detectors/azure-virtual-wan-failure-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-virtual-wan-failure-spike/_start"
+  },
+  "job": {
+    "description": "Unusual spike in failure events for azure.virtual_wan",
+    "groups": [
+      "azure",
+      "minimal-coverage"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=cloud.region azure.virtual_wan",
+          "function": "high_count",
+          "partition_field_name": "cloud.region",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "cloud.region",
+        "event.outcome"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-load-generator-minimal-coverage"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-virtual-wan-failure-spike",
+    "job_id": "azure-virtual-wan-failure-spike",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "azure.virtual_wan"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "job_id": "aws-simspaceweaver-simulation-failure-spike",
+    "group": "aws-ml-platform-wide-coverage",
+    "api_job": "PUT _ml/anomaly_detectors/aws-simspaceweaver-simulation-failure-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-simspaceweaver-simulation-failure-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-simspaceweaver-simulation-failure-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-simspaceweaver-simulation-failure-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in SimSpace Weaver simulation failures per app (clock desync or partition crash)",
+    "groups": [
+      "aws",
+      "aws-ml-platform-wide-coverage",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.simspaceweaver.app_name",
+          "function": "high_count",
+          "partition_field_name": "aws.simspaceweaver.app_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.simspaceweaver.app_name",
+        "aws.simspaceweaver.domain_name"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-simspaceweaver-simulation-failure-spike",
+    "job_id": "aws-simspaceweaver-simulation-failure-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.simspaceweaver"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

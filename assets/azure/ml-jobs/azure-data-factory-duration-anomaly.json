@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "azure-data-factory-duration-anomaly",
+    "group": "azure-analytics",
+    "api_job": "PUT _ml/anomaly_detectors/azure-data-factory-duration-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-data-factory-duration-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/azure-data-factory-duration-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-data-factory-duration-anomaly/_start"
+  },
+  "job": {
+    "description": "Unusual Data Factory operation duration per resource",
+    "groups": [
+      "azure",
+      "analytics"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(azure.data_factory.duration_ms) partitionfield=azure.data_factory.resource_name",
+          "function": "high_mean",
+          "field_name": "azure.data_factory.duration_ms",
+          "partition_field_name": "azure.data_factory.resource_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.data_factory.resource_group",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-data-factory-duration-anomaly",
+    "job_id": "azure-data-factory-duration-anomaly",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "exists": {
+              "field": "azure.data_factory.resource_name"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,277 @@
+{
+  "title": "AWS Client VPN — Connection Monitoring",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "clientvpn-kpi-total-connections",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.clientvpn* | STATS `Total Connections` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Connections"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "clientvpn-kpi-failed-auth",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.clientvpn* | WHERE `log.level` == \"failure\" | STATS `Failed Auth Count` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Auth Count"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "clientvpn-kpi-total-egress-bytes",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.clientvpn* | STATS `Total Egress Bytes` = SUM(`aws.clientvpn.egress_bytes`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Egress Bytes"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "clientvpn-kpi-unique-users",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.clientvpn* | STATS `Unique Users` = COUNT_DISTINCT(`aws.clientvpn.username`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Unique Users"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "clientvpn-donut-connection-status",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Connection Status",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.clientvpn* | STATS count = COUNT() BY status = `log.level` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "status"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "clientvpn-donut-termination-reason",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Termination Reason",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.clientvpn* | STATS count = COUNT() BY reason = `aws.clientvpn.termination_reason` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "reason"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "clientvpn-connections-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Connection Events Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.clientvpn* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Connections"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "clientvpn-recent-connections",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Connections",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.clientvpn* | KEEP `@timestamp`, `aws.clientvpn.username`, `aws.clientvpn.source_ip`, `aws.clientvpn.egress_bytes`, `event.action` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.clientvpn.username",
+              "label": "Username"
+            },
+            {
+              "operation": "value",
+              "column": "aws.clientvpn.source_ip",
+              "label": "Source IP"
+            },
+            {
+              "operation": "value",
+              "column": "aws.clientvpn.egress_bytes",
+              "label": "Egress Bytes"
+            },
+            {
+              "operation": "value",
+              "column": "event.action",
+              "label": "Action"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

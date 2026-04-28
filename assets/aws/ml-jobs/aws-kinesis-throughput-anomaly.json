@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "job_id": "aws-kinesis-throughput-anomaly",
+    "group": "streaming",
+    "api_job": "PUT _ml/anomaly_detectors/aws-kinesis-throughput-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-kinesis-throughput-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/aws-kinesis-throughput-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-kinesis-throughput-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusual spikes or drops in Kinesis incoming records per stream",
+    "groups": [
+      "aws",
+      "streaming",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "High mean incoming records by Kinesis stream",
+          "function": "high_mean",
+          "field_name": "aws.kinesis.metrics.IncomingRecords.avg",
+          "partition_field_name": "aws.dimensions.StreamName",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.dimensions.StreamName"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-kinesis-throughput-anomaly",
+    "job_id": "aws-kinesis-throughput-anomaly",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.kinesis"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

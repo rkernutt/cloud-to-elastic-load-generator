@@ -1,0 +1,277 @@
+{
+  "title": "AWS Clean Rooms — Privacy-Safe Collaboration",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "cleanrooms-kpi-total-queries",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cleanrooms* | STATS `Total Queries` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Queries"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cleanrooms-kpi-failed-queries",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cleanrooms* | WHERE `aws.cleanrooms.query_status` == \"FAILED\" | STATS `Failed Queries` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Queries"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cleanrooms-kpi-avg-rows-returned",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cleanrooms* | STATS avg_rows = AVG(`aws.cleanrooms.rows_returned`) | EVAL `Avg Rows Returned` = ROUND(avg_rows, 0)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Rows Returned"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cleanrooms-kpi-active-collaborations",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cleanrooms* | STATS `Active Collaborations` = COUNT_DISTINCT(`aws.cleanrooms.collaboration_name`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Active Collaborations"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cleanrooms-donut-by-collaboration",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Queries by Collaboration",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cleanrooms* | STATS count = COUNT() BY collaboration = `aws.cleanrooms.collaboration_name` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "collaboration"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cleanrooms-donut-by-query-status",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Queries by Status",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cleanrooms* | STATS count = COUNT() BY status = `aws.cleanrooms.query_status` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "status"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cleanrooms-queries-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Queries Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.cleanrooms* | STATS count = COUNT(), avg_rows = AVG(`aws.cleanrooms.rows_returned`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Queries"
+                },
+                {
+                  "operation": "value",
+                  "column": "avg_rows",
+                  "label": "Avg Rows Returned"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cleanrooms-recent-queries",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Queries",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cleanrooms* | KEEP `@timestamp`, `aws.cleanrooms.collaboration_name`, `aws.cleanrooms.query_status`, `aws.cleanrooms.rows_returned` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.cleanrooms.collaboration_name",
+              "label": "Collaboration Name"
+            },
+            {
+              "operation": "value",
+              "column": "aws.cleanrooms.query_status",
+              "label": "Query Status"
+            },
+            {
+              "operation": "value",
+              "column": "aws.cleanrooms.rows_returned",
+              "label": "Rows Returned"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

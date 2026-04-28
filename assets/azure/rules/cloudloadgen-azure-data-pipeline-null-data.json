@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "rule_id": "cloudloadgen-azure-data-pipeline-null-data",
+    "group": "data-pipeline",
+    "api": "POST /api/alerting/rule"
+  },
+  "name": "[CloudLoadGen] Azure Data Pipeline — Null/Empty Data Detected",
+  "rule_type_id": ".es-query",
+  "consumer": "alerts",
+  "schedule": {
+    "interval": "5m"
+  },
+  "tags": [
+    "cloudloadgen",
+    "data-pipeline"
+  ],
+  "enabled": false,
+  "params": {
+    "searchType": "esQuery",
+    "timeWindowSize": 15,
+    "timeWindowUnit": "m",
+    "threshold": [
+      1
+    ],
+    "thresholdComparator": ">=",
+    "size": 100,
+    "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.synapse\"}},{\"term\":{\"azure.synapse.rows_returned\":0}}]}}}",
+    "index": [
+      "logs-azure.synapse*"
+    ],
+    "timeField": "@timestamp",
+    "aggType": "count"
+  },
+  "actions": [],
+  "notify_when": "onActiveAlert"
+}

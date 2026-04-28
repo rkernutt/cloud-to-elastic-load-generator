@@ -1,0 +1,468 @@
+{
+  "title": "AWS Database Migration Service — Replication",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "dms-k1",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.dms* | STATS Events = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Events"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dms-k2",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.dms* | STATS `Failed` = SUM(CASE(`aws.dms.task_status` == \"Failed\", 1, 0))"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed tasks"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dms-k3",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.dms* | STATS `CDC ms` = ROUND(AVG(`aws.dms.latency_ms`), 0)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg CDC latency (ms)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dms-k4",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.dms* | STATS `Rows` = SUM(`aws.dms.full_load_rows_transferred`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Rows transferred"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dms-d1",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Task status",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.dms* | STATS c = COUNT() BY s = `aws.dms.task_status` | SORT c DESC"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "s"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dms-d2",
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Migration type",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.dms* | STATS c = COUNT() BY m = `aws.dms.migration_type` | SORT c DESC"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "m"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dms-d3",
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Source engines",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.dms* | STATS c = COUNT() BY e = `aws.dms.source_engine` | SORT c DESC | LIMIT 8"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "e"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dms-l1",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Events over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.dms* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dms-l2",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "CDC incoming changes",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.dms* | STATS cdc = AVG(`aws.dms.cdc_incoming_changes`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "cdc",
+                  "label": "CDC changes"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dms-l3",
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Replication latency (ms)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.dms* | STATS lat = AVG(`aws.dms.latency_ms`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "lat",
+                  "label": "Latency ms"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dms-b1",
+      "grid": {
+        "x": 0,
+        "y": 35,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Top replication tasks",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.dms* | STATS c = COUNT() BY t = `aws.dms.replication_task_id` | SORT c DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "t"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dms-t1",
+      "grid": {
+        "x": 0,
+        "y": 45,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Recent tasks",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.dms* | KEEP `@timestamp`, `aws.dms.replication_task_id`, `aws.dms.task_status`, `aws.dms.migration_type`, `aws.dms.source_engine`, `aws.dms.target_engine`, `aws.dms.latency_ms`, `aws.dms.tables_errored` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Time"
+            },
+            {
+              "operation": "value",
+              "column": "aws.dms.replication_task_id",
+              "label": "Task"
+            },
+            {
+              "operation": "value",
+              "column": "aws.dms.task_status",
+              "label": "Status"
+            },
+            {
+              "operation": "value",
+              "column": "aws.dms.migration_type",
+              "label": "Type"
+            },
+            {
+              "operation": "value",
+              "column": "aws.dms.source_engine",
+              "label": "Source"
+            },
+            {
+              "operation": "value",
+              "column": "aws.dms.target_engine",
+              "label": "Target"
+            },
+            {
+              "operation": "value",
+              "column": "aws.dms.latency_ms",
+              "label": "Latency"
+            },
+            {
+              "operation": "value",
+              "column": "aws.dms.tables_errored",
+              "label": "Table errors"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

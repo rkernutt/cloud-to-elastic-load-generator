@@ -1,0 +1,277 @@
+{
+  "title": "AWS Chatbot — Notification Delivery",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "chatbot-kpi-total-notifications",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.chatbot* | STATS `Total Notifications` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Notifications"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "chatbot-kpi-failed-deliveries",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.chatbot* | WHERE `aws.chatbot.delivery_status` == \"FAILED\" | STATS `Failed Deliveries` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Deliveries"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "chatbot-kpi-unique-channels",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.chatbot* | STATS `Unique Channels` = COUNT_DISTINCT(`aws.chatbot.channel_configuration_name`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Unique Channels"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "chatbot-kpi-notification-types",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.chatbot* | STATS `Notification Types` = COUNT_DISTINCT(`aws.chatbot.notification_type`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Notification Types"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "chatbot-donut-delivery-status",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Delivery Status",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.chatbot* | STATS count = COUNT() BY status = `aws.chatbot.delivery_status` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "status"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "chatbot-donut-channel-type",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Channel Type",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.chatbot* | STATS count = COUNT() BY channel_type = `aws.chatbot.channel_type` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "channel_type"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "chatbot-deliveries-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Notification Deliveries Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.chatbot* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Notifications"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "chatbot-recent-notifications",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Notifications",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.chatbot* | KEEP `@timestamp`, `aws.chatbot.channel_configuration_name`, `aws.chatbot.notification_type`, `aws.chatbot.delivery_status`, `aws.chatbot.channel_type` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.chatbot.channel_configuration_name",
+              "label": "Channel Configuration"
+            },
+            {
+              "operation": "value",
+              "column": "aws.chatbot.notification_type",
+              "label": "Notification Type"
+            },
+            {
+              "operation": "value",
+              "column": "aws.chatbot.delivery_status",
+              "label": "Delivery Status"
+            },
+            {
+              "operation": "value",
+              "column": "aws.chatbot.channel_type",
+              "label": "Channel Type"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

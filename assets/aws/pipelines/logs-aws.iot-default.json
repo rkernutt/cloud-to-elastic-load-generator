@@ -1,0 +1,42 @@
+{
+  "_meta": {
+    "pipeline_id": "logs-aws.iot-default",
+    "dataset": "aws.iot",
+    "group": "iot",
+    "api": "PUT _ingest/pipeline/logs-aws.iot-default"
+  },
+  "description": "Parse AWS IoT Core device connect/publish JSON from message field",
+  "processors": [
+    {
+      "json": {
+        "field": "message",
+        "target_field": "iot.parsed",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "iot.parsed.clientId",
+        "target_field": "iot.clientId",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "iot.parsed.action",
+        "target_field": "iot.action",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "iot.parsed.topic",
+        "target_field": "iot.topic",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    }
+  ]
+}

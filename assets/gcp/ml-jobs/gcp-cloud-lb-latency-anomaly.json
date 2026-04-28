@@ -1,0 +1,75 @@
+{
+  "_meta": {
+    "job_id": "gcp-cloud-lb-latency-anomaly",
+    "group": "gcp-infrastructure",
+    "api_job": "PUT _ml/anomaly_detectors/gcp-cloud-lb-latency-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-gcp-cloud-lb-latency-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/gcp-cloud-lb-latency-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-gcp-cloud-lb-latency-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusual HTTP(S) load balancer latency per forwarding rule",
+    "groups": [
+      "gcp",
+      "networking"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(event.duration) partitionfield=gcp.cloud_lb.forwarding_rule",
+          "function": "high_mean",
+          "field_name": "event.duration",
+          "partition_field_name": "gcp.cloud_lb.forwarding_rule",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "gcp.cloud_lb.forwarding_rule",
+        "gcp.cloud_lb.backend_service",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "gcp-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-gcp-cloud-lb-latency-anomaly",
+    "job_id": "gcp-cloud-lb-latency-anomaly",
+    "indices": [
+      "logs-gcp.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "gcp"
+            }
+          },
+          {
+            "term": {
+              "event.dataset": "gcp.loadbalancing"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "_meta": {
+    "job_id": "azure-m365-rare-operation",
+    "group": "azure-identity",
+    "api_job": "PUT _ml/anomaly_detectors/azure-m365-rare-operation",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-m365-rare-operation",
+    "api_open": "POST _ml/anomaly_detectors/azure-m365-rare-operation/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-m365-rare-operation/_start"
+  },
+  "job": {
+    "description": "Detects rare M365 record_type values across workloads",
+    "groups": [
+      "azure",
+      "identity"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "rare by=azure.microsoft_365.record_type",
+          "function": "rare",
+          "by_field_name": "azure.microsoft_365.record_type",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.microsoft_365.record_type",
+        "azure.microsoft_365.workload",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-m365-rare-operation",
+    "job_id": "azure-m365-rare-operation",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "term": {
+              "event.dataset": "azure.microsoft_365"
+            }
+          },
+          {
+            "exists": {
+              "field": "azure.microsoft_365.record_type"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

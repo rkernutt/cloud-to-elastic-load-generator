@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "job_id": "aws-lookoutequipment-anomaly-spike",
+    "group": "aws-ml-data-ml-operations",
+    "api_job": "PUT _ml/anomaly_detectors/aws-lookoutequipment-anomaly-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-lookoutequipment-anomaly-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-lookoutequipment-anomaly-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-lookoutequipment-anomaly-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in Lookout for Equipment anomaly detections per model (equipment degradation or sensor drift)",
+    "groups": [
+      "aws",
+      "aws-ml-data-ml-operations",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.lookoutequipment.model_name",
+          "function": "high_count",
+          "partition_field_name": "aws.lookoutequipment.model_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.lookoutequipment.model_name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-lookoutequipment-anomaly-spike",
+    "job_id": "aws-lookoutequipment-anomaly-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.lookoutequipment"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

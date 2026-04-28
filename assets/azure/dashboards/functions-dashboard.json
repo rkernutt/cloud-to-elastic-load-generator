@@ -1,0 +1,137 @@
+{
+  "title": "Azure Functions — Invocations",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "az-fn-k1",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.functions* | STATS `Log events` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Log events"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-fn-l1",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Invocations",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-azure.functions* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c",
+                  "label": "Invocations"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-fn-t1",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Recent",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.functions* | KEEP `@timestamp`, `azure.functions.function_name`, `azure.functions.trigger`, `azure.functions.duration_ms`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Time"
+            },
+            {
+              "operation": "value",
+              "column": "azure.functions.function_name",
+              "label": "Function"
+            },
+            {
+              "operation": "value",
+              "column": "azure.functions.trigger",
+              "label": "Trigger"
+            },
+            {
+              "operation": "value",
+              "column": "azure.functions.duration_ms",
+              "label": "Duration ms"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
+            },
+            {
+              "operation": "value",
+              "column": "message",
+              "label": "Message"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "title": "Amazon SageMaker Feature Store — Feature Group Metrics",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "sagemakerfeaturestore-kpi-total-events",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.sagemaker_featurestore* | STATS `Total Events` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Events"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "sagemakerfeaturestore-kpi-errors",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.sagemaker_featurestore* | WHERE log.level == \"error\" | STATS `Errors` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Errors"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "sagemakerfeaturestore-kpi-unique-resources",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.sagemaker_featurestore* | STATS `Unique Feature Groups` = COUNT_DISTINCT(`aws.sagemaker_featurestore.feature_group_name`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Unique Feature Groups"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "sagemakerfeaturestore-donut-outcome",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Event Outcome",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.sagemaker_featurestore* | STATS count = COUNT() BY outcome = log.level | SORT count DESC | LIMIT 10"
+          },
+          "dimensions": [
+            {
+              "column": "outcome",
+              "type": "category"
+            }
+          ],
+          "metrics": [
+            {
+              "type": "size",
+              "operation": "value",
+              "column": "count"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "sagemakerfeaturestore-bar-timeline",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Events Over Time",
+        "attributes": {
+          "type": "bar_stacked",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.sagemaker_featurestore* | EVAL bucket = DATE_TRUNC(15 minutes, `@timestamp`) | STATS count = COUNT() BY bucket, outcome = log.level | SORT bucket"
+          },
+          "xAxis": {
+            "column": "bucket",
+            "type": "date"
+          },
+          "breakdown": {
+            "column": "outcome",
+            "type": "category"
+          },
+          "metrics": [
+            {
+              "type": "bar",
+              "operation": "value",
+              "column": "count"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

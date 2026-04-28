@@ -1,0 +1,123 @@
+{
+  "title": "GCP Data Exfiltration Chain — overview",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "gcp-dex-k1",
+      "grid": { "x": 0, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "DLP alerts",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.dlp* | WHERE event.kind == \"alert\" | STATS c = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-dex-k2",
+      "grid": { "x": 16, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "VPC egress (MB)",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.vpcflow* | WHERE gcp.vpc_flow.bytes_sent IS NOT NULL | STATS total = SUM(gcp.vpc_flow.bytes_sent) / 1048576"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "total" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-dex-k3",
+      "grid": { "x": 32, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Distinct VPC flow source IPs",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.vpcflow* | WHERE gcp.vpc_flow.src_ip IS NOT NULL | STATS c = COUNT_DISTINCT(gcp.vpc_flow.src_ip)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-dex-d1",
+      "grid": { "x": 0, "y": 5, "w": 48, "h": 10 },
+      "config": {
+        "title": "DLP info types",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.dlp* | WHERE event.kind == \"alert\" AND gcp.dlp.info_type IS NOT NULL | STATS c = COUNT() BY it = gcp.dlp.info_type"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "it" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-dex-l1",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "VPC egress bytes over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-gcp.vpcflow* | WHERE gcp.vpc_flow.bytes_sent IS NOT NULL | STATS mb = SUM(gcp.vpc_flow.bytes_sent) / 1048576 BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "mb", "label": "MB" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-dex-t1",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
+      "config": {
+        "title": "DLP findings by source IP and info type",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.dlp* | WHERE event.kind == \"alert\" AND gcp.dlp.info_type IS NOT NULL | STATS dlp_cnt = SUM(gcp.dlp.findings_count), ops = COUNT() BY ip = source.ip, it = gcp.dlp.info_type, proj = cloud.project.id | SORT dlp_cnt DESC | LIMIT 25"
+          },
+          "metrics": [
+            { "operation": "value", "column": "ip", "label": "Source IP" },
+            { "operation": "value", "column": "it", "label": "Info type" },
+            { "operation": "value", "column": "proj", "label": "Project" },
+            { "operation": "value", "column": "dlp_cnt", "label": "Findings count" },
+            { "operation": "value", "column": "ops", "label": "Events" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

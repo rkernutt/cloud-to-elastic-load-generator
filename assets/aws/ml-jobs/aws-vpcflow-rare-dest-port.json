@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "aws-vpcflow-rare-dest-port",
+    "group": "security",
+    "api_job": "PUT _ml/anomaly_detectors/aws-vpcflow-rare-dest-port",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-vpcflow-rare-dest-port",
+    "api_open": "POST _ml/anomaly_detectors/aws-vpcflow-rare-dest-port/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-vpcflow-rare-dest-port/_start"
+  },
+  "job": {
+    "description": "Detects rare destination ports being accessed from a source IP (port scanning or unusual lateral movement)",
+    "groups": [
+      "aws",
+      "security",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "rare by=destination.port partitionfield=source.ip",
+          "function": "rare",
+          "by_field_name": "destination.port",
+          "partition_field_name": "source.ip",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "source.ip",
+        "destination.port",
+        "source.geo.country_iso_code"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-vpcflow-rare-dest-port",
+    "job_id": "aws-vpcflow-rare-dest-port",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.vpcflow"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

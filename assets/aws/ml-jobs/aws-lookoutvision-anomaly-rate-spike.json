@@ -1,0 +1,64 @@
+{
+  "_meta": {
+    "job_id": "aws-lookoutvision-anomaly-rate-spike",
+    "group": "aws-ml-edge-ai-supplement",
+    "api_job": "PUT _ml/anomaly_detectors/aws-lookoutvision-anomaly-rate-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-lookoutvision-anomaly-rate-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-lookoutvision-anomaly-rate-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-lookoutvision-anomaly-rate-spike/_start"
+  },
+  "job": {
+    "job_id": "aws-lookoutvision-anomaly-rate-spike",
+    "description": "Detects unusual spikes in defect detection rate per project",
+    "groups": [
+      "aws",
+      "aws-ml-edge-ai-supplement",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.lookoutvision.project_name",
+          "function": "high_count",
+          "partition_field_name": "aws.lookoutvision.project_name"
+        }
+      ],
+      "influencers": [
+        "aws.lookoutvision.project_name",
+        "aws.lookoutvision.anomaly_label",
+        "cloud.account.id"
+      ]
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "model_plot_config": {
+      "enabled": false
+    },
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "allow_lazy_open": true
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-lookoutvision-anomaly-rate-spike",
+    "job_id": "aws-lookoutvision-anomaly-rate-spike",
+    "indices": [
+      "logs-aws.lookoutvision*"
+    ],
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "aws.lookoutvision.is_anomalous": true
+            }
+          }
+        ]
+      }
+    },
+    "scroll_size": 1000,
+    "query_delay": "60s"
+  }
+}

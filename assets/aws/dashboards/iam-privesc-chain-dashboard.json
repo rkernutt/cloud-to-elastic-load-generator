@@ -1,0 +1,123 @@
+{
+  "title": "IAM Privilege Escalation Chain — overview",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "aws-ipe-k1",
+      "grid": { "x": 0, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Total PrivEsc chain events",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudtrail* | WHERE event.dataset == \"aws.cloudtrail\" AND (event.action IN (\"ListUsers\", \"CreateAccessKey\", \"AttachUserPolicy\", \"AssumeRole\") OR threat.tactic.name IS NOT NULL) | STATS c = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-ipe-k2",
+      "grid": { "x": 16, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Unique attack sessions",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudtrail* | WHERE event.dataset == \"aws.cloudtrail\" AND (event.action IN (\"ListUsers\", \"CreateAccessKey\", \"AttachUserPolicy\", \"AssumeRole\") OR threat.tactic.name IS NOT NULL) | STATS c = COUNT_DISTINCT(source.ip)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-ipe-k3",
+      "grid": { "x": 32, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Successful AssumeRole",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudtrail* | WHERE event.action == \"AssumeRole\" AND event.outcome == \"success\" | STATS c = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-ipe-d1",
+      "grid": { "x": 0, "y": 5, "w": 48, "h": 10 },
+      "config": {
+        "title": "MITRE tactics breakdown",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudtrail* | WHERE event.dataset == \"aws.cloudtrail\" AND (event.action IN (\"ListUsers\", \"CreateAccessKey\", \"AttachUserPolicy\", \"AssumeRole\") OR threat.tactic.name IS NOT NULL) AND threat.tactic.name IS NOT NULL | STATS c = COUNT() BY tactic = threat.tactic.name"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "tactic" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-ipe-l1",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "PrivEsc chain events over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.cloudtrail* | WHERE event.dataset == \"aws.cloudtrail\" AND (event.action IN (\"ListUsers\", \"CreateAccessKey\", \"AttachUserPolicy\", \"AssumeRole\") OR threat.tactic.name IS NOT NULL) | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Events" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-ipe-t1",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
+      "config": {
+        "title": "Attack sessions",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudtrail* | WHERE event.dataset == \"aws.cloudtrail\" AND (event.action IN (\"ListUsers\", \"CreateAccessKey\", \"AttachUserPolicy\", \"AssumeRole\") OR threat.tactic.name IS NOT NULL) | STATS steps = COUNT(), methods = COUNT_DISTINCT(event.action), uid_type = MAX(aws.cloudtrail.user_identity.type) BY attacker = user.name, src = source.ip | SORT steps DESC | LIMIT 25"
+          },
+          "metrics": [
+            { "operation": "value", "column": "attacker", "label": "User name" },
+            { "operation": "value", "column": "src", "label": "Source IP" },
+            { "operation": "value", "column": "uid_type", "label": "User identity type" },
+            { "operation": "value", "column": "steps", "label": "Events" },
+            { "operation": "value", "column": "methods", "label": "Distinct actions" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

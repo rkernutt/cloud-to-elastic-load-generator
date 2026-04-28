@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "job_id": "aws-chimesdkvoice-call-failure-spike",
+    "group": "aws-ml-extended-services-a",
+    "api_job": "PUT _ml/anomaly_detectors/aws-chimesdkvoice-call-failure-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-chimesdkvoice-call-failure-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-chimesdkvoice-call-failure-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-chimesdkvoice-call-failure-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in Chime SDK Voice call failures per voice connector (SIP signalling or media path issues)",
+    "groups": [
+      "aws",
+      "aws-ml-extended-services-a",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "10m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.chimesdkvoice.voice_connector_id",
+          "function": "high_count",
+          "partition_field_name": "aws.chimesdkvoice.voice_connector_id",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.chimesdkvoice.voice_connector_id",
+        "cloud.account.id",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-chimesdkvoice-call-failure-spike",
+    "job_id": "aws-chimesdkvoice-call-failure-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.chimesdkvoice"
+            }
+          },
+          {
+            "term": {
+              "aws.chimesdkvoice.call_status": "Failed"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

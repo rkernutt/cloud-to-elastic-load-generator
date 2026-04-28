@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "job_id": "aws-lambda-apm-cold-start-spike",
+    "group": "apm-traces",
+    "api_job": "PUT _ml/anomaly_detectors/aws-lambda-apm-cold-start-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-lambda-apm-cold-start-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-lambda-apm-cold-start-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-lambda-apm-cold-start-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in Lambda cold start rate per function — scaling events, VPC warming issues, or new deployments",
+    "groups": [
+      "apm",
+      "traces",
+      "lambda",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=service.name",
+          "function": "high_count",
+          "partition_field_name": "service.name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "service.name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-lambda-apm-cold-start-spike",
+    "job_id": "aws-lambda-apm-cold-start-spike",
+    "indices": [
+      "traces-apm-*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "processor.event": "transaction"
+            }
+          },
+          {
+            "term": {
+              "transaction.faas.coldstart": true
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

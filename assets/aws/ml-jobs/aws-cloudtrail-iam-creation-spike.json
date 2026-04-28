@@ -1,0 +1,87 @@
+{
+  "_meta": {
+    "job_id": "aws-cloudtrail-iam-creation-spike",
+    "group": "siem",
+    "api_job": "PUT _ml/anomaly_detectors/aws-cloudtrail-iam-creation-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-cloudtrail-iam-creation-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-cloudtrail-iam-creation-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-cloudtrail-iam-creation-spike/_start"
+  },
+  "job": {
+    "description": "Detects unusual spikes in IAM user, role, or policy creation — may indicate account compromise, credential abuse, or automated attack tooling",
+    "groups": [
+      "aws",
+      "siem",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "30m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=event.action",
+          "function": "high_count",
+          "partition_field_name": "event.action",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "user.name",
+        "source.ip",
+        "event.action",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-cloudtrail-iam-creation-spike",
+    "job_id": "aws-cloudtrail-iam-creation-spike",
+    "indices": [
+      "logs-aws.cloudtrail-*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.cloudtrail"
+            }
+          },
+          {
+            "terms": {
+              "event.action": [
+                "CreateUser",
+                "CreateRole",
+                "CreatePolicy",
+                "CreateAccessKey",
+                "AttachUserPolicy",
+                "AttachRolePolicy",
+                "PutUserPolicy"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

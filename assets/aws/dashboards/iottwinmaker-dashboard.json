@@ -1,0 +1,277 @@
+{
+  "title": "AWS IoT TwinMaker — Digital Twins",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "iottwinmaker-kpi-total-operations",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.iottwinmaker* | STATS `Total Operations` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Operations"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "iottwinmaker-kpi-failed-operations",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.iottwinmaker* | WHERE log.level == \"error\" | STATS `Failed Operations` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Operations"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "iottwinmaker-kpi-active-workspaces",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.iottwinmaker* | STATS `Active Workspaces` = COUNT_DISTINCT(`aws.iottwinmaker.workspace_id`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Active Workspaces"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "iottwinmaker-kpi-property-updates",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.iottwinmaker* | WHERE `aws.iottwinmaker.operation_type` LIKE \"*property*\" | STATS `Property Updates` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Property Updates"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "iottwinmaker-donut-by-workspace",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Operations by Workspace",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.iottwinmaker* | STATS count = COUNT() BY workspace = `aws.iottwinmaker.workspace_id` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "workspace"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "iottwinmaker-donut-by-component-type",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Operations by Component Type",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.iottwinmaker* | STATS count = COUNT() BY component = `aws.iottwinmaker.component_type` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "component"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "iottwinmaker-operations-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Operations Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.iottwinmaker* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Operations"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "iottwinmaker-recent-operations",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Operations",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.iottwinmaker* | KEEP `@timestamp`, `aws.iottwinmaker.workspace_id`, `aws.iottwinmaker.entity_name`, `aws.iottwinmaker.property_name`, log.level | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.iottwinmaker.workspace_id",
+              "label": "Workspace ID"
+            },
+            {
+              "operation": "value",
+              "column": "aws.iottwinmaker.entity_name",
+              "label": "Entity Name"
+            },
+            {
+              "operation": "value",
+              "column": "aws.iottwinmaker.property_name",
+              "label": "Property Name"
+            },
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Log level"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

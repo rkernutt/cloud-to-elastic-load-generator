@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "azure-monitor-alert-storm",
+    "group": "azure-identity",
+    "api_job": "PUT _ml/anomaly_detectors/azure-monitor-alert-storm",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-monitor-alert-storm",
+    "api_open": "POST _ml/anomaly_detectors/azure-monitor-alert-storm/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-monitor-alert-storm/_start"
+  },
+  "job": {
+    "description": "Detects unusual event volume for azure.monitor logs per resource name",
+    "groups": [
+      "azure",
+      "management"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=azure.monitor.resource_name",
+          "function": "high_count",
+          "partition_field_name": "azure.monitor.resource_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.monitor.resource_name",
+        "azure.monitor.resource_group",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-monitor-alert-storm",
+    "job_id": "azure-monitor-alert-storm",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "term": {
+              "event.dataset": "azure.monitor"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

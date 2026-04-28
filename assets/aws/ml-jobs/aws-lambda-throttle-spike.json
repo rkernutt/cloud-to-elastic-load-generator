@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "aws-lambda-throttle-spike",
+    "group": "compute",
+    "api_job": "PUT _ml/anomaly_detectors/aws-lambda-throttle-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-lambda-throttle-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-lambda-throttle-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-lambda-throttle-spike/_start"
+  },
+  "job": {
+    "description": "Detects unusual Lambda throttling rates per function (capacity limits or runaway invocations)",
+    "groups": [
+      "aws",
+      "compute",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(aws.lambda.metrics.Throttles.avg) partitionfield=aws.lambda.function.name",
+          "function": "high_mean",
+          "field_name": "aws.lambda.metrics.Throttles.avg",
+          "partition_field_name": "aws.lambda.function.name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.lambda.function.name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-lambda-throttle-spike",
+    "job_id": "aws-lambda-throttle-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.lambda_logs"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "job_id": "aws-bedrock-rare-model",
+    "group": "aiml",
+    "api_job": "PUT _ml/anomaly_detectors/aws-bedrock-rare-model",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-bedrock-rare-model",
+    "api_open": "POST _ml/anomaly_detectors/aws-bedrock-rare-model/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-bedrock-rare-model/_start"
+  },
+  "job": {
+    "description": "Detects rare or unusual Bedrock model IDs being called, indicating misconfiguration or abuse",
+    "groups": [
+      "aws",
+      "aiml",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "Rare Bedrock model ID invocations",
+          "function": "rare",
+          "by_field_name": "aws.bedrock.model_id",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.bedrock.model_id",
+        "cloud.account.id"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "16mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-bedrock-rare-model",
+    "job_id": "aws-bedrock-rare-model",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.bedrock"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

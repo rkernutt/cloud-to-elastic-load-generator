@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "job_id": "azure-firewall-deny-spike",
+    "group": "azure-networking",
+    "api_job": "PUT _ml/anomaly_detectors/azure-firewall-deny-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-firewall-deny-spike",
+    "api_open": "POST _ml/anomaly_detectors/azure-firewall-deny-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-firewall-deny-spike/_start"
+  },
+  "job": {
+    "description": "Spikes in Azure Firewall deny events per rule collection",
+    "groups": [
+      "azure",
+      "networking"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=azure.firewall.rule_collection",
+          "function": "high_count",
+          "partition_field_name": "azure.firewall.rule_collection",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.firewall.rule_collection",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-firewall-deny-spike",
+    "job_id": "azure-firewall-deny-spike",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "term": {
+              "cloud.service.name": "Microsoft.Network/azureFirewalls"
+            }
+          },
+          {
+            "term": {
+              "azure.firewall.action": "Deny"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

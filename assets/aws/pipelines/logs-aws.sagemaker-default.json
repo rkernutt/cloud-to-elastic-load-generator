@@ -1,0 +1,65 @@
+{
+  "_meta": {
+    "pipeline_id": "logs-aws.sagemaker-default",
+    "dataset": "aws.sagemaker",
+    "group": "ml",
+    "api": "PUT _ingest/pipeline/logs-aws.sagemaker-default"
+  },
+  "description": "Parse Amazon SageMaker training/inference/studio log JSON from message field",
+  "processors": [
+    {
+      "json": {
+        "field": "message",
+        "target_field": "sagemaker.parsed",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "sagemaker.parsed.level",
+        "target_field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "lowercase": {
+        "field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "sagemaker.parsed.event",
+        "target_field": "sagemaker.event",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "sagemaker.parsed.space",
+        "target_field": "sagemaker.space",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "sagemaker.parsed.appType",
+        "target_field": "sagemaker.appType",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "sagemaker.parsed.user",
+        "target_field": "sagemaker.user",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    }
+  ]
+}

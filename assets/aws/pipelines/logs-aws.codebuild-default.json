@@ -1,0 +1,50 @@
+{
+  "_meta": {
+    "pipeline_id": "logs-aws.codebuild-default",
+    "dataset": "aws.codebuild",
+    "group": "management",
+    "api": "PUT _ingest/pipeline/logs-aws.codebuild-default"
+  },
+  "description": "Parse AWS CodeBuild build log JSON from message field",
+  "processors": [
+    {
+      "json": {
+        "field": "message",
+        "target_field": "codebuild.parsed",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "codebuild.parsed.buildId",
+        "target_field": "codebuild.buildId",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "codebuild.parsed.project",
+        "target_field": "codebuild.project",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "codebuild.parsed.phase",
+        "target_field": "codebuild.phase",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "codebuild.parsed.status",
+        "target_field": "codebuild.status",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    }
+  ]
+}

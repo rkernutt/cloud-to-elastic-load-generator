@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "gcp-cloud-storage-latency-anomaly",
+    "group": "gcp-compute",
+    "api_job": "PUT _ml/anomaly_detectors/gcp-cloud-storage-latency-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-gcp-cloud-storage-latency-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/gcp-cloud-storage-latency-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-gcp-cloud-storage-latency-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusual Cloud Storage operation latency by bucket",
+    "groups": [
+      "gcp",
+      "storage"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(event.duration) partitionfield=gcp.gcs.bucket.name",
+          "function": "high_mean",
+          "field_name": "event.duration",
+          "partition_field_name": "gcp.gcs.bucket.name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "gcp.gcs.bucket.name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "gcp-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-gcp-cloud-storage-latency-anomaly",
+    "job_id": "gcp-cloud-storage-latency-anomaly",
+    "indices": [
+      "logs-gcp.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "gcp"
+            }
+          },
+          {
+            "wildcard": {
+              "cloud.service.name": "*storage.googleapis.com*"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,287 @@
+{
+  "title": "AWS Device Farm — Mobile Testing",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "devicefarm-kpi-total-runs",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.devicefarm* | STATS `Total Runs` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Runs"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "devicefarm-kpi-failed-runs",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.devicefarm* | WHERE `aws.devicefarm.run_status` == \"FAILED\" | STATS `Failed Runs` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Runs"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "devicefarm-kpi-total-tests",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.devicefarm* | STATS `Total Tests` = SUM(`aws.devicefarm.total_tests`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Tests"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "devicefarm-kpi-pass-rate",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.devicefarm* | STATS total_passed = SUM(`aws.devicefarm.passed_tests`), total_tests = SUM(`aws.devicefarm.total_tests`) | EVAL `Pass Rate %` = ROUND((total_passed / total_tests) * 100, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Pass Rate %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "devicefarm-donut-by-project",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Runs by Project",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.devicefarm* | STATS count = COUNT() BY project = `aws.devicefarm.project_name` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "project"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "devicefarm-donut-by-platform",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Runs by Device Platform",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.devicefarm* | STATS count = COUNT() BY platform = `aws.devicefarm.device_platform` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "platform"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "devicefarm-runs-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Test Runs Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.devicefarm* | STATS count = COUNT(), total_tests = SUM(`aws.devicefarm.total_tests`), passed_tests = SUM(`aws.devicefarm.passed_tests`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Runs"
+                },
+                {
+                  "operation": "value",
+                  "column": "passed_tests",
+                  "label": "Passed Tests"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "devicefarm-recent-runs",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Test Runs",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.devicefarm* | KEEP `@timestamp`, `aws.devicefarm.project_name`, `aws.devicefarm.run_status`, `aws.devicefarm.device_platform`, `aws.devicefarm.passed_tests`, `aws.devicefarm.total_tests` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.devicefarm.project_name",
+              "label": "Project Name"
+            },
+            {
+              "operation": "value",
+              "column": "aws.devicefarm.run_status",
+              "label": "Run Status"
+            },
+            {
+              "operation": "value",
+              "column": "aws.devicefarm.device_platform",
+              "label": "Platform"
+            },
+            {
+              "operation": "value",
+              "column": "aws.devicefarm.passed_tests",
+              "label": "Passed Tests"
+            },
+            {
+              "operation": "value",
+              "column": "aws.devicefarm.total_tests",
+              "label": "Total Tests"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

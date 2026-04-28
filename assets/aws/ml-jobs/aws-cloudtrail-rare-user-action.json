@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "aws-cloudtrail-rare-user-action",
+    "group": "security",
+    "api_job": "PUT _ml/anomaly_detectors/aws-cloudtrail-rare-user-action",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-cloudtrail-rare-user-action",
+    "api_open": "POST _ml/anomaly_detectors/aws-cloudtrail-rare-user-action/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-cloudtrail-rare-user-action/_start"
+  },
+  "job": {
+    "description": "Detects unusual or rare AWS API actions for a specific IAM user (compromised credentials or insider threat)",
+    "groups": [
+      "aws",
+      "security",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "rare by=event.action partitionfield=user.name",
+          "function": "rare",
+          "by_field_name": "event.action",
+          "partition_field_name": "user.name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "user.name",
+        "source.ip",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "128mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-cloudtrail-rare-user-action",
+    "job_id": "aws-cloudtrail-rare-user-action",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.cloudtrail"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

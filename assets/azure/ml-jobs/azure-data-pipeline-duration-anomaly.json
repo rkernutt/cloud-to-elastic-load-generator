@@ -1,0 +1,79 @@
+{
+  "_meta": {
+    "job_id": "azure-data-pipeline-duration-anomaly",
+    "group": "azure-data-pipeline",
+    "api_job": "PUT _ml/anomaly_detectors/azure-data-pipeline-duration-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-data-pipeline-duration-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/azure-data-pipeline-duration-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-data-pipeline-duration-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusually slow data pipeline runs",
+    "groups": [
+      "azure",
+      "data-pipeline",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(azure.data_factory.duration_ms) partitionfield=azure.data_factory.pipeline_name",
+          "function": "high_mean",
+          "field_name": "azure.data_factory.duration_ms",
+          "partition_field_name": "azure.data_factory.pipeline_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.data_factory.pipeline_name",
+        "cloud.region",
+        "azure.data_factory.quality_check"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-load-generator-data-pipeline",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-data-pipeline-duration-anomaly",
+    "job_id": "azure-data-pipeline-duration-anomaly",
+    "indices": [
+      "logs-azure.data_factory*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "azure.data_factory.activity_name": "pipeline_complete"
+            }
+          },
+          {
+            "exists": {
+              "field": "azure.data_factory.duration_ms"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

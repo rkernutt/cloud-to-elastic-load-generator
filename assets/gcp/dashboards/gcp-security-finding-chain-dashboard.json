@@ -1,0 +1,140 @@
+{
+  "title": "GCP Security Finding Chain — overview",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "gcp-sfc-k1",
+      "grid": { "x": 0, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Total SCC findings",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.scc* | WHERE event.kind == \"alert\" | STATS c = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-sfc-k2",
+      "grid": { "x": 16, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "SecOps SIEM detections",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.secops* | WHERE gcp.secops_detection.detection_type IS NOT NULL | STATS c = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-sfc-k3",
+      "grid": { "x": 32, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "SecOps cases created",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.secops* | WHERE gcp.security_operations.action_type == \"CASE_CREATED\" | STATS c = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-sfc-d1",
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "SCC category distribution",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.scc* | WHERE gcp.security_command_center.category IS NOT NULL | STATS c = COUNT() BY cat = gcp.security_command_center.category"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "cat" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-sfc-d2",
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
+      "config": {
+        "title": "Severity breakdown",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.scc* | WHERE gcp.security_command_center.severity IS NOT NULL | STATS c = COUNT() BY sev = gcp.security_command_center.severity"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "sev" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-sfc-l1",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Chain events over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-gcp.scc*, logs-gcp.secops* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Events" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-sfc-t1",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
+      "config": {
+        "title": "Findings by category, severity, project, resource",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.scc* | WHERE gcp.security_command_center.category IS NOT NULL | STATS cnt = COUNT() BY cat = gcp.security_command_center.category, sev = gcp.security_command_center.severity, proj = cloud.project.id, res = resource.name | SORT cnt DESC | LIMIT 25"
+          },
+          "metrics": [
+            { "operation": "value", "column": "cat", "label": "Category" },
+            { "operation": "value", "column": "sev", "label": "Severity" },
+            { "operation": "value", "column": "proj", "label": "Project" },
+            { "operation": "value", "column": "res", "label": "Resource" },
+            { "operation": "value", "column": "cnt", "label": "Count" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

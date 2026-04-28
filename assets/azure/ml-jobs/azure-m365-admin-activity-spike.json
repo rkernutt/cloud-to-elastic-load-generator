@@ -1,0 +1,79 @@
+{
+  "_meta": {
+    "job_id": "azure-m365-admin-activity-spike",
+    "group": "azure-identity",
+    "api_job": "PUT _ml/anomaly_detectors/azure-m365-admin-activity-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-m365-admin-activity-spike",
+    "api_open": "POST _ml/anomaly_detectors/azure-m365-admin-activity-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-m365-admin-activity-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in M365 events for the AzureActiveDirectory workload per user",
+    "groups": [
+      "azure",
+      "identity"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=azure.microsoft_365.user_id",
+          "function": "high_count",
+          "partition_field_name": "azure.microsoft_365.user_id",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.microsoft_365.user_id",
+        "azure.microsoft_365.record_type",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-m365-admin-activity-spike",
+    "job_id": "azure-m365-admin-activity-spike",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "term": {
+              "event.dataset": "azure.microsoft_365"
+            }
+          },
+          {
+            "term": {
+              "azure.microsoft_365.workload": "AzureActiveDirectory"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "aws-dax-cache-miss-rate-anomaly",
+    "group": "aws-ml-extended-services-a",
+    "api_job": "PUT _ml/anomaly_detectors/aws-dax-cache-miss-rate-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-dax-cache-miss-rate-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/aws-dax-cache-miss-rate-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-dax-cache-miss-rate-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusually high DAX request latency per cluster (cache misses, node saturation, or network issues)",
+    "groups": [
+      "aws",
+      "aws-ml-extended-services-a",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "10m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(aws.dax.request_latency_ms) partitionfield=aws.dax.cluster_name",
+          "function": "high_mean",
+          "field_name": "aws.dax.request_latency_ms",
+          "partition_field_name": "aws.dax.cluster_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.dax.cluster_name",
+        "cloud.account.id",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-dax-cache-miss-rate-anomaly",
+    "job_id": "aws-dax-cache-miss-rate-anomaly",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.dax"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,185 @@
+{
+  "title": "Amazon ElastiCache Global — Global Datastore Replication",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "elasticacheglobal-kpi-total-events",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elasticacheglobal* | STATS `Total Events` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Events"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "elasticacheglobal-kpi-errors",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elasticacheglobal* | WHERE log.level == \"error\" | STATS `Errors` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Errors"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "elasticacheglobal-kpi-unique-resources",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elasticacheglobal* | STATS `Unique Datastores` = COUNT_DISTINCT(`aws.elasticacheglobal.global_datastore_name`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Unique Datastores"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "elasticacheglobal-kpi-replication-lag",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elasticacheglobal* | STATS `Avg Replication Lag (ms)` = AVG(`aws.elasticacheglobal.replication_lag_ms`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Replication Lag (ms)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "elasticacheglobal-donut-outcome",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Event Outcome",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elasticacheglobal* | STATS count = COUNT() BY outcome = log.level | SORT count DESC | LIMIT 10"
+          },
+          "dimensions": [
+            {
+              "column": "outcome",
+              "type": "category"
+            }
+          ],
+          "metrics": [
+            {
+              "type": "size",
+              "operation": "value",
+              "column": "count"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "elasticacheglobal-bar-timeline",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Events Over Time",
+        "attributes": {
+          "type": "bar_stacked",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.elasticacheglobal* | EVAL bucket = DATE_TRUNC(15 minutes, `@timestamp`) | STATS count = COUNT() BY bucket, outcome = log.level | SORT bucket"
+          },
+          "xAxis": {
+            "column": "bucket",
+            "type": "date"
+          },
+          "breakdown": {
+            "column": "outcome",
+            "type": "category"
+          },
+          "metrics": [
+            {
+              "type": "bar",
+              "operation": "value",
+              "column": "count"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

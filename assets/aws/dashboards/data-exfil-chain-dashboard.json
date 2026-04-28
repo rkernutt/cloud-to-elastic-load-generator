@@ -1,0 +1,151 @@
+{
+  "title": "Data Exfiltration Chain — overview",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "aws-dex-k1",
+      "grid": { "x": 0, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Total exfil detections (GuardDuty)",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.guardduty* | WHERE aws.guardduty.type LIKE \"Exfiltration*\" | STATS c = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-dex-k2",
+      "grid": { "x": 16, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Total VPC egress volume (MB)",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpcflow* | WHERE network.direction == \"egress\" AND aws.vpcflow.bytes IS NOT NULL | STATS total_mb = SUM(aws.vpcflow.bytes) / 1048576"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "total_mb" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-dex-k3",
+      "grid": { "x": 32, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Distinct egress source IPs (VPC flow)",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpcflow* | WHERE network.direction == \"egress\" AND source.ip IS NOT NULL | STATS c = COUNT_DISTINCT(source.ip)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-dex-d1",
+      "grid": { "x": 0, "y": 5, "w": 48, "h": 10 },
+      "config": {
+        "title": "Exfil finding types",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.guardduty* | WHERE aws.guardduty.type LIKE \"Exfiltration*\" | STATS c = COUNT() BY ft = aws.guardduty.type"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "ft" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-dex-l1",
+      "grid": { "x": 0, "y": 15, "w": 24, "h": 10 },
+      "config": {
+        "title": "Data volume over time (VPC flow bytes)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.vpcflow* | WHERE network.direction == \"egress\" AND aws.vpcflow.bytes IS NOT NULL | STATS mb = SUM(aws.vpcflow.bytes) / 1048576 BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "mb", "label": "MB" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-dex-l2",
+      "grid": { "x": 24, "y": 15, "w": 24, "h": 10 },
+      "config": {
+        "title": "GuardDuty exfil alerts over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.guardduty* | WHERE aws.guardduty.type LIKE \"Exfiltration*\" | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Findings" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "aws-dex-t1",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
+      "config": {
+        "title": "Top VPC egress by source IP, destination, instance",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpcflow* | WHERE network.direction == \"egress\" AND aws.vpcflow.bytes IS NOT NULL | STATS bytes = SUM(aws.vpcflow.bytes), mb = SUM(aws.vpcflow.bytes) / 1048576 BY src = source.ip, dst = destination.ip, inst = aws.vpcflow.instance_id, reg = cloud.region, acct = cloud.account.id | SORT bytes DESC | LIMIT 25"
+          },
+          "metrics": [
+            { "operation": "value", "column": "src", "label": "Source IP" },
+            { "operation": "value", "column": "dst", "label": "Destination IP" },
+            { "operation": "value", "column": "inst", "label": "Instance ID" },
+            { "operation": "value", "column": "reg", "label": "Region" },
+            { "operation": "value", "column": "acct", "label": "Account" },
+            { "operation": "value", "column": "mb", "label": "MB transferred" },
+            { "operation": "value", "column": "bytes", "label": "Bytes" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "_meta": {
+    "pipeline_id": "logs-aws.athena-default",
+    "dataset": "aws.athena",
+    "group": "analytics",
+    "api": "PUT _ingest/pipeline/logs-aws.athena-default"
+  },
+  "description": "Parse Amazon Athena query execution JSON from message field",
+  "processors": [
+    {
+      "json": {
+        "field": "message",
+        "target_field": "athena.parsed",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "athena.parsed.queryId",
+        "target_field": "athena.queryId",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "athena.parsed.workgroup",
+        "target_field": "athena.workgroup",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "athena.parsed.database",
+        "target_field": "athena.database",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "athena.parsed.state",
+        "target_field": "athena.state",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "athena.parsed.durationSeconds",
+        "target_field": "athena.durationSeconds",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "athena.parsed.dataScannedBytes",
+        "target_field": "athena.dataScannedBytes",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    }
+  ]
+}

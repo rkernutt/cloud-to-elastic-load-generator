@@ -1,0 +1,272 @@
+{
+  "title": "Amazon DataZone — Data Catalog & Governance",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "datazone-kpi-total-events",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.datazone* | STATS `Total Events` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Events"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "datazone-kpi-rejected-subscriptions",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.datazone* | WHERE `aws.datazone.subscription_status` == \"REJECTED\" | STATS `Rejected Subscriptions` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Rejected Subscriptions"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "datazone-kpi-published-assets",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.datazone* | WHERE `aws.datazone.asset_status` == \"PUBLISHED\" | STATS `Published Assets` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Published Assets"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "datazone-kpi-active-domains",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.datazone* | STATS `Active Domains` = COUNT_DISTINCT(`aws.datazone.domain_name`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Active Domains"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "datazone-donut-by-domain",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Events by Domain",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.datazone* | STATS count = COUNT() BY domain = `aws.datazone.domain_name` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "domain"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "datazone-donut-by-subscription-status",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Events by Subscription Status",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.datazone* | STATS count = COUNT() BY status = `aws.datazone.subscription_status` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "status"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "datazone-events-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Events Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.datazone* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "datazone-recent-events",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Events",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.datazone* | KEEP `@timestamp`, `aws.datazone.domain_name`, `aws.datazone.asset_type`, `aws.datazone.subscription_status` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.datazone.domain_name",
+              "label": "Domain Name"
+            },
+            {
+              "operation": "value",
+              "column": "aws.datazone.asset_type",
+              "label": "Asset Type"
+            },
+            {
+              "operation": "value",
+              "column": "aws.datazone.subscription_status",
+              "label": "Subscription Status"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "_meta": {
+    "job_id": "azure-activity-log-rare-operation",
+    "group": "azure-identity",
+    "api_job": "PUT _ml/anomaly_detectors/azure-activity-log-rare-operation",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-activity-log-rare-operation",
+    "api_open": "POST _ml/anomaly_detectors/azure-activity-log-rare-operation/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-activity-log-rare-operation/_start"
+  },
+  "job": {
+    "description": "Detects rare azure.activity_log.operation_name values",
+    "groups": [
+      "azure",
+      "management"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "rare by=azure.activity_log.operation_name",
+          "function": "rare",
+          "by_field_name": "azure.activity_log.operation_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.activity_log.operation_name",
+        "azure.activity_log.resource_group",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-activity-log-rare-operation",
+    "job_id": "azure-activity-log-rare-operation",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "term": {
+              "event.dataset": "azure.activity_log"
+            }
+          },
+          {
+            "exists": {
+              "field": "azure.activity_log.operation_name"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

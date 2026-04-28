@@ -1,0 +1,75 @@
+{
+  "_meta": {
+    "job_id": "apm-slow-span-by-type",
+    "group": "apm-traces",
+    "api_job": "PUT _ml/anomaly_detectors/apm-slow-span-by-type",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-apm-slow-span-by-type",
+    "api_open": "POST _ml/anomaly_detectors/apm-slow-span-by-type/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-apm-slow-span-by-type/_start"
+  },
+  "job": {
+    "description": "Detects unusually slow downstream spans by type — slow DB queries, slow external calls, slow cache operations",
+    "groups": [
+      "apm",
+      "traces",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(span.duration.us) partitionfield=span.subtype",
+          "function": "high_mean",
+          "field_name": "span.duration.us",
+          "partition_field_name": "span.subtype",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "service.name",
+        "span.type",
+        "span.subtype",
+        "span.destination.service.resource"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-apm-slow-span-by-type",
+    "job_id": "apm-slow-span-by-type",
+    "indices": [
+      "traces-apm-*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "processor.event": "span"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

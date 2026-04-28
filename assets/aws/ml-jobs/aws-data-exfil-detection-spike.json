@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "job_id": "aws-data-exfil-detection-spike",
+    "group": "data-exfil-chain",
+    "api_job": "PUT _ml/anomaly_detectors/aws-data-exfil-detection-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-data-exfil-detection-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-data-exfil-detection-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-data-exfil-detection-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in GuardDuty exfiltration findings",
+    "groups": [
+      "aws",
+      "data-exfil-chain",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=cloud.region",
+          "function": "high_count",
+          "partition_field_name": "cloud.region",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "cloud.region",
+        "source.ip",
+        "aws.guardduty.type"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-load-generator-data-exfil-chain",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-data-exfil-detection-spike",
+    "job_id": "aws-data-exfil-detection-spike",
+    "indices": [
+      "logs-aws.guardduty*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.kind": "alert"
+            }
+          },
+          {
+            "prefix": {
+              "aws.guardduty.type": "Exfiltration"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

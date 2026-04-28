@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "gcp-cloud-build-duration",
+    "group": "gcp-devtools",
+    "api_job": "PUT _ml/anomaly_detectors/gcp-cloud-build-duration",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-gcp-cloud-build-duration",
+    "api_open": "POST _ml/anomaly_detectors/gcp-cloud-build-duration/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-gcp-cloud-build-duration/_start"
+  },
+  "job": {
+    "description": "Unusual Cloud Build duration per build",
+    "groups": [
+      "gcp",
+      "devtools"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(gcp.cloud_build.build_duration_seconds) partitionfield=gcp.cloud_build.build_id",
+          "function": "high_mean",
+          "field_name": "gcp.cloud_build.build_duration_seconds",
+          "partition_field_name": "gcp.cloud_build.build_id",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "gcp.cloud_build.trigger_name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "gcp-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-gcp-cloud-build-duration",
+    "job_id": "gcp-cloud-build-duration",
+    "indices": [
+      "logs-gcp.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "gcp"
+            }
+          },
+          {
+            "wildcard": {
+              "cloud.service.name": "*cloudbuild*"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

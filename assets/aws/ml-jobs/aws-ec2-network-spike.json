@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "aws-ec2-network-spike",
+    "group": "compute",
+    "api_job": "PUT _ml/anomaly_detectors/aws-ec2-network-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-ec2-network-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-ec2-network-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-ec2-network-spike/_start"
+  },
+  "job": {
+    "description": "Detects unusual outbound network activity per EC2 instance (data exfiltration or DDoS participation)",
+    "groups": [
+      "aws",
+      "compute",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_sum(aws.ec2.metrics.NetworkOut.sum) partitionfield=aws.ec2.dimensions.InstanceId",
+          "function": "high_sum",
+          "field_name": "aws.ec2.metrics.NetworkOut.sum",
+          "partition_field_name": "aws.ec2.dimensions.InstanceId",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.ec2.dimensions.InstanceId",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-ec2-network-spike",
+    "job_id": "aws-ec2-network-spike",
+    "indices": [
+      "metrics-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.ec2"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

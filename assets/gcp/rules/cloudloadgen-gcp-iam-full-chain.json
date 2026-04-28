@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "rule_id": "cloudloadgen-gcp-iam-full-chain",
+    "group": "gcp-iam-privesc-chain",
+    "api": "POST /api/alerting/rule"
+  },
+  "name": "[CloudLoadGen] GCP IAM PrivEsc Chain — High Volume of Sensitive IAM API Calls",
+  "rule_type_id": ".es-query",
+  "consumer": "alerts",
+  "schedule": {
+    "interval": "5m"
+  },
+  "tags": [
+    "cloudloadgen",
+    "gcp-iam-privesc-chain"
+  ],
+  "enabled": false,
+  "params": {
+    "searchType": "esQuery",
+    "timeWindowSize": 30,
+    "timeWindowUnit": "m",
+    "threshold": [
+      3
+    ],
+    "thresholdComparator": ">",
+    "size": 100,
+    "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*CreateServiceAccountKey*\"}},{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*SetIamPolicy*\"}},{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*GenerateAccessToken*\"}}],\"minimum_should_match\":1}}]}}}",
+    "index": [
+      "logs-gcp.audit*"
+    ],
+    "timeField": "@timestamp",
+    "aggType": "count"
+  },
+  "actions": [],
+  "notify_when": "onActiveAlert"
+}

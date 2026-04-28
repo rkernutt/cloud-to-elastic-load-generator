@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "rule_id": "cloudloadgen-gcp-iam-sa-key-creation",
+    "group": "gcp-iam-privesc-chain",
+    "api": "POST /api/alerting/rule"
+  },
+  "name": "[CloudLoadGen] GCP IAM PrivEsc Chain — Service Account Key Creation",
+  "rule_type_id": ".es-query",
+  "consumer": "alerts",
+  "schedule": {
+    "interval": "5m"
+  },
+  "tags": [
+    "cloudloadgen",
+    "gcp-iam-privesc-chain"
+  ],
+  "enabled": false,
+  "params": {
+    "searchType": "esQuery",
+    "timeWindowSize": 15,
+    "timeWindowUnit": "m",
+    "threshold": [
+      1
+    ],
+    "thresholdComparator": ">=",
+    "size": 100,
+    "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*CreateServiceAccountKey*\"}}]}}}",
+    "index": [
+      "logs-gcp.audit*"
+    ],
+    "timeField": "@timestamp",
+    "aggType": "count"
+  },
+  "actions": [],
+  "notify_when": "onActiveAlert"
+}

@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "job_id": "aws-alb-response-time-anomaly",
+    "group": "networking",
+    "api_job": "PUT _ml/anomaly_detectors/aws-alb-response-time-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-alb-response-time-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/aws-alb-response-time-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-alb-response-time-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusual backend response times in ALB",
+    "groups": [
+      "aws",
+      "networking",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "High mean ALB backend processing time",
+          "function": "high_mean",
+          "field_name": "aws.elb.backend_processing_time.sec",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.elb.target_group.arn",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "16mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-alb-response-time-anomaly",
+    "job_id": "aws-alb-response-time-anomaly",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.elb_logs"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

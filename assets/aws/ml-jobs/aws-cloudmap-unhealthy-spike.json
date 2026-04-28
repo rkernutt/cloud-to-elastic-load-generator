@@ -1,0 +1,76 @@
+{
+  "_meta": {
+    "job_id": "aws-cloudmap-unhealthy-spike",
+    "group": "aws-ml-extended-services-a",
+    "api_job": "PUT _ml/anomaly_detectors/aws-cloudmap-unhealthy-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-cloudmap-unhealthy-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-cloudmap-unhealthy-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-cloudmap-unhealthy-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in Cloud Map unhealthy service instances (service discovery health check failures)",
+    "groups": [
+      "aws",
+      "aws-ml-extended-services-a",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count",
+          "function": "high_count",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "cloud.account.id",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-cloudmap-unhealthy-spike",
+    "job_id": "aws-cloudmap-unhealthy-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.cloudmap"
+            }
+          },
+          {
+            "term": {
+              "aws.cloudmap.health_status": "UNHEALTHY"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

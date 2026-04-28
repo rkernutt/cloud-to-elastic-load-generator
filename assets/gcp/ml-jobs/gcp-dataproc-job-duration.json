@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "gcp-dataproc-job-duration",
+    "group": "gcp-analytics",
+    "api_job": "PUT _ml/anomaly_detectors/gcp-dataproc-job-duration",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-gcp-dataproc-job-duration",
+    "api_open": "POST _ml/anomaly_detectors/gcp-dataproc-job-duration/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-gcp-dataproc-job-duration/_start"
+  },
+  "job": {
+    "description": "Unusual Dataproc job duration",
+    "groups": [
+      "gcp",
+      "analytics"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(event.duration) partitionfield=gcp.dataproc.job_id",
+          "function": "high_mean",
+          "field_name": "event.duration",
+          "partition_field_name": "gcp.dataproc.job_id",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "gcp.dataproc.cluster_name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "gcp-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-gcp-dataproc-job-duration",
+    "job_id": "gcp-dataproc-job-duration",
+    "indices": [
+      "logs-gcp.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "gcp"
+            }
+          },
+          {
+            "wildcard": {
+              "cloud.service.name": "*dataproc*"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

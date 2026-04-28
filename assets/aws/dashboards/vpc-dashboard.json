@@ -1,0 +1,473 @@
+{
+  "title": "AWS VPC Flow Logs — Traffic & Denials",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "vpc-k1",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpcflow* | STATS Flows = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Flows"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpc-k2",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpcflow* | EVAL rj = CASE(`aws.vpcflow.action` == \"REJECT\", 1, 0) | STATS m = AVG(rj) | EVAL `Reject %` = ROUND(m * 100, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Rejected %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpc-k3",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpcflow* | STATS `Bytes` = SUM(`aws.vpcflow.bytes`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total bytes"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpc-k4",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpcflow* | STATS `VPCs` = COUNT_DISTINCT(`aws.vpcflow.vpc_id`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Distinct VPCs"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpc-d1",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Action",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpcflow* | STATS c = COUNT() BY a = `aws.vpcflow.action` | SORT c DESC"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpc-d2",
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Protocol",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpcflow* | STATS c = COUNT() BY p = `network.transport` | SORT c DESC | LIMIT 8"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "p"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpc-d3",
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Direction",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpcflow* | STATS c = COUNT() BY d = `network.direction` | SORT c DESC"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "d"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpc-l1",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Flow volume",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.vpcflow* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c",
+                  "label": "Flows"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpc-l2",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Accept vs reject",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.vpcflow* | STATS acc = SUM(CASE(`aws.vpcflow.action` == \"ACCEPT\", 1, 0)), rej = SUM(CASE(`aws.vpcflow.action` == \"REJECT\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "acc",
+                  "label": "ACCEPT"
+                },
+                {
+                  "operation": "value",
+                  "column": "rej",
+                  "label": "REJECT"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpc-l3",
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Bytes over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.vpcflow* | STATS bts = SUM(`network.bytes`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "bts",
+                  "label": "Bytes"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpc-b1",
+      "grid": {
+        "x": 0,
+        "y": 35,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Top talkers (src)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.vpcflow* | STATS c = COUNT() BY s = `source.ip` | SORT c DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "s"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c",
+                  "label": "Flows"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpc-t1",
+      "grid": {
+        "x": 0,
+        "y": 45,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Recent flows",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpcflow* | KEEP `@timestamp`, `aws.vpcflow.vpc_id`, `aws.vpcflow.action`, `network.transport`, `source.ip`, `destination.ip`, `aws.vpcflow.dstport`, `network.bytes` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Time"
+            },
+            {
+              "operation": "value",
+              "column": "aws.vpcflow.vpc_id",
+              "label": "VPC"
+            },
+            {
+              "operation": "value",
+              "column": "aws.vpcflow.action",
+              "label": "Action"
+            },
+            {
+              "operation": "value",
+              "column": "network.transport",
+              "label": "Proto"
+            },
+            {
+              "operation": "value",
+              "column": "source.ip",
+              "label": "Src"
+            },
+            {
+              "operation": "value",
+              "column": "destination.ip",
+              "label": "Dst"
+            },
+            {
+              "operation": "value",
+              "column": "aws.vpcflow.dstport",
+              "label": "Dport"
+            },
+            {
+              "operation": "value",
+              "column": "network.bytes",
+              "label": "Bytes"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

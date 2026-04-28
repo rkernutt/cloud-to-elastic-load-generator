@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "aws-s3-rare-requester",
+    "group": "storage",
+    "api_job": "PUT _ml/anomaly_detectors/aws-s3-rare-requester",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-s3-rare-requester",
+    "api_open": "POST _ml/anomaly_detectors/aws-s3-rare-requester/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-s3-rare-requester/_start"
+  },
+  "job": {
+    "description": "Detects rare or unusual requesters accessing an S3 bucket",
+    "groups": [
+      "aws",
+      "storage",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "Rare requester IP by S3 bucket",
+          "function": "rare",
+          "by_field_name": "client.ip",
+          "partition_field_name": "aws.s3.bucket.name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.s3.bucket.name",
+        "client.ip"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-s3-rare-requester",
+    "job_id": "aws-s3-rare-requester",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.s3"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

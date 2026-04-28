@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "job_id": "aws-alb-rare-user-agent",
+    "group": "networking",
+    "api_job": "PUT _ml/anomaly_detectors/aws-alb-rare-user-agent",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-alb-rare-user-agent",
+    "api_open": "POST _ml/anomaly_detectors/aws-alb-rare-user-agent/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-alb-rare-user-agent/_start"
+  },
+  "job": {
+    "description": "Detects rare or unusual user agent strings hitting the ALB",
+    "groups": [
+      "aws",
+      "networking",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "Rare user agent strings on ALB",
+          "function": "rare",
+          "by_field_name": "user_agent.original",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "client.ip",
+        "user_agent.original"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "16mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-alb-rare-user-agent",
+    "job_id": "aws-alb-rare-user-agent",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.elb_logs"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

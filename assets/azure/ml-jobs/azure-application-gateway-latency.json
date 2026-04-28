@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "azure-application-gateway-latency",
+    "group": "azure-networking",
+    "api_job": "PUT _ml/anomaly_detectors/azure-application-gateway-latency",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-application-gateway-latency",
+    "api_open": "POST _ml/anomaly_detectors/azure-application-gateway-latency/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-application-gateway-latency/_start"
+  },
+  "job": {
+    "description": "Unusual Application Gateway latency per gateway",
+    "groups": [
+      "azure",
+      "networking"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(azure.application_gateway.latency_ms) partitionfield=azure.application_gateway.name",
+          "function": "high_mean",
+          "field_name": "azure.application_gateway.latency_ms",
+          "partition_field_name": "azure.application_gateway.name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.application_gateway.name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-application-gateway-latency",
+    "job_id": "azure-application-gateway-latency",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "term": {
+              "cloud.service.name": "Microsoft.Network/applicationGateways"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

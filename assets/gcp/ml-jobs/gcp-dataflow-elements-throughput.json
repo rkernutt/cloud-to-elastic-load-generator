@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "gcp-dataflow-elements-throughput",
+    "group": "gcp-streaming",
+    "api_job": "PUT _ml/anomaly_detectors/gcp-dataflow-elements-throughput",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-gcp-dataflow-elements-throughput",
+    "api_open": "POST _ml/anomaly_detectors/gcp-dataflow-elements-throughput/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-gcp-dataflow-elements-throughput/_start"
+  },
+  "job": {
+    "description": "Unusual Dataflow elements produced",
+    "groups": [
+      "gcp",
+      "streaming"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_sum(gcp.dataflow.elements_produced) partitionfield=gcp.dataflow.job_name",
+          "function": "high_sum",
+          "field_name": "gcp.dataflow.elements_produced",
+          "partition_field_name": "gcp.dataflow.job_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "gcp.dataflow.job_name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "gcp-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-gcp-dataflow-elements-throughput",
+    "job_id": "gcp-dataflow-elements-throughput",
+    "indices": [
+      "logs-gcp.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "gcp"
+            }
+          },
+          {
+            "wildcard": {
+              "cloud.service.name": "*dataflow*"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

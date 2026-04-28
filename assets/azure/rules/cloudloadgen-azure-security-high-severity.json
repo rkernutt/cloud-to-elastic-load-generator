@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "rule_id": "cloudloadgen-azure-security-high-severity",
+    "group": "azure-security-chain",
+    "api": "POST /api/alerting/rule"
+  },
+  "name": "[CloudLoadGen] Azure Security Finding Chain — Defender High Severity",
+  "rule_type_id": ".es-query",
+  "consumer": "alerts",
+  "schedule": {
+    "interval": "5m"
+  },
+  "tags": [
+    "cloudloadgen",
+    "azure-security-chain"
+  ],
+  "enabled": false,
+  "params": {
+    "searchType": "esQuery",
+    "timeWindowSize": 30,
+    "timeWindowUnit": "m",
+    "threshold": [
+      3
+    ],
+    "thresholdComparator": ">",
+    "size": 100,
+    "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.defender\"}},{\"term\":{\"azure.defender.severity\":\"High\"}}]}}}",
+    "index": [
+      "logs-azure.defender*"
+    ],
+    "timeField": "@timestamp",
+    "aggType": "count"
+  },
+  "actions": [],
+  "notify_when": "onActiveAlert"
+}

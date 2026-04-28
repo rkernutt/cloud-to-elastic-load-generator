@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "job_id": "aws-nlb-unhealthy-host-spike",
+    "group": "nlb",
+    "api_job": "PUT _ml/anomaly_detectors/aws-nlb-unhealthy-host-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-nlb-unhealthy-host-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-nlb-unhealthy-host-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-nlb-unhealthy-host-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in NLB UnHealthyHostCount per load balancer (backend health degradation or overload)",
+    "groups": [
+      "aws",
+      "networking",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(aws.elb.metrics.UnHealthyHostCount.avg) partitionfield=aws.elb.dimensions.LoadBalancer",
+          "function": "high_mean",
+          "field_name": "aws.elb.metrics.UnHealthyHostCount.avg",
+          "partition_field_name": "aws.elb.dimensions.LoadBalancer",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.elb.dimensions.LoadBalancer",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-nlb-unhealthy-host-spike",
+    "job_id": "aws-nlb-unhealthy-host-spike",
+    "indices": [
+      "metrics-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.elb"
+            }
+          },
+          {
+            "prefix": {
+              "aws.elb.dimensions.LoadBalancer": "net/"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

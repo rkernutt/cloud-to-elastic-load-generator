@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "rule_id": "cloudloadgen-azure-data-pipeline-slow-run",
+    "group": "data-pipeline",
+    "api": "POST /api/alerting/rule"
+  },
+  "name": "[CloudLoadGen] Azure Data Pipeline — Slow Pipeline Run (>60s)",
+  "rule_type_id": ".es-query",
+  "consumer": "alerts",
+  "schedule": {
+    "interval": "5m"
+  },
+  "tags": [
+    "cloudloadgen",
+    "data-pipeline"
+  ],
+  "enabled": false,
+  "params": {
+    "searchType": "esQuery",
+    "timeWindowSize": 30,
+    "timeWindowUnit": "m",
+    "threshold": [
+      1
+    ],
+    "thresholdComparator": ">=",
+    "size": 100,
+    "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.data_factory\"}},{\"term\":{\"azure.data_factory.activity_name\":\"pipeline_complete\"}},{\"range\":{\"azure.data_factory.duration_ms\":{\"gt\":60000}}}]}}}",
+    "index": [
+      "logs-azure.data_factory*"
+    ],
+    "timeField": "@timestamp",
+    "aggType": "count"
+  },
+  "actions": [],
+  "notify_when": "onActiveAlert"
+}

@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "gcp-data-exfil-egress-volume",
+    "group": "gcp-data-exfil-chain",
+    "api_job": "PUT _ml/anomaly_detectors/gcp-data-exfil-egress-volume",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-gcp-data-exfil-egress-volume",
+    "api_open": "POST _ml/anomaly_detectors/gcp-data-exfil-egress-volume/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-gcp-data-exfil-egress-volume/_start"
+  },
+  "job": {
+    "description": "Detects anomalous VPC egress byte volumes",
+    "groups": [
+      "gcp",
+      "gcp-data-exfil-chain",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_sum(gcp.vpc_flow.bytes_sent) partitionfield=source.ip",
+          "function": "high_sum",
+          "field_name": "gcp.vpc_flow.bytes_sent",
+          "partition_field_name": "source.ip",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "source.ip",
+        "gcp.vpc_flow.dst_ip",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "gcp-load-generator-gcp-data-exfil-chain",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-gcp-data-exfil-egress-volume",
+    "job_id": "gcp-data-exfil-egress-volume",
+    "indices": [
+      "logs-gcp.vpcflow*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "gcp.vpc_flow.direction": "egress"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "_meta": {
+    "job_id": "aws-nova-latency-spike",
+    "group": "aws-ml-edge-ai-supplement",
+    "api_job": "PUT _ml/anomaly_detectors/aws-nova-latency-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-nova-latency-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-nova-latency-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-nova-latency-spike/_start"
+  },
+  "job": {
+    "job_id": "aws-nova-latency-spike",
+    "description": "Detects invocation latency spikes per Nova model tier",
+    "groups": [
+      "aws",
+      "aws-ml-edge-ai-supplement",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(aws.nova.invocation_latency_ms) by aws.nova.model_tier",
+          "function": "high_mean",
+          "field_name": "aws.nova.invocation_latency_ms",
+          "by_field_name": "aws.nova.model_tier"
+        }
+      ],
+      "influencers": [
+        "aws.nova.model_tier",
+        "aws.nova.model_id",
+        "cloud.region"
+      ]
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "model_plot_config": {
+      "enabled": false
+    },
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "allow_lazy_open": true
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-nova-latency-spike",
+    "job_id": "aws-nova-latency-spike",
+    "indices": [
+      "logs-aws.nova*"
+    ],
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.nova"
+            }
+          }
+        ]
+      }
+    },
+    "scroll_size": 1000,
+    "query_delay": "60s"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "aws-elasticache-hit-rate-drop",
+    "group": "databases",
+    "api_job": "PUT _ml/anomaly_detectors/aws-elasticache-hit-rate-drop",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-elasticache-hit-rate-drop",
+    "api_open": "POST _ml/anomaly_detectors/aws-elasticache-hit-rate-drop/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-elasticache-hit-rate-drop/_start"
+  },
+  "job": {
+    "description": "Detects unusual drops in ElastiCache cache hit rate indicating cache misuse or excessive evictions",
+    "groups": [
+      "aws",
+      "databases",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "Low mean ElastiCache cache hit rate by cluster",
+          "function": "low_mean",
+          "field_name": "aws.elasticache.metrics.CacheHitRate.avg",
+          "partition_field_name": "aws.elasticache.cluster_id",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.elasticache.cluster_id",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-elasticache-hit-rate-drop",
+    "job_id": "aws-elasticache-hit-rate-drop",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.elasticache"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

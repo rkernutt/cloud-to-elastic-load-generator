@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "job_id": "aws-cloudtrail-root-activity",
+    "group": "siem",
+    "api_job": "PUT _ml/anomaly_detectors/aws-cloudtrail-root-activity",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-cloudtrail-root-activity",
+    "api_open": "POST _ml/anomaly_detectors/aws-cloudtrail-root-activity/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-cloudtrail-root-activity/_start"
+  },
+  "job": {
+    "description": "Detects any API calls made by the AWS root account — root usage should be extremely rare and every occurrence warrants investigation",
+    "groups": [
+      "aws",
+      "siem",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "count",
+          "function": "count",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "cloud.account.id",
+        "cloud.region",
+        "event.action"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "16mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-cloudtrail-root-activity",
+    "job_id": "aws-cloudtrail-root-activity",
+    "indices": [
+      "logs-aws.cloudtrail-*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.cloudtrail"
+            }
+          },
+          {
+            "term": {
+              "aws.cloudtrail.user_identity.type": "Root"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

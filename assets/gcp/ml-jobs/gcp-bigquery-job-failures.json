@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "job_id": "gcp-bigquery-job-failures",
+    "group": "gcp-analytics",
+    "api_job": "PUT _ml/anomaly_detectors/gcp-bigquery-job-failures",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-gcp-bigquery-job-failures",
+    "api_open": "POST _ml/anomaly_detectors/gcp-bigquery-job-failures/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-gcp-bigquery-job-failures/_start"
+  },
+  "job": {
+    "description": "Spikes in failed BigQuery jobs",
+    "groups": [
+      "gcp",
+      "analytics"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=gcp.bigquery.job_type",
+          "function": "high_count",
+          "partition_field_name": "gcp.bigquery.job_type",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "gcp.bigquery.job_type",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "gcp-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-gcp-bigquery-job-failures",
+    "job_id": "gcp-bigquery-job-failures",
+    "indices": [
+      "logs-gcp.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "gcp"
+            }
+          },
+          {
+            "wildcard": {
+              "cloud.service.name": "*bigquery*"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

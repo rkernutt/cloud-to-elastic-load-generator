@@ -1,0 +1,76 @@
+{
+  "_meta": {
+    "job_id": "aws-dataexchange-job-failure-spike",
+    "group": "new-services",
+    "api_job": "PUT _ml/anomaly_detectors/aws-dataexchange-job-failure-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-dataexchange-job-failure-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-dataexchange-job-failure-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-dataexchange-job-failure-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in AWS Data Exchange job failures (third-party data delivery pipeline disruption)",
+    "groups": [
+      "aws",
+      "new-services",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "30m",
+      "detectors": [
+        {
+          "detector_description": "high_count",
+          "function": "high_count",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "cloud.region",
+        "cloud.account.id"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "16mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-dataexchange-job-failure-spike",
+    "job_id": "aws-dataexchange-job-failure-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.dataexchange"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

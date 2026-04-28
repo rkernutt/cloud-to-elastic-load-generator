@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "gcp-security-rare-source-ip",
+    "group": "gcp-security-chain",
+    "api_job": "PUT _ml/anomaly_detectors/gcp-security-rare-source-ip",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-gcp-security-rare-source-ip",
+    "api_open": "POST _ml/anomaly_detectors/gcp-security-rare-source-ip/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-gcp-security-rare-source-ip/_start"
+  },
+  "job": {
+    "description": "Detects rare source IPs in SCC security findings",
+    "groups": [
+      "gcp",
+      "gcp-security-chain",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "rare by source.ip",
+          "function": "rare",
+          "by_field_name": "source.ip",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "source.ip",
+        "gcp.security_command_center.category",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "gcp-load-generator-gcp-security-finding-chain",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-gcp-security-rare-source-ip",
+    "job_id": "gcp-security-rare-source-ip",
+    "indices": [
+      "logs-gcp.scc*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.kind": "alert"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

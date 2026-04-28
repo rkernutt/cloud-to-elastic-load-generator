@@ -1,0 +1,63 @@
+{
+  "_meta": {
+    "job_id": "aws-nova-throttle-spike",
+    "group": "aws-ml-edge-ai-supplement",
+    "api_job": "PUT _ml/anomaly_detectors/aws-nova-throttle-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-nova-throttle-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-nova-throttle-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-nova-throttle-spike/_start"
+  },
+  "job": {
+    "job_id": "aws-nova-throttle-spike",
+    "description": "Detects ThrottlingException spikes for Nova invocations",
+    "groups": [
+      "aws",
+      "aws-ml-edge-ai-supplement",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count",
+          "function": "high_count"
+        }
+      ],
+      "influencers": [
+        "aws.nova.model_id",
+        "aws.nova.model_tier",
+        "cloud.account.id"
+      ]
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "model_plot_config": {
+      "enabled": false
+    },
+    "analysis_limits": {
+      "model_memory_limit": "16mb"
+    },
+    "allow_lazy_open": true
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-nova-throttle-spike",
+    "job_id": "aws-nova-throttle-spike",
+    "indices": [
+      "logs-aws.nova*"
+    ],
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "aws.nova.error_code": "ThrottlingException"
+            }
+          }
+        ]
+      }
+    },
+    "scroll_size": 1000,
+    "query_delay": "60s"
+  }
+}

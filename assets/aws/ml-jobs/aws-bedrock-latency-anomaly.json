@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "aws-bedrock-latency-anomaly",
+    "group": "aiml",
+    "api_job": "PUT _ml/anomaly_detectors/aws-bedrock-latency-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-bedrock-latency-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/aws-bedrock-latency-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-bedrock-latency-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusual Bedrock model invocation latency per model",
+    "groups": [
+      "aws",
+      "aiml",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "High mean invocation latency by Bedrock model",
+          "function": "high_mean",
+          "field_name": "aws.bedrock.invocation_latency_ms",
+          "partition_field_name": "aws.bedrock.model_id",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.bedrock.model_id",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-bedrock-latency-anomaly",
+    "job_id": "aws-bedrock-latency-anomaly",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.bedrock"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

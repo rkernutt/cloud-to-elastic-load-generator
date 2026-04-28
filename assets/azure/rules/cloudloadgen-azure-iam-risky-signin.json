@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "rule_id": "cloudloadgen-azure-iam-risky-signin",
+    "group": "azure-iam-privesc-chain",
+    "api": "POST /api/alerting/rule"
+  },
+  "name": "[CloudLoadGen] Azure IAM PrivEsc Chain — Entra Risky Sign-In",
+  "rule_type_id": ".es-query",
+  "consumer": "alerts",
+  "schedule": {
+    "interval": "5m"
+  },
+  "tags": [
+    "cloudloadgen",
+    "azure-iam-privesc-chain"
+  ],
+  "enabled": false,
+  "params": {
+    "searchType": "esQuery",
+    "timeWindowSize": 15,
+    "timeWindowUnit": "m",
+    "threshold": [
+      1
+    ],
+    "thresholdComparator": ">=",
+    "size": 100,
+    "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"azure.entra_id.riskLevel\":\"high\"}}]}}}",
+    "index": [
+      "logs-azure.entra_id*"
+    ],
+    "timeField": "@timestamp",
+    "aggType": "count"
+  },
+  "actions": [],
+  "notify_when": "onActiveAlert"
+}

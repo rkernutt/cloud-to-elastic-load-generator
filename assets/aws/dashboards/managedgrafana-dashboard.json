@@ -1,0 +1,272 @@
+{
+  "title": "Amazon Managed Grafana — Workspaces",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "managedgrafana-kpi-total-events",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.managedgrafana* | STATS `Total Events` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Events"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "managedgrafana-kpi-alerting-workspaces",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.managedgrafana* | WHERE `aws.managedgrafana.alert_state` == \"alerting\" | STATS `Alerting Workspaces` = COUNT_DISTINCT(`aws.managedgrafana.workspace_name`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Alerting Workspaces"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "managedgrafana-kpi-active-workspaces",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.managedgrafana* | WHERE `aws.managedgrafana.workspace_status` == \"ACTIVE\" | STATS `Active Workspaces` = COUNT_DISTINCT(`aws.managedgrafana.workspace_name`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Active Workspaces"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "managedgrafana-kpi-api-key-ops",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.managedgrafana* | WHERE `aws.managedgrafana.event_type` LIKE \"*api_key*\" | STATS `API Key Operations` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "API Key Operations"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "managedgrafana-donut-by-workspace",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Events by Workspace",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.managedgrafana* | STATS count = COUNT() BY workspace = `aws.managedgrafana.workspace_name` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "workspace"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "managedgrafana-donut-by-alert-state",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Events by Alert State",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.managedgrafana* | STATS count = COUNT() BY alert_state = `aws.managedgrafana.alert_state` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "alert_state"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "managedgrafana-events-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Events Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.managedgrafana* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "managedgrafana-recent-events",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Events",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.managedgrafana* | KEEP `@timestamp`, `aws.managedgrafana.workspace_name`, `aws.managedgrafana.workspace_status`, `aws.managedgrafana.alert_state` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.managedgrafana.workspace_name",
+              "label": "Workspace Name"
+            },
+            {
+              "operation": "value",
+              "column": "aws.managedgrafana.workspace_status",
+              "label": "Status"
+            },
+            {
+              "operation": "value",
+              "column": "aws.managedgrafana.alert_state",
+              "label": "Alert State"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

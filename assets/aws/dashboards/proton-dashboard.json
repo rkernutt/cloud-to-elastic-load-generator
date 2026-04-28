@@ -1,0 +1,277 @@
+{
+  "title": "AWS Proton — Infrastructure Deployments",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "proton-kpi-total-deployments",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.proton* | STATS `Total Deployments` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Deployments"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "proton-kpi-failed-deployments",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.proton* | WHERE `aws.proton.deployment_status` == \"FAILED\" | STATS `Failed Deployments` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Deployments"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "proton-kpi-active-environments",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.proton* | STATS `Environments Active` = COUNT_DISTINCT(`aws.proton.environment_name`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Environments Active"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "proton-kpi-services-deployed",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.proton* | STATS `Services Deployed` = COUNT_DISTINCT(`aws.proton.service_name`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Services Deployed"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "proton-donut-deployment-status",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Deployment Status",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.proton* | STATS count = COUNT() BY status = `aws.proton.deployment_status` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "status"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "proton-donut-component-type",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Component Type",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.proton* | STATS count = COUNT() BY component = `aws.proton.component` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "component"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "proton-deployments-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Deployments Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.proton* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Deployments"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "proton-recent-deployments",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Deployments",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.proton* | KEEP `@timestamp`, `aws.proton.environment_name`, `aws.proton.service_name`, `aws.proton.deployment_status`, `event.action` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.proton.environment_name",
+              "label": "Environment"
+            },
+            {
+              "operation": "value",
+              "column": "aws.proton.service_name",
+              "label": "Service Name"
+            },
+            {
+              "operation": "value",
+              "column": "aws.proton.deployment_status",
+              "label": "Deployment Status"
+            },
+            {
+              "operation": "value",
+              "column": "event.action",
+              "label": "Action"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

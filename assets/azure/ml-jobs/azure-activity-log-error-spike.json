@@ -1,0 +1,79 @@
+{
+  "_meta": {
+    "job_id": "azure-activity-log-error-spike",
+    "group": "azure-identity",
+    "api_job": "PUT _ml/anomaly_detectors/azure-activity-log-error-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-activity-log-error-spike",
+    "api_open": "POST _ml/anomaly_detectors/azure-activity-log-error-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-activity-log-error-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in failed Activity Log events per resource group",
+    "groups": [
+      "azure",
+      "management"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=azure.activity_log.resource_group",
+          "function": "high_count",
+          "partition_field_name": "azure.activity_log.resource_group",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.activity_log.resource_group",
+        "azure.activity_log.operation_name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-activity-log-error-spike",
+    "job_id": "azure-activity-log-error-spike",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "term": {
+              "event.dataset": "azure.activity_log"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

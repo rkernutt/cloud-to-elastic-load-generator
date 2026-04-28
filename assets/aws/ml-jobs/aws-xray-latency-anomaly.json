@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "job_id": "aws-xray-latency-anomaly",
+    "group": "devtools",
+    "api_job": "PUT _ml/anomaly_detectors/aws-xray-latency-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-xray-latency-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/aws-xray-latency-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-xray-latency-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusual response latency per X-Ray service — performance regressions in distributed trace segments",
+    "groups": [
+      "aws",
+      "devtools",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(event.duration) partitionfield=aws.xray.service.name",
+          "function": "high_mean",
+          "field_name": "event.duration",
+          "partition_field_name": "aws.xray.service.name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.xray.service.name"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-xray-latency-anomaly",
+    "job_id": "aws-xray-latency-anomaly",
+    "indices": [
+      "traces-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.xray"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

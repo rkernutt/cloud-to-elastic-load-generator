@@ -1,0 +1,81 @@
+{
+  "_meta": {
+    "job_id": "aws-iotcore-connection-failure-spike",
+    "group": "iot",
+    "api_job": "PUT _ml/anomaly_detectors/aws-iotcore-connection-failure-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-iotcore-connection-failure-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-iotcore-connection-failure-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-iotcore-connection-failure-spike/_start"
+  },
+  "job": {
+    "description": "Detects unusual spikes in IoT Core device connection failures — compromised devices, fleet misconfiguration, or network issues",
+    "groups": [
+      "aws",
+      "iot",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count",
+          "function": "high_count",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.iotcore.client_id",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-iotcore-connection-failure-spike",
+    "job_id": "aws-iotcore-connection-failure-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.iotcore"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          },
+          {
+            "term": {
+              "event.action": "Connect"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "_meta": {
+    "job_id": "azure-entra-id-failed-signin-spike",
+    "group": "azure-identity",
+    "api_job": "PUT _ml/anomaly_detectors/azure-entra-id-failed-signin-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-entra-id-failed-signin-spike",
+    "api_open": "POST _ml/anomaly_detectors/azure-entra-id-failed-signin-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-entra-id-failed-signin-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in failed Entra ID SignIn events per user principal",
+    "groups": [
+      "azure",
+      "identity"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=azure.entra_id.user",
+          "function": "high_count",
+          "partition_field_name": "azure.entra_id.user",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.entra_id.user",
+        "azure.entra_id.ip_address",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-entra-id-failed-signin-spike",
+    "job_id": "azure-entra-id-failed-signin-spike",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "term": {
+              "event.dataset": "azure.entra_id"
+            }
+          },
+          {
+            "bool": {
+              "should": [
+                {
+                  "term": {
+                    "azure.entra_id.category": "SignInLogs"
+                  }
+                },
+                {
+                  "term": {
+                    "azure.entra_id.category": "SignIn"
+                  }
+                }
+              ],
+              "minimum_should_match": 1
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

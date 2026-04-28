@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "gcp-security-scc-severity-spike",
+    "group": "gcp-security-chain",
+    "api_job": "PUT _ml/anomaly_detectors/gcp-security-scc-severity-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-gcp-security-scc-severity-spike",
+    "api_open": "POST _ml/anomaly_detectors/gcp-security-scc-severity-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-gcp-security-scc-severity-spike/_start"
+  },
+  "job": {
+    "description": "Detects unusual spikes in SCC findings by category",
+    "groups": [
+      "gcp",
+      "gcp-security-chain",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=gcp.security_command_center.category",
+          "function": "high_count",
+          "partition_field_name": "gcp.security_command_center.category",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "gcp.security_command_center.category",
+        "source.ip",
+        "gcp.security_command_center.severity"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "gcp-load-generator-gcp-security-finding-chain",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-gcp-security-scc-severity-spike",
+    "job_id": "gcp-security-scc-severity-spike",
+    "indices": [
+      "logs-gcp.scc*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.kind": "alert"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

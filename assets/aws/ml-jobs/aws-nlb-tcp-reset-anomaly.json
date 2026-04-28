@@ -1,0 +1,85 @@
+{
+  "_meta": {
+    "job_id": "aws-nlb-tcp-reset-anomaly",
+    "group": "nlb",
+    "api_job": "PUT _ml/anomaly_detectors/aws-nlb-tcp-reset-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-nlb-tcp-reset-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/aws-nlb-tcp-reset-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-nlb-tcp-reset-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusual NLB TCP client and target reset counts per load balancer",
+    "groups": [
+      "aws",
+      "networking",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(aws.elb.metrics.TCP_Target_Reset_Count.avg) partitionfield=aws.elb.dimensions.LoadBalancer",
+          "function": "high_mean",
+          "field_name": "aws.elb.metrics.TCP_Target_Reset_Count.avg",
+          "partition_field_name": "aws.elb.dimensions.LoadBalancer",
+          "detector_index": 0
+        },
+        {
+          "detector_description": "high_mean(aws.elb.metrics.TCP_Client_Reset_Count.avg) partitionfield=aws.elb.dimensions.LoadBalancer",
+          "function": "high_mean",
+          "field_name": "aws.elb.metrics.TCP_Client_Reset_Count.avg",
+          "partition_field_name": "aws.elb.dimensions.LoadBalancer",
+          "detector_index": 1
+        }
+      ],
+      "influencers": [
+        "aws.elb.dimensions.LoadBalancer",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-nlb-tcp-reset-anomaly",
+    "job_id": "aws-nlb-tcp-reset-anomaly",
+    "indices": [
+      "metrics-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.elb"
+            }
+          },
+          {
+            "prefix": {
+              "aws.elb.dimensions.LoadBalancer": "net/"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "rule_id": "cloudloadgen-aws-iam-admin-policy-attach",
+    "group": "iam-privesc-chain",
+    "api": "POST /api/alerting/rule"
+  },
+  "name": "[CloudLoadGen] IAM PrivEsc Chain — AdministratorAccess Policy Attached",
+  "rule_type_id": ".es-query",
+  "consumer": "alerts",
+  "schedule": {
+    "interval": "5m"
+  },
+  "tags": [
+    "cloudloadgen",
+    "iam-privesc-chain"
+  ],
+  "enabled": false,
+  "params": {
+    "searchType": "esQuery",
+    "timeWindowSize": 15,
+    "timeWindowUnit": "m",
+    "threshold": [
+      1
+    ],
+    "thresholdComparator": ">=",
+    "size": 100,
+    "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"term\":{\"event.action\":\"AttachUserPolicy\"}},{\"match_phrase\":{\"aws.cloudtrail.request_parameters\":\"AdministratorAccess\"}}],\"must_not\":[{\"wildcard\":{\"user.name\":{\"value\":\"*admin*\",\"case_insensitive\":true}}}]}}}",
+    "index": [
+      "logs-aws.cloudtrail*"
+    ],
+    "timeField": "@timestamp",
+    "aggType": "count"
+  },
+  "actions": [],
+  "notify_when": "onActiveAlert"
+}

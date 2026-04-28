@@ -1,0 +1,277 @@
+{
+  "title": "AWS VPC Lattice — Service Network Traffic",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "vpclattice-kpi-total-requests",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpclattice* | STATS `Total Requests` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Requests"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpclattice-kpi-error-count",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpclattice* | WHERE `aws.vpclattice.response_code` >= 400 | STATS `Error Count` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Error Count"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpclattice-kpi-avg-response-time",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpclattice* | STATS avg_rt = AVG(`aws.vpclattice.response_time_ms`) | EVAL `Avg Response Time (ms)` = ROUND(avg_rt, 0)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Response Time (ms)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpclattice-kpi-total-bytes-sent",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpclattice* | STATS `Total Bytes Sent` = SUM(`aws.vpclattice.bytes_sent`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Bytes Sent"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpclattice-donut-by-service",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Requests by Service Name",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpclattice* | STATS count = COUNT() BY service = `aws.vpclattice.service_name` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "service"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpclattice-donut-by-response-code",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Requests by Response Code",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpclattice* | STATS count = COUNT() BY code = `aws.vpclattice.response_code` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "code"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpclattice-requests-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Requests Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.vpclattice* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Requests"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "vpclattice-recent-requests",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Requests",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.vpclattice* | KEEP `@timestamp`, `aws.vpclattice.service_name`, `aws.vpclattice.response_code`, `aws.vpclattice.response_time_ms`, `aws.vpclattice.bytes_sent` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.vpclattice.service_name",
+              "label": "Service Name"
+            },
+            {
+              "operation": "value",
+              "column": "aws.vpclattice.response_code",
+              "label": "Response Code"
+            },
+            {
+              "operation": "value",
+              "column": "aws.vpclattice.response_time_ms",
+              "label": "Response Time (ms)"
+            },
+            {
+              "operation": "value",
+              "column": "aws.vpclattice.bytes_sent",
+              "label": "Bytes Sent"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "_meta": {
+    "job_id": "azure-virtual-machines-failure-spike",
+    "group": "azure-identity",
+    "api_job": "PUT _ml/anomaly_detectors/azure-virtual-machines-failure-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-virtual-machines-failure-spike",
+    "api_open": "POST _ml/anomaly_detectors/azure-virtual-machines-failure-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-virtual-machines-failure-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in VM failure outcomes per virtual machine name",
+    "groups": [
+      "azure",
+      "compute"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=azure.virtual_machines.vm_name",
+          "function": "high_count",
+          "partition_field_name": "azure.virtual_machines.vm_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.virtual_machines.vm_name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-virtual-machines-failure-spike",
+    "job_id": "azure-virtual-machines-failure-spike",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "term": {
+              "event.dataset": "azure.virtual_machines"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          },
+          {
+            "term": {
+              "cloud.service.name": "Microsoft.Compute/virtualMachines"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

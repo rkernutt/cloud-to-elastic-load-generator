@@ -1,0 +1,122 @@
+{
+  "title": "Azure Data Exfiltration Chain — overview",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "az-dex-k1",
+      "grid": { "x": 0, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Defender exfil alerts",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.defender* | WHERE azure.defender.alert_type LIKE \"%Exfiltration%\" | STATS c = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-dex-k2",
+      "grid": { "x": 16, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Blob egress (MB)",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.blob_storage* | WHERE azure.blob_storage.bytes_out IS NOT NULL | STATS total = SUM(azure.blob_storage.bytes_out) / 1048576"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "total" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-dex-k3",
+      "grid": { "x": 32, "y": 0, "w": 16, "h": 5 },
+      "config": {
+        "title": "Distinct caller IPs (blob)",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.blob_storage* | WHERE azure.blob_storage.caller_ip_address IS NOT NULL | STATS c = COUNT_DISTINCT(azure.blob_storage.caller_ip_address)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-dex-d1",
+      "grid": { "x": 0, "y": 5, "w": 48, "h": 10 },
+      "config": {
+        "title": "Exfil alert types",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.defender* | WHERE azure.defender.alert_type LIKE \"%Exfiltration%\" AND azure.defender.alert_type IS NOT NULL | STATS c = COUNT() BY t = azure.defender.alert_type"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "t" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-dex-l1",
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "config": {
+        "title": "Blob egress over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-azure.blob_storage* | WHERE azure.blob_storage.bytes_out IS NOT NULL | STATS mb = SUM(azure.blob_storage.bytes_out) / 1048576 BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "mb", "label": "MB" }]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-dex-t1",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
+      "config": {
+        "title": "Blob egress by caller IP and account",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.blob_storage* | WHERE azure.blob_storage.bytes_out IS NOT NULL | STATS bytes = SUM(azure.blob_storage.bytes_out), mb = SUM(azure.blob_storage.bytes_out) / 1048576 BY ip = azure.blob_storage.caller_ip_address, acct = cloud.account.id | SORT bytes DESC | LIMIT 25"
+          },
+          "metrics": [
+            { "operation": "value", "column": "ip", "label": "Caller IP" },
+            { "operation": "value", "column": "acct", "label": "Account" },
+            { "operation": "value", "column": "mb", "label": "MB" },
+            { "operation": "value", "column": "bytes", "label": "Bytes" }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

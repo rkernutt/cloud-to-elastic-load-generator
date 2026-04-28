@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "aws-eks-rare-image",
+    "group": "compute",
+    "api_job": "PUT _ml/anomaly_detectors/aws-eks-rare-image",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-eks-rare-image",
+    "api_open": "POST _ml/anomaly_detectors/aws-eks-rare-image/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-eks-rare-image/_start"
+  },
+  "job": {
+    "description": "Detects rare or previously unseen container images being deployed in EKS (supply chain attacks or unauthorised deployments)",
+    "groups": [
+      "aws",
+      "compute",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "rare by=container.image.name",
+          "function": "rare",
+          "by_field_name": "container.image.name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "container.image.name",
+        "kubernetes.namespace",
+        "kubernetes.pod.name"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "16mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-eks-rare-image",
+    "job_id": "aws-eks-rare-image",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.eks"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "azure-aks-event-spike",
+    "group": "azure-compute",
+    "api_job": "PUT _ml/anomaly_detectors/azure-aks-event-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-aks-event-spike",
+    "api_open": "POST _ml/anomaly_detectors/azure-aks-event-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-aks-event-spike/_start"
+  },
+  "job": {
+    "description": "Spikes in AKS events per cluster",
+    "groups": [
+      "azure",
+      "compute"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=azure.kubernetes.cluster_name",
+          "function": "high_count",
+          "partition_field_name": "azure.kubernetes.cluster_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.kubernetes.cluster_name",
+        "azure.kubernetes.namespace",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-aks-event-spike",
+    "job_id": "azure-aks-event-spike",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "term": {
+              "cloud.service.name": "Microsoft.ContainerService/managedClusters"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

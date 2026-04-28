@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "job_id": "aws-organizations-error-spike",
+    "group": "gap-coverage",
+    "api_job": "PUT _ml/anomaly_detectors/aws-organizations-error-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-organizations-error-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-organizations-error-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-organizations-error-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in AWS Organizations errors (failures) partitioned by AWS Region",
+    "groups": [
+      "aws",
+      "management",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=cloud.region",
+          "function": "high_count",
+          "partition_field_name": "cloud.region",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "cloud.region",
+        "cloud.account.id"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-organizations-error-spike",
+    "job_id": "aws-organizations-error-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.organizations"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

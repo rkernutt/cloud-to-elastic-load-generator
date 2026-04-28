@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "job_id": "aws-billing-cost-anomaly",
+    "group": "management",
+    "api_job": "PUT _ml/anomaly_detectors/aws-billing-cost-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-billing-cost-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/aws-billing-cost-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-billing-cost-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusual AWS billing cost spikes per account and region — ML-based cost anomaly detection using estimated charges",
+    "groups": [
+      "aws",
+      "management",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(aws.billing.estimated_charges)",
+          "function": "high_mean",
+          "field_name": "aws.billing.estimated_charges",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "cloud.account.id",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "16mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-billing-cost-anomaly",
+    "job_id": "aws-billing-cost-anomaly",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.billing"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

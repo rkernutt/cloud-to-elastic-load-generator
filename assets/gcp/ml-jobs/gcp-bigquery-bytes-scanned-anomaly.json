@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "gcp-bigquery-bytes-scanned-anomaly",
+    "group": "gcp-analytics",
+    "api_job": "PUT _ml/anomaly_detectors/gcp-bigquery-bytes-scanned-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-gcp-bigquery-bytes-scanned-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/gcp-bigquery-bytes-scanned-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-gcp-bigquery-bytes-scanned-anomaly/_start"
+  },
+  "job": {
+    "description": "Unusual BigQuery bytes processed per job",
+    "groups": [
+      "gcp",
+      "analytics"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_sum(gcp.bigquery.total_bytes_processed) partitionfield=gcp.bigquery.job_id",
+          "function": "high_sum",
+          "field_name": "gcp.bigquery.total_bytes_processed",
+          "partition_field_name": "gcp.bigquery.job_id",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "gcp.bigquery.dataset",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "48mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "gcp-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-gcp-bigquery-bytes-scanned-anomaly",
+    "job_id": "gcp-bigquery-bytes-scanned-anomaly",
+    "indices": [
+      "logs-gcp.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "gcp"
+            }
+          },
+          {
+            "wildcard": {
+              "cloud.service.name": "*bigquery*"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

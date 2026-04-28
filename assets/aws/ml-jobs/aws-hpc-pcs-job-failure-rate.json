@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "job_id": "aws-hpc-pcs-job-failure-rate",
+    "group": "aws-ml-platform-wide-coverage",
+    "api_job": "PUT _ml/anomaly_detectors/aws-hpc-pcs-job-failure-rate",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-hpc-pcs-job-failure-rate",
+    "api_open": "POST _ml/anomaly_detectors/aws-hpc-pcs-job-failure-rate/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-hpc-pcs-job-failure-rate/_start"
+  },
+  "job": {
+    "description": "HPC (Parallel Computing Service / PCS): detects unusual job failure rates per queue (scheduler misconfig or node capacity issues)",
+    "groups": [
+      "aws",
+      "aws-ml-platform-wide-coverage",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.pcs.queue_name",
+          "function": "high_count",
+          "partition_field_name": "aws.pcs.queue_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.pcs.queue_name",
+        "aws.pcs.cluster_id"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-hpc-pcs-job-failure-rate",
+    "job_id": "aws-hpc-pcs-job-failure-rate",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.pcs"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

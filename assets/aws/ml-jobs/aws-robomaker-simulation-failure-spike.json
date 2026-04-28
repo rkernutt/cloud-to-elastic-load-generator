@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "job_id": "aws-robomaker-simulation-failure-spike",
+    "group": "aws-ml-data-ml-operations",
+    "api_job": "PUT _ml/anomaly_detectors/aws-robomaker-simulation-failure-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-robomaker-simulation-failure-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-robomaker-simulation-failure-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-robomaker-simulation-failure-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in RoboMaker simulation failures per robot application (physics engine crashes or resource exhaustion)",
+    "groups": [
+      "aws",
+      "aws-ml-data-ml-operations",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.robomaker.robot_application",
+          "function": "high_count",
+          "partition_field_name": "aws.robomaker.robot_application",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.robomaker.robot_application",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-robomaker-simulation-failure-spike",
+    "job_id": "aws-robomaker-simulation-failure-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.robomaker"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

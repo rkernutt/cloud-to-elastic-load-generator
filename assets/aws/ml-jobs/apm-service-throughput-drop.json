@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "job_id": "apm-service-throughput-drop",
+    "group": "apm-traces",
+    "api_job": "PUT _ml/anomaly_detectors/apm-service-throughput-drop",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-apm-service-throughput-drop",
+    "api_open": "POST _ml/anomaly_detectors/apm-service-throughput-drop/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-apm-service-throughput-drop/_start"
+  },
+  "job": {
+    "description": "Detects drops in transaction throughput per service — upstream failure, routing change, or traffic loss",
+    "groups": [
+      "apm",
+      "traces",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "low_count partitionfield=service.name",
+          "function": "low_count",
+          "partition_field_name": "service.name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "service.name",
+        "service.environment"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-apm-service-throughput-drop",
+    "job_id": "apm-service-throughput-drop",
+    "indices": [
+      "traces-apm-*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "processor.event": "transaction"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

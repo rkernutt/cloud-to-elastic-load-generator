@@ -1,0 +1,282 @@
+{
+  "title": "AWS Entity Resolution — Record Matching",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "entityresolution-kpi-total-jobs",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.entityresolution* | STATS `Total Jobs` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Jobs"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "entityresolution-kpi-failed-jobs",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.entityresolution* | WHERE `aws.entityresolution.job_status` == \"FAILED\" | STATS `Failed Jobs` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Jobs"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "entityresolution-kpi-total-input-records",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.entityresolution* | STATS `Total Input Records` = SUM(`aws.entityresolution.input_record_count`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Input Records"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "entityresolution-kpi-total-matched-records",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.entityresolution* | STATS `Total Matched Records` = SUM(`aws.entityresolution.matched_record_count`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Matched Records"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "entityresolution-donut-by-workflow",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Jobs by Matching Workflow",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.entityresolution* | STATS count = COUNT() BY workflow = `aws.entityresolution.matching_workflow_name` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "workflow"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "entityresolution-donut-by-job-status",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Jobs by Status",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.entityresolution* | STATS count = COUNT() BY status = `aws.entityresolution.job_status` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "status"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "entityresolution-jobs-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Jobs Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.entityresolution* | STATS count = COUNT(), input_records = SUM(`aws.entityresolution.input_record_count`), matched_records = SUM(`aws.entityresolution.matched_record_count`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Jobs"
+                },
+                {
+                  "operation": "value",
+                  "column": "matched_records",
+                  "label": "Matched Records"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "entityresolution-recent-jobs",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Jobs",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.entityresolution* | KEEP `@timestamp`, `aws.entityresolution.matching_workflow_name`, `aws.entityresolution.job_status`, `aws.entityresolution.input_record_count`, `aws.entityresolution.matched_record_count` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.entityresolution.matching_workflow_name",
+              "label": "Workflow Name"
+            },
+            {
+              "operation": "value",
+              "column": "aws.entityresolution.job_status",
+              "label": "Job Status"
+            },
+            {
+              "operation": "value",
+              "column": "aws.entityresolution.input_record_count",
+              "label": "Input Records"
+            },
+            {
+              "operation": "value",
+              "column": "aws.entityresolution.matched_record_count",
+              "label": "Matched Records"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

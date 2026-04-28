@@ -1,0 +1,50 @@
+{
+  "_meta": {
+    "pipeline_id": "logs-aws.verifiedaccess-default",
+    "dataset": "aws.verifiedaccess",
+    "group": "security",
+    "api": "PUT _ingest/pipeline/logs-aws.verifiedaccess-default"
+  },
+  "description": "Parse AWS Verified Access session/request audit log JSON from message field",
+  "processors": [
+    {
+      "json": {
+        "field": "message",
+        "target_field": "verifiedaccess.parsed",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "verifiedaccess.parsed.verdict",
+        "target_field": "verifiedaccess.verdict",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "verifiedaccess.parsed.deny_reason",
+        "target_field": "verifiedaccess.deny_reason",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "verifiedaccess.parsed.device_posture",
+        "target_field": "verifiedaccess.device_posture",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "verifiedaccess.parsed.trust_provider_type",
+        "target_field": "verifiedaccess.trust_provider_type",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    }
+  ]
+}

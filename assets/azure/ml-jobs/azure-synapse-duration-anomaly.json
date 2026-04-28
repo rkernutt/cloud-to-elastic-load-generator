@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "azure-synapse-duration-anomaly",
+    "group": "azure-analytics",
+    "api_job": "PUT _ml/anomaly_detectors/azure-synapse-duration-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-synapse-duration-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/azure-synapse-duration-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-synapse-duration-anomaly/_start"
+  },
+  "job": {
+    "description": "Unusual Synapse Workspace job duration per pool",
+    "groups": [
+      "azure",
+      "analytics"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(event.duration) partitionfield=azure.synapse.pool_name",
+          "function": "high_mean",
+          "field_name": "event.duration",
+          "partition_field_name": "azure.synapse.pool_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.synapse.pool_name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-synapse-duration-anomaly",
+    "job_id": "azure-synapse-duration-anomaly",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "term": {
+              "cloud.service.name": "Microsoft.Synapse/workspaces"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

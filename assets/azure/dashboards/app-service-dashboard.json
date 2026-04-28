@@ -1,0 +1,126 @@
+{
+  "title": "Azure App Service — Requests",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "az-as-k1",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.app_service* | STATS `Log events` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Log events"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-as-d1",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Status",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.app_service* | STATS c = COUNT() BY s = `azure.app_service.status_code` | SORT c DESC | LIMIT 12"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "s"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-as-t1",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Recent",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.app_service* | KEEP `@timestamp`, `azure.app_service.app_name`, `azure.app_service.request_method`, `azure.app_service.url_path`, `azure.app_service.latency_ms`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Time"
+            },
+            {
+              "operation": "value",
+              "column": "azure.app_service.app_name",
+              "label": "App"
+            },
+            {
+              "operation": "value",
+              "column": "azure.app_service.request_method",
+              "label": "Method"
+            },
+            {
+              "operation": "value",
+              "column": "azure.app_service.url_path",
+              "label": "Path"
+            },
+            {
+              "operation": "value",
+              "column": "azure.app_service.latency_ms",
+              "label": "Latency ms"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
+            },
+            {
+              "operation": "value",
+              "column": "message",
+              "label": "Message"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

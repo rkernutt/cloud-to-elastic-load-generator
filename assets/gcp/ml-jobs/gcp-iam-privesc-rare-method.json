@@ -1,0 +1,85 @@
+{
+  "_meta": {
+    "job_id": "gcp-iam-privesc-rare-method",
+    "group": "gcp-iam-privesc-chain",
+    "api_job": "PUT _ml/anomaly_detectors/gcp-iam-privesc-rare-method",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-gcp-iam-privesc-rare-method",
+    "api_open": "POST _ml/anomaly_detectors/gcp-iam-privesc-rare-method/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-gcp-iam-privesc-rare-method/_start"
+  },
+  "job": {
+    "description": "Detects unusual API methods during IAM privilege escalation sessions",
+    "groups": [
+      "gcp",
+      "gcp-iam-privesc-chain",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "rare by gcp.cloud_audit.method_name",
+          "function": "rare",
+          "by_field_name": "gcp.cloud_audit.method_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "gcp.cloud_audit.method_name",
+        "user.name",
+        "source.ip"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "gcp-load-generator-gcp-iam-privesc-chain",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-gcp-iam-privesc-rare-method",
+    "job_id": "gcp-iam-privesc-rare-method",
+    "indices": [
+      "logs-gcp.audit*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "bool": {
+              "should": [
+                {
+                  "term": {
+                    "gcp.cloud_audit.service_name": "iam.googleapis.com"
+                  }
+                },
+                {
+                  "term": {
+                    "event.category": "iam"
+                  }
+                }
+              ],
+              "minimum_should_match": 1
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

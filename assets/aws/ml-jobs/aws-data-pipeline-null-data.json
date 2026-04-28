@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "job_id": "aws-data-pipeline-null-data",
+    "group": "data-pipeline",
+    "api_job": "PUT _ml/anomaly_detectors/aws-data-pipeline-null-data",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-data-pipeline-null-data",
+    "api_open": "POST _ml/anomaly_detectors/aws-data-pipeline-null-data/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-data-pipeline-null-data/_start"
+  },
+  "job": {
+    "description": "Detects increase in Athena queries returning zero rows",
+    "groups": [
+      "aws",
+      "data-pipeline",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count on athena zero-row queries partitionfield=aws.athena.workgroup",
+          "function": "high_count",
+          "partition_field_name": "aws.athena.workgroup",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.athena.workgroup",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-load-generator-data-pipeline",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-data-pipeline-null-data",
+    "job_id": "aws-data-pipeline-null-data",
+    "indices": [
+      "logs-aws.athena*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "aws.athena.rows_returned": 0
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

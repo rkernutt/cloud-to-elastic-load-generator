@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "azure-sql-dtu-anomaly",
+    "group": "azure-databases",
+    "api_job": "PUT _ml/anomaly_detectors/azure-sql-dtu-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-sql-dtu-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/azure-sql-dtu-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-sql-dtu-anomaly/_start"
+  },
+  "job": {
+    "description": "Unusual SQL Database DTU utilization per database",
+    "groups": [
+      "azure",
+      "databases"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(azure.sql_database.dtu_percent) partitionfield=azure.sql_database.database",
+          "function": "high_mean",
+          "field_name": "azure.sql_database.dtu_percent",
+          "partition_field_name": "azure.sql_database.database",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.sql_database.server",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-sql-dtu-anomaly",
+    "job_id": "azure-sql-dtu-anomaly",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "term": {
+              "cloud.service.name": "Microsoft.Sql/servers"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "gcp-load-balancer-latency",
+    "group": "gcp-networking",
+    "api_job": "PUT _ml/anomaly_detectors/gcp-load-balancer-latency",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-gcp-load-balancer-latency",
+    "api_open": "POST _ml/anomaly_detectors/gcp-load-balancer-latency/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-gcp-load-balancer-latency/_start"
+  },
+  "job": {
+    "description": "Unusual Cloud Load Balancing latency",
+    "groups": [
+      "gcp",
+      "networking"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(event.duration) partitionfield=gcp.cloud_lb.forwarding_rule",
+          "function": "high_mean",
+          "field_name": "event.duration",
+          "partition_field_name": "gcp.cloud_lb.forwarding_rule",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "gcp.cloud_lb.forwarding_rule",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "gcp-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-gcp-load-balancer-latency",
+    "job_id": "gcp-load-balancer-latency",
+    "indices": [
+      "logs-gcp.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "gcp"
+            }
+          },
+          {
+            "term": {
+              "cloud.service.name": "cloud-lb"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

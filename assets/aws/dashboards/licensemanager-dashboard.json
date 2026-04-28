@@ -1,0 +1,277 @@
+{
+  "title": "AWS License Manager — License Consumption",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "licensemanager-kpi-total-licenses",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.licensemanager* | STATS `Total Tracked Licenses` = SUM(`aws.licensemanager.licensed_count`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Tracked Licenses"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "licensemanager-kpi-over-limit-alerts",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.licensemanager* | WHERE `aws.licensemanager.consumed_licenses` > `aws.licensemanager.licensed_count` | STATS `Over-Limit Alerts` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Over-Limit Alerts"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "licensemanager-kpi-avg-utilization",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.licensemanager* | STATS avg_u = AVG(`aws.licensemanager.utilization_percentage`) | EVAL `Avg Utilization (%)` = ROUND(avg_u, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Utilization (%)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "licensemanager-kpi-license-configurations",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.licensemanager* | STATS `License Configurations` = COUNT_DISTINCT(`aws.licensemanager.license_configuration_name`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "License Configurations"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "licensemanager-donut-license-status",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "License Status",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.licensemanager* | STATS count = COUNT() BY status = `aws.licensemanager.status` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "status"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "licensemanager-donut-rule-type",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Rule Type",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.licensemanager* | STATS count = COUNT() BY rule_type = `aws.licensemanager.rule_type` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "rule_type"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "licensemanager-consumption-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "License Consumption Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.licensemanager* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "License Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "licensemanager-recent-consumption",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent License Consumption",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.licensemanager* | KEEP `@timestamp`, `aws.licensemanager.license_configuration_name`, `aws.licensemanager.consumed_licenses`, `aws.licensemanager.licensed_count`, `aws.licensemanager.utilization_percentage` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.licensemanager.license_configuration_name",
+              "label": "Configuration"
+            },
+            {
+              "operation": "value",
+              "column": "aws.licensemanager.consumed_licenses",
+              "label": "Consumed"
+            },
+            {
+              "operation": "value",
+              "column": "aws.licensemanager.licensed_count",
+              "label": "Licensed Count"
+            },
+            {
+              "operation": "value",
+              "column": "aws.licensemanager.utilization_percentage",
+              "label": "Utilization (%)"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

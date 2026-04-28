@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "aws-lambda-duration-anomaly",
+    "group": "compute",
+    "api_job": "PUT _ml/anomaly_detectors/aws-lambda-duration-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-lambda-duration-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/aws-lambda-duration-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-lambda-duration-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusual Lambda execution durations per function (performance degradation or resource contention)",
+    "groups": [
+      "aws",
+      "compute",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(aws.lambda.metrics.Duration.avg) partitionfield=aws.lambda.function.name",
+          "function": "high_mean",
+          "field_name": "aws.lambda.metrics.Duration.avg",
+          "partition_field_name": "aws.lambda.function.name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.lambda.function.name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-lambda-duration-anomaly",
+    "job_id": "aws-lambda-duration-anomaly",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.lambda_logs"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

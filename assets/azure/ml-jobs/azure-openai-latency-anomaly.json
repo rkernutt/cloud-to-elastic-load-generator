@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "azure-openai-latency-anomaly",
+    "group": "azure-aiml",
+    "api_job": "PUT _ml/anomaly_detectors/azure-openai-latency-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-openai-latency-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/azure-openai-latency-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-openai-latency-anomaly/_start"
+  },
+  "job": {
+    "description": "Unusual OpenAI request duration per deployment",
+    "groups": [
+      "azure",
+      "aiml"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(event.duration) partitionfield=azure.openai.deployment",
+          "function": "high_mean",
+          "field_name": "event.duration",
+          "partition_field_name": "azure.openai.deployment",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.openai.deployment",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-openai-latency-anomaly",
+    "job_id": "azure-openai-latency-anomaly",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "exists": {
+              "field": "azure.openai.deployment"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

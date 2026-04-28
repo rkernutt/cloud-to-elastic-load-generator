@@ -1,0 +1,76 @@
+{
+  "_meta": {
+    "job_id": "gcp-data-pipeline-error-spike",
+    "group": "gcp-data-pipeline",
+    "api_job": "PUT _ml/anomaly_detectors/gcp-data-pipeline-error-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-gcp-data-pipeline-error-spike",
+    "api_open": "POST _ml/anomaly_detectors/gcp-data-pipeline-error-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-gcp-data-pipeline-error-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in data pipeline failures",
+    "groups": [
+      "gcp",
+      "data-pipeline",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count on event.outcome=failure partitionfield=cloud.region",
+          "function": "high_count",
+          "partition_field_name": "cloud.region",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "cloud.region",
+        "event.dataset",
+        "error.type"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "gcp-load-generator-data-pipeline",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-gcp-data-pipeline-error-spike",
+    "job_id": "gcp-data-pipeline-error-spike",
+    "indices": [
+      "logs-gcp.composer*",
+      "logs-gcp.dataproc*",
+      "logs-gcp.data_catalog*",
+      "logs-gcp.bigquery*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

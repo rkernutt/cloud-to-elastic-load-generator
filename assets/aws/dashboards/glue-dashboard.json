@@ -1,0 +1,622 @@
+{
+  "title": "AWS Glue — Jobs & Performance",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "glue-kpi-total",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.glue* | STATS `Total Runs` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Runs"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "glue-kpi-success-rate",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.glue* | EVAL is_success = CASE(log.level == \"info\", 1, 0) | STATS avg_rate = AVG(is_success) | EVAL `Success Rate %` = ROUND(avg_rate * 100, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Success Rate %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "glue-kpi-avg-duration",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.glue* | STATS avg_ns = AVG(event.duration) | EVAL `Avg Duration (s)` = ROUND(avg_ns / 1000000000.0, 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Duration (s)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "glue-kpi-failed",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.glue* | WHERE log.level == \"error\" | STATS `Failed Runs` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Runs"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "glue-success-rate",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Run Outcomes",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.glue* | STATS count = COUNT() BY outcome = log.level"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "outcome"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "glue-run-state",
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Runs by State",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.glue* | STATS count = COUNT() BY state = `aws.glue.job.run_state`"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "state"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "glue-error-categories",
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Failures by Error Category",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.glue* | WHERE log.level == \"error\" | STATS count = COUNT() BY category = `aws.glue.error_category` | SORT count DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "category"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "glue-duration",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Avg Job Duration (seconds)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.glue* | STATS avg_ns = AVG(event.duration) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | EVAL avg_duration_s = avg_ns / 1000000000 | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_duration_s",
+                  "label": "Avg Duration (s)"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "glue-jvm-heap",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "JVM Heap Usage (0–1)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.glue* | STATS avg_heap = AVG(`aws.glue.metrics.driver.jvm.heap.usage`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_heap",
+                  "label": "Heap Usage"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "glue-executors",
+      "grid": {
+        "x": 16,
+        "y": 25,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Executor Count",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.glue* | STATS avg_executors = AVG(`aws.glue.metrics.driver.ExecutorAllocationManager.executors.numberAllExecutors`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_executors",
+                  "label": "Executors"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "glue-failed-tasks",
+      "grid": {
+        "x": 32,
+        "y": 25,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Failed / Killed Tasks Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.glue* | STATS failed = SUM(`aws.glue.metrics.driver.aggregate.numFailedTasks`), killed = SUM(`aws.glue.metrics.driver.aggregate.numKilledTasks`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "failed",
+                  "label": "Failed"
+                },
+                {
+                  "operation": "value",
+                  "column": "killed",
+                  "label": "Killed"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "glue-elapsed-time",
+      "grid": {
+        "x": 0,
+        "y": 35,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Elapsed Time ETL (ms)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.glue* | STATS avg_elapsed = AVG(`aws.glue.metrics.driver.aggregate.elapsedTime`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_elapsed",
+                  "label": "Elapsed Time (ms)"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "glue-records-read",
+      "grid": {
+        "x": 16,
+        "y": 35,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Records Read Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.glue* | STATS records = SUM(`aws.glue.metrics.driver.aggregate.numRecords`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "records",
+                  "label": "Records Read"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "glue-throughput-by-job",
+      "grid": {
+        "x": 32,
+        "y": 35,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Throughput by Job Name",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.glue* | STATS count = COUNT() BY job_name = `aws.glue.job.name` | SORT count DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "job_name"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Runs"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "glue-log-table",
+      "grid": {
+        "x": 0,
+        "y": 45,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Recent Job Runs",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.glue* | KEEP `@timestamp`, `aws.glue.job.name`, `aws.glue.job.run_state`, log.level, event.duration, `aws.glue.error_category` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.glue.job.name",
+              "label": "Job Name"
+            },
+            {
+              "operation": "value",
+              "column": "aws.glue.job.run_state",
+              "label": "State"
+            },
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Log level"
+            },
+            {
+              "operation": "value",
+              "column": "event.duration",
+              "label": "Duration (ns)"
+            },
+            {
+              "operation": "value",
+              "column": "aws.glue.error_category",
+              "label": "Error Category"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

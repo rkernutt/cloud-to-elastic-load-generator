@@ -1,0 +1,42 @@
+{
+  "_meta": {
+    "pipeline_id": "logs-aws.cloudformation-default",
+    "dataset": "aws.cloudformation",
+    "group": "management",
+    "api": "PUT _ingest/pipeline/logs-aws.cloudformation-default"
+  },
+  "description": "Parse AWS CloudFormation stack event JSON from message field",
+  "processors": [
+    {
+      "json": {
+        "field": "message",
+        "target_field": "cloudformation.parsed",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "cloudformation.parsed.stackName",
+        "target_field": "cloudformation.stackName",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "cloudformation.parsed.stackStatus",
+        "target_field": "cloudformation.stackStatus",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "cloudformation.parsed.action",
+        "target_field": "cloudformation.action",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    }
+  ]
+}

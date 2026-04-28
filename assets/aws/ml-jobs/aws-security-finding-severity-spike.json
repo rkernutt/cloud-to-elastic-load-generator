@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "job_id": "aws-security-finding-severity-spike",
+    "group": "security-chain",
+    "api_job": "PUT _ml/anomaly_detectors/aws-security-finding-severity-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-security-finding-severity-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-security-finding-severity-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-security-finding-severity-spike/_start"
+  },
+  "job": {
+    "description": "Detects unusual spikes in high-severity GuardDuty findings",
+    "groups": [
+      "aws",
+      "security-chain",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.guardduty.type",
+          "function": "high_count",
+          "partition_field_name": "aws.guardduty.type",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.guardduty.type",
+        "source.ip",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-load-generator-security-finding-chain",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-security-finding-severity-spike",
+    "job_id": "aws-security-finding-severity-spike",
+    "indices": [
+      "logs-aws.guardduty*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.kind": "alert"
+            }
+          },
+          {
+            "term": {
+              "event.dataset": "aws.guardduty"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

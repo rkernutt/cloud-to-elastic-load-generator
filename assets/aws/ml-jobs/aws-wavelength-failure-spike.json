@@ -1,0 +1,64 @@
+{
+  "_meta": {
+    "job_id": "aws-wavelength-failure-spike",
+    "group": "aws-ml-edge-ai-supplement",
+    "api_job": "PUT _ml/anomaly_detectors/aws-wavelength-failure-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-wavelength-failure-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-wavelength-failure-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-wavelength-failure-spike/_start"
+  },
+  "job": {
+    "job_id": "aws-wavelength-failure-spike",
+    "description": "Detects spikes in Wavelength zone failures by carrier",
+    "groups": [
+      "aws",
+      "aws-ml-edge-ai-supplement",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.wavelength.carrier",
+          "function": "high_count",
+          "partition_field_name": "aws.wavelength.carrier"
+        }
+      ],
+      "influencers": [
+        "aws.wavelength.carrier",
+        "aws.wavelength.zone",
+        "cloud.account.id"
+      ]
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "model_plot_config": {
+      "enabled": false
+    },
+    "analysis_limits": {
+      "model_memory_limit": "16mb"
+    },
+    "allow_lazy_open": true
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-wavelength-failure-spike",
+    "job_id": "aws-wavelength-failure-spike",
+    "indices": [
+      "logs-aws.wavelength*"
+    ],
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "scroll_size": 1000,
+    "query_delay": "60s"
+  }
+}

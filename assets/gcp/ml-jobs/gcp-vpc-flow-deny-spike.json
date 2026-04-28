@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "job_id": "gcp-vpc-flow-deny-spike",
+    "group": "gcp-networking",
+    "api_job": "PUT _ml/anomaly_detectors/gcp-vpc-flow-deny-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-gcp-vpc-flow-deny-spike",
+    "api_open": "POST _ml/anomaly_detectors/gcp-vpc-flow-deny-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-gcp-vpc-flow-deny-spike/_start"
+  },
+  "job": {
+    "description": "Spikes in VPC flow DENY events per rule",
+    "groups": [
+      "gcp",
+      "networking"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=gcp.vpc_flow.rule_name",
+          "function": "high_count",
+          "partition_field_name": "gcp.vpc_flow.rule_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "gcp.vpc_flow.rule_name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "gcp-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-gcp-vpc-flow-deny-spike",
+    "job_id": "gcp-vpc-flow-deny-spike",
+    "indices": [
+      "logs-gcp.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "gcp"
+            }
+          },
+          {
+            "wildcard": {
+              "cloud.service.name": "*vpc-flow*"
+            }
+          },
+          {
+            "term": {
+              "gcp.vpc_flow.action": "DENY"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

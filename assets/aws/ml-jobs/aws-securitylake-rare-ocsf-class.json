@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "aws-securitylake-rare-ocsf-class",
+    "group": "security-extended",
+    "api_job": "PUT _ml/anomaly_detectors/aws-securitylake-rare-ocsf-class",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-securitylake-rare-ocsf-class",
+    "api_open": "POST _ml/anomaly_detectors/aws-securitylake-rare-ocsf-class/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-securitylake-rare-ocsf-class/_start"
+  },
+  "job": {
+    "description": "Detects rare/unusual OCSF class types appearing in Security Lake — may indicate new attack vectors or unexpected data sources",
+    "groups": [
+      "aws",
+      "security-extended",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "rare by=aws.securitylake.class_uid",
+          "function": "rare",
+          "by_field_name": "aws.securitylake.class_uid",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.securitylake.class_uid",
+        "aws.securitylake.source_type",
+        "cloud.account.id"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-securitylake-rare-ocsf-class",
+    "job_id": "aws-securitylake-rare-ocsf-class",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.securitylake"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

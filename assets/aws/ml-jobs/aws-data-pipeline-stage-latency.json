@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "aws-data-pipeline-stage-latency",
+    "group": "data-pipeline",
+    "api_job": "PUT _ml/anomaly_detectors/aws-data-pipeline-stage-latency",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-data-pipeline-stage-latency",
+    "api_open": "POST _ml/anomaly_detectors/aws-data-pipeline-stage-latency/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-data-pipeline-stage-latency/_start"
+  },
+  "job": {
+    "description": "Detects per-stage latency anomalies in EMR Spark processing",
+    "groups": [
+      "aws",
+      "data-pipeline",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(aws.emr.duration_ms) partitionfield=aws.emr.compute_mode",
+          "function": "high_mean",
+          "field_name": "aws.emr.duration_ms",
+          "partition_field_name": "aws.emr.compute_mode",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.emr.compute_mode",
+        "aws.emr.cluster_id",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-load-generator-data-pipeline",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-data-pipeline-stage-latency",
+    "job_id": "aws-data-pipeline-stage-latency",
+    "indices": [
+      "logs-aws.emr*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "exists": {
+              "field": "aws.emr.duration_ms"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

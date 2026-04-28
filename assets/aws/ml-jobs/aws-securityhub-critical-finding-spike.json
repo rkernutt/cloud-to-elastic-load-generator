@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "job_id": "aws-securityhub-critical-finding-spike",
+    "group": "security-extended",
+    "api_job": "PUT _ml/anomaly_detectors/aws-securityhub-critical-finding-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-securityhub-critical-finding-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-securityhub-critical-finding-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-securityhub-critical-finding-spike/_start"
+  },
+  "job": {
+    "description": "Detects unusual spikes in high/critical Security Hub findings — security posture degradation",
+    "groups": [
+      "aws",
+      "security-extended",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count",
+          "function": "high_count",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "cloud.account.id",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "16mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-securityhub-critical-finding-spike",
+    "job_id": "aws-securityhub-critical-finding-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.securityhub_findings"
+            }
+          },
+          {
+            "range": {
+              "aws.securityhub_findings.severity.normalized": {
+                "gte": 70
+              }
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

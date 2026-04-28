@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "job_id": "aws-vpclattice-5xx-spike",
+    "group": "new-services",
+    "api_job": "PUT _ml/anomaly_detectors/aws-vpclattice-5xx-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-vpclattice-5xx-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-vpclattice-5xx-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-vpclattice-5xx-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in VPC Lattice 5xx errors per service (upstream failures or misconfigured routing)",
+    "groups": [
+      "aws",
+      "new-services",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "5m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.vpclattice.service_name",
+          "function": "high_count",
+          "partition_field_name": "aws.vpclattice.service_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.vpclattice.service_name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-vpclattice-5xx-spike",
+    "job_id": "aws-vpclattice-5xx-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.vpclattice"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

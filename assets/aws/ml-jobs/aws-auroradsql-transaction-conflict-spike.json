@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "job_id": "aws-auroradsql-transaction-conflict-spike",
+    "group": "aws-ml-platform-wide-coverage",
+    "api_job": "PUT _ml/anomaly_detectors/aws-auroradsql-transaction-conflict-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-auroradsql-transaction-conflict-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-auroradsql-transaction-conflict-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-auroradsql-transaction-conflict-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in Aurora DSQL transaction conflicts per cluster (hot-row contention or replication lag)",
+    "groups": [
+      "aws",
+      "aws-ml-platform-wide-coverage",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "5m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.auroradsql.cluster_id",
+          "function": "high_count",
+          "partition_field_name": "aws.auroradsql.cluster_id",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.auroradsql.cluster_id",
+        "aws.auroradsql.region_mode"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-auroradsql-transaction-conflict-spike",
+    "job_id": "aws-auroradsql-transaction-conflict-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.auroradsql"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

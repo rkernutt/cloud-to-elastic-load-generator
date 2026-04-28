@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "aws-sqs-message-age-anomaly",
+    "group": "streaming",
+    "api_job": "PUT _ml/anomaly_detectors/aws-sqs-message-age-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-sqs-message-age-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/aws-sqs-message-age-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-sqs-message-age-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusual SQS message age indicating consumer lag or processing failure",
+    "groups": [
+      "aws",
+      "streaming",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "High mean age of oldest SQS message by queue",
+          "function": "high_mean",
+          "field_name": "aws.sqs.oldest_message_age.sec",
+          "partition_field_name": "aws.sqs.queue.name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.sqs.queue.name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-sqs-message-age-anomaly",
+    "job_id": "aws-sqs-message-age-anomaly",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.sqs"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

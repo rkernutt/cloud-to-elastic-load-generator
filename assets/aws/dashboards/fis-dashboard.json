@@ -1,0 +1,272 @@
+{
+  "title": "AWS Fault Injection Service — Chaos Experiments",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "fis-kpi-total-experiments",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.fis* | STATS `Total Experiments` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Experiments"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "fis-kpi-failed-experiments",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.fis* | WHERE `aws.fis.experiment_state` == \"failed\" | STATS `Failed Experiments` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Experiments"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "fis-kpi-completed-experiments",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.fis* | WHERE `aws.fis.experiment_state` == \"completed\" | STATS `Completed Experiments` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Completed Experiments"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "fis-kpi-unique-targets",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.fis* | STATS `Unique Targets` = COUNT_DISTINCT(`aws.fis.target_resource_type`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Unique Targets"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "fis-donut-by-state",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Experiments by State",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.fis* | STATS count = COUNT() BY state = `aws.fis.experiment_state` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "state"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "fis-donut-by-target-type",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Experiments by Target Resource Type",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.fis* | STATS count = COUNT() BY target = `aws.fis.target_resource_type` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "target"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "fis-experiments-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Experiments Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.fis* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Experiments"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "fis-recent-experiments",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Experiments",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.fis* | KEEP `@timestamp`, `aws.fis.experiment_name`, `aws.fis.experiment_state`, `aws.fis.target_resource_type` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.fis.experiment_name",
+              "label": "Experiment Name"
+            },
+            {
+              "operation": "value",
+              "column": "aws.fis.experiment_state",
+              "label": "State"
+            },
+            {
+              "operation": "value",
+              "column": "aws.fis.target_resource_type",
+              "label": "Target Resource Type"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,272 @@
+{
+  "title": "AWS IoT FleetWise — Connected Vehicles",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "iotfleetwise-kpi-total-events",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.iotfleetwise* | STATS `Total Events` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Events"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "iotfleetwise-kpi-suspended-campaigns",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.iotfleetwise* | WHERE `aws.iotfleetwise.campaign_status` == \"SUSPENDED\" | STATS `Suspended Campaigns` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Suspended Campaigns"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "iotfleetwise-kpi-active-vehicles",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.iotfleetwise* | STATS `Active Vehicles` = COUNT_DISTINCT(`aws.iotfleetwise.vehicle_name`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Active Vehicles"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "iotfleetwise-kpi-signal-collections",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.iotfleetwise* | STATS `Signal Collections` = COUNT_DISTINCT(`aws.iotfleetwise.signal_name`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Signal Collections"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "iotfleetwise-donut-by-fleet",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Events by Fleet ID",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.iotfleetwise* | STATS count = COUNT() BY fleet = `aws.iotfleetwise.fleet_id` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "fleet"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "iotfleetwise-donut-by-campaign-status",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Events by Campaign Status",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.iotfleetwise* | STATS count = COUNT() BY status = `aws.iotfleetwise.campaign_status` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "status"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "iotfleetwise-events-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Events Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.iotfleetwise* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "iotfleetwise-recent-events",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Events",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.iotfleetwise* | KEEP `@timestamp`, `aws.iotfleetwise.fleet_id`, `aws.iotfleetwise.campaign_status`, `aws.iotfleetwise.signal_name` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.iotfleetwise.fleet_id",
+              "label": "Fleet ID"
+            },
+            {
+              "operation": "value",
+              "column": "aws.iotfleetwise.campaign_status",
+              "label": "Campaign Status"
+            },
+            {
+              "operation": "value",
+              "column": "aws.iotfleetwise.signal_name",
+              "label": "Signal Name"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

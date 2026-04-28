@@ -1,0 +1,282 @@
+{
+  "title": "Amazon MSK Connect — Kafka Connector Health",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "mskconnect-kpi-total-events",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mskconnect* | STATS `Total Events` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Events"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "mskconnect-kpi-failed-events",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mskconnect* | WHERE `aws.mskconnect.connector_state` == \"FAILED\" | STATS `Failed Events` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Events"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "mskconnect-kpi-avg-offset-lag",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mskconnect* | STATS avg_lag = AVG(`aws.mskconnect.offset_lag`) | EVAL `Avg Offset Lag` = ROUND(avg_lag, 0)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Offset Lag"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "mskconnect-kpi-active-connectors",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mskconnect* | WHERE `aws.mskconnect.connector_state` == \"RUNNING\" | STATS `Active Connectors` = COUNT_DISTINCT(`aws.mskconnect.connector_state`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Active Connectors"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "mskconnect-donut-by-connector",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Events by Connector Name",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mskconnect* | STATS count = COUNT() BY connector = `aws.mskconnect.connector_name` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "connector"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "mskconnect-donut-by-state",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Events by Connector State",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mskconnect* | STATS count = COUNT() BY state = `aws.mskconnect.connector_state` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "state"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "mskconnect-events-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Events Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.mskconnect* | STATS count = COUNT(), total_records = SUM(`aws.mskconnect.record_count`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Events"
+                },
+                {
+                  "operation": "value",
+                  "column": "total_records",
+                  "label": "Records Processed"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "mskconnect-recent-events",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Connector Events",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.mskconnect* | KEEP `@timestamp`, `aws.mskconnect.connector_name`, `aws.mskconnect.connector_state`, `aws.mskconnect.offset_lag`, `aws.mskconnect.record_count` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.mskconnect.connector_name",
+              "label": "Connector Name"
+            },
+            {
+              "operation": "value",
+              "column": "aws.mskconnect.connector_state",
+              "label": "State"
+            },
+            {
+              "operation": "value",
+              "column": "aws.mskconnect.offset_lag",
+              "label": "Offset Lag"
+            },
+            {
+              "operation": "value",
+              "column": "aws.mskconnect.record_count",
+              "label": "Record Count"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

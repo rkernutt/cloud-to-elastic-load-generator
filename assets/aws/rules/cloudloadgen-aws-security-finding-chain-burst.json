@@ -1,0 +1,38 @@
+{
+  "_meta": {
+    "rule_id": "cloudloadgen-aws-security-finding-chain-burst",
+    "group": "security-chain",
+    "api": "POST /api/alerting/rule"
+  },
+  "name": "[CloudLoadGen] Security Finding Chain — Multi-Stage Chain Burst",
+  "rule_type_id": ".es-query",
+  "consumer": "alerts",
+  "schedule": {
+    "interval": "5m"
+  },
+  "tags": [
+    "cloudloadgen",
+    "security-chain"
+  ],
+  "enabled": false,
+  "params": {
+    "searchType": "esQuery",
+    "timeWindowSize": 15,
+    "timeWindowUnit": "m",
+    "threshold": [
+      2
+    ],
+    "thresholdComparator": ">",
+    "size": 100,
+    "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.kind\":\"alert\"}},{\"bool\":{\"should\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"term\":{\"event.dataset\":\"aws.securityhub_findings\"}},{\"term\":{\"event.dataset\":\"aws.securitylake\"}}],\"minimum_should_match\":1}}]}}}",
+    "index": [
+      "logs-aws.guardduty*",
+      "logs-aws.securityhub_findings*",
+      "logs-aws.securitylake*"
+    ],
+    "timeField": "@timestamp",
+    "aggType": "count"
+  },
+  "actions": [],
+  "notify_when": "onActiveAlert"
+}

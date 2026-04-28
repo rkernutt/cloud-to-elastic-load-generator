@@ -1,0 +1,287 @@
+{
+  "title": "AWS Wavelength — 5G Edge Compute",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "wavelength-kpi-total-events",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.wavelength* | STATS `Total Events` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Events"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "wavelength-kpi-failures",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.wavelength* | WHERE `log.level` == \"failure\" | STATS `Failures` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failures"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "wavelength-kpi-avg-latency",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.wavelength* | STATS avg_lat = AVG(`aws.wavelength.network.latency_ms`) | EVAL `Avg Edge Latency (ms)` = ROUND(avg_lat, 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Edge Latency (ms)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "wavelength-kpi-active-zones",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.wavelength* | STATS `Active Wavelength Zones` = COUNT_DISTINCT(`aws.wavelength.zone`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Active Wavelength Zones"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "wavelength-donut-carrier",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Events by Carrier",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.wavelength* | STATS count = COUNT() BY carrier = `aws.wavelength.carrier` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "carrier"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "wavelength-donut-zone",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Events by Wavelength Zone",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.wavelength* | STATS count = COUNT() BY zone = `aws.wavelength.city` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "zone"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "wavelength-events-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Edge Events Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.wavelength* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "wavelength-recent-events",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Edge Events",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.wavelength* | KEEP `@timestamp`, `aws.wavelength.zone`, `aws.wavelength.carrier`, `aws.wavelength.instance_type`, `aws.wavelength.network.latency_ms`, `aws.wavelength.network.uplink_mbps`, `log.level` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.wavelength.zone",
+              "label": "Wavelength Zone"
+            },
+            {
+              "operation": "value",
+              "column": "aws.wavelength.carrier",
+              "label": "Carrier"
+            },
+            {
+              "operation": "value",
+              "column": "aws.wavelength.instance_type",
+              "label": "Instance Type"
+            },
+            {
+              "operation": "value",
+              "column": "aws.wavelength.network.latency_ms",
+              "label": "Latency (ms)"
+            },
+            {
+              "operation": "value",
+              "column": "aws.wavelength.network.uplink_mbps",
+              "label": "UL Mbps"
+            },
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Log level"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

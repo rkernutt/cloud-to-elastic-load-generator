@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "aws-redshift-query-duration-anomaly",
+    "group": "databases-extended",
+    "api_job": "PUT _ml/anomaly_detectors/aws-redshift-query-duration-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-redshift-query-duration-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/aws-redshift-query-duration-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-redshift-query-duration-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusual Redshift query execution durations — long-running warehouse query detection",
+    "groups": [
+      "aws",
+      "databases-extended",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(event.duration) partitionfield=aws.redshift.cluster_id",
+          "function": "high_mean",
+          "field_name": "event.duration",
+          "partition_field_name": "aws.redshift.cluster_id",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.redshift.cluster_id",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-redshift-query-duration-anomaly",
+    "job_id": "aws-redshift-query-duration-anomaly",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.redshift"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

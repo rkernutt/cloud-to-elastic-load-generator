@@ -1,0 +1,96 @@
+{
+  "_meta": {
+    "job_id": "azure-entra-id-rare-sign-in-location",
+    "group": "azure-identity",
+    "api_job": "PUT _ml/anomaly_detectors/azure-entra-id-rare-sign-in-location",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-entra-id-rare-sign-in-location",
+    "api_open": "POST _ml/anomaly_detectors/azure-entra-id-rare-sign-in-location/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-entra-id-rare-sign-in-location/_start"
+  },
+  "job": {
+    "description": "Detects rare sign-in location (country/region) values in Entra SignInLogs",
+    "groups": [
+      "azure",
+      "identity"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "rare by=azure.entra_id.properties.location.countryOrRegion",
+          "function": "rare",
+          "by_field_name": "azure.entra_id.properties.location.countryOrRegion",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.entra_id.properties.location.countryOrRegion",
+        "azure.entra_id.user",
+        "azure.entra_id.ip_address"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-entra-id-rare-sign-in-location",
+    "job_id": "azure-entra-id-rare-sign-in-location",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "term": {
+              "event.dataset": "azure.entra_id"
+            }
+          },
+          {
+            "bool": {
+              "should": [
+                {
+                  "term": {
+                    "azure.entra_id.category": "SignInLogs"
+                  }
+                },
+                {
+                  "term": {
+                    "azure.entra_id.category": "SignIn"
+                  }
+                }
+              ],
+              "minimum_should_match": 1
+            }
+          },
+          {
+            "exists": {
+              "field": "azure.entra_id.properties.location.countryOrRegion"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

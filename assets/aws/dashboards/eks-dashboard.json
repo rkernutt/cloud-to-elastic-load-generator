@@ -1,0 +1,574 @@
+{
+  "title": "Amazon EKS — Cluster & Pod Health",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "eks-kpi-avg-node-cpu",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.eks* | STATS avg_cpu = AVG(`aws.eks.metrics.node_cpu_utilization.avg`) | EVAL `Avg Node CPU %` = ROUND(avg_cpu, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Node CPU %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "eks-kpi-failed-nodes",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.eks* | STATS `Failed Nodes` = MAX(`aws.eks.metrics.cluster_failed_node_count.avg`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Nodes"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "eks-kpi-avg-pod-count",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.eks* | STATS `Avg Pod Count` = MAX(`aws.eks.metrics.pod_count.avg`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Pod Count"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "eks-kpi-error-rate",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.eks* | EVAL is_err = CASE(log.level == \"error\", 1, 0) | STATS avg_e = AVG(is_err) | EVAL `Error Rate %` = ROUND(avg_e * 100, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Error Rate %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "eks-donut-by-cluster",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Events by Cluster",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.eks* | STATS count = COUNT() BY cluster = `aws.eks.cluster.name`"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "cluster"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "eks-donut-outcomes",
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Event Outcomes",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.eks* | STATS count = COUNT() BY outcome = log.level"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "outcome"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "eks-donut-top-nodes",
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Top Nodes",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.eks* | STATS count = COUNT() BY node = `aws.eks.node.name` | SORT count DESC | LIMIT 8"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "node"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "eks-node-cpu-memory-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Node CPU & Memory Utilization (%)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.eks* | STATS avg_cpu = AVG(`aws.eks.metrics.node_cpu_utilization.avg`), avg_mem = AVG(`aws.eks.metrics.node_memory_utilization.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_cpu",
+                  "label": "Node CPU %"
+                },
+                {
+                  "operation": "value",
+                  "column": "avg_mem",
+                  "label": "Node Memory %"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "eks-pod-cpu-memory-over-time",
+      "grid": {
+        "x": 24,
+        "y": 15,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Pod CPU & Memory Utilization (%)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.eks* | STATS avg_pcpu = AVG(`aws.eks.metrics.pod_cpu_utilization.avg`), avg_pmem = AVG(`aws.eks.metrics.pod_memory_utilization.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_pcpu",
+                  "label": "Pod CPU %"
+                },
+                {
+                  "operation": "value",
+                  "column": "avg_pmem",
+                  "label": "Pod Memory %"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "eks-pod-count-over-time",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Pod Count Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.eks* | STATS pods = AVG(`aws.eks.metrics.pod_count.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "pods",
+                  "label": "Pod Count"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "eks-network-bytes-over-time",
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Network Bytes Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.eks* | STATS rx = SUM(`aws.eks.metrics.pod_network_rx_bytes.sum`), tx = SUM(`aws.eks.metrics.pod_network_tx_bytes.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "rx",
+                  "label": "RX Bytes"
+                },
+                {
+                  "operation": "value",
+                  "column": "tx",
+                  "label": "TX Bytes"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "eks-node-cpu-by-node",
+      "grid": {
+        "x": 0,
+        "y": 35,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Node CPU by Node",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.eks* | STATS avg_cpu = AVG(`aws.eks.metrics.node_cpu_utilization.avg`) BY node = `aws.eks.node.name` | SORT avg_cpu DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "node"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_cpu",
+                  "label": "Avg CPU %"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "eks-failed-node-count-over-time",
+      "grid": {
+        "x": 24,
+        "y": 35,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Failed Node Count Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.eks* | STATS failed = MAX(`aws.eks.metrics.cluster_failed_node_count.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "failed",
+                  "label": "Failed Nodes"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "eks-log-table",
+      "grid": {
+        "x": 0,
+        "y": 45,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Recent Events",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.eks* | KEEP `@timestamp`, `aws.eks.cluster.name`, `aws.eks.node.name`, log.level, `aws.eks.metrics.node_cpu_utilization.avg`, `aws.eks.metrics.node_memory_utilization.avg`, `aws.eks.metrics.pod_count.avg` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.eks.cluster.name",
+              "label": "Cluster"
+            },
+            {
+              "operation": "value",
+              "column": "aws.eks.node.name",
+              "label": "Node"
+            },
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Log level"
+            },
+            {
+              "operation": "value",
+              "column": "aws.eks.metrics.node_cpu_utilization.avg",
+              "label": "Node CPU %"
+            },
+            {
+              "operation": "value",
+              "column": "aws.eks.metrics.node_memory_utilization.avg",
+              "label": "Node Memory %"
+            },
+            {
+              "operation": "value",
+              "column": "aws.eks.metrics.pod_count.avg",
+              "label": "Pod Count"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

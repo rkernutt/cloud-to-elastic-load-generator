@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "rule_id": "cloudloadgen-azure-data-pipeline-blob-format-error",
+    "group": "data-pipeline",
+    "api": "POST /api/alerting/rule"
+  },
+  "name": "[CloudLoadGen] Azure Data Pipeline — Blob Source File Format Error",
+  "rule_type_id": ".es-query",
+  "consumer": "alerts",
+  "schedule": {
+    "interval": "5m"
+  },
+  "tags": [
+    "cloudloadgen",
+    "data-pipeline"
+  ],
+  "enabled": false,
+  "params": {
+    "searchType": "esQuery",
+    "timeWindowSize": 15,
+    "timeWindowUnit": "m",
+    "threshold": [
+      1
+    ],
+    "thresholdComparator": ">=",
+    "size": 100,
+    "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.blob_storage\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"azure.blob_storage.blob_name\":{\"value\":\"*%*\"}}},{\"bool\":{\"must_not\":{\"wildcard\":{\"azure.blob_storage.blob_name\":{\"value\":\"*.avro\"}}}}}]}}]}}}",
+    "index": [
+      "logs-azure.blob_storage*"
+    ],
+    "timeField": "@timestamp",
+    "aggType": "count"
+  },
+  "actions": [],
+  "notify_when": "onActiveAlert"
+}

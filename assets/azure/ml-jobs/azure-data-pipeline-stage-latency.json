@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "azure-data-pipeline-stage-latency",
+    "group": "azure-data-pipeline",
+    "api_job": "PUT _ml/anomaly_detectors/azure-data-pipeline-stage-latency",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-data-pipeline-stage-latency",
+    "api_open": "POST _ml/anomaly_detectors/azure-data-pipeline-stage-latency/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-data-pipeline-stage-latency/_start"
+  },
+  "job": {
+    "description": "Detects per-stage latency anomalies in Databricks Spark processing",
+    "groups": [
+      "azure",
+      "data-pipeline",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(azure.databricks.duration_ms) partitionfield=azure.databricks.workspace_name",
+          "function": "high_mean",
+          "field_name": "azure.databricks.duration_ms",
+          "partition_field_name": "azure.databricks.workspace_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.databricks.workspace_name",
+        "azure.databricks.cluster_id",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-load-generator-data-pipeline",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-data-pipeline-stage-latency",
+    "job_id": "azure-data-pipeline-stage-latency",
+    "indices": [
+      "logs-azure.databricks*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "exists": {
+              "field": "azure.databricks.duration_ms"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

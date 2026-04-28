@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "gcp-iam-token-generation-anomaly",
+    "group": "gcp-iam-privesc-chain",
+    "api_job": "PUT _ml/anomaly_detectors/gcp-iam-token-generation-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-gcp-iam-token-generation-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/gcp-iam-token-generation-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-gcp-iam-token-generation-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects anomalous access token generation",
+    "groups": [
+      "gcp",
+      "gcp-iam-privesc-chain",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=source.ip",
+          "function": "high_count",
+          "partition_field_name": "source.ip",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "source.ip",
+        "user.name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "gcp-load-generator-gcp-iam-privesc-chain",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-gcp-iam-token-generation-anomaly",
+    "job_id": "gcp-iam-token-generation-anomaly",
+    "indices": [
+      "logs-gcp.audit*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "wildcard": {
+              "gcp.cloud_audit.method_name": "*GenerateAccessToken*"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

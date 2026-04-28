@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "aws-iam-assume-role-anomaly",
+    "group": "iam-privesc-chain",
+    "api_job": "PUT _ml/anomaly_detectors/aws-iam-assume-role-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-iam-assume-role-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/aws-iam-assume-role-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-iam-assume-role-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects anomalous AssumeRole activity",
+    "groups": [
+      "aws",
+      "iam-privesc-chain",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=source.ip",
+          "function": "high_count",
+          "partition_field_name": "source.ip",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "source.ip",
+        "user.name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-load-generator-iam-privesc-chain",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-iam-assume-role-anomaly",
+    "job_id": "aws-iam-assume-role-anomaly",
+    "indices": [
+      "logs-aws.cloudtrail*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.action": "AssumeRole"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

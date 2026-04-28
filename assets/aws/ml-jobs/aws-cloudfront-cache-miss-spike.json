@@ -1,0 +1,75 @@
+{
+  "_meta": {
+    "job_id": "aws-cloudfront-cache-miss-spike",
+    "group": "networking-extended",
+    "api_job": "PUT _ml/anomaly_detectors/aws-cloudfront-cache-miss-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-cloudfront-cache-miss-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-cloudfront-cache-miss-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-cloudfront-cache-miss-spike/_start"
+  },
+  "job": {
+    "description": "Detects unusual CloudFront cache miss rate spikes — cache invalidation storms and origin overload",
+    "groups": [
+      "aws",
+      "networking-extended",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "High count of CloudFront cache misses",
+          "function": "high_count",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "16mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-cloudfront-cache-miss-spike",
+    "job_id": "aws-cloudfront-cache-miss-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.cloudfront_logs"
+            }
+          },
+          {
+            "term": {
+              "aws.cloudfront.edge_result_type": "Miss"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

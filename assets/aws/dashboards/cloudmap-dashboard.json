@@ -1,0 +1,277 @@
+{
+  "title": "AWS Cloud Map — Service Discovery",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "cloudmap-kpi-total-operations",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudmap* | STATS `Total Operations` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Operations"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cloudmap-kpi-unhealthy-instances",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudmap* | WHERE `aws.cloudmap.health_status` == \"UNHEALTHY\" | STATS `Unhealthy Instances` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Unhealthy Instances"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cloudmap-kpi-avg-instances-returned",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudmap* | STATS avg_i = AVG(`aws.cloudmap.instances_returned`) | EVAL `Avg Instances Returned` = ROUND(avg_i, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Instances Returned"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cloudmap-kpi-namespace-count",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudmap* | STATS `Namespace Count` = COUNT_DISTINCT(`aws.cloudmap.namespace`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Namespace Count"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cloudmap-donut-health-status",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Health Status",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudmap* | STATS count = COUNT() BY status = `aws.cloudmap.health_status` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "status"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cloudmap-donut-query-type",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Query Type",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudmap* | STATS count = COUNT() BY query_type = `aws.cloudmap.query_type` | SORT count DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "query_type"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cloudmap-operations-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Discovery Operations Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.cloudmap* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Operations"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cloudmap-recent-operations",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Operations",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cloudmap* | KEEP `@timestamp`, `aws.cloudmap.namespace`, `aws.cloudmap.service_name`, `aws.cloudmap.health_status`, `event.action` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.cloudmap.namespace",
+              "label": "Namespace"
+            },
+            {
+              "operation": "value",
+              "column": "aws.cloudmap.service_name",
+              "label": "Service Name"
+            },
+            {
+              "operation": "value",
+              "column": "aws.cloudmap.health_status",
+              "label": "Health Status"
+            },
+            {
+              "operation": "value",
+              "column": "event.action",
+              "label": "Action"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

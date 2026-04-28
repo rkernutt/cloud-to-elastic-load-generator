@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "job_id": "aws-kinesis-iterator-age-anomaly",
+    "group": "streaming",
+    "api_job": "PUT _ml/anomaly_detectors/aws-kinesis-iterator-age-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-kinesis-iterator-age-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/aws-kinesis-iterator-age-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-kinesis-iterator-age-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusual Kinesis shard iterator age indicating consumer lag",
+    "groups": [
+      "aws",
+      "streaming",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "High mean iterator age by Kinesis stream",
+          "function": "high_mean",
+          "field_name": "aws.kinesis.metrics.GetRecords_IteratorAgeMilliseconds.avg",
+          "partition_field_name": "aws.dimensions.StreamName",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.dimensions.StreamName"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-kinesis-iterator-age-anomaly",
+    "job_id": "aws-kinesis-iterator-age-anomaly",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.kinesis"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "_meta": {
+    "pipeline_id": "logs-aws.codepipeline-default",
+    "dataset": "aws.codepipeline",
+    "group": "management",
+    "api": "PUT _ingest/pipeline/logs-aws.codepipeline-default"
+  },
+  "description": "Parse AWS CodePipeline execution event JSON from message field",
+  "processors": [
+    {
+      "json": {
+        "field": "message",
+        "target_field": "codepipeline.parsed",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "codepipeline.parsed.pipeline",
+        "target_field": "codepipeline.pipeline",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "codepipeline.parsed.executionId",
+        "target_field": "codepipeline.executionId",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "codepipeline.parsed.stage",
+        "target_field": "codepipeline.stage",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "codepipeline.parsed.state",
+        "target_field": "codepipeline.state",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "job_id": "aws-iam-privesc-unusual-action-sequence",
+    "group": "iam-privesc-chain",
+    "api_job": "PUT _ml/anomaly_detectors/aws-iam-privesc-unusual-action-sequence",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-iam-privesc-unusual-action-sequence",
+    "api_open": "POST _ml/anomaly_detectors/aws-iam-privesc-unusual-action-sequence/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-iam-privesc-unusual-action-sequence/_start"
+  },
+  "job": {
+    "description": "Detects unusual API call patterns",
+    "groups": [
+      "aws",
+      "iam-privesc-chain",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "rare by event.action",
+          "function": "rare",
+          "by_field_name": "event.action",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "event.action",
+        "user.name",
+        "source.ip"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-load-generator-iam-privesc-chain",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-iam-privesc-unusual-action-sequence",
+    "job_id": "aws-iam-privesc-unusual-action-sequence",
+    "indices": [
+      "logs-aws.cloudtrail*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.cloudtrail"
+            }
+          },
+          {
+            "term": {
+              "event.category": "iam"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

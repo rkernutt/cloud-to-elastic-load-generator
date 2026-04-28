@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "job_id": "aws-codebuild-duration-anomaly",
+    "group": "devtools",
+    "api_job": "PUT _ml/anomaly_detectors/aws-codebuild-duration-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-codebuild-duration-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/aws-codebuild-duration-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-codebuild-duration-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusual CodeBuild build durations per project — slow builds indicating dependency or resource issues",
+    "groups": [
+      "aws",
+      "devtools",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(event.duration) partitionfield=aws.codebuild.project_name",
+          "function": "high_mean",
+          "field_name": "event.duration",
+          "partition_field_name": "aws.codebuild.project_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.codebuild.project_name"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-codebuild-duration-anomaly",
+    "job_id": "aws-codebuild-duration-anomaly",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.codebuild"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

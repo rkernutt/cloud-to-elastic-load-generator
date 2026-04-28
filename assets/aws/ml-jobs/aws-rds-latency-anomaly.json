@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "aws-rds-latency-anomaly",
+    "group": "databases",
+    "api_job": "PUT _ml/anomaly_detectors/aws-rds-latency-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-rds-latency-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/aws-rds-latency-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-rds-latency-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusual RDS query latency per DB instance",
+    "groups": [
+      "aws",
+      "databases",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "High mean RDS read latency by DB instance",
+          "function": "high_mean",
+          "field_name": "aws.rds.latency.read",
+          "partition_field_name": "aws.rds.db_instance.identifier",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.rds.db_instance.identifier",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-rds-latency-anomaly",
+    "job_id": "aws-rds-latency-anomaly",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.rds"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

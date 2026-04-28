@@ -1,0 +1,71 @@
+{
+  "_meta": {
+    "job_id": "aws-arc-zonal-shift-volume",
+    "group": "new-services",
+    "api_job": "PUT _ml/anomaly_detectors/aws-arc-zonal-shift-volume",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-arc-zonal-shift-volume",
+    "api_open": "POST _ml/anomaly_detectors/aws-arc-zonal-shift-volume/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-arc-zonal-shift-volume/_start"
+  },
+  "job": {
+    "description": "Detects unusual spikes in ARC zonal shift activity (unexpected multi-AZ failover events indicating availability issues)",
+    "groups": [
+      "aws",
+      "new-services",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "count",
+          "function": "count",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "cloud.region",
+        "cloud.account.id"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "16mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-arc-zonal-shift-volume",
+    "job_id": "aws-arc-zonal-shift-volume",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.arc"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

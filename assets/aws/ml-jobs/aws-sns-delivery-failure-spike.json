@@ -1,0 +1,71 @@
+{
+  "_meta": {
+    "job_id": "aws-sns-delivery-failure-spike",
+    "group": "messaging",
+    "api_job": "PUT _ml/anomaly_detectors/aws-sns-delivery-failure-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-sns-delivery-failure-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-sns-delivery-failure-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-sns-delivery-failure-spike/_start"
+  },
+  "job": {
+    "description": "Detects unusual spikes in SNS notification delivery failures",
+    "groups": [
+      "aws",
+      "messaging",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(aws.sns.metrics.NumberOfNotificationsFailed.sum)",
+          "function": "high_mean",
+          "field_name": "aws.sns.metrics.NumberOfNotificationsFailed.sum",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "16mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-sns-delivery-failure-spike",
+    "job_id": "aws-sns-delivery-failure-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.sns"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

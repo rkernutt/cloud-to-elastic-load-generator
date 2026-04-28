@@ -1,0 +1,50 @@
+{
+  "_meta": {
+    "pipeline_id": "logs-aws.qbusiness-default",
+    "dataset": "aws.qbusiness",
+    "group": "ml",
+    "api": "PUT _ingest/pipeline/logs-aws.qbusiness-default"
+  },
+  "description": "Parse Amazon Q Business query/retrieval/plugin event JSON from message field",
+  "processors": [
+    {
+      "json": {
+        "field": "message",
+        "target_field": "qbusiness.parsed",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "qbusiness.parsed.event_type",
+        "target_field": "qbusiness.event_type",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "qbusiness.parsed.application_id",
+        "target_field": "qbusiness.application_id",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "qbusiness.parsed.conversation_id",
+        "target_field": "qbusiness.conversation_id",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "qbusiness.parsed.guardrail_action",
+        "target_field": "qbusiness.guardrail_action",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    }
+  ]
+}

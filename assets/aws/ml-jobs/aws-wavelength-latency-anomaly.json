@@ -1,0 +1,65 @@
+{
+  "_meta": {
+    "job_id": "aws-wavelength-latency-anomaly",
+    "group": "aws-ml-edge-ai-supplement",
+    "api_job": "PUT _ml/anomaly_detectors/aws-wavelength-latency-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-wavelength-latency-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/aws-wavelength-latency-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-wavelength-latency-anomaly/_start"
+  },
+  "job": {
+    "job_id": "aws-wavelength-latency-anomaly",
+    "description": "Detects anomalous edge latency spikes in Wavelength zones",
+    "groups": [
+      "aws",
+      "aws-ml-edge-ai-supplement",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(aws.wavelength.network.latency_ms) by aws.wavelength.zone",
+          "function": "high_mean",
+          "field_name": "aws.wavelength.network.latency_ms",
+          "by_field_name": "aws.wavelength.zone"
+        }
+      ],
+      "influencers": [
+        "aws.wavelength.zone",
+        "aws.wavelength.carrier",
+        "cloud.account.id"
+      ]
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "model_plot_config": {
+      "enabled": false
+    },
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "allow_lazy_open": true
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-wavelength-latency-anomaly",
+    "job_id": "aws-wavelength-latency-anomaly",
+    "indices": [
+      "logs-aws.wavelength*"
+    ],
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.wavelength"
+            }
+          }
+        ]
+      }
+    },
+    "scroll_size": 1000,
+    "query_delay": "60s"
+  }
+}

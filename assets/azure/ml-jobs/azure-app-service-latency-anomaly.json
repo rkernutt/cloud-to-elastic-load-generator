@@ -1,0 +1,74 @@
+{
+  "_meta": {
+    "job_id": "azure-app-service-latency-anomaly",
+    "group": "azure-compute",
+    "api_job": "PUT _ml/anomaly_detectors/azure-app-service-latency-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-app-service-latency-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/azure-app-service-latency-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-app-service-latency-anomaly/_start"
+  },
+  "job": {
+    "description": "Unusual App Service request duration per app",
+    "groups": [
+      "azure",
+      "compute"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(event.duration) partitionfield=azure.app_service.app_name",
+          "function": "high_mean",
+          "field_name": "event.duration",
+          "partition_field_name": "azure.app_service.app_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.app_service.app_name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-app-service-latency-anomaly",
+    "job_id": "azure-app-service-latency-anomaly",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "exists": {
+              "field": "azure.app_service.app_name"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

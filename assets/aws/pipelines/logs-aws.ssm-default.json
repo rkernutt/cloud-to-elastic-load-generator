@@ -1,0 +1,50 @@
+{
+  "_meta": {
+    "pipeline_id": "logs-aws.ssm-default",
+    "dataset": "aws.ssm",
+    "group": "management",
+    "api": "PUT _ingest/pipeline/logs-aws.ssm-default"
+  },
+  "description": "Parse AWS Systems Manager Run Command / Session log JSON from message field",
+  "processors": [
+    {
+      "json": {
+        "field": "message",
+        "target_field": "ssm.parsed",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "ssm.parsed.commandId",
+        "target_field": "ssm.commandId",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "ssm.parsed.documentName",
+        "target_field": "ssm.documentName",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "ssm.parsed.instanceId",
+        "target_field": "ssm.instanceId",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "ssm.parsed.status",
+        "target_field": "ssm.status",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    }
+  ]
+}

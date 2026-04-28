@@ -1,0 +1,91 @@
+{
+  "_meta": {
+    "job_id": "azure-iam-privesc-session-spike",
+    "group": "azure-iam-privesc-chain",
+    "api_job": "PUT _ml/anomaly_detectors/azure-iam-privesc-session-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-iam-privesc-session-spike",
+    "api_open": "POST _ml/anomaly_detectors/azure-iam-privesc-session-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-iam-privesc-session-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in IAM privilege escalation chains",
+    "groups": [
+      "azure",
+      "azure-iam-privesc-chain",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=azure.entra_id.user_principal_name",
+          "function": "high_count",
+          "partition_field_name": "azure.entra_id.user_principal_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.entra_id.user_principal_name",
+        "source.ip",
+        "azure.activity_log.operation_name"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-load-generator-azure-iam-privesc-chain",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-iam-privesc-session-spike",
+    "job_id": "azure-iam-privesc-session-spike",
+    "indices": [
+      "logs-azure.entra_id*",
+      "logs-azure.activity_log*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "bool": {
+              "should": [
+                {
+                  "term": {
+                    "azure.entra_id.riskState": "AtRisk"
+                  }
+                },
+                {
+                  "term": {
+                    "azure.activity_log.operation_name": "Microsoft.Authorization/roleAssignments/write"
+                  }
+                },
+                {
+                  "wildcard": {
+                    "azure.activity_log.operation_name": "*roleAssignment*"
+                  }
+                }
+              ],
+              "minimum_should_match": 1
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

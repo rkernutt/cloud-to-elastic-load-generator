@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "aws-guardduty-rare-finding-type",
+    "group": "security",
+    "api_job": "PUT _ml/anomaly_detectors/aws-guardduty-rare-finding-type",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-guardduty-rare-finding-type",
+    "api_open": "POST _ml/anomaly_detectors/aws-guardduty-rare-finding-type/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-guardduty-rare-finding-type/_start"
+  },
+  "job": {
+    "description": "Detects rare or previously unseen GuardDuty finding types (novel attack patterns)",
+    "groups": [
+      "aws",
+      "security",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "rare by=aws.guardduty.type",
+          "function": "rare",
+          "by_field_name": "aws.guardduty.type",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.guardduty.type",
+        "aws.guardduty.severity.value",
+        "source.ip"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "16mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-guardduty-rare-finding-type",
+    "job_id": "aws-guardduty-rare-finding-type",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.guardduty"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

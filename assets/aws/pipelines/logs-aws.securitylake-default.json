@@ -1,0 +1,58 @@
+{
+  "_meta": {
+    "pipeline_id": "logs-aws.securitylake-default",
+    "dataset": "aws.securitylake",
+    "group": "security",
+    "api": "PUT _ingest/pipeline/logs-aws.securitylake-default"
+  },
+  "description": "Parse Amazon Security Lake OCSF 1.1.0 event JSON from message field",
+  "processors": [
+    {
+      "json": {
+        "field": "message",
+        "target_field": "securitylake.parsed",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "securitylake.parsed.class_uid",
+        "target_field": "securitylake.class_uid",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "securitylake.parsed.category_uid",
+        "target_field": "securitylake.category_uid",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "securitylake.parsed.activity_id",
+        "target_field": "securitylake.activity_id",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "securitylake.parsed.severity_id",
+        "target_field": "securitylake.severity_id",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "securitylake.parsed.class_name",
+        "target_field": "securitylake.class_name",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "job_id": "aws-securityir-case-volume-spike",
+    "group": "new-services",
+    "api_job": "PUT _ml/anomaly_detectors/aws-securityir-case-volume-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-securityir-case-volume-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-securityir-case-volume-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-securityir-case-volume-spike/_start"
+  },
+  "job": {
+    "description": "Detects unusual spikes in Security Incident Response case volume by severity (incident surge or detection pipeline misfiring)",
+    "groups": [
+      "aws",
+      "new-services",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.securityir.severity",
+          "function": "high_count",
+          "partition_field_name": "aws.securityir.severity",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.securityir.severity",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-securityir-case-volume-spike",
+    "job_id": "aws-securityir-case-volume-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.securityir"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

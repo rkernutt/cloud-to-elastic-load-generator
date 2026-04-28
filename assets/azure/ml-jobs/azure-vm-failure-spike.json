@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "job_id": "azure-vm-failure-spike",
+    "group": "azure-compute",
+    "api_job": "PUT _ml/anomaly_detectors/azure-vm-failure-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-vm-failure-spike",
+    "api_open": "POST _ml/anomaly_detectors/azure-vm-failure-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-vm-failure-spike/_start"
+  },
+  "job": {
+    "description": "Spikes in Virtual Machine failure outcomes per VM",
+    "groups": [
+      "azure",
+      "compute"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=azure.virtual_machines.vm_name",
+          "function": "high_count",
+          "partition_field_name": "azure.virtual_machines.vm_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.virtual_machines.vm_name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-vm-failure-spike",
+    "job_id": "azure-vm-failure-spike",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          },
+          {
+            "term": {
+              "cloud.service.name": "Microsoft.Compute/virtualMachines"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

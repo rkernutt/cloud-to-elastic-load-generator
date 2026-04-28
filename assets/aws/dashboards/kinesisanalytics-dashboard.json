@@ -1,0 +1,526 @@
+{
+  "title": "Amazon Kinesis Data Analytics — Application Health & Throughput",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "kda-kpi-total-events",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.kinesisanalytics* | STATS `Total Events` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Events"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "kda-kpi-failed-events",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.kinesisanalytics* | WHERE log.level == \"error\" | STATS `Failed Events` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Events"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "kda-kpi-avg-records-per-second",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.kinesisanalytics* | STATS avg_rps = AVG(`aws.kinesisanalytics.records_per_second`) | EVAL `Avg Records/sec` = ROUND(avg_rps, 0)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Records/sec"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "kda-kpi-avg-kpu-utilization",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.kinesisanalytics* | STATS avg_kpu = AVG(`aws.kinesisanalytics.metrics.kpu_utilization_pct`) | EVAL `Avg KPU Utilization (%)` = ROUND(avg_kpu, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg KPU Utilization (%)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "kda-donut-by-application",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Events by Application",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.kinesisanalytics* | STATS count = COUNT() BY app = `aws.kinesisanalytics.application_name` | SORT count DESC | LIMIT 8"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "app"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "kda-donut-by-runtime",
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Events by Runtime",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.kinesisanalytics* | STATS count = COUNT() BY runtime = `aws.kinesisanalytics.runtime` | SORT count DESC"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "runtime"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "kda-donut-outcomes",
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Event Outcomes",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.kinesisanalytics* | STATS count = COUNT() BY outcome = log.level"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "outcome"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "kda-records-and-lag-over-time",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Records/sec & Watermark Lag Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.kinesisanalytics* | STATS rps = AVG(`aws.kinesisanalytics.records_per_second`), lag = AVG(`aws.kinesisanalytics.input_watermark_lag_ms`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "rps",
+                  "label": "Records/sec"
+                },
+                {
+                  "operation": "value",
+                  "column": "lag",
+                  "label": "Watermark Lag (ms)"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "kda-checkpoint-duration-over-time",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Checkpoint Duration Over Time (ms)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.kinesisanalytics* | STATS chk_ms = AVG(`aws.kinesisanalytics.last_checkpoint_duration_ms`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "chk_ms",
+                  "label": "Avg Checkpoint Duration (ms)"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "kda-kpu-utilization-over-time",
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "KPU Utilization Over Time (%)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.kinesisanalytics* | STATS kpu_pct = AVG(`aws.kinesisanalytics.metrics.kpu_utilization_pct`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "kpu_pct",
+                  "label": "KPU Utilization (%)"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "kda-records-per-second-by-app",
+      "grid": {
+        "x": 0,
+        "y": 35,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Avg Records/sec by Application",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.kinesisanalytics* | STATS avg_rps = AVG(`aws.kinesisanalytics.records_per_second`) BY app = `aws.kinesisanalytics.application_name` | SORT avg_rps DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "app"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_rps",
+                  "label": "Avg Records/sec"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "kda-failures-over-time",
+      "grid": {
+        "x": 24,
+        "y": 35,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Failures Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.kinesisanalytics* | WHERE log.level == \"error\" | STATS failures = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "failures",
+                  "label": "Failures"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "kda-log-table",
+      "grid": {
+        "x": 0,
+        "y": 45,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Recent Events",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.kinesisanalytics* | KEEP `@timestamp`, `aws.kinesisanalytics.application_name`, `aws.kinesisanalytics.runtime`, `aws.kinesisanalytics.records_per_second`, `aws.kinesisanalytics.input_watermark_lag_ms`, `aws.kinesisanalytics.last_checkpoint_duration_ms`, `aws.kinesisanalytics.kpu_count`, log.level, `aws.kinesisanalytics.error` | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.kinesisanalytics.application_name",
+              "label": "Application"
+            },
+            {
+              "operation": "value",
+              "column": "aws.kinesisanalytics.runtime",
+              "label": "Runtime"
+            },
+            {
+              "operation": "value",
+              "column": "aws.kinesisanalytics.records_per_second",
+              "label": "Records/sec"
+            },
+            {
+              "operation": "value",
+              "column": "aws.kinesisanalytics.input_watermark_lag_ms",
+              "label": "Watermark Lag (ms)"
+            },
+            {
+              "operation": "value",
+              "column": "aws.kinesisanalytics.last_checkpoint_duration_ms",
+              "label": "Checkpoint Duration (ms)"
+            },
+            {
+              "operation": "value",
+              "column": "aws.kinesisanalytics.kpu_count",
+              "label": "KPUs"
+            },
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Log level"
+            },
+            {
+              "operation": "value",
+              "column": "aws.kinesisanalytics.error",
+              "label": "Error"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

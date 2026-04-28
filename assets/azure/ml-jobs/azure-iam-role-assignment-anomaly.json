@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "azure-iam-role-assignment-anomaly",
+    "group": "azure-iam-privesc-chain",
+    "api_job": "PUT _ml/anomaly_detectors/azure-iam-role-assignment-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-iam-role-assignment-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/azure-iam-role-assignment-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-iam-role-assignment-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects anomalous Azure role assignment activity",
+    "groups": [
+      "azure",
+      "azure-iam-privesc-chain",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=source.ip",
+          "function": "high_count",
+          "partition_field_name": "source.ip",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "source.ip",
+        "azure.activity_log.user_principal_name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-load-generator-azure-iam-privesc-chain",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-iam-role-assignment-anomaly",
+    "job_id": "azure-iam-role-assignment-anomaly",
+    "indices": [
+      "logs-azure.activity_log*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "azure.activity_log.operation_name": "Microsoft.Authorization/roleAssignments/write"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

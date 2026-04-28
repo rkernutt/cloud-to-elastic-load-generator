@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "job_id": "aws-iotcore-rare-client",
+    "group": "iot",
+    "api_job": "PUT _ml/anomaly_detectors/aws-iotcore-rare-client",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-iotcore-rare-client",
+    "api_open": "POST _ml/anomaly_detectors/aws-iotcore-rare-client/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-iotcore-rare-client/_start"
+  },
+  "job": {
+    "description": "Detects rare or previously unseen IoT device client IDs connecting — potentially unauthorised devices",
+    "groups": [
+      "aws",
+      "iot",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "60m",
+      "detectors": [
+        {
+          "detector_description": "rare by=aws.iotcore.client_id",
+          "function": "rare",
+          "by_field_name": "aws.iotcore.client_id",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.iotcore.client_id",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-iotcore-rare-client",
+    "job_id": "aws-iotcore-rare-client",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.iotcore"
+            }
+          },
+          {
+            "term": {
+              "event.action": "Connect"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

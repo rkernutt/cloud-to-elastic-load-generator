@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "job_id": "aws-private5g-radio-unit-offline-spike",
+    "group": "aws-ml-platform-wide-coverage",
+    "api_job": "PUT _ml/anomaly_detectors/aws-private5g-radio-unit-offline-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-private5g-radio-unit-offline-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-private5g-radio-unit-offline-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-private5g-radio-unit-offline-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in Private 5G radio unit offline events per site (coverage outage)",
+    "groups": [
+      "aws",
+      "aws-ml-platform-wide-coverage",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.private5g.network_site_id",
+          "function": "high_count",
+          "partition_field_name": "aws.private5g.network_site_id",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.private5g.network_site_id",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-private5g-radio-unit-offline-spike",
+    "job_id": "aws-private5g-radio-unit-offline-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.private5g"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

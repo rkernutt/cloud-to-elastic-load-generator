@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "job_id": "aws-eks-pod-failure-spike",
+    "group": "compute",
+    "api_job": "PUT _ml/anomaly_detectors/aws-eks-pod-failure-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-eks-pod-failure-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-eks-pod-failure-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-eks-pod-failure-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in EKS pod failures or error events per namespace (cluster instability or cascading failures)",
+    "groups": [
+      "aws",
+      "compute",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=kubernetes.namespace",
+          "function": "high_count",
+          "partition_field_name": "kubernetes.namespace",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "kubernetes.pod.name",
+        "kubernetes.namespace"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-eks-pod-failure-spike",
+    "job_id": "aws-eks-pod-failure-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.eks"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "rule_id": "cloudloadgen-azure-iam-owner-assignment",
+    "group": "azure-iam-privesc-chain",
+    "api": "POST /api/alerting/rule"
+  },
+  "name": "[CloudLoadGen] Azure IAM PrivEsc Chain — Owner Role Assignment",
+  "rule_type_id": ".es-query",
+  "consumer": "alerts",
+  "schedule": {
+    "interval": "5m"
+  },
+  "tags": [
+    "cloudloadgen",
+    "azure-iam-privesc-chain"
+  ],
+  "enabled": false,
+  "params": {
+    "searchType": "esQuery",
+    "timeWindowSize": 15,
+    "timeWindowUnit": "m",
+    "threshold": [
+      1
+    ],
+    "thresholdComparator": ">=",
+    "size": 100,
+    "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.activity_log\"}},{\"wildcard\":{\"azure.activity_log.operation_name\":\"*roleAssignments/write*\"}},{\"term\":{\"azure.activity_log.role_definition\":\"Owner\"}}]}}}",
+    "index": [
+      "logs-azure.activity_log*"
+    ],
+    "timeField": "@timestamp",
+    "aggType": "count"
+  },
+  "actions": [],
+  "notify_when": "onActiveAlert"
+}

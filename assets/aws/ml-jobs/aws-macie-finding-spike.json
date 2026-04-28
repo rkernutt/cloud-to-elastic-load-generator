@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "job_id": "aws-macie-finding-spike",
+    "group": "security-extended",
+    "api_job": "PUT _ml/anomaly_detectors/aws-macie-finding-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-macie-finding-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-macie-finding-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-macie-finding-spike/_start"
+  },
+  "job": {
+    "description": "Detects unusual spikes in Macie sensitive data findings per S3 bucket",
+    "groups": [
+      "aws",
+      "security-extended",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.s3.bucket.name",
+          "function": "high_count",
+          "partition_field_name": "aws.s3.bucket.name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.s3.bucket.name",
+        "aws.macie.severity"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-macie-finding-spike",
+    "job_id": "aws-macie-finding-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.macie"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

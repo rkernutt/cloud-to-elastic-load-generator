@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "job_id": "aws-aurora-serverless-capacity",
+    "group": "databases",
+    "api_job": "PUT _ml/anomaly_detectors/aws-aurora-serverless-capacity",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-aurora-serverless-capacity",
+    "api_open": "POST _ml/anomaly_detectors/aws-aurora-serverless-capacity/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-aurora-serverless-capacity/_start"
+  },
+  "job": {
+    "description": "Detects unusual serverless capacity scaling in Aurora Serverless",
+    "groups": [
+      "aws",
+      "databases",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "High mean Aurora serverless database capacity",
+          "function": "high_mean",
+          "field_name": "aws.aurora.metrics.ServerlessDatabaseCapacity.avg",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.aurora.cluster_id",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "16mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-aurora-serverless-capacity",
+    "job_id": "aws-aurora-serverless-capacity",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.aurora"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

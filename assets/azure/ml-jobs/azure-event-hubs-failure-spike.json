@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "job_id": "azure-event-hubs-failure-spike",
+    "group": "azure-streaming",
+    "api_job": "PUT _ml/anomaly_detectors/azure-event-hubs-failure-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-event-hubs-failure-spike",
+    "api_open": "POST _ml/anomaly_detectors/azure-event-hubs-failure-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-event-hubs-failure-spike/_start"
+  },
+  "job": {
+    "description": "Spikes in Event Hubs failures per hub",
+    "groups": [
+      "azure",
+      "streaming"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=azure.event_hubs.eventhub",
+          "function": "high_count",
+          "partition_field_name": "azure.event_hubs.eventhub",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.event_hubs.eventhub",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-event-hubs-failure-spike",
+    "job_id": "azure-event-hubs-failure-spike",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "term": {
+              "cloud.service.name": "Microsoft.EventHub/namespaces"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

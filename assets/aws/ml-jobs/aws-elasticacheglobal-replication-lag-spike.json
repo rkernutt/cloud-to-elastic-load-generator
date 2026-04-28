@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "job_id": "aws-elasticacheglobal-replication-lag-spike",
+    "group": "aws-ml-data-ml-operations",
+    "api_job": "PUT _ml/anomaly_detectors/aws-elasticacheglobal-replication-lag-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-elasticacheglobal-replication-lag-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-elasticacheglobal-replication-lag-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-elasticacheglobal-replication-lag-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in ElastiCache Global Datastore replication lag per datastore (cross-region sync degradation)",
+    "groups": [
+      "aws",
+      "aws-ml-data-ml-operations",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(aws.elasticacheglobal.replication_lag_ms) partitionfield=aws.elasticacheglobal.global_datastore_name",
+          "function": "high_mean",
+          "field_name": "aws.elasticacheglobal.replication_lag_ms",
+          "partition_field_name": "aws.elasticacheglobal.global_datastore_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.elasticacheglobal.global_datastore_name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-elasticacheglobal-replication-lag-spike",
+    "job_id": "aws-elasticacheglobal-replication-lag-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.elasticacheglobal"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

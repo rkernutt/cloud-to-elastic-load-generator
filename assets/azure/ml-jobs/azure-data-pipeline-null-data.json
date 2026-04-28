@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "job_id": "azure-data-pipeline-null-data",
+    "group": "azure-data-pipeline",
+    "api_job": "PUT _ml/anomaly_detectors/azure-data-pipeline-null-data",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-data-pipeline-null-data",
+    "api_open": "POST _ml/anomaly_detectors/azure-data-pipeline-null-data/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-data-pipeline-null-data/_start"
+  },
+  "job": {
+    "description": "Detects increase in Synapse queries returning zero rows",
+    "groups": [
+      "azure",
+      "data-pipeline",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count on Synapse zero-row queries partitionfield=azure.synapse.sql_pool",
+          "function": "high_count",
+          "partition_field_name": "azure.synapse.sql_pool",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.synapse.sql_pool",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-load-generator-data-pipeline",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-data-pipeline-null-data",
+    "job_id": "azure-data-pipeline-null-data",
+    "indices": [
+      "logs-azure.synapse*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "azure.synapse.rows_returned": 0
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

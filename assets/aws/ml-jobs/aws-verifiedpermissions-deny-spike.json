@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "job_id": "aws-verifiedpermissions-deny-spike",
+    "group": "aws-ml-extended-services-a",
+    "api_job": "PUT _ml/anomaly_detectors/aws-verifiedpermissions-deny-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-verifiedpermissions-deny-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-verifiedpermissions-deny-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-verifiedpermissions-deny-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in Verified Permissions Cedar authorization denials per policy store (misconfigured policies or access anomalies)",
+    "groups": [
+      "aws",
+      "aws-ml-extended-services-a",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "5m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.verifiedpermissions.policy_store_id",
+          "function": "high_count",
+          "partition_field_name": "aws.verifiedpermissions.policy_store_id",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.verifiedpermissions.policy_store_id",
+        "cloud.account.id",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-verifiedpermissions-deny-spike",
+    "job_id": "aws-verifiedpermissions-deny-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.verifiedpermissions"
+            }
+          },
+          {
+            "term": {
+              "aws.verifiedpermissions.decision": "DENY"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "job_id": "aws-cloudwatchrum-js-error-spike",
+    "group": "aws-ml-data-ml-operations",
+    "api_job": "PUT _ml/anomaly_detectors/aws-cloudwatchrum-js-error-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-cloudwatchrum-js-error-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-cloudwatchrum-js-error-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-cloudwatchrum-js-error-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in CloudWatch RUM JavaScript error events per app monitor (frontend regression or third-party script failures)",
+    "groups": [
+      "aws",
+      "aws-ml-data-ml-operations",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.cloudwatch_rum.app_monitor_name",
+          "function": "high_count",
+          "partition_field_name": "aws.cloudwatch_rum.app_monitor_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.cloudwatch_rum.app_monitor_name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-cloudwatchrum-js-error-spike",
+    "job_id": "aws-cloudwatchrum-js-error-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.cloudwatch_rum"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

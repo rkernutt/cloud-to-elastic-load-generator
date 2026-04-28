@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "rule_id": "cloudloadgen-aws-securityhub-compliance-failed",
+    "group": "security-chain",
+    "api": "POST /api/alerting/rule"
+  },
+  "name": "[CloudLoadGen] Security Finding Chain — Security Hub Compliance FAILED",
+  "rule_type_id": ".es-query",
+  "consumer": "alerts",
+  "schedule": {
+    "interval": "5m"
+  },
+  "tags": [
+    "cloudloadgen",
+    "security-chain"
+  ],
+  "enabled": false,
+  "params": {
+    "searchType": "esQuery",
+    "timeWindowSize": 30,
+    "timeWindowUnit": "m",
+    "threshold": [
+      3
+    ],
+    "thresholdComparator": ">",
+    "size": 100,
+    "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.securityhub_findings\"}},{\"term\":{\"aws.securityhub_findings.Compliance.Status\":\"FAILED\"}}]}}}",
+    "index": [
+      "logs-aws.securityhub_findings*"
+    ],
+    "timeField": "@timestamp",
+    "aggType": "count"
+  },
+  "actions": [],
+  "notify_when": "onActiveAlert"
+}

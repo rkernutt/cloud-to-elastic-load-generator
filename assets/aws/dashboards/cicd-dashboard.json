@@ -1,0 +1,579 @@
+{
+  "title": "AWS CI/CD — CodePipeline & CodeBuild",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "cicd-kpi-pipeline-executions",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.codepipeline* | STATS `Pipeline Executions` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Pipeline Executions"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cicd-kpi-pipeline-success-rate",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.codepipeline* | EVAL s = CASE(log.level == \"info\", 1, 0) | STATS r = AVG(s) | EVAL `Pipeline Success Rate %` = ROUND(r * 100, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Pipeline Success Rate %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cicd-kpi-total-builds",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.codebuild* | STATS `Total Builds` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Builds"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cicd-kpi-build-success-rate",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.codebuild* | EVAL s = CASE(`aws.codebuild.build_status` == \"SUCCEEDED\", 1, 0) | STATS r = AVG(s) | EVAL `Build Success Rate %` = ROUND(r * 100, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Build Success Rate %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cicd-pipeline-states",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Pipeline States",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.codepipeline* | STATS count = COUNT() BY state = `aws.codepipeline.state`"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "state"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cicd-build-status",
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Build Status",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.codebuild* | STATS count = COUNT() BY status = `aws.codebuild.build_status`"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "status"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cicd-top-build-projects",
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Top Build Projects",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.codebuild* | STATS count = COUNT() BY proj = `aws.codebuild.project_name` | SORT count DESC | LIMIT 8"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "proj"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cicd-pipeline-executions-ts",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Pipeline Executions Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.codepipeline* | STATS total = SUM(`aws.codepipeline.metrics.PipelineExecutionAttempts.sum`), success = SUM(`aws.codepipeline.metrics.PipelineSuccessCount.sum`), failed = SUM(`aws.codepipeline.metrics.PipelineFailureCount.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "total",
+                  "label": "Total Executions"
+                },
+                {
+                  "operation": "value",
+                  "column": "success",
+                  "label": "Succeeded"
+                },
+                {
+                  "operation": "value",
+                  "column": "failed",
+                  "label": "Failed"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cicd-build-count-ts",
+      "grid": {
+        "x": 24,
+        "y": 15,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Build Count Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.codebuild* | STATS builds = SUM(`aws.codebuild.metrics.Builds.sum`), succeeded = SUM(`aws.codebuild.metrics.SucceededBuilds.sum`), failed = SUM(`aws.codebuild.metrics.FailedBuilds.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "builds",
+                  "label": "Total Builds"
+                },
+                {
+                  "operation": "value",
+                  "column": "succeeded",
+                  "label": "Succeeded"
+                },
+                {
+                  "operation": "value",
+                  "column": "failed",
+                  "label": "Failed"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cicd-avg-build-duration-ts",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Avg Build Duration (s)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.codebuild* | STATS avg_d = AVG(`aws.codebuild.metrics.BuildDuration.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_d",
+                  "label": "Avg Build Duration (s)"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cicd-avg-queue-duration-ts",
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Avg Queue Duration (s)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.codebuild* | STATS avg_q = AVG(`aws.codebuild.metrics.QueuedDuration.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_q",
+                  "label": "Avg Queue Duration (s)"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cicd-failed-pipelines-by-name",
+      "grid": {
+        "x": 0,
+        "y": 35,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Failed Pipelines by Name",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.codepipeline* | WHERE log.level == \"error\" | STATS count = COUNT() BY pipeline = `aws.codepipeline.pipeline_name` | SORT count DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "pipeline"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Failures"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cicd-avg-build-duration-by-project",
+      "grid": {
+        "x": 24,
+        "y": 35,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Avg Build Duration by Project (s)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.codebuild* | STATS avg_d = AVG(`aws.codebuild.duration_seconds`) BY proj = `aws.codebuild.project_name` | SORT avg_d DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "proj"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_d",
+                  "label": "Avg Duration (s)"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cicd-log-table",
+      "grid": {
+        "x": 0,
+        "y": 45,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Recent Builds",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.codebuild* | KEEP `@timestamp`, `aws.codebuild.project_name`, `aws.codebuild.build_status`, `aws.codebuild.current_phase`, `aws.codebuild.duration_seconds`, `aws.codebuild.queued_duration_seconds`, log.level | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "aws.codebuild.project_name",
+              "label": "Project"
+            },
+            {
+              "operation": "value",
+              "column": "aws.codebuild.build_status",
+              "label": "Build Status"
+            },
+            {
+              "operation": "value",
+              "column": "aws.codebuild.current_phase",
+              "label": "Current Phase"
+            },
+            {
+              "operation": "value",
+              "column": "aws.codebuild.duration_seconds",
+              "label": "Duration (s)"
+            },
+            {
+              "operation": "value",
+              "column": "aws.codebuild.queued_duration_seconds",
+              "label": "Queued (s)"
+            },
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Log level"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

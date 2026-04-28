@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "job_id": "gcp-compute-engine-failures",
+    "group": "gcp-compute",
+    "api_job": "PUT _ml/anomaly_detectors/gcp-compute-engine-failures",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-gcp-compute-engine-failures",
+    "api_open": "POST _ml/anomaly_detectors/gcp-compute-engine-failures/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-gcp-compute-engine-failures/_start"
+  },
+  "job": {
+    "description": "Spikes in Compute Engine failure outcomes",
+    "groups": [
+      "gcp",
+      "compute"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=gcp.compute_engine.instance_name",
+          "function": "high_count",
+          "partition_field_name": "gcp.compute_engine.instance_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "gcp.compute_engine.instance_name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "gcp-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-gcp-compute-engine-failures",
+    "job_id": "gcp-compute-engine-failures",
+    "indices": [
+      "logs-gcp.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "gcp"
+            }
+          },
+          {
+            "term": {
+              "event.outcome": "failure"
+            }
+          },
+          {
+            "wildcard": {
+              "cloud.service.name": "*compute.googleapis.com*"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "_meta": {
+    "job_id": "aws-iam-privesc-session-spike",
+    "group": "iam-privesc-chain",
+    "api_job": "PUT _ml/anomaly_detectors/aws-iam-privesc-session-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-iam-privesc-session-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-iam-privesc-session-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-iam-privesc-session-spike/_start"
+  },
+  "job": {
+    "description": "Detects spikes in IAM privilege escalation chains",
+    "groups": [
+      "aws",
+      "iam-privesc-chain",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=user.name",
+          "function": "high_count",
+          "partition_field_name": "user.name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "user.name",
+        "source.ip",
+        "event.action"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-load-generator-iam-privesc-chain",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-iam-privesc-session-spike",
+    "job_id": "aws-iam-privesc-session-spike",
+    "indices": [
+      "logs-aws.cloudtrail*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.cloudtrail"
+            }
+          },
+          {
+            "terms": {
+              "event.action": [
+                "ListUsers",
+                "CreateAccessKey",
+                "AttachUserPolicy",
+                "AssumeRole",
+                "PutUserPolicy",
+                "PutRolePolicy",
+                "CreateRole"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

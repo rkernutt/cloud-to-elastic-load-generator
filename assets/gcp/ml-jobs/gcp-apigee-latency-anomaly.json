@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "job_id": "gcp-apigee-latency-anomaly",
+    "group": "gcp-devtools",
+    "api_job": "PUT _ml/anomaly_detectors/gcp-apigee-latency-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-gcp-apigee-latency-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/gcp-apigee-latency-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-gcp-apigee-latency-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusual Apigee API latency",
+    "groups": [
+      "gcp",
+      "networking"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(event.duration)",
+          "function": "high_mean",
+          "field_name": "event.duration",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "gcp-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-gcp-apigee-latency-anomaly",
+    "job_id": "gcp-apigee-latency-anomaly",
+    "indices": [
+      "logs-gcp.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "gcp"
+            }
+          },
+          {
+            "wildcard": {
+              "cloud.service.name": "*apigee.googleapis.com*"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

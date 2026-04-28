@@ -1,0 +1,96 @@
+{
+  "_meta": {
+    "job_id": "aws-security-finding-chain-rate",
+    "group": "security-chain",
+    "api_job": "PUT _ml/anomaly_detectors/aws-security-finding-chain-rate",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-security-finding-chain-rate",
+    "api_open": "POST _ml/anomaly_detectors/aws-security-finding-chain-rate/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-security-finding-chain-rate/_start"
+  },
+  "job": {
+    "description": "Detects anomalous rate of finding chains",
+    "groups": [
+      "aws",
+      "security-chain",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "30m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=event.dataset",
+          "function": "high_count",
+          "partition_field_name": "event.dataset",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "event.dataset",
+        "cloud.account.id"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "64mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-load-generator-security-finding-chain",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-security-finding-chain-rate",
+    "job_id": "aws-security-finding-chain-rate",
+    "indices": [
+      "logs-aws.guardduty*",
+      "logs-aws.securityhub_findings*",
+      "logs-aws.securitylake*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.kind": "alert"
+            }
+          },
+          {
+            "bool": {
+              "should": [
+                {
+                  "term": {
+                    "event.dataset": "aws.guardduty"
+                  }
+                },
+                {
+                  "term": {
+                    "event.dataset": "aws.securityhub_findings"
+                  }
+                },
+                {
+                  "term": {
+                    "event.dataset": "aws.securitylake"
+                  }
+                }
+              ],
+              "minimum_should_match": 1
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

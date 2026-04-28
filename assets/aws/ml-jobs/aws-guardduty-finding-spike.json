@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "job_id": "aws-guardduty-finding-spike",
+    "group": "security",
+    "api_job": "PUT _ml/anomaly_detectors/aws-guardduty-finding-spike",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-guardduty-finding-spike",
+    "api_open": "POST _ml/anomaly_detectors/aws-guardduty-finding-spike/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-guardduty-finding-spike/_start"
+  },
+  "job": {
+    "description": "Detects unusual spikes in GuardDuty finding counts partitioned by severity level",
+    "groups": [
+      "aws",
+      "security",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=aws.guardduty.severity.value",
+          "function": "high_count",
+          "partition_field_name": "aws.guardduty.severity.value",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.guardduty.severity.value",
+        "aws.guardduty.type"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "16mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-guardduty-finding-spike",
+    "job_id": "aws-guardduty-finding-spike",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.guardduty"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

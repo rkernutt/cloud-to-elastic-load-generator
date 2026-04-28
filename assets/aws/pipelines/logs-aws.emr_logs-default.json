@@ -1,0 +1,65 @@
+{
+  "_meta": {
+    "pipeline_id": "logs-aws.emr_logs-default",
+    "dataset": "aws.emr_logs",
+    "group": "analytics",
+    "api": "PUT _ingest/pipeline/logs-aws.emr_logs-default"
+  },
+  "description": "Parse Amazon EMR container/application log JSON from message field",
+  "processors": [
+    {
+      "json": {
+        "field": "message",
+        "target_field": "emr.parsed",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "emr.parsed.logLevel",
+        "target_field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "lowercase": {
+        "field": "log.level",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "emr.parsed.clusterId",
+        "target_field": "emr.clusterId",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "emr.parsed.applicationId",
+        "target_field": "emr.applicationId",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "emr.parsed.containerId",
+        "target_field": "emr.containerId",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "emr.parsed.component",
+        "target_field": "emr.component",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    }
+  ]
+}

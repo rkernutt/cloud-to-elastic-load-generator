@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "azure-databricks-cluster-action-anomaly",
+    "group": "azure-analytics",
+    "api_job": "PUT _ml/anomaly_detectors/azure-databricks-cluster-action-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-azure-databricks-cluster-action-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/azure-databricks-cluster-action-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-azure-databricks-cluster-action-anomaly/_start"
+  },
+  "job": {
+    "description": "Unusual Databricks cluster action volume per cluster",
+    "groups": [
+      "azure",
+      "analytics"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_count partitionfield=azure.databricks.cluster_name",
+          "function": "high_count",
+          "partition_field_name": "azure.databricks.cluster_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "azure.databricks.cluster_name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "azure-elastic-load-generator"
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-azure-databricks-cluster-action-anomaly",
+    "job_id": "azure-databricks-cluster-action-anomaly",
+    "indices": [
+      "logs-azure.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "cloud.provider": "azure"
+            }
+          },
+          {
+            "term": {
+              "cloud.service.name": "Microsoft.Databricks/workspaces"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}

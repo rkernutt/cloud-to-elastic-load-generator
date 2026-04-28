@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "job_id": "aws-firehose-delivery-latency-anomaly",
+    "group": "streaming",
+    "api_job": "PUT _ml/anomaly_detectors/aws-firehose-delivery-latency-anomaly",
+    "api_datafeed": "PUT _ml/datafeeds/datafeed-aws-firehose-delivery-latency-anomaly",
+    "api_open": "POST _ml/anomaly_detectors/aws-firehose-delivery-latency-anomaly/_open",
+    "api_start": "POST _ml/datafeeds/datafeed-aws-firehose-delivery-latency-anomaly/_start"
+  },
+  "job": {
+    "description": "Detects unusual Firehose delivery latency by delivery stream",
+    "groups": [
+      "aws",
+      "streaming",
+      "cloudloadgen"
+    ],
+    "analysis_config": {
+      "bucket_span": "15m",
+      "detectors": [
+        {
+          "detector_description": "high_mean(event.duration) partitionfield=aws.firehose.delivery_stream_name",
+          "function": "high_mean",
+          "field_name": "event.duration",
+          "partition_field_name": "aws.firehose.delivery_stream_name",
+          "detector_index": 0
+        }
+      ],
+      "influencers": [
+        "aws.firehose.delivery_stream_name",
+        "cloud.region"
+      ]
+    },
+    "allow_lazy_open": true,
+    "analysis_limits": {
+      "model_memory_limit": "32mb"
+    },
+    "data_description": {
+      "time_field": "@timestamp"
+    },
+    "custom_settings": {
+      "created_by": "aws-elastic-load-generator",
+      "tags": [
+        "cloudloadgen"
+      ]
+    }
+  },
+  "datafeed": {
+    "datafeed_id": "datafeed-aws-firehose-delivery-latency-anomaly",
+    "job_id": "aws-firehose-delivery-latency-anomaly",
+    "indices": [
+      "logs-aws.*"
+    ],
+    "max_empty_searches": 10,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "event.dataset": "aws.firehose"
+            }
+          }
+        ]
+      }
+    },
+    "chunking_config": {
+      "mode": "auto"
+    },
+    "query_delay": "60s",
+    "delayed_data_check_config": {
+      "enabled": true
+    }
+  }
+}
