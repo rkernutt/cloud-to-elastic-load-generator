@@ -14,7 +14,6 @@ import {
   EuiHeaderSectionItem,
   EuiTitle,
 } from "@elastic/eui";
-import { PipelineLogo } from "./Logo";
 
 interface AppLayoutProps {
   branding: { headerLogoSrc: string; headerLogoAlt: string };
@@ -138,7 +137,12 @@ export function AppLayout({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      {/* ── Dark header bar ─────────────────────────────────────────── */}
+      {/* ── Header bar ────────────────────────────────────────────────
+          EUI 114 styles `theme="dark"` via emotion CSS-in-JS with hashed
+          class names that include the `euiHeader` and `dark` labels. A
+          substring selector matches whichever hash emotion picks; the
+          `!important` outranks the generated CSS. */}
+      <style>{`header[class*="euiHeader"][class*="dark"] { background-color: ${K.headerBg} !important; }`}</style>
       <EuiHeader
         theme="dark"
         position="fixed"
@@ -160,9 +164,20 @@ export function AppLayout({
                     />
                   </EuiFlexItem>
 
-                  {/* Pipeline logo */}
+                  {/* Pipeline mark — animated SVG from public/pipeline-icon.svg
+                      (sources flowing into the Elastic hub) */}
                   <EuiFlexItem grow={false}>
-                    <PipelineLogo size={32} />
+                    <img
+                      src="/pipeline-icon.svg"
+                      alt=""
+                      aria-hidden="true"
+                      style={{
+                        height: 36,
+                        width: "auto",
+                        display: "block",
+                        objectFit: "contain",
+                      }}
+                    />
                   </EuiFlexItem>
 
                   {/* Elastic horizontal wordmark — color-reverse SVG from public/ */}

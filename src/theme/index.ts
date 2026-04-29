@@ -29,9 +29,12 @@ const K = {
   radiusSm: 4,
   shadow: "0 1px 2px rgba(7,16,31,0.06)",
   shadowMd: "0 2px 4px rgba(7,16,31,0.08)",
-  headerBg: "#1D1E24",
+  // Header bar: mid-slate so the animated pipeline mark and AWS/GCP/Azure
+  // logos read clearly. Distinctly lighter than EUI's default dark header
+  // (#1D1E24) but still dark enough that white headerText stays high-contrast.
+  headerBg: "#3A3D4A",
   headerText: "#FFFFFF",
-  headerSubdued: "rgba(255,255,255,0.7)",
+  headerSubdued: "rgba(255,255,255,0.72)",
 } as const;
 
 export default K;
