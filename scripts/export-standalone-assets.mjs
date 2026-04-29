@@ -17,7 +17,7 @@
  */
 
 import { mkdir, writeFile, readFile, readdir, copyFile } from "node:fs/promises";
-import { join, basename } from "node:path";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(fileURLToPath(import.meta.url), "../..");

@@ -1,6 +1,6 @@
 # GCP sample documents
 
-Reference JSON produced by the GCP generators for **[Cloud to Elastic Load Generator](../../README.md)**. Paths mirror the app: **`samples/gcp/{logs,metrics,traces}/`**.
+Reference JSON produced by the GCP generators for **[Cloud Loadgen for Elastic](../../README.md)**. Paths mirror the app: **`samples/gcp/{logs,metrics,traces}/`**.
 
 Regenerate **all** clouds (including GCP) from the repo root:
 

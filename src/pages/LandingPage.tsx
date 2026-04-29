@@ -14,7 +14,7 @@ interface LandingPageProps {
 }
 
 export function LandingPage({ isUnifiedCloud, onGetStarted }: LandingPageProps) {
-  const appLabel = isUnifiedCloud ? "Cloud to Elastic Load Generator" : "Load Generator";
+  const appLabel = isUnifiedCloud ? "Cloud Loadgen for Elastic" : "Load Generator";
 
   const wizardListItems = [
     {

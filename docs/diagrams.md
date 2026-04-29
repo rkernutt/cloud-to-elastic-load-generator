@@ -1,4 +1,4 @@
-# Cloud to Elastic Load Generator — Architecture Diagrams
+# Cloud Loadgen for Elastic — Architecture Diagrams
 
 > **Catalog sizes (log · metric · trace services):** AWS **212 · 206 · 54**; GCP **129 · 123 · 48**; Azure **131 · 120 · 40**.
 

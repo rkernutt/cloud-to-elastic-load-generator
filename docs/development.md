@@ -9,19 +9,29 @@ After `npm install`, **`postinstall`** runs **`copy-icons`** (copies AWS archite
 
 ## Run the app locally
 
-1. Start the bulk proxy (default listen **3001**):
+```mermaid
+flowchart LR
+    Browser[Browser :3000] -->|/proxy/_bulk| Vite[Vite dev server<br/>:3000]
+    Vite -.->|/proxy → :3001| Proxy[node proxy.cjs<br/>:3001]
+    Proxy -->|_bulk + ApiKey| ES[(Elasticsearch)]
+    Browser -->|Kibana / Fleet APIs<br/>direct, CORS-free| ES
+```
+
+Two terminals:
+
+1. Bulk proxy (default **3001**):
 
    ```bash
    node proxy.cjs
    ```
 
-2. Start Vite (default **3000**, forwards **`/proxy`** to the proxy):
+2. Vite (default **3000**, forwards **`/proxy`** to the proxy):
 
    ```bash
    npm run dev
    ```
 
-Open **http://localhost:3000**. Configure Elasticsearch URL and API key in the UI; bulk requests go through **`/proxy`** in dev.
+Open **http://localhost:3000**. Configure the Elasticsearch URL and API key in the UI; bulk requests are routed through **`/proxy`** in dev so the browser never holds the API key in a fetch URL.
 
 ### Proxy environment variables
 

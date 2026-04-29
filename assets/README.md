@@ -97,10 +97,15 @@ To deploy every asset for a cloud provider at once, use the installer scripts in
 
 ```bash
 # AWS example (installs pipelines, dashboards, ML jobs, and rules)
-node installer/aws-custom-pipelines/index.mjs
-node installer/aws-custom-dashboards/index.mjs
-node installer/aws-custom-ml-jobs/index.mjs
-node installer/aws-custom-rules/index.mjs
+npm run setup:aws-pipelines
+npm run setup:aws-dashboards
+npm run setup:aws-ml-jobs
+npm run setup:alert-rules
+
+# Or, to install pipeline + dashboard + ML jobs + rules per chosen service:
+npm run setup:aws-loadgen-packs
 ```
 
-Or use the web UI Setup wizard which handles all of this automatically.
+`npm run setup:alert-rules` is cross-cloud — it walks every `installer/{aws,gcp,azure}-custom-rules/` JSON file and creates the rules. There is no per-cloud rules installer.
+
+Or use the web UI Setup wizard, which handles all of this automatically and adds uninstall support.

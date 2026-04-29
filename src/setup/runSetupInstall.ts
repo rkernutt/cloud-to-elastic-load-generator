@@ -253,7 +253,7 @@ export async function runSetupInstall(opts: {
           attributes: {
             name: LOAD_GENERATOR_KIBANA_TAG_NAME,
             description:
-              "Installed by Cloud to Elastic Load Generator — filter this tag to find or remove these assets.",
+              "Installed by Cloud Loadgen for Elastic — filter this tag to find or remove these assets.",
           },
         },
       });

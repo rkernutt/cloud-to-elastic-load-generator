@@ -1,222 +1,102 @@
-# Cloud to Elastic Load Generator
+# Cloud Loadgen for Elastic
 
-A single web UI for bulk-generating realistic **AWS**, **Google Cloud**, and **Microsoft Azure** observability data (logs, metrics, and traces) and shipping it to Elasticsearch with the `_bulk` API. Pick your hyperscaler on the **Start** step; documents follow **ECS** naming and integration-style metadata so they behave like production ingest.
+A web UI that bulk-generates **realistic** AWS, Google Cloud, and Microsoft Azure observability data — logs, metrics, and traces — and ships it straight into Elasticsearch with the `_bulk` API. Documents follow **ECS** naming and use each provider's **native log/metric shapes** (CloudWatch, Cloud Logging, Azure Monitor), so dashboards, ML jobs, and alerting rules behave the way they would with real cloud workloads.
 
-Generators produce **real-life native-format outputs** for each cloud — AWS CloudWatch / S3 / Firehose shapes, GCP Cloud Logging API v2 / Cloud Monitoring TimeSeries, Azure Resource Log / Monitor Metrics / Application Insights — so the data matches what you see from actual cloud workloads.
+> Use synthetic data for demos, training, and pilot builds. Don't ship to production-shared indices without explicit approval.
 
-The header uses a vendor-neutral cloud mark; AWS, GCP, and Azure logos appear in the wizard when choosing a cloud.
+## Who is this for?
 
-**Icons:** GCP/Azure flat SVGs and maps are committed under `public/gcp-icons/`, `public/azure-icons/`, and `src/cloud/generated/vendorFileIcons.ts`. AWS icons in `public/aws-icons/` are committed so clones work offline; `npm install` re-syncs that folder from the `aws-icons` package to match `src/data/iconMap.ts` and prunes unused files. Maintainers refresh GCP/Azure maps with `npm run icons:vendor` and sources in `local/cloud-icons/` (gitignored).
+| Audience                            | Use it to…                                                                                       |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------ |
+| **Elastic SEs / demo operators**    | Stand up a populated Observability or Security demo in minutes against any deployment type       |
+| **Customers / external evaluators** | Try Elastic dashboards, ML, and detection rules with data that looks like your cloud workloads   |
+| **Contributors / developers**       | Add new generators, integrations, or chained scenarios — every asset is JSON and CLI-installable |
 
-**Documentation:** [docs/README.md](docs/README.md); **Setup / Serverless / `cloudloadgen` tag:** [docs/SETUP-WIZARD-AND-UNINSTALL.md](docs/SETUP-WIZARD-AND-UNINSTALL.md); **dev:** [docs/development.md](docs/development.md).
+## How it works
 
-**Test / pilot builds:** Use synthetic data and non-production Elasticsearch targets unless you have explicit approval. Before handing off a build, run the same checks as CI (see **Testing and quality** below): `format:check`, `lint`, `typecheck`, `test`, and `build` should all succeed on Node 20.
+```mermaid
+flowchart LR
+    User([User]) --> UI[Web UI<br/>Wizard]
+    UI -->|Start| C1[Connection &<br/>use-case]
+    UI -->|Setup| C2[Install<br/>integrations]
+    UI -->|Services| C3[Pick services]
+    UI -->|Ship| C4[Generate &<br/>bulk index]
+    C4 -->|/proxy/_bulk| Proxy[Bulk proxy<br/>proxy.cjs]
+    C2 -->|Kibana / ES APIs| Es[(Elasticsearch<br/>+ Kibana)]
+    Proxy -->|_bulk| Es
+    Es --> Dash[Dashboards · ML jobs ·<br/>Alerting rules · APM Service Map]
+```
 
----
-
-## Cloud Loadgen Integrations
-
-Assets are installed **per service** as **Cloud Loadgen Integrations** — each service gets its own bundle of:
-
-| Asset type                        | Description                                                                                                                |
-| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| **Ingest pipeline**               | Routes and parses logs into the correct data stream; uses **TSDS** (Time Series Data Stream) for metrics where appropriate |
-| **Index / data stream templates** | `logs-*` and `metrics-*` data views for dashboard panels                                                                   |
-| **Kibana dashboard**              | ES\|QL-based visualisation (Lens panels) tailored to that service                                                          |
-| **ML anomaly detection jobs**     | Detect operational and security anomalies (error spikes, latency, rare activity)                                           |
-| **Alerting rules**                | Elasticsearch query-based rules for critical patterns (e.g. data pipeline failures)                                        |
-
-All assets are tagged **`cloudloadgen`** so you can:
-
-- **Filter** in Kibana **Saved Objects → Tags → cloudloadgen** to see every dashboard at a glance
-- **Bulk-edit** or **bulk-delete** load-generator assets without touching production objects
-- ML jobs and pipelines include `cloudloadgen` in their metadata/descriptions for the same easy filtering
-
-The **Setup** page in the web UI groups integrations by **service category** (Compute, Networking, Storage, Databases, Analytics, AI & ML, etc.) and lets you install or remove per service. The same assets can be installed from the CLI — see [installer/README.md](installer/README.md), including **`npm run setup:alert-rules`** for Kibana Elasticsearch-query alert rules.
-
-The shipping wizard supports a **Back** button on each step, **search and filter** on the Services step to find providers quickly, and **connection test gating** (a successful connection test is required before you can continue). When a ship run finishes, **Ship Again** and **Reconfigure** let you repeat or adjust the flow without starting from scratch. **Scheduled shipping is disabled by default** — users must explicitly enable it on the Ship step.
-
-**Post-install options:** After installing integrations, you can optionally **enable alerting rules** and **start ML jobs** immediately. Both toggles are off by default — rules are created disabled and ML jobs are created closed unless you opt in.
-
-### Advanced Data Types
-
-Beyond single-service generators, the app includes **Advanced Data Types** — multi-step correlated scenarios that span several services, plus reference data sources like ServiceNow CMDB. Generators use **time-distributed timestamps** and shared **`labels.*` correlation IDs** (for example `finding_chain_id`, `attack_session_id`, `exfil_chain_id`) so events read like real detections and investigations rather than simultaneous bursts.
-
-All chained event generators include **ECS user identity fields** (`user.name`, `user.email`, `source.ip`, `user_agent.original`) and produce **companion cloud audit trail events** (CloudTrail for AWS, Cloud Audit Logs for GCP, Activity Logs for Azure) alongside the operational logs. This provides realistic attribution and enables correlation with ServiceNow CMDB records for alert enrichment (e.g. "who triggered the pipeline that failed?").
-
-- **Data & Analytics Pipeline** (AWS: S3 → EMR → Glue → Athena → MWAA; GCP: GCS → Dataproc → Data Catalog → BigQuery → Composer; Azure: Blob → Databricks → Purview → Synapse → Data Factory) — includes APM traces for the Elastic Service Map, dashboards, ML jobs, and alerting rules (`data-pipeline-*` assets).
-- **Security Finding Chain** — native detect → hub → lake (or SCC/SecOps, Defender/Sentinel/Activity Log); installer assets per cloud: `security-finding-chain` / `gcp-security-finding-chain` / `azure-security-finding-chain` dashboards, rules, and ML jobs.
-- **IAM Privilege Escalation Chain** — MITRE-aligned IAM audit progression with stable attacker/target identity; `iam-privesc-chain` / `gcp-iam-privesc-chain` / `azure-iam-privesc-chain` assets.
-- **Data Exfiltration Chain** — detection plus storage and network evidence with MB-scale volumes; `data-exfil-chain` / `gcp-data-exfil-chain` / `azure-data-exfil-chain` assets.
-
-See [docs/chained-events/](docs/chained-events/) for timing, field-level correlation, and failure-mode documentation. Install matching dashboards, ML jobs, and rules with the [installer/README.md](installer/README.md) scripts or the web UI **Setup** step.
-
-### CSPM / KSPM — Real CIS Benchmark Findings
-
-The CSPM and KSPM generators produce findings documents identical to what Elastic's [cloudbeat](https://github.com/elastic/cloudbeat) agent writes to `logs-cloud_security_posture.findings-default`. Every finding uses **real CIS rule UUIDs, names, sections, and benchmark metadata** sourced from the `elastic/cloudbeat` security-policies (321 rules total):
-
-| Benchmark                    | Rules | Coverage                                                                      |
-| ---------------------------- | ----- | ----------------------------------------------------------------------------- |
-| CIS AWS Foundations v1.5.0   | 55    | IAM, S3, EC2, RDS, Logging, Monitoring, Networking                            |
-| CIS GCP Foundations v2.0.0   | 71    | IAM, Logging, Networking, VMs, Storage, SQL, BigQuery                         |
-| CIS Azure Foundations v2.0.0 | 72    | IAM, Defender, Storage, SQL, Logging, Networking, VMs, Key Vault, App Service |
-| CIS EKS v1.4.0               | 31    | Logging, Authentication, Networking, Pod Security                             |
-| CIS Kubernetes v1.0.1        | 92    | Control Plane, etcd, RBAC, Worker Nodes, Pod Security Standards               |
-
-Failed findings include **realistic resource configurations and evidence** — S3 buckets without encryption, security groups allowing 0.0.0.0/0 SSH, IAM users without MFA, pods running as privileged, etc. When the `cloud_security_posture` Fleet integration is installed (automatic when CSPM/KSPM services are selected in the Setup wizard), Elastic's built-in **Posture Dashboard**, **Findings page**, and **Benchmark Rules** pages display the generated data exactly as they would with real cloud infrastructure.
-
-### ServiceNow CMDB Integration
-
-The app includes a **ServiceNow CMDB log generator** that produces realistic records across key CMDB and ITSM tables:
-
-| Table             | Description                                              |
-| ----------------- | -------------------------------------------------------- |
-| `cmdb_ci`         | Configuration items (cloud infrastructure mapped to CIs) |
-| `cmdb_ci_service` | Business services (Data Pipeline Service, etc.)          |
-| `cmdb_rel_ci`     | CI-to-CI relationships (depends-on, runs-on, etc.)       |
-| `incident`        | Incidents with priority, assignment, and resolution      |
-| `change_request`  | Change requests with risk, approval, and test plans      |
-| `sys_user`        | User records correlated with pipeline operators          |
-| `sys_user_group`  | Support groups (Data Engineering Team, etc.)             |
-| `cmn_department`  | Departments and department heads                         |
-| `cmn_location`    | Office locations                                         |
-
-Data uses the `servicenow.event` dataset (routed to `logs-servicenow.event-*`) and follows the integration's `.value` / `.display_value` field convention. CIs are correlated with cloud infrastructure names from the data pipeline chains (e.g. `mwaa-globex-prod`, `emr-analytics-cluster`) and users align with the same `DATA_ENGINEERING_USERS` pool used by chained event generators — enabling **cross-index correlation** between pipeline alerts and ServiceNow CMDB records.
-
-ServiceNow CMDB is treated as **reference data** — capped at 50 documents per ship run. Enable the **ServiceNow** Fleet integration toggle in the Setup wizard to install the `servicenow` integration package.
-
-### Elastic Workflows
-
-A sample **Elastic Workflow** YAML is provided in [`workflows/data-pipeline-alert-enrichment.yaml`](workflows/data-pipeline-alert-enrichment.yaml). This workflow:
-
-1. Triggers on any data pipeline alerting rule
-2. Queries pipeline logs for the triggering user's identity
-3. Looks up the user and affected CI in ServiceNow CMDB
-4. Checks for open incidents and recent change requests
-5. Creates a Kibana case when multiple incidents are found
-6. Sends an enriched Slack notification with contact information
-7. Indexes the enrichment result back to Elasticsearch
-
-### ML Training Mode
-
-The **Ship** page includes an **ML Training Mode** that automates the full anomaly detection training workflow:
-
-1. **Reset** — stops datafeeds, closes jobs, resets model state (clears stale data from previous runs), then reopens and restarts datafeeds so the model starts from scratch
-2. **Baseline phase** — ships normal data for a configurable number of runs to establish an ML baseline
-3. **Learning wait** — pauses for a configurable duration while ML jobs learn the baseline pattern
-4. **Anomaly injection** — ships one batch with anomalies (100% error rate, 15x duration scaling for logs and traces, 20x metric scaling) to create a detectable anomaly
-5. **Stabilise & freeze** _(optional, on by default)_ — waits 2 minutes for ML to score the anomalies, then stops all datafeeds to prevent re-baselining
-
-The reset step is critical — without it, ML jobs retain model state from previous training runs and may renormalize anomaly scores to zero. The "Stop datafeeds after training" toggle controls step 5; when enabled, anomaly scores are frozen in place so they remain visible in the Anomaly Explorer.
-
-### Serverless Use-Case Selector
-
-The **Start** (Connection) page includes an **Elastic use-case** selector for Serverless deployments:
-
-| Use Case          | Available Features                                                                 |
-| ----------------- | ---------------------------------------------------------------------------------- |
-| **Security**      | Full feature set including CSPM/KSPM, all advanced data types, all Security assets |
-| **Observability** | All observability features; CSPM/KSPM not available                                |
-| **Elasticsearch** | Data shipping and search-focused features only                                     |
-
-This restricts the Setup and Services pages to features compatible with the chosen Serverless project type, preventing installation errors from attempting to use unsupported APIs.
-
----
+A four-step wizard. **Start** picks the cloud and Elastic deployment, **Setup** installs Cloud Loadgen Integrations, **Services** chooses what to generate, **Ship** runs the bulk index. Credentials live in the browser session; the small Node proxy forwards `_bulk` so the API key never leaves the host.
 
 ## Quick start
 
-### Docker (recommended)
-
-After clone or `git pull`, from the repo root:
-
 ```bash
-./docker-up
+# Docker (recommended) — needs a full clone with installer/ present
+./docker-up        # or: npm run docker:up
+# → http://localhost:8765
 ```
 
-Or: `npm run docker:up`
+For a manual `docker build`, local dev with the Vite + proxy combo, env vars, and contributor notes, see **[docs/development.md](docs/development.md)**.
 
-This builds the image and starts the container. Open **http://localhost:8765**.
+## What it installs
 
-You need a **full clone** (including `installer/`). If the build says installer assets are missing, run `git checkout HEAD -- installer/aws-custom-dashboards installer/aws-custom-ml-jobs installer/aws-loadgen-packs` (or `git sparse-checkout disable`) and try again.
+Every Elastic asset is bundled **per service** as a **Cloud Loadgen Integration** and tagged with the `cloudloadgen` saved-object tag so you can filter, bulk-edit, or bulk-delete load-generator assets without touching production objects. Each service integration includes an ingest pipeline (TSDS for metrics), data stream templates, a Kibana ES|QL dashboard, ML anomaly jobs, and `.es-query` alerting rules.
 
-### Docker CLI (manual)
+The wizard opens on the **Start** step, where you pick cloud vendor, deployment type, event type, and Elastic connection details. Subsequent steps install integrations (Setup), pick services, configure advanced data types, tune volume, and ship traffic.
 
-```bash
-docker build -t cloud-to-elastic-load-generator .
-docker run -d -p 8765:80 --name cloud-to-elastic-load-generator cloud-to-elastic-load-generator
-```
+![Start step of the wizard: cloud vendor, deployment type, serverless project type, event type, Elasticsearch + Kibana URL, API key, and ingestion source](docs/images/start-page.png)
 
-For a build that matches `./docker-up`, use `npm run docker:build` (tar-based context). Plain `docker compose build` can work on some setups but may omit large `installer/` trees on Docker Desktop.
+Catalog size today:
 
-### Local development
+| Cloud | Services | Pipelines | Dashboards | ML jobs | Alerting rules |
+| ----- | -------- | --------- | ---------- | ------- | -------------- |
+| AWS   | 213      | 188       | 220        | 384     | 17             |
+| GCP   | 130      | 149       | 127        | 152     | 17             |
+| Azure | 132      | 121       | 120        | 154     | 17             |
 
-```bash
-npm install
-```
+Behaviour, categories, post-install toggles, Serverless limits, dashboard fallback, and uninstall semantics are all in **[docs/SETUP-WIZARD-AND-UNINSTALL.md](docs/SETUP-WIZARD-AND-UNINSTALL.md)**. CLI equivalents for every Setup action live in **[installer/README.md](installer/README.md)**, and standalone JSON for one-asset-at-a-time deploys is in **[assets/README.md](assets/README.md)**.
 
-Shipping to Elasticsearch from the dev server uses a small bulk proxy (same pattern as the Docker image). Two terminals:
+## Beyond per-service generators
 
-```bash
-# Terminal 1 — proxy (default port 3001)
-node proxy.cjs
+Cloud Loadgen for Elastic also produces multi-service **chained scenarios** with shared correlation IDs and audit attribution, **CSPM/KSPM findings using 321 real CIS rule UUIDs**, and a **ServiceNow CMDB** generator for cross-index enrichment. A canonical alert-enrichment **Elastic Workflow** ties them together. Detail in **[docs/advanced-data-types.md](docs/advanced-data-types.md)**.
 
-# Terminal 2 — Vite (proxies /proxy to the proxy)
-npm run dev
-# → http://localhost:3000
-```
-
----
+The **Ship** page also includes an **ML training mode** that automates _reset → baseline → wait → inject → freeze_ for clean, repeatable anomaly demos — see **[docs/ml-training-mode.md](docs/ml-training-mode.md)**.
 
 ## API key permissions
 
-The load generator connects to Elasticsearch with an API key. Two least-privilege key definitions are provided in [`installer/api-keys/`](installer/api-keys/):
-
-| Key             | File               | Grants                                                                                                             |
-| --------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| **Ship-only**   | `ship-only.json`   | Bulk-index logs, metrics, and traces — nothing else                                                                |
-| **Full-access** | `full-access.json` | Ship data **plus** install/uninstall dashboards, ML jobs, alerting rules, ingest pipelines, and Fleet integrations |
-
-Both keys include `metadata.tags: ["cloudloadgen"]` so they are easy to find alongside the assets they manage.
-
-Create a key via **Dev Tools** (`POST /_security/api_key`) or cURL using the JSON file as the request body. For full details — privilege breakdown, API operations reference, Serverless notes, and revocation — see [docs/api-key-permissions.md](docs/api-key-permissions.md).
-
----
-
-## Testing and quality
-
-| Command                                   | Purpose                                                                                                                     |
-| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `npm run test`                            | Vitest, then regenerate **all** sample JSON (**`samples/aws`**, **`samples/gcp`**, **`samples/azure`**) and verify coverage |
-| `npm run test:watch`                      | Vitest watch only                                                                                                           |
-| `npm run samples`                         | Regenerate samples for every cloud                                                                                          |
-| `npm run samples:verify`                  | Verify sample trees match generator registries                                                                              |
-| `npm run format` / `npm run format:check` | Prettier                                                                                                                    |
-| `npm run lint` / `npm run typecheck`      | ESLint and `tsc --noEmit`                                                                                                   |
-| `npm run build`                           | Production build                                                                                                            |
-
-CI runs format, lint, typecheck, test, and build on Node 20.
-
----
-
-## Architecture (runtime)
-
-```
-Browser → nginx (port 80) → React SPA
-                                ↓
-                         /proxy/_bulk
-                                ↓
-                     Node.js proxy → Elasticsearch _bulk
-```
-
-Credentials stay in the browser session; the proxy forwards requests and may log metadata-only access lines (see proxy comments in `proxy.cjs`).
-
----
+Two least-privilege key definitions live in `[installer/api-keys/](installer/api-keys/)`: **ship-only** (bulk index only) and **full-access** (ship plus install/uninstall of dashboards, ML jobs, rules, pipelines, and Fleet integrations). Both carry `metadata.tags: ["cloudloadgen"]`. Privilege breakdown and revocation guidance are in **[docs/api-key-permissions.md](docs/api-key-permissions.md)**.
 
 ## Sample data
 
-Reference JSON for each registered generator is under **`samples/{aws,gcp,azure}/`**. Regenerate with `npm run samples` and verify with `npm run samples:verify`.
+Reference JSON for every registered generator is under `[samples/{aws,gcp,azure}/{logs,metrics,traces}/](samples/)`. Regenerate with `npm run samples` and verify with `npm run samples:verify`.
 
----
+## Testing
+
+| Command                                   | Purpose                                                                         |
+| ----------------------------------------- | ------------------------------------------------------------------------------- |
+| `npm run test`                            | Vitest, then regenerate **all** sample JSON for every cloud and verify coverage |
+| `npm run format` / `npm run format:check` | Prettier                                                                        |
+| `npm run lint` / `npm run typecheck`      | ESLint and `tsc --noEmit`                                                       |
+| `npm run build`                           | Production build                                                                |
+
+CI runs format, lint, typecheck, test, and build on Node 20.
+
+## Documentation
+
+| Topic                                                                                 | Where                                                                                                                                                                                                                                  |
+| ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Local dev, proxy env vars, icons, contributor notes                                   | [docs/development.md](docs/development.md)                                                                                                                                                                                             |
+| Setup wizard, `cloudloadgen` tag, Serverless behaviour, dashboard fallback            | [docs/SETUP-WIZARD-AND-UNINSTALL.md](docs/SETUP-WIZARD-AND-UNINSTALL.md)                                                                                                                                                               |
+| Advanced data types: chained events, CSPM/KSPM, ServiceNow, alert-enrichment workflow | [docs/advanced-data-types.md](docs/advanced-data-types.md)                                                                                                                                                                             |
+| ML training mode (reset → baseline → inject → freeze)                                 | [docs/ml-training-mode.md](docs/ml-training-mode.md)                                                                                                                                                                                   |
+| API key privileges and revocation                                                     | [docs/api-key-permissions.md](docs/api-key-permissions.md)                                                                                                                                                                             |
+| Per-scenario timing, correlation, and failure modes                                   | [docs/chained-events/](docs/chained-events/)                                                                                                                                                                                           |
+| AWS CloudWatch routing, Glue/SageMaker walkthrough, OTel traces                       | [docs/CLOUDWATCH-TO-INDEX-ROUTING.md](docs/CLOUDWATCH-TO-INDEX-ROUTING.md), [docs/GUIDE-CLOUDWATCH-GLUE-SAGEMAKER-ELASTIC.md](docs/GUIDE-CLOUDWATCH-GLUE-SAGEMAKER-ELASTIC.md), [docs/otel-traces-setup.md](docs/otel-traces-setup.md) |
+| CLI installers (per-service bundles, individual asset installers, alert rules)        | [installer/README.md](installer/README.md)                                                                                                                                                                                             |
+| Standalone JSON assets with copy-pasteable `curl` commands                            | [assets/README.md](assets/README.md)                                                                                                                                                                                                   |
+
+Full docs index: **[docs/README.md](docs/README.md)**.
 
 ## License and contributors
 

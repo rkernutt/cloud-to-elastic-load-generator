@@ -124,7 +124,7 @@ export function LoadGeneratorApp({
   const savedConfig = loadAndScrubSavedConfig(LS_KEY);
 
   useEffect(() => {
-    document.title = unifiedMode ? "Cloud to Elastic Load Generator" : config.htmlTitle;
+    document.title = unifiedMode ? "Cloud Loadgen for Elastic" : config.htmlTitle;
   }, [config.htmlTitle, unifiedMode]);
 
   const [selectedServices, setSelectedServices] = useState(config.defaultSelectedLogServices);
@@ -983,7 +983,7 @@ export function LoadGeneratorApp({
     <AppLayout
       branding={layoutBranding}
       wizardSteps={wizardStepsDisplay}
-      headerAppTitle={unifiedMode ? "Cloud to Elastic Load Generator" : undefined}
+      headerAppTitle={unifiedMode ? "Cloud Loadgen for Elastic" : undefined}
       headerVendorBadge={
         unifiedMode && vendorCard
           ? {

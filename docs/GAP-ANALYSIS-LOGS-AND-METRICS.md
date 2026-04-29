@@ -2,7 +2,7 @@
 
 > **Last updated:** 2026-04-21
 
-This document compares what the **Cloud to Elastic Load Generator** (AWS catalog) currently emits per service with what is needed for **complete** logs and metrics as defined by **Elastic AWS integration** and **AWS service documentation**. Use it to prioritize additions (fields, message types, metrics) for full fidelity in Elastic dashboards, rules, and ML.
+This document compares what **Cloud Loadgen for Elastic** (AWS catalog) currently emits per service with what is needed for **complete** logs and metrics as defined by **Elastic AWS integration** and **AWS service documentation**. Use it to prioritize additions (fields, message types, metrics) for full fidelity in Elastic dashboards, rules, and ML.
 
 **Current coverage (`npm run samples:verify`, [README](../README.md)):** **AWS:** **212** log services, **206** metrics-supported services, **54** trace generators — **GCP:** **130** logs, **124** metrics, **48** traces — **Azure:** **131** logs, **120** metrics, **40** traces.
 

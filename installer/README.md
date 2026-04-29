@@ -1,8 +1,23 @@
 # Elastic onboarding installers
 
-Standalone Node.js scripts to configure Elastic before you ship data with the **Cloud to Elastic Load Generator** (AWS, GCP, or Azure). Run them once — all are idempotent and safe to re-run at any time.
+Standalone Node.js scripts to configure Elastic before (or instead of) shipping data with **Cloud Loadgen for Elastic**. All installers are idempotent — they skip what's already installed.
 
-**Requirements:** Node.js 18+ (native `fetch`, ES modules). No `npm install` needed — zero external dependencies.
+**Requirements:** Node.js 18+ (native `fetch`, ES modules). No `npm install` needed — the installers have zero external dependencies.
+
+## Which command should I run?
+
+```mermaid
+flowchart TD
+    Start{What do you want?} -->|Everything for one or<br/>more AWS services| Pack[npm run setup:aws-loadgen-packs<br/><i>pipeline + dashboard + ML + rules</i>]
+    Start -->|Everything for GCP/Azure| UI[Use the Web UI Setup step<br/>or install assets individually below]
+    Start -->|Just the official Fleet<br/>integration package| Fleet[setup:aws-integration<br/>setup:gcp-integration<br/>setup:azure-integration]
+    Start -->|Custom pipelines| Pipes[setup:&#123;aws,gcp,azure&#125;-pipelines]
+    Start -->|Custom dashboards| Dash[setup:&#123;aws,gcp,azure&#125;-dashboards]
+    Start -->|ML anomaly jobs| ML[setup:&#123;aws,gcp,azure&#125;-ml-jobs]
+    Start -->|Alerting rules| Rules[setup:alert-rules<br/><i>cross-cloud, walks all rule files</i>]
+```
+
+If you're not sure: run the web UI Setup step. It installs the same assets and adds uninstall support, post-install toggles, and Serverless-aware behaviour. CLI installers shine for repeatable scripted demos and air-gapped environments.
 
 ---
 

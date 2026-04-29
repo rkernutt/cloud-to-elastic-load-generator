@@ -60,7 +60,7 @@ export async function buildLoadGeneratorKibanaTagNdjsonLine(): Promise<string> {
     attributes: {
       name: LOAD_GENERATOR_KIBANA_TAG_NAME,
       description:
-        "Installed by Cloud to Elastic Load Generator — filter this tag in Kibana to find or remove these assets.",
+        "Installed by Cloud Loadgen for Elastic — filter this tag in Kibana to find or remove these assets.",
     },
     references: [] as unknown[],
     coreMigrationVersion: "8.8.0",
