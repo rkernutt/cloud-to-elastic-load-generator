@@ -74,7 +74,7 @@ A sample workflow lives in [`workflows/data-pipeline-alert-enrichment.yaml`](../
 3. Looks up the user and affected CI in ServiceNow CMDB.
 4. Checks for open incidents and recent change requests.
 5. Creates a Kibana case when multiple incidents are found.
-6. Sends an enriched Slack notification with contact information.
+6. Emails an enriched alert (subject + body include CI owner, support group, contact info, open incidents and recent changes) via the deployment's preconfigured `elastic-cloud-email` SMTP connector. Slack, Teams, PagerDuty, ServiceNow ITSM, Opsgenie and webhook variants are bundled as commented-out alternatives in the workflow YAML.
 7. Indexes the enrichment result back to Elasticsearch.
 
 This is the canonical end-to-end demo of pipeline alert → CMDB lookup → SOC case + notification.

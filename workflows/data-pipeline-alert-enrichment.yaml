@@ -3,15 +3,18 @@
 #
 # Triggers when any [CloudLoadGen] Data Pipeline alerting rule fires.
 # Looks up the affected CI in ServiceNow CMDB, finds the owner and
-# support group, checks for open incidents, and posts an enriched
-# notification to Slack with actionable contact information.
+# support group, checks for open incidents, opens a Kibana case, and
+# emails an enriched alert via the deployment's preconfigured SMTP
+# connector (`elastic-cloud-email`). Slack / Teams / PagerDuty / etc.
+# alternatives are listed as commented-out blocks at the bottom.
 # ═══════════════════════════════════════════════════════════════════════════
 
 name: Data Pipeline Alert — CMDB Enrichment & Notification
 description: >
   Enriches data pipeline alerts with ServiceNow CMDB context (CI owner,
-  support group, open incidents) and routes a notification to Slack
-  so the right person can be contacted immediately.
+  support group, open incidents) and emails the on-call group via the
+  deployment's preconfigured SMTP connector so the right person can be
+  contacted immediately.
 enabled: true
 tags:
   - data-pipeline
@@ -24,11 +27,25 @@ consts:
   pipelineLogsIndex: "logs-*"
 
 inputs:
-  - name: slackConnector
+  # The default notification step (`notify_email`) targets the SMTP connector
+  # that Elastic Cloud creates automatically (`elastic-cloud-email`). Override
+  # at install time to point at your own connector.
+  - name: emailConnector
     type: string
     required: true
+    default: "elastic-cloud-email"
+    description: "Name or ID of the email connector used by notify_email"
+  - name: notifyTo
+    type: string
+    required: true
+    default: "data-platform-oncall@example.com"
+    description: "Recipient address for notify_email"
+  # Used only if you uncomment the `notify_slack` alternative block below.
+  - name: slackConnector
+    type: string
+    required: false
     default: "data-pipeline-alerts"
-    description: "Name or ID of the Slack connector for notifications"
+    description: "Name or ID of the Slack connector (alternative channel)"
 
 triggers:
   - type: alert
@@ -231,61 +248,73 @@ steps:
             fields: null
 
   # ─── 8. Send enriched notification ─────────────────────────────────────
-  #     Slack is enabled by default. Alternative channels (Email, Teams,
-  #     PagerDuty, ServiceNow ITSM, Opsgenie, generic webhook) are listed
-  #     immediately below as commented-out blocks. To switch channels,
-  #     either:
-  #       a) Comment out the slack step and uncomment one alternative, or
+  #     Email is enabled by default and targets the SMTP connector that
+  #     Elastic Cloud preconfigures on every deployment (`elastic-cloud-email`),
+  #     so this step works out of the box without any extra connector setup.
+  #     Alternative channels (Slack, Teams, PagerDuty, ServiceNow ITSM,
+  #     Opsgenie, generic webhook) are listed immediately below as
+  #     commented-out blocks. To switch channels, either:
+  #       a) Comment out the email step and uncomment one alternative, or
   #       b) Uncomment several to fan out to multiple channels (each step
   #          runs sequentially; wrap them in a `parallel` step if you want
   #          them to fire concurrently).
   #     Each step needs a connector-id pointing at a connector you have
   #     already configured under Kibana → Stack Management → Connectors.
   #     Reference: https://www.elastic.co/docs/explore-analyze/workflows/steps/external-systems-apps
-  - name: notify_slack
-    type: slack
-    connector-id: "{{ inputs.slackConnector }}"
+  - name: notify_email
+    type: email
+    connector-id: "{{ inputs.emailConnector }}"
     with:
+      to:
+        - "{{ inputs.notifyTo }}"
+      subject: "[Data Pipeline Alert] {{ event.alerts[0].kibana.alert.rule.name }}"
       message: |
-        :rotating_light: *Data Pipeline Alert*
+        Pipeline alert received.
 
-        *Rule:* {{ event.alerts[0].kibana.alert.rule.name }}
-        *Alert:* {{ event.alerts[0].message }}
+        Rule:           {{ event.alerts[0].kibana.alert.rule.name }}
+        Alert:          {{ event.alerts[0].message }}
 
-        *Affected CI:* {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
-        *CI Owner:* {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
-        *Support Group:* {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.support_group.display_value }}
-        *Department:* {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.department.display_value }}
+        Affected CI:    {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
+        CI Owner:       {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
+        Support Group:  {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.support_group.display_value }}
+        Department:     {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.department.display_value }}
 
-        *Pipeline triggered by:* {{ steps.find_pipeline_user.output.hits.hits[0]._source.user.name }}
-        *Contact email:* {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.email.value }}
-        *Contact phone:* {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.phone.value }}
-        *Manager:* {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.manager.display_value }}
+        Pipeline triggered by: {{ steps.find_pipeline_user.output.hits.hits[0]._source.user.name }}
+        Contact email:  {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.email.value }}
+        Contact phone:  {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.phone.value }}
+        Manager:        {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.manager.display_value }}
 
-        *Open incidents:* {{ steps.find_open_incidents.output.hits.total.value }}
-        *Recent changes:* {{ steps.find_recent_changes.output.hits.total.value }}
+        Open incidents: {{ steps.find_open_incidents.output.hits.total.value }}
+        Recent changes: {{ steps.find_recent_changes.output.hits.total.value }}
     on-failure:
       retry:
         max-attempts: 2
         delay: "5s"
       continue: true
 
-  # ── Alternative: Email (built-in Kibana email connector) ──────────────
-  # - name: notify_email
-  #   type: email
-  #   connector-id: "ops-email-connector"
+  # ── Alternative: Slack (configure a `.slack` or `.slack_api` connector) ─
+  # - name: notify_slack
+  #   type: slack
+  #   connector-id: "{{ inputs.slackConnector }}"
   #   with:
-  #     to:
-  #       - "data-platform-oncall@example.com"
-  #     subject: "Data Pipeline Alert: {{ event.alerts[0].kibana.alert.rule.name }}"
   #     message: |
-  #       Pipeline alert received.
+  #       :rotating_light: *Data Pipeline Alert*
   #
-  #       Rule:           {{ event.alerts[0].kibana.alert.rule.name }}
-  #       Affected CI:    {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
-  #       CI Owner:       {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
-  #       Support Group:  {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.support_group.display_value }}
-  #       Open incidents: {{ steps.find_open_incidents.output.hits.total.value }}
+  #       *Rule:* {{ event.alerts[0].kibana.alert.rule.name }}
+  #       *Alert:* {{ event.alerts[0].message }}
+  #
+  #       *Affected CI:* {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
+  #       *CI Owner:* {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
+  #       *Support Group:* {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.support_group.display_value }}
+  #       *Department:* {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.department.display_value }}
+  #
+  #       *Pipeline triggered by:* {{ steps.find_pipeline_user.output.hits.hits[0]._source.user.name }}
+  #       *Contact email:* {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.email.value }}
+  #       *Contact phone:* {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.phone.value }}
+  #       *Manager:* {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.manager.display_value }}
+  #
+  #       *Open incidents:* {{ steps.find_open_incidents.output.hits.total.value }}
+  #       *Recent changes:* {{ steps.find_recent_changes.output.hits.total.value }}
   #   on-failure:
   #     retry:
   #       max-attempts: 2
