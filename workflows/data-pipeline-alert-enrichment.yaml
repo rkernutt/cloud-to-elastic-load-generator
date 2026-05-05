@@ -8,10 +8,11 @@
 # connector (`elastic-cloud-email`). Slack / Teams / PagerDuty / etc.
 # alternatives are listed as commented-out blocks at the bottom.
 #
-# ─── This workflow is NOT auto-attached to any alerting rule ───────────────
+# ─── This workflow is NOT auto-attached or auto-enabled ───────────────────
 # Installing it (via the Setup wizard, `npm run setup:workflow`, or pasting
-# this YAML into Stack Management → Workflows) only registers the workflow.
-# Two manual steps are required before it can do anything useful:
+# this YAML into Stack Management → Workflows) registers the workflow with
+# `enabled: false`. Three manual steps are required before it can do anything
+# useful:
 #
 #   1) Review the notification step. The default `notify_email` step targets
 #      `inputs.notifyTo` via the `inputs.emailConnector` connector. To use
@@ -27,9 +28,13 @@
 #      Pick "Run a workflow", select this workflow, and (optionally) tune
 #      the run condition / throttle.
 #
-# Until both steps are done the install is a no-op at runtime — by design,
-# so a misconfigured connector or unintended notification cascade can never
-# fire from a fresh install.
+#   3) Flip the workflow's `Enabled` toggle in
+#         Stack Management → Workflows → <this workflow> → Enable.
+#      Until enabled, the workflow won't run even if a rule fires.
+#
+# Until all three steps are done the install is a no-op at runtime — by
+# design, so a misconfigured connector or unintended notification cascade
+# can never fire from a fresh install.
 #
 # ─── Deployment compatibility ──────────────────────────────────────────────
 #   • Elastic Cloud Hosted (ESS):   works as-is — `elastic-cloud-email` is
@@ -68,7 +73,11 @@ description: >
   support group, open incidents) and emails the on-call group via the
   deployment's preconfigured SMTP connector so the right person can be
   contacted immediately.
-enabled: true
+# Installs DISABLED on purpose. Enable in Stack Management → Workflows only
+# after (1) reviewing the notify_email step (or switching to Slack/Teams/etc.)
+# and (2) attaching the workflow to your alerting rules under
+# Stack Management → Rules → <rule> → Actions → Workflow.
+enabled: false
 tags:
   - data-pipeline
   - servicenow

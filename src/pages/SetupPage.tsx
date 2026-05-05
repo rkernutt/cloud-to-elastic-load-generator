@@ -2543,12 +2543,14 @@ export function SetupPage({
               <EuiCode>{"assets/workflows/"}</EuiCode> for manual paste into Stack Management →
               Workflows.
               <EuiSpacer size="xs" />
-              <strong>You still need to:</strong> (1) review the notification step (default is email
-              — Slack / Teams / PagerDuty / ServiceNow ITSM / Opsgenie / webhook variants ship as
-              commented blocks in the YAML); and (2) attach the workflow to your alerting rules —
-              every Cloud Loadgen rule installs with <EuiCode>{"actions=[]"}</EuiCode>, so the
-              workflow only fires once you wire it up in{" "}
-              <em>Stack Management → Rules → &lt;rule&gt; → Actions → Workflow</em>.
+              <strong>The workflow installs DISABLED on purpose.</strong> Before turning it on, you
+              still need to: (1) review the notification step (default is email — Slack / Teams /
+              PagerDuty / ServiceNow ITSM / Opsgenie / webhook variants ship as commented blocks in
+              the YAML); (2) attach the workflow to your alerting rules — every Cloud Loadgen rule
+              installs with <EuiCode>{"actions=[]"}</EuiCode>, so the workflow only fires once you
+              wire it up in <em>Stack Management → Rules → &lt;rule&gt; → Actions → Workflow</em>;
+              and (3) flip the workflow's <em>Enabled</em> toggle in{" "}
+              <em>Stack Management → Workflows</em>.
             </>
           )
         }

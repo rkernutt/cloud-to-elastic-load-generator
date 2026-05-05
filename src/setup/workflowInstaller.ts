@@ -238,8 +238,14 @@ export async function installWorkflow(opts: {
       apiKey,
       path: `/api/workflows/workflow/${encodeURIComponent(existingId)}`,
       method: "PUT",
-      body: { name, description, yaml, enabled: true, tags },
+      body: { name, description, yaml, tags },
     });
+    // Workflows on Kibana 9.5 silently ignore `enabled` when sent inside a
+    // full PUT body alongside `yaml` (see elastic/kibana#252676). Follow up
+    // with a partial PUT so the disabled state actually sticks. We always
+    // install DISABLED — users must explicitly enable in Kibana after
+    // reviewing the notification step and attaching the workflow to rules.
+    await setWorkflowEnabled(kb, apiKey, existingId, false);
     return { id: existingId, outcome: "updated" };
   }
 
@@ -253,7 +259,10 @@ export async function installWorkflow(opts: {
     path: "/api/workflows",
     method: "POST",
     body: {
-      workflows: [{ name, description, yaml, enabled: true, tags }],
+      // Install DISABLED — see note on the update branch above. Bulk create
+      // honours the flag reliably; only the update path needs the follow-up
+      // partial PUT to work around elastic/kibana#252676.
+      workflows: [{ name, description, yaml, enabled: false, tags }],
     },
   })) as BulkCreateWorkflowsResponse | CreateWorkflowResponse | null;
 
@@ -274,6 +283,30 @@ export async function installWorkflow(opts: {
     throw new Error("Workflows API returned no id on create");
   }
   return { id, outcome: "created" };
+}
+
+/**
+ * Toggle a workflow's `enabled` flag via a *partial* PUT. We do this in a
+ * separate request from the YAML/tags update because Kibana 9.5 silently
+ * drops the `enabled` field when it's bundled with `yaml` in a full PUT
+ * body (see elastic/kibana#252676 — "Toggling workflow enabled state
+ * corrupts YAML content"). The partial PUT path is unaffected and is the
+ * only way to reliably flip the flag until the bug is fixed upstream.
+ */
+export async function setWorkflowEnabled(
+  kibanaUrl: string,
+  apiKey: string,
+  workflowId: string,
+  enabled: boolean
+): Promise<void> {
+  const kb = kibanaUrl.replace(/\/$/, "");
+  await proxyCall({
+    baseUrl: kb,
+    apiKey,
+    path: `/api/workflows/workflow/${encodeURIComponent(workflowId)}`,
+    method: "PUT",
+    body: { enabled },
+  });
 }
 
 export type UninstallWorkflowOutcome = "deleted" | "not_found" | "api_disabled";

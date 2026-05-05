@@ -10,17 +10,25 @@
   "schedule": {
     "interval": "5m"
   },
-  "tags": ["cloudloadgen", "gcp-security-chain"],
+  "tags": [
+    "cloudloadgen",
+    "gcp-security-chain"
+  ],
   "enabled": false,
   "params": {
     "searchType": "esQuery",
     "timeWindowSize": 15,
     "timeWindowUnit": "m",
-    "threshold": [2],
+    "threshold": [
+      2
+    ],
     "thresholdComparator": ">",
     "size": 100,
     "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"term\":{\"event.dataset\":\"gcp.scc\"}},{\"term\":{\"data_stream.dataset\":\"gcp.scc\"}}],\"minimum_should_match\":1}},{\"term\":{\"event.kind\":\"alert\"}}]}},{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"term\":{\"event.dataset\":\"gcp.secops\"}},{\"term\":{\"data_stream.dataset\":\"gcp.secops\"}}],\"minimum_should_match\":1}},{\"exists\":{\"field\":\"gcp.security_operations.action_type\"}}]}}],\"minimum_should_match\":1}}]}}}",
-    "index": ["logs-gcp.scc*", "logs-gcp.secops*"],
+    "index": [
+      "logs-gcp.scc*",
+      "logs-gcp.secops*"
+    ],
     "timeField": "@timestamp",
     "aggType": "count"
   },

@@ -188,6 +188,14 @@ function createKibanaClient(baseUrl, apiKey) {
     async updateWorkflow(id, body) {
       return request("PUT", `/api/workflows/workflow/${encodeURIComponent(id)}`, { body });
     },
+    async setWorkflowEnabled(id, enabled) {
+      // Workflows on Kibana 9.5 silently drop the `enabled` field when it's
+      // bundled with `yaml` in a full PUT body (elastic/kibana#252676).
+      // Sending a *partial* PUT with only `{ enabled }` works reliably.
+      return request("PUT", `/api/workflows/workflow/${encodeURIComponent(id)}`, {
+        body: { enabled: !!enabled },
+      });
+    },
     async deleteWorkflow(id) {
       return request("DELETE", `/api/workflows/workflow/${encodeURIComponent(id)}`, {
         allow404: true,
@@ -436,18 +444,39 @@ async function main() {
       name: DEFAULT_WORKFLOW_NAME,
       description: "",
       yaml,
-      enabled: true,
+      // Install DISABLED — users must explicitly enable in Kibana after
+      // reviewing the notification step and attaching the workflow to rules.
+      enabled: false,
       tags: ["data-pipeline", "servicenow", "enrichment", "automated-response"],
     };
+    let installedId;
     if (existingId) {
       await client.updateWorkflow(existingId, body);
-      console.log(`  ✓ Updated existing workflow (id=${existingId}).`);
+      // Kibana #252676 — full PUT silently keeps the previous enabled state
+      // when `yaml` is in the body. Force-disable with a partial PUT.
+      await client.setWorkflowEnabled(existingId, false);
+      installedId = existingId;
+      console.log(`  ✓ Updated existing workflow (id=${existingId}, DISABLED).`);
     } else {
       const created = await client.createWorkflow(body);
-      const id = created?.id ?? created?.workflow?.id ?? "(unknown)";
-      console.log(`  ✓ Created workflow (id=${id}).`);
+      installedId = created?.id ?? created?.workflow?.id ?? null;
+      console.log(`  ✓ Created workflow (id=${installedId ?? "(unknown)"}, DISABLED).`);
     }
-    console.log("\nDone.");
+    console.log("");
+    console.log("Next steps (manual, in order):");
+    console.log("  1) Review the notify_email step in Kibana → Stack Management → Workflows,");
+    console.log("     or switch to Slack/Teams/PagerDuty/etc. by uncommenting one of the");
+    console.log("     alternative blocks in the YAML.");
+    console.log("  2) Attach the workflow to your alerting rules — every Cloud Loadgen rule");
+    console.log("     installs with actions=[], so it only fires once you wire it up under");
+    console.log("     Stack Management → Rules → <rule> → Actions → Workflow.");
+    console.log(
+      "  3) Only then flip the workflow's Enabled toggle in Stack Management → Workflows."
+    );
+    console.log("  The install is intentionally disabled so a misconfigured connector or");
+    console.log("  unintended notification cascade can never fire from a fresh install.");
+    console.log("");
+    console.log("Done.");
   } catch (err) {
     console.error(`  ✗ Install failed: ${err.message}`);
     if (err.message.includes("404")) {

@@ -10,17 +10,24 @@
   "schedule": {
     "interval": "5m"
   },
-  "tags": ["cloudloadgen", "gcp-iam-privesc-chain"],
+  "tags": [
+    "cloudloadgen",
+    "gcp-iam-privesc-chain"
+  ],
   "enabled": false,
   "params": {
     "searchType": "esQuery",
     "timeWindowSize": 30,
     "timeWindowUnit": "m",
-    "threshold": [3],
+    "threshold": [
+      3
+    ],
     "thresholdComparator": ">",
     "size": 100,
     "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*CreateServiceAccountKey*\"}},{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*SetIamPolicy*\"}},{\"wildcard\":{\"gcp.cloud_audit.method_name\":\"*GenerateAccessToken*\"}}],\"minimum_should_match\":1}}]}}}",
-    "index": ["logs-gcp.audit*"],
+    "index": [
+      "logs-gcp.audit*"
+    ],
     "timeField": "@timestamp",
     "aggType": "count"
   },

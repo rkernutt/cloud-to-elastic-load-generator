@@ -860,9 +860,9 @@ export async function runSetupInstall(opts: {
     try {
       const result = await installWorkflow({ kibanaUrl: kb, apiKey, yaml });
       const verb = result.outcome === "created" ? "created" : "updated";
-      addLog(`  ✓ Workflow ${verb} (id=${result.id}).`, "ok");
+      addLog(`  ✓ Workflow ${verb} (id=${result.id}, DISABLED).`, "ok");
       addLog(
-        "  ⚑ Next steps (manual): (1) review the notify_email step or switch to Slack/Teams/PagerDuty/etc. by uncommenting one of the alternative blocks in the YAML, and (2) attach this workflow to your alerting rules — every Cloud Loadgen rule installs with actions=[] so it must be wired up in Stack Management → Rules → <rule> → Actions → Workflow.",
+        "  ⚑ Next steps (manual, in order): (1) review the notify_email step or switch to Slack/Teams/PagerDuty/etc. by uncommenting one of the alternative blocks in the YAML, (2) attach this workflow to your alerting rules — every Cloud Loadgen rule installs with actions=[] so it must be wired up in Stack Management → Rules → <rule> → Actions → Workflow, and (3) only then flip the workflow's Enabled toggle in Stack Management → Workflows. The install is intentionally disabled so a misconfigured connector or unintended notification cascade can never fire from a fresh install.",
         "info"
       );
     } catch (e) {

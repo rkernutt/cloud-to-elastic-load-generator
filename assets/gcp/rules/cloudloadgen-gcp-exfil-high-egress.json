@@ -10,17 +10,24 @@
   "schedule": {
     "interval": "5m"
   },
-  "tags": ["cloudloadgen", "gcp-data-exfil-chain"],
+  "tags": [
+    "cloudloadgen",
+    "gcp-data-exfil-chain"
+  ],
   "enabled": false,
   "params": {
     "searchType": "esQuery",
     "timeWindowSize": 15,
     "timeWindowUnit": "m",
-    "threshold": [1],
+    "threshold": [
+      1
+    ],
     "thresholdComparator": ">=",
     "size": 100,
     "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"term\":{\"event.dataset\":\"gcp.vpcflow\"}},{\"term\":{\"data_stream.dataset\":\"gcp.vpcflow\"}}],\"minimum_should_match\":1}},{\"term\":{\"gcp.vpc_flow.direction\":\"egress\"}},{\"range\":{\"gcp.vpc_flow.bytes_sent\":{\"gt\":52428800}}}]}}}",
-    "index": ["logs-gcp.vpcflow*"],
+    "index": [
+      "logs-gcp.vpcflow*"
+    ],
     "timeField": "@timestamp",
     "aggType": "count"
   },

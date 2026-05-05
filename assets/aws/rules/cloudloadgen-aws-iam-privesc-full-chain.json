@@ -10,17 +10,24 @@
   "schedule": {
     "interval": "5m"
   },
-  "tags": ["cloudloadgen", "iam-privesc-chain"],
+  "tags": [
+    "cloudloadgen",
+    "iam-privesc-chain"
+  ],
   "enabled": false,
   "params": {
     "searchType": "esQuery",
     "timeWindowSize": 30,
     "timeWindowUnit": "m",
-    "threshold": [3],
+    "threshold": [
+      3
+    ],
     "thresholdComparator": ">",
     "size": 100,
     "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"exists\":{\"field\":\"user.name\"}},{\"bool\":{\"should\":[{\"term\":{\"event.action\":\"CreateAccessKey\"}},{\"bool\":{\"filter\":[{\"term\":{\"event.action\":\"AttachUserPolicy\"}},{\"match_phrase\":{\"aws.cloudtrail.request_parameters\":\"AdministratorAccess\"}}]}},{\"term\":{\"event.action\":\"AssumeRole\"}}],\"minimum_should_match\":1}}]}}}",
-    "index": ["logs-aws.cloudtrail*"],
+    "index": [
+      "logs-aws.cloudtrail*"
+    ],
     "timeField": "@timestamp",
     "aggType": "count"
   },

@@ -4,10 +4,10 @@ The bundled [`data-pipeline-alert-enrichment.yaml`](../workflows/data-pipeline-a
 
 This page documents how to install and run it on each Elastic deployment type.
 
-> **Important — installing the workflow does not attach it to any alerting rule.**
-> By design, every Cloud Loadgen alerting rule ships with `"actions": []`, and
-> none of the install paths (wizard, CLI, manual paste) modify rules in any
-> way. After install you still need to:
+> **Important — the workflow installs DISABLED and is not attached to any alerting rule.**
+> Every Cloud Loadgen alerting rule ships with `"actions": []`, and none of
+> the install paths (wizard, CLI, manual paste) modify rules or flip the
+> workflow's `Enabled` flag in any way. After install you still need to:
 >
 > 1. **Review the notification step** — the default `notify_email` step
 >    targets the deployment's preconfigured SMTP connector. To use Slack,
@@ -19,10 +19,13 @@ This page documents how to install and run it on each Elastic deployment type.
 >    open **Stack Management → Rules → \<rule\> → Actions → Add action →
 >    Workflow**, pick this workflow, and tune the run condition / throttle
 >    as desired.
+> 3. **Enable the workflow** in **Stack Management → Workflows** — flip
+>    the **Enabled** toggle on. Until enabled, the workflow won't run even
+>    when an attached rule fires.
 >
-> Until both steps are complete the install is a no-op at runtime — that's
-> intentional, so a misconfigured connector or unintended notification
-> cascade can never fire from a fresh install.
+> Until all three steps are complete the install is a no-op at runtime —
+> that's intentional, so a misconfigured connector or unintended
+> notification cascade can never fire from a fresh install.
 
 ## Deployment compatibility
 
