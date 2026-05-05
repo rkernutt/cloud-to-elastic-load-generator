@@ -7,6 +7,22 @@
 # emails an enriched alert via the deployment's preconfigured SMTP
 # connector (`elastic-cloud-email`). Slack / Teams / PagerDuty / etc.
 # alternatives are listed as commented-out blocks at the bottom.
+#
+# ─── Deployment compatibility ──────────────────────────────────────────────
+#   • Elastic Cloud Hosted (ESS):   works as-is — `elastic-cloud-email` is
+#                                   provisioned automatically.
+#   • Elastic Cloud Serverless:     works as-is — same `elastic-cloud-email`
+#                                   ID is preconfigured (Workflows is preview).
+#   • Self-hosted (Stack 9.3+,      requires you to either preconfigure an
+#     ECE, ECK):                    `elastic-cloud-email` connector in
+#                                   `kibana.yml` (recommended) OR override
+#                                   the `emailConnector` input at install
+#                                   time. Workflows requires an Enterprise
+#                                   licence and `workflows:ui:enabled = true`
+#                                   in Advanced Settings.
+#
+# Full setup, troubleshooting, and self-hosted `kibana.yml` snippet:
+#   docs/workflow-deployment.md
 # ═══════════════════════════════════════════════════════════════════════════
 
 name: Data Pipeline Alert — CMDB Enrichment & Notification

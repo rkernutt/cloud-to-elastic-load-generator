@@ -1,0 +1,147 @@
+# Workflow deployment guide
+
+The bundled [`data-pipeline-alert-enrichment.yaml`](../workflows/data-pipeline-alert-enrichment.yaml) is a Kibana **Workflow** that runs when any data-pipeline alerting rule fires. It enriches the alert with ServiceNow CMDB context (CI owner, support group, open incidents, recent changes), opens a Kibana case when multiple incidents are found, emails the on-call group, and indexes the enriched record back to Elasticsearch.
+
+This page documents how to install and run it on each Elastic deployment type.
+
+## Deployment compatibility
+
+| Deployment                                            | Workflows plugin | `elastic-cloud-email` connector                                        | Out-of-the-box?                |
+| ----------------------------------------------------- | ---------------- | ---------------------------------------------------------------------- | ------------------------------ |
+| **Elastic Cloud Hosted (ESS)**                        | GA               | Auto-provisioned                                                       | Yes                            |
+| **Elastic Cloud Serverless** (Observability/Security) | Preview          | Auto-provisioned (id `elastic-cloud-email`, name `Elastic-Cloud-SMTP`) | Yes                            |
+| **Self-hosted** (Stack 9.3+, ECE, ECK)                | Preview from 9.3 | Not provisioned                                                        | Requires extra connector setup |
+
+### Required licences
+
+| Feature                                 | Licence                                                                      |
+| --------------------------------------- | ---------------------------------------------------------------------------- |
+| Workflows plugin                        | **Enterprise**                                                               |
+| Cases (`kibana.createCaseDefaultSpace`) | **Platinum** or higher (included in Observability / Security solution tiers) |
+| Email / Slack / Teams / etc. connectors | All Stack tiers; specific webhook actions may require Gold+                  |
+
+On Elastic Cloud Hosted and Serverless these tiers are bundled by default for projects with the Observability or Security solution. On self-hosted, your subscription must include them.
+
+### Enabling Workflows on self-hosted
+
+Workflows is preview on self-hosted from 9.3 and is **off by default**. Enable it through:
+
+```
+Stack Management → Advanced Settings → workflows:ui:enabled = true
+```
+
+Equivalent API call:
+
+```bash
+curl -sS -X POST "$KIBANA_URL/api/kibana/settings" \
+  -H "Authorization: ApiKey $API_KEY" \
+  -H "kbn-xsrf: true" \
+  -H "Content-Type: application/json" \
+  -d '{"changes":{"workflows:ui:enabled":true}}'
+```
+
+## Inputs
+
+The workflow exposes three inputs you can override at install time. Defaults are picked so the workflow runs unchanged on Elastic Cloud Hosted and Serverless.
+
+| Input            | Default                            | Used by                                              |
+| ---------------- | ---------------------------------- | ---------------------------------------------------- |
+| `emailConnector` | `elastic-cloud-email`              | The active `notify_email` step                       |
+| `notifyTo`       | `data-platform-oncall@example.com` | Recipient of `notify_email`                          |
+| `slackConnector` | `data-pipeline-alerts`             | Optional — only used if you uncomment `notify_slack` |
+
+## Setup per deployment type
+
+### Elastic Cloud Hosted
+
+1. Confirm the Workflows app is visible under the navigation. (Cloud Hosted enables it automatically on supported tiers.)
+2. Open **Stack Management → Workflows → Create**, paste the YAML, save. Override `notifyTo` if you want a different recipient than the default placeholder.
+3. Done. The workflow will fire on the next data-pipeline alert.
+
+### Elastic Cloud Serverless
+
+1. Workflows is a preview feature — confirm your project type (Observability or Security) shows the Workflows app.
+2. Same install path as Cloud Hosted: paste the YAML, override `notifyTo`, save. The `elastic-cloud-email` connector ID resolves automatically.
+
+### Self-hosted (Stack 9.3+, ECE, ECK)
+
+The default `elastic-cloud-email` connector does **not** exist on self-hosted deployments — Elastic's control plane provisions it only on Cloud-managed clusters. You have two options:
+
+#### Option A — Preconfigure in `kibana.yml` (recommended)
+
+Add an entry that uses the same `elastic-cloud-email` ID so the workflow runs unchanged:
+
+```yaml
+xpack.actions.preconfigured:
+  elastic-cloud-email:
+    name: SMTP
+    actionTypeId: .email
+    config:
+      service: other
+      from: alerts@example.com
+      host: smtp.example.com
+      port: 587
+      hasAuth: true
+    secrets:
+      user: smtp-user
+      password: smtp-password
+```
+
+Restart Kibana, install the workflow, override `notifyTo` if desired.
+
+#### Option B — Bring your own connector ID
+
+1. Create an email connector via **Stack Management → Connectors** (or the Actions API). Note its connector ID.
+2. When installing the workflow, override the `emailConnector` input:
+
+   ```yaml
+   inputs:
+     emailConnector: my-smtp-connector-id
+     notifyTo: oncall@example.com
+   ```
+
+3. Save. The workflow now points at your connector.
+
+## Switching to a different channel
+
+The workflow ships with six commented-out alternatives directly below the active `notify_email` step:
+
+- `notify_slack` (Slack — `.slack` or `.slack_api`)
+- `notify_teams` (Microsoft Teams incoming webhook)
+- `notify_pagerduty` (PagerDuty)
+- `notify_servicenow` (ServiceNow ITSM — creates an incident)
+- `notify_opsgenie` (Opsgenie)
+- `notify_webhook` (generic webhook)
+
+Each block reuses the same enriched-alert template. To switch channels, comment out the email step and uncomment one (or several) alternatives. They run sequentially; wrap them in a `parallel` step if you need concurrent fan-out. Each requires a connector you've already configured under **Kibana → Stack Management → Connectors**.
+
+## Triggering the workflow
+
+The workflow's trigger is `type: alert`, which means it fires whenever a Kibana **alerting rule** sends it the alert payload. The bundled data-pipeline alerting rules (installed by the Setup wizard or `npm run setup:alert-rules`) are pre-wired to send their payload to this workflow when one is registered. If you install the workflow before installing the alerting rules, no extra wiring is needed.
+
+You can also test the workflow manually:
+
+```bash
+curl -sS -X POST "$KIBANA_URL/api/workflows/_workflows/<workflow-id>/run" \
+  -H "Authorization: ApiKey $API_KEY" \
+  -H "kbn-xsrf: true" \
+  -H "Content-Type: application/json" \
+  -d '{"event":{"alerts":[{"kibana":{"alert":{"rule":{"name":"[CloudLoadGen] Pipeline Failure"}}}, "message":"Manual test"}]}}'
+```
+
+## Troubleshooting
+
+| Symptom                                                                                         | Likely cause                                                                               | Fix                                                                                                                                                                                                        |
+| ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Workflow runs succeed but no email arrives                                                      | Self-hosted with no preconfigured `elastic-cloud-email` connector                          | Apply Option A or Option B above                                                                                                                                                                           |
+| Notify step errors with `connector not found`                                                   | The `emailConnector` / `slackConnector` input value doesn't match any connector            | Check **Stack Management → Connectors** for the connector ID; pass the correct ID via `inputs`                                                                                                             |
+| `lookup_affected_ci` returns 0 hits                                                             | ServiceNow CMDB data not shipped, or shipped before the cross-cloud enrichment fix         | Re-ship CMDB data with a current build of Cloud Loadgen for Elastic; verify `event.module` of CMDB docs is `servicenow` (not `aws`/`gcp`/`azure`) — see [advanced-data-types.md](./advanced-data-types.md) |
+| `find_pipeline_user` / `find_open_incidents` fail with sort validation                          | Workflows v1.0.0 strict-schema rejects the named `elasticsearch.search` action's sort body | The bundled YAML already routes those steps through `elasticsearch.request`; if you customised them, mirror that pattern                                                                                   |
+| `open_case` errors with `Invalid option: expected "cases"\|"observability"\|"securitySolution"` | The Cases plugin is bound to a fixed set of owners; the workflow uses `observability`      | Keep `owner: "observability"` (or set to `cases` / `securitySolution` to match your space)                                                                                                                 |
+| Notification fires but enriched fields are blank                                                | The CMDB lookup ran but didn't match any CI                                                | Make sure the data-pipeline chain and CMDB were shipped under the same labelling (`DATA_ENGINEERING_USERS`, `mwaa-globex-prod`, `emr-analytics-cluster`, …)                                                |
+
+## Related
+
+- [advanced-data-types.md](./advanced-data-types.md) — overview of the chained scenarios, CSPM/KSPM, ServiceNow CMDB, and how they relate to this workflow
+- [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md) — installing the alerting rules + dashboards the workflow consumes
+- Elastic docs — [Workflows](https://www.elastic.co/docs/explore-analyze/workflows) · [External system steps](https://www.elastic.co/docs/explore-analyze/workflows/steps/external-systems-apps) · [Preconfigured connectors](https://www.elastic.co/docs/reference/kibana/connectors-kibana/pre-configured-connectors)

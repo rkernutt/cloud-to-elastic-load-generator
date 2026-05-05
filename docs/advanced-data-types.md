@@ -65,6 +65,17 @@ CIs are correlated with cloud infrastructure names from the data pipeline chains
 
 ServiceNow CMDB is treated as **reference data** — capped at 50 documents per ship run. Enable the **ServiceNow** Fleet integration toggle in the Setup wizard to install the `servicenow` integration package alongside the cloud vendor integration.
 
+## Cross-cloud generators
+
+`servicenow_cmdb`, `cspm`/`gcp-cspm`/`azure-cspm`, and `kspm`/`gcp-kspm`/`azure-kspm` are **cross-cloud** generators: they target Elastic integration data streams (`logs-servicenow.event-default`, `logs-cloud_security_posture.findings-default`) whose mappings are owned by the relevant Fleet integration package, not by any single cloud. The generators emit byte-for-byte equivalent documents whether you've selected AWS, GCP, or Azure as the active vendor — the only vendor-specific bits are the CIS rule set (`CIS_AWS_RULES` / `CIS_GCP_RULES` / `CIS_AZURE_RULES`) and the resource shape (`s3-bucket` vs `gcs-bucket` vs `azure-storage-account`), which is exactly the model Elastic's [cloudbeat](https://github.com/elastic/cloudbeat) follows when it normalises vendor-specific API responses into the shared findings schema.
+
+Two implementation rules follow from this and matter if you write or modify a generator:
+
+1. **Mark the doc with `__dataset`.** Cross-cloud generators set `__dataset` (e.g. `servicenow.event`, `cloud_security_posture.findings`) so the bulk-loop in `runShipWorkload` routes the doc to the correct data stream regardless of which vendor's `formatBulkIndexName` produced the service-level destination label.
+2. **Don't let vendor enrichment touch them.** `enrichDocument` (AWS) and `enrichGcpAzureDocument` (GCP/Azure) detect `__dataset` whose namespace doesn't match the running vendor and short-circuit. This avoids stamping `event.module: "aws"` (or `gcp`/`azure`) on a doc whose target data stream pins `event.module` to `servicenow` via `constant_keyword` — which would otherwise reject every doc into the data stream's failure store.
+
+For CSPM/KSPM, `event.module` is hardcoded to `cloud_security_posture` in the shared finding builder (`src/data/cspFindingsHelpers.ts`) to match what the real CSPM integration emits. The cloud is identified by `cloud.provider` and `rule.benchmark.id` (`cis_aws` / `cis_gcp` / `cis_azure` / `cis_eks` / `cis_k8s`).
+
 ## Elastic Workflow — alert enrichment
 
 A sample workflow lives in [`workflows/data-pipeline-alert-enrichment.yaml`](../workflows/data-pipeline-alert-enrichment.yaml). It:
@@ -79,8 +90,17 @@ A sample workflow lives in [`workflows/data-pipeline-alert-enrichment.yaml`](../
 
 This is the canonical end-to-end demo of pipeline alert → CMDB lookup → SOC case + notification.
 
+| Deployment                         | Out-of-the-box?                | Notes                                                                                                      |
+| ---------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| Elastic Cloud Hosted (ESS)         | Yes                            | `elastic-cloud-email` is auto-provisioned                                                                  |
+| Elastic Cloud Serverless           | Yes (Workflows is preview)     | Same `elastic-cloud-email` ID is preconfigured                                                             |
+| Self-hosted (Stack 9.3+, ECE, ECK) | Requires email connector setup | Preconfigure `elastic-cloud-email` in `kibana.yml` or override `emailConnector` input — Enterprise licence |
+
+Full deployment guide, licence requirements, self-hosted `kibana.yml` snippet, and troubleshooting: see [workflow-deployment.md](./workflow-deployment.md).
+
 ## Related
 
+- [workflow-deployment.md](./workflow-deployment.md) — install, configure, and troubleshoot the alert-enrichment workflow per deployment type.
 - [chained-events/](./chained-events/) — per-scenario timing, field-level correlation, and failure-mode docs.
 - [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md) — installing the assets and the Serverless use-case selector.
 - [ml-training-mode.md](./ml-training-mode.md) — train ML jobs against the chained-event detectors.

@@ -9,6 +9,7 @@ Reference material for **Cloud Loadgen for Elastic**. Quick start, Docker, and a
 | Run the app locally, understand the proxy, or contribute generators            | [development.md](./development.md)                                 |
 | Understand the **Setup wizard**, the `cloudloadgen` tag, and Serverless limits | [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md)   |
 | Use chained events, CSPM/KSPM, ServiceNow, and the alert-enrichment workflow   | [advanced-data-types.md](./advanced-data-types.md)                 |
+| Install / customise the alert-enrichment workflow (Cloud, Serverless, on-prem) | [workflow-deployment.md](./workflow-deployment.md)                 |
 | Drive ML jobs through reset → baseline → inject → freeze                       | [ml-training-mode.md](./ml-training-mode.md)                       |
 | Create least-privilege Elasticsearch API keys                                  | [api-key-permissions.md](./api-key-permissions.md)                 |
 | Install Elastic assets from the CLI                                            | [../installer/README.md](../installer/README.md)                   |
