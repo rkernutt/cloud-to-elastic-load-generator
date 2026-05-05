@@ -10,26 +10,17 @@
   "schedule": {
     "interval": "5m"
   },
-  "tags": [
-    "cloudloadgen",
-    "data-exfil-chain"
-  ],
+  "tags": ["cloudloadgen", "data-exfil-chain"],
   "enabled": false,
   "params": {
     "searchType": "esQuery",
     "timeWindowSize": 15,
     "timeWindowUnit": "m",
-    "threshold": [
-      2
-    ],
+    "threshold": [2],
     "thresholdComparator": ">",
     "size": 100,
     "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"wildcard\":{\"aws.guardduty.type\":\"Exfiltration*\"}}]}},{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"term\":{\"event.action\":\"GetObject\"}},{\"range\":{\"aws.cloudtrail.additional_event_count\":{\"gt\":100}}}]}},{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.vpcflow\"}},{\"term\":{\"network.direction\":\"egress\"}},{\"range\":{\"aws.vpcflow.bytes\":{\"gt\":52428800}}}]}}],\"minimum_should_match\":1}}]}}}",
-    "index": [
-      "logs-aws.guardduty*",
-      "logs-aws.vpcflow*",
-      "logs-aws.cloudtrail*"
-    ],
+    "index": ["logs-aws.guardduty*", "logs-aws.vpcflow*", "logs-aws.cloudtrail*"],
     "timeField": "@timestamp",
     "aggType": "count"
   },

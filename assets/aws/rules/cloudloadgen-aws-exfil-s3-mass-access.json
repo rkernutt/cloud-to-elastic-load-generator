@@ -10,24 +10,17 @@
   "schedule": {
     "interval": "5m"
   },
-  "tags": [
-    "cloudloadgen",
-    "data-exfil-chain"
-  ],
+  "tags": ["cloudloadgen", "data-exfil-chain"],
   "enabled": false,
   "params": {
     "searchType": "esQuery",
     "timeWindowSize": 15,
     "timeWindowUnit": "m",
-    "threshold": [
-      1
-    ],
+    "threshold": [1],
     "thresholdComparator": ">=",
     "size": 100,
     "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"term\":{\"event.action\":\"GetObject\"}},{\"range\":{\"aws.cloudtrail.additional_event_count\":{\"gt\":100}}}]}}}",
-    "index": [
-      "logs-aws.cloudtrail*"
-    ],
+    "index": ["logs-aws.cloudtrail*"],
     "timeField": "@timestamp",
     "aggType": "count"
   },

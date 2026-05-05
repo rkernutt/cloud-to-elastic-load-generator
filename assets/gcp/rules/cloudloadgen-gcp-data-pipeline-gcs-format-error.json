@@ -10,24 +10,17 @@
   "schedule": {
     "interval": "5m"
   },
-  "tags": [
-    "cloudloadgen",
-    "data-pipeline"
-  ],
+  "tags": ["cloudloadgen", "data-pipeline"],
   "enabled": false,
   "params": {
     "searchType": "esQuery",
     "timeWindowSize": 15,
     "timeWindowUnit": "m",
-    "threshold": [
-      1
-    ],
+    "threshold": [1],
     "thresholdComparator": ">=",
     "size": 100,
     "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.cloud_storage\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"gcp.cloud_storage.object_name\":{\"value\":\"*%*\"}}},{\"bool\":{\"must_not\":{\"wildcard\":{\"gcp.cloud_storage.object_name\":{\"value\":\"*.avro\"}}}}}]}}]}}}",
-    "index": [
-      "logs-gcp.cloud_storage*"
-    ],
+    "index": ["logs-gcp.cloud_storage*"],
     "timeField": "@timestamp",
     "aggType": "count"
   },

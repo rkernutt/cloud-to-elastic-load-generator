@@ -10,18 +10,13 @@
   "schedule": {
     "interval": "5m"
   },
-  "tags": [
-    "cloudloadgen",
-    "azure-data-exfil-chain"
-  ],
+  "tags": ["cloudloadgen", "azure-data-exfil-chain"],
   "enabled": false,
   "params": {
     "searchType": "esQuery",
     "timeWindowSize": 15,
     "timeWindowUnit": "m",
-    "threshold": [
-      2
-    ],
+    "threshold": [2],
     "thresholdComparator": ">",
     "size": 100,
     "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.defender\"}},{\"wildcard\":{\"azure.defender.alert_type\":\"*Exfiltration*\"}}]}},{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.blob_storage\"}},{\"range\":{\"azure.blob_storage.bytes_out\":{\"gt\":52428800}}}]}},{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.network_security_groups\"}},{\"term\":{\"azure.network_security_groups.direction\":\"Outbound\"}}]}}],\"minimum_should_match\":1}}]}}}",

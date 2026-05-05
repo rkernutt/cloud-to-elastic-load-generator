@@ -10,24 +10,17 @@
   "schedule": {
     "interval": "5m"
   },
-  "tags": [
-    "cloudloadgen",
-    "data-pipeline"
-  ],
+  "tags": ["cloudloadgen", "data-pipeline"],
   "enabled": false,
   "params": {
     "searchType": "esQuery",
     "timeWindowSize": 15,
     "timeWindowUnit": "m",
-    "threshold": [
-      1
-    ],
+    "threshold": [1],
     "thresholdComparator": ">=",
     "size": 100,
     "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.s3access\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"aws.s3access.key\":{\"value\":\"*%*\"}}},{\"bool\":{\"must_not\":{\"wildcard\":{\"aws.s3access.key\":{\"value\":\"*.avro\"}}}}}]}}]}}}",
-    "index": [
-      "logs-aws.s3access*"
-    ],
+    "index": ["logs-aws.s3access*"],
     "timeField": "@timestamp",
     "aggType": "count"
   },

@@ -10,25 +10,17 @@
   "schedule": {
     "interval": "5m"
   },
-  "tags": [
-    "cloudloadgen",
-    "azure-iam-privesc-chain"
-  ],
+  "tags": ["cloudloadgen", "azure-iam-privesc-chain"],
   "enabled": false,
   "params": {
     "searchType": "esQuery",
     "timeWindowSize": 30,
     "timeWindowUnit": "m",
-    "threshold": [
-      2
-    ],
+    "threshold": [2],
     "thresholdComparator": ">",
     "size": 100,
     "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"term\":{\"azure.entra_id.riskLevel\":\"high\"}},{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.activity_log\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"azure.activity_log.operation_name\":\"*roleAssignments*\"}},{\"wildcard\":{\"azure.activity_log.operation_name\":\"*roleDefinitions*\"}},{\"wildcard\":{\"azure.activity_log.operation_name\":\"*Microsoft.Authorization*\"}}],\"minimum_should_match\":1}}]}}],\"minimum_should_match\":1}}]}}}",
-    "index": [
-      "logs-azure.entra_id*",
-      "logs-azure.activity_log*"
-    ],
+    "index": ["logs-azure.entra_id*", "logs-azure.activity_log*"],
     "timeField": "@timestamp",
     "aggType": "count"
   },
