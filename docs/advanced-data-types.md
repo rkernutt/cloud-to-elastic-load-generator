@@ -80,6 +80,7 @@ For CSPM/KSPM, `event.module` is hardcoded to `cloud_security_posture` in the sh
 
 A sample workflow lives in [`workflows/data-pipeline-alert-enrichment.yaml`](../workflows/data-pipeline-alert-enrichment.yaml). It:
 
+0. **Pre-flight check** — `kibana.request` GETs `/api/actions/connector/{{ inputs.emailConnector }}` and aborts the run with a single clear 404 error if the configured connector ID doesn't exist, instead of burning retries inside the email step.
 1. Triggers on any data pipeline alerting rule.
 2. Queries pipeline logs for the triggering user's identity.
 3. Looks up the user and affected CI in ServiceNow CMDB.

@@ -70,6 +70,33 @@ triggers:
 # STEPS
 # ═══════════════════════════════════════════════════════════════════════════
 steps:
+  # ─── 0. Pre-flight: validate the notification connector ────────────────
+  #     Resolves `inputs.emailConnector` against Kibana's connectors API.
+  #     Returns 200 if the connector exists; 404 stops the workflow with a
+  #     clear, single error rather than burning retries inside `notify_email`
+  #     and silently producing no notification.
+  #
+  #     If this step fails on your deployment, the connector ID is wrong or
+  #     missing. See `docs/workflow-deployment.md` — Cloud Hosted/Serverless
+  #     have `elastic-cloud-email` preconfigured; self-hosted users either
+  #     preconfigure the same ID in `kibana.yml` or override `emailConnector`
+  #     at install time.
+  - name: log_preflight
+    type: console
+    with:
+      message: |
+        Pre-flight check:
+          emailConnector: {{ inputs.emailConnector }}
+          notifyTo:       {{ inputs.notifyTo }}
+  - name: validate_email_connector
+    type: kibana.request
+    with:
+      method: GET
+      path: "/api/actions/connector/{{ inputs.emailConnector }}"
+    # Default behaviour on failure is to abort the workflow run, which is
+    # what we want — surface the misconfiguration immediately rather than
+    # masking it behind retries on `notify_email`.
+
   # ─── 1. Extract the alert details ──────────────────────────────────────
   - name: log_alert_received
     type: console
@@ -302,6 +329,12 @@ steps:
 
         Open incidents: {{ steps.find_open_incidents.output.hits.total.value }}
         Recent changes: {{ steps.find_recent_changes.output.hits.total.value }}
+    # Retry transient SMTP failures up to twice, then continue so that the
+    # `index_enriched_alert` step still records the enrichment result for
+    # post-mortem dashboards even if the notification couldn't be delivered.
+    # The pre-flight `validate_email_connector` step above guarantees the
+    # connector itself exists; failures here are SMTP/network issues that
+    # shouldn't suppress downstream bookkeeping.
     on-failure:
       retry:
         max-attempts: 2

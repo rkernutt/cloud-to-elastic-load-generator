@@ -115,6 +115,18 @@ The workflow ships with six commented-out alternatives directly below the active
 
 Each block reuses the same enriched-alert template. To switch channels, comment out the email step and uncomment one (or several) alternatives. They run sequentially; wrap them in a `parallel` step if you need concurrent fan-out. Each requires a connector you've already configured under **Kibana → Stack Management → Connectors**.
 
+## Pre-flight connector validation
+
+The first step the workflow runs is `validate_email_connector`, a `kibana.request` step that GETs `/api/actions/connector/{{ inputs.emailConnector }}`. If the connector ID resolves, the workflow continues; if it doesn't, the run aborts immediately with a single clear error rather than silently burning retries inside `notify_email`.
+
+Common outcomes:
+
+- **200 OK** — connector exists; workflow continues to alert handling.
+- **404 Not Found** — connector ID is wrong or the connector hasn't been created on this deployment. Run history will surface the failed step as the abort cause. Fix:
+  - Cloud Hosted / Serverless: confirm `elastic-cloud-email` exists under **Stack Management → Connectors** (it should be auto-provisioned).
+  - Self-hosted: apply Option A or Option B above.
+- **403 Forbidden** — the workflow's runtime token lacks `read` on the action. Grant Kibana **Actions and Connectors** read privileges to the workflow's role.
+
 ## Triggering the workflow
 
 The workflow's trigger is `type: alert`, which means it fires whenever a Kibana **alerting rule** sends it the alert payload. The bundled data-pipeline alerting rules (installed by the Setup wizard or `npm run setup:alert-rules`) are pre-wired to send their payload to this workflow when one is registered. If you install the workflow before installing the alerting rules, no extra wiring is needed.
@@ -134,7 +146,8 @@ curl -sS -X POST "$KIBANA_URL/api/workflows/_workflows/<workflow-id>/run" \
 | Symptom                                                                                         | Likely cause                                                                               | Fix                                                                                                                                                                                                        |
 | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Workflow runs succeed but no email arrives                                                      | Self-hosted with no preconfigured `elastic-cloud-email` connector                          | Apply Option A or Option B above                                                                                                                                                                           |
-| Notify step errors with `connector not found`                                                   | The `emailConnector` / `slackConnector` input value doesn't match any connector            | Check **Stack Management → Connectors** for the connector ID; pass the correct ID via `inputs`                                                                                                             |
+| Workflow aborts on `validate_email_connector` with 404                                          | `inputs.emailConnector` doesn't match any connector on this deployment                     | Check **Stack Management → Connectors** for the connector ID; pass the correct ID via `inputs.emailConnector` (self-hosted: see Option A / Option B above)                                                 |
+| Notify step errors with `connector not found` (older workflow version, no pre-flight)           | The `emailConnector` / `slackConnector` input value doesn't match any connector            | Same as above; the pre-flight step in the current YAML normally catches this before `notify_email` runs                                                                                                    |
 | `lookup_affected_ci` returns 0 hits                                                             | ServiceNow CMDB data not shipped, or shipped before the cross-cloud enrichment fix         | Re-ship CMDB data with a current build of Cloud Loadgen for Elastic; verify `event.module` of CMDB docs is `servicenow` (not `aws`/`gcp`/`azure`) — see [advanced-data-types.md](./advanced-data-types.md) |
 | `find_pipeline_user` / `find_open_incidents` fail with sort validation                          | Workflows v1.0.0 strict-schema rejects the named `elasticsearch.search` action's sort body | The bundled YAML already routes those steps through `elasticsearch.request`; if you customised them, mirror that pattern                                                                                   |
 | `open_case` errors with `Invalid option: expected "cases"\|"observability"\|"securitySolution"` | The Cases plugin is bound to a fixed set of owners; the workflow uses `observability`      | Keep `owner: "observability"` (or set to `cases` / `securitySolution` to match your space)                                                                                                                 |
