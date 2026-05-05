@@ -21,6 +21,15 @@ import {
   resolveFleetPackageVersion,
   shouldUseSavedObjectDashboardInstall,
 } from "./setupProxy";
+import {
+  applyWorkflowOverrides,
+  detectKibanaMajorMinor,
+  installWorkflow as installWorkflowApi,
+  uninstallWorkflow as uninstallWorkflowApi,
+  DEFAULT_WORKFLOW_NAME,
+  type WorkflowOverrides,
+} from "./workflowInstaller";
+import { ALERT_ENRICHMENT_WORKFLOW_YAML } from "./workflowYaml";
 
 export type SetupLogFn = (text: string, type?: "info" | "ok" | "error" | "warn") => void;
 
@@ -133,6 +142,14 @@ export async function runSetupInstall(opts: {
   enableAlertRules: boolean;
   activateAlertRules: boolean;
   startMlJobs: boolean;
+  /** Install the bundled alert-enrichment Kibana Workflow. */
+  enableWorkflow?: boolean;
+  /**
+   * Optional overrides for the workflow YAML — `notifyTo`, `emailConnector`,
+   * and the 9.4 case-step toggle. When `use94CasesStep` is undefined, the
+   * installer auto-detects from `/api/status` and turns it on for ≥ 9.4.
+   */
+  workflowOverrides?: WorkflowOverrides;
   extraFleetPackages?: { name: string; label: string }[];
   pipelines: PipelineEntry[];
   dashboards: DashboardDef[];
@@ -154,6 +171,8 @@ export async function runSetupInstall(opts: {
     enableAlertRules,
     activateAlertRules,
     startMlJobs,
+    enableWorkflow = false,
+    workflowOverrides,
     extraFleetPackages = [],
     pipelines,
     dashboards,
@@ -745,6 +764,85 @@ export async function runSetupInstall(opts: {
     );
   };
 
+  const installAlertWorkflow = async () => {
+    addLog(`Installing alert-enrichment Kibana Workflow…`);
+    const kb = kibanaUrl.replace(/\/$/, "");
+
+    const resolvedOverrides: WorkflowOverrides = { ...(workflowOverrides ?? {}) };
+    if (resolvedOverrides.use94CasesStep === undefined) {
+      const ver = await detectKibanaMajorMinor(kb, apiKey);
+      if (ver) {
+        resolvedOverrides.use94CasesStep =
+          ver.major > 9 || (ver.major === 9 && ver.minor >= 4);
+        addLog(
+          `  Detected Kibana ${ver.major}.${ver.minor} — using ${
+            resolvedOverrides.use94CasesStep
+              ? "cases.createCase (9.4+)"
+              : "kibana.createCaseDefaultSpace (9.3-compatible)"
+          } step`,
+          "info"
+        );
+      }
+    }
+
+    const yaml = applyWorkflowOverrides(ALERT_ENRICHMENT_WORKFLOW_YAML, resolvedOverrides);
+
+    // Pre-flight: warn (but don't block) if the email connector is missing
+    // on this deployment. The workflow itself also pre-flights at run-time.
+    const emailConnector = resolvedOverrides.emailConnector ?? "elastic-cloud-email";
+    try {
+      const conn = await proxyCall({
+        baseUrl: kb,
+        apiKey,
+        path: `/api/actions/connector/${encodeURIComponent(emailConnector)}`,
+        method: "GET",
+        allow404: true,
+      });
+      if (conn === null) {
+        addLog(
+          `  ⚠ Connector "${emailConnector}" not found — workflow will install but its first run will abort at the pre-flight step. ${
+            isServerless
+              ? "Cloud Hosted/Serverless usually provision elastic-cloud-email automatically; check Stack Management → Connectors."
+              : "Self-hosted: preconfigure the connector in kibana.yml or set workflowOverrides.emailConnector — see docs/workflow-deployment.md."
+          }`,
+          "warn"
+        );
+      }
+    } catch (e) {
+      addLog(`  ⚠ Could not verify connector "${emailConnector}": ${e}`, "warn");
+    }
+
+    try {
+      const result = await installWorkflowApi({
+        kibanaUrl: kb,
+        apiKey,
+        yaml,
+        overwrite: true,
+      });
+      const verb = {
+        created: "installed",
+        updated: "updated (existing workflow replaced)",
+        already_exists: "already installed",
+      }[result.outcome];
+      addLog(`  ✓ Workflow "${DEFAULT_WORKFLOW_NAME}" ${verb} (id: ${result.id})`, "ok");
+    } catch (e) {
+      const msg = String(e);
+      if (isKibanaFeatureUnavailable(msg) || msg.includes("HTTP 404")) {
+        addLog(
+          `  ✗ Workflows API not available on this deployment.${kibanaFeatureBlockedExplanation(msg)} Self-hosted requires Stack 9.3+ with Enterprise licence and \`workflows:ui:enabled = true\`. The YAML at workflows/data-pipeline-alert-enrichment.yaml can still be installed manually via Stack Management → Workflows → Create.`,
+          "error"
+        );
+      } else if (msg.includes("HTTP 403")) {
+        addLog(
+          `  ✗ API key lacks Workflows privileges (HTTP 403). Grant Kibana → Management → Workflows All to the role.`,
+          "error"
+        );
+      } else {
+        addLog(`  ✗ Workflow install failed: ${msg}`, "error");
+      }
+    }
+  };
+
   if (enableIntegration) await installIntegration(setupBundle.fleetPackage);
   if (enableApm) await installIntegration("apm");
   for (const pkg of extraFleetPackages) {
@@ -759,4 +857,39 @@ export async function runSetupInstall(opts: {
   if (enableAlertRules) await installAlertRules();
   if (activateAlertRules && enableAlertRules) await activateRules();
   if (startMlJobs && enableMlJobs) await openAndStartMlJobs();
+  if (enableWorkflow) await installAlertWorkflow();
+}
+
+/**
+ * Standalone helper — uninstall the bundled alert-enrichment workflow.
+ * Used from SetupPage's uninstall path; mirrors the structure of the other
+ * uninstall functions defined inline in SetupPage.tsx.
+ */
+export async function uninstallSetupWorkflow(opts: {
+  kibanaUrl: string;
+  apiKey: string;
+  addLog: SetupLogFn;
+}): Promise<void> {
+  const { kibanaUrl, apiKey, addLog } = opts;
+  const kb = kibanaUrl.replace(/\/$/, "");
+  addLog(`Removing alert-enrichment Kibana Workflow…`);
+  try {
+    const result = await uninstallWorkflowApi({
+      kibanaUrl: kb,
+      apiKey,
+      name: DEFAULT_WORKFLOW_NAME,
+    });
+    if (result.outcome === "deleted") {
+      addLog(`  ✓ Workflow "${DEFAULT_WORKFLOW_NAME}" removed`, "ok");
+    } else if (result.outcome === "not_found") {
+      addLog(`  — Workflow "${DEFAULT_WORKFLOW_NAME}" not found, nothing to remove`, "info");
+    } else if (result.outcome === "api_disabled") {
+      addLog(
+        `  ⚠ Workflows API blocked on this deployment.${kibanaFeatureBlockedExplanation(result.message ?? "")}`,
+        "warn"
+      );
+    }
+  } catch (e) {
+    addLog(`  ✗ Workflow uninstall failed: ${e}`, "error");
+  }
 }

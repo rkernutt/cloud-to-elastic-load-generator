@@ -18,11 +18,12 @@ assets/
 │   ├── ml-jobs/      152 ML anomaly detection jobs
 │   ├── rules/         17 alerting rules
 │   └── dashboards/   127 Kibana dashboards
-└── azure/
-    ├── pipelines/    121 ingest pipelines
-    ├── ml-jobs/      154 ML anomaly detection jobs
-    ├── rules/         17 alerting rules
-    └── dashboards/   120 Kibana dashboards
+├── azure/
+│   ├── pipelines/    125 ingest pipelines
+│   ├── ml-jobs/      154 ML anomaly detection jobs
+│   ├── rules/         17 alerting rules
+│   └── dashboards/   120 Kibana dashboards
+└── workflows/         1 cross-cloud Kibana Workflow YAML
 ```
 
 Every JSON file contains a `_meta` block at the top with the asset identifier and the exact Elasticsearch / Kibana API call required to deploy it.
@@ -91,6 +92,25 @@ curl -X POST "https://<KIBANA_URL>/api/saved_objects/_import?overwrite=true" \
   -F file=@assets/aws/dashboards/glue-dashboard.json
 ```
 
+### Kibana Workflows
+
+Workflow YAML files live under `assets/workflows/`. They are mirrors of the
+canonical sources in `workflows/` so you can copy/paste them into Stack
+Management → Workflows → Create without rooting around the source tree:
+
+```bash
+# Or install via API on Stack 9.3+ — the wizard uses the same call
+curl -X POST "https://<KIBANA_URL>/api/workflows/_workflows" \
+  -H "Authorization: ApiKey <KEY>" \
+  -H "kbn-xsrf: true" \
+  -H "Content-Type: application/json" \
+  -d "$(jq -n --rawfile y assets/workflows/data-pipeline-alert-enrichment.yaml \
+    '{name:"Data Pipeline Alert — CMDB Enrichment & Notification", description:"", yaml:$y, enabled:true, tags:["data-pipeline","servicenow","enrichment","automated-response"]}')"
+```
+
+For the interactive headless installer (with `notifyTo` / `emailConnector`
+overrides and 9.4 auto-detect), run `npm run setup:workflow` instead.
+
 ## Bulk deploy all assets for a cloud
 
 To deploy every asset for a cloud provider at once, use the installer scripts instead:
@@ -101,11 +121,16 @@ npm run setup:aws-pipelines
 npm run setup:aws-dashboards
 npm run setup:aws-ml-jobs
 npm run setup:alert-rules
+npm run setup:workflow
 
 # Or, to install pipeline + dashboard + ML jobs + rules per chosen service:
 npm run setup:aws-loadgen-packs
 ```
 
-`npm run setup:alert-rules` is cross-cloud — it walks every `installer/{aws,gcp,azure}-custom-rules/` JSON file and creates the rules. There is no per-cloud rules installer.
+`npm run setup:alert-rules` and `npm run setup:workflow` are both cross-cloud.
+The first walks every `installer/{aws,gcp,azure}-custom-rules/` JSON file and
+creates the alerting rules; the second installs the bundled Kibana Workflow
+that enriches those alerts with ServiceNow CMDB context. There is no per-cloud
+variant of either.
 
 Or use the web UI Setup wizard, which handles all of this automatically and adds uninstall support.

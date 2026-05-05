@@ -54,18 +54,31 @@ The workflow exposes three inputs you can override at install time. Defaults are
 | `notifyTo`       | `data-platform-oncall@example.com` | Recipient of `notify_email`                          |
 | `slackConnector` | `data-pipeline-alerts`             | Optional — only used if you uncomment `notify_slack` |
 
+## Install paths
+
+There are three ways to install the workflow. They all produce the same end
+state — the Setup wizard and the CLI use the Workflows REST API; the manual
+path is for clusters where the API is unavailable or where you'd rather paste
+the YAML by hand.
+
+| Path                                                          | Best for                                            | Notes                                                                                                                                                                            |
+| ------------------------------------------------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Setup wizard** (Setup page → Alert-enrichment Workflow row) | Most users — visual install, idempotent reinstall   | Auto-detects 9.4+ to pick the right cases step, exposes `notifyTo` / `emailConnector` text fields, pre-flights the connector. Mirrors the CLI exactly.                           |
+| **CLI** (`npm run setup:workflow`)                            | Headless / CI installs                              | Same overrides and 9.4 auto-detect as the wizard. Interactive prompts for URL, API key, deployment type, and inputs.                                                              |
+| **Manual paste**                                              | Workflows API blocked, or you want to edit pre-save | Copy [`assets/workflows/data-pipeline-alert-enrichment.yaml`](../assets/workflows/data-pipeline-alert-enrichment.yaml) into Stack Management → Workflows → Create. Override `notifyTo` and `emailConnector` in the form before saving. |
+
 ## Setup per deployment type
 
 ### Elastic Cloud Hosted
 
 1. Confirm the Workflows app is visible under the navigation. (Cloud Hosted enables it automatically on supported tiers.)
-2. Open **Stack Management → Workflows → Create**, paste the YAML, save. Override `notifyTo` if you want a different recipient than the default placeholder.
+2. Either run the Setup wizard / `npm run setup:workflow`, or paste [`assets/workflows/data-pipeline-alert-enrichment.yaml`](../assets/workflows/data-pipeline-alert-enrichment.yaml) into **Stack Management → Workflows → Create** and override `notifyTo` if you want a different recipient than the default placeholder.
 3. Done. The workflow will fire on the next data-pipeline alert.
 
 ### Elastic Cloud Serverless
 
 1. Workflows is a preview feature — confirm your project type (Observability or Security) shows the Workflows app.
-2. Same install path as Cloud Hosted: paste the YAML, override `notifyTo`, save. The `elastic-cloud-email` connector ID resolves automatically.
+2. Same install path as Cloud Hosted: wizard, CLI, or manual paste. The `elastic-cloud-email` connector ID resolves automatically.
 
 ### Self-hosted (Stack 9.3+, ECE, ECK)
 

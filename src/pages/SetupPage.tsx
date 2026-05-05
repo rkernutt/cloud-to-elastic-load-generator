@@ -24,6 +24,8 @@ import {
   EuiConfirmModal,
   EuiSwitch,
   EuiFieldSearch,
+  EuiFieldText,
+  EuiFormRow,
   EuiBadge,
   EuiLoadingSpinner,
 } from "@elastic/eui";
@@ -41,7 +43,7 @@ import type {
 } from "../setup/types";
 import { dashboardDefToSavedObjectId } from "../setup/dashboardToImportNdjson";
 import { stableDashboardKey } from "../setup/stableDashboardKey";
-import { runSetupInstall } from "../setup/runSetupInstall";
+import { runSetupInstall, uninstallSetupWorkflow } from "../setup/runSetupInstall";
 import {
   proxyCall,
   resolveFleetPackageVersion,
@@ -202,6 +204,9 @@ export function SetupPage({
   const [enableLoadgenIntegrations, setEnableLoadgenIntegrations] = useState(false);
   const [activateAlertRules, setActivateAlertRules] = useState(false);
   const [startMlJobs, setStartMlJobs] = useState(false);
+  const [enableWorkflow, setEnableWorkflow] = useState(false);
+  const [workflowNotifyTo, setWorkflowNotifyTo] = useState("data-platform-oncall@example.com");
+  const [workflowEmailConnector, setWorkflowEmailConnector] = useState("elastic-cloud-email");
   /** Pipeline / dashboard / ML group section keys the user has expanded (default: none). */
   const [expandedSetupSections, setExpandedSetupSections] = useState<Set<string>>(() => new Set());
 
@@ -319,9 +324,19 @@ export function SetupPage({
   const hasEs = !!elasticUrl.trim() && !!apiKey.trim();
   const hasKb = !!kibanaUrl.trim() && !!apiKey.trim();
   const needsKb =
-    enableIntegration || enableApm || enableCsp || enableServiceNow || enableLoadgenIntegrations;
+    enableIntegration ||
+    enableApm ||
+    enableCsp ||
+    enableServiceNow ||
+    enableLoadgenIntegrations ||
+    enableWorkflow;
   const anyEnabled =
-    enableIntegration || enableApm || enableCsp || enableServiceNow || enableLoadgenIntegrations;
+    enableIntegration ||
+    enableApm ||
+    enableCsp ||
+    enableServiceNow ||
+    enableLoadgenIntegrations ||
+    enableWorkflow;
   const canRun = anyEnabled && hasEs && (!needsKb || hasKb);
 
   function toggleGroup<T>(set: Set<T>, val: T): Set<T> {
@@ -1818,6 +1833,11 @@ export function SetupPage({
         enableAlertRules: enableLoadgenIntegrations,
         activateAlertRules,
         startMlJobs,
+        enableWorkflow,
+        workflowOverrides: {
+          notifyTo: workflowNotifyTo,
+          emailConnector: workflowEmailConnector,
+        },
         extraFleetPackages,
         pipelines: filteredPipelines(),
         dashboards: filteredDashboards(),
@@ -2106,6 +2126,9 @@ export function SetupPage({
     if (enableDashboards) await uninstallDashboards();
     if (enableMlJobs) await uninstallMlJobs();
     if (enableLoadgenIntegrations) await uninstallAlertRules();
+    if (enableWorkflow) {
+      await uninstallSetupWorkflow({ kibanaUrl, apiKey, addLog });
+    }
   }
 
   const runUninstall = async () => {
@@ -2160,6 +2183,11 @@ export function SetupPage({
         enableAlertRules: enableLoadgenIntegrations,
         activateAlertRules,
         startMlJobs,
+        enableWorkflow,
+        workflowOverrides: {
+          notifyTo: workflowNotifyTo,
+          emailConnector: workflowEmailConnector,
+        },
         extraFleetPackages,
         pipelines: filteredPipelines(),
         dashboards: filteredDashboards(),
@@ -2220,6 +2248,11 @@ export function SetupPage({
         enableAlertRules: enableLoadgenIntegrations,
         activateAlertRules,
         startMlJobs,
+        enableWorkflow,
+        workflowOverrides: {
+          notifyTo: workflowNotifyTo,
+          emailConnector: workflowEmailConnector,
+        },
         extraFleetPackages,
         pipelines: filteredPipelines(),
         dashboards: filteredDashboards(),
@@ -2486,6 +2519,65 @@ export function SetupPage({
         enabled={enableServiceNow}
         onToggle={setEnableServiceNow}
       />
+
+      <EuiSpacer size="m" />
+
+      <InstallerRow
+        label="Alert-enrichment Workflow"
+        badge="Kibana"
+        description={
+          removeMode ? (
+            <>
+              <strong>Removes</strong> the bundled <EuiCode>{"data-pipeline-alert-enrichment"}</EuiCode>{" "}
+              Kibana Workflow.
+            </>
+          ) : (
+            <>
+              Installs the bundled{" "}
+              <EuiCode>{"data-pipeline-alert-enrichment.yaml"}</EuiCode> Kibana Workflow that
+              enriches data-pipeline alerts with ServiceNow CMDB context, opens a case for
+              repeat incidents, and emails the on-call group via the deployment's preconfigured
+              SMTP connector. Requires Workflows (preview from Stack 9.3, GA on Cloud Hosted) and
+              an Enterprise licence — the wizard auto-detects 9.4+ and uses the new
+              <EuiCode>{"cases.createCase"}</EuiCode> step when available. The same YAML is also
+              available at <EuiCode>{"workflows/data-pipeline-alert-enrichment.yaml"}</EuiCode> /{" "}
+              <EuiCode>{"assets/workflows/"}</EuiCode> for manual paste into Stack Management →
+              Workflows.
+            </>
+          )
+        }
+        enabled={enableWorkflow}
+        onToggle={setEnableWorkflow}
+      >
+        {enableWorkflow && !removeMode && (
+          <>
+            <EuiSpacer size="s" />
+            <EuiFlexGroup gutterSize="s" responsive={false}>
+              <EuiFlexItem>
+                <EuiFormRow
+                  label="Email connector ID"
+                  helpText="ID of the Kibana action connector used by notify_email. Defaults to elastic-cloud-email (auto-provisioned on Cloud Hosted / Serverless)."
+                >
+                  <EuiFieldText
+                    value={workflowEmailConnector}
+                    onChange={(e) => setWorkflowEmailConnector(e.target.value)}
+                    placeholder="elastic-cloud-email"
+                  />
+                </EuiFormRow>
+              </EuiFlexItem>
+              <EuiFlexItem>
+                <EuiFormRow label="Notify recipient" helpText="Email address that receives the enriched alert.">
+                  <EuiFieldText
+                    value={workflowNotifyTo}
+                    onChange={(e) => setWorkflowNotifyTo(e.target.value)}
+                    placeholder="data-platform-oncall@example.com"
+                  />
+                </EuiFormRow>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          </>
+        )}
+      </InstallerRow>
 
       <EuiSpacer size="m" />
 

@@ -15,6 +15,7 @@ flowchart TD
     Start -->|Custom dashboards| Dash[setup:&#123;aws,gcp,azure&#125;-dashboards]
     Start -->|ML anomaly jobs| ML[setup:&#123;aws,gcp,azure&#125;-ml-jobs]
     Start -->|Alerting rules| Rules[setup:alert-rules<br/><i>cross-cloud, walks all rule files</i>]
+    Start -->|Alert-enrichment Workflow| Wf[setup:workflow<br/><i>cross-cloud Kibana Workflow</i>]
 ```
 
 If you're not sure: run the web UI Setup step. It installs the same assets and adds uninstall support, post-install toggles, and Serverless-aware behaviour. CLI installers shine for repeatable scripted demos and air-gapped environments.
@@ -250,6 +251,7 @@ Any `*-dashboard.json` file placed in the appropriate `installer/{cloud}-custom-
 | ----------------------------------- | -------------------------------------- |
 | `npm run setup:aws-loadgen-packs`   | `installer/aws-loadgen-packs/`         |
 | `npm run setup:alert-rules`         | `installer/alert-rules-installer/`     |
+| `npm run setup:workflow`            | `installer/workflow-installer/`        |
 | `npm run setup:aws-integration`     | `installer/aws-elastic-integration/`   |
 | `npm run setup:aws-pipelines`       | `installer/aws-custom-pipelines/`      |
 | `npm run setup:aws-dashboards`      | `installer/aws-custom-dashboards/`     |

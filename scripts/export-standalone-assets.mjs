@@ -174,12 +174,40 @@ async function exportDashboards(cloud) {
   return count;
 }
 
+// ── Workflows (cross-cloud) ───────────────────────────────────────────────────
+
+/**
+ * Mirror the bundled Kibana Workflow YAML(s) under `assets/workflows/` so users
+ * can copy/paste them into Stack Management → Workflows → Create without
+ * having to dig through the source tree. The wizard installs the same files
+ * via the Workflows REST API.
+ */
+async function exportWorkflows() {
+  const srcDir = join(ROOT, "workflows");
+  const outDir = join(ASSETS, "workflows");
+  await ensureDir(outDir);
+
+  let files;
+  try {
+    files = (await readdir(srcDir)).filter((f) => f.endsWith(".yaml") || f.endsWith(".yml"));
+  } catch {
+    return 0;
+  }
+
+  let count = 0;
+  for (const file of files) {
+    await copyFile(join(srcDir, file), join(outDir, file));
+    count++;
+  }
+  return count;
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 async function main() {
   console.log("Exporting standalone assets to assets/ …\n");
 
-  const totals = { pipelines: 0, mlJobs: 0, rules: 0, dashboards: 0 };
+  const totals = { pipelines: 0, mlJobs: 0, rules: 0, dashboards: 0, workflows: 0 };
 
   for (const cloud of CLOUDS) {
     const p = await exportPipelines(cloud);
@@ -193,8 +221,11 @@ async function main() {
     console.log(`  ${cloud.id}: ${p} pipelines, ${m} ML jobs, ${r} rules, ${d} dashboards`);
   }
 
+  totals.workflows = await exportWorkflows();
+  console.log(`  workflows: ${totals.workflows} Kibana workflow YAML${totals.workflows === 1 ? "" : "s"}`);
+
   console.log(
-    `\nTotal: ${totals.pipelines} pipelines, ${totals.mlJobs} ML jobs, ${totals.rules} rules, ${totals.dashboards} dashboards`
+    `\nTotal: ${totals.pipelines} pipelines, ${totals.mlJobs} ML jobs, ${totals.rules} rules, ${totals.dashboards} dashboards, ${totals.workflows} workflows`
   );
   console.log(`Output: ${ASSETS}/`);
 }

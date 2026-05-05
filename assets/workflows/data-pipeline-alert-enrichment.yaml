@@ -1,0 +1,536 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Data Pipeline Alert → ServiceNow CMDB Enrichment → Notification
+#
+# Triggers when any [CloudLoadGen] Data Pipeline alerting rule fires.
+# Looks up the affected CI in ServiceNow CMDB, finds the owner and
+# support group, checks for open incidents, opens a Kibana case, and
+# emails an enriched alert via the deployment's preconfigured SMTP
+# connector (`elastic-cloud-email`). Slack / Teams / PagerDuty / etc.
+# alternatives are listed as commented-out blocks at the bottom.
+#
+# ─── Deployment compatibility ──────────────────────────────────────────────
+#   • Elastic Cloud Hosted (ESS):   works as-is — `elastic-cloud-email` is
+#                                   provisioned automatically.
+#   • Elastic Cloud Serverless:     works as-is — same `elastic-cloud-email`
+#                                   ID is preconfigured (Workflows is preview).
+#   • Self-hosted (Stack 9.3+,      requires you to either preconfigure an
+#     ECE, ECK):                    `elastic-cloud-email` connector in
+#                                   `kibana.yml` (recommended) OR override
+#                                   the `emailConnector` input at install
+#                                   time. Workflows requires an Enterprise
+#                                   licence and `workflows:ui:enabled = true`
+#                                   in Advanced Settings. Recommended Kibana
+#                                   instance size: ≥ 2 GB RAM (Workflows is
+#                                   memory-hungry and 9.4 raised the ECH
+#                                   default to 2 GB).
+#
+# ─── Stack 9.4 enhancements (optional) ─────────────────────────────────────
+# When running on 9.4+ you can take advantage of:
+#   • New `cases.createCase` / `cases.updateCase` / `cases.getCase` /
+#     `cases.addComment` step types — drop-in replacement for the
+#     `kibana.createCaseDefaultSpace` step in section 7 (see commented block).
+#   • The `workflows.executionFailed` trigger — useful for a sister workflow
+#     that catches failures here and notifies a fallback channel.
+#   • Server-side workflow validation endpoint — pre-validate this YAML in
+#     CI before deploy.
+#   • Workflow import / export from the UI for promotion between spaces.
+#
+# Full setup, troubleshooting, and self-hosted `kibana.yml` snippet:
+#   docs/workflow-deployment.md
+# ═══════════════════════════════════════════════════════════════════════════
+
+name: Data Pipeline Alert — CMDB Enrichment & Notification
+description: >
+  Enriches data pipeline alerts with ServiceNow CMDB context (CI owner,
+  support group, open incidents) and emails the on-call group via the
+  deployment's preconfigured SMTP connector so the right person can be
+  contacted immediately.
+enabled: true
+tags:
+  - data-pipeline
+  - servicenow
+  - enrichment
+  - automated-response
+
+consts:
+  servicenowIndex: "logs-servicenow.event-*"
+  pipelineLogsIndex: "logs-*"
+
+inputs:
+  # The default notification step (`notify_email`) targets the SMTP connector
+  # that Elastic Cloud creates automatically (`elastic-cloud-email`). Override
+  # at install time to point at your own connector.
+  - name: emailConnector
+    type: string
+    required: true
+    default: "elastic-cloud-email"
+    description: "Name or ID of the email connector used by notify_email"
+  - name: notifyTo
+    type: string
+    required: true
+    default: "data-platform-oncall@example.com"
+    description: "Recipient address for notify_email"
+  # Used only if you uncomment the `notify_slack` alternative block below.
+  - name: slackConnector
+    type: string
+    required: false
+    default: "data-pipeline-alerts"
+    description: "Name or ID of the Slack connector (alternative channel)"
+
+triggers:
+  - type: alert
+
+# ═══════════════════════════════════════════════════════════════════════════
+# STEPS
+# ═══════════════════════════════════════════════════════════════════════════
+steps:
+  # ─── 0. Pre-flight: validate the notification connector ────────────────
+  #     Resolves `inputs.emailConnector` against Kibana's connectors API.
+  #     Returns 200 if the connector exists; 404 stops the workflow with a
+  #     clear, single error rather than burning retries inside `notify_email`
+  #     and silently producing no notification.
+  #
+  #     If this step fails on your deployment, the connector ID is wrong or
+  #     missing. See `docs/workflow-deployment.md` — Cloud Hosted/Serverless
+  #     have `elastic-cloud-email` preconfigured; self-hosted users either
+  #     preconfigure the same ID in `kibana.yml` or override `emailConnector`
+  #     at install time.
+  - name: log_preflight
+    type: console
+    with:
+      message: |
+        Pre-flight check:
+          emailConnector: {{ inputs.emailConnector }}
+          notifyTo:       {{ inputs.notifyTo }}
+  - name: validate_email_connector
+    type: kibana.request
+    with:
+      method: GET
+      path: "/api/actions/connector/{{ inputs.emailConnector }}"
+    # Default behaviour on failure is to abort the workflow run, which is
+    # what we want — surface the misconfiguration immediately rather than
+    # masking it behind retries on `notify_email`.
+
+  # ─── 1. Extract the alert details ──────────────────────────────────────
+  - name: log_alert_received
+    type: console
+    with:
+      message: >
+        Pipeline alert received: {{ event.alerts[0].kibana.alert.rule.name }}
+        Reason: {{ event.alerts[0].message }}
+
+  # ─── 2. Find the user who triggered the pipeline run ───────────────────
+  #    Query the pipeline operational logs for the user identity on recent
+  #    documents matching the alert's time window. We use the generic
+  #    elasticsearch.request action because the named elasticsearch.search
+  #    step's strict schema currently rejects body-style sort clauses on
+  #    Workflows plugin v1.0.0.
+  - name: find_pipeline_user
+    type: elasticsearch.request
+    with:
+      method: POST
+      path: "/{{ consts.pipelineLogsIndex }}/_search"
+      body:
+        size: 1
+        sort:
+          - "@timestamp":
+              order: "desc"
+        query:
+          bool:
+            must:
+              - exists:
+                  field: "user.name"
+              - range:
+                  "@timestamp":
+                    gte: "now-1h"
+            filter:
+              - bool:
+                  should:
+                    - term:
+                        event.dataset: "aws.mwaa"
+                    - term:
+                        event.dataset: "gcp.composer"
+                    - term:
+                        event.dataset: "azure.data_factory"
+                    - term:
+                        event.dataset: "aws.emr_logs"
+                    - term:
+                        event.dataset: "gcp.dataproc"
+    on-failure:
+      continue: true
+
+  # ─── 3. Look up the user in ServiceNow CMDB ───────────────────────────
+  #    Find their full profile: email, phone, department, manager.
+  - name: lookup_servicenow_user
+    type: elasticsearch.search
+    with:
+      index: "{{ consts.servicenowIndex }}"
+      size: 1
+      query:
+        bool:
+          must:
+            - term:
+                tags: "sys_user"
+            - term:
+                servicenow.event.user_name.value: "{{ steps.find_pipeline_user.output.hits.hits[0]._source.user.name }}"
+    on-failure:
+      continue: true
+
+  # ─── 4. Find the affected CI in ServiceNow CMDB ───────────────────────
+  #    Search for CMDB configuration items related to the pipeline
+  #    infrastructure (MWAA, EMR, Composer, Databricks, etc.). Uses
+  #    elasticsearch.request to keep sort working under v1.0.0 (see step 2
+  #    note above).
+  - name: lookup_affected_ci
+    type: elasticsearch.request
+    with:
+      method: POST
+      path: "/{{ consts.servicenowIndex }}/_search"
+      body:
+        size: 3
+        query:
+          bool:
+            must:
+              - term:
+                  tags: "cmdb_ci"
+            should:
+              - match:
+                  servicenow.event.category.value: "Cloud Service"
+              - match:
+                  servicenow.event.category.value: "Compute"
+            minimum_should_match: 1
+        sort:
+          - "@timestamp":
+              order: "desc"
+    on-failure:
+      continue: true
+
+  # ─── 5. Check for open incidents on the same infrastructure ────────────
+  #    Uses elasticsearch.request to keep sort working under v1.0.0.
+  - name: find_open_incidents
+    type: elasticsearch.request
+    with:
+      method: POST
+      path: "/{{ consts.servicenowIndex }}/_search"
+      body:
+        size: 5
+        query:
+          bool:
+            must:
+              - term:
+                  tags: "incident"
+            must_not:
+              - term:
+                  servicenow.event.state.display_value: "Resolved"
+              - term:
+                  servicenow.event.state.display_value: "Closed"
+            filter:
+              - range:
+                  "@timestamp":
+                    gte: "now-7d"
+        sort:
+          - "@timestamp":
+              order: "desc"
+    on-failure:
+      continue: true
+
+  # ─── 6. Check for recent change requests ───────────────────────────────
+  #    Recent changes might explain the failure. Uses elasticsearch.request
+  #    to keep sort working under v1.0.0.
+  - name: find_recent_changes
+    type: elasticsearch.request
+    with:
+      method: POST
+      path: "/{{ consts.servicenowIndex }}/_search"
+      body:
+        size: 3
+        query:
+          bool:
+            must:
+              - term:
+                  tags: "change_request"
+              - range:
+                  "@timestamp":
+                    gte: "now-7d"
+        sort:
+          - "@timestamp":
+              order: "desc"
+    on-failure:
+      continue: true
+
+  # ─── 7. Branch on severity — critical alerts get a case ────────────────
+  - name: check_severity
+    type: if
+    condition: "steps.find_open_incidents.output.hits.total.value > 2"
+    steps:
+      # Multiple open incidents → escalate with a Kibana case.
+      #
+      # Step type compatibility:
+      #   • Stack 9.3 ships `kibana.createCaseDefaultSpace` (used below).
+      #     Required fields: owner (cases|observability|securitySolution),
+      #     settings (object), and connector with all four keys including
+      #     `fields: null` for connector type ".none".
+      #   • Stack 9.4+ adds first-class `cases.createCase`, `cases.updateCase`,
+      #     `cases.getCase` and `cases.addComment` step types with cleaner
+      #     ergonomics (no required `connector`/`settings` block, optional
+      #     `connector-id` + `push-case: true` to auto-push to a 3rd-party
+      #     system). On 9.4+ you can replace the step below with the
+      #     commented `cases.createCase` block further down.
+      - name: create_case
+        type: kibana.createCaseDefaultSpace
+        with:
+          title: "Pipeline Alert Escalation: {{ event.alerts[0].kibana.alert.rule.name }}"
+          description: |
+            ## Alert Details
+            **Rule:** {{ event.alerts[0].kibana.alert.rule.name }}
+            **Message:** {{ event.alerts[0].message }}
+
+            ## Affected Infrastructure
+            **CI:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
+            **Owner:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
+            **Support Group:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.support_group.display_value }}
+
+            ## Pipeline User
+            **Triggered by:** {{ steps.find_pipeline_user.output.hits.hits[0]._source.user.name }}
+            **Email:** {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.email.value }}
+            **Phone:** {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.phone.value }}
+
+            ## Open Incidents ({{ steps.find_open_incidents.output.hits.total.value }})
+            This CI has multiple open incidents. Escalating for review.
+          owner: "observability"
+          severity: "high"
+          tags:
+            - data-pipeline
+            - escalation
+            - workflow-generated
+          settings:
+            syncAlerts: false
+          connector:
+            id: "none"
+            name: "none"
+            type: ".none"
+            fields: null
+
+      # ─── Stack 9.4+ alternative ──────────────────────────────────────────
+      # Drop-in replacement for the step above when running on Kibana 9.4+.
+      # The new `cases.*` namespace is more concise and supports `push-case`
+      # to push the case to an attached 3rd-party connector automatically.
+      # Comment out the `kibana.createCaseDefaultSpace` step above and
+      # uncomment this block to use it.
+      #
+      # - name: create_case
+      #   type: cases.createCase
+      #   # push-case: true              # set true + connector-id below to auto-push
+      #   # connector-id: "<jira-or-servicenow-itsm-connector-id>"
+      #   with:
+      #     owner: "observability"
+      #     title: "Pipeline Alert Escalation: {{ event.alerts[0].kibana.alert.rule.name }}"
+      #     description: |
+      #       ## Alert Details
+      #       **Rule:** {{ event.alerts[0].kibana.alert.rule.name }}
+      #       **Message:** {{ event.alerts[0].message }}
+      #     severity: "high"
+      #     tags: [data-pipeline, escalation, workflow-generated]
+      #     settings:
+      #       syncAlerts: false
+
+  # ─── 8. Send enriched notification ─────────────────────────────────────
+  #     Email is enabled by default and targets the SMTP connector that
+  #     Elastic Cloud preconfigures on every deployment (`elastic-cloud-email`),
+  #     so this step works out of the box without any extra connector setup.
+  #     Alternative channels (Slack, Teams, PagerDuty, ServiceNow ITSM,
+  #     Opsgenie, generic webhook) are listed immediately below as
+  #     commented-out blocks. To switch channels, either:
+  #       a) Comment out the email step and uncomment one alternative, or
+  #       b) Uncomment several to fan out to multiple channels (each step
+  #          runs sequentially; wrap them in a `parallel` step if you want
+  #          them to fire concurrently).
+  #     Each step needs a connector-id pointing at a connector you have
+  #     already configured under Kibana → Stack Management → Connectors.
+  #     Reference: https://www.elastic.co/docs/explore-analyze/workflows/steps/external-systems-apps
+  - name: notify_email
+    type: email
+    connector-id: "{{ inputs.emailConnector }}"
+    with:
+      to:
+        - "{{ inputs.notifyTo }}"
+      subject: "[Data Pipeline Alert] {{ event.alerts[0].kibana.alert.rule.name }}"
+      message: |
+        Pipeline alert received.
+
+        Rule:           {{ event.alerts[0].kibana.alert.rule.name }}
+        Alert:          {{ event.alerts[0].message }}
+
+        Affected CI:    {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
+        CI Owner:       {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
+        Support Group:  {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.support_group.display_value }}
+        Department:     {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.department.display_value }}
+
+        Pipeline triggered by: {{ steps.find_pipeline_user.output.hits.hits[0]._source.user.name }}
+        Contact email:  {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.email.value }}
+        Contact phone:  {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.phone.value }}
+        Manager:        {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.manager.display_value }}
+
+        Open incidents: {{ steps.find_open_incidents.output.hits.total.value }}
+        Recent changes: {{ steps.find_recent_changes.output.hits.total.value }}
+    # Retry transient SMTP failures up to twice, then continue so that the
+    # `index_enriched_alert` step still records the enrichment result for
+    # post-mortem dashboards even if the notification couldn't be delivered.
+    # The pre-flight `validate_email_connector` step above guarantees the
+    # connector itself exists; failures here are SMTP/network issues that
+    # shouldn't suppress downstream bookkeeping.
+    on-failure:
+      retry:
+        max-attempts: 2
+        delay: "5s"
+      continue: true
+
+  # ── Alternative: Slack (configure a `.slack` or `.slack_api` connector) ─
+  # - name: notify_slack
+  #   type: slack
+  #   connector-id: "{{ inputs.slackConnector }}"
+  #   with:
+  #     message: |
+  #       :rotating_light: *Data Pipeline Alert*
+  #
+  #       *Rule:* {{ event.alerts[0].kibana.alert.rule.name }}
+  #       *Alert:* {{ event.alerts[0].message }}
+  #
+  #       *Affected CI:* {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
+  #       *CI Owner:* {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
+  #       *Support Group:* {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.support_group.display_value }}
+  #       *Department:* {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.department.display_value }}
+  #
+  #       *Pipeline triggered by:* {{ steps.find_pipeline_user.output.hits.hits[0]._source.user.name }}
+  #       *Contact email:* {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.email.value }}
+  #       *Contact phone:* {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.phone.value }}
+  #       *Manager:* {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.manager.display_value }}
+  #
+  #       *Open incidents:* {{ steps.find_open_incidents.output.hits.total.value }}
+  #       *Recent changes:* {{ steps.find_recent_changes.output.hits.total.value }}
+  #   on-failure:
+  #     retry:
+  #       max-attempts: 2
+  #       delay: "5s"
+  #     continue: true
+
+  # ── Alternative: Microsoft Teams (incoming webhook connector) ─────────
+  # - name: notify_teams
+  #   type: teams
+  #   connector-id: "data-platform-teams-channel"
+  #   with:
+  #     message: |
+  #       **Data Pipeline Alert**
+  #
+  #       **Rule:** {{ event.alerts[0].kibana.alert.rule.name }}
+  #       **Affected CI:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
+  #       **CI Owner:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
+  #       **Open incidents:** {{ steps.find_open_incidents.output.hits.total.value }}
+  #   on-failure:
+  #     continue: true
+
+  # ── Alternative: PagerDuty ────────────────────────────────────────────
+  # - name: notify_pagerduty
+  #   type: pagerduty
+  #   connector-id: "data-platform-pagerduty"
+  #   with:
+  #     eventAction: "trigger"          # trigger | acknowledge | resolve
+  #     dedupKey: "pipeline-{{ event.alerts[0].kibana.alert.uuid }}"
+  #     summary: "Pipeline alert: {{ event.alerts[0].kibana.alert.rule.name }}"
+  #     severity: "error"               # critical | error | warning | info
+  #     source: "elastic-cloud-loadgen"
+  #     customDetails:
+  #       affected_ci: "{{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}"
+  #       ci_owner: "{{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}"
+  #       open_incidents: "{{ steps.find_open_incidents.output.hits.total.value }}"
+  #   on-failure:
+  #     continue: true
+
+  # ── Alternative: ServiceNow ITSM (creates an incident) ────────────────
+  # subAction / subActionParams matches the Kibana .servicenow connector.
+  # - name: notify_servicenow
+  #   type: servicenow
+  #   connector-id: "servicenow-itsm-prod"
+  #   with:
+  #     subAction: "pushToService"
+  #     subActionParams:
+  #       incident:
+  #         short_description: "Pipeline alert: {{ event.alerts[0].kibana.alert.rule.name }}"
+  #         description: |
+  #           Affected CI:    {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
+  #           CI Owner:       {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
+  #           Open incidents: {{ steps.find_open_incidents.output.hits.total.value }}
+  #         severity: "2"                 # 1 high · 2 medium · 3 low
+  #         urgency: "2"
+  #         impact: "2"
+  #         category: "Software"
+  #   on-failure:
+  #     continue: true
+
+  # ── Alternative: Opsgenie ─────────────────────────────────────────────
+  # - name: notify_opsgenie
+  #   type: opsgenie
+  #   connector-id: "data-platform-opsgenie"
+  #   with:
+  #     subAction: "createAlert"
+  #     subActionParams:
+  #       message: "Pipeline alert: {{ event.alerts[0].kibana.alert.rule.name }}"
+  #       description: |
+  #         Affected CI:    {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
+  #         CI Owner:       {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
+  #         Open incidents: {{ steps.find_open_incidents.output.hits.total.value }}
+  #       priority: "P2"                  # P1 (highest) … P5 (lowest)
+  #       tags: ["data-pipeline", "workflow-generated"]
+  #   on-failure:
+  #     continue: true
+
+  # ── Alternative: Generic webhook (any HTTP endpoint via connector) ────
+  # - name: notify_webhook
+  #   type: webhook
+  #   connector-id: "internal-on-call-webhook"
+  #   with:
+  #     body: |
+  #       {
+  #         "rule": "{{ event.alerts[0].kibana.alert.rule.name }}",
+  #         "ci": "{{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}",
+  #         "owner": "{{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}",
+  #         "open_incidents": "{{ steps.find_open_incidents.output.hits.total.value }}"
+  #       }
+  #   on-failure:
+  #     continue: true
+
+  # ─── 9. Index the enriched alert back to Elasticsearch ─────────────────
+  #    Store the enrichment result so it can be used in dashboards.
+  - name: index_enriched_alert
+    type: elasticsearch.index
+    with:
+      index: "logs-pipeline-alert-enriched-default"
+      document:
+        "@timestamp": "{{ execution.startedAt }}"
+        event:
+          kind: "enrichment"
+          category: ["configuration"]
+          dataset: "pipeline.alert.enriched"
+        alert:
+          rule_name: "{{ event.alerts[0].kibana.alert.rule.name }}"
+          message: "{{ event.alerts[0].message }}"
+        pipeline:
+          user: "{{ steps.find_pipeline_user.output.hits.hits[0]._source.user.name }}"
+          user_email: "{{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.email.value }}"
+        servicenow:
+          ci_name: "{{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}"
+          ci_owner: "{{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}"
+          support_group: "{{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.support_group.display_value }}"
+          open_incident_count: "{{ steps.find_open_incidents.output.hits.total.value }}"
+          recent_change_count: "{{ steps.find_recent_changes.output.hits.total.value }}"
+    on-failure:
+      continue: true
+
+  - name: log_complete
+    type: console
+    with:
+      message: >
+        Enrichment complete for alert: {{ event.alerts[0].kibana.alert.rule.name }}.
+        CI: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }},
+        Owner: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }},
+        Open incidents: {{ steps.find_open_incidents.output.hits.total.value }}

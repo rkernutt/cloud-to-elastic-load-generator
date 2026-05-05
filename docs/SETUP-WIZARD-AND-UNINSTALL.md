@@ -103,6 +103,22 @@ Both toggles are disabled when Cloud Loadgen Integrations is toggled off. When o
 
 A dedicated toggle for **ServiceNow CMDB Integration** is available in the Setup wizard under the **Advanced Data Types** category. When enabled, the installer adds the `servicenow` Fleet integration package alongside the cloud vendor integration. This enables Elastic's ServiceNow data views and allows cross-index correlation between pipeline alerts and CMDB records (CI ownership, support groups, open incidents, change requests). ServiceNow CMDB logs are shipped to `logs-servicenow.event-*`.
 
+### Alert-enrichment Workflow
+
+The wizard includes a dedicated **Alert-enrichment Workflow** row that installs the bundled [`workflows/data-pipeline-alert-enrichment.yaml`](../workflows/data-pipeline-alert-enrichment.yaml) Kibana Workflow via `POST /api/workflows/_workflows`. When you toggle the row on, two text fields appear so you can override:
+
+- **`emailConnector`** — defaults to `elastic-cloud-email` (auto-provisioned on Cloud Hosted / Serverless; preconfigure the same ID in `kibana.yml` on self-hosted, or paste your own connector ID).
+- **`notifyTo`** — the email recipient.
+
+Behaviour:
+
+- The wizard auto-detects Kibana 9.4+ from `/api/status` and substitutes the legacy `kibana.createCaseDefaultSpace` step for the new `cases.createCase` step. On 9.3 it leaves the YAML alone.
+- A pre-flight call to `/api/actions/connector/{emailConnector}` warns (without blocking) when the connector is missing — the workflow's own pre-flight guard catches the failure cleanly at run-time too.
+- Reinstall replaces the existing workflow rather than duplicating it.
+- The Uninstall path removes the workflow when this row is enabled.
+
+The same logic ships as a headless CLI: `npm run setup:workflow`. And the YAML asset is mirrored to [`assets/workflows/`](../assets/workflows/) for clusters where the Workflows API is unavailable — paste it into Stack Management → Workflows → Create. Full deployment guide and licence requirements: [docs/workflow-deployment.md](./workflow-deployment.md).
+
 ### ML Training Mode
 
 The **Ship** page provides an **ML Training Mode** that automates the full ML anomaly detection workflow: **reset → baseline → learning wait → anomaly injection → stabilise & freeze**. The reset phase clears stale model state from previous runs to prevent score renormalization. The optional "Stop datafeeds after training" toggle (on by default) freezes anomaly scores by stopping datafeeds after the stabilisation period. See the [README](../README.md#ml-training-mode) for configuration details. This feature is independent of Setup and works with any combination of installed assets.
