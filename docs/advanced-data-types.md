@@ -99,6 +99,8 @@ This is the canonical end-to-end demo of pipeline alert → CMDB lookup → SOC 
 
 Full deployment guide, licence requirements, self-hosted `kibana.yml` snippet, and troubleshooting: see [workflow-deployment.md](./workflow-deployment.md).
 
+On Stack 9.4+ the workflow can also use the new first-class `cases.createCase` step (cleaner than `kibana.createCaseDefaultSpace`, with optional `push-case: true`), the `workflows.executionFailed` trigger for fallback workflows, the server-side validation endpoint, and UI-driven workflow import/export. The bundled YAML keeps the 9.3-compatible step active and ships the 9.4+ alternative as a commented block — see [workflow-deployment.md → Stack 9.4+ enhancements](./workflow-deployment.md#stack-94-enhancements).
+
 ## Related
 
 - [workflow-deployment.md](./workflow-deployment.md) — install, configure, and troubleshoot the alert-enrichment workflow per deployment type.

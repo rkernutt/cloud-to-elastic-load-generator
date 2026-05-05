@@ -22,6 +22,10 @@ This page documents how to install and run it on each Elastic deployment type.
 
 On Elastic Cloud Hosted and Serverless these tiers are bundled by default for projects with the Observability or Security solution. On self-hosted, your subscription must include them.
 
+### Kibana sizing
+
+Workflows is memory-hungry — Elastic raised the default Kibana instance size on Elastic Cloud Hosted to **2 GB RAM** in 9.4 specifically because Workflows, Reporting, Detection Rules and Agent Builder can cause service interruptions on smaller instances. We recommend the same minimum on self-hosted, ECE and ECK clusters that run this workflow.
+
 ### Enabling Workflows on self-hosted
 
 Workflows is preview on self-hosted from 9.3 and is **off by default**. Enable it through:
@@ -127,6 +131,18 @@ Common outcomes:
   - Self-hosted: apply Option A or Option B above.
 - **403 Forbidden** — the workflow's runtime token lacks `read` on the action. Grant Kibana **Actions and Connectors** read privileges to the workflow's role.
 
+## Stack 9.4+ enhancements
+
+These are optional ergonomic improvements you can adopt once the cluster is on 9.4. The workflow runs unchanged on 9.3 — none of these are required.
+
+| Feature                                                                                                                                            | What it gives you                                                                                                                                                                                                                                       |
+| -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **First-class cases steps** — `cases.createCase`, `cases.updateCase`, `cases.getCase`, `cases.addComment`                                          | Drop-in replacement for the `kibana.createCaseDefaultSpace` step in section 7. No more required `connector` / `settings` block, and an opt-in `push-case: true` flag automatically pushes the case to an attached Jira / ServiceNow ITSM connector. The bundled YAML keeps the legacy step for 9.3 compatibility but ships the 9.4 alternative as a commented block immediately below it. |
+| **`workflows.executionFailed` trigger**                                                                                                            | Lets you create a sister workflow that fires whenever this one fails. Handy for fallback notifications (e.g. SMS / pager) when the primary email channel is degraded.                                                                                   |
+| **Server-side workflow validation endpoint** (`POST /api/workflows/_workflows/_validate`)                                                          | Gate this YAML in CI before deploy so a typo never reaches a running cluster. Pair with the workflow's import / export endpoints below for full GitOps.                                                                                                  |
+| **Workflow import / export from the UI**                                                                                                           | Promote workflows between spaces (or between Cloud → Serverless) without copy-pasting YAML. Useful for staging → production rollouts.                                                                                                                    |
+| **Streams API steps**                                                                                                                              | Reach Streams resources directly without going through `kibana.request`. Not required by this workflow today, but worth knowing if you extend it.                                                                                                        |
+
 ## Triggering the workflow
 
 The workflow's trigger is `type: alert`, which means it fires whenever a Kibana **alerting rule** sends it the alert payload. The bundled data-pipeline alerting rules (installed by the Setup wizard or `npm run setup:alert-rules`) are pre-wired to send their payload to this workflow when one is registered. If you install the workflow before installing the alerting rules, no extra wiring is needed.
@@ -149,7 +165,7 @@ curl -sS -X POST "$KIBANA_URL/api/workflows/_workflows/<workflow-id>/run" \
 | Workflow aborts on `validate_email_connector` with 404                                          | `inputs.emailConnector` doesn't match any connector on this deployment                     | Check **Stack Management → Connectors** for the connector ID; pass the correct ID via `inputs.emailConnector` (self-hosted: see Option A / Option B above)                                                 |
 | Notify step errors with `connector not found` (older workflow version, no pre-flight)           | The `emailConnector` / `slackConnector` input value doesn't match any connector            | Same as above; the pre-flight step in the current YAML normally catches this before `notify_email` runs                                                                                                    |
 | `lookup_affected_ci` returns 0 hits                                                             | ServiceNow CMDB data not shipped, or shipped before the cross-cloud enrichment fix         | Re-ship CMDB data with a current build of Cloud Loadgen for Elastic; verify `event.module` of CMDB docs is `servicenow` (not `aws`/`gcp`/`azure`) — see [advanced-data-types.md](./advanced-data-types.md) |
-| `find_pipeline_user` / `find_open_incidents` fail with sort validation                          | Workflows v1.0.0 strict-schema rejects the named `elasticsearch.search` action's sort body | The bundled YAML already routes those steps through `elasticsearch.request`; if you customised them, mirror that pattern                                                                                   |
+| `find_pipeline_user` / `find_open_incidents` fail with sort validation                          | Workflows v1.0.0 strict-schema rejects the named `elasticsearch.search` action's sort body | The bundled YAML already routes those steps through `elasticsearch.request`; if you customised them, mirror that pattern. On 9.4+ you can also pre-validate the YAML via `POST /api/workflows/_workflows/_validate` before saving |
 | `open_case` errors with `Invalid option: expected "cases"\|"observability"\|"securitySolution"` | The Cases plugin is bound to a fixed set of owners; the workflow uses `observability`      | Keep `owner: "observability"` (or set to `cases` / `securitySolution` to match your space)                                                                                                                 |
 | Notification fires but enriched fields are blank                                                | The CMDB lookup ran but didn't match any CI                                                | Make sure the data-pipeline chain and CMDB were shipped under the same labelling (`DATA_ENGINEERING_USERS`, `mwaa-globex-prod`, `emr-analytics-cluster`, …)                                                |
 

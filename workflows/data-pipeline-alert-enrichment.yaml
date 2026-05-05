@@ -19,7 +19,21 @@
 #                                   the `emailConnector` input at install
 #                                   time. Workflows requires an Enterprise
 #                                   licence and `workflows:ui:enabled = true`
-#                                   in Advanced Settings.
+#                                   in Advanced Settings. Recommended Kibana
+#                                   instance size: ≥ 2 GB RAM (Workflows is
+#                                   memory-hungry and 9.4 raised the ECH
+#                                   default to 2 GB).
+#
+# ─── Stack 9.4 enhancements (optional) ─────────────────────────────────────
+# When running on 9.4+ you can take advantage of:
+#   • New `cases.createCase` / `cases.updateCase` / `cases.getCase` /
+#     `cases.addComment` step types — drop-in replacement for the
+#     `kibana.createCaseDefaultSpace` step in section 7 (see commented block).
+#   • The `workflows.executionFailed` trigger — useful for a sister workflow
+#     that catches failures here and notifies a fallback channel.
+#   • Server-side workflow validation endpoint — pre-validate this YAML in
+#     CI before deploy.
+#   • Workflow import / export from the UI for promotion between spaces.
 #
 # Full setup, troubleshooting, and self-hosted `kibana.yml` snippet:
 #   docs/workflow-deployment.md
@@ -250,11 +264,18 @@ steps:
     condition: "steps.find_open_incidents.output.hits.total.value > 2"
     steps:
       # Multiple open incidents → escalate with a Kibana case.
-      # Workflows plugin v1.0.0 ships kibana.createCaseDefaultSpace; the
-      # newer cases.createCase namespace is rejected here. Required fields
-      # the validator enforces: owner (cases|observability|securitySolution),
-      # settings (object), and connector with all four keys including a
-      # `fields: null` for connector type ".none".
+      #
+      # Step type compatibility:
+      #   • Stack 9.3 ships `kibana.createCaseDefaultSpace` (used below).
+      #     Required fields: owner (cases|observability|securitySolution),
+      #     settings (object), and connector with all four keys including
+      #     `fields: null` for connector type ".none".
+      #   • Stack 9.4+ adds first-class `cases.createCase`, `cases.updateCase`,
+      #     `cases.getCase` and `cases.addComment` step types with cleaner
+      #     ergonomics (no required `connector`/`settings` block, optional
+      #     `connector-id` + `push-case: true` to auto-push to a 3rd-party
+      #     system). On 9.4+ you can replace the step below with the
+      #     commented `cases.createCase` block further down.
       - name: create_case
         type: kibana.createCaseDefaultSpace
         with:
@@ -289,6 +310,29 @@ steps:
             name: "none"
             type: ".none"
             fields: null
+
+      # ─── Stack 9.4+ alternative ──────────────────────────────────────────
+      # Drop-in replacement for the step above when running on Kibana 9.4+.
+      # The new `cases.*` namespace is more concise and supports `push-case`
+      # to push the case to an attached 3rd-party connector automatically.
+      # Comment out the `kibana.createCaseDefaultSpace` step above and
+      # uncomment this block to use it.
+      #
+      # - name: create_case
+      #   type: cases.createCase
+      #   # push-case: true              # set true + connector-id below to auto-push
+      #   # connector-id: "<jira-or-servicenow-itsm-connector-id>"
+      #   with:
+      #     owner: "observability"
+      #     title: "Pipeline Alert Escalation: {{ event.alerts[0].kibana.alert.rule.name }}"
+      #     description: |
+      #       ## Alert Details
+      #       **Rule:** {{ event.alerts[0].kibana.alert.rule.name }}
+      #       **Message:** {{ event.alerts[0].message }}
+      #     severity: "high"
+      #     tags: [data-pipeline, escalation, workflow-generated]
+      #     settings:
+      #       syncAlerts: false
 
   # ─── 8. Send enriched notification ─────────────────────────────────────
   #     Email is enabled by default and targets the SMTP connector that
