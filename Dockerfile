@@ -15,6 +15,9 @@ COPY scripts ./scripts
 COPY public ./public
 COPY src ./src
 COPY installer ./installer
+# `src/setup/workflowYaml.ts` inlines this file with `?raw` at build time — Vite/Rollup
+# resolves it during `npm run build`, so it must be present in the build context.
+COPY workflows ./workflows
 # Fail fast when the build context omits installer JSON (sparse clone, wrong directory, or broken
 # sync). A healthy tree sends ~3–5MB+ to the daemon; ~100KB almost always means dashboards/ML
 # never reached the image — npm run build would then ship an empty AWS (or other) bundle.
