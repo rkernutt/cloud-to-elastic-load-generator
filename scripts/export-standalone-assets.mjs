@@ -174,14 +174,8 @@ async function exportDashboards(cloud) {
   return count;
 }
 
-// ── Workflows (cross-cloud) ───────────────────────────────────────────────────
+// ── Workflows ─────────────────────────────────────────────────────────────────
 
-/**
- * Mirror the bundled Kibana Workflow YAML(s) under `assets/workflows/` so users
- * can copy/paste them into Stack Management → Workflows → Create without
- * having to dig through the source tree. The wizard installs the same files
- * via the Workflows REST API.
- */
 async function exportWorkflows() {
   const srcDir = join(ROOT, "workflows");
   const outDir = join(ASSETS, "workflows");
@@ -222,7 +216,7 @@ async function main() {
   }
 
   totals.workflows = await exportWorkflows();
-  console.log(`  workflows: ${totals.workflows} Kibana workflow YAML${totals.workflows === 1 ? "" : "s"}`);
+  console.log(`  workflows: ${totals.workflows} Kibana Workflow YAML(s)`);
 
   console.log(
     `\nTotal: ${totals.pipelines} pipelines, ${totals.mlJobs} ML jobs, ${totals.rules} rules, ${totals.dashboards} dashboards, ${totals.workflows} workflows`
