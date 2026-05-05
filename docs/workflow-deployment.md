@@ -4,6 +4,27 @@ The bundled [`data-pipeline-alert-enrichment.yaml`](../workflows/data-pipeline-a
 
 This page documents how to install and run it on each Elastic deployment type.
 
+> **Important — installing the workflow does not attach it to any alerting rule.**
+> By design, every Cloud Loadgen alerting rule ships with `"actions": []`, and
+> none of the install paths (wizard, CLI, manual paste) modify rules in any
+> way. After install you still need to:
+>
+> 1. **Review the notification step** — the default `notify_email` step
+>    targets the deployment's preconfigured SMTP connector. To use Slack,
+>    Teams, PagerDuty, ServiceNow ITSM, Opsgenie, or a generic webhook,
+>    comment out `notify_email` and uncomment one of the alternative blocks
+>    further down in the YAML. Each requires a Kibana connector you've
+>    already configured under **Stack Management → Connectors**.
+>
+> 2. **Wire the workflow to your alerting rules**, one rule at a time:
+>    open **Stack Management → Rules → \<rule\> → Actions → Add action →
+>    Workflow**, pick this workflow, and tune the run condition / throttle
+>    as desired.
+>
+> Until both steps are complete the install is a no-op at runtime — that's
+> intentional, so a misconfigured connector or unintended notification
+> cascade can never fire from a fresh install.
+
 ## Deployment compatibility
 
 | Deployment                                            | Workflows plugin | `elastic-cloud-email` connector                                        | Out-of-the-box?                |
@@ -151,11 +172,45 @@ These are optional ergonomic improvements you can adopt once the cluster is on 9
 | **Workflow import / export from the UI**                                                                                                           | Promote workflows between spaces (or between Cloud → Serverless) without copy-pasting YAML. Useful for staging → production rollouts.                                                                                                                    |
 | **Streams API steps**                                                                                                                              | Reach Streams resources directly without going through `kibana.request`. Not required by this workflow today, but worth knowing if you extend it.                                                                                                        |
 
+## Attaching the workflow to alerting rules
+
+Installing the workflow only registers the YAML — it does not modify any rules. Every Cloud Loadgen alerting rule ships with `"actions": []`, and the `setup:alert-rules` installer (and the wizard's "Cloud Loadgen Integrations" row) preserve that. To make the workflow actually fire when a rule alerts:
+
+1. Open **Stack Management → Rules**, click the rule you want to enrich (e.g. `[CloudLoadGen] Pipeline Failure`).
+2. Switch to the **Actions** tab → **Add action** → choose **Workflow** as the connector type.
+3. Pick **Data Pipeline Alert — CMDB Enrichment & Notification** from the workflow list.
+4. (Optional) Set a run condition / throttle so the workflow only fires for the alert states / cardinality you care about.
+5. Save the rule. From this point on, every alert from that rule will invoke the workflow.
+
+Repeat for every rule you want enriched. We deliberately ship the rules disconnected so:
+
+- Notifications can never fan out to a misconfigured channel from a fresh install.
+- You can attach the workflow to a subset of rules (e.g. only the production-critical ones).
+- Different teams can own the workflow vs the rules without one writing over the other.
+
+If you'd rather attach via API:
+
+```bash
+curl -sS -X PUT "$KIBANA_URL/api/alerting/rule/<rule-id>" \
+  -H "Authorization: ApiKey $API_KEY" \
+  -H "kbn-xsrf: true" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "actions": [{
+      "id": "workflow:<workflow-id>",
+      "group": "default",
+      "params": {}
+    }]
+  }'
+```
+
+Look up the workflow ID returned by the installer (`✓ Workflow created (id=…)` in the wizard log) or by `GET /api/workflows/_workflows?search=Data%20Pipeline%20Alert`.
+
 ## Triggering the workflow
 
-The workflow's trigger is `type: alert`, which means it fires whenever a Kibana **alerting rule** sends it the alert payload. The bundled data-pipeline alerting rules (installed by the Setup wizard or `npm run setup:alert-rules`) are pre-wired to send their payload to this workflow when one is registered. If you install the workflow before installing the alerting rules, no extra wiring is needed.
+The workflow's trigger is `type: alert`, which means it fires whenever a Kibana **alerting rule** is configured to send its alert payload to this workflow. The Cloud Loadgen alerting rules ship with `"actions": []` and are **not** pre-wired — you must attach the workflow yourself per the [Attaching the workflow to alerting rules](#attaching-the-workflow-to-alerting-rules) section above. Install order doesn't matter (workflow first or rules first), but the wiring step is always required.
 
-You can also test the workflow manually:
+You can also test the workflow manually without any rule attachment:
 
 ```bash
 curl -sS -X POST "$KIBANA_URL/api/workflows/_workflows/<workflow-id>/run" \
@@ -169,6 +224,7 @@ curl -sS -X POST "$KIBANA_URL/api/workflows/_workflows/<workflow-id>/run" \
 
 | Symptom                                                                                         | Likely cause                                                                               | Fix                                                                                                                                                                                                        |
 | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Alerts fire on rules but no workflow run appears                                                | The rule has no Workflow action attached (every Cloud Loadgen rule installs with `actions=[]`) | Attach the workflow per [Attaching the workflow to alerting rules](#attaching-the-workflow-to-alerting-rules) above                                                                                       |
 | Workflow runs succeed but no email arrives                                                      | Self-hosted with no preconfigured `elastic-cloud-email` connector                          | Apply Option A or Option B above                                                                                                                                                                           |
 | Workflow aborts on `validate_email_connector` with 404                                          | `inputs.emailConnector` doesn't match any connector on this deployment                     | Check **Stack Management → Connectors** for the connector ID; pass the correct ID via `inputs.emailConnector` (self-hosted: see Option A / Option B above)                                                 |
 | Notify step errors with `connector not found` (older workflow version, no pre-flight)           | The `emailConnector` / `slackConnector` input value doesn't match any connector            | Same as above; the pre-flight step in the current YAML normally catches this before `notify_email` runs                                                                                                    |

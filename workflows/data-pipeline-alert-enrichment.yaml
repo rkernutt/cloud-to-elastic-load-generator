@@ -8,6 +8,29 @@
 # connector (`elastic-cloud-email`). Slack / Teams / PagerDuty / etc.
 # alternatives are listed as commented-out blocks at the bottom.
 #
+# ─── This workflow is NOT auto-attached to any alerting rule ───────────────
+# Installing it (via the Setup wizard, `npm run setup:workflow`, or pasting
+# this YAML into Stack Management → Workflows) only registers the workflow.
+# Two manual steps are required before it can do anything useful:
+#
+#   1) Review the notification step. The default `notify_email` step targets
+#      `inputs.notifyTo` via the `inputs.emailConnector` connector. To use
+#      Slack / Teams / PagerDuty / ServiceNow ITSM / Opsgenie / webhook
+#      instead, comment out `notify_email` and uncomment one (or several)
+#      of the alternative blocks further down — each needs a Kibana
+#      connector you've already configured.
+#
+#   2) Wire the workflow to your alerting rules. Every Cloud Loadgen rule
+#      ships with `"actions": []`, so the workflow only fires once you
+#      attach it under
+#         Stack Management → Rules → <rule> → Actions → Workflow.
+#      Pick "Run a workflow", select this workflow, and (optionally) tune
+#      the run condition / throttle.
+#
+# Until both steps are done the install is a no-op at runtime — by design,
+# so a misconfigured connector or unintended notification cascade can never
+# fire from a fresh install.
+#
 # ─── Deployment compatibility ──────────────────────────────────────────────
 #   • Elastic Cloud Hosted (ESS):   works as-is — `elastic-cloud-email` is
 #                                   provisioned automatically.

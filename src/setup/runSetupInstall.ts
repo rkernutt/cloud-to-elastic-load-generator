@@ -829,6 +829,10 @@ export async function runSetupInstall(opts: {
       const result = await installWorkflow({ kibanaUrl: kb, apiKey, yaml });
       const verb = result.outcome === "created" ? "created" : "updated";
       addLog(`  ✓ Workflow ${verb} (id=${result.id}).`, "ok");
+      addLog(
+        "  ⚑ Next steps (manual): (1) review the notify_email step or switch to Slack/Teams/PagerDuty/etc. by uncommenting one of the alternative blocks in the YAML, and (2) attach this workflow to your alerting rules — every Cloud Loadgen rule installs with actions=[] so it must be wired up in Stack Management → Rules → <rule> → Actions → Workflow.",
+        "info"
+      );
     } catch (e) {
       const msg = String(e);
       if (isWorkflowsApiUnavailable(msg)) {

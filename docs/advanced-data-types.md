@@ -91,6 +91,19 @@ A sample workflow lives in [`workflows/data-pipeline-alert-enrichment.yaml`](../
 
 This is the canonical end-to-end demo of pipeline alert → CMDB lookup → SOC case + notification.
 
+> **The workflow installs disconnected.** None of the Cloud Loadgen
+> alerting rules attach the workflow as an action — every rule ships with
+> `"actions": []` and the installers (wizard / CLI / paste) never modify
+> rules. Two manual steps make it useful:
+>
+> 1. Review the notification step — switch from email to Slack / Teams /
+>    PagerDuty / ServiceNow ITSM / Opsgenie / webhook by uncommenting one
+>    of the alternative blocks in the YAML if email isn't right for you.
+> 2. Attach the workflow per rule under **Stack Management → Rules →
+>    \<rule\> → Actions → Workflow**.
+>
+> Full step-by-step instructions: [workflow-deployment.md → Attaching the workflow to alerting rules](./workflow-deployment.md#attaching-the-workflow-to-alerting-rules).
+
 | Deployment                         | Out-of-the-box?                | Notes                                                                                                      |
 | ---------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------- |
 | Elastic Cloud Hosted (ESS)         | Yes                            | `elastic-cloud-email` is auto-provisioned                                                                  |

@@ -2543,6 +2543,13 @@ export function SetupPage({
               available at <EuiCode>{"workflows/data-pipeline-alert-enrichment.yaml"}</EuiCode> /{" "}
               <EuiCode>{"assets/workflows/"}</EuiCode> for manual paste into Stack Management →
               Workflows.
+              <EuiSpacer size="xs" />
+              <strong>You still need to:</strong> (1) review the notification step
+              (default is email — Slack / Teams / PagerDuty / ServiceNow ITSM / Opsgenie /
+              webhook variants ship as commented blocks in the YAML); and (2) attach the
+              workflow to your alerting rules — every Cloud Loadgen rule installs with{" "}
+              <EuiCode>{"actions=[]"}</EuiCode>, so the workflow only fires once you wire it up
+              in <em>Stack Management → Rules → &lt;rule&gt; → Actions → Workflow</em>.
             </>
           )
         }

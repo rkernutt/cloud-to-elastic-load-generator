@@ -117,6 +117,8 @@ Behaviour:
 - Reinstall replaces the existing workflow rather than duplicating it.
 - The Uninstall path removes the workflow when this row is enabled.
 
+> **The wizard does not attach the workflow to any alerting rule.** Every Cloud Loadgen alerting rule installs with `"actions": []` and the wizard never modifies rules. After install, attach the workflow per rule under **Stack Management → Rules → \<rule\> → Actions → Workflow**, and review the YAML's notification step (switch to Slack / Teams / PagerDuty / ServiceNow ITSM / Opsgenie / webhook by uncommenting one of the alternative blocks if email isn't right for you). The wizard log surfaces both reminders after a successful install. Full instructions: [workflow-deployment.md → Attaching the workflow to alerting rules](./workflow-deployment.md#attaching-the-workflow-to-alerting-rules).
+
 The same logic ships as a headless CLI: `npm run setup:workflow`. And the YAML asset is mirrored to [`assets/workflows/`](../assets/workflows/) for clusters where the Workflows API is unavailable — paste it into Stack Management → Workflows → Create. Full deployment guide and licence requirements: [docs/workflow-deployment.md](./workflow-deployment.md).
 
 ### ML Training Mode

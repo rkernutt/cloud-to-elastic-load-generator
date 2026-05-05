@@ -25,6 +25,21 @@ in-browser behaviour so the wizard and the CLI stay in sync:
 - Idempotent — repeated runs replace the existing workflow rather than
   duplicating it.
 
+## What this installer does NOT do
+
+- It does **not** attach the workflow to any alerting rule. Every
+  Cloud Loadgen alerting rule ships with `"actions": []` and the installer
+  never modifies rules. After install, attach the workflow per rule under
+  **Stack Management → Rules → \<rule\> → Actions → Workflow**.
+- It does **not** lock you into the email channel. The default
+  `notify_email` step is the simplest path on Cloud Hosted / Serverless,
+  but the YAML ships Slack / Teams / PagerDuty / ServiceNow ITSM /
+  Opsgenie / generic-webhook variants as commented blocks. Comment out
+  the email step and uncomment one (or several) of those before installing
+  if you want a different channel — the installer prompts let you set the
+  email connector ID so you can also point the email step at any custom
+  SMTP connector you configured yourself.
+
 ## Requirements
 
 | Deployment                 | Workflows plugin     | Notes                                                                                                              |
