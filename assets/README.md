@@ -81,6 +81,8 @@ curl -X POST "https://<KIBANA_URL>/api/alerting/rule" \
   -d "$(jq 'del(._meta)' assets/aws/rules/cloudloadgen-data-pipeline-failure-rate.json)"
 ```
 
+Chained-scenario rules also include an `artifacts.dashboards: [{id}]` block linking each rule to the matching overview dashboard (Data Pipeline / Data Exfil Chain / IAM PrivEsc Chain / Security Finding Chain). When an alert fires, Kibana's **Alert Details** page shows the linked dashboards under a **Related dashboards** tab. The IDs are deterministic UUIDs derived from the dashboard titles (same algorithm as the wizard installer) — install the matching dashboard via the same asset bundle and the link resolves automatically. Requires Kibana **8.19 / 9.1+**; older versions ignore the field. See [docs/SETUP-WIZARD-AND-UNINSTALL.md → Linked dashboards on alerts](../docs/SETUP-WIZARD-AND-UNINSTALL.md#linked-dashboards-on-alerts) for the full mapping.
+
 ### Dashboards
 
 Dashboard files are Kibana saved-object NDJSON exports. Import via the saved objects API:

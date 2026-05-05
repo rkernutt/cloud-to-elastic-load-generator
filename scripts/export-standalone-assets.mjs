@@ -19,6 +19,7 @@
 import { mkdir, writeFile, readFile, readdir, copyFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildArtifactsFromRelatedDashboards } from "./_lib/dashboardId.mjs";
 
 const ROOT = join(fileURLToPath(import.meta.url), "../..");
 const ASSETS = join(ROOT, "assets");
@@ -135,7 +136,12 @@ async function exportRules(cloud) {
     const data = JSON.parse(await readFile(join(ruleDir, file), "utf-8"));
     const rules = data.rules || [];
     for (const rule of rules) {
-      const { id, ...ruleBody } = rule;
+      const { id, relatedDashboards, ...ruleBody } = rule;
+      // Translate `relatedDashboards` (titles, source-side) into the
+      // Kibana `artifacts.dashboards` shape (resolved IDs, ready to POST).
+      // Manual-paste users get the linked-dashboards behaviour without
+      // having to look up saved-object IDs themselves.
+      const artifacts = buildArtifactsFromRelatedDashboards(relatedDashboards);
       const out = {
         _meta: {
           rule_id: id,
@@ -143,6 +149,7 @@ async function exportRules(cloud) {
           api: "POST /api/alerting/rule",
         },
         ...ruleBody,
+        ...(artifacts ? { artifacts } : {}),
       };
       const filename = `${safeFilename(id || rule.name)}.json`;
       await writeJson(join(outDir, filename), out);

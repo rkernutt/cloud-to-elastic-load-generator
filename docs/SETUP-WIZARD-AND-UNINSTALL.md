@@ -237,6 +237,26 @@ Tier 2 (`POST /api/saved_objects/dashboard/{id}`) handles all of these correctly
 
 All alerting rules use `consumer: "alerts"` (not `stackAlerts`) to ensure they appear in **Kibana → Stack Management → Rules** and in the **Alerts** section of Observability and Security. Rules use the `.es-query` rule type with the `esQuery` parameter wrapped in a `{"query": ...}` envelope as required by Kibana 9.x.
 
+### Linked dashboards on alerts
+
+Every chained-scenario rule ships with a `relatedDashboards` field listing the dashboard titles that give that rule's alerts the most useful context. At install time the wizard, `npm run setup:alert-rules`, and the standalone-asset exporter all resolve those titles to the deterministic dashboard saved-object IDs that this project ships and emit them as `artifacts.dashboards: [{ id }]` on the rule body.
+
+When an alert from one of those rules fires in Kibana, the **Alert Details** page surfaces a **Related dashboards** tab that links straight to the appropriate overview. The current mapping is:
+
+| Rule group                                   | Linked dashboard                                                                                                                                  |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `data-pipeline` (AWS / GCP / Azure)          | `Data & Analytics Pipeline — overview` / `GCP Data & Analytics Pipeline — overview` / `Azure Data & Analytics Pipeline — overview`                |
+| `data-exfil-chain` (AWS / GCP / Azure)       | `Data Exfiltration Chain — overview` / `GCP Data Exfiltration Chain — overview` / `Azure Data Exfiltration Chain — overview`                      |
+| `iam-privesc-chain` (AWS / GCP / Azure)      | `IAM Privilege Escalation Chain — overview` / `GCP IAM Privilege Escalation Chain — overview` / `Azure IAM Privilege Escalation Chain — overview` |
+| `security-finding-chain` (AWS / GCP / Azure) | `Security Finding Chain — overview` / `GCP Security Finding Chain — overview` / `Azure Security Finding Chain — overview`                         |
+
+Notes:
+
+- The wizard skips a link when the user untoggled the matching dashboard during install — it never emits a broken reference.
+- The CLI installer and the asset exporter always emit the resolved IDs (they don't know the cluster's installed dashboards). Kibana silently shows nothing for unresolved IDs, so this is safe.
+- The feature requires Kibana **8.19 / 9.1 or newer** (when the `artifacts.dashboards` schema landed). Older clusters ignore the field.
+- Add or override the link list per rule by editing the `relatedDashboards: ["<title>", …]` array in the rule JSON files under `installer/<cloud>-custom-rules/`.
+
 ---
 
 ## Data streams and TSDS

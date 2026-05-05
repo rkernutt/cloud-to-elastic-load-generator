@@ -15,6 +15,7 @@ import readline from "readline";
 import { readFileSync, readdirSync, existsSync } from "fs";
 import { fileURLToPath } from "url";
 import { join, dirname } from "path";
+import { buildArtifactsFromRelatedDashboards } from "../../scripts/_lib/dashboardId.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -449,10 +450,22 @@ async function main() {
     let installedCount = 0;
     let skippedCount = 0;
     let failedCount = 0;
+    let dashboardsLinked = 0;
 
     for (const rule of selectedRules) {
-      const { id, ...ruleBody } = rule;
+      const { id, relatedDashboards, ...ruleBody } = rule;
       const labelName = typeof rule.name === "string" ? rule.name : "";
+
+      // Resolve `relatedDashboards` titles to deterministic dashboard
+      // saved-object IDs and emit them as `artifacts.dashboards` so the
+      // Alert Details page surfaces the related dashboards under a
+      // "Related dashboards" tab. The CLI doesn't know which dashboards
+      // are actually installed on the target cluster — we always emit
+      // the IDs and let Kibana skip any missing references at display
+      // time. Available from Kibana 8.19 / 9.1+; older versions ignore
+      // unknown fields, so this is safe to send unconditionally.
+      const artifacts = buildArtifactsFromRelatedDashboards(relatedDashboards);
+      const finalBody = artifacts ? { ...ruleBody, artifacts } : ruleBody;
 
       try {
         const existing = await client.getRule(id);
@@ -464,9 +477,13 @@ async function main() {
           continue;
         }
 
-        await client.createRule(id, ruleBody);
-        console.log(`  ✓ ${id}${labelName ? ` — ${labelName}` : ""} — installed`);
+        await client.createRule(id, finalBody);
+        const linkSuffix = artifacts
+          ? ` (linked ${artifacts.dashboards.length} dashboard${artifacts.dashboards.length === 1 ? "" : "s"})`
+          : "";
+        console.log(`  ✓ ${id}${labelName ? ` — ${labelName}` : ""} — installed${linkSuffix}`);
         installedCount++;
+        if (artifacts) dashboardsLinked += artifacts.dashboards.length;
       } catch (err) {
         const msg = err.message ?? String(err);
         if (msg.includes("409") || msg.toLowerCase().includes("already exists")) {
@@ -486,7 +503,10 @@ async function main() {
     console.log(
       `Installed ${installedCount} / ${total} rule(s).` +
         (skippedCount > 0 ? ` (${skippedCount} already installed, skipped)` : "") +
-        (failedCount > 0 ? ` (${failedCount} failed)` : "")
+        (failedCount > 0 ? ` (${failedCount} failed)` : "") +
+        (dashboardsLinked > 0
+          ? ` (${dashboardsLinked} dashboard ${dashboardsLinked === 1 ? "link" : "links"} attached)`
+          : "")
     );
   }
 

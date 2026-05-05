@@ -10,6 +10,7 @@ import type {
 import {
   buildDashboardSavedObjectPayload,
   dashboardDefToImportNdjsonLine,
+  dashboardDefToSavedObjectId,
   loadGeneratorKibanaTagId,
   LOAD_GENERATOR_KIBANA_TAG_NAME,
 } from "./dashboardToImportNdjson";
@@ -654,6 +655,22 @@ export async function runSetupInstall(opts: {
     let ok = 0;
     let skipped = 0;
     let fail = 0;
+    let totalDashboardsLinked = 0;
+
+    // Resolve every dashboard title referenced via `relatedDashboards` on the
+    // rules to its deterministic saved-object ID. Only titles present in the
+    // current install bundle are eligible — this means rules quietly drop
+    // links to dashboards the user unticked, rather than hard-failing or
+    // shipping a broken artifact reference.
+    const dashboardTitleToId = new Map<string, string>();
+    for (const dash of dashboards) {
+      try {
+        const id = await dashboardDefToSavedObjectId(dash);
+        dashboardTitleToId.set(dash.title, id);
+      } catch {
+        /* skip — dashboard id resolver only fails on web-crypto absence */
+      }
+    }
 
     for (const rule of entries) {
       const rulePath = `/api/alerting/rule/${encodeURIComponent(rule.id)}`;
@@ -679,16 +696,37 @@ export async function runSetupInstall(opts: {
       }
 
       try {
-        const { id: _id, ...body } = rule;
+        const { id: _id, relatedDashboards, ...body } = rule;
+        // Resolve linked dashboards. Kibana's `artifacts.dashboards` schema
+        // (rule API, 8.19 / 9.1+) makes the listed dashboards appear under
+        // a "Related dashboards" tab in the Alert Details page when this
+        // rule fires. Older Kibana versions ignore the field, so it's safe
+        // to send unconditionally.
+        const dashboardIds: Array<{ id: string }> = [];
+        if (relatedDashboards && relatedDashboards.length > 0) {
+          for (const title of relatedDashboards) {
+            const id = dashboardTitleToId.get(title);
+            if (id) dashboardIds.push({ id });
+          }
+        }
+        const ruleBody: Record<string, unknown> =
+          dashboardIds.length > 0
+            ? { ...body, artifacts: { dashboards: dashboardIds } }
+            : { ...body };
         await proxyCall({
           baseUrl: kb,
           apiKey,
           path: rulePath,
           method: "POST",
-          body,
+          body: ruleBody,
         });
         ok++;
-        addLog(`  ✓ ${rule.name}`, "ok");
+        totalDashboardsLinked += dashboardIds.length;
+        const linkSuffix =
+          dashboardIds.length > 0
+            ? ` (linked ${dashboardIds.length} dashboard${dashboardIds.length === 1 ? "" : "s"})`
+            : "";
+        addLog(`  ✓ ${rule.name}${linkSuffix}`, "ok");
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         if (msg.includes("already exists") || msg.includes("409")) {
@@ -705,7 +743,7 @@ export async function runSetupInstall(opts: {
     }
 
     addLog(
-      `  Alerting rules: ${ok} created${skipped > 0 ? `, ${skipped} already existed` : ""}${fail > 0 ? `, ${fail} failed` : ""}`,
+      `  Alerting rules: ${ok} created${skipped > 0 ? `, ${skipped} already existed` : ""}${fail > 0 ? `, ${fail} failed` : ""}${totalDashboardsLinked > 0 ? `, ${totalDashboardsLinked} dashboard ${totalDashboardsLinked === 1 ? "link" : "links"} attached` : ""}`,
       fail > 0 ? "warn" : "ok"
     );
   };

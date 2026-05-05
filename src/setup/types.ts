@@ -39,6 +39,19 @@ export interface AlertRuleEntry {
   params: Record<string, unknown>;
   actions: unknown[];
   notify_when: string;
+  /**
+   * Optional list of dashboard titles to link to this rule via Kibana's
+   * `artifacts.dashboards` schema. The installer resolves each title to its
+   * deterministic dashboard saved-object ID at install time and emits an
+   * `artifacts: { dashboards: [{ id }] }` block on the POSTed rule, so the
+   * Alert Details page surfaces these dashboards under a "Related dashboards"
+   * tab whenever a rule fires. Unknown titles are skipped silently — useful
+   * for clusters where the user opted out of installing some dashboards.
+   *
+   * Available from Kibana 8.19 / 9.1+; older Kibana versions ignore the field.
+   * See https://github.com/elastic/kibana/pull/216292 for the schema.
+   */
+  relatedDashboards?: string[];
 }
 
 export interface AlertRuleFile {
