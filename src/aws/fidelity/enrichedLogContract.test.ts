@@ -28,11 +28,7 @@ describe("AWS log native / integration contract (generator + enrich)", () => {
     }
   });
 
-  const CROSS_CLOUD_IDS = new Set([
-    "servicenow_cmdb",
-    "cspm",
-    "kspm",
-  ]);
+  const CROSS_CLOUD_IDS = new Set(["servicenow_cmdb", "cspm", "kspm"]);
 
   it("after CloudWatch enrichment: cloud.provider, aws.cloudwatch, data_stream, event.module", () => {
     for (const [id, gen] of Object.entries(GENERATORS)) {

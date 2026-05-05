@@ -42,11 +42,11 @@ in-browser behaviour so the wizard and the CLI stay in sync:
 
 ## Requirements
 
-| Deployment                 | Workflows plugin     | Notes                                                                                                              |
-| -------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Elastic Cloud Hosted (ESS) | GA                   | `elastic-cloud-email` is auto-provisioned                                                                          |
-| Elastic Cloud Serverless   | Preview              | Same `elastic-cloud-email` ID is preconfigured                                                                     |
-| Self-hosted (Stack 9.3+)   | Preview from 9.3     | Set `workflows:ui:enabled = true` in Advanced Settings or `kibana.yml`. Preconfigure `elastic-cloud-email` or pass a different connector ID at the installer prompt. Enterprise licence required. |
+| Deployment                 | Workflows plugin | Notes                                                                                                                                                                                             |
+| -------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Elastic Cloud Hosted (ESS) | GA               | `elastic-cloud-email` is auto-provisioned                                                                                                                                                         |
+| Elastic Cloud Serverless   | Preview          | Same `elastic-cloud-email` ID is preconfigured                                                                                                                                                    |
+| Self-hosted (Stack 9.3+)   | Preview from 9.3 | Set `workflows:ui:enabled = true` in Advanced Settings or `kibana.yml`. Preconfigure `elastic-cloud-email` or pass a different connector ID at the installer prompt. Enterprise licence required. |
 
 ## API key permissions
 

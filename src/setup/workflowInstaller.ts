@@ -57,7 +57,8 @@ export function applyWorkflowOverrides(yaml: string, overrides: WorkflowOverride
   return out;
 }
 
-const LEGACY_CASE_STEP_START = "      - name: create_case\n        type: kibana.createCaseDefaultSpace\n";
+const LEGACY_CASE_STEP_START =
+  "      - name: create_case\n        type: kibana.createCaseDefaultSpace\n";
 const ALT_BLOCK_START = "      # ─── Stack 9.4+ alternative ";
 const ALT_BLOCK_END = "syncAlerts: false";
 

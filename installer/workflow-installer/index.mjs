@@ -254,9 +254,7 @@ async function main() {
     process.exit(1);
   }
   if (
-    deploymentType === "self-managed"
-      ? !/^https?:\/\//.test(kbUrl)
-      : !kbUrl.startsWith("https://")
+    deploymentType === "self-managed" ? !/^https?:\/\//.test(kbUrl) : !kbUrl.startsWith("https://")
   ) {
     console.error("Invalid URL scheme. Exiting.");
     rl.close();
@@ -282,9 +280,7 @@ async function main() {
     const verStr =
       status?.version?.number ?? (typeof status?.version === "string" ? status.version : "");
     kbVersion = detectMajorMinor(verStr);
-    console.log(
-      `  Connected to ${status?.name ?? "Kibana"}${verStr ? ` (${verStr})` : ""}.`
-    );
+    console.log(`  Connected to ${status?.name ?? "Kibana"}${verStr ? ` (${verStr})` : ""}.`);
   } catch (err) {
     console.error(`  Connection failed: ${err.message}`);
     rl.close();
@@ -308,10 +304,16 @@ async function main() {
 
   let notifyTo = "data-platform-oncall@example.com";
   let emailConnector = "elastic-cloud-email";
-  let use94CasesStep = !!(kbVersion && (kbVersion.major > 9 || (kbVersion.major === 9 && kbVersion.minor >= 4)));
+  let use94CasesStep = !!(
+    kbVersion &&
+    (kbVersion.major > 9 || (kbVersion.major === 9 && kbVersion.minor >= 4))
+  );
 
   if (mode !== "delete") {
-    const customise = await prompt(rl, "Override default notifyTo / emailConnector inputs? (y/N)\n> ");
+    const customise = await prompt(
+      rl,
+      "Override default notifyTo / emailConnector inputs? (y/N)\n> "
+    );
     if (customise.toLowerCase() === "y" || customise.toLowerCase() === "yes") {
       const a = await prompt(rl, `  emailConnector [${emailConnector}]:\n  > `);
       if (a) emailConnector = a;
@@ -321,7 +323,9 @@ async function main() {
     if (kbVersion) {
       console.log(
         `\nDetected Kibana ${kbVersion.major}.${kbVersion.minor} — using ${
-          use94CasesStep ? "cases.createCase (9.4+)" : "kibana.createCaseDefaultSpace (9.3-compatible)"
+          use94CasesStep
+            ? "cases.createCase (9.4+)"
+            : "kibana.createCaseDefaultSpace (9.3-compatible)"
         } step.`
       );
     }

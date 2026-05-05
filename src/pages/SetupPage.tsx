@@ -2528,28 +2528,27 @@ export function SetupPage({
         description={
           removeMode ? (
             <>
-              <strong>Removes</strong> the bundled <EuiCode>{"data-pipeline-alert-enrichment"}</EuiCode>{" "}
-              Kibana Workflow.
+              <strong>Removes</strong> the bundled{" "}
+              <EuiCode>{"data-pipeline-alert-enrichment"}</EuiCode> Kibana Workflow.
             </>
           ) : (
             <>
-              Installs the bundled{" "}
-              <EuiCode>{"data-pipeline-alert-enrichment.yaml"}</EuiCode> Kibana Workflow that
-              enriches data-pipeline alerts with ServiceNow CMDB context, opens a case for
-              repeat incidents, and emails the on-call group via the deployment's preconfigured
-              SMTP connector. Requires Workflows (preview from Stack 9.3, GA on Cloud Hosted) and
-              an Enterprise licence — the wizard auto-detects 9.4+ and uses the new
+              Installs the bundled <EuiCode>{"data-pipeline-alert-enrichment.yaml"}</EuiCode> Kibana
+              Workflow that enriches data-pipeline alerts with ServiceNow CMDB context, opens a case
+              for repeat incidents, and emails the on-call group via the deployment's preconfigured
+              SMTP connector. Requires Workflows (preview from Stack 9.3, GA on Cloud Hosted) and an
+              Enterprise licence — the wizard auto-detects 9.4+ and uses the new
               <EuiCode>{"cases.createCase"}</EuiCode> step when available. The same YAML is also
               available at <EuiCode>{"workflows/data-pipeline-alert-enrichment.yaml"}</EuiCode> /{" "}
               <EuiCode>{"assets/workflows/"}</EuiCode> for manual paste into Stack Management →
               Workflows.
               <EuiSpacer size="xs" />
-              <strong>You still need to:</strong> (1) review the notification step
-              (default is email — Slack / Teams / PagerDuty / ServiceNow ITSM / Opsgenie /
-              webhook variants ship as commented blocks in the YAML); and (2) attach the
-              workflow to your alerting rules — every Cloud Loadgen rule installs with{" "}
-              <EuiCode>{"actions=[]"}</EuiCode>, so the workflow only fires once you wire it up
-              in <em>Stack Management → Rules → &lt;rule&gt; → Actions → Workflow</em>.
+              <strong>You still need to:</strong> (1) review the notification step (default is email
+              — Slack / Teams / PagerDuty / ServiceNow ITSM / Opsgenie / webhook variants ship as
+              commented blocks in the YAML); and (2) attach the workflow to your alerting rules —
+              every Cloud Loadgen rule installs with <EuiCode>{"actions=[]"}</EuiCode>, so the
+              workflow only fires once you wire it up in{" "}
+              <em>Stack Management → Rules → &lt;rule&gt; → Actions → Workflow</em>.
             </>
           )
         }
@@ -2573,7 +2572,10 @@ export function SetupPage({
                 </EuiFormRow>
               </EuiFlexItem>
               <EuiFlexItem>
-                <EuiFormRow label="Notify recipient" helpText="Email address that receives the enriched alert.">
+                <EuiFormRow
+                  label="Notify recipient"
+                  helpText="Email address that receives the enriched alert."
+                >
                   <EuiFieldText
                     value={workflowNotifyTo}
                     onChange={(e) => setWorkflowNotifyTo(e.target.value)}
