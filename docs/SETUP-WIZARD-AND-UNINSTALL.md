@@ -105,7 +105,7 @@ A dedicated toggle for **ServiceNow CMDB Integration** is available in the Setup
 
 ### Alert-enrichment Workflow
 
-The wizard includes a dedicated **Alert-enrichment Workflow** row that installs the bundled [`workflows/data-pipeline-alert-enrichment.yaml`](../workflows/data-pipeline-alert-enrichment.yaml) Kibana Workflow via `POST /api/workflows/_workflows`. When you toggle the row on, two text fields appear so you can override:
+The wizard includes a dedicated **Alert-enrichment Workflow** row that installs the bundled [`workflows/data-pipeline-alert-enrichment.yaml`](../workflows/data-pipeline-alert-enrichment.yaml) Kibana Workflow via `POST /api/workflows` (the bulk create endpoint introduced in Stack 9.5; older `_workflows` paths returned 404 on Serverless). When you toggle the row on, two text fields appear so you can override:
 
 - **`emailConnector`** — defaults to `elastic-cloud-email` (auto-provisioned on Cloud Hosted / Serverless; preconfigure the same ID in `kibana.yml` on self-hosted, or paste your own connector ID).
 - **`notifyTo`** — the email recipient.

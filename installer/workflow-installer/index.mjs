@@ -159,8 +159,9 @@ function createKibanaClient(baseUrl, apiKey) {
       return request("GET", `/api/actions/connector/${encodeURIComponent(id)}`, { allow404: true });
     },
     async findWorkflowByName(name) {
-      const path = `/api/workflows/_workflows?search=${encodeURIComponent(name)}`;
-      const raw = await request("GET", path, { allow404: true });
+      // 9.5+ exposes the list at /api/workflows; we filter by name client-side
+      // so we don't depend on a server-side `?search=` query that's still in flux.
+      const raw = await request("GET", "/api/workflows", { allow404: true });
       if (!raw || raw._status === 404) return null;
       const list = raw.results ?? raw.data ?? [];
       for (const entry of list) {
@@ -169,15 +170,35 @@ function createKibanaClient(baseUrl, apiKey) {
       return null;
     },
     async createWorkflow(body) {
-      return request("POST", "/api/workflows/_workflows", { body });
+      // Stack 9.5+ replaced the legacy singular POST /api/workflows/_workflows with
+      // a bulk create at POST /api/workflows that takes { workflows: [...] }. We
+      // wrap a single create so callers don't need to know the shape difference.
+      const raw = await request("POST", "/api/workflows", {
+        body: { workflows: [body] },
+      });
+      const created = raw?.created?.[0];
+      if (!created) {
+        const err = raw?.errors?.[0];
+        if (err)
+          throw new Error(`Workflows API rejected create: ${err.error ?? JSON.stringify(err)}`);
+        throw new Error("Workflows API returned no id on create");
+      }
+      return created;
     },
     async updateWorkflow(id, body) {
-      return request("PUT", `/api/workflows/_workflows/${encodeURIComponent(id)}`, { body });
+      return request("PUT", `/api/workflows/workflow/${encodeURIComponent(id)}`, { body });
     },
     async deleteWorkflow(id) {
-      return request("DELETE", `/api/workflows/_workflows/${encodeURIComponent(id)}`, {
+      return request("DELETE", `/api/workflows/workflow/${encodeURIComponent(id)}`, {
         allow404: true,
       });
+    },
+    async listPreconfiguredEmailConnectors() {
+      // Used to auto-suggest a working `emailConnector` when the bundled default
+      // (e.g. `elastic-cloud-email`) is not present on the user's deployment.
+      const list = await request("GET", "/api/actions/connectors", { allow404: true });
+      if (!Array.isArray(list)) return [];
+      return list.filter((c) => c?.connector_type_id === ".email" && c?.is_preconfigured === true);
     },
   };
 }
@@ -368,11 +389,39 @@ async function main() {
   try {
     const conn = await client.getConnector(emailConnector);
     if (!conn || conn._status === 404) {
-      console.warn(
-        `  ⚠ Connector "${emailConnector}" not found on this deployment.\n` +
-          `    The workflow will install but its first run will abort at the pre-flight step.\n` +
-          `    Self-hosted: preconfigure the connector in kibana.yml or pass a different ID next run.`
-      );
+      // Default is missing — try to find a preconfigured email connector and offer to use it
+      // (Cloud Hosted ships `elastic-cloud-email`, Serverless ships `Elastic-Cloud-SMTP`,
+      // self-hosted deployments only have what the operator preconfigures in kibana.yml).
+      let alternates = [];
+      try {
+        alternates = await client.listPreconfiguredEmailConnectors();
+      } catch {
+        /* enumeration failed — fall through to the warning */
+      }
+      if (alternates.length > 0) {
+        const ids = alternates.map((c) => c.id).join(", ");
+        console.warn(
+          `  ⚠ Connector "${emailConnector}" not found, but ${alternates.length} preconfigured ` +
+            `email connector(s) are available: ${ids}.`
+        );
+        const swap = await prompt(rl, `Use "${alternates[0].id}" for this install? (Y/n):\n> `);
+        if (swap.toLowerCase() !== "n" && swap.toLowerCase() !== "no") {
+          emailConnector = alternates[0].id;
+          console.log(`  ✓ Using preconfigured connector "${emailConnector}".`);
+        } else {
+          console.warn(
+            `    Keeping "${emailConnector}". The workflow will install but its first run will ` +
+              `abort at the pre-flight step until the connector exists.`
+          );
+        }
+      } else {
+        console.warn(
+          `  ⚠ Connector "${emailConnector}" not found on this deployment, and no preconfigured\n` +
+            `    email connector was advertised by /api/actions/connectors.\n` +
+            `    The workflow will install but its first run will abort at the pre-flight step.\n` +
+            `    Self-hosted: preconfigure the connector in kibana.yml or pass a different ID next run.`
+        );
+      }
     } else {
       console.log(`  ✓ Connector "${emailConnector}" found.`);
     }

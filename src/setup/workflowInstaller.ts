@@ -2,11 +2,13 @@
  * Kibana Workflow installer for the bundled
  * `data-pipeline-alert-enrichment.yaml` automation.
  *
- * Wraps the Workflows Management REST API:
- *   GET  /api/workflows/_workflows?search=<name>   list / detect existing
- *   POST /api/workflows/_workflows                 create
- *   PUT  /api/workflows/_workflows/{id}            update
- *   DELETE /api/workflows/_workflows/{id}          remove
+ * Wraps the Workflows Management REST API (Stack 9.5+ shape — the older
+ * `/api/workflows/_workflows` paths returned 404 from 9.5):
+ *   GET    /api/workflows                        list (filter client-side by name)
+ *   GET    /api/workflows/workflow/{id}          fetch single
+ *   POST   /api/workflows                        bulk create — body { workflows: [...] }
+ *   PUT    /api/workflows/workflow/{id}          update single
+ *   DELETE /api/workflows/workflow/{id}          delete single
  *
  * The Workflows plugin is in technical preview from Stack 9.3 and requires an
  * Enterprise licence. Self-hosted clusters must also enable the UI via the
@@ -126,6 +128,12 @@ interface ListWorkflowsResponse {
   data?: Array<{ id?: string; name?: string }>;
 }
 
+interface BulkCreateWorkflowsResponse {
+  /** 9.5+ bulk create response. */
+  created?: Array<{ id?: string; name?: string }>;
+  errors?: Array<{ name?: string; error?: string }>;
+}
+
 interface CreateWorkflowResponse {
   id?: string;
   /** Some endpoints wrap the created entity. */
@@ -139,11 +147,12 @@ export async function findWorkflowIdByName(
   name: string
 ): Promise<string | null> {
   const kb = kibanaUrl.replace(/\/$/, "");
-  const path = `/api/workflows/_workflows?search=${encodeURIComponent(name)}`;
+  // GET /api/workflows lists all workflows on this space; we filter by name client-side
+  // so we don't depend on a server-side `?search=` that varies between Kibana versions.
   const raw = (await proxyCall({
     baseUrl: kb,
     apiKey,
-    path,
+    path: `/api/workflows`,
     method: "GET",
     allow404: true,
   })) as ListWorkflowsResponse | null;
@@ -227,23 +236,41 @@ export async function installWorkflow(opts: {
     await proxyCall({
       baseUrl: kb,
       apiKey,
-      path: `/api/workflows/_workflows/${encodeURIComponent(existingId)}`,
+      path: `/api/workflows/workflow/${encodeURIComponent(existingId)}`,
       method: "PUT",
       body: { name, description, yaml, enabled: true, tags },
     });
     return { id: existingId, outcome: "updated" };
   }
 
-  const created = (await proxyCall({
+  // Stack 9.5+ uses a bulk create endpoint that wraps a single create:
+  //   POST /api/workflows  { workflows: [{...}] }  →  { created: [{id, name, ...}] }
+  // The previous singular `POST /api/workflows/_workflows` 404s on 9.5+, so we always
+  // send the bulk shape — it is accepted on every version we ship to.
+  const bulk = (await proxyCall({
     baseUrl: kb,
     apiKey,
-    path: "/api/workflows/_workflows",
+    path: "/api/workflows",
     method: "POST",
-    body: { name, description, yaml, enabled: true, tags },
-  })) as CreateWorkflowResponse | null;
+    body: {
+      workflows: [{ name, description, yaml, enabled: true, tags }],
+    },
+  })) as BulkCreateWorkflowsResponse | CreateWorkflowResponse | null;
 
-  const id = created?.id ?? created?.workflow?.id;
+  // Bulk shape ({ created: [...] }) takes precedence; fall back to the
+  // legacy singular envelope so older clusters keep working too.
+  const bulkCreated = (bulk as BulkCreateWorkflowsResponse | null)?.created;
+  const id =
+    (Array.isArray(bulkCreated) && bulkCreated[0]?.id) ||
+    (bulk as CreateWorkflowResponse | null)?.id ||
+    (bulk as CreateWorkflowResponse | null)?.workflow?.id;
   if (!id) {
+    const errs = (bulk as BulkCreateWorkflowsResponse | null)?.errors;
+    if (Array.isArray(errs) && errs.length > 0) {
+      throw new Error(
+        `Workflows API rejected create: ${errs[0]?.error ?? JSON.stringify(errs[0])}`
+      );
+    }
     throw new Error("Workflows API returned no id on create");
   }
   return { id, outcome: "created" };
@@ -271,7 +298,7 @@ export async function uninstallWorkflow(opts: {
     await proxyCall({
       baseUrl: kb,
       apiKey,
-      path: `/api/workflows/_workflows/${encodeURIComponent(id)}`,
+      path: `/api/workflows/workflow/${encodeURIComponent(id)}`,
       method: "DELETE",
       allow404: true,
     });

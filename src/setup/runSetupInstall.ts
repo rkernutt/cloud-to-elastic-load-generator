@@ -802,7 +802,7 @@ export async function runSetupInstall(opts: {
       }
     }
 
-    const connectorId = merged.emailConnector ?? "elastic-cloud-email";
+    let connectorId = merged.emailConnector ?? "elastic-cloud-email";
     try {
       const conn = (await proxyCall({
         baseUrl: kb,
@@ -811,11 +811,43 @@ export async function runSetupInstall(opts: {
         method: "GET",
         allow404: true,
       })) as Record<string, unknown> | null;
-      if (!conn) {
-        addLog(
-          `  ⚠ Email connector "${connectorId}" not found on this deployment. Workflow will install but its first run will abort at the pre-flight step. Self-hosted: preconfigure the connector in kibana.yml or pass a different ID.`,
-          "warn"
-        );
+      // The connector lookup returns 200 with `{id: null, ...}` when missing on Serverless;
+      // treat that as "not found" identically to the 404 fallback.
+      const isMissing = !conn || conn.id == null;
+      if (isMissing) {
+        // Try to discover an alternative preconfigured email connector — Cloud Hosted ships
+        // `elastic-cloud-email`, Serverless ships `Elastic-Cloud-SMTP`, self-hosted varies.
+        let auto: string | null = null;
+        try {
+          const list = (await proxyCall({
+            baseUrl: kb,
+            apiKey,
+            path: `/api/actions/connectors`,
+            method: "GET",
+            allow404: true,
+          })) as Array<Record<string, unknown>> | null;
+          if (Array.isArray(list)) {
+            const match = list.find(
+              (c) => c?.connector_type_id === ".email" && c?.is_preconfigured === true
+            );
+            if (match && typeof match.id === "string") auto = match.id;
+          }
+        } catch {
+          /* enumeration failed — fall through to the warning */
+        }
+        if (auto) {
+          addLog(
+            `  ↪ Email connector "${connectorId}" not found, switching to preconfigured connector "${auto}" for this install.`,
+            "info"
+          );
+          connectorId = auto;
+          merged.emailConnector = auto;
+        } else {
+          addLog(
+            `  ⚠ Email connector "${connectorId}" not found on this deployment, and no preconfigured email connector was advertised by /api/actions/connectors. Workflow will install but its first run will abort at the pre-flight step. Self-hosted: preconfigure the connector in kibana.yml or pass a different ID.`,
+            "warn"
+          );
+        }
       } else {
         addLog(`  ✓ Email connector "${connectorId}" found.`, "ok");
       }

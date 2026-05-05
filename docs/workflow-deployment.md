@@ -203,7 +203,7 @@ curl -sS -X PUT "$KIBANA_URL/api/alerting/rule/<rule-id>" \
   }'
 ```
 
-Look up the workflow ID returned by the installer (`✓ Workflow created (id=…)` in the wizard log) or by `GET /api/workflows/_workflows?search=Data%20Pipeline%20Alert`.
+Look up the workflow ID returned by the installer (`✓ Workflow created (id=…)` in the wizard log) or by `GET /api/workflows` and filtering for `name == "Data Pipeline Alert — CMDB Enrichment & Notification"` (the listing endpoint returns `{ results, total, page, size }`).
 
 ## Triggering the workflow
 
@@ -212,7 +212,7 @@ The workflow's trigger is `type: alert`, which means it fires whenever a Kibana 
 You can also test the workflow manually without any rule attachment:
 
 ```bash
-curl -sS -X POST "$KIBANA_URL/api/workflows/_workflows/<workflow-id>/run" \
+curl -sS -X POST "$KIBANA_URL/api/workflows/workflow/<workflow-id>/run" \
   -H "Authorization: ApiKey $API_KEY" \
   -H "kbn-xsrf: true" \
   -H "Content-Type: application/json" \
