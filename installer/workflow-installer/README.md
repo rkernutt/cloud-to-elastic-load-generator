@@ -17,7 +17,10 @@ API key, and an action (install / delete / reinstall). It mirrors the wizard's
 in-browser behaviour so the wizard and the CLI stay in sync:
 
 - Pre-flights `/api/actions/connector/{emailConnector}` and warns (without
-  blocking) if the connector is missing.
+  blocking) if the connector is missing. If the default ID is missing, falls
+  back to enumerating `/api/actions/connectors` and auto-uses the first
+  preconfigured `.email` connector — equivalent to the wizard's proactive
+  probe, just at install time instead of at toggle time.
 - Auto-detects Kibana 9.4+ from `/api/status` and substitutes the legacy
   `kibana.createCaseDefaultSpace` step for the new `cases.createCase` step.
 - Lets you override the workflow's `notifyTo` and `emailConnector` inputs at

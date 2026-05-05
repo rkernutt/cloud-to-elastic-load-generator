@@ -81,11 +81,11 @@ The workflow exposes three inputs you can override at install time. Defaults are
 
 You can deploy this workflow whichever way fits your flow:
 
-| Path              | When to use                                                            | How                                                                                                                                                                                                                                                                      |
-| ----------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Setup wizard**  | Day-to-day, you already use the Setup page                             | Tick **Alert-enrichment Workflow** in the Setup wizard, optionally override `emailConnector` / `notifyTo`, and click Install. The wizard auto-detects 9.4+ and substitutes the new `cases.createCase` step. Uninstall and Reinstall handle it the same way.              |
-| **CLI installer** | Headless / CI installs, no browser, scripted promotions between spaces | `npm run setup:workflow` (or `node installer/workflow-installer/index.mjs`). Interactive prompts mirror the wizard. Same overrides, same idempotent create-or-update behaviour. See [installer/workflow-installer/README.md](../installer/workflow-installer/README.md). |
-| **Manual paste**  | Workflows REST API blocked on your tier, or you simply prefer the UI   | Open `workflows/data-pipeline-alert-enrichment.yaml` (mirror at `assets/workflows/data-pipeline-alert-enrichment.yaml`), copy the contents, paste into **Stack Management → Workflows → Create**, edit the input defaults at the top of the file as needed, save.        |
+| Path              | When to use                                                            | How                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ----------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Setup wizard**  | Day-to-day, you already use the Setup page                             | Tick **Alert-enrichment Workflow** in the Setup wizard. The wizard probes the cluster's `/api/actions/connectors` and pre-fills the **Email connector ID** field with whatever preconfigured `.email` connector it finds (typically `elastic-cloud-email` on Cloud, your `kibana.yml`-preconfigured connector on self-managed). Override `emailConnector` / `notifyTo` if needed and click Install. The wizard also auto-detects Kibana 9.4+ and substitutes the new `cases.createCase` step. Uninstall and Reinstall handle it the same way. |
+| **CLI installer** | Headless / CI installs, no browser, scripted promotions between spaces | `npm run setup:workflow` (or `node installer/workflow-installer/index.mjs`). Interactive prompts mirror the wizard. Same overrides, same idempotent create-or-update behaviour. See [installer/workflow-installer/README.md](../installer/workflow-installer/README.md).                                                                                                                                                                                                                                                                      |
+| **Manual paste**  | Workflows REST API blocked on your tier, or you simply prefer the UI   | Open `workflows/data-pipeline-alert-enrichment.yaml` (mirror at `assets/workflows/data-pipeline-alert-enrichment.yaml`), copy the contents, paste into **Stack Management → Workflows → Create**, edit the input defaults at the top of the file as needed, save.                                                                                                                                                                                                                                                                             |
 
 All three paths produce the same workflow — you can mix and match (e.g. install via the wizard, then later edit the YAML in Stack Management). The wizard's pre-flight email-connector check fires before the install POST runs, so a misconfigured connector ID is reported immediately.
 
@@ -161,6 +161,49 @@ Common outcomes:
   - Cloud Hosted / Serverless: confirm `elastic-cloud-email` exists under **Stack Management → Connectors** (it should be auto-provisioned).
   - Self-hosted: apply Option A or Option B above.
 - **403 Forbidden** — the workflow's runtime token lacks `read` on the action. Grant Kibana **Actions and Connectors** read privileges to the workflow's role.
+
+## Step reference
+
+The YAML keeps comments terse — this table is the canonical explanation for what each step does and why it's shaped that way.
+
+| #   | Step                             | Type                                   | Purpose                                                                                                                                                                                                                                                 |
+| --- | -------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0   | `log_preflight`                  | `console`                              | Echoes the email connector + recipient so the values are visible in the run log before the validation request fires.                                                                                                                                    |
+| 0   | `validate_email_connector`       | `kibana.request`                       | `GET /api/actions/connector/{{ inputs.emailConnector }}`. Aborts the workflow with a single clear error if the connector is missing — see [Pre-flight connector validation](#pre-flight-connector-validation).                                          |
+| 1   | `log_alert_received`             | `console`                              | Records the inbound alert rule + message in the run log.                                                                                                                                                                                                |
+| 2   | `find_pipeline_user`             | `elasticsearch.request`                | Most recent doc from `aws.mwaa` / `gcp.composer` / `azure.data_factory` / `aws.emr_logs` / `gcp.dataproc` with a `user.name`. Uses `elasticsearch.request` because Workflows v1.0.0 rejects body-style `sort` on the named `elasticsearch.search` step. |
+| 3   | `lookup_servicenow_user`         | `elasticsearch.search`                 | Looks the user up in CMDB (`tags: sys_user`) to fetch email, phone, manager.                                                                                                                                                                            |
+| 4   | `lookup_affected_ci`             | `elasticsearch.request`                | Top 3 `cmdb_ci` records categorised as Cloud Service / Compute. Same reason as step 2 for using `elasticsearch.request`.                                                                                                                                |
+| 5   | `find_open_incidents`            | `elasticsearch.request`                | Open `incident` records (not Resolved/Closed) within the last 7 days.                                                                                                                                                                                   |
+| 6   | `find_recent_changes`            | `elasticsearch.request`                | Recent `change_request` records — handy when a deploy explains the failure.                                                                                                                                                                             |
+| 7   | `check_severity` / `create_case` | `if` → `kibana.createCaseDefaultSpace` | When >2 open incidents on the CI, opens a Kibana case with the enriched context. On 9.4+ this auto-swaps to `cases.createCase` (see below).                                                                                                             |
+| 8   | `notify_email`                   | `email`                                | Sends the enriched alert via `inputs.emailConnector`. Retries twice on transient SMTP errors then continues so step 9 still runs (the pre-flight already proved the connector exists).                                                                  |
+| 9   | `index_enriched_alert`           | `elasticsearch.index`                  | Writes a record to `logs-pipeline-alert-enriched-default` so dashboards / SLOs can track enrichment outcomes.                                                                                                                                           |
+| 10  | `log_complete`                   | `console`                              | Final run-log line summarising rule, CI, owner, and open-incident count.                                                                                                                                                                                |
+
+### Stack 9.4+ `cases.createCase` recipe
+
+The wizard / CLI installer auto-detects 9.4+ and swaps step 7 for the cleaner `cases.createCase` step. If you're editing the YAML manually on 9.4+, replace the `kibana.createCaseDefaultSpace` block with this drop-in:
+
+```yaml
+- name: create_case
+  type: cases.createCase
+  # push-case: true              # set true + connector-id below to auto-push
+  # connector-id: "<jira-or-servicenow-itsm-connector-id>"
+  with:
+    owner: "observability"
+    title: "Pipeline Alert Escalation: {{ event.alerts[0].kibana.alert.rule.name }}"
+    description: |
+      ## Alert Details
+      **Rule:** {{ event.alerts[0].kibana.alert.rule.name }}
+      **Message:** {{ event.alerts[0].message }}
+    severity: "high"
+    tags: [data-pipeline, escalation, workflow-generated]
+    settings:
+      syncAlerts: false
+```
+
+The new step type drops the required `connector` / `settings` block and supports `push-case: true` to auto-push the case to an attached Jira / ServiceNow ITSM connector.
 
 ## Stack 9.4+ enhancements
 

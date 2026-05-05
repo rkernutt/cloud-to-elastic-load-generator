@@ -61,29 +61,23 @@ export function applyWorkflowOverrides(yaml: string, overrides: WorkflowOverride
 
 const LEGACY_CASE_STEP_START =
   "      - name: create_case\n        type: kibana.createCaseDefaultSpace\n";
-const ALT_BLOCK_START = "      # ─── Stack 9.4+ alternative ";
-const ALT_BLOCK_END = "syncAlerts: false";
+// The legacy step's last line — used as the end marker so the swap does
+// not depend on any neighbouring comment block. Keep in sync with the YAML.
+const LEGACY_CASE_STEP_END = "            fields: null";
 
 /**
  * Replace the legacy `kibana.createCaseDefaultSpace` step with the modern
- * 9.4+ `cases.createCase` step, and drop the commented alternative block
- * that lives directly underneath it. We rebuild the step from scratch
- * rather than uncommenting the alternative because the YAML's comment
- * indentation does not survive a `# ` strip cleanly.
+ * 9.4+ `cases.createCase` step. We rebuild the step from scratch (rather
+ * than uncommenting an inline alternative) so the YAML can stay lean — the
+ * 9.4 recipe is documented in `docs/workflow-deployment.md`.
  */
 function swap94CaseStep(yaml: string): string {
   const startIdx = yaml.indexOf(LEGACY_CASE_STEP_START);
   if (startIdx < 0) return yaml;
 
-  // The legacy step ends right before the "Stack 9.4+ alternative" comment block.
-  const altIdx = yaml.indexOf(ALT_BLOCK_START, startIdx);
-  if (altIdx < 0) return yaml;
-
-  // Find the end of the alt block: look for the trailing `syncAlerts: false`
-  // commented line, then drop everything up to (and including) the trailing newline.
-  const altEndMarker = yaml.indexOf(ALT_BLOCK_END, altIdx);
-  if (altEndMarker < 0) return yaml;
-  const altEndOfLine = yaml.indexOf("\n", altEndMarker);
+  const endMarker = yaml.indexOf(LEGACY_CASE_STEP_END, startIdx);
+  if (endMarker < 0) return yaml;
+  const altEndOfLine = yaml.indexOf("\n", endMarker);
   if (altEndOfLine < 0) return yaml;
 
   const replacement =

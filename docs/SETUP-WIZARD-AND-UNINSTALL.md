@@ -107,13 +107,14 @@ A dedicated toggle for **ServiceNow CMDB Integration** is available in the Setup
 
 The wizard includes a dedicated **Alert-enrichment Workflow** row that installs the bundled [`workflows/data-pipeline-alert-enrichment.yaml`](../workflows/data-pipeline-alert-enrichment.yaml) Kibana Workflow via `POST /api/workflows` (the bulk create endpoint introduced in Stack 9.5; older `_workflows` paths returned 404 on Serverless). When you toggle the row on, two text fields appear so you can override:
 
-- **`emailConnector`** — defaults to `elastic-cloud-email` (auto-provisioned on Cloud Hosted / Serverless; preconfigure the same ID in `kibana.yml` on self-hosted, or paste your own connector ID).
+- **`emailConnector`** — defaults to `elastic-cloud-email`. As soon as you toggle the row on (and the cluster connection is established), the wizard probes `/api/actions/connectors` and pre-fills this field with whatever preconfigured `.email` connector it finds — `elastic-cloud-email` on Cloud Hosted / Serverless, your `kibana.yml`-preconfigured connector on self-managed, or no change with a "Missing" hint pointing at `kibana.yml` if none is provisioned. You can override the value by typing into the field; once edited, the probe will not stomp your change.
 - **`notifyTo`** — the email recipient.
 
 Behaviour:
 
 - The wizard auto-detects Kibana 9.4+ from `/api/status` and substitutes the legacy `kibana.createCaseDefaultSpace` step for the new `cases.createCase` step. On 9.3 it leaves the YAML alone.
-- A pre-flight call to `/api/actions/connector/{emailConnector}` warns (without blocking) when the connector is missing — the workflow's own pre-flight guard catches the failure cleanly at run-time too.
+- The proactive `/api/actions/connectors` probe runs once per toggle-on so the resolved connector is visible in the UI before install.
+- A second pre-flight call to `/api/actions/connector/{emailConnector}` runs at install time and warns (without blocking) when the connector is missing — the workflow's own pre-flight guard catches the failure cleanly at run-time too.
 - Reinstall replaces the existing workflow rather than duplicating it.
 - The Uninstall path removes the workflow when this row is enabled.
 

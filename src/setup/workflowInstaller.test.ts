@@ -34,13 +34,12 @@ describe("applyWorkflowOverrides", () => {
     });
     expect(out).toMatch(/type:\s+cases\.createCase/);
     expect(out).not.toMatch(/type:\s+kibana\.createCaseDefaultSpace/);
-    expect(out).not.toMatch(/Stack 9\.4\+ alternative/);
   });
 
   it("leaves the legacy case step in place by default", () => {
     const out = applyWorkflowOverrides(ALERT_ENRICHMENT_WORKFLOW_YAML);
     expect(out).toMatch(/type:\s+kibana\.createCaseDefaultSpace/);
-    expect(out).toMatch(/Stack 9\.4\+ alternative/);
+    expect(out).not.toMatch(/type:\s+cases\.createCase/);
   });
 
   it("produces valid YAML for every override combination", () => {

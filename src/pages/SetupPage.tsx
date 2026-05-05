@@ -207,6 +207,27 @@ export function SetupPage({
   const [enableWorkflow, setEnableWorkflow] = useState(false);
   const [workflowNotifyTo, setWorkflowNotifyTo] = useState("data-platform-oncall@example.com");
   const [workflowEmailConnector, setWorkflowEmailConnector] = useState("elastic-cloud-email");
+  /**
+   * Tracks whether the user has manually edited the email connector input.
+   * Used so the proactive auto-detect probe (below) only fills the field if
+   * the user is still on the unmodified default — we never stomp a custom value.
+   */
+  const [emailConnectorUserEdited, setEmailConnectorUserEdited] = useState(false);
+  /**
+   * One of: "idle" (probe not run yet), "probing" (in flight), "auto" (probe
+   * found a preconfigured connector and filled the field), "missing" (probe
+   * ran, found nothing — self-managed users will need to supply a connector
+   * ID), or "error" (probe failed; default left in place). Drives the small
+   * inline hint under the input.
+   */
+  const [emailConnectorProbeStatus, setEmailConnectorProbeStatus] = useState<
+    "idle" | "probing" | "auto" | "missing" | "error"
+  >("idle");
+  /** Detected connector ID + display name, used in the auto-detect hint. */
+  const [emailConnectorDetected, setEmailConnectorDetected] = useState<{
+    id: string;
+    name?: string;
+  } | null>(null);
   /** Pipeline / dashboard / ML group section keys the user has expanded (default: none). */
   const [expandedSetupSections, setExpandedSetupSections] = useState<Set<string>>(() => new Set());
 
@@ -268,6 +289,80 @@ export function SetupPage({
     setConfirmResetOpen(false);
     if (setupLogPersistenceKey) clearSetupLog(setupLogPersistenceKey);
   }, [removeMode, setupLogPersistenceKey]);
+
+  /**
+   * Proactive email-connector auto-detect for the alert-enrichment workflow.
+   *
+   * When the user toggles the workflow row on (and we have a Kibana URL +
+   * API key), probe `/api/actions/connectors` once and look for a
+   * preconfigured `.email` connector. If one is found and the user has
+   * NOT manually edited the field, swap the default in. Mirrors the
+   * install-time auto-detect in `runSetupInstall.ts` so the UI shows the
+   * resolved ID before the user clicks Install — avoids surprise log lines
+   * and makes self-managed misconfigurations visible up front.
+   */
+  useEffect(() => {
+    const haveKibana = !!kibanaUrl.trim() && !!apiKey.trim();
+    if (!enableWorkflow || removeMode || !haveKibana) {
+      if (!enableWorkflow) {
+        setEmailConnectorProbeStatus("idle");
+        setEmailConnectorDetected(null);
+      }
+      return;
+    }
+    if (emailConnectorProbeStatus !== "idle") return;
+
+    const abort = new AbortController();
+    setEmailConnectorProbeStatus("probing");
+    (async () => {
+      try {
+        const kb = kibanaUrl.replace(/\/$/, "");
+        const list = (await proxyCall({
+          baseUrl: kb,
+          apiKey,
+          path: `/api/actions/connectors`,
+          method: "GET",
+          allow404: true,
+        })) as Array<Record<string, unknown>> | null;
+        if (abort.signal.aborted) return;
+        const match = Array.isArray(list)
+          ? list.find(
+              (c) =>
+                c?.connector_type_id === ".email" &&
+                (c?.is_preconfigured === true || c?.isPreconfigured === true)
+            )
+          : null;
+        if (match && typeof match.id === "string") {
+          const detected = {
+            id: match.id,
+            name: typeof match.name === "string" ? match.name : undefined,
+          };
+          setEmailConnectorDetected(detected);
+          if (!emailConnectorUserEdited) {
+            setWorkflowEmailConnector(match.id);
+          }
+          setEmailConnectorProbeStatus("auto");
+        } else {
+          setEmailConnectorDetected(null);
+          setEmailConnectorProbeStatus("missing");
+        }
+      } catch (e) {
+        if (abort.signal.aborted) return;
+        if (String(e).includes("AbortError")) return;
+        setEmailConnectorDetected(null);
+        setEmailConnectorProbeStatus("error");
+      }
+    })();
+
+    return () => abort.abort();
+  }, [
+    enableWorkflow,
+    removeMode,
+    kibanaUrl,
+    apiKey,
+    emailConnectorProbeStatus,
+    emailConnectorUserEdited,
+  ]);
 
   const flushSetupSnapshot = useCallback(() => {
     if (!setupLogPersistenceKey) return;
@@ -2564,11 +2659,43 @@ export function SetupPage({
               <EuiFlexItem>
                 <EuiFormRow
                   label="Email connector ID"
-                  helpText="ID of the Kibana action connector used by notify_email. Defaults to elastic-cloud-email (auto-provisioned on Cloud Hosted / Serverless)."
+                  helpText={
+                    emailConnectorProbeStatus === "probing" ? (
+                      <>Checking this cluster for a preconfigured email connector…</>
+                    ) : emailConnectorProbeStatus === "auto" && emailConnectorDetected ? (
+                      <>
+                        Auto-detected <EuiCode>{emailConnectorDetected.id}</EuiCode>
+                        {emailConnectorDetected.name &&
+                        emailConnectorDetected.name !== emailConnectorDetected.id
+                          ? ` (display name: ${emailConnectorDetected.name})`
+                          : ""}
+                        . Override below if you want a different connector.
+                      </>
+                    ) : emailConnectorProbeStatus === "missing" ? (
+                      <>
+                        No preconfigured email connector found on this cluster — typical for
+                        self-managed Stack. Either preconfigure one in <EuiCode>kibana.yml</EuiCode>{" "}
+                        or paste a connector ID you've already created under{" "}
+                        <em>Stack Management → Connectors</em>. The workflow will still install (it
+                        ships DISABLED) but its first run will abort at the pre-flight step until a
+                        valid connector exists.
+                      </>
+                    ) : emailConnectorProbeStatus === "error" ? (
+                      <>
+                        Couldn't read <EuiCode>/api/actions/connectors</EuiCode>; leaving the
+                        default. Install will retry the probe at install time.
+                      </>
+                    ) : (
+                      "ID of the Kibana action connector used by notify_email. Defaults to elastic-cloud-email (auto-provisioned on Cloud Hosted / Serverless)."
+                    )
+                  }
                 >
                   <EuiFieldText
                     value={workflowEmailConnector}
-                    onChange={(e) => setWorkflowEmailConnector(e.target.value)}
+                    onChange={(e) => {
+                      setWorkflowEmailConnector(e.target.value);
+                      setEmailConnectorUserEdited(true);
+                    }}
                     placeholder="elastic-cloud-email"
                   />
                 </EuiFormRow>
