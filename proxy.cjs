@@ -271,6 +271,13 @@ const server = http.createServer((req, res) => {
       if (!isGet) {
         outHeaders["kbn-xsrf"] = "true";
       }
+      // Kibana on Elastic Cloud Serverless treats most legacy /api/saved_objects/* and
+      // a few other endpoints as "internal" and rejects external clients with
+      //   400 "uri [...] exists but is not available with the current configuration".
+      // Sending `x-elastic-internal-origin: kibana` opts us back in. Stateful Kibana
+      // accepts the header too (it is ignored when not in serverless mode), so we
+      // can add it unconditionally for all Kibana API requests.
+      outHeaders["x-elastic-internal-origin"] = "kibana";
     }
 
     const options = {

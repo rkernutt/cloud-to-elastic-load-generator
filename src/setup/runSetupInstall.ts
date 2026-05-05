@@ -297,11 +297,11 @@ export async function runSetupInstall(opts: {
     } catch (tagErr) {
       const m = String(tagErr);
       if (!m.includes("409") && !m.includes("conflict")) {
-        const hint = isServerless
-          ? " (saved-object tags may not be available on this Serverless project type)"
-          : "";
+        // Note: tag creation on Elastic Cloud Serverless requires the proxy to send
+        // `x-elastic-internal-origin: kibana` (handled in proxy.cjs). If we still
+        // fall through to here, the failure is something else (auth, 5xx, etc.).
         addLog(
-          `  ⚠ Could not create Kibana tag${hint} — dashboards still install normally.`,
+          `  ⚠ Could not create Kibana tag — dashboards still install normally and are auto-tagged on import.`,
           "warn"
         );
       }
