@@ -1,38 +1,37 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-west-3",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "temperature-alert-model", "KeyValue": "unit-02" },
+    "dimensions": { "DetectorModelName": "conveyor-fault", "KeyValue": "zone-A" },
     "iotevents": {
-      "detector_model_name": "temperature-alert-model",
-      "detector_id": "unit-02",
-      "key_value": "unit-02",
-      "event_name": "ActionExecuted",
-      "from_state": "Warning",
-      "to_state": "Warning",
-      "input_name": "HealthCheck",
-      "action_type": "SNS",
-      "timer_name": "idleTimer",
+      "detector_model_name": "conveyor-fault",
+      "detector_id": "zone-A",
+      "key_value": "zone-A",
+      "event_name": "AlarmAcknowledged",
+      "from_state": "Alarm",
+      "to_state": "Alarm",
+      "input_name": "CommandInput",
+      "action_type": "SetVariable",
       "condition_expression": "$input.data.value < threshold"
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotevents-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-iotevents-logs-501938274650"
+        "name": "aws-iotevents-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-iotevents-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/iotevents/ap-east-1/2026/04/22/iotevents_YZZLCEXYB6Q.log.gz"
+        "key": "AWSLogs/293847561023/iotevents/eu-west-3/2026/05/05/iotevents_VD3Y825H3K.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "ap-east-1/7z427ruq",
-      "ingestion_time": "2026-04-22T18:07:54.514Z"
+      "log_stream": "eu-west-3/4i18ltas",
+      "ingestion_time": "2026-05-05T08:33:56.911Z"
     }
   },
   "event": {
@@ -40,19 +39,19 @@
     "category": ["process"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 249000000,
+    "duration": 117000000,
     "module": "aws"
   },
-  "message": "IoT Events temperature-alert-model/unit-02: Warning → Warning [ActionExecuted]",
-  "log": { "level": "info" },
+  "message": "IoT Events conveyor-fault/zone-A: Alarm → Alarm [AlarmAcknowledged]",
+  "log": { "level": "warn" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iotevents", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "f9lkk2v2mr"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "7wozasyoc3h"
   },
   "input": { "type": "aws-cloudwatch" }
 }

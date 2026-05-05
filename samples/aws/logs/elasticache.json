@@ -1,87 +1,53 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
-    "service": { "name": "elasticache" }
+    "region": "eu-west-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "service": { "name": "elasticache-global" }
   },
   "aws": {
-    "dimensions": {
-      "CacheClusterId": "prod-redis-5",
-      "CacheNodeId": "0002",
-      "ReplicationGroupId": "prod-cache"
-    },
-    "elasticache": {
-      "cluster_id": "prod-redis-5",
-      "node_id": "0002",
-      "engine": "redis",
-      "engine_version": "7.1.0",
-      "replication_group_id": "prod-cache",
-      "command": "GET",
-      "latency_us": 1648.8917665816805,
-      "cache_hit": false,
-      "connected_clients": 457,
-      "used_memory_mb": 13318,
-      "metrics": {
-        "BytesUsedForCache": { "avg": 4137350065 },
-        "CacheHits": { "sum": 19059 },
-        "CacheMisses": { "sum": 578 },
-        "CacheHitRate": { "avg": 0.8568241495745911 },
-        "CurrConnections": { "avg": 836 },
-        "NewConnections": { "sum": 27 },
-        "Evictions": { "sum": 233 },
-        "Reclaimed": { "sum": 29 },
-        "ReplicationBytes": { "avg": 4657183 },
-        "ReplicationLag": { "avg": 2 },
-        "SaveInProgress": { "avg": 0 },
-        "CurrItems": { "avg": 195123 },
-        "NewItems": { "sum": 3514 },
-        "NetworkBytesIn": { "avg": 68678130 },
-        "NetworkBytesOut": { "avg": 18539705 },
-        "CPUUtilization": { "avg": 31.53944825128477 },
-        "EngineCPUUtilization": { "avg": 57.275884492545984 },
-        "FreeableMemory": { "avg": 1351681399 },
-        "SwapUsage": { "avg": 49378434 },
-        "DatabaseMemoryUsagePercentage": { "avg": 12.589452892419462 },
-        "TrafficBasedCmdsLatency": { "avg": 3.6581026843478828 }
-      }
+    "elasticacheglobal": {
+      "global_datastore_name": "global-leaderboard",
+      "event_type": "RebalanceSlotsInGlobalReplicationGroup",
+      "primary_region": "eu-west-1",
+      "secondary_regions": ["ap-northeast-1", "us-west-2"],
+      "replication_lag_ms": 15.80999679726303,
+      "cross_region_bandwidth_mbps": 320.5667246067992,
+      "global_node_groups": 2,
+      "status": "available"
     },
     "s3": {
       "bucket": {
-        "name": "aws-elasticache-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-elasticache-logs-293847561023"
+        "name": "aws-elasticache-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-elasticache-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/elasticache/ap-south-2/2026/04/22/elasticache_7I2RV8A30JW.log.gz"
+        "key": "AWSLogs/501938274650/elasticache/eu-west-1/2026/05/05/elasticache_0LJJ0XM79U9.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/elasticache/logs",
-      "log_stream": "ap-south-2/0o2xtw9n",
-      "ingestion_time": "2026-04-22T18:07:54.394Z"
+      "log_stream": "eu-west-1/l6nn52bk",
+      "ingestion_time": "2026-05-05T08:33:56.668Z"
     }
   },
-  "db": { "type": "keyvalue", "operation": "GET" },
   "event": {
-    "duration": 1648891.7665816804,
-    "outcome": "failure",
-    "category": ["database", "network"],
-    "dataset": "aws.elasticache",
-    "provider": "elasticache.amazonaws.com",
-    "module": "aws"
+    "outcome": "success",
+    "duration": 16886101,
+    "module": "aws",
+    "dataset": "aws.elasticache"
   },
-  "message": "Redis GET failed: READONLY",
-  "log": { "level": "error" },
-  "error": { "code": "ClusterQuotaForCustomerExceeded", "message": "LOADING", "type": "db" },
+  "message": "ElastiCache Global global-leaderboard: RebalanceSlotsInGlobalReplicationGroup completed",
   "service": { "name": "elasticache", "type": "aws" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.elasticache", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "2vr8vl8fex5"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "57fuarnst13"
   },
   "input": { "type": "aws-cloudwatch" }
 }

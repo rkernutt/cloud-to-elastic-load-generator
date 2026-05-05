@@ -1,82 +1,61 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "ALERT",
-  "logName": "projects/globex-security-j0k1l2/logs/cloudaudit.googleapis.com%2Factivity",
-  "insertId": "6v2vbhk46r7",
-  "resource": { "type": "project", "labels": { "project_id": "globex-security-j0k1l2" } },
+  "severity": "WARNING",
+  "logName": "projects/globex-prod-a1b2c3/logs/cloudaudit.googleapis.com%2Fpolicy",
+  "insertId": "y3f0ohxawhf",
+  "resource": { "type": "project", "labels": { "project_id": "globex-prod-a1b2c3" } },
   "jsonPayload": {
-    "notificationConfigName": "organizations/434497/notificationConfigs/6QEWNANI",
-    "finding": {
-      "name": "organizations/434497/sources/6BCCFBM9/findings/lttaferd-4lbd-8228-fa7j-x4en4g465vb",
-      "parent": "organizations/434497/sources/KFQLECR8",
-      "resourceName": "//storage.googleapis.com/projects/_/buckets/globex-prod-a1b2c3-logs",
-      "resourceType": "compute.googleapis.com/Instance",
-      "category": "MFA_NOT_ENFORCED",
-      "state": "INACTIVE",
-      "severity": "HIGH",
-      "sourceProperties": {
-        "ScannerName": "CONTAINER_THREAT_DETECTION",
-        "ComplianceFramework": "ISO_27001",
-        "ReactivationCount": 0,
-        "ExceptionInstructions": "Review IAM and firewall rules"
-      },
-      "externalUri": "https://console.cloud.google.com/security/command-center/findings?organizationId=434497&findingId=organizations%2F434497%2Fsources%2F6BCCFBM9%2Ffindings%2Flttaferd-4lbd-8228-fa7j-x4en4g465vb",
-      "parentDisplayName": "Globex Org 434497",
-      "findingClass": "THREAT"
-    }
+    "servicePerimeter": "accessPolicies/534270/servicePerimeters/prod_default",
+    "violation": {
+      "type": "ACCESS_NOT_ALLOWED",
+      "resource": "projects/globex-prod-a1b2c3",
+      "apiMethod": "storage.objects.get",
+      "accessLevel": "vpn_only",
+      "dryRun": false
+    },
+    "ingressPolicy": "INGRESS_FROM_ORGANIZATION",
+    "vpc_network": "projects/globex-prod-a1b2c3/global/networks/default"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast1",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" },
-    "service": { "name": "security-command-center" }
+    "region": "europe-west6",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
+    "service": { "name": "vpc-service-controls" }
   },
   "gcp": {
-    "security_command_center": {
+    "vpc_service_controls": {
       "json_payload": {
-        "notificationConfigName": "organizations/434497/notificationConfigs/6QEWNANI",
-        "finding": {
-          "name": "organizations/434497/sources/6BCCFBM9/findings/lttaferd-4lbd-8228-fa7j-x4en4g465vb",
-          "parent": "organizations/434497/sources/KFQLECR8",
-          "resourceName": "//storage.googleapis.com/projects/_/buckets/globex-prod-a1b2c3-logs",
-          "resourceType": "compute.googleapis.com/Instance",
-          "category": "MFA_NOT_ENFORCED",
-          "state": "INACTIVE",
-          "severity": "HIGH",
-          "sourceProperties": {
-            "ScannerName": "CONTAINER_THREAT_DETECTION",
-            "ComplianceFramework": "ISO_27001",
-            "ReactivationCount": 0,
-            "ExceptionInstructions": "Review IAM and firewall rules"
-          },
-          "externalUri": "https://console.cloud.google.com/security/command-center/findings?organizationId=434497&findingId=organizations%2F434497%2Fsources%2F6BCCFBM9%2Ffindings%2Flttaferd-4lbd-8228-fa7j-x4en4g465vb",
-          "parentDisplayName": "Globex Org 434497",
-          "findingClass": "THREAT"
-        }
+        "servicePerimeter": "accessPolicies/534270/servicePerimeters/prod_default",
+        "violation": {
+          "type": "ACCESS_NOT_ALLOWED",
+          "resource": "projects/globex-prod-a1b2c3",
+          "apiMethod": "storage.objects.get",
+          "accessLevel": "vpn_only",
+          "dryRun": false
+        },
+        "ingressPolicy": "INGRESS_FROM_ORGANIZATION",
+        "vpc_network": "projects/globex-prod-a1b2c3/global/networks/default"
       },
-      "finding_id": "organizations/434497/sources/6BCCFBM9/findings/lttaferd-4lbd-8228-fa7j-x4en4g465vb",
-      "category": "MFA_NOT_ENFORCED",
-      "severity": "HIGH",
-      "resource_name": "//storage.googleapis.com/projects/_/buckets/globex-prod-a1b2c3-logs",
-      "resource_type": "compute.googleapis.com/Instance",
-      "state": "INACTIVE",
-      "source": "CONTAINER_THREAT_DETECTION",
-      "parent_display_name": "Globex Org 434497",
-      "organization_id": "organizations/434497"
+      "perimeter_name": "prod_default",
+      "access_level": "vpn_only",
+      "resource": "projects/globex-prod-a1b2c3",
+      "api_method": "storage.objects.get",
+      "violation_type": "ACCESS_NOT_ALLOWED",
+      "dry_run_mode": false
     }
   },
-  "event": { "outcome": "success", "duration": 60000000, "module": "gcp", "dataset": "gcp.scc" },
-  "message": "securitycenter.googleapis.com/Findings.Notification MFA_NOT_ENFORCED HIGH INACTIVE compute.googleapis.com/Instance",
-  "service": { "name": "security-command-center", "type": "gcp" },
-  "log": { "level": "info" },
+  "event": { "outcome": "failure", "duration": 9000000, "module": "gcp", "dataset": "gcp.vpcsc" },
+  "message": "accesscontextmanager.googleapis.com/VpcServiceControls BLOCK storage.objects.get",
+  "service": { "name": "vpc-service-controls", "type": "gcp" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.scc", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.vpcsc", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-northeast1",
-    "id": "fy5qp7kddir"
+    "name": "elastic-agent-gcp-europe-west6",
+    "id": "l79n4c6916"
   },
   "input": { "type": "http_endpoint" }
 }

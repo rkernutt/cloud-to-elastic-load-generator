@@ -1,74 +1,75 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-northeast-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "amazonmq" }
   },
   "aws": {
     "amazonmq": {
-      "broker_id": "b-gddul542-5gay",
-      "broker_name": "events-broker",
+      "broker_id": "b-pcvuemy0-xq2p",
+      "broker_name": "order-processor",
       "broker_engine": "RabbitMQ",
       "engine_version": "3.12.1",
       "deployment_mode": "ACTIVE_STANDBY_MULTI_AZ",
-      "queue_name": "notification.exchange",
-      "messages_in": 1628,
-      "messages_out": 6827,
-      "queue_depth": 1625,
-      "broker_memory_percent": 52,
+      "queue_name": "order.queue",
+      "messages_in": 4166,
+      "messages_out": 272,
+      "queue_depth": 117908,
+      "broker_memory_percent": 88,
       "metrics": {
-        "ConsumerCount": { "avg": 79 },
-        "ProducerCount": { "avg": 24 },
-        "QueueSize": { "avg": 7423 },
-        "EnqueueCount": { "sum": 388 },
-        "DequeueCount": { "sum": 990 },
-        "InFlightCount": { "avg": 421 },
-        "DispatchCount": { "sum": 9311 },
-        "ExpiredCount": { "sum": 18 },
+        "ConsumerCount": { "avg": 39 },
+        "ProducerCount": { "avg": 22 },
+        "QueueSize": { "avg": 9830 },
+        "EnqueueCount": { "sum": 8242 },
+        "DequeueCount": { "sum": 8094 },
+        "InFlightCount": { "avg": 123 },
+        "DispatchCount": { "sum": 2659 },
+        "ExpiredCount": { "sum": 50 },
         "NetworkConnectorStarted": { "sum": 0 },
-        "HeapUsage": { "avg": 12.21670790307213 },
-        "StorePercentUsage": { "avg": 16.494249427392532 },
-        "TotalEnqueueCount": { "sum": 51989 },
-        "TotalDequeueCount": { "sum": 75469 },
-        "TotalConsumerCount": { "avg": 28 },
+        "HeapUsage": { "avg": 39.46221578414161 },
+        "StorePercentUsage": { "avg": 10.323200114091641 },
+        "TotalEnqueueCount": { "sum": 983245 },
+        "TotalDequeueCount": { "sum": 925929 },
+        "TotalConsumerCount": { "avg": 98 },
         "TotalProducerCount": { "avg": 16 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-amazonmq-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-amazonmq-logs-814726593401"
+        "name": "aws-amazonmq-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-amazonmq-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/amazonmq/ap-northeast-3/2026/04/22/amazonmq_JI710MOGZR.log.gz"
+        "key": "AWSLogs/501938274650/amazonmq/ap-northeast-1/2026/05/05/amazonmq_HUCSJZSH78R.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/amazonmq/logs",
-      "log_stream": "ap-northeast-3/swcjtn6b",
-      "ingestion_time": "2026-04-22T18:07:54.415Z"
+      "log_stream": "ap-northeast-1/3ucbsvd9",
+      "ingestion_time": "2026-05-05T08:33:56.699Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process", "network"],
     "dataset": "aws.amazonmq",
     "provider": "mq.amazonaws.com",
-    "duration": 1030894800.8657804,
+    "duration": 23698364745.29925,
     "module": "aws"
   },
-  "message": "Consumer registered",
-  "log": { "level": "info" },
+  "message": "Connection to secondary broker lost",
+  "log": { "level": "error" },
+  "error": { "code": "BrokerError", "message": "JVM heap exhausted", "type": "messaging" },
   "service": { "name": "amazonmq", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.amazonmq", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "tsujgi1wfc"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "k7ebhv13flb"
   },
   "input": { "type": "aws-cloudwatch" }
 }

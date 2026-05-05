@@ -45,12 +45,14 @@ let logCount = 0;
 for (const [id, fn] of Object.entries(GENERATORS)) {
   const result = fn(ts, errorRate);
   const raw = Array.isArray(result) ? result[0] : result;
-  const { __dataset: _omitDataset, ...cleaned } = stripNulls(raw);
-  const doc = enrichDocument(cleaned, {
+  const enriched = enrichDocument(stripNulls(raw), {
     serviceId: id,
     ingestionSource: getSource(id),
     eventType: "logs",
   });
+  // Strip the internal `__dataset` routing marker AFTER enrichment so
+  // cross-cloud short-circuits in `enrichDocument` can still detect it.
+  const { __dataset: _omitDataset, ...doc } = enriched;
   await writePrettierJson(path.join(logsDir, `${id}.json`), doc);
   logCount++;
 }

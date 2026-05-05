@@ -59,7 +59,7 @@ export interface CspFinding {
     outcome: "success" | "failure";
     dataset: "cloud_security_posture.findings";
     provider: string;
-    module: string;
+    module: "cloud_security_posture";
   };
   message: string;
   log: { level: string };
@@ -78,7 +78,14 @@ export function buildCspFinding(opts: {
   resource: CspFindingResource;
   evidence?: Record<string, unknown>;
   orchestrator?: Record<string, unknown>;
-  cloudModule: string;
+  /**
+   * @deprecated The CSPM integration's `event.module` is hardcoded to
+   * `cloud_security_posture` regardless of which cloud the finding is for.
+   * The cloud is identified by `cloud.provider` and `rule.benchmark.id`
+   * (`cis_aws`/`cis_gcp`/`cis_azure`/`cis_eks`/`cis_k8s`). This field is
+   * accepted for backwards compatibility but no longer used.
+   */
+  cloudModule?: string;
 }): CspFinding {
   const evaluation = opts.isFailed ? "failed" : "passed";
   const provider = opts.rule.benchmark.posture_type === "cspm" ? "elastic_cspm" : "elastic_kspm";
@@ -126,7 +133,7 @@ export function buildCspFinding(opts: {
       outcome: opts.isFailed ? "failure" : "success",
       dataset: "cloud_security_posture.findings",
       provider,
-      module: opts.cloudModule,
+      module: "cloud_security_posture",
     },
     message: `[${opts.rule.benchmark.id}/${opts.rule.benchmark.rule_number}] ${evaluation}: ${opts.rule.name}`,
     log: { level: opts.isFailed ? "warn" : "info" },

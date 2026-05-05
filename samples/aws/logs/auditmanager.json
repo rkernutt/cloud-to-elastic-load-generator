@@ -1,57 +1,62 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "sa-east-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "auditmanager" }
   },
   "aws": {
-    "dimensions": { "AssessmentName": "PCI-DSS-v4", "ControlSetId": "Logging and Monitoring" },
+    "dimensions": { "AssessmentName": "SOC2-Type-II", "ControlSetId": "Incident Response" },
     "auditmanager": {
-      "assessment_name": "PCI-DSS-v4",
-      "assessment_id": "sog8iaxx-yf89-gzqw-d2rz-xvafmxh80u",
-      "control_set": "Logging and Monitoring",
-      "control_id": "CTRL-1765",
-      "evidence_status": "COMPLIANT",
-      "data_source": "AWS_CONFIG",
-      "evidence_count": 15,
-      "compliance_check": "WARNING",
-      "reviewer": "security-ops"
+      "assessment_name": "SOC2-Type-II",
+      "assessment_id": "0vpr3yb4-tx35-6rd5-lujf-x5ymp5c1e6r",
+      "control_set": "Incident Response",
+      "control_id": "CTRL-1675",
+      "evidence_status": "INSUFFICIENT_EVIDENCE",
+      "data_source": "MANUAL",
+      "evidence_count": 29,
+      "compliance_check": "PASSED",
+      "reviewer": "auto-assessment"
     },
     "s3": {
       "bucket": {
-        "name": "aws-auditmanager-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-auditmanager-logs-293847561023"
+        "name": "aws-auditmanager-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-auditmanager-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/auditmanager/ap-northeast-3/2026/04/22/auditmanager_47SSA7JGL1T.log.gz"
+        "key": "AWSLogs/501938274650/auditmanager/sa-east-1/2026/05/05/auditmanager_F9H73FH5XKM.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/auditmanager/logs",
-      "log_stream": "ap-northeast-3/ouck0v3o",
-      "ingestion_time": "2026-04-22T18:07:54.367Z"
+      "log_stream": "sa-east-1/uef4us9s",
+      "ingestion_time": "2026-05-05T08:33:56.624Z"
     }
   },
   "event": {
     "action": "ReviewEvidence",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["audit"],
     "dataset": "aws.auditmanager",
     "provider": "auditmanager.amazonaws.com",
     "module": "aws"
   },
-  "message": "Audit Manager PCI-DSS-v4 — CTRL-1765 COMPLIANT",
-  "log": { "level": "info" },
+  "message": "Audit Manager SOC2-Type-II — CTRL-1675 INSUFFICIENT_EVIDENCE: insufficient evidence in Incident Response",
+  "log": { "level": "error" },
+  "error": {
+    "code": "AccessDeniedException",
+    "message": "Audit Manager evidence collection failed",
+    "type": "audit"
+  },
   "service": { "name": "auditmanager", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.auditmanager", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "162hhvgxz1q"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "7zu0b0x81dx"
   },
   "input": { "type": "http_endpoint" }
 }

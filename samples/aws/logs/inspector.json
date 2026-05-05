@@ -1,72 +1,86 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "us-east-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "inspector2" }
   },
   "aws": {
-    "dimensions": { "Severity": "INFORMATIONAL" },
+    "dimensions": { "Severity": "MEDIUM" },
     "inspector2": {
-      "findingArn": "arn:aws:inspector2:ap-northeast-3:738291046572:finding/ah51o22e-670b-v1jc-k3nj-x1nxwta2qd",
-      "type": "CODE_VULNERABILITY",
-      "title": "Code vulnerability in app.py",
-      "description": "Inspector identified a code pattern that matches a known weakness category.",
+      "findingArn": "arn:aws:inspector2:us-east-2:501938274650:finding/qzagmzts-6ygu-cq2y-80yi-yyuj7rnn0c",
+      "type": "PACKAGE_VULNERABILITY",
+      "title": "CVE-2020-18939: axios 2.10.10 has a known vulnerability",
+      "description": "A package used by the workload has a vulnerability tracked as CVE-2020-18939 with CVSS 4.0.",
       "remediation": {
         "recommendation": {
-          "text": "Apply the suggested code change from your static analysis workflow or suppress with a documented risk acceptance."
+          "text": "Upgrade axios to 3.7.11 or later to remediate CVE-2020-18939."
         }
       },
       "resources": [
         {
-          "type": "AWS_ECR_CONTAINER_IMAGE",
-          "id": "738291046572.dkr.ecr.ap-northeast-3.amazonaws.com/my-repo:latest",
+          "type": "AWS_LAMBDA_FUNCTION",
+          "id": "arn:aws:lambda:us-east-2:501938274650:function:my-fn",
           "partition": "aws",
-          "region": "ap-northeast-3",
-          "tags": { "Environment": "staging" }
+          "region": "us-east-2",
+          "tags": { "Environment": "prod" }
         }
       ],
       "exploitAvailable": "NO",
-      "fixAvailable": false,
-      "finding_status": "SUPPRESSED",
-      "severity": "INFORMATIONAL",
-      "severity_score": 2.5,
-      "exploitability": "PROOF_OF_CONCEPT",
-      "resource_type": "AWS_ECR_CONTAINER_IMAGE",
-      "resource_id": "738291046572.dkr.ecr.ap-northeast-3.amazonaws.com/my-repo:latest",
-      "first_observed_at": "2026-04-05T18:07:53.671Z",
-      "last_observed_at": "2026-04-22T18:07:53.671Z",
-      "code_vulnerability": {
-        "cwes": ["CWE-89"],
-        "detector_name": "CodeGuru Detector",
-        "file_path": { "name": "main.go", "line_number": 251 }
+      "fixAvailable": true,
+      "finding_status": "ACTIVE",
+      "severity": "MEDIUM",
+      "severity_score": 4,
+      "exploitability": "NOT_DEFINED",
+      "resource_type": "AWS_LAMBDA_FUNCTION",
+      "resource_id": "arn:aws:lambda:us-east-2:501938274650:function:my-fn",
+      "first_observed_at": "2026-04-08T08:33:55.000Z",
+      "last_observed_at": "2026-05-05T08:33:55.000Z",
+      "package_vulnerability": {
+        "cve_id": "CVE-2020-18939",
+        "source": "GHSA",
+        "cvss3_score": 4.024347985818864,
+        "vulnerable_packages": [
+          {
+            "name": "axios",
+            "version": "2.10.10",
+            "fixed_in_version": "3.7.11",
+            "package_manager": "NPM"
+          }
+        ],
+        "related_vulnerabilities": []
       },
       "metrics": {
-        "TotalFindings": { "sum": 481 },
+        "TotalFindings": { "sum": 497 },
         "CriticalFindings": { "sum": 0 },
         "HighFindings": { "sum": 0 },
-        "MediumFindings": { "sum": 0 },
-        "LowFindings": { "sum": 117 },
-        "CoveredResources": { "avg": 4372 }
+        "MediumFindings": { "sum": 91 },
+        "LowFindings": { "sum": 0 },
+        "CoveredResources": { "avg": 627 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-inspector-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-inspector-logs-738291046572"
+        "name": "aws-inspector-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-inspector-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/inspector/ap-northeast-3/2026/04/22/inspector_Q5KTM92IRN.log.gz"
+        "key": "AWSLogs/501938274650/inspector/us-east-2/2026/05/05/inspector_N83IRYQQGLB.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/inspector/logs",
-      "log_stream": "ap-northeast-3/6wmjiw0k",
-      "ingestion_time": "2026-04-22T18:07:54.345Z"
+      "log_stream": "us-east-2/wj5n3215",
+      "ingestion_time": "2026-05-05T08:33:56.577Z"
     }
   },
-  "vulnerability": { "severity": "INFORMATIONAL", "score": { "base": 2.476357296830011 } },
+  "vulnerability": {
+    "severity": "MEDIUM",
+    "id": "CVE-2020-18939",
+    "score": { "base": 4.024347985818864 }
+  },
+  "package": { "name": "axios", "version": "2.10.10" },
   "event": {
     "outcome": "success",
     "category": ["vulnerability"],
@@ -75,16 +89,16 @@
     "provider": "inspector2.amazonaws.com",
     "module": "aws"
   },
-  "message": "Inspector2 [INFORMATIONAL]: CODE_VULNERABILITY detected on AWS_ECR_CONTAINER_IMAGE",
-  "log": { "level": "info" },
+  "message": "Inspector2 [MEDIUM]: CVE-2020-18939 in axios 2.10.10 on AWS_LAMBDA_FUNCTION (fix: 3.7.11)",
+  "log": { "level": "warn" },
   "service": { "name": "inspector", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.inspector", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "14zr9fzabpq"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "ma8nne1pdvp"
   },
   "input": { "type": "http_endpoint" }
 }

@@ -1,53 +1,100 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
-    "service": { "name": "sagemaker-featurestore" }
+    "region": "eu-west-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "service": { "name": "sagemaker" }
   },
   "aws": {
-    "sagemaker_featurestore": {
-      "feature_group_name": "fraud-signals",
-      "operation": "GetRecord",
-      "record_identifier": "da8qa636tdu",
-      "online_store_latency_ms": 11.602398004257266,
-      "offline_store_status": "Active",
-      "feature_count": 23,
-      "record_count": 72,
-      "ttl_duration_seconds": 1275034
+    "dimensions": {
+      "TrainingJobName": "bert-finetuned-training-20260505-l0m3jy",
+      "JobType": "Training"
+    },
+    "cloudwatch": {
+      "log_group": "/aws/sagemaker/TrainingJobs",
+      "log_stream": "bert-finetuned-training-20260505-l0m3jy/algo-1",
+      "ingestion_time": "2026-05-05T08:33:56.767Z"
+    },
+    "sagemaker": {
+      "domain_id": "d-ibjxhytnix",
+      "domain_name": "cv-team",
+      "user_profile": "bob-ml",
+      "job": {
+        "name": "bert-finetuned-training-20260505-l0m3jy",
+        "type": "Training",
+        "arn": "arn:aws:sagemaker:eu-west-2:501938274650:training-job/bert-finetuned-training-20260505-l0m3jy",
+        "status": "Failed",
+        "secondary_status": "Failed"
+      },
+      "model": { "name": "bert-finetuned", "version": 7 },
+      "pipeline": { "name": "batch-inference-pipeline", "execution_id": "pipe-alpf50ue3xu" },
+      "instance": { "type": "ml.c5.xlarge", "count": 2 },
+      "metrics": {
+        "train:loss": 0.349,
+        "train:accuracy": 0.7415,
+        "validation:loss": 0.1155,
+        "validation:accuracy": 0.8622,
+        "epoch": 69,
+        "gpu_utilization_pct": 41,
+        "cpu_utilization_pct": 66
+      },
+      "studio": {
+        "space_name": "cv-team",
+        "app_type": "JupyterServer",
+        "app_name": "default",
+        "lifecycle_config": false,
+        "continuous_logging": true
+      },
+      "cloudwatch_metrics": {
+        "Invocations": { "sum": 3372 },
+        "ModelLatency": { "avg": 2637000 },
+        "OverheadLatency": { "avg": 49000 },
+        "GPUUtilization": { "avg": 95 },
+        "GPUMemoryUtilization": { "avg": 73 },
+        "CPUUtilization": { "avg": 59 },
+        "DiskUtilization": { "avg": 73 },
+        "MemoryUtilization": { "avg": 95 },
+        "Invocations4XXError": { "sum": 0 },
+        "Invocations5XXError": { "sum": 81 },
+        "ModelSetupTime": { "avg": 3396 }
+      }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sagemaker-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-sagemaker-logs-814726593401"
+        "name": "aws-sagemaker-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-sagemaker-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/sagemaker/eu-north-1/2026/04/22/sagemaker_2ZLUOT9FD8S.log.gz"
+        "key": "AWSLogs/501938274650/sagemaker/eu-west-2/2026/05/05/sagemaker_B69UZF11VTQ.log.gz"
       }
-    },
-    "cloudwatch": {
-      "log_group": "/aws/sagemaker/logs",
-      "log_stream": "eu-north-1/fu9ivafi",
-      "ingestion_time": "2026-04-22T18:07:54.446Z"
     }
   },
+  "log": { "level": "error" },
+  "user": { "name": "bob-ml" },
   "event": {
-    "outcome": "success",
-    "duration": 112822,
-    "module": "aws",
-    "dataset": "aws.sagemaker"
+    "action": "AppReady",
+    "duration": 58160162298.54044,
+    "outcome": "failure",
+    "category": ["process"],
+    "dataset": "aws.sagemaker",
+    "provider": "sagemaker.amazonaws.com",
+    "module": "aws"
   },
-  "message": "SageMaker Feature Store fraud-signals: GetRecord OK (95 records)",
+  "message": "{\"domainId\":\"d-ibjxhytnix\",\"space\":\"cv-team\",\"appType\":\"JupyterServer\",\"user\":\"bob-ml\",\"level\":\"ERROR\",\"message\":\"Algorithm Error: framework error from container\",\"timestamp\":\"2026-05-05T08:33:55.000Z\",\"event\":\"AppReady\"}",
+  "error": {
+    "code": "InternalServerError",
+    "message": "Algorithm Error: framework error from container",
+    "type": "service"
+  },
   "service": { "name": "sagemaker", "type": "aws" },
-  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sagemaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "3lm1c36sx9f"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "0hkhwh8wdkvd"
   },
   "input": { "type": "aws-cloudwatch" }
 }

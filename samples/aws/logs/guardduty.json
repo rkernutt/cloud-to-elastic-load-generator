@@ -1,56 +1,66 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-west-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "bdbfdsx9f5u" },
+    "dimensions": { "DetectorId": "qg97zfdkv6c" },
     "guardduty": {
       "schemaVersion": "2.0",
-      "accountId": "293847561023",
-      "region": "us-west-1",
+      "accountId": "501938274650",
+      "region": "us-west-2",
       "partition": "aws",
-      "id": "k1kgj9t2u6",
-      "arn": "arn:aws:guardduty:us-west-1:293847561023:detector/bdbfdsx9f5u/finding/k1kgj9t2u6",
-      "type": "UnauthorizedAccess:IAMUser/MaliciousIPCaller.Custom",
+      "id": "pol1z33fzc",
+      "arn": "arn:aws:guardduty:us-west-2:501938274650:detector/qg97zfdkv6c/finding/pol1z33fzc",
+      "type": "Recon:EC2/PortScan",
       "resource": {
-        "resourceType": "EKSCluster",
-        "eksClusterDetails": {
-          "name": "cluster-lrq2um",
-          "arn": "arn:aws:eks:us-west-1:293847561023:cluster/cluster-esusp2",
-          "createdAt": "2026-04-22T17:48:07.671Z",
-          "vpcId": "vpc-fu87tkfe",
-          "status": "ACTIVE",
-          "tags": [{ "key": "env", "value": "prod" }]
+        "resourceType": "AccessKey",
+        "accessKeyDetails": {
+          "accessKeyId": "AKIAZT492SZMG9",
+          "principalId": "501938274650:deploy-bot",
+          "userName": "deploy-bot",
+          "userType": "IAMUser"
         }
       },
       "service": {
         "serviceName": "guardduty",
-        "detectorId": "bdbfdsx9f5u",
+        "detectorId": "qg97zfdkv6c",
         "action": {
-          "actionType": "DNS_REQUEST",
-          "dnsRequestAction": {
-            "domain": "suspicious-8wtyllg0.example.com",
-            "domainWithSuffix": "suspicious-oyo70h9h.example.com.",
-            "blocked": false
+          "actionType": "PORT_PROBE",
+          "portProbeAction": {
+            "blocked": false,
+            "portProbeDetails": [
+              {
+                "localPortDetails": { "port": 445 },
+                "remoteIpDetails": {
+                  "ipAddressV4": "59.130.17.115",
+                  "organization": {
+                    "asn": "64496",
+                    "asnOrg": "Example ISP",
+                    "isp": "Example ISP",
+                    "org": "Example Org"
+                  }
+                }
+              }
+            ]
           }
         },
-        "resourceRole": "ACTOR",
-        "eventFirstSeen": "2026-04-22T17:48:07.671Z",
-        "eventLastSeen": "2026-04-22T18:07:53.671Z",
+        "resourceRole": "TARGET",
+        "eventFirstSeen": "2026-05-05T08:27:03.000Z",
+        "eventLastSeen": "2026-05-05T08:33:55.000Z",
         "archived": false,
-        "count": 205,
+        "count": 105,
         "additionalInfo": {}
       },
       "severity": 0,
-      "title": "IAMUser MaliciousIPCaller Custom",
+      "title": "EC2 PortScan",
       "description": "GuardDuty processed telemetry and did not raise a finding for this sample.",
-      "createdAt": "2026-04-22T18:07:53.671Z",
-      "updatedAt": "2026-04-22T18:07:53.671Z",
-      "confidence": 93.23274252314411,
+      "createdAt": "2026-05-05T08:33:55.000Z",
+      "updatedAt": "2026-05-05T08:33:55.000Z",
+      "confidence": 96.54157193183897,
       "metrics": {
         "FindingCount": { "sum": 0 },
         "HighSeverityFindingCount": { "sum": 0 },
@@ -60,26 +70,26 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-guardduty-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-guardduty-logs-293847561023"
+        "name": "aws-guardduty-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-guardduty-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/guardduty/us-west-1/2026/04/22/guardduty_VQD4MM2QSKE.log.gz"
+        "key": "AWSLogs/501938274650/guardduty/us-west-2/2026/05/05/guardduty_JXA5JYPO8KM.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/guardduty/logs",
-      "log_stream": "us-west-1/0kextdg8",
-      "ingestion_time": "2026-04-22T18:07:54.341Z"
+      "log_stream": "us-west-2/u0q9so3m",
+      "ingestion_time": "2026-05-05T08:33:56.572Z"
     }
   },
-  "rule": { "category": "threat" },
-  "threat": { "indicator": [{ "type": "ip", "value": "18.20.107.53" }] },
+  "rule": { "category": "intrusion_detection" },
+  "threat": { "indicator": [{ "type": "ip", "value": "59.130.17.115" }] },
   "event": {
     "kind": "alert",
     "severity": 0,
     "outcome": "success",
-    "category": ["threat"],
+    "category": ["intrusion_detection"],
     "type": ["indicator"],
     "dataset": "aws.guardduty",
     "provider": "guardduty.amazonaws.com",
@@ -93,8 +103,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "863lefsxgg8"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "16177f0g73z"
   },
   "input": { "type": "http_endpoint" }
 }

@@ -1,9 +1,9 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-southeast-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "codedeploy" }
   },
   "aws": {
@@ -11,62 +11,56 @@
     "codedeploy": {
       "application_name": "api-service",
       "deployment_group": "prod",
-      "deployment_id": "d-ZUX7JEZ8U",
+      "deployment_id": "d-43YNZV36Y",
       "deployment_type": "BLUE_GREEN",
-      "lifecycle_event": "AfterInstall",
-      "event_status": "Failed",
-      "duration_seconds": 1060,
-      "error_code": "SCRIPT_FAILED",
-      "instances_succeeded": 2,
-      "instances_failed": 3,
+      "lifecycle_event": "ValidateService",
+      "event_status": "Succeeded",
+      "duration_seconds": 596,
+      "instances_succeeded": 9,
+      "instances_failed": 0,
       "metrics": {
         "DeploymentAttempts": { "sum": 1 },
-        "DeploymentSuccesses": { "sum": 0 },
-        "DeploymentFailures": { "sum": 1 },
+        "DeploymentSuccesses": { "sum": 1 },
+        "DeploymentFailures": { "sum": 0 },
         "RollbackAttempts": { "sum": 0 },
-        "DeploymentDuration": { "avg": 1060 },
-        "InstanceSuccesses": { "sum": 5 },
-        "InstanceFailures": { "sum": 2 }
+        "DeploymentDuration": { "avg": 596 },
+        "InstanceSuccesses": { "sum": 1 },
+        "InstanceFailures": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-codedeploy-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-codedeploy-logs-501938274650"
+        "name": "aws-codedeploy-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-codedeploy-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/codedeploy/eu-north-1/2026/04/22/codedeploy_PP6ADCKZCH.log.gz"
+        "key": "AWSLogs/814726593401/codedeploy/ap-southeast-2/2026/05/05/codedeploy_1AKOCIM3BN3.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codedeploy/logs",
-      "log_stream": "eu-north-1/lk7w7eob",
-      "ingestion_time": "2026-04-22T18:07:54.421Z"
+      "log_stream": "ap-southeast-2/xib38fuk",
+      "ingestion_time": "2026-05-05T08:33:56.712Z"
     }
   },
   "event": {
-    "duration": 1060000000000,
-    "outcome": "failure",
+    "duration": 596000000000,
+    "outcome": "success",
     "category": ["process", "configuration"],
     "dataset": "aws.codedeploy",
     "provider": "codedeploy.amazonaws.com",
     "module": "aws"
   },
-  "message": "[CodeDeploy] deploymentId=d-ZUX7JEZ8U application=api-service deploymentGroup=prod deploymentStyle=IN_PLACE\n[CodeDeploy] Targeting instances: count=7 tagSet=Environment:prod\n[Lifecycle:BeforeInstall] instanceId=i-W3D1U9P5 script=scripts/before_install.sh status=SUCCEEDED durationSec=88\n[Lifecycle:Install] instanceId=i-W3D1U9P5 script=scripts/install.sh status=SUCCEEDED durationSec=41\n[Lifecycle:AfterInstall] instanceId=i-W3D1U9P5 script=appspec/after_install.sh status=FAILED durationSec=110\n[CodeDeploy] deploymentId=d-ZUX7JEZ8U status=FAILED overallDurationSec=1060",
-  "log": { "level": "error" },
-  "error": {
-    "code": "AGENT_ISSUE",
-    "message": "CodeDeploy failed at AfterInstall",
-    "type": "deployment"
-  },
+  "message": "[CodeDeploy] deploymentId=d-43YNZV36Y application=api-service deploymentGroup=prod deploymentStyle=BLUE_GREEN\n[CodeDeploy] Targeting instances: count=21 tagSet=Environment:prod\n[Lifecycle:BeforeInstall] instanceId=i-QAIGHHDE script=appspec/before_install.sh status=SUCCEEDED durationSec=39\n[Lifecycle:Install] instanceId=i-QAIGHHDE script=appspec/install.sh status=SUCCEEDED durationSec=106\n[Lifecycle:AfterInstall] instanceId=i-QAIGHHDE script=scripts/after_install.sh status=SUCCEEDED durationSec=165\n[CodeDeploy] deploymentId=d-43YNZV36Y status=SUCCEEDED overallDurationSec=596",
+  "log": { "level": "info" },
   "service": { "name": "codedeploy", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.codedeploy", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "rkn4kn50jcd"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "c1psosz1dk6"
   },
   "input": { "type": "aws-cloudwatch" }
 }

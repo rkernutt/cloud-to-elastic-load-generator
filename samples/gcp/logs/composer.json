@@ -1,20 +1,20 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "WARNING",
+  "severity": "INFO",
   "labels": {
-    "environment_name": "composer-prod",
-    "dag_id": "hourly_sync"
+    "environment_name": "composer-dev",
+    "dag_id": "daily_etl"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast2",
+    "region": "me-central2",
     "project": {
-      "id": "globex-dev-g7h8i9",
-      "name": "Globex Development"
+      "id": "globex-staging-d4e5f6",
+      "name": "Globex Staging"
     },
     "account": {
-      "id": "161803398874",
-      "name": "Globex Development"
+      "id": "271828182845",
+      "name": "Globex Staging"
     },
     "service": {
       "name": "composer"
@@ -22,23 +22,23 @@
   },
   "gcp": {
     "composer": {
-      "environment_name": "composer-prod",
-      "dag_id": "hourly_sync",
-      "task_id": "extract",
-      "execution_date": "2026-04-22 15:58:51",
-      "state": "up_for_retry",
+      "environment_name": "composer-dev",
+      "dag_id": "daily_etl",
+      "task_id": "transform_load",
+      "execution_date": "2026-05-04 12:20:59",
+      "state": "success",
       "try_number": 2,
-      "operator": "BigQueryInsertJobOperator",
-      "duration_seconds": 618
+      "operator": "PythonOperator",
+      "duration_seconds": 3425
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 618000000000,
+    "duration": 3425000000000,
     "module": "gcp",
     "dataset": "gcp.composer"
   },
-  "message": "[2026-04-04T12:00:00.000Z] {composer-prod} INFO - Marking task as up_for_retry: hourly_sync.extract duration=618s",
+  "message": "[2026-04-04T12:00:00.000Z] {composer-dev} INFO - Marking task as success: daily_etl.transform_load duration=3425s",
   "service": {
     "name": "composer",
     "type": "gcp"
@@ -57,32 +57,32 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-northeast2",
-    "id": "p35wf2o4yr"
+    "name": "elastic-agent-gcp-me-central2",
+    "id": "tfwvdodetl"
   },
   "input": {
     "type": "gcp-pubsub"
   },
-  "logName": "projects/globex-dev-g7h8i9/logs/composer",
+  "logName": "projects/globex-staging-d4e5f6/logs/composer",
   "resource": {
     "type": "cloud_composer_environment",
     "labels": {
-      "project_id": "globex-dev-g7h8i9",
-      "region": "asia-northeast2"
+      "project_id": "globex-staging-d4e5f6",
+      "region": "me-central2"
     }
   },
-  "insertId": "ATC72NIFO9",
+  "insertId": "WDMSSJ35O5",
   "jsonPayload": {
     "composer": {
-      "environment_name": "composer-prod",
-      "dag_id": "hourly_sync",
-      "task_id": "extract",
-      "execution_date": "2026-04-22 15:58:51",
-      "state": "up_for_retry",
+      "environment_name": "composer-dev",
+      "dag_id": "daily_etl",
+      "task_id": "transform_load",
+      "execution_date": "2026-05-04 12:20:59",
+      "state": "success",
       "try_number": 2,
-      "operator": "BigQueryInsertJobOperator",
-      "duration_seconds": 618
+      "operator": "PythonOperator",
+      "duration_seconds": 3425
     },
-    "message": "[2026-04-04T12:00:00.000Z] {composer-prod} INFO - Marking task as up_for_retry: hourly_sync.extract duration=618s"
+    "message": "[2026-04-04T12:00:00.000Z] {composer-dev} INFO - Marking task as success: daily_etl.transform_load duration=3425s"
   }
 }

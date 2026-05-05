@@ -1,78 +1,49 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
-    "service": { "name": "dms" }
+    "region": "eu-west-3",
+    "account": { "id": "293847561023", "name": "globex-staging" },
+    "service": { "name": "dms-serverless" }
   },
   "aws": {
-    "dimensions": { "ReplicationInstanceIdentifier": "dms-staging-6r7mqtb4" },
-    "dms": {
-      "replication_task_id": "mongodb-to-documentdb",
-      "migration_type": "cdc",
-      "replication_instance_identifier": "dms-staging-6r7mqtb4",
-      "source_engine": "mongodb",
-      "target_engine": "docdb",
-      "replication_instance_class": "dms.r5.large",
-      "task_status": "Load complete",
-      "full_load_rows_transferred": 5386615,
-      "cdc_incoming_changes": 28274,
-      "latency_ms": 122,
-      "tables_loaded": 465,
+    "dmsserverless": {
+      "replication_config": "mysql-to-s3",
+      "replication_type": "pre-migration-assessment",
+      "provisioned_capacity": 2,
+      "min_capacity": 1,
+      "max_capacity": 64,
+      "tables_loaded": 245,
+      "tables_loading": 8,
       "tables_errored": 0,
-      "metrics": {
-        "FullLoadThroughputRowsSource": { "avg": 49149 },
-        "FullLoadThroughputRowsTarget": { "avg": 32502 },
-        "CDCIncomingChanges": { "avg": 6724 },
-        "CDCChangesMemorySource": { "avg": 477 },
-        "CDCChangesMemoryTarget": { "avg": 519 },
-        "CDCChangesDiskSource": { "avg": 48 },
-        "CDCChangesDiskTarget": { "avg": 8 },
-        "CDCLatencySource": { "avg": 5 },
-        "CDCLatencyTarget": { "avg": 0 },
-        "CPUUtilization": { "avg": 6.036539609214849 },
-        "FreeableMemory": { "avg": 2604214881 },
-        "FreeStorageSpace": { "avg": 76317968132 },
-        "NetworkReceiveThroughput": { "avg": 97210226 },
-        "NetworkTransmitThroughput": { "avg": 76032223 },
-        "ReadIOPS": { "avg": 2627 },
-        "WriteIOPS": { "avg": 1126 }
-      }
+      "cdc_latency_seconds": 0,
+      "rows_applied": 374305,
+      "bytes_transferred": 232694746
     },
     "s3": {
       "bucket": {
-        "name": "aws-dms-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-dms-logs-738291046572"
+        "name": "aws-dms-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-dms-logs-293847561023"
       },
-      "object": {
-        "key": "AWSLogs/738291046572/dms/ap-northeast-1/2026/04/22/dms_IZWB9UJ2MT.log.gz"
-      }
+      "object": { "key": "AWSLogs/293847561023/dms/eu-west-3/2026/05/05/dms_N2A6I41HHD.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/dms/logs",
-      "log_stream": "ap-northeast-1/074a5t01",
-      "ingestion_time": "2026-04-22T18:07:54.479Z"
+      "log_stream": "eu-west-3/xl8s3f90",
+      "ingestion_time": "2026-05-05T08:33:56.838Z"
     }
   },
-  "event": {
-    "outcome": "success",
-    "category": ["database", "process"],
-    "dataset": "aws.dms",
-    "provider": "dms.amazonaws.com",
-    "duration": 22396000000000,
-    "module": "aws"
-  },
-  "message": "DMS mongodb-to-documentdb: 5,386,615 rows (mongodb->docdb cdc)",
-  "log": { "level": "info" },
+  "event": { "outcome": "success", "duration": 292131324, "module": "aws", "dataset": "aws.dms" },
+  "message": "DMS Serverless mysql-to-s3: pre-migration-assessment active (2 DCU, 1455 rows/s)",
   "service": { "name": "dms", "type": "aws" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.dms", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "93lynnckx6e"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "r8g69vwv5ur"
   },
   "input": { "type": "aws-cloudwatch" }
 }

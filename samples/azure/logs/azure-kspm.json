@@ -7,69 +7,47 @@
   },
   "cloud": {
     "provider": "azure",
-    "region": "eastus",
-    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
+    "region": "northcentralus",
+    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" }
   },
   "orchestrator": {
     "cluster": {
-      "name": "aks-data-Q1JM",
-      "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-analytics-ynjj9p/providers/Microsoft.ContainerService/managedClusters/aks-data-Q1JM",
-      "resource_id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-analytics-ynjj9p/providers/Microsoft.ContainerService/managedClusters/aks-data-Q1JM"
+      "name": "aks-data-OMEV",
+      "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-prod-ho5hds/providers/Microsoft.ContainerService/managedClusters/aks-data-OMEV",
+      "resource_id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-prod-ho5hds/providers/Microsoft.ContainerService/managedClusters/aks-data-OMEV"
     }
   },
   "resource": {
-    "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-analytics-ynjj9p/providers/Microsoft.ContainerService/managedClusters/aks-data-Q1JM/nodes/aks-node-96a1",
-    "name": "aks-node-96a1",
+    "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-prod-ho5hds/providers/Microsoft.ContainerService/managedClusters/aks-data-OMEV/nodes/control-plane/config/1-1-5-f98a",
+    "name": "1-1-5-f98a",
     "type": "k8s_object",
-    "sub_type": "kubelet"
+    "sub_type": "node-file"
   },
   "rule": {
-    "id": "c2b36f84-34b5-57fd-b9b0-f225be981497",
-    "name": "Ensure that the --protect-kernel-defaults argument is set to true",
-    "section": "4.2.6",
-    "description": "Protect tuned kernel parameters from overriding kubelet default kernel parameter values.",
-    "tags": ["CIS", "Kubernetes", "CIS 4.2.6", "Kubelet"],
+    "id": "b1b40df2-f562-564a-9d43-94774e1698d1",
+    "name": "Ensure that the scheduler pod specification file permissions are set to 644 or more restrictive",
+    "section": "1.1.5",
+    "description": "Ensure that the scheduler pod specification file has permissions of `644` or more restrictive.",
+    "tags": ["CIS", "Kubernetes", "CIS 1.1.5", "Control Plane Node Configuration Files"],
     "benchmark": {
       "id": "cis_k8s",
       "name": "CIS Kubernetes V1.23",
       "version": "v1.0.1",
-      "rule_number": "4.2.6",
+      "rule_number": "1.1.5",
       "posture_type": "kspm"
     },
-    "profile_applicability": "* Level 1",
-    "impact": "Non-compliance with CIS Kubernetes V1.23 4.2.6 — Ensure that the --protect-kernel-defaults argument is set to true",
-    "remediation": "Remediate per CIS Kubernetes V1.23 v1.0.1 section 4.2.6."
+    "profile_applicability": "* Level 1"
   },
-  "result": {
-    "evaluation": "failed",
-    "evidence": {
-      "kubeletConfig": {
-        "authentication": { "anonymous": { "enabled": true } },
-        "authorization": { "mode": "AlwaysAllow" }
-      }
-    }
-  },
+  "result": { "evaluation": "passed" },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
-    "module": "kubernetes"
+    "module": "cloud_security_posture"
   },
-  "message": "[cis_k8s/4.2.6] failed: Ensure that the --protect-kernel-defaults argument is set to true",
-  "log": { "level": "warn" },
-  "service": { "name": "azure-kspm", "type": "azure" },
-  "ecs": { "version": "8.11.0" },
-  "agent": {
-    "type": "elastic-agent",
-    "version": "8.18.0",
-    "name": "elastic-agent-azure-eastus",
-    "id": "w674n5nuz1n"
-  },
-  "input": { "type": "http_endpoint" },
-  "category": "Administrative",
-  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourcegroups/rg-app/providers/Microsoft.Resources/azure-kspm/azure-kspm",
-  "operationName": { "localizedValue": "Write", "value": "azure-kspm/action" }
+  "message": "[cis_k8s/1.1.5] passed: Ensure that the scheduler pod specification file permissions are set to 644 or more restrictive",
+  "log": { "level": "info" }
 }

@@ -1,46 +1,46 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.000Z",
-  "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-app-hs381o/providers/Microsoft.Sql/servers/sql-sf35ei/databases/app",
+  "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-analytics-0bqyg4/providers/Microsoft.Sql/servers/sql-inqm3b/databases/auth",
   "cloud": {
     "provider": "azure",
-    "region": "germanywestcentral",
+    "region": "qatarcentral",
     "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" },
     "service": { "name": "Microsoft.Sql/servers" }
   },
   "category": "SQLSecurityAuditEvents",
-  "operationName": "DATABASE AUTHENTICATION SUCCEEDED",
+  "operationName": "SCHEMA OBJECT CHANGE",
   "resultType": "Succeeded",
   "level": "Informational",
-  "correlationId": "jgrvegc18z",
-  "callerIpAddress": "222.195.240.253",
+  "correlationId": "2bhruhe6pc3",
+  "callerIpAddress": "12.34.219.192",
   "properties": {
-    "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-app-hs381o/providers/Microsoft.Sql/servers/sql-sf35ei/databases/app",
-    "action_id": "LGIS",
-    "session_server_principal_name": "app_svc",
+    "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-analytics-0bqyg4/providers/Microsoft.Sql/servers/sql-inqm3b/databases/auth",
+    "action_id": "SC",
+    "session_server_principal_name": "dba_admin",
     "database_principal_name": "dbo",
-    "schema_name": "",
-    "object_name": "",
-    "statement": ""
+    "schema_name": "dbo",
+    "object_name": "orders",
+    "statement": "ALTER TABLE dbo.orders ADD CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES dbo.customers(id)"
   },
   "azure": {
     "sql_database": {
-      "server": "sql-sf35ei",
-      "database": "app",
-      "resource_group": "rg-app-hs381o",
+      "server": "sql-inqm3b",
+      "database": "auth",
+      "resource_group": "rg-analytics-0bqyg4",
       "diagnostic_category": "SQLSecurityAuditEvents",
-      "dtu_percent": 52.70828009526563,
+      "dtu_percent": 58.02879049013464,
       "deadlocks": 0,
-      "failed_connections": 0
+      "failed_connections": 1
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 723699071,
+    "duration": 314858699,
     "module": "azure",
     "dataset": "azure.sql_database"
   },
-  "message": "Audit: successful login to sql-sf35ei/app principal app_svc",
+  "message": "Audit: SCHEMA OBJECT CHANGE on sql-inqm3b/auth",
   "service": { "name": "sql-database", "type": "azure" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -48,8 +48,8 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-germanywestcentral",
-    "id": "9nars0qcixr"
+    "name": "elastic-agent-azure-qatarcentral",
+    "id": "9tuucayliaj"
   },
   "input": { "type": "azure-eventhub" }
 }

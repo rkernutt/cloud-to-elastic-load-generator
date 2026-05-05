@@ -1,54 +1,117 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
-  "trace": { "id": "1-69e90e79-ydrcaur2fw9" },
-  "span": { "id": "wipzakb2nx" },
+  "@timestamp": "2026-05-05T08:33:55.000Z",
+  "trace": { "id": "1-69f9ab73-pq3vy2s2gxd" },
+  "span": { "id": "em68qxk8fr7" },
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
+    "region": "ap-northeast-2",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "xray" }
   },
   "aws": {
     "dimensions": { "GroupName": "Default", "ServiceType": "client" },
     "xray": {
-      "trace_id": "1-69e90e79-ydrcaur2fw9",
-      "segment_id": "wipzakb2nx",
-      "start_time": 1776881273.671,
-      "end_time": 1776881274.4161198,
+      "trace_id": "1-69f9ab73-pq3vy2s2gxd",
+      "segment_id": "em68qxk8fr7",
+      "parent_id": "vw9txv1jmo",
+      "start_time": 1777970035,
+      "end_time": 1777970037.2143211,
       "origin": "AWS::ECS::Container",
-      "service": { "name": "notification-service", "type": "client" },
-      "duration": 0.7451198896745105,
+      "service": { "name": "payment-service", "type": "client" },
+      "duration": 2.2143211391597406,
       "fault": false,
       "error": false,
       "throttle": false,
       "http": {
         "request": {
-          "method": "PATCH",
-          "url": "https://app.example.com/api/v1/products",
-          "client_ip": "46.125.203.215",
-          "user_agent": "python-requests/2.27.1"
+          "method": "GET",
+          "url": "https://api.myapp.io/health",
+          "client_ip": "59.2.177.136",
+          "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
         },
-        "response": { "status": 204, "content_length": 48353 }
+        "response": { "status": 200, "content_length": 4770 }
       },
       "aws": {
         "account_id": "164820739518",
-        "region": "eu-west-2",
-        "resource_names": ["notification-service"]
+        "region": "ap-northeast-2",
+        "resource_names": ["payment-service"]
       },
-      "annotations": { "environment": "production", "version": "v12.5.72", "team": "data" },
-      "metrics": {
-        "ErrorRate": { "avg": 0.14123576776305502 },
-        "FaultRate": { "avg": 0.4061599990634937 },
-        "ThrottleRate": { "avg": 0.4284051769752016 },
-        "TotalCount": { "sum": 9645 },
-        "Latency": {
-          "avg": 745.1198896745104,
-          "p50": 596.0959117396084,
-          "p90": 1117.6798345117656,
-          "p95": 1490.2397793490209,
-          "p99": 2235.3596690235313
+      "annotations": { "environment": "staging", "version": "v19.8.98", "team": "backend" },
+      "subsegments": [
+        {
+          "id": "f1zqpj2wv8u",
+          "name": "SNS",
+          "start_time": 1777970035.3450322,
+          "end_time": 1777970036.6943884,
+          "namespace": "aws",
+          "aws": { "operation": "Publish", "region": "ap-northeast-2", "retries": 0 },
+          "http": { "response": { "status": 200, "content_length": 21403 } },
+          "fault": false,
+          "error": false,
+          "throttle": false
         },
-        "OkCount": { "sum": 3618 },
+        {
+          "id": "2pxzuklffuv",
+          "name": "DynamoDB",
+          "start_time": 1777970035.164601,
+          "end_time": 1777970035.2789378,
+          "namespace": "aws",
+          "aws": {
+            "operation": "Query",
+            "region": "ap-northeast-2",
+            "retries": 0,
+            "table_name": "Products",
+            "request_id": "42ruhwpiwcq",
+            "consumed_capacity": { "TableName": "Users", "CapacityUnits": 9.052570935007022 }
+          },
+          "http": { "response": { "status": 200, "content_length": 46000 } },
+          "fault": false,
+          "error": false,
+          "throttle": false
+        },
+        {
+          "id": "yvrk4mcw3bi",
+          "name": "cache-layer.internal:6379",
+          "start_time": 1777970035.2233279,
+          "end_time": 1777970035.9177153,
+          "namespace": "remote",
+          "http": {
+            "request": {
+              "method": "GET",
+              "url": "http://cache-layer.internal:6379/api/v1/products"
+            },
+            "response": { "status": 200, "content_length": 3866 }
+          },
+          "fault": false,
+          "error": false,
+          "throttle": false
+        },
+        {
+          "id": "yeujbw3ygp",
+          "name": "SQS",
+          "start_time": 1777970035.6330295,
+          "end_time": 1777970037.2357547,
+          "namespace": "aws",
+          "aws": { "operation": "SendMessage", "region": "ap-northeast-2", "retries": 0 },
+          "http": { "response": { "status": 200, "content_length": 2125 } },
+          "fault": false,
+          "error": false,
+          "throttle": false
+        }
+      ],
+      "metrics": {
+        "ErrorRate": { "avg": 0.4823964748774022 },
+        "FaultRate": { "avg": 0.2554690588150998 },
+        "ThrottleRate": { "avg": 0.28044876226705956 },
+        "TotalCount": { "sum": 6469 },
+        "Latency": {
+          "avg": 2214.3211391597406,
+          "p50": 1771.4569113277926,
+          "p90": 3321.481708739611,
+          "p95": 4428.642278319481,
+          "p99": 6642.963417479222
+        },
+        "OkCount": { "sum": 2913 },
         "ErrorCount": { "sum": 0 },
         "FaultCount": { "sum": 0 },
         "ThrottleCount": { "sum": 0 }
@@ -59,23 +122,25 @@
         "name": "aws-xray-logs-164820739518",
         "arn": "arn:aws:s3:::aws-xray-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/164820739518/xray/eu-west-2/2026/04/22/xray_2CWMLTY2S6F.log.gz" }
+      "object": {
+        "key": "AWSLogs/164820739518/xray/ap-northeast-2/2026/05/05/xray_C760CHTK8H7.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/xray/logs",
-      "log_stream": "eu-west-2/d8rot1bf",
-      "ingestion_time": "2026-04-22T18:07:54.422Z"
+      "log_stream": "ap-northeast-2/ykn36b38",
+      "ingestion_time": "2026-05-05T08:33:56.715Z"
     }
   },
   "http": {
-    "request": { "method": "PATCH", "body": { "bytes": 9454 } },
-    "response": { "status_code": 204, "body": { "bytes": 17642 } }
+    "request": { "method": "GET", "body": { "bytes": 6729 } },
+    "response": { "status_code": 200, "body": { "bytes": 39978 } }
   },
-  "url": { "path": "/api/v1/products", "full": "https://app.example.com/api/v1/products" },
-  "user_agent": { "original": "python-requests/2.27.1" },
-  "source": { "ip": "46.125.203.215" },
+  "url": { "path": "/health", "full": "https://api.myapp.io/health" },
+  "user_agent": { "original": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
+  "source": { "ip": "59.2.177.136" },
   "event": {
-    "duration": 745119890,
+    "duration": 2214321139,
     "outcome": "success",
     "category": ["network"],
     "type": ["connection"],
@@ -83,7 +148,7 @@
     "provider": "xray.amazonaws.com",
     "module": "aws"
   },
-  "message": "2026-04-22T18:07:53.671Z [Info] X-Ray daemon 3.3.13 listening on address 127.0.0.1:2000\n2026-04-22T18:07:54.511Z [Info] Service map update applied nodes=100 edges=42 version=4\n2026-04-22T18:07:54.031Z [Info] Successfully sent batch of 25 segment document(s) to 169.254.100.0:2000\n2026-04-22T18:07:54.271Z [Info] Sampling decision trace_id=1-69e90e79-ydrcaur2fw9 rule=errors-only reservoir=2 outcome=Borrowed\n2026-04-22T18:07:54.271Z [Info] Sampling decision trace_id=1-69e90e79-ydrcaur2fw9 rule=errors-only reservoir=2 outcome=Borrowed\n2026-04-22T18:07:54.151Z [Info] Traces uploaded batchBytes=447364 latencyMs=13\n{\"trace_id\":\"1-69e90e79-ydrcaur2fw9\",\"id\":\"wipzakb2nx\",\"name\":\"notification-service\",\"start_time\":1776881273.671,\"end_time\":1776881274.4161198,\"http\":{\"request\":{\"method\":\"PATCH\",\"url\":\"https://app.example.com/api/v1/products\",\"client_ip\":\"46.125.203.215\",\"user_agent\":\"python-requests/2.27.1\"},\"response\":{\"status\":204,\"content_length\":17400}},\"aws\":{\"account_id\":\"164820739518\",\"region\":\"eu-west-2\",\"resource_names\":[\"notification-service\"]},\"annotations\":{\"environment\":\"production\",\"version\":\"v4.8.24\",\"team\":\"data\"},\"metadata\":{\"default\":{\"response_size\":23056}},\"fault\":false,\"error\":false,\"throttle\":false,\"origin\":\"AWS::ECS::Container\",\"resource_arn\":\"arn:aws:lambda:eu-west-2:164820739518:notification-service\"}",
+  "message": "2026-05-05T08:33:55.600Z [Info] Sampling decision trace_id=1-69f9ab73-pq3vy2s2gxd rule=Default reservoir=1 outcome=NotSampled\n2026-05-05T08:33:55.000Z [Info] X-Ray daemon 3.3.14 listening on address 127.0.0.1:2000\n2026-05-05T08:33:55.120Z [Info] Received segment document id=em68qxk8fr7 trace_id=1-69f9ab73-pq3vy2s2gxd bytes=86163\n2026-05-05T08:33:55.840Z [Info] Service map update applied nodes=120 edges=292 version=7\n2026-05-05T08:33:55.120Z [Info] Received segment document id=em68qxk8fr7 trace_id=1-69f9ab73-pq3vy2s2gxd bytes=86163\n{\"trace_id\":\"1-69f9ab73-pq3vy2s2gxd\",\"id\":\"em68qxk8fr7\",\"name\":\"payment-service\",\"start_time\":1777970035,\"end_time\":1777970037.2143211,\"parent_id\":\"vw9txv1jmo\",\"http\":{\"request\":{\"method\":\"GET\",\"url\":\"https://api.myapp.io/health\",\"client_ip\":\"59.2.177.136\",\"user_agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\"},\"response\":{\"status\":200,\"content_length\":27501}},\"aws\":{\"account_id\":\"164820739518\",\"region\":\"ap-northeast-2\",\"resource_names\":[\"payment-service\"]},\"annotations\":{\"environment\":\"production\",\"version\":\"v17.5.37\",\"team\":\"platform\"},\"metadata\":{\"default\":{\"response_size\":36825}},\"fault\":false,\"error\":false,\"throttle\":false,\"origin\":\"AWS::ECS::Container\",\"resource_arn\":\"arn:aws:lambda:ap-northeast-2:164820739518:payment-service\"}",
   "log": { "level": "info" },
   "service": { "name": "xray", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -91,8 +156,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "6z6s37mddse"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "mg1hxqbreu"
   },
   "input": { "type": "http_endpoint" }
 }

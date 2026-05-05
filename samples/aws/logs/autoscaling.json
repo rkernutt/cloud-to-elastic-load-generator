@@ -1,41 +1,41 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-northeast-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "autoscaling" }
   },
   "aws": {
-    "dimensions": { "AutoScalingGroupName": "web-asg" },
+    "dimensions": { "AutoScalingGroupName": "batch-asg" },
     "autoscaling": {
-      "group_name": "web-asg",
-      "activity_id": "3bmgpy4p-cd72-graw",
-      "action_type": "Launch",
-      "instance_id": "i-66how7z2nau",
-      "instance_type": "t3.medium",
-      "desired_capacity": 20,
+      "group_name": "batch-asg",
+      "activity_id": "b2k38cnb-umoc-raoq",
+      "action_type": "Terminate",
+      "instance_id": "i-cyxgwrt1fhu",
+      "instance_type": "c5.2xlarge",
+      "desired_capacity": 19,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 16,
-      "cause": "At 2024-01-01T12:00:00Z a monitor alarm TargetTracking-scale-out-alarm in state ALARM triggered policy scale-out",
-      "status_code": "Successful",
+      "current_capacity": 14,
+      "cause": "At 2024-01-01T12:00:00Z instance failed EC2 health check",
+      "status_code": "Failed",
       "launch_template": "worker-lt:8",
       "predictive_scaling_forecast": false,
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 20 },
-        "GroupInServiceInstances": { "avg": 16 },
-        "GroupPendingInstances": { "avg": 2 },
-        "GroupStandbyInstances": { "avg": 2 },
-        "GroupTerminatingInstances": { "avg": 0 },
-        "GroupTotalInstances": { "avg": 20 },
-        "GroupInServiceCapacity": { "avg": 16 },
-        "GroupPendingCapacity": { "avg": 2 },
-        "GroupStandbyCapacity": { "avg": 2 },
-        "GroupTerminatingCapacity": { "avg": 0 },
-        "GroupTotalCapacity": { "avg": 20 },
+        "GroupDesiredCapacity": { "avg": 19 },
+        "GroupInServiceInstances": { "avg": 14 },
+        "GroupPendingInstances": { "avg": 3 },
+        "GroupStandbyInstances": { "avg": 0 },
+        "GroupTerminatingInstances": { "avg": 2 },
+        "GroupTotalInstances": { "avg": 19 },
+        "GroupInServiceCapacity": { "avg": 14 },
+        "GroupPendingCapacity": { "avg": 3 },
+        "GroupStandbyCapacity": { "avg": 0 },
+        "GroupTerminatingCapacity": { "avg": 2 },
+        "GroupTotalCapacity": { "avg": 19 },
         "WarmPoolMinSize": { "avg": 0 },
         "WarmPoolDesiredCapacity": { "avg": 0 },
         "WarmPoolPendingCapacity": { "avg": 0 },
@@ -46,37 +46,42 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-autoscaling-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-autoscaling-logs-293847561023"
+        "name": "aws-autoscaling-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-autoscaling-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/autoscaling/me-central-1/2026/04/22/autoscaling_50M2PBYO7B2.log.gz"
+        "key": "AWSLogs/814726593401/autoscaling/ap-northeast-3/2026/05/05/autoscaling_YT3YTGIWO8E.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "me-central-1/hx2zvnk1",
-      "ingestion_time": "2026-04-22T18:07:54.306Z"
+      "log_stream": "ap-northeast-3/mqezbhpl",
+      "ingestion_time": "2026-05-05T08:33:56.506Z"
     }
   },
   "event": {
     "category": ["host"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 284000000000,
+    "duration": 459000000000,
     "module": "aws"
   },
-  "message": "SuccessfulScalingActivity: Launching a new EC2 instance: i-66how7z2nau ActivityId=3bmgpy4p-cd72-graw Cause: At 2024-01-01T12:00:00Z a monitor alarm TargetTracking-scale-out-alarm in state ALARM triggered policy scale-out",
-  "log": { "level": "info" },
+  "message": "AutoScaling batch-asg: Terminate FAILED - Launch template error",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InsufficientCapacity",
+    "message": "AutoScaling batch-asg: Terminate FAILED - Launch template error",
+    "type": "host"
+  },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.autoscaling", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "wwtgxsnnvy"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "9j5pr4p2hl"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,74 +1,72 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "il-central-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "macie" }
   },
   "aws": {
-    "dimensions": { "BucketName": "raw-uploads-us-east-2" },
+    "dimensions": { "BucketName": "raw-uploads-il-central-1" },
     "macie": {
-      "finding_id": "cuat83fx-nypm-1tp0",
-      "finding_type": "Policy:IAMUser/S3BucketReplicatedExternally",
-      "severity": "MEDIUM",
-      "s3_bucket": { "name": "raw-uploads-us-east-2", "arn": "arn:aws:s3:::raw-uploads-us-east-2" },
+      "finding_id": "3m7ufpw5-kaeo-u8um",
+      "finding_type": "none",
+      "severity": "INFORMATIONAL",
+      "s3_bucket": {
+        "name": "raw-uploads-il-central-1",
+        "arn": "arn:aws:s3:::raw-uploads-il-central-1"
+      },
       "s3_bucket_full": {
-        "name": "raw-uploads-us-east-2",
-        "arn": "arn:aws:s3:::raw-uploads-us-east-2",
-        "owner_id": "1t2fg2oxy1s",
-        "default_server_side_encryption": { "encryption_type": "aws:kms" },
+        "name": "raw-uploads-il-central-1",
+        "arn": "arn:aws:s3:::raw-uploads-il-central-1",
+        "owner_id": "m8kkts6tdtj",
+        "default_server_side_encryption": { "encryption_type": "AES256" },
         "tags": [{ "key": "Environment", "value": "dev" }],
         "public_access": {
-          "effective_permission": "PUBLIC",
-          "block_public_acls": false,
-          "block_public_policy": false,
-          "ignore_public_acls": false,
-          "restrict_public_buckets": false
+          "effective_permission": "NOT_PUBLIC",
+          "block_public_acls": true,
+          "block_public_policy": true,
+          "ignore_public_acls": true,
+          "restrict_public_buckets": true
         }
       },
-      "occurrences": 36967,
-      "sensitive_data_categories": ["PII"],
-      "data_identifiers": ["AWS_CREDENTIALS"]
+      "occurrences": 0,
+      "sensitive_data_categories": [],
+      "data_identifiers": []
     },
     "s3": {
       "bucket": {
-        "name": "aws-macie-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-macie-logs-814726593401"
+        "name": "aws-macie-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-macie-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/814726593401/macie/us-east-2/2026/04/22/macie_YEKZDBI4OED.log.gz"
+        "key": "AWSLogs/293847561023/macie/il-central-1/2026/05/05/macie_F7IAHUM384H.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/macie/logs",
-      "log_stream": "us-east-2/9xjj1fkh",
-      "ingestion_time": "2026-04-22T18:07:54.343Z"
+      "log_stream": "il-central-1/fowompfh",
+      "ingestion_time": "2026-05-05T08:33:56.576Z"
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "failure",
-    "category": ["intrusion_detection"],
+    "outcome": "success",
+    "category": ["vulnerability"],
     "dataset": "aws.macie",
     "provider": "macie2.amazonaws.com",
     "module": "aws"
   },
-  "message": "Macie detected sensitive data in s3://raw-uploads-us-east-2: Policy:IAMUser/S3BucketReplicatedExternally",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "SensitiveDataFound",
-    "message": "Sensitive data in s3://raw-uploads-us-east-2",
-    "type": "data"
-  },
+  "message": "Macie scan complete: no sensitive data found",
+  "log": { "level": "info" },
   "service": { "name": "macie", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.macie", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "qsk05q9sm5"
+    "name": "filebeat-aws-il-central-1",
+    "ephemeral_id": "g15os8qazn"
   },
   "input": { "type": "http_endpoint" }
 }

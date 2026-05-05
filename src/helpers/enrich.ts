@@ -31,6 +31,20 @@ export interface EnrichOptions {
   eventType: "logs" | "metrics" | "traces";
 }
 
+/**
+ * A doc that carries a `__dataset` from a cross-cloud generator (e.g. ServiceNow
+ * CMDB → `servicenow.event`) is fully self-described and routes itself in the
+ * bulk request. Vendor-specific enrichers must NOT stamp it with their own
+ * `event.module`, S3/CloudWatch envelopes, etc., or the constant_keyword field
+ * mappings on the foreign integration's data stream will reject every doc.
+ */
+function isForeignVendorDataset(doc: LooseDoc, vendor: "aws" | "gcp" | "azure"): boolean {
+  const ds = doc.__dataset;
+  if (typeof ds !== "string") return false;
+  if (ds === "apm") return false;
+  return !ds.startsWith(`${vendor}.`);
+}
+
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const ECS_VERSION = "8.11.0";
@@ -144,6 +158,7 @@ function buildInputType(source: string): string | undefined {
  * Uses fill-don't-overwrite semantics — generator-set values are preserved.
  */
 export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
+  if (isForeignVendorDataset(doc, "aws")) return doc;
   const { serviceId, eventType } = opts;
   const source = resolveSource(serviceId, opts.ingestionSource);
   const region = doc.cloud?.region || rand(REGIONS);

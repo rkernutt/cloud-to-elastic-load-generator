@@ -1,65 +1,70 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-northeast-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "cloudformation" }
   },
   "aws": {
     "cloudformation": {
-      "stack_name": "vpc-infra",
-      "stack_id": "arn:aws:cloudformation:ap-northeast-3:814726593401:stack/vpc-infra/b3gtf0r2",
-      "action": "DELETE_STACK",
-      "stack_status": "UPDATE_IN_PROGRESS",
+      "stack_name": "prod-web-stack",
+      "stack_id": "arn:aws:cloudformation:ap-northeast-2:293847561023:stack/prod-web-stack/ferc02aw",
+      "action": "DETECT_DRIFT",
+      "stack_status": "UPDATE_COMPLETE",
       "resource_type": "AWS::EC2::VPC",
       "logical_resource_id": "VPC",
-      "physical_resource_id": "arn:aws:ecs:ap-northeast-3:814726593401:service/prod/api",
-      "resource_status": "DELETE_IN_PROGRESS",
-      "resource_status_reason": "User Initiated",
+      "physical_resource_id": "arn:aws:ecs:ap-northeast-2:293847561023:service/prod/api",
+      "resource_status": "UPDATE_FAILED",
+      "resource_status_reason": "IAM policy error",
       "drift_status": "NOT_CHECKED",
-      "structured_logging": false,
+      "structured_logging": true,
       "metrics": {
-        "TotalStack": { "avg": 302 },
-        "ErroredStack": { "avg": 0 },
-        "RollbackStack": { "avg": 0 },
-        "DeletedStack": { "avg": 19 },
-        "StackInstancesDeployed": { "avg": 1756 }
+        "TotalStack": { "avg": 447 },
+        "ErroredStack": { "avg": 2 },
+        "RollbackStack": { "avg": 5 },
+        "DeletedStack": { "avg": 23 },
+        "StackInstancesDeployed": { "avg": 2659 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudformation-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-cloudformation-logs-814726593401"
+        "name": "aws-cloudformation-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-cloudformation-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/814726593401/cloudformation/ap-northeast-3/2026/04/22/cloudformation_25UQO0F9NF8.log.gz"
+        "key": "AWSLogs/293847561023/cloudformation/ap-northeast-2/2026/05/05/cloudformation_C414D388DBD.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloudformation/logs",
-      "log_stream": "ap-northeast-3/b8yrmo4u",
-      "ingestion_time": "2026-04-22T18:07:54.473Z"
+      "log_stream": "ap-northeast-2/cujkf14x",
+      "ingestion_time": "2026-05-05T08:33:56.827Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["configuration", "process"],
     "dataset": "aws.cloudformation",
     "provider": "cloudformation.amazonaws.com",
-    "duration": 310000000000,
+    "duration": 3089000000000,
     "module": "aws"
   },
-  "message": "CloudFormation vpc-infra: DELETE_STACK -> DELETE_IN_PROGRESS",
-  "log": { "level": "info" },
+  "message": "{\"StackId\":\"arn:aws:cloudformation:ap-northeast-2:293847561023:stack/prod-web-stack/ferc02aw\",\"StackName\":\"prod-web-stack\",\"ResourceType\":\"AWS::EC2::VPC\",\"LogicalResourceId\":\"VPC\",\"PhysicalResourceId\":\"arn:aws:ecs:ap-northeast-2:293847561023:service/prod/api\",\"ResourceStatus\":\"UPDATE_FAILED\",\"ResourceStatusReason\":\"IAM policy error\",\"Timestamp\":\"2026-05-05T08:33:55.000Z\"}",
+  "error": {
+    "code": "StackError",
+    "message": "CloudFormation stack operation failed",
+    "type": "configuration"
+  },
+  "log": { "level": "error" },
   "service": { "name": "cloudformation", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudformation", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "5eyvonvemic"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "j7zpbm8x4v"
   },
   "input": { "type": "aws-cloudwatch" }
 }

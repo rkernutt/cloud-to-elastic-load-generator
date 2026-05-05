@@ -1,73 +1,64 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "ALERT",
-  "logName": "projects/globex-prod-a1b2c3/logs/chronicle.googleapis.com%2Fsoar_events",
-  "insertId": "ild1z69mcs",
+  "severity": "NOTICE",
+  "logName": "projects/globex-shared-m3n4o5/logs/chronicle.googleapis.com%2Falert",
+  "insertId": "qw51k8j2hl",
   "resource": {
-    "type": "security_operations_case",
-    "labels": { "project_id": "globex-prod-a1b2c3", "case_id": "case-v33xw1wko2" }
+    "type": "chronicle_instance",
+    "labels": { "project_id": "globex-shared-m3n4o5", "region": "me-central2" }
   },
   "jsonPayload": {
-    "case": {
-      "name": "projects/globex-prod-a1b2c3/locations/global/cases/case-v33xw1wko2",
-      "displayName": "Investigation case-v33xw1wko2",
-      "stage": "OPEN",
-      "priority": "CRITICAL"
+    "result": {
+      "ruleName": "suspicious_login_geo",
+      "versionId": "ru_PAOCP7OX",
+      "detections": [{ "type": "ALERT", "severity": "NOTICE", "eventsMatched": 47737 }],
+      "ioc": { "type": "IP", "value": "222.203.172.200" }
     },
-    "playbook": { "name": "data_exfil", "revisionId": "rev_BE31T7" },
-    "action": { "type": "CASE_CREATED", "entitiesTouched": 119, "indicatorsTouched": 15 },
-    "siem": {
-      "product": "Google Security Operations",
-      "instance": "projects/globex-prod-a1b2c3/locations/global"
-    }
+    "case": { "name": "CASE-G6CJGA", "stage": "DISMISSED" }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "australia-southeast2",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
+    "region": "me-central2",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" },
     "service": { "name": "security-operations" }
   },
   "gcp": {
-    "security_operations": {
+    "secops_detection": {
       "json_payload": {
-        "case": {
-          "name": "projects/globex-prod-a1b2c3/locations/global/cases/case-v33xw1wko2",
-          "displayName": "Investigation case-v33xw1wko2",
-          "stage": "OPEN",
-          "priority": "CRITICAL"
+        "result": {
+          "ruleName": "suspicious_login_geo",
+          "versionId": "ru_PAOCP7OX",
+          "detections": [{ "type": "ALERT", "severity": "NOTICE", "eventsMatched": 47737 }],
+          "ioc": { "type": "IP", "value": "222.203.172.200" }
         },
-        "playbook": { "name": "data_exfil", "revisionId": "rev_BE31T7" },
-        "action": { "type": "CASE_CREATED", "entitiesTouched": 119, "indicatorsTouched": 15 },
-        "siem": {
-          "product": "Google Security Operations",
-          "instance": "projects/globex-prod-a1b2c3/locations/global"
-        }
+        "case": { "name": "CASE-G6CJGA", "stage": "DISMISSED" }
       },
-      "case_id": "case-v33xw1wko2",
-      "playbook_name": "data_exfil",
-      "action_type": "CASE_CREATED",
-      "severity": "CRITICAL",
-      "entities_count": 119,
-      "indicators_count": 15
+      "rule_name": "suspicious_login_geo",
+      "detection_type": "ALERT",
+      "severity": "NOTICE",
+      "alert_state": "DISMISSED",
+      "ioc_type": "IP",
+      "matched_events_count": 47737,
+      "case_name": "CASE-TSMLWY"
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 135000000,
+    "duration": 117000000,
     "module": "gcp",
-    "dataset": "gcp.secops"
+    "dataset": "gcp.secops_detection"
   },
-  "message": "securityoperations.googleapis.com/CASE_CREATED case=case-v33xw1wko2 playbook=data_exfil",
-  "service": { "name": "security-operations", "type": "gcp" },
+  "message": "chronicle.googleapis.com/Detections suspicious_login_geo ALERT events=47737",
+  "service": { "name": "secops-detection", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.secops", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.secops_detection", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-australia-southeast2",
-    "id": "cko9so4v9k"
+    "name": "elastic-agent-gcp-me-central2",
+    "id": "dbpy9dz9btp"
   },
-  "input": { "type": "http_endpoint" }
+  "input": { "type": "gcp-pubsub" }
 }

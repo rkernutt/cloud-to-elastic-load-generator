@@ -1,58 +1,64 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "cloud": {
     "provider": "aws",
     "region": "il-central-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "lakeformation" }
   },
   "aws": {
     "dimensions": {
-      "ResourceArn": "arn:aws:glue:il-central-1:738291046572:table/curated/clickstream",
-      "Principal": "arn:aws:iam::738291046572:user/alice"
+      "ResourceArn": "arn:aws:glue:il-central-1:164820739518:table/raw_data/products",
+      "Principal": "arn:aws:iam::164820739518:user/alice"
     },
     "lakeformation": {
-      "database": "curated",
-      "table": "clickstream",
-      "action": "GetDataAccess",
-      "principal_arn": "arn:aws:iam::738291046572:user/alice",
-      "resource_arn": "arn:aws:glue:il-central-1:738291046572:table/curated/clickstream",
+      "database": "raw_data",
+      "table": "products",
+      "action": "Revoke",
+      "principal_arn": "arn:aws:iam::164820739518:user/alice",
+      "resource_arn": "arn:aws:glue:il-central-1:164820739518:table/raw_data/products",
       "permissions": ["SELECT"],
-      "lf_tag_key": "classification",
-      "lf_tag_values": ["dev", "staging"],
+      "lf_tag_key": "team",
+      "lf_tag_values": ["pii"],
+      "error_code": "AccessDeniedException",
       "metrics": {
-        "GrantCount": { "sum": 14 },
-        "DatabaseCount": { "avg": 4 },
-        "TableCount": { "avg": 132 },
+        "GrantCount": { "sum": 0 },
+        "DatabaseCount": { "avg": 13 },
+        "TableCount": { "avg": 179 },
         "DataLakeSettings": { "avg": 1 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-lakeformation-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-lakeformation-logs-738291046572"
+        "name": "aws-lakeformation-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-lakeformation-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/lakeformation/il-central-1/2026/04/22/lakeformation_IDZLJGCUPQC.log.gz"
+        "key": "AWSLogs/164820739518/lakeformation/il-central-1/2026/05/05/lakeformation_R7913971YPK.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lakeformation/logs",
-      "log_stream": "il-central-1/9j49vapp",
-      "ingestion_time": "2026-04-22T18:07:54.436Z"
+      "log_stream": "il-central-1/l20s2ior",
+      "ingestion_time": "2026-05-05T08:33:56.747Z"
     }
   },
   "event": {
-    "action": "GetDataAccess",
-    "duration": 395000000,
-    "outcome": "success",
+    "action": "Revoke",
+    "duration": 2649000000,
+    "outcome": "failure",
     "category": ["database", "iam"],
     "dataset": "aws.lakeformation",
     "provider": "lakeformation.amazonaws.com",
     "module": "aws"
   },
-  "message": "Lake Formation GetDataAccess: SELECT on curated.clickstream",
-  "log": { "level": "info" },
+  "message": "Lake Formation Revoke FAILED on raw_data.products: Entity not found",
+  "log": { "level": "error" },
+  "error": {
+    "code": "EntityNotFoundException",
+    "message": "Lake Formation operation failed",
+    "type": "access"
+  },
   "service": { "name": "lakeformation", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lakeformation", "namespace": "default" },
@@ -60,7 +66,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "czvv9y59s2"
+    "ephemeral_id": "etzsfs3cp3m"
   },
   "input": { "type": "aws-cloudwatch" }
 }

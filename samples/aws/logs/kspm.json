@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,31 +7,32 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "814726593401", "name": "globex-production" }
+    "region": "ca-west-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" }
   },
   "orchestrator": {
-    "cluster": { "id": "prod-eks-cluster", "name": "prod-eks-cluster" },
+    "cluster": { "id": "dev-eks", "name": "dev-eks" },
     "type": "kubernetes",
-    "namespace": "production"
+    "namespace": "staging"
   },
   "resource": {
-    "id": "arn:aws:eks:eu-south-2:814726593401:cluster/prod-eks-cluster",
-    "name": "prod-eks-cluster",
-    "type": "eks-cluster",
-    "sub_type": "cluster"
+    "id": "/etc/kubernetes/kubelet/kubeconfig",
+    "name": "kubeconfig",
+    "type": "k8s_object",
+    "sub_type": "file",
+    "raw": { "path": "/var/lib/kubelet/kubeconfig", "mode": "0666" }
   },
   "rule": {
-    "id": "b449135c-8747-58fe-9d46-218728745520",
-    "name": "Ensure Kubernetes Secrets are encrypted using Customer Master Keys (CMKs) managed in AWS KMS",
-    "section": "5.3.1",
-    "description": "Encrypt Kubernetes secrets, stored in etcd, using secrets encryption feature during Amazon EKS cluster creation.",
-    "tags": ["CIS", "EKS", "CIS 5.3.1", "AWS Key Management Service (KMS)"],
+    "id": "c8f24be5-fd7d-510f-ab93-2440bb826750",
+    "name": "Ensure that the kubelet configuration file has permissions set to 644 or more restrictive",
+    "section": "3.1.3",
+    "description": "Ensure that if the kubelet refers to a configuration file with the `--config` argument, that file has permissions of 644 or more restrictive.",
+    "tags": ["CIS", "EKS", "CIS 3.1.3", "Worker Node Configuration Files"],
     "benchmark": {
       "id": "cis_eks",
       "name": "CIS Amazon Elastic Kubernetes Service (EKS)",
       "version": "v1.0.1",
-      "rule_number": "5.3.1",
+      "rule_number": "3.1.3",
       "posture_type": "kspm"
     },
     "profile_applicability": "* Level 1"
@@ -44,31 +45,8 @@
     "outcome": "success",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
-    "module": "aws"
+    "module": "cloud_security_posture"
   },
-  "message": "[cis_eks/5.3.1] passed: Ensure Kubernetes Secrets are encrypted using Customer Master Keys (CMKs) managed in AWS KMS",
-  "log": { "level": "info" },
-  "service": { "name": "kspm", "type": "aws" },
-  "ecs": { "version": "8.11.0" },
-  "agent": {
-    "type": "filebeat",
-    "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "z122xxodooh"
-  },
-  "input": { "type": "http_endpoint" },
-  "aws": {
-    "s3": {
-      "bucket": {
-        "name": "aws-kspm-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-kspm-logs-814726593401"
-      },
-      "object": { "key": "AWSLogs/814726593401/kspm/eu-south-2/2026/04/22/kspm_2JRX44LUJZB.log.gz" }
-    },
-    "cloudwatch": {
-      "log_group": "/aws/kspm/logs",
-      "log_stream": "eu-south-2/ns3g8br9",
-      "ingestion_time": "2026-04-22T18:07:54.359Z"
-    }
-  }
+  "message": "[cis_eks/3.1.3] passed: Ensure that the kubelet configuration file has permissions set to 644 or more restrictive",
+  "log": { "level": "info" }
 }

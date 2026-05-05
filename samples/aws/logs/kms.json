@@ -1,48 +1,48 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "us-west-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "kms" }
   },
   "aws": {
     "kms": {
-      "key_id": "f6l8w1il-dpx1-vtum-79vf-1u9pfvbt3cb",
-      "key_alias": "alias/backup-key",
-      "operation": "EnableKeyRotation",
-      "principal_arn": "arn:aws:iam::164820739518:user/alice",
+      "key_id": "5fvlk047-el6d-5mxk-3uyo-moola6vwv58",
+      "key_alias": "alias/prod-s3-key",
+      "operation": "Verify",
+      "principal_arn": "arn:aws:iam::293847561023:user/alice",
       "key_state": "Enabled",
-      "encryption_algorithm": "RSAES_OAEP_SHA_256",
+      "encryption_algorithm": "SYMMETRIC_DEFAULT",
       "metrics": {
         "SecretsManagerCrossAccountBlocking": { "sum": 0 },
-        "KeysCount": { "avg": 85 },
-        "KeysPendingDeletion": { "avg": 3 },
-        "KeysDisabled": { "avg": 3 }
+        "KeysCount": { "avg": 273 },
+        "KeysPendingDeletion": { "avg": 5 },
+        "KeysDisabled": { "avg": 1 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-kms-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-kms-logs-164820739518"
+        "name": "aws-kms-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-kms-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/164820739518/kms/ca-central-1/2026/04/22/kms_U4GI5D1WAIH.log.gz" }
+      "object": { "key": "AWSLogs/293847561023/kms/us-west-2/2026/05/05/kms_ILGVP5NT3M.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/kms/logs",
-      "log_stream": "ca-central-1/mvv48xbt",
-      "ingestion_time": "2026-04-22T18:07:54.349Z"
+      "log_stream": "us-west-2/11oq0r6e",
+      "ingestion_time": "2026-05-05T08:33:56.591Z"
     }
   },
   "event": {
-    "action": "EnableKeyRotation",
+    "action": "Verify",
     "outcome": "success",
     "category": ["authentication", "configuration"],
     "dataset": "aws.kms",
     "provider": "kms.amazonaws.com",
     "module": "aws"
   },
-  "message": "KMS EnableKeyRotation: alias/backup-key",
+  "message": "KMS Verify: alias/prod-s3-key",
   "log": { "level": "info" },
   "service": { "name": "kms", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -50,8 +50,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "lznvnirvus"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "5smtabi4sj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

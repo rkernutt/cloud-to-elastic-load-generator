@@ -173,6 +173,20 @@ export function enrichGcpAzureDocument(
   opts: EnrichOptions,
   ctx: GcpAzureEnrichContext
 ): LooseDoc {
+  // Cross-cloud generators (e.g. ServiceNow CMDB → `servicenow.event`) carry
+  // `__dataset` and are fully self-described. Skipping vendor enrichment
+  // avoids stamping `event.module` / cloud-native envelopes that would clash
+  // with the foreign integration's constant_keyword mappings and route every
+  // doc into the data stream's failure store.
+  const ds = doc.__dataset;
+  if (
+    typeof ds === "string" &&
+    ds !== "apm" &&
+    !ds.startsWith(`${ctx.cloudModule}.`) &&
+    !ds.startsWith("o365_metrics.")
+  ) {
+    return doc;
+  }
   const { serviceId, eventType } = opts;
   const flavorId =
     ctx.cloudModule === "gcp"

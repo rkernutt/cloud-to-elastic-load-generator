@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,65 +7,42 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" }
+    "region": "eu-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" }
   },
   "resource": {
-    "id": "arn:aws:ec2:eu-central-1:164820739518:security-group/sg-xc3anwze",
-    "name": "sg-xc3anwze",
-    "type": "cloud-compute",
-    "sub_type": "security-group"
+    "id": "arn:aws:cloudtrail:eu-south-1:814726593401:trail/management-events-536b",
+    "name": "management-events-536b",
+    "type": "cloud-audit",
+    "sub_type": "cloudtrail"
   },
   "rule": {
-    "id": "f9dfc7e7-d067-5be5-8fc1-5d9043a4cd06",
-    "name": "Ensure no security groups allow ingress from ::/0 to remote server administration ports",
-    "section": "5.3",
-    "description": "Security groups provide stateful filtering of ingress and egress network traffic to AWS resources.",
-    "tags": ["CIS", "AWS", "CIS 5.3", "Networking"],
+    "id": "c1581c69-3e5c-5ab2-bdde-3619955a1dcf",
+    "name": "Ensure CloudTrail trails are integrated with CloudWatch Logs",
+    "section": "3.4",
+    "description": "AWS CloudTrail is a web service that records AWS API calls made in a given AWS account.",
+    "tags": ["CIS", "AWS", "CIS 3.4", "Logging"],
     "benchmark": {
       "id": "cis_aws",
       "name": "CIS Amazon Web Services Foundations",
       "version": "v1.5.0",
-      "rule_number": "5.3",
+      "rule_number": "3.4",
       "posture_type": "cspm"
     },
-    "profile_applicability": "* Level 1"
+    "profile_applicability": "* Level 1",
+    "impact": "Non-compliance with CIS Amazon Web Services Foundations 3.4 — Ensure CloudTrail trails are integrated with CloudWatch Logs",
+    "remediation": "Remediate per CIS Amazon Web Services Foundations v1.5.0 section 3.4."
   },
-  "result": { "evaluation": "passed" },
+  "result": { "evaluation": "failed", "evidence": {} },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_cspm",
-    "module": "aws"
+    "module": "cloud_security_posture"
   },
-  "message": "[cis_aws/5.3] passed: Ensure no security groups allow ingress from ::/0 to remote server administration ports",
-  "log": { "level": "info" },
-  "service": { "name": "cspm", "type": "aws" },
-  "ecs": { "version": "8.11.0" },
-  "agent": {
-    "type": "filebeat",
-    "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "zkstfja5e68"
-  },
-  "input": { "type": "http_endpoint" },
-  "aws": {
-    "s3": {
-      "bucket": {
-        "name": "aws-cspm-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-cspm-logs-164820739518"
-      },
-      "object": {
-        "key": "AWSLogs/164820739518/cspm/eu-central-1/2026/04/22/cspm_01NPY0W1N51.log.gz"
-      }
-    },
-    "cloudwatch": {
-      "log_group": "/aws/cspm/logs",
-      "log_stream": "eu-central-1/6asf9mpz",
-      "ingestion_time": "2026-04-22T18:07:54.358Z"
-    }
-  }
+  "message": "[cis_aws/3.4] failed: Ensure CloudTrail trails are integrated with CloudWatch Logs",
+  "log": { "level": "warn" }
 }

@@ -1,63 +1,58 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-east-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "servicecatalog" }
   },
   "aws": {
     "servicecatalog": {
-      "operation": "SearchProducts",
-      "product_name": "EKS Cluster",
-      "product_id": "prod-QM24EMZR0FG",
-      "portfolio_id": "port-IILSY57XE8",
-      "provisioned_product_name": "eks-cluster-cforh8",
-      "record_id": "rec-DXUVIV5BLQ7",
-      "status": "ERROR",
-      "requester_arn": "arn:aws:iam::293847561023:user/contractor-dan",
-      "error": "Invalid parameters"
+      "operation": "AssociatePrincipal",
+      "product_name": "S3 Static Site",
+      "product_id": "prod-EHDO25O4TP",
+      "portfolio_id": "port-QS1PJOJXA",
+      "provisioned_product_name": "s3-static-site-is1u2q",
+      "record_id": "rec-DKZS8X931L9",
+      "status": "SUCCEEDED",
+      "requester_arn": "arn:aws:iam::501938274650:user/sre-carol",
+      "launch_role": "arn:aws:iam::123456789:role/ServiceCatalogLaunchRole"
     },
     "s3": {
       "bucket": {
-        "name": "aws-servicecatalog-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-servicecatalog-logs-293847561023"
+        "name": "aws-servicecatalog-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-servicecatalog-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/servicecatalog/eu-south-1/2026/04/22/servicecatalog_OGHKV8BFGB.log.gz"
+        "key": "AWSLogs/501938274650/servicecatalog/us-east-2/2026/05/05/servicecatalog_LHTUPHZ2SB.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/servicecatalog/logs",
-      "log_stream": "eu-south-1/a6s1mbg2",
-      "ingestion_time": "2026-04-22T18:07:54.484Z"
+      "log_stream": "us-east-2/zouw6r34",
+      "ingestion_time": "2026-05-05T08:33:56.855Z"
     }
   },
-  "user": { "name": "contractor-dan" },
+  "user": { "name": "sre-carol" },
   "event": {
-    "action": "SearchProducts",
-    "outcome": "failure",
+    "action": "AssociatePrincipal",
+    "outcome": "success",
     "category": ["configuration", "process"],
     "dataset": "aws.servicecatalog",
     "provider": "servicecatalog.amazonaws.com",
-    "duration": 3090000000000,
+    "duration": 185000000000,
     "module": "aws"
   },
-  "message": "ServiceCatalog SearchProducts FAILED [EKS Cluster]: Unauthorized:",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ProvisioningFailed",
-    "message": "Service Catalog operation failed",
-    "type": "provisioning"
-  },
+  "message": "ServiceCatalog AssociatePrincipal: sre-carol → S3 Static Site [SUCCEEDED]",
+  "log": { "level": "info" },
   "service": { "name": "servicecatalog", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.servicecatalog", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "kxz6zgk7qre"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "8d89h4rn3u"
   },
   "input": { "type": "aws-cloudwatch" }
 }

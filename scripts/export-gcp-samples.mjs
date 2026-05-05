@@ -55,12 +55,14 @@ let logCount = 0;
 for (const [id, fn] of Object.entries(GCP_GENERATORS)) {
   const result = fn(ts, errorRate);
   const raw = Array.isArray(result) ? result[0] : result;
-  const { __dataset: _omitDataset, ...cleaned } = stripNulls(raw);
-  const enriched = enrichForCloud(
-    cleaned,
+  const enrichedWithMarker = enrichForCloud(
+    stripNulls(raw),
     { serviceId: id, eventType: "logs", ingestionSource: gcpIngestion(id) },
     GCP_CONFIG.enrichContext
   );
+  // Strip the internal `__dataset` routing marker AFTER enrichment so the
+  // cross-cloud short-circuit in `enrichGcpAzureDocument` can detect it.
+  const { __dataset: _omitDataset, ...enriched } = enrichedWithMarker;
   await writePrettierJson(path.join(logsDir, `${id}.json`), enriched);
   logCount++;
 }

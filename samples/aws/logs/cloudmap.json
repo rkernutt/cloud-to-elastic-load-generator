@@ -1,48 +1,48 @@
 {
-  "@timestamp": "2026-04-22T18:07:53.671Z",
+  "@timestamp": "2026-05-05T08:33:55.000Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-southeast-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "cloudmap" }
   },
   "aws": {
-    "dimensions": { "Namespace": "prod-namespace", "ServiceName": "inventory" },
+    "dimensions": { "Namespace": "staging-namespace", "ServiceName": "payment" },
     "cloudmap": {
-      "namespace": "prod-namespace",
-      "service_name": "inventory",
-      "instance_id": "i-8ps8qaqw0po",
-      "operation": "GetInstancesHealthStatus",
-      "health_status": "HEALTHY",
-      "instances_returned": 10,
-      "query_type": "HTTP",
-      "ttl": 15
+      "namespace": "staging-namespace",
+      "service_name": "payment",
+      "instance_id": "i-j2ffc8k2i6",
+      "operation": "DiscoverInstances",
+      "health_status": "ALL",
+      "instances_returned": 9,
+      "query_type": "DNS",
+      "ttl": 30
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudmap-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-cloudmap-logs-293847561023"
+        "name": "aws-cloudmap-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-cloudmap-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/cloudmap/ap-northeast-3/2026/04/22/cloudmap_0KSVGXTEYNL.log.gz"
+        "key": "AWSLogs/814726593401/cloudmap/ap-southeast-3/2026/05/05/cloudmap_1Z990ZMMA6R.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloudmap/logs",
-      "log_stream": "ap-northeast-3/vu2dcn9r",
-      "ingestion_time": "2026-04-22T18:07:54.338Z"
+      "log_stream": "ap-southeast-3/jhwnp8tl",
+      "ingestion_time": "2026-05-05T08:33:56.568Z"
     }
   },
   "event": {
-    "action": "RegisterInstance",
+    "action": "DeregisterInstance",
     "outcome": "success",
     "category": ["network"],
     "dataset": "aws.cloudmap",
     "provider": "cloudmap.amazonaws.com",
-    "duration": 66000000,
+    "duration": 170000000,
     "module": "aws"
   },
-  "message": "Cloud Map inventory: GetInstancesHealthStatus returned 10 instances",
+  "message": "Cloud Map payment: DiscoverInstances returned 9 instances",
   "log": { "level": "info" },
   "service": { "name": "cloudmap", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -50,8 +50,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "gc8chq9jl17"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "00wdq44y2ilqi"
   },
   "input": { "type": "aws-cloudwatch" }
 }
