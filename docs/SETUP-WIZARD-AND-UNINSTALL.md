@@ -86,6 +86,20 @@ The **Services** catalog (order and labels) for each cloud lives in `src/data/se
 
 When you switch cloud vendor on **Start**, the Setup page **remounts** and selections reset to "all selected" for that cloud's bundle.
 
+### Knowing what ran and what didn't
+
+Each install run starts by emitting a one-line plan summary so the activity log always tells you which top-level rows took effect:
+
+```
+── Install run started 05/05/2026, 14:59:14 ──
+Plan: install AWS integration, APM integration, ServiceNow, 188 ingest pipelines, 220 dashboards, 384 ML jobs, 17 alerting rules.
+Skipping (toggles off): alert-enrichment Workflow.
+Installing AWS Integration…
+…
+```
+
+If a row is unticked at install time it shows up under "Skipping" with the same wording as the row label. The alert-enrichment **Workflow** row is opt-in (default off), so if you don't see `Installing alert-enrichment Workflow…` in the log it's because the toggle was off, not because anything failed. Tick the row, set `emailConnector` / `notifyTo` if needed, and re-run Install.
+
 ---
 
 ## Post-install options
@@ -203,6 +217,19 @@ The installer uses a robust 3-tier strategy for dashboard installation:
 3. **NDJSON import** (`POST /api/saved_objects/_import`) — last resort, used when both (1) and (2) are unavailable
 
 All dashboards include a `version: 1` attribute in their saved-object payload for Kibana 9.x compatibility. The `cloudloadgen` tag is created explicitly before dashboard import.
+
+### Why Serverless typically falls back to tier 2
+
+You'll see this info line in the activity log when installing on Elastic Cloud Serverless:
+
+> `Note: POST /api/dashboards isn't available on this deployment yet (typical for current Serverless project types) — falling back to the saved-objects route. Both paths produce identical dashboards; this just makes one HTTP call per dashboard instead of a single bulk call.`
+
+`POST /api/dashboards` is the Kibana Dashboards REST API introduced for stateful Stack 9.4+. On Serverless it has rolled out unevenly across project types (Observability / Security / Elasticsearch) and against pinned Kibana versions, and it validates panel payloads more strictly than the saved-objects route. Common failure modes:
+
+- **404 Not Found** — the route hasn't been promoted yet on this project type.
+- **400 "types that failed validation"** or **400 "request body.panels"** — the dashboard's saved-object panel state was authored against the legacy schema.
+
+Tier 2 (`POST /api/saved_objects/dashboard/{id}`) handles all of these correctly and produces an identical dashboard, so the installer transparently falls through and surfaces a single info note. There's no functional difference for the user — every dashboard still installs, gets the `cloudloadgen` tag, and lands in **Kibana → Dashboards**.
 
 ---
 

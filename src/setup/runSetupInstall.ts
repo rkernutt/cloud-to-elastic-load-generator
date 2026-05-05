@@ -199,6 +199,33 @@ export async function runSetupInstall(opts: {
     addLog,
   } = opts;
 
+  // ─── Plan summary ────────────────────────────────────────────────────────
+  // Emit a single "what will / won't run" line at the start of the install
+  // so users can see at a glance which Setup-page toggles took effect. The
+  // alert-enrichment Workflow row in particular is opt-in and easy to miss,
+  // so spelling out the skip removes the "did the workflow install or not?"
+  // ambiguity from the activity log.
+  {
+    const planRun: string[] = [];
+    const planSkip: string[] = [];
+    const fleetLabel = setupBundle.fleetPackageLabel;
+    (enableIntegration ? planRun : planSkip).push(`${fleetLabel} integration`);
+    (enableApm ? planRun : planSkip).push("APM integration");
+    if (extraFleetPackages.length) {
+      const label = extraFleetPackages.map((p) => p.label).join(" + ");
+      planRun.push(label);
+    }
+    (enablePipelines ? planRun : planSkip).push(`${pipelines.length} ingest pipelines`);
+    (enableDashboards ? planRun : planSkip).push(`${dashboards.length} dashboards`);
+    const mlJobCount = mlJobFiles.reduce((acc, f) => acc + f.jobs.length, 0);
+    (enableMlJobs ? planRun : planSkip).push(`${mlJobCount} ML jobs`);
+    const alertRuleCount = alertRuleFiles.reduce((acc, f) => acc + f.rules.length, 0);
+    (enableAlertRules ? planRun : planSkip).push(`${alertRuleCount} alerting rules`);
+    (enableWorkflow ? planRun : planSkip).push("alert-enrichment Workflow");
+    if (planRun.length) addLog(`Plan: install ${planRun.join(", ")}.`, "info");
+    if (planSkip.length) addLog(`Skipping (toggles off): ${planSkip.join(", ")}.`, "info");
+  }
+
   const installIntegration = async (pkgName: string, labelOverride?: string) => {
     const label =
       labelOverride ?? (pkgName === "apm" ? "APM Integration" : `${setupBundle.fleetPackageLabel}`);
@@ -345,7 +372,7 @@ export async function runSetupInstall(opts: {
         if (!loggedFallbackNote) {
           loggedFallbackNote = true;
           addLog(
-            "  Note: Kibana Dashboards API is not available — installing via saved objects.",
+            "  Note: POST /api/dashboards isn't available on this deployment yet (typical for current Serverless project types) — falling back to the saved-objects route. Both paths produce identical dashboards; this just makes one HTTP call per dashboard instead of a single bulk call.",
             "info"
           );
         }
