@@ -4,6 +4,8 @@ A chained event scenario modelling a realistic multi-stage threat detection work
 
 **Chain correlation:** every document in a run shares `labels.finding_chain_id` (alongside the native cross-product IDs below) so you can filter or join the full finding lifecycle in Kibana.
 
+> **Investigation guide for the alerts in this chain:** [../runbooks/security-finding-chain-alerts.md](../runbooks/security-finding-chain-alerts.md) — cloud-agnostic structure covering the four finding rules per cloud (HIGH/CRITICAL detector, multi-stage burst, compliance-FAILED / SecOps / Sentinel, source-IP / volume). Each rule links the chain overview plus the detector or aggregator dashboard (GuardDuty / SCC / Defender, Security Hub / SecOps / Sentinel) — see [../SETUP-WIZARD-AND-UNINSTALL.md → Linked dashboards on alerts](../SETUP-WIZARD-AND-UNINSTALL.md#linked-dashboards-on-alerts).
+
 ## Cloud Variants
 
 ### AWS: GuardDuty → Security Hub → Security Lake

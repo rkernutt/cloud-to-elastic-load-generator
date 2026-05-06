@@ -746,6 +746,10 @@ export async function runSetupInstall(opts: {
       `  Alerting rules: ${ok} created${skipped > 0 ? `, ${skipped} already existed` : ""}${fail > 0 ? `, ${fail} failed` : ""}${totalDashboardsLinked > 0 ? `, ${totalDashboardsLinked} dashboard ${totalDashboardsLinked === 1 ? "link" : "links"} attached` : ""}`,
       fail > 0 ? "warn" : "ok"
     );
+    addLog(
+      "  📖 Investigation guides for these rules: docs/runbooks/ (triage, ES|QL, containment, escalation per rule)",
+      "info"
+    );
   };
 
   const activateRules = async () => {

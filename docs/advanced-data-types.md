@@ -29,6 +29,11 @@ flowchart LR
 
 Installing **all** rule files for one cloud gives you 17 rules (5 + 4 + 4 + 4). Use `npm run setup:alert-rules` (cross-cloud) or the web-UI Setup step.
 
+Each rule ships with **per-rule context** wired in two ways:
+
+- **Linked dashboards** (Stack 8.19 / 9.1+) — every rule's `artifacts.dashboards` field links the **chain overview** _plus_ one or more **per-service dashboards** that match the rule's primary dataset. So an EMR/Spark error alert opens both the chain overview and the EMR dashboard; an S3 mass-access alert opens the chain overview, CloudTrail, and S3. Multi-source correlation rules (the chain "burst" / "full-chain" rules) deliberately link only the chain overview because that's where the cross-service panels live. Edit `relatedDashboards: ["<title>", …]` per rule in `installer/<cloud>-custom-rules/<file>.json`. Older Kibana versions silently ignore the field. Full mapping in [SETUP-WIZARD-AND-UNINSTALL.md → Linked dashboards on alerts](./SETUP-WIZARD-AND-UNINSTALL.md#linked-dashboards-on-alerts).
+- **Investigation guides** (runbooks) — [docs/runbooks/](./runbooks/) ships per-rule "what to do when this alert fires" guides for all 51 rules: five-minute triage, ES|QL queries the on-call can run in Discover, likely true / false positives, containment / remediation, related rules in the chain, and escalation criteria. The wizard, `setup:alert-rules` CLI, and the alert-enrichment workflow's email body all surface the runbook URL after install / on every notification.
+
 ## CSPM / KSPM — real CIS benchmark findings
 
 The CSPM and KSPM generators produce findings identical to what Elastic's [cloudbeat](https://github.com/elastic/cloudbeat) writes to `logs-cloud_security_posture.findings-default`, using **real CIS rule UUIDs, names, sections, and benchmark metadata** sourced from `elastic/cloudbeat`'s security-policies — **321 rules total**.
@@ -118,5 +123,6 @@ On Stack 9.4+ the workflow can also use the new first-class `cases.createCase` s
 
 - [workflow-deployment.md](./workflow-deployment.md) — install, configure, and troubleshoot the alert-enrichment workflow per deployment type.
 - [chained-events/](./chained-events/) — per-scenario timing, field-level correlation, and failure-mode docs.
-- [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md) — installing the assets and the Serverless use-case selector.
+- [runbooks/](./runbooks/) — per-rule investigation guides for the 51 chained-scenario alerts.
+- [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md) — installing the assets, the Serverless use-case selector, and the per-rule linked-dashboard mapping.
 - [ml-training-mode.md](./ml-training-mode.md) — train ML jobs against the chained-event detectors.

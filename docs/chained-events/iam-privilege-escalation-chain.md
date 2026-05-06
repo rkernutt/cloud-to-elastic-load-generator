@@ -4,6 +4,8 @@ A chained event scenario modelling a multi-step IAM privilege escalation attack.
 
 **Chain correlation:** every document in a run shares `labels.attack_session_id` with **consistent entity identity** (same attacker principal, target identity, source IP, and user agent where applicable) across all steps.
 
+> **Investigation guide for the alerts in this chain:** [../runbooks/iam-privesc-chain-alerts.md](../runbooks/iam-privesc-chain-alerts.md) — cloud-agnostic structure covering the four PrivEsc rules per cloud (key/sign-in creation, admin / owner policy attach, AssumeRole / token / Activity-Log enumeration, full-chain volume). Each rule links the chain overview plus the audit-log dashboard for its cloud (CloudTrail / Cloud Audit Logs / Activity Log + Entra ID) — see [../SETUP-WIZARD-AND-UNINSTALL.md → Linked dashboards on alerts](../SETUP-WIZARD-AND-UNINSTALL.md#linked-dashboards-on-alerts).
+
 ## Cloud Variants
 
 ### AWS: CloudTrail IAM + STS (4 documents)

@@ -4,6 +4,8 @@
 
 This chained event models a realistic multi-service data pipeline on Google Cloud Platform, mirroring the AWS data pipeline scenario with GCP-native services. It generates correlated log documents and APM traces across five services, enabling end-to-end observability including Elastic Service Map visualization.
 
+> **Investigation guide for the alerts in this chain:** [../runbooks/data-pipeline-alerts.md](../runbooks/data-pipeline-alerts.md) — cloud-agnostic structure with GCP dataset names called out (`gcp.composer`, `gcp.dataproc`, `gcp.bigquery`, `gcp.gcs`). Each rule links the chain overview dashboard plus the per-service dashboard for its primary dataset (Composer / BigQuery / Dataproc / Cloud Storage) — see [../SETUP-WIZARD-AND-UNINSTALL.md → Linked dashboards on alerts](../SETUP-WIZARD-AND-UNINSTALL.md#linked-dashboards-on-alerts).
+
 ## Architecture
 
 ```mermaid

@@ -241,21 +241,23 @@ All alerting rules use `consumer: "alerts"` (not `stackAlerts`) to ensure they a
 
 Every chained-scenario rule ships with a `relatedDashboards` field listing the dashboard titles that give that rule's alerts the most useful context. At install time the wizard, `npm run setup:alert-rules`, and the standalone-asset exporter all resolve those titles to the deterministic dashboard saved-object IDs that this project ships and emit them as `artifacts.dashboards: [{ id }]` on the rule body.
 
-When an alert from one of those rules fires in Kibana, the **Alert Details** page surfaces a **Related dashboards** tab that links straight to the appropriate overview. The current mapping is:
+When an alert fires, the **Alert Details** page surfaces a **Related dashboards** tab. Each rule links its **chain overview dashboard first** (so the on-call lands on the chain context immediately) and then **one or more service-specific dashboards** that match the rule's primary dataset — e.g. the AWS S3 mass-access rule links `Data Exfiltration Chain — overview`, `AWS CloudTrail — API Activity`, **and** `Amazon S3 — Access & Errors`. Multi-source correlation rules (the chain "burst" / "full chain" rules) deliberately link only the chain overview — that's where the cross-service panels live.
 
-| Rule group                                   | Linked dashboard                                                                                                                                  |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `data-pipeline` (AWS / GCP / Azure)          | `Data & Analytics Pipeline — overview` / `GCP Data & Analytics Pipeline — overview` / `Azure Data & Analytics Pipeline — overview`                |
-| `data-exfil-chain` (AWS / GCP / Azure)       | `Data Exfiltration Chain — overview` / `GCP Data Exfiltration Chain — overview` / `Azure Data Exfiltration Chain — overview`                      |
-| `iam-privesc-chain` (AWS / GCP / Azure)      | `IAM Privilege Escalation Chain — overview` / `GCP IAM Privilege Escalation Chain — overview` / `Azure IAM Privilege Escalation Chain — overview` |
-| `security-finding-chain` (AWS / GCP / Azure) | `Security Finding Chain — overview` / `GCP Security Finding Chain — overview` / `Azure Security Finding Chain — overview`                         |
+The full per-rule link table:
+
+| Rule group                                   | Per-rule links                                                                                                                                                                                             |
+| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `data-pipeline` (AWS / GCP / Azure)          | Chain overview **+** the per-service dashboard for the dataset the rule queries (Airflow / Composer / Data Factory · Athena / BigQuery / Synapse · EMR / Dataproc / Databricks · S3 / GCS / Blob)          |
+| `data-exfil-chain` (AWS / GCP / Azure)       | Threat-detector dashboard (GuardDuty / SCC / Defender), VPC flow / NSG, object-storage audit (CloudTrail+S3 / GCS+Audit / Blob); the **full-chain correlation** rule links only the chain overview         |
+| `iam-privesc-chain` (AWS / GCP / Azure)      | The audit-log dashboard for that cloud (CloudTrail / Cloud Audit Logs / Activity Log + Entra ID); the Azure full-chain rule links **both** Entra ID and Activity Log because the rule joins the two        |
+| `security-finding-chain` (AWS / GCP / Azure) | High-severity findings → threat-detector dashboard; SecOps / Sentinel / Security Hub findings → the corresponding aggregator dashboard; the multi-stage **chain-burst** rule links only the chain overview |
 
 Notes:
 
-- The wizard skips a link when the user untoggled the matching dashboard during install — it never emits a broken reference.
+- **Per-rule overrides are first-class.** Rules in the same JSON file can (and do) link different dashboard sets — see, for example, AWS `cloudloadgen-aws-exfil-s3-mass-access` linking three dashboards while its sibling `cloudloadgen-aws-exfil-full-chain` links only the chain overview. Edit `relatedDashboards: ["<title>", …]` per rule in `installer/<cloud>-custom-rules/<file>.json`.
+- The wizard skips a link when the user untoggled the matching dashboard during install — it never emits a broken reference. So a rule with three linked dashboards may surface anywhere from one to three on a partial install.
 - The CLI installer and the asset exporter always emit the resolved IDs (they don't know the cluster's installed dashboards). Kibana silently shows nothing for unresolved IDs, so this is safe.
 - The feature requires Kibana **8.19 / 9.1 or newer** (when the `artifacts.dashboards` schema landed). Older clusters ignore the field.
-- Add or override the link list per rule by editing the `relatedDashboards: ["<title>", …]` array in the rule JSON files under `installer/<cloud>-custom-rules/`.
 
 ---
 

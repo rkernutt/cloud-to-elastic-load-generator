@@ -508,6 +508,9 @@ async function main() {
           ? ` (${dashboardsLinked} dashboard ${dashboardsLinked === 1 ? "link" : "links"} attached)`
           : "")
     );
+    console.log(
+      "📖 Investigation guides for these rules: docs/runbooks/ (triage, ES|QL, containment, escalation per rule)"
+    );
   }
 
   console.log("\nDone.");

@@ -2,6 +2,8 @@
 
 A chained event scenario modelling a realistic multi-service AWS data pipeline commonly used by Data & Analytics teams. The chain generates correlated **log documents and APM traces** (no dedicated metrics payloads) across S3, EMR (Spark), Glue, Athena, and MWAA (Apache Airflow), enabling end-to-end observability of a production data workflow inside Elastic.
 
+> **Investigation guide for the alerts in this chain:** [../runbooks/data-pipeline-alerts.md](../runbooks/data-pipeline-alerts.md) — five-minute triage, ES|QL queries, containment, and escalation per rule. Each rule also links the chain overview dashboard plus the per-service dashboard for its primary dataset (MWAA / Athena / EMR / S3) — see [../SETUP-WIZARD-AND-UNINSTALL.md → Linked dashboards on alerts](../SETUP-WIZARD-AND-UNINSTALL.md#linked-dashboards-on-alerts).
+
 ## Services Involved
 
 | Service           | Role                                                                       | AWS Dataset    |

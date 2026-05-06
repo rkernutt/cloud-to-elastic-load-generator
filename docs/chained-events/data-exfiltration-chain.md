@@ -4,6 +4,8 @@ A chained event scenario modelling a data exfiltration attack detected across cl
 
 **Chain correlation:** every document in a run shares `labels.exfil_chain_id` with **consistent entities** (same attacker IP, bucket/storage account, and compute identity where modeled) across GuardDuty/Defender/DLP, access logs, and network logs.
 
+> **Investigation guide for the alerts in this chain:** [../runbooks/data-exfil-chain-alerts.md](../runbooks/data-exfil-chain-alerts.md) — cloud-agnostic structure covering the four exfil rules across AWS / GCP / Azure (threat detector, network egress, object-storage audit, full-chain correlation). Each non-correlation rule links the chain overview plus its detector / network / storage dashboard — see [../SETUP-WIZARD-AND-UNINSTALL.md → Linked dashboards on alerts](../SETUP-WIZARD-AND-UNINSTALL.md#linked-dashboards-on-alerts).
+
 ## Cloud Variants
 
 ### AWS: GuardDuty + CloudTrail + VPC Flow (3 documents)

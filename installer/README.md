@@ -166,6 +166,10 @@ ML anomaly detection jobs that detect real operational and security anomalies. J
 
 Beyond per-service bundles, the repo ships chained-scenario assets for **Data & Analytics Pipeline** (`data-pipeline-dashboard.json` / `gcp-data-pipeline-dashboard.json` / `azure-data-pipeline-dashboard.json`) and for **Security Finding**, **IAM Privilege Escalation**, and **Data Exfiltration** (`security-finding-chain`, `iam-privesc-chain`, and `data-exfil-chain` name prefixes; GCP and Azure use `gcp-` / `azure-` prefixes). There are **three security-chain dashboards per cloud** (**nine** such dashboards across AWS, GCP, and Azure), each with matching **Elasticsearch-query alert rule** and **ML job** JSON. Rule bundles live in `installer/{aws,gcp,azure}-custom-rules/` (`data-pipeline-rules.json` plus the three chain files); installing **all** rule files for a cloud installs **17** rules. ML definitions include `data-pipeline-jobs` plus the three chain job files per cloud under `installer/{aws,gcp,azure}-custom-ml-jobs/jobs/`. Install with the same `setup:*-dashboards`, `setup:*-ml-jobs`, and `npm run setup:alert-rules` commands as other custom assets.
 
+Each chained-scenario rule also ships with `artifacts.dashboards` linking the **chain overview plus one or more per-service dashboards** that match the rule's primary dataset — see [../docs/SETUP-WIZARD-AND-UNINSTALL.md → Linked dashboards on alerts](../docs/SETUP-WIZARD-AND-UNINSTALL.md#linked-dashboards-on-alerts) for the per-rule mapping (multi-source correlation rules link the chain overview only). The wizard skips a link when the user untoggled the matching dashboard during install, so partial-install runs never produce broken references.
+
+Investigation guides for every chained-scenario alert (triage steps, ES|QL queries, containment, escalation) are in [../docs/runbooks/](../docs/runbooks/). The wizard and `setup:alert-rules` both print the runbook URL after install.
+
 ---
 
 ## Why both approaches exist
