@@ -1,21 +1,22 @@
 {
-  "@timestamp": "2026-05-05T08:33:55.000Z",
+  "@timestamp": "2026-05-06T16:22:59.897Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
+    "region": "af-south-1",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "access-analyzer" }
   },
   "aws": {
-    "dimensions": { "AnalyzerName": "analyzer-eu-central-1" },
+    "dimensions": { "AnalyzerName": "analyzer-af-south-1" },
     "access_analyzer": {
-      "finding_id": "akwt0sh8-cyd7-4qm2",
-      "analyzer_name": "analyzer-eu-central-1",
-      "finding_type": "none",
-      "finding_description": "No external access",
+      "finding_id": "07mpp9fc-c4l9-vfzl",
+      "analyzer_name": "analyzer-af-south-1",
+      "finding_type": "UNUSED_ACCESS",
+      "finding_description": "Unused IAM user",
       "resource_type": "AWS::Lambda::Function",
-      "resource_arn": "arn:aws:s3:::dev-bucket",
-      "status": "RESOLVED"
+      "resource_arn": "arn:aws:s3:::prod-bucket",
+      "principal": "*",
+      "status": "ARCHIVED"
     },
     "s3": {
       "bucket": {
@@ -23,33 +24,38 @@
         "arn": "arn:aws:s3:::aws-accessanalyzer-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/accessanalyzer/eu-central-1/2026/05/05/accessanalyzer_HIY1HHDZYZV.log.gz"
+        "key": "AWSLogs/501938274650/accessanalyzer/af-south-1/2026/05/06/accessanalyzer_0ZWKE1UTTEEQ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/accessanalyzer/logs",
-      "log_stream": "eu-central-1/qplpgfz6",
-      "ingestion_time": "2026-05-05T08:33:56.586Z"
+      "log_stream": "af-south-1/rexkuo4j",
+      "ingestion_time": "2026-05-06T16:23:00.571Z"
     }
   },
   "event": {
-    "kind": "event",
-    "outcome": "success",
+    "kind": "alert",
+    "outcome": "failure",
     "category": ["configuration", "iam"],
     "dataset": "aws.access_analyzer",
     "provider": "access-analyzer.amazonaws.com",
     "module": "aws"
   },
-  "message": "Access Analyzer: no external access paths detected",
-  "log": { "level": "info" },
+  "message": "IAM Access Analyzer: external access found on AWS::IAM::Role",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "ExternalAccess",
+    "message": "External access path detected",
+    "type": "access"
+  },
   "service": { "name": "accessanalyzer", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.accessanalyzer", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "ip1vlvb5os"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "usldv79we8c"
   },
   "input": { "type": "http_endpoint" }
 }

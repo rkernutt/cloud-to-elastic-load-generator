@@ -217,6 +217,9 @@ export function generateBedrockAgentTrace(ts: string, er: number) {
       destination: { service: { resource: "bedrock", type: "external", name: "bedrock" } },
     },
     labels: { ...sharedLabels },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   });
@@ -257,6 +260,9 @@ export function generateBedrockAgentTrace(ts: string, er: number) {
         destination: { service: { resource: "bedrock-kb", type: "db", name: "bedrock-kb" } },
       },
       labels: kbLabels,
+      service: svcBlock,
+      agent,
+      telemetry,
       event: { outcome: "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     });
@@ -284,6 +290,9 @@ export function generateBedrockAgentTrace(ts: string, er: number) {
       destination: { service: { resource: "bedrock", type: "external", name: "bedrock" } },
     },
     labels: llmLabels,
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   });
@@ -318,6 +327,9 @@ export function generateBedrockAgentTrace(ts: string, er: number) {
         action_group: cfg.actionGroupName,
         ...(actionErr ? { action_error: "ToolCallException" } : {}),
       },
+      service: svcBlock,
+      agent,
+      telemetry,
       event: { outcome: actionErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     });

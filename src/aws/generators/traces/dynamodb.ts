@@ -121,7 +121,10 @@ function buildDynamoSpan(
   operation: string,
   tableName: string,
   isErr: boolean,
-  spanOffsetMs: number
+  spanOffsetMs: number,
+  svcBlock: any,
+  agent: any,
+  telemetry: any
 ) {
   const id = newSpanId();
   const props =
@@ -151,6 +154,9 @@ function buildDynamoSpan(
       consumed_read_capacity_units: String(readCu),
       consumed_write_capacity_units: String(writeCu),
     },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
@@ -228,7 +234,19 @@ export function generateDynamoDbTrace(ts: string, er: number) {
     const durationUs = randInt(props.durationMs[0], props.durationMs[1]) * 1000;
 
     spans.push(
-      buildDynamoSpan(traceId, txId, txId, ts, operation, cfg.tableName, spanIsErr, spanOffsetMs)
+      buildDynamoSpan(
+        traceId,
+        txId,
+        txId,
+        ts,
+        operation,
+        cfg.tableName,
+        spanIsErr,
+        spanOffsetMs,
+        svcBlock,
+        agent,
+        telemetry
+      )
     );
 
     spanOffsetMs += durationUs / 1000 + randInt(1, 10);

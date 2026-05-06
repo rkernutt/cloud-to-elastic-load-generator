@@ -29,7 +29,8 @@
       "relatedDashboards": [
         "Azure Data Exfiltration Chain — overview",
         "Azure Defender For Cloud — overview"
-      ]
+      ],
+      "investigationGuide": "# GuardDuty Exfiltration Finding\n\nThe cloud threat detector flagged an exfiltration action — highest-fidelity signal.\n\n## Triage\n1. Identify principal: `FROM logs-aws.guardduty-* | WHERE @timestamp > NOW() - 1h AND aws.guardduty.type LIKE \"Exfiltration*\" | KEEP @timestamp, aws.guardduty.type, aws.guardduty.severity.value, source.ip, destination.ip | SORT @timestamp DESC`\n2. Check if principal still has active sessions\n3. Rotate credentials immediately if confirmed\n\n## Escalate when\n- Always page security on-call for Exfiltration findings\n- Principal has access to customer-data buckets"
     },
     {
       "id": "cloudloadgen-azure-exfil-high-blob-egress",
@@ -58,7 +59,8 @@
       "relatedDashboards": [
         "Azure Data Exfiltration Chain — overview",
         "Azure Blob Storage — overview"
-      ]
+      ],
+      "investigationGuide": "# S3 GetObject With High Additional Event Count\n\nA principal pulled 100+ objects programmatically.\n\n## Triage\n1. Identify who and what: `FROM logs-aws.cloudtrail-* | WHERE @timestamp > NOW() - 1h AND event.action == \"GetObject\" AND aws.cloudtrail.additional_event_count > 100 | KEEP @timestamp, user.name, source.ip, user_agent.original, aws.cloudtrail.resources.arn | SORT aws.cloudtrail.additional_event_count DESC`\n2. Is the bucket sensitive (PII, secrets, backups)?\n3. Console or programmatic? Check user_agent\n\n## Escalate when\n- Bucket contains customer data or secrets\n- Principal is a service account reading at unusual volume"
     },
     {
       "id": "cloudloadgen-azure-exfil-nsg-outbound",
@@ -87,7 +89,8 @@
       "relatedDashboards": [
         "Azure Data Exfiltration Chain — overview",
         "Azure Network Security Groups — overview"
-      ]
+      ],
+      "investigationGuide": "# VPC Flow High Egress Bytes\n\nA single flow shipped >50 MiB outbound.\n\n## Triage\n1. Top sources: `FROM logs-aws.vpcflow-* | WHERE @timestamp > NOW() - 1h AND network.direction == \"egress\" AND aws.vpcflow.bytes > 52428800 | STATS bytes = SUM(aws.vpcflow.bytes) BY source.ip | SORT bytes DESC | LIMIT 25`\n2. Check destination geo — foreign IPs are higher signal\n3. Cross-reference with GuardDuty rule\n\n## Escalate when\n- Same source IP triggering repeatedly\n- Destination on egress-deny list"
     },
     {
       "id": "cloudloadgen-azure-exfil-full-chain",
@@ -117,7 +120,8 @@
       },
       "actions": [],
       "notify_when": "onActiveAlert",
-      "relatedDashboards": ["Azure Data Exfiltration Chain — overview"]
+      "relatedDashboards": ["Azure Data Exfiltration Chain — overview"],
+      "investigationGuide": "# Full Chain Correlation — Data Exfiltration\n\n**Treat as confirmed incident until proven otherwise.** Multiple exfiltration signals co-occurred.\n\n## Triage\n1. Page on-call security lead immediately\n2. Correlate: `FROM logs-aws.guardduty-*, logs-aws.vpcflow-*, logs-aws.cloudtrail-* | WHERE @timestamp > NOW() - 30m | WHERE (event.dataset == \"aws.guardduty\" AND aws.guardduty.type LIKE \"Exfiltration*\") OR (event.dataset == \"aws.vpcflow\" AND network.direction == \"egress\" AND aws.vpcflow.bytes > 52428800) OR (event.dataset == \"aws.cloudtrail\" AND event.action == \"GetObject\" AND aws.cloudtrail.additional_event_count > 100) | KEEP @timestamp, event.dataset, user.name, source.ip | SORT @timestamp ASC`\n3. Contain: rotate credentials, block destination IP\n\n## Escalate when\n- **Always.** This is the page-the-CISO bar."
     }
   ]
 }

@@ -29,7 +29,8 @@
       "relatedDashboards": [
         "GCP IAM Privilege Escalation Chain — overview",
         "GCP Cloud Audit Logs — API Activity"
-      ]
+      ],
+      "investigationGuide": "# CreateAccessKey (Non-Admin)\n\nA non-admin minted a new access key.\n\n## Triage\n1. Check caller vs target: `FROM logs-aws.cloudtrail-* | WHERE @timestamp > NOW() - 1h AND event.action == \"CreateAccessKey\" | KEEP @timestamp, user.name, aws.cloudtrail.request_parameters, source.ip, user_agent.original | SORT @timestamp DESC`\n2. If caller != target user, high signal\n3. Is target user privileged?\n\n## Escalate when\n- Caller != target user\n- Target is a service account\n- Source IP outside corp/VPN"
     },
     {
       "id": "cloudloadgen-gcp-iam-policy-change",
@@ -58,7 +59,8 @@
       "relatedDashboards": [
         "GCP IAM Privilege Escalation Chain — overview",
         "GCP Cloud Audit Logs — API Activity"
-      ]
+      ],
+      "investigationGuide": "# AdministratorAccess Policy Attached\n\nA non-admin attached AdministratorAccess — very high signal.\n\n## Triage\n1. Confirm: `FROM logs-aws.cloudtrail-* | WHERE @timestamp > NOW() - 1h AND event.action == \"AttachUserPolicy\" AND aws.cloudtrail.request_parameters LIKE \"*AdministratorAccess*\" | KEEP @timestamp, user.name, aws.cloudtrail.request_parameters, source.ip | SORT @timestamp DESC`\n2. Detach the policy immediately\n3. Check caller's full activity timeline\n\n## Escalate when\n- **Always page security on-call.** Admin-attach by non-admin is rare and high-confidence."
     },
     {
       "id": "cloudloadgen-gcp-iam-token-generation",
@@ -87,7 +89,8 @@
       "relatedDashboards": [
         "GCP IAM Privilege Escalation Chain — overview",
         "GCP Cloud Audit Logs — API Activity"
-      ]
+      ],
+      "investigationGuide": "# AssumeRole With Privilege-Escalation Tactic\n\nA role assumption was tagged as privilege escalation.\n\n## Triage\n1. Check tactic: `FROM logs-aws.cloudtrail-* | WHERE @timestamp > NOW() - 1h AND event.action == \"AssumeRole\" AND threat.tactic.name IS NOT NULL | KEEP @timestamp, user.name, aws.cloudtrail.request_parameters, threat.tactic.name, source.ip | SORT @timestamp DESC`\n2. Trace what the assumed role did next\n3. Revoke the session if suspicious\n\n## Escalate when\n- Assumed role has admin or production access\n- Multiple AssumeRole events from same caller"
     },
     {
       "id": "cloudloadgen-gcp-iam-full-chain",
@@ -116,7 +119,8 @@
       "relatedDashboards": [
         "GCP IAM Privilege Escalation Chain — overview",
         "GCP Cloud Audit Logs — API Activity"
-      ]
+      ],
+      "investigationGuide": "# High Volume of Dangerous IAM Actions\n\n**Apex rule — treat as confirmed privilege escalation.**\n\n## Triage\n1. Identify principal: `FROM logs-aws.cloudtrail-* | WHERE @timestamp > NOW() - 1h AND event.action IN (\"CreateAccessKey\", \"AttachUserPolicy\", \"AssumeRole\") | STATS dangerous = COUNT(*) BY user.name, event.action | SORT dangerous DESC`\n2. Reconstruct full timeline on the linked dashboard\n3. Disable the principal, rotate keys, detach policies\n\n## Escalate when\n- **Always.** This is the apex rule of the IAM PrivEsc chain."
     }
   ]
 }

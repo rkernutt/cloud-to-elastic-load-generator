@@ -1,61 +1,63 @@
 {
-  "@timestamp": "2026-05-05T08:33:55.000Z",
+  "@timestamp": "2026-05-06T16:22:59.897Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-northeast-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "eks" }
   },
   "aws": {
     "dimensions": {
-      "ClusterName": "prod-cluster-us-west-1",
-      "NodeName": "ip-135-156-146-176.us-west-1.compute.internal",
-      "Namespace": "default",
-      "PodName": "cache-jnfo6-4k02z"
+      "ClusterName": "prod-cluster-ap-northeast-1",
+      "NodeName": "ip-112-251-147-182.ap-northeast-1.compute.internal",
+      "Namespace": "monitoring",
+      "PodName": "worker-mybhx-6pmst"
     },
     "eks": {
       "structured_logging": false,
-      "log_line_kind": "authenticator",
-      "cluster": { "name": "prod-cluster-us-west-1" },
-      "node": { "name": "ip-135-156-146-176.us-west-1.compute.internal" },
+      "log_line_kind": "coredns",
+      "cluster": { "name": "prod-cluster-ap-northeast-1" },
+      "node": { "name": "ip-112-251-147-182.ap-northeast-1.compute.internal" },
       "metrics": {
         "cluster_failed_node_count": { "avg": 0 },
-        "node_cpu_utilization": { "avg": 16.519868480625053 },
-        "node_memory_utilization": { "avg": 65.12211289826669 },
-        "node_network_total_bytes": { "sum": 700864661 },
-        "node_filesystem_utilization": { "avg": 46.28423305013429 },
-        "pod_cpu_utilization": { "avg": 43.21612739160967 },
-        "pod_memory_utilization": { "avg": 58.28092627354798 },
-        "pod_network_rx_bytes": { "sum": 1202548 },
-        "pod_network_tx_bytes": { "sum": 29339495 },
-        "node_count": { "avg": 24 },
-        "pod_count": { "avg": 301 }
+        "node_cpu_utilization": { "avg": 15.904821580252989 },
+        "node_memory_utilization": { "avg": 23.365894015548573 },
+        "node_network_total_bytes": { "sum": 819032945 },
+        "node_filesystem_utilization": { "avg": 28.1859604181657 },
+        "pod_cpu_utilization": { "avg": 28.144824355337672 },
+        "pod_memory_utilization": { "avg": 17.711777471349905 },
+        "pod_network_rx_bytes": { "sum": 97285126 },
+        "pod_network_tx_bytes": { "sum": 40750079 },
+        "node_count": { "avg": 43 },
+        "pod_count": { "avg": 322 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-eks-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-eks-logs-814726593401"
+        "name": "aws-eks-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-eks-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/814726593401/eks/us-west-1/2026/05/05/eks_TZR7UVH71G.log.gz" }
+      "object": {
+        "key": "AWSLogs/501938274650/eks/ap-northeast-1/2026/05/06/eks_ZLH3S14E28.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/eks/logs",
-      "log_stream": "us-west-1/pjumsemv",
-      "ingestion_time": "2026-05-05T08:33:56.477Z"
+      "log_stream": "ap-northeast-1/40nrs348",
+      "ingestion_time": "2026-05-06T16:23:00.522Z"
     }
   },
   "container": {
-    "id": "wemdw6nsrla",
-    "name": "cache",
-    "image": { "name": "k8s.gcr.io/cache:v1.27.0" },
+    "id": "3615rfv0ja5",
+    "name": "worker",
+    "image": { "name": "k8s.gcr.io/worker:v1.24.4" },
     "runtime": "containerd"
   },
   "kubernetes": {
-    "namespace": "default",
-    "pod": { "name": "cache-jnfo6-4k02z" },
-    "container": { "name": "cache" },
-    "labels": { "app": "cache", "env": "prod" }
+    "namespace": "monitoring",
+    "pod": { "name": "worker-mybhx-6pmst" },
+    "container": { "name": "worker" },
+    "labels": { "app": "worker", "env": "prod" }
   },
   "log": { "level": "info" },
   "event": {
@@ -63,19 +65,19 @@
     "outcome": "success",
     "dataset": "aws.eks",
     "provider": "eks.amazonaws.com",
-    "duration": 437000000000,
+    "duration": 2732000000000,
     "module": "aws"
   },
-  "message": "time=\"2026-05-05T08:33:55.000Z\" level=info msg=\"mapping IAM role\" groups=\"system:bootstrappers,system:nodes\" username=\"arn:aws:sts::814726593401:assumed-role/eks-nodegroup-role/session\" uid=\"aws-iam-authenticator:814726593401:role/eksNodeRole\"",
-  "host": { "name": "ip-105-21-184-171.ec2.internal", "hostname": "eks-h294r9up" },
+  "message": "[INFO] 218.55.40.32:64254 - 88393 \"AAAA IN worker.monitoring.svc.cluster.local. udp 121 false 2502\" NOERROR qr,aa,rd,ra 129 0.00246805s",
+  "host": { "name": "ip-55-9-124-243.ec2.internal", "hostname": "eks-trh5h8f5" },
   "service": { "name": "eks", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.eks", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "gigaop5l3ta"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "9469hahpaau"
   },
   "input": { "type": "aws-cloudwatch" }
 }

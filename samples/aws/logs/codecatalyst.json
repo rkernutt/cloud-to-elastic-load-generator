@@ -1,25 +1,27 @@
 {
-  "@timestamp": "2026-05-05T08:33:55.000Z",
+  "@timestamp": "2026-05-06T16:22:59.897Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
+    "region": "eu-north-1",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "codecatalyst" }
   },
   "aws": {
-    "dimensions": { "SpaceName": "data-team", "ProjectName": "api-gateway" },
+    "dimensions": { "SpaceName": "engineering", "ProjectName": "backend-service" },
     "codecatalyst": {
-      "space_name": "data-team",
-      "project_name": "api-gateway",
+      "space_name": "engineering",
+      "project_name": "backend-service",
       "workflow_name": "security-scan",
-      "workflow_run_id": "run-16nts1h6wyz",
-      "workflow_run_status": "IN_PROGRESS",
-      "workflow_steps_completed": 6,
-      "dev_environment_id": "dev-t3p9dtybe8r",
-      "dev_environment_status": "RUNNING",
-      "ide": "VSCode",
-      "branch_name": "release/v2.0",
-      "event_type": "SPACE"
+      "workflow_run_id": "run-c7sf5xbh10j",
+      "workflow_run_status": "TIMED_OUT",
+      "workflow_steps_completed": 2,
+      "pull_request_number": 461,
+      "pull_request_head_branch": "fix/payments",
+      "dev_environment_id": "dev-evxycmkywei",
+      "dev_environment_status": "FAILED",
+      "ide": "IntelliJ IDEA",
+      "branch_name": "develop",
+      "event_type": "SOURCE_REPOSITORY"
     },
     "s3": {
       "bucket": {
@@ -27,33 +29,38 @@
         "arn": "arn:aws:s3:::aws-codecatalyst-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/738291046572/codecatalyst/eu-central-1/2026/05/05/codecatalyst_1HK1PHUZNMI.log.gz"
+        "key": "AWSLogs/738291046572/codecatalyst/eu-north-1/2026/05/06/codecatalyst_ZTQA1KEWQD.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codecatalyst/logs",
-      "log_stream": "eu-central-1/u56hhgux",
-      "ingestion_time": "2026-05-05T08:33:56.729Z"
+      "log_stream": "eu-north-1/1omdjhrg",
+      "ingestion_time": "2026-05-06T16:23:00.658Z"
     }
   },
   "event": {
-    "action": "MergeSourceBranchesToTarget",
-    "outcome": "success",
+    "action": "StopWorkflowRun",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.codecatalyst",
     "provider": "codecatalyst.amazonaws.com",
     "module": "aws"
   },
-  "message": "[CodeCatalyst] space=data-team project=api-gateway workflow=security-scan run=run-16nts1h6wyz status=IN_PROGRESS\n[WorkflowRun] trigger=push ref=refs/heads/main\n[WorkflowRun:run-16nts1h6wyz] step=Checkout status=SUCCEEDED durationMs=19565 order=1\n[WorkflowRun:run-16nts1h6wyz] step=Install status=SUCCEEDED durationMs=99629 order=2\n[WorkflowRun:run-16nts1h6wyz] step=Lint status=SUCCEEDED durationMs=33719 order=3\n[WorkflowRun:run-16nts1h6wyz] step=UnitTests status=SUCCEEDED durationMs=143773 order=4\n[WorkflowRun:run-16nts1h6wyz] step=BuildImage status=SUCCEEDED durationMs=177085 order=5\n[WorkflowRun:run-16nts1h6wyz] step=PublishArtifacts status=SUCCEEDED durationMs=12731 order=6",
-  "log": { "level": "info" },
+  "message": "[CodeCatalyst] space=engineering project=backend-service workflow=security-scan run=run-c7sf5xbh10j status=TIMED_OUT\n[WorkflowRun] trigger=pull_request pr=#461 head=fix/payments base=main sha=giw9psfibj4\n[WorkflowRun:run-c7sf5xbh10j] step=Checkout status=SUCCEEDED durationMs=72739 order=1\n[WorkflowRun:run-c7sf5xbh10j] step=Install status=SUCCEEDED durationMs=93743 order=2\n[WorkflowRun:run-c7sf5xbh10j] step=Lint status=FAILED exitCode=17\nCodeCatalyst StopWorkflowRun FAILED: Dev environment error",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ValidationException",
+    "message": "CodeCatalyst operation failed",
+    "type": "process"
+  },
   "service": { "name": "codecatalyst", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.codecatalyst", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "wj0wb9cprks"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "bamwhrcs3oq"
   },
   "input": { "type": "aws-cloudwatch" }
 }

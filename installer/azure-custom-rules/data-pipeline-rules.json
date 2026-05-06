@@ -29,7 +29,8 @@
       "relatedDashboards": [
         "Azure Data & Analytics Pipeline — overview",
         "Azure Data Factory — overview"
-      ]
+      ],
+      "investigationGuide": "# High Failure Rate\n\nThe orchestrator is logging more failures than normal.\n\n## Triage\n1. Are failures on one DAG? Run: `FROM logs-aws.mwaa-* | WHERE event.outcome == \"failure\" | STATS failures = COUNT(*) BY aws.mwaa.dag_id | SORT failures DESC | LIMIT 10`\n2. Check linked dashboard for the spike shape\n3. Check if EMR/Spark or S3 rules also fired\n\n## Escalate when\n- Multiple DAGs failing\n- Failures still rising after 15 min\n- SLA-bound data affected"
     },
     {
       "id": "cloudloadgen-azure-data-pipeline-null-data",
@@ -58,7 +59,8 @@
       "relatedDashboards": [
         "Azure Data & Analytics Pipeline — overview",
         "Azure Synapse Workspace — overview"
-      ]
+      ],
+      "investigationGuide": "# Null/Empty Data Detected\n\nA query returned zero rows — the upstream load may have silently failed.\n\n## Triage\n1. Identify the empty query: `FROM logs-aws.athena-* | WHERE @timestamp > NOW() - 1h AND aws.athena.rows_returned == 0 | KEEP @timestamp, aws.athena.query_id, aws.athena.workgroup | SORT @timestamp DESC | LIMIT 25`\n2. Check the source partition exists\n3. If orchestrator shows \"success\" but query is empty — silent data loss\n\n## Escalate when\n- Query feeds an SLA-bound dataset\n- Empty for two consecutive runs"
     },
     {
       "id": "cloudloadgen-azure-data-pipeline-databricks-error",
@@ -87,7 +89,8 @@
       "relatedDashboards": [
         "Azure Data & Analytics Pipeline — overview",
         "Azure Databricks — overview"
-      ]
+      ],
+      "investigationGuide": "# EMR/Spark Processing Error\n\nThe compute cluster is logging exceptions.\n\n## Triage\n1. Classify errors: `FROM logs-aws.emr-* | WHERE @timestamp > NOW() - 1h AND error.type IS NOT NULL | STATS errors = COUNT(*) BY error.type, host.id | SORT errors DESC | LIMIT 20`\n2. Same host failing = infra; many hosts same error = code/data\n3. Check if High Failure Rate also fired\n\n## Escalate when\n- Multiple clusters affected\n- Same error after cluster restart"
     },
     {
       "id": "cloudloadgen-azure-data-pipeline-blob-format-error",
@@ -116,7 +119,8 @@
       "relatedDashboards": [
         "Azure Data & Analytics Pipeline — overview",
         "Azure Blob Storage — overview"
-      ]
+      ],
+      "investigationGuide": "# S3 Source File Format Error\n\nAn unexpected file format landed in the source bucket.\n\n## Triage\n1. List bad files: `FROM logs-aws.s3access-* | WHERE @timestamp > NOW() - 1h | WHERE NOT ENDS_WITH(aws.s3access.key, \".avro\") OR aws.s3access.key LIKE \"*%*\" | KEEP @timestamp, aws.s3access.key, aws.s3access.bucket_name | SORT @timestamp DESC | LIMIT 50`\n2. Check if one producer or many\n3. Move bad file to quarantine prefix\n\n## Escalate when\n- Multiple producers writing wrong format\n- Bucket versioning overwritten"
     },
     {
       "id": "cloudloadgen-azure-data-pipeline-slow-run",
@@ -145,7 +149,8 @@
       "relatedDashboards": [
         "Azure Data & Analytics Pipeline — overview",
         "Azure Data Factory — overview"
-      ]
+      ],
+      "investigationGuide": "# Slow Pipeline Run (>60s)\n\nA DAG exceeded its informal SLA.\n\n## Triage\n1. Compare to baseline: `FROM logs-aws.mwaa-* | WHERE event.action == \"dag_completed\" AND @timestamp > NOW() - 7d | STATS p50 = PERCENTILE(aws.mwaa.duration_ms, 50), p95 = PERCENTILE(aws.mwaa.duration_ms, 95) BY aws.mwaa.dag_id | WHERE p95 > 30000 | SORT p95 DESC`\n2. If within 2x of p95, likely noise\n3. Check EMR errors and input volume\n\n## Escalate when\n- SLA-bound DAG slow for two consecutive runs\n- Correlated with executor errors"
     }
   ]
 }

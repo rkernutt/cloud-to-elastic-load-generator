@@ -1,60 +1,65 @@
 {
-  "@timestamp": "2026-05-05T08:33:55.000Z",
+  "@timestamp": "2026-05-06T16:22:59.897Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "af-south-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "outposts" }
   },
   "aws": {
-    "dimensions": { "OutpostId": "op-sk1o1ydrzhq", "InstanceType": "c5.xlarge" },
+    "dimensions": { "OutpostId": "op-wmvx2ikje7", "InstanceType": "c5.xlarge" },
     "outposts": {
-      "outpost_id": "op-sk1o1ydrzhq",
-      "outpost_arn": "arn:aws:outposts:sa-east-1:293847561023:outpost/op-v7vnmur2m5",
-      "site_id": "os-b0nfv8cbpa",
-      "rack_id": "or-0koucxh5259h",
+      "outpost_id": "op-wmvx2ikje7",
+      "outpost_arn": "arn:aws:outposts:af-south-1:738291046572:outpost/op-k2b03s8ejx",
+      "site_id": "os-k1usxs0yn1n",
+      "rack_id": "or-t6v5ubpmews",
       "instance_type": "c5.xlarge",
-      "available_instance_count": 3,
-      "total_instance_count": 31,
-      "capacity_status": "Scheduled",
-      "connectivity_status": "Connected",
-      "asset_state": "ACTIVE"
+      "available_instance_count": 20,
+      "total_instance_count": 39,
+      "capacity_status": "InsufficientCapacity",
+      "connectivity_status": "Degraded",
+      "asset_state": "ISOLATED"
     },
     "s3": {
       "bucket": {
-        "name": "aws-outposts-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-outposts-logs-293847561023"
+        "name": "aws-outposts-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-outposts-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/outposts/sa-east-1/2026/05/05/outposts_15HXWWKWGOG.log.gz"
+        "key": "AWSLogs/738291046572/outposts/af-south-1/2026/05/06/outposts_CYZEKSZOUTV.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/outposts/logs",
-      "log_stream": "sa-east-1/o6b76yww",
-      "ingestion_time": "2026-05-05T08:33:56.468Z"
+      "log_stream": "af-south-1/tt8lsn8k",
+      "ingestion_time": "2026-05-06T16:23:00.518Z"
     }
   },
   "event": {
-    "action": "HardwareMaintenanceScheduled",
-    "outcome": "success",
+    "action": "CapacityReservation",
+    "outcome": "failure",
     "category": ["host", "infrastructure"],
     "dataset": "aws.outposts",
     "provider": "outposts.amazonaws.com",
-    "duration": 3830000000,
+    "duration": 159000000,
     "module": "aws"
   },
-  "message": "Outpost op-sk1o1ydrzhq: HardwareMaintenanceScheduled c5.xlarge Scheduled",
-  "log": { "level": "info" },
-  "host": { "name": "ip-247-40-226-253.ec2.internal", "hostname": "outposts-mush8ua1" },
+  "message": "Outpost op-wmvx2ikje7: InsufficientCapacity — 20/39 c5.xlarge available",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InsufficientCapacity",
+    "message": "Outpost connectivity: Degraded",
+    "type": "host"
+  },
+  "host": { "name": "ip-30-16-83-105.ec2.internal", "hostname": "outposts-6ac2npen" },
   "service": { "name": "outposts", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.outposts", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "k4otogjzp3a"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "i3u54384mee"
   },
   "input": { "type": "aws-cloudwatch" }
 }

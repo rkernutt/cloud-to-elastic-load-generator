@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-05-05T08:33:55.000Z",
+  "@timestamp": "2026-05-06T16:22:59.897Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,32 +7,31 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
+    "region": "eu-south-2",
     "account": { "id": "501938274650", "name": "globex-security-tooling" }
   },
   "orchestrator": {
     "cluster": { "id": "dev-eks", "name": "dev-eks" },
     "type": "kubernetes",
-    "namespace": "staging"
+    "namespace": "logging"
   },
   "resource": {
-    "id": "/etc/kubernetes/kubelet/kubeconfig",
-    "name": "kubeconfig",
+    "id": "api/v1/namespaces/logging/pods/frontend-56fe1",
+    "name": "frontend-56fe1",
     "type": "k8s_object",
-    "sub_type": "file",
-    "raw": { "path": "/var/lib/kubelet/kubeconfig", "mode": "0666" }
+    "sub_type": "Pod"
   },
   "rule": {
-    "id": "c8f24be5-fd7d-510f-ab93-2440bb826750",
-    "name": "Ensure that the kubelet configuration file has permissions set to 644 or more restrictive",
-    "section": "3.1.3",
-    "description": "Ensure that if the kubelet refers to a configuration file with the `--config` argument, that file has permissions of 644 or more restrictive.",
-    "tags": ["CIS", "EKS", "CIS 3.1.3", "Worker Node Configuration Files"],
+    "id": "882ffc80-73e9-56aa-ae72-73b39af6702f",
+    "name": "Minimize the admission of containers with allowPrivilegeEscalation",
+    "section": "4.2.5",
+    "description": "Do not generally permit containers to be run with the `allowPrivilegeEscalation` flag set to true.",
+    "tags": ["CIS", "EKS", "CIS 4.2.5", "Pod Security Policies"],
     "benchmark": {
       "id": "cis_eks",
       "name": "CIS Amazon Elastic Kubernetes Service (EKS)",
       "version": "v1.0.1",
-      "rule_number": "3.1.3",
+      "rule_number": "4.2.5",
       "posture_type": "kspm"
     },
     "profile_applicability": "* Level 1"
@@ -47,6 +46,6 @@
     "provider": "elastic_kspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_eks/3.1.3] passed: Ensure that the kubelet configuration file has permissions set to 644 or more restrictive",
+  "message": "[cis_eks/4.2.5] passed: Minimize the admission of containers with allowPrivilegeEscalation",
   "log": { "level": "info" }
 }

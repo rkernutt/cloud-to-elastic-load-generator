@@ -167,7 +167,10 @@ function buildRetrievalSpan(
   txId: string,
   parentId: string,
   ts: string,
-  spanOffsetMs: number
+  spanOffsetMs: number,
+  svcBlock: any,
+  agent: any,
+  telemetry: any
 ) {
   const id = newSpanId();
   const durationUs = randInt(50, 500) * 1000;
@@ -188,6 +191,9 @@ function buildRetrievalSpan(
       db: { type: "elasticsearch", statement: "similarity_search" },
       destination: { service: { resource: "opensearch", type: "db", name: "opensearch" } },
     },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
@@ -204,7 +210,10 @@ function buildLlmSpan(
   finishReason: string,
   isErr: boolean,
   spanOffsetMs: number,
-  llmMs: number
+  llmMs: number,
+  svcBlock: any,
+  agent: any,
+  telemetry: any
 ) {
   const id = newSpanId();
   const durationUs = llmMs * 1000;
@@ -230,6 +239,9 @@ function buildLlmSpan(
       destination: { service: { resource: "bedrock", type: "gen_ai", name: "bedrock" } },
     },
     labels: labels,
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
@@ -240,7 +252,10 @@ function buildGuardrailsSpan(
   txId: string,
   parentId: string,
   ts: string,
-  spanOffsetMs: number
+  spanOffsetMs: number,
+  svcBlock: any,
+  agent: any,
+  telemetry: any
 ) {
   const id = newSpanId();
   const durationUs = randInt(50, 200) * 1000;
@@ -260,6 +275,9 @@ function buildGuardrailsSpan(
       action: "applyGuardrail",
       destination: { service: { resource: "bedrock", type: "external", name: "bedrock" } },
     },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
@@ -346,7 +364,16 @@ export function generateBedrockTrace(ts: string, er: number) {
 
   // RAG: retrieval span BEFORE model invocation
   if (cfg.pattern === "rag") {
-    const retrieval = buildRetrievalSpan(traceId, txId, txId, ts, spanOffsetMs);
+    const retrieval = buildRetrievalSpan(
+      traceId,
+      txId,
+      txId,
+      ts,
+      spanOffsetMs,
+      svcBlock,
+      agent,
+      telemetry
+    );
     spans.push(retrieval);
     spanOffsetMs += retrieval.span.duration.us / 1000 + randInt(1, 10);
   }
@@ -363,14 +390,26 @@ export function generateBedrockTrace(ts: string, er: number) {
     finishReason,
     isErr,
     spanOffsetMs,
-    llmMs
+    llmMs,
+    svcBlock,
+    agent,
+    telemetry
   );
   spans.push(llmSpan);
   spanOffsetMs += llmMs + randInt(1, 10);
 
   // Guardrails: add span AFTER model invocation
   if (cfg.pattern === "guardrails") {
-    const guardrails = buildGuardrailsSpan(traceId, txId, txId, ts, spanOffsetMs);
+    const guardrails = buildGuardrailsSpan(
+      traceId,
+      txId,
+      txId,
+      ts,
+      spanOffsetMs,
+      svcBlock,
+      agent,
+      telemetry
+    );
     spans.push(guardrails);
   }
 

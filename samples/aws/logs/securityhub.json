@@ -1,81 +1,84 @@
 {
-  "@timestamp": "2026-05-05T08:33:55.000Z",
+  "@timestamp": "2026-05-06T16:22:59.897Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ca-central-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "securityhub" }
   },
   "aws": {
-    "dimensions": { "ComplianceStandard": "cis-aws-foundations-benchmark", "ControlId": "EC2.2" },
+    "dimensions": { "ComplianceStandard": "pci-dss", "ControlId": "CIS.3.1" },
     "securityhub_findings": {
       "SchemaVersion": "2018-10-08",
-      "Id": "IQZHWZ0O-JHXV-5VWS-XINH-SQVVXIUDSTR",
-      "ProductArn": "arn:aws:securityhub:me-south-1::product/aws/securityhub",
-      "GeneratorId": "arn:aws:securityhub:me-south-1::product/aws/securityhub/EC2.2",
-      "AwsAccountId": "164820739518",
-      "Types": ["Software and Configuration Checks/Vulnerabilities/CVE"],
-      "CreatedAt": "2026-05-05T08:22:04.599Z",
-      "UpdatedAt": "2026-05-05T08:33:55.000Z",
-      "Severity": { "Label": "LOW", "Normalized": 20, "Original": "LOW" },
-      "Title": "EC2.2: S3 bucket is publicly accessible",
-      "Description": "Security check failed: EC2.2 - Default security group allows all traffic",
+      "Id": "1806RZKW-WIQC-4USF-RI1S-2W9FE74LEOA",
+      "ProductArn": "arn:aws:securityhub:ca-central-1::product/aws/securityhub",
+      "GeneratorId": "arn:aws:securityhub:ca-central-1::product/aws/securityhub/CIS.3.1",
+      "AwsAccountId": "738291046572",
+      "Types": ["Threat Detections/Tactics/Impact"],
+      "CreatedAt": "2026-05-05T18:48:09.652Z",
+      "UpdatedAt": "2026-05-06T16:22:59.897Z",
+      "Severity": { "Label": "INFORMATIONAL", "Normalized": 0, "Original": "INFORMATIONAL" },
+      "Title": "CIS.3.1: control passed",
+      "Description": "This control evaluated resources and reported a passing status.",
       "Resources": [
         {
-          "Type": "AwsS3Bucket",
-          "Id": "arn:aws:s3:::globex-shared-services-bucket-ucjatf",
+          "Type": "AwsEc2SecurityGroup",
+          "Id": "arn:aws:ec2:ca-central-1:738291046572:security-group/sg-a94z08q4",
           "Partition": "aws",
-          "Region": "me-south-1",
+          "Region": "ca-central-1",
           "Details": {}
         }
       ],
-      "Compliance": { "Status": "FAILED", "SecurityControlId": "EC2.2", "RelatedRequirements": [] },
-      "Workflow": { "Status": "NOTIFIED" },
-      "RecordState": "ACTIVE",
+      "Compliance": {
+        "Status": "PASSED",
+        "SecurityControlId": "CIS.3.1",
+        "RelatedRequirements": ["CIS CIS.3.1"]
+      },
+      "Workflow": { "Status": "RESOLVED" },
+      "RecordState": "ARCHIVED",
       "ProductFields": {
         "aws/securityhub/ProductName": "Security Hub",
         "aws/securityhub/CompanyName": "AWS"
       },
       "criticality": 4,
-      "confidence": 89
+      "confidence": 78
     },
     "s3": {
       "bucket": {
-        "name": "aws-securityhub-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-securityhub-logs-164820739518"
+        "name": "aws-securityhub-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-securityhub-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/164820739518/securityhub/me-south-1/2026/05/05/securityhub_KYPVUBQUTI.log.gz"
+        "key": "AWSLogs/738291046572/securityhub/ca-central-1/2026/05/06/securityhub_B9ES6B4AX85.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securityhub/logs",
-      "log_stream": "me-south-1/v6u0f70v",
-      "ingestion_time": "2026-05-05T08:33:56.574Z"
+      "log_stream": "ca-central-1/01h8hdpw",
+      "ingestion_time": "2026-05-06T16:23:00.565Z"
     }
   },
-  "rule": { "id": "EC2.2", "name": "EC2.2 — S3 bucket publicly accessible" },
+  "rule": { "id": "CIS.3.1", "name": "CIS.3.1 — Security group allows all traffic" },
   "event": {
     "kind": "alert",
     "severity": 4,
-    "outcome": "failure",
-    "category": ["compliance"],
-    "type": ["indicator"],
+    "outcome": "success",
+    "category": ["vulnerability"],
+    "type": ["info"],
     "dataset": "aws.securityhub_findings",
     "provider": "securityhub.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security Hub [LOW]: Compliance check failed",
+  "message": "Security Hub: control passed",
   "log": { "level": "info" },
-  "error": { "code": "ComplianceFailed", "message": "Control EC2.2 failed", "type": "compliance" },
   "service": { "name": "securityhub", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.securityhub_findings", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "xthmuim5otk"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "sluzklauye"
   },
   "input": { "type": "http_endpoint" }
 }

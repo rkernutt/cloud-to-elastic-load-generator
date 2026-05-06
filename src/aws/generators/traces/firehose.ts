@@ -200,6 +200,9 @@ export function generateFirehoseTrace(ts: string, er: number) {
       destination: { service: { resource: "firehose", type: "messaging", name: "firehose" } },
     },
     labels: { ...sharedLabels },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
@@ -230,6 +233,9 @@ export function generateFirehoseTrace(ts: string, er: number) {
       },
     },
     labels: { ...sharedLabels },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };

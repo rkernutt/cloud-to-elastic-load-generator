@@ -695,6 +695,9 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
         },
         ...extra,
       },
+      service: svcBlock,
+      agent,
+      telemetry,
       event: { outcome },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     };
@@ -753,6 +756,9 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
           duration: { us: stageUs },
           action: "execute",
         },
+        service: svcBlock,
+        agent,
+        telemetry,
         labels: {
           spark_stage_id: String(i),
           spark_input_records: String(isNullFile ? 0 : randInt(50_000, 5_000_000)),

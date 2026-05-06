@@ -120,7 +120,10 @@ function buildGluePhaseSpan(
   ts: string,
   phase: GluePhase,
   isErr: boolean,
-  spanOffsetMs: number
+  spanOffsetMs: number,
+  svcBlock: any,
+  agent: any,
+  telemetry: any
 ) {
   const id = newSpanId();
   const baseProps = PHASE_PROPS[phase.type as keyof typeof PHASE_PROPS] || PHASE_PROPS.transform;
@@ -146,6 +149,9 @@ function buildGluePhaseSpan(
       action: baseProps.action,
       destination: { service: { resource: subtype, type: baseProps.type, name: subtype } },
     },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
@@ -224,7 +230,20 @@ export function generateGlueTrace(ts: string, er: number) {
     const baseProps = PHASE_PROPS[phase.type as keyof typeof PHASE_PROPS] || PHASE_PROPS.transform;
     const durationUs = randInt(baseProps.durationMs[0], baseProps.durationMs[1]) * 1000;
 
-    spans.push(buildGluePhaseSpan(traceId, txId, txId, ts, phase, spanIsErr, spanOffsetMs));
+    spans.push(
+      buildGluePhaseSpan(
+        traceId,
+        txId,
+        txId,
+        ts,
+        phase,
+        spanIsErr,
+        spanOffsetMs,
+        svcBlock,
+        agent,
+        telemetry
+      )
+    );
 
     spanOffsetMs += durationUs / 1000 + randInt(10, 100);
   }

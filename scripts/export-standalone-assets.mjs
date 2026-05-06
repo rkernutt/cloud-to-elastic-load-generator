@@ -136,12 +136,15 @@ async function exportRules(cloud) {
     const data = JSON.parse(await readFile(join(ruleDir, file), "utf-8"));
     const rules = data.rules || [];
     for (const rule of rules) {
-      const { id, relatedDashboards, ...ruleBody } = rule;
-      // Translate `relatedDashboards` (titles, source-side) into the
-      // Kibana `artifacts.dashboards` shape (resolved IDs, ready to POST).
-      // Manual-paste users get the linked-dashboards behaviour without
-      // having to look up saved-object IDs themselves.
-      const artifacts = buildArtifactsFromRelatedDashboards(relatedDashboards);
+      const { id, relatedDashboards, investigationGuide, ...ruleBody } = rule;
+      // Translate `relatedDashboards` and `investigationGuide` into the
+      // Kibana `artifacts` shape (ready to POST).
+      const dashArtifacts = buildArtifactsFromRelatedDashboards(relatedDashboards);
+      const guideArtifact = investigationGuide
+        ? { investigationGuide: { blob: investigationGuide } }
+        : {};
+      const finalArtifacts =
+        dashArtifacts || investigationGuide ? { ...(dashArtifacts || {}), ...guideArtifact } : null;
       const out = {
         _meta: {
           rule_id: id,
@@ -149,7 +152,7 @@ async function exportRules(cloud) {
           api: "POST /api/alerting/rule",
         },
         ...ruleBody,
-        ...(artifacts ? { artifacts } : {}),
+        ...(finalArtifacts ? { artifacts: finalArtifacts } : {}),
       };
       const filename = `${safeFilename(id || rule.name)}.json`;
       await writeJson(join(outDir, filename), out);

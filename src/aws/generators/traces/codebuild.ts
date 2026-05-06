@@ -91,6 +91,9 @@ export function generateCodebuildTrace(ts: string, er: number) {
         action: ph.phase,
         destination: { service: { resource: "codebuild", type: "app", name: "codebuild" } },
       },
+      service: svcBlock,
+      agent,
+      telemetry,
       labels: {
         "aws.codebuild.project": projectName,
         build_phase: ph.phase,

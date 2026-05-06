@@ -1,37 +1,38 @@
 {
-  "@timestamp": "2026-05-05T08:33:55.000Z",
+  "@timestamp": "2026-05-06T16:22:59.897Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-3",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-southeast-3",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "conveyor-fault", "KeyValue": "zone-A" },
+    "dimensions": { "DetectorModelName": "motor-health-detector", "KeyValue": "machine-prod-1" },
     "iotevents": {
-      "detector_model_name": "conveyor-fault",
-      "detector_id": "zone-A",
-      "key_value": "zone-A",
-      "event_name": "AlarmAcknowledged",
+      "detector_model_name": "motor-health-detector",
+      "detector_id": "machine-prod-1",
+      "key_value": "machine-prod-1",
+      "event_name": "AlarmActivated",
       "from_state": "Alarm",
-      "to_state": "Alarm",
-      "input_name": "CommandInput",
-      "action_type": "SetVariable",
+      "to_state": "Warning",
+      "input_name": "HealthCheck",
+      "action_type": "Lambda",
+      "timer_name": "alarmTimer",
       "condition_expression": "$input.data.value < threshold"
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotevents-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-iotevents-logs-293847561023"
+        "name": "aws-iotevents-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-iotevents-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/iotevents/eu-west-3/2026/05/05/iotevents_VD3Y825H3K.log.gz"
+        "key": "AWSLogs/738291046572/iotevents/ap-southeast-3/2026/05/06/iotevents_QV9I7ESQVRG.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "eu-west-3/4i18ltas",
-      "ingestion_time": "2026-05-05T08:33:56.911Z"
+      "log_stream": "ap-southeast-3/to2szztz",
+      "ingestion_time": "2026-05-06T16:23:00.759Z"
     }
   },
   "event": {
@@ -39,19 +40,19 @@
     "category": ["process"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 117000000,
+    "duration": 365000000,
     "module": "aws"
   },
-  "message": "IoT Events conveyor-fault/zone-A: Alarm → Alarm [AlarmAcknowledged]",
-  "log": { "level": "warn" },
+  "message": "IoT Events motor-health-detector/machine-prod-1: Alarm → Warning [AlarmActivated]",
+  "log": { "level": "info" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iotevents", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-3",
-    "ephemeral_id": "7wozasyoc3h"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "mo9biw3xkh8"
   },
   "input": { "type": "aws-cloudwatch" }
 }

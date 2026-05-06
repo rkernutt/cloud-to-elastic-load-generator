@@ -134,7 +134,10 @@ function buildS3Span(
   bucketName: string,
   contentType: string,
   isErr: boolean,
-  spanOffsetMs: number
+  spanOffsetMs: number,
+  svcBlock: any,
+  agent: any,
+  telemetry: any
 ) {
   const id = newSpanId();
   const props = S3_OP_PROPS[operation as keyof typeof S3_OP_PROPS] || S3_OP_PROPS.GetObject;
@@ -161,6 +164,9 @@ function buildS3Span(
       object_size_bytes: String(objectSizeBytes),
       content_type: contentType,
     },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
@@ -247,7 +253,10 @@ export function generateS3Trace(ts: string, er: number) {
         bucketName,
         contentType,
         spanIsErr,
-        spanOffsetMs
+        spanOffsetMs,
+        svcBlock,
+        agent,
+        telemetry
       )
     );
 

@@ -52,6 +52,12 @@ export interface AlertRuleEntry {
    * See https://github.com/elastic/kibana/pull/216292 for the schema.
    */
   relatedDashboards?: string[];
+  /**
+   * Markdown investigation guide shown on the rule's Details page in Kibana.
+   * Sent as `artifacts.investigationGuide.blob` alongside `artifacts.dashboards`.
+   * Available from Kibana 8.19 / 9.1+; older versions ignore the field.
+   */
+  investigationGuide?: string;
 }
 
 export interface AlertRuleFile {

@@ -124,7 +124,10 @@ function buildSpan(
   sdkKey: string,
   isErr: boolean,
   spanOffset: number,
-  spanDuration: number
+  spanDuration: number,
+  svcBlock: any,
+  agent: any,
+  telemetry: any
 ) {
   const id = newSpanId();
 
@@ -277,6 +280,9 @@ function buildSpan(
       ...(dbBlock ? { db: dbBlock } : {}),
       destination: { service: { resource: shape.dest, type: shape.type, name: shape.dest } },
     },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
@@ -390,7 +396,21 @@ export function generateLambdaTrace(ts: string, er: number) {
   for (const sdkKey of cfg.sdkCalls) {
     const spanUs = randInt(Math.floor(usPerSdk * 0.2), Math.floor(usPerSdk * 0.9));
     const spanIsErr = isErr && spans.length === cfg.sdkCalls.length - 1; // error on last span if trace is error
-    spans.push(buildSpan(traceId, txId, txId, ts, sdkKey, spanIsErr, spanOffset, spanUs));
+    spans.push(
+      buildSpan(
+        traceId,
+        txId,
+        txId,
+        ts,
+        sdkKey,
+        spanIsErr,
+        spanOffset,
+        spanUs,
+        svcBlock,
+        agent,
+        telemetry
+      )
+    );
     spanOffset += spanUs / 1000 + randInt(1, 20); // small gap between calls (ms)
   }
 

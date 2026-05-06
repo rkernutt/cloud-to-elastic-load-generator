@@ -343,7 +343,10 @@ function buildSqlSpan(
   dbHost: string,
   isErr: boolean,
   spanOffsetMs: number,
-  isSlow: boolean
+  isSlow: boolean,
+  svcBlock: any,
+  agent: any,
+  telemetry: any
 ) {
   const id = newSpanId();
 
@@ -367,6 +370,9 @@ function buildSqlSpan(
         destination: { service: { resource: "postgresql", type: "db", name: "postgresql" } },
       },
       labels: { db_name: dbName, db_host: dbHost },
+      service: svcBlock,
+      agent,
+      telemetry,
       event: { outcome: "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     };
@@ -400,6 +406,9 @@ function buildSqlSpan(
       destination: { service: { resource: "postgresql", type: "db", name: "postgresql" } },
     },
     labels: { db_name: dbName, db_host: dbHost },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
@@ -482,7 +491,10 @@ export function generateRdsTrace(ts: string, er: number) {
       dbHost,
       spanIsErr,
       spanOffsetMs,
-      isSlow
+      isSlow,
+      svcBlock,
+      agent,
+      telemetry
     );
 
     spans.push(spanDoc);

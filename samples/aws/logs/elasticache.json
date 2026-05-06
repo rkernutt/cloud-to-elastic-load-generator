@@ -1,53 +1,87 @@
 {
-  "@timestamp": "2026-05-05T08:33:55.000Z",
+  "@timestamp": "2026-05-06T16:22:59.897Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
-    "service": { "name": "elasticache-global" }
+    "region": "us-west-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "service": { "name": "elasticache" }
   },
   "aws": {
-    "elasticacheglobal": {
-      "global_datastore_name": "global-leaderboard",
-      "event_type": "RebalanceSlotsInGlobalReplicationGroup",
-      "primary_region": "eu-west-1",
-      "secondary_regions": ["ap-northeast-1", "us-west-2"],
-      "replication_lag_ms": 15.80999679726303,
-      "cross_region_bandwidth_mbps": 320.5667246067992,
-      "global_node_groups": 2,
-      "status": "available"
+    "dimensions": {
+      "CacheClusterId": "prod-redis-2",
+      "CacheNodeId": "0005",
+      "ReplicationGroupId": "prod-cache"
+    },
+    "elasticache": {
+      "cluster_id": "prod-redis-2",
+      "node_id": "0005",
+      "engine": "redis",
+      "engine_version": "7.1.0",
+      "replication_group_id": "prod-cache",
+      "command": "LPUSH",
+      "latency_us": 354.1462714810353,
+      "cache_hit": false,
+      "connected_clients": 175,
+      "used_memory_mb": 2481,
+      "metrics": {
+        "BytesUsedForCache": { "avg": 159472696 },
+        "CacheHits": { "sum": 7149 },
+        "CacheMisses": { "sum": 427 },
+        "CacheHitRate": { "avg": 0.9139433367813091 },
+        "CurrConnections": { "avg": 375 },
+        "NewConnections": { "sum": 10 },
+        "Evictions": { "sum": 81 },
+        "Reclaimed": { "sum": 72 },
+        "ReplicationBytes": { "avg": 7299620 },
+        "ReplicationLag": { "avg": 1 },
+        "SaveInProgress": { "avg": 0 },
+        "CurrItems": { "avg": 706911 },
+        "NewItems": { "sum": 9764 },
+        "NetworkBytesIn": { "avg": 73037787 },
+        "NetworkBytesOut": { "avg": 83611135 },
+        "CPUUtilization": { "avg": 51.77984864859908 },
+        "EngineCPUUtilization": { "avg": 12.384700171069415 },
+        "FreeableMemory": { "avg": 5795447665 },
+        "SwapUsage": { "avg": 16443919 },
+        "DatabaseMemoryUsagePercentage": { "avg": 69.90661615029924 },
+        "TrafficBasedCmdsLatency": { "avg": 4.4665884738277 }
+      }
     },
     "s3": {
       "bucket": {
-        "name": "aws-elasticache-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-elasticache-logs-501938274650"
+        "name": "aws-elasticache-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-elasticache-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/elasticache/eu-west-1/2026/05/05/elasticache_0LJJ0XM79U9.log.gz"
+        "key": "AWSLogs/164820739518/elasticache/us-west-1/2026/05/06/elasticache_FU6J5L0GWMU.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/elasticache/logs",
-      "log_stream": "eu-west-1/l6nn52bk",
-      "ingestion_time": "2026-05-05T08:33:56.668Z"
+      "log_stream": "us-west-1/hbrirnvi",
+      "ingestion_time": "2026-05-06T16:23:00.624Z"
     }
   },
+  "db": { "type": "keyvalue", "operation": "LPUSH" },
   "event": {
-    "outcome": "success",
-    "duration": 16886101,
-    "module": "aws",
-    "dataset": "aws.elasticache"
+    "duration": 354146.2714810353,
+    "outcome": "failure",
+    "category": ["database", "network"],
+    "dataset": "aws.elasticache",
+    "provider": "elasticache.amazonaws.com",
+    "module": "aws"
   },
-  "message": "ElastiCache Global global-leaderboard: RebalanceSlotsInGlobalReplicationGroup completed",
+  "message": "Redis LPUSH failed: LOADING",
+  "log": { "level": "error" },
+  "error": { "code": "CacheSecurityGroupNotFound", "message": "LOADING", "type": "db" },
   "service": { "name": "elasticache", "type": "aws" },
-  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.elasticache", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "57fuarnst13"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "y6s718iitg"
   },
   "input": { "type": "aws-cloudwatch" }
 }

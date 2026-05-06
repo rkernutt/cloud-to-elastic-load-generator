@@ -97,6 +97,9 @@ export function generateCodepipelineTrace(ts: string, er: number) {
         action: ph.action,
         destination: { service: { resource: "codepipeline", type: "app", name: "codepipeline" } },
       },
+      service: svcBlock,
+      agent,
+      telemetry,
       labels: {
         "aws.codepipeline.pipeline": pipelineName,
         ...ph.labels,

@@ -105,7 +105,10 @@ function buildTargetSpan(
   ts: string,
   target: { name: string; targetType: string },
   isErr: boolean,
-  spanOffsetMs: number
+  spanOffsetMs: number,
+  svcBlock: any,
+  agent: any,
+  telemetry: any
 ) {
   const id = newSpanId();
   const props = TARGET_PROPS[target.targetType as keyof typeof TARGET_PROPS] || TARGET_PROPS.lambda;
@@ -138,6 +141,9 @@ function buildTargetSpan(
       target_name: target.name,
       target_type: target.targetType,
     },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
@@ -217,7 +223,20 @@ export function generateEventBridgeTrace(ts: string, er: number) {
       TARGET_PROPS[target.targetType as keyof typeof TARGET_PROPS] || TARGET_PROPS.lambda;
     const durationUs = randInt(props.durationMs[0], props.durationMs[1]) * 1000;
 
-    spans.push(buildTargetSpan(traceId, txId, txId, ts, target, spanIsErr, spanOffsetMs));
+    spans.push(
+      buildTargetSpan(
+        traceId,
+        txId,
+        txId,
+        ts,
+        target,
+        spanIsErr,
+        spanOffsetMs,
+        svcBlock,
+        agent,
+        telemetry
+      )
+    );
 
     spanOffsetMs += durationUs / 1000 + randInt(1, 5);
   }

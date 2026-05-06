@@ -77,6 +77,9 @@ export function generateAuroraTrace(ts: string, er: number) {
         db: { type: "sql", statement: stmts[i] },
         destination: { service: { resource: "postgresql", type: "db", name: "aurora" } },
       },
+      service: svcBlock,
+      agent,
+      telemetry,
       labels: {
         "aws.rds.db_instance_identifier": writer,
         "aws.aurora.role": i === 0 ? "writer" : rand(["writer", "reader"]),

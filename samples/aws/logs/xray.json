@@ -1,117 +1,102 @@
 {
-  "@timestamp": "2026-05-05T08:33:55.000Z",
-  "trace": { "id": "1-69f9ab73-pq3vy2s2gxd" },
-  "span": { "id": "em68qxk8fr7" },
+  "@timestamp": "2026-05-06T16:22:59.897Z",
+  "trace": { "id": "1-69fb6ae3-r7kepn5byp" },
+  "span": { "id": "oskz9hqrils" },
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "us-west-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "xray" }
   },
   "aws": {
-    "dimensions": { "GroupName": "Default", "ServiceType": "client" },
+    "dimensions": { "GroupName": "Default", "ServiceType": "AWS::ApiGateway::Stage" },
     "xray": {
-      "trace_id": "1-69f9ab73-pq3vy2s2gxd",
-      "segment_id": "em68qxk8fr7",
-      "parent_id": "vw9txv1jmo",
-      "start_time": 1777970035,
-      "end_time": 1777970037.2143211,
-      "origin": "AWS::ECS::Container",
-      "service": { "name": "payment-service", "type": "client" },
-      "duration": 2.2143211391597406,
+      "trace_id": "1-69fb6ae3-r7kepn5byp",
+      "segment_id": "oskz9hqrils",
+      "parent_id": "j02at62lanq",
+      "start_time": 1778084579.897,
+      "end_time": 1778084580.8645272,
+      "origin": "AWS::ApiGateway::Stage",
+      "service": { "name": "api-gateway", "type": "AWS::ApiGateway::Stage" },
+      "duration": 0.9675271370641969,
       "fault": false,
       "error": false,
       "throttle": false,
       "http": {
         "request": {
-          "method": "GET",
-          "url": "https://api.myapp.io/health",
-          "client_ip": "59.2.177.136",
-          "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+          "method": "PATCH",
+          "url": "https://app.example.com/api/v2/events",
+          "client_ip": "195.89.199.193",
+          "user_agent": "Go-http-client/1.1"
         },
-        "response": { "status": 200, "content_length": 4770 }
+        "response": { "status": 201, "content_length": 911 }
       },
       "aws": {
-        "account_id": "164820739518",
-        "region": "ap-northeast-2",
-        "resource_names": ["payment-service"]
+        "account_id": "501938274650",
+        "region": "us-west-2",
+        "resource_names": ["api-gateway"]
       },
-      "annotations": { "environment": "staging", "version": "v19.8.98", "team": "backend" },
+      "annotations": { "environment": "staging", "version": "v13.3.12", "team": "backend" },
       "subsegments": [
         {
-          "id": "f1zqpj2wv8u",
-          "name": "SNS",
-          "start_time": 1777970035.3450322,
-          "end_time": 1777970036.6943884,
-          "namespace": "aws",
-          "aws": { "operation": "Publish", "region": "ap-northeast-2", "retries": 0 },
-          "http": { "response": { "status": 200, "content_length": 21403 } },
-          "fault": false,
-          "error": false,
-          "throttle": false
-        },
-        {
-          "id": "2pxzuklffuv",
-          "name": "DynamoDB",
-          "start_time": 1777970035.164601,
-          "end_time": 1777970035.2789378,
-          "namespace": "aws",
-          "aws": {
-            "operation": "Query",
-            "region": "ap-northeast-2",
-            "retries": 0,
-            "table_name": "Products",
-            "request_id": "42ruhwpiwcq",
-            "consumed_capacity": { "TableName": "Users", "CapacityUnits": 9.052570935007022 }
-          },
-          "http": { "response": { "status": 200, "content_length": 46000 } },
-          "fault": false,
-          "error": false,
-          "throttle": false
-        },
-        {
-          "id": "yvrk4mcw3bi",
+          "id": "w3ziiqipvgo",
           "name": "cache-layer.internal:6379",
-          "start_time": 1777970035.2233279,
-          "end_time": 1777970035.9177153,
+          "start_time": 1778084580.1021469,
+          "end_time": 1778084580.4560862,
+          "namespace": "remote",
+          "http": {
+            "request": { "method": "GET", "url": "http://cache-layer.internal:6379/health" },
+            "response": { "status": 200, "content_length": 2948 }
+          },
+          "fault": false,
+          "error": false,
+          "throttle": false
+        },
+        {
+          "id": "cvcwrte0flc",
+          "name": "cache-layer.internal:6379",
+          "start_time": 1778084580.0291884,
+          "end_time": 1778084580.2757142,
+          "namespace": "remote",
+          "http": {
+            "request": { "method": "GET", "url": "http://cache-layer.internal:6379/health" },
+            "response": { "status": 200, "content_length": 183 }
+          },
+          "fault": false,
+          "error": false,
+          "throttle": false
+        },
+        {
+          "id": "jri2sc0xd2p",
+          "name": "cache-layer.internal:6379",
+          "start_time": 1778084580.0875356,
+          "end_time": 1778084580.1919556,
           "namespace": "remote",
           "http": {
             "request": {
               "method": "GET",
               "url": "http://cache-layer.internal:6379/api/v1/products"
             },
-            "response": { "status": 200, "content_length": 3866 }
+            "response": { "status": 200, "content_length": 2117 }
           },
-          "fault": false,
-          "error": false,
-          "throttle": false
-        },
-        {
-          "id": "yeujbw3ygp",
-          "name": "SQS",
-          "start_time": 1777970035.6330295,
-          "end_time": 1777970037.2357547,
-          "namespace": "aws",
-          "aws": { "operation": "SendMessage", "region": "ap-northeast-2", "retries": 0 },
-          "http": { "response": { "status": 200, "content_length": 2125 } },
           "fault": false,
           "error": false,
           "throttle": false
         }
       ],
       "metrics": {
-        "ErrorRate": { "avg": 0.4823964748774022 },
-        "FaultRate": { "avg": 0.2554690588150998 },
-        "ThrottleRate": { "avg": 0.28044876226705956 },
-        "TotalCount": { "sum": 6469 },
+        "ErrorRate": { "avg": 0.17832331598927065 },
+        "FaultRate": { "avg": 0.41321239432871665 },
+        "ThrottleRate": { "avg": 0.3323107557542584 },
+        "TotalCount": { "sum": 7754 },
         "Latency": {
-          "avg": 2214.3211391597406,
-          "p50": 1771.4569113277926,
-          "p90": 3321.481708739611,
-          "p95": 4428.642278319481,
-          "p99": 6642.963417479222
+          "avg": 967.527137064197,
+          "p50": 774.0217096513575,
+          "p90": 1451.2907055962953,
+          "p95": 1935.054274128394,
+          "p99": 2902.5814111925906
         },
-        "OkCount": { "sum": 2913 },
+        "OkCount": { "sum": 6862 },
         "ErrorCount": { "sum": 0 },
         "FaultCount": { "sum": 0 },
         "ThrottleCount": { "sum": 0 }
@@ -119,28 +104,26 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-xray-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-xray-logs-164820739518"
+        "name": "aws-xray-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-xray-logs-501938274650"
       },
-      "object": {
-        "key": "AWSLogs/164820739518/xray/ap-northeast-2/2026/05/05/xray_C760CHTK8H7.log.gz"
-      }
+      "object": { "key": "AWSLogs/501938274650/xray/us-west-2/2026/05/06/xray_XHIHWYR1JKN.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/xray/logs",
-      "log_stream": "ap-northeast-2/ykn36b38",
-      "ingestion_time": "2026-05-05T08:33:56.715Z"
+      "log_stream": "us-west-2/w0aionf4",
+      "ingestion_time": "2026-05-06T16:23:00.653Z"
     }
   },
   "http": {
-    "request": { "method": "GET", "body": { "bytes": 6729 } },
-    "response": { "status_code": 200, "body": { "bytes": 39978 } }
+    "request": { "method": "PATCH", "body": { "bytes": 5207 } },
+    "response": { "status_code": 201, "body": { "bytes": 34546 } }
   },
-  "url": { "path": "/health", "full": "https://api.myapp.io/health" },
-  "user_agent": { "original": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
-  "source": { "ip": "59.2.177.136" },
+  "url": { "path": "/api/v2/events", "full": "https://app.example.com/api/v2/events" },
+  "user_agent": { "original": "Go-http-client/1.1" },
+  "source": { "ip": "195.89.199.193" },
   "event": {
-    "duration": 2214321139,
+    "duration": 967527137,
     "outcome": "success",
     "category": ["network"],
     "type": ["connection"],
@@ -148,7 +131,7 @@
     "provider": "xray.amazonaws.com",
     "module": "aws"
   },
-  "message": "2026-05-05T08:33:55.600Z [Info] Sampling decision trace_id=1-69f9ab73-pq3vy2s2gxd rule=Default reservoir=1 outcome=NotSampled\n2026-05-05T08:33:55.000Z [Info] X-Ray daemon 3.3.14 listening on address 127.0.0.1:2000\n2026-05-05T08:33:55.120Z [Info] Received segment document id=em68qxk8fr7 trace_id=1-69f9ab73-pq3vy2s2gxd bytes=86163\n2026-05-05T08:33:55.840Z [Info] Service map update applied nodes=120 edges=292 version=7\n2026-05-05T08:33:55.120Z [Info] Received segment document id=em68qxk8fr7 trace_id=1-69f9ab73-pq3vy2s2gxd bytes=86163\n{\"trace_id\":\"1-69f9ab73-pq3vy2s2gxd\",\"id\":\"em68qxk8fr7\",\"name\":\"payment-service\",\"start_time\":1777970035,\"end_time\":1777970037.2143211,\"parent_id\":\"vw9txv1jmo\",\"http\":{\"request\":{\"method\":\"GET\",\"url\":\"https://api.myapp.io/health\",\"client_ip\":\"59.2.177.136\",\"user_agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\"},\"response\":{\"status\":200,\"content_length\":27501}},\"aws\":{\"account_id\":\"164820739518\",\"region\":\"ap-northeast-2\",\"resource_names\":[\"payment-service\"]},\"annotations\":{\"environment\":\"production\",\"version\":\"v17.5.37\",\"team\":\"platform\"},\"metadata\":{\"default\":{\"response_size\":36825}},\"fault\":false,\"error\":false,\"throttle\":false,\"origin\":\"AWS::ECS::Container\",\"resource_arn\":\"arn:aws:lambda:ap-northeast-2:164820739518:payment-service\"}",
+  "message": "2026-05-06T16:23:00.617Z [Info] PublishSlices segments=841 faults=4 throttles=0\n2026-05-06T16:23:00.497Z [Info] Sampling decision trace_id=1-69fb6ae3-r7kepn5byp rule=errors-only reservoir=0 outcome=NotSampled\n2026-05-06T16:22:59.897Z [Info] X-Ray daemon 1.37.0 listening on address 127.0.0.1:2000\n2026-05-06T16:23:00.617Z [Info] PublishSlices segments=841 faults=4 throttles=0\n{\"trace_id\":\"1-69fb6ae3-r7kepn5byp\",\"id\":\"oskz9hqrils\",\"name\":\"api-gateway\",\"start_time\":1778084579.897,\"end_time\":1778084580.8645272,\"parent_id\":\"j02at62lanq\",\"http\":{\"request\":{\"method\":\"PATCH\",\"url\":\"https://app.example.com/api/v2/events\",\"client_ip\":\"195.89.199.193\",\"user_agent\":\"Go-http-client/1.1\"},\"response\":{\"status\":201,\"content_length\":38552}},\"aws\":{\"account_id\":\"501938274650\",\"region\":\"us-west-2\",\"operation\":\"Stage\",\"resource_names\":[\"api-gateway\"]},\"annotations\":{\"environment\":\"staging\",\"version\":\"v8.9.80\",\"team\":\"platform\"},\"metadata\":{\"default\":{\"response_size\":3941}},\"fault\":false,\"error\":false,\"throttle\":false,\"origin\":\"AWS::ApiGateway::Stage\",\"resource_arn\":\"arn:aws:apigateway:us-west-2:501938274650:api-gateway\"}",
   "log": { "level": "info" },
   "service": { "name": "xray", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -156,8 +139,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "mg1hxqbreu"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "pmg3vc5gz6i"
   },
   "input": { "type": "http_endpoint" }
 }

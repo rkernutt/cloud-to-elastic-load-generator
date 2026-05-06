@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-05-05T08:33:55.000Z",
+  "@timestamp": "2026-05-06T16:22:59.897Z",
   "cloud": {
     "provider": "aws",
     "region": "ap-south-2",
@@ -7,15 +7,15 @@
     "service": { "name": "codepipeline" }
   },
   "aws": {
-    "dimensions": { "PipelineName": "infra-pipeline" },
+    "dimensions": { "PipelineName": "release-train" },
     "codepipeline": {
-      "pipeline_name": "infra-pipeline",
-      "pipeline_arn": "arn:aws:codepipeline:ap-south-2:164820739518:infra-pipeline",
-      "execution_id": "38fnr885-t2l6-vqml-hr7p-e20inhmnlic",
-      "stage_name": "Staging",
-      "action_name": "Source",
+      "pipeline_name": "release-train",
+      "pipeline_arn": "arn:aws:codepipeline:ap-south-2:164820739518:release-train",
+      "execution_id": "w4prp8d7-gnbg-kn7t-aq90-kha2yqp8zks",
+      "stage_name": "Build",
+      "action_name": "Deploy",
       "state": "Succeeded",
-      "revision_id": "3mf3fvoagit",
+      "revision_id": "i3sj0lbq2g",
       "structured_logging": false,
       "metrics": {
         "PipelineExecutionAttempts": { "sum": 1 },
@@ -32,13 +32,13 @@
         "arn": "arn:aws:s3:::aws-codepipeline-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/codepipeline/ap-south-2/2026/05/05/codepipeline_8OHM6B7HGRT.log.gz"
+        "key": "AWSLogs/164820739518/codepipeline/ap-south-2/2026/05/06/codepipeline_ODSNGI6U1BC.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codepipeline/logs",
-      "log_stream": "ap-south-2/1rxgqjq7",
-      "ingestion_time": "2026-05-05T08:33:56.710Z"
+      "log_stream": "ap-south-2/6nay5wrp",
+      "ingestion_time": "2026-05-06T16:23:00.651Z"
     }
   },
   "event": {
@@ -46,10 +46,10 @@
     "category": ["process", "configuration"],
     "dataset": "aws.codepipeline",
     "provider": "codepipeline.amazonaws.com",
-    "duration": 65000000000,
+    "duration": 31000000000,
     "module": "aws"
   },
-  "message": "[CodePipeline] executionId=38fnr885-t2l6-vqml-hr7p-e20inhmnlic pipeline=infra-pipeline state=SUCCEEDED region=ap-south-2\n[CodePipeline] Execution started for pipeline infra-pipeline (pipelineVersion=10)\n[Stage:Source] Transitioning: STARTED action=CheckoutSource provider=S3 revision=3mf3fvo\n[Stage:Source] Output artifact location: s3://164820739518-codepipeline-ap-south-2/infra-pipeline/source_out/3mf3fvoagit.zip\n[Stage:Source] Transitioning: SUCCEEDED durationMs=35356\n[Stage:Build] Transitioning: STARTED action=CodeBuild project=api-service-build\n[Stage:Build] Input artifact: s3://164820739518-codepipeline-ap-south-2/infra-pipeline/source_out/3mf3fvoagit.zip\n[Stage:Build] Output artifact: s3://164820739518-codepipeline-ap-south-2/infra-pipeline/build_out/38fnr885-t2l6-vqml-hr7p-e20inhmnlic/BuildOut\n[Stage:Build] Transitioning: SUCCEEDED durationMs=360049\n[Stage:Deploy] Transitioning: STARTED action=ECS deploymentGroup=canary\n[Stage:Deploy] Output artifact: s3://164820739518-codepipeline-ap-south-2/infra-pipeline/deploy/38fnr885-t2l6-vqml-hr7p-e20inhmnlic/DeploymentBundle\n[Stage:Deploy] Transitioning: SUCCEEDED durationMs=482153\n[Stage:Test] Transitioning: STARTED action=CodeBuild\n[Stage:Test] Transitioning: SUCCEEDED durationMs=186062\n[CodePipeline] Execution succeeded for pipeline infra-pipeline executionId=38fnr885-t2l6-vqml-hr7p-e20inhmnlic",
+  "message": "[CodePipeline] executionId=w4prp8d7-gnbg-kn7t-aq90-kha2yqp8zks pipeline=release-train state=SUCCEEDED region=ap-south-2\n[CodePipeline] Execution started for pipeline release-train (pipelineVersion=10)\n[Stage:Source] Transitioning: STARTED action=GitHubSource provider=CodeCommit revision=i3sj0lb\n[Stage:Source] Output artifact location: s3://164820739518-codepipeline-ap-south-2/release-train/source_out/i3sj0lbq2g.zip\n[Stage:Source] Transitioning: SUCCEEDED durationMs=41878\n[Stage:Build] Transitioning: STARTED action=CodeBuild project=web-build\n[Stage:Build] Input artifact: s3://164820739518-codepipeline-ap-south-2/release-train/source_out/i3sj0lbq2g.zip\n[Stage:Build] Output artifact: s3://164820739518-codepipeline-ap-south-2/release-train/build_out/w4prp8d7-gnbg-kn7t-aq90-kha2yqp8zks/BuildOut\n[Stage:Build] Transitioning: SUCCEEDED durationMs=407954\n[Stage:Deploy] Transitioning: STARTED action=CodeDeploy deploymentGroup=canary\n[Stage:Deploy] Output artifact: s3://164820739518-codepipeline-ap-south-2/release-train/deploy/w4prp8d7-gnbg-kn7t-aq90-kha2yqp8zks/DeploymentBundle\n[Stage:Deploy] Transitioning: SUCCEEDED durationMs=232871\n[Stage:Test] Transitioning: STARTED action=LambdaInvoke\n[Stage:Test] Transitioning: SUCCEEDED durationMs=314114\n[CodePipeline] Execution succeeded for pipeline release-train executionId=w4prp8d7-gnbg-kn7t-aq90-kha2yqp8zks",
   "log": { "level": "info" },
   "service": { "name": "codepipeline", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -58,7 +58,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "9k75d4ps1jf"
+    "ephemeral_id": "c8jvl6hgrmk"
   },
   "input": { "type": "aws-cloudwatch" }
 }

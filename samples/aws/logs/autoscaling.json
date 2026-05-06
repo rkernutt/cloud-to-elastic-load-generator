@@ -1,8 +1,8 @@
 {
-  "@timestamp": "2026-05-05T08:33:55.000Z",
+  "@timestamp": "2026-05-06T16:22:59.897Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
+    "region": "ap-south-2",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "autoscaling" }
   },
@@ -10,32 +10,34 @@
     "dimensions": { "AutoScalingGroupName": "batch-asg" },
     "autoscaling": {
       "group_name": "batch-asg",
-      "activity_id": "b2k38cnb-umoc-raoq",
-      "action_type": "Terminate",
-      "instance_id": "i-cyxgwrt1fhu",
-      "instance_type": "c5.2xlarge",
-      "desired_capacity": 19,
+      "activity_id": "ma39ut2a-2jel-rp90",
+      "action_type": "LifecycleHook",
+      "instance_id": "i-6vnl14bmkqd",
+      "instance_type": "m5.xlarge",
+      "desired_capacity": 12,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 14,
-      "cause": "At 2024-01-01T12:00:00Z instance failed EC2 health check",
-      "status_code": "Failed",
-      "launch_template": "worker-lt:8",
+      "current_capacity": 10,
+      "cause": "LifecycleHookNotification for finalize-termination transition autoscaling:EC2_INSTANCE_LAUNCHING",
+      "status_code": "Successful",
+      "launch_template": "api-lt:3",
+      "lifecycle_hook_name": "finalize-termination",
+      "lifecycle_transition": "autoscaling:EC2_INSTANCE_LAUNCHING",
       "predictive_scaling_forecast": false,
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 19 },
-        "GroupInServiceInstances": { "avg": 14 },
-        "GroupPendingInstances": { "avg": 3 },
-        "GroupStandbyInstances": { "avg": 0 },
-        "GroupTerminatingInstances": { "avg": 2 },
-        "GroupTotalInstances": { "avg": 19 },
-        "GroupInServiceCapacity": { "avg": 14 },
-        "GroupPendingCapacity": { "avg": 3 },
-        "GroupStandbyCapacity": { "avg": 0 },
-        "GroupTerminatingCapacity": { "avg": 2 },
-        "GroupTotalCapacity": { "avg": 19 },
+        "GroupDesiredCapacity": { "avg": 12 },
+        "GroupInServiceInstances": { "avg": 10 },
+        "GroupPendingInstances": { "avg": 1 },
+        "GroupStandbyInstances": { "avg": 1 },
+        "GroupTerminatingInstances": { "avg": 0 },
+        "GroupTotalInstances": { "avg": 12 },
+        "GroupInServiceCapacity": { "avg": 10 },
+        "GroupPendingCapacity": { "avg": 1 },
+        "GroupStandbyCapacity": { "avg": 1 },
+        "GroupTerminatingCapacity": { "avg": 0 },
+        "GroupTotalCapacity": { "avg": 12 },
         "WarmPoolMinSize": { "avg": 0 },
         "WarmPoolDesiredCapacity": { "avg": 0 },
         "WarmPoolPendingCapacity": { "avg": 0 },
@@ -50,38 +52,33 @@
         "arn": "arn:aws:s3:::aws-autoscaling-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/autoscaling/ap-northeast-3/2026/05/05/autoscaling_YT3YTGIWO8E.log.gz"
+        "key": "AWSLogs/814726593401/autoscaling/ap-south-2/2026/05/06/autoscaling_79K8MQC3Q67.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "ap-northeast-3/mqezbhpl",
-      "ingestion_time": "2026-05-05T08:33:56.506Z"
+      "log_stream": "ap-south-2/rcxr5aw2",
+      "ingestion_time": "2026-05-06T16:23:00.531Z"
     }
   },
   "event": {
     "category": ["host"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 459000000000,
+    "duration": 161000000000,
     "module": "aws"
   },
-  "message": "AutoScaling batch-asg: Terminate FAILED - Launch template error",
-  "log": { "level": "error" },
-  "error": {
-    "code": "InsufficientCapacity",
-    "message": "AutoScaling batch-asg: Terminate FAILED - Launch template error",
-    "type": "host"
-  },
+  "message": "LifecycleHook finalize-termination for batch-asg: Pending:Wait -> Pending:Proceed instance i-6vnl14bmkqd heartbeatTimeout=3600",
+  "log": { "level": "info" },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.autoscaling", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "9j5pr4p2hl"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "ve5pe03yuf"
   },
   "input": { "type": "aws-cloudwatch" }
 }

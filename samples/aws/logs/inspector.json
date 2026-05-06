@@ -1,86 +1,86 @@
 {
-  "@timestamp": "2026-05-05T08:33:55.000Z",
+  "@timestamp": "2026-05-06T16:22:59.897Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "us-west-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "inspector2" }
   },
   "aws": {
-    "dimensions": { "Severity": "MEDIUM" },
+    "dimensions": { "Severity": "LOW" },
     "inspector2": {
-      "findingArn": "arn:aws:inspector2:us-east-2:501938274650:finding/qzagmzts-6ygu-cq2y-80yi-yyuj7rnn0c",
+      "findingArn": "arn:aws:inspector2:us-west-1:814726593401:finding/ulsh49wp-4ggv-pqb5-fm8x-1kst6vxjyp8",
       "type": "PACKAGE_VULNERABILITY",
-      "title": "CVE-2020-18939: axios 2.10.10 has a known vulnerability",
-      "description": "A package used by the workload has a vulnerability tracked as CVE-2020-18939 with CVSS 4.0.",
+      "title": "CVE-2024-12363: log4j 1.11.1 has a known vulnerability",
+      "description": "A package used by the workload has a vulnerability tracked as CVE-2024-12363 with CVSS 2.7.",
       "remediation": {
         "recommendation": {
-          "text": "Upgrade axios to 3.7.11 or later to remediate CVE-2020-18939."
+          "text": "Upgrade log4j to 1.10.19 or later to remediate CVE-2024-12363."
         }
       },
       "resources": [
         {
-          "type": "AWS_LAMBDA_FUNCTION",
-          "id": "arn:aws:lambda:us-east-2:501938274650:function:my-fn",
+          "type": "AWS_ECR_CONTAINER_IMAGE",
+          "id": "814726593401.dkr.ecr.us-west-1.amazonaws.com/my-repo:latest",
           "partition": "aws",
-          "region": "us-east-2",
-          "tags": { "Environment": "prod" }
+          "region": "us-west-1",
+          "tags": { "Environment": "staging" }
         }
       ],
       "exploitAvailable": "NO",
       "fixAvailable": true,
       "finding_status": "ACTIVE",
-      "severity": "MEDIUM",
-      "severity_score": 4,
+      "severity": "LOW",
+      "severity_score": 2.7,
       "exploitability": "NOT_DEFINED",
-      "resource_type": "AWS_LAMBDA_FUNCTION",
-      "resource_id": "arn:aws:lambda:us-east-2:501938274650:function:my-fn",
-      "first_observed_at": "2026-04-08T08:33:55.000Z",
-      "last_observed_at": "2026-05-05T08:33:55.000Z",
+      "resource_type": "AWS_ECR_CONTAINER_IMAGE",
+      "resource_id": "814726593401.dkr.ecr.us-west-1.amazonaws.com/my-repo:latest",
+      "first_observed_at": "2026-04-22T16:22:59.897Z",
+      "last_observed_at": "2026-05-06T16:22:59.897Z",
       "package_vulnerability": {
-        "cve_id": "CVE-2020-18939",
-        "source": "GHSA",
-        "cvss3_score": 4.024347985818864,
+        "cve_id": "CVE-2024-12363",
+        "source": "NVD",
+        "cvss3_score": 2.7455014783365437,
         "vulnerable_packages": [
           {
-            "name": "axios",
-            "version": "2.10.10",
-            "fixed_in_version": "3.7.11",
-            "package_manager": "NPM"
+            "name": "log4j",
+            "version": "1.11.1",
+            "fixed_in_version": "1.10.19",
+            "package_manager": "OS"
           }
         ],
         "related_vulnerabilities": []
       },
       "metrics": {
-        "TotalFindings": { "sum": 497 },
+        "TotalFindings": { "sum": 137 },
         "CriticalFindings": { "sum": 0 },
         "HighFindings": { "sum": 0 },
-        "MediumFindings": { "sum": 91 },
-        "LowFindings": { "sum": 0 },
-        "CoveredResources": { "avg": 627 }
+        "MediumFindings": { "sum": 0 },
+        "LowFindings": { "sum": 155 },
+        "CoveredResources": { "avg": 1541 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-inspector-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-inspector-logs-501938274650"
+        "name": "aws-inspector-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-inspector-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/inspector/us-east-2/2026/05/05/inspector_N83IRYQQGLB.log.gz"
+        "key": "AWSLogs/814726593401/inspector/us-west-1/2026/05/06/inspector_C6HOK8NCIX.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/inspector/logs",
-      "log_stream": "us-east-2/wj5n3215",
-      "ingestion_time": "2026-05-05T08:33:56.577Z"
+      "log_stream": "us-west-1/mk1o67bd",
+      "ingestion_time": "2026-05-06T16:23:00.568Z"
     }
   },
   "vulnerability": {
-    "severity": "MEDIUM",
-    "id": "CVE-2020-18939",
-    "score": { "base": 4.024347985818864 }
+    "severity": "LOW",
+    "id": "CVE-2024-12363",
+    "score": { "base": 2.7455014783365437 }
   },
-  "package": { "name": "axios", "version": "2.10.10" },
+  "package": { "name": "log4j", "version": "1.11.1" },
   "event": {
     "outcome": "success",
     "category": ["vulnerability"],
@@ -89,16 +89,16 @@
     "provider": "inspector2.amazonaws.com",
     "module": "aws"
   },
-  "message": "Inspector2 [MEDIUM]: CVE-2020-18939 in axios 2.10.10 on AWS_LAMBDA_FUNCTION (fix: 3.7.11)",
-  "log": { "level": "warn" },
+  "message": "Inspector2 [LOW]: CVE-2024-12363 in log4j 1.11.1 on AWS_ECR_CONTAINER_IMAGE (fix: 1.10.19)",
+  "log": { "level": "info" },
   "service": { "name": "inspector", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.inspector", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "ma8nne1pdvp"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "2fnqwn7yk9y"
   },
   "input": { "type": "http_endpoint" }
 }

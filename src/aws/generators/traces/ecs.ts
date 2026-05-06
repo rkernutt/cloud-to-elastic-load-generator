@@ -159,7 +159,10 @@ function buildEcsSpan(
   isErr: boolean,
   spanOffsetMs: number,
   spanUs: number,
-  ecsLabels: Record<string, string>
+  ecsLabels: Record<string, string>,
+  svcBlock: any,
+  agent: any,
+  telemetry: any
 ) {
   const id = newSpanId();
 
@@ -285,6 +288,9 @@ function buildEcsSpan(
       ...(dbBlock ? { db: dbBlock } : {}),
       destination: { service: { resource: shape.dest, type: shape.type, name: shape.dest } },
     },
+    service: svcBlock,
+    agent,
+    telemetry,
     labels: ecsLabels,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
@@ -389,7 +395,10 @@ export function generateEcsTrace(ts: string, er: number) {
         spanIsErr,
         spanOffsetMs,
         spanUs,
-        ecsLabels
+        ecsLabels,
+        svcBlock,
+        agent,
+        telemetry
       )
     );
     spanOffsetMs += Math.floor(spanUs / 1000) + randInt(1, 15);

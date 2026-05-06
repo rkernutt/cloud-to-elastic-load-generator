@@ -1,57 +1,65 @@
 {
-  "@timestamp": "2026-05-05T08:33:55.000Z",
+  "@timestamp": "2026-05-06T16:22:59.897Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-west-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "codecommit" }
   },
   "aws": {
     "codecommit": {
-      "repository_name": "shared-libs",
-      "repository_arn": "arn:aws:codecommit:us-west-1:164820739518:shared-libs",
-      "event_type": "ReferenceUpdated",
-      "reference_name": "main",
-      "commit_id": "gg7powd1nzg",
-      "author": "codebuild",
-      "files_changed": 44,
-      "lines_added": 154,
-      "lines_deleted": 89
+      "repository_name": "ml-models",
+      "repository_arn": "arn:aws:codecommit:eu-west-2:814726593401:ml-models",
+      "event_type": "PullRequestMerged",
+      "reference_name": "release/v2.1",
+      "commit_id": "xdxneupqe4k",
+      "author": "bob",
+      "files_changed": 8,
+      "lines_added": 267,
+      "lines_deleted": 94,
+      "pull_request_id": "318",
+      "merge_strategy": "squash",
+      "error_code": "InvalidBranchNameException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-codecommit-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-codecommit-logs-164820739518"
+        "name": "aws-codecommit-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-codecommit-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/codecommit/us-west-1/2026/05/05/codecommit_LB00PHGEQT.log.gz"
+        "key": "AWSLogs/814726593401/codecommit/eu-west-2/2026/05/06/codecommit_1UG1N8O4XE9.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codecommit/logs",
-      "log_stream": "us-west-1/tn0xfli8",
-      "ingestion_time": "2026-05-05T08:33:56.718Z"
+      "log_stream": "eu-west-2/pnv9fv5x",
+      "ingestion_time": "2026-05-06T16:23:00.655Z"
     }
   },
-  "user": { "name": "carol" },
+  "user": { "name": "alice" },
   "event": {
-    "action": "ReferenceUpdated",
-    "outcome": "success",
+    "action": "PullRequestMerged",
+    "outcome": "failure",
     "category": ["configuration", "file"],
     "dataset": "aws.codecommit",
     "provider": "codecommit.amazonaws.com",
     "module": "aws"
   },
-  "message": "CodeCommit ReferenceUpdated: shared-libs/main",
-  "log": { "level": "info" },
+  "message": "CodeCommit PullRequestMerged FAILED on ml-models: Encryption key unavailable",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InvalidBranchNameException",
+    "message": "CodeCommit operation failed",
+    "type": "vcs"
+  },
   "service": { "name": "codecommit", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.codecommit", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "xdu56w8nzl"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "98ic5nvhp0g"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -54,7 +54,10 @@ function albSpan(
   resource: string,
   durationUs: number,
   labels: Record<string, string>,
-  isErr: boolean
+  isErr: boolean,
+  service: ReturnType<typeof serviceBlock>,
+  agent: ReturnType<typeof otelBlocks>["agent"],
+  telemetry: ReturnType<typeof otelBlocks>["telemetry"]
 ) {
   return {
     "@timestamp": offsetTs(new Date(ts), offsetMs),
@@ -71,6 +74,9 @@ function albSpan(
       action,
       destination: { service: { resource, type: spanType, name: resource } },
     },
+    service,
+    agent,
+    telemetry,
     labels,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
@@ -181,7 +187,10 @@ export function generateAlbTrace(ts: string, er: number) {
         ph.resource,
         du,
         ph.labels,
-        spanErr
+        spanErr,
+        svcBlock,
+        agent,
+        telemetry
       )
     );
     offsetMs += Math.max(1, Math.round(du / 1000)) + randInt(1, 8);

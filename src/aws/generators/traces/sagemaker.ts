@@ -104,7 +104,10 @@ function buildInvokeEndpointSpan(
   cfg: EndpointCfg,
   _account: (typeof TRACE_ACCOUNTS)[number],
   isErr: boolean,
-  spanOffsetMs: number
+  spanOffsetMs: number,
+  svcBlock: any,
+  agent: any,
+  telemetry: any
 ) {
   const id = newSpanId();
   const inferenceLatencyMs = randInt(20, 800);
@@ -132,6 +135,9 @@ function buildInvokeEndpointSpan(
       inference_latency_ms: String(inferenceLatencyMs),
       input_content_type: cfg.inputContentType,
     },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
@@ -144,7 +150,10 @@ function buildS3PreProcessSpan(
   ts: string,
   account: (typeof TRACE_ACCOUNTS)[number],
   isErr: boolean,
-  spanOffsetMs: number
+  spanOffsetMs: number,
+  svcBlock: any,
+  agent: any,
+  telemetry: any
 ) {
   const id = newSpanId();
   const durationUs = randInt(5, 120) * 1000;
@@ -169,6 +178,9 @@ function buildS3PreProcessSpan(
       bucket_name: bucketName,
       operation: "GetObject",
     },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
@@ -180,7 +192,10 @@ function buildDynamoPostProcessSpan(
   parentId: string,
   ts: string,
   isErr: boolean,
-  spanOffsetMs: number
+  spanOffsetMs: number,
+  svcBlock: any,
+  agent: any,
+  telemetry: any
 ) {
   const id = newSpanId();
   const durationUs = randInt(2, 50) * 1000;
@@ -205,6 +220,9 @@ function buildDynamoPostProcessSpan(
       table_name: "inference-cache",
       operation: "PutItem",
     },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
@@ -276,7 +294,20 @@ export function generateSageMakerTrace(ts: string, er: number) {
   // Optional pre-processing: fetch input features from S3
   if (includePreProcess) {
     const preDurationUs = randInt(5, 120) * 1000;
-    spans.push(buildS3PreProcessSpan(traceId, txId, txId, ts, account, false, spanOffsetMs));
+    spans.push(
+      buildS3PreProcessSpan(
+        traceId,
+        txId,
+        txId,
+        ts,
+        account,
+        false,
+        spanOffsetMs,
+        svcBlock,
+        agent,
+        telemetry
+      )
+    );
     spanOffsetMs += preDurationUs / 1000 + randInt(1, 5);
   }
 
@@ -284,14 +315,38 @@ export function generateSageMakerTrace(ts: string, er: number) {
   const inferenceIsErr = isErr && !includePostProcess;
   const inferenceDurationUs = randInt(20, 800) * 1000;
   spans.push(
-    buildInvokeEndpointSpan(traceId, txId, txId, ts, cfg, account, inferenceIsErr, spanOffsetMs)
+    buildInvokeEndpointSpan(
+      traceId,
+      txId,
+      txId,
+      ts,
+      cfg,
+      account,
+      inferenceIsErr,
+      spanOffsetMs,
+      svcBlock,
+      agent,
+      telemetry
+    )
   );
   spanOffsetMs += inferenceDurationUs / 1000 + randInt(1, 5);
 
   // Optional post-processing: cache result in DynamoDB
   if (includePostProcess) {
     const postIsErr = isErr;
-    spans.push(buildDynamoPostProcessSpan(traceId, txId, txId, ts, postIsErr, spanOffsetMs));
+    spans.push(
+      buildDynamoPostProcessSpan(
+        traceId,
+        txId,
+        txId,
+        ts,
+        postIsErr,
+        spanOffsetMs,
+        svcBlock,
+        agent,
+        telemetry
+      )
+    );
   }
 
   return [txDoc, ...spans];

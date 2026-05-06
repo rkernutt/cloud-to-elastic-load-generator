@@ -1,59 +1,63 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
-  "labels": { "lake": "bronze-lake", "zone": "trusted" },
+  "severity": "ERROR",
+  "labels": { "lake": "curated-lake", "zone": "raw" },
   "cloud": {
     "provider": "gcp",
-    "region": "me-central2",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "region": "northamerica-northeast2",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
     "service": { "name": "dataplex" }
   },
   "gcp": {
     "dataplex": {
-      "lake_name": "bronze-lake",
-      "zone_name": "trusted",
+      "lake_name": "curated-lake",
+      "zone_name": "raw",
       "asset_name": "bq-orders",
-      "action_type": "QUALITY",
-      "status": "RUNNING",
-      "discovered_entities": 2002,
-      "quality_score_pct": 93.7
+      "action_type": "DISCOVER",
+      "status": "FAILED",
+      "discovered_entities": 0,
+      "quality_score_pct": 10.6
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 8004000000,
+    "outcome": "failure",
+    "duration": 54509000000,
     "module": "gcp",
     "dataset": "gcp.dataplex"
   },
-  "message": "dataplex.googleapis.com/lakes/bronze-lake: QUALITY task completed entities=2002 qualityScorePct=93.7",
+  "message": "dataplex.googleapis.com/lakes/curated-lake/zones/raw/assets/bq-orders: DISCOVER FAILED — profiling worker PERMISSION_DENIED",
+  "error": {
+    "type": "JobFailed",
+    "message": "Data profiling worker could not read underlying BigQuery table"
+  },
   "service": { "name": "dataplex", "type": "gcp" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.dataplex", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-me-central2",
-    "id": "a2slfohi7y4"
+    "name": "elastic-agent-gcp-northamerica-northeast2",
+    "id": "xdgl2nuzuk"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-staging-d4e5f6/logs/dataplex",
+  "logName": "projects/globex-prod-a1b2c3/logs/dataplex",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-staging-d4e5f6", "region": "me-central2" }
+    "labels": { "project_id": "globex-prod-a1b2c3", "region": "northamerica-northeast2" }
   },
-  "insertId": "TFYNI3VLR3Q",
+  "insertId": "5CLRIZKWKUW",
   "jsonPayload": {
     "dataplex": {
-      "lake_name": "bronze-lake",
-      "zone_name": "trusted",
+      "lake_name": "curated-lake",
+      "zone_name": "raw",
       "asset_name": "bq-orders",
-      "action_type": "QUALITY",
-      "status": "RUNNING",
-      "discovered_entities": 2002,
-      "quality_score_pct": 93.7
+      "action_type": "DISCOVER",
+      "status": "FAILED",
+      "discovered_entities": 0,
+      "quality_score_pct": 10.6
     },
-    "message": "dataplex.googleapis.com/lakes/bronze-lake: QUALITY task completed entities=2002 qualityScorePct=93.7"
+    "message": "dataplex.googleapis.com/lakes/curated-lake/zones/raw/assets/bq-orders: DISCOVER FAILED — profiling worker PERMISSION_DENIED"
   }
 }

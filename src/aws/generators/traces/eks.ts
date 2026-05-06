@@ -104,7 +104,10 @@ function buildDownstreamSpan(
   ts: string,
   spanKey: string,
   isErr: boolean,
-  offsetMs: number
+  offsetMs: number,
+  svcBlock: any,
+  agent: any,
+  telemetry: any
 ) {
   const spanId = newSpanId();
 
@@ -233,6 +236,9 @@ function buildDownstreamSpan(
       ...(dbBlock ? { db: dbBlock } : {}),
       destination: { service: { resource: shape.dest, type: shape.type, name: shape.dest } },
     },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     // duration_us is returned so the caller can advance the offset
@@ -363,19 +369,22 @@ export function generateEksTrace(ts: string, er: number) {
   for (let i = 0; i < cfg.spans.length; i++) {
     const spanKey = cfg.spans[i];
     const spanIsErr = isErr && i === cfg.spans.length - 1;
-    const spanDoc = buildDownstreamSpan(traceId, txId, ts, spanKey, spanIsErr, offsetMs) as Record<
-      string,
-      any
-    >;
+    const spanDoc = buildDownstreamSpan(
+      traceId,
+      txId,
+      ts,
+      spanKey,
+      spanIsErr,
+      offsetMs,
+      svcBlock,
+      agent,
+      telemetry
+    ) as Record<string, any>;
 
     // Pull out the internal _spanUs before emitting the doc.
     const spanUs = spanDoc._spanUs;
     delete spanDoc._spanUs;
 
-    // Attach shared service/agent/telemetry/cloud to each span.
-    spanDoc.service = svcBlock;
-    spanDoc.agent = agent;
-    spanDoc.telemetry = telemetry;
     spanDoc.cloud = cloudBlock;
     spanDoc.labels = { ...k8sLabels };
 

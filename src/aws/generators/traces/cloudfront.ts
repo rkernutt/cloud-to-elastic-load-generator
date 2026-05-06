@@ -91,6 +91,9 @@ export function generateCloudFrontTrace(ts: string, er: number) {
           },
         },
       },
+      service: svcBlock,
+      agent,
+      telemetry,
       labels: {
         "aws.cloudfront.distribution_id": distId,
         ...(ph.type === "external"

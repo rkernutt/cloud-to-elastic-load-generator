@@ -656,6 +656,7 @@ export async function runSetupInstall(opts: {
     let skipped = 0;
     let fail = 0;
     let totalDashboardsLinked = 0;
+    let totalGuidesAttached = 0;
 
     // Resolve every dashboard title referenced via `relatedDashboards` on the
     // rules to its deterministic saved-object ID. Only titles present in the
@@ -696,12 +697,9 @@ export async function runSetupInstall(opts: {
       }
 
       try {
-        const { id: _id, relatedDashboards, ...body } = rule;
-        // Resolve linked dashboards. Kibana's `artifacts.dashboards` schema
-        // (rule API, 8.19 / 9.1+) makes the listed dashboards appear under
-        // a "Related dashboards" tab in the Alert Details page when this
-        // rule fires. Older Kibana versions ignore the field, so it's safe
-        // to send unconditionally.
+        const { id: _id, relatedDashboards, investigationGuide, ...body } = rule;
+        // Resolve linked dashboards and investigation guide into the
+        // `artifacts` block (Kibana 8.19 / 9.1+; older versions ignore it).
         const dashboardIds: Array<{ id: string }> = [];
         if (relatedDashboards && relatedDashboards.length > 0) {
           for (const title of relatedDashboards) {
@@ -709,10 +707,11 @@ export async function runSetupInstall(opts: {
             if (id) dashboardIds.push({ id });
           }
         }
+        const artifacts: Record<string, unknown> = {};
+        if (dashboardIds.length > 0) artifacts.dashboards = dashboardIds;
+        if (investigationGuide) artifacts.investigationGuide = { blob: investigationGuide };
         const ruleBody: Record<string, unknown> =
-          dashboardIds.length > 0
-            ? { ...body, artifacts: { dashboards: dashboardIds } }
-            : { ...body };
+          Object.keys(artifacts).length > 0 ? { ...body, artifacts } : { ...body };
         await proxyCall({
           baseUrl: kb,
           apiKey,
@@ -722,10 +721,14 @@ export async function runSetupInstall(opts: {
         });
         ok++;
         totalDashboardsLinked += dashboardIds.length;
-        const linkSuffix =
-          dashboardIds.length > 0
-            ? ` (linked ${dashboardIds.length} dashboard${dashboardIds.length === 1 ? "" : "s"})`
-            : "";
+        if (investigationGuide) totalGuidesAttached++;
+        const suffixParts: string[] = [];
+        if (dashboardIds.length > 0)
+          suffixParts.push(
+            `${dashboardIds.length} dashboard${dashboardIds.length === 1 ? "" : "s"}`
+          );
+        if (investigationGuide) suffixParts.push("investigation guide");
+        const linkSuffix = suffixParts.length > 0 ? ` (${suffixParts.join(", ")})` : "";
         addLog(`  ✓ ${rule.name}${linkSuffix}`, "ok");
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
@@ -743,7 +746,7 @@ export async function runSetupInstall(opts: {
     }
 
     addLog(
-      `  Alerting rules: ${ok} created${skipped > 0 ? `, ${skipped} already existed` : ""}${fail > 0 ? `, ${fail} failed` : ""}${totalDashboardsLinked > 0 ? `, ${totalDashboardsLinked} dashboard ${totalDashboardsLinked === 1 ? "link" : "links"} attached` : ""}`,
+      `  Alerting rules: ${ok} created${skipped > 0 ? `, ${skipped} already existed` : ""}${fail > 0 ? `, ${fail} failed` : ""}${totalDashboardsLinked > 0 ? `, ${totalDashboardsLinked} dashboard ${totalDashboardsLinked === 1 ? "link" : "links"}` : ""}${totalGuidesAttached > 0 ? `, ${totalGuidesAttached} investigation ${totalGuidesAttached === 1 ? "guide" : "guides"}` : ""}`,
       fail > 0 ? "warn" : "ok"
     );
     addLog(

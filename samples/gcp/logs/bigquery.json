@@ -2,119 +2,71 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "severity": "INFO",
   "labels": {
-    "dataset_id": "raw_events",
-    "table_id": "sessions",
-    "job_id": "globex-shared-m3n4o5:us-east4.eim570pr"
+    "dataset_id": "audit_logs",
+    "table_id": "events",
+    "job_id": "globex-dev-g7h8i9:us-east5.wsmwok9c"
   },
   "jsonPayload": {
-    "job": {
-      "jobName": "globex-shared-m3n4o5:us-east4.eim570pr",
-      "jobStatistics": {
-        "creationTime": "2026-04-04T11:47:42.851Z",
-        "startTime": "2026-04-04T11:47:43.966Z",
-        "endTime": "2026-04-04T12:00:00.000Z",
-        "totalBytesProcessed": "25978347788471",
-        "totalBytesBilled": "25264168386467",
-        "totalSlotMs": 632124956,
-        "reservationId": "projects/globex-shared-m3n4o5/locations/us-east4/reservations/prod-warehouse-bncs",
-        "cacheHit": false,
-        "query": {
-          "totalBytesProcessed": 25978347788471,
-          "totalSlotMs": 632124956,
-          "cacheHit": false,
-          "statementType": "INSERT",
-          "referencedTables": [
-            {
-              "projectId": "globex-shared-m3n4o5",
-              "datasetId": "raw_events",
-              "tableId": "sessions_0"
-            },
-            {
-              "projectId": "globex-shared-m3n4o5",
-              "datasetId": "raw_events",
-              "tableId": "sessions_1"
-            },
-            {
-              "projectId": "globex-shared-m3n4o5",
-              "datasetId": "raw_events",
-              "tableId": "sessions_2"
-            },
-            {
-              "projectId": "globex-shared-m3n4o5",
-              "datasetId": "raw_events",
-              "tableId": "sessions_3"
-            },
-            {
-              "projectId": "globex-shared-m3n4o5",
-              "datasetId": "raw_events",
-              "tableId": "sessions_4"
-            }
-          ],
-          "queryPlan": {
-            "estimatedBytesProcessed": "24679430399047",
-            "stages": [
-              { "name": "S00: Output", "waitMsAvg": 15, "recordsRead": "476349133" },
-              { "name": "S01: Aggregate", "waitMsAvg": 1536, "recordsRead": "24364593" }
-            ]
-          },
-          "schema": { "fields": [{ "name": "id", "type": "INTEGER" }] }
-        },
-        "completionRatio": 1
-      }
+    "eventName": "reservationUtilization",
+    "reservation": {
+      "name": "projects/globex-dev-g7h8i9/locations/us-east5/reservations/prod-warehouse-55wx",
+      "slotCapacity": 3517,
+      "slotUtilization": 0.3567180447876642
     }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-east4",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
+    "region": "us-east5",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" },
     "service": { "name": "bigquery" }
   },
   "gcp": {
     "bigquery": {
-      "job_id": "globex-shared-m3n4o5:us-east4.eim570pr",
-      "job_type": "LOAD",
-      "project": "globex-shared-m3n4o5",
-      "dataset": "raw_events",
-      "table": "sessions",
-      "statement_type": "INSERT",
-      "total_bytes_processed": 25978347788471,
-      "total_bytes_billed": 25264168386467,
-      "total_slot_ms": 632124956,
-      "billing_tier": "STANDARD",
+      "job_id": "globex-dev-g7h8i9:us-east5.wsmwok9c",
+      "job_type": "COPY",
+      "project": "globex-dev-g7h8i9",
+      "dataset": "audit_logs",
+      "table": "events",
+      "statement_type": "CREATE_TABLE",
+      "total_bytes_processed": 251991,
+      "total_bytes_billed": 0,
+      "total_slot_ms": 4546,
+      "billing_tier": "ENTERPRISE_PLUS",
       "cache_hit": false,
-      "referenced_tables_count": 24,
-      "output_rows": 376325255,
-      "creation_time": "2026-04-04T11:47:42.851Z",
-      "start_time": "2026-04-04T11:47:43.966Z",
+      "referenced_tables_count": 32,
+      "output_rows": 9,
+      "creation_time": "2026-04-04T11:56:06.006Z",
+      "start_time": "2026-04-04T11:56:09.213Z",
       "end_time": "2026-04-04T12:00:00.000Z",
-      "priority": "BATCH",
-      "reservation_name": "projects/globex-shared-m3n4o5/locations/us-east4/reservations/prod-warehouse-bncs",
-      "completion_ratio": 1
+      "priority": "INTERACTIVE",
+      "reservation_name": "projects/globex-dev-g7h8i9/locations/us-east5/reservations/prod-warehouse-55wx",
+      "completion_ratio": 0.1310364952362277
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 736034000000,
+    "outcome": "failure",
+    "duration": 230787000000,
     "module": "gcp",
     "dataset": "gcp.bigquery"
   },
-  "message": "insertId=S20YAX3J47 jsonPayload.job.jobStatistics.query.queryPlan.stages=2 totalBytesProcessed=25978347788471",
+  "message": "bigqueryreservation.googleapis.com/projects/globex-dev-g7h8i9/locations/us-east5/reservations/prod-warehouse-55wx: slot_capacity=3101 slot_utilization=0.640",
+  "error": { "type": "BigQueryError", "message": "Job failed — resource limits or access denied" },
   "service": { "name": "bigquery", "type": "gcp" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.bigquery", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-east4",
-    "id": "q05t9j68bqa"
+    "name": "elastic-agent-gcp-us-east5",
+    "id": "yf3gp0t81wc"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-m3n4o5/logs/bigquery",
+  "logName": "projects/globex-dev-g7h8i9/logs/bigquery",
   "resource": {
     "type": "bigquery_resource",
-    "labels": { "project_id": "globex-shared-m3n4o5", "region": "us-east4" }
+    "labels": { "project_id": "globex-dev-g7h8i9", "region": "us-east5" }
   },
-  "insertId": "07BXTCRAWSX7"
+  "insertId": "CHXMGLEDS8R"
 }

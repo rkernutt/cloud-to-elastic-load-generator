@@ -183,6 +183,9 @@ export function generateSnsTrace(ts: string, er: number) {
         destination: { service: { resource: "dynamodb", type: "db", name: "dynamodb" } },
       },
       labels: { ...sharedLabels },
+      service: svcBlock,
+      agent,
+      telemetry,
       event: { outcome: "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     });
@@ -207,6 +210,9 @@ export function generateSnsTrace(ts: string, er: number) {
       destination: { service: { resource: "sns", type: "messaging", name: "sns" } },
     },
     labels: { ...sharedLabels },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   });

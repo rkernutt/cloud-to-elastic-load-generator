@@ -1,38 +1,42 @@
 {
-  "@timestamp": "2026-05-05T08:33:55.000Z",
+  "@timestamp": "2026-05-06T16:22:59.897Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-2",
+    "region": "eu-north-1",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "ses" }
   },
   "aws": {
     "dimensions": {
-      "ses:configuration-set": "marketing",
+      "ses:configuration-set": "default",
       "ses:from-domain": "company.com",
-      "ses:to-country": "US",
-      "ses:to-isp": "AOL"
+      "ses:to-country": "FR",
+      "ses:to-isp": "Yahoo"
     },
     "ses": {
-      "message_id": "guqtnsta30p.yfdh7ce0rl@ap-southeast-2.amazonses.com",
-      "event_type": "Send",
-      "from_address": "noreply@company.com",
-      "destination": ["user_ji4o84@yahoo.com", "archive+UMWB@company.org"],
-      "configuration_set": "marketing",
-      "bounce": { "bounced_recipients": [] },
+      "message_id": "zijnlhroi2.pq04v8n3bw@eu-north-1.amazonses.com",
+      "event_type": "Bounce",
+      "from_address": "alerts@company.com",
+      "destination": ["user_ur18l8@company.org", "archive+3KFH@company.org"],
+      "bounce": {
+        "bounce_type": "Permanent",
+        "bounce_sub_type": "General",
+        "bounced_recipients": [
+          { "emailAddress": "user_ur18l8@company.org", "action": "failed", "status": "5.1.1" }
+        ]
+      },
       "complaint": { "complained_recipients": [] },
       "sending_account_id": "164820739518",
       "delivery": {
-        "recipients": ["user_ji4o84@yahoo.com", "archive+UMWB@company.org"],
-        "timestamp": "2026-05-05T08:33:55.000Z",
-        "processing_time_ms": 2479,
-        "smtp_response": "250 2.0.0 OK"
+        "recipients": ["user_ur18l8@company.org", "archive+3KFH@company.org"],
+        "timestamp": "2026-05-06T16:22:59.897Z",
+        "processing_time_ms": 172
       },
       "metrics": {
         "Send": { "sum": 1 },
-        "Delivery": { "sum": 1 },
+        "Delivery": { "sum": 0 },
         "Bounce": { "sum": 0 },
-        "Complaint": { "sum": 0 },
+        "Complaint": { "sum": 1 },
         "Reject": { "sum": 0 },
         "Open": { "sum": 1 },
         "Click": { "sum": 1 },
@@ -45,34 +49,33 @@
         "name": "aws-ses-logs-164820739518",
         "arn": "arn:aws:s3:::aws-ses-logs-164820739518"
       },
-      "object": {
-        "key": "AWSLogs/164820739518/ses/ap-southeast-2/2026/05/05/ses_79GV8J7USYO.log.gz"
-      }
+      "object": { "key": "AWSLogs/164820739518/ses/eu-north-1/2026/05/06/ses_OPNQJXF6DNB.log.gz" }
     },
     "cloudwatch": {
       "log_group": "/aws/ses/logs",
-      "log_stream": "ap-southeast-2/u1phiewh",
-      "ingestion_time": "2026-05-05T08:33:56.894Z"
+      "log_stream": "eu-north-1/u07u3fia",
+      "ingestion_time": "2026-05-06T16:23:00.748Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["email", "process"],
     "dataset": "aws.ses",
     "provider": "email.amazonaws.com",
-    "duration": 1120000000,
+    "duration": 3935000000,
     "module": "aws"
   },
-  "message": "{\"eventType\":\"Send\",\"mail\":{\"timestamp\":\"2026-05-05T08:33:55.000Z\",\"messageId\":\"guqtnsta30p.yfdh7ce0rl@ap-southeast-2.amazonses.com\",\"source\":\"noreply@company.com\",\"sourceArn\":\"arn:aws:ses:ap-southeast-2:164820739518:identity/company.com\",\"sendingAccountId\":\"164820739518\",\"destination\":[\"user_ji4o84@yahoo.com\",\"archive+UMWB@company.org\"],\"headersTruncated\":false,\"commonHeaders\":{\"from\":[\"noreply@company.com\"],\"to\":[\"user_ji4o84@yahoo.com\",\"archive+UMWB@company.org\"],\"subject\":\"Weekly digest\",\"messageId\":\"<guqtnsta30p.yfdh7ce0rl@ap-southeast-2.amazonses.com>\"},\"tags\":{\"ses:configuration-set\":[\"marketing\"],\"ses:source-ip\":[\"150.105.75.198\"],\"ses:outgoing-ip\":[\"147.175.246.141\"]}}}",
-  "log": { "level": "info" },
+  "message": "{\"eventType\":\"Bounce\",\"mail\":{\"timestamp\":\"2026-05-06T16:22:59.897Z\",\"messageId\":\"zijnlhroi2.pq04v8n3bw@eu-north-1.amazonses.com\",\"source\":\"alerts@company.com\",\"sourceArn\":\"arn:aws:ses:eu-north-1:164820739518:identity/company.com\",\"sendingAccountId\":\"164820739518\",\"destination\":[\"user_ur18l8@company.org\",\"archive+3KFH@company.org\"],\"headersTruncated\":false,\"commonHeaders\":{\"from\":[\"alerts@company.com\"],\"to\":[\"user_ur18l8@company.org\",\"archive+3KFH@company.org\"],\"subject\":\"Security alert\",\"messageId\":\"<zijnlhroi2.pq04v8n3bw@eu-north-1.amazonses.com>\"},\"tags\":{\"ses:configuration-set\":[],\"ses:source-ip\":[\"164.59.137.242\"],\"ses:outgoing-ip\":[\"131.118.162.224\"]}},\"bounce\":{\"bounceType\":\"Permanent\",\"bounceSubType\":\"General\",\"bouncedRecipients\":[{\"emailAddress\":\"user_ur18l8@company.org\",\"action\":\"failed\",\"status\":\"5.1.1\",\"diagnosticCode\":\"smtp; 421 user unknown\"}],\"timestamp\":\"2026-05-06T16:22:59.897Z\",\"feedbackId\":\"EDE4EW69-eu-north-1-164820739518\"}}",
+  "log": { "level": "warn" },
+  "error": { "code": "SESDeliveryFailure", "message": "SES delivery failed", "type": "email" },
   "service": { "name": "ses", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.ses", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-2",
-    "ephemeral_id": "cwnjz7ymynl"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "yu36rh8618"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -168,7 +168,10 @@ function buildDownstreamSpan(
   sdkKey: string,
   isErr: boolean,
   spanOffsetMs: number,
-  spanUs: number
+  spanUs: number,
+  svcBlock: any,
+  agent: any,
+  telemetry: any
 ) {
   const id = newSpanId();
 
@@ -273,6 +276,9 @@ function buildDownstreamSpan(
       ...(dbBlock ? { db: dbBlock } : {}),
       destination: { service: { resource: shape.dest, type: shape.type, name: shape.dest } },
     },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
@@ -374,6 +380,9 @@ export function generateApiGatewayTrace(ts: string, er: number) {
       action: "invoke",
       destination: { service: { resource: "lambda", type: "external", name: "lambda" } },
     },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
@@ -396,7 +405,10 @@ export function generateApiGatewayTrace(ts: string, er: number) {
         sdkKeys[i],
         spanIsErr,
         spanOffsetMs,
-        spanUs
+        spanUs,
+        svcBlock,
+        agent,
+        telemetry
       )
     );
     spanOffsetMs += Math.floor(spanUs / 1000) + randInt(1, 15);

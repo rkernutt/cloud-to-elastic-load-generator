@@ -1,62 +1,66 @@
 {
-  "@timestamp": "2026-05-05T08:33:55.000Z",
+  "@timestamp": "2026-05-06T16:22:59.897Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-southeast-4",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "devopsguru" }
   },
   "aws": {
     "devopsguru": {
-      "insight_id": "5m5r1piiutf",
+      "insight_id": "ap56nwhmrp",
       "insight_type": "REACTIVE",
-      "severity": "LOW",
+      "severity": "MEDIUM",
       "resource_collection": {
-        "cloud_formation": { "stack_names": ["api-stack"] },
+        "cloud_formation": { "stack_names": ["prod-stack"] },
         "tags": [{ "key": "environment", "value": "production" }]
       },
-      "anomaly_id": "jfdccksxhv",
-      "anomaly_description": "Memory utilization anomaly on ECS tasks",
-      "anomaly_sources": ["lambda-api"],
-      "start_time": "2026-05-05T08:11:39.859Z",
-      "end_time": "2026-05-05T08:33:56.909Z",
-      "status": "CLOSED",
-      "recommendation": "Scale up resource",
-      "ssm_ops_items": []
+      "anomaly_id": "j3jsdh5za0b",
+      "anomaly_description": "RDS CPU spike correlated with API latency",
+      "anomaly_sources": ["sqs-orders"],
+      "start_time": "2026-05-06T16:11:56.954Z",
+      "status": "ONGOING",
+      "recommendation": "Check recent deployments",
+      "ssm_ops_items": ["oi-y55j8b80"]
     },
     "s3": {
       "bucket": {
-        "name": "aws-devopsguru-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-devopsguru-logs-501938274650"
+        "name": "aws-devopsguru-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-devopsguru-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/501938274650/devopsguru/us-east-1/2026/05/05/devopsguru_RSWXQNOMYND.log.gz"
+        "key": "AWSLogs/738291046572/devopsguru/ap-southeast-4/2026/05/06/devopsguru_LZ1B2I0PFFF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/devopsguru/logs",
-      "log_stream": "us-east-1/syseq6mu",
-      "ingestion_time": "2026-05-05T08:33:56.909Z"
+      "log_stream": "ap-southeast-4/kglibhnm",
+      "ingestion_time": "2026-05-06T16:23:00.757Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process", "configuration", "vulnerability"],
     "dataset": "aws.devopsguru",
     "provider": "devops-guru.amazonaws.com",
-    "duration": 749000000000,
+    "duration": 1638000000000,
     "module": "aws"
   },
-  "message": "DevOps Guru REACTIVE insight [LOW]: Memory utilization anomaly on ECS tasks",
-  "log": { "level": "info" },
+  "message": "DevOps Guru ONGOING [MEDIUM]: RDS CPU spike correlated with API latency",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InsightOngoing",
+    "message": "DevOps Guru ongoing anomaly",
+    "type": "process"
+  },
   "service": { "name": "devopsguru", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.devopsguru", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "aoejfqi09si"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "3zguu0wvmx7"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -228,6 +228,9 @@ export function generateEmrTrace(ts: string, er: number) {
         spark_output_records: String(Math.floor(inputRecs * randFloat(0.3, 1.1))),
         ...(shuffleBytes ? { spark_shuffle_bytes_written: String(shuffleBytes) } : {}),
       },
+      service: svcBlock,
+      agent,
+      telemetry,
       event: { outcome: stageIsErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     });
@@ -254,6 +257,9 @@ export function generateEmrTrace(ts: string, er: number) {
           action: "query",
           db: { type: "sql", statement: sql },
         },
+        service: svcBlock,
+        agent,
+        telemetry,
         event: { outcome: "success" },
         data_stream: { type: "traces", dataset: "apm", namespace: "default" },
       });

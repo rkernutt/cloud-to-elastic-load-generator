@@ -103,6 +103,9 @@ export function generateEc2Trace(ts: string, er: number) {
         ...(spec.db ? { db: spec.db() } : {}),
         destination: { service: { resource: spec.dest, type: spec.type, name: spec.dest } },
       },
+      service: svcBlock,
+      agent,
+      telemetry,
       event: { outcome: spanErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     });

@@ -205,6 +205,9 @@ export function generateMskTrace(ts: string, er: number) {
       destination: { service: { resource: "kafka", type: "messaging", name: "kafka" } },
     },
     labels: { ...sharedLabels },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
@@ -234,6 +237,9 @@ export function generateMskTrace(ts: string, er: number) {
       },
     },
     labels: { ...sharedLabels },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };

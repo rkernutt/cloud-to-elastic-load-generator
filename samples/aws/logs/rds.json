@@ -1,71 +1,101 @@
 {
-  "@timestamp": "2026-05-05T08:33:55.000Z",
+  "@timestamp": "2026-05-06T16:22:59.897Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-west-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "rds" }
   },
   "aws": {
     "dimensions": {
       "DBInstanceIdentifier": "prod-db-reporting",
       "DatabaseClass": "db.m5.large",
-      "EngineName": "postgres",
-      "SourceRegion": "eu-south-2"
+      "EngineName": "mysql",
+      "SourceRegion": "us-west-1"
     },
     "cloudwatch": {
-      "log_group": "/aws/rds/instance/prod-db-reporting/postgresql",
+      "log_group": "/aws/rds/instance/prod-db-reporting/slowquery",
       "log_stream": "prod-db-reporting",
-      "ingestion_time": "2026-05-05T08:33:56.435Z"
+      "ingestion_time": "2026-05-06T16:23:00.512Z"
     },
     "rds": {
       "db_instance": {
         "identifier": "prod-db-reporting",
         "class": "db.m5.large",
-        "engine_name": "postgres",
-        "engine_version": "16.8",
-        "arn": "arn:aws:rds:eu-south-2:293847561023:db:prod-db-reporting",
+        "engine_name": "mysql",
+        "engine_version": "8.0.36",
+        "arn": "arn:aws:rds:us-west-1:738291046572:db:prod-db-reporting",
         "status": "available",
-        "role": "read-replica",
-        "multi_az": true,
+        "role": "instance",
+        "multi_az": false,
         "storage_type": "io1",
         "allocated_storage_gb": 1000
       },
-      "log_type": "postgresql",
-      "cpu": { "total": { "pct": 0.4677 } },
-      "freeable_memory": { "bytes": 1366180575 },
-      "free_storage": { "bytes": 187797752373 },
-      "database_connections": 253,
-      "read_io": { "ops_per_sec": 2327.372823038058 },
-      "write_io": { "ops_per_sec": 2592.7679319754566 },
-      "latency": { "read": 0.0014620509383313734, "write": 0.0022897251830212963 },
+      "log_type": "slowquery",
+      "cpu": { "total": { "pct": 0.4705 } },
+      "freeable_memory": { "bytes": 3858995285 },
+      "free_storage": { "bytes": 281157558418 },
+      "database_connections": 500,
+      "read_io": { "ops_per_sec": 1065.9603476866578 },
+      "write_io": { "ops_per_sec": 430.76616774913737 },
+      "latency": { "read": 0.013621218770871597, "write": 0.008288120067476475 },
       "throughput": {
-        "read": 68521809,
-        "write": 14704087,
-        "network_receive": 18197909,
-        "network_transmit": 4221181
+        "read": 35715451,
+        "write": 42487552,
+        "network_receive": 24607948,
+        "network_transmit": 57493525
       },
-      "replica_lag": { "sec": 61.188372642955414 },
-      "swap_usage": { "bytes": 76030187 },
-      "disk_usage": { "bin_log": { "bytes": 381273538 } }
+      "replica_lag": { "sec": 77.0938564347173 },
+      "swap_usage": { "bytes": 80731459 },
+      "disk_usage": { "bin_log": { "bytes": 742341961 } },
+      "enhanced_monitoring": {
+        "cpuUtilization": {
+          "guest": 1.9101280881393268,
+          "irq": 0.39006388657095203,
+          "system": 9.202102487556125,
+          "wait": 1.5283074547767646,
+          "idle": 75.8,
+          "user": 11.138636965893664,
+          "total": 24.2
+        },
+        "memory": {
+          "total": 16350858822,
+          "free": 3128990011,
+          "cached": 6254556720,
+          "active": 3904481386,
+          "inactive": 3225869381,
+          "buffers": 330681287
+        },
+        "disk": {
+          "readIOsPS": 585.9312096565675,
+          "writeIOsPS": 313.0304956261148,
+          "readKbPS": 123625.0053881966,
+          "writeKbPS": 226920.00343237424,
+          "avgQueueLen": 6.215510883376956,
+          "await": 1.0907568037949342
+        },
+        "network": { "rx": 68545382, "tx": 13828843 },
+        "numVCPUs": 8,
+        "uptime": "63 days, 10:06:00"
+      }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-rds-logs-293847561023"
+        "name": "aws-rds-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-rds-logs-738291046572"
       },
-      "object": { "key": "AWSLogs/293847561023/rds/eu-south-2/2026/05/05/rds_B87F6EUMFP.log.gz" }
+      "object": { "key": "AWSLogs/738291046572/rds/us-west-1/2026/05/06/rds_YNW5ALE1ECK.log.gz" }
     }
   },
   "db": {
-    "user": { "name": "readonly" },
+    "user": { "name": "appuser" },
     "name": "appdb",
-    "statement": "SELECT t1.*, t2.name FROM products t1 JOIN customers t2 ON t1.customer_id = t2.id WHERE t1.created_at > now() - interval '1 day' ORDER BY t1.id LIMIT 100",
+    "statement": "SELECT * FROM events WHERE id = 156800",
     "type": "sql"
   },
-  "source": { "ip": "87.39.59.51" },
+  "source": { "ip": "91.58.119.62" },
   "event": {
-    "duration": 510440431.8733291,
+    "duration": 1604039760.3635616,
     "outcome": "success",
     "category": ["database"],
     "type": ["info", "access"],
@@ -73,18 +103,16 @@
     "provider": "rds.amazonaws.com",
     "module": "aws"
   },
-  "message": "2026-05-05 08:33:55.000 UTC:87.39.59.51(44131):readonly@appdb:[28971]:LOG:  duration: 510.440 ms  execute <unnamed>: SELECT t1.*, t2.name FROM products t1 JOIN customers t2 ON t1.customer_id = t2.id WHERE t1.created_at > now() - interval '1 day' ORDER BY t1.id LIMIT 100",
+  "message": "# Time: 2026-05-06 16:22:59.897\n# User@Host: appuser[appuser] @ 91.58.119.62 [91.58.119.62]  Id: 53840\n# Query_time: 1.604040  Lock_time: 0.004334 Rows_sent: 1378  Rows_examined: 13723\nSET timestamp=1778084579;\nSELECT * FROM events WHERE id = 156800;",
   "log": { "level": "info" },
-  "trace": { "id": "L6GKJDRDU3S" },
-  "transaction": { "id": "8Z2TKPQXFQS" },
   "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "r6kh4jag88"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "cnbcza2kuj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

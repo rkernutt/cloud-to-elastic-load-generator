@@ -94,7 +94,10 @@ function buildSpan(
   isErr: boolean,
   spanOffset: number,
   spanDuration: number,
-  labels: Record<string, string | number | boolean>
+  labels: Record<string, string | number | boolean>,
+  svcBlock: any,
+  agent: any,
+  telemetry: any
 ) {
   const id = newSpanId();
 
@@ -193,7 +196,9 @@ function buildSpan(
       destination: { service: { resource: shape.dest, type: shape.type, name: shape.dest } },
     },
     labels: { ...labels },
-    service: { name: "sqs" },
+    service: svcBlock,
+    agent,
+    telemetry,
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
@@ -285,7 +290,20 @@ export function generateSqsTrace(ts: string, er: number) {
     const spanUs = randInt(Math.floor(usPerSdk * 0.2), Math.floor(usPerSdk * 0.85));
     const spanIsErr = isErr && spans.length === cfg.sdkCalls.length - 1;
     spans.push(
-      buildSpan(traceId, txId, txId, ts, sdkKey, spanIsErr, spanOffset, spanUs, sharedLabels)
+      buildSpan(
+        traceId,
+        txId,
+        txId,
+        ts,
+        sdkKey,
+        spanIsErr,
+        spanOffset,
+        spanUs,
+        sharedLabels,
+        svcBlock,
+        agent,
+        telemetry
+      )
     );
     spanOffset += spanUs / 1000 + randInt(1, 15);
   }
