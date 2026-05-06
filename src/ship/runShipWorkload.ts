@@ -252,12 +252,12 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
         }
         const injTotalDocs = injWork.reduce((s, w) => s + w.docs.length, 0);
         if (injWork.length > 0) {
-          setProgress({
+          setProgress((prev) => ({
             phase: "injection",
-            sent: 0,
-            total: Math.max(1, injTotalDocs),
-            errors: 0,
-          });
+            sent: prev.sent,
+            total: prev.total + injTotalDocs,
+            errors: prev.errors,
+          }));
           const injFlush = makeProgressFlusher("injection");
           for (const { svc, docs: injDocs } of injWork) {
             if (abortRef.current) break;
@@ -575,12 +575,12 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
       }
       const injTotalDocs = injWork.reduce((s, w) => s + w.docs.length, 0);
       if (injWork.length > 0) {
-        setProgress({
+        setProgress((prev) => ({
           phase: "injection",
-          sent: 0,
-          total: Math.max(1, injTotalDocs),
-          errors: 0,
-        });
+          sent: prev.sent,
+          total: prev.total + injTotalDocs,
+          errors: prev.errors,
+        }));
         const injFlush = makeProgressFlusher("injection");
         for (const { svc, indexName, docs: injDocs } of injWork) {
           if (abortRef.current) break;

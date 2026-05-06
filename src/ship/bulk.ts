@@ -27,15 +27,15 @@ export async function fetchWithRetry(
       const res = await fetch(url, options);
       if (res.status >= 500) {
         lastErr = new Error(`HTTP ${res.status}`);
-      } else if (res.ok) {
+      } else {
         const ct = res.headers.get("content-type") ?? "";
         if (!ct.includes("json") && !ct.includes("ndjson")) {
-          lastErr = new Error(`Proxy returned non-JSON response (${ct || "no content-type"})`);
+          lastErr = new Error(
+            `Proxy returned non-JSON response (HTTP ${res.status}, ${ct || "no content-type"})`
+          );
         } else {
           return res;
         }
-      } else {
-        return res;
       }
     } catch (e) {
       lastErr = e;
