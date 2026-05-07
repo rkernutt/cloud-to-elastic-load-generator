@@ -30,7 +30,7 @@
         "Azure Security Finding Chain — overview",
         "Azure Defender For Cloud — overview"
       ],
-      "investigationGuide": "# GuardDuty HIGH/CRITICAL Findings\n\nThe threat detector raised a HIGH or CRITICAL finding.\n\n## Triage\n1. List findings: `FROM logs-aws.guardduty-* | WHERE @timestamp > NOW() - 1h AND aws.guardduty.severity.value IN (\"High\", \"Critical\") | KEEP @timestamp, aws.guardduty.severity.value, aws.guardduty.type, source.ip | SORT @timestamp DESC | LIMIT 25`\n2. Identify the resource (instance ID or IAM user)\n3. If Exfiltration → see Data Exfil runbook; if PrivEsc → see IAM runbook\n\n## Escalate when\n- **Always page security on-call** for HIGH/CRITICAL\n- Customer data or secrets implicated"
+      "investigationGuide": "# Defender HIGH/CRITICAL Alerts\n\nThe threat detector raised a HIGH or CRITICAL finding.\n\n## Triage\n1. List findings: `FROM logs-azure.defender-* | WHERE @timestamp > NOW() - 1h AND azure.defender.severity IN (\"High\", \"Critical\") | KEEP @timestamp, azure.defender.severity, azure.defender.alert_type, source.ip | SORT @timestamp DESC | LIMIT 25`\n2. Identify the affected resource (resource ID or Entra principal)\n3. If Exfiltration → see Data Exfil runbook; if PrivEsc → see Entra ID / RBAC runbook\n\n## Escalate when\n- **Always page security on-call** for HIGH/CRITICAL\n- Customer data or secrets implicated"
     },
     {
       "id": "cloudloadgen-azure-security-chain-burst",
@@ -57,7 +57,7 @@
       "actions": [],
       "notify_when": "onActiveAlert",
       "relatedDashboards": ["Azure Security Finding Chain — overview"],
-      "investigationGuide": "# Multi-Stage Chain Burst\n\nMultiple alert-class docs across detectors in a short window.\n\n## Triage\n1. Detector breakdown: `FROM logs-aws.guardduty-*, logs-aws.securityhub_findings-*, logs-aws.securitylake-* | WHERE @timestamp > NOW() - 30m AND event.kind == \"alert\" | STATS findings = COUNT(*) BY event.dataset | SORT findings DESC`\n2. One detector spiking = less interesting; three = investigate\n3. Check for shared source.ip or user.name\n\n## Escalate when\n- Spike crosses three or more detectors with shared pivot\n- Includes HIGH/CRITICAL severity findings"
+      "investigationGuide": "# Multi-Stage Chain Burst\n\nMultiple alert-class docs across detectors in a short window.\n\n## Triage\n1. Detector breakdown: `FROM logs-azure.defender-*, logs-azure.sentinel-*, logs-azure.activitylogs-* | WHERE @timestamp > NOW() - 30m AND event.kind == \"alert\" | STATS findings = COUNT(*) BY event.dataset | SORT findings DESC`\n2. One detector spiking = less interesting; three = investigate\n3. Check for shared source.ip or user.name\n\n## Escalate when\n- Spike crosses three or more detectors with shared pivot\n- Includes HIGH/CRITICAL severity findings"
     },
     {
       "id": "cloudloadgen-azure-security-sentinel-incident",
@@ -84,7 +84,7 @@
       "actions": [],
       "notify_when": "onActiveAlert",
       "relatedDashboards": ["Azure Security Finding Chain — overview", "Azure Sentinel — overview"],
-      "investigationGuide": "# Security Hub Compliance FAILED\n\nMultiple controls marked FAILED — posture drift.\n\n## Triage\n1. Which controls: `FROM logs-aws.securityhub_findings-* | WHERE @timestamp > NOW() - 1h AND aws.securityhub_findings.Compliance.Status == \"FAILED\" | STATS failures = COUNT(*) BY aws.securityhub_findings.Compliance.SecurityControlId | SORT failures DESC | LIMIT 25`\n2. One control repeating = single misconfiguration; many = broader drift\n3. Check CloudTrail for recent resource creation\n\n## Escalate when\n- Failed control is in regulatory audit subset (PCI, HIPAA, SOC 2)\n- Same resource fails multiple controls"
+      "investigationGuide": "# Sentinel Incident Created\n\nA Sentinel incident aggregates correlated detections — review entities and tactics.\n\n## Triage\n1. Recent incidents: `FROM logs-azure.sentinel-* | WHERE @timestamp > NOW() - 1h AND event.kind == \"alert\" | STATS incidents = COUNT(*) BY user.name | SORT incidents DESC | LIMIT 25`\n2. One noisy analytic rule vs. many principals — breadth and new entities are higher signal\n3. Cross-check Defender alerts, `logs-azure.defender_recommendations-*` posture (e.g. `azure.defender_recommendations.status`), and Activity Logs in the same window\n\n## Escalate when\n- Incident touches regulated workloads (PCI, HIPAA, SOC 2)\n- Same resource or principal is unhealthy across Defender for Cloud recommendations and Sentinel"
     },
     {
       "id": "cloudloadgen-azure-security-high-severity",
@@ -114,7 +114,7 @@
         "Azure Security Finding Chain — overview",
         "Azure Defender For Cloud — overview"
       ],
-      "investigationGuide": "# Multiple GuardDuty Alerts With Source IP\n\nBurst of findings with external source IPs — likely external scanner/attacker.\n\n## Triage\n1. Top IPs: `FROM logs-aws.guardduty-* | WHERE @timestamp > NOW() - 1h AND event.kind == \"alert\" AND source.ip IS NOT NULL | STATS findings = COUNT(*) BY source.ip | SORT findings DESC | LIMIT 10`\n2. One IP = targeted; many IPs = broader campaign\n3. Check threat intel feeds for the IP\n\n## Escalate when\n- Source IP on known threat feed\n- Targets include customer-facing resources"
+      "investigationGuide": "# Multiple Defender Alerts With Source IP\n\nBurst of findings with external source IPs — likely external scanner or attacker.\n\n## Triage\n1. Top IPs: `FROM logs-azure.defender-* | WHERE @timestamp > NOW() - 1h AND event.kind == \"alert\" AND source.ip IS NOT NULL | STATS findings = COUNT(*) BY source.ip | SORT findings DESC | LIMIT 10`\n2. One IP = targeted; many IPs = broader campaign\n3. Check threat intel feeds for the IP\n\n## Escalate when\n- Source IP on known threat feed\n- Targets include customer-facing resources"
     }
   ]
 }

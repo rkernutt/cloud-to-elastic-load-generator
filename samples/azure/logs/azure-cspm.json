@@ -7,40 +7,61 @@
   },
   "cloud": {
     "provider": "azure",
-    "region": "qatarcentral",
-    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" }
+    "region": "canadacentral",
+    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
   },
   "resource": {
-    "id": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-analytics-3z8ljt/providers/Microsoft.Insights/components/insight-shared08d0e2",
-    "name": "insight-shared08d0e2",
-    "type": "monitoring",
-    "sub_type": "application-insights"
+    "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-prod-wfu3iq/providers/Microsoft.Network/networkSecurityGroups/nsg-datad37a92",
+    "name": "nsg-datad37a92",
+    "type": "network",
+    "sub_type": "network-security-group"
   },
   "rule": {
-    "id": "0d5ddd5f-749b-516b-89ca-b5bf18ba4861",
-    "name": "Ensure Application Insights are Configured",
-    "section": "5.3.1",
-    "description": "Application Insights within Azure act as an Application Performance Monitoring solution providing valuable data into how well an application performs and additional information when performing incident response.",
-    "tags": ["CIS", "AZURE", "CIS 5.3.1", "Configuring Application Insights"],
+    "id": "72bb12e0-31c0-54f4-a409-4aace3b602be",
+    "name": "Ensure that SSH access from the Internet is evaluated and restricted",
+    "section": "6.2",
+    "description": "Network security groups should be periodically evaluated for port misconfigurations.",
+    "tags": ["CIS", "AZURE", "CIS 6.2", "Networking"],
     "benchmark": {
       "id": "cis_azure",
       "name": "CIS Microsoft Azure Foundations",
       "version": "v2.0.0",
-      "rule_number": "5.3.1",
+      "rule_number": "6.2",
       "posture_type": "cspm"
     },
-    "profile_applicability": "* Level 2"
+    "profile_applicability": "* Level 1",
+    "impact": "Non-compliance with CIS Microsoft Azure Foundations 6.2 — Ensure that SSH access from the Internet is evaluated and restricted",
+    "remediation": "Remediate per CIS Microsoft Azure Foundations v2.0.0 section 6.2."
   },
-  "result": { "evaluation": "passed" },
+  "result": {
+    "evaluation": "failed",
+    "evidence": {
+      "securityRules": [
+        {
+          "name": "Allow-22-Tcp",
+          "properties": {
+            "priority": 305,
+            "direction": "Inbound",
+            "access": "Allow",
+            "protocol": "Tcp",
+            "sourcePortRange": "*",
+            "destinationPortRange": "22",
+            "sourceAddressPrefix": "*",
+            "destinationAddressPrefix": "*"
+          }
+        }
+      ]
+    }
+  },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_cspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_azure/5.3.1] passed: Ensure Application Insights are Configured",
-  "log": { "level": "info" }
+  "message": "[cis_azure/6.2] failed: Ensure that SSH access from the Internet is evaluated and restricted",
+  "log": { "level": "warn" }
 }

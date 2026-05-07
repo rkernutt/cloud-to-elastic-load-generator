@@ -3,47 +3,59 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-southeast1",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "us-west2",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-southeast1",
-    "ephemeral_id": "wqa9ro3iobb"
+    "name": "metricbeat-gcp-us-west2",
+    "ephemeral_id": "ddxv7tbgww"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "serviceruntime.googleapis.com/api/request_count",
-      "labels": { "credential_id": "resource-a" }
+      "type": "aiplatform.googleapis.com/matching_engine/query/request_count",
+      "labels": {
+        "deployed_index_id": "dep-idx-staging",
+        "method": "findNeighbors",
+        "response_code": "OK",
+        "is_private_endpoint": "false",
+        "candidate_name": "default",
+        "index_type": "dense"
+      }
     },
     "resource": {
-      "type": "consumed_api",
+      "type": "aiplatform.googleapis.com/IndexEndpoint",
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "service": "generic.googleapis.com",
-        "method": "resource_id"
+        "resource_container": "globex-prod-a1b2c3",
+        "location": "us-west2",
+        "index_endpoint_id": "idx-products"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "88596" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "792791" } }
     ]
   },
   "gcp": {
     "vertex-ai-matching-engine": {
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "service": "generic.googleapis.com",
-        "method": "resource_id",
-        "credential_id": "resource-a"
+        "resource_container": "globex-prod-a1b2c3",
+        "location": "us-west2",
+        "index_endpoint_id": "idx-products",
+        "deployed_index_id": "dep-idx-staging",
+        "method": "findNeighbors",
+        "response_code": "OK",
+        "is_private_endpoint": "false",
+        "candidate_name": "default",
+        "index_type": "dense"
       },
       "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": {
-          "avg": 88596,
-          "sum": 88596,
+        "aiplatform.googleapis.com/matching_engine/query/request_count": {
+          "avg": 792791,
+          "sum": 792791,
           "count": 1
         }
       }

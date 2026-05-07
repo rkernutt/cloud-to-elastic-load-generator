@@ -3,41 +3,46 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west1",
+    "region": "europe-west4",
     "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
     "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west1",
-    "ephemeral_id": "2dtdl4mdt5w"
+    "name": "metricbeat-gcp-europe-west4",
+    "ephemeral_id": "zr9i8r09d1"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "cloudbuild.googleapis.com/build/build_count",
-      "labels": { "status": "FAILURE" }
+      "type": "batch.googleapis.com/job/state_count",
+      "labels": { "state": "SUCCEEDED" }
     },
     "resource": {
-      "type": "cloud_build",
-      "labels": { "project_id": "globex-prod-a1b2c3", "build_id": "build-aa1" }
+      "type": "batch.googleapis.com/Job",
+      "labels": {
+        "resource_container": "globex-prod-a1b2c3",
+        "location": "europe-west4",
+        "job_name": "genomics-variant",
+        "job_uid": "genomics-variant-7189"
+      }
     },
-    "metricKind": "DELTA",
+    "metricKind": "GAUGE",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "31" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "64" } }
     ]
   },
   "gcp": {
     "batch": {
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "build_id": "build-aa1",
-        "status": "FAILURE"
+        "resource_container": "globex-prod-a1b2c3",
+        "location": "europe-west4",
+        "job_name": "genomics-variant",
+        "job_uid": "genomics-variant-7189",
+        "state": "SUCCEEDED"
       },
-      "metrics": {
-        "cloudbuild.googleapis.com/build/build_count": { "avg": 31, "sum": 31, "count": 1 }
-      }
+      "metrics": { "batch.googleapis.com/job/state_count": { "avg": 64, "sum": 64, "count": 1 } }
     }
   },
   "metricset": { "name": "batch", "period": 60000 },

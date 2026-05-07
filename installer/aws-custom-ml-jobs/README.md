@@ -53,7 +53,7 @@ The installer will prompt you for:
 | 6   | `networking-extended` | Extended networking — CloudFront, Route 53, Network Firewall                                                                                                                                                                                                       | 4    |
 | 7   | `databases`           | Databases — RDS, Aurora, ElastiCache                                                                                                                                                                                                                               | 6    |
 | 8   | `databases-extended`  | Extended databases — DynamoDB, Redshift, OpenSearch                                                                                                                                                                                                                | 5    |
-| 9   | `streaming`           | Streaming & messaging — Kinesis, SQS                                                                                                                                                                                                                               | 4    |
+| 9   | `streaming`           | Streaming & messaging — Kinesis, SQS, Firehose, Kinesis Analytics, MSK, SNS (see `streaming-jobs.json`)                                                                                                                                                            | 12   |
 | 10  | `messaging`           | Messaging & event bus — SNS, MSK, EventBridge, Step Functions                                                                                                                                                                                                      | 5    |
 | 11  | `analytics`           | Analytics — Glue, Athena, EMR                                                                                                                                                                                                                                      | 5    |
 | 12  | `aiml`                | AI & ML services — Bedrock                                                                                                                                                                                                                                         | 4    |
@@ -321,7 +321,7 @@ Available job groups:
     6. networking-extended (4 jobs) — Extended networking anomaly detection — CloudFront, Route 53, Network Firewall
     7. databases         (6 jobs)  — Database anomaly detection — RDS, Aurora, ElastiCache
     8. databases-extended (5 jobs) — Extended database anomaly detection — DynamoDB, Redshift, OpenSearch
-    9. streaming         (4 jobs)  — Streaming & messaging anomaly detection — Kinesis, SQS
+    9. streaming         (12 jobs) — Streaming & messaging anomaly detection — Kinesis, SQS, related streaming services
    10. messaging         (5 jobs)  — Messaging & event bus anomaly detection — SNS, MSK, EventBridge, Step Functions
    11. analytics         (5 jobs)  — Analytics anomaly detection — Glue, Athena, EMR
    12. aiml              (4 jobs)  — AI & ML service anomaly detection — Bedrock

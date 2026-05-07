@@ -1,13 +1,13 @@
 {
   "group": "gcp-compute",
-  "description": "GCP serverless & compute — Cloud Functions, Cloud Run, Compute Engine, GKE",
+  "description": "GCP serverless & compute \u2014 Cloud Functions, Cloud Run, Compute Engine, GKE",
   "jobs": [
     {
       "id": "gcp-cloud-functions-error-spike",
       "description": "Spikes in Cloud Functions failures per function name",
       "job": {
         "description": "Spikes in Cloud Functions failures per function name",
-        "groups": ["gcp", "compute"],
+        "groups": ["gcp", "compute", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -21,9 +21,16 @@
           "influencers": ["gcp.cloud_functions.function_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -31,15 +38,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "gcp" } },
-              { "wildcard": { "cloud.service.name": "*cloudfunctions*" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "wildcard": {
+                  "cloud.service.name": "*cloudfunctions*"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -47,7 +70,7 @@
       "description": "Unusual Cloud Run request duration per service",
       "job": {
         "description": "Unusual Cloud Run request duration per service",
-        "groups": ["gcp", "compute"],
+        "groups": ["gcp", "compute", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -62,9 +85,16 @@
           "influencers": ["gcp.cloud_run.service_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -72,14 +102,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "gcp" } },
-              { "wildcard": { "cloud.service.name": "*run.googleapis.com*" } }
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "wildcard": {
+                  "cloud.service.name": "*run.googleapis.com*"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -87,7 +129,7 @@
       "description": "Spikes in GKE pod events per cluster",
       "job": {
         "description": "Spikes in GKE pod events per cluster",
-        "groups": ["gcp", "compute"],
+        "groups": ["gcp", "compute", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -101,9 +143,16 @@
           "influencers": ["gcp.gke.cluster", "gcp.gke.namespace", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -111,14 +160,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "gcp" } },
-              { "wildcard": { "cloud.service.name": "*container.googleapis.com*" } }
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "wildcard": {
+                  "cloud.service.name": "*container.googleapis.com*"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -126,7 +187,7 @@
       "description": "Spikes in Compute Engine failure outcomes per instance",
       "job": {
         "description": "Spikes in Compute Engine failure outcomes",
-        "groups": ["gcp", "compute"],
+        "groups": ["gcp", "compute", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -140,9 +201,16 @@
           "influencers": ["gcp.compute_engine.instance_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -150,15 +218,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "gcp" } },
-              { "term": { "event.outcome": "failure" } },
-              { "wildcard": { "cloud.service.name": "*compute.googleapis.com*" } }
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              },
+              {
+                "wildcard": {
+                  "cloud.service.name": "*compute.googleapis.com*"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -166,7 +250,7 @@
       "description": "Detects spikes in Cloud Storage failures by bucket",
       "job": {
         "description": "Detects spikes in Cloud Storage failures by bucket",
-        "groups": ["gcp", "storage"],
+        "groups": ["gcp", "storage", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -180,9 +264,16 @@
           "influencers": ["gcp.gcs.bucket.name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -190,15 +281,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "gcp" } },
-              { "wildcard": { "cloud.service.name": "*storage.googleapis.com*" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "wildcard": {
+                  "cloud.service.name": "*storage.googleapis.com*"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -206,7 +313,7 @@
       "description": "Detects unusual Cloud Storage operation latency by bucket",
       "job": {
         "description": "Detects unusual Cloud Storage operation latency by bucket",
-        "groups": ["gcp", "storage"],
+        "groups": ["gcp", "storage", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -221,9 +328,16 @@
           "influencers": ["gcp.gcs.bucket.name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -231,14 +345,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "gcp" } },
-              { "wildcard": { "cloud.service.name": "*storage.googleapis.com*" } }
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "wildcard": {
+                  "cloud.service.name": "*storage.googleapis.com*"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

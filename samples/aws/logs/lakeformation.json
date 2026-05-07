@@ -1,72 +1,66 @@
 {
-  "@timestamp": "2026-05-06T16:22:59.897Z",
+  "@timestamp": "2026-05-07T10:17:35.322Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "us-east-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "lakeformation" }
   },
   "aws": {
     "dimensions": {
-      "ResourceArn": "arn:aws:glue:ap-southeast-1:501938274650:table/raw_data/events",
-      "Principal": "arn:aws:iam::501938274650:user/alice"
+      "ResourceArn": "arn:aws:glue:us-east-1:738291046572:table/data_lake/clickstream",
+      "Principal": "arn:aws:iam::738291046572:user/alice"
     },
     "lakeformation": {
-      "database": "raw_data",
-      "table": "events",
-      "action": "BatchGrantPermissions",
-      "principal_arn": "arn:aws:iam::501938274650:user/alice",
-      "resource_arn": "arn:aws:glue:ap-southeast-1:501938274650:table/raw_data/events",
-      "permissions": ["SELECT", "INSERT"],
-      "lf_tag_key": "environment",
+      "database": "data_lake",
+      "table": "clickstream",
+      "action": "Revoke",
+      "principal_arn": "arn:aws:iam::738291046572:user/alice",
+      "resource_arn": "arn:aws:glue:us-east-1:738291046572:table/data_lake/clickstream",
+      "permissions": ["ALL"],
+      "lf_tag_key": "team",
       "lf_tag_values": ["prod"],
-      "error_code": "AccessDeniedException",
       "metrics": {
-        "GrantCount": { "sum": 0 },
+        "GrantCount": { "sum": 14 },
         "DatabaseCount": { "avg": 2 },
-        "TableCount": { "avg": 100 },
+        "TableCount": { "avg": 183 },
         "DataLakeSettings": { "avg": 1 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-lakeformation-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-lakeformation-logs-501938274650"
+        "name": "aws-lakeformation-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-lakeformation-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/501938274650/lakeformation/ap-southeast-1/2026/05/06/lakeformation_0V4YJZ8P7QFH.log.gz"
+        "key": "AWSLogs/738291046572/lakeformation/us-east-1/2026/05/07/lakeformation_N2GFOCSAE6.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lakeformation/logs",
-      "log_stream": "ap-southeast-1/tgpjefqn",
-      "ingestion_time": "2026-05-06T16:23:00.666Z"
+      "log_stream": "us-east-1/ubhmu613",
+      "ingestion_time": "2026-05-07T10:17:36.462Z"
     }
   },
   "event": {
-    "action": "BatchGrantPermissions",
-    "duration": 2501000000,
-    "outcome": "failure",
+    "action": "Revoke",
+    "duration": 187000000,
+    "outcome": "success",
     "category": ["database", "iam"],
     "dataset": "aws.lakeformation",
     "provider": "lakeformation.amazonaws.com",
     "module": "aws"
   },
-  "message": "Lake Formation BatchGrantPermissions FAILED on raw_data.events: Entity not found",
-  "log": { "level": "error" },
-  "error": {
-    "code": "AccessDeniedException",
-    "message": "Lake Formation operation failed",
-    "type": "access"
-  },
+  "message": "Lake Formation Revoke: ALL on data_lake.clickstream",
+  "log": { "level": "info" },
   "service": { "name": "lakeformation", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lakeformation", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "hwdymegjasm"
+    "name": "filebeat-aws-us-east-1",
+    "ephemeral_id": "kk71nnae6ns"
   },
   "input": { "type": "aws-cloudwatch" }
 }

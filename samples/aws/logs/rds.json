@@ -1,101 +1,71 @@
 {
-  "@timestamp": "2026-05-06T16:22:59.897Z",
+  "@timestamp": "2026-05-07T10:17:35.322Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-west-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "rds" }
   },
   "aws": {
     "dimensions": {
-      "DBInstanceIdentifier": "prod-db-reporting",
+      "DBInstanceIdentifier": "prod-db-replica",
       "DatabaseClass": "db.m5.large",
-      "EngineName": "mysql",
-      "SourceRegion": "us-west-1"
+      "EngineName": "aurora-postgresql",
+      "SourceRegion": "eu-west-2"
     },
     "cloudwatch": {
-      "log_group": "/aws/rds/instance/prod-db-reporting/slowquery",
-      "log_stream": "prod-db-reporting",
-      "ingestion_time": "2026-05-06T16:23:00.512Z"
+      "log_group": "/aws/rds/cluster/prod-db-replica/postgresql",
+      "log_stream": "prod-db-replica",
+      "ingestion_time": "2026-05-07T10:17:36.032Z"
     },
     "rds": {
       "db_instance": {
-        "identifier": "prod-db-reporting",
+        "identifier": "prod-db-replica",
         "class": "db.m5.large",
-        "engine_name": "mysql",
-        "engine_version": "8.0.36",
-        "arn": "arn:aws:rds:us-west-1:738291046572:db:prod-db-reporting",
+        "engine_name": "aurora-postgresql",
+        "engine_version": "14.2",
+        "arn": "arn:aws:rds:eu-west-2:164820739518:db:prod-db-replica",
         "status": "available",
-        "role": "instance",
-        "multi_az": false,
-        "storage_type": "io1",
-        "allocated_storage_gb": 1000
+        "role": "read-replica",
+        "multi_az": true,
+        "storage_type": "gp3",
+        "allocated_storage_gb": 100
       },
-      "log_type": "slowquery",
-      "cpu": { "total": { "pct": 0.4705 } },
-      "freeable_memory": { "bytes": 3858995285 },
-      "free_storage": { "bytes": 281157558418 },
-      "database_connections": 500,
-      "read_io": { "ops_per_sec": 1065.9603476866578 },
-      "write_io": { "ops_per_sec": 430.76616774913737 },
-      "latency": { "read": 0.013621218770871597, "write": 0.008288120067476475 },
+      "log_type": "postgresql",
+      "cpu": { "total": { "pct": 0.5371 } },
+      "freeable_memory": { "bytes": 1282305725 },
+      "free_storage": { "bytes": 369522963601 },
+      "database_connections": 173,
+      "read_io": { "ops_per_sec": 137.08553318213623 },
+      "write_io": { "ops_per_sec": 2537.88383409011 },
+      "latency": { "read": 0.01549057462176592, "write": 0.0052430437188818275 },
       "throughput": {
-        "read": 35715451,
-        "write": 42487552,
-        "network_receive": 24607948,
-        "network_transmit": 57493525
+        "read": 21740415,
+        "write": 88606790,
+        "network_receive": 22503005,
+        "network_transmit": 85596849
       },
-      "replica_lag": { "sec": 77.0938564347173 },
-      "swap_usage": { "bytes": 80731459 },
-      "disk_usage": { "bin_log": { "bytes": 742341961 } },
-      "enhanced_monitoring": {
-        "cpuUtilization": {
-          "guest": 1.9101280881393268,
-          "irq": 0.39006388657095203,
-          "system": 9.202102487556125,
-          "wait": 1.5283074547767646,
-          "idle": 75.8,
-          "user": 11.138636965893664,
-          "total": 24.2
-        },
-        "memory": {
-          "total": 16350858822,
-          "free": 3128990011,
-          "cached": 6254556720,
-          "active": 3904481386,
-          "inactive": 3225869381,
-          "buffers": 330681287
-        },
-        "disk": {
-          "readIOsPS": 585.9312096565675,
-          "writeIOsPS": 313.0304956261148,
-          "readKbPS": 123625.0053881966,
-          "writeKbPS": 226920.00343237424,
-          "avgQueueLen": 6.215510883376956,
-          "await": 1.0907568037949342
-        },
-        "network": { "rx": 68545382, "tx": 13828843 },
-        "numVCPUs": 8,
-        "uptime": "63 days, 10:06:00"
-      }
+      "replica_lag": { "sec": 39.85982559122456 },
+      "swap_usage": { "bytes": 2828404 },
+      "disk_usage": { "bin_log": { "bytes": 636254521 } }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-rds-logs-738291046572"
+        "name": "aws-rds-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-rds-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/738291046572/rds/us-west-1/2026/05/06/rds_YNW5ALE1ECK.log.gz" }
+      "object": { "key": "AWSLogs/164820739518/rds/eu-west-2/2026/05/07/rds_V8RU85Z4YGL.log.gz" }
     }
   },
   "db": {
-    "user": { "name": "appuser" },
+    "user": { "name": "migration_user" },
     "name": "appdb",
-    "statement": "SELECT * FROM events WHERE id = 156800",
+    "statement": "SELECT * FROM orders WHERE id = 133413",
     "type": "sql"
   },
-  "source": { "ip": "91.58.119.62" },
+  "source": { "ip": "136.221.13.163" },
   "event": {
-    "duration": 1604039760.3635616,
+    "duration": 1512436084.9712355,
     "outcome": "success",
     "category": ["database"],
     "type": ["info", "access"],
@@ -103,7 +73,7 @@
     "provider": "rds.amazonaws.com",
     "module": "aws"
   },
-  "message": "# Time: 2026-05-06 16:22:59.897\n# User@Host: appuser[appuser] @ 91.58.119.62 [91.58.119.62]  Id: 53840\n# Query_time: 1.604040  Lock_time: 0.004334 Rows_sent: 1378  Rows_examined: 13723\nSET timestamp=1778084579;\nSELECT * FROM events WHERE id = 156800;",
+  "message": "2026-05-07 10:17:35.322 UTC:136.221.13.163(50959):migration_user@appdb:[37757]:LOG:  duration: 1512.436 ms  parse <unnamed>: SELECT * FROM orders WHERE id = 133413",
   "log": { "level": "info" },
   "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -111,8 +81,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "cnbcza2kuj"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "xdohsby4hpt"
   },
   "input": { "type": "aws-cloudwatch" }
 }

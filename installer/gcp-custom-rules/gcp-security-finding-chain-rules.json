@@ -30,7 +30,7 @@
         "GCP Security Finding Chain — overview",
         "GCP Security Command Center — overview"
       ],
-      "investigationGuide": "# GuardDuty HIGH/CRITICAL Findings\n\nThe threat detector raised a HIGH or CRITICAL finding.\n\n## Triage\n1. List findings: `FROM logs-aws.guardduty-* | WHERE @timestamp > NOW() - 1h AND aws.guardduty.severity.value IN (\"High\", \"Critical\") | KEEP @timestamp, aws.guardduty.severity.value, aws.guardduty.type, source.ip | SORT @timestamp DESC | LIMIT 25`\n2. Identify the resource (instance ID or IAM user)\n3. If Exfiltration → see Data Exfil runbook; if PrivEsc → see IAM runbook\n\n## Escalate when\n- **Always page security on-call** for HIGH/CRITICAL\n- Customer data or secrets implicated"
+      "investigationGuide": "# SCC HIGH/CRITICAL Findings\n\nSecurity Command Center raised a HIGH or CRITICAL finding.\n\n## Triage\n1. List findings: `FROM logs-gcp.scc-* | WHERE @timestamp > NOW() - 1h AND gcp.scc.severity IN (\"HIGH\", \"CRITICAL\") | KEEP @timestamp, gcp.scc.severity, gcp.scc.category, source.ip | SORT @timestamp DESC | LIMIT 25`\n2. Identify the resource (project, asset, or principal)\n3. If exfiltration class → see Data Exfil runbook; if IAM abuse → see IAM runbook\n\n## Escalate when\n- **Always page security on-call** for HIGH/CRITICAL\n- Customer data or secrets implicated"
     },
     {
       "id": "cloudloadgen-gcp-security-chain-burst",
@@ -57,7 +57,7 @@
       "actions": [],
       "notify_when": "onActiveAlert",
       "relatedDashboards": ["GCP Security Finding Chain — overview"],
-      "investigationGuide": "# Multi-Stage Chain Burst\n\nMultiple alert-class docs across detectors in a short window.\n\n## Triage\n1. Detector breakdown: `FROM logs-aws.guardduty-*, logs-aws.securityhub_findings-*, logs-aws.securitylake-* | WHERE @timestamp > NOW() - 30m AND event.kind == \"alert\" | STATS findings = COUNT(*) BY event.dataset | SORT findings DESC`\n2. One detector spiking = less interesting; three = investigate\n3. Check for shared source.ip or user.name\n\n## Escalate when\n- Spike crosses three or more detectors with shared pivot\n- Includes HIGH/CRITICAL severity findings"
+      "investigationGuide": "# Multi-Stage Chain Burst\n\nMultiple alert-class docs across SCC, SecOps, or related stores in a short window.\n\n## Triage\n1. Source breakdown: `FROM logs-gcp.scc-*, logs-gcp.secops-*, logs-gcp.securitylake-* | WHERE @timestamp > NOW() - 30m AND event.kind == \"alert\" | STATS findings = COUNT(*) BY event.dataset | SORT findings DESC`\n2. One source spiking = less interesting; three = investigate\n3. Check for shared source.ip or user.name\n\n## Escalate when\n- Spike crosses three or more sources with shared pivot\n- Includes HIGH/CRITICAL severity findings"
     },
     {
       "id": "cloudloadgen-gcp-security-secops-case-created",
@@ -87,7 +87,7 @@
         "GCP Security Finding Chain — overview",
         "GCP Security Operations (SecOps) — overview"
       ],
-      "investigationGuide": "# Security Hub Compliance FAILED\n\nMultiple controls marked FAILED — posture drift.\n\n## Triage\n1. Which controls: `FROM logs-aws.securityhub_findings-* | WHERE @timestamp > NOW() - 1h AND aws.securityhub_findings.Compliance.Status == \"FAILED\" | STATS failures = COUNT(*) BY aws.securityhub_findings.Compliance.SecurityControlId | SORT failures DESC | LIMIT 25`\n2. One control repeating = single misconfiguration; many = broader drift\n3. Check CloudTrail for recent resource creation\n\n## Escalate when\n- Failed control is in regulatory audit subset (PCI, HIPAA, SOC 2)\n- Same resource fails multiple controls"
+      "investigationGuide": "# SecOps Case Created\n\nA SecOps case was opened — validate scope and SCC posture around the same window.\n\n## Triage\n1. Open the case in SecOps: confirm priority, assignee, and linked alerts\n2. SCC compliance drift: `FROM logs-gcp.scc-* | WHERE @timestamp > NOW() - 1h AND gcp.scc.compliance.status == \"FAILED\" | STATS failures = COUNT(*) BY gcp.scc.compliance.standard | SORT failures DESC | LIMIT 25`\n3. Check Cloud Audit Logs for recent IAM or resource changes tied to the case\n\n## Escalate when\n- Case references regulated data (PCI, HIPAA, SOC 2) or critical assets\n- Same resource fails multiple SCC compliance checks"
     },
     {
       "id": "cloudloadgen-gcp-security-secops-high-match",
@@ -117,7 +117,7 @@
         "GCP Security Finding Chain — overview",
         "GCP Security Operations (SecOps) — overview"
       ],
-      "investigationGuide": "# Multiple GuardDuty Alerts With Source IP\n\nBurst of findings with external source IPs — likely external scanner/attacker.\n\n## Triage\n1. Top IPs: `FROM logs-aws.guardduty-* | WHERE @timestamp > NOW() - 1h AND event.kind == \"alert\" AND source.ip IS NOT NULL | STATS findings = COUNT(*) BY source.ip | SORT findings DESC | LIMIT 10`\n2. One IP = targeted; many IPs = broader campaign\n3. Check threat intel feeds for the IP\n\n## Escalate when\n- Source IP on known threat feed\n- Targets include customer-facing resources"
+      "investigationGuide": "# Multiple SCC Alerts With Source IP\n\nBurst of findings with external source IPs — likely external scanner or attacker.\n\n## Triage\n1. Top IPs: `FROM logs-gcp.scc-* | WHERE @timestamp > NOW() - 1h AND event.kind == \"alert\" AND source.ip IS NOT NULL | STATS findings = COUNT(*) BY source.ip | SORT findings DESC | LIMIT 10`\n2. One IP = targeted; many IPs = broader campaign\n3. Check threat intel feeds for the IP\n\n## Escalate when\n- Source IP on known threat feed\n- Targets include customer-facing resources"
     }
   ]
 }

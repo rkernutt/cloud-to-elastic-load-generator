@@ -11,12 +11,6 @@ export function mergeGcpLogVariants(
   return (ts: string, er: number) => rand(variants)(ts, er);
 }
 
-export function mergeGcpTraceVariants(
-  variants: Array<(ts: string, er: number) => Record<string, unknown>[]>
-): (ts: string, er: number) => Record<string, unknown>[] {
-  return (ts: string, er: number) => rand(variants)(ts, er);
-}
-
 export function mergeGcpMetricVariants(variants: MetricGenerator[]): MetricGenerator {
   return (ts: string, er: number) => rand(variants)(ts, er);
 }

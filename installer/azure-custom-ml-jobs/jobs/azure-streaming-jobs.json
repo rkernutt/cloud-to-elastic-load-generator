@@ -1,13 +1,13 @@
 {
   "group": "azure-streaming",
-  "description": "Azure messaging — Event Hubs, Service Bus",
+  "description": "Azure messaging \u2014 Event Hubs, Service Bus",
   "jobs": [
     {
       "id": "azure-event-hubs-failure-spike",
       "description": "Spikes in Event Hubs throttling / failures per hub",
       "job": {
         "description": "Spikes in Event Hubs failures per hub",
-        "groups": ["azure", "streaming"],
+        "groups": ["azure", "streaming", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -21,9 +21,16 @@
           "influencers": ["azure.event_hubs.eventhub", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -31,19 +38,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
               {
                 "term": {
                   "cloud.service.name": "Microsoft.EventHub/namespaces"
                 }
               },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -51,7 +70,7 @@
       "description": "Unusual Event Hubs incoming bytes per hub",
       "job": {
         "description": "Unusual Event Hubs incoming bytes per hub",
-        "groups": ["azure", "streaming"],
+        "groups": ["azure", "streaming", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -66,9 +85,16 @@
           "influencers": ["azure.event_hubs.eventhub", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -76,7 +102,11 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
               {
                 "term": {
                   "cloud.service.name": "Microsoft.EventHub/namespaces"
@@ -85,9 +115,13 @@
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -95,7 +129,7 @@
       "description": "Spikes in Service Bus failures per entity",
       "job": {
         "description": "Spikes in Service Bus failures per entity",
-        "groups": ["azure", "streaming"],
+        "groups": ["azure", "streaming", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -109,9 +143,16 @@
           "influencers": ["azure.service_bus.entity", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -119,19 +160,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
               {
                 "term": {
                   "cloud.service.name": "Microsoft.ServiceBus/namespaces"
                 }
               },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

@@ -83,19 +83,3 @@ export function enrichAzureTraceDoc(
     ...appInsightsMeta(traceId, parentId, spanId ?? txId, name),
   } as EcsDocument;
 }
-
-export function azureCustomDimensions(
-  region: string,
-  resourceGroup: string,
-  subscriptionId: string,
-  extra?: Record<string, string>
-) {
-  return {
-    customDimensions: {
-      azure_region: region,
-      azure_resource_group: resourceGroup,
-      azure_subscription_id: subscriptionId,
-      ...extra,
-    },
-  };
-}

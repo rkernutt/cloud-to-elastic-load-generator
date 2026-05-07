@@ -30,7 +30,7 @@
         "Azure IAM Privilege Escalation Chain — overview",
         "Microsoft Entra ID — Sign-ins & Risk"
       ],
-      "investigationGuide": "# CreateAccessKey (Non-Admin)\n\nA non-admin minted a new access key.\n\n## Triage\n1. Check caller vs target: `FROM logs-aws.cloudtrail-* | WHERE @timestamp > NOW() - 1h AND event.action == \"CreateAccessKey\" | KEEP @timestamp, user.name, aws.cloudtrail.request_parameters, source.ip, user_agent.original | SORT @timestamp DESC`\n2. If caller != target user, high signal\n3. Is target user privileged?\n\n## Escalate when\n- Caller != target user\n- Target is a service account\n- Source IP outside corp/VPN"
+      "investigationGuide": "# Entra ID High-Risk Sign-In\n\nA sign-in was flagged with high risk by Entra ID.\n\n## Triage\n1. Review actor and context: `FROM logs-azure.entra_id-* | WHERE @timestamp > NOW() - 1h AND azure.entra_id.riskLevel == \"high\" | KEEP @timestamp, user.name, source.ip, user_agent.original, azure.entra_id.riskLevel | SORT @timestamp DESC`\n2. Unfamiliar IP, device, or location is higher signal\n3. Cross-check Activity Logs for Entra ID / RBAC changes after the sign-in\n\n## Escalate when\n- Affected principal is privileged or has production access\n- Service account or break-glass user\n- Source IP outside corp/VPN"
     },
     {
       "id": "cloudloadgen-azure-iam-owner-assignment",
@@ -60,7 +60,7 @@
         "Azure IAM Privilege Escalation Chain — overview",
         "Azure Activity Log — Operations & Failures"
       ],
-      "investigationGuide": "# AdministratorAccess Policy Attached\n\nA non-admin attached AdministratorAccess — very high signal.\n\n## Triage\n1. Confirm: `FROM logs-aws.cloudtrail-* | WHERE @timestamp > NOW() - 1h AND event.action == \"AttachUserPolicy\" AND aws.cloudtrail.request_parameters LIKE \"*AdministratorAccess*\" | KEEP @timestamp, user.name, aws.cloudtrail.request_parameters, source.ip | SORT @timestamp DESC`\n2. Detach the policy immediately\n3. Check caller's full activity timeline\n\n## Escalate when\n- **Always page security on-call.** Admin-attach by non-admin is rare and high-confidence."
+      "investigationGuide": "# Owner Role Assignment\n\nAn Owner role assignment was written — very high signal.\n\n## Triage\n1. Confirm: `FROM logs-azure.activitylogs-* | WHERE @timestamp > NOW() - 1h AND event.action == \"Microsoft.Authorization/roleAssignments/write\" AND azure.activitylogs.properties LIKE \"*Owner*\" | KEEP @timestamp, user.name, azure.activitylogs.properties, source.ip | SORT @timestamp DESC`\n2. Revoke the assignment if unauthorized\n3. Check caller's full Activity Logs timeline\n\n## Escalate when\n- **Always page security on-call.** Owner role assignment by an unexpected principal is rare and high-confidence."
     },
     {
       "id": "cloudloadgen-azure-iam-subscription-enum",
@@ -90,7 +90,7 @@
         "Azure IAM Privilege Escalation Chain — overview",
         "Azure Activity Log — Operations & Failures"
       ],
-      "investigationGuide": "# AssumeRole With Privilege-Escalation Tactic\n\nA role assumption was tagged as privilege escalation.\n\n## Triage\n1. Check tactic: `FROM logs-aws.cloudtrail-* | WHERE @timestamp > NOW() - 1h AND event.action == \"AssumeRole\" AND threat.tactic.name IS NOT NULL | KEEP @timestamp, user.name, aws.cloudtrail.request_parameters, threat.tactic.name, source.ip | SORT @timestamp DESC`\n2. Trace what the assumed role did next\n3. Revoke the session if suspicious\n\n## Escalate when\n- Assumed role has admin or production access\n- Multiple AssumeRole events from same caller"
+      "investigationGuide": "# Subscription Enumeration\n\nRepeated or suspicious subscription read activity from Activity Logs.\n\n## Triage\n1. Scope callers: `FROM logs-azure.activitylogs-* | WHERE @timestamp > NOW() - 1h AND event.action LIKE \"*subscriptions/read*\" | STATS reads = COUNT(*) BY user.name, source.ip | SORT reads DESC | LIMIT 25`\n2. Map follow-on writes to Entra ID / RBAC or resource changes\n3. Lock down or revoke sessions if the pattern is anomalous\n\n## Escalate when\n- Enumeration precedes role assignment or Owner grants\n- Same caller from unusual geo or IP"
     },
     {
       "id": "cloudloadgen-azure-iam-full-chain",
@@ -121,7 +121,7 @@
         "Microsoft Entra ID — Sign-ins & Risk",
         "Azure Activity Log — Operations & Failures"
       ],
-      "investigationGuide": "# High Volume of Dangerous IAM Actions\n\n**Apex rule — treat as confirmed privilege escalation.**\n\n## Triage\n1. Identify principal: `FROM logs-aws.cloudtrail-* | WHERE @timestamp > NOW() - 1h AND event.action IN (\"CreateAccessKey\", \"AttachUserPolicy\", \"AssumeRole\") | STATS dangerous = COUNT(*) BY user.name, event.action | SORT dangerous DESC`\n2. Reconstruct full timeline on the linked dashboard\n3. Disable the principal, rotate keys, detach policies\n\n## Escalate when\n- **Always.** This is the apex rule of the IAM PrivEsc chain."
+      "investigationGuide": "# High Volume of Dangerous Entra ID / RBAC Actions\n\n**Apex rule — treat as confirmed privilege escalation.**\n\n## Triage\n1. Identify principal: `FROM logs-azure.entra_id-*, logs-azure.activitylogs-* | WHERE @timestamp > NOW() - 1h AND (azure.entra_id.riskLevel == \"high\" OR event.action IN (\"Microsoft.Authorization/roleAssignments/write\", \"Microsoft.Authorization/roleDefinitions/write\", \"Microsoft.Authorization/elevateAccess/action\")) | STATS dangerous = COUNT(*) BY user.name, event.action | SORT dangerous DESC`\n2. Reconstruct full timeline on the linked dashboard\n3. Disable the principal in Entra ID, invalidate sessions, revoke risky assignments\n\n## Escalate when\n- **Always.** This is the apex rule of the IAM PrivEsc chain."
     }
   ]
 }

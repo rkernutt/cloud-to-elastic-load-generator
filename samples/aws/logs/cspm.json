@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-05-06T16:22:59.897Z",
+  "@timestamp": "2026-05-07T10:17:35.322Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,35 +7,38 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-4",
-    "account": { "id": "293847561023", "name": "globex-staging" }
+    "region": "ca-central-1",
+    "account": { "id": "738291046572", "name": "globex-development" }
   },
   "resource": {
-    "id": "arn:aws:iam::293847561023:root",
-    "name": "root",
+    "id": "arn:aws:iam::738291046572:user/carol",
+    "name": "carol",
     "type": "identitymanagement",
-    "sub_type": "iam-root"
+    "sub_type": "iam-user"
   },
   "rule": {
-    "id": "7a2ab526-3440-5a0f-804c-c5eea8158053",
-    "name": "Ensure no 'root' user account access key exists",
-    "section": "1.4",
-    "description": "The 'root' user account is the most privileged user in an AWS account.",
-    "tags": ["CIS", "AWS", "CIS 1.4", "Identity and Access Management"],
+    "id": "34a4790c-0214-5eec-b97d-1c11ffa6861e",
+    "name": "Ensure credentials unused for 45 days or greater are disabled",
+    "section": "1.12",
+    "description": "AWS IAM users can access AWS resources using different types of credentials, such as passwords or access keys.",
+    "tags": ["CIS", "AWS", "CIS 1.12", "Identity and Access Management"],
     "benchmark": {
       "id": "cis_aws",
       "name": "CIS Amazon Web Services Foundations",
       "version": "v1.5.0",
-      "rule_number": "1.4",
+      "rule_number": "1.12",
       "posture_type": "cspm"
     },
     "profile_applicability": "* Level 1",
-    "impact": "Non-compliance with CIS Amazon Web Services Foundations 1.4 — Ensure no 'root' user account access key exists",
-    "remediation": "Remediate per CIS Amazon Web Services Foundations v1.5.0 section 1.4."
+    "impact": "Non-compliance with CIS Amazon Web Services Foundations 1.12 — Ensure credentials unused for 45 days or greater are disabled",
+    "remediation": "Remediate per CIS Amazon Web Services Foundations v1.5.0 section 1.12."
   },
   "result": {
     "evaluation": "failed",
-    "evidence": { "access_key_1_active": true, "access_key_2_active": false }
+    "evidence": {
+      "password_last_used": "2026-03-08T10:17:36Z",
+      "access_key_1_last_used": "2026-03-18T10:17:36Z"
+    }
   },
   "event": {
     "kind": "state",
@@ -46,6 +49,6 @@
     "provider": "elastic_cspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_aws/1.4] failed: Ensure no 'root' user account access key exists",
+  "message": "[cis_aws/1.12] failed: Ensure credentials unused for 45 days or greater are disabled",
   "log": { "level": "warn" }
 }

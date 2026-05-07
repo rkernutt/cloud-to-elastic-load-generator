@@ -3,46 +3,56 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "me-central1",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "us-east1",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-me-central1",
-    "ephemeral_id": "17c9tj8mbbc"
+    "name": "metricbeat-gcp-us-east1",
+    "ephemeral_id": "vncj6oxxlzr"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "storage.googleapis.com/api/request_count",
-      "labels": { "method": "GET", "response_code": "200" }
+      "type": "compute.googleapis.com/instance/disk/read_ops_count",
+      "labels": {
+        "device_name": "persistent-disk-0",
+        "storage_type": "pd-balanced",
+        "device_type": "permanent"
+      }
     },
     "resource": {
-      "type": "gcs_bucket",
+      "type": "gce_instance",
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "bucket_name": "data-lake",
-        "location": "me-central1"
+        "project_id": "globex-shared-m3n4o5",
+        "instance_id": "9067781881676",
+        "zone": "us-east1-c"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "265939" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "374533" } }
     ]
   },
   "gcp": {
     "persistent-disk": {
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "bucket_name": "data-lake",
-        "location": "me-central1",
-        "method": "GET",
-        "response_code": "200"
+        "project_id": "globex-shared-m3n4o5",
+        "instance_id": "9067781881676",
+        "zone": "us-east1-c",
+        "device_name": "persistent-disk-0",
+        "storage_type": "pd-balanced",
+        "device_type": "permanent",
+        "instance_name": "cache-rzwr"
       },
       "metrics": {
-        "storage.googleapis.com/api/request_count": { "avg": 265939, "sum": 265939, "count": 1 }
+        "compute.googleapis.com/instance/disk/read_ops_count": {
+          "avg": 374533,
+          "sum": 374533,
+          "count": 1
+        }
       }
     }
   },

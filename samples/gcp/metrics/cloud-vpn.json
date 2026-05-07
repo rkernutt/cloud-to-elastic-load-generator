@@ -3,54 +3,45 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west9",
+    "region": "us-east5",
     "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
     "account": { "id": "173205080756", "name": "Globex Shared Services" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west9",
-    "ephemeral_id": "cbxtbdz61md"
+    "name": "metricbeat-gcp-us-east5",
+    "ephemeral_id": "0usz5q1vp67g"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "loadbalancing.googleapis.com/https/request_count",
-      "labels": { "response_code_class": "2xx" }
+      "type": "vpn.googleapis.com/tunnel_established",
+      "labels": { "tunnel_name": "tunnel-dr-04", "gateway_name": "vpn-gw-ha-1" }
     },
     "resource": {
-      "type": "https_lb_rule",
+      "type": "vpn_gateway",
       "labels": {
         "project_id": "globex-shared-m3n4o5",
-        "url_map_name": "api-map",
-        "forwarding_rule_name": "fr-generic",
-        "target_proxy_name": "tp-generic",
-        "region": "europe-west9"
+        "gateway_id": "vpn-gw-ha-1",
+        "region": "us-east5"
       }
     },
-    "metricKind": "DELTA",
-    "valueType": "INT64",
+    "metricKind": "GAUGE",
+    "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "594482" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 1 } }
     ]
   },
   "gcp": {
     "cloud-vpn": {
       "labels": {
         "project_id": "globex-shared-m3n4o5",
-        "url_map_name": "api-map",
-        "forwarding_rule_name": "fr-generic",
-        "target_proxy_name": "tp-generic",
-        "region": "europe-west9",
-        "response_code_class": "2xx"
+        "gateway_id": "vpn-gw-ha-1",
+        "region": "us-east5",
+        "tunnel_name": "tunnel-dr-04",
+        "gateway_name": "vpn-gw-ha-1"
       },
-      "metrics": {
-        "loadbalancing.googleapis.com/https/request_count": {
-          "avg": 594482,
-          "sum": 594482,
-          "count": 1
-        }
-      }
+      "metrics": { "vpn.googleapis.com/tunnel_established": { "avg": 1, "sum": 1, "count": 1 } }
     }
   },
   "metricset": { "name": "cloud-vpn", "period": 60000 },

@@ -1,81 +1,81 @@
 {
-  "@timestamp": "2026-05-06T16:22:59.897Z",
+  "@timestamp": "2026-05-07T10:17:35.322Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-northeast-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "athena" }
   },
   "aws": {
     "athena": {
-      "query_execution_id": "qp1jcrp6-ejar-bf6x-w6djsnz5m7",
+      "query_execution_id": "n4dryilz-owza-u245-0se7dq6g0zq",
       "query_type": "DML",
-      "workgroup": "data-engineering",
+      "workgroup": "primary",
       "catalog": "AwsDataCatalog",
-      "database": "raw",
-      "output_location": "s3://aws-athena-query-results-501938274650-us-west-1/data-engineering/2026-05-06/qp1jcrp6-ejar-bf6x-w6djsnz5m7.csv",
+      "database": "staging",
+      "output_location": "s3://aws-athena-query-results-814726593401-ap-northeast-3/primary/2026-05-07/n4dryilz-owza-u245-0se7dq6g0zq.csv",
       "state": "SUCCEEDED",
       "state_change_reason": "",
-      "submission_date_time": "2026-05-06T16:22:36.356Z",
-      "completion_date_time": "2026-05-06T16:22:59.897Z",
+      "submission_date_time": "2026-05-07T10:16:48.514Z",
+      "completion_date_time": "2026-05-07T10:17:35.322Z",
       "engine_version": "Athena engine version 3",
       "execution_parameters": [],
       "result_reuse": false,
       "statistics": {
-        "DataScannedInBytes": 2352555739,
-        "EngineExecutionTimeInMillis": 22578,
-        "QueryPlanningTimeInMillis": 158,
-        "QueryQueueTimeInMillis": 128,
-        "ServiceProcessingTimeInMillis": 677,
-        "TotalExecutionTimeInMillis": 23541,
+        "DataScannedInBytes": 3444231783,
+        "EngineExecutionTimeInMillis": 45717,
+        "QueryPlanningTimeInMillis": 156,
+        "QueryQueueTimeInMillis": 304,
+        "ServiceProcessingTimeInMillis": 631,
+        "TotalExecutionTimeInMillis": 46808,
         "ResultReuseInformation": { "ReusedPreviousResult": false }
       },
       "metrics": {
-        "DataScannedInBytes": { "sum": 2352555739 },
-        "EngineExecutionTimeInMillis": { "avg": 22578, "max": 27094 },
-        "ProcessedBytes": { "sum": 2352555739 },
-        "QueryQueueTimeInMillis": { "avg": 128 },
-        "TotalExecutionTimeInMillis": { "avg": 23541 },
-        "QueryPlanningTimeInMillis": { "avg": 158 }
+        "DataScannedInBytes": { "sum": 3444231783 },
+        "EngineExecutionTimeInMillis": { "avg": 45717, "max": 54860 },
+        "ProcessedBytes": { "sum": 3444231783 },
+        "QueryQueueTimeInMillis": { "avg": 304 },
+        "TotalExecutionTimeInMillis": { "avg": 46808 },
+        "QueryPlanningTimeInMillis": { "avg": 156 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-athena-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-athena-logs-501938274650"
+        "name": "aws-athena-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-athena-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/athena/us-west-1/2026/05/06/athena_1LPLUQMSJJD.log.gz"
+        "key": "AWSLogs/814726593401/athena/ap-northeast-3/2026/05/07/athena_UJYM37AH9VP.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/athena/logs",
-      "log_stream": "us-west-1/yor239on",
-      "ingestion_time": "2026-05-06T16:23:00.665Z"
+      "log_stream": "ap-northeast-3/u7iq3kq2",
+      "ingestion_time": "2026-05-07T10:17:36.460Z"
     }
   },
   "db": {
-    "statement": "UNLOAD (SELECT * FROM raw.sessions WHERE dt = current_date) TO 's3://unload-output/raw/sessions/' WITH (format = 'PARQUET', compression = 'SNAPPY')",
+    "statement": "SELECT date_trunc('day', event_time) AS dt, count(*) AS cnt FROM staging.sessions WHERE dt >= current_date - interval '7' day GROUP BY 1 ORDER BY 1",
     "type": "sql"
   },
   "event": {
-    "duration": 23541000000,
+    "duration": 46808000000,
     "outcome": "success",
     "category": ["database", "process"],
     "dataset": "aws.athena",
     "provider": "athena.amazonaws.com",
     "module": "aws"
   },
-  "message": "Query qp1jcrp6-ejar-bf6x-w6djsnz5m7 completed in 23.54s, scanned 2.19 GB",
-  "log": { "level": "info" },
+  "message": "Query n4dryilz-owza-u245-0se7dq6g0zq completed in 46.81s, scanned 3.21 GB",
+  "log": { "level": "warn" },
   "service": { "name": "athena", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.athena", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "m9i5wxrqdck"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "8g2xc3s0u3p"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -3,65 +3,49 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "southeastasia",
-    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" }
+    "region": "qatarcentral",
+    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-southeastasia",
-    "ephemeral_id": "yyda0ihf57r"
+    "name": "metricbeat-azure-qatarcentral",
+    "ephemeral_id": "vxnfj2rjy9"
   },
   "azure": {
-    "waf_policy": {
+    "waf": {
       "metrics": {
-        "Transactions": {
-          "avg": 1254308,
-          "min": 1103791.04,
-          "max": 1404824.96,
-          "sum": 1254308,
+        "MatchedWafRequests": {
+          "avg": 1110440,
+          "min": 977187.2,
+          "max": 1243692.8,
+          "sum": 1110440,
           "count": 1
         },
-        "Ingress": {
-          "avg": 10142465331,
-          "min": 8925369491.28,
-          "max": 11359561170.72,
-          "sum": 10142465331,
+        "BlockedWafRequests": {
+          "avg": 2077,
+          "min": 1827.76,
+          "max": 2326.24,
+          "sum": 2077,
           "count": 1
         },
-        "Egress": {
-          "avg": 8260670325,
-          "min": 7269389886,
-          "max": 9251950764,
-          "sum": 8260670325,
-          "count": 1
-        },
-        "Availability": { "avg": 100, "min": 88, "max": 112, "sum": 100, "count": 1 },
-        "SuccessE2ELatency": { "avg": 4.05, "min": 3.56, "max": 4.54, "sum": 4.05, "count": 1 }
+        "WafRuleHits": { "avg": 40223, "min": 35396.24, "max": 45049.76, "sum": 40223, "count": 1 }
       }
     },
     "dimensions": {
-      "ApiName": "PutBlob",
-      "Authentication": "OAuth",
-      "GeoType": "Primary",
-      "ResourceGroup": "rg-shared-uzw6i"
+      "RuleId": "950100",
+      "PolicyName": "waf-uatlq",
+      "ResourceGroup": "rg-prod-q5zr0"
     },
     "resource": {
-      "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-shared-uzw6i/providers/Microsoft.Storage/storageAccounts/st1wq0e5",
-      "group": "rg-shared-uzw6i",
-      "name": "st1wq0e5"
+      "id": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-prod-q5zr0/providers/Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies/waf-uatlq",
+      "group": "rg-prod-q5zr0",
+      "name": "waf-uatlq"
     },
-    "namespace": "Microsoft.Storage/storageAccounts"
+    "namespace": "Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies"
   },
   "metricset": { "name": "monitor", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "azure.waf_metrics", "namespace": "default" },
   "input": { "type": "azure-monitor" },
-  "event": { "dataset": "azure.waf_metrics", "module": "azure" },
-  "azureMonitorMetric": {
-    "time": "2026-04-07T12:00:00.000Z",
-    "metricName": "Transactions",
-    "resourceGroup": "rg-waf-policy",
-    "subscriptionId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-    "timeseries": [{ "data": [{ "average": 1254308, "count": 1 }] }]
-  }
+  "event": { "dataset": "azure.waf_metrics", "module": "azure" }
 }

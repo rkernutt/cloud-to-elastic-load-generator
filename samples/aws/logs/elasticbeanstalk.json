@@ -1,75 +1,80 @@
 {
-  "@timestamp": "2026-05-06T16:22:59.897Z",
+  "@timestamp": "2026-05-07T10:17:35.322Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-northeast-3",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "elasticbeanstalk" }
   },
   "aws": {
-    "dimensions": { "EnvironmentName": "my-web-app-dev", "InstanceId": "i-5y9o61as3gm" },
+    "dimensions": { "EnvironmentName": "worker-app-dev", "InstanceId": "i-98k47iurelq" },
     "elasticbeanstalk": {
-      "application": "my-web-app",
-      "environment": "my-web-app-dev",
+      "application": "worker-app",
+      "environment": "worker-app-dev",
       "structured_logging": true,
-      "platform": "Node.js 18",
-      "version_label": "v134",
+      "platform": "Python 3.11",
+      "version_label": "v150",
       "metrics": {
-        "ApplicationRequests2xx": { "sum": 1 },
+        "ApplicationRequests2xx": { "sum": 0 },
         "ApplicationRequests3xx": { "sum": 0 },
         "ApplicationRequests4xx": { "sum": 0 },
-        "ApplicationRequests5xx": { "sum": 0 },
-        "ApplicationLatencyP10": { "avg": 10.433465849396459 },
-        "ApplicationLatencyP50": { "avg": 15.143609980653386 },
-        "ApplicationLatencyP75": { "avg": 17.017978139898283 },
-        "ApplicationLatencyP85": { "avg": 24.298690340543054 },
-        "ApplicationLatencyP90": { "avg": 26.01885481080139 },
-        "ApplicationLatencyP95": { "avg": 45.627336135770975 },
-        "ApplicationLatencyP99": { "avg": 83.243148523914 },
-        "ApplicationLatencyP99.9": { "avg": 145.5437169651512 },
+        "ApplicationRequests5xx": { "sum": 1 },
+        "ApplicationLatencyP10": { "avg": 18.393128488317178 },
+        "ApplicationLatencyP50": { "avg": 43.50906602141575 },
+        "ApplicationLatencyP75": { "avg": 65.8001935927835 },
+        "ApplicationLatencyP85": { "avg": 74.33923162452906 },
+        "ApplicationLatencyP90": { "avg": 107.15896779788262 },
+        "ApplicationLatencyP95": { "avg": 150.1788897075952 },
+        "ApplicationLatencyP99": { "avg": 382.7394629854512 },
+        "ApplicationLatencyP99.9": { "avg": 649.5831097366427 },
         "ApplicationRequests": { "sum": 1 },
-        "InstancesSevere": { "avg": 0 },
-        "InstancesDegraded": { "avg": 0 },
-        "InstancesWarning": { "avg": 0 },
-        "InstancesOk": { "avg": 1 },
-        "EnvironmentHealth": { "avg": 20 }
+        "InstancesSevere": { "avg": 3 },
+        "InstancesDegraded": { "avg": 1 },
+        "InstancesWarning": { "avg": 1 },
+        "InstancesOk": { "avg": 6 },
+        "EnvironmentHealth": { "avg": 15 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-elasticbeanstalk-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-elasticbeanstalk-logs-501938274650"
+        "name": "aws-elasticbeanstalk-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-elasticbeanstalk-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/elasticbeanstalk/us-east-2/2026/05/06/elasticbeanstalk_JRZABKIYX4E.log.gz"
+        "key": "AWSLogs/293847561023/elasticbeanstalk/ap-northeast-3/2026/05/07/elasticbeanstalk_E4TS35P2KFH.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/elasticbeanstalk/logs",
-      "log_stream": "us-east-2/z5larwjt",
-      "ingestion_time": "2026-05-06T16:23:00.527Z"
+      "log_stream": "ap-northeast-3/wcz4xgos",
+      "ingestion_time": "2026-05-07T10:17:36.087Z"
     }
   },
-  "http": { "response": { "status_code": 200 } },
-  "log": { "level": "info" },
+  "http": { "response": { "status_code": 503 } },
+  "log": { "level": "error" },
   "event": {
     "category": ["web", "process"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "aws.elasticbeanstalk",
     "provider": "elasticbeanstalk.amazonaws.com",
-    "duration": 14000000000,
+    "duration": 180000000000,
     "module": "aws"
   },
-  "message": "{\"application\":\"my-web-app\",\"environment\":\"my-web-app-dev\",\"status\":200,\"message\":\"nginx: 53.241.60.69 - - [2026-05-06 16:22:59.897 +0000] \\\"POST /index.html HTTP/1.1\\\" 200 1207\",\"timestamp\":\"2026-05-06T16:22:59.897Z\",\"instance_id\":\"i-5y9o61as3gm\",\"log_source\":\"eb-engine\"}",
-  "host": { "name": "ip-97-156-116-11.ec2.internal", "hostname": "elasticbeanstalk-pa2zgyxj" },
+  "message": "{\"application\":\"worker-app\",\"environment\":\"worker-app-dev\",\"status\":503,\"message\":\"nginx: [error] connect() failed (111: Connection refused) while connecting to upstream\",\"timestamp\":\"2026-05-07T10:17:35.322Z\",\"instance_id\":\"i-98k47iurelq\",\"log_source\":\"eb-engine\"}",
+  "error": {
+    "code": "DeploymentFailed",
+    "message": "ENV_ERROR: Deployment failed, rolling back",
+    "type": "application"
+  },
+  "host": { "name": "ip-76-52-189-248.ec2.internal", "hostname": "elasticbeanstalk-wy2huirp" },
   "service": { "name": "elasticbeanstalk", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.elasticbeanstalk", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "f5t2sjciibf"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "rjetwph05eg"
   },
   "input": { "type": "aws-cloudwatch" }
 }

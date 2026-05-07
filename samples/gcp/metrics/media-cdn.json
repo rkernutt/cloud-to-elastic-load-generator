@@ -3,47 +3,52 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west1",
+    "region": "us-west3",
     "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
     "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west1",
-    "ephemeral_id": "763lf48h2xh"
+    "name": "metricbeat-gcp-us-west3",
+    "ephemeral_id": "70ndju24j84"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "serviceruntime.googleapis.com/api/request_count",
-      "labels": { "credential_id": "resource-a" }
+      "type": "edgecache.googleapis.com/edge_cache_route_rule/request_count",
+      "labels": { "response_code_class": "2xx", "cache_result": "HIT", "protocol": "HTTP/2" }
     },
     "resource": {
-      "type": "consumed_api",
+      "type": "edgecache.googleapis.com/EdgeCacheRouteRule",
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "service": "generic.googleapis.com",
-        "method": "resource_id"
+        "resource_container": "globex-prod-a1b2c3",
+        "location": "us-west3",
+        "route_name": "live-linear"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "16972" } }
+      {
+        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
+        "value": { "int64Value": "9475411" }
+      }
     ]
   },
   "gcp": {
     "media-cdn": {
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "service": "generic.googleapis.com",
-        "method": "resource_id",
-        "credential_id": "resource-a"
+        "resource_container": "globex-prod-a1b2c3",
+        "location": "us-west3",
+        "route_name": "live-linear",
+        "response_code_class": "2xx",
+        "cache_result": "HIT",
+        "protocol": "HTTP/2"
       },
       "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": {
-          "avg": 16972,
-          "sum": 16972,
+        "edgecache.googleapis.com/edge_cache_route_rule/request_count": {
+          "avg": 9475411,
+          "sum": 9475411,
           "count": 1
         }
       }

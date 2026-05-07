@@ -3,45 +3,41 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast2",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" }
+    "region": "europe-north1",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-northeast2",
-    "ephemeral_id": "6enxn49p0iq"
+    "name": "metricbeat-gcp-europe-north1",
+    "ephemeral_id": "qh5zbsvxz4p"
   },
   "monitoringTimeSeries": {
-    "metric": {
-      "type": "serviceruntime.googleapis.com/api/request_count",
-      "labels": { "credential_id": "resource-a" }
-    },
+    "metric": { "type": "datamigration.googleapis.com/migration_job_count", "labels": {} },
     "resource": {
-      "type": "consumed_api",
+      "type": "datamigration.googleapis.com/MigrationJob",
       "labels": {
-        "project_id": "globex-shared-m3n4o5",
-        "service": "generic.googleapis.com",
-        "method": "resource_id"
+        "resource_container": "globex-staging-d4e5f6",
+        "location": "europe-north1",
+        "migration_job_id": "job-oracle-bq-02"
       }
     },
-    "metricKind": "DELTA",
+    "metricKind": "GAUGE",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "7721" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "9" } }
     ]
   },
   "gcp": {
     "database-migration": {
       "labels": {
-        "project_id": "globex-shared-m3n4o5",
-        "service": "generic.googleapis.com",
-        "method": "resource_id",
-        "credential_id": "resource-a"
+        "resource_container": "globex-staging-d4e5f6",
+        "location": "europe-north1",
+        "migration_job_id": "job-oracle-bq-02"
       },
       "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": { "avg": 7721, "sum": 7721, "count": 1 }
+        "datamigration.googleapis.com/migration_job_count": { "avg": 9, "sum": 9, "count": 1 }
       }
     }
   },

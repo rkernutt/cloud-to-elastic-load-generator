@@ -2,56 +2,56 @@
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "cloud": {
     "provider": "azure",
-    "region": "eastus2",
-    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" },
+    "region": "qatarcentral",
+    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" },
     "service": { "name": "Microsoft.Network/azureFirewalls" }
   },
-  "category": "AzureFirewallNetworkRule",
-  "operationName": "AzureFirewallNetworkRule",
-  "resultType": "Allowed",
-  "level": "Informational",
-  "correlationId": "dcaxle9u105",
-  "callerIpAddress": "248.218.14.249",
+  "category": "AzureFirewallApplicationRule",
+  "operationName": "AzureFirewallApplicationRule",
+  "resultType": "Denied",
+  "level": "Warning",
+  "correlationId": "2b8sng5mkp",
+  "callerIpAddress": "168.57.106.79",
   "properties": {
-    "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-prod-0bk12n/providers/Microsoft.Network/azureFirewalls/afw-bkdx",
-    "firewallName": "afw-bkdx",
-    "RuleCollectionName": "RC-App-ZR4",
-    "RuleCollectionType": "NetworkRule",
-    "Action": "Allow",
-    "Protocol": "Any",
-    "SourceIp": "10.0.96.115",
-    "DestinationIp": "137.203.38.26",
-    "DestinationPort": 55222,
-    "RuleName": "Net-LHJS"
+    "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-prod-jbfoh3/providers/Microsoft.Network/azureFirewalls/afw-1e02",
+    "firewallName": "afw-1e02",
+    "RuleCollectionName": "RC-Net-XC1",
+    "RuleCollectionType": "ApplicationRule",
+    "Action": "Deny",
+    "TargetUrl": "cc.bad",
+    "Protocol": "Https",
+    "SourceIp": "168.57.106.79",
+    "DestinationPort": 443,
+    "RuleName": "Block-HighRisk"
   },
   "azure": {
     "firewall": {
-      "name": "afw-bkdx",
-      "resource_group": "rg-prod-0bk12n",
-      "source_ip": "10.0.96.115",
-      "dest_ip": "137.203.38.26",
-      "dest_port": 55222,
-      "action": "Allow",
-      "rule_collection": "RC-App-ZR4"
+      "name": "afw-1e02",
+      "resource_group": "rg-prod-jbfoh3",
+      "source_ip": "168.57.106.79",
+      "dest_ip": "253.39.124.151",
+      "dest_port": 443,
+      "action": "Deny",
+      "rule_collection": "RC-Net-XC1"
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 2960554,
+    "outcome": "failure",
+    "duration": 20131455,
     "module": "azure",
     "dataset": "azure.firewall"
   },
-  "message": "AzureFirewall: ALLOW Any flow 10.0.96.115 → 137.203.38.26:55222",
+  "message": "AzureFirewall: DENY HTTPS to cc.bad from 168.57.106.79 collection=RC-Net-XC1",
   "service": { "name": "firewall", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.firewall", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-eastus2",
-    "id": "r1doah7f128"
+    "name": "elastic-agent-azure-qatarcentral",
+    "id": "31s2f0ssjop"
   },
   "input": { "type": "azure-eventhub" },
-  "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourcegroups/rg-prod-0bk12n/providers/Microsoft.Network/azureFirewalls/firewall"
+  "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourcegroups/rg-prod-jbfoh3/providers/Microsoft.Network/azureFirewalls/firewall"
 }

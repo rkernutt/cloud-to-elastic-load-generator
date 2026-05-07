@@ -3,51 +3,49 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-east5",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "europe-west2",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-us-east5",
-    "ephemeral_id": "5b9w68ja2bx"
+    "name": "metricbeat-gcp-europe-west2",
+    "ephemeral_id": "nzmlrng1u7q"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "loadbalancing.googleapis.com/https/request_count",
-      "labels": { "response_code_class": "2xx" }
+      "type": "router.googleapis.com/nat/new_connections_count",
+      "labels": { "ip_protocol": "ICMP" }
     },
     "resource": {
-      "type": "https_lb_rule",
+      "type": "nat_gateway",
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "url_map_name": "api-map",
-        "forwarding_rule_name": "fr-generic",
-        "target_proxy_name": "tp-generic",
-        "region": "us-east5"
+        "project_id": "globex-security-j0k1l2",
+        "region": "europe-west2",
+        "router_id": "cr-prod-03",
+        "gateway_name": "nat-gw-batch"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "349190" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "32977" } }
     ]
   },
   "gcp": {
     "cloud-nat": {
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "url_map_name": "api-map",
-        "forwarding_rule_name": "fr-generic",
-        "target_proxy_name": "tp-generic",
-        "region": "us-east5",
-        "response_code_class": "2xx"
+        "project_id": "globex-security-j0k1l2",
+        "region": "europe-west2",
+        "router_id": "cr-prod-03",
+        "gateway_name": "nat-gw-batch",
+        "ip_protocol": "ICMP"
       },
       "metrics": {
-        "loadbalancing.googleapis.com/https/request_count": {
-          "avg": 349190,
-          "sum": 349190,
+        "router.googleapis.com/nat/new_connections_count": {
+          "avg": 32977,
+          "sum": 32977,
           "count": 1
         }
       }

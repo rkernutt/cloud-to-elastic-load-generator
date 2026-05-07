@@ -1,13 +1,13 @@
 {
   "group": "gcp-networking",
-  "description": "GCP networking — VPC flow, load balancing",
+  "description": "GCP networking \u2014 VPC flow, load balancing",
   "jobs": [
     {
       "id": "gcp-vpc-flow-deny-spike",
       "description": "Spikes in VPC flow DENY events per rule",
       "job": {
         "description": "Spikes in VPC flow DENY events per rule",
-        "groups": ["gcp", "networking"],
+        "groups": ["gcp", "networking", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -21,9 +21,16 @@
           "influencers": ["gcp.vpc_flow.rule_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -31,15 +38,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "gcp" } },
-              { "wildcard": { "cloud.service.name": "*vpc-flow*" } },
-              { "term": { "gcp.vpc_flow.action": "DENY" } }
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "wildcard": {
+                  "cloud.service.name": "*vpc-flow*"
+                }
+              },
+              {
+                "term": {
+                  "gcp.vpc_flow.action": "DENY"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -47,7 +70,7 @@
       "description": "Unusual Cloud Load Balancing latency",
       "job": {
         "description": "Unusual Cloud Load Balancing latency",
-        "groups": ["gcp", "networking"],
+        "groups": ["gcp", "networking", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -62,9 +85,16 @@
           "influencers": ["gcp.cloud_lb.forwarding_rule", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -72,14 +102,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "gcp" } },
-              { "term": { "cloud.service.name": "cloud-lb" } }
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "term": {
+                  "cloud.service.name": "cloud-lb"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

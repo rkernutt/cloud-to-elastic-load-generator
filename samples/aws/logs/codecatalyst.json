@@ -1,66 +1,61 @@
 {
-  "@timestamp": "2026-05-06T16:22:59.897Z",
+  "@timestamp": "2026-05-07T10:17:35.322Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "us-east-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "codecatalyst" }
   },
   "aws": {
-    "dimensions": { "SpaceName": "engineering", "ProjectName": "backend-service" },
+    "dimensions": { "SpaceName": "platform-team", "ProjectName": "data-pipeline" },
     "codecatalyst": {
-      "space_name": "engineering",
-      "project_name": "backend-service",
+      "space_name": "platform-team",
+      "project_name": "data-pipeline",
       "workflow_name": "security-scan",
-      "workflow_run_id": "run-c7sf5xbh10j",
-      "workflow_run_status": "TIMED_OUT",
-      "workflow_steps_completed": 2,
-      "pull_request_number": 461,
-      "pull_request_head_branch": "fix/payments",
-      "dev_environment_id": "dev-evxycmkywei",
-      "dev_environment_status": "FAILED",
+      "workflow_run_id": "run-owk7a3wyygp",
+      "workflow_run_status": "SUCCEEDED",
+      "workflow_steps_completed": 6,
+      "pull_request_number": 589,
+      "pull_request_head_branch": "chore/deps",
+      "dev_environment_id": "dev-vkx4mfoble",
+      "dev_environment_status": "STARTING",
       "ide": "IntelliJ IDEA",
-      "branch_name": "develop",
-      "event_type": "SOURCE_REPOSITORY"
+      "branch_name": "fix/bug-123",
+      "event_type": "DEV_ENVIRONMENT"
     },
     "s3": {
       "bucket": {
-        "name": "aws-codecatalyst-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-codecatalyst-logs-738291046572"
+        "name": "aws-codecatalyst-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-codecatalyst-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/codecatalyst/eu-north-1/2026/05/06/codecatalyst_ZTQA1KEWQD.log.gz"
+        "key": "AWSLogs/501938274650/codecatalyst/us-east-2/2026/05/07/codecatalyst_U0JR4CTFQNJ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codecatalyst/logs",
-      "log_stream": "eu-north-1/1omdjhrg",
-      "ingestion_time": "2026-05-06T16:23:00.658Z"
+      "log_stream": "us-east-2/hdayq1qf",
+      "ingestion_time": "2026-05-07T10:17:36.449Z"
     }
   },
   "event": {
-    "action": "StopWorkflowRun",
-    "outcome": "failure",
+    "action": "CreateDevEnvironment",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.codecatalyst",
     "provider": "codecatalyst.amazonaws.com",
     "module": "aws"
   },
-  "message": "[CodeCatalyst] space=engineering project=backend-service workflow=security-scan run=run-c7sf5xbh10j status=TIMED_OUT\n[WorkflowRun] trigger=pull_request pr=#461 head=fix/payments base=main sha=giw9psfibj4\n[WorkflowRun:run-c7sf5xbh10j] step=Checkout status=SUCCEEDED durationMs=72739 order=1\n[WorkflowRun:run-c7sf5xbh10j] step=Install status=SUCCEEDED durationMs=93743 order=2\n[WorkflowRun:run-c7sf5xbh10j] step=Lint status=FAILED exitCode=17\nCodeCatalyst StopWorkflowRun FAILED: Dev environment error",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ValidationException",
-    "message": "CodeCatalyst operation failed",
-    "type": "process"
-  },
+  "message": "[CodeCatalyst] space=platform-team project=data-pipeline workflow=security-scan run=run-owk7a3wyygp status=SUCCEEDED\n[WorkflowRun] trigger=pull_request pr=#589 head=chore/deps base=main sha=brb3nr5eilp\n[WorkflowRun:run-owk7a3wyygp] step=Checkout status=SUCCEEDED durationMs=13926 order=1\n[WorkflowRun:run-owk7a3wyygp] step=Install status=SUCCEEDED durationMs=81595 order=2\n[WorkflowRun:run-owk7a3wyygp] step=Lint status=SUCCEEDED durationMs=147168 order=3\n[WorkflowRun:run-owk7a3wyygp] step=UnitTests status=SUCCEEDED durationMs=69195 order=4\n[WorkflowRun:run-owk7a3wyygp] step=BuildImage status=SUCCEEDED durationMs=45335 order=5\n[WorkflowRun:run-owk7a3wyygp] step=PublishArtifacts status=SUCCEEDED durationMs=86729 order=6\nCreateDevEnvironment devEnvId=dev-vkx4mfoble statusTransition=REQUESTED machineType=STANDARD\n[WorkflowRun:run-owk7a3wyygp] completed artifacts=s3://codecatalyst-artifacts/run-owk7a3wyygp",
+  "log": { "level": "info" },
   "service": { "name": "codecatalyst", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.codecatalyst", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "bamwhrcs3oq"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "tq3lmirb73"
   },
   "input": { "type": "aws-cloudwatch" }
 }

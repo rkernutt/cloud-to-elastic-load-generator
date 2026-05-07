@@ -63,7 +63,9 @@ Cloud Loadgen for Elastic also produces multi-service **chained scenarios** with
 
 The **17 chained-scenario alerting rules per cloud** (51 total) ship with two on-call extras: each rule's `artifacts.dashboards` field links **the chain overview plus the per-service dashboards** that match the rule's primary dataset (Stack 8.19 / 9.1+), and **per-rule investigation guides** in [docs/runbooks/](docs/runbooks/) cover triage, ES|QL queries, containment, and escalation criteria. Both surface from the alert's "Related dashboards" tab and the optional alert-enrichment workflow's email body.
 
-The **Ship** page also includes an **ML training mode** that automates _reset → baseline → wait → inject → freeze_ for clean, repeatable anomaly demos — see **[docs/ml-training-mode.md](docs/ml-training-mode.md)**.
+## ML training mode
+
+The **Ship** page includes **ML training mode**, which automates _reset → baseline → wait → inject → freeze_ for clean, repeatable anomaly demos. See **[docs/ml-training-mode.md](docs/ml-training-mode.md)** for the full workflow.
 
 ## API key permissions
 

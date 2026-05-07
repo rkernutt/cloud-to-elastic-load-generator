@@ -1,13 +1,13 @@
 {
   "group": "gcp-infrastructure",
-  "description": "GCP infrastructure — Cloud Audit Logs and Cloud Load Balancing anomaly detection",
+  "description": "GCP infrastructure \u2014 Cloud Audit Logs and Cloud Load Balancing anomaly detection",
   "jobs": [
     {
       "id": "gcp-cloud-audit-logs-rare-action",
       "description": "Detects rare administrative API methods in Cloud Audit Logs (unusual or first-seen operations)",
       "job": {
         "description": "Detects rare Cloud Audit method_name values for user-driven admin activity",
-        "groups": ["gcp", "management"],
+        "groups": ["gcp", "management", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "60m",
           "detectors": [
@@ -25,9 +25,16 @@
           ]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -35,16 +42,36 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "gcp" } },
-              { "term": { "event.dataset": "gcp.cloud_audit" } },
-              { "term": { "gcp.cloud_audit.caller_type": "USER" } },
-              { "exists": { "field": "gcp.cloud_audit.method_name" } }
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "term": {
+                  "event.dataset": "gcp.cloud_audit"
+                }
+              },
+              {
+                "term": {
+                  "gcp.cloud_audit.caller_type": "USER"
+                }
+              },
+              {
+                "exists": {
+                  "field": "gcp.cloud_audit.method_name"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -52,7 +79,7 @@
       "description": "Detects spikes in Cloud Audit log failures or denials per GCP service",
       "job": {
         "description": "Detects spikes in failed or denied Cloud Audit events per service_name",
-        "groups": ["gcp", "management"],
+        "groups": ["gcp", "management", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -70,9 +97,16 @@
           ]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -80,15 +114,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "gcp" } },
-              { "term": { "event.dataset": "gcp.cloud_audit" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "term": {
+                  "event.dataset": "gcp.cloud_audit"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -96,7 +146,7 @@
       "description": "Detects unusual Cloud Load Balancing request latency per forwarding rule",
       "job": {
         "description": "Detects unusual HTTP(S) load balancer latency per forwarding rule",
-        "groups": ["gcp", "networking"],
+        "groups": ["gcp", "networking", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -115,9 +165,16 @@
           ]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -125,14 +182,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "gcp" } },
-              { "term": { "event.dataset": "gcp.loadbalancing" } }
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "term": {
+                  "event.dataset": "gcp.loadbalancing"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -140,7 +209,7 @@
       "description": "Detects spikes in Cloud Load Balancing 5xx responses per backend service",
       "job": {
         "description": "Detects spikes in HTTP 5xx responses from load balancing logs per backend service",
-        "groups": ["gcp", "networking"],
+        "groups": ["gcp", "networking", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -158,9 +227,16 @@
           ]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -168,15 +244,33 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "gcp" } },
-              { "term": { "event.dataset": "gcp.loadbalancing" } },
-              { "range": { "gcp.cloud_lb.response_code": { "gte": 500 } } }
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "term": {
+                  "event.dataset": "gcp.loadbalancing"
+                }
+              },
+              {
+                "range": {
+                  "gcp.cloud_lb.response_code": {
+                    "gte": 500
+                  }
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

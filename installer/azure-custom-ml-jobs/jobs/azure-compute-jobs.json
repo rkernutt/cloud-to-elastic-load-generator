@@ -1,13 +1,13 @@
 {
   "group": "azure-compute",
-  "description": "Azure compute & serverless — Functions, App Service, AKS, VMs",
+  "description": "Azure compute & serverless \u2014 Functions, App Service, AKS, VMs",
   "jobs": [
     {
       "id": "azure-functions-error-spike",
       "description": "Spikes in Function App failures per function name",
       "job": {
         "description": "Spikes in Function App failures per function name",
-        "groups": ["azure", "compute"],
+        "groups": ["azure", "compute", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -21,9 +21,16 @@
           "influencers": ["azure.functions.function_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -31,15 +38,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "exists": { "field": "azure.functions.function_name" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "exists": {
+                  "field": "azure.functions.function_name"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -47,7 +70,7 @@
       "description": "Unusual App Service request duration per app",
       "job": {
         "description": "Unusual App Service request duration per app",
-        "groups": ["azure", "compute"],
+        "groups": ["azure", "compute", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -62,9 +85,16 @@
           "influencers": ["azure.app_service.app_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -72,14 +102,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "exists": { "field": "azure.app_service.app_name" } }
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "exists": {
+                  "field": "azure.app_service.app_name"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -87,7 +129,7 @@
       "description": "Spikes in AKS control plane / node events per cluster",
       "job": {
         "description": "Spikes in AKS events per cluster",
-        "groups": ["azure", "compute"],
+        "groups": ["azure", "compute", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -105,9 +147,16 @@
           ]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -115,7 +164,11 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
               {
                 "term": {
                   "cloud.service.name": "Microsoft.ContainerService/managedClusters"
@@ -124,9 +177,13 @@
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -134,7 +191,7 @@
       "description": "Spikes in Virtual Machine failure outcomes per VM",
       "job": {
         "description": "Spikes in Virtual Machine failure outcomes per VM",
-        "groups": ["azure", "compute"],
+        "groups": ["azure", "compute", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -148,9 +205,16 @@
           "influencers": ["azure.virtual_machines.vm_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -158,8 +222,16 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "term": { "event.outcome": "failure" } },
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              },
               {
                 "term": {
                   "cloud.service.name": "Microsoft.Compute/virtualMachines"
@@ -168,9 +240,13 @@
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -178,7 +254,7 @@
       "description": "Spikes in IoT Hub device failures per device",
       "job": {
         "description": "Spikes in IoT Hub device failures per device",
-        "groups": ["azure", "iot"],
+        "groups": ["azure", "iot", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -192,9 +268,16 @@
           "influencers": ["azure.iot_hub.device_id", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -202,15 +285,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "term": { "cloud.service.name": "Microsoft.Devices/IotHubs" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "cloud.service.name": "Microsoft.Devices/IotHubs"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -218,7 +317,7 @@
       "description": "Unusual IoT Hub message volume per device",
       "job": {
         "description": "Unusual IoT Hub message volume per device",
-        "groups": ["azure", "iot"],
+        "groups": ["azure", "iot", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -232,9 +331,16 @@
           "influencers": ["azure.iot_hub.device_id", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -242,14 +348,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "term": { "cloud.service.name": "Microsoft.Devices/IotHubs" } }
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "cloud.service.name": "Microsoft.Devices/IotHubs"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

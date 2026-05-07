@@ -35,6 +35,7 @@ import {
   azureActivityLogEvent,
 } from "../../helpers/identity.js";
 import { azureServiceBase, enrichAzureTraceDoc } from "./traces/trace-kit.js";
+import { offsetTs } from "../../aws/generators/traces/helpers.js";
 
 const PIPELINE_NAMES = [
   "data_pipeline_daily",
@@ -81,10 +82,6 @@ const SYNAPSE_POOLS = ["analytics_pool", "dedicated_sql", "serverless_sql"];
 
 const FAILURE_MODES = ["null_file", "wrong_format", "special_chars"] as const;
 type FailureMode = (typeof FAILURE_MODES)[number];
-
-function offsetTs(base: Date, ms: number): string {
-  return new Date(base.getTime() + ms).toISOString();
-}
 
 function randSpanId(): string {
   return Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join("");

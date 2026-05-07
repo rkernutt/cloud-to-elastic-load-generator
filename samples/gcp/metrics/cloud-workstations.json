@@ -3,49 +3,43 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west6",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "europe-west8",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west6",
-    "ephemeral_id": "orq0wsxffkf"
+    "name": "metricbeat-gcp-europe-west8",
+    "ephemeral_id": "aqs5nw3ag2s"
   },
   "monitoringTimeSeries": {
-    "metric": {
-      "type": "serviceruntime.googleapis.com/api/request_count",
-      "labels": { "credential_id": "resource-a" }
-    },
+    "metric": { "type": "workstations.googleapis.com/workstation/active_count", "labels": {} },
     "resource": {
-      "type": "consumed_api",
+      "type": "workstations.googleapis.com/Workstation",
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "service": "generic.googleapis.com",
-        "method": "resource_id"
+        "resource_container": "globex-prod-a1b2c3",
+        "location": "europe-west8",
+        "workstation_cluster_id": "sec-review",
+        "workstation_id": "ws-alice"
       }
     },
-    "metricKind": "DELTA",
+    "metricKind": "GAUGE",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "76522" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "22" } }
     ]
   },
   "gcp": {
     "cloud-workstations": {
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "service": "generic.googleapis.com",
-        "method": "resource_id",
-        "credential_id": "resource-a"
+        "resource_container": "globex-prod-a1b2c3",
+        "location": "europe-west8",
+        "workstation_cluster_id": "sec-review",
+        "workstation_id": "ws-alice"
       },
       "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": {
-          "avg": 76522,
-          "sum": 76522,
-          "count": 1
-        }
+        "workstations.googleapis.com/workstation/active_count": { "avg": 22, "sum": 22, "count": 1 }
       }
     }
   },

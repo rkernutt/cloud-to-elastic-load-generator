@@ -1,63 +1,56 @@
 {
-  "@timestamp": "2026-05-06T16:22:59.897Z",
+  "@timestamp": "2026-05-07T10:17:35.322Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "af-south-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "lookoutvision" }
   },
   "aws": {
-    "dimensions": { "ProjectName": "weld-quality-check", "ModelVersion": "1.0" },
+    "dimensions": { "ProjectName": "fabric-anomaly-detector", "ModelVersion": "3.0" },
     "lookoutvision": {
-      "project_name": "weld-quality-check",
-      "model_version": "1.0",
-      "model_arn": "arn:aws:lookoutvision:il-central-1:814726593401:model/weld-quality-check/1.0",
-      "event_type": "DescribeModelPackagingJob",
-      "image_source": "camera-stream",
-      "is_anomalous": true,
-      "confidence": 0.9815989863899615,
-      "anomaly_label": "dent",
-      "anomaly_mask_uri": "s3://lookoutvision-masks-814726593401/weld-quality-check/f1i2z7kw.png",
-      "error_code": "ResourceNotFoundException"
+      "project_name": "fabric-anomaly-detector",
+      "model_version": "3.0",
+      "model_arn": "arn:aws:lookoutvision:af-south-1:293847561023:model/fabric-anomaly-detector/3.0",
+      "event_type": "StartModelPackagingJob",
+      "image_source": "s3",
+      "image_key": "inspections/fabric-anomaly-detector/gj86h4fmw9.jpg",
+      "is_anomalous": false,
+      "confidence": 0.9394266131057979
     },
     "s3": {
       "bucket": {
-        "name": "aws-lookoutvision-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-lookoutvision-logs-814726593401"
+        "name": "aws-lookoutvision-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-lookoutvision-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/814726593401/lookoutvision/il-central-1/2026/05/06/lookoutvision_1B10DAJV85U.log.gz"
+        "key": "AWSLogs/293847561023/lookoutvision/af-south-1/2026/05/07/lookoutvision_DTM8D5Y4PIQ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lookoutvision/logs",
-      "log_stream": "il-central-1/odjdtiqe",
-      "ingestion_time": "2026-05-06T16:23:00.703Z"
+      "log_stream": "af-south-1/dcd8x16a",
+      "ingestion_time": "2026-05-07T10:17:36.501Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.lookoutvision",
     "provider": "lookoutvision.amazonaws.com",
-    "duration": 2867000000,
+    "duration": 117000000,
     "module": "aws"
   },
-  "message": "Lookout for Vision [weld-quality-check v1.0] DescribeModelPackagingJob FAILED: Model not running",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ServiceQuotaExceededException",
-    "message": "Lookout for Vision operation failed",
-    "type": "process"
-  },
+  "message": "Lookout for Vision [fabric-anomaly-detector] OK confidence=0.939 117ms",
+  "log": { "level": "info" },
   "service": { "name": "lookoutvision", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lookoutvision", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "uevzb1bwgb8"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "zj0dwqi4b4r"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,58 +1,62 @@
 {
-  "@timestamp": "2026-05-06T16:22:59.897Z",
+  "@timestamp": "2026-05-07T10:17:35.322Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-southeast-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "cloudhsm" },
-    "availability_zone": "eu-central-1a"
+    "availability_zone": "ap-southeast-2a"
   },
   "aws": {
-    "dimensions": { "ClusterId": "cluster-aepivvcx4x" },
+    "dimensions": { "ClusterId": "cluster-dy6z44pa1w" },
     "cloudhsm": {
-      "cluster_id": "cluster-aepivvcx4x",
-      "hsm_id": "hsm-d7mknahetq",
-      "hsm_state": "ACTIVE",
-      "availability_zone": "eu-central-1a",
-      "subnet_id": "subnet-mejtvlmg",
-      "eni_ip": "10.195.19.70",
-      "key_type": "AES_256",
-      "operation_type": "restore",
-      "backup_id": "backup-5d9n1axtfp"
+      "cluster_id": "cluster-dy6z44pa1w",
+      "hsm_id": "hsm-ofyzuj3hpi",
+      "hsm_state": "DELETED",
+      "availability_zone": "ap-southeast-2a",
+      "subnet_id": "subnet-iqriee3y",
+      "eni_ip": "10.146.37.225",
+      "key_type": "EC_P384",
+      "operation_type": "cluster_management"
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudhsm-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-cloudhsm-logs-501938274650"
+        "name": "aws-cloudhsm-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-cloudhsm-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/501938274650/cloudhsm/eu-central-1/2026/05/06/cloudhsm_ULMJSPMA7FO.log.gz"
+        "key": "AWSLogs/738291046572/cloudhsm/ap-southeast-2/2026/05/07/cloudhsm_G8GYLCMQFK9.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloudhsm/logs",
-      "log_stream": "eu-central-1/sn4nq18b",
-      "ingestion_time": "2026-05-06T16:23:00.592Z"
+      "log_stream": "ap-southeast-2/5u5f6qg7",
+      "ingestion_time": "2026-05-07T10:17:36.366Z"
     }
   },
   "event": {
-    "action": "CreateBackup",
-    "outcome": "success",
+    "action": "ActivateCluster",
+    "outcome": "failure",
     "category": ["process", "authentication"],
     "dataset": "aws.cloudhsm",
     "provider": "cloudhsm.amazonaws.com",
     "module": "aws"
   },
-  "message": "CloudHSM CreateBackup: cluster=cluster-aepivvcx4x, hsm=hsm-d7mknahetq, state=ACTIVE",
-  "log": { "level": "info" },
+  "message": "CloudHSM ActivateCluster FAILED [cluster-dy6z44pa1w]: HSM not reachable",
+  "log": { "level": "error" },
+  "error": {
+    "code": "CloudHsmResourceNotFoundException",
+    "message": "CloudHSM operation failed",
+    "type": "security"
+  },
   "service": { "name": "cloudhsm", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudhsm", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "emgtuuo5ahu"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "dhfckupadxm"
   },
   "input": { "type": "aws-cloudwatch" }
 }

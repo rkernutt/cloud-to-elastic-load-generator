@@ -1,13 +1,13 @@
 {
   "group": "azure-networking",
-  "description": "Azure networking — Firewall, Application Gateway",
+  "description": "Azure networking \u2014 Firewall, Application Gateway",
   "jobs": [
     {
       "id": "azure-firewall-deny-spike",
       "description": "Spikes in Firewall deny events per rule collection",
       "job": {
         "description": "Spikes in Azure Firewall deny events per rule collection",
-        "groups": ["azure", "networking"],
+        "groups": ["azure", "networking", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -21,9 +21,16 @@
           "influencers": ["azure.firewall.rule_collection", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -31,19 +38,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
               {
                 "term": {
                   "cloud.service.name": "Microsoft.Network/azureFirewalls"
                 }
               },
-              { "term": { "azure.firewall.action": "Deny" } }
+              {
+                "term": {
+                  "azure.firewall.action": "Deny"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -51,7 +70,7 @@
       "description": "Unusual Application Gateway backend latency per gateway",
       "job": {
         "description": "Unusual Application Gateway latency per gateway",
-        "groups": ["azure", "networking"],
+        "groups": ["azure", "networking", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -66,9 +85,16 @@
           "influencers": ["azure.application_gateway.name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -76,7 +102,11 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
               {
                 "term": {
                   "cloud.service.name": "Microsoft.Network/applicationGateways"
@@ -85,9 +115,13 @@
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

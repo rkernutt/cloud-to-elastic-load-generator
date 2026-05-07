@@ -1,59 +1,63 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "NOTICE",
-  "labels": { "instance_name": "df-prod-1", "namespace": "data-engineering" },
+  "severity": "ERROR",
+  "labels": { "instance_name": "pipeline-hub", "namespace": "default" },
   "cloud": {
     "provider": "gcp",
-    "region": "australia-southeast1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "region": "europe-west6",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
     "service": { "name": "data-fusion" }
   },
   "gcp": {
     "data_fusion": {
-      "instance_name": "df-prod-1",
-      "pipeline_name": "ingest-users",
-      "namespace": "data-engineering",
-      "status": "SUCCEEDED",
-      "plugin_type": "transform",
-      "records_in": 4754716,
-      "records_out": 4515986
+      "instance_name": "pipeline-hub",
+      "pipeline_name": "cdc-orders",
+      "namespace": "default",
+      "status": "FAILED",
+      "plugin_type": "source",
+      "records_in": 332,
+      "records_out": 72
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 3850000000,
+    "outcome": "failure",
+    "duration": 42129000000,
     "module": "gcp",
     "dataset": "gcp.datafusion"
   },
-  "message": "datafusion.googleapis.com/df-prod-1: pipelineRun namespace=data-engineering pipeline=ingest-users status=SUCCEEDED recordsOut=4515986",
+  "message": "datafusion.googleapis.com/pipeline-hub/pipelines/cdc-orders: Run FAILED — source stage IllegalArgumentException",
+  "error": {
+    "type": "PipelineFailure",
+    "message": "Stage using source plugin threw unhandled exception"
+  },
   "service": { "name": "data-fusion", "type": "gcp" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.datafusion", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-australia-southeast1",
-    "id": "9rsu8mdowov"
+    "name": "elastic-agent-gcp-europe-west6",
+    "id": "1dcku17h0tm"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-staging-d4e5f6/logs/data-fusion",
+  "logName": "projects/globex-prod-a1b2c3/logs/data-fusion",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-staging-d4e5f6", "region": "australia-southeast1" }
+    "labels": { "project_id": "globex-prod-a1b2c3", "region": "europe-west6" }
   },
-  "insertId": "XPDX2JYAMFB",
+  "insertId": "EU0BO4H67OG",
   "jsonPayload": {
     "data_fusion": {
-      "instance_name": "df-prod-1",
-      "pipeline_name": "ingest-users",
-      "namespace": "data-engineering",
-      "status": "SUCCEEDED",
-      "plugin_type": "transform",
-      "records_in": 4754716,
-      "records_out": 4515986
+      "instance_name": "pipeline-hub",
+      "pipeline_name": "cdc-orders",
+      "namespace": "default",
+      "status": "FAILED",
+      "plugin_type": "source",
+      "records_in": 332,
+      "records_out": 72
     },
-    "message": "datafusion.googleapis.com/df-prod-1: pipelineRun namespace=data-engineering pipeline=ingest-users status=SUCCEEDED recordsOut=4515986"
+    "message": "datafusion.googleapis.com/pipeline-hub/pipelines/cdc-orders: Run FAILED — source stage IllegalArgumentException"
   }
 }

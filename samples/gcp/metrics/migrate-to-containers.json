@@ -3,49 +3,45 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-central2",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" }
+    "region": "me-central2",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-central2",
-    "ephemeral_id": "lw8jtpc7iga"
+    "name": "metricbeat-gcp-me-central2",
+    "ephemeral_id": "2262c2zzj17"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "serviceruntime.googleapis.com/api/request_count",
-      "labels": { "credential_id": "resource-a" }
+      "type": "migrate.googleapis.com/container/migration_count",
+      "labels": { "phase": "RUNNING" }
     },
     "resource": {
-      "type": "consumed_api",
+      "type": "migrate.googleapis.com/MigrationJob",
       "labels": {
-        "project_id": "globex-shared-m3n4o5",
-        "service": "generic.googleapis.com",
-        "method": "resource_id"
+        "resource_container": "globex-security-j0k1l2",
+        "location": "me-central2",
+        "migration_job_name": "m2c-web-tier-01"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "81262" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "71" } }
     ]
   },
   "gcp": {
     "migrate-to-containers": {
       "labels": {
-        "project_id": "globex-shared-m3n4o5",
-        "service": "generic.googleapis.com",
-        "method": "resource_id",
-        "credential_id": "resource-a"
+        "resource_container": "globex-security-j0k1l2",
+        "location": "me-central2",
+        "migration_job_name": "m2c-web-tier-01",
+        "phase": "RUNNING"
       },
       "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": {
-          "avg": 81262,
-          "sum": 81262,
-          "count": 1
-        }
+        "migrate.googleapis.com/container/migration_count": { "avg": 71, "sum": 71, "count": 1 }
       }
     }
   },

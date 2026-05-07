@@ -3,53 +3,53 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "me-west1",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" }
+    "region": "europe-west12",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-me-west1",
-    "ephemeral_id": "4f63jl0ae0c"
+    "name": "metricbeat-gcp-europe-west12",
+    "ephemeral_id": "dlaftbgbcb7"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "aiplatform.googleapis.com/prediction/online_prediction_request_count",
-      "labels": { "deployed_model_id": "deployed-md-prod" }
+      "type": "serviceruntime.googleapis.com/api/request_count",
+      "labels": { "credential_id": "resource-a" }
     },
     "resource": {
-      "type": "aiplatform.googleapis.com/Endpoint",
+      "type": "consumed_api",
       "labels": {
-        "project_id": "globex-dev-g7h8i9",
-        "location": "me-west1",
-        "endpoint_id": "endpoint-embed"
+        "project_id": "globex-prod-a1b2c3",
+        "service": "generic.googleapis.com",
+        "method": "resource_id"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "212" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "67063" } }
     ]
   },
   "gcp": {
-    "vertex-ai": {
+    "vertex-ai-search": {
       "labels": {
-        "project_id": "globex-dev-g7h8i9",
-        "location": "me-west1",
-        "endpoint_id": "endpoint-embed",
-        "deployed_model_id": "deployed-md-prod"
+        "project_id": "globex-prod-a1b2c3",
+        "service": "generic.googleapis.com",
+        "method": "resource_id",
+        "credential_id": "resource-a"
       },
       "metrics": {
-        "aiplatform.googleapis.com/prediction/online_prediction_request_count": {
-          "avg": 212,
-          "sum": 212,
+        "serviceruntime.googleapis.com/api/request_count": {
+          "avg": 67063,
+          "sum": 67063,
           "count": 1
         }
       }
     }
   },
-  "metricset": { "name": "vertex-ai", "period": 60000 },
+  "metricset": { "name": "vertex-ai-search", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.vertexai_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "dataset": "gcp.vertexai_metrics", "module": "gcp" }

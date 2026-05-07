@@ -1,54 +1,60 @@
 {
-  "@timestamp": "2026-05-06T16:22:59.897Z",
+  "@timestamp": "2026-05-07T10:17:35.322Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-3",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "me-central-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "comprehendmedical" }
   },
   "aws": {
     "dimensions": { "Operation": "StartEntitiesDetectionV2Job" },
     "comprehendmedical": {
       "operation": "StartEntitiesDetectionV2Job",
-      "entities_detected": 39,
-      "phi_entities": 1,
-      "text_characters": 557,
-      "job_id": "q7mrnzf0gxi",
-      "data_access_role_arn": "arn:aws:iam::814726593401:role/ComprehendMedicalRole",
-      "s3_bucket": "clinical-notes"
+      "entities_detected": 34,
+      "phi_entities": 0,
+      "text_characters": 2688,
+      "job_id": "uuiv4foiiw",
+      "data_access_role_arn": "arn:aws:iam::738291046572:role/ComprehendMedicalRole",
+      "s3_bucket": "ehr-processed",
+      "error_code": "InvalidRequestException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-comprehendmedical-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-comprehendmedical-logs-814726593401"
+        "name": "aws-comprehendmedical-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-comprehendmedical-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/814726593401/comprehendmedical/eu-west-3/2026/05/06/comprehendmedical_M7DWRHLBDK.log.gz"
+        "key": "AWSLogs/738291046572/comprehendmedical/me-central-1/2026/05/07/comprehendmedical_YGFRCNVBFH9.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/comprehendmedical/logs",
-      "log_stream": "eu-west-3/p4jq9va1",
-      "ingestion_time": "2026-05-06T16:23:00.754Z"
+      "log_stream": "me-central-1/h7uz7ln9",
+      "ingestion_time": "2026-05-07T10:17:36.577Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.comprehendmedical",
     "provider": "comprehendmedical.amazonaws.com",
     "module": "aws"
   },
-  "message": "Comprehend Medical StartEntitiesDetectionV2Job: 39 entities, 1 PHI",
-  "log": { "level": "info" },
+  "message": "Comprehend Medical StartEntitiesDetectionV2Job FAILED: Rate limit exceeded",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InvalidRequestException",
+    "message": "Comprehend Medical failed",
+    "type": "ml"
+  },
   "service": { "name": "comprehendmedical", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.comprehendmedical", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-3",
-    "ephemeral_id": "ggsskcwkn3o"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "804toz5z222"
   },
   "input": { "type": "aws-cloudwatch" }
 }

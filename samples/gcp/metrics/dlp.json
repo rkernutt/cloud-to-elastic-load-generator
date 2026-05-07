@@ -3,46 +3,40 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-south1",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "europe-west12",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-south1",
-    "ephemeral_id": "5v55bvgcbt"
+    "name": "metricbeat-gcp-europe-west12",
+    "ephemeral_id": "stl005wiaul"
   },
   "monitoringTimeSeries": {
-    "metric": {
-      "type": "serviceruntime.googleapis.com/api/request_count",
-      "labels": { "credential_id": "resource-a" }
-    },
+    "metric": { "type": "dlp.googleapis.com/finding_count", "labels": {} },
     "resource": {
-      "type": "consumed_api",
+      "type": "dlp.googleapis.com/InspectTemplate",
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "service": "generic.googleapis.com",
-        "method": "resource_id"
+        "resource_container": "globex-prod-a1b2c3",
+        "location": "europe-west12",
+        "inspect_template_id": "dlp-credit-cards"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "6671" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "269" } }
     ]
   },
   "gcp": {
     "dlp": {
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "service": "generic.googleapis.com",
-        "method": "resource_id",
-        "credential_id": "resource-a"
+        "resource_container": "globex-prod-a1b2c3",
+        "location": "europe-west12",
+        "inspect_template_id": "dlp-credit-cards"
       },
-      "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": { "avg": 6671, "sum": 6671, "count": 1 }
-      }
+      "metrics": { "dlp.googleapis.com/finding_count": { "avg": 269, "sum": 269, "count": 1 } }
     }
   },
   "metricset": { "name": "dlp", "period": 60000 },

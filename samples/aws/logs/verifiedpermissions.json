@@ -1,37 +1,37 @@
 {
-  "@timestamp": "2026-05-06T16:22:59.897Z",
+  "@timestamp": "2026-05-07T10:17:35.322Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-east-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "verifiedpermissions" }
   },
   "aws": {
-    "dimensions": { "PolicyStoreId": "EFxH5N8L7VBXF1U" },
+    "dimensions": { "PolicyStoreId": "EFxHRXYFFMDN9IK" },
     "verifiedpermissions": {
-      "policy_store_id": "EFxH5N8L7VBXF1U",
+      "policy_store_id": "EFxHRXYFFMDN9IK",
       "principal_entity_type": "Role",
-      "principal_entity_id": "role-SRXVBT7J",
-      "action_id": "DeleteDocument",
-      "resource_type": "Endpoint",
-      "decision": "ALLOW",
-      "determining_policies": 1,
+      "principal_entity_id": "role-LSW0A0Y8",
+      "action_id": "ListResources",
+      "resource_type": "Record",
+      "decision": "DENY",
+      "determining_policies": 5,
       "errors_count": 0,
       "evaluation_time_ms": 27
     },
     "s3": {
       "bucket": {
-        "name": "aws-verifiedpermissions-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-verifiedpermissions-logs-293847561023"
+        "name": "aws-verifiedpermissions-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-verifiedpermissions-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/verifiedpermissions/me-central-1/2026/05/06/verifiedpermissions_07N5FYQPIQ6V.log.gz"
+        "key": "AWSLogs/501938274650/verifiedpermissions/us-east-2/2026/05/07/verifiedpermissions_7LENNRV3EQD.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/verifiedpermissions/logs",
-      "log_stream": "me-central-1/9lj7e7ih",
-      "ingestion_time": "2026-05-06T16:23:00.593Z"
+      "log_stream": "us-east-2/g2bb4cux",
+      "ingestion_time": "2026-05-07T10:17:36.368Z"
     }
   },
   "event": {
@@ -42,16 +42,21 @@
     "provider": "verifiedpermissions.amazonaws.com",
     "module": "aws"
   },
-  "message": "Verified Permissions ALLOW: Role/role-SRXVBT7J → DeleteDocument",
-  "log": { "level": "info" },
+  "message": "Verified Permissions DENY: Role/role-LSW0A0Y8 → ListResources",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "AccessDenied",
+    "message": "Authorization denied for Role/role-LSW0A0Y8 to perform ListResources",
+    "type": "authorization"
+  },
   "service": { "name": "verifiedpermissions", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.verifiedpermissions", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "tjbnkyx0nm"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "ohxji0b0mea"
   },
   "input": { "type": "aws-cloudwatch" }
 }

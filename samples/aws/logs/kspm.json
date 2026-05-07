@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-05-06T16:22:59.897Z",
+  "@timestamp": "2026-05-07T10:17:35.322Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,45 +7,56 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" }
+    "region": "af-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" }
   },
   "orchestrator": {
-    "cluster": { "id": "dev-eks", "name": "dev-eks" },
+    "cluster": { "id": "staging-eks", "name": "staging-eks" },
     "type": "kubernetes",
-    "namespace": "logging"
+    "namespace": "monitoring"
   },
   "resource": {
-    "id": "api/v1/namespaces/logging/pods/frontend-56fe1",
-    "name": "frontend-56fe1",
+    "id": "api/v1/namespaces/monitoring/pods/api-gateway-rhs4a",
+    "name": "api-gateway-rhs4a",
     "type": "k8s_object",
     "sub_type": "Pod"
   },
   "rule": {
-    "id": "882ffc80-73e9-56aa-ae72-73b39af6702f",
-    "name": "Minimize the admission of containers with allowPrivilegeEscalation",
-    "section": "4.2.5",
-    "description": "Do not generally permit containers to be run with the `allowPrivilegeEscalation` flag set to true.",
-    "tags": ["CIS", "EKS", "CIS 4.2.5", "Pod Security Policies"],
+    "id": "551d3a0b-36f6-51c6-ba8b-0a83926b1864",
+    "name": "Minimize the admission of containers with added capabilities",
+    "section": "4.2.8",
+    "description": "Do not generally permit containers with capabilities assigned beyond the default set.",
+    "tags": ["CIS", "EKS", "CIS 4.2.8", "Pod Security Policies"],
     "benchmark": {
       "id": "cis_eks",
       "name": "CIS Amazon Elastic Kubernetes Service (EKS)",
       "version": "v1.0.1",
-      "rule_number": "4.2.5",
+      "rule_number": "4.2.8",
       "posture_type": "kspm"
     },
-    "profile_applicability": "* Level 1"
+    "profile_applicability": "* Level 1",
+    "impact": "Non-compliance with CIS Amazon Elastic Kubernetes Service (EKS) 4.2.8 — Minimize the admission of containers with added capabilities",
+    "remediation": "Remediate per CIS Amazon Elastic Kubernetes Service (EKS) v1.0.1 section 4.2.8."
   },
-  "result": { "evaluation": "passed" },
+  "result": {
+    "evaluation": "failed",
+    "evidence": {
+      "spec": {
+        "containers": [
+          { "securityContext": { "capabilities": { "add": ["SYS_ADMIN", "NET_ADMIN"] } } }
+        ]
+      }
+    }
+  },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_eks/4.2.5] passed: Minimize the admission of containers with allowPrivilegeEscalation",
-  "log": { "level": "info" }
+  "message": "[cis_eks/4.2.8] failed: Minimize the admission of containers with added capabilities",
+  "log": { "level": "warn" }
 }

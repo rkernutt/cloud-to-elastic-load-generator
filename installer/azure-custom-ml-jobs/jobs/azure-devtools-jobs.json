@@ -1,13 +1,13 @@
 {
   "group": "azure-devtools",
-  "description": "Azure DevOps — Pipelines (synthetic)",
+  "description": "Azure DevOps \u2014 Pipelines (synthetic)",
   "jobs": [
     {
       "id": "azure-devops-pipeline-failure-spike",
       "description": "Spikes in failed pipeline runs per pipeline resource",
       "job": {
         "description": "Spikes in failed pipeline runs per pipeline resource",
-        "groups": ["azure", "devtools"],
+        "groups": ["azure", "devtools", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -21,9 +21,16 @@
           "influencers": ["azure.devops_pipeline.resource_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -31,15 +38,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "exists": { "field": "azure.devops_pipeline.resource_name" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "exists": {
+                  "field": "azure.devops_pipeline.resource_name"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -47,7 +70,7 @@
       "description": "Unusual pipeline run duration",
       "job": {
         "description": "Unusual pipeline run duration",
-        "groups": ["azure", "devtools"],
+        "groups": ["azure", "devtools", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -62,9 +85,16 @@
           "influencers": ["azure.devops_pipeline.resource_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -72,14 +102,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "exists": { "field": "azure.devops_pipeline.resource_name" } }
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "exists": {
+                  "field": "azure.devops_pipeline.resource_name"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -87,7 +129,7 @@
       "description": "Spikes in Logic Apps workflow run failures per workflow",
       "job": {
         "description": "Spikes in Logic Apps workflow run failures per workflow",
-        "groups": ["azure", "integration"],
+        "groups": ["azure", "integration", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -101,9 +143,16 @@
           "influencers": ["azure.logic_apps.workflow_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -111,15 +160,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "term": { "cloud.service.name": "Microsoft.Logic/workflows" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "cloud.service.name": "Microsoft.Logic/workflows"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -127,7 +192,7 @@
       "description": "Unusual Logic Apps workflow run duration per workflow",
       "job": {
         "description": "Unusual Logic Apps workflow run duration per workflow",
-        "groups": ["azure", "integration"],
+        "groups": ["azure", "integration", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -142,9 +207,16 @@
           "influencers": ["azure.logic_apps.workflow_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -152,14 +224,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "term": { "cloud.service.name": "Microsoft.Logic/workflows" } }
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "cloud.service.name": "Microsoft.Logic/workflows"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -167,7 +251,7 @@
       "description": "Spikes in Event Grid delivery failures per topic",
       "job": {
         "description": "Spikes in Event Grid delivery failures per topic",
-        "groups": ["azure", "integration"],
+        "groups": ["azure", "integration", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -181,9 +265,16 @@
           "influencers": ["azure.event_grid.topic_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -191,15 +282,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "term": { "cloud.service.name": "Microsoft.EventGrid/topics" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "cloud.service.name": "Microsoft.EventGrid/topics"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -207,7 +314,7 @@
       "description": "Unusual Event Grid drop rate across all topics",
       "job": {
         "description": "Unusual Event Grid drop rate across all topics",
-        "groups": ["azure", "integration"],
+        "groups": ["azure", "integration", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -220,9 +327,16 @@
           "influencers": ["azure.event_grid.topic_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -230,15 +344,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "term": { "cloud.service.name": "Microsoft.EventGrid/topics" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "cloud.service.name": "Microsoft.EventGrid/topics"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

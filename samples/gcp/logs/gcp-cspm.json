@@ -7,56 +7,44 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "australia-southeast2",
-    "account": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" }
+    "region": "asia-southeast2",
+    "account": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" }
   },
   "resource": {
-    "id": "//sqladmin.googleapis.com/projects/globex-staging-d4e5f6/instances/sql-Y43TLW",
-    "name": "sql-Y43TLW",
-    "type": "sqladmin.googleapis.com/Instance",
-    "sub_type": "cloud-sql-instance",
-    "raw": { "databaseVersion": "MYSQL_8_0" }
+    "id": "//iam.googleapis.com/projects/globex-shared-m3n4o5/serviceAccounts/svc-C3ARQ4@globex-shared-m3n4o5.iam.gserviceaccount.com",
+    "name": "svc-C3ARQ4@globex-shared-m3n4o5.iam.gserviceaccount.com",
+    "type": "iam.googleapis.com/ServiceAccount",
+    "sub_type": "service-account",
+    "raw": {
+      "email": "svc-C3ARQ4@globex-shared-m3n4o5.iam.gserviceaccount.com",
+      "projectId": "globex-shared-m3n4o5"
+    }
   },
   "rule": {
-    "id": "f62488d2-4b52-57d4-8ecd-d8f47dcb3dda",
-    "name": "Ensure That the ‘Local_infile’ Database Flag for a Cloud SQL MySQL Instance Is Set to ‘Off’",
-    "section": "6.1.3",
-    "description": "It is recommended to set the `local_infile` database flag for a Cloud SQL MySQL instance to `off`.",
-    "tags": ["CIS", "GCP", "CIS 6.1.3", "MySQL Database"],
+    "id": "933268ec-44e8-5fba-9ed7-535804521cc7",
+    "name": "Ensure That Separation of Duties Is Enforced While Assigning KMS Related Roles to Users",
+    "section": "1.11",
+    "description": "It is recommended that the principle of 'Separation of Duties' is enforced while assigning KMS related roles to users.",
+    "tags": ["CIS", "GCP", "CIS 1.11", "Identity and Access Management"],
     "benchmark": {
       "id": "cis_gcp",
       "name": "CIS Google Cloud Platform Foundation",
       "version": "v2.0.0",
-      "rule_number": "6.1.3",
+      "rule_number": "1.11",
       "posture_type": "cspm"
     },
-    "profile_applicability": "* Level 1",
-    "impact": "Non-compliance with CIS Google Cloud Platform Foundation 6.1.3 — Ensure That the ‘Local_infile’ Database Flag for a Cloud SQL MySQL Instance Is Set to ‘Off’",
-    "remediation": "Remediate per CIS Google Cloud Platform Foundation v2.0.0 section 6.1.3."
+    "profile_applicability": "* Level 2"
   },
-  "result": {
-    "evaluation": "failed",
-    "evidence": {
-      "settings": {
-        "ipConfiguration": {
-          "ipv4Enabled": true,
-          "authorizedNetworks": [{ "value": "0.0.0.0/0", "name": "open-world" }],
-          "requireSsl": false
-        },
-        "backupConfiguration": { "enabled": false }
-      },
-      "databaseVersion": "MYSQL_8_0"
-    }
-  },
+  "result": { "evaluation": "passed" },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_cspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_gcp/6.1.3] failed: Ensure That the ‘Local_infile’ Database Flag for a Cloud SQL MySQL Instance Is Set to ‘Off’",
-  "log": { "level": "warn" }
+  "message": "[cis_gcp/1.11] passed: Ensure That Separation of Duties Is Enforced While Assigning KMS Related Roles to Users",
+  "log": { "level": "info" }
 }

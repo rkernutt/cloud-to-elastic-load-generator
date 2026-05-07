@@ -1,79 +1,71 @@
 {
-  "user": { "name": "alex.rodriguez", "email": "alex.rodriguez@globex.example.com" },
+  "user": { "name": "priya.sharma", "email": "priya.sharma@globex.example.com" },
   "source": {
-    "ip": "56.37.14.224",
+    "ip": "161.45.47.118",
     "geo": { "country_iso_code": "US", "city_name": "Ashburn", "region_name": "Virginia" }
   },
-  "user_agent": { "original": "python-requests/2.31.0" },
-  "@timestamp": "2026-05-06T16:22:59.897Z",
+  "user_agent": { "original": "Boto3/1.34.84 md/Botocore#1.34.84 ua/2.0 os/linux#5.15.0" },
+  "@timestamp": "2026-05-07T10:17:35.322Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-southeast-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "bhaqqlxgxd9" },
+    "dimensions": { "DetectorId": "10jhk5q3452" },
     "guardduty": {
       "schema_version": "2.0",
-      "account_id": "738291046572",
-      "region": "eu-central-1",
+      "account_id": "814726593401",
+      "region": "ap-southeast-1",
       "partition": "aws",
-      "id": "f4w605uz3il",
-      "arn": "arn:aws:guardduty:eu-central-1:738291046572:detector/bhaqqlxgxd9/finding/f4w605uz3il",
-      "type": "Backdoor:EC2/C&CActivity.B",
-      "title": "EC2 C&CActivity B",
-      "description": "GuardDuty identified suspicious behavior based on VPC flow logs, DNS logs, or CloudTrail. Finding type: Backdoor:EC2/C&CActivity.B. Resource: arn:aws:ec2:eu-central-1:738291046572:instance/i-nr03odl98u.",
-      "created_at": "2026-05-06T16:22:59.897Z",
-      "updated_at": "2026-05-06T16:22:59.897Z",
-      "severity": { "code": 4, "value": "Medium" },
-      "confidence": 93.30366861574316,
+      "id": "isqfnm7a2xc",
+      "arn": "arn:aws:guardduty:ap-southeast-1:814726593401:detector/10jhk5q3452/finding/isqfnm7a2xc",
+      "type": "InitialAccess:IAMUser/AnomalousBehavior",
+      "title": "IAMUser AnomalousBehavior",
+      "description": "GuardDuty identified suspicious behavior based on VPC flow logs, DNS logs, or CloudTrail. Finding type: InitialAccess:IAMUser/AnomalousBehavior. Resource: arn:aws:s3:::logs-archive-593401.",
+      "created_at": "2026-05-07T10:17:35.322Z",
+      "updated_at": "2026-05-07T10:17:35.322Z",
+      "severity": { "code": 7, "value": "High" },
+      "confidence": 70.50115213854086,
       "resource": {
-        "type": "Instance",
-        "instance_details": {
-          "instance_id": "i-nr03odl98u",
-          "instance_type": "t3.medium",
-          "image_id": "ami-wmwyx85h",
-          "availability_zone": "eu-central-1a",
-          "network_interfaces": [
-            {
-              "network_interface_id": "eni-gce7rwut",
-              "private_ip_address": "61.7.34.176",
-              "subnet_id": "subnet-vwgc7scf",
-              "vpc_id": "vpc-jo5ywxo1"
-            }
-          ],
-          "tags": [{ "key": "Name", "value": "app-server" }]
+        "type": "S3Bucket",
+        "s3_bucket_detail": {
+          "arn": "arn:aws:s3:::logs-archive-593401",
+          "name": "logs-archive-593401",
+          "type": "Destination",
+          "created_at": "2026-05-07T09:43:46.322Z",
+          "owner": { "id": "814726593401" }
         }
       },
       "service": {
-        "detector_id": "bhaqqlxgxd9",
-        "count": 37,
+        "detector_id": "10jhk5q3452",
+        "count": 31,
         "archived": false,
         "resource_role": "TARGET",
-        "action": { "action_type": "DNS_REQUEST" }
+        "action": { "action_type": "AWS_API_CALL" }
       },
-      "metrics": { "FindingCount": { "sum": 6 }, "HighSeverityFindingCount": { "sum": 0 } }
+      "metrics": { "FindingCount": { "sum": 18 }, "HighSeverityFindingCount": { "sum": 2 } }
     },
     "s3": {
       "bucket": {
-        "name": "aws-security-chain-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-security-chain-logs-738291046572"
+        "name": "aws-security-chain-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-security-chain-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/security-chain/eu-central-1/2026/05/06/security-chain_N24M9UBE0O.log.gz"
+        "key": "AWSLogs/814726593401/security-chain/ap-southeast-1/2026/05/07/security-chain_DNX5TNKCYSL.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/security-chain/logs",
-      "log_stream": "eu-central-1/u5t6mau6",
-      "ingestion_time": "2026-05-06T16:23:00.581Z"
+      "log_stream": "ap-southeast-1/fnzs141z",
+      "ingestion_time": "2026-05-07T10:17:36.348Z"
     }
   },
-  "rule": { "category": "threat", "name": "Backdoor:EC2/C&CActivity.B" },
+  "rule": { "category": "threat", "name": "InitialAccess:IAMUser/AnomalousBehavior" },
   "event": {
     "kind": "alert",
-    "severity": 4,
+    "severity": 7,
     "outcome": "failure",
     "category": ["threat"],
     "type": ["indicator"],
@@ -81,22 +73,22 @@
     "provider": "guardduty.amazonaws.com",
     "module": "aws"
   },
-  "message": "GuardDuty finding [MEDIUM]: Backdoor:EC2/C&CActivity.B — arn:aws:ec2:eu-central-1:738291046572:instance/i-nr03odl98u",
-  "log": { "level": "warn" },
+  "message": "GuardDuty finding [HIGH]: InitialAccess:IAMUser/AnomalousBehavior — arn:aws:s3:::logs-archive-593401",
+  "log": { "level": "error" },
   "labels": {
-    "finding_chain_id": "top3kbd9-hmlp-1k06-fslg-1qsgvjj9lfc",
-    "guardduty_finding_id": "f4w605uz3il",
-    "securityhub_finding_id": "2R9EXBXX-JF1L-F4NR-18DY-OSX8Z5WA9DL",
-    "resource_arn": "arn:aws:ec2:eu-central-1:738291046572:instance/i-nr03odl98u"
+    "finding_chain_id": "zkm6c7ho-tpfm-k52m-lw07-9cb92cx5ef",
+    "guardduty_finding_id": "isqfnm7a2xc",
+    "securityhub_finding_id": "BWKHF2TN-F1ID-WR9O-V4SQ-ANUTSIVFG",
+    "resource_arn": "arn:aws:s3:::logs-archive-593401"
   },
   "error": {
     "code": "ThreatFinding",
-    "message": "GuardDuty finding: Backdoor:EC2/C&CActivity.B",
+    "message": "GuardDuty finding: InitialAccess:IAMUser/AnomalousBehavior",
     "type": "security"
   },
   "threat": {
-    "tactic": { "name": "Command and Control", "id": "TA0011" },
-    "technique": { "name": "Application Layer Protocol", "id": "T1071" }
+    "tactic": { "name": "Exfiltration", "id": "TA0010" },
+    "technique": { "name": "Transfer Data to Cloud Account", "id": "T1537" }
   },
   "service": { "name": "security-chain", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -104,8 +96,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "8rapey18tk6"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "6iletsx2byi"
   },
   "input": { "type": "http_endpoint" }
 }

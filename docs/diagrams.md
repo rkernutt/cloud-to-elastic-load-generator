@@ -1,6 +1,6 @@
 # Cloud Loadgen for Elastic — Architecture Diagrams
 
-> **Catalog sizes (log · metric · trace services):** AWS **212 · 206 · 54**; GCP **129 · 123 · 48**; Azure **131 · 120 · 40**.
+> **Catalog sizes (log · metric · trace services):** AWS **212 · 206 · 54**; GCP **130 · 123 · 48**; Azure **131 · 120 · 40**.
 
 > **Installer assets (custom Kibana dashboards · ML anomaly jobs · Elasticsearch-query alert rules):** AWS **220 · 384 · 17**; GCP **127 · 152 · 17**; Azure **120 · 154 · 17**. Rules are defined in `installer/{aws,gcp,azure}-custom-rules/` (including Data & Analytics Pipeline rules plus Security Finding, IAM Privesc, and Data Exfil chains per cloud).
 
@@ -15,14 +15,14 @@ flowchart LR
     end
 
     subgraph Engine["Load Generator Engine"]
-        SEL["Service Selector\n212 AWS services / 15 groups"]
+        SEL["Service Selector\n213 AWS services / 15 groups"]
         MODE["Mode Switch\nLogs · Metrics · Traces"]
         GEN["Generator Functions\nECS-shaped documents"]
         BUF["Batch Buffer\n50–1,000 docs / request"]
     end
 
     subgraph Elastic["Elastic Stack"]
-        PIPE["Ingest Pipelines\n100 custom pipelines"]
+        PIPE["Ingest Pipelines\n100 AWS pipeline definitions (registry)\n188 objects installed"]
         DS[("Data Streams\nlogs-aws.*\nmetrics-aws.*\ntraces-apm.*")]
         KB["Kibana\n220 custom dashboards"]
         ML["ML Anomaly Detection\n384 jobs / 32 groups"]
@@ -88,11 +88,11 @@ flowchart TD
 
 ---
 
-## 3 · Service Groups (212 services)
+## 3 · Service Groups (213 services)
 
 ```mermaid
 mindmap
-  root((212 AWS Services))
+  root((213 AWS Services))
     Serverless and Core
       Lambda
       API Gateway
@@ -308,7 +308,7 @@ flowchart TD
     subgraph I2["setup:aws-pipelines"]
         direction TB
         B1["Elasticsearch Ingest API"]
-        B2["100 custom pipelines\n15 groups\nlogs-aws.service-default"]
+        B2["100 AWS pipeline registry defs\n188 total objects (enrichment + routing)\n15 groups\nlogs-aws.service-default"]
     end
 
     subgraph I3["setup:aws-dashboards"]

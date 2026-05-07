@@ -7,7 +7,7 @@
       "description": "Detects spikes in failed Entra ID sign-in attempts per user",
       "job": {
         "description": "Detects spikes in failed Entra ID SignIn events per user principal",
-        "groups": ["azure", "identity"],
+        "groups": ["azure", "identity", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -21,9 +21,16 @@
           "influencers": ["azure.entra_id.user", "azure.entra_id.ip_address", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -31,24 +38,48 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "term": { "event.dataset": "azure.entra_id" } },
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "event.dataset": "azure.entra_id"
+                }
+              },
               {
                 "bool": {
                   "should": [
-                    { "term": { "azure.entra_id.category": "SignInLogs" } },
-                    { "term": { "azure.entra_id.category": "SignIn" } }
+                    {
+                      "term": {
+                        "azure.entra_id.category": "SignInLogs"
+                      }
+                    },
+                    {
+                      "term": {
+                        "azure.entra_id.category": "SignIn"
+                      }
+                    }
                   ],
                   "minimum_should_match": 1
                 }
               },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -56,7 +87,7 @@
       "description": "Detects Entra ID sign-ins from unusual countries or regions",
       "job": {
         "description": "Detects rare sign-in location (country/region) values in Entra SignInLogs",
-        "groups": ["azure", "identity"],
+        "groups": ["azure", "identity", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "60m",
           "detectors": [
@@ -74,9 +105,16 @@
           ]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -84,24 +122,48 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "term": { "event.dataset": "azure.entra_id" } },
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "event.dataset": "azure.entra_id"
+                }
+              },
               {
                 "bool": {
                   "should": [
-                    { "term": { "azure.entra_id.category": "SignInLogs" } },
-                    { "term": { "azure.entra_id.category": "SignIn" } }
+                    {
+                      "term": {
+                        "azure.entra_id.category": "SignInLogs"
+                      }
+                    },
+                    {
+                      "term": {
+                        "azure.entra_id.category": "SignIn"
+                      }
+                    }
                   ],
                   "minimum_should_match": 1
                 }
               },
-              { "exists": { "field": "azure.entra_id.properties.location.countryOrRegion" } }
+              {
+                "exists": {
+                  "field": "azure.entra_id.properties.location.countryOrRegion"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -109,7 +171,7 @@
       "description": "Detects rare Microsoft 365 audit record types (unexpected or high-risk operations)",
       "job": {
         "description": "Detects rare M365 record_type values across workloads",
-        "groups": ["azure", "identity"],
+        "groups": ["azure", "identity", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "60m",
           "detectors": [
@@ -127,9 +189,16 @@
           ]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -137,15 +206,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "term": { "event.dataset": "azure.microsoft_365" } },
-              { "exists": { "field": "azure.microsoft_365.record_type" } }
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "event.dataset": "azure.microsoft_365"
+                }
+              },
+              {
+                "exists": {
+                  "field": "azure.microsoft_365.record_type"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -153,7 +238,7 @@
       "description": "Detects spikes in Azure AD directory audit activity within Microsoft 365 logs",
       "job": {
         "description": "Detects spikes in M365 events for the AzureActiveDirectory workload per user",
-        "groups": ["azure", "identity"],
+        "groups": ["azure", "identity", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -171,9 +256,16 @@
           ]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -181,15 +273,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "term": { "event.dataset": "azure.microsoft_365" } },
-              { "term": { "azure.microsoft_365.workload": "AzureActiveDirectory" } }
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "event.dataset": "azure.microsoft_365"
+                }
+              },
+              {
+                "term": {
+                  "azure.microsoft_365.workload": "AzureActiveDirectory"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -197,7 +305,7 @@
       "description": "Detects spikes in Azure Activity Log failure outcomes per resource group",
       "job": {
         "description": "Detects spikes in failed Activity Log events per resource group",
-        "groups": ["azure", "management"],
+        "groups": ["azure", "management", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -215,9 +323,16 @@
           ]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -225,15 +340,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "term": { "event.dataset": "azure.activity_log" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "event.dataset": "azure.activity_log"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -241,7 +372,7 @@
       "description": "Detects rare ARM operation names in Azure Activity Logs",
       "job": {
         "description": "Detects rare azure.activity_log.operation_name values",
-        "groups": ["azure", "management"],
+        "groups": ["azure", "management", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "60m",
           "detectors": [
@@ -259,9 +390,16 @@
           ]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -269,15 +407,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "term": { "event.dataset": "azure.activity_log" } },
-              { "exists": { "field": "azure.activity_log.operation_name" } }
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "event.dataset": "azure.activity_log"
+                }
+              },
+              {
+                "exists": {
+                  "field": "azure.activity_log.operation_name"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -285,7 +439,7 @@
       "description": "Detects unusual spikes in Azure Monitor platform log volume per monitored resource",
       "job": {
         "description": "Detects unusual event volume for azure.monitor logs per resource name",
-        "groups": ["azure", "management"],
+        "groups": ["azure", "management", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -303,9 +457,16 @@
           ]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -313,14 +474,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "term": { "event.dataset": "azure.monitor" } }
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "event.dataset": "azure.monitor"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -328,7 +501,7 @@
       "description": "Detects spikes in Azure Spring Apps failure outcomes per app instance",
       "job": {
         "description": "Detects spikes in Spring Apps failure events per resource name",
-        "groups": ["azure", "compute"],
+        "groups": ["azure", "compute", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -346,9 +519,16 @@
           ]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -356,15 +536,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "term": { "event.dataset": "azure.spring_apps" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "event.dataset": "azure.spring_apps"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -372,7 +568,7 @@
       "description": "Detects spikes in Azure Virtual Machine failure-related events per VM",
       "job": {
         "description": "Detects spikes in VM failure outcomes per virtual machine name",
-        "groups": ["azure", "compute"],
+        "groups": ["azure", "compute", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -386,9 +582,16 @@
           "influencers": ["azure.virtual_machines.vm_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "azure-elastic-load-generator" }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-azure.*"],
@@ -396,16 +599,36 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "azure" } },
-              { "term": { "event.dataset": "azure.virtual_machines" } },
-              { "term": { "event.outcome": "failure" } },
-              { "term": { "cloud.service.name": "Microsoft.Compute/virtualMachines" } }
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "event.dataset": "azure.virtual_machines"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              },
+              {
+                "term": {
+                  "cloud.service.name": "Microsoft.Compute/virtualMachines"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

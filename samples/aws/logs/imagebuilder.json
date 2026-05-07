@@ -1,62 +1,66 @@
 {
-  "@timestamp": "2026-05-06T16:22:59.897Z",
+  "@timestamp": "2026-05-07T10:17:35.322Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-south-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "imagebuilder" }
   },
   "aws": {
-    "dimensions": { "PipelineName": "container-base-pipeline", "Phase": "TEST" },
+    "dimensions": { "PipelineName": "windows-hardened", "Phase": "TEST" },
     "imagebuilder": {
-      "pipeline_name": "container-base-pipeline",
-      "image_version": "3.14.8/1",
+      "pipeline_name": "windows-hardened",
+      "image_version": "2.3.9/1",
       "phase": "TEST",
-      "phase_status": "COMPLETED",
-      "duration_seconds": 902,
-      "os": "RHEL 9",
-      "recipe_name": "docker-host",
-      "ami_id": "ami-u6rvy3so",
+      "phase_status": "FAILED",
+      "duration_seconds": 544,
+      "os": "Amazon Linux 2023",
+      "recipe_name": "web-server-recipe",
       "metrics": {
-        "BuildDuration": { "avg": 902 },
-        "ImageBuildSuccessCount": { "sum": 1 },
-        "ImageBuildFailureCount": { "sum": 0 },
-        "ComponentBuildDuration": { "avg": 130 }
+        "BuildDuration": { "avg": 544 },
+        "ImageBuildSuccessCount": { "sum": 0 },
+        "ImageBuildFailureCount": { "sum": 1 },
+        "ComponentBuildDuration": { "avg": 86 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-imagebuilder-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-imagebuilder-logs-738291046572"
+        "name": "aws-imagebuilder-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-imagebuilder-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/imagebuilder/af-south-1/2026/05/06/imagebuilder_ORY667YWVRO.log.gz"
+        "key": "AWSLogs/164820739518/imagebuilder/ap-south-2/2026/05/07/imagebuilder_1SO4AM8ZN2E.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/imagebuilder/logs",
-      "log_stream": "af-south-1/j4fflft5",
-      "ingestion_time": "2026-05-06T16:23:00.533Z"
+      "log_stream": "ap-south-2/7i4ovi48",
+      "ingestion_time": "2026-05-07T10:17:36.121Z"
     }
   },
   "event": {
     "category": ["process"],
-    "duration": 902000000000,
-    "outcome": "success",
+    "duration": 544000000000,
+    "outcome": "failure",
     "dataset": "aws.imagebuilder",
     "provider": "imagebuilder.amazonaws.com",
     "module": "aws"
   },
-  "message": "Running component: aws:ValidateInfrastructure",
-  "log": { "level": "info" },
+  "message": "Build failed in TEST phase: Instance unreachable",
+  "log": { "level": "error" },
+  "error": {
+    "code": "SsmTimeout",
+    "message": "Build failed in TEST phase: Instance unreachable",
+    "type": "process"
+  },
   "service": { "name": "imagebuilder", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.imagebuilder", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "a6yx7bjbmic"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "6nyxxowp3id"
   },
   "input": { "type": "aws-cloudwatch" }
 }

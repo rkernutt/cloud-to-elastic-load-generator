@@ -1,50 +1,21 @@
 {
-  "@timestamp": "2026-05-06T16:22:59.897Z",
+  "@timestamp": "2026-05-07T10:17:35.322Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
+    "region": "ap-northeast-3",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
-    "service": { "name": "sagemaker" }
+    "service": { "name": "sagemaker-featurestore" }
   },
   "aws": {
-    "dimensions": {
-      "TrainingJobName": "llama-finetuned-pipeline-20260506-spwsss",
-      "JobType": "Pipeline"
-    },
-    "cloudwatch": {
-      "log_group": "/aws/sagemaker/Pipelines",
-      "log_stream": "llama-finetuned-pipeline-20260506-spwsss/algo-1",
-      "ingestion_time": "2026-05-06T16:23:00.680Z"
-    },
-    "sagemaker": {
-      "domain_id": "d-2ww1nz6ype",
-      "domain_name": "nlp-experiments",
-      "user_profile": "alice-ds",
-      "job": {
-        "name": "llama-finetuned-pipeline-20260506-spwsss",
-        "type": "Pipeline",
-        "arn": "arn:aws:sagemaker:eu-central-1:501938274650:processing-job/llama-finetuned-pipeline-20260506-spwsss",
-        "status": "InProgress",
-        "secondary_status": "Training"
-      },
-      "model": { "name": "llama-finetuned", "version": 9 },
-      "pipeline": { "name": "batch-inference-pipeline", "execution_id": "pipe-ki5osibo4mk" },
-      "instance": { "type": "ml.p3.8xlarge", "count": 1 },
-      "metrics": { "gpu_utilization_pct": 34, "cpu_utilization_pct": 66 },
-      "studio": { "lifecycle_config": false, "continuous_logging": false },
-      "cloudwatch_metrics": {
-        "Invocations": { "sum": 350 },
-        "ModelLatency": { "avg": 135000 },
-        "OverheadLatency": { "avg": 45000 },
-        "GPUUtilization": { "avg": 72 },
-        "GPUMemoryUtilization": { "avg": 44 },
-        "CPUUtilization": { "avg": 46 },
-        "DiskUtilization": { "avg": 42 },
-        "MemoryUtilization": { "avg": 76 },
-        "Invocations4XXError": { "sum": 0 },
-        "Invocations5XXError": { "sum": 0 },
-        "ModelSetupTime": { "avg": 1192 }
-      }
+    "sagemaker_featurestore": {
+      "feature_group_name": "recommendation-features",
+      "operation": "GetRecord",
+      "record_identifier": "ndjnrbh7gbg",
+      "online_store_latency_ms": 1.0676115869541682,
+      "offline_store_status": "Active",
+      "feature_count": 26,
+      "record_count": 74,
+      "ttl_duration_seconds": 643873
     },
     "s3": {
       "bucket": {
@@ -52,30 +23,31 @@
         "arn": "arn:aws:s3:::aws-sagemaker-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/sagemaker/eu-central-1/2026/05/06/sagemaker_C9IZPVU4L39.log.gz"
+        "key": "AWSLogs/501938274650/sagemaker/ap-northeast-3/2026/05/07/sagemaker_D43DOHLYMPA.log.gz"
       }
+    },
+    "cloudwatch": {
+      "log_group": "/aws/sagemaker/logs",
+      "log_stream": "ap-northeast-3/06l4gbb0",
+      "ingestion_time": "2026-05-07T10:17:36.476Z"
     }
   },
-  "log": { "level": "warn" },
-  "user": { "name": "alice-ds" },
   "event": {
-    "action": "ProcessingJobStarted",
-    "duration": 3208453793569.103,
     "outcome": "success",
-    "category": ["process"],
-    "dataset": "aws.sagemaker",
-    "provider": "sagemaker.amazonaws.com",
-    "module": "aws"
+    "duration": 191279,
+    "module": "aws",
+    "dataset": "aws.sagemaker"
   },
-  "message": "Training loss plateau detected at epoch 75: loss=0.4846",
+  "message": "SageMaker Feature Store recommendation-features: GetRecord OK (16 records)",
   "service": { "name": "sagemaker", "type": "aws" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sagemaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "t3jdgar6nua"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "hgn1tr91ftn"
   },
   "input": { "type": "aws-cloudwatch" }
 }

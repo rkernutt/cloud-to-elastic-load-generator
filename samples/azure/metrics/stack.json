@@ -3,55 +3,29 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "northcentralus",
-    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" }
+    "region": "brazilsouth",
+    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-northcentralus",
-    "ephemeral_id": "bu7er37au6o"
+    "name": "metricbeat-azure-brazilsouth",
+    "ephemeral_id": "meuqsx1ogk"
   },
   "azure": {
-    "stack": {
+    "azure_stack": {
       "metrics": {
-        "Transactions": {
-          "avg": 1947845,
-          "min": 1714103.6,
-          "max": 2181586.4,
-          "sum": 1947845,
-          "count": 1
-        },
-        "Ingress": {
-          "avg": 18550762991,
-          "min": 16324671432.08,
-          "max": 20776854549.92,
-          "sum": 18550762991,
-          "count": 1
-        },
-        "Egress": {
-          "avg": 9688086557,
-          "min": 8525516170.16,
-          "max": 10850656943.84,
-          "sum": 9688086557,
-          "count": 1
-        },
-        "Availability": { "avg": 100, "min": 88, "max": 112, "sum": 100, "count": 1 },
-        "SuccessE2ELatency": { "avg": 25.14, "min": 22.12, "max": 28.16, "sum": 25.14, "count": 1 }
+        "RegistrationHealth": { "avg": 100, "min": 88, "max": 112, "sum": 100, "count": 1 },
+        "NodeCount": { "avg": 3.34, "min": 2.94, "max": 3.74, "sum": 3.34, "count": 1 }
       }
     },
-    "dimensions": {
-      "ApiName": "PutBlob",
-      "Authentication": "SAS",
-      "GeoType": "Secondary",
-      "ResourceGroup": "rg-shared-5ujdj"
-    },
+    "dimensions": { "Node": "node-03", "ResourceGroup": "rg-prod-4xm88" },
     "resource": {
-      "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-shared-5ujdj/providers/Microsoft.Storage/storageAccounts/st1kkqyg",
-      "group": "rg-shared-5ujdj",
-      "name": "st1kkqyg"
+      "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-prod-4xm88/providers/Microsoft.AzureStackHCI/clusters/hci-prod-i6lg",
+      "group": "rg-prod-4xm88",
+      "name": "hci-prod-i6lg"
     },
-    "namespace": "Microsoft.Storage/storageAccounts"
+    "namespace": "Microsoft.AzureStackHCI/clusters"
   },
   "metricset": { "name": "monitor", "period": 60000 },
   "data_stream": {
@@ -60,12 +34,5 @@
     "namespace": "default"
   },
   "input": { "type": "azure-monitor" },
-  "event": { "dataset": "azure.azure_stack_metrics", "module": "azure" },
-  "azureMonitorMetric": {
-    "time": "2026-04-07T12:00:00.000Z",
-    "metricName": "Transactions",
-    "resourceGroup": "rg-stack",
-    "subscriptionId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-    "timeseries": [{ "data": [{ "average": 1947845, "count": 1 }] }]
-  }
+  "event": { "dataset": "azure.azure_stack_metrics", "module": "azure" }
 }

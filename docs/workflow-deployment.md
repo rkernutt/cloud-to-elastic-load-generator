@@ -95,7 +95,7 @@ All three paths produce the same workflow — you can mix and match (e.g. instal
 
 1. Confirm the Workflows app is visible under the navigation. (Cloud Hosted enables it automatically on supported tiers.)
 2. Tick **Alert-enrichment Workflow** in the Setup wizard, override `notifyTo` if you want a different recipient, click Install. (Or use one of the other install paths above.)
-3. Done. The workflow will fire on the next data-pipeline alert.
+3. After install, complete the **Important** steps at the top of this page (review the notification step, **attach the workflow to each alerting rule** that should trigger it, and **enable the workflow** under **Stack Management → Workflows**). Until those are done, nothing runs at runtime. Once enabled and attached, the workflow will fire on the next data-pipeline alert from a wired rule.
 
 ### Elastic Cloud Serverless
 

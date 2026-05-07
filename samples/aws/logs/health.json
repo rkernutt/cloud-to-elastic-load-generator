@@ -1,57 +1,62 @@
 {
-  "@timestamp": "2026-05-06T16:22:59.897Z",
+  "@timestamp": "2026-05-07T10:17:35.322Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-southeast-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "health" }
   },
   "aws": {
     "health": {
-      "event_arn": "arn:aws:health:eu-central-2::event/sqs/cryt66gg/7shoqconrd6",
-      "event_type_code": "AWS_SQS_API_ISSUE",
+      "event_arn": "arn:aws:health:ap-southeast-3::event/s3/udv9glcc/0m90o1ks1atd",
+      "event_type_code": "AWS_S3_MAINTENANCE_SCHEDULED",
       "event_type_category": "scheduledChange",
-      "service": "SQS",
-      "region": "global",
-      "status_code": "closed",
-      "event_scope": "ACCOUNT",
-      "affected_entities_count": 36,
-      "description": "SQS Connectivity issues in eu-central-2"
+      "service": "S3",
+      "region": "ap-southeast-3",
+      "status_code": "open",
+      "event_scope": "PUBLIC",
+      "affected_entities_count": 33,
+      "description": "S3 Connectivity issues in ap-southeast-3"
     },
     "s3": {
       "bucket": {
-        "name": "aws-health-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-health-logs-738291046572"
+        "name": "aws-health-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-health-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/health/eu-central-2/2026/05/06/health_TBNXPT6UDO.log.gz"
+        "key": "AWSLogs/814726593401/health/ap-southeast-3/2026/05/07/health_YUCT6RAM0J.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/health/logs",
-      "log_stream": "eu-central-2/r9tt9y7v",
-      "ingestion_time": "2026-05-06T16:23:00.722Z"
+      "log_stream": "ap-southeast-3/78vtm20u",
+      "ingestion_time": "2026-05-07T10:17:36.524Z"
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["configuration"],
     "dataset": "aws.health",
     "provider": "health.amazonaws.com",
-    "duration": 205000000000,
+    "duration": 7046000000000,
     "module": "aws"
   },
-  "message": "AWS Health: SQS event resolved in eu-central-2",
-  "log": { "level": "info" },
+  "message": "AWS Health: S3 service issue in ap-southeast-3 - Increased errors",
+  "error": {
+    "code": "HealthIssue",
+    "message": "AWS Health service issue",
+    "type": "configuration"
+  },
+  "log": { "level": "warn" },
   "service": { "name": "health", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.awshealth", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "lz16w0w37vb"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "mekg8eu51uj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

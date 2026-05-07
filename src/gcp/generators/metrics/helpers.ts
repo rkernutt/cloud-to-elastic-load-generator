@@ -8,7 +8,7 @@ import type { GcpProject } from "../helpers.js";
 import type { EcsDocument } from "../../../aws/generators/types.js";
 
 export type MonitoringMetricKind = "GAUGE" | "DELTA" | "CUMULATIVE";
-export type MonitoringValueType = "DOUBLE" | "INT64" | "DISTRIBUTION";
+export type MonitoringValueType = "DOUBLE" | "INT64" | "DISTRIBUTION" | "BOOL";
 
 export type MonitoringPointValue =
   | { doubleValue: number }

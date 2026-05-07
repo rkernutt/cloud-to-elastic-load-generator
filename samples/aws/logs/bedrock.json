@@ -1,67 +1,66 @@
 {
-  "@timestamp": "2026-05-06T16:22:59.897Z",
+  "@timestamp": "2026-05-07T10:17:35.322Z",
   "cloud": {
     "provider": "aws",
     "region": "us-west-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "bedrock" }
   },
   "aws": {
     "dimensions": { "ModelId": "meta.llama3-70b-instruct-v1:0" },
     "bedrock": {
       "modelId": "meta.llama3-70b-instruct-v1:0",
-      "inputTokenCount": 2116,
-      "outputTokenCount": 0,
-      "inputBodyJson": "{\"anthropic_version\":\"bedrock-2023-05-31\",\"max_tokens\":2814,\"messages\":[{\"role\":\"user\",\"content\":\"Return JSON with keys a,b,c.\"}]}",
-      "outputBodyJson": "{\"message\":\"Invocation failed\",\"__type\":\"ThrottlingException\"}",
-      "invocationLatency": 28084,
-      "operation": "InvokeModel",
+      "inputTokenCount": 5164,
+      "outputTokenCount": 349,
+      "inputBodyJson": "{\"messages\":[{\"role\":\"user\",\"content\":[{\"text\":\"Draft a reply to the customer.\"}]}],\"inferenceConfig\":{\"maxTokens\":4096,\"temperature\":0.9381111176084572}}",
+      "outputBodyJson": "{\"output\":{\"message\":{\"role\":\"assistant\",\"content\":[{\"text\":\"Here is a concise summary based on the provided context and figures.Here is a concise summary based on the provided context and figures.Here is a concise summary based on the provided context and figures.\"}]}},\"stopReason\":\"end_turn\",\"usage\":{\"inputTokens\":5164,\"outputTokens\":349,\"totalTokens\":5513}}",
+      "invocationLatency": 7582,
+      "operation": "Converse",
       "schemaType": "ModelInvocationLog",
       "schemaVersion": "1.0",
       "model_id": "meta.llama3-70b-instruct-v1:0",
-      "invocation_latency_ms": 28084,
-      "input_token_count": 2116,
-      "output_token_count": 0,
-      "total_token_count": 2116,
-      "error_code": "ModelErrorException",
-      "use_case": "summarization",
-      "guardrail_action": "NONE",
+      "invocation_latency_ms": 7582,
+      "input_token_count": 5164,
+      "output_token_count": 349,
+      "total_token_count": 5513,
+      "stop_reason": "stop_sequence",
+      "use_case": "extraction",
+      "guardrail_action": "INTERVENED",
       "streaming": false,
       "model_family": "meta",
       "metrics": {
-        "Invocations": { "sum": 189 },
-        "InvocationLatency": { "avg": 28084, "p99": 56168 },
-        "InputTokenCount": { "sum": 2116 },
-        "OutputTokenCount": { "sum": 0 },
-        "Throttles": { "sum": 1 }
+        "Invocations": { "sum": 120 },
+        "InvocationLatency": { "avg": 7582, "p99": 15164 },
+        "InputTokenCount": { "sum": 5164 },
+        "OutputTokenCount": { "sum": 349 },
+        "Throttles": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-bedrock-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-bedrock-logs-164820739518"
+        "name": "aws-bedrock-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-bedrock-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/bedrock/us-west-2/2026/05/06/bedrock_E4GCQZUEA6L.log.gz"
+        "key": "AWSLogs/814726593401/bedrock/us-west-2/2026/05/07/bedrock_1D3K3GWXC94.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/bedrock/logs",
-      "log_stream": "us-west-2/fy1rph1d",
-      "ingestion_time": "2026-05-06T16:23:00.681Z"
+      "log_stream": "us-west-2/vz2fhe4q",
+      "ingestion_time": "2026-05-07T10:17:36.477Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.bedrock",
     "provider": "bedrock.amazonaws.com",
-    "duration": 28083677701.069668,
+    "duration": 7582484161.636964,
     "module": "aws"
   },
-  "message": "Bedrock llama3 invocation FAILED: ThrottlingException",
-  "log": { "level": "error" },
-  "error": { "code": "ModelErrorException", "message": "Bedrock invocation failed", "type": "ml" },
+  "message": "Bedrock llama3 5164->349 tokens 7.58s",
+  "log": { "level": "info" },
   "service": { "name": "bedrock", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.bedrock", "namespace": "default" },
@@ -69,7 +68,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "2habor6e023"
+    "ephemeral_id": "9uk1vk8oew6"
   },
   "input": { "type": "aws-cloudwatch" }
 }

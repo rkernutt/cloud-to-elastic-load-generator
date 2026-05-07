@@ -3,46 +3,52 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "southamerica-west1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" }
+    "region": "africa-south1",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-southamerica-west1",
-    "ephemeral_id": "kvcklfeyj5"
+    "name": "metricbeat-gcp-africa-south1",
+    "ephemeral_id": "14lai5n8lny"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "storage.googleapis.com/api/request_count",
-      "labels": { "method": "GET", "response_code": "200" }
+      "type": "file.googleapis.com/nfs/server/free_bytes",
+      "labels": { "file_share": "scratch" }
     },
     "resource": {
-      "type": "gcs_bucket",
+      "type": "filestore_instance",
       "labels": {
-        "project_id": "globex-staging-d4e5f6",
-        "bucket_name": "data-lake",
-        "location": "southamerica-west1"
+        "project_id": "globex-prod-a1b2c3",
+        "instance_name": "sap-files",
+        "location": "africa-south1-c"
       }
     },
-    "metricKind": "DELTA",
+    "metricKind": "GAUGE",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "329148" } }
+      {
+        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
+        "value": { "int64Value": "28455795364" }
+      }
     ]
   },
   "gcp": {
     "filestore": {
       "labels": {
-        "project_id": "globex-staging-d4e5f6",
-        "bucket_name": "data-lake",
-        "location": "southamerica-west1",
-        "method": "GET",
-        "response_code": "200"
+        "project_id": "globex-prod-a1b2c3",
+        "instance_name": "sap-files",
+        "location": "africa-south1-c",
+        "file_share": "scratch"
       },
       "metrics": {
-        "storage.googleapis.com/api/request_count": { "avg": 329148, "sum": 329148, "count": 1 }
+        "file.googleapis.com/nfs/server/free_bytes": {
+          "avg": 28455795364,
+          "sum": 28455795364,
+          "count": 1
+        }
       }
     }
   },

@@ -3,55 +3,47 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "francecentral",
-    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
+    "region": "eastus2",
+    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-francecentral",
-    "ephemeral_id": "gboapg0j5o7"
+    "name": "metricbeat-azure-eastus2",
+    "ephemeral_id": "7vsqouikwjt"
   },
   "azure": {
-    "pipeline": {
+    "devops_pipeline": {
       "metrics": {
-        "Transactions": {
-          "avg": 266067,
-          "min": 234138.96,
-          "max": 297995.04,
-          "sum": 266067,
+        "RunsSucceeded": { "avg": 54, "min": 47.52, "max": 60.48, "sum": 54, "count": 1 },
+        "RunsFailed": { "avg": 100, "min": 88, "max": 112, "sum": 100, "count": 1 },
+        "QueueDurationSeconds": {
+          "avg": 418.16,
+          "min": 367.98,
+          "max": 468.34,
+          "sum": 418.16,
           "count": 1
         },
-        "Ingress": {
-          "avg": 2463428717,
-          "min": 2167817270.96,
-          "max": 2759040163.04,
-          "sum": 2463428717,
+        "TotalDurationSeconds": {
+          "avg": 1448.31,
+          "min": 1274.51,
+          "max": 1622.11,
+          "sum": 1448.31,
           "count": 1
-        },
-        "Egress": {
-          "avg": 5701903157,
-          "min": 5017674778.16,
-          "max": 6386131535.84,
-          "sum": 5701903157,
-          "count": 1
-        },
-        "Availability": { "avg": 100, "min": 88, "max": 112, "sum": 100, "count": 1 },
-        "SuccessE2ELatency": { "avg": 14.24, "min": 12.53, "max": 15.95, "sum": 14.24, "count": 1 }
+        }
       }
     },
     "dimensions": {
-      "ApiName": "GetBlob",
-      "Authentication": "SAS",
-      "GeoType": "Secondary",
-      "ResourceGroup": "rg-prod-wbtfg"
+      "PipelineName": "ci-api-main",
+      "Branch": "main",
+      "ResourceGroup": "rg-data-etdn5"
     },
     "resource": {
-      "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-prod-wbtfg/providers/Microsoft.Storage/storageAccounts/std4clk7",
-      "group": "rg-prod-wbtfg",
-      "name": "std4clk7"
+      "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-data-etdn5/providers/Microsoft.CloudBuild/organizations/ado-org-ydzg/projects/platform-engineering/pipelines/ci-api-main",
+      "group": "rg-data-etdn5",
+      "name": "ci-api-main"
     },
-    "namespace": "Microsoft.Storage/storageAccounts"
+    "namespace": "Microsoft.CloudBuild/pipelines"
   },
   "metricset": { "name": "monitor", "period": 60000 },
   "data_stream": {
@@ -60,12 +52,5 @@
     "namespace": "default"
   },
   "input": { "type": "azure-monitor" },
-  "event": { "dataset": "azure.devops_pipeline_metrics", "module": "azure" },
-  "azureMonitorMetric": {
-    "time": "2026-04-07T12:00:00.000Z",
-    "metricName": "Transactions",
-    "resourceGroup": "rg-pipeline",
-    "subscriptionId": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
-    "timeseries": [{ "data": [{ "average": 266067, "count": 1 }] }]
-  }
+  "event": { "dataset": "azure.devops_pipeline_metrics", "module": "azure" }
 }
