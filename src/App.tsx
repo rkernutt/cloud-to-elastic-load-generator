@@ -833,6 +833,11 @@ export function LoadGeneratorApp({
     [elasticUrl, apiKey]
   );
 
+  const isLoadgenFeed = (feedId: string) =>
+    feedId.startsWith("datafeed-aws-") ||
+    feedId.startsWith("datafeed-gcp-") ||
+    feedId.startsWith("datafeed-azure-");
+
   const resetMlJobs = useCallback(async () => {
     if (!elasticUrl || !apiKey) return;
     addLog("Resetting ML jobs to clear stale model state…");
@@ -840,10 +845,10 @@ export function LoadGeneratorApp({
       const res = await mlProxy("/_ml/datafeeds/_stats", "GET");
       type FeedStat = { datafeed_id: string; state: string };
       const feeds = (res as { datafeeds?: FeedStat[] }).datafeeds ?? [];
-      const loadgen = feeds.filter((f) => f.datafeed_id.startsWith("datafeed-aws-data-pipeline-"));
+      const loadgen = feeds.filter((f) => isLoadgenFeed(f.datafeed_id));
       const BATCH = 8;
 
-      const stopAndClose = async (f: FeedStat) => {
+      const stopAndReset = async (f: FeedStat) => {
         const id = encodeURIComponent(f.datafeed_id);
         const jobId = f.datafeed_id.replace("datafeed-", "");
         const encJob = encodeURIComponent(jobId);
@@ -876,22 +881,25 @@ export function LoadGeneratorApp({
       };
 
       for (let i = 0; i < loadgen.length; i += BATCH) {
-        await Promise.all(loadgen.slice(i, i + BATCH).map(stopAndClose));
+        await Promise.all(loadgen.slice(i, i + BATCH).map(stopAndReset));
       }
-      addLog(`  ✓ Reset & restarted ${loadgen.length} data-pipeline ML job(s)`);
+      addLog(`  ✓ Reset & restarted ${loadgen.length} ML job(s)`);
     } catch (e) {
       addLog(`  ⚠ ML job reset failed: ${e}`, "warn");
     }
   }, [elasticUrl, apiKey, addLog, mlProxy]);
 
-  const stopMlDatafeeds = useCallback(async () => {
+  const stopAndCloseMlJobs = useCallback(async () => {
     if (!elasticUrl || !apiKey) return;
     try {
       const res = await mlProxy("/_ml/datafeeds/_stats", "GET");
       const feeds = (res as { datafeeds?: { datafeed_id: string; state: string }[] }).datafeeds;
       if (!feeds) return;
-      const started = feeds.filter((f) => f.state === "started");
-      addLog(`Stopping ${started.length} ML datafeed(s) to preserve anomaly scores…`);
+      const loadgenFeeds = feeds.filter((f) => isLoadgenFeed(f.datafeed_id));
+      const started = loadgenFeeds.filter((f) => f.state === "started");
+
+      addLog(`Freezing ${loadgenFeeds.length} ML job(s) to preserve anomaly scores…`);
+
       let stopped = 0;
       for (const f of started) {
         try {
@@ -901,16 +909,34 @@ export function LoadGeneratorApp({
           /* best-effort */
         }
       }
-      addLog(`  ✓ Stopped ${stopped} datafeed(s) — anomaly scores are now frozen`);
+
+      let closed = 0;
+      for (const f of loadgenFeeds) {
+        const jobId = f.datafeed_id.replace("datafeed-", "");
+        try {
+          await mlProxy(`/_ml/anomaly_detectors/${encodeURIComponent(jobId)}/_close`, "POST", {
+            force: true,
+          });
+          closed++;
+        } catch {
+          /* best-effort */
+        }
+      }
+
+      addLog(
+        `  ✓ Stopped ${stopped} datafeed(s), closed ${closed} job(s) — model is frozen, anomaly scores preserved`
+      );
     } catch {
-      addLog("  ⚠ Could not stop ML datafeeds — stop them manually in Kibana to preserve scores");
+      addLog(
+        "  ⚠ Could not freeze ML jobs — close them manually in Kibana to preserve anomaly scores"
+      );
     }
   }, [elasticUrl, apiKey, addLog, mlProxy]);
 
   const { mlState, startMLTraining, stopMLTraining, mlLoopRef } = useMLTrainingLoop(
     shipWithOverride,
     abortRef,
-    { onResetJobs: resetMlJobs, onStopDatafeeds: stopMlDatafeeds }
+    { onResetJobs: resetMlJobs, onStopDatafeeds: stopAndCloseMlJobs }
   );
 
   const pct = progress.total > 0 ? Math.round((progress.sent / progress.total) * 100) : 0;

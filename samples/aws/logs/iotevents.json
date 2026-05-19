@@ -1,22 +1,23 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
+    "region": "eu-west-3",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "door-sensor-model", "KeyValue": "unit-02" },
+    "dimensions": { "DetectorModelName": "temperature-alert-model", "KeyValue": "zone-B" },
     "iotevents": {
-      "detector_model_name": "door-sensor-model",
-      "detector_id": "unit-02",
-      "key_value": "unit-02",
-      "event_name": "AlarmReset",
-      "from_state": "Normal",
-      "to_state": "Normal",
-      "input_name": "SensorInput",
-      "action_type": "SQS"
+      "detector_model_name": "temperature-alert-model",
+      "detector_id": "zone-B",
+      "key_value": "zone-B",
+      "event_name": "TriggerFired",
+      "from_state": "Alarm",
+      "to_state": "Warning",
+      "input_name": "CommandInput",
+      "action_type": "SNS",
+      "condition_expression": "$input.data.value < threshold"
     },
     "s3": {
       "bucket": {
@@ -24,13 +25,13 @@
         "arn": "arn:aws:s3:::aws-iotevents-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/738291046572/iotevents/ca-west-1/2026/05/14/iotevents_BNPJM0YFV8CVOPUJHA8O.log.gz"
+        "key": "AWSLogs/738291046572/iotevents/eu-west-3/2026/05/19/iotevents_ASBJBVV98DAM9BYUDBLO.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "ca-west-1/xv4kvj34",
-      "ingestion_time": "2026-05-14T03:00:07.408Z"
+      "log_stream": "eu-west-3/v38ooo3k",
+      "ingestion_time": "2026-05-19T12:26:14.287Z"
     }
   },
   "event": {
@@ -38,10 +39,10 @@
     "category": ["process"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 66000000,
+    "duration": 418000000,
     "module": "aws"
   },
-  "message": "IoT Events door-sensor-model/unit-02: Normal → Normal [AlarmReset]",
+  "message": "IoT Events temperature-alert-model/zone-B: Alarm → Warning [TriggerFired]",
   "log": { "level": "info" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -49,8 +50,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "ix4gse1kxblhyt9h4ywxb702ai14m9o429kr"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "e1k8wpbn9jfvb7g2nz7s17bu29i2jkv6mrq6"
   },
   "input": { "type": "aws-cloudwatch" }
 }

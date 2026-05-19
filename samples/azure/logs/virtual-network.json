@@ -2,48 +2,54 @@
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "cloud": {
     "provider": "azure",
-    "region": "westeurope",
-    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" },
+    "region": "eastasia",
+    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" },
     "service": { "name": "Microsoft.Network/virtualNetworks" }
   },
-  "category": "Administrative",
-  "operationName": "Microsoft.Network/virtualNetworks/subnets/write",
-  "resultType": "Succeeded",
-  "level": "Informational",
-  "correlationId": "k3g137z5h5lgfuqk6nilgk8y89of1p2l",
-  "callerIpAddress": "242.116.147.45",
+  "category": "DdosProtectionNotification",
+  "operationName": "DdosAttackMitigationReport",
+  "resultType": "Failed",
+  "level": "Warning",
+  "correlationId": "mraoxutwql80vyxexkot8f3vmkhjy7b0",
+  "callerIpAddress": "84.149.221.189",
   "properties": {
-    "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-app-qb2h0a/providers/Microsoft.Network/virtualNetworks/vnet-wl61",
-    "statusCode": "OK",
-    "statusMessage": "Request completed successfully",
-    "subnetName": "snet-app",
-    "addressPrefix": "10.63.216.0/24"
+    "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-network-ybf86j/providers/Microsoft.Network/virtualNetworks/vnet-e0fk",
+    "statusCode": "Conflict",
+    "statusMessage": "Another update is in progress for the referenced subnet.",
+    "publicIpAddresses": ["pip-VXEW.eastasia.cloudapp.azure.com"],
+    "packetsDropped": 0,
+    "maxAttackBandwidthBps": 65526873200
   },
   "azure": {
     "virtual_network": {
-      "name": "vnet-wl61",
-      "resource_group": "rg-app-qb2h0a",
-      "subnet": "snet-app",
-      "operation": "SubnetWrite"
+      "name": "vnet-e0fk",
+      "resource_group": "rg-network-ybf86j",
+      "subnet": "snet-data",
+      "operation": "DdosNotification"
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 102216513,
+    "outcome": "failure",
+    "duration": 2776107341,
     "module": "azure",
     "dataset": "azure.virtual_network"
   },
-  "message": "Subnet snet-app updated on virtual network vnet-wl61",
+  "message": "DDoS telemetry unavailable for vnet-e0fk public endpoint",
+  "error": {
+    "code": "ConflictError",
+    "message": "Virtual network control-plane or DDoS diagnostic reported a failure.",
+    "type": "azure"
+  },
   "service": { "name": "virtual-network", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.virtual_network", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-westeurope",
-    "id": "d6ienyxcaipuez6zfoftwo70rx4la2gbwqnj"
+    "name": "elastic-agent-azure-eastasia",
+    "id": "720xmbswps36935k4n7gxu6pb9svbxfhj7et"
   },
   "input": { "type": "azure-eventhub" },
-  "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourcegroups/rg-app-qb2h0a/providers/Microsoft.Network/virtualNetworks/virtual-network"
+  "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourcegroups/rg-network-ybf86j/providers/Microsoft.Network/virtualNetworks/virtual-network"
 }

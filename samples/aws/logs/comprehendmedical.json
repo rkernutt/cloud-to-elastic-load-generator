@@ -1,53 +1,60 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ca-central-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "comprehendmedical" }
   },
   "aws": {
-    "dimensions": { "Operation": "DetectEntitiesV2" },
+    "dimensions": { "Operation": "InferICD10CM" },
     "comprehendmedical": {
-      "operation": "DetectEntitiesV2",
-      "entities_detected": 45,
-      "phi_entities": 2,
-      "text_characters": 3370,
-      "data_access_role_arn": "arn:aws:iam::738291046572:role/ComprehendMedicalRole",
-      "s3_bucket": "clinical-notes"
+      "operation": "InferICD10CM",
+      "entities_detected": 5,
+      "phi_entities": 0,
+      "icd10_concepts": 3,
+      "text_characters": 2827,
+      "data_access_role_arn": "arn:aws:iam::164820739518:role/ComprehendMedicalRole",
+      "s3_bucket": "ehr-processed",
+      "error_code": "TooManyRequestsException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-comprehendmedical-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-comprehendmedical-logs-738291046572"
+        "name": "aws-comprehendmedical-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-comprehendmedical-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/comprehendmedical/sa-east-1/2026/05/14/comprehendmedical_XD654MRVGCIR8TO7BAHN.log.gz"
+        "key": "AWSLogs/164820739518/comprehendmedical/ca-central-1/2026/05/19/comprehendmedical_XJ5OTQM3EGYNGOF2OBZJ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/comprehendmedical/logs",
-      "log_stream": "sa-east-1/lkxp8rz5",
-      "ingestion_time": "2026-05-14T03:00:07.399Z"
+      "log_stream": "ca-central-1/c1ih49hx",
+      "ingestion_time": "2026-05-19T12:26:14.281Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.comprehendmedical",
     "provider": "comprehendmedical.amazonaws.com",
     "module": "aws"
   },
-  "message": "Comprehend Medical DetectEntitiesV2: 45 entities, 2 PHI",
-  "log": { "level": "info" },
+  "message": "Comprehend Medical InferICD10CM FAILED: Text too long",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InvalidRequestException",
+    "message": "Comprehend Medical failed",
+    "type": "ml"
+  },
   "service": { "name": "comprehendmedical", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.comprehendmedical", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "7wc3nztdrbd29iwjnbxx02dyistxv5w9ke5f"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "ugfqk5tfkfgz3yrs1x61ghb8si8plyeqv1sb"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,61 +1,62 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "us-west-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "a2i" }
   },
   "aws": {
     "dimensions": {
-      "FlowDefinitionArn": "arn:aws:sagemaker:af-south-1:501938274650:flow-definition/content-moderation",
-      "Operation": "CreateHumanLoop"
+      "FlowDefinitionArn": "arn:aws:sagemaker:us-west-1:738291046572:flow-definition/id-verification",
+      "Operation": "StopHumanLoop"
     },
     "a2i": {
-      "flow_definition_arn": "arn:aws:sagemaker:af-south-1:501938274650:flow-definition/content-moderation",
-      "human_loop_name": "loop-t7djai4vydtj",
-      "human_loop_status": "InProgress",
-      "input_content_type": "image/jpeg",
+      "flow_definition_arn": "arn:aws:sagemaker:us-west-1:738291046572:flow-definition/id-verification",
+      "human_loop_name": "loop-fznq36d5zkaa",
+      "human_loop_status": "Failed",
+      "input_content_type": "application/json",
       "condition_threshold": 0.85,
-      "human_review_required": true,
-      "reviewer_count": 4,
-      "task_count": 2,
-      "task_completed": 2,
-      "confidence_threshold_breach": true
+      "human_review_required": false,
+      "reviewer_count": 5,
+      "task_count": 3,
+      "task_completed": 0,
+      "confidence_threshold_breach": false
     },
     "s3": {
       "bucket": {
-        "name": "aws-a2i-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-a2i-logs-501938274650"
+        "name": "aws-a2i-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-a2i-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/501938274650/a2i/af-south-1/2026/05/14/a2i_TY09ORX2XVUX46QBFLSC.log.gz"
+        "key": "AWSLogs/738291046572/a2i/us-west-1/2026/05/19/a2i_D38JCLXPK2Q8L5CPHW4D.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/a2i/logs",
-      "log_stream": "af-south-1/6zzi4pml",
-      "ingestion_time": "2026-05-14T03:00:07.322Z"
+      "log_stream": "us-west-1/fixbvn8t",
+      "ingestion_time": "2026-05-19T12:26:14.231Z"
     }
   },
-  "log": { "level": "warn" },
+  "log": { "level": "error" },
   "event": {
-    "action": "CreateHumanLoop",
-    "outcome": "success",
+    "action": "StopHumanLoop",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.a2i",
     "provider": "sagemaker.amazonaws.com",
     "module": "aws"
   },
-  "message": "A2I CreateHumanLoop: loop=loop-t7djai4vydtj, status=InProgress, confidence=0.85<0.85 REVIEW REQUIRED",
+  "message": "A2I StopHumanLoop FAILED [loop-fznq36d5zkaa]: Task timed out",
+  "error": { "code": "ValidationException", "message": "A2I human loop failed", "type": "process" },
   "service": { "name": "a2i", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.a2i", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "06g6twph8djbsi1vh03v4szg5hzr5lsfonhj"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "nwpqv19zoc5e5b95la07z5bvkzkmuvki6oyb"
   },
   "input": { "type": "aws-cloudwatch" }
 }

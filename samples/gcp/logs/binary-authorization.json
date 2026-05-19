@@ -1,44 +1,37 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "error" },
-  "gcp.rpc": { "status_code": "INTERNAL" },
-  "error": {
-    "code": "INTERNAL",
-    "message": "Binary Authorization policy server returned 503 during admission",
-    "type": "Internal"
-  },
-  "labels": { "gcp.rpc.status_code": "INTERNAL" },
-  "severity": "ERROR",
+  "log": { "level": "info" },
+  "labels": {},
+  "severity": "INFO",
   "logName": "projects/globex-dev-g7h8i9/logs/binaryauthorization.googleapis.com%2Fpolicy_events",
-  "insertId": "yesd9fl7msdrcryb",
+  "insertId": "mp6s59d078hnoq6i",
   "resource": {
     "type": "gke_cluster",
     "labels": {
       "project_id": "globex-dev-g7h8i9",
-      "cluster_name": "dev-cluster",
-      "location": "europe-west9"
+      "cluster_name": "data-cluster",
+      "location": "us-east1"
     }
   },
   "jsonPayload": {
     "typeUrl": "type.googleapis.com/google.cloud.binaryauthorization.v1beta1.ContinuousValidationEvent",
     "policy": "projects/globex-dev-g7h8i9/platforms/gke/policies/globex-prod-policy",
-    "cluster": "projects/globex-dev-g7h8i9/locations/europe-west9/clusters/dev-cluster",
+    "cluster": "projects/globex-dev-g7h8i9/locations/us-east1/clusters/data-cluster",
     "deployable": {
-      "pod_name": "monitoring/checkout-9obvp-unitl",
-      "container_image": "us-docker.pkg.dev/globex-dev-g7h8i9/apps/checkout:v8.19"
+      "pod_name": "kube-system/checkout-r4hdi-7l76i",
+      "container_image": "us-docker.pkg.dev/globex-dev-g7h8i9/apps/checkout:v2.9"
     },
-    "verdict": "DENIED",
+    "verdict": "BREAK_GLASS",
     "attestations": [
       {
         "attestor": "projects/globex-dev-g7h8i9/attestors/cosign-prod",
-        "pgp_key_id": "0xCRX9TSDTJYLRU08C"
+        "pgp_key_id": "0xE485YEN8I2UG447J"
       }
-    ],
-    "reason": "No valid attestor for image"
+    ]
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west9",
+    "region": "us-east1",
     "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
     "account": { "id": "161803398874", "name": "Globex Development" },
     "service": { "name": "binary-authorization" }
@@ -48,44 +41,43 @@
       "json_payload": {
         "typeUrl": "type.googleapis.com/google.cloud.binaryauthorization.v1beta1.ContinuousValidationEvent",
         "policy": "projects/globex-dev-g7h8i9/platforms/gke/policies/globex-prod-policy",
-        "cluster": "projects/globex-dev-g7h8i9/locations/europe-west9/clusters/dev-cluster",
+        "cluster": "projects/globex-dev-g7h8i9/locations/us-east1/clusters/data-cluster",
         "deployable": {
-          "pod_name": "monitoring/checkout-9obvp-unitl",
-          "container_image": "us-docker.pkg.dev/globex-dev-g7h8i9/apps/checkout:v8.19"
+          "pod_name": "kube-system/checkout-r4hdi-7l76i",
+          "container_image": "us-docker.pkg.dev/globex-dev-g7h8i9/apps/checkout:v2.9"
         },
-        "verdict": "DENIED",
+        "verdict": "BREAK_GLASS",
         "attestations": [
           {
             "attestor": "projects/globex-dev-g7h8i9/attestors/cosign-prod",
-            "pgp_key_id": "0xCRX9TSDTJYLRU08C"
+            "pgp_key_id": "0xE485YEN8I2UG447J"
           }
-        ],
-        "reason": "No valid attestor for image"
+        ]
       },
-      "cluster": "dev-cluster",
-      "namespace": "monitoring",
-      "pod": "checkout-9obvp-unitl",
-      "image": "us-docker.pkg.dev/globex-dev-g7h8i9/apps/checkout:v8.19",
+      "cluster": "data-cluster",
+      "namespace": "kube-system",
+      "pod": "checkout-r4hdi-7l76i",
+      "image": "us-docker.pkg.dev/globex-dev-g7h8i9/apps/checkout:v2.9",
       "attestor": "cosign-prod",
-      "verdict": "DENIED",
+      "verdict": "BREAK_GLASS",
       "policy_name": "globex-prod-policy"
     }
   },
   "event": {
-    "outcome": "failure",
-    "duration": 180000000,
+    "outcome": "success",
+    "duration": 12000000,
     "module": "gcp",
     "dataset": "gcp.binaryauthorization"
   },
-  "message": "binaryauthorization.googleapis.com/Admission DENIED cluster=dev-cluster image=us-docker.pkg.dev/globex-dev-g7h8i9/apps/checkout:v8.19",
+  "message": "binaryauthorization.googleapis.com/Admission BREAK_GLASS cluster=data-cluster image=us-docker.pkg.dev/globex-dev-g7h8i9/apps/checkout:v2.9",
   "service": { "name": "binary-authorization", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.binaryauthorization", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west9",
-    "id": "iklbaael0disvasg99dn3u1yswhb5ae78rri"
+    "name": "elastic-agent-gcp-us-east1",
+    "id": "2t7ss0uwmw3xpqflpi0jxnlkiixql22c1ui1"
   },
   "input": { "type": "http_endpoint" }
 }

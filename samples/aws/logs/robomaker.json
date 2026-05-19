@@ -1,71 +1,71 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-south-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "robomaker" }
   },
   "aws": {
     "robomaker": {
-      "simulation_job_id": "sim-7h3r8eg9f6kn",
-      "robot_application": "delivery-robot",
-      "scenario": "simulation_launch",
+      "simulation_job_id": "sim-9vqmx9f5vjvy",
+      "robot_application": "warehouse-nav",
+      "scenario": "robot_deploy",
       "status": "Running",
-      "simulation_time_seconds": 7223,
-      "world_count": 4,
-      "compute_type": "CPU",
+      "simulation_time_seconds": 20954,
+      "world_count": 2,
+      "compute_type": "GPU_AND_CPU",
       "max_job_duration_seconds": 86400,
-      "failure_behavior": "Continue",
+      "failure_behavior": "Fail",
       "ros": {
-        "distro": "ROS2 Humble",
-        "graph": { "nodes": 17, "topics": ["/scan", "/cmd_vel", "/odom", "/map"] }
+        "distro": "ROS Noetic",
+        "graph": { "nodes": 22, "topics": ["/scan", "/cmd_vel", "/odom", "/map"] }
       },
       "physics": {
         "engine": "Gazebo",
-        "step_size_ms": 3.7978425296918603,
-        "realtime_factor": 0.768591612872504
+        "step_size_ms": 3.0044273266256685,
+        "realtime_factor": 0.9031326380547644
       },
       "vpc_config": {
-        "subnets": ["subnet-3O0O21T9", "subnet-AF4GNPKS"],
-        "security_groups": ["sg-HMWSHD8W"]
+        "subnets": ["subnet-E4J1P9DK", "subnet-2N8S5LNT"],
+        "security_groups": ["sg-GGJE4HZ5"]
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-robomaker-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-robomaker-logs-164820739518"
+        "name": "aws-robomaker-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-robomaker-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/robomaker/ap-southeast-1/2026/05/14/robomaker_M3UFLJ4IXMOKM9UXZFER.log.gz"
+        "key": "AWSLogs/293847561023/robomaker/eu-south-1/2026/05/19/robomaker_EWZTU9EV6K6VGS7CQ9EW.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/robomaker/logs",
-      "log_stream": "ap-southeast-1/churdnzi",
-      "ingestion_time": "2026-05-14T03:00:07.274Z"
+      "log_stream": "eu-south-1/dqw6iutv",
+      "ingestion_time": "2026-05-19T12:26:14.197Z"
     }
   },
   "event": {
-    "action": "simulation_launch",
+    "action": "robot_deploy",
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.robomaker",
     "provider": "robomaker.amazonaws.com",
-    "duration": 19452754789,
+    "duration": 32854600683,
     "module": "aws"
   },
-  "message": "CreateSimulationJob sim-7h3r8eg9f6kn app_bundle=delivery-robot iamRole=arn:aws:iam::164820739518:role/RoboMakerSSM",
+  "message": "CreateDeploymentJob fleet=amr-east version=20 rollout=LINEAR",
   "log": { "level": "info" },
-  "host": { "name": "ip-8-174-27-185.ec2.internal", "hostname": "robomaker-v5mz5zp7" },
+  "host": { "name": "ip-45-140-229-165.ec2.internal", "hostname": "robomaker-fxtjdw1v" },
   "service": { "name": "robomaker", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.robomaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "bzwd0tvk3yvwahge8cqfvuvkvxsez6pa84no"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "sr81zzw7mx0ysxdgtka2v0tjou3nhdpplo7m"
   },
   "input": { "type": "aws-cloudwatch" }
 }

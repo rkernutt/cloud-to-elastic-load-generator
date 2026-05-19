@@ -1,66 +1,68 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-northeast-3",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "mediaconvert" }
   },
   "aws": {
-    "dimensions": { "Operation": "CMAF" },
+    "dimensions": { "Operation": "DASH" },
     "mediaconvert": {
-      "job_id": "4088442830-zpww0q",
-      "queue_arn": "arn:aws:mediaconvert:us-west-1:501938274650:queues/batch",
-      "job_status": "COMPLETE",
-      "output_group_type": "CMAF",
+      "job_id": "2835397500-bvffmm",
+      "queue_arn": "arn:aws:mediaconvert:ap-northeast-3:738291046572:queues/premium",
+      "job_status": "ERROR",
+      "output_group_type": "DASH",
       "input_file": "s3://media-input/raw/interview.mov",
-      "input_duration_minutes": 108.85073739185367,
-      "video_codec": "H_264",
-      "audio_codec": "MP3",
-      "width": 1280,
-      "height": 1080,
-      "bitrate_kbps": 1500,
-      "duration_seconds": 434,
+      "input_duration_minutes": 79.48039760786317,
+      "video_codec": "AV1",
+      "audio_codec": "AC3",
+      "width": 3840,
+      "height": 2160,
+      "bitrate_kbps": 3000,
+      "duration_seconds": 369,
+      "error_message": "Output permissions denied",
       "metrics": {
-        "JobsCompletedCount": { "sum": 1 },
-        "JobsErroredCount": { "sum": 0 },
-        "StandbyTime": { "avg": 110 },
-        "TranscodingTime": { "avg": 434 }
+        "JobsCompletedCount": { "sum": 0 },
+        "JobsErroredCount": { "sum": 1 },
+        "StandbyTime": { "avg": 294 },
+        "TranscodingTime": { "avg": 369 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-mediaconvert-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-mediaconvert-logs-501938274650"
+        "name": "aws-mediaconvert-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-mediaconvert-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/501938274650/mediaconvert/us-west-1/2026/05/14/mediaconvert_2PRUDWNSVNTWGPY541PL.log.gz"
+        "key": "AWSLogs/738291046572/mediaconvert/ap-northeast-3/2026/05/19/mediaconvert_1QE8FIGX15WWN4ZTXT8U.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/mediaconvert/logs",
-      "log_stream": "us-west-1/3gibhscg",
-      "ingestion_time": "2026-05-14T03:00:07.381Z"
+      "log_stream": "ap-northeast-3/6gjyuiqv",
+      "ingestion_time": "2026-05-19T12:26:14.267Z"
     }
   },
   "event": {
-    "duration": 434000000000,
-    "outcome": "success",
+    "duration": 369000000000,
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.mediaconvert",
     "provider": "mediaconvert.amazonaws.com",
     "module": "aws"
   },
-  "message": "MediaConvert job 4088442830-zpww0q COMPLETE: 108.9 min -> CMAF",
-  "log": { "level": "info" },
+  "message": "MediaConvert job 2835397500-bvffmm ERROR: S3 write denied",
+  "error": { "code": "ForbiddenException", "message": "MediaConvert job failed", "type": "aws" },
+  "log": { "level": "error" },
   "service": { "name": "mediaconvert", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.mediaconvert", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "howohz7lhjnvcloy1e7pw71206wzrk73ugr0"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "i9734g9bt0ibhvtqmrbgrbqp2qb3t65h8m86"
   },
   "input": { "type": "aws-cloudwatch" }
 }

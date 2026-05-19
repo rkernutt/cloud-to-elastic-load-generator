@@ -1,47 +1,47 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
+    "region": "ap-northeast-2",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "autoscaling" }
   },
   "aws": {
-    "dimensions": { "AutoScalingGroupName": "web-asg" },
+    "dimensions": { "AutoScalingGroupName": "api-asg" },
     "autoscaling": {
-      "group_name": "web-asg",
-      "activity_id": "7egj9f7s-ic8k-ci1o",
-      "action_type": "Terminate",
-      "instance_id": "i-pet71qg2i6grnj7ip",
-      "instance_type": "t3.medium",
-      "desired_capacity": 10,
+      "group_name": "api-asg",
+      "activity_id": "rpj1zi6l-szbz-auih",
+      "action_type": "WarmPoolTransition",
+      "instance_id": "i-fmntoej3352iqwxir",
+      "instance_type": "r5.large",
+      "desired_capacity": 20,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 6,
-      "cause": "At 2024-01-01T12:00:00Z instance i-0abc123456789abcd was taken out of service in response to a spot instance interruption notice",
+      "current_capacity": 20,
+      "cause": "Warm pool instance transitioned Hibernated -> Warming -> InService",
       "status_code": "Successful",
-      "launch_template": "web-lt:5",
+      "launch_template": "api-lt:3",
       "predictive_scaling_forecast": false,
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 10 },
-        "GroupInServiceInstances": { "avg": 6 },
+        "GroupDesiredCapacity": { "avg": 20 },
+        "GroupInServiceInstances": { "avg": 20 },
         "GroupPendingInstances": { "avg": 0 },
-        "GroupStandbyInstances": { "avg": 2 },
-        "GroupTerminatingInstances": { "avg": 2 },
-        "GroupTotalInstances": { "avg": 10 },
-        "GroupInServiceCapacity": { "avg": 6 },
+        "GroupStandbyInstances": { "avg": 0 },
+        "GroupTerminatingInstances": { "avg": 0 },
+        "GroupTotalInstances": { "avg": 20 },
+        "GroupInServiceCapacity": { "avg": 20 },
         "GroupPendingCapacity": { "avg": 0 },
-        "GroupStandbyCapacity": { "avg": 2 },
-        "GroupTerminatingCapacity": { "avg": 2 },
-        "GroupTotalCapacity": { "avg": 10 },
-        "WarmPoolMinSize": { "avg": 0 },
-        "WarmPoolDesiredCapacity": { "avg": 0 },
-        "WarmPoolPendingCapacity": { "avg": 0 },
+        "GroupStandbyCapacity": { "avg": 0 },
+        "GroupTerminatingCapacity": { "avg": 0 },
+        "GroupTotalCapacity": { "avg": 20 },
+        "WarmPoolMinSize": { "avg": 1 },
+        "WarmPoolDesiredCapacity": { "avg": 5 },
+        "WarmPoolPendingCapacity": { "avg": 2 },
         "WarmPoolTerminatingCapacity": { "avg": 0 },
-        "WarmPoolTotalCapacity": { "avg": 0 },
-        "WarmPoolWarmedCapacity": { "avg": 0 }
+        "WarmPoolTotalCapacity": { "avg": 7 },
+        "WarmPoolWarmedCapacity": { "avg": 7 }
       }
     },
     "s3": {
@@ -50,13 +50,13 @@
         "arn": "arn:aws:s3:::aws-autoscaling-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/738291046572/autoscaling/af-south-1/2026/05/14/autoscaling_3RX5Q8SLMB3OMZD0ISC1.log.gz"
+        "key": "AWSLogs/738291046572/autoscaling/ap-northeast-2/2026/05/19/autoscaling_HP7OAXYB75W6GPIBWGRZ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "af-south-1/829wzx0t",
-      "ingestion_time": "2026-05-14T03:00:07.046Z"
+      "log_stream": "ap-northeast-2/06gyd6oc",
+      "ingestion_time": "2026-05-19T12:26:14.059Z"
     }
   },
   "event": {
@@ -64,10 +64,10 @@
     "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 481000000000,
+    "duration": 454000000000,
     "module": "aws"
   },
-  "message": "SuccessfulScalingActivity: Terminating EC2 instance: i-pet71qg2i6grnj7ip ActivityId=7egj9f7s-ic8k-ci1o Cause: At 2024-01-01T12:00:00Z instance i-0abc123456789abcd was taken out of service in response to a spot instance interruption notice",
+  "message": "WarmPool state change ASG=api-asg instance=i-fmntoej3352iqwxir warmed=7 desired=5 poolStatus=Active",
   "log": { "level": "info" },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -75,8 +75,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "tzh6ywdtf2iwnlm30yw52tshrlgoq4q6l346"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "ewu0h3tgixu4veg7x9f8fvuzwpewfbzfxqpd"
   },
   "input": { "type": "aws-cloudwatch" }
 }

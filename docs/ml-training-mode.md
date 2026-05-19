@@ -10,26 +10,27 @@ flowchart LR
     Baseline[2 · Baseline<br/>N runs of normal data] -->
     Wait[3 · Learning wait<br/>configurable] -->
     Inject[4 · Anomaly injection<br/>100% errors · 15× duration · 20× metrics] -->
-    Stabilise[5 · Stabilise & freeze<br/>2 min, then stop datafeeds]
+    Stabilise[5 · Stabilise & freeze<br/>2 min, then stop datafeeds<br/>& close jobs]
 ```
 
 ## Steps
 
-| Step                      | What it does                                                                                                                                       | Why                                                                                                                   |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| **1. Reset**              | Stops every datafeed, closes every job, calls `_reset` to clear model state, then reopens jobs and restarts datafeeds.                             | Without this, ML jobs retain model state from previous runs and may renormalise anomaly scores back to zero.          |
-| **2. Baseline**           | Ships normal data for a configurable number of ship runs (default 3) so the ML jobs see a stable pattern.                                          | Establishes "what normal looks like" for each detector.                                                               |
-| **3. Learning wait**      | Pauses for a configurable duration (default 5 min) while ML scores the baseline.                                                                   | Gives the running datafeeds time to backfill and the model time to converge.                                          |
-| **4. Anomaly injection**  | Ships **one** batch with anomalies forced on: 100% error rate, 15× duration scaling for logs and traces, 20× metric scaling, in a 5-minute window. | A single distinct deviation produces an unambiguous high-severity anomaly.                                            |
-| **5. Stabilise & freeze** | Waits 2 minutes for ML to score the anomalies, then (optional, on by default) stops all datafeeds.                                                 | Stopping datafeeds prevents the model from re-baselining on the anomaly window and renormalising the score back down. |
+| Step                      | What it does                                                                                                                                             | Why                                                                                                                                                                 |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1. Reset**              | For all loadgen ML jobs (aws-\*, gcp-\*, azure-\*): stops datafeeds, closes jobs, calls `_reset` to clear model state, reopens jobs, restarts datafeeds. | Without this, ML jobs retain model state from previous runs and may renormalise anomaly scores back to zero.                                                        |
+| **2. Baseline**           | Ships normal data for a configurable number of ship runs (default 5, spaced 15 min apart) so the ML jobs see a stable pattern.                           | Establishes "what normal looks like" for each detector.                                                                                                             |
+| **3. Learning wait**      | Pauses for a configurable duration (default 30 min) while ML scores the baseline.                                                                        | Gives the running datafeeds time to backfill and the model time to converge.                                                                                        |
+| **4. Anomaly injection**  | Ships **one** batch with anomalies forced on: 100% error rate, 15× duration scaling for logs and traces, 20× metric scaling, in a 5-minute window.       | A single distinct deviation produces an unambiguous high-severity anomaly.                                                                                          |
+| **5. Stabilise & freeze** | Waits 2 minutes for ML to score the anomalies, then (optional, on by default) stops all datafeeds **and closes jobs**.                                   | Closing jobs freezes the model completely — prevents re-baselining that would erase anomaly scores. Stopped datafeeds alone leave jobs open, which can still learn. |
 
 ## Toggles
 
-| Toggle                            | Default | Effect                                                                                                                                  |
-| --------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| **Stop datafeeds after training** | On      | Runs step 5. Anomaly scores stay frozen and visible in the Anomaly Explorer. Turn off if you want the demo to keep producing live data. |
-| **Baseline runs**                 | 3       | How many ship cycles produce normal data before the wait.                                                                               |
-| **Learning wait minutes**         | 5       | How long step 3 pauses.                                                                                                                 |
+| Toggle                        | Default | Effect                                                                                                                                                                     |
+| ----------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Close jobs after training** | On      | Runs step 5. Stops datafeeds and closes jobs so anomaly scores stay frozen and visible in the Anomaly Explorer. Turn off if you want the demo to keep producing live data. |
+| **Baseline runs**             | 5       | How many ship cycles produce normal data before the wait.                                                                                                                  |
+| **Baseline interval (min)**   | 15      | Minutes between each baseline run — spaces data out so ML sees a realistic time distribution.                                                                              |
+| **Learning wait minutes**     | 30      | How long step 3 pauses — gives datafeeds time to backfill and the model time to converge.                                                                                  |
 
 ## Behaviour caveats
 

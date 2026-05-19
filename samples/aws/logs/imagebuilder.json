@@ -1,66 +1,62 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "sa-east-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "imagebuilder" }
   },
   "aws": {
-    "dimensions": { "PipelineName": "golden-ami-pipeline", "Phase": "TEST" },
+    "dimensions": { "PipelineName": "windows-hardened", "Phase": "DEPROVISION" },
     "imagebuilder": {
-      "pipeline_name": "golden-ami-pipeline",
-      "image_version": "3.19.5/1",
-      "phase": "TEST",
-      "phase_status": "FAILED",
-      "duration_seconds": 2123,
-      "os": "Ubuntu 22.04",
-      "recipe_name": "web-server-recipe",
+      "pipeline_name": "windows-hardened",
+      "image_version": "3.15.8/1",
+      "phase": "DEPROVISION",
+      "phase_status": "COMPLETED",
+      "duration_seconds": 1553,
+      "os": "Windows Server 2022",
+      "recipe_name": "docker-host",
+      "ami_id": "ami-xeh43fe2",
       "metrics": {
-        "BuildDuration": { "avg": 2123 },
-        "ImageBuildSuccessCount": { "sum": 0 },
-        "ImageBuildFailureCount": { "sum": 1 },
-        "ComponentBuildDuration": { "avg": 1065 }
+        "BuildDuration": { "avg": 1553 },
+        "ImageBuildSuccessCount": { "sum": 1 },
+        "ImageBuildFailureCount": { "sum": 0 },
+        "ComponentBuildDuration": { "avg": 82 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-imagebuilder-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-imagebuilder-logs-293847561023"
+        "name": "aws-imagebuilder-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-imagebuilder-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/imagebuilder/ap-northeast-3/2026/05/14/imagebuilder_3V3D1KWKJ2P0GC219C8B.log.gz"
+        "key": "AWSLogs/814726593401/imagebuilder/sa-east-1/2026/05/19/imagebuilder_DJQ6QA1M0I84QATHY5A9.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/imagebuilder/logs",
-      "log_stream": "ap-northeast-3/xsnzp8dc",
-      "ingestion_time": "2026-05-14T03:00:07.048Z"
+      "log_stream": "sa-east-1/g9ud0ixg",
+      "ingestion_time": "2026-05-19T12:26:14.061Z"
     }
   },
   "event": {
     "category": ["process"],
-    "duration": 2123000000000,
-    "outcome": "failure",
+    "duration": 1553000000000,
+    "outcome": "success",
     "dataset": "aws.imagebuilder",
     "provider": "imagebuilder.amazonaws.com",
     "module": "aws"
   },
-  "message": "Build failed in TEST phase: Component execution failed",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ComponentError",
-    "message": "Build failed in TEST phase: Component execution failed",
-    "type": "process"
-  },
+  "message": "Testing image: ami-xeh43fe2 with test component aws:SimpleTestComponent",
+  "log": { "level": "info" },
   "service": { "name": "imagebuilder", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.imagebuilder", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "p00izhkxa5m19mcsa24da7vpurouoii5oluv"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "zt2ppqefowfdl6jetl51sq4cr3n6izdhx3ta"
   },
   "input": { "type": "aws-cloudwatch" }
 }

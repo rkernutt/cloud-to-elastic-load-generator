@@ -1,57 +1,62 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-west-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "managedgrafana" }
   },
   "aws": {
-    "dimensions": { "WorkspaceId": "g-4k8qauv120" },
+    "dimensions": { "WorkspaceId": "g-tspj3qsoti" },
     "managedgrafana": {
-      "workspace_id": "g-4k8qauv120",
-      "workspace_name": "business-metrics",
-      "workspace_status": "UPDATING",
-      "grafana_version": "9.4",
-      "alert_state": "no_data",
-      "dashboard_title": "EKS Cluster Health",
+      "workspace_id": "g-tspj3qsoti",
+      "workspace_name": "devops-metrics",
+      "workspace_status": "FAILED",
+      "grafana_version": "10.4",
+      "alert_state": "alerting",
+      "dashboard_title": "Cost Analysis",
       "datasource_type": "influxdb",
-      "authentication_providers": "AWS_SSO",
-      "notification_destinations": "SLACK"
+      "authentication_providers": "SAML",
+      "notification_destinations": "PAGERDUTY"
     },
     "s3": {
       "bucket": {
-        "name": "aws-managedgrafana-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-managedgrafana-logs-164820739518"
+        "name": "aws-managedgrafana-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-managedgrafana-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/164820739518/managedgrafana/me-central-1/2026/05/14/managedgrafana_60C3CL9VQJLEBTS305TH.log.gz"
+        "key": "AWSLogs/738291046572/managedgrafana/eu-west-2/2026/05/19/managedgrafana_23Q9MTJIUBDFHC1CIFAZ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/managedgrafana/logs",
-      "log_stream": "me-central-1/7pezthak",
-      "ingestion_time": "2026-05-14T03:00:07.371Z"
+      "log_stream": "eu-west-2/sinc06zm",
+      "ingestion_time": "2026-05-19T12:26:14.261Z"
     }
   },
   "event": {
-    "action": "DisassociateLicense",
-    "outcome": "success",
+    "action": "AssociateLicense",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.managedgrafana",
     "provider": "grafana.amazonaws.com",
     "module": "aws"
   },
-  "message": "Managed Grafana DisassociateLicense: workspace=business-metrics alert=no_data dashboard=\"EKS Cluster Health\"",
-  "log": { "level": "info" },
+  "message": "Managed Grafana AssociateLicense FAILED [devops-metrics]: Access denied",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ResourceNotFoundException",
+    "message": "Managed Grafana operation failed",
+    "type": "process"
+  },
   "service": { "name": "managedgrafana", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.managedgrafana", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "lj7o77i3iyoyhc8xx2vcledyw9xhsjsion8j"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "85p8wsd5pti4xyth5bz4l6omp1v06vnn9996"
   },
   "input": { "type": "aws-cloudwatch" }
 }

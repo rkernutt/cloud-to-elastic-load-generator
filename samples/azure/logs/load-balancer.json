@@ -2,51 +2,57 @@
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "cloud": {
     "provider": "azure",
-    "region": "southcentralus",
-    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" },
+    "region": "northcentralus",
+    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" },
     "service": { "name": "Microsoft.Network/loadBalancers" }
   },
-  "category": "LoadBalancerOperationEvent",
-  "operationName": "OutboundSnatConnection",
-  "resultType": "Succeeded",
-  "level": "Informational",
-  "correlationId": "w0bwprgjccaspbydjpnxx4i2ohfnz03d",
-  "callerIpAddress": "56.96.143.68",
+  "category": "LoadBalancerAlertEvent",
+  "operationName": "UnhealthyBackendPool",
+  "resultType": "Failed",
+  "level": "Warning",
+  "correlationId": "6v6nvxekp10gz7urm7xh930hhakzwkkd",
+  "callerIpAddress": "186.224.242.240",
   "properties": {
-    "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-prod-mkl5wt/providers/Microsoft.Network/loadBalancers/lb-38i5n",
-    "frontendIP": "51.120.58.235",
-    "backendIPAddress": "23.205.94.118",
-    "backendPort": 50861,
-    "allocatedSnatPorts": 547,
-    "usedSnatPorts": 75,
-    "snatPortExhaustion": false
+    "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-data-gu2ap6/providers/Microsoft.Network/loadBalancers/lb-v95q7",
+    "frontendIP": "51.223.45.32",
+    "eventName": "BackendHealthProbeFailure",
+    "probePort": 8443,
+    "probeProtocol": "Https",
+    "backendIPAddress": "10.3.53.10",
+    "backendPort": 8443,
+    "failureReason": "TCP connection timeout"
   },
   "azure": {
     "load_balancer": {
-      "name": "lb-38i5n",
-      "resource_group": "rg-prod-mkl5wt",
+      "name": "lb-v95q7",
+      "resource_group": "rg-data-gu2ap6",
       "sku": "Gateway",
-      "backend_health": "Healthy",
-      "bytes_in": 367948183
+      "backend_health": "Unhealthy",
+      "bytes_in": 141139150
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 184095332,
+    "outcome": "failure",
+    "duration": 63232043,
     "module": "azure",
     "dataset": "azure.load_balancer"
   },
-  "message": "Load balancer lb-38i5n: outbound flow 12.108.39.56:47796 → 23.205.94.118:50861",
+  "message": "Load balancer lb-v95q7: health probe failed for backend 10.3.53.10:8443 (TCP connection timeout)",
+  "error": {
+    "code": "InternalServerError",
+    "message": "Load balancer health, probe, or SNAT telemetry reported a failure.",
+    "type": "azure"
+  },
   "service": { "name": "load-balancer", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.load_balancer", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-southcentralus",
-    "id": "ygp0g8bh0ctfukubteuatsotzgkwl6qr5yer"
+    "name": "elastic-agent-azure-northcentralus",
+    "id": "8tkbufr95qblnn1guc66xq92c37ir9861e5a"
   },
   "input": { "type": "azure-eventhub" },
-  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourcegroups/rg-prod-mkl5wt/providers/Microsoft.Network/loadBalancers/load-balancer"
+  "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourcegroups/rg-data-gu2ap6/providers/Microsoft.Network/loadBalancers/load-balancer"
 }

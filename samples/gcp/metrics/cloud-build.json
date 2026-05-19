@@ -3,57 +3,49 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-east4",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "asia-northeast1",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-us-east4",
-    "ephemeral_id": "46juljucmq077m244zb9442oxfvqh9za0zww"
+    "name": "metricbeat-gcp-asia-northeast1",
+    "ephemeral_id": "hynclw9n0f1j9rzkmhlcnzylamfq7lrl6qhq"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "serviceruntime.googleapis.com/api/request_count",
-      "labels": { "protocol": "grpc", "response_code": "0", "response_code_class": "2xx" }
+      "type": "cloudbuild.googleapis.com/quota/concurrent_public_pool_build_cpus/usage",
+      "labels": { "limit_name": "default", "build_origin": "CLOUD_CONSOLE" }
     },
     "resource": {
-      "type": "consumed_api",
-      "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "service": "sourcerepo.googleapis.com",
-        "method": "/google.devtools.sourcerepo.v1.SourceRepo.FetchRepo",
-        "version": "v1",
-        "location": "global",
-        "credential_id": ""
-      }
+      "type": "cloudbuild.googleapis.com/Location",
+      "labels": { "resource_container": "globex-staging-d4e5f6", "location": "asia-northeast1" }
     },
-    "metricKind": "DELTA",
+    "metricKind": "GAUGE",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "2069" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "62" } }
     ]
   },
   "gcp": {
-    "source-repositories": {
+    "cloud-build": {
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "service": "sourcerepo.googleapis.com",
-        "method": "/google.devtools.sourcerepo.v1.SourceRepo.FetchRepo",
-        "version": "v1",
-        "location": "global",
-        "credential_id": "",
-        "protocol": "grpc",
-        "response_code": "0",
-        "response_code_class": "2xx"
+        "resource_container": "globex-staging-d4e5f6",
+        "location": "asia-northeast1",
+        "limit_name": "default",
+        "build_origin": "CLOUD_CONSOLE"
       },
       "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": { "avg": 2069, "sum": 2069, "count": 1 }
+        "cloudbuild.googleapis.com/quota/concurrent_public_pool_build_cpus/usage": {
+          "avg": 62,
+          "sum": 62,
+          "count": 1
+        }
       }
     }
   },
-  "metricset": { "name": "source-repositories", "period": 60000 },
+  "metricset": { "name": "cloud-build", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.cloudbuild_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "dataset": "gcp.cloudbuild_metrics", "module": "gcp" }

@@ -1,68 +1,62 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "sa-east-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "appflow" }
   },
   "aws": {
-    "dimensions": { "FlowName": "zendesk-export" },
+    "dimensions": { "FlowName": "marketo-to-redshift" },
     "appflow": {
-      "flow_name": "zendesk-export",
-      "flow_arn": "arn:aws:appflow:eu-south-1:501938274650:flow/zendesk-export",
-      "source_connector_type": "ServiceNow",
-      "destination_connector_type": "Redshift",
+      "flow_name": "marketo-to-redshift",
+      "flow_arn": "arn:aws:appflow:sa-east-1:814726593401:flow/marketo-to-redshift",
+      "source_connector_type": "Marketo",
+      "destination_connector_type": "Salesforce",
       "trigger_type": "Event",
-      "execution_status": "ExecutionFailed",
-      "records_processed": 0,
-      "duration_ms": 23726,
-      "error_message": "Rate limit exceeded",
+      "execution_status": "ExecutionSuccessful",
+      "records_processed": 33217,
+      "duration_ms": 34446,
       "metrics": {
-        "RecordsProcessed": { "sum": 0 },
-        "DurationMs": { "avg": 23726 },
-        "ExecutionSuccessCount": { "sum": 0 },
-        "ExecutionFailureCount": { "sum": 1 }
+        "RecordsProcessed": { "sum": 33217 },
+        "DurationMs": { "avg": 34446 },
+        "ExecutionSuccessCount": { "sum": 1 },
+        "ExecutionFailureCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-appflow-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-appflow-logs-501938274650"
+        "name": "aws-appflow-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-appflow-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/appflow/eu-south-1/2026/05/14/appflow_VB30DCNKWIB18OG1J6NL.log.gz"
+        "key": "AWSLogs/814726593401/appflow/sa-east-1/2026/05/19/appflow_JMM16XKTL84Q7NAO3P4Y.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/appflow/logs",
-      "log_stream": "eu-south-1/a0psoiwi",
-      "ingestion_time": "2026-05-14T03:00:07.293Z"
+      "log_stream": "sa-east-1/avmqwjyb",
+      "ingestion_time": "2026-05-19T12:26:14.205Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.appflow",
     "provider": "appflow.amazonaws.com",
-    "duration": 23726000000,
+    "duration": 34446000000,
     "module": "aws"
   },
-  "message": "Flow run failed",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ExecutionFailed",
-    "message": "AppFlow execution failed",
-    "type": "integration"
-  },
+  "message": "AppFlow marketo-to-redshift: 33,217 records Marketo->Salesforce",
+  "log": { "level": "info" },
   "service": { "name": "appflow", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.appflow", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "f7oiyzbxtxbq1dd7itgwrp90lxwg0iniwcis"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "76fkhuz2zdf5oskmcdotd9hcnvieq90ssozb"
   },
   "input": { "type": "aws-cloudwatch" }
 }

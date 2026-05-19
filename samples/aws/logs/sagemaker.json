@@ -1,21 +1,56 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
+    "region": "ap-southeast-2",
     "account": { "id": "293847561023", "name": "globex-staging" },
-    "service": { "name": "sagemaker-featurestore" }
+    "service": { "name": "sagemaker" }
   },
   "aws": {
-    "sagemaker_featurestore": {
-      "feature_group_name": "recommendation-features",
-      "operation": "DescribeFeatureGroup",
-      "record_identifier": "qctry8ih9z9h",
-      "online_store_latency_ms": 17.243480323288153,
-      "offline_store_status": "Deleting",
-      "feature_count": 47,
-      "record_count": 4,
-      "ttl_duration_seconds": 451591
+    "dimensions": {
+      "TrainingJobName": "bert-finetuned-processing-20260519-auoupf",
+      "JobType": "Processing"
+    },
+    "cloudwatch": {
+      "log_group": "/aws/sagemaker/ProcessingJobs",
+      "log_stream": "bert-finetuned-processing-20260519-auoupf/algo-2",
+      "ingestion_time": "2026-05-19T12:26:14.213Z"
+    },
+    "sagemaker": {
+      "domain_id": "d-uymzw5d1ew",
+      "domain_name": "nlp-experiments",
+      "user_profile": "bob-ml",
+      "job": {
+        "name": "bert-finetuned-processing-20260519-auoupf",
+        "type": "Processing",
+        "arn": "arn:aws:sagemaker:ap-southeast-2:293847561023:processing-job/bert-finetuned-processing-20260519-auoupf",
+        "status": "Completed",
+        "secondary_status": "Training"
+      },
+      "model": { "name": "bert-finetuned", "version": 5 },
+      "pipeline": { "name": "batch-inference-pipeline", "execution_id": "pipe-lb9kr96mflg1" },
+      "instance": { "type": "ml.g5.2xlarge", "count": 4 },
+      "metrics": { "gpu_utilization_pct": 28, "cpu_utilization_pct": 40 },
+      "studio": {
+        "space_name": "risk-models",
+        "app_type": "CodeEditor",
+        "app_name": "default",
+        "lifecycle_config": false,
+        "continuous_logging": true
+      },
+      "cloudwatch_metrics": {
+        "Invocations": { "sum": 3936 },
+        "ModelLatency": { "avg": 120000 },
+        "OverheadLatency": { "avg": 33000 },
+        "GPUUtilization": { "avg": 76 },
+        "GPUMemoryUtilization": { "avg": 34 },
+        "CPUUtilization": { "avg": 63 },
+        "DiskUtilization": { "avg": 49 },
+        "MemoryUtilization": { "avg": 71 },
+        "Invocations4XXError": { "sum": 0 },
+        "Invocations5XXError": { "sum": 0 },
+        "ModelSetupTime": { "avg": 3602 }
+      }
     },
     "s3": {
       "bucket": {
@@ -23,31 +58,30 @@
         "arn": "arn:aws:s3:::aws-sagemaker-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/sagemaker/ap-southeast-1/2026/05/14/sagemaker_3SOG5OWVSHIV98HDM641.log.gz"
+        "key": "AWSLogs/293847561023/sagemaker/ap-southeast-2/2026/05/19/sagemaker_947DHVB24Z593U7BZKES.log.gz"
       }
-    },
-    "cloudwatch": {
-      "log_group": "/aws/sagemaker/logs",
-      "log_stream": "ap-southeast-1/e138bhif",
-      "ingestion_time": "2026-05-14T03:00:07.302Z"
     }
   },
-  "event": {
-    "outcome": "success",
-    "duration": 162191,
-    "module": "aws",
-    "dataset": "aws.sagemaker"
-  },
-  "message": "SageMaker Feature Store recommendation-features: DescribeFeatureGroup OK (50 records)",
-  "service": { "name": "sagemaker", "type": "aws" },
   "log": { "level": "info" },
+  "user": { "name": "bob-ml" },
+  "event": {
+    "action": "AppReady",
+    "duration": 8345506252655.195,
+    "outcome": "success",
+    "category": ["process"],
+    "dataset": "aws.sagemaker",
+    "provider": "sagemaker.amazonaws.com",
+    "module": "aws"
+  },
+  "message": "{\"domainId\":\"d-uymzw5d1ew\",\"space\":\"risk-models\",\"appType\":\"CodeEditor\",\"user\":\"bob-ml\",\"level\":\"INFO\",\"message\":\"Processing data...\",\"timestamp\":\"2026-05-19T12:26:13.277Z\",\"event\":\"AppReady\"}",
+  "service": { "name": "sagemaker", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sagemaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "bp2xcb835sllfcy79oohc2ew67tf6iub330c"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "twzxtubra6axrvw24w1gypsfpnfdz2t3ndvt"
   },
   "input": { "type": "aws-cloudwatch" }
 }

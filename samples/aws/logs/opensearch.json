@@ -1,76 +1,77 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-northeast-3",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "opensearch" }
   },
   "aws": {
-    "dimensions": { "DomainName": "prod-search-me-south-1", "ClientId": "814726593401" },
+    "dimensions": { "DomainName": "prod-search-ap-northeast-3", "ClientId": "164820739518" },
     "opensearch": {
-      "domain_name": "prod-search-me-south-1",
-      "index": "traces",
-      "operation": "shard_allocation",
-      "took_ms": 1132,
+      "domain_name": "prod-search-ap-northeast-3",
+      "index": "audit-events",
+      "operation": "rollover_index",
+      "took_ms": 1186,
       "shards": {
-        "total": 19,
-        "successful": 19,
+        "total": 41,
+        "successful": 41,
         "failed": 0,
-        "active": 19,
+        "active": 41,
         "initializing": 0,
         "relocating": 0,
         "unassigned": 0
       },
-      "hits_total": 36426,
-      "status_code": 200,
-      "scenario": "allocation",
-      "aws_api_operation": "UpdateDomainConfig",
-      "allocation_explanation": "ALLOCATED",
+      "hits_total": 68992,
+      "status_code": 201,
+      "scenario": "index_rotation",
+      "aws_api_operation": "ESHttpPost",
+      "ilm_policy": "traces-hot-warm",
+      "new_index": "audit-events-2026.05.19-000001",
       "metrics": {
-        "CPUUtilization": { "avg": 8.024472895031526 },
-        "FreeStorageSpace": { "avg": 43422416520 },
+        "CPUUtilization": { "avg": 16.325725757933878 },
+        "FreeStorageSpace": { "avg": 338921886125 },
         "ClusterStatus": { "green": 1, "yellow": 0, "red": 0 },
-        "Nodes": { "avg": 4 },
-        "SearchableDocuments": { "avg": 337056050 },
-        "IndexingLatency": { "avg": 25 },
-        "SearchLatency": { "avg": 54 },
-        "IndexingRate": { "avg": 22825 },
-        "SearchRate": { "avg": 6044 },
-        "JVMMemoryPressure": { "avg": 63.60140275724197 },
+        "Nodes": { "avg": 3 },
+        "SearchableDocuments": { "avg": 976069366 },
+        "IndexingLatency": { "avg": 145 },
+        "SearchLatency": { "avg": 471 },
+        "IndexingRate": { "avg": 53483 },
+        "SearchRate": { "avg": 7219 },
+        "JVMMemoryPressure": { "avg": 41.591949799987134 },
         "AutomatedSnapshotFailure": { "sum": 0 },
         "CoordinatingWriteRejected": { "sum": 0 },
         "PrimaryWriteRejected": { "sum": 0 },
         "ReplicaWriteRejected": { "sum": 0 },
-        "WarmStorageSpaceUsage": { "avg": 86.82467981322472 },
-        "DeletedDocuments": { "avg": 98795 }
+        "WarmStorageSpaceUsage": { "avg": 68.54929466449558 },
+        "DeletedDocuments": { "avg": 74509 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-opensearch-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-opensearch-logs-814726593401"
+        "name": "aws-opensearch-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-opensearch-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/opensearch/me-south-1/2026/05/14/opensearch_CEOLBV4IO5RPOXSAPIX3.log.gz"
+        "key": "AWSLogs/164820739518/opensearch/ap-northeast-3/2026/05/19/opensearch_VWRBBOSDVVK34X5W3SOA.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/opensearch/logs",
-      "log_stream": "me-south-1/wcbi474r",
-      "ingestion_time": "2026-05-14T03:00:07.226Z"
+      "log_stream": "ap-northeast-3/83it5imd",
+      "ingestion_time": "2026-05-19T12:26:14.161Z"
     }
   },
-  "http": { "response": { "status_code": 200 } },
+  "http": { "response": { "status_code": 201 } },
   "event": {
-    "duration": 1132099251.1521819,
+    "duration": 1185941140.1845603,
     "outcome": "success",
     "category": "database",
     "dataset": "aws.opensearch",
     "provider": "es.amazonaws.com",
     "module": "aws"
   },
-  "message": "[2026-05-14T03:00:06.257Z] reroute started: allocate replica shard [traces][0] on node [i-0abc] reason=CLUSTER_RECOVERED",
+  "message": "[2026-05-19T12:26:13.277Z] ILM rollover audit-events → audit-events-2026.05.19-000001 conditions[max_age=30d,min_docs=10197535] met=true",
   "log": { "level": "info" },
   "service": { "name": "opensearch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -78,8 +79,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "7zo9u57bftawtvc98eq4edmboxpknqb1jdu5"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "m1mjyz1mwepa565uob6wryycy4zoslm890qt"
   },
   "input": { "type": "aws-cloudwatch" }
 }

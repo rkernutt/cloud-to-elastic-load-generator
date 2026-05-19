@@ -1,61 +1,64 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "info" },
-  "severity": "DEBUG",
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "UNAVAILABLE" },
+  "error": { "code": "UNAVAILABLE", "message": "UNAVAILABLE: operation failed", "type": "gcp" },
+  "severity": "ERROR",
   "labels": {
-    "migration_plan": "plan-2900001g",
-    "phase": "GENERATE_ARTIFACTS",
-    "source_vm": "vm-legacy-ad017"
+    "migration_plan": "plan-0ck2rqcy",
+    "phase": "DEPLOY",
+    "source_vm": "vm-monolith-9y41o",
+    "gcp.rpc.status_code": "UNAVAILABLE"
   },
-  "insertId": "E1XJAILRST01",
+  "insertId": "M29GYPCJWD1T",
   "resource": {
     "type": "gce_instance",
-    "labels": { "project_id": "globex-prod-a1b2c3", "instance_id": "vm-legacy-ad017" }
+    "labels": { "project_id": "globex-security-j0k1l2", "instance_id": "vm-monolith-9y41o" }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west4",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
+    "region": "africa-south1",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" },
     "service": { "name": "migrate-to-containers" }
   },
   "gcp": {
     "migrate_to_containers": {
-      "source_vm": "vm-legacy-ad017",
-      "target_image": "gcr.io/globex-prod-a1b2c3/migrated/api:8tcihb",
-      "migration_plan": "plan-2900001g",
-      "phase": "GENERATE_ARTIFACTS",
+      "source_vm": "vm-monolith-9y41o",
+      "target_image": "gcr.io/globex-security-j0k1l2/migrated/worker:09ajl8",
+      "migration_plan": "plan-0ck2rqcy",
+      "phase": "DEPLOY",
       "status": "RUNNING",
-      "fit_assessment_score": 0.97
+      "fit_assessment_score": 0.491
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 100373,
+    "outcome": "failure",
+    "duration": 5519838,
     "module": "gcp",
     "dataset": "gcp.migrate_containers"
   },
-  "message": "migrate.kubernetes.io: vm-legacy-ad017 -> gcr.io/globex-prod-a1b2c3/migrated/api:8tcihb phase GENERATE_ARTIFACTS RUNNING (fit 97)",
+  "message": "migrate.kubernetes.io: plan \"plan-0ck2rqcy\" phase DEPLOY RUNNING: fit score 49 (vm-monolith-9y41o)",
   "service": { "name": "migrate-to-containers", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.migrate_containers", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-west4",
-    "id": "k5eozc342j48obf1wntczysa85u9r1ypv3p6"
+    "name": "elastic-agent-gcp-africa-south1",
+    "id": "tdemhymuknfz5iq50267633upiw2z9324vjx"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-prod-a1b2c3/logs/migrate-to-containers",
+  "logName": "projects/globex-security-j0k1l2/logs/migrate-to-containers",
   "jsonPayload": {
     "migrate_to_containers": {
-      "source_vm": "vm-legacy-ad017",
-      "target_image": "gcr.io/globex-prod-a1b2c3/migrated/api:8tcihb",
-      "migration_plan": "plan-2900001g",
-      "phase": "GENERATE_ARTIFACTS",
+      "source_vm": "vm-monolith-9y41o",
+      "target_image": "gcr.io/globex-security-j0k1l2/migrated/worker:09ajl8",
+      "migration_plan": "plan-0ck2rqcy",
+      "phase": "DEPLOY",
       "status": "RUNNING",
-      "fit_assessment_score": 0.97
+      "fit_assessment_score": 0.491
     },
-    "message": "migrate.kubernetes.io: vm-legacy-ad017 -> gcr.io/globex-prod-a1b2c3/migrated/api:8tcihb phase GENERATE_ARTIFACTS RUNNING (fit 97)"
+    "message": "migrate.kubernetes.io: plan \"plan-0ck2rqcy\" phase DEPLOY RUNNING: fit score 49 (vm-monolith-9y41o)"
   }
 }

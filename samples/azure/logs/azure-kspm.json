@@ -7,47 +7,57 @@
   },
   "cloud": {
     "provider": "azure",
-    "region": "centralindia",
-    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
+    "region": "mexicocentral",
+    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" }
   },
   "orchestrator": {
     "cluster": {
-      "name": "aks-shared-7GWB",
-      "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-app-vic0qy/providers/Microsoft.ContainerService/managedClusters/aks-shared-7GWB",
-      "resource_id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-app-vic0qy/providers/Microsoft.ContainerService/managedClusters/aks-shared-7GWB"
+      "name": "aks-shared-6SRW",
+      "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-prod-7hw470/providers/Microsoft.ContainerService/managedClusters/aks-shared-6SRW",
+      "resource_id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-prod-7hw470/providers/Microsoft.ContainerService/managedClusters/aks-shared-6SRW"
     }
   },
   "resource": {
-    "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-app-vic0qy/providers/Microsoft.ContainerService/managedClusters/aks-shared-7GWB/namespaces/kube-system/pods/kube-apiserver-aks-shared-7GWB",
-    "name": "kube-apiserver-aks-shared-7GWB",
+    "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-prod-7hw470/providers/Microsoft.ContainerService/managedClusters/aks-shared-6SRW/nodes/aks-node-d3c2",
+    "name": "aks-node-d3c2",
     "type": "k8s_object",
-    "sub_type": "apiserver"
+    "sub_type": "kubelet"
   },
   "rule": {
-    "id": "b3b3c352-fc81-5874-8bbc-31e2f58e884e",
-    "name": "Ensure that the --audit-log-maxage argument is set to 30 or as appropriate",
-    "section": "1.2.20",
-    "description": "Retain the logs for at least 30 days or as appropriate.",
-    "tags": ["CIS", "Kubernetes", "CIS 1.2.20", "API Server"],
+    "id": "9c02cf2c-a61d-5ac4-bf6f-78d4ddfc265f",
+    "name": "Ensure that the --authorization-mode argument is not set to AlwaysAllow",
+    "section": "4.2.2",
+    "description": "Do not allow all requests.",
+    "tags": ["CIS", "Kubernetes", "CIS 4.2.2", "Kubelet"],
     "benchmark": {
       "id": "cis_k8s",
       "name": "CIS Kubernetes V1.23",
       "version": "v1.0.1",
-      "rule_number": "1.2.20",
+      "rule_number": "4.2.2",
       "posture_type": "kspm"
     },
-    "profile_applicability": "* Level 1"
+    "profile_applicability": "* Level 1",
+    "impact": "Non-compliance with CIS Kubernetes V1.23 4.2.2 — Ensure that the --authorization-mode argument is not set to AlwaysAllow",
+    "remediation": "Remediate per CIS Kubernetes V1.23 v1.0.1 section 4.2.2."
   },
-  "result": { "evaluation": "passed" },
+  "result": {
+    "evaluation": "failed",
+    "evidence": {
+      "kubeletConfig": {
+        "authentication": { "anonymous": { "enabled": true } },
+        "authorization": { "mode": "AlwaysAllow" }
+      }
+    }
+  },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_k8s/1.2.20] passed: Ensure that the --audit-log-maxage argument is set to 30 or as appropriate",
-  "log": { "level": "info" }
+  "message": "[cis_k8s/4.2.2] failed: Ensure that the --authorization-mode argument is not set to AlwaysAllow",
+  "log": { "level": "warn" }
 }

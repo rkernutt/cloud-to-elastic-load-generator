@@ -1,60 +1,66 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-4",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ca-central-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "migrationhub" }
   },
   "aws": {
     "migrationhub": {
-      "application_id": "app-n9jhl3zhemk5imap3",
-      "application_name": "web-tier-migration",
-      "server_id": "d-server-ISPJ2ZDB8FR4D",
-      "server_name": "server-g8zjblli",
-      "migration_status": "MIGRATION_IN_PROGRESS",
-      "migration_tool": "DatabaseMigrationService",
+      "application_id": "app-6gag2lusyged5lk4p",
+      "application_name": "database-rehost",
+      "server_id": "d-server-6N8T9RUMPI54A",
+      "server_name": "server-ja92zfxj",
+      "migration_status": "NOT_STARTED",
+      "migration_tool": "Carbonite",
       "progress_update_stream": "SMS-stream",
       "task": {
-        "status": "IN_PROGRESS",
-        "progress_percent": 100,
-        "total_objects": 360,
-        "replicated_objects": 531
-      }
+        "status": "FAILED",
+        "progress_percent": 49,
+        "total_objects": 258,
+        "replicated_objects": 840
+      },
+      "error_code": "AccessDeniedException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-migrationhub-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-migrationhub-logs-501938274650"
+        "name": "aws-migrationhub-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-migrationhub-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/migrationhub/ap-southeast-4/2026/05/14/migrationhub_4YJIR4X15EDT8TQZA4JE.log.gz"
+        "key": "AWSLogs/814726593401/migrationhub/ca-central-1/2026/05/19/migrationhub_D4CKSR9949H942XJ551X.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/migrationhub/logs",
-      "log_stream": "ap-southeast-4/opft8v5e",
-      "ingestion_time": "2026-05-14T03:00:07.361Z"
+      "log_stream": "ca-central-1/avsc3b14",
+      "ingestion_time": "2026-05-19T12:26:14.257Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process", "configuration"],
     "dataset": "aws.migrationhub",
     "provider": "mgh.amazonaws.com",
-    "duration": 43137000000000,
+    "duration": 558793000000000,
     "module": "aws"
   },
-  "message": "Migration Hub web-tier-migration [DatabaseMigrationService]: MIGRATION_IN_PROGRESS — server-g8zjblli",
-  "log": { "level": "info" },
+  "message": "Migration Hub database-rehost FAILED [Carbonite]: Agent offline:",
+  "log": { "level": "error" },
+  "error": {
+    "code": "AccessDeniedException",
+    "message": "Migration Hub task failed",
+    "type": "aws"
+  },
   "service": { "name": "migrationhub", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.migrationhub", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-4",
-    "ephemeral_id": "mfp5dnuwtkipf5iyrwzw95iac636yd6ft37r"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "17700494chs575n3pd51jjwusfbyhrsr9wvh"
   },
   "input": { "type": "aws-cloudwatch" }
 }

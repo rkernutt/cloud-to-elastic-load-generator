@@ -1,79 +1,80 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-northeast-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "wavelength" },
-    "availability_zone": "us-east-1-wl1-was-wlz-1",
-    "instance": { "id": "i-gz1fa6hm6msdbyqm2" }
+    "availability_zone": "ap-northeast-1-wl1-nrt-wlz-1",
+    "instance": { "id": "i-ao7hzxruwwdqoehpx" }
   },
   "aws": {
     "dimensions": {
-      "WavelengthZone": "us-east-1-wl1-was-wlz-1",
-      "InstanceId": "i-gz1fa6hm6msdbyqm2",
-      "CarrierGatewayId": "cagw-pfwnbtgc6fya6gjlb"
+      "WavelengthZone": "ap-northeast-1-wl1-nrt-wlz-1",
+      "InstanceId": "i-ao7hzxruwwdqoehpx",
+      "CarrierGatewayId": "cagw-esanrdg00z75oehav"
     },
     "wavelength": {
-      "zone": "us-east-1-wl1-was-wlz-1",
-      "carrier": "Verizon",
-      "city": "Washington DC",
-      "scenario": "carrier_gateway_attach",
-      "instance_id": "i-gz1fa6hm6msdbyqm2",
+      "zone": "ap-northeast-1-wl1-nrt-wlz-1",
+      "carrier": "KDDI",
+      "city": "Tokyo",
+      "scenario": "edge_compute_launch",
+      "instance_id": "i-ao7hzxruwwdqoehpx",
       "instance_type": "t3.medium",
-      "carrier_gateway_id": "cagw-pfwnbtgc6fya6gjlb",
-      "subnet_id": "subnet-hia5zfttsfukub445",
-      "carrier_ip": "214.189.50.226",
-      "ue_ip": "98.241.214.89",
+      "carrier_gateway_id": "cagw-esanrdg00z75oehav",
+      "subnet_id": "subnet-hqsb6ia28hxkqki30",
+      "carrier_ip": "130.113.219.35",
+      "ue_ip": "63.98.212.129",
       "bandwidth_allowance_gbps": 8,
-      "carrier_gateway": {
-        "state": "available",
-        "attachment_id": "cagw-attach-FK0ZKN8W",
-        "amazon_side_asn": 65278
+      "edge_launch": {
+        "ami_id": "ami-CZH5LP66",
+        "launch_template": "lt-S7T0V7JX",
+        "placement_tenancy": "default",
+        "carrier_route_table": "rtb-RKU4Y001"
       },
       "network": {
-        "uplink_mbps": 449.68392902996345,
-        "downlink_mbps": 106.84568917962883,
-        "latency_ms": 9.612446587579443,
-        "packet_loss_pct": 0.05339562993183729
+        "uplink_mbps": 46.74241284363533,
+        "downlink_mbps": 357.20527582652494,
+        "latency_ms": 5.871598360917245,
+        "packet_loss_pct": 0.08327474076508407
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-wavelength-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-wavelength-logs-814726593401"
+        "name": "aws-wavelength-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-wavelength-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/wavelength/us-east-1/2026/05/14/wavelength_TX03K3BK1ZR5X2BTXL4P.log.gz"
+        "key": "AWSLogs/501938274650/wavelength/ap-northeast-1/2026/05/19/wavelength_ME4HA6JQR6V33BIXQLO6.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/wavelength/logs",
-      "log_stream": "us-east-1/9wtozqob",
-      "ingestion_time": "2026-05-14T03:00:07.035Z"
+      "log_stream": "ap-northeast-1/adk1dwf5",
+      "ingestion_time": "2026-05-19T12:26:14.044Z"
     }
   },
-  "source": { "ip": "98.241.214.89" },
+  "source": { "ip": "63.98.212.129" },
   "event": {
-    "action": "carrier_gateway_attach",
+    "action": "edge_compute_launch",
     "outcome": "success",
     "category": ["network", "host"],
     "dataset": "aws.wavelength",
     "provider": "ec2.amazonaws.com",
-    "duration": 126000000,
+    "duration": 236000000,
     "module": "aws"
   },
-  "message": "CreateCarrierGateway cagw-pfwnbtgc6fya6gjlb subnet=subnet-hia5zfttsfukub445 state=available",
+  "message": "RunInstances t3.medium zone=ap-northeast-1-wl1-nrt-wlz-1 instance=i-ao7hzxruwwdqoehpx template=lt-S7T0V7JX",
   "log": { "level": "info" },
-  "host": { "name": "ip-48-41-225-189.ec2.internal", "hostname": "wavelength-qfqunb4i" },
+  "host": { "name": "ip-237-242-138-134.ec2.internal", "hostname": "wavelength-xfcxyibi" },
   "service": { "name": "wavelength", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.wavelength", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "udxgm3fzfe2e9icsqdilq0upjptpuobqmgav"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "rliyq55pgqwg5kf73ovkkwn7ay2dvlkuaih8"
   },
   "input": { "type": "aws-cloudwatch" }
 }

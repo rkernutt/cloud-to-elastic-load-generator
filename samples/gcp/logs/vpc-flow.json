@@ -3,51 +3,64 @@
   "log": { "level": "info" },
   "labels": {},
   "severity": "INFO",
-  "logName": "projects/globex-staging-d4e5f6/logs/compute.googleapis.com%2Fnetwork_tier_usage",
-  "insertId": "vbf1bfm0jcmk6lw3",
-  "resource": { "type": "project", "labels": { "project_id": "globex-staging-d4e5f6" } },
+  "logName": "projects/globex-security-j0k1l2/logs/compute.googleapis.com%2Fpacket_mirroring",
+  "insertId": "ness593l9h0o9h90",
+  "resource": {
+    "type": "packet_mirroring_policy",
+    "labels": {
+      "project_id": "globex-security-j0k1l2",
+      "policy": "pm-policy-tpqsw",
+      "region": "australia-southeast2"
+    }
+  },
   "jsonPayload": {
-    "network_tier": "PREMIUM",
-    "resource_kind": "LOAD_BALANCER",
-    "region": "me-central2",
-    "egress_bytes": "2092912220",
-    "routing_preference": "REGIONAL",
-    "project": "globex-staging-d4e5f6"
+    "packet_mirroring_policy": "projects/globex-security-j0k1l2/regions/australia-southeast2/packetMirrorings/pm-policy-tpqsw",
+    "mirrored_network": "projects/globex-security-j0k1l2/global/networks/shared-vpc",
+    "collector_ilb": "projects/globex-security-j0k1l2/regions/australia-southeast2/forwardingRules/ilb-worker-wijm",
+    "mirrored_instance_count": 114,
+    "filter": { "ip_cidr_range": "10.49.14.0/24", "protocol": "udp" },
+    "health": "HEALTHY"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "me-central2",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
-    "service": { "name": "network-service-tiers" }
+    "region": "australia-southeast2",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" },
+    "service": { "name": "packet-mirroring" }
   },
   "gcp": {
-    "network_service_tiers": {
+    "packet_mirroring": {
       "json_payload": {
-        "network_tier": "PREMIUM",
-        "resource_kind": "LOAD_BALANCER",
-        "region": "me-central2",
-        "egress_bytes": "2092912220",
-        "routing_preference": "REGIONAL",
-        "project": "globex-staging-d4e5f6"
+        "packet_mirroring_policy": "projects/globex-security-j0k1l2/regions/australia-southeast2/packetMirrorings/pm-policy-tpqsw",
+        "mirrored_network": "projects/globex-security-j0k1l2/global/networks/shared-vpc",
+        "collector_ilb": "projects/globex-security-j0k1l2/regions/australia-southeast2/forwardingRules/ilb-worker-wijm",
+        "mirrored_instance_count": 114,
+        "filter": { "ip_cidr_range": "10.49.14.0/24", "protocol": "udp" },
+        "health": "HEALTHY"
       },
-      "tier": "PREMIUM",
-      "resource_type": "LOAD_BALANCER",
-      "region": "me-central2",
-      "egress_bytes": 2092912220,
-      "routing_type": "REGIONAL"
+      "policy_name": "pm-policy-tpqsw",
+      "mirrored_network": "shared-vpc",
+      "collector_instance": "worker-wijm",
+      "mirrored_instances_count": 114,
+      "filter_protocol": "udp",
+      "filter_cidr": "10.49.14.0/24"
     }
   },
-  "event": { "outcome": "success", "duration": 37000000, "module": "gcp", "dataset": "gcp.nst" },
-  "message": "compute.googleapis.com/network_tiers PREMIUM LOAD_BALANCER egress=2092912220",
-  "service": { "name": "network-service-tiers", "type": "gcp" },
+  "event": {
+    "outcome": "success",
+    "duration": 126000000,
+    "module": "gcp",
+    "dataset": "gcp.packetmirroring"
+  },
+  "message": "compute.googleapis.com/packet_mirroring pm-policy-tpqsw mirrored=114",
+  "service": { "name": "packet-mirroring", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.nst", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.packetmirroring", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-me-central2",
-    "id": "uqp5svmpncxfww02rzc8oilohmxiys6049e0"
+    "name": "elastic-agent-gcp-australia-southeast2",
+    "id": "rq1hj29ql2rgokn5j1d8mcyi20tqteattzdn"
   },
   "input": { "type": "gcp-pubsub" }
 }

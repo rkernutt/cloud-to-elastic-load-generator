@@ -43,7 +43,8 @@ export const ML_TRAINING_DEFAULTS: MLTrainingConfig = {
  *   1. Ship N baseline batches (injectAnomalies = false), spaced by baselineIntervalMin
  *   2. Wait mlWaitMin for ML to learn the baseline
  *   3. Ship 1 anomaly injection batch (injectAnomalies = true)
- *   4. Wait a short stabilisation period then stop datafeeds to freeze anomaly scores
+ *   4. Wait a short stabilisation period, then stop datafeeds AND close jobs
+ *      to freeze the model — prevents re-baselining that would erase anomaly scores
  */
 export function useMLTrainingLoop(
   shipFn: (injectAnomalies: boolean) => Promise<void>,
@@ -192,7 +193,7 @@ export function useMLTrainingLoop(
 
       if (cfg.stopDatafeedsOnComplete) {
         // Phase 4: Stabilisation — wait 2 min for ML to score the anomalies,
-        // then stop datafeeds to freeze the model and preserve anomaly scores.
+        // then stop datafeeds AND close jobs to freeze the model completely.
         setPhase("stabilising");
         const stabiliseMs = 2 * 60 * 1000;
         countdownTargetRef.current = new Date(Date.now() + stabiliseMs);

@@ -1,54 +1,60 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "info" },
-  "severity": "INFO",
-  "labels": { "resource.type": "speech.googleapis.com/Recognizer", "model": "latest_long" },
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "NOT_FOUND" },
+  "error": { "code": "NOT_FOUND", "message": "NOT_FOUND: operation failed", "type": "gcp" },
+  "severity": "WARNING",
+  "labels": {
+    "resource.type": "speech.googleapis.com/Recognizer",
+    "model": "phone_call",
+    "gcp.rpc.status_code": "NOT_FOUND"
+  },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-southwest1",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
+    "region": "europe-west3",
+    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
+    "account": { "id": "173205080756", "name": "Globex Shared Services" },
     "service": { "name": "speech.googleapis.com" }
   },
   "gcp": {
     "speech_to_text": {
-      "audio_duration_seconds": 2096.62,
-      "encoding": "FLAC",
-      "language_code": "ja-JP",
-      "model": "latest_long",
-      "alternatives_count": 5,
-      "confidence": 0.957,
-      "word_count": 666
+      "audio_duration_seconds": 212.34,
+      "encoding": "LINEAR16",
+      "language_code": "es-ES",
+      "model": "phone_call",
+      "alternatives_count": 1,
+      "confidence": 0.389,
+      "word_count": 40
     }
   },
-  "event": { "outcome": "success", "duration": 2954, "module": "gcp", "dataset": "gcp.speech" },
-  "message": "LongRunningRecognize completed operation=op-96ko8oq25te2 words=666 audio_sec=2096.62 confidence=0.957 encoding=FLAC",
+  "event": { "outcome": "failure", "duration": 14655, "module": "gcp", "dataset": "gcp.speech" },
+  "message": "speech.googleapis.com/v1/speech:recognize FAILED: No speech detected in audio model=phone_call",
   "service": { "name": "speech-to-text", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.speech", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-southwest1",
-    "id": "3rc78byyk6tdv7mh6zg4hu5hqpbnkv2pevra"
+    "name": "elastic-agent-gcp-europe-west3",
+    "id": "0o1notpvgdmo9cr612rmyq7qadx52objt70p"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-prod-a1b2c3/logs/speech-to-text",
+  "logName": "projects/globex-shared-m3n4o5/logs/speech-to-text",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-prod-a1b2c3", "region": "europe-southwest1" }
+    "labels": { "project_id": "globex-shared-m3n4o5", "region": "europe-west3" }
   },
-  "insertId": "Q4L94D260LIR",
+  "insertId": "HJ39M5SCKGY0",
   "jsonPayload": {
     "speech_to_text": {
-      "audio_duration_seconds": 2096.62,
-      "encoding": "FLAC",
-      "language_code": "ja-JP",
-      "model": "latest_long",
-      "alternatives_count": 5,
-      "confidence": 0.957,
-      "word_count": 666
+      "audio_duration_seconds": 212.34,
+      "encoding": "LINEAR16",
+      "language_code": "es-ES",
+      "model": "phone_call",
+      "alternatives_count": 1,
+      "confidence": 0.389,
+      "word_count": 40
     },
-    "message": "LongRunningRecognize completed operation=op-96ko8oq25te2 words=666 audio_sec=2096.62 confidence=0.957 encoding=FLAC"
+    "message": "speech.googleapis.com/v1/speech:recognize FAILED: No speech detected in audio model=phone_call"
   }
 }

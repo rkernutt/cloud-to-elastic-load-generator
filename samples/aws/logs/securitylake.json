@@ -1,58 +1,53 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-west-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "securitylake" }
   },
   "aws": {
-    "dimensions": { "OcsfClass": "HTTP Activity", "SourceType": "LAMBDA:ALB" },
+    "dimensions": { "OcsfClass": "DNS Activity", "SourceType": "LAMBDA:Route53" },
     "securitylake": {
-      "source_type": "LAMBDA:ALB",
-      "class_uid": 4002,
-      "class_name": "HTTP Activity",
+      "source_type": "LAMBDA:Route53",
+      "class_uid": 4003,
+      "class_name": "DNS Activity",
       "category_uid": 4,
       "category_name": "Network Activity",
-      "activity_id": 1,
-      "activity_name": "Other",
-      "severity_id": 3,
-      "severity": "Medium",
+      "activity_id": 2,
+      "activity_name": "Update",
+      "severity_id": 2,
+      "severity": "Low",
       "status_id": 1,
       "status": "Success",
-      "time": 1778727606257,
+      "time": 1779193573277,
       "metadata": {
         "version": "1.1.0",
-        "product": { "name": "ALB", "vendor_name": "AWS" },
-        "uid": "21f45688-3758-45f5-9d18-0c25e9f03f78"
+        "product": { "name": "Route53", "vendor_name": "AWS" },
+        "uid": "3ce82854-4351-4afd-a151-00c8e03a843b"
       },
       "ocsf_cloud": {
         "provider": "AWS",
-        "account": { "uid": "164820739518" },
-        "region": "ap-northeast-1"
+        "account": { "uid": "814726593401" },
+        "region": "eu-west-3"
       },
-      "http_request": {
-        "method": "POST",
-        "url": { "path": "/api/v1/auth/login", "hostname": "api.example.com" },
-        "user_agent": "Go-http-client/1.1"
-      },
-      "http_response": { "code": 200 },
-      "src_endpoint": { "ip": "169.94.115.49" },
-      "dst_endpoint": { "ip": "68.176.79.249" }
+      "query": { "hostname": "suspicious-FNJULMW6.io", "type": "A", "type_id": 1 },
+      "src_endpoint": { "ip": "102.242.82.151" },
+      "answers": [{ "rdata": "29.141.229.16", "type": "A" }]
     },
     "s3": {
       "bucket": {
-        "name": "aws-securitylake-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-securitylake-logs-164820739518"
+        "name": "aws-securitylake-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-securitylake-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/securitylake/ap-northeast-1/2026/05/14/securitylake_QA8GMGYZ7PF0RP36IB2J.log.gz"
+        "key": "AWSLogs/814726593401/securitylake/eu-west-3/2026/05/19/securitylake_3N1A2GU5W4GZ7KNL1RKP.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securitylake/logs",
-      "log_stream": "ap-northeast-1/i8ikcqxs",
-      "ingestion_time": "2026-05-14T03:00:07.118Z"
+      "log_stream": "eu-west-3/eznv1o1h",
+      "ingestion_time": "2026-05-19T12:26:14.117Z"
     }
   },
   "event": {
@@ -62,16 +57,16 @@
     "provider": "securitylake.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security Lake [HTTP Activity/Other] Medium: ALB success",
-  "log": { "level": "warn" },
+  "message": "Security Lake [DNS Activity/Update] Low: Route53 success",
+  "log": { "level": "info" },
   "service": { "name": "securitylake", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.securitylake", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "nevqd6egxd5x0vlhienx4rahok67ro8hhaxw"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "s3b3fdfkuw8a7kfco91gcdnqmbjfowbbz2e7"
   },
   "input": { "type": "http_endpoint" }
 }

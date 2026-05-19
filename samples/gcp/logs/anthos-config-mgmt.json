@@ -1,61 +1,67 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "info" },
-  "severity": "INFO",
-  "labels": { "cluster_name": "data-cluster", "sync_status": "PENDING" },
-  "insertId": "7E522JTWW24S",
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "INTERNAL" },
+  "error": { "code": "INTERNAL", "message": "INTERNAL: operation failed", "type": "gcp" },
+  "severity": "ERROR",
+  "labels": {
+    "cluster_name": "staging-cluster",
+    "sync_status": "ERROR",
+    "gcp.rpc.status_code": "INTERNAL"
+  },
+  "insertId": "U22H4FPHTI0K",
   "resource": {
     "type": "k8s_cluster",
     "labels": {
-      "project_id": "globex-staging-d4e5f6",
-      "location": "us-west2",
-      "cluster_name": "data-cluster"
+      "project_id": "globex-dev-g7h8i9",
+      "location": "europe-central2",
+      "cluster_name": "staging-cluster"
     }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west2",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "region": "europe-central2",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" },
     "service": { "name": "anthos-config-mgmt" }
   },
   "gcp": {
     "anthos_config_mgmt": {
-      "cluster": "data-cluster",
-      "repo_url": "https://source.developers.google.com/p/globex-staging-d4e5f6/r/config-I1WL",
-      "sync_status": "PENDING",
-      "commit_sha": "36454f6",
-      "policy_controller_violations": 1,
-      "last_sync_time": "2026-04-04T11:02:31.522Z"
+      "cluster": "staging-cluster",
+      "repo_url": "https://source.developers.google.com/p/globex-dev-g7h8i9/r/config-LOTY",
+      "sync_status": "ERROR",
+      "commit_sha": "b96a1c7",
+      "policy_controller_violations": 26,
+      "last_sync_time": "2026-04-04T11:50:48.539Z"
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 52382,
+    "outcome": "failure",
+    "duration": 23920,
     "module": "gcp",
     "dataset": "gcp.anthos_config"
   },
-  "message": "configmanagement.gke.io: cluster \"data-cluster\" PENDING at 2026-04-04T11:02:31.522Z (1 open violations)",
+  "message": "configmanagement.gke.io: cluster \"staging-cluster\" sync ERROR — policy-controller reports 26 violations (commit b96a1c7)",
   "service": { "name": "anthos-config-mgmt", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.anthos_config", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-west2",
-    "id": "qvwtq7fbvq8xkskgxnulvjesfc0mdrm56j44"
+    "name": "elastic-agent-gcp-europe-central2",
+    "id": "8rtz0k4x8cf34aqi9eramc0wtnrvvbx5mggp"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-staging-d4e5f6/logs/anthos-config-mgmt",
+  "logName": "projects/globex-dev-g7h8i9/logs/anthos-config-mgmt",
   "jsonPayload": {
     "anthos_config_mgmt": {
-      "cluster": "data-cluster",
-      "repo_url": "https://source.developers.google.com/p/globex-staging-d4e5f6/r/config-I1WL",
-      "sync_status": "PENDING",
-      "commit_sha": "36454f6",
-      "policy_controller_violations": 1,
-      "last_sync_time": "2026-04-04T11:02:31.522Z"
+      "cluster": "staging-cluster",
+      "repo_url": "https://source.developers.google.com/p/globex-dev-g7h8i9/r/config-LOTY",
+      "sync_status": "ERROR",
+      "commit_sha": "b96a1c7",
+      "policy_controller_violations": 26,
+      "last_sync_time": "2026-04-04T11:50:48.539Z"
     },
-    "message": "configmanagement.gke.io: cluster \"data-cluster\" PENDING at 2026-04-04T11:02:31.522Z (1 open violations)"
+    "message": "configmanagement.gke.io: cluster \"staging-cluster\" sync ERROR — policy-controller reports 26 violations (commit b96a1c7)"
   }
 }

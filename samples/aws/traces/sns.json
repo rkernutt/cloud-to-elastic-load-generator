@@ -1,34 +1,33 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "e46710267b5dafa0511f5bf11d2036fe" },
+  "trace": { "id": "09e39cef86964115711e5647f147bafe" },
   "transaction": {
-    "id": "90a91a98b5d9bbd6",
-    "name": "SNS Publish critical-alerts.fifo",
+    "id": "ed5c66d58c84d81d",
+    "name": "SNS Publish user-notifications",
     "type": "messaging",
-    "duration": { "us": 203000 },
+    "duration": { "us": 144000 },
     "result": "success",
     "sampled": true,
-    "span_count": { "started": 1, "dropped": 0 }
+    "span_count": { "started": 2, "dropped": 0 }
   },
   "labels": {
-    "topic_arn": "arn:aws:sns:ap-northeast-3:123456789012:critical-alerts.fifo",
-    "message_count": "1",
-    "subject": "threshold.exceeded",
-    "message_group_id": "group-a"
+    "topic_arn": "arn:aws:sns:sa-east-1:345678901234:user-notifications",
+    "message_count": "10",
+    "subject": "threshold.exceeded"
   },
   "service": {
-    "name": "alert-dispatcher",
-    "environment": "dev",
+    "name": "notification-service",
+    "environment": "production",
     "version": "1.0.0",
-    "language": { "name": "java" },
-    "runtime": { "name": "OpenJDK", "version": "21.0.3" },
-    "framework": { "name": "Spring Boot" }
+    "language": { "name": "python" },
+    "runtime": { "name": "CPython", "version": "3.12.3" },
+    "framework": { "name": "Flask" }
   },
-  "agent": { "name": "otlp", "version": "1.6.0" },
+  "agent": { "name": "otlp", "version": "0.6.0" },
   "telemetry": {
-    "sdk": { "name": "opentelemetry", "language": "java", "version": "2.12.0" },
-    "distro": { "name": "elastic", "version": "1.6.0" },
+    "sdk": { "name": "opentelemetry", "language": "python", "version": "1.29.0" },
+    "distro": { "name": "elastic", "version": "0.6.0" },
     "otel_pipeline": {
       "hop": "otel_collector",
       "export_protocol": "otlp",
@@ -37,8 +36,8 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "123456789012", "name": "prod-aws" },
+    "region": "sa-east-1",
+    "account": { "id": "345678901234", "name": "dev-aws" },
     "service": { "name": "sns" }
   },
   "event": { "outcome": "success", "module": "aws", "dataset": "aws.sns" },

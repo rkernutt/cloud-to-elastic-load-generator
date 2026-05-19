@@ -1,81 +1,80 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-south-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "msk" }
   },
   "aws": {
-    "dimensions": { "Cluster Name": "prod-kafka-ca-west-1", "Broker ID": "1", "Topic": "payments" },
+    "dimensions": {
+      "Cluster Name": "prod-kafka-eu-south-1",
+      "Broker ID": "3",
+      "Topic": "inventory-changes"
+    },
     "msk": {
-      "cluster_name": "prod-kafka-ca-west-1",
-      "broker_id": 1,
+      "cluster_name": "prod-kafka-eu-south-1",
+      "broker_id": 3,
       "kafka_version": "3.5.1",
-      "topic": "payments",
-      "partition": 13,
-      "offset": 77206995,
+      "topic": "inventory-changes",
+      "partition": 3,
+      "offset": 43963413,
       "consumer_group": "alerting-service",
-      "lag": 851150,
-      "under_replicated_partitions": 1,
+      "lag": 36,
+      "under_replicated_partitions": 0,
       "metrics": {
-        "BytesInPerSec": { "avg": 7114965 },
-        "BytesOutPerSec": { "avg": 2690790 },
-        "MessagesInPerSec": { "avg": 9105 },
-        "FetchConsumerTotalTimeMsMean": { "avg": 73 },
-        "ProduceTotalTimeMsMean": { "avg": 47 },
-        "UnderReplicatedPartitions": { "avg": 5 },
-        "UnderMinIsrPartitionCount": { "avg": 3 },
-        "OfflinePartitionsCount": { "avg": 1 },
+        "BytesInPerSec": { "avg": 1459790 },
+        "BytesOutPerSec": { "avg": 9471890 },
+        "MessagesInPerSec": { "avg": 1195 },
+        "FetchConsumerTotalTimeMsMean": { "avg": 99 },
+        "ProduceTotalTimeMsMean": { "avg": 48 },
+        "UnderReplicatedPartitions": { "avg": 0 },
+        "UnderMinIsrPartitionCount": { "avg": 0 },
+        "OfflinePartitionsCount": { "avg": 0 },
         "ActiveControllerCount": { "avg": 1 },
-        "GlobalPartitionCount": { "avg": 928 },
-        "GlobalTopicCount": { "avg": 7 },
-        "KafkaDataLogsDiskUsed": { "avg": 55.63816486779713 },
-        "CPUUser": { "avg": 15.61374934347617 },
-        "CPUSystem": { "avg": 1.8389149327251981 },
+        "GlobalPartitionCount": { "avg": 682 },
+        "GlobalTopicCount": { "avg": 68 },
+        "KafkaDataLogsDiskUsed": { "avg": 77.76654097342157 },
+        "CPUUser": { "avg": 51.70606310385138 },
+        "CPUSystem": { "avg": 15.528784060210576 },
         "NetworkRxDropped": { "sum": 0 },
         "NetworkTxDropped": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-msk-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-msk-logs-164820739518"
+        "name": "aws-msk-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-msk-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/164820739518/msk/ca-west-1/2026/05/14/msk_CM33IXFPBUCQF4KB3UMJ.log.gz"
+        "key": "AWSLogs/738291046572/msk/eu-south-1/2026/05/19/msk_D0IP8GWQ1NOP4LREWUVA.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/msk/logs",
-      "log_stream": "ca-west-1/k25noy3n",
-      "ingestion_time": "2026-05-14T03:00:07.249Z"
+      "log_stream": "eu-south-1/0asi6pp2",
+      "ingestion_time": "2026-05-19T12:26:14.174Z"
     }
   },
-  "kafka": { "topic": "payments", "partition": 13 },
+  "kafka": { "topic": "inventory-changes", "partition": 3 },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process", "network"],
     "dataset": "aws.msk",
     "provider": "kafka.amazonaws.com",
-    "duration": 623000000,
+    "duration": 76000000,
     "module": "aws"
   },
-  "message": "[2026-05-14 03:00:06.257] ERROR [GroupCoordinator broker=1] Error processing fetch for partition payments-13 (kafka.server.ReplicaManager)",
-  "log": { "level": "error" },
-  "error": {
-    "code": "UnderReplicatedPartitions",
-    "message": "MSK partition replication lag",
-    "type": "stream"
-  },
+  "message": "[2026-05-19 12:26:13.277] INFO [ReplicaManager] [GroupCoordinator 3]: Preparing to rebalance group alerting-service with old generation 5 (kafka.coordinator.group.GroupCoordinator)",
+  "log": { "level": "info" },
   "service": { "name": "msk", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.kafka_metrics", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "thngp5py384i77utir7rloy4pycj6ifyc1ha"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "4rda22djyotnl5azssil5bxkkj3z30z7ge3b"
   },
   "input": { "type": "aws-cloudwatch" }
 }

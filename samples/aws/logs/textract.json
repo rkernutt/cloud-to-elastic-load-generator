@@ -1,63 +1,67 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "us-east-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "textract" }
   },
   "aws": {
-    "dimensions": { "Operation": "DetectDocumentText" },
+    "dimensions": { "Operation": "GetDocumentAnalysis" },
     "textract": {
-      "operation": "DetectDocumentText",
-      "document_type": "invoice",
-      "pages_processed": 48,
-      "blocks_detected": 4800,
-      "words_detected": 19872,
+      "operation": "GetDocumentAnalysis",
+      "document_type": "receipt",
+      "job_id": "r0yz7nvbvo5ewfyaddwdss6b1vuxv76vl4h8",
+      "job_status": "FAILED",
+      "pages_processed": 0,
+      "blocks_detected": 0,
+      "words_detected": 0,
       "form_key_value_pairs": 0,
       "tables_detected": 0,
-      "confidence_mean": 85.73153832034619,
+      "confidence_mean": 95.97618905855145,
+      "error_code": "BadDocumentException",
       "metrics": {
         "DocumentsProcessed": { "sum": 1 },
-        "ThrottledRequests": { "sum": 0 },
-        "ResponseTime": { "avg": 1116.1011992406072 },
-        "SuccessfulRequests": { "sum": 1 },
-        "UserErrorRequests": { "sum": 0 },
+        "ThrottledRequests": { "sum": 1 },
+        "ResponseTime": { "avg": 13696.133250195842 },
+        "SuccessfulRequests": { "sum": 0 },
+        "UserErrorRequests": { "sum": 1 },
         "ServerErrorRequests": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-textract-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-textract-logs-164820739518"
+        "name": "aws-textract-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-textract-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/164820739518/textract/eu-north-1/2026/05/14/textract_GSEYICEB3PQR5E7WUIKY.log.gz"
+        "key": "AWSLogs/738291046572/textract/us-east-1/2026/05/19/textract_TR76YXEC6C67H2LWO8CX.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/textract/logs",
-      "log_stream": "eu-north-1/48kz79mq",
-      "ingestion_time": "2026-05-14T03:00:07.308Z"
+      "log_stream": "us-east-1/vo8xegv2",
+      "ingestion_time": "2026-05-19T12:26:14.221Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process", "file"],
     "dataset": "aws.textract",
     "provider": "textract.amazonaws.com",
     "module": "aws"
   },
-  "message": "Textract DetectDocumentText: invoice, 48 pages, 6768 words",
-  "log": { "level": "info" },
+  "message": "Textract GetDocumentAnalysis FAILED on receipt: Document too large",
+  "log": { "level": "error" },
+  "error": { "code": "TextractError", "message": "Textract operation failed", "type": "ml" },
   "service": { "name": "textract", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.textract", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "t95n16gdn1eih2d07q8jkui6udcs5hbacjfc"
+    "name": "filebeat-aws-us-east-1",
+    "ephemeral_id": "o1cnirw2q4i26pybbi6z19cinvbuuju8i8fp"
   },
   "input": { "type": "aws-cloudwatch" }
 }

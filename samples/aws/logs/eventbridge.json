@@ -1,60 +1,60 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ca-central-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "events" }
   },
   "aws": {
-    "dimensions": { "EventBusName": "default", "RuleName": "order-created-rule" },
+    "dimensions": { "EventBusName": "app-events", "RuleName": "user-signup-trigger" },
     "eventbridge": {
-      "event_bus": "default",
-      "rule": "order-created-rule",
-      "source": "com.partner.events",
-      "detail_type": "EC2 Instance State-change Notification",
+      "event_bus": "app-events",
+      "rule": "user-signup-trigger",
+      "source": "aws.health",
+      "detail_type": "Object Created",
       "targets_invoked": 4,
-      "targets_failed": 1,
-      "event_id": "a907cd72-5589-4419-9454-b363cb649e78",
-      "log_kind": "target_delivery",
-      "structured_logging": false,
+      "targets_failed": 3,
+      "event_id": "1d56f9f1-12e4-41f6-8162-15c1b0bc31d0",
+      "log_kind": "schema_discovery",
+      "structured_logging": true,
       "metrics": {
         "Invocations": { "sum": 1 },
         "FailedInvocations": { "sum": 1 },
         "TriggeredRules": { "sum": 1 },
-        "MatchedEvents": { "sum": 70 },
-        "ThrottledRules": { "sum": 4 },
-        "DeadLetterInvocations": { "sum": 0 }
+        "MatchedEvents": { "sum": 3 },
+        "ThrottledRules": { "sum": 3 },
+        "DeadLetterInvocations": { "sum": 1 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-eventbridge-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-eventbridge-logs-738291046572"
+        "name": "aws-eventbridge-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-eventbridge-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/eventbridge/eu-north-1/2026/05/14/eventbridge_OJMK3WCJFNL6O5TFBM52.log.gz"
+        "key": "AWSLogs/501938274650/eventbridge/ca-central-1/2026/05/19/eventbridge_KV3Y47E5J3WXNIH1NW1E.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/eventbridge/logs",
-      "log_stream": "eu-north-1/87shrv10",
-      "ingestion_time": "2026-05-14T03:00:07.251Z"
+      "log_stream": "ca-central-1/0p6br4y1",
+      "ingestion_time": "2026-05-19T12:26:14.176Z"
     }
   },
   "event": {
     "outcome": "failure",
     "category": ["process"],
-    "type": ["change"],
+    "type": ["creation"],
     "dataset": "aws.eventbridge",
     "provider": "events.amazonaws.com",
-    "duration": 1261000000,
+    "duration": 1593000000,
     "module": "aws"
   },
-  "message": "EventBridge TargetDelivery rule=order-created-rule target=arn:aws:lambda:eu-north-1:738291046572:function:processOrder status=FAILED httpStatus=429 attempt=2",
+  "message": "{\"id\":\"1d56f9f1-12e4-41f6-8162-15c1b0bc31d0\",\"source\":\"aws.health\",\"detailType\":\"Health Event\",\"rule\":\"user-signup-trigger\",\"eventBus\":\"app-events\",\"log_kind\":\"schema_discovery\",\"schema_registry\":\"internal-schemas\",\"dlq_arn\":\"arn:aws:sqs:ca-central-1:501938274650:rules-dlq\",\"message\":\"EventBridge SchemaDiscovery registry=internal-schemas discovered_type=OrderPlaced@v2 revision=3\",\"timestamp\":\"2026-05-19T12:26:13.277Z\"}",
   "log": { "level": "error" },
   "error": {
-    "code": "ManagedRuleException",
+    "code": "ConcurrentModificationException",
     "message": "EventBridge target invocations failed",
     "type": "aws"
   },
@@ -64,8 +64,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "u33s3pmup14vq7moi4wu3oo614r3buwyygg3"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "z9ltwhh21f7he3x0slbrobz2akvfwn8jnh8l"
   },
   "input": { "type": "aws-cloudwatch" }
 }

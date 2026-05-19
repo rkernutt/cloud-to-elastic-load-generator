@@ -1,20 +1,20 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "WARNING",
+  "severity": "ERROR",
   "labels": {
-    "environment_name": "composer-dev",
-    "dag_id": "hourly_sync"
+    "environment_name": "composer-data",
+    "dag_id": "ml_feature_refresh"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west2",
+    "region": "europe-west6",
     "project": {
-      "id": "globex-dev-g7h8i9",
-      "name": "Globex Development"
+      "id": "globex-staging-d4e5f6",
+      "name": "Globex Staging"
     },
     "account": {
-      "id": "161803398874",
-      "name": "Globex Development"
+      "id": "271828182845",
+      "name": "Globex Staging"
     },
     "service": {
       "name": "composer"
@@ -22,29 +22,33 @@
   },
   "gcp": {
     "composer": {
-      "environment_name": "composer-dev",
-      "dag_id": "hourly_sync",
+      "environment_name": "composer-data",
+      "dag_id": "ml_feature_refresh",
       "task_id": "notify_slack",
-      "execution_date": "2026-05-13 18:58:33",
-      "state": "up_for_retry",
-      "try_number": 1,
-      "operator": "BashOperator",
-      "duration_seconds": 2169
+      "execution_date": "2026-05-18 21:32:01",
+      "state": "failed",
+      "try_number": 5,
+      "operator": "KubernetesPodOperator",
+      "duration_seconds": 45
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 2169000000000,
+    "outcome": "failure",
+    "duration": 45000000000,
     "module": "gcp",
     "dataset": "gcp.composer"
   },
-  "message": "[2026-04-04T12:00:00.000Z] {composer-dev} INFO - Marking task as up_for_retry: hourly_sync.notify_slack duration=2169s",
+  "message": "[2026-04-04T12:00:00.000Z] {composer.googleapis.com} ERROR - Task failed: ml_feature_refresh.notify_slack try=5 operator=KubernetesPodOperator",
+  "error": {
+    "type": "TaskFailed",
+    "message": "Operator KubernetesPodOperator exited with non-zero code"
+  },
   "service": {
     "name": "composer",
     "type": "gcp"
   },
   "log": {
-    "level": "info"
+    "level": "error"
   },
   "ecs": {
     "version": "8.11.0"
@@ -57,32 +61,32 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west2",
-    "id": "ig7ek53krc8ksnybvfccw6kk1obkaenaj3wy"
+    "name": "elastic-agent-gcp-europe-west6",
+    "id": "z653vot7rzietjfzxnj5cewk91dxuqj55xws"
   },
   "input": {
     "type": "gcp-pubsub"
   },
-  "logName": "projects/globex-dev-g7h8i9/logs/composer",
+  "logName": "projects/globex-staging-d4e5f6/logs/composer",
   "resource": {
     "type": "cloud_composer_environment",
     "labels": {
-      "project_id": "globex-dev-g7h8i9",
-      "region": "europe-west2"
+      "project_id": "globex-staging-d4e5f6",
+      "region": "europe-west6"
     }
   },
-  "insertId": "CG3AMCH2PRJQ",
+  "insertId": "8HTHYWNVDOOD",
   "jsonPayload": {
     "composer": {
-      "environment_name": "composer-dev",
-      "dag_id": "hourly_sync",
+      "environment_name": "composer-data",
+      "dag_id": "ml_feature_refresh",
       "task_id": "notify_slack",
-      "execution_date": "2026-05-13 18:58:33",
-      "state": "up_for_retry",
-      "try_number": 1,
-      "operator": "BashOperator",
-      "duration_seconds": 2169
+      "execution_date": "2026-05-18 21:32:01",
+      "state": "failed",
+      "try_number": 5,
+      "operator": "KubernetesPodOperator",
+      "duration_seconds": 45
     },
-    "message": "[2026-04-04T12:00:00.000Z] {composer-dev} INFO - Marking task as up_for_retry: hourly_sync.notify_slack duration=2169s"
+    "message": "[2026-04-04T12:00:00.000Z] {composer.googleapis.com} ERROR - Task failed: ml_feature_refresh.notify_slack try=5 operator=KubernetesPodOperator"
   }
 }

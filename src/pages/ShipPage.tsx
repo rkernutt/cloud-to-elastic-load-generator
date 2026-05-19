@@ -104,7 +104,7 @@ function MLTrainingSection({
     injection: "Shipping anomaly injection",
     stabilising: "Stabilising — waiting for ML to score anomalies",
     done: mlTrainingConfig.stopDatafeedsOnComplete
-      ? "Complete — datafeeds stopped, anomaly scores frozen"
+      ? "Complete — jobs closed, anomaly scores frozen"
       : "Complete",
   };
 
@@ -193,7 +193,7 @@ function MLTrainingSection({
     ...(mlTrainingConfig.stopDatafeedsOnComplete
       ? [
           {
-            title: "Stabilise & freeze: stop datafeeds after 2 min",
+            title: "Stabilise & freeze: close jobs after 2 min",
             status: stepStatus(
               mlState.phase,
               "stabilising",
@@ -203,7 +203,7 @@ function MLTrainingSection({
               mlState.phase === "stabilising" ? (
                 <EuiText size="s">
                   <p>
-                    Waiting for ML to score the anomalies before stopping datafeeds.{" "}
+                    Waiting for ML to score the anomalies before closing jobs.{" "}
                     {mlState.countdown > 0 && (
                       <>
                         Stopping in <strong>{formatCountdown(mlState.countdown)}</strong>
@@ -292,7 +292,7 @@ function MLTrainingSection({
           </EuiFlexGroup>
           <EuiSpacer size="m" />
           <EuiSwitch
-            label="Stop datafeeds after training (prevents re-baselining)"
+            label="Close jobs after training (freezes model, preserves anomaly scores)"
             checked={mlTrainingConfig.stopDatafeedsOnComplete}
             onChange={(e) =>
               onMLTrainingConfigChange({

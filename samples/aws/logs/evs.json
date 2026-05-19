@@ -1,73 +1,67 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-central-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "evs" }
   },
   "aws": {
-    "dimensions": { "EnvironmentId": "evs-bwgsntly" },
+    "dimensions": { "EnvironmentId": "evs-11dyysd7" },
     "evs": {
-      "environment_id": "evs-bwgsntly",
-      "vcenter_hostname": "vcenter-20ib1c.internal",
+      "environment_id": "evs-11dyysd7",
+      "vcenter_hostname": "vcenter-b5jzr0.internal",
       "esxi_version": "8.0.3",
-      "scenario": "vmware_host_provision",
-      "host_count": 9,
-      "vsan_datastore_id": "datastore-604",
-      "vmware_host": {
-        "bios_uuid": "7fef023c-8556-4364-b32c-955b69fb6985",
-        "mgmt_ip": "66.116.184.153",
-        "cluster_name": "edge-b",
-        "maintenance_mode": "false"
+      "scenario": "vsan_extend",
+      "host_count": 18,
+      "vsan_datastore_id": "datastore-907",
+      "vsan": {
+        "stripe_width": 4,
+        "fault_domains": 3,
+        "resync_bytes_outstanding": 1826428953,
+        "disk_group": "dg-90VW"
       },
       "metrics": {
-        "hosts_online": 6,
-        "vsan_capacity_used_tb": 38.81516350627246,
-        "vcpu_allocation_ratio": 9.006618696213696
-      },
-      "api_error_code": "ConflictException"
+        "hosts_online": 18,
+        "vsan_capacity_used_tb": 7.8587484405260515,
+        "vcpu_allocation_ratio": 6.774658215739109
+      }
     },
     "s3": {
       "bucket": {
-        "name": "aws-evs-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-evs-logs-814726593401"
+        "name": "aws-evs-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-evs-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/814726593401/evs/eu-west-2/2026/05/14/evs_WPP034DYR6S62PSCDBKX.log.gz"
+        "key": "AWSLogs/293847561023/evs/eu-central-1/2026/05/19/evs_V6RG8TGKTTLLFKJSUO96.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/evs/logs",
-      "log_stream": "eu-west-2/jo9flfbl",
-      "ingestion_time": "2026-05-14T03:00:07.053Z"
+      "log_stream": "eu-central-1/k87hxgod",
+      "ingestion_time": "2026-05-19T12:26:14.067Z"
     }
   },
   "event": {
-    "action": "vmware_host_provision",
-    "outcome": "failure",
+    "action": "vsan_extend",
+    "outcome": "success",
     "category": ["host"],
     "dataset": "aws.evs",
     "provider": "evs.amazonaws.com",
-    "duration": 1750000000,
+    "duration": 444000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.evs", "namespace": "default" },
-  "message": "AddHost 66.116.184.153 bios=7fef023c… cluster=*edge-b — ConflictException",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ConflictException",
-    "message": "EVS vmware_host_provision failed for evs-bwgsntly",
-    "type": "aws"
-  },
-  "host": { "name": "ip-243-24-159-10.ec2.internal", "hostname": "evs-yoiuiq7j" },
+  "message": "vSAN ResizeDiskGroup dg-90VW stripe=4 resync=1826428953B",
+  "log": { "level": "info" },
+  "host": { "name": "ip-245-236-71-94.ec2.internal", "hostname": "evs-ea6b9mhw" },
   "service": { "name": "evs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "ccun1tgxljsz6d0i12aslgdaukskhrl1e89u"
+    "name": "filebeat-aws-eu-central-1",
+    "ephemeral_id": "hu8sxaozp1rbjdiistj1r6zvlcmjgy2uoyjz"
   },
   "input": { "type": "aws-cloudwatch" }
 }

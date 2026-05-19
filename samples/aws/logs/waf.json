@@ -1,31 +1,25 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-northeast-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "waf" }
   },
   "aws": {
-    "dimensions": {
-      "WebACL": "api-waf",
-      "Rule": "AWSManagedRulesSQLiRuleSet",
-      "Region": "eu-north-1"
-    },
+    "dimensions": { "WebACL": "admin-waf", "Rule": "IPRateBasedRule", "Region": "ap-northeast-1" },
     "waf": {
-      "id": "dm0ed0je6tf0hvsczv83xq2qkjz5cob9qpce",
-      "arn": "arn:aws:wafv2:eu-north-1:738291046572:regional/webacl/api-waf/3cdoxsw9-j1j3-3ane-zlup-5dcdnz3anowj",
+      "id": "954cl5yq9n324bq4bqx3pmqc4fl7t9qi5pef",
+      "arn": "arn:aws:wafv2:ap-northeast-1:501938274650:regional/webacl/admin-waf/0j2tprs9-d1vr-yhik-k618-pztidnrmicxw",
       "format_version": "1",
-      "source": { "name": "ALB", "id": "738291046572-app/api-waf/7yedstczd24qqyz2" },
-      "rule_group_list": [
-        { "ruleGroupId": "AWSManagedRulesSQLiRuleSet", "nonTerminatingMatchingRules": [] }
-      ],
+      "source": { "name": "ALB", "id": "501938274650-app/admin-waf/6jmoy0d4j7jzbz20" },
+      "rule_group_list": [{ "ruleGroupId": "IPRateBasedRule", "nonTerminatingMatchingRules": [] }],
       "non_terminating_matching_rules": [],
       "terminating_rule_match_details": [],
       "request": {
         "headers": [
           { "name": "Host", "value": "api.example.com" },
-          { "name": "User-Agent", "value": "curl/7.68.0" },
+          { "name": "User-Agent", "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
           { "name": "Accept", "value": "*/*" }
         ]
       },
@@ -39,75 +33,82 @@
         "ChallengeRequests": { "sum": 0 },
         "FailedCaptcha": { "sum": 0 }
       },
-      "webaclId": "3cdoxsw9-j1j3-3ane-zlup-5dcdnz3anowj",
-      "terminatingRuleId": "NoUserAgent_HEADER",
-      "terminatingRuleType": "MANAGED_RULE_GROUP",
+      "webaclId": "0j2tprs9-d1vr-yhik-k618-pztidnrmicxw",
+      "terminatingRuleId": "SQLi_Args",
+      "terminatingRuleType": "RATE_BASED",
       "action": "ALLOW",
       "httpRequest": {
-        "clientIp": "236.177.96.17",
-        "country": "NL",
+        "clientIp": "231.136.103.195",
+        "country": "SG",
         "headers": [
           { "name": "Host", "value": "api.example.com" },
-          { "name": "User-Agent", "value": "curl/7.68.0" },
+          { "name": "User-Agent", "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
           { "name": "Accept", "value": "*/*" }
         ],
-        "httpMethod": "GET",
+        "httpMethod": "PATCH",
         "httpVersion": "HTTP/1.1",
-        "uri": "/api/v1/search"
+        "uri": "/api/v1/products"
       },
-      "httpSourceId": "738291046572-app/api-waf/7yedstczd24qqyz2",
-      "rateBasedRuleList": [],
+      "httpSourceId": "501938274650-app/admin-waf/6jmoy0d4j7jzbz20",
+      "rateBasedRuleList": [
+        {
+          "rateBasedRuleId": "IPRateBasedRule",
+          "rateLimitKey": "IP",
+          "limitKey": "231.136.103.195",
+          "maxRateAllowed": 2000
+        }
+      ],
       "nonTerminatingMatchingRules": [],
       "requestHeadersInserted": [],
       "responseCodeSent": 200
     },
     "s3": {
       "bucket": {
-        "name": "aws-waf-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-waf-logs-738291046572"
+        "name": "aws-waf-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-waf-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/waf/eu-north-1/2026/05/14/waf_2QE9UPWKZ1JLEH9EZNZ8.log.gz"
+        "key": "AWSLogs/501938274650/waf/ap-northeast-1/2026/05/19/waf_KG9BZWEOYT223WAN0UH0.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/waf/logs",
-      "log_stream": "eu-north-1/pvsianvv",
-      "ingestion_time": "2026-05-14T03:00:07.060Z"
+      "log_stream": "ap-northeast-1/d0po911i",
+      "ingestion_time": "2026-05-19T12:26:14.074Z"
     }
   },
-  "rule": { "id": "NoUserAgent_HEADER", "ruleset": "AWSManagedRulesSQLiRuleSet" },
-  "http": { "request": { "method": "GET", "bytes": 9604 } },
-  "url": { "path": "/api/v1/search" },
+  "rule": { "id": "SQLi_Args", "ruleset": "IPRateBasedRule" },
+  "http": { "request": { "method": "PATCH", "bytes": 8898 } },
+  "url": { "path": "/api/v1/products" },
   "source": {
-    "ip": "236.177.96.17",
+    "ip": "231.136.103.195",
     "geo": {
-      "country_iso_code": "NL",
-      "country_name": "Netherlands",
-      "city_name": "Amsterdam",
-      "location": { "lat": 52.3676, "lon": 4.9041 }
+      "country_iso_code": "SG",
+      "country_name": "Singapore",
+      "city_name": "Singapore",
+      "location": { "lat": 1.3521, "lon": 103.8198 }
     }
   },
   "client": {
-    "ip": "236.177.96.17",
+    "ip": "231.136.103.195",
     "geo": {
-      "country_iso_code": "NL",
-      "country_name": "Netherlands",
-      "city_name": "Amsterdam",
-      "location": { "lat": 52.3676, "lon": 4.9041 }
+      "country_iso_code": "SG",
+      "country_name": "Singapore",
+      "city_name": "Singapore",
+      "location": { "lat": 1.3521, "lon": 103.8198 }
     }
   },
-  "user_agent": { "original": "curl/7.68.0" },
+  "user_agent": { "original": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
   "event": {
     "action": "allow",
     "outcome": "success",
     "category": ["intrusion_detection", "network"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
-    "duration": 31000000,
+    "duration": 11000000,
     "module": "aws"
   },
-  "message": "{\"timestamp\":\"2026-05-14T03:00:06.257Z\",\"formatVersion\":1,\"webaclId\":\"3cdoxsw9-j1j3-3ane-zlup-5dcdnz3anowj\",\"terminatingRuleId\":\"NoUserAgent_HEADER\",\"terminatingRuleType\":\"MANAGED_RULE_GROUP\",\"action\":\"ALLOW\",\"httpRequest\":{\"clientIp\":\"236.177.96.17\",\"country\":\"NL\",\"headers\":[{\"name\":\"Host\",\"value\":\"api.example.com\"},{\"name\":\"User-Agent\",\"value\":\"curl/7.68.0\"},{\"name\":\"Accept\",\"value\":\"*/*\"}],\"httpMethod\":\"GET\",\"httpVersion\":\"HTTP/1.1\",\"uri\":\"/api/v1/search\"},\"httpSourceId\":\"738291046572-app/api-waf/7yedstczd24qqyz2\",\"rateBasedRuleList\":[],\"nonTerminatingMatchingRules\":[],\"requestHeadersInserted\":[],\"responseCodeSent\":200}",
+  "message": "{\"timestamp\":\"2026-05-19T12:26:13.277Z\",\"formatVersion\":1,\"webaclId\":\"0j2tprs9-d1vr-yhik-k618-pztidnrmicxw\",\"terminatingRuleId\":\"SQLi_Args\",\"terminatingRuleType\":\"RATE_BASED\",\"action\":\"ALLOW\",\"httpRequest\":{\"clientIp\":\"231.136.103.195\",\"country\":\"SG\",\"headers\":[{\"name\":\"Host\",\"value\":\"api.example.com\"},{\"name\":\"User-Agent\",\"value\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\"},{\"name\":\"Accept\",\"value\":\"*/*\"}],\"httpMethod\":\"PATCH\",\"httpVersion\":\"HTTP/1.1\",\"uri\":\"/api/v1/products\"},\"httpSourceId\":\"501938274650-app/admin-waf/6jmoy0d4j7jzbz20\",\"rateBasedRuleList\":[{\"rateBasedRuleId\":\"IPRateBasedRule\",\"rateLimitKey\":\"IP\",\"limitKey\":\"231.136.103.195\",\"maxRateAllowed\":2000}],\"nonTerminatingMatchingRules\":[],\"requestHeadersInserted\":[],\"responseCodeSent\":200}",
   "log": { "level": "info" },
   "service": { "name": "waf", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -115,8 +116,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "j092hx3ab2tf7jpzsnvfanxei568dqbwmg63"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "yzq2j8oogsaljjx8q2pg38m8ebvfe434sq2a"
   },
   "input": { "type": "aws-s3" }
 }

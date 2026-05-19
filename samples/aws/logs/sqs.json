@@ -1,72 +1,75 @@
 {
-  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "@timestamp": "2026-05-19T12:26:13.277Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-west-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "sqs" }
   },
   "aws": {
-    "dimensions": { "QueueName": "notification-dlq" },
+    "dimensions": { "QueueName": "events.fifo" },
     "sqs": {
       "queue": {
-        "name": "notification-dlq",
-        "url": "https://sqs.ap-northeast-3.amazonaws.com/501938274650/notification-dlq"
+        "name": "events.fifo",
+        "url": "https://sqs.eu-west-2.amazonaws.com/164820739518/events.fifo"
       },
-      "operation": "StartMessageMoveTask",
-      "scenario": "dead_letter_redrive",
-      "fifo": false,
+      "operation": "SendMessage",
+      "scenario": "fifo_deduplication",
+      "fifo": true,
       "long_poll_wait_seconds": 0,
-      "oldest_message_age": { "sec": 171 },
+      "message_deduplication_id": "dedup-kik87xnr2laisjil0z8ip992m7mk2sqr",
+      "oldest_message_age": { "sec": 59301 },
       "messages": {
-        "delayed": 310,
-        "not_visible": 3395,
-        "visible": 6941,
-        "deleted": 313,
-        "received": 989,
-        "sent": 2156
+        "delayed": 1187,
+        "not_visible": 3261,
+        "visible": 134674,
+        "deleted": 570,
+        "received": 2783,
+        "sent": 7644
       },
-      "empty_receives": 78,
-      "sent_message_size": { "bytes": 48463 }
+      "empty_receives": 27,
+      "sent_message_size": { "bytes": 113459 }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sqs-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-sqs-logs-501938274650"
+        "name": "aws-sqs-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-sqs-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/sqs/ap-northeast-3/2026/05/14/sqs_WZU6EZXUEFRRJ10I16SP.log.gz"
+        "key": "AWSLogs/164820739518/sqs/eu-west-2/2026/05/19/sqs_F7HL20SH5MOJIYR7MHKN.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/sqs/logs",
-      "log_stream": "ap-northeast-3/l2ubgdd8",
-      "ingestion_time": "2026-05-14T03:00:07.250Z"
+      "log_stream": "eu-west-2/opceqqtj",
+      "ingestion_time": "2026-05-19T12:26:14.175Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.sqs",
     "provider": "sqs.amazonaws.com",
-    "duration": 443000000,
+    "duration": 5047000000,
     "module": "aws"
   },
-  "message": "SQS StartMessageMoveTask source=https://sqs.ap-northeast-3.amazonaws.com/501938274650/notification-dlq destination=https://sqs.ap-northeast-3.amazonaws.com/501938274650/main-queue maxMessages=4266 | error: 388 messages dead-lettered after max retries",
+  "message": "SQS SendMessage FIFO queue=https://sqs.eu-west-2.amazonaws.com/164820739518/events.fifo MessageDeduplicationId=dedup-kik87xnr2laisjil0z8ip992m7mk2sqr MessageGroupId=checkout bodyBytes=6253 | error: 402 messages dead-lettered after max retries",
   "log": { "level": "warn" },
   "error": {
-    "code": "AWS.SimpleQueueService.NonExistentQueue",
-    "message": "Message move task failed: destination policy denies sqs:SendMessage",
+    "code": "InvalidMessageContents",
+    "message": "Duplicate MessageDeduplicationId within deduplication interval",
     "type": "aws"
   },
+  "trace": { "id": "7H6XTBWLZERFK07RU22LVUUMK97LCUYH" },
+  "transaction": { "id": "LF4WCSD6SS3THBLL" },
   "service": { "name": "sqs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sqs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "j3uru789h5mtozb3urxn1etwadq4jm1uvefg"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "8ag4ep922ftlyeikyqqejq7w57xnhuetr408"
   },
   "input": { "type": "aws-cloudwatch" }
 }
