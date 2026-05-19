@@ -1,57 +1,58 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "me-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "cloudwatchalarms" }
   },
   "aws": {
     "cloudwatch": {
       "log_group": "/aws/cloudwatch/logs",
-      "log_stream": "eu-west-2/5jkzlb7t",
-      "ingestion_time": "2026-05-19T12:26:14.248Z",
-      "alarm_name": "high-cpu-alarm",
-      "alarm_state": "OK",
+      "log_stream": "me-south-1/6vkmnfb0",
+      "ingestion_time": "2026-05-19T15:25:13.677Z",
+      "alarm_name": "ecs-memory",
+      "alarm_state": "ALARM",
       "previous_state": "ALARM",
-      "namespace": "AWS/Lambda",
-      "metric_name": "MemoryUtilization",
-      "threshold": 90,
-      "evaluation_periods": 3,
-      "metric_value": 36.20516391563249,
-      "statistic": "p99",
-      "period_seconds": 3600,
+      "namespace": "Custom/Application",
+      "metric_name": "QueueDepth",
+      "threshold": 80,
+      "evaluation_periods": 1,
+      "metric_value": 85.31472353790687,
+      "statistic": "Average",
+      "period_seconds": 60,
       "treat_missing_data": "missing"
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudwatch-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-cloudwatch-logs-293847561023"
+        "name": "aws-cloudwatch-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-cloudwatch-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/cloudwatch/eu-west-2/2026/05/19/cloudwatch_534LVGSK7EVAGY5OWVJ8.log.gz"
+        "key": "AWSLogs/814726593401/cloudwatch/me-south-1/2026/05/19/cloudwatch_RRNY9PPXJTMJRX47O90Q.log.gz"
       }
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["configuration", "process"],
     "dataset": "aws.cloudwatch",
     "provider": "monitoring.amazonaws.com",
     "duration": 300000000000,
     "module": "aws"
   },
-  "message": "CloudWatch alarm \"high-cpu-alarm\": OK (AWS/Lambda/MemoryUtilization=36.2)",
-  "log": { "level": "info" },
+  "message": "CloudWatch alarm \"ecs-memory\": ALARM (Custom/Application/QueueDepth=85.3)",
+  "log": { "level": "warn" },
+  "error": { "code": "AlarmTriggered", "message": "Alarm ecs-memory: ALARM", "type": "monitoring" },
   "service": { "name": "cloudwatch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "sblmfpero0y821uposlcfgg2vyj33k2xi48w"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "yst828qf1gte4zkkn9m9tqjvcyzmevi082nl"
   },
   "input": { "type": "aws-cloudwatch" }
 }

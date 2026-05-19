@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,38 +7,39 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "738291046572", "name": "globex-development" }
+    "region": "us-east-2",
+    "account": { "id": "814726593401", "name": "globex-production" }
   },
   "orchestrator": {
-    "cluster": { "id": "dev-eks", "name": "dev-eks" },
+    "cluster": { "id": "staging-eks", "name": "staging-eks" },
     "type": "kubernetes",
-    "namespace": "logging"
+    "namespace": "kube-system"
   },
   "resource": {
-    "id": "api/v1/namespaces/logging/pods/cron-4zfxp",
-    "name": "cron-4zfxp",
+    "id": "k8s-node/ip-141-62-68-39.us-east-2.compute.internal",
+    "name": "ip-141-62-68-39.us-east-2.compute.internal",
     "type": "k8s_object",
-    "sub_type": "Pod"
+    "sub_type": "Node",
+    "raw": { "node": "ip-141-62-68-39.us-east-2.compute.internal" }
   },
   "rule": {
-    "id": "d117cea4-376b-5cb7-ad81-58a2f4efb47e",
-    "name": "Minimize the admission of containers wishing to share the host process ID namespace",
-    "section": "4.2.2",
-    "description": "Do not generally permit containers to be run with the `hostPID` flag set to true.",
-    "tags": ["CIS", "EKS", "CIS 4.2.2", "Pod Security Policies"],
+    "id": "d1d73385-2909-598a-acf7-bf1d8130f314",
+    "name": "Ensure that the --protect-kernel-defaults argument is set to true",
+    "section": "3.2.6",
+    "description": "Protect tuned kernel parameters from overriding kubelet default kernel parameter values.",
+    "tags": ["CIS", "EKS", "CIS 3.2.6", "Kubelet"],
     "benchmark": {
       "id": "cis_eks",
       "name": "CIS Amazon Elastic Kubernetes Service (EKS)",
       "version": "v1.0.1",
-      "rule_number": "4.2.2",
+      "rule_number": "3.2.6",
       "posture_type": "kspm"
     },
     "profile_applicability": "* Level 1",
-    "impact": "Non-compliance with CIS Amazon Elastic Kubernetes Service (EKS) 4.2.2 — Minimize the admission of containers wishing to share the host process ID namespace",
-    "remediation": "Remediate per CIS Amazon Elastic Kubernetes Service (EKS) v1.0.1 section 4.2.2."
+    "impact": "Non-compliance with CIS Amazon Elastic Kubernetes Service (EKS) 3.2.6 — Ensure that the --protect-kernel-defaults argument is set to true",
+    "remediation": "Remediate per CIS Amazon Elastic Kubernetes Service (EKS) v1.0.1 section 3.2.6."
   },
-  "result": { "evaluation": "failed", "evidence": { "spec": { "hostPID": true } } },
+  "result": { "evaluation": "failed", "evidence": { "protectKernelDefaults": false } },
   "event": {
     "kind": "state",
     "category": ["configuration"],
@@ -48,6 +49,6 @@
     "provider": "elastic_kspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_eks/4.2.2] failed: Minimize the admission of containers wishing to share the host process ID namespace",
+  "message": "[cis_eks/3.2.6] failed: Ensure that the --protect-kernel-defaults argument is set to true",
   "log": { "level": "warn" }
 }

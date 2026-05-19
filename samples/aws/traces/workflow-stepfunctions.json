@@ -1,19 +1,19 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "723f379f3e99a711cb8891891cdbc19a" },
+  "trace": { "id": "ac04034c7709cc1ea39e7aecbd82e40e" },
   "transaction": {
-    "id": "c5f50e03b147db64",
+    "id": "57af19f5bcb63ed3",
     "name": "order.created process",
     "type": "messaging",
-    "duration": { "us": 901000 },
-    "result": "success",
+    "duration": { "us": 1415000 },
+    "result": "failure",
     "sampled": true,
     "span_count": { "started": 1, "dropped": 0 }
   },
   "service": {
     "name": "eventbridge",
-    "environment": "dev",
+    "environment": "staging",
     "version": "1.0.0",
     "language": { "name": "nodejs" },
     "runtime": { "name": "nodejs20.x", "version": "20.15.1" }
@@ -30,11 +30,16 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "123456789012", "name": "prod-aws" },
+    "region": "ap-east-1",
+    "account": { "id": "234567890123", "name": "staging-aws" },
     "service": { "name": "events" }
   },
-  "event": { "outcome": "success", "module": "aws", "dataset": "aws.workflow-stepfunctions" },
+  "labels": {
+    "error.type": "aws",
+    "error.code": "ResourceNotFoundException",
+    "error.message": "service-specific error description"
+  },
+  "event": { "outcome": "failure", "module": "aws", "dataset": "aws.workflow-stepfunctions" },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
   "ecs": { "version": "8.11.0" },
   "input": { "type": "opentelemetry" }

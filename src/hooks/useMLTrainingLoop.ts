@@ -192,10 +192,11 @@ export function useMLTrainingLoop(
       }
 
       if (cfg.stopDatafeedsOnComplete) {
-        // Phase 4: Stabilisation — wait 2 min for ML to score the anomalies,
-        // then stop datafeeds AND close jobs to freeze the model completely.
+        // Phase 4: Stabilisation — wait 10 min for datafeeds to query and forward
+        // the anomaly data to the jobs (datafeed frequency ~7.5 min for 15m bucket_span),
+        // then stop datafeeds, flush jobs, and close to freeze the model.
         setPhase("stabilising");
-        const stabiliseMs = 2 * 60 * 1000;
+        const stabiliseMs = 10 * 60 * 1000;
         countdownTargetRef.current = new Date(Date.now() + stabiliseMs);
         const stabOk = await waitWithAbort(stabiliseMs, controller);
         countdownTargetRef.current = null;

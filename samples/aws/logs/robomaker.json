@@ -1,71 +1,76 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-west-3",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "robomaker" }
   },
   "aws": {
     "robomaker": {
-      "simulation_job_id": "sim-9vqmx9f5vjvy",
-      "robot_application": "warehouse-nav",
-      "scenario": "robot_deploy",
-      "status": "Running",
-      "simulation_time_seconds": 20954,
+      "simulation_job_id": "sim-uq42j887j6gr",
+      "robot_application": "pick-and-place",
+      "scenario": "ros_node_start",
+      "status": "Canceled",
+      "simulation_time_seconds": 31599,
       "world_count": 2,
-      "compute_type": "GPU_AND_CPU",
+      "compute_type": "CPU",
       "max_job_duration_seconds": 86400,
-      "failure_behavior": "Fail",
+      "failure_behavior": "Continue",
       "ros": {
         "distro": "ROS Noetic",
-        "graph": { "nodes": 22, "topics": ["/scan", "/cmd_vel", "/odom", "/map"] }
+        "graph": { "nodes": 15, "topics": ["/scan", "/cmd_vel", "/odom", "/map"] }
       },
       "physics": {
         "engine": "Gazebo",
-        "step_size_ms": 3.0044273266256685,
-        "realtime_factor": 0.9031326380547644
+        "step_size_ms": 3.9981624473613695,
+        "realtime_factor": 0.4890329941492017
       },
       "vpc_config": {
-        "subnets": ["subnet-E4J1P9DK", "subnet-2N8S5LNT"],
-        "security_groups": ["sg-GGJE4HZ5"]
+        "subnets": ["subnet-RCO4AQIM", "subnet-UKVG6ID3"],
+        "security_groups": ["sg-NM9H1ZIV"]
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-robomaker-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-robomaker-logs-293847561023"
+        "name": "aws-robomaker-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-robomaker-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/robomaker/eu-south-1/2026/05/19/robomaker_EWZTU9EV6K6VGS7CQ9EW.log.gz"
+        "key": "AWSLogs/738291046572/robomaker/eu-west-3/2026/05/19/robomaker_4UYLJI2OXKY0IWXSV0O8.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/robomaker/logs",
-      "log_stream": "eu-south-1/dqw6iutv",
-      "ingestion_time": "2026-05-19T12:26:14.197Z"
+      "log_stream": "eu-west-3/rwcdvesp",
+      "ingestion_time": "2026-05-19T15:25:13.612Z"
     }
   },
   "event": {
-    "action": "robot_deploy",
-    "outcome": "success",
+    "action": "ros_node_start",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.robomaker",
     "provider": "robomaker.amazonaws.com",
-    "duration": 32854600683,
+    "duration": 4559553244,
     "module": "aws"
   },
-  "message": "CreateDeploymentJob fleet=amr-east version=20 rollout=LINEAR",
-  "log": { "level": "info" },
-  "host": { "name": "ip-45-140-229-165.ec2.internal", "hostname": "robomaker-fxtjdw1v" },
+  "message": "roslaunch bringup.launch — 15 nodes — WorldGenerationFailed: resource limit",
+  "log": { "level": "error" },
+  "error": {
+    "code": "WorldGenerationFailed",
+    "message": "RoboMaker ros_node_start failed for pick-and-place",
+    "type": "aws"
+  },
+  "host": { "name": "ip-189-131-5-160.ec2.internal", "hostname": "robomaker-qcxkzcmu" },
   "service": { "name": "robomaker", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.robomaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "sr81zzw7mx0ysxdgtka2v0tjou3nhdpplo7m"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "c4vtzpvua5h2jmq7ncu6g4gk1cijes92vezx"
   },
   "input": { "type": "aws-cloudwatch" }
 }

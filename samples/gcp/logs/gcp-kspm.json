@@ -7,51 +7,41 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-east1",
-    "account": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" }
+    "region": "us-west3",
+    "account": { "id": "globex-security-j0k1l2", "name": "Globex Security" }
   },
-  "orchestrator": { "cluster": { "name": "dev-cluster" } },
+  "orchestrator": { "cluster": { "name": "staging-cluster" } },
   "resource": {
-    "id": "node/gke-dev-cluster-np-7283",
-    "name": "gke-dev-cluster-np-7283",
+    "id": "node/gke-staging-cluster-np-6f1a",
+    "name": "gke-staging-cluster-np-6f1a",
     "type": "k8s_object",
     "sub_type": "kubelet"
   },
   "rule": {
-    "id": "94fb43f8-90da-5089-b503-66a04faa2630",
-    "name": "Ensure that the Kubelet only makes use of Strong Cryptographic Ciphers",
-    "section": "4.2.13",
-    "description": "Ensure that the Kubelet is configured to only use strong cryptographic ciphers.",
-    "tags": ["CIS", "Kubernetes", "CIS 4.2.13", "Kubelet"],
+    "id": "374309b1-b87a-58bd-b795-1067d2e8ee9f",
+    "name": "Ensure that the --streaming-connection-idle-timeout argument is not set to 0",
+    "section": "4.2.5",
+    "description": "Do not disable timeouts on streaming connections.",
+    "tags": ["CIS", "Kubernetes", "CIS 4.2.5", "Kubelet"],
     "benchmark": {
       "id": "cis_k8s",
       "name": "CIS Kubernetes V1.23",
       "version": "v1.0.1",
-      "rule_number": "4.2.13",
+      "rule_number": "4.2.5",
       "posture_type": "kspm"
     },
-    "profile_applicability": "* Level 1",
-    "impact": "Non-compliance with CIS Kubernetes V1.23 4.2.13 — Ensure that the Kubelet only makes use of Strong Cryptographic Ciphers",
-    "remediation": "Remediate per CIS Kubernetes V1.23 v1.0.1 section 4.2.13."
+    "profile_applicability": "* Level 1"
   },
-  "result": {
-    "evaluation": "failed",
-    "evidence": {
-      "config": {
-        "authentication": { "anonymous": { "enabled": true } },
-        "authorization": { "mode": "AlwaysAllow" }
-      }
-    }
-  },
+  "result": { "evaluation": "passed" },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_k8s/4.2.13] failed: Ensure that the Kubelet only makes use of Strong Cryptographic Ciphers",
-  "log": { "level": "warn" }
+  "message": "[cis_k8s/4.2.5] passed: Ensure that the --streaming-connection-idle-timeout argument is not set to 0",
+  "log": { "level": "info" }
 }

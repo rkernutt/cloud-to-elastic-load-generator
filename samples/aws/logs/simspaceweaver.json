@@ -1,63 +1,69 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-south-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "simspaceweaver" }
   },
   "aws": {
-    "dimensions": { "SimulationId": "sim-j2dn9eiv7u", "DomainName": "Terrain" },
+    "dimensions": { "SimulationId": "sim-4a5httxgle", "DomainName": "Agents" },
     "simspaceweaver": {
-      "simulation_id": "sim-j2dn9eiv7u",
-      "app_name": "battlefield-sim",
-      "domain_name": "Terrain",
-      "scenario": "clock_tick",
-      "clock_tick_ms": 713,
-      "simulation_status": "RUNNING",
+      "simulation_id": "sim-4a5httxgle",
+      "app_name": "logistics-optimizer",
+      "domain_name": "Agents",
+      "scenario": "weaver_sync",
+      "clock_tick_ms": 640,
+      "simulation_status": "FAILED",
       "simulation_clock": {
-        "tick_index": 872807898,
-        "logical_time_ms": 18798165,
-        "drift_budget_ms": 3,
-        "authority": "PRIMARY"
+        "tick_index": 48616182903,
+        "logical_time_ms": 19389363,
+        "drift_budget_ms": 47,
+        "authority": "STANDBY"
       },
-      "metrics": { "entities_count": 992489, "compute_workers": 92, "clock_lag_ms": 1 }
+      "metrics": { "entities_count": 819914, "compute_workers": 183, "clock_lag_ms": 2966 },
+      "api_error_code": "InternalServerException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-simspaceweaver-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-simspaceweaver-logs-738291046572"
+        "name": "aws-simspaceweaver-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-simspaceweaver-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/simspaceweaver/ap-east-1/2026/05/19/simspaceweaver_HWEXVSX24LXBOAI92TSS.log.gz"
+        "key": "AWSLogs/293847561023/simspaceweaver/ap-south-2/2026/05/19/simspaceweaver_JSP9XB03JDZ7RDLJ0RGC.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/simspaceweaver/logs",
-      "log_stream": "ap-east-1/iuc40mt0",
-      "ingestion_time": "2026-05-19T12:26:14.070Z"
+      "log_stream": "ap-south-2/wp76ybnl",
+      "ingestion_time": "2026-05-19T15:25:13.467Z"
     }
   },
   "event": {
-    "action": "clock_tick",
-    "outcome": "success",
+    "action": "weaver_sync",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.simspaceweaver",
     "provider": "simspaceweaver.amazonaws.com",
-    "duration": 713000000,
+    "duration": 640000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.simspaceweaver", "namespace": "default" },
-  "message": "GlobalClock idx=872807898 drift=3ms role=PRIMARY",
-  "log": { "level": "info" },
-  "host": { "name": "ip-21-77-3-2.ec2.internal", "hostname": "simspaceweaver-9qtmqhbz" },
+  "message": "WeaverRouteTable version=5 domains=7 — InternalServerException",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InternalServerException",
+    "message": "SimSpace Weaver weaver_sync failed for sim-4a5httxgle",
+    "type": "aws"
+  },
+  "host": { "name": "ip-126-234-64-147.ec2.internal", "hostname": "simspaceweaver-hxigcwrg" },
   "service": { "name": "simspaceweaver", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "yhbuzh7h4bexxassgpu4m4cd1mcsf3j3zp5i"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "opocv9fl9hwia3v243epj3xra7s3duwjniwj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

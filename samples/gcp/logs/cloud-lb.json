@@ -1,64 +1,70 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "info" },
-  "labels": {},
-  "severity": "INFO",
-  "logName": "projects/globex-dev-g7h8i9/logs/compute.googleapis.com%2Fserverless_neg",
-  "insertId": "4i5fdtyl194f65pu",
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "DEADLINE_EXCEEDED" },
+  "error": {
+    "code": "DEADLINE_EXCEEDED",
+    "message": "DEADLINE_EXCEEDED: operation failed",
+    "type": "gcp"
+  },
+  "labels": { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" },
+  "severity": "WARNING",
+  "logName": "projects/globex-prod-a1b2c3/logs/compute.googleapis.com%2Fserverless_neg",
+  "insertId": "34iaamk3wgw88gam",
   "resource": {
     "type": "network_endpoint_group",
-    "labels": { "project_id": "globex-dev-g7h8i9", "neg": "neg-pyrcslnu", "region": "europe-west3" }
+    "labels": {
+      "project_id": "globex-prod-a1b2c3",
+      "neg": "neg-i1tfi97b",
+      "region": "asia-southeast1"
+    }
   },
   "jsonPayload": {
-    "serverless_neg": "projects/globex-dev-g7h8i9/regions/europe-west3/networkEndpointGroups/neg-pyrcslnu",
-    "backend_service": "projects/globex-dev-g7h8i9/regions/europe-west3/backendServices/bes-gae-36p2",
-    "target_type": "cloud-functions",
-    "health_check": { "state": "DRAINING", "consecutive_success": 15, "consecutive_failure": 0 },
-    "stats": { "requests": 1883548, "error_rate": 0.0047 }
+    "serverless_neg": "projects/globex-prod-a1b2c3/regions/asia-southeast1/networkEndpointGroups/neg-i1tfi97b",
+    "backend_service": "projects/globex-prod-a1b2c3/regions/asia-southeast1/backendServices/bes-fn-ex8l",
+    "target_type": "app-engine",
+    "health_check": { "state": "UNKNOWN", "consecutive_success": 40, "consecutive_failure": 1 },
+    "stats": { "requests": 263, "error_rate": 0.059 }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west3",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" },
+    "region": "asia-southeast1",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
     "service": { "name": "serverless-neg" }
   },
   "gcp": {
     "serverless_neg": {
       "json_payload": {
-        "serverless_neg": "projects/globex-dev-g7h8i9/regions/europe-west3/networkEndpointGroups/neg-pyrcslnu",
-        "backend_service": "projects/globex-dev-g7h8i9/regions/europe-west3/backendServices/bes-gae-36p2",
-        "target_type": "cloud-functions",
-        "health_check": {
-          "state": "DRAINING",
-          "consecutive_success": 15,
-          "consecutive_failure": 0
-        },
-        "stats": { "requests": 1883548, "error_rate": 0.0047 }
+        "serverless_neg": "projects/globex-prod-a1b2c3/regions/asia-southeast1/networkEndpointGroups/neg-i1tfi97b",
+        "backend_service": "projects/globex-prod-a1b2c3/regions/asia-southeast1/backendServices/bes-fn-ex8l",
+        "target_type": "app-engine",
+        "health_check": { "state": "UNKNOWN", "consecutive_success": 40, "consecutive_failure": 1 },
+        "stats": { "requests": 263, "error_rate": 0.059 }
       },
-      "neg_name": "neg-pyrcslnu",
-      "backend_service": "bes-gae-36p2",
-      "target_type": "cloud-functions",
-      "health_status": "DRAINING",
-      "request_count": 1883548,
-      "error_rate": 0.0047
+      "neg_name": "neg-i1tfi97b",
+      "backend_service": "bes-fn-ex8l",
+      "target_type": "app-engine",
+      "health_status": "UNKNOWN",
+      "request_count": 263,
+      "error_rate": 0.059
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 172000000,
+    "outcome": "failure",
+    "duration": 1689000000,
     "module": "gcp",
     "dataset": "gcp.serverless_neg"
   },
-  "message": "compute.googleapis.com/serverless_negs neg-pyrcslnu health=DRAINING",
+  "message": "compute.googleapis.com/serverless_negs neg-i1tfi97b health=UNKNOWN",
   "service": { "name": "serverless-neg", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.serverless_neg", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west3",
-    "id": "4ok4p9nnje1f7omb3rkmnvvxbz4ribikwu7z"
+    "name": "elastic-agent-gcp-asia-southeast1",
+    "id": "f9wxlorxkwf4jz9l1w68rabl8ipg52lrwu39"
   },
   "input": { "type": "gcp-pubsub" }
 }

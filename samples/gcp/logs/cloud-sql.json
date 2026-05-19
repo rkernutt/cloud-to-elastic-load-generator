@@ -1,47 +1,41 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "WARNING",
-  "log": { "level": "error" },
-  "gcp.rpc": { "status_code": "UNAVAILABLE" },
-  "error": { "code": "UNAVAILABLE", "message": "UNAVAILABLE: operation failed", "type": "gcp" },
-  "labels": {
-    "database_id": "app",
-    "instance_id": "sql-prod-n9x4",
-    "gcp.rpc.status_code": "UNAVAILABLE"
-  },
+  "severity": "INFO",
+  "log": { "level": "info" },
+  "labels": { "database_id": "reporting", "instance_id": "sql-stg-exve" },
   "cloud": {
     "provider": "gcp",
-    "region": "me-central1",
+    "region": "asia-northeast3",
     "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
     "account": { "id": "161803398874", "name": "Globex Development" },
     "service": { "name": "cloud-sql" }
   },
   "gcp": {
     "cloud_sql": {
-      "instance_name": "sql-prod-n9x4",
-      "database_id": "app",
-      "database_type": "POSTGRES",
+      "instance_name": "sql-stg-exve",
+      "database_id": "reporting",
+      "database_type": "MYSQL",
       "tier": "db-f1-micro",
-      "connection_count": 166,
-      "cpu_utilization": 0.967,
-      "disk_utilization": 0.984
+      "connection_count": 65,
+      "cpu_utilization": 0.26,
+      "disk_utilization": 0.525
     }
   },
   "event": {
-    "outcome": "failure",
-    "duration": 8139000000,
+    "outcome": "success",
+    "duration": 518000000,
     "module": "gcp",
     "dataset": "gcp.cloudsql"
   },
-  "message": "Slow query: duration=6281.2ms rows_sent=581 rows_examined=871694 plan_rows=68198 database=app",
+  "message": "LOG: statement: SELECT * FROM orders WHERE status = ? AND created_at > ?\nLOG: duration: 30.667 ms",
   "service": { "name": "cloud-sql", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.cloudsql", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-me-central1",
-    "id": "2brptajs6nn61r6vjx2jn05y3u0glybo74jc"
+    "name": "elastic-agent-gcp-asia-northeast3",
+    "id": "k9ekfvzbrtpa553rffq83fklcwlhuq2som6z"
   },
   "input": { "type": "gcp-pubsub" },
   "logName": "projects/globex-dev-g7h8i9/logs/cloud-sql",
@@ -49,21 +43,21 @@
     "type": "cloudsql_database",
     "labels": {
       "project_id": "globex-dev-g7h8i9",
-      "database_id": "globex-dev-g7h8i9:me-central1:db",
-      "region": "me-central1"
+      "database_id": "globex-dev-g7h8i9:asia-northeast3:db",
+      "region": "asia-northeast3"
     }
   },
-  "insertId": "P9Y2LFIHK578",
+  "insertId": "6TMBRJHRCO9H",
   "jsonPayload": {
     "cloud_sql": {
-      "instance_name": "sql-prod-n9x4",
-      "database_id": "app",
-      "database_type": "POSTGRES",
+      "instance_name": "sql-stg-exve",
+      "database_id": "reporting",
+      "database_type": "MYSQL",
       "tier": "db-f1-micro",
-      "connection_count": 166,
-      "cpu_utilization": 0.967,
-      "disk_utilization": 0.984
+      "connection_count": 65,
+      "cpu_utilization": 0.26,
+      "disk_utilization": 0.525
     },
-    "message": "Slow query: duration=6281.2ms rows_sent=581 rows_examined=871694 plan_rows=68198 database=app"
+    "message": "LOG: statement: SELECT * FROM orders WHERE status = ? AND created_at > ?\nLOG: duration: 30.667 ms"
   }
 }

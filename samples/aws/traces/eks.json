@@ -1,36 +1,37 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "8888192f76620769de1bf66ad4428926" },
+  "trace": { "id": "44e63a8c158c6dfa4166080104f54ffe" },
   "transaction": {
-    "id": "efd71076621a23b9",
-    "name": "GET /recommend/{userId}",
-    "type": "request",
-    "duration": { "us": 422170 },
-    "result": "HTTP 200",
+    "id": "3484fba16d65ba78",
+    "name": "payment-events process",
+    "type": "messaging",
+    "duration": { "us": 478032 },
+    "result": "success",
     "sampled": true,
-    "span_count": { "started": 3, "dropped": 0 }
+    "span_count": { "started": 2, "dropped": 0 }
   },
-  "http": { "request": { "method": "GET" }, "response": { "status_code": 200 } },
-  "url": { "path": "/recommend/{userId}" },
   "labels": {
-    "k8s_namespace": "staging",
-    "k8s_pod_name": "recommendation-engine-5985e-375a7",
-    "k8s_deployment": "recommendation-engine",
-    "k8s_node": "ip-24-216-99-139.ec2.internal"
+    "k8s_namespace": "production",
+    "k8s_pod_name": "event-processor-6e030-59f2c",
+    "k8s_deployment": "event-processor",
+    "k8s_node": "ip-246-230-136-21.ec2.internal",
+    "kafka_topic": "payment-events",
+    "kafka_partition": "8",
+    "kafka_offset": "222809"
   },
   "service": {
-    "name": "recommendation-engine",
-    "environment": "staging",
+    "name": "event-processor",
+    "environment": "production",
     "version": "1.0.0",
-    "language": { "name": "python" },
-    "runtime": { "name": "python3.12", "version": "3.12.3" },
+    "language": { "name": "java" },
+    "runtime": { "name": "java21", "version": "21.0.3" },
     "framework": { "name": "Kubernetes" }
   },
-  "agent": { "name": "otlp", "version": "0.6.0" },
+  "agent": { "name": "otlp", "version": "1.6.0" },
   "telemetry": {
-    "sdk": { "name": "opentelemetry", "language": "python", "version": "1.29.0" },
-    "distro": { "name": "elastic", "version": "0.6.0" },
+    "sdk": { "name": "opentelemetry", "language": "java", "version": "2.12.0" },
+    "distro": { "name": "elastic", "version": "1.6.0" },
     "otel_pipeline": {
       "hop": "otel_collector",
       "export_protocol": "otlp",
@@ -39,8 +40,8 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-3",
-    "account": { "id": "123456789012", "name": "prod-aws" },
+    "region": "eu-central-1",
+    "account": { "id": "234567890123", "name": "staging-aws" },
     "service": { "name": "eks" }
   },
   "event": { "outcome": "success", "module": "aws", "dataset": "aws.eks" },

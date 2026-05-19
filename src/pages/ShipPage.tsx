@@ -193,7 +193,7 @@ function MLTrainingSection({
     ...(mlTrainingConfig.stopDatafeedsOnComplete
       ? [
           {
-            title: "Stabilise & freeze: close jobs after 2 min",
+            title: "Stabilise & freeze: flush & close jobs after 10 min",
             status: stepStatus(
               mlState.phase,
               "stabilising",
@@ -203,7 +203,8 @@ function MLTrainingSection({
               mlState.phase === "stabilising" ? (
                 <EuiText size="s">
                   <p>
-                    Waiting for ML to score the anomalies before closing jobs.{" "}
+                    Waiting for datafeeds to forward anomaly data to jobs before flushing and
+                    closing.{" "}
                     {mlState.countdown > 0 && (
                       <>
                         Stopping in <strong>{formatCountdown(mlState.countdown)}</strong>
@@ -307,13 +308,13 @@ function MLTrainingSection({
             <p>
               {mlTrainingConfig.baselineRuns} baseline runs × {mlTrainingConfig.baselineIntervalMin}{" "}
               min + {mlTrainingConfig.mlWaitMin} min ML wait + 1 injection run
-              {mlTrainingConfig.stopDatafeedsOnComplete ? " + 2 min stabilisation" : ""} ≈{" "}
+              {mlTrainingConfig.stopDatafeedsOnComplete ? " + 10 min stabilisation" : ""} ≈{" "}
               <strong>
                 {Math.round(
                   (mlTrainingConfig.baselineRuns - 1) * mlTrainingConfig.baselineIntervalMin +
                     mlTrainingConfig.mlWaitMin +
                     5 +
-                    (mlTrainingConfig.stopDatafeedsOnComplete ? 2 : 0)
+                    (mlTrainingConfig.stopDatafeedsOnComplete ? 10 : 0)
                 )}{" "}
                 minutes
               </strong>{" "}

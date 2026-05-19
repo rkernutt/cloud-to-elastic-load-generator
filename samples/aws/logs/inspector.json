@@ -1,72 +1,86 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-south-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "inspector2" }
   },
   "aws": {
-    "dimensions": { "Severity": "LOW" },
+    "dimensions": { "Severity": "INFORMATIONAL" },
     "inspector2": {
-      "findingArn": "arn:aws:inspector2:us-west-1:501938274650:finding/ltsr2wym-taig-ie5l-uk9f-rrda9hyll82g",
-      "type": "CODE_VULNERABILITY",
-      "title": "Code vulnerability in app.py",
-      "description": "Inspector identified a code pattern that matches a known weakness category.",
+      "findingArn": "arn:aws:inspector2:ap-south-2:293847561023:finding/3lyrh3ks-xflr-06lk-0p1e-aguwwdpb1w9p",
+      "type": "PACKAGE_VULNERABILITY",
+      "title": "CVE-2024-49946: werkzeug 3.17.5 has a known vulnerability",
+      "description": "A package used by the workload has a vulnerability tracked as CVE-2024-49946 with CVSS 2.9.",
       "remediation": {
         "recommendation": {
-          "text": "Apply the suggested code change from your static analysis workflow or suppress with a documented risk acceptance."
+          "text": "Upgrade werkzeug to 2.0.19 or later to remediate CVE-2024-49946."
         }
       },
       "resources": [
         {
           "type": "AWS_EC2_INSTANCE",
-          "id": "i-sy5l9vm9ssrpy7w0m",
+          "id": "i-qdn7nhgl73qyrgbbq",
           "partition": "aws",
-          "region": "us-west-1",
-          "tags": { "Environment": "staging" }
+          "region": "ap-south-2",
+          "tags": { "Environment": "prod" }
         }
       ],
       "exploitAvailable": "NO",
       "fixAvailable": true,
       "finding_status": "ACTIVE",
-      "severity": "LOW",
-      "severity_score": 1.1,
-      "exploitability": "PROOF_OF_CONCEPT",
+      "severity": "INFORMATIONAL",
+      "severity_score": 2.9,
+      "exploitability": "NOT_DEFINED",
       "resource_type": "AWS_EC2_INSTANCE",
-      "resource_id": "i-sy5l9vm9ssrpy7w0m",
-      "first_observed_at": "2026-04-29T12:26:13.277Z",
-      "last_observed_at": "2026-05-19T12:26:13.277Z",
-      "code_vulnerability": {
-        "cwes": ["CWE-311"],
-        "detector_name": "Semgrep",
-        "file_path": { "name": "app.py", "line_number": 30 }
+      "resource_id": "i-qdn7nhgl73qyrgbbq",
+      "first_observed_at": "2026-05-04T15:25:12.772Z",
+      "last_observed_at": "2026-05-19T15:25:12.772Z",
+      "package_vulnerability": {
+        "cve_id": "CVE-2024-49946",
+        "source": "NVD",
+        "cvss3_score": 2.921882693677564,
+        "vulnerable_packages": [
+          {
+            "name": "werkzeug",
+            "version": "3.17.5",
+            "fixed_in_version": "2.0.19",
+            "package_manager": "JAVA"
+          }
+        ],
+        "related_vulnerabilities": []
       },
       "metrics": {
-        "TotalFindings": { "sum": 242 },
+        "TotalFindings": { "sum": 168 },
         "CriticalFindings": { "sum": 0 },
         "HighFindings": { "sum": 0 },
         "MediumFindings": { "sum": 0 },
-        "LowFindings": { "sum": 299 },
-        "CoveredResources": { "avg": 353 }
+        "LowFindings": { "sum": 211 },
+        "CoveredResources": { "avg": 205 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-inspector-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-inspector-logs-501938274650"
+        "name": "aws-inspector-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-inspector-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/inspector/us-west-1/2026/05/19/inspector_TMP9HUGD6O49BZCS1GHQ.log.gz"
+        "key": "AWSLogs/293847561023/inspector/ap-south-2/2026/05/19/inspector_YJ43OCU6OUEIHJD138YG.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/inspector/logs",
-      "log_stream": "us-west-1/np7suy5v",
-      "ingestion_time": "2026-05-19T12:26:14.103Z"
+      "log_stream": "ap-south-2/276keopw",
+      "ingestion_time": "2026-05-19T15:25:13.508Z"
     }
   },
-  "vulnerability": { "severity": "LOW", "score": { "base": 1.0800783294433771 } },
+  "vulnerability": {
+    "severity": "INFORMATIONAL",
+    "id": "CVE-2024-49946",
+    "score": { "base": 2.921882693677564 }
+  },
+  "package": { "name": "werkzeug", "version": "3.17.5" },
   "event": {
     "outcome": "success",
     "category": ["vulnerability"],
@@ -75,7 +89,7 @@
     "provider": "inspector2.amazonaws.com",
     "module": "aws"
   },
-  "message": "Inspector2 [LOW]: CODE_VULNERABILITY detected on AWS_EC2_INSTANCE",
+  "message": "Inspector2 [INFORMATIONAL]: CVE-2024-49946 in werkzeug 3.17.5 on AWS_EC2_INSTANCE (fix: 2.0.19)",
   "log": { "level": "info" },
   "service": { "name": "inspector", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -83,8 +97,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "58zb7zjsquykb7s9r510m4iznbfoypgcvsg1"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "azllnr3ivvalz5uuf6j9oez9wkalqr0x5yzv"
   },
   "input": { "type": "http_endpoint" }
 }

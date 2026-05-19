@@ -1,75 +1,63 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "af-south-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "pcs" }
   },
   "aws": {
-    "dimensions": { "ClusterId": "pcs-hjdmxqg4", "QueueName": "batch" },
+    "dimensions": { "ClusterId": "pcs-xvsfbxqu", "QueueName": "batch" },
     "pcs": {
-      "cluster_id": "pcs-hjdmxqg4",
-      "scheduler": "slurm",
-      "scenario": "job_submit",
+      "cluster_id": "pcs-xvsfbxqu",
+      "scheduler": "aws-batch-style",
+      "scenario": "mpi_barrier",
       "queue_name": "batch",
-      "job_id": "job-440516",
-      "job_state": "FAILED",
+      "job_id": "job-424579",
+      "job_state": "COMPLETED",
       "mpi": {
-        "comm_world_size": 13767,
-        "barrier_wait_ms_p99": 101,
+        "comm_world_size": 6847,
+        "barrier_wait_ms_p99": 63,
         "ibv_retries": 2,
         "collective": "MPI_Allreduce"
       },
-      "workload": {
-        "script_path": "/shared/jobs/cfd.sbatch",
-        "gres_gpu": 5,
-        "walltime_hours": 47,
-        "qos": "normal"
-      },
-      "metrics": { "running_jobs": 156, "pending_jobs": 510, "compute_nodes_active": 989 },
-      "api_error_code": "ValidationException"
+      "metrics": { "running_jobs": 300, "pending_jobs": 89, "compute_nodes_active": 605 }
     },
     "s3": {
       "bucket": {
-        "name": "aws-parallelcomputing-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-parallelcomputing-logs-164820739518"
+        "name": "aws-parallelcomputing-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-parallelcomputing-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/164820739518/parallelcomputing/eu-central-1/2026/05/19/parallelcomputing_J941QFKWK1COLQXERCPJ.log.gz"
+        "key": "AWSLogs/738291046572/parallelcomputing/af-south-1/2026/05/19/parallelcomputing_AR79OF06UOGLEGYLG68R.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/parallelcomputing/logs",
-      "log_stream": "eu-central-1/b46koxzr",
-      "ingestion_time": "2026-05-19T12:26:14.064Z"
+      "log_stream": "af-south-1/hvngq3xx",
+      "ingestion_time": "2026-05-19T15:25:13.465Z"
     }
   },
   "event": {
-    "action": "job_submit",
-    "outcome": "failure",
+    "action": "mpi_barrier",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.pcs",
     "provider": "pcs.amazonaws.com",
-    "duration": 11940000000,
+    "duration": 576000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.pcs", "namespace": "default" },
-  "message": "sbatch /shared/jobs/cfd.sbatch QOS=normal gpus=5 -> job-440516 — ValidationException",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ValidationException",
-    "message": "PCS job_submit failed on cluster pcs-hjdmxqg4",
-    "type": "aws"
-  },
-  "host": { "name": "ip-171-164-124-226.ec2.internal", "hostname": "parallelcomputing-xgpr2ecd" },
+  "message": "MPI_Allreduce size=6847 p99_wait=63ms ibv_retries=2",
+  "log": { "level": "info" },
+  "host": { "name": "ip-56-188-241-48.ec2.internal", "hostname": "parallelcomputing-ab0l94en" },
   "service": { "name": "parallelcomputing", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "mbz3wlb59ckpru0b5wew7rsw9cf4s6jdrram"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "dzzc25f9siybxvq80qb5oznz5ot3viac32pe"
   },
   "input": { "type": "aws-cloudwatch" }
 }

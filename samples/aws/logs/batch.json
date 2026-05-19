@@ -1,69 +1,69 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-4",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-northeast-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "batch" }
   },
   "aws": {
-    "dimensions": { "JobQueue": "cleanup-job-queue" },
+    "dimensions": { "JobQueue": "report-generation-queue" },
     "batch": {
-      "job": { "name": "cleanup-job", "id": "ctl91cno-ejer", "status": "SUCCEEDED" },
-      "job_queue": "cleanup-job-queue",
-      "compute_environment": "ce-ondemand",
-      "log_stream_name": "cleanup-job-def/default/2dzuyrcbhrqkdmxgp8qfy9kmqp41ho4l",
+      "job": { "name": "report-generation", "id": "541d5gtz-311z", "status": "PENDING" },
+      "job_queue": "report-generation-queue",
+      "compute_environment": "ce-spot",
+      "log_stream_name": "report-generation-def/default/x29a6x41kcwmng2gfr8lm8vp2fb65dkx",
       "job_attempt": 1,
       "container_exit_code": 0,
       "structured_logging": true,
       "metrics": {
-        "PendingJobCount": { "avg": 27 },
-        "RunnableJobCount": { "avg": 48 },
-        "StartingJobCount": { "avg": 3 },
-        "RunningJobCount": { "avg": 104 },
+        "PendingJobCount": { "avg": 75 },
+        "RunnableJobCount": { "avg": 41 },
+        "StartingJobCount": { "avg": 15 },
+        "RunningJobCount": { "avg": 182 },
         "SucceededJobCount": { "sum": 1 },
         "FailedJobCount": { "sum": 0 },
-        "CPUReserved": { "avg": 57.909950203979456 },
+        "CPUReserved": { "avg": 71.00916121487406 },
         "GPUReserved": { "avg": 0 },
-        "MemoryReserved": { "avg": 69.96190629032222 }
+        "MemoryReserved": { "avg": 47.181351238029585 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-batch-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-batch-logs-501938274650"
+        "name": "aws-batch-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-batch-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/batch/ap-southeast-4/2026/05/19/batch_5V50JOGMY2BXQQMLNJQG.log.gz"
+        "key": "AWSLogs/814726593401/batch/ap-northeast-2/2026/05/19/batch_TDT4RGFRC7MQJLZF08H7.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/batch/logs",
-      "log_stream": "ap-southeast-4/kme4gvl4",
-      "ingestion_time": "2026-05-19T12:26:14.051Z"
+      "log_stream": "ap-northeast-2/9tw0nkpe",
+      "ingestion_time": "2026-05-19T15:25:13.455Z"
     }
   },
-  "process": { "pid": 46096, "name": "spark-submit", "exit_code": 0 },
+  "process": { "pid": 31737, "name": "python", "exit_code": 0 },
   "log": { "level": "info" },
   "event": {
     "category": ["process"],
     "outcome": "success",
     "dataset": "aws.batch",
     "provider": "batch.amazonaws.com",
-    "duration": 2987000000000,
+    "duration": 469000000000,
     "module": "aws"
   },
-  "message": "{\"jobId\":\"ctl91cno-ejer\",\"jobName\":\"cleanup-job\",\"jobQueue\":\"cleanup-job-queue\",\"level\":\"info\",\"message\":\"stderr:WARNING:deprecation: legacy flag --use_spark will be removed\",\"timestamp\":\"2026-05-19T12:26:13.277Z\",\"arrayIndex\":62,\"logStreamName\":\"cleanup-job-def/default/2dzuyrcbhrqkdmxgp8qfy9kmqp41ho4l\",\"jobAttempt\":1,\"containerExitCode\":0,\"jobStatus\":\"SUCCEEDED\"}",
-  "logStreamName": "cleanup-job-def/default/2dzuyrcbhrqkdmxgp8qfy9kmqp41ho4l",
-  "host": { "name": "ip-60-197-35-158.ec2.internal", "hostname": "batch-x5k15i4l" },
+  "message": "{\"jobId\":\"541d5gtz-311z\",\"jobName\":\"report-generation\",\"jobQueue\":\"report-generation-queue\",\"level\":\"info\",\"message\":\"batch: job 541d5gtz-311z status RUNNING -> SUCCEEDED\",\"timestamp\":\"2026-05-19T15:25:12.772Z\",\"arrayIndex\":17,\"logStreamName\":\"report-generation-def/default/x29a6x41kcwmng2gfr8lm8vp2fb65dkx\",\"jobAttempt\":1,\"containerExitCode\":0,\"jobStatus\":\"PENDING\"}",
+  "logStreamName": "report-generation-def/default/x29a6x41kcwmng2gfr8lm8vp2fb65dkx",
+  "host": { "name": "ip-176-130-153-174.ec2.internal", "hostname": "batch-rbt3i30m" },
   "service": { "name": "batch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.batch", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-4",
-    "ephemeral_id": "cvtibcqrpjoouvvp11h9olp5hqhpngnsjrru"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "ff1ea42apwwvwvts5fvx9e0jknrng5j1jxv8"
   },
   "input": { "type": "aws-cloudwatch" }
 }

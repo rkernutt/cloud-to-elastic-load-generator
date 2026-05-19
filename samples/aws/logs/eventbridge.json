@@ -1,30 +1,30 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
+    "region": "us-west-2",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "events" }
   },
   "aws": {
-    "dimensions": { "EventBusName": "app-events", "RuleName": "user-signup-trigger" },
+    "dimensions": { "EventBusName": "app-events", "RuleName": "order-created-rule" },
     "eventbridge": {
       "event_bus": "app-events",
-      "rule": "user-signup-trigger",
-      "source": "aws.health",
+      "rule": "order-created-rule",
+      "source": "aws.ec2",
       "detail_type": "Object Created",
-      "targets_invoked": 4,
-      "targets_failed": 3,
-      "event_id": "1d56f9f1-12e4-41f6-8162-15c1b0bc31d0",
-      "log_kind": "schema_discovery",
+      "targets_invoked": 1,
+      "targets_failed": 0,
+      "event_id": "fdc5b7a9-8e4f-4e8a-9354-9a735d9b0eda",
+      "log_kind": "target_delivery",
       "structured_logging": true,
       "metrics": {
         "Invocations": { "sum": 1 },
-        "FailedInvocations": { "sum": 1 },
+        "FailedInvocations": { "sum": 0 },
         "TriggeredRules": { "sum": 1 },
-        "MatchedEvents": { "sum": 3 },
-        "ThrottledRules": { "sum": 3 },
-        "DeadLetterInvocations": { "sum": 1 }
+        "MatchedEvents": { "sum": 51 },
+        "ThrottledRules": { "sum": 0 },
+        "DeadLetterInvocations": { "sum": 0 }
       }
     },
     "s3": {
@@ -33,39 +33,34 @@
         "arn": "arn:aws:s3:::aws-eventbridge-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/eventbridge/ca-central-1/2026/05/19/eventbridge_KV3Y47E5J3WXNIH1NW1E.log.gz"
+        "key": "AWSLogs/501938274650/eventbridge/us-west-2/2026/05/19/eventbridge_Q8WZZKL2MQ0XO82HN7YL.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/eventbridge/logs",
-      "log_stream": "ca-central-1/0p6br4y1",
-      "ingestion_time": "2026-05-19T12:26:14.176Z"
+      "log_stream": "us-west-2/duqca5b4",
+      "ingestion_time": "2026-05-19T15:25:13.585Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
     "type": ["creation"],
     "dataset": "aws.eventbridge",
     "provider": "events.amazonaws.com",
-    "duration": 1593000000,
+    "duration": 121000000,
     "module": "aws"
   },
-  "message": "{\"id\":\"1d56f9f1-12e4-41f6-8162-15c1b0bc31d0\",\"source\":\"aws.health\",\"detailType\":\"Health Event\",\"rule\":\"user-signup-trigger\",\"eventBus\":\"app-events\",\"log_kind\":\"schema_discovery\",\"schema_registry\":\"internal-schemas\",\"dlq_arn\":\"arn:aws:sqs:ca-central-1:501938274650:rules-dlq\",\"message\":\"EventBridge SchemaDiscovery registry=internal-schemas discovered_type=OrderPlaced@v2 revision=3\",\"timestamp\":\"2026-05-19T12:26:13.277Z\"}",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ConcurrentModificationException",
-    "message": "EventBridge target invocations failed",
-    "type": "aws"
-  },
+  "message": "{\"id\":\"fdc5b7a9-8e4f-4e8a-9354-9a735d9b0eda\",\"source\":\"aws.ec2\",\"detailType\":\"Order Placed\",\"rule\":\"order-created-rule\",\"eventBus\":\"app-events\",\"log_kind\":\"target_delivery\",\"target_arn\":\"arn:aws:lambda:us-west-2:501938274650:function:emitMetric\",\"dlq_arn\":\"arn:aws:sqs:us-west-2:501938274650:rules-dlq\",\"message\":\"EventBridge TargetDelivery rule=order-created-rule target=arn:aws:lambda:us-west-2:501938274650:function:emitMetric status=SUCCESS httpStatus=200 attempt=2\",\"timestamp\":\"2026-05-19T15:25:12.772Z\"}",
+  "log": { "level": "info" },
   "service": { "name": "eventbridge", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.eventbridge", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "z9ltwhh21f7he3x0slbrobz2akvfwn8jnh8l"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "e50qmzw5icypm7jcknm7dzqpokpz7alca2uw"
   },
   "input": { "type": "aws-cloudwatch" }
 }

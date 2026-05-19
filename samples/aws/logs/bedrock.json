@@ -1,55 +1,56 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-west-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "bedrock" }
   },
   "aws": {
-    "dimensions": { "ModelId": "anthropic.claude-3-haiku-20240307-v1:0" },
+    "dimensions": { "ModelId": "meta.llama3-70b-instruct-v1:0" },
     "bedrock": {
-      "modelId": "anthropic.claude-3-haiku-20240307-v1:0",
-      "inputTokenCount": 3138,
-      "outputTokenCount": 1471,
-      "inputBodyJson": "{\"guardrailIdentifier\":\"gr-frfk6mv485\",\"source\":\"OUTPUT\",\"content\":[{\"text\":\"Support answer draft…\"}]}",
-      "outputBodyJson": "{\"action\":\"INTERVENED\",\"assessments\":[]}",
-      "invocationLatency": 4936,
-      "operation": "ApplyGuardrail",
-      "scenario": "guardrail_check",
+      "modelId": "meta.llama3-70b-instruct-v1:0",
+      "inputTokenCount": 1555,
+      "outputTokenCount": 934,
+      "inputBodyJson": "{\"knowledgeBaseId\":\"KBTGJNMCGR5\",\"retrievalQuery\":{\"text\":\"SOC2 controls\"},\"retrievalConfiguration\":{\"vectorSearchConfiguration\":{\"numberOfResults\":4}}}",
+      "outputBodyJson": "{\"retrievalResults\":[{\"content\":{\"text\":\"Excerpt from internal wiki…\"},\"location\":{\"s3Location\":{\"uri\":\"s3://kb-NANZMF/doc.pdf\"}},\"score\":0.6345221154126159}]}",
+      "invocationLatency": 3036,
+      "operation": "Retrieve",
+      "scenario": "knowledge_base_query",
+      "knowledge_base_id": "KBTGJNMCGR5",
       "schemaType": "ModelInvocationLog",
       "schemaVersion": "1.0",
-      "model_id": "anthropic.claude-3-haiku-20240307-v1:0",
-      "invocation_latency_ms": 4936,
-      "input_token_count": 3138,
-      "output_token_count": 1471,
-      "total_token_count": 4609,
-      "stop_reason": "stop_sequence",
-      "use_case": "content-safety",
+      "model_id": "meta.llama3-70b-instruct-v1:0",
+      "invocation_latency_ms": 3036,
+      "input_token_count": 1555,
+      "output_token_count": 934,
+      "total_token_count": 2489,
+      "stop_reason": "max_tokens",
+      "use_case": "rag-retrieval",
       "guardrail_action": "NONE",
       "streaming": false,
-      "model_family": "anthropic",
+      "model_family": "meta",
       "metrics": {
-        "Invocations": { "sum": 264 },
-        "InvocationLatency": { "avg": 4936, "p99": 9872 },
-        "InputTokenCount": { "sum": 3138 },
-        "OutputTokenCount": { "sum": 1471 },
+        "Invocations": { "sum": 356 },
+        "InvocationLatency": { "avg": 3036, "p99": 6072 },
+        "InputTokenCount": { "sum": 1555 },
+        "OutputTokenCount": { "sum": 934 },
         "Throttles": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-bedrock-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-bedrock-logs-814726593401"
+        "name": "aws-bedrock-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-bedrock-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/814726593401/bedrock/me-south-1/2026/05/19/bedrock_C1SRGDD0C1490G87IUTG.log.gz"
+        "key": "AWSLogs/738291046572/bedrock/eu-west-2/2026/05/19/bedrock_9FYIRC3TCSROYXJWDAEH.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/bedrock/logs",
-      "log_stream": "me-south-1/neo9bo24",
-      "ingestion_time": "2026-05-19T12:26:14.214Z"
+      "log_stream": "eu-west-2/9erjf4sm",
+      "ingestion_time": "2026-05-19T15:25:13.640Z"
     }
   },
   "event": {
@@ -57,10 +58,10 @@
     "category": ["process"],
     "dataset": "aws.bedrock",
     "provider": "bedrock.amazonaws.com",
-    "duration": 4935586617.39953,
+    "duration": 3036043655.2033195,
     "module": "aws"
   },
-  "message": "Bedrock ApplyGuardrail (guardrail_check) 3138->1471 tokens 4.94s",
+  "message": "Bedrock Retrieve (knowledge_base_query) 1555->934 tokens 3.04s",
   "log": { "level": "info" },
   "service": { "name": "bedrock", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -68,8 +69,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "3g5ah4mtzwecl2tz1cycalhuv5j9r7w2vjmh"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "rnjv7mv5nmhc7zpk2w25tu1wrzxfds17ncen"
   },
   "input": { "type": "aws-cloudwatch" }
 }

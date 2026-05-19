@@ -900,6 +900,7 @@ export function LoadGeneratorApp({
 
       addLog(`Freezing ${loadgenFeeds.length} ML job(s) to preserve anomaly scores…`);
 
+      // 1. Stop datafeeds so no new data is sent to jobs
       let stopped = 0;
       for (const f of started) {
         try {
@@ -910,6 +911,24 @@ export function LoadGeneratorApp({
         }
       }
 
+      // 2. Flush each job with advance_time to force open buckets to produce results.
+      //    Without this, the 15m bucket containing the anomaly injection data may not
+      //    have closed yet and no anomaly scores would be written.
+      const advanceTime = new Date(Date.now() + 60 * 1000).toISOString();
+      let flushed = 0;
+      for (const f of loadgenFeeds) {
+        const jobId = f.datafeed_id.replace("datafeed-", "");
+        try {
+          await mlProxy(`/_ml/anomaly_detectors/${encodeURIComponent(jobId)}/_flush`, "POST", {
+            advance_time: advanceTime,
+          });
+          flushed++;
+        } catch {
+          /* best-effort — flush may fail on already-closed jobs */
+        }
+      }
+
+      // 3. Close jobs to freeze model state
       let closed = 0;
       for (const f of loadgenFeeds) {
         const jobId = f.datafeed_id.replace("datafeed-", "");
@@ -924,7 +943,7 @@ export function LoadGeneratorApp({
       }
 
       addLog(
-        `  ✓ Stopped ${stopped} datafeed(s), closed ${closed} job(s) — model is frozen, anomaly scores preserved`
+        `  ✓ Stopped ${stopped} datafeed(s), flushed ${flushed} job(s), closed ${closed} — anomaly scores preserved`
       );
     } catch {
       addLog(

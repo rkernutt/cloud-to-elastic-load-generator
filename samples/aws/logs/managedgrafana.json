@@ -1,62 +1,57 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "me-central-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "managedgrafana" }
   },
   "aws": {
-    "dimensions": { "WorkspaceId": "g-tspj3qsoti" },
+    "dimensions": { "WorkspaceId": "g-y277spdqo8" },
     "managedgrafana": {
-      "workspace_id": "g-tspj3qsoti",
-      "workspace_name": "devops-metrics",
-      "workspace_status": "FAILED",
-      "grafana_version": "10.4",
-      "alert_state": "alerting",
-      "dashboard_title": "Cost Analysis",
-      "datasource_type": "influxdb",
-      "authentication_providers": "SAML",
+      "workspace_id": "g-y277spdqo8",
+      "workspace_name": "prod-observability",
+      "workspace_status": "CREATING",
+      "grafana_version": "9.4",
+      "alert_state": "pending",
+      "dashboard_title": "RDS Metrics",
+      "datasource_type": "prometheus",
+      "authentication_providers": "AWS_SSO",
       "notification_destinations": "PAGERDUTY"
     },
     "s3": {
       "bucket": {
-        "name": "aws-managedgrafana-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-managedgrafana-logs-738291046572"
+        "name": "aws-managedgrafana-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-managedgrafana-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/managedgrafana/eu-west-2/2026/05/19/managedgrafana_23Q9MTJIUBDFHC1CIFAZ.log.gz"
+        "key": "AWSLogs/814726593401/managedgrafana/me-central-1/2026/05/19/managedgrafana_ACDV6RDZ4EQ56FLXKM9B.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/managedgrafana/logs",
-      "log_stream": "eu-west-2/sinc06zm",
-      "ingestion_time": "2026-05-19T12:26:14.261Z"
+      "log_stream": "me-central-1/1wokochf",
+      "ingestion_time": "2026-05-19T15:25:13.689Z"
     }
   },
   "event": {
-    "action": "AssociateLicense",
-    "outcome": "failure",
+    "action": "DisassociateLicense",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.managedgrafana",
     "provider": "grafana.amazonaws.com",
     "module": "aws"
   },
-  "message": "Managed Grafana AssociateLicense FAILED [devops-metrics]: Access denied",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ResourceNotFoundException",
-    "message": "Managed Grafana operation failed",
-    "type": "process"
-  },
+  "message": "Managed Grafana DisassociateLicense: workspace=prod-observability alert=pending dashboard=\"RDS Metrics\"",
+  "log": { "level": "info" },
   "service": { "name": "managedgrafana", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.managedgrafana", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "85p8wsd5pti4xyth5bz4l6omp1v06vnn9996"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "g8939t8gvm88b8di4geiudti8oebow8szp0f"
   },
   "input": { "type": "aws-cloudwatch" }
 }

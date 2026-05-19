@@ -3,29 +3,38 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-southeast1",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" }
+    "region": "europe-west6",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-southeast1",
-    "ephemeral_id": "qnni4tv5kjwo9n6qw8xomanpmm5ic2snihia"
+    "name": "metricbeat-gcp-europe-west6",
+    "ephemeral_id": "pzn7k85g36cxvqaqpj5x1jraa6aqbe2jhndq"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "loadbalancing.googleapis.com/https/request_count",
-      "labels": { "response_code_class": "2xx" }
+      "type": "loadbalancing.googleapis.com/https/backend_request_count",
+      "labels": {
+        "protocol": "HTTP/2.0",
+        "response_code_class": "200",
+        "response_code": "200",
+        "cache_result": "UNKNOWN",
+        "matcher_type": "PATH_MATCHER",
+        "matcher_name": "default",
+        "backend_scope": "europe-west6",
+        "backend_scope_type": "ZONE",
+        "backend_target_name": "neg-cloudrun-batch",
+        "backend_target_type": "NETWORK_ENDPOINT_GROUP"
+      }
     },
     "resource": {
-      "type": "https_lb_rule",
+      "type": "gce_backend_service",
       "labels": {
-        "project_id": "globex-shared-m3n4o5",
-        "url_map_name": "web-frontend-map",
-        "forwarding_rule_name": "fr-web-https",
-        "target_proxy_name": "tp-web-https",
-        "region": "asia-southeast1"
+        "project_id": "globex-security-j0k1l2",
+        "backend_service_id": "be-sneg-fn-webhook",
+        "location": "europe-west6"
       }
     },
     "metricKind": "DELTA",
@@ -33,30 +42,37 @@
     "points": [
       {
         "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "int64Value": "3802841" }
+        "value": { "int64Value": "3176520" }
       }
     ]
   },
   "gcp": {
-    "cloud-lb": {
+    "serverless-neg": {
       "labels": {
-        "project_id": "globex-shared-m3n4o5",
-        "url_map_name": "web-frontend-map",
-        "forwarding_rule_name": "fr-web-https",
-        "target_proxy_name": "tp-web-https",
-        "region": "asia-southeast1",
-        "response_code_class": "2xx"
+        "project_id": "globex-security-j0k1l2",
+        "backend_service_id": "be-sneg-fn-webhook",
+        "location": "europe-west6",
+        "protocol": "HTTP/2.0",
+        "response_code_class": "200",
+        "response_code": "200",
+        "cache_result": "UNKNOWN",
+        "matcher_type": "PATH_MATCHER",
+        "matcher_name": "default",
+        "backend_scope": "europe-west6",
+        "backend_scope_type": "ZONE",
+        "backend_target_name": "neg-cloudrun-batch",
+        "backend_target_type": "NETWORK_ENDPOINT_GROUP"
       },
       "metrics": {
-        "loadbalancing.googleapis.com/https/request_count": {
-          "avg": 3802841,
-          "sum": 3802841,
+        "loadbalancing.googleapis.com/https/backend_request_count": {
+          "avg": 3176520,
+          "sum": 3176520,
           "count": 1
         }
       }
     }
   },
-  "metricset": { "name": "cloud-lb", "period": 60000 },
+  "metricset": { "name": "serverless-neg", "period": 60000 },
   "data_stream": {
     "type": "metrics",
     "dataset": "gcp.loadbalancing_metrics",

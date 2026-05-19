@@ -1,78 +1,78 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-central-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "elasticache" }
   },
   "aws": {
     "dimensions": {
-      "CacheClusterId": "prod-redis-2",
-      "CacheNodeId": "0004",
+      "CacheClusterId": "prod-redis-4",
+      "CacheNodeId": "0002",
       "ReplicationGroupId": "prod-cache"
     },
     "elasticache": {
-      "cluster_id": "prod-redis-2",
-      "node_id": "0004",
+      "cluster_id": "prod-redis-4",
+      "node_id": "0002",
       "engine": "redis",
       "engine_version": "7.1.0",
       "replication_group_id": "prod-cache",
-      "scenario": "engine_update",
-      "api_operation": "ModifyReplicationGroup",
-      "latency_us": 23.645431046358045,
-      "cache_hit": false,
-      "connected_clients": 250,
-      "used_memory_mb": 1261,
+      "scenario": "replication_group_failover",
+      "api_operation": "FailoverShard",
+      "latency_us": 36.40844118437714,
+      "cache_hit": true,
+      "connected_clients": 217,
+      "used_memory_mb": 12148,
       "metrics": {
-        "BytesUsedForCache": { "avg": 5724156483 },
-        "CacheHits": { "sum": 1263 },
-        "CacheMisses": { "sum": 736 },
-        "CacheHitRate": { "avg": 0.8794433231376277 },
-        "CurrConnections": { "avg": 248 },
-        "NewConnections": { "sum": 68 },
+        "BytesUsedForCache": { "avg": 6704498148 },
+        "CacheHits": { "sum": 38061 },
+        "CacheMisses": { "sum": 893 },
+        "CacheHitRate": { "avg": 0.9275846914884052 },
+        "CurrConnections": { "avg": 756 },
+        "NewConnections": { "sum": 25 },
         "Evictions": { "sum": 0 },
-        "Reclaimed": { "sum": 4 },
-        "ReplicationBytes": { "avg": 5856759 },
-        "ReplicationLag": { "avg": 0 },
+        "Reclaimed": { "sum": 36 },
+        "ReplicationBytes": { "avg": 5931354 },
+        "ReplicationLag": { "avg": 1 },
         "SaveInProgress": { "avg": 0 },
-        "CurrItems": { "avg": 807835 },
-        "NewItems": { "sum": 5515 },
-        "NetworkBytesIn": { "avg": 15731002 },
-        "NetworkBytesOut": { "avg": 25170107 },
-        "CPUUtilization": { "avg": 5.069734628270207 },
-        "EngineCPUUtilization": { "avg": 20.37059917506083 },
-        "FreeableMemory": { "avg": 3808116088 },
-        "SwapUsage": { "avg": 4751150 },
-        "DatabaseMemoryUsagePercentage": { "avg": 38.992312730852646 },
-        "TrafficBasedCmdsLatency": { "avg": 0.8934161358178561 }
+        "CurrItems": { "avg": 748397 },
+        "NewItems": { "sum": 3908 },
+        "NetworkBytesIn": { "avg": 2600819 },
+        "NetworkBytesOut": { "avg": 1668201 },
+        "CPUUtilization": { "avg": 20.33765350555497 },
+        "EngineCPUUtilization": { "avg": 3.542243877786586 },
+        "FreeableMemory": { "avg": 3913914822 },
+        "SwapUsage": { "avg": 29818845 },
+        "DatabaseMemoryUsagePercentage": { "avg": 46.88848133307681 },
+        "TrafficBasedCmdsLatency": { "avg": 0.09418733859938408 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-elasticache-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-elasticache-logs-501938274650"
+        "name": "aws-elasticache-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-elasticache-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/elasticache/af-south-1/2026/05/19/elasticache_ANKSSWXEDLH32HP8S1LG.log.gz"
+        "key": "AWSLogs/293847561023/elasticache/eu-central-2/2026/05/19/elasticache_3AR2DA5AGGNHPA6BPSP2.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/elasticache/logs",
-      "log_stream": "af-south-1/i9dpmgd2",
-      "ingestion_time": "2026-05-19T12:26:14.158Z"
+      "log_stream": "eu-central-2/h4r2ap4d",
+      "ingestion_time": "2026-05-19T15:25:13.556Z"
     }
   },
-  "db": { "type": "keyvalue", "operation": "ModifyReplicationGroup" },
+  "db": { "type": "keyvalue", "operation": "FailoverShard" },
   "event": {
-    "duration": 23645.431046358044,
+    "duration": 36408.44118437714,
     "outcome": "success",
     "category": ["database", "network"],
     "dataset": "aws.elasticache",
     "provider": "elasticache.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"replicationGroupId\":\"prod-cache\",\"scenario\":\"engine_update\",\"operation\":\"ModifyReplicationGroup\",\"clusterId\":\"prod-redis-2\",\"engineVersionTarget\":\"7.1.0\",\"applyImmediately\":true,\"status\":\"COMPLETE\",\"timestamp\":\"2026-05-19T12:26:13.277Z\"}",
+  "message": "Engine upgrade FailoverShard: maintenance window mw-8880 applied",
   "log": { "level": "info" },
   "service": { "name": "elasticache", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -80,8 +80,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "leuyjhjhwyrkg9088ju15k7lc0pya6nmj81c"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "jvd8wezjyckfvlcd5uqlwk8cei1bz6i3hpix"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,77 +1,87 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-west-3",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "firehose" }
   },
   "aws": {
-    "dimensions": { "DeliveryStreamName": "metrics-to-opensearch" },
+    "dimensions": { "DeliveryStreamName": "logs-to-s3" },
     "firehose": {
-      "delivery_stream_name": "metrics-to-opensearch",
-      "destination": "Redshift",
+      "delivery_stream_name": "logs-to-s3",
+      "destination": "S3",
       "operation": "PutRecordBatch",
       "scenario": "delivery_ok",
-      "incoming_records": 47235,
-      "incoming_bytes": 32119800,
-      "delivery_success": true,
-      "delivery_records": 31843,
-      "data_freshness_seconds": 178,
-      "transformation": { "buffer_size_mb": 128, "interval_seconds": 700, "compression": "GZIP" },
-      "s3_delivery": { "prefix_template": "!{timestamp:yyyy/MM/dd}/", "encryption": "NONE" },
+      "incoming_records": 41211,
+      "incoming_bytes": 52997346,
+      "delivery_success": false,
+      "delivery_records": 23234,
+      "data_freshness_seconds": 5830,
+      "transformation": {
+        "lambda_arn": "arn:aws:lambda:eu-west-3:738291046572:function:enrich-records",
+        "buffer_size_mb": 1,
+        "interval_seconds": 869,
+        "compression": "UNCOMPRESSED"
+      },
+      "s3_delivery": { "prefix_template": "!{timestamp:yyyy/MM/dd}/", "encryption": "SSE_S3" },
       "metrics": {
-        "IncomingBytes": { "sum": 32119800 },
-        "IncomingRecords": { "sum": 47235 },
-        "DeliveryToS3.Success": { "avg": 1 },
-        "DeliveryToS3.Bytes": { "sum": 8392590 },
-        "DeliveryToS3.DataFreshness": { "avg": 116 },
-        "DeliveryToS3.Records": { "sum": 47235 },
-        "ExecuteProcessing.Duration": { "avg": 731, "max": 847 },
+        "IncomingBytes": { "sum": 52997346 },
+        "IncomingRecords": { "sum": 41211 },
+        "DeliveryToS3.Success": { "avg": 0 },
+        "DeliveryToS3.Bytes": { "sum": 45999766 },
+        "DeliveryToS3.DataFreshness": { "avg": 3385 },
+        "DeliveryToS3.Records": { "sum": 15940 },
+        "ExecuteProcessing.Duration": { "avg": 177, "max": 462 },
         "ExecuteProcessing.Success": { "avg": 1 },
-        "BackupToS3.Bytes": { "sum": 61907 },
-        "BackupToS3.Records": { "sum": 30 },
+        "BackupToS3.Bytes": { "sum": 47386 },
+        "BackupToS3.Records": { "sum": 67 },
         "BackupToS3.Success": { "avg": 1 },
-        "DataReadFromKinesisStream.Bytes": { "sum": 63943955 },
-        "DataReadFromKinesisStream.Records": { "sum": 2162 },
-        "ThrottledGetRecords": { "sum": 0 },
+        "DataReadFromKinesisStream.Bytes": { "sum": 47026683 },
+        "DataReadFromKinesisStream.Records": { "sum": 5947 },
+        "ThrottledGetRecords": { "sum": 10 },
         "ThrottledGetShardIterator": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-firehose-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-firehose-logs-814726593401"
+        "name": "aws-firehose-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-firehose-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/814726593401/firehose/ap-northeast-2/2026/05/19/firehose_UJEWOUAHTJDSB0MFY47R.log.gz"
+        "key": "AWSLogs/738291046572/firehose/eu-west-3/2026/05/19/firehose_J5C4OY9C5KZ6331KLVHK.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/firehose/logs",
-      "log_stream": "ap-northeast-2/hmax1zcg",
-      "ingestion_time": "2026-05-19T12:26:14.173Z"
+      "log_stream": "eu-west-3/sptqu2id",
+      "ingestion_time": "2026-05-19T15:25:13.581Z"
     }
   },
   "event": {
     "action": "delivery_ok",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.firehose",
     "provider": "firehose.amazonaws.com",
-    "duration": 43000000000,
+    "duration": 70000000000,
     "module": "aws"
   },
-  "message": "PutRecordBatch: accepted 308 records for metrics-to-opensearch (32,119,800 IncomingBytes)",
-  "log": { "level": "info" },
+  "message": "PutRecordBatch: accepted 63 records for logs-to-s3 (52,997,346 IncomingBytes) — throttled: ServiceUnavailableException",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ServiceUnavailableException",
+    "message": "Firehose PutRecordBatch rejected for logs-to-s3",
+    "type": "aws"
+  },
   "service": { "name": "firehose", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.firehose", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "smenfs9ie53l2sdpz2p3gsojbgt16itfuslp"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "pwwm09xuq2ov7q1q9r5hnfwz459pio5o03nm"
   },
   "input": { "type": "aws-firehose" }
 }

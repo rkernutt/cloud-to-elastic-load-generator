@@ -3,74 +3,55 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west2",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" }
+    "region": "asia-south1",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west2",
-    "ephemeral_id": "8is96msle4glpach6jmyb3olim6dbzyy3sao"
+    "name": "metricbeat-gcp-asia-south1",
+    "ephemeral_id": "fczzjllsi40s41ugzoxejr2jut2ae6wxom9h"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "networking.googleapis.com/region/external_rtt",
-      "labels": {
-        "network_tier": "STANDARD",
-        "remote_continent": "America",
-        "remote_country": "US",
-        "remote_region": "NOT_APPLICABLE",
-        "remote_city": "NOT_APPLICABLE",
-        "remote_location_type": "EXTERNAL",
-        "protocol": "TCP"
-      }
+      "type": "networking.googleapis.com/mirroring/mirrored_packets_count",
+      "labels": {}
     },
     "resource": {
-      "type": "networking.googleapis.com/Location",
-      "labels": { "project_id": "globex-dev-g7h8i9", "location": "europe-west2" }
+      "type": "gce_instance",
+      "labels": {
+        "project_id": "globex-staging-d4e5f6",
+        "instance_id": "8426687132",
+        "zone": "asia-south1-b"
+      }
     },
     "metricKind": "DELTA",
-    "valueType": "DISTRIBUTION",
+    "valueType": "INT64",
     "points": [
       {
         "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": {
-          "distributionValue": {
-            "count": "3788",
-            "mean": 0.17952031962210313,
-            "sumOfSquaredDeviation": 43.95,
-            "bucketCounts": ["0", "2083", "947", "455", "303"]
-          }
-        }
+        "value": { "int64Value": "28721071" }
       }
     ]
   },
   "gcp": {
-    "network-service-tiers": {
+    "packet-mirroring": {
       "labels": {
-        "project_id": "globex-dev-g7h8i9",
-        "location": "europe-west2",
-        "network_tier": "STANDARD",
-        "remote_continent": "America",
-        "remote_country": "US",
-        "remote_region": "NOT_APPLICABLE",
-        "remote_city": "NOT_APPLICABLE",
-        "remote_location_type": "EXTERNAL",
-        "protocol": "TCP"
+        "project_id": "globex-staging-d4e5f6",
+        "instance_id": "8426687132",
+        "zone": "asia-south1-b"
       },
       "metrics": {
-        "networking.googleapis.com/region/external_rtt": {
-          "avg": 0.18,
-          "sum": 681.84,
-          "count": 3788,
-          "max": 0.4,
-          "min": 0.06
+        "networking.googleapis.com/mirroring/mirrored_packets_count": {
+          "avg": 28721071,
+          "sum": 28721071,
+          "count": 1
         }
       }
     }
   },
-  "metricset": { "name": "network-service-tiers", "period": 60000 },
+  "metricset": { "name": "packet-mirroring", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.vpcflow_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "dataset": "gcp.vpcflow_metrics", "module": "gcp" }

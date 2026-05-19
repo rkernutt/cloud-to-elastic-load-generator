@@ -1,77 +1,77 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "us-east-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "opensearch" }
   },
   "aws": {
-    "dimensions": { "DomainName": "prod-search-ap-northeast-3", "ClientId": "164820739518" },
+    "dimensions": { "DomainName": "prod-search-us-east-2", "ClientId": "501938274650" },
     "opensearch": {
-      "domain_name": "prod-search-ap-northeast-3",
+      "domain_name": "prod-search-us-east-2",
       "index": "audit-events",
-      "operation": "rollover_index",
-      "took_ms": 1186,
+      "operation": "CREATE_SNAPSHOT",
+      "took_ms": 1182,
       "shards": {
-        "total": 41,
-        "successful": 41,
+        "total": 5,
+        "successful": 5,
         "failed": 0,
-        "active": 41,
+        "active": 5,
         "initializing": 0,
         "relocating": 0,
         "unassigned": 0
       },
-      "hits_total": 68992,
+      "hits_total": 23477,
       "status_code": 201,
-      "scenario": "index_rotation",
-      "aws_api_operation": "ESHttpPost",
-      "ilm_policy": "traces-hot-warm",
-      "new_index": "audit-events-2026.05.19-000001",
+      "scenario": "snapshot_lifecycle",
+      "aws_api_operation": "UpdateDomainConfig",
+      "snapshot_repository": "s3-repo-prod",
+      "slm_retention_days": 43,
       "metrics": {
-        "CPUUtilization": { "avg": 16.325725757933878 },
-        "FreeStorageSpace": { "avg": 338921886125 },
+        "CPUUtilization": { "avg": 15.551598491496298 },
+        "FreeStorageSpace": { "avg": 73672512465 },
         "ClusterStatus": { "green": 1, "yellow": 0, "red": 0 },
-        "Nodes": { "avg": 3 },
-        "SearchableDocuments": { "avg": 976069366 },
-        "IndexingLatency": { "avg": 145 },
-        "SearchLatency": { "avg": 471 },
-        "IndexingRate": { "avg": 53483 },
-        "SearchRate": { "avg": 7219 },
-        "JVMMemoryPressure": { "avg": 41.591949799987134 },
+        "Nodes": { "avg": 17 },
+        "SearchableDocuments": { "avg": 240796308 },
+        "IndexingLatency": { "avg": 23 },
+        "SearchLatency": { "avg": 644 },
+        "IndexingRate": { "avg": 51835 },
+        "SearchRate": { "avg": 146 },
+        "JVMMemoryPressure": { "avg": 46.97613314237131 },
         "AutomatedSnapshotFailure": { "sum": 0 },
         "CoordinatingWriteRejected": { "sum": 0 },
         "PrimaryWriteRejected": { "sum": 0 },
         "ReplicaWriteRejected": { "sum": 0 },
-        "WarmStorageSpaceUsage": { "avg": 68.54929466449558 },
-        "DeletedDocuments": { "avg": 74509 }
+        "WarmStorageSpaceUsage": { "avg": 17.95307663075077 },
+        "DeletedDocuments": { "avg": 95338 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-opensearch-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-opensearch-logs-164820739518"
+        "name": "aws-opensearch-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-opensearch-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/opensearch/ap-northeast-3/2026/05/19/opensearch_VWRBBOSDVVK34X5W3SOA.log.gz"
+        "key": "AWSLogs/501938274650/opensearch/us-east-2/2026/05/19/opensearch_YGSED1ALUVH0VQHFGJ5V.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/opensearch/logs",
-      "log_stream": "ap-northeast-3/83it5imd",
-      "ingestion_time": "2026-05-19T12:26:14.161Z"
+      "log_stream": "us-east-2/k1mn5c82",
+      "ingestion_time": "2026-05-19T15:25:13.559Z"
     }
   },
   "http": { "response": { "status_code": 201 } },
   "event": {
-    "duration": 1185941140.1845603,
+    "duration": 1181859854.4543276,
     "outcome": "success",
     "category": "database",
     "dataset": "aws.opensearch",
     "provider": "es.amazonaws.com",
     "module": "aws"
   },
-  "message": "[2026-05-19T12:26:13.277Z] ILM rollover audit-events → audit-events-2026.05.19-000001 conditions[max_age=30d,min_docs=10197535] met=true",
+  "message": "[2026-05-19T15:25:12.772Z] SLM start snapshot [repo=cs-automated] name=audit-events-snapshot-OWMYQ1 state=SUCCESS",
   "log": { "level": "info" },
   "service": { "name": "opensearch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -79,8 +79,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "m1mjyz1mwepa565uob6wryycy4zoslm890qt"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "4mr3j51dl5ucq5nacoxdw8rfx8k4hg77f4y3"
   },
   "input": { "type": "aws-cloudwatch" }
 }

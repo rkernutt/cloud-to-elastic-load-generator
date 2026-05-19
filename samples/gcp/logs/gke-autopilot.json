@@ -1,67 +1,70 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "info" },
-  "severity": "NOTICE",
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "INTERNAL" },
+  "error": { "code": "INTERNAL", "message": "INTERNAL: operation failed", "type": "gcp" },
+  "severity": "CRITICAL",
   "labels": {
-    "cluster_name": "edge-cluster-autopilot",
-    "namespace_name": "default",
-    "scaling_event": "SCALE_UP"
+    "cluster_name": "dev-cluster-autopilot",
+    "namespace_name": "kube-system",
+    "scaling_event": "ADMISSION_DENIED",
+    "gcp.rpc.status_code": "INTERNAL"
   },
-  "insertId": "UP66VHUSG4KY",
+  "insertId": "BZ7WGK9I5K1I",
   "resource": {
     "type": "k8s_cluster",
     "labels": {
-      "project_id": "globex-prod-a1b2c3",
-      "location": "australia-southeast1",
-      "cluster_name": "edge-cluster-autopilot"
+      "project_id": "globex-staging-d4e5f6",
+      "location": "asia-northeast3",
+      "cluster_name": "dev-cluster-autopilot"
     }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "australia-southeast1",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
+    "region": "asia-northeast3",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" },
     "service": { "name": "container.googleapis.com" }
   },
   "gcp": {
     "gke_autopilot": {
-      "cluster": "edge-cluster-autopilot",
-      "namespace": "default",
-      "pod": "api-server-jy30l-2grk3",
-      "workload_type": "Deployment",
-      "resource_request_cpu": "2m",
-      "resource_request_memory": "2923Mi",
-      "scaling_event": "SCALE_UP"
+      "cluster": "dev-cluster-autopilot",
+      "namespace": "kube-system",
+      "pod": "postgres-wc45q-nrec0",
+      "workload_type": "Job",
+      "resource_request_cpu": "1",
+      "resource_request_memory": "8091Mi",
+      "scaling_event": "ADMISSION_DENIED"
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 22981,
+    "outcome": "failure",
+    "duration": 23269,
     "module": "gcp",
     "dataset": "gcp.gke_autopilot"
   },
-  "message": "container.googleapis.com/autopilot: cluster \"edge-cluster-autopilot\" SCALE_UP: Deployment api-server-jy30l-2grk3 (default) sized to 2m CPU, 2923Mi RAM",
+  "message": "container.googleapis.com/autopilot: cluster \"dev-cluster-autopilot\" ADMISSION_DENIED for Job/postgres-wc45q-nrec0 in kube-system (requests 1/8091Mi)",
   "service": { "name": "gke-autopilot", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.gke_autopilot", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-australia-southeast1",
-    "id": "nes4wpivmkah4dgtie24ghq3eg5zwpkbdxaj"
+    "name": "elastic-agent-gcp-asia-northeast3",
+    "id": "rt7xn3hxt8t1d6ae08bwd2agi36pyakqj9k1"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-prod-a1b2c3/logs/gke-autopilot",
+  "logName": "projects/globex-staging-d4e5f6/logs/gke-autopilot",
   "jsonPayload": {
     "gke_autopilot": {
-      "cluster": "edge-cluster-autopilot",
-      "namespace": "default",
-      "pod": "api-server-jy30l-2grk3",
-      "workload_type": "Deployment",
-      "resource_request_cpu": "2m",
-      "resource_request_memory": "2923Mi",
-      "scaling_event": "SCALE_UP"
+      "cluster": "dev-cluster-autopilot",
+      "namespace": "kube-system",
+      "pod": "postgres-wc45q-nrec0",
+      "workload_type": "Job",
+      "resource_request_cpu": "1",
+      "resource_request_memory": "8091Mi",
+      "scaling_event": "ADMISSION_DENIED"
     },
-    "message": "container.googleapis.com/autopilot: cluster \"edge-cluster-autopilot\" SCALE_UP: Deployment api-server-jy30l-2grk3 (default) sized to 2m CPU, 2923Mi RAM"
+    "message": "container.googleapis.com/autopilot: cluster \"dev-cluster-autopilot\" ADMISSION_DENIED for Job/postgres-wc45q-nrec0 in kube-system (requests 1/8091Mi)"
   }
 }

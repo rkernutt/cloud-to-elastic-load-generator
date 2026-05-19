@@ -1,46 +1,46 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-central-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "sns" }
   },
   "aws": {
-    "dimensions": { "TopicName": "security-alarms" },
+    "dimensions": { "TopicName": "deployment-events" },
     "sns": {
-      "scenario": "topic_subscription",
-      "operation": "Subscribe",
-      "topic_arn": "arn:aws:sns:ap-east-1:293847561023:security-alarms",
-      "subscription_arn": "arn:aws:sns:ap-east-1:293847561023:security-alarms:M5IEKBBU-sub",
+      "scenario": "delivery_failure_logging",
+      "operation": "GetTopicAttributes",
+      "topic_arn": "arn:aws:sns:eu-central-1:738291046572:deployment-events",
+      "subscription_arn": "arn:aws:sns:eu-central-1:738291046572:deployment-events:2bc56394-712",
       "protocol": "sms",
       "metrics": {
-        "NumberOfMessagesPublished": { "sum": 9007 },
-        "NumberOfNotificationsDelivered": { "sum": 9007 },
+        "NumberOfMessagesPublished": { "sum": 8605 },
+        "NumberOfNotificationsDelivered": { "sum": 8605 },
         "NumberOfNotificationsFailed": { "sum": 0 },
         "NumberOfNotificationsFilteredOut": { "sum": 0 },
         "NumberOfNotificationsFilteredOut-InvalidAttributes": { "sum": 0 },
         "NumberOfNotificationsFilteredOut-NoMessageAttributes": { "sum": 0 },
         "NumberOfNotificationsRedrivenToDlq": { "sum": 0 },
         "NumberOfNotificationsFailedToRedriveToDlq": { "sum": 0 },
-        "PublishSize": { "avg": 108605 },
-        "SMSSuccessRate": { "avg": 1 },
-        "SMSMonthToDateSpentUSD": { "sum": 26.215320843077887 }
+        "PublishSize": { "avg": 63921 },
+        "SMSSuccessRate": { "avg": 0 },
+        "SMSMonthToDateSpentUSD": { "sum": 22.804399129896176 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sns-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-sns-logs-293847561023"
+        "name": "aws-sns-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-sns-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/sns/ap-east-1/2026/05/19/sns_2VPBR52SIFYA08TBGRQN.log.gz"
+        "key": "AWSLogs/738291046572/sns/eu-central-1/2026/05/19/sns_VMZULD1SQNBV4B2E9LSW.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/sns/logs",
-      "log_stream": "ap-east-1/czsbcpk5",
-      "ingestion_time": "2026-05-19T12:26:14.178Z"
+      "log_stream": "eu-central-1/v8tipgix",
+      "ingestion_time": "2026-05-19T15:25:13.588Z"
     }
   },
   "event": {
@@ -48,10 +48,10 @@
     "category": ["process"],
     "dataset": "aws.sns",
     "provider": "sns.amazonaws.com",
-    "duration": 345616923.6194552,
+    "duration": 224456900.59391695,
     "module": "aws"
   },
-  "message": "SNS Subscribe confirmed SubscriptionArn=arn:aws:sns:ap-east-1:293847561023:security-alarms:M5IEKBBU-sub Owner=293847561023",
+  "message": "{\"notification\":{\"messageId\":\"ec619716-dd6c-4b44-9a45-169ff93e9143\",\"topicArn\":\"arn:aws:sns:eu-central-1:738291046572:deployment-events\"},\"delivery\":{\"statusCode\":200,\"providerResponse\":\"OK\",\"destination\":\"mailto:user@corp.com\"},\"status\":\"SUCCESS\"} [DeliveryStatusLogging]",
   "log": { "level": "info" },
   "service": { "name": "sns", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -59,8 +59,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "u47okeb54yrl8fmimhaauc4wyso3ik10f2x0"
+    "name": "filebeat-aws-eu-central-1",
+    "ephemeral_id": "q0a391f55sxmegihy8kk1ce8udjra73xbtbv"
   },
   "input": { "type": "aws-cloudwatch" }
 }

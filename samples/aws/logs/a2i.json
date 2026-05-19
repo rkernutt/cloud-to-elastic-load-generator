@@ -1,62 +1,61 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "me-central-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "a2i" }
   },
   "aws": {
     "dimensions": {
-      "FlowDefinitionArn": "arn:aws:sagemaker:us-west-1:738291046572:flow-definition/id-verification",
-      "Operation": "StopHumanLoop"
+      "FlowDefinitionArn": "arn:aws:sagemaker:me-central-1:164820739518:flow-definition/medical-review",
+      "Operation": "CreateHumanLoop"
     },
     "a2i": {
-      "flow_definition_arn": "arn:aws:sagemaker:us-west-1:738291046572:flow-definition/id-verification",
-      "human_loop_name": "loop-fznq36d5zkaa",
-      "human_loop_status": "Failed",
+      "flow_definition_arn": "arn:aws:sagemaker:me-central-1:164820739518:flow-definition/medical-review",
+      "human_loop_name": "loop-hei5ji7pwkg0",
+      "human_loop_status": "InProgress",
       "input_content_type": "application/json",
       "condition_threshold": 0.85,
       "human_review_required": false,
-      "reviewer_count": 5,
-      "task_count": 3,
-      "task_completed": 0,
+      "reviewer_count": 1,
+      "task_count": 1,
+      "task_completed": 1,
       "confidence_threshold_breach": false
     },
     "s3": {
       "bucket": {
-        "name": "aws-a2i-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-a2i-logs-738291046572"
+        "name": "aws-a2i-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-a2i-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/a2i/us-west-1/2026/05/19/a2i_D38JCLXPK2Q8L5CPHW4D.log.gz"
+        "key": "AWSLogs/164820739518/a2i/me-central-1/2026/05/19/a2i_A2DXLAJ8BWIOFD5Z9CJB.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/a2i/logs",
-      "log_stream": "us-west-1/fixbvn8t",
-      "ingestion_time": "2026-05-19T12:26:14.231Z"
+      "log_stream": "me-central-1/enhyjmuu",
+      "ingestion_time": "2026-05-19T15:25:13.659Z"
     }
   },
-  "log": { "level": "error" },
+  "log": { "level": "info" },
   "event": {
-    "action": "StopHumanLoop",
-    "outcome": "failure",
+    "action": "CreateHumanLoop",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.a2i",
     "provider": "sagemaker.amazonaws.com",
     "module": "aws"
   },
-  "message": "A2I StopHumanLoop FAILED [loop-fznq36d5zkaa]: Task timed out",
-  "error": { "code": "ValidationException", "message": "A2I human loop failed", "type": "process" },
+  "message": "A2I CreateHumanLoop: loop=loop-hei5ji7pwkg0, status=InProgress",
   "service": { "name": "a2i", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.a2i", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "nwpqv19zoc5e5b95la07z5bvkzkmuvki6oyb"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "6epekgu7nwdptkxgzs1lbyyxkesxwx7n40bl"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,58 +1,63 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "me-central-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "appfabric" }
   },
   "aws": {
-    "dimensions": { "AppBundle": "prod-bundle", "Application": "Jira" },
+    "dimensions": { "AppBundle": "prod-bundle", "Application": "Zoom" },
     "appfabric": {
-      "app_bundle_arn": "arn:aws:appfabric:eu-central-1:293847561023:appbundle/prod-bundle",
-      "application": "Jira",
+      "app_bundle_arn": "arn:aws:appfabric:me-central-1:164820739518:appbundle/prod-bundle",
+      "application": "Zoom",
       "event_type": "userSignOut",
-      "normalized_user": "user-EHEQ8BXL@example.com",
-      "source_ip": "29.120.167.253",
-      "ingestion_status": "ACTIVE",
-      "tenant_id": "tenant-0SQ15R7V",
-      "ocsf_class": "NETWORK_ACTIVITY"
+      "normalized_user": "user-PUT9SP2V@example.com",
+      "source_ip": "43.201.199.191",
+      "ingestion_status": "FAILED",
+      "tenant_id": "tenant-XJMOQ9VR",
+      "ocsf_class": "ACCOUNT_CHANGE"
     },
     "s3": {
       "bucket": {
-        "name": "aws-appfabric-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-appfabric-logs-293847561023"
+        "name": "aws-appfabric-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-appfabric-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/appfabric/eu-central-1/2026/05/19/appfabric_SMW0JBUFU70L6946PSBU.log.gz"
+        "key": "AWSLogs/164820739518/appfabric/me-central-1/2026/05/19/appfabric_G33HMRDGESR6TW5MC30O.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/appfabric/logs",
-      "log_stream": "eu-central-1/fubgjn59",
-      "ingestion_time": "2026-05-19T12:26:14.211Z"
+      "log_stream": "me-central-1/b29ruqel",
+      "ingestion_time": "2026-05-19T15:25:13.636Z"
     }
   },
   "event": {
-    "action": "DeliverToS3",
-    "outcome": "success",
+    "action": "UpdateIngestion",
+    "outcome": "failure",
     "category": ["audit"],
     "dataset": "aws.appfabric",
     "provider": "appfabric.amazonaws.com",
     "module": "aws"
   },
-  "message": "AppFabric Jira: userSignOut by user-EHEQ8BXL@example.com normalized as OCSF NETWORK_ACTIVITY",
-  "log": { "level": "info" },
-  "user": { "email": "user-EHEQ8BXL@example.com" },
-  "source": { "ip": "29.120.167.253" },
+  "message": "AppFabric Zoom: ingestion FAILED for userSignOut",
+  "log": { "level": "error" },
+  "user": { "email": "user-PUT9SP2V@example.com" },
+  "source": { "ip": "43.201.199.191" },
+  "error": {
+    "code": "ResourceNotFoundException",
+    "message": "AppFabric ingestion failed",
+    "type": "audit"
+  },
   "service": { "name": "appfabric", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.appfabric", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "hj7fscjjc1hp6id69ylgws4rwjfovp46nzaf"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "mj0poxmo8zz3sc1zzuofhkh4ocu6c72lilnl"
   },
   "input": { "type": "http_endpoint" }
 }

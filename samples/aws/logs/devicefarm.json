@@ -1,53 +1,58 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
     "region": "us-west-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "devicefarm" }
   },
   "aws": {
     "dimensions": {
-      "ProjectArn": "arn:aws:devicefarm:us-west-2:738291046572:project:6AZKTX15-K6BD-T82C-NN34-9B0PQ1NREIU9"
+      "ProjectArn": "arn:aws:devicefarm:us-west-2:164820739518:project:74UTWTDQ-69DW-9GI9-SRKP-Q2LAMRSZZXT1"
     },
     "devicefarm": {
-      "project_name": "Mobile-Regression",
-      "project_arn": "arn:aws:devicefarm:us-west-2:738291046572:project:6AZKTX15-K6BD-T82C-NN34-9B0PQ1NREIU9",
-      "run_name": "Pre-Release-Smoke",
-      "run_status": "RUNNING",
+      "project_name": "Android-App-Tests",
+      "project_arn": "arn:aws:devicefarm:us-west-2:164820739518:project:74UTWTDQ-69DW-9GI9-SRKP-Q2LAMRSZZXT1",
+      "run_name": "Nightly-Full-Suite",
+      "run_status": "FAILED",
       "device_platform": "IOS",
       "device_model": "iPhone 15 Pro",
-      "total_tests": 263,
-      "passed_tests": 248,
-      "failed_tests": 15,
+      "total_tests": 81,
+      "passed_tests": 32,
+      "failed_tests": 49,
       "test_type": "XCTEST",
       "billing_method": "METERED"
     },
     "s3": {
       "bucket": {
-        "name": "aws-devicefarm-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-devicefarm-logs-738291046572"
+        "name": "aws-devicefarm-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-devicefarm-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/devicefarm/us-west-2/2026/05/19/devicefarm_ERD0QQN1O43KVX2Y7TZN.log.gz"
+        "key": "AWSLogs/164820739518/devicefarm/us-west-2/2026/05/19/devicefarm_TQ17MXGKC5VNZC55PV9L.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/devicefarm/logs",
-      "log_stream": "us-west-2/gzthsucn",
-      "ingestion_time": "2026-05-19T12:26:14.193Z"
+      "log_stream": "us-west-2/hwj25zig",
+      "ingestion_time": "2026-05-19T15:25:13.607Z"
     }
   },
   "event": {
-    "action": "CreateUpload",
-    "outcome": "success",
+    "action": "CreateProject",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.devicefarm",
     "provider": "devicefarm.amazonaws.com",
     "module": "aws"
   },
-  "message": "Device Farm CreateUpload: project=Mobile-Regression, run=Pre-Release-Smoke RUNNING (248/263 passed)",
-  "log": { "level": "warn" },
+  "message": "Device Farm CreateProject FAILED [Android-App-Tests]: Timeout exceeded",
+  "log": { "level": "error" },
+  "error": {
+    "code": "IdempotencyException",
+    "message": "Device Farm run failed",
+    "type": "process"
+  },
   "service": { "name": "devicefarm", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.devicefarm", "namespace": "default" },
@@ -55,7 +60,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "e21p2dxv0kqld0nfma9yczvm97oqrrh1voe4"
+    "ephemeral_id": "ap2euniwfy19is9jlkdk9lu2xvvboo96lswp"
   },
   "input": { "type": "aws-cloudwatch" }
 }

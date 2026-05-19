@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,40 +7,42 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" }
+    "region": "ap-northeast-1",
+    "account": { "id": "293847561023", "name": "globex-staging" }
   },
   "resource": {
-    "id": "arn:aws:ec2:il-central-1:501938274650:security-group/sg-dmmv7ans",
-    "name": "default (sg-dmmv7ans)",
-    "type": "cloud-compute",
-    "sub_type": "security-group"
+    "id": "arn:aws:cloudwatch:ap-northeast-1:293847561023:alarm:4-16-compliance",
+    "name": "cis-4.16-alarm",
+    "type": "cloud-alarm",
+    "sub_type": "cloudwatch-alarm"
   },
   "rule": {
-    "id": "bbc219e5-75d8-55d6-bccb-7d1acef796bf",
-    "name": "Ensure the default security group of every VPC restricts all traffic",
-    "section": "5.4",
-    "description": "A VPC comes with a default security group whose initial settings deny all inbound traffic, allow all outbound traffic, and allow all traffic between instances assigned to the security group.",
-    "tags": ["CIS", "AWS", "CIS 5.4", "Networking"],
+    "id": "3851b212-b300-545d-8d6b-54ef71c86661",
+    "name": "Ensure AWS Security Hub is enabled",
+    "section": "4.16",
+    "description": "Security Hub collects security data from across AWS accounts, services, and supported third-party partner products and helps you analyze your security trends and identify the highest priority security issues.",
+    "tags": ["CIS", "AWS", "CIS 4.16", "Monitoring"],
     "benchmark": {
       "id": "cis_aws",
       "name": "CIS Amazon Web Services Foundations",
       "version": "v1.5.0",
-      "rule_number": "5.4",
+      "rule_number": "4.16",
       "posture_type": "cspm"
     },
-    "profile_applicability": "* Level 2"
+    "profile_applicability": "* Level 2",
+    "impact": "Non-compliance with CIS Amazon Web Services Foundations 4.16 — Ensure AWS Security Hub is enabled",
+    "remediation": "Remediate per CIS Amazon Web Services Foundations v1.5.0 section 4.16."
   },
-  "result": { "evaluation": "passed" },
+  "result": { "evaluation": "failed", "evidence": { "MetricFilters": [], "AlarmActions": [] } },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_cspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_aws/5.4] passed: Ensure the default security group of every VPC restricts all traffic",
-  "log": { "level": "info" }
+  "message": "[cis_aws/4.16] failed: Ensure AWS Security Hub is enabled",
+  "log": { "level": "warn" }
 }

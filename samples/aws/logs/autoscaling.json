@@ -1,62 +1,64 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "autoscaling" }
   },
   "aws": {
     "dimensions": { "AutoScalingGroupName": "api-asg" },
     "autoscaling": {
       "group_name": "api-asg",
-      "activity_id": "rpj1zi6l-szbz-auih",
-      "action_type": "WarmPoolTransition",
-      "instance_id": "i-fmntoej3352iqwxir",
-      "instance_type": "r5.large",
-      "desired_capacity": 20,
+      "activity_id": "ip6xzed9-9z1b-w049",
+      "action_type": "LifecycleHook",
+      "instance_id": "i-5ithn8457lhhhucrt",
+      "instance_type": "m5.xlarge",
+      "desired_capacity": 15,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 20,
-      "cause": "Warm pool instance transitioned Hibernated -> Warming -> InService",
+      "current_capacity": 14,
+      "cause": "LifecycleHookNotification for register-targets transition autoscaling:EC2_INSTANCE_TERMINATING",
       "status_code": "Successful",
-      "launch_template": "api-lt:3",
+      "launch_template": "web-lt:5",
+      "lifecycle_hook_name": "register-targets",
+      "lifecycle_transition": "autoscaling:EC2_INSTANCE_TERMINATING",
       "predictive_scaling_forecast": false,
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 20 },
-        "GroupInServiceInstances": { "avg": 20 },
+        "GroupDesiredCapacity": { "avg": 15 },
+        "GroupInServiceInstances": { "avg": 14 },
         "GroupPendingInstances": { "avg": 0 },
         "GroupStandbyInstances": { "avg": 0 },
-        "GroupTerminatingInstances": { "avg": 0 },
-        "GroupTotalInstances": { "avg": 20 },
-        "GroupInServiceCapacity": { "avg": 20 },
+        "GroupTerminatingInstances": { "avg": 1 },
+        "GroupTotalInstances": { "avg": 15 },
+        "GroupInServiceCapacity": { "avg": 14 },
         "GroupPendingCapacity": { "avg": 0 },
         "GroupStandbyCapacity": { "avg": 0 },
-        "GroupTerminatingCapacity": { "avg": 0 },
-        "GroupTotalCapacity": { "avg": 20 },
-        "WarmPoolMinSize": { "avg": 1 },
-        "WarmPoolDesiredCapacity": { "avg": 5 },
+        "GroupTerminatingCapacity": { "avg": 1 },
+        "GroupTotalCapacity": { "avg": 15 },
+        "WarmPoolMinSize": { "avg": 2 },
+        "WarmPoolDesiredCapacity": { "avg": 2 },
         "WarmPoolPendingCapacity": { "avg": 2 },
-        "WarmPoolTerminatingCapacity": { "avg": 0 },
-        "WarmPoolTotalCapacity": { "avg": 7 },
-        "WarmPoolWarmedCapacity": { "avg": 7 }
+        "WarmPoolTerminatingCapacity": { "avg": 2 },
+        "WarmPoolTotalCapacity": { "avg": 6 },
+        "WarmPoolWarmedCapacity": { "avg": 5 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-autoscaling-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-autoscaling-logs-738291046572"
+        "name": "aws-autoscaling-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-autoscaling-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/autoscaling/ap-northeast-2/2026/05/19/autoscaling_HP7OAXYB75W6GPIBWGRZ.log.gz"
+        "key": "AWSLogs/814726593401/autoscaling/ap-south-1/2026/05/19/autoscaling_OUILUWXORIEH3O6AKB0L.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "ap-northeast-2/06gyd6oc",
-      "ingestion_time": "2026-05-19T12:26:14.059Z"
+      "log_stream": "ap-south-1/682s4nge",
+      "ingestion_time": "2026-05-19T15:25:13.461Z"
     }
   },
   "event": {
@@ -64,10 +66,10 @@
     "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 454000000000,
+    "duration": 349000000000,
     "module": "aws"
   },
-  "message": "WarmPool state change ASG=api-asg instance=i-fmntoej3352iqwxir warmed=7 desired=5 poolStatus=Active",
+  "message": "SNS lifecycle hook notification published hook=register-targets AutoScalingGroupName=api-asg EC2InstanceId=i-5ithn8457lhhhucrt LifecycleTransition=autoscaling:EC2_INSTANCE_TERMINATING",
   "log": { "level": "info" },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -75,8 +77,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "ewu0h3tgixu4veg7x9f8fvuzwpewfbzfxqpd"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "ne70rqbbbowtfskoe36s27nmvek796wvfddo"
   },
   "input": { "type": "aws-cloudwatch" }
 }

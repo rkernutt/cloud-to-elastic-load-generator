@@ -1,54 +1,59 @@
 {
-  "@timestamp": "2026-05-19T12:26:13.277Z",
+  "@timestamp": "2026-05-19T15:25:12.772Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-west-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "acm" }
   },
   "aws": {
     "acm": {
-      "certificate_arn": "arn:aws:acm:eu-central-1:293847561023:certificate/qcloci1v-gok2",
-      "domain_name": "*.example.com",
-      "status": "PENDING_VALIDATION",
-      "type": "AMAZON_ISSUED",
-      "days_to_expiry": 268,
+      "certificate_arn": "arn:aws:acm:us-west-2:164820739518:certificate/tmmexgf1-hw22",
+      "domain_name": "www.example.com",
+      "status": "FAILED",
+      "type": "IMPORTED",
+      "days_to_expiry": -25,
       "key_algorithm": "EC_prime256v1",
-      "validation_method": "DNS",
-      "renewal_status": "SUCCESS"
+      "validation_method": "EMAIL",
+      "renewal_status": "FAILED"
     },
     "s3": {
       "bucket": {
-        "name": "aws-acm-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-acm-logs-293847561023"
+        "name": "aws-acm-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-acm-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/acm/eu-central-1/2026/05/19/acm_SIL4Z736QHWZZZ95B8XU.log.gz"
+        "key": "AWSLogs/164820739518/acm/us-west-2/2026/05/19/acm_YM9JQKGUXKJMQ77NH0X4.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/acm/logs",
-      "log_stream": "eu-central-1/v89vea45",
-      "ingestion_time": "2026-05-19T12:26:14.113Z"
+      "log_stream": "us-west-2/76s3n3az",
+      "ingestion_time": "2026-05-19T15:25:13.519Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": "network",
     "dataset": "aws.acm",
     "provider": "acm.amazonaws.com",
     "module": "aws"
   },
-  "message": "ACM certificate for *.example.com: PENDING_VALIDATION, 268d remaining",
-  "log": { "level": "info" },
+  "message": "ACM certificate for www.example.com: FAILED (expired 25d ago)",
+  "log": { "level": "error" },
+  "error": {
+    "code": "FAILED",
+    "message": "Certificate www.example.com: FAILED",
+    "type": "certificate"
+  },
   "service": { "name": "acm", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.acm", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "gw2m3ey4u3amsk5b2j21y056uyrw03oeqfb0"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "x6aa52zq4qmshbn0khxfzijzyza01n9b0v4j"
   },
   "input": { "type": "aws-cloudwatch" }
 }

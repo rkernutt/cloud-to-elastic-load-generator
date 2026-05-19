@@ -3,56 +3,44 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-central1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" }
+    "region": "asia-east2",
+    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
+    "account": { "id": "141421356237", "name": "Globex Security" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-us-central1",
-    "ephemeral_id": "7w5fvpu37osdhngjbj1juiwl3d30jy113ho5"
+    "name": "metricbeat-gcp-asia-east2",
+    "ephemeral_id": "s8nee8vcvswxmppcc7fd96v9qf945jyfrsk3"
   },
   "monitoringTimeSeries": {
-    "metric": {
-      "type": "serviceruntime.googleapis.com/api/request_count",
-      "labels": { "protocol": "grpc", "response_code_class": "2xx" }
-    },
+    "metric": { "type": "monitoring.googleapis.com/collection/byte_count", "labels": {} },
     "resource": {
-      "type": "consumed_api",
-      "labels": {
-        "project_id": "globex-staging-d4e5f6",
-        "service": "cloudprofiler.googleapis.com",
-        "method": "/google.devtools.cloudprofiler.v2.ProfilerService/CreateProfile",
-        "version": "v2",
-        "location": "global",
-        "credential_id": ""
-      }
+      "type": "monitoring.googleapis.com/Workspace",
+      "labels": { "project_id": "globex-security-j0k1l2", "workspace_id": "ws-security" }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "625" } }
+      {
+        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
+        "value": { "int64Value": "14402647280080" }
+      }
     ]
   },
   "gcp": {
-    "cloud-profiler": {
-      "labels": {
-        "project_id": "globex-staging-d4e5f6",
-        "service": "cloudprofiler.googleapis.com",
-        "method": "/google.devtools.cloudprofiler.v2.ProfilerService/CreateProfile",
-        "version": "v2",
-        "location": "global",
-        "credential_id": "",
-        "protocol": "grpc",
-        "response_code_class": "2xx"
-      },
+    "cloud-monitoring": {
+      "labels": { "project_id": "globex-security-j0k1l2", "workspace_id": "ws-security" },
       "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": { "avg": 625, "sum": 625, "count": 1 }
+        "monitoring.googleapis.com/collection/byte_count": {
+          "avg": 14402647280080,
+          "sum": 14402647280080,
+          "count": 1
+        }
       }
     }
   },
-  "metricset": { "name": "cloud-profiler", "period": 60000 },
+  "metricset": { "name": "cloud-monitoring", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.monitoring_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "dataset": "gcp.monitoring_metrics", "module": "gcp" }
