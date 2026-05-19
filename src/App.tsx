@@ -848,6 +848,10 @@ export function LoadGeneratorApp({
       const loadgen = feeds.filter((f) => isLoadgenFeed(f.datafeed_id));
       const BATCH = 8;
 
+      // Start datafeeds from "now" so they don't re-process old historical data
+      // (which may contain previous injection spikes that would corrupt the baseline).
+      const startFrom = new Date().toISOString();
+
       const stopAndReset = async (f: FeedStat) => {
         const id = encodeURIComponent(f.datafeed_id);
         const jobId = f.datafeed_id.replace("datafeed-", "");
@@ -874,7 +878,7 @@ export function LoadGeneratorApp({
           /* ok */
         }
         try {
-          await mlProxy(`/_ml/datafeeds/${id}/_start`, "POST", {});
+          await mlProxy(`/_ml/datafeeds/${id}/_start`, "POST", { start: startFrom });
         } catch {
           /* ok */
         }
