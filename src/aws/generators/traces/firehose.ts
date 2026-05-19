@@ -21,6 +21,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 // ─── Producer configurations ──────────────────────────────────────────────────
@@ -232,7 +233,10 @@ export function generateFirehoseTrace(ts: string, er: number) {
         },
       },
     },
-    labels: { ...sharedLabels },
+    labels: {
+      ...sharedLabels,
+      ...(isErr ? awsSpanErrorLabels() : {}),
+    },
     service: svcBlock,
     agent,
     telemetry,

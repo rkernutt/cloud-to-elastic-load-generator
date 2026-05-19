@@ -1,62 +1,68 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-south-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "appflow" }
   },
   "aws": {
-    "dimensions": { "FlowName": "salesforce-to-s3" },
+    "dimensions": { "FlowName": "zendesk-export" },
     "appflow": {
-      "flow_name": "salesforce-to-s3",
-      "flow_arn": "arn:aws:appflow:ap-south-2:164820739518:flow/salesforce-to-s3",
-      "source_connector_type": "Zendesk",
-      "destination_connector_type": "Snowflake",
-      "trigger_type": "OnDemand",
-      "execution_status": "ExecutionSuccessful",
-      "records_processed": 480080,
-      "duration_ms": 27129,
+      "flow_name": "zendesk-export",
+      "flow_arn": "arn:aws:appflow:eu-south-1:501938274650:flow/zendesk-export",
+      "source_connector_type": "ServiceNow",
+      "destination_connector_type": "Redshift",
+      "trigger_type": "Event",
+      "execution_status": "ExecutionFailed",
+      "records_processed": 0,
+      "duration_ms": 23726,
+      "error_message": "Rate limit exceeded",
       "metrics": {
-        "RecordsProcessed": { "sum": 480080 },
-        "DurationMs": { "avg": 27129 },
-        "ExecutionSuccessCount": { "sum": 1 },
-        "ExecutionFailureCount": { "sum": 0 }
+        "RecordsProcessed": { "sum": 0 },
+        "DurationMs": { "avg": 23726 },
+        "ExecutionSuccessCount": { "sum": 0 },
+        "ExecutionFailureCount": { "sum": 1 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-appflow-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-appflow-logs-164820739518"
+        "name": "aws-appflow-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-appflow-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/appflow/ap-south-2/2026/05/07/appflow_TGSXF9VRAP.log.gz"
+        "key": "AWSLogs/501938274650/appflow/eu-south-1/2026/05/14/appflow_VB30DCNKWIB18OG1J6NL.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/appflow/logs",
-      "log_stream": "ap-south-2/f9lh3pc6",
-      "ingestion_time": "2026-05-07T10:17:36.466Z"
+      "log_stream": "eu-south-1/a0psoiwi",
+      "ingestion_time": "2026-05-14T03:00:07.293Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.appflow",
     "provider": "appflow.amazonaws.com",
-    "duration": 27129000000,
+    "duration": 23726000000,
     "module": "aws"
   },
-  "message": "Flow run succeeded",
-  "log": { "level": "info" },
+  "message": "Flow run failed",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ExecutionFailed",
+    "message": "AppFlow execution failed",
+    "type": "integration"
+  },
   "service": { "name": "appflow", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.appflow", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "18hjdcftjsu"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "f7oiyzbxtxbq1dd7itgwrp90lxwg0iniwcis"
   },
   "input": { "type": "aws-cloudwatch" }
 }

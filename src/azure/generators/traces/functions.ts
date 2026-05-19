@@ -66,7 +66,8 @@ export function generateFunctionsTrace(ts: string, er: number): EcsDocument[] {
       ...dim({ dependency_type: "Azure Event Hubs" }),
     },
     traceId,
-    "nodejs"
+    "nodejs",
+    { spanFailed: hubErr }
   );
   ms += Math.max(1, Math.round(hubUs / 1000));
 
@@ -95,7 +96,8 @@ export function generateFunctionsTrace(ts: string, er: number): EcsDocument[] {
       ...dim({ dependency_type: "Azure Service Bus" }),
     },
     traceId,
-    "nodejs"
+    "nodejs",
+    { spanFailed: hubErr || sbErr }
   );
   ms += Math.max(1, Math.round(sbUs / 1000));
 
@@ -124,7 +126,8 @@ export function generateFunctionsTrace(ts: string, er: number): EcsDocument[] {
       ...dim({ dependency_type: "Azure Cosmos DB" }),
     },
     traceId,
-    "nodejs"
+    "nodejs",
+    { spanFailed: hubErr || sbErr || cosmosErr }
   );
 
   const totalUs = hubUs + sbUs + cosmosUs + randInt(500, 4000) * 1000;

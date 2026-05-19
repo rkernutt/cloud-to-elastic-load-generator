@@ -1,47 +1,47 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "me-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "paymentcryptography" }
   },
   "aws": {
-    "dimensions": { "KeyAlgorithm": "AES_256", "Operation": "DecryptData" },
+    "dimensions": { "KeyAlgorithm": "TDES_3KEY", "Operation": "TranslatePinData" },
     "paymentcryptography": {
-      "key_arn": "arn:aws:payment-cryptography:af-south-1:164820739518:key/DYIEOY98D3R",
-      "key_alias": "alias/payment-cvv-key",
-      "key_algorithm": "AES_256",
-      "key_usage": "TR31_P0_PIN_ENCRYPTION_KEY",
-      "operation": "DecryptData",
+      "key_arn": "arn:aws:payment-cryptography:me-south-1:814726593401:key/W5WAR81SCDR0QFG1UJA2S79O1J6SENLR7GB9",
+      "key_alias": "alias/payment-pin-key",
+      "key_algorithm": "TDES_3KEY",
+      "key_usage": "TR31_M3_ISO_9797_3_MAC_KEY",
+      "operation": "TranslatePinData",
       "key_state": "CREATE_COMPLETE",
       "exportable": false,
-      "key_check_value": "F5JT3D"
+      "key_check_value": "V3PPA0"
     },
     "s3": {
       "bucket": {
-        "name": "aws-paymentcryptography-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-paymentcryptography-logs-164820739518"
+        "name": "aws-paymentcryptography-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-paymentcryptography-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/paymentcryptography/af-south-1/2026/05/07/paymentcryptography_P18VTNXKEN.log.gz"
+        "key": "AWSLogs/814726593401/paymentcryptography/me-south-1/2026/05/14/paymentcryptography_G31L5Z0VIZI1RA5RZPBW.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/paymentcryptography/logs",
-      "log_stream": "af-south-1/sh7njl9f",
-      "ingestion_time": "2026-05-07T10:17:36.370Z"
+      "log_stream": "me-south-1/5nlf9sf8",
+      "ingestion_time": "2026-05-14T03:00:07.170Z"
     }
   },
   "event": {
-    "action": "ExportKey",
+    "action": "VerifyMac",
     "outcome": "success",
     "category": ["authentication"],
     "dataset": "aws.paymentcryptography",
     "provider": "payment-cryptography.amazonaws.com",
     "module": "aws"
   },
-  "message": "Payment Cryptography DecryptData using AES_256 (P0)",
+  "message": "Payment Cryptography TranslatePinData using TDES_3KEY (M3)",
   "log": { "level": "info" },
   "service": { "name": "paymentcryptography", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -49,8 +49,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "vxvumpdhhv"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "ff1u56admc7vov5ice57xzx4jz7k83c1w12o"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -3,7 +3,6 @@
  */
 
 import { AZURE_ELASTIC_DATASET_MAP } from "../data/elasticMaps.js";
-import { makeGenericAzureLog } from "./genericLog.js";
 import {
   generateVirtualMachinesLog,
   generateVmScaleSetsLog,
@@ -158,6 +157,18 @@ import {
   generateStackLog,
   generateApiCenterLog,
 } from "./miscExtended.js";
+import {
+  generateAiFoundryLog,
+  generateApplicationInsightsLog,
+  generateDataExplorerLog,
+  generateDedicatedHsmLog,
+  generateDnsPrivateResolverLog,
+  generateElasticSanLog,
+  generateManagedGrafanaLog,
+  generateManagedPrometheusLog,
+  generateVideoIndexerLog,
+  generateVirtualDesktopLog,
+} from "./azurePlatformServicesExtended.js";
 
 import type { EcsDocument } from "./helpers.js";
 
@@ -184,6 +195,7 @@ const DEDICATED: Record<string, Gen> = {
   "vmware-solution": generateVmwareSolutionLog,
   "oracle-on-azure": generateOracleOnAzureLog,
   "sap-on-azure": generateSapOnAzureLog,
+  "virtual-desktop": generateVirtualDesktopLog,
   "virtual-network": generateVirtualNetworkLog,
   "network-security-groups": generateNetworkSecurityGroupsLog,
   "load-balancer": generateLoadBalancerLog,
@@ -195,6 +207,7 @@ const DEDICATED: Record<string, Gen> = {
   "nat-gateway": generateNatGatewayLog,
   "private-link": generatePrivateLinkLog,
   "private-dns": generatePrivateDnsLog,
+  "dns-private-resolver": generateDnsPrivateResolverLog,
   "traffic-manager": generateTrafficManagerLog,
   "ddos-protection": generateDdosProtectionLog,
   bastion: generateBastionLog,
@@ -214,6 +227,7 @@ const DEDICATED: Record<string, Gen> = {
   "storage-sync": generateStorageSyncLog,
   "netapp-files": generateNetappFilesLog,
   "hpc-cache": generateHpcCacheLog,
+  "elastic-san": generateElasticSanLog,
   "sql-managed-instance": generateSqlManagedInstanceLog,
   "cache-for-redis": generateCacheForRedisLog,
   "database-for-postgresql": generateDatabaseForPostgresqlLog,
@@ -227,6 +241,8 @@ const DEDICATED: Record<string, Gen> = {
   "analysis-services": generateAnalysisServicesLog,
   "power-bi-embedded": generatePowerBiEmbeddedLog,
   "microsoft-fabric": generateMicrosoftFabricLog,
+  "data-explorer": generateDataExplorerLog,
+  "ai-foundry": generateAiFoundryLog,
   "cognitive-services": generateCognitiveServicesLog,
   "machine-learning": generateMachineLearningLog,
   "ai-search": generateAiSearchLog,
@@ -240,8 +256,12 @@ const DEDICATED: Record<string, Gen> = {
   sentinel: generateSentinelLog,
   attestation: generateAttestationLog,
   "confidential-ledger": generateConfidentialLedgerLog,
+  "dedicated-hsm": generateDedicatedHsmLog,
   "activity-log": generateActivityLogLog,
   monitor: generateMonitorLog,
+  "managed-grafana": generateManagedGrafanaLog,
+  "managed-prometheus": generateManagedPrometheusLog,
+  "application-insights": generateApplicationInsightsLog,
   policy: generatePolicyLog,
   advisor: generateAdvisorLog,
   "cost-management": generateCostManagementLog,
@@ -270,6 +290,7 @@ const DEDICATED: Record<string, Gen> = {
   "communication-services": generateCommunicationServicesLog,
   signalr: generateSignalRLog,
   "notification-hubs": generateNotificationHubsLog,
+  "video-indexer": generateVideoIndexerLog,
   "automation-account": generateAutomationAccountLog,
   "app-configuration": generateAppConfigurationLog,
   "deployment-environments": generateDeploymentEnvironmentsLog,
@@ -307,12 +328,21 @@ const AZURE_LOG_MERGE_CHILDREN: Record<string, readonly string[]> = {
 function buildRegistry(): Record<string, Gen> {
   const out: Record<string, Gen> = {};
   for (const id of Object.keys(AZURE_ELASTIC_DATASET_MAP)) {
-    out[id] = DEDICATED[id] ?? makeGenericAzureLog(id);
+    const gen = DEDICATED[id];
+    if (!gen) throw new Error(`No dedicated Azure log generator for: ${id}`);
+    out[id] = gen;
   }
   for (const [parent, children] of Object.entries(AZURE_LOG_MERGE_CHILDREN)) {
     const base = out[parent];
     if (!base) continue;
-    const variants = [base, ...children.map((c) => DEDICATED[c] ?? makeGenericAzureLog(c))];
+    const variants = [
+      base,
+      ...children.map((c) => {
+        const cg = DEDICATED[c];
+        if (!cg) throw new Error(`No dedicated Azure log generator for merge child: ${c}`);
+        return cg;
+      }),
+    ];
     out[parent] = mergeAzureLogVariants(variants);
     for (const c of children) {
       delete out[c];

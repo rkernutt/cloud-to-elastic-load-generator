@@ -14,6 +14,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 const BRIDGE_SERVICES = [
@@ -97,7 +98,7 @@ export function generateIotcoreTrace(ts: string, er: number) {
       service: svcBlock,
       agent,
       telemetry,
-      labels: ph.labels,
+      labels: { ...ph.labels, ...(spanErr ? awsSpanErrorLabels() : {}) },
       event: { outcome: spanErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     });

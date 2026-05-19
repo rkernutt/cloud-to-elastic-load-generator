@@ -1,36 +1,43 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-2",
+    "region": "ap-northeast-1",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "dms" }
   },
   "aws": {
-    "dimensions": { "ReplicationInstanceIdentifier": "dms-analytics-7fgf2hrm" },
+    "dimensions": { "ReplicationInstanceIdentifier": "dms-staging-u2dhz30r" },
     "dms": {
-      "replication_task_id": "on-prem-to-rds",
-      "migration_type": "full-load",
-      "replication_instance_identifier": "dms-analytics-7fgf2hrm",
-      "source_engine": "mysql",
+      "replication_task_id": "oracle-to-rds",
+      "migration_type": "full-load-and-cdc",
+      "replication_instance_identifier": "dms-staging-u2dhz30r",
+      "source_engine": "postgresql",
       "target_engine": "aurora-postgresql",
-      "replication_instance_class": "dms.r5.large",
+      "replication_instance_class": "dms.t3.medium",
       "task_status": "Load complete",
-      "full_load_rows_transferred": 1058834,
-      "cdc_incoming_changes": 0,
-      "latency_ms": 0,
-      "tables_loaded": 227,
+      "full_load_rows_transferred": 9630166,
+      "cdc_incoming_changes": 47438,
+      "latency_ms": 1282,
+      "tables_loaded": 196,
       "tables_errored": 0,
       "metrics": {
-        "FullLoadThroughputRowsSource": { "avg": 2421 },
-        "FullLoadThroughputRowsTarget": { "avg": 21604 },
-        "CPUUtilization": { "avg": 6.312642028947943 },
-        "FreeableMemory": { "avg": 3463784287 },
-        "FreeStorageSpace": { "avg": 72193682954 },
-        "NetworkReceiveThroughput": { "avg": 91522210 },
-        "NetworkTransmitThroughput": { "avg": 83635977 },
-        "ReadIOPS": { "avg": 2734 },
-        "WriteIOPS": { "avg": 295 }
+        "FullLoadThroughputRowsSource": { "avg": 55029 },
+        "FullLoadThroughputRowsTarget": { "avg": 95728 },
+        "CDCIncomingChanges": { "avg": 4113 },
+        "CDCChangesMemorySource": { "avg": 30 },
+        "CDCChangesMemoryTarget": { "avg": 589 },
+        "CDCChangesDiskSource": { "avg": 14 },
+        "CDCChangesDiskTarget": { "avg": 54 },
+        "CDCLatencySource": { "avg": 4 },
+        "CDCLatencyTarget": { "avg": 10 },
+        "CPUUtilization": { "avg": 37.840253637522615 },
+        "FreeableMemory": { "avg": 1087578589 },
+        "FreeStorageSpace": { "avg": 25696864465 },
+        "NetworkReceiveThroughput": { "avg": 72636826 },
+        "NetworkTransmitThroughput": { "avg": 53263429 },
+        "ReadIOPS": { "avg": 1689 },
+        "WriteIOPS": { "avg": 283 }
       }
     },
     "s3": {
@@ -39,13 +46,13 @@
         "arn": "arn:aws:s3:::aws-dms-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/dms/ap-southeast-2/2026/05/07/dms_EYT6JNFNEW.log.gz"
+        "key": "AWSLogs/501938274650/dms/ap-northeast-1/2026/05/14/dms_17AUMYG5RAROKDKIS8U4.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/dms/logs",
-      "log_stream": "ap-southeast-2/36z52139",
-      "ingestion_time": "2026-05-07T10:17:36.528Z"
+      "log_stream": "ap-northeast-1/aqj54dva",
+      "ingestion_time": "2026-05-14T03:00:07.352Z"
     }
   },
   "event": {
@@ -53,10 +60,10 @@
     "category": ["database", "process"],
     "dataset": "aws.dms",
     "provider": "dms.amazonaws.com",
-    "duration": 3835000000000,
+    "duration": 5484000000000,
     "module": "aws"
   },
-  "message": "DMS on-prem-to-rds: 1,058,834 rows (mysql->aurora-postgresql full-load)",
+  "message": "DMS oracle-to-rds: 9,630,166 rows (postgresql->aurora-postgresql full-load-and-cdc)",
   "log": { "level": "info" },
   "service": { "name": "dms", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -64,8 +71,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-2",
-    "ephemeral_id": "jhzfuldarok"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "opnxn4z9dpcpxs3dyxzdqv9m8opraa379gl2"
   },
   "input": { "type": "aws-cloudwatch" }
 }

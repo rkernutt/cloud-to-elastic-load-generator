@@ -1,90 +1,64 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "NOTICE",
-  "logName": "projects/globex-staging-d4e5f6/logs/requests",
-  "insertId": "yz2usuwioua",
+  "log": { "level": "info" },
+  "labels": {},
+  "severity": "INFO",
+  "logName": "projects/globex-prod-a1b2c3/logs/compute.googleapis.com%2Fserverless_neg",
+  "insertId": "2pl6xxgkx8b0fpr1",
   "resource": {
-    "type": "http_load_balancer",
+    "type": "network_endpoint_group",
     "labels": {
-      "project_id": "globex-staging-d4e5f6",
-      "zone": "global",
-      "url_map_name": "um-v72yts",
-      "target_proxy_name": "tp-https-qai1",
-      "forwarding_rule_name": "fr-us-east5-tjjf",
-      "backend_service_name": "bes-web-cp9c"
+      "project_id": "globex-prod-a1b2c3",
+      "neg": "neg-pa1hfpyn",
+      "region": "southamerica-west1"
     }
   },
-  "httpRequest": {
-    "requestMethod": "PUT",
-    "requestUrl": "https://api.globex-staging-d4e5f6.com/api/v2/events",
-    "status": 200,
-    "userAgent": "python-requests/2.27.1",
-    "remoteIp": "155.102.161.138",
-    "latency": "0.057000s",
-    "protocol": "HTTP/2"
-  },
   "jsonPayload": {
-    "cacheDecision": "CACHE_MISS",
-    "backendTargetProjectNumber": "271828182845",
-    "backend_name": "bes-web-cp9c",
-    "forwarding_rule_name": "fr-us-east5-tjjf",
-    "url_map_name": "um-v72yts",
-    "target_proxy_name": "tp-https-qai1"
+    "serverless_neg": "projects/globex-prod-a1b2c3/regions/southamerica-west1/networkEndpointGroups/neg-pa1hfpyn",
+    "backend_service": "projects/globex-prod-a1b2c3/regions/southamerica-west1/backendServices/bes-gae-urx9",
+    "target_type": "cloud-functions",
+    "health_check": { "state": "HEALTHY", "consecutive_success": 38, "consecutive_failure": 0 },
+    "stats": { "requests": 236408, "error_rate": 0.025 }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-east5",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
-    "service": { "name": "cloud-lb" }
+    "region": "southamerica-west1",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
+    "service": { "name": "serverless-neg" }
   },
   "gcp": {
-    "cloud_lb": {
-      "http_request": {
-        "requestMethod": "PUT",
-        "requestUrl": "https://api.globex-staging-d4e5f6.com/api/v2/events",
-        "status": 200,
-        "userAgent": "python-requests/2.27.1",
-        "remoteIp": "155.102.161.138",
-        "latency": "0.057000s",
-        "protocol": "HTTP/2"
-      },
+    "serverless_neg": {
       "json_payload": {
-        "cacheDecision": "CACHE_MISS",
-        "backendTargetProjectNumber": "271828182845",
-        "backend_name": "bes-web-cp9c",
-        "forwarding_rule_name": "fr-us-east5-tjjf",
-        "url_map_name": "um-v72yts",
-        "target_proxy_name": "tp-https-qai1"
+        "serverless_neg": "projects/globex-prod-a1b2c3/regions/southamerica-west1/networkEndpointGroups/neg-pa1hfpyn",
+        "backend_service": "projects/globex-prod-a1b2c3/regions/southamerica-west1/backendServices/bes-gae-urx9",
+        "target_type": "cloud-functions",
+        "health_check": { "state": "HEALTHY", "consecutive_success": 38, "consecutive_failure": 0 },
+        "stats": { "requests": 236408, "error_rate": 0.025 }
       },
-      "backend_service": "bes-web-cp9c",
-      "url_map": "um-v72yts",
-      "forwarding_rule": "fr-us-east5-tjjf",
-      "request_method": "PUT",
-      "url_path": "/api/v2/events",
-      "response_code": 200,
-      "latency_ms": 57,
-      "client_ip": "155.102.161.138",
-      "backend_ip": "206.106.81.58",
-      "protocol": "HTTP/2"
+      "neg_name": "neg-pa1hfpyn",
+      "backend_service": "bes-gae-urx9",
+      "target_type": "cloud-functions",
+      "health_status": "HEALTHY",
+      "request_count": 236408,
+      "error_rate": 0.025
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 57000000,
+    "duration": 47000000,
     "module": "gcp",
-    "dataset": "gcp.loadbalancing"
+    "dataset": "gcp.serverless_neg"
   },
-  "message": "loadbalancing.googleapis.com/requests PUT 200 0.057000s https://api.globex-staging-d4e5f6.com/api/v2/events",
-  "service": { "name": "cloud-lb", "type": "gcp" },
-  "log": { "level": "info" },
+  "message": "compute.googleapis.com/serverless_negs neg-pa1hfpyn health=HEALTHY",
+  "service": { "name": "serverless-neg", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.loadbalancing", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.serverless_neg", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-east5",
-    "id": "40dxjq1uiqx"
+    "name": "elastic-agent-gcp-southamerica-west1",
+    "id": "n9w7udhgnhwsje7wv7ajes11ou66bpm8ektw"
   },
   "input": { "type": "gcp-pubsub" }
 }

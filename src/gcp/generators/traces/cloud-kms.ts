@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 const OPS = ["Encrypt", "Decrypt", "AsymmetricSign"] as const;
 
@@ -44,7 +50,7 @@ export function generateCloudKmsTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: u1 },
       action: op.toLowerCase(),
       destination: { service: { resource: "cloudkms", type: "external", name: "cloudkms" } },
-      labels: failIdx === 0 ? { "gcp.rpc.status_code": "INVALID_ARGUMENT" } : {},
+      labels: failIdx === 0 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,
@@ -72,7 +78,7 @@ export function generateCloudKmsTrace(ts: string, er: number): EcsDocument[] {
       destination: { service: { resource: "key_ring", type: "db", name: "key_ring" } },
       labels: {
         "gcp.kms.key_ring": keyRing,
-        ...(failIdx === 1 ? { "gcp.rpc.status_code": "NOT_FOUND" } : {}),
+        ...(failIdx === 1 ? { ...gcpSpanFailureLabels() } : {}),
       },
     },
     service: svc,
@@ -101,7 +107,7 @@ export function generateCloudKmsTrace(ts: string, er: number): EcsDocument[] {
       destination: { service: { resource: "crypto_keys", type: "external", name: "crypto_keys" } },
       labels: {
         "gcp.kms.crypto_key": key,
-        ...(failIdx === 2 ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {}),
+        ...(failIdx === 2 ? { ...gcpSpanFailureLabels() } : {}),
       },
     },
     service: svc,
@@ -128,7 +134,7 @@ export function generateCloudKmsTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: u4 },
       action: "send",
       destination: { service: { resource: "audit_logs", type: "messaging", name: "audit_logs" } },
-      labels: failIdx === 3 ? { "gcp.rpc.status_code": "UNAVAILABLE" } : {},
+      labels: failIdx === 3 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: gcpServiceBase("audit-publisher", env, "go", {
       runtimeName: "go",

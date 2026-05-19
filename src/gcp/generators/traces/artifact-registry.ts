@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 const OPS = ["PullImage", "PushImage"] as const;
 
@@ -49,7 +55,7 @@ export function generateArtifactRegistryTrace(ts: string, er: number): EcsDocume
       },
       labels: {
         "gcp.artifact.repository": repo,
-        ...(failIdx === 0 ? { "gcp.rpc.status_code": "UNAUTHENTICATED" } : {}),
+        ...(failIdx === 0 ? { ...gcpSpanFailureLabels() } : {}),
       },
     },
     service: svc,
@@ -76,7 +82,7 @@ export function generateArtifactRegistryTrace(ts: string, er: number): EcsDocume
       duration: { us: u2 },
       action: "verify",
       destination: { service: { resource: "oauth2", type: "external", name: "oauth2" } },
-      labels: failIdx === 1 ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {},
+      labels: failIdx === 1 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,
@@ -104,7 +110,7 @@ export function generateArtifactRegistryTrace(ts: string, er: number): EcsDocume
       destination: {
         service: { resource: "artifact_blob", type: "storage", name: "artifact_blob" },
       },
-      labels: failIdx === 2 ? { "gcp.rpc.status_code": "ABORTED" } : {},
+      labels: failIdx === 2 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,
@@ -132,7 +138,7 @@ export function generateArtifactRegistryTrace(ts: string, er: number): EcsDocume
       destination: {
         service: { resource: "docker_manifest", type: "db", name: "docker_manifest" },
       },
-      labels: failIdx === 3 ? { "gcp.rpc.status_code": "ALREADY_EXISTS" } : {},
+      labels: failIdx === 3 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,

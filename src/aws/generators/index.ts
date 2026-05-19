@@ -244,6 +244,24 @@ import {
   generateWorkMailLog,
   generateWickrLog,
 } from "./enduser.js";
+import {
+  generateBedrockGuardrailsLog,
+  generateEmrServerlessLog,
+  generateGwlbLog,
+  generateElbClassicLog,
+  generateMediaConnectLog,
+  generateMediaPackageLog,
+  generateMediaStoreLog,
+  generateMediaTailorLog,
+  generateIvsLog,
+  generateIvsChatLog,
+  generateCloudSearchLog,
+  generateDirectoryServiceLog,
+  generateAcmpcaLog,
+  generateMgnLog,
+  generateCwSyntheticsLog,
+  generateManagedPrometheusLog,
+} from "./extendedAwsServices.js";
 
 const GENERATORS = {
   // Group 1 — Serverless & Core
@@ -473,6 +491,22 @@ const GENERATORS = {
   iotsitewise: generateIotSiteWiseLog,
   iotdefender: generateIotDefenderLog,
   wafv2: generateWafv2Log,
+  bedrockguardrails: generateBedrockGuardrailsLog,
+  emrserverless: generateEmrServerlessLog,
+  gwlb: generateGwlbLog,
+  elb: generateElbClassicLog,
+  mediaconnect: generateMediaConnectLog,
+  mediapackage: generateMediaPackageLog,
+  mediastore: generateMediaStoreLog,
+  mediatailor: generateMediaTailorLog,
+  ivs: generateIvsLog,
+  ivschat: generateIvsChatLog,
+  cloudsearch: generateCloudSearchLog,
+  directoryservice: generateDirectoryServiceLog,
+  acmpca: generateAcmpcaLog,
+  mgn: generateMgnLog,
+  cwsynthetics: generateCwSyntheticsLog,
+  managedprometheus: generateManagedPrometheusLog,
   // Cross-cloud ITSM
   servicenow_cmdb: generateServiceNowCmdbLog,
 };

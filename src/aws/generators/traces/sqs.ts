@@ -22,6 +22,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 // ─── Consumer configurations ──────────────────────────────────────────────────
@@ -195,7 +196,7 @@ function buildSpan(
       ...(dbBlock ? { db: dbBlock } : {}),
       destination: { service: { resource: shape.dest, type: shape.type, name: shape.dest } },
     },
-    labels: { ...labels },
+    labels: { ...labels, ...(isErr ? awsSpanErrorLabels() : {}) },
     service: svcBlock,
     agent,
     telemetry,

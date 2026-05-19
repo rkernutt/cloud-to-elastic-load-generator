@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 const FN_CONFIGS = [
   {
@@ -85,7 +91,9 @@ function depSpan(
         type: "nosql",
         statement: `${rand(["get", "query"])} ${rand(["users", "orders", "sessions", "carts"])}/*`,
       },
-      labels: { "gcp.rpc.status_code": isErr ? "PERMISSION_DENIED" : "OK" },
+      labels: isErr
+        ? { "gcp.rpc.status_code": "PERMISSION_DENIED", ...gcpSpanFailureLabels() }
+        : { "gcp.rpc.status_code": "OK" },
     },
     pubsub: {
       type: "messaging",
@@ -95,7 +103,7 @@ function depSpan(
       dest: "pubsub",
       labels: {
         "gcp.pubsub.topic": rand(["order-events", "notifications", "audit"]),
-        ...(isErr ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" } : {}),
+        ...(isErr ? { ...gcpSpanFailureLabels() } : {}),
       },
     },
     gcs: {
@@ -112,7 +120,7 @@ function depSpan(
       name: `HTTP ${rand(["GET", "POST"])} ${rand(["payments.api", "auth.idp", "tax.vendor"])}`,
       action: "call",
       dest: "external",
-      labels: isErr ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: isErr ? { ...gcpSpanFailureLabels() } : {},
     },
     bigquery: {
       type: "db",
@@ -124,7 +132,7 @@ function depSpan(
         type: "sql",
         statement: "INSERT INTO `analytics.events` SELECT ...",
       },
-      labels: isErr ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: isErr ? { ...gcpSpanFailureLabels() } : {},
     },
   };
   const sh = shapes[dep] ?? shapes.firestore;

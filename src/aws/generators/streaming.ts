@@ -13,32 +13,90 @@ function generateKinesisStreamsLog(ts: string, er: number): EcsDocument {
     "audit-trail",
   ]);
   const shardId = `shardId-0000000000${randInt(0, 9)}`;
-  const op = rand([
-    "PutRecord",
-    "PutRecords",
-    "GetRecords",
-    "SubscribeToShard",
-    "SplitShard",
-    "MergeShards",
-  ]);
+  const scenario = rand([
+    "shard_split",
+    "shard_merge",
+    "enhanced_fanout",
+    "throughput_exceeded",
+    "iterator_expired",
+    "data_plane_put_get",
+  ] as const);
+  const throughputOp = rand(["PutRecords", "PutRecord", "GetRecords"]);
+  const op =
+    scenario === "shard_split"
+      ? "SplitShard"
+      : scenario === "shard_merge"
+        ? "MergeShards"
+        : scenario === "enhanced_fanout"
+          ? "SubscribeToShard"
+          : scenario === "throughput_exceeded"
+            ? throughputOp
+            : scenario === "iterator_expired"
+              ? "GetRecords"
+              : rand(["PutRecord", "PutRecords", "GetRecords", "SubscribeToShard"]);
   const putBatch = randInt(1, 500);
   const efoConsumers = randInt(0, isErr ? 120 : 40);
-  const controlPlaneMsg =
-    op === "SplitShard"
-      ? `SplitShard completed: parent ${shardId} -> new shards shardId-0000000000${randInt(0, 9)},shardId-0000000000${randInt(0, 9)} on ${stream}`
-      : op === "MergeShards"
-        ? `MergeShards completed: adjacent shards merged into ${shardId} on ${stream}`
-        : op === "SubscribeToShard"
-          ? `SubscribeToShard: consumer ${randId(8).toLowerCase()} connected to ${shardId} enhanced fan-out (${efoConsumers} concurrent)`
-          : op === "PutRecords"
-            ? `PutRecords succeeded: ${putBatch} records (${randInt(1024, 4_000_000)} bytes) to ${stream}/${shardId}`
-            : op === "PutRecord"
-              ? `PutRecord succeeded: partitionKey=${randId(6)} sequenceNumber=${randInt(1e12, 9e15)} stream=${stream}`
-              : `GetRecords returned ${randInt(1, 2000)} records from ${stream}/${shardId}`;
-  const iteratorWarn =
-    isErr && Math.random() < 0.45
-      ? ` Iterator expired for ${stream}/${shardId}: refresh shard iterator (ExpiredIteratorException).`
-      : "";
+  const iteratorAgeMs = randInt(isErr ? 360000 : 500, isErr ? 7200000 : 120000);
+  const throughputLine = `Throughput throttled (${scenario}) WriteProvisionedThroughputExceeded stream=${stream} shard=${shardId} attempts=${randInt(3, 20)}`;
+
+  let controlPlaneMsg: string;
+  if (scenario === "shard_split") {
+    controlPlaneMsg = `SplitShard parent=${shardId} -> child shards shardId-0000000000${randInt(0, 9)},shardId-0000000000${randInt(
+      0,
+      9
+    )} on ${stream}`;
+  } else if (scenario === "shard_merge") {
+    controlPlaneMsg = `MergeShards adjacent shards into target=${shardId} stream=${stream} completed`;
+  } else if (scenario === "enhanced_fanout") {
+    controlPlaneMsg = `SubscribeToShard consumerARN=arn:aws:kinesis:${region}:${acct.id}:stream-consumer/${stream}/consumer-${randId(
+      8
+    ).toLowerCase()} shard=${shardId} concurrent=${efoConsumers}`;
+  } else if (scenario === "throughput_exceeded") {
+    controlPlaneMsg =
+      op === "PutRecords"
+        ? `PutRecords partially failed (${putBatch} records) ProvisionedThroughputExceeded ${stream}`
+        : op === "PutRecord"
+          ? `PutRecord throttled pk=${randId(6)} ${stream}`
+          : `GetRecords throttled iteratorAge=${iteratorAgeMs}ms ${shardId}`;
+  } else if (scenario === "iterator_expired") {
+    controlPlaneMsg = `GetRecords ${stream}/${shardId} sequence=${randInt(1e12, 9e15)} ExpiredIteratorException — refresh ShardIterator`;
+  } else {
+    controlPlaneMsg =
+      op === "PutRecords"
+        ? `PutRecords succeeded: ${putBatch} records (${randInt(1024, 4_000_000)} bytes) to ${stream}/${shardId}`
+        : op === "PutRecord"
+          ? `PutRecord succeeded: partitionKey=${randId(6)} sequenceNumber=${randInt(1e12, 9e15)} stream=${stream}`
+          : op === "SubscribeToShard"
+            ? `SubscribeToShard: consumer ${randId(8).toLowerCase()} connected (${efoConsumers} concurrent)`
+            : `GetRecords returned ${randInt(1, 2000)} records from ${stream}/${shardId}`;
+  }
+
+  const useStructuredFailure = isErr && Math.random() < 0.42;
+  const errCodeRand = rand([
+    "ExpiredIteratorException",
+    "ProvisionedThroughputExceededException",
+    "InvalidArgumentException",
+    "KMSThrottlingException",
+    "ResourceNotFoundException",
+    "LimitExceededException",
+  ]);
+
+  const message =
+    useStructuredFailure && isErr
+      ? JSON.stringify({
+          __type: errCodeRand,
+          message:
+            scenario === "iterator_expired"
+              ? "Iterator expired — call GetShardIterator"
+              : throughputLine,
+          streamName: stream,
+          shardId,
+          operation: op,
+          scenario,
+        })
+      : isErr
+        ? `${controlPlaneMsg} [${errCodeRand}]`
+        : controlPlaneMsg;
   return {
     "@timestamp": ts,
     cloud: {
@@ -51,12 +109,18 @@ function generateKinesisStreamsLog(ts: string, er: number): EcsDocument {
       dimensions: { StreamName: stream },
       kinesis: {
         operation: op,
+        scenario,
         shard_id: shardId,
         enhanced_fan_out_subscribers: efoConsumers,
         metrics: {
           GetRecords_Bytes: { avg: randInt(1000, 1e6) },
           GetRecords_IteratorAgeMilliseconds: {
-            avg: isErr ? randInt(10000, 3600000) : randInt(0, 1000),
+            avg:
+              scenario === "iterator_expired" || scenario === "throughput_exceeded"
+                ? iteratorAgeMs
+                : isErr
+                  ? randInt(10000, 3600000)
+                  : randInt(0, 1000),
           },
           GetRecords_Latency: { avg: randInt(1, 50) },
           GetRecords_Records: { avg: randInt(1, 1000), sum: randInt(1, 1000) },
@@ -83,29 +147,19 @@ function generateKinesisStreamsLog(ts: string, er: number): EcsDocument {
       provider: "kinesis.amazonaws.com",
       duration: randInt(1, isErr ? 60000 : 5000) * 1e6,
     },
-    message: isErr
-      ? `${controlPlaneMsg}${iteratorWarn || ` Kinesis WriteProvisionedThroughputExceeded on ${stream}`}`
-      : `${controlPlaneMsg}`,
+    message,
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
           error: {
-            code: rand([
-              "ExpiredIteratorException",
-              "InvalidArgumentException",
-              "KMSAccessDeniedException",
-              "KMSDisabledException",
-              "KMSInvalidStateException",
-              "KMSNotFoundException",
-              "KMSOptInRequired",
-              "KMSThrottlingException",
-              "LimitExceededException",
-              "ProvisionedThroughputExceededException",
-              "ResourceInUseException",
-              "ResourceNotFoundException",
-            ]),
-            message: "Kinesis stream error",
-            type: "stream",
+            code: errCodeRand,
+            message:
+              scenario === "iterator_expired"
+                ? "Shard iterator expired; clients must obtain a new iterator"
+                : scenario === "throughput_exceeded"
+                  ? "Kinesis stream exceeded provisioned writes or reads"
+                  : `Kinesis ${op} failed (${scenario})`,
+            type: "aws",
           },
         }
       : {}),
@@ -115,15 +169,59 @@ function generateKinesisStreamsLog(ts: string, er: number): EcsDocument {
 function generateFirehoseLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
-  const isErr = Math.random() < er;
   const stream = rand([
     "logs-to-s3",
     "events-to-redshift",
     "metrics-to-opensearch",
     "clickstream-backup",
+    "security-lake-feed",
   ]);
-  const dest = rand(["S3", "Redshift", "OpenSearch", "HTTPEndpoint"]);
+  const dest = rand(["S3", "Redshift", "OpenSearch", "HTTPEndpoint", "Splunk"]);
   const recs = randInt(100, 50000);
+  const incomingBytes = recs * randInt(200, 2000);
+  const bufferingHintMb = rand([1, 3, 5, 15, 64, 128]);
+  const r = randFloat(0, 1);
+  const scenario =
+    r < 0.32
+      ? "delivery_ok"
+      : r < 0.48
+        ? "buffer_flush"
+        : r < 0.62
+          ? "s3_backup"
+          : r < 0.76
+            ? "transformation_lambda_invoke"
+            : r < 0.88
+              ? "delivery_failure"
+              : "format_conversion_error";
+  const scenarioIsFailure =
+    scenario === "delivery_failure" || scenario === "format_conversion_error";
+  const isErr = scenarioIsFailure || (!scenarioIsFailure && Math.random() < er);
+  const op = rand(["PutRecord", "PutRecordBatch", "CreateDeliveryStream"]);
+  const lambdaArn = `arn:aws:lambda:${region}:${acct.id}:function:${rand(["fh-transform", "decompress-json", "enrich-records"])}`;
+  const errCode = rand([
+    "ServiceUnavailableException",
+    "ResourceNotFoundException",
+    "InvalidArgumentException",
+  ] as const);
+  const scenarioMessages: Record<string, string> = {
+    delivery_ok:
+      op === "PutRecordBatch"
+        ? `PutRecordBatch: accepted ${randInt(50, 500)} records for ${stream} (${incomingBytes.toLocaleString()} IncomingBytes)`
+        : op === "PutRecord"
+          ? `PutRecord: buffered partitionKey=${randId(8)} DeliveryStream=${stream}`
+          : `CreateDeliveryStream: ACTIVE ${stream} destination=${dest}`,
+    buffer_flush: `Flush triggered: BufferingHints SizeInMB=${bufferingHintMb} IntervalSeconds=${randInt(60, 300)} stream=${stream}`,
+    s3_backup: `DeliveryToS3 backup prefix s3://${rand(["corp-logs", "fh-archive"])}/${acct.id}/${stream}/year=${randInt(2024, 2026)}/${isErr ? "failed/" : ""}${randId(6)}/`,
+    transformation_lambda_invoke: `Lambda processing ${lambdaArn}: ${randInt(1, 200)} batches, IncomingRecords=${recs}`,
+    delivery_failure: `Destination delivery failed for ${stream}: DeliveryStreamBufferingHintSizeInMB=${bufferingHintMb} exceeded before ack; ${dest} PutObject throttled`,
+    format_conversion_error: `Format conversion ${rand(["ORC", "Parquet", "JSON"])} failed for ${stream}: schema mismatch on ${rand(["ts", "event_id", "dimensions"])}`,
+  };
+  const message = isErr
+    ? scenarioIsFailure
+      ? `${scenarioMessages[scenario]} [${errCode}]`
+      : `${scenarioMessages[scenario]} — throttled: ${errCode}`
+    : scenarioMessages[scenario];
+  const execProcMs = randInt(50, scenario === "transformation_lambda_invoke" ? 8000 : 1200);
   return {
     "@timestamp": ts,
     cloud: {
@@ -137,21 +235,52 @@ function generateFirehoseLog(ts: string, er: number): EcsDocument {
       firehose: {
         delivery_stream_name: stream,
         destination: dest,
+        operation: op,
+        scenario,
         incoming_records: recs,
-        incoming_bytes: recs * randInt(200, 2000),
+        incoming_bytes: incomingBytes,
         delivery_success: !isErr,
-        delivery_records: isErr ? 0 : recs,
-        data_freshness_seconds: randInt(60, isErr ? 3600 : 300),
+        delivery_records:
+          isErr && scenario === "delivery_failure" ? 0 : Math.min(recs, randInt(recs >> 1, recs)),
+        data_freshness_seconds: randInt(30, isErr ? 7200 : 240),
+        transformation: {
+          lambda_arn:
+            scenario === "transformation_lambda_invoke" || dest === "S3"
+              ? rand([lambdaArn, null])
+              : null,
+          buffer_size_mb: bufferingHintMb,
+          interval_seconds: randInt(60, 900),
+          compression: rand(["SNAPPY", "GZIP", "UNCOMPRESSED"]),
+        },
+        s3_delivery: {
+          prefix_template: "!{timestamp:yyyy/MM/dd}/",
+          error_prefix: scenario === "s3_backup" && isErr ? `errors/${stream}/` : null,
+          encryption: rand(["SSE_S3", "SSE_KMS", "NONE"]),
+        },
         metrics: {
-          "DeliveryToS3.Bytes": { sum: randInt(1000, 1e8) },
-          "DeliveryToS3.DataFreshness": { avg: randInt(60, 3600) },
-          "DeliveryToS3.Records": { sum: randInt(1, 10000) },
-          "DeliveryToS3.Success": { avg: isErr ? 0 : 1 },
-          IncomingBytes: { sum: randInt(1000, 1e8) },
-          IncomingRecords: { sum: randInt(1, 10000) },
-          "BackupToS3.Bytes": { sum: randInt(0, 1e6) },
-          "BackupToS3.Records": { sum: randInt(0, 1000) },
-          "BackupToS3.Success": { avg: 1 },
+          IncomingBytes: { sum: incomingBytes },
+          IncomingRecords: { sum: recs },
+          "DeliveryToS3.Success": { avg: isErr && scenario !== "s3_backup" ? 0 : 1 },
+          "DeliveryToS3.Bytes": { sum: randInt(1000, Math.max(1000, incomingBytes)) },
+          "DeliveryToS3.DataFreshness": { avg: randInt(30, isErr ? 3600 : 180) },
+          "DeliveryToS3.Records": { sum: isErr ? randInt(0, recs) : recs },
+          "ExecuteProcessing.Duration": { avg: execProcMs, max: execProcMs + randInt(0, 400) },
+          "ExecuteProcessing.Success": {
+            avg:
+              scenario === "format_conversion_error" ||
+              (isErr && scenario === "transformation_lambda_invoke")
+                ? 0
+                : 1,
+          },
+          "BackupToS3.Bytes": {
+            sum: scenario === "s3_backup" ? randInt(1e4, 1e7) : randInt(0, 1e5),
+          },
+          "BackupToS3.Records": {
+            sum: scenario === "s3_backup" ? randInt(10, 5000) : randInt(0, 100),
+          },
+          "BackupToS3.Success": {
+            avg: scenario === "s3_backup" && !isErr ? 1 : scenario === "s3_backup" ? 0 : 1,
+          },
           "DataReadFromKinesisStream.Bytes": { sum: randInt(1000, 1e8) },
           "DataReadFromKinesisStream.Records": { sum: randInt(1, 10000) },
           ThrottledGetRecords: { sum: isErr ? randInt(1, 10) : 0 },
@@ -160,18 +289,30 @@ function generateFirehoseLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      action: scenario,
       outcome: isErr ? "failure" : "success",
       category: ["process"],
       dataset: "aws.firehose",
       provider: "firehose.amazonaws.com",
-      duration: randInt(1, isErr ? 300 : 60) * 1e9,
+      duration:
+        (scenario === "transformation_lambda_invoke" ? execProcMs : randInt(1, isErr ? 300 : 90)) *
+        1e9,
     },
-    message: isErr
-      ? `Firehose ${stream} delivery failure: ${rand(["S3 PutObject failed", "Conversion error", "Buffer full"])}`
-      : `Firehose ${stream}: ${recs} records delivered`,
+    message,
     log: { level: isErr ? "error" : "info" },
     ...(isErr
-      ? { error: { code: "DeliveryFailure", message: "Firehose delivery failed", type: "stream" } }
+      ? {
+          error: {
+            code: errCode,
+            message:
+              scenario === "format_conversion_error"
+                ? "Record format conversion could not be applied"
+                : scenario === "delivery_failure"
+                  ? `Firehose could not deliver to ${dest} (buffering hint ${bufferingHintMb}MB)`
+                  : `Firehose ${op} rejected for ${stream}`,
+            type: "aws",
+          },
+        }
       : {}),
   };
 }
@@ -373,44 +514,72 @@ function generateSqsLog(ts: string, er: number): EcsDocument {
   const isErr = Math.random() < er;
   const hasTrace = Math.random() < 0.6;
   const traceId = hasTrace ? randId(32) : null;
-  const queue = rand([
-    "order-processing",
-    "email-queue",
-    "notification-dlq",
-    "webhook-events",
-    "job-queue",
-  ]);
+  const scenario = rand([
+    "dead_letter_redrive",
+    "fifo_deduplication",
+    "visibility_timeout",
+    "long_polling",
+    "batch_action",
+    "standard_send_receive",
+  ] as const);
+  const queue =
+    scenario === "fifo_deduplication"
+      ? rand(["orders.fifo", "payments.fifo", "events.fifo"])
+      : rand([
+          "order-processing",
+          "email-queue",
+          "notification-dlq",
+          "webhook-events",
+          "job-queue",
+        ]);
   const isDlq = queue.includes("dlq");
   const sent = randInt(1, 10000);
   const received = randInt(0, sent);
   const queueUrl = `https://sqs.${region}.amazonaws.com/${acct.id}/${queue}`;
-  const operation = rand([
-    "SendMessage",
-    "ReceiveMessage",
-    "DeleteMessage",
-    "ChangeMessageVisibility",
-    "PurgeQueue",
-  ]);
+  const operation =
+    scenario === "dead_letter_redrive"
+      ? "StartMessageMoveTask"
+      : scenario === "fifo_deduplication"
+        ? "SendMessage"
+        : scenario === "visibility_timeout"
+          ? "ChangeMessageVisibility"
+          : scenario === "long_polling"
+            ? "ReceiveMessage"
+            : scenario === "batch_action"
+              ? rand(["ReceiveMessage", "DeleteMessage", "SendMessageBatch", "DeleteMessageBatch"])
+              : rand(["SendMessage", "ReceiveMessage", "DeleteMessage", "ChangeMessageVisibility"]);
   const approxVisible = randInt(0, isErr ? 250_000 : 8_000);
   const approxNotVisible = randInt(0, Math.min(approxVisible, 4_000));
   const approxDelayed = randInt(0, 1_200);
   const batch =
     operation === "ReceiveMessage"
       ? randInt(1, 10)
-      : operation === "DeleteMessage"
+      : operation === "DeleteMessage" || operation === "DeleteMessageBatch"
         ? randInt(1, 10)
-        : 1;
+        : operation === "SendMessageBatch"
+          ? randInt(2, 10)
+          : 1;
   const visibilityTimeout = operation === "ChangeMessageVisibility" ? randInt(0, 900) : null;
+  const waitSeconds = scenario === "long_polling" ? 20 : 0;
+  const dedupeId = scenario === "fifo_deduplication" ? `dedup-${randId(32).toLowerCase()}` : null;
   const opLine =
     operation === "SendMessage"
-      ? `SQS SendMessage queue=${queueUrl} sent=${sent} approximate_total=${approxVisible + approxNotVisible + approxDelayed} bodyBytes=${randInt(120, 240_000)}`
-      : operation === "ReceiveMessage"
-        ? `SQS ReceiveMessage queue=${queueUrl} messages_returned=${batch} approximate_receive_count=${randInt(1, 12)} visible≈${approxVisible} notVisible≈${approxNotVisible}`
-        : operation === "DeleteMessage"
-          ? `SQS DeleteMessage queue=${queueUrl} deleted=${batch} remaining_visible≈${Math.max(0, approxVisible - batch)}`
-          : operation === "ChangeMessageVisibility"
-            ? `SQS ChangeMessageVisibility queue=${queueUrl} receipt_batches=${batch} new_timeout_sec=${visibilityTimeout} visible≈${approxVisible}`
-            : `SQS PurgeQueue queue=${queueUrl} purged_inflight_hint visible≈${approxVisible} notVisible≈${approxNotVisible}`;
+      ? scenario === "fifo_deduplication"
+        ? `SQS SendMessage FIFO queue=${queueUrl} MessageDeduplicationId=${dedupeId} MessageGroupId=${rand(["a", "b", "checkout"])} bodyBytes=${randInt(120, 240_000)}`
+        : `SQS SendMessage queue=${queueUrl} sent=${sent} approximate_total=${approxVisible + approxNotVisible + approxDelayed} bodyBytes=${randInt(120, 240_000)}`
+      : operation === "SendMessageBatch"
+        ? `SQS SendMessageBatch queue=${queueUrl} entries=${batch} failed=${isErr ? randInt(1, batch) : 0}`
+        : operation === "ReceiveMessage"
+          ? `SQS ReceiveMessage queue=${queueUrl} WaitTimeSeconds=${waitSeconds} messages_returned=${batch} long_poll=${waitSeconds > 0}`
+          : operation === "DeleteMessage"
+            ? `SQS DeleteMessage queue=${queueUrl} deleted=${batch} remaining_visible≈${Math.max(0, approxVisible - batch)}`
+            : operation === "DeleteMessageBatch"
+              ? `SQS DeleteMessageBatch queue=${queueUrl} successful=${isErr ? 0 : batch} failed=${isErr ? randInt(1, batch) : 0}`
+              : operation === "ChangeMessageVisibility"
+                ? `SQS ChangeMessageVisibility queue=${queueUrl} receipt_batches=${batch} new_timeout_sec=${visibilityTimeout} visible≈${approxVisible}`
+                : operation === "StartMessageMoveTask"
+                  ? `SQS StartMessageMoveTask source=${queueUrl} destination=https://sqs.${region}.amazonaws.com/${acct.id}/${rand(["main-queue", "replay-queue"])} maxMessages=${randInt(100, 10000)}`
+                  : `SQS PurgeQueue queue=${queueUrl} purged_inflight_hint visible≈${approxVisible} notVisible≈${approxNotVisible}`;
   return {
     "@timestamp": ts,
     cloud: {
@@ -424,6 +593,10 @@ function generateSqsLog(ts: string, er: number): EcsDocument {
       sqs: {
         queue: { name: queue, url: queueUrl },
         operation,
+        scenario,
+        fifo: queue.endsWith(".fifo"),
+        long_poll_wait_seconds: waitSeconds,
+        message_deduplication_id: dedupeId,
         oldest_message_age: { sec: randInt(0, isErr ? 86400 : 300) },
         messages: {
           delayed: approxDelayed,
@@ -445,9 +618,19 @@ function generateSqsLog(ts: string, er: number): EcsDocument {
       duration: randInt(1, isErr ? 30000 : 500) * 1e6,
     },
     message:
-      isErr || isDlq
-        ? `${opLine} | error: ${randInt(1, 1000)} messages dead-lettered after max retries`
-        : opLine,
+      isErr && Math.random() < 0.38
+        ? JSON.stringify({
+            __type: rand([
+              "ReceiptHandleIsInvalid",
+              "AWS.SimpleQueueService.TooManyEntriesInBatchRequest",
+              "UnsupportedOperation",
+            ]),
+            messagePlain: opLine,
+            scenario,
+          })
+        : isErr || isDlq
+          ? `${opLine} | error: ${randInt(1, 1000)} messages dead-lettered after max retries`
+          : opLine,
     log: { level: isErr || isDlq ? "warn" : "info" },
     ...(isErr || isDlq
       ? {
@@ -464,8 +647,13 @@ function generateSqsLog(ts: string, er: number): EcsDocument {
               "UnsupportedOperation",
               "AWS.SimpleQueueService.TooManyEntriesInBatchRequest",
             ]),
-            message: "SQS operation failed",
-            type: "queue",
+            message:
+              scenario === "dead_letter_redrive"
+                ? "Message move task failed: destination policy denies sqs:SendMessage"
+                : scenario === "fifo_deduplication"
+                  ? "Duplicate MessageDeduplicationId within deduplication interval"
+                  : "SQS API rejected the request",
+            type: "aws",
           },
         }
       : {}),
@@ -478,6 +666,13 @@ function generateSnsLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;
+  const scenario = rand([
+    "platform_endpoint_create",
+    "topic_subscription",
+    "delivery_failure_logging",
+    "filter_policy_match",
+    "publish_delivery",
+  ] as const);
   const topic = rand([
     "order-notifications",
     "user-alerts",
@@ -485,10 +680,64 @@ function generateSnsLog(ts: string, er: number): EcsDocument {
     "security-alarms",
     "deployment-events",
   ]);
-  const protocol = rand(["email", "sqs", "lambda", "http", "sms"]);
+  const protocol = rand(["email", "sqs", "lambda", "http", "sms", "application"]);
   const published = randInt(1, 10000);
   const delivered = isErr ? randInt(0, Math.floor(published * 0.9)) : published;
   const deliveryLatencyMs = Number(randFloat(5, isErr ? 30000 : 500));
+  const snsOperation =
+    scenario === "platform_endpoint_create"
+      ? "CreatePlatformEndpoint"
+      : scenario === "topic_subscription"
+        ? "Subscribe"
+        : scenario === "delivery_failure_logging"
+          ? "GetTopicAttributes"
+          : scenario === "filter_policy_match"
+            ? "Publish"
+            : "Publish";
+  const topicArn = `arn:aws:sns:${region}:${acct.id}:${topic}`;
+  const platformAppArn =
+    scenario === "platform_endpoint_create"
+      ? `arn:aws:sns:${region}:${acct.id}:app/GCM/mobile-push`
+      : null;
+  const endpointArn =
+    scenario === "platform_endpoint_create"
+      ? `arn:aws:sns:${region}:${acct.id}:endpoint/GCM/mobile-app/${randId(10)}`
+      : `arn:aws:sns:${region}:${acct.id}:endpoint/APNS/production/${randId(8)}`;
+  const subscriptionArn =
+    scenario === "topic_subscription"
+      ? `arn:aws:sns:${region}:${acct.id}:${topic}:${randId(8)}-sub`
+      : `arn:aws:sns:${region}:${acct.id}:${topic}:${randUUID().slice(0, 12)}`;
+
+  let message: string;
+  if (scenario === "platform_endpoint_create") {
+    message = isErr
+      ? `SNS CreatePlatformEndpoint FAILED Token=*** PlatformApplicationArn=${platformAppArn} InvalidParameter`
+      : `SNS CreatePlatformEndpoint OK EndpointArn=${endpointArn}`;
+  } else if (scenario === "topic_subscription") {
+    message = isErr
+      ? `SNS Subscribe topic=${topicArn} Protocol=${protocol} FAILED (InvalidParameter)`
+      : `SNS Subscribe confirmed SubscriptionArn=${subscriptionArn} Owner=${acct.id}`;
+  } else if (scenario === "delivery_failure_logging") {
+    message =
+      JSON.stringify({
+        notification: { messageId: randUUID(), topicArn },
+        delivery: {
+          statusCode: isErr ? rand([502, 503]) : 200,
+          providerResponse: isErr ? "Endpoint disabled or unreachable" : "OK",
+          destination: rand(["mailto:user@corp.com", "lambda arn"]),
+        },
+        status: isErr ? "FAILURE" : "SUCCESS",
+      }) + ` [DeliveryStatusLogging]`;
+  } else if (scenario === "filter_policy_match") {
+    message = isErr
+      ? `Publish to ${topic} filtered out — no subscriber filter policy matched attributes tier=premium`
+      : `Delivered Publish messageId=${randUUID()} matched filter policy subscriber=${subscriptionArn}`;
+  } else {
+    message = isErr
+      ? `SNS Publish delivery FAILED: ${topic} -> ${protocol}: ${rand(["EndpointDisabledException", "Throttled"])}`
+      : `SNS Publish delivered to ${protocol} (${randInt(100, 50000)}B)`;
+  }
+
   return {
     "@timestamp": ts,
     cloud: {
@@ -500,6 +749,23 @@ function generateSnsLog(ts: string, er: number): EcsDocument {
     aws: {
       dimensions: { TopicName: topic },
       sns: {
+        scenario,
+        operation: snsOperation,
+        topic_arn: topicArn,
+        platform_application_arn: platformAppArn,
+        endpoint_arn:
+          scenario === "platform_endpoint_create" || protocol === "application"
+            ? endpointArn
+            : null,
+        subscription_arn: subscriptionArn,
+        protocol,
+        filter_policy:
+          scenario === "filter_policy_match"
+            ? JSON.stringify({
+                tier: ["premium", "enterprise"],
+                region: [{ prefix: "us-" }],
+              })
+            : null,
         metrics: {
           NumberOfMessagesPublished: { sum: published },
           NumberOfNotificationsDelivered: { sum: delivered },
@@ -522,9 +788,7 @@ function generateSnsLog(ts: string, er: number): EcsDocument {
       provider: "sns.amazonaws.com",
       duration: deliveryLatencyMs * 1e6,
     },
-    message: isErr
-      ? `SNS delivery FAILED: ${topic} -> ${protocol}: ${rand(["Endpoint disabled", "Timeout", "Lambda error"])}`
-      : `SNS delivered: ${topic} -> ${protocol} (${randInt(100, 50000)}B)`,
+    message,
     log: { level: isErr ? "warn" : "info" },
     ...(isErr
       ? {
@@ -535,23 +799,18 @@ function generateSnsLog(ts: string, er: number): EcsDocument {
               "InternalErrorException",
               "InvalidParameterException",
               "InvalidParameterValueException",
-              "InvalidSecurityException",
-              "KMSAccessDeniedException",
-              "KMSDisabledException",
-              "KMSInvalidStateException",
-              "KMSNotFoundException",
-              "KMSOptInRequired",
-              "KMSThrottlingException",
-              "NotFoundException",
-              "OptedOutException",
-              "PlatformApplicationDisabledException",
-              "StaleTagException",
-              "TagLimitExceededException",
               "ThrottledException",
-              "TopicLimitExceededException",
+              "NotFoundException",
             ]),
-            message: "SNS delivery failed",
-            type: "messaging",
+            message:
+              scenario === "platform_endpoint_create"
+                ? "SNS rejected mobile device registration token"
+                : scenario === "topic_subscription"
+                  ? "ConfirmSubscription or IAM denied Subscribe"
+                  : scenario === "filter_policy_match"
+                    ? "Message attributes incompatible with subscriber filter policies"
+                    : "SNS endpoint delivery failed",
+            type: "aws",
           },
         }
       : {}),
@@ -661,28 +920,27 @@ function generateEventBridgeLog(ts: string, er: number): EcsDocument {
   const eventId = randUUID();
   const logKind = rand([
     "rule_match",
-    "invocation",
     "target_delivery",
-    "dead_letter",
-    "pipe_execution",
+    "archive_replay",
     "schema_discovery",
-  ]);
+    "pipe_enrichment",
+  ] as const);
   const targetArn = `arn:aws:lambda:${region}:${acct.id}:function:${rand(["processOrder", "emitMetric", "fanOut"])}`;
   const dlqArn = `arn:aws:sqs:${region}:${acct.id}:${rand(["eb-dlq", "rules-dlq"])}`;
   const pipeName = rand(["orders-to-lambda", "audit-to-sqs", "metrics-to-kinesis"]);
   const registryName = rand(["partner-events", "internal-schemas"]);
+  const archiveArn = `arn:aws:events:${region}:${acct.id}:archive/${rand(["audit", "security"])}-${randId(6)}`;
+  const enrichmentArn = `arn:aws:lambda:${region}:${acct.id}:function:${rand(["enrichOrder", "maskPii", "addGeo"])}`;
   const plainMessage =
     logKind === "rule_match"
       ? `EventBridge RuleMatch rule=${rule} bus=${eventBus} matched_events=${randInt(1, 500)} pattern_matched=true eventId=${eventId}`
-      : logKind === "invocation"
-        ? `EventBridge Invocation rule=${rule} bus=${eventBus} invocation_id=${randId(12).toLowerCase()} matched=${randInt(1, 200)}`
-        : logKind === "target_delivery"
-          ? `EventBridge TargetDelivery rule=${rule} target=${targetArn} status=${isErr ? "FAILED" : "SUCCESS"} httpStatus=${isErr ? rand([502, 503, 504, 429]) : 200} attempt=${randInt(1, 4)}`
-          : logKind === "dead_letter"
-            ? `EventBridge DeadLetter rule=${rule} failed_invocations=${isErr ? randInt(1, 20) : 0} dlq=${dlqArn} last_error=${isErr ? rand(["Lambda.ServiceException", "ThrottlingException", "TargetUnavailable"]) : "none"}`
-            : logKind === "pipe_execution"
-              ? `EventBridge PipeExecution pipe=${pipeName} execution_id=${randId(10).toLowerCase()} stage=${rand(["Filtering", "Enrichment", "Target"])} records_out=${randInt(0, 5000)}`
-              : `EventBridge SchemaDiscovery registry=${registryName} discovered_type=${rand(["OrderPlaced@v2", "InvoicePaid@v1"])} revision=${randInt(1, 12)}`;
+      : logKind === "target_delivery"
+        ? `EventBridge TargetDelivery rule=${rule} target=${targetArn} status=${isErr ? "FAILED" : "SUCCESS"} httpStatus=${isErr ? rand([502, 503, 504, 429]) : 200} attempt=${randInt(1, 4)}`
+        : logKind === "archive_replay"
+          ? `EventBridge StartReplay replay_name=${randId(8).toLowerCase()} archive_arn=${archiveArn} event_count=${randInt(100, 50000)} destination_bus=${eventBus} state=${isErr ? "FAILED" : "COMPLETED"}`
+          : logKind === "schema_discovery"
+            ? `EventBridge SchemaDiscovery registry=${registryName} discovered_type=${rand(["OrderPlaced@v2", "InvoicePaid@v1"])} revision=${randInt(1, 12)}`
+            : `EventBridge Pipe enrichment pipe=${pipeName} stage=Enrichment enrichment=${enrichmentArn} records_transformed=${randInt(0, 5000)} transform=${isErr ? "ERROR" : "OK"}`;
   const useStructuredLogging = Math.random() < 0.6;
   const message = useStructuredLogging
     ? JSON.stringify({
@@ -698,9 +956,11 @@ function generateEventBridgeLog(ts: string, er: number): EcsDocument {
         eventBus,
         log_kind: logKind,
         target_arn: logKind === "target_delivery" ? targetArn : undefined,
-        dlq_arn: logKind === "dead_letter" ? dlqArn : undefined,
-        pipe: logKind === "pipe_execution" ? pipeName : undefined,
+        archive_arn: logKind === "archive_replay" ? archiveArn : undefined,
+        pipe: logKind === "pipe_enrichment" ? pipeName : undefined,
+        enrichment_arn: logKind === "pipe_enrichment" ? enrichmentArn : undefined,
         schema_registry: logKind === "schema_discovery" ? registryName : undefined,
+        dlq_arn: dlqArn,
         message: plainMessage,
         timestamp: new Date(ts).toISOString(),
       })
@@ -729,6 +989,9 @@ function generateEventBridgeLog(ts: string, er: number): EcsDocument {
         targets_failed: isErr ? randInt(1, Math.min(3, targetsInvoked)) : 0,
         event_id: eventId,
         log_kind: logKind,
+        archive_arn: logKind === "archive_replay" ? archiveArn : null,
+        enrichment_arn: logKind === "pipe_enrichment" ? enrichmentArn : null,
+        pipe_name: logKind === "pipe_enrichment" ? pipeName : null,
         structured_logging: useStructuredLogging,
         metrics: {
           Invocations: { sum: 1 },
@@ -766,8 +1029,13 @@ function generateEventBridgeLog(ts: string, er: number): EcsDocument {
               "ResourceAlreadyExistsException",
               "ResourceNotFoundException",
             ]),
-            message: "EventBridge target invocations failed",
-            type: "event",
+            message:
+              logKind === "archive_replay"
+                ? "StartReplay failed: IAM events:Replay permissions missing on archive"
+                : logKind === "pipe_enrichment"
+                  ? "Pipe enrichment Lambda returned non-200 or payload too large"
+                  : "EventBridge target invocations failed",
+            type: "aws",
           },
         }
       : {}),

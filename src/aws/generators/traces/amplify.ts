@@ -14,6 +14,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 const APPS = [
@@ -103,7 +104,11 @@ export function generateAmplifyTrace(ts: string, er: number) {
       service: svcBlock,
       agent,
       telemetry,
-      labels: { "aws.amplify.app_id": appId, ...ph.labels },
+      labels: {
+        "aws.amplify.app_id": appId,
+        ...ph.labels,
+        ...(spanErr ? awsSpanErrorLabels() : {}),
+      },
       event: { outcome: spanErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     });

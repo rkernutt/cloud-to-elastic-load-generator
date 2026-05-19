@@ -304,15 +304,35 @@ function generateAlbLog(ts: string, er: number): EcsDocument {
     },
     message: albRawLine,
     log: { level: status >= 500 ? "error" : status >= 400 ? "warn" : "info" },
-    ...(status >= 400
+    ...(status >= 500
       ? {
           error: {
-            code: status >= 500 ? "TargetResponseError" : "ClientError",
-            message: `HTTP ${status}`,
-            type: "server",
+            code: rand([
+              "TargetTimeoutException",
+              "TargetGroupNotFoundException",
+              "TooManyRequestsException",
+              "DependencyAccessDeniedException",
+              "InvalidConfigurationRequestException",
+            ]),
+            message: rand([
+              "Target failed to respond within the load balancer idle timeout",
+              "Registered target group ARN could not be resolved for this listener rule",
+              "Request rate exceeded throttle limits for this load balancer",
+              "ELB lacks permission to authenticate with the configured OIDC provider",
+              "Listener default action configuration violated AWS validation constraints",
+            ]),
+            type: "aws",
           },
         }
-      : {}),
+      : status >= 400
+        ? {
+            error: {
+              code: "ClientError",
+              message: `HTTP ${status}`,
+              type: "server",
+            },
+          }
+        : {}),
   };
 }
 
@@ -509,15 +529,35 @@ function generateCloudFrontLog(ts: string, er: number): EcsDocument {
     },
     message: cfExtendedLine,
     log: { level: status >= 500 ? "error" : status >= 400 ? "warn" : "info" },
-    ...(status >= 400
+    ...(status >= 500
       ? {
           error: {
-            code: status >= 500 ? "OriginError" : "ClientError",
-            message: `HTTP ${status}`,
-            type: "server",
+            code: rand([
+              "AccessDenied",
+              "NoSuchOrigin",
+              "TooManyRequests",
+              "InvalidViewerCertificate",
+              "OriginSslProtocolError",
+            ]),
+            message: rand([
+              "Origin refused request — S3 OAI/OAC signature mismatch or OAI disabled",
+              "Configured origin DNS name failed to resolve at CloudFront edge",
+              "Lambda@Edge throttle triggered for this viewer request burst",
+              "Viewer certificate ARN is missing or revoked in ACM",
+              "Origin closed TLS handshake with unsupported cipher/protocol offer",
+            ]),
+            type: "aws",
           },
         }
-      : {}),
+      : status >= 400
+        ? {
+            error: {
+              code: status === 403 ? "AccessDenied" : "BadRequest",
+              message: `HTTP ${status} from CloudFront edge`,
+              type: "aws",
+            },
+          }
+        : {}),
   };
 }
 
@@ -936,7 +976,17 @@ function generateRoute53Log(ts: string, er: number) {
     message: `${ts} ${randId(8)} ${rand(["ip4", "ip6"])} ${srcIp} ${53} ${rand(["A", "AAAA", "CNAME", "MX", "TXT", "SRV"])} ${rand(["example.com", "api.example.com", "db.internal", "s3.amazonaws.com"])}. ${rcode}`,
     log: { level: isErr ? "warn" : "info" },
     ...(isErr
-      ? { error: { code: rcode, message: `DNS query failed: ${rcode}`, type: "network" } }
+      ? {
+          error: {
+            code: rand(["NoSuchHostedZone", "InvalidChangeBatch", "DelegationSetInUse"]),
+            message: rand([
+              "NoSuchHostedZone: hosted zone referenced by change batch was not found",
+              "InvalidChangeBatch: RRSet of type TXT with conflicting name already exists",
+              "DelegationSetInUse: reusable delegation set is still referenced by hosted zones",
+            ]),
+            type: "aws",
+          },
+        }
       : {}),
   };
 }
@@ -1485,13 +1535,35 @@ function generateVpcFlowLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
   const action = Math.random() < er ? "REJECT" : "ACCEPT";
-  const proto = rand([6, 6, 6, 17, 1]);
   const pkts = randInt(1, 100);
   const bytes = pkts * randInt(40, 1500);
+  const rejectTuple = rand([
+    { dstPort: 22, proto: 6, note: "ssh_from_internet_sg" },
+    { dstPort: 3389, proto: 6, note: "rdp_blocked" },
+    { dstPort: 5432, proto: 6, note: "postgres_wide_open" },
+    { dstPort: 6379, proto: 6, note: "redis_acl" },
+    { dstPort: 9092, proto: 6, note: "kafka_plaint_text" },
+    { dstPort: 53, proto: 17, note: "dns_udp" },
+    { dstPort: 111, proto: 6, note: "rpcbind_scan" },
+  ]);
+  const acceptTuple = rand([
+    { dstPort: 443, proto: 6 },
+    { dstPort: 80, proto: 6 },
+    { dstPort: 443, proto: 17 },
+    { dstPort: 22, proto: 6 },
+    { dstPort: 3306, proto: 6 },
+  ]);
+  const picked = action === "REJECT" ? rejectTuple : acceptTuple;
+  const protoNum = picked.proto;
   const src = randIp();
   const dst = randIp();
-  const dstPort = rand([22, 80, 443, 3306, 5432, 6379, 8080, 8443]);
-  const srcPort = randInt(1024, 65535);
+  const dstPort = picked.dstPort;
+  const srcPort =
+    picked.proto === 1
+      ? randInt(0, 65535)
+      : action === "REJECT" && picked.dstPort <= 1024
+        ? rand([randInt(1, 1023), randInt(40000, 65535)])
+        : randInt(1024, 65535);
   const srcGeo = rand(GEO_LOCATIONS);
   const dstGeo = rand(GEO_LOCATIONS);
   const vpcId = `vpc-${randId(8).toLowerCase()}`;
@@ -1517,7 +1589,7 @@ function generateVpcFlowLog(ts: string, er: number): EcsDocument {
         dstaddr: dst,
         srcport: srcPort,
         dstport: dstPort,
-        protocol: String(proto),
+        protocol: String(protoNum),
         packets: pkts,
         bytes,
         start: tsEpoch,
@@ -1553,7 +1625,7 @@ function generateVpcFlowLog(ts: string, er: number): EcsDocument {
       },
     },
     network: {
-      transport: PROTOCOLS[proto]?.toLowerCase() || "tcp",
+      transport: PROTOCOLS[protoNum]?.toLowerCase() || "tcp",
       bytes,
       packets: pkts,
       direction: rand(["inbound", "outbound"]),
@@ -1567,7 +1639,7 @@ function generateVpcFlowLog(ts: string, er: number): EcsDocument {
       provider: "ec2.amazonaws.com",
       duration: randInt(1, 500) * 1e6,
     },
-    message: `2 ${acct.id} ${eni} ${src} ${dst} ${srcPort} ${dstPort} ${proto} ${pkts} ${bytes} ${tsEpoch} ${endEpoch} ${action} OK`,
+    message: `2 ${acct.id} ${eni} ${src} ${dst} ${srcPort} ${dstPort} ${protoNum} ${pkts} ${bytes} ${tsEpoch} ${endEpoch} ${action} OK`,
     log: { level: action === "REJECT" ? "warn" : "info" },
     ...(action === "REJECT"
       ? {

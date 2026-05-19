@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 const HTTP_METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH"] as const;
 const API_RESOURCES = ["orders", "products", "users", "payments"] as const;
@@ -40,7 +46,7 @@ export function generateApigeeTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: quotaUs },
       action: "check",
       destination: { service: { resource: "quota-service", type: "external", name: "quota" } },
-      labels: quotaErr ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED", http_status: "429" } : {},
+      labels: quotaErr ? { http_status: "429", ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "apigee.googleapis.com"),
@@ -67,7 +73,7 @@ export function generateApigeeTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: authUs },
       action: "verify",
       destination: { service: { resource: "oauth-service", type: "external", name: "oauth" } },
-      labels: isErr && !quotaErr ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {},
+      labels: isErr && !quotaErr ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "apigee.googleapis.com"),

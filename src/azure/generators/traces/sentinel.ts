@@ -68,7 +68,7 @@ export function generateSentinelTrace(ts: string, er: number): EcsDocument[] {
       event: { outcome: spanErr ? "failure" : "success" },
       ...dim({ dependency_type: "Microsoft Sentinel", workspace }),
     };
-    spans.push(enrichAzureTraceDoc(spanBody, traceId, "python"));
+    spans.push(enrichAzureTraceDoc(spanBody, traceId, "python", { spanFailed: spanErr }));
     ms += Math.max(1, Math.round(op.us / 1000));
   }
 

@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateEventarcTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -42,7 +48,7 @@ export function generateEventarcTrace(ts: string, er: number): EcsDocument[] {
       destination: { service: { resource: "eventarc", type: "messaging", name: "eventarc" } },
       labels: {
         "gcp.eventarc.trigger": trigger,
-        ...(failIdx === 0 ? { "gcp.rpc.status_code": "INVALID_ARGUMENT" } : {}),
+        ...(failIdx === 0 ? { ...gcpSpanFailureLabels() } : {}),
       },
     },
     service: svc,
@@ -72,7 +78,9 @@ export function generateEventarcTrace(ts: string, er: number): EcsDocument[] {
         service: { resource: "eventarc_trigger", type: "app", name: "eventarc_trigger" },
       },
       labels:
-        failIdx === 1 ? { "gcp.eventarc.match": "no_route" } : { "gcp.eventarc.match": "routed" },
+        failIdx === 1
+          ? { "gcp.eventarc.match": "no_route", ...gcpSpanFailureLabels() }
+          : { "gcp.eventarc.match": "routed" },
     },
     service: svc,
     cloud,
@@ -106,7 +114,7 @@ export function generateEventarcTrace(ts: string, er: number): EcsDocument[] {
       },
       labels:
         failIdx === 2
-          ? { "gcp.rpc.status_code": "UNAVAILABLE", "http.status_code": "503" }
+          ? { "http.status_code": "503", ...gcpSpanFailureLabels() }
           : { "http.status_code": "202" },
     },
     service: svc,

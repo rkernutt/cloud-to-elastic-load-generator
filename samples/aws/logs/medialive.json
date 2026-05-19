@@ -1,64 +1,69 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-south-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "medialive" }
   },
   "aws": {
-    "dimensions": { "ChannelId": "X43KKKJMRC", "Pipeline": "PIPELINE_0" },
+    "dimensions": { "ChannelId": "ADTDHJ44A5X", "Pipeline": "PIPELINE_0" },
     "medialive": {
-      "channel_id": "X43KKKJMRC",
-      "channel_name": "corporate-broadcast",
-      "channel_state": "RUNNING",
+      "channel_id": "ADTDHJ44A5X",
+      "channel_name": "sports-event-1",
+      "channel_state": "ERROR",
       "pipeline": "PIPELINE_0",
       "input_type": "RTP_PUSH",
       "output_type": "MEDIAPACKAGE",
-      "video_bitrate_kbps": 9343,
-      "input_loss_frames": 0,
-      "encoder_fps": 24,
+      "video_bitrate_kbps": 518,
+      "input_loss_frames": 646,
+      "encoder_fps": 7,
       "metrics": {
-        "ActiveAlerts": { "sum": 0 },
-        "ChannelInputErrorSeconds": { "sum": 0 },
-        "NetworkOut": { "avg": 19710638 },
-        "OutputLossSeconds": { "sum": 0 },
-        "FillMsec": { "sum": 0 }
+        "ActiveAlerts": { "sum": 5 },
+        "ChannelInputErrorSeconds": { "sum": 277 },
+        "NetworkOut": { "avg": 5483373 },
+        "OutputLossSeconds": { "sum": 46 },
+        "FillMsec": { "sum": 4186 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-medialive-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-medialive-logs-501938274650"
+        "name": "aws-medialive-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-medialive-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/501938274650/medialive/ap-east-1/2026/05/07/medialive_8AXKNBQN6AP.log.gz"
+        "key": "AWSLogs/738291046572/medialive/ap-south-2/2026/05/14/medialive_ZW0ALJQXUNIMEP6C1T0Y.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/medialive/logs",
-      "log_stream": "ap-east-1/cxeokc1v",
-      "ingestion_time": "2026-05-07T10:17:36.555Z"
+      "log_stream": "ap-south-2/c5zt73vo",
+      "ingestion_time": "2026-05-14T03:00:07.382Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.medialive",
     "provider": "medialive.amazonaws.com",
-    "duration": 8987000000,
+    "duration": 9041000000,
     "module": "aws"
   },
-  "message": "Input switch to backup completed",
-  "log": { "level": "info" },
+  "message": "Output error: CDN origin unreachable",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ThrottlingException",
+    "message": "Input loss detected: primary input failed",
+    "type": "aws"
+  },
   "service": { "name": "medialive", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.medialive", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "7ad7n53zvhl"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "ke0bhczl60fy2t93wj0bun5z41393f47d8ot"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -23,6 +23,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 // ─── State machine definitions ────────────────────────────────────────────────
@@ -198,7 +199,7 @@ export function generateStepFunctionsTrace(ts: string, er: number) {
         name: state.name,
         duration: { us: spanUs },
       },
-      labels: stateLabels,
+      labels: { ...stateLabels, ...(spanIsErr ? awsSpanErrorLabels() : {}) },
       service: svcBlock,
       agent: agent,
       telemetry: telemetry,

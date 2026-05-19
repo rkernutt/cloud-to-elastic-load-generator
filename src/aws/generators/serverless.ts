@@ -473,18 +473,6 @@ export function generateApiGatewayLog(ts: string, er: number): EcsDocument {
     },
   ];
   const geo = rand(GEO_DATA);
-  const APIGW_ERROR_CODES: Record<number, string> = {
-    400: "BadRequestException",
-    401: "UnauthorizedException",
-    403: "AccessDeniedException",
-    404: "NotFoundException",
-    409: "ConflictException",
-    429: "TooManyRequestsException",
-    500: "ServiceUnavailableException",
-    502: "ServiceUnavailableException",
-    503: "ServiceUnavailableException",
-    504: "LimitExceededException",
-  };
   const clfMessage = `${requestId} ${clientIp} ${caller} ${user} [${requestTime}] "${method} ${path} ${protocol}" ${status} ${responseLength} ${integrationLat}`;
   const jsonAccess: Record<string, unknown> = {
     requestId,
@@ -576,12 +564,24 @@ export function generateApiGatewayLog(ts: string, er: number): EcsDocument {
     },
     message: message,
     log: { level: status >= 500 ? "error" : status >= 400 ? "warn" : "info" },
-    ...(status >= 400
+    ...(isErr
       ? {
           error: {
-            code: APIGW_ERROR_CODES[status] || "BadRequestException",
-            message: `HTTP ${status}`,
-            type: "server",
+            code: rand([
+              "ThrottlingException",
+              "AuthorizerConfigurationError",
+              "GatewayTimeoutException",
+              "InvalidSignatureException",
+              "AccessDeniedException",
+            ]),
+            message: rand([
+              "Integration latency exceeded Gateway timeout quota",
+              "Lambda authorizer returned a policy that blocked execution",
+              "Client signature does not match request credentials",
+              "API quota exceeded — requests are being throttled",
+              "Caller is not authorized to invoke this AWS API stage",
+            ]),
+            type: "aws",
           },
         }
       : {}),
@@ -707,12 +707,17 @@ export function generateAppSyncLog(ts: string, er: number): EcsDocument {
           error: {
             code: rand([
               "UnauthorizedException",
-              "MappingTemplate",
-              "ExecutionTimeout",
-              "DatasourceError",
+              "GraphQLError",
+              "ApiLimitExceededException",
+              "ConflictException",
             ]),
-            message: "AppSync operation failed",
-            type: "api",
+            message: rand([
+              "UnauthorizedException: caller failed AWS SigV4 or IAM/AppSync authorization",
+              "Resolver GraphQLExecutionError mapping template produced invalid runtime input",
+              "ApiLimitExceededException: GraphQL subscriptions or queries exceeded service quota",
+              "ConflictException: conflicting concurrent updates to resolver or data source mapping",
+            ]),
+            type: "aws",
           },
         }
       : {}),
@@ -727,12 +732,6 @@ export function generateAppRunnerLog(ts: string, er: number): EcsDocument {
   const svcId = randId(32).toLowerCase();
   const status = isErr ? rand([500, 502, 503, 504]) : rand([200, 200, 201, 204]);
   const latMs = randInt(5, isErr ? 8000 : 500);
-  const APP_RUNNER_ERROR_CODES = [
-    "InternalServerError",
-    "BadGateway",
-    "ServiceUnavailable",
-    "GatewayTimeout",
-  ];
   const eventKind = rand([
     "application_http",
     "application_http",
@@ -866,8 +865,22 @@ export function generateAppRunnerLog(ts: string, er: number): EcsDocument {
     },
     message: message,
     log: { level: status >= 500 ? "error" : status >= 400 ? "warn" : "info" },
-    ...(status >= 500
-      ? { error: { code: rand(APP_RUNNER_ERROR_CODES), message: `HTTP ${status}`, type: "server" } }
+    ...(isErr
+      ? {
+          error: {
+            code: rand([
+              "ServiceQuotaExceededException",
+              "InternalServiceErrorException",
+              "InvalidRequestException",
+            ]),
+            message: rand([
+              "App Runner service concurrency or account quota exceeded",
+              "App Runner encountered an unexpected internal fault while provisioning target",
+              "App Runner DescribeService validation failed due to malformed service ARN parameter",
+            ]),
+            type: "aws",
+          },
+        }
       : {}),
   };
 }
@@ -903,13 +916,6 @@ export function generateFargateLog(ts: string, er: number): EcsDocument {
       "Task deregistered gracefully",
     ],
   };
-  const FARGATE_ERROR_CODES = [
-    "TaskStopped",
-    "HealthCheckFailed",
-    "OOMKilled",
-    "ImagePullFailed",
-    "TaskStartFailed",
-  ];
   const durationSec = randInt(10, level === "error" ? 600 : 3600);
   const plainMessage = rand(MSGS[level]);
   const useStructuredLogging = Math.random() < 0.6;
@@ -965,7 +971,17 @@ export function generateFargateLog(ts: string, er: number): EcsDocument {
     },
     message: message,
     ...(level === "error"
-      ? { error: { code: rand(FARGATE_ERROR_CODES), message: rand(MSGS.error), type: "container" } }
+      ? {
+          error: {
+            code: rand([
+              "ResourceNotFoundException",
+              "InvalidParameterException",
+              "PlatformTaskDefinitionIncompatibilityException",
+            ]),
+            message: rand(MSGS.error),
+            type: "aws",
+          },
+        }
       : {}),
   };
 }

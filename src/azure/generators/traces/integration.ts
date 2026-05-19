@@ -348,7 +348,8 @@ export function generateLogicAppsTrace(ts: string, er: number): EcsDocument[] {
       ...dim({ action: "trigger" }),
     },
     traceId,
-    "nodejs"
+    "nodejs",
+    { spanFailed: failOnAction === 0 }
   );
   ms += Math.max(1, Math.round(triggerUs / 1000));
 
@@ -379,7 +380,8 @@ export function generateLogicAppsTrace(ts: string, er: number): EcsDocument[] {
       ...dim({ action: "http" }),
     },
     traceId,
-    "nodejs"
+    "nodejs",
+    { spanFailed: failOnAction === 1 }
   );
   ms += Math.max(1, Math.round(httpUs / 1000));
 
@@ -409,7 +411,8 @@ export function generateLogicAppsTrace(ts: string, er: number): EcsDocument[] {
       ...dim({ action: "service_bus" }),
     },
     traceId,
-    "nodejs"
+    "nodejs",
+    { spanFailed: failOnAction === 2 }
   );
   ms += Math.max(1, Math.round(sbUs / 1000));
 
@@ -439,7 +442,8 @@ export function generateLogicAppsTrace(ts: string, er: number): EcsDocument[] {
         ...dim({ action: "notification" }),
       },
       traceId,
-      "nodejs"
+      "nodejs",
+      { spanFailed: failOnAction === 3 }
     );
     docs.push(spanNotif);
   }

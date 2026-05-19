@@ -1513,23 +1513,57 @@ function generateQDeveloperLog(ts: string, er: number): EcsDocument {
 function generateCloudShellLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
+  const environmentId = `cs-${randId(10).toLowerCase()}`;
+  const mounts = rand([
+    [{ name: "home", source: `fs-${randId(6)}`, size_gb: randInt(1, 64) }],
+    [
+      { name: "home", source: `fs-home`, size_gb: 40 },
+      { name: "work", source: `fs-${randId(6)}`, size_gb: 10 },
+    ],
+  ]);
+  const r = randFloat(0, 1);
+  const scenario =
+    r < 0.28
+      ? "session_start"
+      : r < 0.45
+        ? "command_execute"
+        : r < 0.58
+          ? "env_provision"
+          : r < 0.7
+            ? "storage_mount"
+            : r < 0.82
+              ? "session_timeout"
+              : "credential_refresh";
   const isErr = Math.random() < er;
-  const events = [
-    "CreateEnvironment",
-    "StartEnvironment",
-    "StopEnvironment",
-    "PutFileUpload",
-    "GetFileDownload",
-    "RunCommand",
-  ];
-  const ev = rand(events);
-  const shells = ["bash", "zsh", "powershell"];
-  const errMsgs = [
-    "Environment creation quota exceeded",
-    "Session expired",
-    "Network timeout",
-    "Storage limit reached",
-  ];
+  const shells = ["bash", "zsh", "powershell"] as const;
+  const shell = rand(shells);
+  const errCode: "EnvironmentNotReady" | "SessionExpired" | undefined = isErr
+    ? scenario === "env_provision" || scenario === "session_start" || scenario === "storage_mount"
+      ? Math.random() < 0.62
+        ? "EnvironmentNotReady"
+        : "SessionExpired"
+      : scenario === "session_timeout" || scenario === "credential_refresh"
+        ? "SessionExpired"
+        : rand(["EnvironmentNotReady", "SessionExpired"] as const)
+    : undefined;
+
+  const cmd =
+    scenario === "command_execute"
+      ? rand([
+          "aws sts get-caller-identity",
+          "kubectl get pods",
+          "terraform plan",
+          "git pull --rebase",
+        ])
+      : null;
+  const messages: Record<string, string> = {
+    session_start: `Session started id=${randUUID().slice(0, 8)} env=${environmentId} shell=${shell}`,
+    command_execute: `[${shell}] $ ${cmd}  exit=${isErr ? randInt(1, 127) : 0} duration_ms=${randInt(12, 8000)}`,
+    env_provision: `Provisioning CloudShell environment ${environmentId} in ${region} (AMI ${rand(["2023.2", "2024.1"])})`,
+    storage_mount: `Attached EFS mount targets: ${mounts.map((m) => m.name).join(",")} total=${mounts.reduce((a, m) => a + m.size_gb, 0)}GiB`,
+    session_timeout: `Idle session policy: disconnect after ${randInt(20, 120)}m inactivity`,
+    credential_refresh: `Assumed role credentials refreshed via STS for ${acct.id}`,
+  };
   return {
     "@timestamp": ts,
     cloud: {
@@ -1540,17 +1574,40 @@ function generateCloudShellLog(ts: string, er: number): EcsDocument {
     },
     aws: {
       cloudshell: {
-        environment_id: `env-${randId(8).toLowerCase()}`,
-        event_type: ev,
-        shell_type: rand(shells),
+        environment_id: environmentId,
+        scenario,
+        shell_type: shell,
         session_duration_seconds: randInt(10, 7200),
         storage_used_mb: randInt(1, 1024),
         user_arn: `arn:aws:iam::${acct.id}:user/${rand(["developer", "admin", "readonly"])}`,
         network_mode: rand(["public", "vpc"]),
+        mounts,
+        command: cmd,
+        api_request_id: randUUID(),
+        quota: { environments_per_region: randInt(1, 10), storage_limit_mb: 1024 },
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e4, 5e6) },
-    message: isErr ? `CloudShell: ${ev} failed — ${rand(errMsgs)}` : `CloudShell: ${ev} completed`,
+    event: {
+      action: scenario,
+      outcome: isErr ? "failure" : "success",
+      category: ["process", "session"],
+      dataset: "aws.cloudshell",
+      provider: "cloudshell.amazonaws.com",
+      duration: randInt(1e4, 5e6),
+    },
+    message: isErr
+      ? `${messages[scenario]} — ${errCode!}: ${rand(["token rotation failed", "volume not attached", "environment still initializing", "session TTL exceeded"])}`
+      : messages[scenario],
+    log: { level: isErr ? "error" : "info" },
+    ...(errCode
+      ? {
+          error: {
+            code: errCode,
+            message: `CloudShell ${scenario} failed for ${environmentId}`,
+            type: "aws",
+          },
+        }
+      : {}),
   };
 }
 
@@ -1558,25 +1615,41 @@ function generateCloudShellLog(ts: string, er: number): EcsDocument {
 function generateCloud9Log(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
-  const isErr = Math.random() < er;
   const envs = ["dev-workspace", "pair-programming", "lambda-editor", "notebook-env"];
   const env = rand(envs);
-  const events = [
-    "CreateEnvironment",
-    "UpdateEnvironment",
-    "DeleteEnvironment",
-    "OpenIDE",
-    "ShareEnvironment",
-    "CreateSSHEnvironment",
-  ];
-  const ev = rand(events);
+  const environmentId = `env-${randId(16).toLowerCase()}`;
   const instanceTypes = ["t3.small", "t3.medium", "m5.large", "t3.micro"];
-  const errMsgs = [
-    "EC2 instance failed to start",
-    "EBS volume attachment timeout",
-    "IAM permission denied",
-    "VPC subnet exhausted",
-  ];
+  const r = randFloat(0, 1);
+  const scenario =
+    r < 0.26
+      ? "ide_open"
+      : r < 0.42
+        ? "environment_create"
+        : r < 0.56
+          ? "collaboration_join"
+          : r < 0.7
+            ? "terminal_exec"
+            : r < 0.84
+              ? "ssh_connect"
+              : "auto_save";
+  const collaboration = {
+    environment_arn: `arn:aws:cloud9:${region}:${acct.id}:environment/${environmentId}`,
+    member_user_arn: `arn:aws:iam::${acct.id}:user/${rand(["alice", "bob", "buildsvc"])}`,
+    permission: rand(["read-write", "read-only"]),
+  };
+  const riskyScenario = scenario === "environment_create" || scenario === "ssh_connect";
+  const isErr = (riskyScenario && Math.random() < 0.22) || Math.random() < er;
+  const errCode: "EnvironmentNotFound" | "InsufficientPermissions" | undefined = isErr
+    ? rand(["EnvironmentNotFound", "InsufficientPermissions"] as const)
+    : undefined;
+  const messages: Record<string, string> = {
+    ide_open: `Cloud9 IDE session opened for ${env} (${environmentId}) via ${rand(["SSM", "SSH"])}`,
+    environment_create: `CreateEnvironmentEC2: ${env} instanceType=${rand(instanceTypes)} subnet=${`subnet-${randId(8)}`}`,
+    collaboration_join: `Member ${collaboration.member_user_arn.split("/").pop()} joined with ${collaboration.permission}`,
+    terminal_exec: `[terminal-1] ${rand(["npm test", "docker ps", "pytest -q", "cdk synth"])} completed rc=${isErr ? 1 : 0}`,
+    ssh_connect: `SSH_CONNECT host=${`ip-${randId(8)}.${region}.compute.internal`} fingerprint=${randId(16)}`,
+    auto_save: `Workspace auto-save: ${randInt(3, 40)} files written to EBS ${randInt(1, 500)}ms`,
+  };
   return {
     "@timestamp": ts,
     cloud: {
@@ -1587,20 +1660,44 @@ function generateCloud9Log(ts: string, er: number): EcsDocument {
     },
     aws: {
       cloud9: {
-        environment_id: `env-${randId(16).toLowerCase()}`,
+        environment_id: environmentId,
         environment_name: env,
-        event_type: ev,
+        scenario,
         instance_type: rand(instanceTypes),
         connection_type: rand(["CONNECT_SSM", "CONNECT_SSH"]),
         auto_stop_minutes: rand([30, 60, 120, 240]),
         members: randInt(1, 5),
         platform: rand(["amazonlinux-2", "amazonlinux-2023", "ubuntu-22.04"]),
+        collaboration,
+        ide: {
+          theme: rand(["dark", "light"]),
+          c9_plugin_version: rand(["1.44.0", "1.45.2"]),
+        },
+        network: {
+          vpc_id: `vpc-${randId(8)}`,
+          subnet_id: `subnet-${randId(8)}`,
+        },
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e5, 3e7) },
-    message: isErr
-      ? `Cloud9 ${env}: ${ev} failed — ${rand(errMsgs)}`
-      : `Cloud9 ${env}: ${ev} completed`,
+    event: {
+      action: scenario,
+      outcome: isErr ? "failure" : "success",
+      category: ["process", "host"],
+      dataset: "aws.cloud9",
+      provider: "cloud9.amazonaws.com",
+      duration: randInt(1e5, 3e7),
+    },
+    message: isErr ? `${messages[scenario]} — ${errCode}` : messages[scenario],
+    log: { level: isErr ? "error" : "info" },
+    ...(errCode
+      ? {
+          error: {
+            code: errCode,
+            message: `Cloud9 ${scenario} failed for ${env}`,
+            type: "aws",
+          },
+        }
+      : {}),
   };
 }
 
@@ -1608,25 +1705,59 @@ function generateCloud9Log(ts: string, er: number): EcsDocument {
 function generateRoboMakerLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
-  const isErr = Math.random() < er;
   const apps = ["warehouse-nav", "delivery-robot", "inspection-drone", "pick-and-place"];
   const app = rand(apps);
-  const events = [
-    "CreateSimulationJob",
-    "StartSimulation",
-    "DescribeSimulation",
-    "CreateRobotApplication",
-    "BatchDescribeSimulation",
-    "CreateWorldTemplate",
-  ];
-  const ev = rand(events);
-  const statuses = isErr ? ["Failed", "Canceled"] : ["Completed", "Running"];
-  const errMsgs = [
-    "Simulation world generation failed",
-    "Robot application build error",
-    "GPU resource unavailable",
-    "Gazebo process crashed",
-  ];
+  const simulationJobId = `sim-${randId(12).toLowerCase()}`;
+  const rosDistro = rand(["ROS2 Humble", "ROS Melodic", "ROS Noetic"]);
+  const r = randFloat(0, 1);
+  const scenario =
+    r < 0.24
+      ? "simulation_launch"
+      : r < 0.4
+        ? "world_generate"
+        : r < 0.55
+          ? "robot_deploy"
+          : r < 0.7
+            ? "ros_node_start"
+            : r < 0.85
+              ? "physics_step"
+              : "log_upload";
+  const scenarioIsFailure =
+    scenario === "simulation_launch" ||
+    scenario === "world_generate" ||
+    scenario === "robot_deploy";
+  const isErr =
+    (scenarioIsFailure && Math.random() < 0.26) || (!scenarioIsFailure && Math.random() < er);
+  const errCode:
+    | "SimulationJobFailed"
+    | "WorldGenerationFailed"
+    | "RobotDeploymentFailed"
+    | undefined = isErr
+    ? scenario === "world_generate"
+      ? "WorldGenerationFailed"
+      : scenario === "robot_deploy"
+        ? "RobotDeploymentFailed"
+        : scenario === "simulation_launch"
+          ? "SimulationJobFailed"
+          : rand(["SimulationJobFailed", "WorldGenerationFailed", "RobotDeploymentFailed"])
+    : undefined;
+  const physics = {
+    engine: rand(["Gazebo", "Ignition Fortress"]),
+    step_size_ms: randFloat(0.5, 4),
+    realtime_factor: Number(randFloat(0.7, isErr ? 0.4 : 1.0)),
+  };
+  const rosGraph = {
+    nodes: randInt(3, 40),
+    topics: [`/scan`, `/cmd_vel`, `/odom`, `/${rand(["map", "tf"])}`],
+  };
+  const messages: Record<string, string> = {
+    simulation_launch: `CreateSimulationJob ${simulationJobId} app_bundle=${app} iamRole=arn:aws:iam::${acct.id}:role/RoboMakerSSM`,
+    world_generate: `WorldExportJob s3://${rand(["rm-worlds", "sim-assets"])}/${app}/world-${randInt(1, 9)}.world`,
+    robot_deploy: `CreateDeploymentJob fleet=${rand(["amr-east", "drone-west"])} version=${randInt(1, 22)} rollout=${rand(["LINEAR", "CANARY"])}`,
+    ros_node_start: `roslaunch ${rand(["bringup", "navigation", "perception"])}.launch — ${rosGraph.nodes} nodes`,
+    physics_step: `Physics tick hz=${(1000 / physics.step_size_ms).toFixed(0)} RTF=${physics.realtime_factor.toFixed(2)}`,
+    log_upload: `UploadSimulationJobArtifacts s3://${rand(["robomaker-logs"])}/${simulationJobId}/stderr.gz (${randInt(10, 500)} KiB)`,
+  };
   return {
     "@timestamp": ts,
     cloud: {
@@ -1637,21 +1768,44 @@ function generateRoboMakerLog(ts: string, er: number): EcsDocument {
     },
     aws: {
       robomaker: {
-        simulation_job_id: `sim-${randId(12).toLowerCase()}`,
+        simulation_job_id: simulationJobId,
         robot_application: app,
-        event_type: ev,
-        status: rand(statuses),
+        scenario,
+        status: isErr ? rand(["Failed", "Canceled"]) : rand(["Running", "Completed", "Running"]),
         simulation_time_seconds: randInt(60, 36000),
         world_count: randInt(1, 10),
         compute_type: rand(["CPU", "GPU_AND_CPU"]),
         max_job_duration_seconds: 86400,
         failure_behavior: rand(["Fail", "Continue"]),
+        ros: { distro: rosDistro, graph: rosGraph },
+        physics,
+        vpc_config: {
+          subnets: [`subnet-${randId(8)}`, `subnet-${randId(8)}`],
+          security_groups: [`sg-${randId(8)}`],
+        },
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(6e7, 3.6e10) },
+    event: {
+      action: scenario,
+      outcome: isErr ? "failure" : "success",
+      category: ["process"],
+      dataset: "aws.robomaker",
+      provider: "robomaker.amazonaws.com",
+      duration: randInt(6e7, 3.6e10),
+    },
     message: isErr
-      ? `RoboMaker ${app}: ${ev} ${rand(statuses)} — ${rand(errMsgs)}`
-      : `RoboMaker ${app}: ${ev} completed`,
+      ? `${messages[scenario]} — ${errCode!}: ${rand(["exit code 1", "resource limit", "S3 artifact missing"])}`
+      : messages[scenario],
+    log: { level: isErr ? "error" : "info" },
+    ...(errCode
+      ? {
+          error: {
+            code: errCode,
+            message: `RoboMaker ${scenario} failed for ${app}`,
+            type: "aws",
+          },
+        }
+      : {}),
   };
 }
 

@@ -11,6 +11,37 @@ import {
   USER_AGENTS,
 } from "./helpers.js";
 
+const MISC_EXTENDED_ERR_CODES = [
+  "FrontDoorNotFound",
+  "CdnProfileQuotaExceeded",
+  "MapsAccountKeyExpired",
+  "ChaosTargetNotFound",
+  "AuthorizationFailed",
+  "QuotaExceeded",
+  "InternalServerError",
+  "ResourceNotFound",
+] as const;
+
+type MiscExtendedErr = {
+  code: (typeof MISC_EXTENDED_ERR_CODES)[number];
+  message: string;
+  type: "azure";
+};
+
+function miscExtendedErrFields(
+  isErr: boolean,
+  message: string,
+  scope: "data" | "adminOrProvision"
+): { error?: MiscExtendedErr; statusMessage?: { error: MiscExtendedErr } } {
+  if (!isErr) return {};
+  const error: MiscExtendedErr = {
+    code: rand([...MISC_EXTENDED_ERR_CODES]),
+    message,
+    type: "azure",
+  };
+  return scope === "adminOrProvision" ? { error, statusMessage: { error } } : { error };
+}
+
 function azureDiagnosticTime(ts: string): string {
   const d = new Date(ts);
   if (Number.isNaN(d.getTime())) {
@@ -60,7 +91,7 @@ export function generateFrontDoorLog(ts: string, er: number): EcsDocument {
   const callerIp = randIp();
   const correlationId = randUUID();
   const time = azureDiagnosticTime(ts);
-  const variant = rand(["access", "waf", "route", "admin"] as const);
+  const variant = rand(["access", "waf", "route", "purge", "tls", "admin"] as const);
 
   if (variant === "access") {
     const resourceId = armAfdEndpoint(subscription.id, resourceGroup, profile, ep);
@@ -74,6 +105,11 @@ export function generateFrontDoorLog(ts: string, er: number): EcsDocument {
       bytesSent: isErr ? randInt(120, 900) : randInt(2_000, 4_000_000),
       edgePop: rand(["SEA", "LAX", "AMS", "FRA", "DXB"]),
       timeTakenMs: randFloat(isErr ? 800 : 12, isErr ? 12_000 : 420),
+      ...miscExtendedErrFields(
+        isErr,
+        "Front Door edge POP returned gateway error retrieving origin response",
+        "data"
+      ),
     };
     return {
       "@timestamp": ts,
@@ -114,6 +150,11 @@ export function generateFrontDoorLog(ts: string, er: number): EcsDocument {
       matchValue: callerIp,
       policyId: randUUID(),
       requestId: randUUID(),
+      ...miscExtendedErrFields(
+        isErr,
+        "WAF engine failed evaluating managed ruleset telemetry stream",
+        "data"
+      ),
     };
     return {
       "@timestamp": ts,
@@ -152,6 +193,11 @@ export function generateFrontDoorLog(ts: string, er: number): EcsDocument {
       patterns: rand([["/api/*"], ["/*"], ["/static/*", "/assets/*"]]),
       changeType: isErr ? "Rollback" : rand(["Create", "Update"]),
       validationErrors: isErr ? ["OverlappingPathPattern"] : [],
+      ...miscExtendedErrFields(
+        isErr,
+        "Route configuration overlap blocked deployment of Front Door path rules",
+        "data"
+      ),
     };
     return {
       "@timestamp": ts,
@@ -183,6 +229,89 @@ export function generateFrontDoorLog(ts: string, er: number): EcsDocument {
     };
   }
 
+  if (variant === "purge") {
+    const resourceId = armCdnProfile(subscription.id, resourceGroup, profile);
+    const props = {
+      urlsPurged: isErr ? randInt(0, 8) : randInt(40, 800),
+      purgeOperationId: randUUID(),
+      propagationComplete: !isErr,
+      ...miscExtendedErrFields(
+        isErr,
+        "CDN purge API failed flushing paths still referenced active connections",
+        "data"
+      ),
+    };
+    return {
+      "@timestamp": ts,
+      time,
+      resourceId,
+      operationName: "Microsoft.Cdn/profiles/endpoints/purge",
+      category: "FrontDoorOperational",
+      resultType: isErr ? "Failure" : "Success",
+      resultSignature: props.propagationComplete ? "flush_ok" : "partial",
+      callerIpAddress: callerIp,
+      correlationId,
+      level: isErr ? "Warning" : "Informational",
+      properties: props,
+      cloud: azureCloud(region, subscription, "Microsoft.Cdn/profiles"),
+      azure: {
+        front_door: {
+          profile_name: profile,
+          resource_group: resourceGroup,
+          category: "FrontDoorOperational",
+          correlation_id: correlationId,
+          properties: props,
+        },
+      },
+      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 4e11) },
+      message: isErr
+        ? `Front Door ${profile}: purge stalled op=${props.purgeOperationId}`
+        : `Front Door ${profile}: purge ${props.urlsPurged} paths`,
+    };
+  }
+
+  if (variant === "tls") {
+    const resourceId = armAfdEndpoint(subscription.id, resourceGroup, profile, ep);
+    const props = {
+      sniHostname: rand(["www.contoso.com", "api.contoso.net"]),
+      certVersion: rand(["2026-03", "2025-12"]),
+      handshakeOk: !isErr,
+      ...miscExtendedErrFields(
+        isErr,
+        "Custom domain TLS handshake failed revoked certificate or mismatched SAN",
+        "data"
+      ),
+    };
+    return {
+      "@timestamp": ts,
+      time,
+      resourceId,
+      operationName: "FrontDoorTlsHandshakeDiagnostic",
+      category: "FrontDoorOperational",
+      resultType: isErr ? "Failure" : "Success",
+      resultSignature: props.handshakeOk ? "success" : "failed",
+      callerIpAddress: callerIp,
+      correlationId,
+      level: isErr ? "Error" : "Informational",
+      properties: props,
+      cloud: azureCloud(region, subscription, "Microsoft.Cdn/profiles"),
+      azure: {
+        front_door: {
+          profile_name: profile,
+          endpoint: ep,
+          resource_group: resourceGroup,
+          category: "FrontDoorOperational",
+          correlation_id: correlationId,
+          properties: props,
+        },
+      },
+      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 5e8) },
+      message: isErr
+        ? `Front Door ${profile}: TLS ${props.sniHostname} failed`
+        : `Front Door ${profile}: cert ${props.certVersion} OK`,
+    };
+  }
+
   const resourceId = armCdnProfile(subscription.id, resourceGroup, profile);
   const op = isErr
     ? "Microsoft.Cdn/profiles/write"
@@ -197,6 +326,11 @@ export function generateFrontDoorLog(ts: string, er: number): EcsDocument {
     status: isErr ? "Failed" : "Succeeded",
     errorCode: isErr ? rand(["FrontDoorProfileInUse", "SkuNotSupportedInRegion"]) : "",
     httpRequest: { clientRequestId: randUUID(), clientIpAddress: callerIp, method: "PUT" },
+    ...miscExtendedErrFields(
+      isErr,
+      "Front Door profile ARM change blocked due to active routes or SKU limits",
+      "adminOrProvision"
+    ),
   };
   return {
     "@timestamp": ts,
@@ -235,7 +369,7 @@ export function generateCdnLog(ts: string, er: number): EcsDocument {
   const callerIp = randIp();
   const correlationId = randUUID();
   const time = azureDiagnosticTime(ts);
-  const variant = rand(["access", "origin", "admin"] as const);
+  const variant = rand(["access", "origin", "admin", "purge", "qos", "rules"] as const);
 
   if (variant === "access") {
     const resourceId = armClassicEndpoint(subscription.id, resourceGroup, profile, ep);
@@ -248,6 +382,11 @@ export function generateCdnLog(ts: string, er: number): EcsDocument {
       ClientIp: callerIp,
       UserAgent: rand(USER_AGENTS),
       HitCount: isErr ? 0 : randInt(1, 120),
+      ...miscExtendedErrFields(
+        isErr,
+        "Classic CDN edge returned error contacting customer origin or storage static site",
+        "data"
+      ),
     };
     return {
       "@timestamp": ts,
@@ -287,6 +426,11 @@ export function generateCdnLog(ts: string, er: number): EcsDocument {
       HttpLatencyMs: isErr ? randInt(8000, 30000) : randInt(8, 220),
       FailoverTriggered: isErr,
       LastError: isErr ? rand(["ConnectionTimeout", "TLSHandshakeFailed"]) : "",
+      ...miscExtendedErrFields(
+        isErr,
+        "CDN origin health probe failed TLS or TCP connect to storage account host",
+        "data"
+      ),
     };
     return {
       "@timestamp": ts,
@@ -318,6 +462,128 @@ export function generateCdnLog(ts: string, er: number): EcsDocument {
     };
   }
 
+  if (variant === "purge") {
+    const resourceId = armClassicEndpoint(subscription.id, resourceGroup, profile, ep);
+    const props = {
+      pathsRequested: randInt(1, 900),
+      completed: !isErr,
+      ...miscExtendedErrFields(
+        isErr,
+        "CDN purge request failed CDN profile quota exceeded for concurrent operations",
+        "data"
+      ),
+    };
+    return {
+      "@timestamp": ts,
+      time,
+      resourceId,
+      operationName: "Microsoft.Cdn/profiles/endpoints/PurgeContent",
+      category: "AzureCdnOperational",
+      resultType: isErr ? "Failure" : "Success",
+      resultSignature: props.completed ? "purge_ok" : "throttled",
+      callerIpAddress: callerIp,
+      correlationId,
+      level: isErr ? "Warning" : "Informational",
+      properties: props,
+      cloud: azureCloud(region, subscription, "Microsoft.Cdn/profiles"),
+      azure: {
+        cdn: {
+          profile_name: profile,
+          endpoint: ep,
+          resource_group: resourceGroup,
+          category: "AzureCdnOperational",
+          correlation_id: correlationId,
+          properties: props,
+        },
+      },
+      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 2e10) },
+      message: isErr
+        ? `CDN ${profile}: purge bottleneck paths=${props.pathsRequested}`
+        : `CDN ${profile}: purge propagated`,
+    };
+  }
+
+  if (variant === "qos") {
+    const resourceId = armClassicEndpoint(subscription.id, resourceGroup, profile, ep);
+    const props = {
+      bandwidthMbps: isErr ? randFloat(0.2, 4) : randFloat(600, 12_000),
+      throttleReason: isErr ? "origin_rate_limit" : "",
+      ...miscExtendedErrFields(
+        isErr,
+        "CDN edge QoS throttled egress because origin returned 429 upstream",
+        "data"
+      ),
+    };
+    return {
+      "@timestamp": ts,
+      time,
+      resourceId,
+      operationName: "Microsoft.Cdn/profiles/endpoints/metricsBandwidth",
+      category: "AzureCdnMetrics",
+      resultType: isErr ? "Failure" : "Success",
+      resultSignature: isErr ? "capped" : "open",
+      callerIpAddress: callerIp,
+      correlationId,
+      level: isErr ? "Warning" : "Informational",
+      properties: props,
+      cloud: azureCloud(region, subscription, "Microsoft.Cdn/profiles"),
+      azure: {
+        cdn: {
+          profile_name: profile,
+          endpoint: ep,
+          resource_group: resourceGroup,
+          category: "AzureCdnMetrics",
+          correlation_id: correlationId,
+          properties: props,
+        },
+      },
+      event: { outcome: isErr ? "failure" : "success", duration: randInt(9e11, 2e11) },
+      message: isErr
+        ? `CDN ${profile}: qos ${props.throttleReason}`
+        : `CDN ${profile}: qos healthy`,
+    };
+  }
+
+  if (variant === "rules") {
+    const resourceId = armClassicEndpoint(subscription.id, resourceGroup, profile, ep);
+    const props = {
+      ruleEngine: rand(["rulesengine-v2", "standard-rules"]),
+      rulesEvaluated: randInt(3, 24),
+      lastMatchConflict: isErr,
+      ...miscExtendedErrFields(
+        isErr,
+        "CDN rules engine halted due conflicting match conditions ordering error",
+        "data"
+      ),
+    };
+    return {
+      "@timestamp": ts,
+      time,
+      resourceId,
+      operationName: "Microsoft.Cdn/profiles/endpoints/rules/diagnostic",
+      category: "AzureCdnOperational",
+      resultType: isErr ? "Failure" : "Success",
+      resultSignature: props.lastMatchConflict ? "conflict" : "ok",
+      callerIpAddress: callerIp,
+      correlationId,
+      level: isErr ? "Error" : "Informational",
+      properties: props,
+      cloud: azureCloud(region, subscription, "Microsoft.Cdn/profiles"),
+      azure: {
+        cdn: {
+          profile_name: profile,
+          endpoint: ep,
+          resource_group: resourceGroup,
+          category: "AzureCdnOperational",
+          correlation_id: correlationId,
+          properties: props,
+        },
+      },
+      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 2e10) },
+      message: isErr ? `CDN ${profile}: rule conflict` : `CDN ${profile}: rules ok`,
+    };
+  }
+
   const resourceId = armCdnProfile(subscription.id, resourceGroup, profile);
   const op = isErr
     ? "Microsoft.Cdn/profiles/endpoints/write"
@@ -332,6 +598,11 @@ export function generateCdnLog(ts: string, er: number): EcsDocument {
     status: isErr ? "Failed" : "Succeeded",
     errorCode: isErr ? rand(["EndpointNameUnavailable", "InvalidOrigin"]) : "",
     httpRequest: { clientRequestId: randUUID(), clientIpAddress: callerIp, method: "PUT" },
+    ...miscExtendedErrFields(
+      isErr,
+      "CDN ARM operation failed SKU limits or provisioning lock on endpoint",
+      "adminOrProvision"
+    ),
   };
   return {
     "@timestamp": ts,
@@ -371,7 +642,7 @@ export function generateVpnGatewayLog(ts: string, er: number): EcsDocument {
   const peerIp = `${randInt(203, 203)}.${randInt(0, 255)}.${randInt(0, 255)}.${randInt(2, 250)}`;
   const correlationId = randUUID();
   const time = azureDiagnosticTime(ts);
-  const variant = rand(["tunnel", "ike", "bgp", "admin"] as const);
+  const variant = rand(["tunnel", "ike", "bgp", "admin", "packetDiag", "nat"] as const);
   const conn = `conn-${rand(["hq", "branch", "partner"])}-${randId(3).toLowerCase()}`;
 
   if (variant === "tunnel") {
@@ -383,6 +654,11 @@ export function generateVpnGatewayLog(ts: string, er: number): EcsDocument {
       egressBytes: isErr ? 0 : randInt(10_000, 8_000_000_000),
       remoteVpnSite: peerIp,
       natTraversal: "UDP-4500",
+      ...miscExtendedErrFields(
+        isErr,
+        "IPsec tunnel teardown detected keepalive miss or PMTU black hole",
+        "data"
+      ),
     };
     return {
       "@timestamp": ts,
@@ -421,6 +697,11 @@ export function generateVpnGatewayLog(ts: string, er: number): EcsDocument {
       cipherSuite: rand(["AES256-GCM", "GCMAES256"]),
       remoteIp: peerIp,
       failureDetail: isErr ? rand(["AUTHENTICATION_FAILED", "PEER_NOT_RESPONDING"]) : "",
+      ...miscExtendedErrFields(
+        isErr,
+        "IKE SA negotiation failed mismatched transform or shared secret rotation",
+        "data"
+      ),
     };
     return {
       "@timestamp": ts,
@@ -458,6 +739,11 @@ export function generateVpnGatewayLog(ts: string, er: number): EcsDocument {
       routesAdvertised: isErr ? 0 : randInt(2, 128),
       routesLearned: isErr ? 0 : randInt(2, 256),
       peeringState: isErr ? "Stopped" : "Established",
+      ...miscExtendedErrFields(
+        isErr,
+        "BGP peering reset hold timer expired on VPN gateway",
+        "data"
+      ),
     };
     return {
       "@timestamp": ts,
@@ -488,6 +774,82 @@ export function generateVpnGatewayLog(ts: string, er: number): EcsDocument {
     };
   }
 
+  if (variant === "packetDiag") {
+    const props = {
+      filtersApplied: randInt(1, 5),
+      captureDroppedFrames: isErr ? randInt(50, 400) : randInt(0, 12),
+      ...miscExtendedErrFields(
+        isErr,
+        "Gateway packet capture saturated buffer NIC dropped mirrored frames diagnostic",
+        "data"
+      ),
+    };
+    return {
+      "@timestamp": ts,
+      time,
+      resourceId,
+      operationName: "VpnGatewayPacketCapture",
+      category: "PacketCapture",
+      resultType: isErr ? "Failure" : "Success",
+      resultSignature: `${props.captureDroppedFrames}`,
+      callerIpAddress: callerIp,
+      correlationId,
+      level: isErr ? "Warning" : "Informational",
+      properties: props,
+      cloud: azureCloud(region, subscription, "Microsoft.Network/virtualNetworkGateways"),
+      azure: {
+        vpn_gateway: {
+          gateway_name: gw,
+          resource_group: resourceGroup,
+          category: "PacketCapture",
+          correlation_id: correlationId,
+          properties: props,
+        },
+      },
+      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e11, 4e11) },
+      message: isErr ? `VPN GW ${gw}: packet capture loss` : `VPN GW ${gw}: capture balanced`,
+    };
+  }
+
+  if (variant === "nat") {
+    const props = {
+      snatPortExhaustion: isErr,
+      sessionsActive: isErr ? randInt(48_000, 65_000) : randInt(2_000, 44_000),
+      ...miscExtendedErrFields(
+        isErr,
+        "Outbound SNAT ports exhausted on VPN Gateway public IP prefixes",
+        "data"
+      ),
+    };
+    return {
+      "@timestamp": ts,
+      time,
+      resourceId,
+      operationName: "OutboundNatDiagnosticLog",
+      category: "NatDiagnostics",
+      resultType: isErr ? "Failure" : "Success",
+      resultSignature: props.snatPortExhaustion ? "starved" : "available",
+      callerIpAddress: callerIp,
+      correlationId,
+      level: isErr ? "Error" : "Informational",
+      properties: props,
+      cloud: azureCloud(region, subscription, "Microsoft.Network/virtualNetworkGateways"),
+      azure: {
+        vpn_gateway: {
+          gateway_name: gw,
+          resource_group: resourceGroup,
+          category: "NatDiagnostics",
+          correlation_id: correlationId,
+          properties: props,
+        },
+      },
+      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 2e10) },
+      message: isErr
+        ? `VPN GW ${gw}: NAT sessions=${props.sessionsActive}`
+        : `VPN GW ${gw}: SNAT OK`,
+    };
+  }
+
   const op = isErr
     ? "Microsoft.Network/virtualNetworkGateways/write"
     : rand([
@@ -501,6 +863,11 @@ export function generateVpnGatewayLog(ts: string, er: number): EcsDocument {
     status: isErr ? "Failed" : "Succeeded",
     errorCode: isErr ? rand(["GatewaySubnetRequired", "VpnGatewaySkuMismatch"]) : "",
     httpRequest: { clientRequestId: randUUID(), clientIpAddress: callerIp, method: "PUT" },
+    ...miscExtendedErrFields(
+      isErr,
+      "VPN Gateway ARM provisioning failed SKU resize or BGP settings conflict",
+      "adminOrProvision"
+    ),
   };
   return {
     "@timestamp": ts,
@@ -537,6 +904,30 @@ export function generateActiveUsersServicesLog(ts: string, er: number): EcsDocum
   const time = azureDiagnosticTime(ts);
   const resourceId = `/organization/${orgId}/reports/GetOffice365ActiveUserDetail`;
   const product = rand(["Exchange", "Microsoft 365", "OneDrive", "SharePoint", "Teams", "Yammer"]);
+  const variant = rand([
+    "rollup",
+    "department",
+    "anomaly",
+    "tenantAddOn",
+    "federation",
+    "refresh",
+  ] as const);
+
+  let sliceNote = "";
+  if (variant === "department") {
+    sliceNote = "engineering-slice";
+  } else if (variant === "anomaly") {
+    sliceNote = "spike-watch";
+  } else if (variant === "tenantAddOn") {
+    sliceNote = "addon-skus";
+  } else if (variant === "federation") {
+    sliceNote = "b2b-guest";
+  } else if (variant === "refresh") {
+    sliceNote = "async-refresh-job";
+  } else {
+    sliceNote = "org-wide";
+  }
+
   const props = {
     ReportPeriod: rand(["7", "30", "90"]),
     ReportRefreshDate: ts.slice(0, 10),
@@ -544,6 +935,14 @@ export function generateActiveUsersServicesLog(ts: string, er: number): EcsDocum
     ActiveUserCount: isErr ? 0 : randInt(12, 85_000),
     EnabledUserCount: isErr ? 0 : randInt(50, 120_000),
     Department: rand(["Engineering", "Sales", "Operations", ""]),
+    Slice: sliceNote,
+    ...miscExtendedErrFields(
+      isErr,
+      variant === "refresh"
+        ? "Graph reporting export refresh job stalled internal data pipeline timeout"
+        : "Office 365 usage report rollup failed entitlement or delegated scope missing",
+      "data"
+    ),
   };
   return {
     "@timestamp": ts,
@@ -583,6 +982,14 @@ export function generateTeamsUserActivityLog(ts: string, er: number): EcsDocumen
   const correlationId = randUUID();
   const time = azureDiagnosticTime(ts);
   const resourceId = `/organization/${orgId}/reports/GetMicrosoftTeamsUserActivityUserDetail`;
+  const variant = rand([
+    "chatHeavy",
+    "meetingHeavy",
+    "hybridPresence",
+    "devicePolicy",
+    "copilotSignals",
+    "exportJob",
+  ] as const);
   const props = {
     ReportPeriod: rand(["7", "30"]),
     ReportRefreshDate: ts.slice(0, 10),
@@ -592,6 +999,14 @@ export function generateTeamsUserActivityLog(ts: string, er: number): EcsDocumen
     MeetingsAttendedCount: isErr ? 0 : randInt(0, 120),
     LastActivityDate: isErr ? "" : ts.slice(0, 10),
     Deleted: isErr,
+    ReportSlice: variant,
+    ...miscExtendedErrFields(
+      isErr,
+      variant === "exportJob"
+        ? "Teams activity Graph export aborted async job concurrency limit exceeded"
+        : "Teams telemetry row rejected license or privacy masking rule evaluation",
+      "data"
+    ),
   };
   return {
     "@timestamp": ts,
@@ -630,6 +1045,14 @@ export function generateOutlookActivityLog(ts: string, er: number): EcsDocument 
   const time = azureDiagnosticTime(ts);
   const resourceId = `/organization/${orgId}/reports/GetEmailActivityUserDetail`;
   const user = `user${randInt(100, 999)}@${rand(["contoso", "fabrikam"])}.onmicrosoft.com`;
+  const variant = rand([
+    "mailbox",
+    "sharedMailbox",
+    "archiving",
+    "dlpLatency",
+    "connectors",
+    "mobileSync",
+  ] as const);
   const props = {
     ReportPeriod: "7",
     ReportRefreshDate: ts.slice(0, 10),
@@ -638,6 +1061,12 @@ export function generateOutlookActivityLog(ts: string, er: number): EcsDocument 
     ReceiveCount: isErr ? 0 : randInt(0, 5000),
     ReadCount: isErr ? 0 : randInt(0, 9000),
     LastActivityDate: isErr ? "" : ts.slice(0, 10),
+    MailboxSlice: variant,
+    ...miscExtendedErrFields(
+      isErr,
+      "Outlook email activity ingestion failed journaling connector or impersonation ACL",
+      "data"
+    ),
   };
   return {
     "@timestamp": ts,
@@ -676,6 +1105,14 @@ export function generateOnedriveUsageStorageLog(ts: string, er: number): EcsDocu
   const time = azureDiagnosticTime(ts);
   const resourceId = `/organization/${orgId}/reports/GetOneDriveUsageStorage`;
   const user = `user${randInt(100, 999)}@${rand(["contoso", "fabrikam"])}.onmicrosoft.com`;
+  const variant = rand([
+    "personalSites",
+    "knownFolders",
+    "sensitivityLabels",
+    "retentionHold",
+    "deltaSync",
+    "malwareScan",
+  ] as const);
   const props = {
     ReportPeriod: rand(["7", "30"]),
     ReportRefreshDate: ts.slice(0, 10),
@@ -686,6 +1123,12 @@ export function generateOnedriveUsageStorageLog(ts: string, er: number): EcsDocu
     StorageAllocatedInMB: isErr ? 0 : randInt(1024, 5_242_880),
     StorageUsedInMB: isErr ? 0 : randInt(100, 2_000_000),
     FileCount: isErr ? 0 : randInt(0, 800_000),
+    DataSlice: variant,
+    ...miscExtendedErrFields(
+      isErr,
+      "OneDrive storage telemetry export missing site mapping or encrypted library state",
+      "data"
+    ),
   };
   return {
     "@timestamp": ts,
@@ -724,7 +1167,14 @@ export function generateArcLog(ts: string, er: number): EcsDocument {
   const callerIp = randIp();
   const correlationId = randUUID();
   const time = azureDiagnosticTime(ts);
-  const variant = rand(["heartbeat", "extension", "guestcfg", "admin"] as const);
+  const variant = rand([
+    "heartbeat",
+    "extension",
+    "guestcfg",
+    "admin",
+    "patch",
+    "identity",
+  ] as const);
 
   if (variant === "heartbeat") {
     const props = {
@@ -734,6 +1184,11 @@ export function generateArcLog(ts: string, er: number): EcsDocument {
       lastHeartbeatUtc: ts,
       osType: rand(["Linux", "Windows"]),
       osName: rand(["Ubuntu 22.04", "RHEL 9", "Windows Server 2022"]),
+      ...miscExtendedErrFields(
+        isErr,
+        "Arc machine heartbeat stale agent proxy blocked relay to Azure endpoints",
+        "data"
+      ),
     };
     return {
       "@timestamp": ts,
@@ -770,7 +1225,14 @@ export function generateArcLog(ts: string, er: number): EcsDocument {
       extensionName: ext,
       extensionVersion: rand(["1.0.0.0", "2.24.0"]),
       provisioningState: isErr ? "Failed" : rand(["Succeeded", "Updating"]),
-      message: isErr ? "Download timed out" : rand(["Extension installed", "No changes detected"]),
+      provisioningMessage: isErr
+        ? "Download timed out"
+        : rand(["Extension installed", "No changes detected"]),
+      ...miscExtendedErrFields(
+        isErr,
+        "Arc extension provisioning failed Artifact download MSI or gpg signature validation",
+        "data"
+      ),
     };
     return {
       "@timestamp": ts,
@@ -807,6 +1269,11 @@ export function generateArcLog(ts: string, er: number): EcsDocument {
       complianceStatus: isErr ? "NonCompliant" : rand(["Compliant", "Compliant"]),
       lastComplianceScanUtc: ts,
       assignmentName: `gc-${randId(4).toLowerCase()}`,
+      ...miscExtendedErrFields(
+        isErr,
+        "Guest Configuration assignment remediation script returned non-compliant exit codes",
+        "data"
+      ),
     };
     return {
       "@timestamp": ts,
@@ -837,6 +1304,82 @@ export function generateArcLog(ts: string, er: number): EcsDocument {
     };
   }
 
+  if (variant === "patch") {
+    const props = {
+      patchesPendingCritical: isErr ? randInt(8, 40) : randInt(0, 4),
+      assessmentAgeHours: isErr ? randFloat(72, 200) : randFloat(0.5, 24),
+      ...miscExtendedErrFields(
+        isErr,
+        "Arc patch assessment backlog WSUS upstream unreachable offline connected machine",
+        "data"
+      ),
+    };
+    return {
+      "@timestamp": ts,
+      time,
+      resourceId,
+      operationName: "Microsoft.HybridCompute/machines/assessPatches/action",
+      category: "PatchAssessment",
+      resultType: isErr ? "Failure" : "Success",
+      resultSignature: `${props.patchesPendingCritical}`,
+      callerIpAddress: callerIp,
+      correlationId,
+      level: isErr ? "Warning" : "Informational",
+      properties: props,
+      cloud: azureCloud(region, subscription, "Microsoft.HybridCompute/machines"),
+      azure: {
+        arc: {
+          machine_name: machine,
+          resource_group: resourceGroup,
+          category: "PatchAssessment",
+          correlation_id: correlationId,
+          properties: props,
+        },
+      },
+      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e11, 4e11) },
+      message: isErr
+        ? `Arc ${machine}: stale patch assessment`
+        : `Arc ${machine}: patch scan fresh`,
+    };
+  }
+
+  if (variant === "identity") {
+    const props = {
+      servicePrincipalSynced: !isErr,
+      lastIamRefreshUtc: ts,
+      ...miscExtendedErrFields(
+        isErr,
+        "Arc hybrid identity federation token issuer mismatch blocked Azure RBAC onboarding",
+        "data"
+      ),
+    };
+    return {
+      "@timestamp": ts,
+      time,
+      resourceId,
+      operationName: "Microsoft.HybridCompute/machines/identity/sync",
+      category: "IdentityBridge",
+      resultType: isErr ? "Failure" : "Success",
+      resultSignature: props.servicePrincipalSynced ? "ok" : "drift",
+      callerIpAddress: callerIp,
+      correlationId,
+      level: isErr ? "Error" : "Informational",
+      properties: props,
+      cloud: azureCloud(region, subscription, "Microsoft.HybridCompute/machines"),
+      azure: {
+        arc: {
+          machine_name: machine,
+          resource_group: resourceGroup,
+          category: "IdentityBridge",
+          correlation_id: correlationId,
+          properties: props,
+        },
+      },
+      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e11, 4e11) },
+      message: isErr ? `Arc ${machine}: identity drift` : `Arc ${machine}: IAM synced`,
+    };
+  }
+
   const op = isErr
     ? "Microsoft.HybridCompute/machines/write"
     : rand([
@@ -850,6 +1393,11 @@ export function generateArcLog(ts: string, er: number): EcsDocument {
     status: isErr ? "Failed" : "Succeeded",
     errorCode: isErr ? rand(["MachineAgentNotInstalled", "InvalidResourceName"]) : "",
     httpRequest: { clientRequestId: randUUID(), clientIpAddress: callerIp, method: "PUT" },
+    ...miscExtendedErrFields(
+      isErr,
+      "Hybrid Compute machine ARM provisioning metadata conflict deleting connected resource",
+      "adminOrProvision"
+    ),
   };
   return {
     "@timestamp": ts,
@@ -886,7 +1434,14 @@ export function generateStackLog(ts: string, er: number): EcsDocument {
   const callerIp = randIp();
   const correlationId = randUUID();
   const time = azureDiagnosticTime(ts);
-  const variant = rand(["sync", "marketplace", "admin"] as const);
+  const variant = rand([
+    "sync",
+    "marketplace",
+    "admin",
+    "capacity",
+    "fabricHealth",
+    "drift",
+  ] as const);
 
   if (variant === "sync") {
     const props = {
@@ -895,6 +1450,11 @@ export function generateStackLog(ts: string, er: number): EcsDocument {
       syncStatus: isErr ? "Failed" : rand(["Succeeded", "InProgress"]),
       usagePayloadSizeKb: isErr ? 0 : randInt(12, 9000),
       errorDetail: isErr ? rand(["EndpointUnreachable", "CertificateValidationFailed"]) : "",
+      ...miscExtendedErrFields(
+        isErr,
+        "Azure Stack Hub usage metering upload failed federation trust with Azure public cloud",
+        "data"
+      ),
     };
     return {
       "@timestamp": ts,
@@ -935,6 +1495,11 @@ export function generateStackLog(ts: string, er: number): EcsDocument {
       downloadStatus: isErr ? "Failed" : rand(["Downloaded", "Cached"]),
       packageSizeMb: isErr ? 0 : randInt(40, 12_000),
       SyndicationApiVersion: "2020-06-01",
+      ...miscExtendedErrFields(
+        isErr,
+        "Disconnected marketplace syndication blob missing signature or CDN blocked",
+        "data"
+      ),
     };
     return {
       "@timestamp": ts,
@@ -965,6 +1530,123 @@ export function generateStackLog(ts: string, er: number): EcsDocument {
     };
   }
 
+  if (variant === "capacity") {
+    const props = {
+      stampsOnline: randInt(4, 12),
+      imbalanceScore: isErr ? randFloat(0.55, 0.95) : randFloat(0.02, 0.35),
+      ...miscExtendedErrFields(
+        isErr,
+        "Azure Stack fleet capacity balancer flagged asymmetric storage consumption stamp",
+        "data"
+      ),
+    };
+    return {
+      "@timestamp": ts,
+      time,
+      resourceId,
+      operationName: "AzureStackCapacityPlanner",
+      category: "AzureStackOperational",
+      resultType: isErr ? "Failure" : "Success",
+      resultSignature: `${props.stampsOnline}`,
+      callerIpAddress: callerIp,
+      correlationId,
+      level: isErr ? "Warning" : "Informational",
+      properties: props,
+      cloud: azureCloud(region, subscription, "Microsoft.AzureStack/registrations"),
+      azure: {
+        azure_stack: {
+          registration_name: reg,
+          resource_group: resourceGroup,
+          category: "AzureStackOperational",
+          correlation_id: correlationId,
+          properties: props,
+        },
+      },
+      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e11, 4e11) },
+      message: isErr
+        ? `Azure Stack ${reg}: capacity skew`
+        : `Azure Stack ${reg}: stamps=${props.stampsOnline}`,
+    };
+  }
+
+  if (variant === "fabricHealth") {
+    const props = {
+      infraRole: rand(["fabriccontroller", "slb"]),
+      degradedNodes: isErr ? randInt(2, 9) : 0,
+      ...miscExtendedErrFields(
+        isErr,
+        "Azure Stack Infrastructure role health degraded hardware isolation needed",
+        "data"
+      ),
+    };
+    return {
+      "@timestamp": ts,
+      time,
+      resourceId,
+      operationName: "AzureStackInfraFabricHealth",
+      category: "AzureStackOperational",
+      resultType: isErr ? "Failure" : "Success",
+      resultSignature: props.infraRole,
+      callerIpAddress: callerIp,
+      correlationId,
+      level: isErr ? "Error" : "Informational",
+      properties: props,
+      cloud: azureCloud(region, subscription, "Microsoft.AzureStack/registrations"),
+      azure: {
+        azure_stack: {
+          registration_name: reg,
+          resource_group: resourceGroup,
+          category: "AzureStackOperational",
+          correlation_id: correlationId,
+          properties: props,
+        },
+      },
+      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e11, 5e11) },
+      message: isErr
+        ? `Azure Stack ${reg}: ${props.infraRole} nodes=${props.degradedNodes}`
+        : `Fabric OK`,
+    };
+  }
+
+  if (variant === "drift") {
+    const props = {
+      blueprintVersionDesired: rand(["2610A", "2609C"]),
+      actualVersion: isErr ? "2588Z" : "2610A",
+      ...miscExtendedErrFields(
+        isErr,
+        "Update readiness drift detected target cloud version behind Microsoft baseline stamp",
+        "data"
+      ),
+    };
+    return {
+      "@timestamp": ts,
+      time,
+      resourceId,
+      operationName: "AzureStackSoftwareUpdateCompliance",
+      category: "AzureStackOperational",
+      resultType: isErr ? "Failure" : "Success",
+      resultSignature: isErr ? "behind" : "current",
+      callerIpAddress: callerIp,
+      correlationId,
+      level: isErr ? "Warning" : "Informational",
+      properties: props,
+      cloud: azureCloud(region, subscription, "Microsoft.AzureStack/registrations"),
+      azure: {
+        azure_stack: {
+          registration_name: reg,
+          resource_group: resourceGroup,
+          category: "AzureStackOperational",
+          correlation_id: correlationId,
+          properties: props,
+        },
+      },
+      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e11, 6e11) },
+      message: isErr
+        ? `Azure Stack ${reg}: drift want=${props.blueprintVersionDesired} have=${props.actualVersion}`
+        : `Azure Stack ${reg}: blueprint aligned`,
+    };
+  }
+
   const op = isErr
     ? "Microsoft.AzureStack/registrations/write"
     : rand([
@@ -977,6 +1659,11 @@ export function generateStackLog(ts: string, er: number): EcsDocument {
     status: isErr ? "Failed" : "Succeeded",
     errorCode: isErr ? rand(["RegistrationConflict", "InvalidLocation"]) : "",
     httpRequest: { clientRequestId: randUUID(), clientIpAddress: callerIp, method: "PUT" },
+    ...miscExtendedErrFields(
+      isErr,
+      "Azure Stack registration ARM update conflicted multitenant stamps or geography",
+      "adminOrProvision"
+    ),
   };
   return {
     "@timestamp": ts,
@@ -1015,7 +1702,14 @@ export function generateApiCenterLog(ts: string, er: number): EcsDocument {
   const callerIp = randIp();
   const correlationId = randUUID();
   const time = azureDiagnosticTime(ts);
-  const variant = rand(["inventory", "lint", "admin"] as const);
+  const variant = rand([
+    "inventory",
+    "lint",
+    "admin",
+    "conformance",
+    "exportPack",
+    "webhookRelay",
+  ] as const);
 
   if (variant === "inventory") {
     const apiName = `${rand(["orders", "billing", "identity"])}-api`;
@@ -1025,6 +1719,11 @@ export function generateApiCenterLog(ts: string, er: number): EcsDocument {
       lifecycle: rand(["Design", "Production", "Deprecated"]),
       discoveredFrom: rand(["OpenApiSpec", "ApiManagement", "GitHub"]),
       breakingChangeCount: isErr ? randInt(3, 20) : randInt(0, 2),
+      ...miscExtendedErrFields(
+        isErr,
+        "API Center inventory crawler rejected semver breaking diff against curated catalog",
+        "data"
+      ),
     };
     return {
       "@timestamp": ts,
@@ -1062,6 +1761,11 @@ export function generateApiCenterLog(ts: string, er: number): EcsDocument {
       violations: isErr ? randInt(1, 40) : randInt(0, 5),
       severityMax: isErr ? "error" : rand(["info", "warn", "error"]),
       autoFixApplied: !isErr && Math.random() > 0.6,
+      ...miscExtendedErrFields(
+        isErr,
+        "Spectral lint build failed cyclic external $ref dereference unreachable URL",
+        "data"
+      ),
     };
     return {
       "@timestamp": ts,
@@ -1092,6 +1796,122 @@ export function generateApiCenterLog(ts: string, er: number): EcsDocument {
     };
   }
 
+  if (variant === "conformance") {
+    const props = {
+      profile: rand(["rest-level-0", "rest-level-1"]),
+      passedRules: isErr ? randInt(10, 40) : randInt(92, 120),
+      totalRules: 120,
+      ...miscExtendedErrFields(
+        isErr,
+        "API conformance profile grading failed versioning header requirements",
+        "data"
+      ),
+    };
+    return {
+      "@timestamp": ts,
+      time,
+      resourceId,
+      operationName: "ApiCenterConformanceEvaluate",
+      category: "ApiCenterAnalysis",
+      resultType: isErr ? "Failure" : "Success",
+      resultSignature: isErr ? "fail" : "pass",
+      callerIpAddress: callerIp,
+      correlationId,
+      level: isErr ? "Warning" : "Informational",
+      properties: props,
+      cloud: azureCloud(region, subscription, "Microsoft.ApiCenter/services"),
+      azure: {
+        api_center: {
+          service_name: svc,
+          resource_group: resourceGroup,
+          category: "ApiCenterAnalysis",
+          correlation_id: correlationId,
+          properties: props,
+        },
+      },
+      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 3e11) },
+      message: isErr
+        ? `API Center ${svc}: conformance ${props.profile} ${props.passedRules}/${props.totalRules}`
+        : `API Center ${svc}: conformance OK`,
+    };
+  }
+
+  if (variant === "exportPack") {
+    const props = {
+      binderFormat: rand(["zip", "postman-collection"]),
+      bytesPackaged: isErr ? 0 : randInt(120_000, 12_000_000),
+      ...miscExtendedErrFields(
+        isErr,
+        "API documentation export aborted storage account SAS token revocation",
+        "data"
+      ),
+    };
+    return {
+      "@timestamp": ts,
+      time,
+      resourceId,
+      operationName: "ApiCenterExportPortfolio",
+      category: "ApiCenterInventory",
+      resultType: isErr ? "Failure" : "Success",
+      resultSignature: props.bytesPackaged > 0 ? "ready" : "empty",
+      callerIpAddress: callerIp,
+      correlationId,
+      level: isErr ? "Error" : "Informational",
+      properties: props,
+      cloud: azureCloud(region, subscription, "Microsoft.ApiCenter/services"),
+      azure: {
+        api_center: {
+          service_name: svc,
+          resource_group: resourceGroup,
+          category: "ApiCenterInventory",
+          correlation_id: correlationId,
+          properties: props,
+        },
+      },
+      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e10, 2e11) },
+      message: isErr ? `API Center ${svc}: export ${props.binderFormat} failed` : `Export zipped`,
+    };
+  }
+
+  if (variant === "webhookRelay") {
+    const props = {
+      targetUrlScheme: rand(["https://slack", "https://teams"]),
+      deliveriesFailed: isErr ? randInt(3, 40) : randInt(0, 2),
+      ...miscExtendedErrFields(
+        isErr,
+        "API Center webhook fan-out backlog hitting downstream rate limit backoff",
+        "data"
+      ),
+    };
+    return {
+      "@timestamp": ts,
+      time,
+      resourceId,
+      operationName: "ApiCenterEventWebhookDelivery",
+      category: "ApiCenterOperational",
+      resultType: isErr ? "Failure" : "Success",
+      resultSignature: `${props.deliveriesFailed}`,
+      callerIpAddress: callerIp,
+      correlationId,
+      level: isErr ? "Warning" : "Informational",
+      properties: props,
+      cloud: azureCloud(region, subscription, "Microsoft.ApiCenter/services"),
+      azure: {
+        api_center: {
+          service_name: svc,
+          resource_group: resourceGroup,
+          category: "ApiCenterOperational",
+          correlation_id: correlationId,
+          properties: props,
+        },
+      },
+      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e11, 4e11) },
+      message: isErr
+        ? `API Center ${svc}: webhook failures=${props.deliveriesFailed}`
+        : `Webhook OK`,
+    };
+  }
+
   const op = isErr
     ? "Microsoft.ApiCenter/services/write"
     : rand([
@@ -1105,6 +1925,11 @@ export function generateApiCenterLog(ts: string, er: number): EcsDocument {
     status: isErr ? "Failed" : "Succeeded",
     errorCode: isErr ? rand(["ApiCenterNameUnavailable", "LinkedWorkspaceMissing"]) : "",
     httpRequest: { clientRequestId: randUUID(), clientIpAddress: callerIp, method: "PUT" },
+    ...miscExtendedErrFields(
+      isErr,
+      "API Center service ARM update blocked workspace linkage or delegated subnet",
+      "adminOrProvision"
+    ),
   };
   return {
     "@timestamp": ts,

@@ -1,6 +1,10 @@
 const http = require("http");
 const https = require("https");
+const zlib = require("zlib");
 const crypto = require("crypto");
+
+const httpAgent = new http.Agent({ keepAlive: true, maxSockets: 16 });
+const httpsAgent = new https.Agent({ keepAlive: true, maxSockets: 16 });
 
 const PORT = Number(process.env.PROXY_PORT) || 3001;
 /** Bind address. Default `127.0.0.1` limits exposure on shared machines. Use `0.0.0.0` only if you must accept remote TCP (e.g. published container port). */
@@ -280,23 +284,32 @@ const server = http.createServer((req, res) => {
       outHeaders["x-elastic-internal-origin"] = "kibana";
     }
 
+    const isHttps = parsed.protocol === "https:";
+    const transport = isHttps ? https : http;
+    const actualBody = omitUpstreamBody ? Buffer.alloc(0) : forwardBody;
+
+    // Gzip bulk bodies (>1KB) to reduce wire time; Elasticsearch accepts Content-Encoding: gzip
+    let sendBody = actualBody;
+    if (isBulk && actualBody.length > 1024) {
+      try {
+        sendBody = zlib.gzipSync(actualBody);
+        outHeaders["Content-Encoding"] = "gzip";
+        outHeaders["Content-Length"] = String(sendBody.length);
+      } catch {
+        sendBody = actualBody;
+      }
+    }
+
     const options = {
       hostname: parsed.hostname,
-      port: parsed.port || (parsed.protocol === "https:" ? 443 : 80),
+      port: parsed.port || (isHttps ? 443 : 80),
       path: targetPath,
       method: targetMethod.toUpperCase(),
       headers: outHeaders,
+      agent: isHttps ? httpsAgent : httpAgent,
     };
 
-    const transport = parsed.protocol === "https:" ? https : http;
-    proxyRequest(
-      transport,
-      options,
-      omitUpstreamBody ? Buffer.alloc(0) : forwardBody,
-      0,
-      res,
-      requestId
-    );
+    proxyRequest(transport, options, sendBody, 0, res, requestId);
   });
 });
 

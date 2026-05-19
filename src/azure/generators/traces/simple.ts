@@ -88,7 +88,8 @@ export function generateAksTrace(ts: string, er: number): EcsDocument[] {
       ...dim({ dependency_type: "gRPC" }),
     },
     traceId,
-    "go"
+    "go",
+    { spanFailed: failIdx === 0 }
   );
 
   const spanCosmos: EcsDocument = enrichAzureTraceDoc(
@@ -117,7 +118,8 @@ export function generateAksTrace(ts: string, er: number): EcsDocument[] {
       ...dim({ dependency_type: "Azure Cosmos DB" }),
     },
     traceId,
-    "go"
+    "go",
+    { spanFailed: failIdx === 1 }
   );
 
   const totalUs = envUs + grpcUs + cosUs + randInt(1000, 8000) * 1000;
@@ -199,7 +201,8 @@ export function generateServiceBusFlowTrace(ts: string, er: number): EcsDocument
           ...dim({ step }),
         },
         traceId,
-        "dotnet"
+        "dotnet",
+        { spanFailed: fail }
       )
     );
     ms += Math.max(1, Math.round(d / 1000));
@@ -301,7 +304,8 @@ export function generateOpenAiChainTrace(ts: string, er: number): EcsDocument[] 
       ...dim({ operation: "chat" }),
     },
     traceId,
-    "python"
+    "python",
+    { spanFailed: isErr }
   );
 
   const totalUs = eUs + cUs + randInt(1000, 5000) * 1000;
@@ -367,7 +371,8 @@ export function generateDataFactoryEtlTrace(ts: string, er: number): EcsDocument
       ...dim({ activity: "Copy" }),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: failIdx === 0 }
   );
 
   const spanSql: EcsDocument = enrichAzureTraceDoc(
@@ -394,7 +399,8 @@ export function generateDataFactoryEtlTrace(ts: string, er: number): EcsDocument
       ...dim({ activity: "SqlSink" }),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: failIdx === 1 }
   );
 
   const totalUs = blobUs + sqlUs + randInt(50_000, 500_000);
@@ -487,7 +493,8 @@ export function generateApiManagementTrace(ts: string, er: number): EcsDocument[
       ...dim({ phase: "backend" }),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: isErr }
   );
 
   const totalUs = polUs + beUs + randInt(100_000, 800_000);
@@ -581,7 +588,8 @@ export function generateWorkflowCascadingTrace(ts: string, er: number): EcsDocum
       ...dim({ step: "blob" }),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: fail }
   );
 
   const spanTable: EcsDocument = enrichAzureTraceDoc(
@@ -606,7 +614,8 @@ export function generateWorkflowCascadingTrace(ts: string, er: number): EcsDocum
       ...dim({ step: "table" }),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: fail }
   );
 
   const totalUs = 12_000 + 400_000 + randInt(20_000, 120_000) + randInt(1000, 8000) * 1000;

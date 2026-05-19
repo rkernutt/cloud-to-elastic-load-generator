@@ -14,6 +14,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 const APPS = [
@@ -100,7 +101,7 @@ export function generateWafTrace(ts: string, er: number) {
       service: svcBlock,
       agent,
       telemetry,
-      labels: ph.labels,
+      labels: { ...ph.labels, ...(spanErr ? awsSpanErrorLabels() : {}) },
       event: { outcome: spanErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     });

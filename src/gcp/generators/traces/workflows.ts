@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 const STEP_NAMES_2 = ["step_validate", "step_call_api"] as const;
 const STEP_NAMES_3 = ["step_validate", "step_transform", "step_notify"] as const;
@@ -44,7 +50,7 @@ export function generateWorkflowsTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: uTrigger },
       action: "send",
       destination: { service: { resource: "workflows", type: "messaging", name: "workflows" } },
-      labels: failIdx === 0 ? { "gcp.rpc.status_code": "INVALID_ARGUMENT" } : {},
+      labels: failIdx === 0 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,
@@ -79,7 +85,7 @@ export function generateWorkflowsTrace(ts: string, er: number): EcsDocument[] {
         },
         labels: {
           "gcp.workflows.execution_step": String(i + 1),
-          ...(failIdx === i + 1 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {}),
+          ...(failIdx === i + 1 ? { ...gcpSpanFailureLabels() } : {}),
         },
       },
       service: svc,
@@ -108,7 +114,7 @@ export function generateWorkflowsTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: uComplete },
       action: "process",
       destination: { service: { resource: "workflows", type: "app", name: "workflows" } },
-      labels: failIdx === stepCount + 1 ? { "gcp.rpc.status_code": "INTERNAL" } : {},
+      labels: failIdx === stepCount + 1 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,

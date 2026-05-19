@@ -126,9 +126,19 @@ function generateWorkSpacesLog(ts: string, er: number): EcsDocument {
     ...(isErr
       ? {
           error: {
-            code: "WorkSpacesError",
-            message: "WorkSpaces operation failed",
-            type: "session",
+            code: rand([
+              "InvalidParameterValuesException",
+              "ResourceNotFoundException",
+              "AccessDeniedException",
+              "UnsupportedWorkspaceConfigurationException",
+            ]),
+            message: rand([
+              "WorkSpaces could not modify workspace because the directory state is invalid",
+              "The specified WorkSpace could not be found in this Region",
+              "User is not authorized to perform workspaces:RebootWorkspaces on resource",
+              "The bundleId and root volume encryption parameters are mutually incompatible",
+            ]),
+            type: "aws",
           },
         }
       : {}),
@@ -259,7 +269,23 @@ function generateConnectLog(ts: string, er: number): EcsDocument {
         ? `Connect ${initiationMethod} FAILED: ${rand(["Queue capacity exceeded", "Flow error", "Agent unavailable"])}`
         : `Connect ${initiationMethod}: ${queueName}${agent ? ` agent=${agent}` : ""}, ${dur}s, ${sentiment}`,
     ...(isErr
-      ? { error: { code: "ConnectError", message: "Connect operation failed", type: "session" } }
+      ? {
+          error: {
+            code: rand([
+              "ContactNotFoundException",
+              "ServiceQuotaExceededException",
+              "InvalidRequestException",
+              "DuplicateResourceException",
+            ]),
+            message: rand([
+              "The contact ARN you specified is not valid or has been deleted",
+              "Connect instance queue depth exceeded the account service quota",
+              "StartContact API request failed AWS parameter validation",
+              "A contact with the same idempotency token is already in progress",
+            ]),
+            type: "aws",
+          },
+        }
       : {}),
     log: { level: isErr ? "error" : dur > 600 ? "warn" : "info" },
   };
@@ -340,7 +366,7 @@ function generateAppStreamLog(ts: string, er: number): EcsDocument {
               "USER_NOT_AUTHORIZED",
             ]),
             message: "AppStream operation failed",
-            type: "session",
+            type: "aws",
           },
         }
       : {}),
@@ -434,9 +460,13 @@ function generateGameLiftLog(ts: string, er: number): EcsDocument {
     ...(isErr
       ? {
           error: {
-            code: rand(["InvalidFleetStatus", "FleetCapacityExceeded", "InvalidGameSession"]),
+            code: rand([
+              "InvalidFleetStatusException",
+              "FleetCapacityExceededException",
+              "InvalidGameSessionException",
+            ]),
             message: "GameLift operation failed",
-            type: "session",
+            type: "aws",
           },
         }
       : {}),
@@ -632,7 +662,23 @@ function generateSesLog(ts: string, er: number): EcsDocument {
           : "info",
     },
     ...(isErr || ["Bounce", "Complaint", "Reject"].includes(eventType)
-      ? { error: { code: "SESDeliveryFailure", message: "SES delivery failed", type: "email" } }
+      ? {
+          error: {
+            code: rand([
+              "MessageRejected",
+              "MailFromDomainNotVerifiedException",
+              "LimitExceededException",
+              "SendingPausedException",
+            ]),
+            message: rand([
+              "SES rejected the message because the MAIL FROM domain is not verified",
+              "Account sending is paused due to bounce or complaint rate thresholds",
+              "Maximum sending rate exceeded for this SES configuration set",
+              "Rendering template data failed KMS decrypt of nested attribute",
+            ]),
+            type: "aws",
+          },
+        }
       : {}),
   };
 }
@@ -707,9 +753,9 @@ function generatePinpointLog(ts: string, er: number): EcsDocument {
     ...(isErr
       ? {
           error: {
-            code: "DeliveryFailure",
+            code: rand(["TooManyRequestsException", "BadRequestException", "ForbiddenException"]),
             message: "Pinpoint delivery failed",
-            type: "messaging",
+            type: "aws",
           },
         }
       : {}),
@@ -779,9 +825,14 @@ function generateTransferFamilyLog(ts: string, er: number): EcsDocument {
     ...(isErr
       ? {
           error: {
-            code: rand(["AUTH_FAILURE", "PERMISSION_DENIED", "CONNECTION_RESET", "FILE_NOT_FOUND"]),
+            code: rand([
+              "ServiceUnavailableException",
+              "InvalidRequestException",
+              "AccessDeniedException",
+              "ResourceNotFoundException",
+            ]),
             message: "Transfer Family operation failed",
-            type: "file",
+            type: "aws",
           },
         }
       : {}),
@@ -855,7 +906,18 @@ function generateLightsailLog(ts: string, er: number): EcsDocument {
       : `Lightsail ${instance}: ${event} [${state}]`,
     log: { level: isErr ? "error" : event.includes("EXCEEDED") ? "warn" : "info" },
     ...(isErr
-      ? { error: { code: "LightsailError", message: "Lightsail instance error", type: "host" } }
+      ? {
+          error: {
+            code: rand([
+              "AccessDeniedException",
+              "InvalidInputException",
+              "NotFoundException",
+              "ServiceException",
+            ]),
+            message: "Lightsail instance error",
+            type: "aws",
+          },
+        }
       : {}),
   };
 }
@@ -923,7 +985,12 @@ function generateFraudDetectorLog(ts: string, er: number): EcsDocument {
     log: { level: outcome === "BLOCK" ? "warn" : outcome === "HIGH_RISK" ? "warn" : "info" },
     ...(outcome === "BLOCK"
       ? {
-          error: { code: "FraudBlock", message: "Fraud Detector block decision", type: "security" },
+          error: {
+            code: rand(["AccessDeniedException", "ValidationException", "ConflictException"]),
+            message:
+              "Fraud Detector invoked GetEventPrediction and returned an outcome that blocks the caller path",
+            type: "aws",
+          },
         }
       : {}),
   };
@@ -1003,7 +1070,7 @@ function generateLocationServiceLog(ts: string, er: number): EcsDocument {
           error: {
             code: rand(["ResourceNotFoundException", "ThrottlingException", "ValidationException"]),
             message: "Location Service failed",
-            type: "geo",
+            type: "aws",
           },
         }
       : {}),
@@ -1068,7 +1135,18 @@ function generateMediaConvertLog(ts: string, er: number): EcsDocument {
       ? `MediaConvert job ${jobId} ERROR: ${rand(["Invalid format", "Codec unsupported", "S3 write denied"])}`
       : `MediaConvert job ${jobId} COMPLETE: ${audioMins.toFixed(1)} min -> ${outputGroup}`,
     ...(isErr
-      ? { error: { code: "JobError", message: "MediaConvert job failed", type: "media" } }
+      ? {
+          error: {
+            code: rand([
+              "BadRequestException",
+              "ForbiddenException",
+              "InternalServerException",
+              "ConflictException",
+            ]),
+            message: "MediaConvert job failed",
+            type: "aws",
+          },
+        }
       : {}),
     log: { level: isErr ? "error" : "info" },
   };
@@ -1139,7 +1217,18 @@ function generateMediaLiveLog(ts: string, er: number): EcsDocument {
     message: rand(MSGS[level]),
     log: { level },
     ...(level === "error"
-      ? { error: { code: "MediaLiveError", message: rand(MSGS.error), type: "media" } }
+      ? {
+          error: {
+            code: rand([
+              "ConflictException",
+              "BadGatewayException",
+              "ServiceUnavailableException",
+              "ThrottlingException",
+            ]),
+            message: rand(MSGS.error),
+            type: "aws",
+          },
+        }
       : {}),
   };
 }
@@ -1207,9 +1296,13 @@ function generateManagedBlockchainLog(ts: string, er: number): EcsDocument {
     ...(isErr
       ? {
           error: {
-            code: "BlockchainError",
+            code: rand([
+              "ResourceNotFoundException",
+              "ThrottlingException",
+              "IllegalActionException",
+            ]),
             message: "Managed Blockchain operation failed",
-            type: "process",
+            type: "aws",
           },
         }
       : {}),
@@ -1282,7 +1375,7 @@ function generateResilienceHubLog(ts: string, er: number): EcsDocument {
           error: {
             code: rand(["ResourceNotFoundException", "ValidationException", "ThrottlingException"]),
             message: "Resilience Hub policy breached",
-            type: "resilience",
+            type: "aws",
           },
         }
       : {}),
@@ -1355,7 +1448,19 @@ function generateRamLog(ts: string, er: number): EcsDocument {
       ? `RAM ${action} FAILED: ${rand(["Permission denied", "Resource not found", "Invalid principal"])}:`
       : `RAM ${action}: ${resourceType} shared with account ${accountId}`,
     log: { level: isErr ? "error" : "info" },
-    ...(isErr ? { error: { code: "RAMError", message: "RAM operation failed", type: "iam" } } : {}),
+    ...(isErr
+      ? {
+          error: {
+            code: rand([
+              "UnknownResourceException",
+              "OperationNotPermittedException",
+              "MissingRequiredParameterException",
+            ]),
+            message: "RAM operation failed",
+            type: "aws",
+          },
+        }
+      : {}),
   };
 }
 
@@ -1423,9 +1528,13 @@ function generateMigrationHubLog(ts: string, er: number): EcsDocument {
     ...(isErr
       ? {
           error: {
-            code: "MigrationFailed",
+            code: rand([
+              "AccessDeniedException",
+              "ResourceNotFoundException",
+              "ThrottlingException",
+            ]),
             message: "Migration Hub task failed",
-            type: "migration",
+            type: "aws",
           },
         }
       : {}),
@@ -1500,9 +1609,9 @@ function generateDevOpsGuruLog(ts: string, er: number): EcsDocument {
     ...(isErr
       ? {
           error: {
-            code: "InsightOngoing",
+            code: rand(["ResourceNotFoundException", "ValidationException", "ThrottlingException"]),
             message: "DevOps Guru ongoing anomaly",
-            type: "process",
+            type: "aws",
           },
         }
       : {}),
@@ -1603,7 +1712,7 @@ function generateDeadlineCloudLog(ts: string, er: number): EcsDocument {
               "ValidationException",
             ]),
             message: "Deadline Cloud render task failed",
-            type: "process",
+            type: "aws",
           },
         }
       : {}),
@@ -1681,7 +1790,7 @@ function generateChimeSdkLog(ts: string, er: number): EcsDocument {
               "BadRequestException",
             ]),
             message: "Chime SDK Voice call failed",
-            type: "network",
+            type: "aws",
           },
         }
       : {}),
@@ -1704,7 +1813,7 @@ function generateWorkMailLog(ts: string, er: number): EcsDocument {
   const emailsDelivered = isErr ? 0 : randInt(1, 1000);
   const emailsBounced = isErr ? randInt(1, 100) : 0;
   const activeUsers = randInt(1, 500);
-  const errorCode = rand(["DeliveryFailure", "MailboxQuotaExceeded"]);
+  const errorCode = rand(["EntityNotFoundException", "MailboxQuotaExceededException"]);
   return {
     "@timestamp": ts,
     cloud: {
@@ -1749,7 +1858,7 @@ function generateWorkMailLog(ts: string, er: number): EcsDocument {
           error: {
             code: errorCode,
             message: `WorkMail email delivery failed in organization ${organizationId}`,
-            type: "email",
+            type: "aws",
           },
         }
       : {}),
@@ -1768,7 +1877,7 @@ function generateWickrLog(ts: string, er: number): EcsDocument {
   const messagesSent = isErr ? 0 : randInt(1, 10000);
   const activeUsers = randInt(1, 500);
   const filesShared = isErr ? 0 : randInt(0, 100);
-  const errorCode = rand(["MessageRetentionViolation", "ComplianceExportFailed"]);
+  const errorCode = rand(["ResourceNotFoundException", "ConflictException"]);
   return {
     "@timestamp": ts,
     cloud: {
@@ -1810,7 +1919,7 @@ function generateWickrLog(ts: string, er: number): EcsDocument {
           error: {
             code: errorCode,
             message: `Wickr compliance event in network ${networkId}`,
-            type: "authentication",
+            type: "aws",
           },
         }
       : {}),

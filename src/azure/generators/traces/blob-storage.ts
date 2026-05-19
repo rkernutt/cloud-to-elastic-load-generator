@@ -66,7 +66,8 @@ export function generateBlobStorageTrace(ts: string, er: number): EcsDocument[] 
           ...dim({ dependency_type: "Azure Blob" }),
         },
         traceId,
-        "nodejs"
+        "nodejs",
+        { spanFailed: spanErr }
       )
     );
     ms += Math.max(1, Math.round(op.us / 1000));

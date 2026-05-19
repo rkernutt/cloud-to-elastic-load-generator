@@ -8,6 +8,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 const APPS = [
@@ -82,7 +83,10 @@ export function generateDocDbTrace(ts: string, er: number) {
       service: svcBlock,
       agent,
       telemetry,
-      labels: { "aws.docdb.cluster_name": `docdb-${rand(["main", "ro"])}` },
+      labels: {
+        "aws.docdb.cluster_name": `docdb-${rand(["main", "ro"])}`,
+        ...(spanErr ? awsSpanErrorLabels() : {}),
+      },
       event: { outcome: spanErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     });

@@ -1,0 +1,265 @@
+{
+  "title": "AWS CloudWatch Synthetics",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "cwsynk1",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cwsynthetics* | STATS `Total Events` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Total Events"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cwsynk2",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cwsynthetics* | EVAL is_err = CASE(log.level == \"error\", 1, CASE(event.outcome == \"failure\", 1, 0)) | STATS avg_e = AVG(is_err) | EVAL `Error Rate %` = ROUND(avg_e * 100, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Error Rate %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cwsynd1",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Event outcome",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cwsynthetics* | STATS count = COUNT() BY outcome = COALESCE(event.outcome, \"unknown\") | SORT count DESC | LIMIT 10"
+          },
+          "dimensions": [
+            {
+              "column": "outcome",
+              "type": "category"
+            }
+          ],
+          "metrics": [
+            {
+              "type": "size",
+              "operation": "value",
+              "column": "count"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cwsynp1",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Events by AWS account",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cwsynthetics* | STATS count = COUNT() BY acct = COALESCE(cloud.account.id, \"unknown\") | SORT count DESC | LIMIT 10"
+          },
+          "dimensions": [
+            {
+              "column": "acct",
+              "type": "category"
+            }
+          ],
+          "metrics": [
+            {
+              "type": "size",
+              "operation": "value",
+              "column": "count"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cwsynb1",
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Events over time",
+        "attributes": {
+          "type": "bar_stacked",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cwsynthetics* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend), outcome = COALESCE(event.outcome, \"unknown\") | SORT bucket"
+          },
+          "xAxis": {
+            "column": "bucket",
+            "type": "date"
+          },
+          "breakdown": {
+            "column": "outcome",
+            "type": "category"
+          },
+          "metrics": [
+            {
+              "type": "bar",
+              "operation": "value",
+              "column": "count"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cwsynb2",
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Errors over time",
+        "attributes": {
+          "type": "bar_stacked",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cwsynthetics* | WHERE log.level == \"error\" OR event.outcome == \"failure\" | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend), kind = COALESCE(event.action, log.level, \"error\") | SORT bucket"
+          },
+          "xAxis": {
+            "column": "bucket",
+            "type": "date"
+          },
+          "breakdown": {
+            "column": "kind",
+            "type": "category"
+          },
+          "metrics": [
+            {
+              "type": "bar",
+              "operation": "value",
+              "column": "count"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cwsynt1",
+      "grid": {
+        "x": 0,
+        "y": 37,
+        "w": 24,
+        "h": 12
+      },
+      "config": {
+        "title": "Top operations",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cwsynthetics* | STATS count = COUNT() BY action = COALESCE(event.action, \"unknown\") | SORT count DESC | LIMIT 15"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "action",
+              "label": "Operation"
+            },
+            {
+              "operation": "value",
+              "column": "count",
+              "label": "Events"
+            }
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "cwsynt2",
+      "grid": {
+        "x": 24,
+        "y": 37,
+        "w": 24,
+        "h": 12
+      },
+      "config": {
+        "title": "Events by region",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.cwsynthetics* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT count DESC | LIMIT 15"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "region",
+              "label": "Region"
+            },
+            {
+              "operation": "value",
+              "column": "count",
+              "label": "Events"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

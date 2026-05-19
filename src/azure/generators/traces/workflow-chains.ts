@@ -117,7 +117,8 @@ export function generateServiceBusTopicFanoutTrace(ts: string, er: number): EcsD
       ...dim({ dependency_type: "Service Bus" }),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: failWhich === 3 }
   );
   ms += Math.max(1, Math.round(pubUs / 1000));
 
@@ -149,7 +150,8 @@ export function generateServiceBusTopicFanoutTrace(ts: string, er: number): EcsD
         ...dim({ subscriber_index: String(i) }),
       },
       traceId,
-      "dotnet"
+      "dotnet",
+      { spanFailed: failWhich === i }
     );
   });
 
@@ -200,7 +202,8 @@ export function generateEventGridBlobPipelineTrace(ts: string, er: number): EcsD
       ...dim({ dependency_type: "Event Grid" }),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: failIdx === 0 }
   );
   ms += Math.max(1, Math.round(egUs / 1000));
 
@@ -227,7 +230,8 @@ export function generateEventGridBlobPipelineTrace(ts: string, er: number): EcsD
       ...dim({ dependency_type: "Blob" }),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: failIdx === 1 }
   );
   ms += Math.max(1, Math.round(dlUs / 1000));
 
@@ -255,7 +259,8 @@ export function generateEventGridBlobPipelineTrace(ts: string, er: number): EcsD
       ...dim({ dependency_type: "SQL" }),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: failIdx === 2 }
   );
 
   const totalUs = egUs + dlUs + sqlUs + randInt(30, 120) * 1000;
@@ -460,7 +465,8 @@ export function generateDurableFunctionsOrchestrationTrace(ts: string, er: numbe
       ...dim({ dependency_type: "Cosmos DB" }),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: failBranch === 0 }
   );
 
   ms += Math.max(20, Math.round(usA1 / 1000 / 4));
@@ -535,7 +541,8 @@ export function generateDurableFunctionsOrchestrationTrace(ts: string, er: numbe
       ...dim({ dependency_type: "Storage Queue" }),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: failBranch === 1 }
   );
 
   ms += Math.max(20, Math.round(usA2 / 1000 / 4));
@@ -612,7 +619,8 @@ export function generateDurableFunctionsOrchestrationTrace(ts: string, er: numbe
       ...dim({ dependency_type: "Service Bus" }),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: failBranch === 2 }
   );
 
   return [

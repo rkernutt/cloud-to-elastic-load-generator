@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateEcommerceOrderTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -42,7 +48,7 @@ export function generateEcommerceOrderTrace(ts: string, er: number): EcsDocument
       duration: { us: runUs },
       action: "request",
       destination: { service: { resource: "run", type: "request", name: "run" } },
-      labels: failIdx === 0 ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" } : {},
+      labels: failIdx === 0 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: checkout,
     cloud: gcpCloud(region, project, "run.googleapis.com"),
@@ -68,7 +74,7 @@ export function generateEcommerceOrderTrace(ts: string, er: number): EcsDocument
       action: "commit",
       db: { type: "sql", statement: "COMMIT /* order insert + inventory */" },
       destination: { service: { resource: "spanner", type: "db", name: "spanner" } },
-      labels: failIdx === 1 ? { "gcp.rpc.status_code": "ABORTED" } : {},
+      labels: failIdx === 1 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: checkout,
     cloud: gcpCloud(region, project, "spanner.googleapis.com"),
@@ -93,7 +99,7 @@ export function generateEcommerceOrderTrace(ts: string, er: number): EcsDocument
       duration: { us: pubUs },
       action: "send",
       destination: { service: { resource: "pubsub", type: "messaging", name: "pubsub" } },
-      labels: failIdx === 2 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: failIdx === 2 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: checkout,
     cloud: gcpCloud(region, project, "pubsub.googleapis.com"),
@@ -120,7 +126,7 @@ export function generateEcommerceOrderTrace(ts: string, er: number): EcsDocument
       destination: {
         service: { resource: "cloudfunctions", type: "request", name: "cloudfunctions" },
       },
-      labels: failIdx === 3 ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {},
+      labels: failIdx === 3 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: gcpServiceBase("fulfillment-fn", env, "nodejs", {
       framework: "Google Cloud Functions",
@@ -223,7 +229,7 @@ export function generateMlInferenceTrace(ts: string, er: number): EcsDocument[] 
       duration: { us: vxUs },
       action: "predict",
       destination: { service: { resource: "vertex_ai", type: "external", name: "vertex_ai" } },
-      labels: failIdx === 0 ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" } : {},
+      labels: failIdx === 0 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: scoring,
     cloud: gcpCloud(region, project, "aiplatform.googleapis.com"),
@@ -249,7 +255,7 @@ export function generateMlInferenceTrace(ts: string, er: number): EcsDocument[] 
       action: "execute",
       db: { type: "sql", statement: "INSERT INTO `analytics.ml_predictions` SELECT ..." },
       destination: { service: { resource: "bigquery", type: "db", name: "bigquery" } },
-      labels: failIdx === 1 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: failIdx === 1 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: scoring,
     cloud: gcpCloud(region, project, "bigquery.googleapis.com"),
@@ -325,7 +331,7 @@ export function generateDataPipelineTrace(ts: string, er: number): EcsDocument[]
       duration: { us: pullUs },
       action: "receive",
       destination: { service: { resource: "pubsub", type: "messaging", name: "pubsub" } },
-      labels: failIdx === 0 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: failIdx === 0 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: ingest,
     cloud: gcpCloud(region, project, "pubsub.googleapis.com"),
@@ -350,7 +356,7 @@ export function generateDataPipelineTrace(ts: string, er: number): EcsDocument[]
       duration: { us: dfUs },
       action: "process",
       destination: { service: { resource: "dataflow", type: "external", name: "dataflow" } },
-      labels: failIdx === 1 ? { "gcp.rpc.status_code": "ABORTED" } : {},
+      labels: failIdx === 1 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: ingest,
     cloud: gcpCloud(region, project, "dataflow.googleapis.com"),
@@ -376,7 +382,7 @@ export function generateDataPipelineTrace(ts: string, er: number): EcsDocument[]
       action: "execute",
       db: { type: "sql", statement: "LOAD DATA INTO `warehouse.curated_events`" },
       destination: { service: { resource: "bigquery", type: "db", name: "bigquery" } },
-      labels: failIdx === 2 ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {},
+      labels: failIdx === 2 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: ingest,
     cloud: gcpCloud(region, project, "bigquery.googleapis.com"),
@@ -401,7 +407,7 @@ export function generateDataPipelineTrace(ts: string, er: number): EcsDocument[]
       duration: { us: gcsUs },
       action: "write",
       destination: { service: { resource: "gcs", type: "storage", name: "gcs" } },
-      labels: failIdx === 3 ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" } : {},
+      labels: failIdx === 3 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: ingest,
     cloud: gcpCloud(region, project, "storage.googleapis.com"),

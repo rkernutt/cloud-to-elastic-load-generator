@@ -14,6 +14,7 @@ import {
   ACCOUNTS,
   rand,
   randInt,
+  randFloat,
   randId,
   dp,
   stat,
@@ -1202,8 +1203,10 @@ export function generateCleanroomsMetrics(ts: string, er: number) {
 
 // ─── HealthLake (AWS/HealthLake) ──────────────────────────────────────────────
 
-export function generateHealthlakeMetrics(ts: string, _er: number) {
+export function generateHealthlakeMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const datastore = `fs-${randId(26).toLowerCase()}`;
   return [
     metricDoc(
       ts,
@@ -1211,11 +1214,26 @@ export function generateHealthlakeMetrics(ts: string, _er: number) {
       "aws.healthlake",
       region,
       account,
-      { DatastoreId: `fs-${randId(26).toLowerCase()}` },
+      { DatastoreId: datastore },
       {
         ImportedResources: counter(randInt(100, 5_000_000)),
         ExportedResources: counter(randInt(0, 500_000)),
         SearchCount: counter(randInt(1_000, 20_000_000)),
+        ImportFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        FHIRErrorResponses: counter(Math.random() < er ? randInt(5, 100) : randInt(0, 2)),
+        SearchLatencyMilliseconds: stat(dp(stressed ? randFloat(450, 9500) : randFloat(38, 820))),
+      }
+    ),
+    metricDoc(
+      ts,
+      "healthlake",
+      "aws.healthlake",
+      region,
+      account,
+      { DatastoreId: datastore, FHIRVersion: "R4" },
+      {
+        BulkExportThrottles: counter(Math.random() < er ? randInt(10, 500) : 0),
+        Backend5xx: counter(Math.random() < er ? randInt(50, 25_000) : randInt(0, 800)),
       }
     ),
   ];
@@ -1223,8 +1241,10 @@ export function generateHealthlakeMetrics(ts: string, _er: number) {
 
 // ─── HealthOmics (AWS/HealthOmics) ────────────────────────────────────────────
 
-export function generateHealthomicsMetrics(ts: string, _er: number) {
+export function generateHealthomicsMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const wf = `${randId(8).toLowerCase()}-${randId(4).toLowerCase()}`;
   return [
     metricDoc(
       ts,
@@ -1232,13 +1252,27 @@ export function generateHealthomicsMetrics(ts: string, _er: number) {
       "aws.healthomics",
       region,
       account,
-      { WorkflowId: `${randId(8).toLowerCase()}-${randId(4).toLowerCase()}` },
+      { WorkflowId: wf },
       {
         RunCount: counter(randInt(1, 50_000)),
         StorageBytes: counter(randInt(1_000_000_000, 80_000_000_000_000)),
-        RunDuration: stat(dp(jitter(120, 90, 5, 86_400)), {
-          max: dp(jitter(3600, 2000, 30, 604_800)),
+        RunDuration: stat(dp(stressed ? randFloat(600, 120_000) : jitter(120, 90, 5, 86_400)), {
+          max: dp(stressed ? randFloat(10_000, 900_000) : jitter(3600, 2000, 30, 604_800)),
         }),
+        RunFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        TaskThrottleCount: counter(Math.random() < er ? randInt(10, 500) : 0),
+      }
+    ),
+    metricDoc(
+      ts,
+      "healthomics",
+      "aws.healthomics",
+      region,
+      account,
+      { WorkflowId: wf, RunId: `run-${randId(12)}` },
+      {
+        QueueDepth: stat(dp(Math.random() < er ? randFloat(20, 9800) : randFloat(1, 280))),
+        ArtifactDownloadErrors: counter(Math.random() < er ? randInt(5, 100) : randInt(0, 2)),
       }
     ),
   ];
@@ -1246,8 +1280,10 @@ export function generateHealthomicsMetrics(ts: string, _er: number) {
 
 // ─── Comprehend Medical (AWS/ComprehendMedical) ───────────────────────────────
 
-export function generateComprehendmedicalMetrics(ts: string, _er: number) {
+export function generateComprehendmedicalMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const op = rand(["DetectEntitiesV2", "DetectPHI", "InferICD10CM", "InferRxNorm"]);
   return [
     metricDoc(
       ts,
@@ -1255,10 +1291,26 @@ export function generateComprehendmedicalMetrics(ts: string, _er: number) {
       "aws.comprehendmedical",
       region,
       account,
-      { Operation: rand(["DetectEntitiesV2", "DetectPHI", "InferICD10CM", "InferRxNorm"]) },
+      { Operation: op },
       {
         EntityDetectionCount: counter(randInt(100, 8_000_000)),
         CharactersProcessed: counter(randInt(5_000, 120_000_000)),
+        ThrottledRequests: counter(Math.random() < er ? randInt(10, 500) : 0),
+        SystemErrors: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        InferenceLatencyP99: stat(dp(stressed ? randFloat(820, 9800) : randFloat(42, 780))),
+      }
+    ),
+    metricDoc(
+      ts,
+      "comprehendmedical",
+      "aws.comprehendmedical",
+      region,
+      account,
+      { Operation: op, LanguageCode: "en" },
+      {
+        ClientValidationErrors: counter(
+          Math.random() < er ? randInt(50, 180_000) : randInt(0, 6200)
+        ),
       }
     ),
   ];
@@ -1266,11 +1318,13 @@ export function generateComprehendmedicalMetrics(ts: string, _er: number) {
 
 // ─── Fraud Detector (AWS/FraudDetector) ───────────────────────────────────────
 
-export function generateFrauddetectorMetrics(ts: string, _er: number) {
+export function generateFrauddetectorMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
   const preds = randInt(1_000, 5_000_000);
-  const fraudPct = jitter(0.04, 0.03, 0.001, 0.35);
+  const fraudPct = stressed ? jitter(0.12, 0.06, 0.02, 0.45) : jitter(0.04, 0.03, 0.001, 0.35);
   const fraud = Math.round(preds * fraudPct);
+  const det = `det_${randId(12).toLowerCase()}`;
   return [
     metricDoc(
       ts,
@@ -1278,11 +1332,25 @@ export function generateFrauddetectorMetrics(ts: string, _er: number) {
       "aws.frauddetector",
       region,
       account,
-      { DetectorId: `det_${randId(12).toLowerCase()}` },
+      { DetectorId: det },
       {
         PredictionCount: counter(preds),
         FraudPredictions: counter(fraud),
         LegitPredictions: counter(Math.max(0, preds - fraud)),
+        PredictionErrors: counter(Math.random() < er ? randInt(5, 100) : randInt(0, 2)),
+        PredictionLatencySeconds: stat(dp(stressed ? randFloat(1.2, 22) : randFloat(0.05, 2.4))),
+      }
+    ),
+    metricDoc(
+      ts,
+      "frauddetector",
+      "aws.frauddetector",
+      region,
+      account,
+      { DetectorId: det, EventType: rand(["signup", "txn", "pwd_reset"]) },
+      {
+        GetEventPredictionThrottles: counter(Math.random() < er ? randInt(10, 500) : 0),
+        ModelEndpoint5xx: counter(Math.random() < er ? randInt(50, 25_000) : randInt(0, 800)),
       }
     ),
   ];
@@ -1338,8 +1406,10 @@ export function generateMedialiveMetrics(ts: string, er: number) {
 
 // ─── Managed Blockchain (AWS/ManagedBlockchain) ───────────────────────────────
 
-export function generateManagedblockchainMetrics(ts: string, _er: number) {
+export function generateManagedblockchainMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const net = rand(["prod-ledger", "analytics-chain", "payments-network"]);
   return [
     metricDoc(
       ts,
@@ -1347,11 +1417,26 @@ export function generateManagedblockchainMetrics(ts: string, _er: number) {
       "aws.managedblockchain",
       region,
       account,
-      { NetworkName: rand(["prod-ledger", "analytics-chain", "payments-network"]) },
+      { NetworkName: net },
       {
         TransactionCount: counter(randInt(1_000, 50_000_000)),
         BlockCount: counter(randInt(100, 12_000_000)),
         PeerCount: counter(randInt(1, 48)),
+        VotingFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        ProposalRejections: counter(Math.random() < er ? randInt(10, 9000) : randInt(0, 120)),
+        ChaincodeInvokeLatencyP99: stat(dp(stressed ? randFloat(1200, 9800) : randFloat(120, 920))),
+      }
+    ),
+    metricDoc(
+      ts,
+      "managedblockchain",
+      "aws.managedblockchain",
+      region,
+      account,
+      { NetworkName: net, MemberId: `member-${randId(8)}` },
+      {
+        RaftAppendFailures: counter(Math.random() < er ? randInt(5, 100) : 0),
+        TLSHandshakeErrors: counter(Math.random() < er ? randInt(50, 9000) : randInt(0, 450)),
       }
     ),
   ];
@@ -1359,8 +1444,10 @@ export function generateManagedblockchainMetrics(ts: string, _er: number) {
 
 // ─── Data Exchange (AWS/DataExchange) ───────────────────────────────────────
 
-export function generateDataexchangeMetrics(ts: string, _er: number) {
+export function generateDataexchangeMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const ds = `ds-${randId(16).toLowerCase()}`;
   return [
     metricDoc(
       ts,
@@ -1368,11 +1455,27 @@ export function generateDataexchangeMetrics(ts: string, _er: number) {
       "aws.dataexchange",
       region,
       account,
-      { DataSetId: `ds-${randId(16).toLowerCase()}` },
+      { DataSetId: ds },
       {
         DataSetCount: counter(randInt(1, 500)),
         RevisionCount: counter(randInt(1, 5_000)),
         JobsCompleted: counter(randInt(0, 20_000)),
+        JobsFailed: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        RevisionPublishLatencySeconds: stat(
+          dp(stressed ? randFloat(400, 18_000) : randFloat(12, 1200))
+        ),
+      }
+    ),
+    metricDoc(
+      ts,
+      "dataexchange",
+      "aws.dataexchange",
+      region,
+      account,
+      { DataSetId: ds, AssetType: rand(["s3snapshot", "apigateway"]) },
+      {
+        ExportThrottles: counter(Math.random() < er ? randInt(10, 500) : 0),
+        EntitlementDenied: counter(Math.random() < er ? randInt(50, 18_000) : randInt(0, 400)),
       }
     ),
   ];
@@ -1380,8 +1483,10 @@ export function generateDataexchangeMetrics(ts: string, _er: number) {
 
 // ─── DataZone (AWS/DataZone) ──────────────────────────────────────────────────
 
-export function generateDatazoneMetrics(ts: string, _er: number) {
+export function generateDatazoneMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const dom = `dzd_${randId(14).toLowerCase()}`;
   return [
     metricDoc(
       ts,
@@ -1389,11 +1494,25 @@ export function generateDatazoneMetrics(ts: string, _er: number) {
       "aws.datazone",
       region,
       account,
-      { DomainId: `dzd_${randId(14).toLowerCase()}` },
+      { DomainId: dom },
       {
         AssetCount: counter(randInt(50, 500_000)),
         SubscriptionCount: counter(randInt(10, 80_000)),
         ProjectCount: counter(randInt(1, 2_000)),
+        ProvisioningFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        SearchLatencyMilliseconds: stat(dp(stressed ? randFloat(600, 12_000) : randFloat(45, 900))),
+      }
+    ),
+    metricDoc(
+      ts,
+      "datazone",
+      "aws.datazone",
+      region,
+      account,
+      { DomainId: dom, BlueprintId: `bp-${randId(10)}` },
+      {
+        APIThrottles: counter(Math.random() < er ? randInt(10, 500) : 0),
+        WorkflowStepErrors: counter(Math.random() < er ? randInt(500, 80_000) : randInt(0, 8000)),
       }
     ),
   ];
@@ -1427,9 +1546,13 @@ export function generateA2iMetrics(ts: string, er: number) {
 
 // ─── AppFabric (AWS/AppFabric) ────────────────────────────────────────────────
 
-export function generateAppfabricMetrics(ts: string, _er: number) {
+export function generateAppfabricMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const bundle = `arn:aws:appfabric:${region}:${account.id}:appbundle/${randId(10).toLowerCase()}`;
   const ingested = randInt(1_000, 80_000_000);
+  const deliveryRatio = stressed ? jitter(0.72, 0.12, 0.35, 0.95) : jitter(0.98, 0.02, 0.85, 1);
+  const delivered = Math.round(ingested * deliveryRatio);
   return [
     metricDoc(
       ts,
@@ -1437,12 +1560,26 @@ export function generateAppfabricMetrics(ts: string, _er: number) {
       "aws.appfabric",
       region,
       account,
-      {
-        AppBundleArn: `arn:aws:appfabric:${region}:${account.id}:appbundle/${randId(10).toLowerCase()}`,
-      },
+      { AppBundleArn: bundle },
       {
         EventIngestionCount: counter(ingested),
-        EventDeliveryCount: counter(Math.round(ingested * jitter(0.98, 0.02, 0.85, 1))),
+        EventDeliveryCount: counter(delivered),
+        EventDeliveryFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        EventProcessingLatencyP99: stat(
+          dp(stressed ? randFloat(800, 18_000) : randFloat(45, 1200))
+        ),
+      }
+    ),
+    metricDoc(
+      ts,
+      "appfabric",
+      "aws.appfabric",
+      region,
+      account,
+      { AppBundleArn: bundle, Application: rand(["slack", "okta", "zoom"]) },
+      {
+        DestinationThrottles: counter(Math.random() < er ? randInt(10, 500) : 0),
+        AuthorizationErrors: counter(Math.random() < er ? randInt(50, 25_000) : randInt(0, 900)),
       }
     ),
   ];
@@ -1474,8 +1611,10 @@ export function generateAppconfigMetrics(ts: string, er: number) {
 
 // ─── Chatbot (AWS/Chatbot) ────────────────────────────────────────────────────
 
-export function generateChatbotMetrics(ts: string, _er: number) {
+export function generateChatbotMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const ws = `T${randId(10).toUpperCase()}`;
   return [
     metricDoc(
       ts,
@@ -1483,10 +1622,24 @@ export function generateChatbotMetrics(ts: string, _er: number) {
       "aws.chatbot",
       region,
       account,
-      { SlackWorkspaceId: `T${randId(10).toUpperCase()}` },
+      { SlackWorkspaceId: ws },
       {
         MessageCount: counter(randInt(100, 5_000_000)),
         CommandExecutionCount: counter(randInt(0, 500_000)),
+        CommandFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        MessageDeliveryLatencyP99: stat(dp(stressed ? randFloat(900, 15_000) : randFloat(55, 820))),
+      }
+    ),
+    metricDoc(
+      ts,
+      "chatbot",
+      "aws.chatbot",
+      region,
+      account,
+      { SlackWorkspaceId: ws, ChannelConfiguration: "ops" },
+      {
+        ThrottledInvocations: counter(Math.random() < er ? randInt(10, 500) : 0),
+        PermissionDeniedCount: counter(Math.random() < er ? randInt(50, 40_000) : randInt(0, 1200)),
       }
     ),
   ];
@@ -1494,8 +1647,10 @@ export function generateChatbotMetrics(ts: string, _er: number) {
 
 // ─── Q Business (AWS/QBusiness) ─────────────────────────────────────────────
 
-export function generateQbusinessMetrics(ts: string, _er: number) {
+export function generateQbusinessMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const app = `${randId(8).toLowerCase()}-${randId(4).toLowerCase()}-${randInt(1000, 9999)}`;
   return [
     metricDoc(
       ts,
@@ -1503,13 +1658,25 @@ export function generateQbusinessMetrics(ts: string, _er: number) {
       "aws.qbusiness",
       region,
       account,
-      {
-        ApplicationId: `${randId(8).toLowerCase()}-${randId(4).toLowerCase()}-${randInt(1000, 9999)}`,
-      },
+      { ApplicationId: app },
       {
         QueryCount: counter(randInt(500, 10_000_000)),
         DocumentsIndexed: counter(randInt(1_000, 50_000_000)),
         ConversationCount: counter(randInt(50, 800_000)),
+        QueryErrors: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        RetrievalLatencyP99: stat(dp(stressed ? randFloat(1200, 25_000) : randFloat(85, 1800))),
+      }
+    ),
+    metricDoc(
+      ts,
+      "qbusiness",
+      "aws.qbusiness",
+      region,
+      account,
+      { ApplicationId: app, DataSourceId: `dsrc-${randId(10)}` },
+      {
+        IndexThrottles: counter(Math.random() < er ? randInt(10, 500) : 0),
+        PluginInvocation5xx: counter(Math.random() < er ? randInt(50, 35_000) : randInt(0, 900)),
       }
     ),
   ];
@@ -1541,8 +1708,10 @@ export function generateB2biMetrics(ts: string, er: number) {
 
 // ─── Supply Chain (AWS/SupplyChain) ──────────────────────────────────────────
 
-export function generateSupplychainMetrics(ts: string, _er: number) {
+export function generateSupplychainMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const inst = `sci-${randId(16).toLowerCase()}`;
   return [
     metricDoc(
       ts,
@@ -1550,10 +1719,24 @@ export function generateSupplychainMetrics(ts: string, _er: number) {
       "aws.supplychain",
       region,
       account,
-      { InstanceId: `sci-${randId(16).toLowerCase()}` },
+      { InstanceId: inst },
       {
         InsightCount: counter(randInt(0, 500_000)),
         DataIntegrationCount: counter(randInt(10, 2_000_000)),
+        IntegrationFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        ForecastJobLatencyHours: stat(dp(stressed ? randFloat(6, 120) : randFloat(0.5, 18))),
+      }
+    ),
+    metricDoc(
+      ts,
+      "supplychain",
+      "aws.supplychain",
+      region,
+      account,
+      { InstanceId: inst, SiteName: rand(["factory-a", "dc-west", "port-4"]) },
+      {
+        APIThrottles: counter(Math.random() < er ? randInt(10, 500) : 0),
+        DataQualityErrors: counter(Math.random() < er ? randInt(500, 120_000) : randInt(0, 9000)),
       }
     ),
   ];
@@ -1586,8 +1769,10 @@ export function generateDeadlinecloudMetrics(ts: string, er: number) {
 
 // ─── Managed Grafana (AWS/ManagedGrafana) ───────────────────────────────────
 
-export function generateManagedgrafanaMetrics(ts: string, _er: number) {
+export function generateManagedgrafanaMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const ws = `g-${randId(10).toLowerCase()}`;
   return [
     metricDoc(
       ts,
@@ -1595,11 +1780,25 @@ export function generateManagedgrafanaMetrics(ts: string, _er: number) {
       "aws.managedgrafana",
       region,
       account,
-      { WorkspaceId: `g-${randId(10).toLowerCase()}` },
+      { WorkspaceId: ws },
       {
         ActiveUsers: counter(randInt(1, 2_000)),
         DashboardCount: counter(randInt(1, 5_000)),
         AlertCount: counter(randInt(0, 50_000)),
+        LoginFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        QueryLatencyP99: stat(dp(stressed ? randFloat(800, 22_000) : randFloat(35, 1800))),
+      }
+    ),
+    metricDoc(
+      ts,
+      "managedgrafana",
+      "aws.managedgrafana",
+      region,
+      account,
+      { WorkspaceId: ws, DataSource: rand(["cloudwatch", "prometheus", "athena"]) },
+      {
+        DataSourceHealthScore: stat(dp(stressed ? randFloat(0.85, 0.95) : randFloat(0.99, 1))),
+        PluginRequestThrottles: counter(Math.random() < er ? randInt(10, 500) : 0),
       }
     ),
   ];

@@ -82,7 +82,8 @@ export function generateContainerAppsTrace(ts: string, er: number): EcsDocument[
       ...dim({ dependency_type: "Azure Service Bus" }),
     },
     traceId,
-    "python"
+    "python",
+    { spanFailed: err2 }
   );
 
   const totalUs = u1 + u2 + randInt(1_000, 8_000);

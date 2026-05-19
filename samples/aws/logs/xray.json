@@ -1,128 +1,119 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
-  "trace": { "id": "1-69fc66bf-0sbybdayi2wj" },
-  "span": { "id": "fyxq9ztwar7" },
+  "@timestamp": "2026-05-14T03:00:06.257Z",
+  "trace": { "id": "1-6a053ab6-b677mcpugfioen681yhijggx" },
+  "span": { "id": "872ytk1305tqeujp" },
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "xray" }
   },
   "aws": {
-    "dimensions": { "GroupName": "Default", "ServiceType": "AWS::DynamoDB::Table" },
+    "dimensions": { "GroupName": "Default", "ServiceType": "client" },
     "xray": {
-      "trace_id": "1-69fc66bf-0sbybdayi2wj",
-      "segment_id": "fyxq9ztwar7",
-      "parent_id": "nfh1rpmg7z",
-      "start_time": 1778149055.322,
-      "end_time": 1778149056.2647796,
-      "origin": "AWS::DynamoDB::Table",
-      "service": { "name": "Users", "type": "AWS::DynamoDB::Table" },
-      "duration": 0.9427794800489256,
-      "fault": false,
+      "trace_id": "1-6a053ab6-b677mcpugfioen681yhijggx",
+      "segment_id": "872ytk1305tqeujp",
+      "start_time": 1778727606.257,
+      "end_time": 1778727613.492377,
+      "origin": "AWS::ECS::Container",
+      "service": { "name": "payment-service", "type": "client" },
+      "duration": 7.235377137172478,
+      "fault": true,
       "error": false,
       "throttle": false,
       "http": {
         "request": {
-          "method": "POST",
-          "url": "https://service.internal.corp/api/v1/users",
-          "client_ip": "211.110.92.239",
-          "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+          "method": "GET",
+          "url": "https://api.internal.corp/api/v2/events",
+          "client_ip": "158.27.71.57",
+          "user_agent": "curl/7.68.0"
         },
-        "response": { "status": 204, "content_length": 18310 }
+        "response": { "status": 502, "content_length": 2251 }
       },
-      "aws": { "account_id": "164820739518", "region": "ca-west-1", "resource_names": ["Users"] },
-      "annotations": { "environment": "staging", "version": "v17.2.67", "team": "backend" },
-      "subsegments": [
-        {
-          "id": "k05nh2dxq39",
-          "name": "S3",
-          "start_time": 1778149055.4530523,
-          "end_time": 1778149055.62587,
-          "namespace": "aws",
-          "aws": {
-            "operation": "HeadObject",
-            "region": "ca-west-1",
-            "retries": 0,
-            "bucket_name": "logs-bucket",
-            "key": "exports/iligkwow4i.json",
-            "request_id": "R6D75R1LQ0P"
-          },
-          "http": { "response": { "status": 200, "content_length": 2975 } },
-          "fault": false,
-          "error": false,
-          "throttle": false
-        },
-        {
-          "id": "gvy76up07hj",
-          "name": "SNS",
-          "start_time": 1778149055.4762268,
-          "end_time": 1778149056.0247276,
-          "namespace": "aws",
-          "aws": { "operation": "Publish", "region": "ca-west-1", "retries": 0 },
-          "http": { "response": { "status": 200, "content_length": 37506 } },
-          "fault": false,
-          "error": false,
-          "throttle": false
-        }
-      ],
+      "aws": {
+        "account_id": "814726593401",
+        "region": "eu-south-1",
+        "resource_names": ["payment-service"]
+      },
+      "annotations": { "environment": "production", "version": "v19.2.15", "team": "platform" },
+      "cause": {
+        "working_directory": "/var/task",
+        "paths": [],
+        "exceptions": [
+          {
+            "id": "oql4m5rwdddcejps",
+            "message": "An error occurred (ConditionalCheckFailedException)",
+            "type": "ConditionalCheckFailedException",
+            "remote": false,
+            "stack": [{ "path": "handler.py", "line": 124, "label": "handleEvent" }]
+          }
+        ]
+      },
       "metrics": {
-        "ErrorRate": { "avg": 0.6940820716498648 },
-        "FaultRate": { "avg": 0.41673815687643695 },
-        "ThrottleRate": { "avg": 0.3484423064136204 },
-        "TotalCount": { "sum": 9385 },
+        "ErrorRate": { "avg": 0.6585789468483025 },
+        "FaultRate": { "avg": 11.605024891964177 },
+        "ThrottleRate": { "avg": 0.20998627015832927 },
+        "TotalCount": { "sum": 3525 },
         "Latency": {
-          "avg": 942.7794800489256,
-          "p50": 754.2235840391405,
-          "p90": 1414.1692200733885,
-          "p95": 1885.5589600978512,
-          "p99": 2828.338440146777
+          "avg": 7235.377137172479,
+          "p50": 5788.3017097379825,
+          "p90": 10853.065705758718,
+          "p95": 14470.754274344958,
+          "p99": 21706.131411517435
         },
-        "OkCount": { "sum": 5082 },
+        "OkCount": { "sum": 0 },
         "ErrorCount": { "sum": 0 },
-        "FaultCount": { "sum": 0 },
+        "FaultCount": { "sum": 14 },
         "ThrottleCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-xray-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-xray-logs-164820739518"
+        "name": "aws-xray-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-xray-logs-814726593401"
       },
-      "object": { "key": "AWSLogs/164820739518/xray/ca-west-1/2026/05/07/xray_R78JGEN8UF.log.gz" }
+      "object": {
+        "key": "AWSLogs/814726593401/xray/eu-south-1/2026/05/14/xray_9KCF30B135YR2Y9J8D3Z.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/xray/logs",
-      "log_stream": "ca-west-1/en04hjns",
-      "ingestion_time": "2026-05-07T10:17:36.444Z"
+      "log_stream": "eu-south-1/wnrp42rm",
+      "ingestion_time": "2026-05-14T03:00:07.264Z"
     }
   },
   "http": {
-    "request": { "method": "POST", "body": { "bytes": 4475 } },
-    "response": { "status_code": 204, "body": { "bytes": 39781 } }
+    "request": { "method": "GET", "body": { "bytes": 2562 } },
+    "response": { "status_code": 502, "body": { "bytes": 14935 } }
   },
-  "url": { "path": "/api/v1/users", "full": "https://service.internal.corp/api/v1/users" },
-  "user_agent": { "original": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
-  "source": { "ip": "211.110.92.239" },
+  "url": { "path": "/api/v2/events", "full": "https://api.internal.corp/api/v2/events" },
+  "user_agent": { "original": "curl/7.68.0" },
+  "source": { "ip": "158.27.71.57" },
   "event": {
-    "duration": 942779480,
-    "outcome": "success",
+    "duration": 7235377137,
+    "outcome": "failure",
     "category": ["network"],
-    "type": ["connection"],
+    "type": ["connection", "denied"],
     "dataset": "aws.xray",
     "provider": "xray.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"trace_id\":\"1-69fc66bf-0sbybdayi2wj\",\"id\":\"fyxq9ztwar7\",\"name\":\"Users\",\"start_time\":1778149055.322,\"end_time\":1778149056.2647796,\"parent_id\":\"nfh1rpmg7z\",\"http\":{\"request\":{\"method\":\"POST\",\"url\":\"https://service.internal.corp/api/v1/users\",\"client_ip\":\"211.110.92.239\",\"user_agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\"},\"response\":{\"status\":204,\"content_length\":29512}},\"aws\":{\"account_id\":\"164820739518\",\"region\":\"ca-west-1\",\"operation\":\"Table\",\"resource_names\":[\"Users\"]},\"annotations\":{\"environment\":\"staging\",\"version\":\"v10.9.71\",\"team\":\"data\"},\"metadata\":{\"default\":{\"response_size\":2019}},\"fault\":false,\"error\":false,\"throttle\":false,\"origin\":\"AWS::DynamoDB::Table\",\"resource_arn\":\"arn:aws:dynamodb:ca-west-1:164820739518:Users\"}",
-  "log": { "level": "info" },
+  "message": "2026-05-14T03:00:06.857Z [Info] Sampling decision trace_id=1-6a053ab6-b677mcpugfioen681yhijggx rule=api-high-traffic reservoir=0 outcome=NotSampled\n2026-05-14T03:00:06.737Z [Info] Traces uploaded batchBytes=503030 latencyMs=180\n2026-05-14T03:00:06.617Z [Info] Successfully sent batch of 40 segment document(s) to 169.254.100.0:2000\n2026-05-14T03:00:06.497Z [Info] Buffering segments queueDepth=2\n2026-05-14T03:00:06.857Z [Info] Sampling decision trace_id=1-6a053ab6-b677mcpugfioen681yhijggx rule=api-high-traffic reservoir=0 outcome=NotSampled\n{\"trace_id\":\"1-6a053ab6-b677mcpugfioen681yhijggx\",\"id\":\"872ytk1305tqeujp\",\"name\":\"payment-service\",\"start_time\":1778727606.257,\"end_time\":1778727613.492377,\"http\":{\"request\":{\"method\":\"GET\",\"url\":\"https://api.internal.corp/api/v2/events\",\"client_ip\":\"158.27.71.57\",\"user_agent\":\"curl/7.68.0\"},\"response\":{\"status\":502,\"content_length\":5340}},\"aws\":{\"account_id\":\"814726593401\",\"region\":\"eu-south-1\",\"resource_names\":[\"payment-service\"]},\"annotations\":{\"environment\":\"staging\",\"version\":\"v2.6.54\",\"team\":\"backend\"},\"metadata\":{\"default\":{\"response_size\":2980,\"error_details\":\"An error occurred (ConditionalCheckFailedException)\"}},\"fault\":true,\"error\":false,\"throttle\":false,\"cause\":{\"working_directory\":\"/var/task\",\"paths\":[],\"exceptions\":[{\"id\":\"oql4m5rwdddcejps\",\"message\":\"An error occurred (ConditionalCheckFailedException)\",\"type\":\"ConditionalCheckFailedException\",\"remote\":false,\"stack\":[{\"path\":\"handler.py\",\"line\":124,\"label\":\"handleEvent\"}]}]},\"origin\":\"AWS::ECS::Container\",\"resource_arn\":\"arn:aws:lambda:eu-south-1:814726593401:payment-service\"}",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ConditionalCheckFailedException",
+    "message": "An error occurred (ConditionalCheckFailedException)",
+    "type": "trace",
+    "stack_trace": "  at handleEvent (handler.py:124)"
+  },
   "service": { "name": "xray", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.xray", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "epffg04y7cv"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "m7oze8ttoeyaljvhfie573injoxc6xdkkr0e"
   },
   "input": { "type": "http_endpoint" }
 }

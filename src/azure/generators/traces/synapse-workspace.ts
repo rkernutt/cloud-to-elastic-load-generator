@@ -65,7 +65,8 @@ export function generateSynapseWorkspaceTrace(ts: string, er: number): EcsDocume
       ...dim({ dependency_type: "Synapse SQL pool" }),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: err1 }
   );
 
   const spanSpark = enrichAzureTraceDoc(
@@ -91,7 +92,8 @@ export function generateSynapseWorkspaceTrace(ts: string, er: number): EcsDocume
       ...dim({ dependency_type: "Synapse Spark pool" }),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: !err1 && err2 }
   );
 
   const totalUs = u1 + u2 + randInt(2_000, 25_000);

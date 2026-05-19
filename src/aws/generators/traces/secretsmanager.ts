@@ -8,6 +8,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 const APPS = [
@@ -27,6 +28,87 @@ const APPS = [
   },
 ];
 
+type FlowDef = {
+  name: string;
+  transactionName: string;
+  spans: string[];
+};
+
+const FLOWS: FlowDef[] = [
+  {
+    name: "read_secret",
+    transactionName: "FetchSigningKey",
+    spans: [
+      "SecretsManager.DescribeSecret",
+      "SecretsManager.GetSecretValue",
+      "KMS.Decrypt",
+      "SecretsManager.EmitAuditRecord",
+      "SecretsManager.CompleteResponse",
+    ],
+  },
+  {
+    name: "write_secret",
+    transactionName: "PublishRotatedCredential",
+    spans: [
+      "SecretsManager.DescribeSecret",
+      "SecretsManager.PutSecretValue",
+      "KMS.GenerateDataKey",
+      "SecretsManager.EmitAuditRecord",
+      "SecretsManager.CompleteResponse",
+    ],
+  },
+  {
+    name: "rotate",
+    transactionName: "RotateDbPassword",
+    spans: [
+      "SecretsManager.DescribeSecret",
+      "SecretsManager.RotateSecret",
+      "SecretsManager.GetSecretValue",
+      "SecretsManager.PutSecretValue",
+      "SecretsManager.EmitAuditRecord",
+    ],
+  },
+  {
+    name: "bootstrap",
+    transactionName: "StartupConfig",
+    spans: [
+      "SecretsManager.CreateSecret",
+      "KMS.GenerateDataKey",
+      "SecretsManager.TagResource",
+      "SecretsManager.GetSecretValue",
+      "SecretsManager.EmitAuditRecord",
+    ],
+  },
+];
+
+const FAIL_BY_IDX = [
+  {
+    errorType: "ResourceNotFoundException",
+    errorMessage: "Secrets Manager can't find the specified secret.",
+    labels: { "aws.secretsmanager.failure": "ResourceNotFoundException" },
+  },
+  {
+    errorType: "DecryptionFailure",
+    errorMessage: "KMS failed to decrypt the protected secret.",
+    labels: { "aws.secretsmanager.failure": "DecryptionFailure" },
+  },
+  {
+    errorType: "InvalidParameterException",
+    errorMessage: "The parameter name or value is invalid.",
+    labels: { "aws.secretsmanager.failure": "InvalidParameterException" },
+  },
+  {
+    errorType: "InternalServiceError",
+    errorMessage: "An error on the server side prevented processing.",
+    labels: { "aws.secretsmanager.failure": "InternalServiceError" },
+  },
+] as const;
+
+function spanResource(spanName: string): string {
+  if (spanName.startsWith("KMS.")) return "kms";
+  return "secretsmanager";
+}
+
 export function generateSecretsManagerTrace(ts: string, er: number) {
   const cfg = rand(APPS);
   const region = rand(TRACE_REGIONS);
@@ -36,6 +118,13 @@ export function generateSecretsManagerTrace(ts: string, er: number) {
   const env = rand(["production", "staging", "dev"]);
   const isErr = Math.random() < er;
   const secretId = rand(["prod/db/credentials", "app/oauth/client", "tls/internal-cert"]);
+  const versionId = newTraceId().slice(0, 32);
+
+  const flow = rand(FLOWS);
+  const spanNames = flow.spans;
+  const spanCount = spanNames.length;
+  const failIdx = isErr ? randInt(0, spanCount - 1) : -1;
+  const failMeta = failIdx >= 0 ? FAIL_BY_IDX[failIdx % FAIL_BY_IDX.length]! : null;
 
   const svcBlock = serviceBlock(
     cfg.name,
@@ -47,15 +136,26 @@ export function generateSecretsManagerTrace(ts: string, er: number) {
   );
   const { agent, telemetry } = otelBlocks(cfg.language as "python" | "java", "elastic");
 
-  const n = randInt(2, 4);
   let offsetMs = randInt(1, 6);
   const spans: Record<string, unknown>[] = [];
   let sumUs = 0;
-  for (let i = 0; i < n; i++) {
+
+  for (let i = 0; i < spanCount; i++) {
+    const name = spanNames[i]!;
+    const resource = spanResource(name);
     const sid = newSpanId();
     const us = randInt(300, 85_000);
     sumUs += us;
-    const spanErr = isErr && i === n - 1;
+    const spanErr = failIdx === i;
+    const action = name.includes(".") ? name.split(".").slice(1).join(".") : name;
+
+    const errLabels = spanErr
+      ? {
+          ...failMeta?.labels,
+          ...awsSpanErrorLabels(failMeta?.errorMessage ?? "Secrets Manager error."),
+        }
+      : {};
+
     spans.push({
       "@timestamp": offsetTs(new Date(ts), offsetMs),
       processor: { name: "transaction", event: "span" },
@@ -66,17 +166,21 @@ export function generateSecretsManagerTrace(ts: string, er: number) {
         id: sid,
         type: "external",
         subtype: "aws",
-        name:
-          i === 0
-            ? "SecretsManager.GetSecretValue"
-            : rand(["SecretsManager.GetSecretValue", "SecretsManager.DescribeSecret"]),
+        name,
         duration: { us },
-        action: "GetSecretValue",
-        destination: {
-          service: { resource: "secretsmanager", type: "external", name: "secretsmanager" },
-        },
+        action: action || "call",
+        destination: { service: { resource, type: "external", name: resource } },
       },
-      labels: { "aws.secretsmanager.secret_id": secretId },
+      service: svcBlock,
+      agent,
+      telemetry,
+      labels: {
+        "aws.secretsmanager.secret_id": secretId,
+        "aws.secretsmanager.version_id": versionId,
+        "aws.secretsmanager.flow": flow.name,
+        ...(resource === "kms" ? { "aws.kms.context": "secrets_manager_envelope" } : {}),
+        ...errLabels,
+      },
       event: { outcome: spanErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     });
@@ -84,16 +188,18 @@ export function generateSecretsManagerTrace(ts: string, er: number) {
   }
 
   const totalUs = sumUs + randInt(1_000, 14_000);
+  const txErr = failIdx >= 0;
+
   const txDoc = {
     "@timestamp": ts,
     processor: { name: "transaction", event: "transaction" },
     trace: { id: traceId },
     transaction: {
       id: txId,
-      name: rand(["StartupConfig", "RotateDbPassword", "FetchSigningKey"]),
+      name: flow.transactionName,
       type: "request",
       duration: { us: totalUs },
-      result: isErr ? "failure" : "success",
+      result: txErr ? "failure" : "success",
       sampled: true,
       span_count: { started: spans.length, dropped: 0 },
     },
@@ -106,7 +212,12 @@ export function generateSecretsManagerTrace(ts: string, er: number) {
       account: { id: account.id, name: account.name },
       service: { name: "secretsmanager" },
     },
-    event: { outcome: isErr ? "failure" : "success" },
+    labels: {
+      "aws.secretsmanager.secret_id": secretId,
+      "aws.secretsmanager.flow": flow.name,
+      ...(txErr && failMeta ? failMeta.labels : {}),
+    },
+    event: { outcome: txErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };
 

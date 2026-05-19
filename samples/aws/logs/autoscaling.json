@@ -1,43 +1,41 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "af-south-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "autoscaling" }
   },
   "aws": {
-    "dimensions": { "AutoScalingGroupName": "batch-asg" },
+    "dimensions": { "AutoScalingGroupName": "web-asg" },
     "autoscaling": {
-      "group_name": "batch-asg",
-      "activity_id": "pp25j5ou-9j24-xtoz",
-      "action_type": "LifecycleHook",
-      "instance_id": "i-nu4qoqjrzof",
+      "group_name": "web-asg",
+      "activity_id": "7egj9f7s-ic8k-ci1o",
+      "action_type": "Terminate",
+      "instance_id": "i-pet71qg2i6grnj7ip",
       "instance_type": "t3.medium",
-      "desired_capacity": 15,
+      "desired_capacity": 10,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 13,
-      "cause": "LifecycleHookNotification for register-targets transition autoscaling:EC2_INSTANCE_TERMINATING",
+      "current_capacity": 6,
+      "cause": "At 2024-01-01T12:00:00Z instance i-0abc123456789abcd was taken out of service in response to a spot instance interruption notice",
       "status_code": "Successful",
-      "launch_template": "api-lt:3",
-      "lifecycle_hook_name": "register-targets",
-      "lifecycle_transition": "autoscaling:EC2_INSTANCE_TERMINATING",
+      "launch_template": "web-lt:5",
       "predictive_scaling_forecast": false,
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 15 },
-        "GroupInServiceInstances": { "avg": 13 },
+        "GroupDesiredCapacity": { "avg": 10 },
+        "GroupInServiceInstances": { "avg": 6 },
         "GroupPendingInstances": { "avg": 0 },
-        "GroupStandbyInstances": { "avg": 1 },
-        "GroupTerminatingInstances": { "avg": 1 },
-        "GroupTotalInstances": { "avg": 15 },
-        "GroupInServiceCapacity": { "avg": 13 },
+        "GroupStandbyInstances": { "avg": 2 },
+        "GroupTerminatingInstances": { "avg": 2 },
+        "GroupTotalInstances": { "avg": 10 },
+        "GroupInServiceCapacity": { "avg": 6 },
         "GroupPendingCapacity": { "avg": 0 },
-        "GroupStandbyCapacity": { "avg": 1 },
-        "GroupTerminatingCapacity": { "avg": 1 },
-        "GroupTotalCapacity": { "avg": 15 },
+        "GroupStandbyCapacity": { "avg": 2 },
+        "GroupTerminatingCapacity": { "avg": 2 },
+        "GroupTotalCapacity": { "avg": 10 },
         "WarmPoolMinSize": { "avg": 0 },
         "WarmPoolDesiredCapacity": { "avg": 0 },
         "WarmPoolPendingCapacity": { "avg": 0 },
@@ -48,17 +46,17 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-autoscaling-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-autoscaling-logs-293847561023"
+        "name": "aws-autoscaling-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-autoscaling-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/autoscaling/eu-south-2/2026/05/07/autoscaling_BH02LGHHO6C.log.gz"
+        "key": "AWSLogs/738291046572/autoscaling/af-south-1/2026/05/14/autoscaling_3RX5Q8SLMB3OMZD0ISC1.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "eu-south-2/pwq5ne05",
-      "ingestion_time": "2026-05-07T10:17:36.116Z"
+      "log_stream": "af-south-1/829wzx0t",
+      "ingestion_time": "2026-05-14T03:00:07.046Z"
     }
   },
   "event": {
@@ -66,10 +64,10 @@
     "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 348000000000,
+    "duration": 481000000000,
     "module": "aws"
   },
-  "message": "SNS lifecycle hook notification published hook=register-targets AutoScalingGroupName=batch-asg EC2InstanceId=i-nu4qoqjrzof LifecycleTransition=autoscaling:EC2_INSTANCE_TERMINATING",
+  "message": "SuccessfulScalingActivity: Terminating EC2 instance: i-pet71qg2i6grnj7ip ActivityId=7egj9f7s-ic8k-ci1o Cause: At 2024-01-01T12:00:00Z instance i-0abc123456789abcd was taken out of service in response to a spot instance interruption notice",
   "log": { "level": "info" },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -77,8 +75,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "mn3ovbt9kt"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "tzh6ywdtf2iwnlm30yw52tshrlgoq4q6l346"
   },
   "input": { "type": "aws-cloudwatch" }
 }

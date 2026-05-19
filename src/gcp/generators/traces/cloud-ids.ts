@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateCloudIdsTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -96,7 +102,7 @@ export function generateCloudIdsTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: u3 },
       action: "send",
       destination: { service: { resource: "ids_alert", type: "messaging", name: "ids_alert" } },
-      labels: failIdx === 2 ? { "gcp.rpc.status_code": "UNAVAILABLE" } : {},
+      labels: failIdx === 2 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "logging.googleapis.com"),

@@ -1,0 +1,1014 @@
+{
+  "group": "extended-services",
+  "description": "GCP extended services — failure spikes and latency anomalies (Vertex AI Agent Builder, Colab Enterprise, Distributed Cloud, storage & networking additions)",
+  "jobs": [
+    {
+      "id": "gcp-vertex-ai-agent-builder-failure-spike",
+      "description": "Unusual spike in failure events for gcp.vertex_ai_agent_builder (extended services baseline)",
+      "job": {
+        "description": "Unusual spike in failure events for gcp.vertex_ai_agent_builder",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region gcp.vertex_ai_agent_builder",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.outcome"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.vertex_ai_agent_builder"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-vertex-ai-agent-builder-latency-anomaly",
+      "description": "Unusual request duration for gcp.vertex_ai_agent_builder by region",
+      "job": {
+        "description": "Unusual mean event.duration for gcp.vertex_ai_agent_builder partitioned by region",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.dataset"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.vertex_ai_agent_builder"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-colab-enterprise-failure-spike",
+      "description": "Unusual spike in failure events for gcp.colab_enterprise (extended services baseline)",
+      "job": {
+        "description": "Unusual spike in failure events for gcp.colab_enterprise",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region gcp.colab_enterprise",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.outcome"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.colab_enterprise"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-colab-enterprise-latency-anomaly",
+      "description": "Unusual request duration for gcp.colab_enterprise by region",
+      "job": {
+        "description": "Unusual mean event.duration for gcp.colab_enterprise partitioned by region",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.dataset"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.colab_enterprise"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-distributed-cloud-failure-spike",
+      "description": "Unusual spike in failure events for gcp.distributed_cloud (extended services baseline)",
+      "job": {
+        "description": "Unusual spike in failure events for gcp.distributed_cloud",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region gcp.distributed_cloud",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.outcome"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.distributed_cloud"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-distributed-cloud-latency-anomaly",
+      "description": "Unusual request duration for gcp.distributed_cloud by region",
+      "job": {
+        "description": "Unusual mean event.duration for gcp.distributed_cloud partitioned by region",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.dataset"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.distributed_cloud"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-parallelstore-failure-spike",
+      "description": "Unusual spike in failure events for gcp.parallelstore (extended services baseline)",
+      "job": {
+        "description": "Unusual spike in failure events for gcp.parallelstore",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region gcp.parallelstore",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.outcome"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.parallelstore"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-parallelstore-latency-anomaly",
+      "description": "Unusual request duration for gcp.parallelstore by region",
+      "job": {
+        "description": "Unusual mean event.duration for gcp.parallelstore partitioned by region",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.dataset"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.parallelstore"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-dataform-failure-spike",
+      "description": "Unusual spike in failure events for gcp.dataform (extended services baseline)",
+      "job": {
+        "description": "Unusual spike in failure events for gcp.dataform",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region gcp.dataform",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.outcome"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.dataform"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-dataform-latency-anomaly",
+      "description": "Unusual request duration for gcp.dataform by region",
+      "job": {
+        "description": "Unusual mean event.duration for gcp.dataform partitioned by region",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.dataset"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.dataform"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-biglake-failure-spike",
+      "description": "Unusual spike in failure events for gcp.biglake (extended services baseline)",
+      "job": {
+        "description": "Unusual spike in failure events for gcp.biglake",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region gcp.biglake",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.outcome"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.biglake"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-biglake-latency-anomaly",
+      "description": "Unusual request duration for gcp.biglake by region",
+      "job": {
+        "description": "Unusual mean event.duration for gcp.biglake partitioned by region",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.dataset"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.biglake"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-certificate-manager-failure-spike",
+      "description": "Unusual spike in failure events for gcp.certificate_manager (extended services baseline)",
+      "job": {
+        "description": "Unusual spike in failure events for gcp.certificate_manager",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region gcp.certificate_manager",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.outcome"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.certificate_manager"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-certificate-manager-latency-anomaly",
+      "description": "Unusual request duration for gcp.certificate_manager by region",
+      "job": {
+        "description": "Unusual mean event.duration for gcp.certificate_manager partitioned by region",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.dataset"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.certificate_manager"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-blockchain-node-engine-failure-spike",
+      "description": "Unusual spike in failure events for gcp.blockchain_node_engine (extended services baseline)",
+      "job": {
+        "description": "Unusual spike in failure events for gcp.blockchain_node_engine",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region gcp.blockchain_node_engine",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.outcome"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.blockchain_node_engine"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-blockchain-node-engine-latency-anomaly",
+      "description": "Unusual request duration for gcp.blockchain_node_engine by region",
+      "job": {
+        "description": "Unusual mean event.duration for gcp.blockchain_node_engine partitioned by region",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.dataset"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.blockchain_node_engine"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-netapp-volumes-failure-spike",
+      "description": "Unusual spike in failure events for gcp.netapp_volumes (extended services baseline)",
+      "job": {
+        "description": "Unusual spike in failure events for gcp.netapp_volumes",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region gcp.netapp_volumes",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.outcome"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.netapp_volumes"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-netapp-volumes-latency-anomaly",
+      "description": "Unusual request duration for gcp.netapp_volumes by region",
+      "job": {
+        "description": "Unusual mean event.duration for gcp.netapp_volumes partitioned by region",
+        "groups": ["gcp", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "event.dataset"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-load-generator-extended-services",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "gcp.netapp_volumes"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    }
+  ]
+}

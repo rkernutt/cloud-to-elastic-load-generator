@@ -75,7 +75,8 @@ export function generateStreamAnalyticsTrace(ts: string, er: number): EcsDocumen
           ...dim({ dependency_type: "Azure Stream Analytics", job }),
         },
         traceId,
-        "java"
+        "java",
+        { spanFailed: spanErr }
       )
     );
     ms += Math.max(1, Math.round(op.us / 1000));

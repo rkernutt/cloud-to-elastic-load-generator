@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 const SERVICES = ["orders-api", "payments-api", "catalog-api", "notifications-api"];
 
@@ -82,7 +88,7 @@ export function generateCloudRunTrace(ts: string, er: number): EcsDocument[] {
         ]),
       },
       destination: { service: { resource: "cloudsql", type: "db", name: "cloudsql" } },
-      labels: failIdx === 0 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: failIdx === 0 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "sqladmin.googleapis.com"),
@@ -112,7 +118,7 @@ export function generateCloudRunTrace(ts: string, er: number): EcsDocument[] {
         statement: `${rand(["get", "query"])} carts/${rand(["anon", "user"])}/*`,
       },
       destination: { service: { resource: "firestore", type: "db", name: "firestore" } },
-      labels: failIdx === 1 ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {},
+      labels: failIdx === 1 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "firestore.googleapis.com"),
@@ -142,7 +148,7 @@ export function generateCloudRunTrace(ts: string, er: number): EcsDocument[] {
         statement: rand(["GET cart:session", "SET rate:limit", "HGETALL session"]),
       },
       destination: { service: { resource: "memorystore", type: "db", name: "redis" } },
-      labels: failIdx === 2 ? { "gcp.rpc.status_code": "ABORTED" } : {},
+      labels: failIdx === 2 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: cloudRun,
@@ -168,7 +174,7 @@ export function generateCloudRunTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: pubUs },
       action: "send",
       destination: { service: { resource: "pubsub", type: "messaging", name: "pubsub" } },
-      labels: failIdx === 3 ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" } : {},
+      labels: failIdx === 3 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "pubsub.googleapis.com"),
@@ -195,7 +201,7 @@ export function generateCloudRunTrace(ts: string, er: number): EcsDocument[] {
       action: "execute",
       db: { type: "sql", statement: "INSERT INTO `analytics.order_facts` SELECT ..." },
       destination: { service: { resource: "bigquery", type: "db", name: "bigquery" } },
-      labels: failIdx === 4 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: failIdx === 4 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "bigquery.googleapis.com"),

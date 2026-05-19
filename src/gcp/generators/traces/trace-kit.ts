@@ -1,6 +1,22 @@
 import type { EcsDocument } from "../helpers.js";
+import { rand } from "../helpers.js";
 
 export const APM_DS = { type: "traces", dataset: "apm", namespace: "default" } as const;
+
+const GCP_SPAN_RPC_FAIL_CODES = [
+  "INTERNAL",
+  "DEADLINE_EXCEEDED",
+  "UNAVAILABLE",
+  "RESOURCE_EXHAUSTED",
+] as const;
+
+export function gcpSpanFailureLabels(message = "descriptive error"): Record<string, string> {
+  return {
+    "gcp.rpc.status_code": rand(GCP_SPAN_RPC_FAIL_CODES),
+    "error.type": "gcp",
+    "error.message": message,
+  };
+}
 
 export type GcpOtelLang = "nodejs" | "python" | "java" | "go" | "cpp";
 

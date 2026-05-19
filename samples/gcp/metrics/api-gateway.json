@@ -3,45 +3,49 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-east1",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "me-west1",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-us-east1",
-    "ephemeral_id": "y5w3h0l4dvn"
+    "name": "metricbeat-gcp-me-west1",
+    "ephemeral_id": "575s706ixxao3kyuycv8s22qo6hwfhvgp2op"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "serviceruntime.googleapis.com/api/request_count",
-      "labels": { "credential_id": "resource-a" }
+      "type": "apigee.googleapis.com/apihub/security/score",
+      "labels": { "security_profile_id": "pci-api-baseline-2026" }
     },
     "resource": {
-      "type": "consumed_api",
+      "type": "apigee.googleapis.com/APIHubDeployment",
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "service": "generic.googleapis.com",
-        "method": "resource_id"
+        "resource_container": "globex-dev-g7h8i9",
+        "location": "me-west1",
+        "gateway_type": "API_GATEWAY_HYBRID",
+        "gateway_id": "apidp-prod-globex",
+        "deployment_id": "deploy-stable-042"
       }
     },
-    "metricKind": "DELTA",
+    "metricKind": "GAUGE",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "9766" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "98" } }
     ]
   },
   "gcp": {
     "api-hub": {
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "service": "generic.googleapis.com",
-        "method": "resource_id",
-        "credential_id": "resource-a"
+        "resource_container": "globex-dev-g7h8i9",
+        "location": "me-west1",
+        "gateway_type": "API_GATEWAY_HYBRID",
+        "gateway_id": "apidp-prod-globex",
+        "deployment_id": "deploy-stable-042",
+        "security_profile_id": "pci-api-baseline-2026"
       },
       "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": { "avg": 9766, "sum": 9766, "count": 1 }
+        "apigee.googleapis.com/apihub/security/score": { "avg": 98, "sum": 98, "count": 1 }
       }
     }
   },

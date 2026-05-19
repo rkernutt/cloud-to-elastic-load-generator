@@ -14,6 +14,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 const TOOLS = [
@@ -106,7 +107,11 @@ export function generateCloudformationTrace(ts: string, er: number) {
       service: svcBlock,
       agent,
       telemetry,
-      labels: { "aws.cloudformation.stack_id": stackId, ...ph.labels },
+      labels: {
+        "aws.cloudformation.stack_id": stackId,
+        ...ph.labels,
+        ...(spanErr ? awsSpanErrorLabels() : {}),
+      },
       event: { outcome: spanErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     });

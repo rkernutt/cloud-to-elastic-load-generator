@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
     "region": "ca-central-1",
@@ -7,59 +7,62 @@
     "service": { "name": "redshift" }
   },
   "aws": {
-    "dimensions": { "ClusterIdentifier": "prod-dw", "NodeID": "Compute-7" },
+    "dimensions": { "ClusterIdentifier": "analytics-cluster", "NodeID": "Compute-5" },
     "cloudwatch": {
-      "log_group": "/aws/redshift/cluster/prod-dw/connectionlog",
-      "log_stream": "prod-dw/connectionlog/2026-05-07",
-      "ingestion_time": "2026-05-07T10:17:36.404Z"
+      "log_group": "/aws/redshift/cluster/analytics-cluster/userlog",
+      "log_stream": "analytics-cluster/userlog/2026-05-14",
+      "ingestion_time": "2026-05-14T03:00:07.224Z"
     },
     "redshift": {
-      "cluster_id": "prod-dw",
-      "node_type": "dc2.8xlarge",
-      "number_of_nodes": 16,
-      "database": "warehouse",
-      "schema": "public",
+      "cluster_id": "analytics-cluster",
+      "node_type": "ra3.4xlarge",
+      "number_of_nodes": 8,
+      "database": "analytics",
+      "schema": "analytics",
       "user": "etl_user",
-      "pid": 89375,
-      "xid": 722479,
-      "query_id": 5696065,
-      "log_type": "connectionlog",
-      "duration_microseconds": 55144367,
-      "rows_returned": 3463217,
-      "rows_affected": 3463217,
-      "bytes_scanned": 5239863188,
-      "query_type": "ANALYZE",
-      "source_ip": "148.253.159.125",
-      "source_port": 8310,
-      "application_name": "Python",
+      "pid": 79322,
+      "xid": 2268063,
+      "query_id": 4906088,
+      "log_type": "userlog",
+      "scenario": "maintenance_window",
+      "concurrency_scaling": false,
+      "maintenance_window_active": true,
+      "duration_microseconds": 22579809,
+      "rows_returned": 2155036,
+      "rows_affected": 2155036,
+      "bytes_scanned": 5754438865,
+      "query_type": "UNLOAD",
+      "source_ip": "209.228.227.228",
+      "source_port": 48127,
+      "application_name": "Looker",
       "wlm": {
-        "queue_name": "default_queue",
-        "slot_count": 6,
-        "queue_wait_ms": 4215,
-        "service_class": 14
+        "queue_name": "analyst_queue",
+        "slot_count": 3,
+        "queue_wait_ms": 2914,
+        "service_class": 8
       },
       "metrics": {
-        "CPUUtilization": { "avg": 1.378478958005548 },
-        "PercentageDiskSpaceUsed": { "avg": 14.108421164857596 },
-        "DatabaseConnections": { "avg": 174 },
+        "CPUUtilization": { "avg": 11.050751876008743 },
+        "PercentageDiskSpaceUsed": { "avg": 56.28223646898526 },
+        "DatabaseConnections": { "avg": 338 },
         "HealthStatus": { "avg": 1 },
         "MaintenanceMode": { "avg": 0 },
-        "NetworkReceiveThroughput": { "avg": 120672907 },
-        "NetworkTransmitThroughput": { "avg": 432862987 },
-        "QueriesCompletedPerSecond": { "avg": 872.3604054264499 },
-        "QueryDuration": { "avg": 19408.807054594137 },
-        "QueryRuntimeBreakdown": { "avg": 29687.61800533332 },
-        "ReadIOPS": { "avg": 2746 },
-        "ReadLatency": { "avg": 0.09260750117373859 },
-        "ReadThroughput": { "avg": 160064392 },
-        "WLMQueriesCompletedPerSecond": { "avg": 183.26543253147767 },
-        "WLMQueryDuration": { "avg": 27367.91273583515 },
-        "WLMRunningSlotCount": { "avg": 8 },
-        "WLMQueueLength": { "avg": 1 },
-        "WLMQueueWaitTime": { "avg": 767.5478295428333 },
-        "WriteIOPS": { "avg": 4497 },
-        "WriteLatency": { "avg": 0.023716293526570183 },
-        "WriteThroughput": { "avg": 441064106 }
+        "NetworkReceiveThroughput": { "avg": 913294581 },
+        "NetworkTransmitThroughput": { "avg": 101940859 },
+        "QueriesCompletedPerSecond": { "avg": 574.713886716889 },
+        "QueryDuration": { "avg": 1423.779334704966 },
+        "QueryRuntimeBreakdown": { "avg": 2696.615223118376 },
+        "ReadIOPS": { "avg": 3684 },
+        "ReadLatency": { "avg": 0.06030823014996271 },
+        "ReadThroughput": { "avg": 409684248 },
+        "WLMQueriesCompletedPerSecond": { "avg": 451.0902475050094 },
+        "WLMQueryDuration": { "avg": 12221.849747375854 },
+        "WLMRunningSlotCount": { "avg": 33 },
+        "WLMQueueLength": { "avg": 0 },
+        "WLMQueueWaitTime": { "avg": 148.36365622509317 },
+        "WriteIOPS": { "avg": 4207 },
+        "WriteLatency": { "avg": 0.06323231271866309 },
+        "WriteThroughput": { "avg": 345784412 }
       }
     },
     "s3": {
@@ -68,26 +71,26 @@
         "arn": "arn:aws:s3:::aws-redshift-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/redshift/ca-central-1/2026/05/07/redshift_8GQHMFT7NW8.log.gz"
+        "key": "AWSLogs/501938274650/redshift/ca-central-1/2026/05/14/redshift_EZJNE1YWO113WT6HA0VH.log.gz"
       }
     }
   },
   "db": {
     "user": { "name": "etl_user" },
-    "name": "warehouse",
-    "statement": "ANALYZE public.raw_orders PREDICATE COLUMNS",
+    "name": "analytics",
+    "statement": "UNLOAD ('SELECT * FROM analytics.fact_sales WHERE sale_date = CURRENT_DATE') TO 's3://exports/sales/2026-05-14/' IAM_ROLE 'arn:aws:iam::501938274650:role/RedshiftUnloadRole' PARQUET ALLOWOVERWRITE",
     "type": "sql"
   },
-  "source": { "ip": "148.253.159.125", "port": 8310 },
+  "source": { "ip": "209.228.227.228", "port": 48127 },
   "event": {
-    "duration": 55144366564.99373,
+    "duration": 22579809085.841473,
     "outcome": "success",
     "category": ["database"],
     "dataset": "aws.redshift",
     "provider": "redshift.amazonaws.com",
     "module": "aws"
   },
-  "message": "initiating session 89375 from 148.253.159.125 port 8310 to prod-dw.ipkf72qe.ca-central-1.redshift.amazonaws.com port 5439 using SSL: version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 pid=89375 dbname=warehouse user=etl_user application_name=dbt",
+  "message": "'2026-05-14 03:00:06.257 UTC [ db=analytics user=rdsdb pid=79322 userid=1 xid=2268063 ]' LOG: padb maintenance: track current — pending reboot node Compute-5",
   "log": { "level": "info" },
   "service": { "name": "redshift", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -96,7 +99,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "7elfvlij3qh"
+    "ephemeral_id": "vt9cii0qsswg1sobn7jl688yokxrli48d5da"
   },
   "input": { "type": "aws-cloudwatch" }
 }

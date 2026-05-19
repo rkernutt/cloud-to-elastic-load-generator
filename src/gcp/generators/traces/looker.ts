@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateLookerTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -42,7 +48,7 @@ export function generateLookerTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: u1 },
       action: "receive",
       destination: { service: { resource: "looker_query", type: "request", name: "looker_query" } },
-      labels: failIdx === 0 ? { "gcp.rpc.status_code": "INVALID_ARGUMENT" } : {},
+      labels: failIdx === 0 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,
@@ -68,7 +74,8 @@ export function generateLookerTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: u2 },
       action: "process",
       destination: { service: { resource: "lookml", type: "app", name: "lookml" } },
-      labels: failIdx === 1 ? { "gcp.looker.error": "lookml_parse" } : {},
+      labels:
+        failIdx === 1 ? { "gcp.looker.error": "lookml_parse", ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,
@@ -94,7 +101,8 @@ export function generateLookerTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: u3 },
       action: "query",
       destination: { service: { resource: "sql_generator", type: "db", name: "sql_generator" } },
-      labels: failIdx === 2 ? { "gcp.looker.error": "sql_generation" } : {},
+      labels:
+        failIdx === 2 ? { "gcp.looker.error": "sql_generation", ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,
@@ -120,7 +128,7 @@ export function generateLookerTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: u4 },
       action: "query",
       destination: { service: { resource: "bigquery", type: "db", name: "bigquery" } },
-      labels: failIdx === 3 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: failIdx === 3 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "bigquery.googleapis.com"),
@@ -146,7 +154,7 @@ export function generateLookerTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: u5 },
       action: "process",
       destination: { service: { resource: "looker_render", type: "app", name: "looker_render" } },
-      labels: failIdx === 4 ? { "gcp.rpc.status_code": "INTERNAL" } : {},
+      labels: failIdx === 4 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,

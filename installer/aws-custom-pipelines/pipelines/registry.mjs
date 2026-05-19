@@ -61128,4 +61128,1192 @@ export const PIPELINE_REGISTRY = [
       },
     ],
   },
+  {
+    id: "logs-aws.bedrockguardrails-default",
+    dataset: "aws.bedrockguardrails",
+    group: "ai",
+    description: "Parse AWS Bedrock Guardrails JSON from message field",
+    processors: [
+      {
+        json: { field: "message", target_field: "bedrock_guardrails.parsed", ignore_failure: true },
+      },
+      {
+        rename: {
+          field: "bedrock_guardrails.parsed.eventName",
+          target_field: "bedrock_guardrails.event_name",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "bedrock_guardrails.parsed.errorCode",
+          target_field: "bedrock_guardrails.error_code",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "bedrock_guardrails.parsed.requestId",
+          target_field: "bedrock_guardrails.request_id",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"], if: "ctx?.event?.outcome != 'failure'" } },
+      {
+        set: {
+          field: "event.category",
+          value: ["web"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: {
+          field: ["bedrock_guardrails.parsed"],
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-aws.emrserverless-default",
+    dataset: "aws.emrserverless",
+    group: "analytics",
+    description: "Parse AWS EMR Serverless JSON from message field",
+    processors: [
+      { json: { field: "message", target_field: "emr_serverless.parsed", ignore_failure: true } },
+      {
+        rename: {
+          field: "emr_serverless.parsed.eventName",
+          target_field: "emr_serverless.event_name",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "emr_serverless.parsed.errorCode",
+          target_field: "emr_serverless.error_code",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "emr_serverless.parsed.requestId",
+          target_field: "emr_serverless.request_id",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"], if: "ctx?.event?.outcome != 'failure'" } },
+      {
+        set: {
+          field: "event.category",
+          value: ["web"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      { remove: { field: ["emr_serverless.parsed"], ignore_missing: true, ignore_failure: true } },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-aws.gwlb-default",
+    dataset: "aws.gwlb",
+    group: "networking",
+    description: "Parse AWS Gateway Load Balancer JSON from message field",
+    processors: [
+      { json: { field: "message", target_field: "gwlb.parsed", ignore_failure: true } },
+      {
+        rename: {
+          field: "gwlb.parsed.eventName",
+          target_field: "gwlb.event_name",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "gwlb.parsed.errorCode",
+          target_field: "gwlb.error_code",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "gwlb.parsed.requestId",
+          target_field: "gwlb.request_id",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"], if: "ctx?.event?.outcome != 'failure'" } },
+      {
+        set: {
+          field: "event.category",
+          value: ["web"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      { remove: { field: ["gwlb.parsed"], ignore_missing: true, ignore_failure: true } },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-aws.elb-default",
+    dataset: "aws.elb",
+    group: "networking",
+    description: "Parse AWS Classic Elastic Load Balancing JSON from message field",
+    processors: [
+      { json: { field: "message", target_field: "classic_elb.parsed", ignore_failure: true } },
+      {
+        rename: {
+          field: "classic_elb.parsed.eventName",
+          target_field: "classic_elb.event_name",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "classic_elb.parsed.errorCode",
+          target_field: "classic_elb.error_code",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "classic_elb.parsed.requestId",
+          target_field: "classic_elb.request_id",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"], if: "ctx?.event?.outcome != 'failure'" } },
+      {
+        set: {
+          field: "event.category",
+          value: ["web"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      { remove: { field: ["classic_elb.parsed"], ignore_missing: true, ignore_failure: true } },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-aws.mediaconnect-default",
+    dataset: "aws.mediaconnect",
+    group: "media",
+    description: "Parse AWS MediaConnect JSON from message field",
+    processors: [
+      { json: { field: "message", target_field: "mediaconnect.parsed", ignore_failure: true } },
+      {
+        rename: {
+          field: "mediaconnect.parsed.eventName",
+          target_field: "mediaconnect.event_name",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "mediaconnect.parsed.errorCode",
+          target_field: "mediaconnect.error_code",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "mediaconnect.parsed.requestId",
+          target_field: "mediaconnect.request_id",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"], if: "ctx?.event?.outcome != 'failure'" } },
+      {
+        set: {
+          field: "event.category",
+          value: ["web"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      { remove: { field: ["mediaconnect.parsed"], ignore_missing: true, ignore_failure: true } },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-aws.mediapackage-default",
+    dataset: "aws.mediapackage",
+    group: "media",
+    description: "Parse AWS MediaPackage JSON from message field",
+    processors: [
+      { json: { field: "message", target_field: "mediapackage.parsed", ignore_failure: true } },
+      {
+        rename: {
+          field: "mediapackage.parsed.eventName",
+          target_field: "mediapackage.event_name",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "mediapackage.parsed.errorCode",
+          target_field: "mediapackage.error_code",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "mediapackage.parsed.requestId",
+          target_field: "mediapackage.request_id",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"], if: "ctx?.event?.outcome != 'failure'" } },
+      {
+        set: {
+          field: "event.category",
+          value: ["web"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      { remove: { field: ["mediapackage.parsed"], ignore_missing: true, ignore_failure: true } },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-aws.mediastore-default",
+    dataset: "aws.mediastore",
+    group: "media",
+    description: "Parse AWS MediaStore JSON from message field",
+    processors: [
+      { json: { field: "message", target_field: "mediastore.parsed", ignore_failure: true } },
+      {
+        rename: {
+          field: "mediastore.parsed.eventName",
+          target_field: "mediastore.event_name",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "mediastore.parsed.errorCode",
+          target_field: "mediastore.error_code",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "mediastore.parsed.requestId",
+          target_field: "mediastore.request_id",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"], if: "ctx?.event?.outcome != 'failure'" } },
+      {
+        set: {
+          field: "event.category",
+          value: ["web"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      { remove: { field: ["mediastore.parsed"], ignore_missing: true, ignore_failure: true } },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-aws.mediatailor-default",
+    dataset: "aws.mediatailor",
+    group: "media",
+    description: "Parse AWS MediaTailor JSON from message field",
+    processors: [
+      { json: { field: "message", target_field: "mediatailor.parsed", ignore_failure: true } },
+      {
+        rename: {
+          field: "mediatailor.parsed.eventName",
+          target_field: "mediatailor.event_name",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "mediatailor.parsed.errorCode",
+          target_field: "mediatailor.error_code",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "mediatailor.parsed.requestId",
+          target_field: "mediatailor.request_id",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"], if: "ctx?.event?.outcome != 'failure'" } },
+      {
+        set: {
+          field: "event.category",
+          value: ["web"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      { remove: { field: ["mediatailor.parsed"], ignore_missing: true, ignore_failure: true } },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-aws.ivs-default",
+    dataset: "aws.ivs",
+    group: "media",
+    description: "Parse AWS Interactive Video Service JSON from message field",
+    processors: [
+      { json: { field: "message", target_field: "ivs.parsed", ignore_failure: true } },
+      {
+        rename: {
+          field: "ivs.parsed.eventName",
+          target_field: "ivs.event_name",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "ivs.parsed.errorCode",
+          target_field: "ivs.error_code",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "ivs.parsed.requestId",
+          target_field: "ivs.request_id",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"], if: "ctx?.event?.outcome != 'failure'" } },
+      {
+        set: {
+          field: "event.category",
+          value: ["web"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      { remove: { field: ["ivs.parsed"], ignore_missing: true, ignore_failure: true } },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-aws.ivschat-default",
+    dataset: "aws.ivschat",
+    group: "media",
+    description: "Parse AWS IVS Chat JSON from message field",
+    processors: [
+      { json: { field: "message", target_field: "ivschat.parsed", ignore_failure: true } },
+      {
+        rename: {
+          field: "ivschat.parsed.eventName",
+          target_field: "ivschat.event_name",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "ivschat.parsed.errorCode",
+          target_field: "ivschat.error_code",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "ivschat.parsed.requestId",
+          target_field: "ivschat.request_id",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"], if: "ctx?.event?.outcome != 'failure'" } },
+      {
+        set: {
+          field: "event.category",
+          value: ["web"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      { remove: { field: ["ivschat.parsed"], ignore_missing: true, ignore_failure: true } },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-aws.cloudsearch-default",
+    dataset: "aws.cloudsearch",
+    group: "analytics",
+    description: "Parse AWS CloudSearch JSON from message field",
+    processors: [
+      { json: { field: "message", target_field: "cloudsearch.parsed", ignore_failure: true } },
+      {
+        rename: {
+          field: "cloudsearch.parsed.eventName",
+          target_field: "cloudsearch.event_name",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "cloudsearch.parsed.errorCode",
+          target_field: "cloudsearch.error_code",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "cloudsearch.parsed.requestId",
+          target_field: "cloudsearch.request_id",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"], if: "ctx?.event?.outcome != 'failure'" } },
+      {
+        set: {
+          field: "event.category",
+          value: ["web"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      { remove: { field: ["cloudsearch.parsed"], ignore_missing: true, ignore_failure: true } },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-aws.directoryservice-default",
+    dataset: "aws.directoryservice",
+    group: "security",
+    description: "Parse AWS Directory Service JSON from message field",
+    processors: [
+      {
+        json: { field: "message", target_field: "directory_service.parsed", ignore_failure: true },
+      },
+      {
+        rename: {
+          field: "directory_service.parsed.eventName",
+          target_field: "directory_service.event_name",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "directory_service.parsed.errorCode",
+          target_field: "directory_service.error_code",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "directory_service.parsed.requestId",
+          target_field: "directory_service.request_id",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"], if: "ctx?.event?.outcome != 'failure'" } },
+      {
+        set: {
+          field: "event.category",
+          value: ["web"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: { field: ["directory_service.parsed"], ignore_missing: true, ignore_failure: true },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-aws.acmpca-default",
+    dataset: "aws.acmpca",
+    group: "security",
+    description: "Parse AWS ACM Private CA JSON from message field",
+    processors: [
+      { json: { field: "message", target_field: "acmpca.parsed", ignore_failure: true } },
+      {
+        rename: {
+          field: "acmpca.parsed.eventName",
+          target_field: "acmpca.event_name",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "acmpca.parsed.errorCode",
+          target_field: "acmpca.error_code",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "acmpca.parsed.requestId",
+          target_field: "acmpca.request_id",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"], if: "ctx?.event?.outcome != 'failure'" } },
+      {
+        set: {
+          field: "event.category",
+          value: ["web"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      { remove: { field: ["acmpca.parsed"], ignore_missing: true, ignore_failure: true } },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-aws.mgn-default",
+    dataset: "aws.mgn",
+    group: "management",
+    description: "Parse AWS Application Migration Service JSON from message field",
+    processors: [
+      { json: { field: "message", target_field: "mgn.parsed", ignore_failure: true } },
+      {
+        rename: {
+          field: "mgn.parsed.eventName",
+          target_field: "mgn.event_name",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "mgn.parsed.errorCode",
+          target_field: "mgn.error_code",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "mgn.parsed.requestId",
+          target_field: "mgn.request_id",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"], if: "ctx?.event?.outcome != 'failure'" } },
+      {
+        set: {
+          field: "event.category",
+          value: ["web"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      { remove: { field: ["mgn.parsed"], ignore_missing: true, ignore_failure: true } },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-aws.cwsynthetics-default",
+    dataset: "aws.cwsynthetics",
+    group: "management",
+    description: "Parse AWS CloudWatch Synthetics JSON from message field",
+    processors: [
+      { json: { field: "message", target_field: "cw_synthetics.parsed", ignore_failure: true } },
+      {
+        rename: {
+          field: "cw_synthetics.parsed.eventName",
+          target_field: "cw_synthetics.event_name",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "cw_synthetics.parsed.errorCode",
+          target_field: "cw_synthetics.error_code",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "cw_synthetics.parsed.requestId",
+          target_field: "cw_synthetics.request_id",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"], if: "ctx?.event?.outcome != 'failure'" } },
+      {
+        set: {
+          field: "event.category",
+          value: ["web"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      { remove: { field: ["cw_synthetics.parsed"], ignore_missing: true, ignore_failure: true } },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-aws.managedprometheus-default",
+    dataset: "aws.managedprometheus",
+    group: "management",
+    description: "Parse AWS Managed Prometheus JSON from message field",
+    processors: [
+      {
+        json: { field: "message", target_field: "managed_prometheus.parsed", ignore_failure: true },
+      },
+      {
+        rename: {
+          field: "managed_prometheus.parsed.eventName",
+          target_field: "managed_prometheus.event_name",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "managed_prometheus.parsed.errorCode",
+          target_field: "managed_prometheus.error_code",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "managed_prometheus.parsed.requestId",
+          target_field: "managed_prometheus.request_id",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"], if: "ctx?.event?.outcome != 'failure'" } },
+      {
+        set: {
+          field: "event.category",
+          value: ["web"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: {
+          field: ["managed_prometheus.parsed"],
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
 ];

@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateCloudSqlTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -52,7 +58,7 @@ export function generateCloudSqlTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: acquireUs },
       action: "connect",
       destination: { service: { resource: "cloudsql", type: "db", name: "cloudsql" } },
-      labels: failAt === 0 ? { "gcp.rpc.status_code": "UNAVAILABLE" } : {},
+      labels: failAt === 0 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: cloudSql,
@@ -78,10 +84,7 @@ export function generateCloudSqlTrace(ts: string, er: number): EcsDocument[] {
       action: "query",
       db: { type: "sql", statement },
       destination: { service: { resource: "cloudsql", type: "db", name: "cloudsql" } },
-      labels:
-        failAt === 1
-          ? { "gcp.rpc.status_code": rand(["DEADLINE_EXCEEDED", "ABORTED"]) as string }
-          : {},
+      labels: failAt === 1 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: cloudSql,
@@ -106,7 +109,7 @@ export function generateCloudSqlTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: fetchUs },
       action: "fetch",
       destination: { service: { resource: "cloudsql", type: "db", name: "cloudsql" } },
-      labels: failAt === 2 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: failAt === 2 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: cloudSql,
@@ -131,7 +134,7 @@ export function generateCloudSqlTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: releaseUs },
       action: "release",
       destination: { service: { resource: "cloudsql", type: "db", name: "cloudsql" } },
-      labels: failAt === 3 ? { "gcp.rpc.status_code": "ABORTED" } : {},
+      labels: failAt === 3 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: cloudSql,

@@ -148,32 +148,27 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
 
       const shipTraceService = async (svc: string, _svcIndex: number) => {
         addLog(`▶ ${svc} → ${APM_INDEX} [OTel / OTLP]`, "info");
-        const traceChunks = Array.from({ length: tracesPerService }, () =>
-          TRACE_GENERATORS[svc](randTs(startDate, endDate), errorRate).map((d) =>
-            enrichDoc(stripNulls(d) as LooseDoc, svc, traceIngestionSource, "traces")
-          )
-        );
         const prefixEnd: number[] = [];
-        let acc = 0;
-        for (const ch of traceChunks) {
-          acc += ch.length;
-          prefixEnd.push(acc);
-        }
-        const allDocs = traceChunks.flat();
+        let traceAccDocs = 0;
+        const pendingDocs: LooseDoc[] = [];
+
         const progress = makeProgressFlusher("main");
         let svcSent = 0,
           svcErrors = 0,
           batchNum = 0,
           lastReportedTraces = 0;
-        for (let i = 0; i < allDocs.length; i += batchSize) {
-          if (abortRef.current) break;
+
+        const apmMeta = JSON.stringify({ create: { _index: APM_INDEX } });
+
+        const shipTraceBatch = async (batch: LooseDoc[]) => {
+          if (!batch.length) return;
+          if (abortRef.current) return;
           batchNum++;
-          const batch = allDocs.slice(i, i + batchSize);
-          const apmMeta = JSON.stringify({ create: { _index: APM_INDEX } });
-          let ndjson = "";
+          const ndjsonParts: string[] = [];
           for (const doc of batch) {
-            ndjson += apmMeta + "\n" + JSON.stringify(doc) + "\n";
+            ndjsonParts.push(apmMeta, "\n", JSON.stringify(doc), "\n");
           }
+          const ndjson = ndjsonParts.join("");
           let errDelta = 0;
           try {
             const res = dryRun
@@ -218,6 +213,25 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
           lastReportedTraces = currentTraces;
           progress.add(sentDelta, errDelta);
           if (batchDelayMs > 0) await new Promise((r) => setTimeout(r, batchDelayMs));
+        };
+
+        for (let traceIdx = 0; traceIdx < tracesPerService; traceIdx++) {
+          if (abortRef.current) break;
+          const rawChunk = TRACE_GENERATORS[svc](randTs(startDate, endDate), errorRate);
+          traceAccDocs += rawChunk.length;
+          prefixEnd.push(traceAccDocs);
+          for (const d of rawChunk) {
+            stripNulls(d);
+            pendingDocs.push(enrichDoc(d as LooseDoc, svc, traceIngestionSource, "traces"));
+            while (pendingDocs.length >= batchSize) {
+              const batch = pendingDocs.splice(0, batchSize);
+              await shipTraceBatch(batch);
+            }
+          }
+        }
+        while (pendingDocs.length > 0 && !abortRef.current) {
+          const batch = pendingDocs.splice(0, batchSize);
+          await shipTraceBatch(batch);
         }
         progress.done();
         addLog(`✓ ${svc} complete (${svcSent} span docs for ${tracesPerService} traces)`, "ok");
@@ -242,7 +256,8 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
           if (!TRACE_GENERATORS[svc]) continue;
           const docs = Array.from({ length: injCount }, () =>
             TRACE_GENERATORS[svc](randTs(injStart, injEnd), 1.0).map((d) => {
-              const out = enrichDoc(stripNulls(d) as LooseDoc, svc, traceIngestionSource, "traces");
+              stripNulls(d);
+              const out = enrichDoc(d as LooseDoc, svc, traceIngestionSource, "traces");
               if (out["transaction.duration.us"]) out["transaction.duration.us"] *= 15;
               if (out["span.duration.us"]) out["span.duration.us"] *= 15;
               return out;
@@ -267,10 +282,11 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
               if (abortRef.current) break;
               const batch = injDocs.slice(i, i + batchSize);
               const apmMetaInj = JSON.stringify({ create: { _index: APM_INDEX } });
-              let ndjsonInj = "";
+              const ndjsonPartsInj: string[] = [];
               for (const doc of batch) {
-                ndjsonInj += apmMetaInj + "\n" + JSON.stringify(doc) + "\n";
+                ndjsonPartsInj.push(apmMetaInj, "\n", JSON.stringify(doc), "\n");
               }
+              const ndjsonInj = ndjsonPartsInj.join("");
               let sentDelta = 0;
               let errDelta = 0;
               try {
@@ -361,39 +377,42 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
       const svcDocCount = REFERENCE_DATA_CAPS[svc]
         ? Math.min(logsPerService, REFERENCE_DATA_CAPS[svc])
         : logsPerService;
-      const allDocs = isDimensionalMetrics
-        ? Array.from({ length: svcDocCount }, () =>
-            METRICS_GENERATORS![svc](randTs(startDate, endDate), errorRate)
-          )
-            .flat()
-            .map((d) => stripNulls(d as LooseDoc))
-        : Array.from({ length: svcDocCount }, () => {
-            const result = GENERATORS![svc](randTs(startDate, endDate), errorRate);
-            if (Array.isArray(result)) {
-              return result.map((d) => stripNulls(d as LooseDoc));
-            }
-            return [stripNulls(enrichDoc(result as LooseDoc, svc, src, eventType))];
-          }).flat();
-      docCountByIdx[svcIndex] = allDocs.length;
-      setProgress((prev) => {
-        const t = docCountByIdx.reduce((s, x) => s + (typeof x === "number" ? x : 0), 0);
-        return { ...prev, phase: "main", total: t };
-      });
+
+      /** Documents accumulated for the next bulk request (max batchSize). */
+      const pendingBulkDocs: LooseDoc[] = [];
+
+      let cumulativeDocsProcessed = 0;
+      docCountByIdx[svcIndex] = 0;
+
+      const refreshProgressTotal = () => {
+        docCountByIdx[svcIndex] = cumulativeDocsProcessed;
+        setProgress((prev) => {
+          const t = docCountByIdx.reduce((s, x) => s + (typeof x === "number" ? x : 0), 0);
+          return { ...prev, phase: "main", total: t };
+        });
+      };
+
       const svcProgress = makeProgressFlusher("main");
       let svcSent = 0,
         svcErrors = 0,
         batchNum = 0;
-      for (let i = 0; i < allDocs.length; i += batchSize) {
-        if (abortRef.current) break;
+
+      const flushDocBatch = async (batch: LooseDoc[]) => {
+        if (!batch.length) return;
+        if (abortRef.current) return;
         batchNum++;
-        const batch = allDocs.slice(i, i + batchSize);
-        let ndjson = "";
+        const ndjsonParts: string[] = [];
         for (const doc of batch) {
           const { __dataset, ...cleanDoc } = doc as LooseDoc;
           const idx = __dataset ? config.formatDocDatasetIndex(indexPrefix, __dataset) : indexName;
-          ndjson +=
-            JSON.stringify({ create: { _index: idx } }) + "\n" + JSON.stringify(cleanDoc) + "\n";
+          ndjsonParts.push(
+            JSON.stringify({ create: { _index: idx } }),
+            "\n",
+            JSON.stringify(cleanDoc),
+            "\n"
+          );
         }
+        const ndjson = ndjsonParts.join("");
         let sentDelta = 0;
         let errDelta = 0;
         try {
@@ -449,6 +468,47 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
         }
         svcProgress.add(sentDelta, errDelta);
         if (batchDelayMs > 0) await new Promise((r) => setTimeout(r, batchDelayMs));
+      };
+
+      const pushPreparedDoc = async (doc: LooseDoc) => {
+        pendingBulkDocs.push(doc);
+        cumulativeDocsProcessed++;
+        if (pendingBulkDocs.length >= batchSize) {
+          const batch = pendingBulkDocs.splice(0, batchSize);
+          refreshProgressTotal();
+          await flushDocBatch(batch);
+        }
+      };
+      invocationLoop: for (let docOffset = 0; docOffset < svcDocCount; docOffset++) {
+        if (abortRef.current) break invocationLoop;
+        if (isDimensionalMetrics) {
+          const raw = METRICS_GENERATORS![svc](randTs(startDate, endDate), errorRate);
+          const docs = Array.isArray(raw) ? raw : [raw];
+          for (const d of docs) {
+            if (abortRef.current) break invocationLoop;
+            stripNulls(d as LooseDoc);
+            await pushPreparedDoc(d as LooseDoc);
+          }
+        } else {
+          const result = GENERATORS![svc](randTs(startDate, endDate), errorRate);
+          if (Array.isArray(result)) {
+            for (const d of result) {
+              if (abortRef.current) break invocationLoop;
+              stripNulls(d as LooseDoc);
+              await pushPreparedDoc(d as LooseDoc);
+            }
+          } else {
+            const enriched = enrichDoc(result as LooseDoc, svc, src, eventType);
+            stripNulls(enriched);
+            await pushPreparedDoc(enriched as LooseDoc);
+          }
+        }
+      }
+
+      refreshProgressTotal();
+      while (pendingBulkDocs.length > 0 && !abortRef.current) {
+        const batch = pendingBulkDocs.splice(0, batchSize);
+        await flushDocBatch(batch);
       }
       svcProgress.done();
       addLog(`✓ ${svc} complete`, "ok");
@@ -478,13 +538,17 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
       const APM_INDEX = "traces-apm-default";
       const traceCount = Math.max(20, Math.round(logsPerService * 0.15));
       addLog(`🔗 Shipping companion APM traces for ${traceEligible.join(", ")} → ${APM_INDEX}`);
-      for (const svc of traceEligible) {
-        if (abortRef.current) break;
-        if (!TRACE_GENERATORS[svc]) continue;
+      const shipCompanionTrace = async (
+        svc: string,
+        _i: number
+      ): Promise<{ traceSent: number; traceErrs: number }> => {
+        if (abortRef.current) return { traceSent: 0, traceErrs: 0 };
+        if (!TRACE_GENERATORS[svc]) return { traceSent: 0, traceErrs: 0 };
         const traceDocs = Array.from({ length: traceCount }, () =>
-          TRACE_GENERATORS[svc](randTs(startDate, endDate), errorRate).map((d) =>
-            enrichDoc(stripNulls(d) as LooseDoc, svc, "otel", "traces")
-          )
+          TRACE_GENERATORS[svc](randTs(startDate, endDate), errorRate).map((d) => {
+            stripNulls(d);
+            return enrichDoc(d as LooseDoc, svc, "otel", "traces");
+          })
         ).flat();
         const apmMeta = JSON.stringify({ create: { _index: APM_INDEX } });
         let traceSent = 0,
@@ -492,8 +556,11 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
         for (let i = 0; i < traceDocs.length; i += batchSize) {
           if (abortRef.current) break;
           const batch = traceDocs.slice(i, i + batchSize);
-          let ndjson = "";
-          for (const doc of batch) ndjson += apmMeta + "\n" + JSON.stringify(doc) + "\n";
+          const ndjsonParts: string[] = [];
+          for (const doc of batch) {
+            ndjsonParts.push(apmMeta, "\n", JSON.stringify(doc), "\n");
+          }
+          const ndjson = ndjsonParts.join("");
           try {
             const res = dryRun
               ? dryRunResponse()
@@ -515,12 +582,16 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
             traceErrs += batch.length;
           }
         }
-        totalSent += traceSent;
-        totalErrors += traceErrs;
         addLog(
           `  ✓ ${svc} APM traces: ${traceSent} docs → ${APM_INDEX}`,
           traceErrs > 0 ? "warn" : "ok"
         );
+        return { traceSent, traceErrs };
+      };
+      const companionResults = await runPool(traceEligible, shipCompanionTrace);
+      for (const r of companionResults) {
+        totalSent += r.traceSent;
+        totalErrors += r.traceErrs;
       }
     }
 
@@ -544,7 +615,8 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
           injDocs = Array.from({ length: injCount }, () => {
             const docs = METRICS_GENERATORS![svc](randTs(injStart, injEnd), 1.0);
             return (Array.isArray(docs) ? docs : [docs]).map((d) => {
-              const out = stripNulls(d) as LooseDoc;
+              stripNulls(d as LooseDoc);
+              const out = d as LooseDoc;
               for (const [k, v] of Object.entries(out)) {
                 if (typeof v === "number" && !k.startsWith("@") && k !== "_doc_count") {
                   out[k] = v * 20;
@@ -559,13 +631,19 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
             return (
               Array.isArray(result)
                 ? result
-                : [
-                    stripNulls(
-                      enrichDoc(result as LooseDoc, svc, getEffectiveSource(svc), eventType)
-                    ),
-                  ]
+                : (() => {
+                    const enriched = enrichDoc(
+                      result as LooseDoc,
+                      svc,
+                      getEffectiveSource(svc),
+                      eventType
+                    );
+                    stripNulls(enriched);
+                    return [enriched];
+                  })()
             ).map((d: unknown) => {
-              const out = stripNulls(d as LooseDoc) as LooseDoc;
+              const out = d as LooseDoc;
+              stripNulls(out);
               scaleLogDurationFields(out, 15);
               return out;
             });
@@ -589,18 +667,20 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
           for (let i = 0; i < injDocs.length; i += batchSize) {
             if (abortRef.current) break;
             const batch = injDocs.slice(i, i + batchSize);
-            let ndjsonInj = "";
+            const ndjsonPartsInj: string[] = [];
             for (const doc of batch) {
               const { __dataset, ...cleanDoc } = doc;
               const idx = __dataset
                 ? config.formatDocDatasetIndex(indexPrefix, __dataset)
                 : indexName;
-              ndjsonInj +=
-                JSON.stringify({ create: { _index: idx } }) +
-                "\n" +
-                JSON.stringify(cleanDoc) +
-                "\n";
+              ndjsonPartsInj.push(
+                JSON.stringify({ create: { _index: idx } }),
+                "\n",
+                JSON.stringify(cleanDoc),
+                "\n"
+              );
             }
+            const ndjsonInj = ndjsonPartsInj.join("");
             let sentDelta = 0;
             let errDelta = 0;
             try {

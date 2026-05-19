@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 const INSTANCES = ["prod-banking", "globex-ledger", "inventory-global"];
 
@@ -25,7 +31,7 @@ export function generateCloudSpannerTrace(ts: string, er: number): EcsDocument[]
   const splitUs = Array.from({ length: splitCount }, () => randInt(5000, 220_000));
   const commitUs = randInt(2000, 95_000);
 
-  const failIdx = isErr ? randInt(-1, splitCount) : -1;
+  const failIdx: number | null = isErr ? randInt(-1, splitCount) : null;
 
   let offsetMs = 0;
   const sBegin = randSpanId();
@@ -45,7 +51,7 @@ export function generateCloudSpannerTrace(ts: string, er: number): EcsDocument[]
       action: "begin",
       db: { type: "sql", statement: `BEGIN RW TRANSACTION /* ${instance}/${db} */` },
       destination: { service: { resource: "spanner", type: "db", name: "spanner" } },
-      labels: failIdx === -1 ? { "gcp.rpc.status_code": "ABORTED" } : {},
+      labels: failIdx === -1 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "spanner.googleapis.com"),
@@ -86,7 +92,7 @@ export function generateCloudSpannerTrace(ts: string, er: number): EcsDocument[]
           ]),
         },
         destination: { service: { resource: "spanner", type: "db", name: "spanner" } },
-        labels: spanErr ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+        labels: spanErr ? { ...gcpSpanFailureLabels() } : {},
       },
       service: svc,
       cloud: {
@@ -119,7 +125,7 @@ export function generateCloudSpannerTrace(ts: string, er: number): EcsDocument[]
       action: "commit",
       db: { type: "sql", statement: "COMMIT TRANSACTION" },
       destination: { service: { resource: "spanner", type: "db", name: "spanner" } },
-      labels: commitErr ? { "gcp.rpc.status_code": "ABORTED" } : {},
+      labels: commitErr ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "spanner.googleapis.com"),

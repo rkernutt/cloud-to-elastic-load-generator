@@ -1,125 +1,114 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-west-2",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "s8x4sruokks" },
+    "dimensions": { "DetectorId": "zuymdvbc9mkuaj562agcfk7sxkc9osy8" },
     "guardduty": {
       "schemaVersion": "2.0",
-      "accountId": "293847561023",
-      "region": "ap-southeast-3",
+      "accountId": "738291046572",
+      "region": "us-west-2",
       "partition": "aws",
-      "id": "ecv32dcib",
-      "arn": "arn:aws:guardduty:ap-southeast-3:293847561023:detector/s8x4sruokks/finding/ecv32dcib",
-      "type": "Discovery:S3/TorIPCaller",
+      "id": "x3e5i740mj86ddnlp6yqhep494svxfde",
+      "arn": "arn:aws:guardduty:us-west-2:738291046572:detector/zuymdvbc9mkuaj562agcfk7sxkc9osy8/finding/x3e5i740mj86ddnlp6yqhep494svxfde",
+      "type": "UnauthorizedAccess:IAMUser/ConsoleLoginSuccess.B",
       "resource": {
-        "resourceType": "Instance",
-        "instanceDetails": {
-          "instanceId": "i-uglc7ocqy4g",
-          "instanceType": "m5.large",
-          "imageId": "ami-b3hk92n6",
-          "imageDescription": "Amazon Linux 2",
-          "launchTime": "2026-04-27T19:29:16.322Z",
-          "availabilityZone": "ap-southeast-3c",
-          "platform": "linux",
-          "productCode": [],
-          "networkInterfaces": [
-            {
-              "ipv6Addresses": [],
-              "networkInterfaceId": "eni-3yqlqueq",
-              "privateDnsName": "ip-251-7-37-99.ec2.internal",
-              "privateIpAddress": "172.79.240.111",
-              "privateIpAddresses": [
-                { "privateDnsName": "internal", "privateIpAddress": "19.150.97.128" }
-              ],
-              "subnetId": "subnet-byu4b28r",
-              "vpcId": "vpc-h18wja6l",
-              "securityGroups": [{ "groupName": "default", "groupId": "sg-7nvnhbez" }]
+        "resourceType": "S3Bucket",
+        "s3BucketDetails": [
+          {
+            "arn": "arn:aws:s3:::globex-development-data-p67gqf",
+            "name": "globex-development-data-ty6mtq",
+            "type": "Destination",
+            "createdAt": "2026-05-14T01:16:28.257Z",
+            "owner": { "id": "738291046572" },
+            "publicAccess": {
+              "permissionConfiguration": { "bucketLevel": { "blockPublicAccess": true } }
             }
-          ],
-          "tags": [{ "key": "Name", "value": "app-server" }],
-          "state": "running"
-        }
+          }
+        ]
       },
       "service": {
         "serviceName": "guardduty",
-        "detectorId": "s8x4sruokks",
+        "detectorId": "zuymdvbc9mkuaj562agcfk7sxkc9osy8",
         "action": {
-          "actionType": "NETWORK_CONNECTION",
-          "networkConnectionAction": {
-            "connectionDirection": "OUTBOUND",
-            "remoteIpDetails": {
-              "ipAddressV4": "136.49.122.230",
-              "geoLocation": {},
-              "organization": {}
-            },
-            "localPortDetails": { "port": 50768 },
-            "remotePortDetails": { "port": 443 },
-            "protocol": "TCP",
-            "blocked": false
+          "actionType": "AWS_API_CALL",
+          "awsApiCallAction": {
+            "api": "AssumeRole",
+            "callerType": "Remote IP",
+            "remoteIpDetails": { "ipAddressV4": "124.140.219.3", "organization": {} },
+            "serviceName": "sts.amazonaws.com"
           }
         },
-        "resourceRole": "ACTOR",
-        "eventFirstSeen": "2026-05-07T10:01:23.322Z",
-        "eventLastSeen": "2026-05-07T10:17:35.322Z",
+        "resourceRole": "TARGET",
+        "eventFirstSeen": "2026-05-14T01:16:28.257Z",
+        "eventLastSeen": "2026-05-14T03:00:06.257Z",
         "archived": false,
-        "count": 152,
+        "count": 210,
         "additionalInfo": {}
       },
-      "severity": 0,
-      "title": "S3 TorIPCaller",
-      "description": "GuardDuty processed telemetry and did not raise a finding for this sample.",
-      "createdAt": "2026-05-07T10:17:35.322Z",
-      "updatedAt": "2026-05-07T10:17:35.322Z",
-      "confidence": 80.85008554659558,
+      "severity": 8,
+      "title": "IAMUser ConsoleLoginSuccess B",
+      "description": "GuardDuty identified suspicious behavior or a possible compromise based on VPC flow logs, DNS logs, or CloudTrail events. Finding type: UnauthorizedAccess:IAMUser/ConsoleLoginSuccess.B.",
+      "createdAt": "2026-05-14T03:00:06.257Z",
+      "updatedAt": "2026-05-14T03:00:06.257Z",
+      "confidence": 88.98878066411046,
       "metrics": {
-        "FindingCount": { "sum": 0 },
-        "HighSeverityFindingCount": { "sum": 0 },
+        "FindingCount": { "sum": 41 },
+        "HighSeverityFindingCount": { "sum": 1 },
         "MediumSeverityFindingCount": { "sum": 0 },
         "LowSeverityFindingCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-guardduty-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-guardduty-logs-293847561023"
+        "name": "aws-guardduty-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-guardduty-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/guardduty/ap-southeast-3/2026/05/07/guardduty_IK5Z3QOIEJL.log.gz"
+        "key": "AWSLogs/738291046572/guardduty/us-west-2/2026/05/14/guardduty_ZNHC5UC0C8VB66UYUSR4.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/guardduty/logs",
-      "log_stream": "ap-southeast-3/9yhal2rj",
-      "ingestion_time": "2026-05-07T10:17:36.318Z"
+      "log_stream": "us-west-2/n6cvmrx3",
+      "ingestion_time": "2026-05-14T03:00:07.086Z"
     }
   },
-  "rule": { "category": "threat" },
-  "threat": { "indicator": [{ "type": "ip", "value": "200.27.39.49" }] },
+  "rule": {
+    "category": "threat",
+    "ruleset": "UnauthorizedAccess",
+    "name": "UnauthorizedAccess:IAMUser/ConsoleLoginSuccess.B"
+  },
+  "threat": { "indicator": [{ "type": "ip", "value": "124.140.219.3" }] },
   "event": {
     "kind": "alert",
-    "severity": 0,
-    "outcome": "success",
+    "severity": 8,
+    "outcome": "failure",
     "category": ["threat"],
     "type": ["indicator"],
     "dataset": "aws.guardduty",
     "provider": "guardduty.amazonaws.com",
     "module": "aws"
   },
-  "message": "GuardDuty: no threats detected",
-  "log": { "level": "info" },
+  "message": "GuardDuty finding [High]: UnauthorizedAccess:IAMUser/ConsoleLoginSuccess.B",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ThreatFinding",
+    "message": "GuardDuty finding: UnauthorizedAccess:IAMUser/ConsoleLoginSuccess.B",
+    "type": "security"
+  },
   "service": { "name": "guardduty", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.guardduty", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "5s5c1gqlfu9"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "2p5hxbphx52m0smj7uu9ey5p44kcy9my9zir"
   },
   "input": { "type": "http_endpoint" }
 }

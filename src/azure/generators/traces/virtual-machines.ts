@@ -83,7 +83,8 @@ export function generateVirtualMachinesTrace(ts: string, er: number): EcsDocumen
       ...dim({ dependency_type: "HTTP" }),
     },
     traceId,
-    "java"
+    "java",
+    { spanFailed: err2 }
   );
 
   const totalUs = u1 + u2 + randInt(800, 9_000);

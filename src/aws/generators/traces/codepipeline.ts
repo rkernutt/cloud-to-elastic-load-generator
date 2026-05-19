@@ -14,6 +14,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 const ORCHESTRATORS = [
@@ -104,6 +105,7 @@ export function generateCodepipelineTrace(ts: string, er: number) {
         "aws.codepipeline.pipeline": pipelineName,
         ...ph.labels,
         execution_id: newTraceId().slice(0, 13),
+        ...(spanErr ? awsSpanErrorLabels() : {}),
       },
       event: { outcome: spanErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },

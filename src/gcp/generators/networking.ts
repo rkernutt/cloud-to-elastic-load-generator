@@ -49,6 +49,30 @@ function protocolNumber() {
   return rand([6, 17, 1, 58] as const);
 }
 
+const GRPC_ERROR_STATUSES = [
+  "INTERNAL",
+  "DEADLINE_EXCEEDED",
+  "PERMISSION_DENIED",
+  "RESOURCE_EXHAUSTED",
+  "NOT_FOUND",
+  "UNAVAILABLE",
+] as const;
+
+function grpcStructuredFault(isErr: boolean): {
+  spread: Record<string, unknown>;
+  rpcLabel: Record<string, string>;
+} {
+  if (!isErr) return { spread: {}, rpcLabel: {} };
+  const code = rand([...GRPC_ERROR_STATUSES]);
+  return {
+    spread: {
+      "gcp.rpc": { status_code: code },
+      error: { code, message: `${code}: operation failed`, type: "gcp" },
+    },
+    rpcLabel: { "gcp.rpc.status_code": code },
+  };
+}
+
 function instanceInConnection(
   projectId: string,
   region: string,
@@ -74,6 +98,7 @@ function instanceInConnection(
 
 export function generateVpcFlowLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const reporter = rand(["SRC", "DEST"] as const);
   const proto = protocolNumber();
   const srcPort = randInt(1024, 65535);
@@ -113,6 +138,9 @@ export function generateVpcFlowLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr || action === "DENY" ? "WARNING" : "INFO",
     logName: gcpLogName(project.id, "compute.googleapis.com/vpc_flows"),
     insertId: `${randId(8)}${randId(8)}`,
@@ -152,6 +180,7 @@ export function generateVpcFlowLog(ts: string, er: number): EcsDocument {
 
 export function generateCloudLbLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const requestMethod = rand(HTTP_METHODS);
   const urlPath = rand(HTTP_PATHS);
   const requestUrl = `https://api.${project.id}.${rand(["io", "com", "net"])}${urlPath}`;
@@ -182,6 +211,9 @@ export function generateCloudLbLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: randSeverity(isErr),
     logName: gcpLogName(project.id, "requests"),
     insertId: randId(16).toLowerCase(),
@@ -222,6 +254,7 @@ export function generateCloudLbLog(ts: string, er: number): EcsDocument {
 
 export function generateCloudCdnLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const urlPath = rand([
     "/assets/logo.png",
     "/video/segment.ts",
@@ -257,6 +290,9 @@ export function generateCloudCdnLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: randSeverity(isErr),
     logName: gcpLogName(project.id, "requests"),
     insertId: randId(16).toLowerCase(),
@@ -292,6 +328,7 @@ export function generateCloudCdnLog(ts: string, er: number): EcsDocument {
 
 export function generateCloudDnsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const queryType = rand(["A", "AAAA", "CNAME", "MX", "TXT"] as const);
   const responseCode = isErr ? rand(["NXDOMAIN", "SERVFAIL"] as const) : "NOERROR";
   const dnsProto = rand(["UDP", "TCP"] as const);
@@ -314,6 +351,9 @@ export function generateCloudDnsLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "WARNING" : "INFO",
     logName: gcpLogName(project.id, "dns.googleapis.com/dns_queries"),
     insertId: randId(16).toLowerCase(),
@@ -341,6 +381,7 @@ export function generateCloudDnsLog(ts: string, er: number): EcsDocument {
 
 export function generateCloudArmorLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const policyResource = `projects/${project.id}/global/securityPolicies/armor-${rand(["edge", "api", "corp"])}-${randId(4).toLowerCase()}`;
   const previewMode = Math.random() > 0.85;
   const rateLimit = !previewMode && Math.random() < 0.28;
@@ -416,6 +457,9 @@ export function generateCloudArmorLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr || outcome === "DENY" || outcome === "RATE_LIMITED" ? "WARNING" : "INFO",
     logName: gcpLogName(project.id, "requests"),
     insertId: randId(16).toLowerCase(),
@@ -445,6 +489,7 @@ export function generateCloudArmorLog(ts: string, er: number): EcsDocument {
 
 export function generateCloudNatLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const gatewayName = `nat-gw-${randId(5).toLowerCase()}`;
   const routerName = `cr-${region}-${randId(4).toLowerCase()}`;
   const natIp = randIp();
@@ -471,6 +516,9 @@ export function generateCloudNatLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "ERROR" : "INFO",
     logName: gcpLogName(project.id, "compute.googleapis.com/nat_flows"),
     insertId: randId(16).toLowerCase(),
@@ -499,6 +547,7 @@ export function generateCloudNatLog(ts: string, er: number): EcsDocument {
 
 export function generateCloudVpnLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const status = isErr
     ? rand(["NO_INCOMING_PACKETS", "AUTHORIZATION_ERROR"] as const)
     : "ESTABLISHED";
@@ -521,6 +570,9 @@ export function generateCloudVpnLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "ERROR" : "INFO",
     logName: gcpLogName(project.id, "vpn.googleapis.com/tunnel_events"),
     insertId: randId(16).toLowerCase(),
@@ -550,6 +602,7 @@ export function generateCloudVpnLog(ts: string, er: number): EcsDocument {
 
 export function generateCloudInterconnectLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const icType = rand(["DEDICATED", "PARTNER"] as const);
   const bandwidthGbps = rand([10, 50, 100, 200] as const);
   const operationalStatus = isErr ? "OS_DOWN" : "OS_ACTIVE";
@@ -570,6 +623,9 @@ export function generateCloudInterconnectLog(ts: string, er: number): EcsDocumen
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "ERROR" : "NOTICE",
     logName: gcpLogName(project.id, "interconnect.googleapis.com/interconnect_events"),
     insertId: randId(16).toLowerCase(),
@@ -597,6 +653,7 @@ export function generateCloudInterconnectLog(ts: string, er: number): EcsDocumen
 
 export function generateCloudRouterLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const routerStatus = isErr ? "DOWN" : "UP";
   const localAsn = randInt(64512, 65534);
   const peerAsn = randInt(1000, 65000);
@@ -621,6 +678,9 @@ export function generateCloudRouterLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "WARNING" : "INFO",
     logName: gcpLogName(project.id, "router.googleapis.com/bgp_sessions"),
     insertId: randId(16).toLowerCase(),
@@ -649,6 +709,7 @@ export function generateCloudRouterLog(ts: string, er: number): EcsDocument {
 
 export function generateTrafficDirectorLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const healthStatus = isErr ? "UNHEALTHY" : rand(["HEALTHY", "HEALTHY", "DRAINING"] as const);
   const requestCount = randInt(100, 500_000);
   const errorRate = isErr ? randFloat(0.05, 0.45) : randFloat(0, 0.02);
@@ -668,6 +729,9 @@ export function generateTrafficDirectorLog(ts: string, er: number): EcsDocument 
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "WARNING" : "INFO",
     logName: gcpLogName(project.id, "trafficdirector.googleapis.com/xds"),
     insertId: randId(16).toLowerCase(),
@@ -692,6 +756,7 @@ export function generateTrafficDirectorLog(ts: string, er: number): EcsDocument 
 
 export function generatePrivateServiceConnectLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const connectionStatus = isErr ? rand(["REJECTED", "PENDING"] as const) : "ACCEPTED";
   const durationNs = randLatencyMs(randInt(20, 400), isErr) * 1e6;
   const endpointName = `psc-endpoint-${randId(5).toLowerCase()}`;
@@ -708,6 +773,9 @@ export function generatePrivateServiceConnectLog(ts: string, er: number): EcsDoc
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "WARNING" : "INFO",
     logName: gcpLogName(project.id, "compute.googleapis.com/psc_connection"),
     insertId: randId(16).toLowerCase(),
@@ -733,6 +801,7 @@ export function generatePrivateServiceConnectLog(ts: string, er: number): EcsDoc
 
 export function generateNetworkConnectivityCenterLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const spokeType = rand(["VPN", "INTERCONNECT", "VPC"] as const);
   const status = isErr ? "DEGRADED" : "ACTIVE";
   const linkedVpc = `https://www.googleapis.com/compute/v1/projects/${project.id}/global/networks/${randVpcNetwork()}`;
@@ -751,6 +820,9 @@ export function generateNetworkConnectivityCenterLog(ts: string, er: number): Ec
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "WARNING" : "INFO",
     logName: gcpLogName(project.id, "networkconnectivity.googleapis.com/hub_activity"),
     insertId: randId(16).toLowerCase(),
@@ -777,6 +849,7 @@ export function generateNetworkConnectivityCenterLog(ts: string, er: number): Ec
 
 export function generateNetworkIntelligenceCenterLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const src = randIp();
   const dst = randIp();
   const result = isErr ? rand(["UNREACHABLE", "AMBIGUOUS"] as const) : "REACHABLE";
@@ -800,6 +873,9 @@ export function generateNetworkIntelligenceCenterLog(ts: string, er: number): Ec
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "WARNING" : "INFO",
     logName: gcpLogName(project.id, "networkmanagement.googleapis.com/connectivity_test"),
     insertId: randId(16).toLowerCase(),
@@ -826,6 +902,7 @@ export function generateNetworkIntelligenceCenterLog(ts: string, er: number): Ec
 
 export function generateCloudIdsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const endpointName = `ids-endpoint-${randId(6).toLowerCase()}`;
   const threatId = `threat-${randId(10).toLowerCase()}`;
   const severityRank = rand(["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"] as const);
@@ -852,6 +929,9 @@ export function generateCloudIdsLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr
       ? "ERROR"
       : severityRank === "CRITICAL" || severityRank === "HIGH"
@@ -885,6 +965,7 @@ export function generateCloudIdsLog(ts: string, er: number): EcsDocument {
 
 export function generatePacketMirroringLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const policyName = `pm-policy-${randId(5).toLowerCase()}`;
   const mirroredNetwork = randVpcNetwork();
   const collectorInstance = randGceInstance();
@@ -904,6 +985,9 @@ export function generatePacketMirroringLog(ts: string, er: number): EcsDocument 
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "ERROR" : "INFO",
     logName: gcpLogName(project.id, "compute.googleapis.com/packet_mirroring"),
     insertId: randId(16).toLowerCase(),
@@ -931,6 +1015,7 @@ export function generatePacketMirroringLog(ts: string, er: number): EcsDocument 
 
 export function generateNetworkServiceTiersLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const tier = rand(["PREMIUM", "STANDARD"] as const);
   const resourceType = rand(["VM", "LOAD_BALANCER", "CLOUD_STORAGE", "VPN"] as const);
   const egressBytes = isErr ? randInt(0, 5000) : randInt(50_000, 5_000_000_000);
@@ -948,6 +1033,9 @@ export function generateNetworkServiceTiersLog(ts: string, er: number): EcsDocum
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "WARNING" : "INFO",
     logName: gcpLogName(project.id, "compute.googleapis.com/network_tier_usage"),
     insertId: randId(16).toLowerCase(),
@@ -971,6 +1059,7 @@ export function generateNetworkServiceTiersLog(ts: string, er: number): EcsDocum
 
 export function generateCloudDomainsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const domainName = `${rand(["app", "shop", "corp"])}-${randId(4).toLowerCase()}.example.com`;
   const action = rand(["REGISTER", "RENEW", "TRANSFER", "CONFIGURE_DNS", "DELETE"] as const);
   const registrarStatus = isErr
@@ -994,6 +1083,9 @@ export function generateCloudDomainsLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "ERROR" : "NOTICE",
     logName: gcpLogName(project.id, "domains.googleapis.com/domain_operations"),
     insertId: randId(16).toLowerCase(),
@@ -1020,6 +1112,7 @@ export function generateCloudDomainsLog(ts: string, er: number): EcsDocument {
 
 export function generateMediaCdnLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const serviceName = `media-cdn-${randId(5).toLowerCase()}`;
   const edgeLocation = rand([`${region}-edge`, "global-edge", `cdn-${randId(4)}`]);
   const cacheResult = isErr
@@ -1054,6 +1147,9 @@ export function generateMediaCdnLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: randSeverity(isErr),
     logName: gcpLogName(project.id, "requests"),
     insertId: randId(16).toLowerCase(),
@@ -1084,6 +1180,7 @@ export function generateMediaCdnLog(ts: string, er: number): EcsDocument {
 
 export function generateServerlessNegLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const negName = `neg-${randId(8).toLowerCase()}`;
   const backendService = `bes-${rand(["run", "fn", "gae"])}-${randId(4).toLowerCase()}`;
   const targetType = rand(["cloud-run", "cloud-functions", "app-engine"] as const);
@@ -1112,6 +1209,9 @@ export function generateServerlessNegLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "WARNING" : "INFO",
     logName: gcpLogName(project.id, "compute.googleapis.com/serverless_neg"),
     insertId: randId(16).toLowerCase(),

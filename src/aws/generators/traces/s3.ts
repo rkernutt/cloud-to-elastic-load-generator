@@ -21,6 +21,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 // ─── Service configurations ───────────────────────────────────────────────────
@@ -163,6 +164,7 @@ function buildS3Span(
       bucket_name: bucketName,
       object_size_bytes: String(objectSizeBytes),
       content_type: contentType,
+      ...(isErr ? awsSpanErrorLabels() : {}),
     },
     service: svcBlock,
     agent,

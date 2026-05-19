@@ -85,7 +85,8 @@ export function generateServiceBusTrace(ts: string, er: number): EcsDocument[] {
       ...dim({}),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: err2 }
   );
 
   const spanComp = enrichAzureTraceDoc(
@@ -111,7 +112,8 @@ export function generateServiceBusTrace(ts: string, er: number): EcsDocument[] {
       ...dim({ dependency_type: "Azure Service Bus" }),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: err2 || err3 }
   );
 
   const totalUs = u1 + u2 + u3 + randInt(500, 8_000);

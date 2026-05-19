@@ -23,6 +23,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 // ─── Service configurations ───────────────────────────────────────────────────
@@ -386,7 +387,7 @@ export function generateEksTrace(ts: string, er: number) {
     delete spanDoc._spanUs;
 
     spanDoc.cloud = cloudBlock;
-    spanDoc.labels = { ...k8sLabels };
+    spanDoc.labels = { ...k8sLabels, ...(spanIsErr ? awsSpanErrorLabels() : {}) };
 
     spans.push(spanDoc);
     offsetMs += spanUs / 1000 + randInt(1, 15);

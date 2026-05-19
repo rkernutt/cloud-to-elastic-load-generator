@@ -66,6 +66,24 @@ export function newSpanId() {
 export function rand<T>(arr: readonly T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
+
+const AWS_OTEL_SPAN_ERROR_CODES = [
+  "ThrottlingException",
+  "ServiceUnavailableException",
+  "InternalServerError",
+  "ResourceNotFoundException",
+] as const;
+
+/** Structured error labels for failed AWS SDK / service spans (OTel-style). */
+export function awsSpanErrorLabels(
+  message = "service-specific error description"
+): Record<string, string> {
+  return {
+    "error.type": "aws",
+    "error.code": rand(AWS_OTEL_SPAN_ERROR_CODES),
+    "error.message": message,
+  };
+}
 export function randInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }

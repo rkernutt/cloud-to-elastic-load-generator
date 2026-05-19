@@ -8,60 +8,39 @@
   "cloud": {
     "provider": "azure",
     "region": "canadacentral",
-    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
+    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" }
   },
   "resource": {
-    "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-prod-wfu3iq/providers/Microsoft.Network/networkSecurityGroups/nsg-datad37a92",
-    "name": "nsg-datad37a92",
-    "type": "network",
-    "sub_type": "network-security-group"
+    "id": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-data-aqvym1/providers/Microsoft.DBforPostgreSQL/servers/psql-app6e7986",
+    "name": "psql-app6e7986",
+    "type": "relational-database",
+    "sub_type": "postgresql-server"
   },
   "rule": {
-    "id": "72bb12e0-31c0-54f4-a409-4aace3b602be",
-    "name": "Ensure that SSH access from the Internet is evaluated and restricted",
-    "section": "6.2",
-    "description": "Network security groups should be periodically evaluated for port misconfigurations.",
-    "tags": ["CIS", "AZURE", "CIS 6.2", "Networking"],
+    "id": "213e2b33-f2b1-575b-8753-f239b278c25a",
+    "name": "Ensure Server Parameter 'log_checkpoints' is set to 'ON' for PostgreSQL Database Server",
+    "section": "4.3.2",
+    "description": "Enable `log_checkpoints` on `PostgreSQL Servers`.",
+    "tags": ["CIS", "AZURE", "CIS 4.3.2", "PostgreSQL Database Server"],
     "benchmark": {
       "id": "cis_azure",
       "name": "CIS Microsoft Azure Foundations",
       "version": "v2.0.0",
-      "rule_number": "6.2",
+      "rule_number": "4.3.2",
       "posture_type": "cspm"
     },
-    "profile_applicability": "* Level 1",
-    "impact": "Non-compliance with CIS Microsoft Azure Foundations 6.2 — Ensure that SSH access from the Internet is evaluated and restricted",
-    "remediation": "Remediate per CIS Microsoft Azure Foundations v2.0.0 section 6.2."
+    "profile_applicability": "* Level 1"
   },
-  "result": {
-    "evaluation": "failed",
-    "evidence": {
-      "securityRules": [
-        {
-          "name": "Allow-22-Tcp",
-          "properties": {
-            "priority": 305,
-            "direction": "Inbound",
-            "access": "Allow",
-            "protocol": "Tcp",
-            "sourcePortRange": "*",
-            "destinationPortRange": "22",
-            "sourceAddressPrefix": "*",
-            "destinationAddressPrefix": "*"
-          }
-        }
-      ]
-    }
-  },
+  "result": { "evaluation": "passed" },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_cspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_azure/6.2] failed: Ensure that SSH access from the Internet is evaluated and restricted",
-  "log": { "level": "warn" }
+  "message": "[cis_azure/4.3.2] passed: Ensure Server Parameter 'log_checkpoints' is set to 'ON' for PostgreSQL Database Server",
+  "log": { "level": "info" }
 }

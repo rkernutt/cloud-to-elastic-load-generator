@@ -3,51 +3,51 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west6",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" }
+    "region": "northamerica-northeast1",
+    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
+    "account": { "id": "271828182845", "name": "Globex Staging" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west6",
-    "ephemeral_id": "jrbygw5h7f"
+    "name": "metricbeat-gcp-northamerica-northeast1",
+    "ephemeral_id": "8y19k00dip28n7kxy46eq1y6my7tu41yghhx"
   },
   "monitoringTimeSeries": {
     "metric": { "type": "kubernetes.io/container/cpu/request_utilization", "labels": {} },
     "resource": {
       "type": "k8s_container",
       "labels": {
-        "project_id": "globex-dev-g7h8i9",
-        "location": "europe-west6",
-        "cluster_name": "prod-cluster",
-        "namespace_name": "staging",
-        "pod_name": "collector-el4te-ni5j3",
-        "container_name": "collector"
+        "project_id": "globex-staging-d4e5f6",
+        "location": "northamerica-northeast1",
+        "cluster_name": "ml-cluster",
+        "namespace_name": "cnrm-system",
+        "pod_name": "cnrm-controller-manager-0",
+        "container_name": "manager"
       }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 0.32 } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 0.21 } }
     ]
   },
   "gcp": {
-    "gke": {
+    "config-connector": {
       "labels": {
-        "project_id": "globex-dev-g7h8i9",
-        "location": "europe-west6",
-        "cluster_name": "prod-cluster",
-        "namespace_name": "staging",
-        "pod_name": "collector-el4te-ni5j3",
-        "container_name": "collector"
+        "project_id": "globex-staging-d4e5f6",
+        "location": "northamerica-northeast1",
+        "cluster_name": "ml-cluster",
+        "namespace_name": "cnrm-system",
+        "pod_name": "cnrm-controller-manager-0",
+        "container_name": "manager"
       },
       "metrics": {
-        "kubernetes.io/container/cpu/request_utilization": { "avg": 0.32, "sum": 0.32, "count": 1 }
+        "kubernetes.io/container/cpu/request_utilization": { "avg": 0.21, "sum": 0.21, "count": 1 }
       }
     }
   },
-  "metricset": { "name": "gke", "period": 60000 },
+  "metricset": { "name": "config-connector", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.gke_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "dataset": "gcp.gke_metrics", "module": "gcp" }

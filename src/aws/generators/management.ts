@@ -5,6 +5,13 @@ function generateCloudFormationLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;
+  const scenario = rand([
+    "stack_resource_update",
+    "stack_drift_detection",
+    "changeset_execute",
+    "nested_stack_update",
+    "rollback_complete",
+  ] as const);
   const stack = rand([
     "prod-web-stack",
     "vpc-infra",
@@ -14,7 +21,20 @@ function generateCloudFormationLog(ts: string, er: number): EcsDocument {
   ]);
   const stackId =
     `arn:aws:cloudformation:${region}:${acct.id}:stack/${stack}/${randId(8)}`.toLowerCase();
-  const action = rand(["CREATE_STACK", "UPDATE_STACK", "DELETE_STACK", "DETECT_DRIFT"]);
+  const awsApiOperation =
+    scenario === "stack_drift_detection"
+      ? rand(["DetectStackDrift", "DescribeStackDriftDetectionStatus"])
+      : scenario === "changeset_execute"
+        ? rand(["CreateChangeSet", "ExecuteChangeSet", "DescribeChangeSet"])
+        : scenario === "nested_stack_update"
+          ? "UpdateStack"
+          : scenario === "rollback_complete"
+            ? rand(["ContinueUpdateRollback", "CancelUpdateStack"])
+            : rand(["UpdateStack", "CreateStack"]);
+  const changeSetId =
+    scenario === "changeset_execute"
+      ? `arn:aws:cloudformation:${region}:${acct.id}:changeSet/cs-${randId(10)}`
+      : null;
   const resourceType = rand([
     "AWS::EC2::VPC",
     "AWS::ECS::Service",
@@ -56,9 +76,21 @@ function generateCloudFormationLog(ts: string, er: number): EcsDocument {
           "Eventual consistency check initiated",
         ])
       : null;
-  const plainMessage = isErr
-    ? `CloudFormation ${stack} ${resourceStatus}: ${resourceType} failed - ${rand(["Capacity", "IAM denied", "Limit exceeded"])}`
-    : `CloudFormation ${stack}: ${action} -> ${resourceStatus}`;
+  const plainMessage =
+    scenario === "stack_drift_detection"
+      ? `${awsApiOperation} stack=${stack} drift_status=${isErr ? "UNKNOWN" : "SUCCESS"} detected=${randInt(
+          0,
+          isErr ? 0 : 12
+        )}_resources`
+      : scenario === "changeset_execute"
+        ? `${awsApiOperation} ChangeSet=${changeSetId ?? "pending"} Stack=${stackId} exec=${isErr ? "DENIED" : "OK"}`
+        : scenario === "nested_stack_update"
+          ? `Nested stack update ROOT=${stack} child=${rand(["vpc-nested", "db-nested"])} status=${resourceStatus}`
+          : scenario === "rollback_complete"
+            ? `Rollback ${awsApiOperation}: ${stack} stabilized=${isErr ? "false" : "true"} failed_events=${isErr ? randInt(1, 8) : 0}`
+            : isErr
+              ? `CloudFormation ${stack} ${resourceStatus}: ${resourceType} failed - ${rand(["Capacity", "IAM denied", "Limit exceeded"])}`
+              : `CloudFormation ${stack}: UPDATE_STACK -> ${resourceStatus}`;
   const useStructuredLogging = Math.random() < 0.55;
   const stackEventPayload = {
     StackId: stackId,
@@ -83,7 +115,10 @@ function generateCloudFormationLog(ts: string, er: number): EcsDocument {
       cloudformation: {
         stack_name: stack,
         stack_id: stackId,
-        action,
+        scenario,
+        aws_api_operation: awsApiOperation,
+        change_set_id: changeSetId,
+        nested_stack_logical_id: scenario === "nested_stack_update" ? "NestedVPCStack" : null,
         stack_status:
           resourceStatus.includes("COMPLETE") && !resourceStatus.includes("ROLLBACK")
             ? resourceStatus
@@ -93,7 +128,12 @@ function generateCloudFormationLog(ts: string, er: number): EcsDocument {
         physical_resource_id: physicalResourceId,
         resource_status: resourceStatus,
         resource_status_reason: resourceStatusReason,
-        drift_status: rand(["NOT_CHECKED", "IN_SYNC", "DRIFTED"]),
+        drift_status:
+          scenario === "stack_drift_detection"
+            ? isErr
+              ? "FAILED"
+              : "DRIFTED"
+            : rand(["NOT_CHECKED", "IN_SYNC", "DRIFTED"]),
         structured_logging: useStructuredLogging,
         metrics: {
           TotalStack: { avg: randInt(1, 500) },
@@ -115,9 +155,20 @@ function generateCloudFormationLog(ts: string, er: number): EcsDocument {
     ...(isErr
       ? {
           error: {
-            code: "StackError",
-            message: "CloudFormation stack operation failed",
-            type: "configuration",
+            code: rand([
+              "InsufficientCapabilitiesException",
+              "ChangeSetNotFoundException",
+              "AlreadyExistsException",
+              "ValidationError",
+              "TokenAlreadyExistsException",
+            ]),
+            message:
+              scenario === "changeset_execute"
+                ? "Cannot execute change set: stack is in UPDATE_IN_PROGRESS"
+                : scenario === "stack_drift_detection"
+                  ? "Drift detection terminated: throttled DescribeStackResources"
+                  : "CloudFormation stack mutation failed",
+            type: "aws",
           },
         }
       : {}),
@@ -129,17 +180,26 @@ function generateSsmLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;
+  const scenario = rand([
+    "run_command",
+    "parameter_store_get",
+    "maintenance_window_exec",
+    "state_manager_association",
+    "patch_baseline_execution",
+  ] as const);
+  const maintenanceWindowId = `mw-${randId(8).toLowerCase()}`;
+  const maintenanceWindowExecId = `${maintenanceWindowId}-${randId(8)}`;
   const instance = `i-${randId(17).toLowerCase()}`;
-  const action = rand([
-    "RunCommand",
-    "StartSession",
-    "SendCommand",
-    "PatchInstance",
-    "GetParameter",
-    "PutParameter",
-    "AssociationCompliance",
-    "PatchBaselineExecution",
-  ]);
+  const action =
+    scenario === "run_command"
+      ? rand(["RunCommand", "SendCommand"])
+      : scenario === "parameter_store_get"
+        ? rand(["GetParameter", "PutParameter"])
+        : scenario === "maintenance_window_exec"
+          ? rand(["RunCommand", "SendCommand"])
+          : scenario === "state_manager_association"
+            ? "AssociationCompliance"
+            : "PatchBaselineExecution";
   const document = rand([
     "AWS-RunShellScript",
     "AWS-RunPowerShellScript",
@@ -161,9 +221,12 @@ function generateSsmLog(ts: string, er: number): EcsDocument {
     `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase();
   const complianceType = rand(["Patch", "Association", "Inventory"]);
   const complianceStatus = isErr ? "NON_COMPLIANT" : "COMPLIANT";
-  const plainMessage = isErr
-    ? `SSM ${action} FAILED on ${instance}: exit code ${rand([1, 2, 127])}`
-    : `SSM ${action} on ${instance}: ${document}`;
+  const plainMessage =
+    scenario === "maintenance_window_exec"
+      ? `${action} mw=${maintenanceWindowId} execution=${maintenanceWindowExecId} targets=${randInt(5, 200)} status=${isErr ? "TimedOut" : "Success"}`
+      : isErr
+        ? `SSM ${action} FAILED on ${instance}: exit code ${rand([1, 2, 127])}`
+        : `SSM ${action} on ${instance}: ${document}`;
   const useStructuredLogging = Math.random() < 0.55;
   const structuredPayload: Record<string, unknown> = {
     commandId,
@@ -171,6 +234,7 @@ function generateSsmLog(ts: string, er: number): EcsDocument {
     documentVersion: `$DEFAULT`,
     instanceId: instance,
     action,
+    scenario,
     status: isErr ? "Failed" : "Success",
     timestamp: new Date(ts).toISOString(),
   };
@@ -205,6 +269,13 @@ function generateSsmLog(ts: string, er: number): EcsDocument {
       dataVersion: randInt(1, 10),
     };
   }
+  if (scenario === "maintenance_window_exec") {
+    structuredPayload.maintenanceWindow = {
+      windowId: maintenanceWindowId,
+      executionId: maintenanceWindowExecId,
+      taskInvocationId: `ti-${randId(8)}`,
+    };
+  }
   const message = useStructuredLogging ? JSON.stringify(structuredPayload) : plainMessage;
   return {
     "@timestamp": ts,
@@ -237,6 +308,10 @@ function generateSsmLog(ts: string, er: number): EcsDocument {
         step_output_preview:
           action === "RunCommand" || action === "SendCommand" ? stepOutput.slice(0, 200) : null,
         structured_logging: useStructuredLogging,
+        scenario,
+        maintenance_window_id: scenario === "maintenance_window_exec" ? maintenanceWindowId : null,
+        maintenance_execution_id:
+          scenario === "maintenance_window_exec" ? maintenanceWindowExecId : null,
         metrics: {
           CommandsSucceeded: { sum: isErr ? 0 : 1 },
           CommandsFailed: { sum: isErr ? 1 : 0 },
@@ -257,7 +332,25 @@ function generateSsmLog(ts: string, er: number): EcsDocument {
     },
     message: message,
     ...(isErr
-      ? { error: { code: "SSMError", message: "SSM command failed", type: "process" } }
+      ? {
+          error: {
+            code: rand([
+              "InvalidInstanceId",
+              "InvalidParameters",
+              "ParameterNotFound",
+              "HierarchyLevelLimitExceededException",
+              "AccessDeniedException",
+              "ThrottlingException",
+            ]),
+            message:
+              scenario === "parameter_store_get"
+                ? "Systems Manager Parameter Store denied GetParameter decryption"
+                : scenario === "maintenance_window_exec"
+                  ? "Maintenance window task aborted: target became unreachable"
+                  : "Automation document execution failed",
+            type: "aws",
+          },
+        }
       : {}),
     log: { level: isErr ? "error" : "info" },
   };

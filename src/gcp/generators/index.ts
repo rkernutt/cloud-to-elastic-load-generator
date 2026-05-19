@@ -146,6 +146,17 @@ import {
   generateRetailApiLog,
 } from "./aiml.js";
 import {
+  generateVertexAiAgentBuilderLog,
+  generateColabEnterpriseLog,
+  generateDistributedCloudLog,
+  generateParallelstoreLog,
+  generateDataformLog,
+  generateBiglakeLog,
+  generateCertificateManagerLog,
+  generateBlockchainNodeEngineLog,
+  generateNetappVolumesLog,
+} from "./extendedServicesLogs.js";
+import {
   generateCloudBuildLog,
   generateCloudDeployLog,
   generateSourceRepositoriesLog,
@@ -219,6 +230,7 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
   "bare-metal": mergeGcpLogVariants([generateBareMetalLog, generateBareMetalOracleLog]),
   "cloud-tpu": generateCloudTpuLog,
   "cloud-workstations": generateCloudWorkstationsLog,
+  "blockchain-node-engine": generateBlockchainNodeEngineLog,
 
   // Containers & Kubernetes
   gke: mergeGcpLogVariants([generateGkeLog, generateConfigConnectorLog]),
@@ -230,6 +242,7 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
   "anthos-config-mgmt": generateAnthosConfigMgmtLog,
   "gke-enterprise": generateGkeEnterpriseLog,
   "migrate-to-containers": generateMigrateToContainersLog,
+  "distributed-cloud": generateDistributedCloudLog,
 
   // Networking & CDN
   "vpc-flow": mergeGcpLogVariants([
@@ -262,6 +275,7 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
   "secret-manager": generateSecretManagerLog,
   "cloud-kms": generateCloudKmsLog,
   "certificate-authority": generateCertificateAuthorityLog,
+  "certificate-manager": generateCertificateManagerLog,
   beyondcorp: generateBeyondCorpLog,
   "binary-authorization": generateBinaryAuthorizationLog,
   "access-context-manager": generateAccessContextManagerLog,
@@ -279,6 +293,8 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
   "cloud-storage": mergeGcpLogVariants([generateCloudStorageLog, generateStorageTransferLog]),
   "persistent-disk": generatePersistentDiskLog,
   filestore: generateFilestoreLog,
+  parallelstore: generateParallelstoreLog,
+  "netapp-volumes": generateNetappVolumesLog,
   "backup-dr": generateBackupDrLog,
 
   // Databases
@@ -292,6 +308,7 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
 
   // Data Warehouse & Analytics
   bigquery: generateBigQueryLog,
+  biglake: generateBiglakeLog,
   dataproc: generateDataprocLog,
   "data-fusion": generateDataFusionLog,
   composer: generateComposerLog,
@@ -300,6 +317,7 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
   "data-catalog": generateDataCatalogLog,
   "analytics-hub": generateAnalyticsHubLog,
   dataprep: generateDataprepLog,
+  dataform: generateDataformLog,
   datastream: generateDatastreamLog,
 
   // Streaming & Messaging
@@ -324,6 +342,7 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
   "vertex-ai-feature-store": generateVertexAiFeatureStoreLog,
   "vertex-ai-matching-engine": generateVertexAiMatchingEngineLog,
   "vertex-ai-tensorboard": generateVertexAiTensorBoardLog,
+  "vertex-ai-agent-builder": generateVertexAiAgentBuilderLog,
   "contact-center-ai": generateContactCenterAiLog,
   "healthcare-api": generateHealthcareApiLog,
   "retail-api": generateRetailApiLog,
@@ -335,6 +354,7 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
   "cloud-endpoints": generateCloudEndpointsLog,
   apigee: generateApigeeLog,
   "cloud-shell": generateCloudShellLog,
+  "colab-enterprise": generateColabEnterpriseLog,
   "api-gateway": mergeGcpLogVariants([generateApiGatewayLog, generateApiHubLog]),
 
   // Management & Governance

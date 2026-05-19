@@ -133,6 +133,18 @@ import {
   generatePipelineDedicatedFinalMetrics,
   generateProximityPlacementDedicatedFinalMetrics,
 } from "./dedicatedFinal.js";
+import {
+  generateAiFoundryDedicatedMetrics,
+  generateApplicationInsightsDedicatedMetrics,
+  generateDataExplorerDedicatedMetrics,
+  generateDedicatedHsmDedicatedMetrics,
+  generateDnsPrivateResolverDedicatedMetrics,
+  generateElasticSanDedicatedMetrics,
+  generateManagedGrafanaDedicatedMetrics,
+  generateManagedPrometheusDedicatedMetrics,
+  generateVideoIndexerDedicatedMetrics,
+  generateVirtualDesktopDedicatedMetrics,
+} from "./azurePlatformServicesExtendedMetrics.js";
 import { mergeAzureMetricVariants } from "../mergeHelpers.js";
 import { M365_METRICS_GENERATORS } from "../../../m365/generators/metrics/index.js";
 import { M365_METRIC_SERVICE_IDS_FOR_AZURE } from "../../../cloud/m365Config.js";
@@ -259,6 +271,16 @@ const DEDICATED_METRICS: Record<string, MetricGenerator> = {
   "capacity-reservation": generateCapacityReservationDedicatedFinalMetrics,
   "proximity-placement": generateProximityPlacementDedicatedFinalMetrics,
   "confidential-vm": generateConfidentialVmDedicatedFinalMetrics,
+  "ai-foundry": generateAiFoundryDedicatedMetrics,
+  "application-insights": generateApplicationInsightsDedicatedMetrics,
+  "data-explorer": generateDataExplorerDedicatedMetrics,
+  "dedicated-hsm": generateDedicatedHsmDedicatedMetrics,
+  "dns-private-resolver": generateDnsPrivateResolverDedicatedMetrics,
+  "elastic-san": generateElasticSanDedicatedMetrics,
+  "managed-grafana": generateManagedGrafanaDedicatedMetrics,
+  "managed-prometheus": generateManagedPrometheusDedicatedMetrics,
+  "video-indexer": generateVideoIndexerDedicatedMetrics,
+  "virtual-desktop": generateVirtualDesktopDedicatedMetrics,
 };
 
 function metricGenForId(id: string): MetricGenerator {

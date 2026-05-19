@@ -10,6 +10,16 @@ import {
   randCorrelationId,
 } from "./helpers.js";
 
+const AZURE_API_ERROR_CODES = [
+  "InternalServerError",
+  "AuthorizationFailed",
+  "QuotaExceeded",
+  "ResourceNotFound",
+  "ConflictError",
+  "BadRequest",
+  "ThrottlingException",
+] as const;
+
 export function generateVirtualNetworkLog(ts: string, er: number): EcsDocument {
   const { region, subscription, resourceGroup, isErr } = makeAzureSetup(er);
   const vnet = `vnet-${randId(4).toLowerCase()}`;
@@ -72,6 +82,23 @@ export function generateVirtualNetworkLog(ts: string, er: number): EcsDocument {
       : `DDoS mitigation active for ${vnet}: dropped ${properties.packetsDropped} packets`;
   }
 
+  const failureErr = failed
+    ? {
+        code: rand([...AZURE_API_ERROR_CODES]),
+        message: "Virtual network control-plane or DDoS diagnostic reported a failure.",
+        type: "azure" as const,
+      }
+    : undefined;
+
+  if (failureErr && style !== "DdosNotification") {
+    const msg =
+      typeof properties.statusMessage === "string" ? properties.statusMessage : "Request failed";
+    properties.statusMessage = {
+      message: msg,
+      error: failureErr,
+    };
+  }
+
   return {
     "@timestamp": ts,
     cloud: azureCloud(region, subscription, "Microsoft.Network/virtualNetworks"),
@@ -92,6 +119,7 @@ export function generateVirtualNetworkLog(ts: string, er: number): EcsDocument {
     },
     event: { outcome: failed ? "failure" : "success", duration: randInt(1e8, 3e9) },
     message,
+    ...(failureErr ? { error: failureErr } : {}),
   };
 }
 
@@ -181,6 +209,15 @@ export function generateLoadBalancerLog(ts: string, er: number): EcsDocument {
     },
     event: { outcome: failed ? "failure" : "success", duration: randInt(1e7, 2e8) },
     message,
+    ...(failed
+      ? {
+          error: {
+            code: rand([...AZURE_API_ERROR_CODES]),
+            message: "Load balancer health, probe, or SNAT telemetry reported a failure.",
+            type: "azure",
+          },
+        }
+      : {}),
   };
 }
 
@@ -276,6 +313,15 @@ export function generateApplicationGatewayLog(ts: string, er: number): EcsDocume
     },
     event: { outcome: failed ? "failure" : "success", duration: randInt(5e6, 5e8) },
     message,
+    ...(failed
+      ? {
+          error: {
+            code: rand([...AZURE_API_ERROR_CODES]),
+            message: "Application Gateway access, performance, or WAF log indicated a failure.",
+            type: "azure",
+          },
+        }
+      : {}),
   };
 }
 
@@ -393,5 +439,14 @@ export function generateAzureFirewallLog(ts: string, er: number): EcsDocument {
     },
     event: { outcome: deny ? "failure" : "success", duration: randInt(1e6, 8e7) },
     message,
+    ...(deny
+      ? {
+          error: {
+            code: rand([...AZURE_API_ERROR_CODES]),
+            message: "Azure Firewall denied traffic, DNS lookup failed, or threat intel matched.",
+            type: "azure",
+          },
+        }
+      : {}),
   };
 }

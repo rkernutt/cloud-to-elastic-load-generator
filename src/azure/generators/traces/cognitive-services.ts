@@ -78,7 +78,8 @@ export function generateCognitiveServicesTrace(ts: string, er: number): EcsDocum
           ...dim({ dependency_type: "Azure Cognitive Services", account }),
         },
         traceId,
-        "python"
+        "python",
+        { spanFailed: spanErr }
       )
     );
     ms += Math.max(1, Math.round(op.us / 1000));

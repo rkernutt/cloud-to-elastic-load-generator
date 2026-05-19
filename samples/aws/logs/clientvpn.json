@@ -1,23 +1,23 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
+    "region": "ap-southeast-3",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "clientvpn" }
   },
   "aws": {
-    "dimensions": { "Endpoint": "cvpn-endpoint-9xyzw4sm9n" },
+    "dimensions": { "Endpoint": "cvpn-endpoint-j82e6g52qt4rv7rai" },
     "clientvpn": {
-      "endpoint_id": "cvpn-endpoint-9xyzw4sm9n",
-      "connection_id": "cvpn-connection-uvolcty00fm",
-      "username": "globex-staging",
-      "source_ip": "1.87.85.112",
-      "assigned_ip": "10.102.243.139",
-      "egress_bytes": 10036890,
-      "ingress_bytes": 174833,
-      "connection_duration_seconds": 75894,
-      "termination_reason": "User disconnected"
+      "endpoint_id": "cvpn-endpoint-j82e6g52qt4rv7rai",
+      "connection_id": "cvpn-connection-ewkzf7om530hs65c6",
+      "username": "globex-development",
+      "source_ip": "121.92.133.125",
+      "assigned_ip": "10.43.136.40",
+      "egress_bytes": 8618332,
+      "ingress_bytes": 2405835,
+      "connection_duration_seconds": 3534,
+      "termination_reason": "Authentication failure"
     },
     "s3": {
       "bucket": {
@@ -25,36 +25,41 @@
         "arn": "arn:aws:s3:::aws-clientvpn-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/clientvpn/ap-southeast-1/2026/05/07/clientvpn_YR6NLTS7XBE.log.gz"
+        "key": "AWSLogs/814726593401/clientvpn/ap-southeast-3/2026/05/14/clientvpn_UXBZDG3G6TINAGEOHK49.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/clientvpn/logs",
-      "log_stream": "ap-southeast-1/35o8nsrr",
-      "ingestion_time": "2026-05-07T10:17:36.286Z"
+      "log_stream": "ap-southeast-3/8fee25eu",
+      "ingestion_time": "2026-05-14T03:00:07.081Z"
     }
   },
   "event": {
-    "action": "connected",
-    "outcome": "success",
+    "action": "authorization-failure",
+    "outcome": "failure",
     "category": ["network", "authentication"],
     "dataset": "aws.clientvpn",
     "provider": "clientvpn.amazonaws.com",
-    "duration": 75894000000000,
+    "duration": 3534000000000,
     "module": "aws"
   },
-  "source": { "ip": "1.87.85.112" },
-  "user": { "name": "globex-staging" },
-  "message": "Client VPN globex-staging connected from 1.87.85.112",
-  "log": { "level": "info" },
+  "source": { "ip": "121.92.133.125" },
+  "user": { "name": "globex-development" },
+  "message": "Client VPN auth failure for globex-development from 121.92.133.125",
+  "log": { "level": "error" },
+  "error": {
+    "code": "AuthenticationFailure",
+    "message": "Authentication failure",
+    "type": "network"
+  },
   "service": { "name": "clientvpn", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.clientvpn", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "dl9zp1q8mzn"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "5sc5jx8rsvx20b1ac4z9khg36b16m4alc17i"
   },
   "input": { "type": "aws-cloudwatch" }
 }

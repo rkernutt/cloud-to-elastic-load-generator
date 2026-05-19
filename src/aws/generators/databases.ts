@@ -9,45 +9,142 @@ function generateDynamoDbLog(ts: string, er: number): EcsDocument {
   const traceId = hasTrace ? randId(32) : null;
   const tables = ["users", "sessions", "products", "orders", "events", "cache"];
   const table = rand(tables);
-  const op = rand([
-    "GetItem",
-    "PutItem",
-    "Query",
-    "Scan",
-    "UpdateItem",
-    "DeleteItem",
-    "BatchGetItem",
-    "BatchWriteItem",
-    "TransactGetItems",
-    "TransactWriteItems",
-  ]);
+  const scenario = rand([
+    "table_crud",
+    "stream_processing",
+    "global_table_replication",
+    "backup_restore",
+    "capacity_autoscale",
+    "ttl_deletion",
+  ] as const);
+  const opsByScenario: Record<typeof scenario, string[]> = {
+    table_crud: [
+      "GetItem",
+      "PutItem",
+      "Query",
+      "Scan",
+      "UpdateItem",
+      "DeleteItem",
+      "BatchGetItem",
+      "BatchWriteItem",
+      "TransactGetItems",
+      "TransactWriteItems",
+    ],
+    stream_processing: ["GetRecords", "GetShardIterator", "DescribeStream", "ListStreams"],
+    global_table_replication: [
+      "UpdateTable",
+      "DescribeTable",
+      "DescribeGlobalTable",
+      "CreateGlobalTable",
+    ],
+    backup_restore: [
+      "CreateBackup",
+      "RestoreTableFromBackup",
+      "DescribeBackup",
+      "DescribeContinuousBackups",
+      "UpdateContinuousBackups",
+    ],
+    capacity_autoscale: ["DescribeScalingPolicies", "RegisterScalableTarget", "DescribeTable"],
+    ttl_deletion: ["UpdateTimeToLive", "DescribeTimeToLive", "DeleteItem"],
+  };
+  const op = rand(opsByScenario[scenario]);
   const rcu = Number(randFloat(0.5, isErr ? 500 : 50));
   const wcu = Number(randFloat(0.5, 50));
   const latencyMs = Math.round(Number(randFloat(0.5, isErr ? 8000 : 120)));
   const returnedItems = isErr ? 0 : randInt(0, op.includes("Batch") ? 500 : 100);
-  const dynamoErrCodes = [
-    "ConditionalCheckFailedException",
-    "ItemCollectionSizeLimitExceededException",
-    "LimitExceededException",
-    "MissingAuthenticationToken",
-    "ProvisionedThroughputExceededException",
-    "RequestLimitExceeded",
-    "ResourceInUseException",
-    "ResourceNotFoundException",
-    "ThrottlingException",
-    "TransactionCanceledException",
-    "TransactionConflictException",
-    "TransactionInProgressException",
-    "ValidationException",
-  ];
-  const plainMessage = isErr
-    ? `DynamoDB ${op} table=${table} latency_ms=${latencyMs} returned_items=${returnedItems}: ${rand(dynamoErrCodes)}`
-    : `DynamoDB ${op} table=${table} consumed_rcu=${rcu} consumed_wcu=${wcu} returned_items=${returnedItems} latency_ms=${latencyMs}`;
+  const scenarioErrPools: Record<typeof scenario, string[]> = {
+    table_crud: [
+      "ConditionalCheckFailedException",
+      "ItemCollectionSizeLimitExceededException",
+      "ProvisionedThroughputExceededException",
+      "TransactionConflictException",
+      "ValidationException",
+    ],
+    stream_processing: [
+      "TrimmedDataAccessException",
+      "ExpiredIteratorException",
+      "LimitExceededException",
+      "InternalServerError",
+    ],
+    global_table_replication: [
+      "LimitExceededException",
+      "InternalServerError",
+      "TableAlreadyExistsException",
+      "ReplicaAlreadyExistsException",
+      "ResourceInUseException",
+    ],
+    backup_restore: [
+      "BackupInUseException",
+      "BackupNotFoundException",
+      "LimitExceededException",
+      "TableNotFoundException",
+    ],
+    capacity_autoscale: [
+      "LimitExceededException",
+      "ValidationException",
+      "ResourceNotFoundException",
+    ],
+    ttl_deletion: [
+      "ConditionalCheckFailedException",
+      "ValidationException",
+      "ResourceNotFoundException",
+    ],
+  };
+  const errForScenario = (): string =>
+    rand(
+      scenarioErrPools[scenario].concat([
+        "ProvisionedThroughputExceededException",
+        "TransactionConflictException",
+        "ConditionalCheckFailedException",
+        "ItemCollectionSizeLimitExceededException",
+      ])
+    );
+  const errCodeResolved = isErr ? errForScenario() : null;
+  const plainMessage =
+    scenario === "stream_processing"
+      ? isErr
+        ? `DynamoDB Streams ${op} streamArn=arn:aws:dynamodb:${region}:${acct.id}:table/${table}/stream/${randId(
+            8
+          ).toLowerCase()} shard=${randId(
+            12
+          ).toLowerCase()} ${errCodeResolved}: latency_ms=${latencyMs}`
+        : `DynamoDB Streams ${op} processed ${randInt(1, 500)} records from ${table} (${latencyMs}ms)`
+      : scenario === "global_table_replication"
+        ? isErr
+          ? `DynamoDB global table sync ${op} replicas=[${rand(["eu-west-1", "us-west-2"])},${region}] failed: ${errCodeResolved}`
+          : `DynamoDB ${op}: global replicas in sync lag_ms=${randInt(50, 400)}`
+        : scenario === "backup_restore"
+          ? isErr
+            ? `DynamoDB ${op} backupId=${randId(10)} table=${table} ${errCodeResolved}`
+            : `DynamoDB ${op}: on-demand backup arn:aws:dynamodb:${region}:${acct.id}:table/${table}/backup/${randId(8)} complete`
+          : scenario === "capacity_autoscale"
+            ? isErr
+              ? `Application Auto Scaling target ${table} scaling policy rejected: ${errCodeResolved}`
+              : `Consumed capacity auto-scale applied targetReadCapacityUnits=${randInt(5, 200)} (${op})`
+            : scenario === "ttl_deletion"
+              ? isErr
+                ? `TTL watermark delete ${op} table=${table} ${errCodeResolved}`
+                : `TTL deleted ${randInt(1, 5000)} items table=${table} window=${latencyMs}ms`
+              : isErr
+                ? `DynamoDB ${op} table=${table} latency_ms=${latencyMs} returned_items=${returnedItems}: ${errCodeResolved}`
+                : `DynamoDB ${op} table=${table} consumed_rcu=${rcu} consumed_wcu=${wcu} returned_items=${returnedItems} latency_ms=${latencyMs}`;
   const useStructuredLogging = Math.random() < 0.55;
   const message = useStructuredLogging
     ? JSON.stringify({
         table,
         operation: op,
+        scenario,
+        ...(scenario === "global_table_replication"
+          ? {
+              replica_regions: rand([["eu-west-1"], ["us-east-2", "ap-southeast-1"]]),
+              replication_lag_ms: randInt(20, 500),
+            }
+          : {}),
+        ...(scenario === "backup_restore"
+          ? {
+              backup_arn: `arn:aws:dynamodb:${region}:${acct.id}:table/${table}/backup/${randId(12)}`,
+            }
+          : {}),
         consumedReadCapacityUnits: rcu,
         consumedWriteCapacityUnits: wcu,
         returnedItemCount: returnedItems,
@@ -68,13 +165,22 @@ function generateDynamoDbLog(ts: string, er: number): EcsDocument {
       dynamodb: {
         table_name: table,
         operation: op,
+        scenario,
+        stream_shard_id:
+          scenario === "stream_processing"
+            ? `shardId-${String(randInt(100000000000, 999999999999)).padStart(12, "0")}`
+            : null,
+        global_table_name: scenario === "global_table_replication" ? `${table}-global` : null,
+        backup_window: scenario === "backup_restore" ? `PT${randInt(1, 24)}H` : null,
+        ttl_attribute:
+          scenario === "ttl_deletion" ? rand(["expiresAt", "ttl", "expiration"]) : null,
         consumed_read_capacity_units: rcu,
         consumed_write_capacity_units: wcu,
         returned_item_count: returnedItems,
         latency_ms: latencyMs,
         items_count: randInt(0, 1000),
         structured_logging: useStructuredLogging,
-        error_code: isErr ? rand(dynamoErrCodes) : null,
+        error_code: isErr ? errCodeResolved : null,
         metrics: {
           AccountMaxReads: { max: randInt(1000, 1e6) },
           AccountMaxWrites: { max: randInt(1000, 1e6) },
@@ -113,8 +219,25 @@ function generateDynamoDbLog(ts: string, er: number): EcsDocument {
     },
     message: message,
     log: { level: isErr ? "error" : rcu > 100 ? "warn" : "info" },
-    ...(isErr
-      ? { error: { code: rand(dynamoErrCodes), message: `DynamoDB ${op} failed`, type: "db" } }
+    ...(isErr && errCodeResolved
+      ? {
+          error: {
+            code: errCodeResolved,
+            message:
+              scenario === "stream_processing"
+                ? `Streams ${op}: iterator or throughput issue on ${table}`
+                : scenario === "global_table_replication"
+                  ? `Global table ${op}: replication coordinator rejected request`
+                  : scenario === "backup_restore"
+                    ? `Backup/restore ${op} failed for ${table}`
+                    : scenario === "capacity_autoscale"
+                      ? `Scaling policy invocation failed (${op})`
+                      : scenario === "ttl_deletion"
+                        ? `TTL or conditional write failed (${op})`
+                        : `DynamoDB ${op} failed (${scenario})`,
+            type: "aws",
+          },
+        }
       : {}),
     ...(hasTrace ? { trace: { id: traceId } } : {}),
     ...(hasTrace ? { transaction: { id: randId(16) } } : {}),
@@ -167,6 +290,18 @@ function generateElastiCacheLog(ts: string, er: number): EcsDocument {
       message: e
         ? `ElastiCache Global ${globalDs}: ${ev} failed — ${rand(errMsgs)}`
         : `ElastiCache Global ${globalDs}: ${ev} completed`,
+      ...(e
+        ? {
+            error: {
+              code: rand([
+                "GlobalReplicationGroupNotFoundFault",
+                "InvalidGlobalReplicationGroupStateFault",
+              ]),
+              message: rand(errMsgs),
+              type: "aws",
+            },
+          }
+        : {}),
     };
   }
   const region = rand(REGIONS);
@@ -189,25 +324,61 @@ function generateElastiCacheLog(ts: string, er: number): EcsDocument {
   ]);
   const lat = Number(randFloat(0.01, isErr ? 5000 : 50));
   const replicationGroupId = "prod-cache";
+  const scenario = rand([
+    "redis_command",
+    "replication_group_failover",
+    "snapshot_create",
+    "scaling_event",
+    "engine_update",
+  ] as const);
+  const apiOpByScenario: Record<typeof scenario, string> = {
+    redis_command: "DataPlaneRedis",
+    replication_group_failover: "FailoverShard",
+    snapshot_create: "CreateSnapshot",
+    scaling_event: "ModifyReplicationGroupShardConfiguration",
+    engine_update: "ModifyReplicationGroup",
+  };
+  const apiOp = apiOpByScenario[scenario];
   const logFlavor = rand(["cmd", "slowlog", "engine", "replication", "failover"]);
   const redisPid = randInt(1, 32);
   const slowUsecs = randInt(15_000, 8_000_000);
   const tsHuman = new Date(ts).toISOString().replace("T", " ").slice(0, 23);
-  const elastiCacheErrCodes = [
-    "CacheClusterNotFound",
-    "CacheParameterGroupNotFound",
-    "CacheSecurityGroupNotFound",
-    "CacheSubnetGroupNotFoundFault",
-    "ClusterQuotaForCustomerExceeded",
-    "InsufficientCacheClusterCapacity",
-    "InvalidCacheClusterState",
-    "InvalidSubnet",
-    "NodeGroupsPerReplicationGroupQuotaExceeded",
-    "NodeQuotaForClusterExceeded",
-    "ReplicationGroupAlreadyExists",
-    "ReplicationGroupNotFound",
+  const apiErrCodes = [
+    "ReplicationGroupNotFoundFault",
+    "CacheClusterNotFoundFault",
+    "NodeQuotaForClusterExceededException",
+    "InvalidReplicationGroupStateFault",
     "SnapshotAlreadyExistsFault",
+    "InsufficientCacheClusterCapacityFault",
   ];
+  const apiErrResolved = isErr && scenario !== "redis_command" ? rand(apiErrCodes) : null;
+  const redisEngineErrCodes = ["LOADING", "READONLY", "OOM command not allowed"];
+  const structuredJson =
+    scenario !== "redis_command" && Math.random() < 0.45
+      ? JSON.stringify({
+          replicationGroupId,
+          scenario,
+          operation: apiOp,
+          clusterId,
+          ...(scenario === "snapshot_create"
+            ? { snapshotName: `snap-${randId(10).toLowerCase()}`, retention: randInt(1, 35) }
+            : {}),
+          ...(scenario === "scaling_event"
+            ? { shardCount: randInt(2, 8), appliedStrategy: rand(["preferred", "none"]) }
+            : {}),
+          ...(scenario === "engine_update"
+            ? {
+                engineVersionTarget: rand(["7.1.0", "7.2.6"]),
+                applyImmediately: Math.random() > 0.5,
+              }
+            : {}),
+          status: isErr ? "FAILED" : "COMPLETE",
+          timestamp: new Date(ts).toISOString(),
+          ...(isErr
+            ? { awsException: apiErrResolved, messagePlain: rand(redisEngineErrCodes) }
+            : {}),
+        })
+      : null;
   return {
     "@timestamp": ts,
     cloud: {
@@ -228,7 +399,9 @@ function generateElastiCacheLog(ts: string, er: number): EcsDocument {
         engine: "redis",
         engine_version: "7.1.0",
         replication_group_id: replicationGroupId,
-        command: cmd,
+        scenario,
+        api_operation: scenario === "redis_command" ? null : apiOp,
+        command: scenario === "redis_command" ? cmd : null,
         latency_us: lat,
         cache_hit: !isErr && Math.random() > 0.3,
         connected_clients: randInt(10, 500),
@@ -258,7 +431,7 @@ function generateElastiCacheLog(ts: string, er: number): EcsDocument {
         },
       },
     },
-    db: { type: "keyvalue", operation: cmd },
+    db: { type: "keyvalue", operation: scenario === "redis_command" ? cmd : apiOp },
     event: {
       duration: lat * 1000,
       outcome: isErr ? "failure" : "success",
@@ -266,31 +439,53 @@ function generateElastiCacheLog(ts: string, er: number): EcsDocument {
       dataset: "aws.elasticache",
       provider: "elasticache.amazonaws.com",
     },
-    message: (() => {
-      if (isErr) {
-        return `Redis ${cmd} failed: ${rand(["LOADING", "READONLY", "OOM command not allowed"])}`;
-      }
-      if (logFlavor === "slowlog") {
-        return `${redisPid}:M ${tsHuman} * ${slowUsecs} ${cmd} ${rand(["user:*", "session:*", "idx:products:*"])}`;
-      }
-      if (logFlavor === "engine") {
-        return `[${redisPid}] ${tsHuman} # ${rand(["WARN", "INFO"])} ${rand(["Replica is read-only", "AOF rewrite finished", "RDB: 0 MB of memory used by copy-on-write", "Overcommit_memory is set to 0"])}`;
-      }
-      if (logFlavor === "replication") {
-        return `[${redisPid}] ${tsHuman} # INFO Partial resynchronization request accepted. Sending ${randInt(1, 500)} bytes of backlog starting from offset ${randInt(1000, 9_000_000_000)}.`;
-      }
-      if (logFlavor === "failover") {
-        return `[${redisPid}] ${tsHuman} # NOTICE Failover auth granted to replica ${clusterId}-002.${region}.cache.amazonaws.com:6379 for epoch ${randInt(1, 50)}`;
-      }
-      return `Redis ${cmd} ${lat.toFixed(2)}us`;
-    })(),
+    message:
+      structuredJson ??
+      (() => {
+        if (scenario !== "redis_command") {
+          return isErr
+            ? `ElastiCache ${apiOp} replicationGroup=${replicationGroupId} ${apiErrResolved}: ${scenario.replace(/_/g, " ")}`
+            : rand([
+                `ElastiCache ${apiOp}: snapshot ${randId(8)} queued for ${replicationGroupId}`,
+                `Scaling ${apiOp}: slot migration ${randInt(0, 16383)}->${randInt(0, 16383)} on ${clusterId}`,
+                `Engine upgrade ${apiOp}: maintenance window mw-${randInt(1000, 9999)} applied`,
+                `FailoverShard: primary swapped for ${replicationGroupId} duration_ms=${randInt(800, 12000)}`,
+              ]);
+        }
+        if (isErr) {
+          return `Redis ${cmd} failed: ${rand(redisEngineErrCodes)}`;
+        }
+        if (logFlavor === "slowlog") {
+          return `${redisPid}:M ${tsHuman} * ${slowUsecs} ${cmd} ${rand(["user:*", "session:*", "idx:products:*"])}`;
+        }
+        if (logFlavor === "engine") {
+          return `[${redisPid}] ${tsHuman} # ${rand(["WARN", "INFO"])} ${rand(["Replica is read-only", "AOF rewrite finished", "RDB: 0 MB of memory used by copy-on-write", "Overcommit_memory is set to 0"])}`;
+        }
+        if (logFlavor === "replication") {
+          return `[${redisPid}] ${tsHuman} # INFO Partial resynchronization request accepted. Sending ${randInt(1, 500)} bytes of backlog starting from offset ${randInt(1000, 9_000_000_000)}.`;
+        }
+        if (logFlavor === "failover") {
+          return `[${redisPid}] ${tsHuman} # NOTICE Failover auth granted to replica ${clusterId}-002.${region}.cache.amazonaws.com:6379 for epoch ${randInt(1, 50)}`;
+        }
+        return `Redis ${cmd} ${lat.toFixed(2)}us`;
+      })(),
     log: { level: isErr ? "error" : lat > 1000 ? "warn" : "info" },
     ...(isErr
       ? {
           error: {
-            code: rand(elastiCacheErrCodes),
-            message: rand(["LOADING", "READONLY", "OOM command not allowed"]),
-            type: "db",
+            code:
+              scenario === "redis_command"
+                ? rand([
+                    "CacheClusterNotFoundFault",
+                    "ReplicationGroupNotFoundFault",
+                    "NodeQuotaForClusterExceededException",
+                  ])
+                : (apiErrResolved ?? "ReplicationGroupNotFoundFault"),
+            message:
+              scenario === "redis_command"
+                ? rand(redisEngineErrCodes)
+                : `${apiOp} rejected for replication group ${replicationGroupId}`,
+            type: "aws",
           },
         }
       : {}),
@@ -314,6 +509,15 @@ function generateRedshiftLog(ts: string, er: number): EcsDocument {
     "user_sessions",
   ];
   const table = rand(tables);
+  const scenario = rand([
+    "query_execution",
+    "spectrum_scan",
+    "concurrency_scaling",
+    "maintenance_window",
+    "wlm_queue",
+    "connection_session",
+  ] as const);
+  const spectrumTable = `spectrum.${schema}.ext_${table}`;
   const queries = [
     `SELECT COUNT(*) FROM ${schema}.${table} WHERE event_date >= CURRENT_DATE - 7`,
     `INSERT INTO ${schema}.staging_orders SELECT * FROM ${schema}.raw_orders WHERE processed_at IS NULL`,
@@ -324,7 +528,16 @@ function generateRedshiftLog(ts: string, er: number): EcsDocument {
     `CREATE TEMP TABLE tmp_${table} AS SELECT * FROM ${schema}.${table} WHERE dt = CURRENT_DATE`,
     `SELECT a.user_id, COUNT(DISTINCT a.session_id), SUM(b.revenue) FROM ${schema}.user_sessions a JOIN ${schema}.fact_sales b ON a.user_id = b.user_id WHERE a.dt >= CURRENT_DATE - 30 GROUP BY 1 ORDER BY 3 DESC LIMIT 1000`,
   ];
-  const query = rand(queries);
+  const spectrumQueries = [
+    `SELECT event_id, payload FROM ${spectrumTable} WHERE dt='${new Date(ts).toISOString().slice(0, 10)}' LIMIT 100000`,
+    `SELECT COUNT(*) FROM ${spectrumTable} s JOIN ${schema}.${table} l ON s.id = l.id`,
+  ];
+  const query =
+    scenario === "spectrum_scan"
+      ? rand(spectrumQueries)
+      : scenario === "concurrency_scaling"
+        ? `/* concurrency_scaling */ ${rand(queries)}`
+        : rand(queries);
   const dur = Number(randFloat(0.1, isErr ? 300 : 60));
   const durMicro = Math.round(dur * 1000000);
   const dbUser = rand([
@@ -343,20 +556,23 @@ function generateRedshiftLog(ts: string, er: number): EcsDocument {
   const queryId = randInt(1000000, 9999999);
   const nodeId = rand(["Leader", ...Array.from({ length: numNodes }, (_, i) => `Compute-${i}`)]);
 
-  // Redshift has 4 log types: connectionlog, userlog, useractivitylog, and system tables
-  const logType = rand([
-    "connectionlog",
-    "useractivitylog",
-    "useractivitylog",
-    "useractivitylog",
-    "userlog",
-  ]);
+  const logType =
+    scenario === "connection_session"
+      ? "connectionlog"
+      : scenario === "maintenance_window"
+        ? "userlog"
+        : "useractivitylog";
   const logGroup = `/aws/redshift/cluster/${clusterId}/${logType}`;
   const logStream = `${clusterId}/${logType}/${new Date(ts).toISOString().slice(0, 10)}`;
 
   const sourceIp = randIp();
   const sourcePort = randInt(1024, 65535);
-  const queryType = query.trim().split(/\s+/)[0].toUpperCase();
+  const queryType = query
+    .trim()
+    .replace(/\/\*[^*]*\*\//, "")
+    .trim()
+    .split(/\s+/)[0]
+    .toUpperCase();
   const wlmQueue = rand([
     "superuser",
     "etl_queue",
@@ -374,18 +590,32 @@ function generateRedshiftLog(ts: string, er: number): EcsDocument {
     } else {
       message = `disconnecting session ${pid} user=${dbUser} db=${dbName} duration=${Math.round(dur)}s`;
     }
+    if (isErr) {
+      message = `connection to server at "${clusterId}.${region}.redshift.amazonaws.com" (${sourceIp}), port 5439 failed: FATAL: database "${dbName}" does not exist [ClusterNotFoundFault sim]`;
+    }
   } else if (logType === "useractivitylog") {
-    // Matches real Redshift user activity log format: "'timestamp UTC [ db=... user=... pid=... userid=... xid=... ]' LOG: SQL_TEXT"
     const tsUtc = new Date(ts).toISOString().replace("T", " ").replace("Z", " UTC");
-    message = `'${tsUtc} [ db=${dbName} user=${dbUser} pid=${pid} userid=${randInt(100, 999)} xid=${xid} ]' LOG: ${query}`;
+    const wlmPrefix =
+      scenario === "wlm_queue"
+        ? `[WLM queue=${wlmQueue} slots=${wlmSlot} service_class=${randInt(6, 14)} wait_ms=${wlmWaitMs}] `
+        : scenario === "concurrency_scaling"
+          ? `[concurrency_scaling cluster_used cs-${randInt(1, 5)} s3_scanned_gb=${Number(randFloat(1, 400)).toFixed(1)}] `
+          : "";
+    message = `'${tsUtc} [ db=${dbName} user=${dbUser} pid=${pid} userid=${randInt(100, 999)} xid=${xid} ]' LOG: ${wlmPrefix}${query}`;
   } else {
-    // userlog: DDL changes, user creation, etc.
-    const userlogAction = rand([
-      `create user ${rand(["new_analyst", "etl_svc", "readonly_user"])} password '***' createdb nocreateuser`,
-      `alter user ${dbUser} set search_path to '${schema}'`,
-      `grant select on all tables in schema ${schema} to ${rand(["analyst_group", "readonly_group"])}`,
-      `alter user ${dbUser} connection limit ${randInt(10, 100)}`,
-    ]);
+    const userlogAction =
+      scenario === "maintenance_window"
+        ? rand([
+            `padb maintenance: track ${rand(["current", "trailing"])} — pending reboot node ${nodeId}`,
+            `vacuum delete only scheduled during maintenance window mw-${randInt(100, 999)}`,
+            `resize operation queued: ${nodeType} target_nodes=${numNodes}`,
+          ])
+        : rand([
+            `create user ${rand(["new_analyst", "etl_svc", "readonly_user"])} password '***' createdb nocreateuser`,
+            `alter user ${dbUser} set search_path to '${schema}'`,
+            `grant select on all tables in schema ${schema} to ${rand(["analyst_group", "readonly_group"])}`,
+            `alter user ${dbUser} connection limit ${randInt(10, 100)}`,
+          ]);
     message = `'${new Date(ts).toISOString().replace("T", " ").replace("Z", " UTC")} [ db=${dbName} user=rdsdb pid=${pid} userid=1 xid=${xid} ]' LOG: ${userlogAction}`;
   }
 
@@ -402,6 +632,8 @@ function generateRedshiftLog(ts: string, er: number): EcsDocument {
     "PERMISSION_DENIED",
     "COPY_LOAD_ERROR",
     "INTERNAL_ERROR",
+    "ClusterNotFoundFault",
+    "QueryExecutionFailed",
   ];
   const redshiftErrMsgs: Record<string, string> = {
     QUERY_TIMED_OUT: `ERROR: Query (${queryId}) cancelled by the system. Maximum query time exceeded.`,
@@ -411,9 +643,17 @@ function generateRedshiftLog(ts: string, er: number): EcsDocument {
     OUT_OF_MEMORY: `ERROR: ${queryId}: out of memory. (${nodeId})`,
     PERMISSION_DENIED: `ERROR: permission denied for relation ${schema}.${table}`,
     COPY_LOAD_ERROR: `ERROR: Load into table '${table}' failed.  Check 'stl_load_errors' for details.`,
-    INTERNAL_ERROR: `ERROR: Spectrum Scan Error (${queryId})`,
+    INTERNAL_ERROR: `ERROR: Spectrum Scan Error (${queryId}) on ${spectrumTable}`,
+    ClusterNotFoundFault: `ERROR: Cluster '${clusterId}' not found (DescribeClusters)`,
+    QueryExecutionFailed: `ERROR: Statement ${queryId} failed: ${scenario === "spectrum_scan" ? "Spectrum nested query abort" : "Execution stopping after parse"}`,
   };
-  const errCode = isErr ? rand(redshiftErrCodes) : null;
+  const errCode = isErr
+    ? scenario === "connection_session"
+      ? "ClusterNotFoundFault"
+      : scenario === "spectrum_scan"
+        ? rand(["QueryExecutionFailed", "INTERNAL_ERROR", "PERMISSION_DENIED"])
+        : rand(redshiftErrCodes.filter((c) => c !== "ClusterNotFoundFault"))
+    : null;
 
   return {
     "@timestamp": ts,
@@ -437,6 +677,10 @@ function generateRedshiftLog(ts: string, er: number): EcsDocument {
         xid,
         query_id: queryId,
         log_type: logType,
+        scenario,
+        spectrum_external_table: scenario === "spectrum_scan" ? spectrumTable : null,
+        concurrency_scaling: scenario === "concurrency_scaling",
+        maintenance_window_active: scenario === "maintenance_window",
         duration_microseconds: durMicro,
         rows_returned: rowsReturned,
         rows_affected: rowsAffected,
@@ -489,14 +733,17 @@ function generateRedshiftLog(ts: string, er: number): EcsDocument {
       dataset: "aws.redshift",
       provider: "redshift.amazonaws.com",
     },
-    message,
+    message:
+      isErr && errCode && logType === "useractivitylog" && Math.random() < 0.45
+        ? `${message}\n${redshiftErrMsgs[errCode]}`
+        : message,
     log: { level: isErr ? "error" : dur > 60 ? "warn" : "info" },
     ...(isErr && errCode
       ? {
           error: {
             code: errCode,
             message: redshiftErrMsgs[errCode] || "Redshift query failed",
-            type: "db",
+            type: "aws",
           },
         }
       : {}),
@@ -522,11 +769,23 @@ function generateOpenSearchLog(ts: string, er: number): EcsDocument {
     "slow_query",
     "gc",
     "circuit_breaker",
+    "index_rotation",
+    "snapshot_lifecycle",
+    "blue_green_deploy",
+    "warm_migration",
   ]);
   const queryBody =
     '{"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"now-1h"}}}],"must":[{"match":{"service.name":"checkout"}}]}},"size":500}';
   const gcLine = `[${new Date(ts).toISOString()}][INFO ][o.e.m.j.JvmGcMonitorService] [${rand(["data-0", "master-1", "ingest-2"])}] [gc][${randInt(100, 9999)}] overhead, spent [${Number(randFloat(200, isErr ? 5000 : 800)).toFixed(1)}ms] collecting in the last [1s]`;
   const cbLine = `[${new Date(ts).toISOString()}][WARN ][o.e.i.b.request.RequestBreaker] [${rand(["data-0", "data-1"])}] breaking incoming request: [parent] Data too large, data for [<reused_arrays>] would be [${randInt(512, 4096)}mb], which is larger than the limit of [${randInt(256, 2048)}mb]`;
+  const awsOsErrCodes = [
+    "ClusterBlockException",
+    "SnapshotMissingException",
+    "IndexNotFoundException",
+    "SearchPhaseExecutionException",
+    "SnapshotRestoreException",
+  ];
+  const resolvedOsErr = isErr ? rand(awsOsErrCodes) : null;
   let message: string;
   let operation = op;
   let logExtras: Record<string, unknown> = {};
@@ -554,9 +813,50 @@ function generateOpenSearchLog(ts: string, er: number): EcsDocument {
     operation = "circuit_breaker";
     message = cbLine;
     logExtras = { circuit_breaker: "parent" };
+  } else if (variant === "index_rotation") {
+    operation = "rollover_index";
+    const newIdx = `${idx}-${new Date(ts).toISOString().slice(0, 10).replace(/-/g, ".")}-000001`;
+    message = isErr
+      ? JSON.stringify({
+          acknowledged: false,
+          error: {
+            type: resolvedOsErr,
+            reason: `rollover for [${idx}] failed: rollover target already exists`,
+          },
+        })
+      : `[${new Date(ts).toISOString()}] ILM rollover ${idx} → ${newIdx} conditions[max_age=30d,min_docs=${randInt(1e6, 5e7)}] met=true`;
+    logExtras = {
+      ilm_policy: rand(["logs-policy", "metrics-ilm", "traces-hot-warm"]),
+      new_index: newIdx,
+    };
+  } else if (variant === "snapshot_lifecycle") {
+    operation = rand(["CREATE_SNAPSHOT", "DELETE_SNAPSHOT"]);
+    message = `[${new Date(ts).toISOString()}] SLM start snapshot [repo=${rand(["daily-snap", "cs-automated"])}] name=${idx}-snapshot-${randId(6)} state=${isErr ? "FAILED" : "SUCCESS"}`;
+    logExtras = {
+      snapshot_repository: rand(["s3-repo-prod", "fs-backup"]),
+      slm_retention_days: randInt(7, 90),
+    };
+  } else if (variant === "blue_green_deploy") {
+    operation = "blue_green_deploy";
+    message = `[${new Date(ts).toISOString()}] AOS blue/green deployment ${domainName} changeId=${randId(10)} status=${isErr ? "failed" : "succeeded"} step=${rand(["CREATE_NEW_ENV", "MIGRATE_SHARDS", "CUTOVER"])}`;
+    logExtras = {
+      deployment_type: "BlueGreen",
+      configuration_change_status: isErr ? "failed" : "completed",
+    };
+  } else if (variant === "warm_migration") {
+    operation = "migrate_to_warm_tier";
+    message = isErr
+      ? `Warm tier migration blocked for index=${idx}: ${resolvedOsErr}`
+      : `[${new Date(ts).toISOString()}] shard [${idx}][${randInt(0, 5)}] relocated to warm tier node warm-${randInt(0, 3)}`;
+    logExtras = { warm_tier_enabled: true, ultra_warm: Math.random() > 0.5 };
   } else {
     message = isErr
-      ? `OpenSearch ${op} on ${idx} failed [${status}] after ${dur.toFixed(0)}ms`
+      ? Math.random() < 0.5
+        ? JSON.stringify({
+            status: status,
+            error: { type: resolvedOsErr, reason: `OpenSearch ${op} on ${idx} rejected` },
+          })
+        : `OpenSearch ${op} on ${idx} failed [${status}] after ${dur.toFixed(0)}ms`
       : `OpenSearch ${op} on ${idx}: ${dur.toFixed(0)}ms`;
   }
   return {
@@ -585,6 +885,13 @@ function generateOpenSearchLog(ts: string, er: number): EcsDocument {
         },
         hits_total: isErr ? 0 : randInt(0, 100000),
         status_code: status,
+        scenario: variant,
+        aws_api_operation: rand([
+          "DescribeDomain",
+          "UpdateDomainConfig",
+          "ESHttpGet",
+          "ESHttpPost",
+        ]),
         ...logExtras,
         metrics: {
           CPUUtilization: { avg: Number(randFloat(5, isErr ? 95 : 60)) },
@@ -619,8 +926,19 @@ function generateOpenSearchLog(ts: string, er: number): EcsDocument {
     },
     message,
     log: { level: isErr ? "error" : dur > 5000 ? "warn" : "info" },
-    ...(isErr
-      ? { error: { code: String(status), message: `OpenSearch ${op} failed`, type: "db" } }
+    ...(isErr && resolvedOsErr
+      ? {
+          error: {
+            code: resolvedOsErr,
+            message:
+              variant === "index_rotation"
+                ? "ILM rollover could not complete"
+                : variant === "warm_migration"
+                  ? "Warm tier shard migration rejected"
+                  : `OpenSearch ${operation} failed on ${idx}`,
+            type: "aws",
+          },
+        }
       : {}),
   };
 }

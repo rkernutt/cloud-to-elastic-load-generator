@@ -1,130 +1,131 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
-  "logName": "projects/globex-prod-a1b2c3/logs/cloudaudit.googleapis.com%2Fdata_access",
-  "insertId": "iheb8y799l",
-  "resource": {
-    "type": "gce_instance",
-    "labels": {
-      "project_id": "globex-prod-a1b2c3",
-      "instance_id": "vm-build-gd2d",
-      "zone": "asia-east1-a"
-    }
-  },
+  "log": { "level": "info" },
+  "labels": {},
+  "severity": "NOTICE",
+  "logName": "projects/globex-prod-a1b2c3/logs/cloudaudit.googleapis.com%2Factivity",
+  "insertId": "oaifut5f4ygpbl2h",
+  "resource": { "type": "project", "labels": { "project_id": "globex-prod-a1b2c3" } },
   "protoPayload": {
     "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
-    "authenticationInfo": { "principalEmail": "dev@globex.example.com" },
+    "authenticationInfo": { "principalEmail": "p-sa@globex-prod-a1b2c3.iam.gserviceaccount.com" },
     "authorizationInfo": [
       {
-        "resource": "//compute.googleapis.com/projects/globex-prod-a1b2c3/zones/asia-east1-a/instances/vm-build-gd2d",
-        "permission": "compute.instances.osLogin",
-        "granted": true
+        "resource": "//storage.googleapis.com/projects/_/buckets/globex-dev-g7h8i9-logs",
+        "permission": "iam.serviceAccounts.create",
+        "granted": false
       }
     ],
-    "methodName": "google.cloud.oslogin.v1.OsLoginService.DeletePosixAccount",
-    "serviceName": "oslogin.googleapis.com",
-    "resourceName": "users/dev@globex.example.com/projects/globex-prod-a1b2c3",
+    "methodName": "google.iam.admin.v1.CreateServiceAccount",
+    "serviceName": "iam.googleapis.com",
+    "resourceName": "//storage.googleapis.com/projects/_/buckets/globex-dev-g7h8i9-logs",
     "requestMetadata": {
-      "callerIp": "98.194.195.218",
-      "callerSuppliedUserAgent": "curl/7.68.0",
+      "callerIp": "102.133.14.164",
+      "callerSuppliedUserAgent": "Go-http-client/1.1",
       "requestAttributes": {}
     },
-    "request": {
-      "parent": "users/dev@globex.example.com",
-      "keyFingerprint": "SHA256:a85e8fa46c3967a0c38141bcf3f57689bf1d1dd32174",
-      "loginMethod": "OS_LOGIN_2FA"
-    }
+    "request": { "accountId": "sa-S60OIT", "serviceAccount": { "displayName": "Workload SA" } }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-east1",
+    "region": "me-central2",
     "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
     "account": { "id": "314159265358", "name": "Globex Production" },
-    "service": { "name": "os-login" }
+    "service": { "name": "iam" }
   },
   "gcp": {
-    "os_login": {
+    "iam": {
       "proto_payload": {
         "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
-        "authenticationInfo": { "principalEmail": "dev@globex.example.com" },
+        "authenticationInfo": {
+          "principalEmail": "p-sa@globex-prod-a1b2c3.iam.gserviceaccount.com"
+        },
         "authorizationInfo": [
           {
-            "resource": "//compute.googleapis.com/projects/globex-prod-a1b2c3/zones/asia-east1-a/instances/vm-build-gd2d",
-            "permission": "compute.instances.osLogin",
-            "granted": true
+            "resource": "//storage.googleapis.com/projects/_/buckets/globex-dev-g7h8i9-logs",
+            "permission": "iam.serviceAccounts.create",
+            "granted": false
           }
         ],
-        "methodName": "google.cloud.oslogin.v1.OsLoginService.DeletePosixAccount",
-        "serviceName": "oslogin.googleapis.com",
-        "resourceName": "users/dev@globex.example.com/projects/globex-prod-a1b2c3",
+        "methodName": "google.iam.admin.v1.CreateServiceAccount",
+        "serviceName": "iam.googleapis.com",
+        "resourceName": "//storage.googleapis.com/projects/_/buckets/globex-dev-g7h8i9-logs",
         "requestMetadata": {
-          "callerIp": "98.194.195.218",
-          "callerSuppliedUserAgent": "curl/7.68.0",
+          "callerIp": "102.133.14.164",
+          "callerSuppliedUserAgent": "Go-http-client/1.1",
           "requestAttributes": {}
         },
-        "request": {
-          "parent": "users/dev@globex.example.com",
-          "keyFingerprint": "SHA256:a85e8fa46c3967a0c38141bcf3f57689bf1d1dd32174",
-          "loginMethod": "OS_LOGIN_2FA"
-        }
+        "request": { "accountId": "sa-S60OIT", "serviceAccount": { "displayName": "Workload SA" } }
       },
-      "user": "dev@globex.example.com",
-      "action": "DeletePosixAccount",
-      "instance": "vm-build-gd2d",
-      "ssh_key_fingerprint": "SHA256:a85e8fa46c3967a0c38141bcf3f57689bf1d1dd32174",
-      "login_method": "OS_LOGIN_2FA"
+      "principal": "serviceAccount:app-sa@globex-prod-a1b2c3.iam.gserviceaccount.com",
+      "principal_email": "p-sa@globex-prod-a1b2c3.iam.gserviceaccount.com",
+      "action": "CreateServiceAccount",
+      "resource": "projects/_/buckets/globex-dev-g7h8i9-logs",
+      "permission_granted": false,
+      "policy_delta_action": "REMOVE",
+      "role": "roles/iam.serviceAccountTokenCreator",
+      "request_id": "wcmrg6g3i2o2hu8b",
+      "authorization_info": [
+        {
+          "resource": "//storage.googleapis.com/projects/_/buckets/globex-dev-g7h8i9-logs",
+          "permission": "iam.serviceAccounts.create",
+          "granted": false
+        }
+      ]
     }
   },
-  "event": {
-    "outcome": "success",
-    "duration": 23000000,
-    "module": "gcp",
-    "dataset": "gcp.oslogin"
-  },
-  "message": "oslogin.googleapis.com google.cloud.oslogin.v1.OsLoginService.DeletePosixAccount user=dev@globex.example.com instance=vm-build-gd2d",
-  "service": { "name": "os-login", "type": "gcp" },
-  "log": { "level": "info" },
+  "event": { "outcome": "success", "duration": 52000000, "module": "gcp", "dataset": "gcp.iam" },
+  "message": "cloudaudit.googleapis.com/activity google.iam.admin.v1.CreateServiceAccount resource=projects/_/buckets/globex-dev-g7h8i9-logs granted=false",
+  "service": { "name": "iam", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.oslogin", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.iam", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-east1",
-    "id": "7p6759un2v"
+    "name": "elastic-agent-gcp-me-central2",
+    "id": "ab40j0j2tf8psw0qjdzcy8no7vav8uzehn8j"
   },
-  "input": { "type": "gcp-pubsub" },
+  "input": { "type": "http_endpoint" },
   "jsonPayload": {
-    "os_login": {
+    "iam": {
       "proto_payload": {
         "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
-        "authenticationInfo": { "principalEmail": "dev@globex.example.com" },
+        "authenticationInfo": {
+          "principalEmail": "p-sa@globex-prod-a1b2c3.iam.gserviceaccount.com"
+        },
         "authorizationInfo": [
           {
-            "resource": "//compute.googleapis.com/projects/globex-prod-a1b2c3/zones/asia-east1-a/instances/vm-build-gd2d",
-            "permission": "compute.instances.osLogin",
-            "granted": true
+            "resource": "//storage.googleapis.com/projects/_/buckets/globex-dev-g7h8i9-logs",
+            "permission": "iam.serviceAccounts.create",
+            "granted": false
           }
         ],
-        "methodName": "google.cloud.oslogin.v1.OsLoginService.DeletePosixAccount",
-        "serviceName": "oslogin.googleapis.com",
-        "resourceName": "users/dev@globex.example.com/projects/globex-prod-a1b2c3",
+        "methodName": "google.iam.admin.v1.CreateServiceAccount",
+        "serviceName": "iam.googleapis.com",
+        "resourceName": "//storage.googleapis.com/projects/_/buckets/globex-dev-g7h8i9-logs",
         "requestMetadata": {
-          "callerIp": "98.194.195.218",
-          "callerSuppliedUserAgent": "curl/7.68.0",
+          "callerIp": "102.133.14.164",
+          "callerSuppliedUserAgent": "Go-http-client/1.1",
           "requestAttributes": {}
         },
-        "request": {
-          "parent": "users/dev@globex.example.com",
-          "keyFingerprint": "SHA256:a85e8fa46c3967a0c38141bcf3f57689bf1d1dd32174",
-          "loginMethod": "OS_LOGIN_2FA"
-        }
+        "request": { "accountId": "sa-S60OIT", "serviceAccount": { "displayName": "Workload SA" } }
       },
-      "user": "dev@globex.example.com",
-      "action": "DeletePosixAccount",
-      "instance": "vm-build-gd2d",
-      "ssh_key_fingerprint": "SHA256:a85e8fa46c3967a0c38141bcf3f57689bf1d1dd32174",
-      "login_method": "OS_LOGIN_2FA"
+      "principal": "serviceAccount:app-sa@globex-prod-a1b2c3.iam.gserviceaccount.com",
+      "principal_email": "p-sa@globex-prod-a1b2c3.iam.gserviceaccount.com",
+      "action": "CreateServiceAccount",
+      "resource": "projects/_/buckets/globex-dev-g7h8i9-logs",
+      "permission_granted": false,
+      "policy_delta_action": "REMOVE",
+      "role": "roles/iam.serviceAccountTokenCreator",
+      "request_id": "wcmrg6g3i2o2hu8b",
+      "authorization_info": [
+        {
+          "resource": "//storage.googleapis.com/projects/_/buckets/globex-dev-g7h8i9-logs",
+          "permission": "iam.serviceAccounts.create",
+          "granted": false
+        }
+      ]
     },
-    "message": "oslogin.googleapis.com google.cloud.oslogin.v1.OsLoginService.DeletePosixAccount user=dev@globex.example.com instance=vm-build-gd2d"
+    "message": "cloudaudit.googleapis.com/activity google.iam.admin.v1.CreateServiceAccount resource=projects/_/buckets/globex-dev-g7h8i9-logs granted=false"
   }
 }

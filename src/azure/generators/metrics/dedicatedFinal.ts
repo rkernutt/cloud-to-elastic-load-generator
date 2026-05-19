@@ -37,7 +37,7 @@ function vmLikeMetrics(er: number): Record<string, Record<string, number>> {
 
 function multiDoc(
   ts: string,
-  _er: number,
+  er: number,
   ctx: Ctx,
   dataset: string,
   nestedKey: string,
@@ -54,7 +54,8 @@ function multiDoc(
   }
 ): EcsDocument[] {
   const { region, subscription, resourceGroup } = ctx;
-  const n = Math.min(randInt(1, 3), dimVals.length);
+  const maxPerCall = Math.min(dimVals.length, Math.random() < er ? dimVals.length : 3);
+  const n = Math.min(dimVals.length, randInt(1, Math.max(maxPerCall, 1)));
   return Array.from({ length: n }, (_, i) => {
     const dimVal = dimVals[i]!;
     const p = mk(dimVal, i);
@@ -109,6 +110,7 @@ export function generateCapacityReservationDedicatedFinalMetrics(
   const crs = ["cr-general", "cr-compute", "cr-memory"];
   return multiDoc(ts, er, ctx, dataset, "capacity_reservation", crs, (cr) => {
     const crg = `crg-${randId(4).toLowerCase()}`;
+    const fail = Math.random() < er;
     return {
       namespace: "Microsoft.Compute/capacityReservations",
       resourceName: cr,
@@ -121,9 +123,9 @@ export function generateCapacityReservationDedicatedFinalMetrics(
       ],
       dimensions: { capacityReservationGroup: crg, capacityReservation: cr },
       metrics: {
-        "Used vCPUs": stat(dp(jitter(48, 20, 0, 256))),
+        "Used vCPUs": stat(dp(jitter(48 + (fail ? 12 : 0), fail ? 32 : 20, 0, 512))),
         "Reserved vCPUs": stat(dp(jitter(64, 8, 1, 512))),
-        "Utilization %": stat(dp(jitter(72, 18, 0, 100))),
+        "Utilization %": stat(dp(jitter(72 + (fail ? -18 : 0), fail ? 28 : 18, 0, 100))),
       },
     };
   });

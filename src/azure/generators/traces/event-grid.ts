@@ -71,7 +71,8 @@ export function generateEventGridTrace(ts: string, er: number): EcsDocument[] {
           ...dim({ dependency_type: "Azure Event Grid", topic }),
         },
         traceId,
-        "nodejs"
+        "nodejs",
+        { spanFailed: spanErr }
       )
     );
     ms += Math.max(1, Math.round(op.us / 1000));

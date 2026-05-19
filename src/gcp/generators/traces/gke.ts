@@ -11,7 +11,13 @@ import {
   randSpanId,
 } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateGkeTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -119,7 +125,7 @@ export function generateGkeTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: apiUs },
       action: "request",
       destination: { service: { resource: "api-server", type: "request", name: "api-server" } },
-      labels: failIdx === 0 ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" } : {},
+      labels: failIdx === 0 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: apiSvc,
     cloud: mkCloud("container.googleapis.com"),
@@ -145,7 +151,7 @@ export function generateGkeTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: grpcUs },
       action: "call",
       destination: { service: { resource: "worker", type: "external", name: "grpc" } },
-      labels: failIdx === 1 ? { "grpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: failIdx === 1 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: apiSvc,
     cloud: mkCloud("container.googleapis.com"),
@@ -171,7 +177,7 @@ export function generateGkeTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: poolUs },
       action: "connect",
       destination: { service: { resource: "cloudsql", type: "db", name: "cloudsql" } },
-      labels: failIdx === 2 ? { "gcp.rpc.status_code": "UNAVAILABLE" } : {},
+      labels: failIdx === 2 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: apiSvc,
     cloud: gcpCloud(region, project, "sqladmin.googleapis.com"),
@@ -202,7 +208,7 @@ export function generateGkeTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: workerUs },
       action: "process",
       destination: { service: { resource: "kafka", type: "messaging", name: "kafka" } },
-      labels: failIdx === 3 ? { "gcp.rpc.status_code": "ABORTED" } : {},
+      labels: failIdx === 3 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: workerSvc,
     cloud: mkCloud("container.googleapis.com"),
@@ -232,7 +238,7 @@ export function generateGkeTrace(ts: string, er: number): EcsDocument[] {
         statement: `${rand(["lookup", "query"])} ${rand(["Order", "LineItem", "Customer"])}`,
       },
       destination: { service: { resource: "datastore", type: "db", name: "datastore" } },
-      labels: failIdx === 4 ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {},
+      labels: failIdx === 4 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: workerSvc,
     cloud: gcpCloud(region, project, "datastore.googleapis.com"),

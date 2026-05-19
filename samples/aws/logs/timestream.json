@@ -1,53 +1,59 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-north-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "timestream" }
   },
   "aws": {
     "timestream": {
-      "database_name": "financial-ticks",
-      "table_name": "sensor_readings",
-      "operation": "DescribeTable",
+      "database_name": "infra-metrics",
+      "table_name": "device_telemetry",
+      "operation": "Query",
       "records_ingested": 0,
-      "rows_returned": 0,
-      "duration_ms": 545
+      "rows_returned": 5752,
+      "duration_ms": 2462,
+      "error_code": "ThrottlingException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-timestream-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-timestream-logs-293847561023"
+        "name": "aws-timestream-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-timestream-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/timestream/us-east-2/2026/05/07/timestream_FLO63QYNVBN.log.gz"
+        "key": "AWSLogs/738291046572/timestream/eu-north-1/2026/05/14/timestream_1FFY55P3B4U435MTXCN2.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/timestream/logs",
-      "log_stream": "us-east-2/2hgu1oxy",
-      "ingestion_time": "2026-05-07T10:17:36.411Z"
+      "log_stream": "eu-north-1/kaegkfxc",
+      "ingestion_time": "2026-05-14T03:00:07.235Z"
     }
   },
   "event": {
-    "duration": 544970829.9280045,
-    "outcome": "success",
+    "duration": 2461886062.0195246,
+    "outcome": "failure",
     "category": "database",
     "dataset": "aws.timestream",
     "provider": "timestream.amazonaws.com",
     "module": "aws"
   },
-  "message": "Timestream DescribeTable on financial-ticks.sensor_readings: 545ms",
-  "log": { "level": "info" },
+  "message": "Timestream Query FAILED on infra-metrics.device_telemetry: Throttling",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ThrottlingException",
+    "message": "Timestream operation failed",
+    "type": "db"
+  },
   "service": { "name": "timestream", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.timestream", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "5es5e22u50c"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "0f6h8mq2astui6xeqrxyfjst8u19gchvl7yw"
   },
   "input": { "type": "aws-cloudwatch" }
 }

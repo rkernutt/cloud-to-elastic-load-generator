@@ -23,11 +23,12 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
       "DescribeFeatureGroup",
     ]);
     const errCodes = [
-      "ResourceNotFound",
-      "ValidationError",
+      "ValidationException",
+      "ResourceNotFoundException",
       "AccessDeniedException",
       "InternalFailure",
       "ThrottlingException",
+      "ServiceUnavailableException",
     ];
     return {
       __dataset: "aws.sagemaker_featurestore",
@@ -54,6 +55,19 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
       message: e
         ? `SageMaker Feature Store ${fg}: ${op} failed — ${rand(errCodes)}`
         : `SageMaker Feature Store ${fg}: ${op} OK (${randInt(1, 100)} records)`,
+      ...(e
+        ? {
+            error: {
+              code: rand(errCodes),
+              message: rand([
+                "Feature group offline store not ACTIVE",
+                "Duplicate record identifier in PutRecord batch",
+                "Exceeded account parallel ingestion workers",
+              ]),
+              type: "aws",
+            },
+          }
+        : {}),
     };
   }
   // ~12% chance of generating a Pipelines event
@@ -111,6 +125,20 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
       message: e
         ? `SageMaker Pipeline ${pipeline}: step ${step} ${status} — ${rand(errMsgs)}`
         : `SageMaker Pipeline ${pipeline}: step ${step} ${status}`,
+      ...(e
+        ? {
+            error: {
+              code: rand([
+                "PipelineExecutionFailed",
+                "ValidationException",
+                "ResourceLimitExceeded",
+                "ThrottlingException",
+              ]),
+              message: rand(errMsgs),
+              type: "aws",
+            },
+          }
+        : {}),
     };
   }
   // ~10% chance of generating a Model Monitor event
@@ -158,6 +186,23 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
       message: e
         ? `Model Monitor ${endpoint}: ${monType} completed with ${randInt(1, 15)} violations`
         : `Model Monitor ${endpoint}: ${monType} passed (${randInt(100, 10000)} samples)`,
+      ...(e
+        ? {
+            error: {
+              code: rand([
+                "MonitoringConstraintViolation",
+                "ResourceNotFoundException",
+                "ValidationException",
+              ]),
+              message: rand([
+                "Probability distribution outside baseline",
+                "Inference output schema drift detected",
+                "Baseline statistics file missing",
+              ]),
+              type: "aws",
+            },
+          }
+        : {}),
     };
   }
   const region = rand(REGIONS);
@@ -223,11 +268,12 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
   const durationSec = Number(randFloat(isErr ? 5 : 60, isErr ? 600 : 14400));
   const ERROR_CODES = [
     "CapacityError",
-    "ResourceNotFound",
+    "ResourceNotFoundException",
     "ValidationException",
-    "InternalServerError",
+    "InternalServerException",
     "ResourceLimitExceeded",
     "ClientError",
+    "ThrottlingException",
   ];
   const ERROR_MSGS = [
     "Training job failed: CUDA out of memory. Tried to allocate 2.00 GiB",
@@ -456,7 +502,13 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
     },
     message: message,
     ...(isErr
-      ? { error: { code: rand(ERROR_CODES), message: rand(ERROR_MSGS), type: "service" } }
+      ? {
+          error: {
+            code: rand(ERROR_CODES),
+            message: rand(ERROR_MSGS),
+            type: "aws",
+          },
+        }
       : {}),
   };
 }
@@ -465,6 +517,14 @@ function generateBedrockLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;
+  const scenario = rand([
+    "model_invoke_streaming",
+    "guardrail_check",
+    "knowledge_base_query",
+    "agent_orchestration",
+    "fine_tune_job",
+    "invoke_sync",
+  ] as const);
   const models = [
     "anthropic.claude-3-5-sonnet-20241022-v2:0",
     "anthropic.claude-3-haiku-20240307-v1:0",
@@ -479,18 +539,45 @@ function generateBedrockLog(ts: string, er: number): EcsDocument {
   const maxOut = maxOutputByFamily[modelFamily as keyof typeof maxOutputByFamily] || 4096;
   const inputTokens = randInt(50, 8000);
   const outputTokens = isErr ? 0 : Math.min(randInt(50, 2000), maxOut);
-  const isStreaming = Math.random() < 0.6;
-  const ttftMs = isStreaming
-    ? modelFamily === "anthropic"
-      ? randInt(100, 800)
-      : randInt(50, 400)
-    : null;
+  const isStreaming =
+    scenario === "model_invoke_streaming" ||
+    Math.random() < (scenario === "invoke_sync" ? 0.2 : 0.5);
+  const ttftMs =
+    scenario === "model_invoke_streaming" || isStreaming
+      ? modelFamily === "anthropic"
+        ? randInt(100, 800)
+        : randInt(50, 400)
+      : null;
   const lat = Number(randFloat(0.5, isErr ? 30 : 15));
   const invocations = randInt(1, 500);
   const latencyMs = Math.round(lat * 1000);
   const inputTokensPerSec =
     isStreaming && !isErr ? parseFloat((inputTokens / lat).toFixed(1)) : null;
-  const operation = rand(["InvokeModel", "Converse"]);
+  const operationByScenario: Record<typeof scenario, string> = {
+    model_invoke_streaming: "InvokeModelWithResponseStream",
+    guardrail_check: "ApplyGuardrail",
+    knowledge_base_query: "Retrieve",
+    agent_orchestration: "InvokeAgent",
+    fine_tune_job: "CreateModelCustomizationJob",
+    invoke_sync: Math.random() < 0.5 ? "InvokeModel" : "Converse",
+  };
+  const operation = operationByScenario[scenario];
+  const kbId = `KB${randId(9).toUpperCase()}`;
+  const agentId = `T${randId(11).toUpperCase()}`;
+  const customizationJobArn =
+    scenario === "fine_tune_job"
+      ? `arn:aws:bedrock:${region}:${acct.id}:model-customization-job/${randId(12).toLowerCase()}`
+      : null;
+
+  const errPool = [
+    "ThrottlingException",
+    "ModelTimeoutException",
+    "ValidationException",
+    "AccessDeniedException",
+    "ModelStreamErrorException",
+  ] as const;
+  const errCode = isErr ? rand([...errPool]) : null;
+
   const schemaType = "ModelInvocationLog";
   const schemaVersion = "1.0";
   const clip = (obj: unknown, maxLen: number) => {
@@ -498,72 +585,132 @@ function generateBedrockLog(ts: string, er: number): EcsDocument {
     return s.length > maxLen ? `${s.slice(0, maxLen)}...` : s;
   };
   const inputBody =
-    operation === "Converse"
+    scenario === "guardrail_check"
       ? {
-          messages: [
-            {
-              role: "user",
-              content: [
-                {
-                  text: rand([
-                    "Summarize the Q3 results.",
-                    "Draft a reply to the customer.",
-                    "Extract invoice fields from the attached text.",
-                  ]),
-                },
-              ],
-            },
-          ],
-          inferenceConfig: { maxTokens: randInt(256, 4096), temperature: Number(randFloat(0, 1)) },
+          guardrailIdentifier: `gr-${randId(10).toLowerCase()}`,
+          source: "OUTPUT",
+          content: [{ text: rand(["Support answer draft…", "Generated SQL…"]) }],
         }
-      : {
-          anthropic_version: "bedrock-2023-05-31",
-          max_tokens: randInt(256, 4096),
-          messages: [
-            {
-              role: "user",
-              content: rand([
-                "Explain zero trust in two paragraphs.",
-                "Classify: refund vs exchange.",
-                "Return JSON with keys a,b,c.",
+      : scenario === "knowledge_base_query"
+        ? {
+            knowledgeBaseId: kbId,
+            retrievalQuery: { text: rand(["PTO policy", "device RMA steps", "SOC2 controls"]) },
+            retrievalConfiguration: {
+              vectorSearchConfiguration: { numberOfResults: randInt(3, 12) },
+            },
+          }
+        : scenario === "agent_orchestration"
+          ? {
+              agentId,
+              sessionId: randId(32).toLowerCase(),
+              inputText: rand([
+                "Reset my password",
+                "Open ticket INC-123",
+                "List S3 buckets in prod",
               ]),
-            },
-          ],
-        };
-  const outputBody = isErr
-    ? { message: "Invocation failed", __type: "ThrottlingException" }
-    : operation === "Converse"
-      ? {
-          output: {
-            message: {
-              role: "assistant",
-              content: [
-                {
-                  text: "Here is a concise summary based on the provided context and figures.".repeat(
-                    Math.min(3, Math.ceil(outputTokens / 80))
-                  ),
+              enableTrace: true,
+            }
+          : scenario === "fine_tune_job"
+            ? {
+                jobName: `custom-${randId(8).toLowerCase()}`,
+                baseModelIdentifier: model,
+                trainingDataConfig: {
+                  s3Uri: `s3://bedrock-fine-tune-${acct.id}/train/${randId(6)}/`,
                 },
-              ],
-            },
-          },
-          stopReason: rand(["end_turn", "max_tokens"]),
-          usage: { inputTokens, outputTokens, totalTokens: inputTokens + outputTokens },
-        }
-      : {
-          id: `msg_${randId(24).toLowerCase()}`,
-          type: "message",
-          role: "assistant",
-          content: [
+                outputDataConfig: { s3Uri: `s3://bedrock-fine-tune-${acct.id}/out/` },
+              }
+            : operation === "Converse"
+              ? {
+                  messages: [
+                    {
+                      role: "user",
+                      content: [
+                        {
+                          text: rand([
+                            "Summarize the Q3 results.",
+                            "Draft a reply to the customer.",
+                            "Extract invoice fields from the attached text.",
+                          ]),
+                        },
+                      ],
+                    },
+                  ],
+                  inferenceConfig: {
+                    maxTokens: randInt(256, 4096),
+                    temperature: Number(randFloat(0, 1)),
+                  },
+                }
+              : {
+                  anthropic_version: "bedrock-2023-05-31",
+                  max_tokens: randInt(256, 4096),
+                  messages: [
+                    {
+                      role: "user",
+                      content: rand([
+                        "Explain zero trust in two paragraphs.",
+                        "Classify: refund vs exchange.",
+                        "Return JSON with keys a,b,c.",
+                      ]),
+                    },
+                  ],
+                };
+  const outputBody = isErr
+    ? { message: "Invocation failed", __type: errCode }
+    : scenario === "knowledge_base_query"
+      ? {
+          retrievalResults: [
             {
-              type: "text",
-              text: "Response text synthesized for the requested task.".repeat(
-                Math.min(2, Math.ceil(outputTokens / 120))
-              ),
+              content: { text: "Excerpt from internal wiki…" },
+              location: { s3Location: { uri: `s3://kb-${randId(6)}/doc.pdf` } },
+              score: Number(randFloat(0.4, 0.99)),
             },
           ],
-          stop_reason: rand(["end_turn", "max_tokens", "stop_sequence"]),
-          usage: { input_tokens: inputTokens, output_tokens: outputTokens },
-        };
+        }
+      : scenario === "agent_orchestration"
+        ? {
+            completion: "Agent completed tool calls and returned final answer.",
+            trace: { orchestration: { modelInvocation: { modelId: model } } },
+          }
+        : scenario === "fine_tune_job"
+          ? {
+              jobArn: customizationJobArn,
+              status: "InProgress",
+              trainingStartTime: new Date(ts).toISOString(),
+            }
+          : scenario === "guardrail_check"
+            ? { action: rand(["NONE", "INTERVENED"]), assessments: [] }
+            : operation === "Converse"
+              ? {
+                  output: {
+                    message: {
+                      role: "assistant",
+                      content: [
+                        {
+                          text: "Here is a concise summary based on the provided context and figures.".repeat(
+                            Math.min(3, Math.ceil(outputTokens / 80))
+                          ),
+                        },
+                      ],
+                    },
+                  },
+                  stopReason: rand(["end_turn", "max_tokens"]),
+                  usage: { inputTokens, outputTokens, totalTokens: inputTokens + outputTokens },
+                }
+              : {
+                  id: `msg_${randId(24).toLowerCase()}`,
+                  type: "message",
+                  role: "assistant",
+                  content: [
+                    {
+                      type: "text",
+                      text: "Response text synthesized for the requested task.".repeat(
+                        Math.min(2, Math.ceil(outputTokens / 120))
+                      ),
+                    },
+                  ],
+                  stop_reason: rand(["end_turn", "max_tokens", "stop_sequence"]),
+                  usage: { input_tokens: inputTokens, output_tokens: outputTokens },
+                };
   const inputBodyJson = clip(inputBody, 4096);
   const outputBodyJson = clip(outputBody, 4096);
   return {
@@ -584,6 +731,10 @@ function generateBedrockLog(ts: string, er: number): EcsDocument {
         outputBodyJson,
         invocationLatency: latencyMs,
         operation,
+        scenario,
+        knowledge_base_id: scenario === "knowledge_base_query" ? kbId : null,
+        agent_id: scenario === "agent_orchestration" ? agentId : null,
+        customization_job_arn: scenario === "fine_tune_job" ? customizationJobArn : null,
         schemaType,
         schemaVersion,
         model_id: model,
@@ -592,11 +743,19 @@ function generateBedrockLog(ts: string, er: number): EcsDocument {
         output_token_count: outputTokens,
         total_token_count: inputTokens + outputTokens,
         stop_reason: isErr ? null : rand(["end_turn", "max_tokens", "stop_sequence"]),
-        error_code: isErr
-          ? rand(["ThrottlingException", "ModelTimeoutException", "ModelErrorException"])
-          : null,
-        use_case: rand(["text-generation", "summarization", "classification", "extraction", "qa"]),
-        guardrail_action: rand(["NONE", "NONE", "NONE", "INTERVENED"]),
+        error_code: errCode,
+        use_case:
+          scenario === "guardrail_check"
+            ? "content-safety"
+            : scenario === "knowledge_base_query"
+              ? "rag-retrieval"
+              : scenario === "fine_tune_job"
+                ? "fine-tuning"
+                : rand(["text-generation", "summarization", "classification", "extraction", "qa"]),
+        guardrail_action:
+          scenario === "guardrail_check"
+            ? rand(["NONE", "NONE", "INTERVENED"])
+            : rand(["NONE", "NONE", "NONE", "INTERVENED"]),
         streaming: isStreaming,
         time_to_first_token_ms: ttftMs,
         input_tokens_per_sec: inputTokensPerSec,
@@ -618,15 +777,32 @@ function generateBedrockLog(ts: string, er: number): EcsDocument {
       duration: lat * 1e9,
     },
     message: isErr
-      ? `Bedrock ${model.split(".")[1].split("-")[0]} invocation FAILED: ${rand(["ThrottlingException", "ModelTimeoutException"])}`
-      : `Bedrock ${model.split(".")[1].split("-")[0]} ${inputTokens}->${outputTokens} tokens ${lat.toFixed(2)}s`,
+      ? Math.random() < 0.4
+        ? JSON.stringify({
+            scenario,
+            operation,
+            model,
+            awsException: errCode,
+            message: rand([
+              "Too many concurrent streaming connections",
+              "Model returned empty inference stream chunk",
+              "Guardrail ARN not authorized for this KMS key",
+            ]),
+          })
+        : `Bedrock ${operation} scenario=${scenario} model=${model.split(".")[1].split("-")[0]} FAILED: ${errCode}`
+      : `Bedrock ${operation} (${scenario}) ${inputTokens}->${outputTokens} tokens ${lat.toFixed(2)}s`,
     log: { level: isErr ? "error" : lat > 10 ? "warn" : "info" },
-    ...(isErr
+    ...(isErr && errCode
       ? {
           error: {
-            code: rand(["ThrottlingException", "ModelTimeoutException", "ModelErrorException"]),
-            message: "Bedrock invocation failed",
-            type: "ml",
+            code: errCode,
+            message: rand([
+              "Bedrock streamed response terminated early",
+              "Input failed guardrail precondition checks",
+              "Training data bucket policy denied Bedrock principal",
+              "Foundation model throughput limit reached",
+            ]),
+            type: "aws",
           },
         }
       : {}),

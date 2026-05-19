@@ -1,55 +1,66 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.000Z",
-  "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-network-e8oc8m/providers/Microsoft.CognitiveServices/accounts/oai-uqekd8",
+  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-app-n33cl3/providers/Microsoft.CognitiveServices/accounts/oai-3p3538",
   "cloud": {
     "provider": "azure",
-    "region": "uksouth",
-    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" },
+    "region": "westus3",
+    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" },
     "service": { "name": "Microsoft.CognitiveServices/accounts" }
   },
-  "category": "DeploymentManagement",
-  "operationName": "ModelDeploymentStarted",
-  "resultType": "Succeeded",
-  "level": "Informational",
-  "correlationId": "2nkivxaw8qo",
-  "callerIpAddress": "147.167.161.3",
+  "category": "RateLimit",
+  "operationName": "ThrottledRequest",
+  "resultType": "Failed",
+  "level": "Warning",
+  "correlationId": "oriw95m0fu4v1sgoydg64xx77p6jwk4w",
+  "callerIpAddress": "156.95.121.218",
   "properties": {
-    "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-network-e8oc8m/providers/Microsoft.CognitiveServices/accounts/oai-uqekd8",
-    "deploymentName": "gpt-4o",
-    "callerIpAddress": "147.167.161.3",
-    "correlationId": "2nkivxaw8qo",
-    "requestId": "j4vnfp33-99ly-ms0w-g5pg-u4z7chvpnh8",
+    "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-app-n33cl3/providers/Microsoft.CognitiveServices/accounts/oai-3p3538",
+    "deploymentName": "gpt-35-turbo",
+    "callerIpAddress": "156.95.121.218",
+    "correlationId": "oriw95m0fu4v1sgoydg64xx77p6jwk4w",
+    "requestId": "8de3587c-3484-4c40-8092-a874aacc37b9",
     "apiVersion": "2024-10-21",
-    "sku": "GlobalStandard",
-    "capacity": 213
+    "statusCode": 429,
+    "retryAfter": "56s",
+    "remainingRequests": 0,
+    "model": "gpt-35-turbo",
+    "promptTokens": 151,
+    "completionTokens": 0,
+    "totalTokens": 151,
+    "durationMs": 64
   },
   "azure": {
     "openai": {
-      "resource_group": "rg-network-e8oc8m",
-      "deployment": "gpt-4o",
-      "model": "gpt-4o",
-      "prompt_tokens": 1410,
+      "resource_group": "rg-app-n33cl3",
+      "deployment": "gpt-35-turbo",
+      "model": "gpt-35-turbo",
+      "prompt_tokens": 151,
       "completion_tokens": 0,
-      "finish_reason": "stop"
+      "finish_reason": "length"
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 548407179,
+    "outcome": "failure",
+    "duration": 3694539938,
     "module": "azure",
     "dataset": "azure.openai"
   },
-  "message": "Azure OpenAI deployment gpt-4o: ModelDeploymentStarted capacity=213",
+  "message": "Azure OpenAI oai-3p3538: 429 Too Many Requests retry-after=56s deployment=gpt-35-turbo",
+  "error": {
+    "code": "ResourceNotFound",
+    "message": "Azure OpenAI request was rate limited.",
+    "type": "azure"
+  },
   "service": { "name": "openai", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.openai", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-uksouth",
-    "id": "3bsqm9wkoxf"
+    "name": "elastic-agent-azure-westus3",
+    "id": "e5rk4zgj04myx7gswhol2teb3495y2uzmc8s"
   },
   "input": { "type": "azure-eventhub" }
 }

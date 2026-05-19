@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateSecurityCommandCenterTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -46,7 +52,7 @@ export function generateSecurityCommandCenterTrace(ts: string, er: number): EcsD
       labels: {
         "gcp.scc.source": source,
         "gcp.scc.resource": resource,
-        ...(failIdx === 0 ? { "gcp.rpc.status_code": "UNAVAILABLE" } : {}),
+        ...(failIdx === 0 ? { ...gcpSpanFailureLabels() } : {}),
       },
     },
     service: svc,
@@ -102,7 +108,7 @@ export function generateSecurityCommandCenterTrace(ts: string, er: number): EcsD
       duration: { us: u3 },
       action: "write",
       destination: { service: { resource: "findings", type: "db", name: "findings" } },
-      labels: failIdx === 2 ? { "gcp.rpc.status_code": "ALREADY_EXISTS" } : {},
+      labels: failIdx === 2 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,
@@ -130,7 +136,7 @@ export function generateSecurityCommandCenterTrace(ts: string, er: number): EcsD
       destination: {
         service: { resource: "scc_notification", type: "messaging", name: "scc_notification" },
       },
-      labels: failIdx === 3 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: failIdx === 3 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "pubsub.googleapis.com"),

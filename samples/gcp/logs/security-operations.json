@@ -1,73 +1,67 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "ERROR",
-  "logName": "projects/globex-shared-m3n4o5/logs/chronicle.googleapis.com%2Fsoar_events",
-  "insertId": "lv9pss5hwn",
+  "log": { "level": "info" },
+  "labels": {},
+  "severity": "NOTICE",
+  "logName": "projects/globex-dev-g7h8i9/logs/chronicle.googleapis.com%2Falert",
+  "insertId": "opa6h761l7gkeqjw",
   "resource": {
-    "type": "security_operations_case",
-    "labels": { "project_id": "globex-shared-m3n4o5", "case_id": "case-ynu9f2der7" }
+    "type": "chronicle_instance",
+    "labels": { "project_id": "globex-dev-g7h8i9", "region": "us-south1" }
   },
   "jsonPayload": {
-    "case": {
-      "name": "projects/globex-shared-m3n4o5/locations/global/cases/case-ynu9f2der7",
-      "displayName": "Investigation case-ynu9f2der7",
-      "stage": "CLOSED",
-      "priority": "HIGH"
+    "result": {
+      "ruleName": "lateral_movement_rdp",
+      "versionId": "ru_OHDTHWKO",
+      "detections": [{ "type": "CURATED_DETECTION", "severity": "NOTICE", "eventsMatched": 27678 }],
+      "ioc": { "type": "IP", "value": "117.129.160.70" }
     },
-    "playbook": { "name": "iam_review", "revisionId": "rev_EAUV94" },
-    "action": { "type": "CASE_CREATED", "entitiesTouched": 0, "indicatorsTouched": 1 },
-    "siem": {
-      "product": "Google Security Operations",
-      "instance": "projects/globex-shared-m3n4o5/locations/global"
-    }
+    "case": { "name": "CASE-JD9OI4", "stage": "ACKNOWLEDGED" }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "northamerica-northeast2",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
+    "region": "us-south1",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" },
     "service": { "name": "security-operations" }
   },
   "gcp": {
-    "security_operations": {
+    "secops_detection": {
       "json_payload": {
-        "case": {
-          "name": "projects/globex-shared-m3n4o5/locations/global/cases/case-ynu9f2der7",
-          "displayName": "Investigation case-ynu9f2der7",
-          "stage": "CLOSED",
-          "priority": "HIGH"
+        "result": {
+          "ruleName": "lateral_movement_rdp",
+          "versionId": "ru_OHDTHWKO",
+          "detections": [
+            { "type": "CURATED_DETECTION", "severity": "NOTICE", "eventsMatched": 27678 }
+          ],
+          "ioc": { "type": "IP", "value": "117.129.160.70" }
         },
-        "playbook": { "name": "iam_review", "revisionId": "rev_EAUV94" },
-        "action": { "type": "CASE_CREATED", "entitiesTouched": 0, "indicatorsTouched": 1 },
-        "siem": {
-          "product": "Google Security Operations",
-          "instance": "projects/globex-shared-m3n4o5/locations/global"
-        }
+        "case": { "name": "CASE-JD9OI4", "stage": "ACKNOWLEDGED" }
       },
-      "case_id": "case-ynu9f2der7",
-      "playbook_name": "iam_review",
-      "action_type": "CASE_CREATED",
-      "severity": "HIGH",
-      "entities_count": 0,
-      "indicators_count": 1
+      "rule_name": "lateral_movement_rdp",
+      "detection_type": "CURATED_DETECTION",
+      "severity": "NOTICE",
+      "alert_state": "ACKNOWLEDGED",
+      "ioc_type": "IP",
+      "matched_events_count": 27678,
+      "case_name": "CASE-U29F8B"
     }
   },
   "event": {
-    "outcome": "failure",
-    "duration": 568000000,
+    "outcome": "success",
+    "duration": 80000000,
     "module": "gcp",
-    "dataset": "gcp.secops"
+    "dataset": "gcp.secops_detection"
   },
-  "message": "securityoperations.googleapis.com/CASE_CREATED case=case-ynu9f2der7 playbook=iam_review",
-  "service": { "name": "security-operations", "type": "gcp" },
-  "log": { "level": "error" },
+  "message": "chronicle.googleapis.com/Detections lateral_movement_rdp CURATED_DETECTION events=27678",
+  "service": { "name": "secops-detection", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.secops", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.secops_detection", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-northamerica-northeast2",
-    "id": "y3lyn45kdkb"
+    "name": "elastic-agent-gcp-us-south1",
+    "id": "5l888gink9pox10rzo9rx0fx4ai8kl3c8ndg"
   },
-  "input": { "type": "http_endpoint" }
+  "input": { "type": "gcp-pubsub" }
 }

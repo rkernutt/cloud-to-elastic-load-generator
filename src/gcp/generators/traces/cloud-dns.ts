@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 const RECORD_TYPES = ["A", "AAAA", "CNAME", "TXT"] as const;
 
@@ -72,7 +78,7 @@ export function generateCloudDnsTrace(ts: string, er: number): EcsDocument[] {
       destination: { service: { resource: "managed_zone", type: "db", name: "managed_zone" } },
       labels: {
         "gcp.dns.managed_zone": zone,
-        ...(failIdx === 1 ? { "gcp.rpc.status_code": "NOT_FOUND" } : {}),
+        ...(failIdx === 1 ? { ...gcpSpanFailureLabels() } : {}),
       },
     },
     service: svc,
@@ -127,7 +133,7 @@ export function generateCloudDnsTrace(ts: string, er: number): EcsDocument[] {
       destination: {
         service: { resource: "dns_response", type: "external", name: "dns_response" },
       },
-      labels: failIdx === 3 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: failIdx === 3 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,

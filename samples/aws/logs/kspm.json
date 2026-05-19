@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,46 +7,41 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" }
+    "region": "ca-central-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" }
   },
   "orchestrator": {
-    "cluster": { "id": "staging-eks", "name": "staging-eks" },
+    "cluster": { "id": "data-processing-eks", "name": "data-processing-eks" },
     "type": "kubernetes",
-    "namespace": "monitoring"
+    "namespace": "staging"
   },
   "resource": {
-    "id": "api/v1/namespaces/monitoring/pods/api-gateway-rhs4a",
-    "name": "api-gateway-rhs4a",
+    "id": "k8s-node/ip-70-58-127-34.ca-central-1.compute.internal",
+    "name": "ip-70-58-127-34.ca-central-1.compute.internal",
     "type": "k8s_object",
-    "sub_type": "Pod"
+    "sub_type": "Node",
+    "raw": { "node": "ip-70-58-127-34.ca-central-1.compute.internal" }
   },
   "rule": {
-    "id": "551d3a0b-36f6-51c6-ba8b-0a83926b1864",
-    "name": "Minimize the admission of containers with added capabilities",
-    "section": "4.2.8",
-    "description": "Do not generally permit containers with capabilities assigned beyond the default set.",
-    "tags": ["CIS", "EKS", "CIS 4.2.8", "Pod Security Policies"],
+    "id": "db28165f-6f7c-5450-b9f3-61c7b897d833",
+    "name": "Ensure that the --read-only-port is secured",
+    "section": "3.2.4",
+    "description": "Disable the read-only port.",
+    "tags": ["CIS", "EKS", "CIS 3.2.4", "Kubelet"],
     "benchmark": {
       "id": "cis_eks",
       "name": "CIS Amazon Elastic Kubernetes Service (EKS)",
       "version": "v1.0.1",
-      "rule_number": "4.2.8",
+      "rule_number": "3.2.4",
       "posture_type": "kspm"
     },
     "profile_applicability": "* Level 1",
-    "impact": "Non-compliance with CIS Amazon Elastic Kubernetes Service (EKS) 4.2.8 — Minimize the admission of containers with added capabilities",
-    "remediation": "Remediate per CIS Amazon Elastic Kubernetes Service (EKS) v1.0.1 section 4.2.8."
+    "impact": "Non-compliance with CIS Amazon Elastic Kubernetes Service (EKS) 3.2.4 — Ensure that the --read-only-port is secured",
+    "remediation": "Remediate per CIS Amazon Elastic Kubernetes Service (EKS) v1.0.1 section 3.2.4."
   },
   "result": {
     "evaluation": "failed",
-    "evidence": {
-      "spec": {
-        "containers": [
-          { "securityContext": { "capabilities": { "add": ["SYS_ADMIN", "NET_ADMIN"] } } }
-        ]
-      }
-    }
+    "evidence": { "spec": { "kubeletConfiguration": { "readOnlyPort": 10255 } } }
   },
   "event": {
     "kind": "state",
@@ -57,6 +52,6 @@
     "provider": "elastic_kspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_eks/4.2.8] failed: Minimize the admission of containers with added capabilities",
+  "message": "[cis_eks/3.2.4] failed: Ensure that the --read-only-port is secured",
   "log": { "level": "warn" }
 }

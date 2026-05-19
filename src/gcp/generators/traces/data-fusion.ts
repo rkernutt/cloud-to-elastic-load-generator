@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateDataFusionTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -40,7 +46,7 @@ export function generateDataFusionTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: u1 },
       action: "send",
       destination: { service: { resource: "datafusion", type: "messaging", name: "datafusion" } },
-      labels: failIdx === 0 ? { "gcp.rpc.status_code": "FAILED_PRECONDITION" } : {},
+      labels: failIdx === 0 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,
@@ -68,7 +74,7 @@ export function generateDataFusionTrace(ts: string, er: number): EcsDocument[] {
       destination: {
         service: { resource: "pipeline_source", type: "db", name: "pipeline_source" },
       },
-      labels: failIdx === 1 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: failIdx === 1 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "bigquery.googleapis.com"),
@@ -95,7 +101,9 @@ export function generateDataFusionTrace(ts: string, er: number): EcsDocument[] {
       action: "process",
       destination: { service: { resource: "cdap_transform", type: "app", name: "cdap_transform" } },
       labels:
-        failIdx === 2 ? { "gcp.datafusion.stage": "error" } : { "gcp.datafusion.stage": "map" },
+        failIdx === 2
+          ? { "gcp.datafusion.stage": "error", ...gcpSpanFailureLabels() }
+          : { "gcp.datafusion.stage": "map" },
     },
     service: svc,
     cloud,
@@ -121,7 +129,7 @@ export function generateDataFusionTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: u4 },
       action: "write",
       destination: { service: { resource: "pipeline_sink", type: "db", name: "pipeline_sink" } },
-      labels: failIdx === 3 ? { "gcp.rpc.status_code": "ABORTED" } : {},
+      labels: failIdx === 3 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "bigquery.googleapis.com"),

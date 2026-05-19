@@ -8,6 +8,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 const APPS = [
@@ -99,6 +100,7 @@ export function generateCloudFrontTrace(ts: string, er: number) {
         ...(ph.type === "external"
           ? { "http.url": `https://origin.${rand(["api", "assets"])}.internal/` }
           : {}),
+        ...(spanErr ? awsSpanErrorLabels() : {}),
       },
       event: { outcome: spanErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },

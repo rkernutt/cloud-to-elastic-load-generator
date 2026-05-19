@@ -12,6 +12,30 @@ import {
   randPrincipal,
 } from "./helpers.js";
 
+const GRPC_ERROR_STATUSES = [
+  "INTERNAL",
+  "DEADLINE_EXCEEDED",
+  "PERMISSION_DENIED",
+  "RESOURCE_EXHAUSTED",
+  "NOT_FOUND",
+  "UNAVAILABLE",
+] as const;
+
+function grpcStructuredFault(isErr: boolean): {
+  spread: Record<string, unknown>;
+  rpcLabel: Record<string, string>;
+} {
+  if (!isErr) return { spread: {}, rpcLabel: {} };
+  const code = rand([...GRPC_ERROR_STATUSES]);
+  return {
+    spread: {
+      "gcp.rpc": { status_code: code },
+      error: { code, message: `${code}: operation failed`, type: "gcp" },
+    },
+    rpcLabel: { "gcp.rpc.status_code": code },
+  };
+}
+
 function eventBlock(isErr: boolean, durationNs: number) {
   return {
     outcome: isErr ? ("failure" as const) : ("success" as const),
@@ -82,12 +106,17 @@ export function generateCloudSqlLog(ts: string, er: number): EcsDocument {
     severity = "INFO";
   }
 
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+
   return {
     "@timestamp": ts,
     severity,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     labels: {
       database_id: databaseId,
       instance_id: instanceName,
+      ...rpcLabel,
     },
     cloud: gcpCloud(region, project, "cloud-sql"),
     gcp: {
@@ -122,10 +151,14 @@ export function generateCloudSpannerLog(ts: string, er: number): EcsDocument {
     ? `Cloud Spanner ${instanceId}/${database} ${operation} ABORTED — transaction conflict on commit`
     : `Cloud Spanner ${instanceId} ${database} ${apiMethod} op=${operation} bytes=${bytesReturned}`;
 
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+
   return {
     "@timestamp": ts,
     severity,
-    labels: { instance_id: instanceId, database },
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { instance_id: instanceId, database, ...rpcLabel },
     cloud: gcpCloud(region, project, "cloud-spanner"),
     gcp: {
       cloud_spanner: {
@@ -162,10 +195,14 @@ export function generateFirestoreLog(ts: string, er: number): EcsDocument {
     ? `Firestore ${collection}/${documentId} ${dbOp} FAILED — permission denied on database ${databaseId}`
     : `Firestore ${dbOp} ${collection}/${documentId} docs=${documentsReturned} consistency=${readConsistency}`;
 
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+
   return {
     "@timestamp": ts,
     severity,
-    labels: { database_id: databaseId, collection_id: collection },
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { database_id: databaseId, collection_id: collection, ...rpcLabel },
     cloud: gcpCloud(region, project, "firestore"),
     gcp: {
       firestore: {
@@ -199,10 +236,14 @@ export function generateBigtableLog(ts: string, er: number): EcsDocument {
     ? `Bigtable ${instanceId} ${operation} deadline exceeded after ${latencyMs.toFixed(1)}ms`
     : `Bigtable ${operation} ${instanceId}/${clusterId} rows=${rowsRead} cells=${cellsModified} ${latencyMs.toFixed(1)}ms`;
 
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+
   return {
     "@timestamp": ts,
     severity,
-    labels: { instance_id: instanceId, cluster_id: clusterId },
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { instance_id: instanceId, cluster_id: clusterId, ...rpcLabel },
     cloud: gcpCloud(region, project, "bigtable"),
     gcp: {
       bigtable: {
@@ -237,10 +278,14 @@ export function generateAlloyDbLog(ts: string, er: number): EcsDocument {
     ? `AlloyDB ${clusterName} high CPU ${(cpuUtilization * 100).toFixed(1)}% — connection storm (${connectionCount})`
     : `AlloyDB ${instanceName}/${database} ${queryType} ${queryDurationMs.toFixed(1)}ms rows=${rowsReturned}`;
 
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+
   return {
     "@timestamp": ts,
     severity,
-    labels: { cluster_name: clusterName, instance_name: instanceName },
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { cluster_name: clusterName, instance_name: instanceName, ...rpcLabel },
     cloud: gcpCloud(region, project, "alloydb"),
     gcp: {
       alloy_db: {
@@ -277,10 +322,14 @@ export function generateMemorystoreLog(ts: string, er: number): EcsDocument {
     ? `Memorystore ${engine} ${instanceId} OOM risk — evicted_keys=${evictedKeys} clients=${connectedClients}`
     : `Memorystore ${engine} ${operation} ${instanceId} mem=${memoryUsedMb}MB clients=${connectedClients}`;
 
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+
   return {
     "@timestamp": ts,
     severity,
-    labels: { instance_id: instanceId },
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { instance_id: instanceId, ...rpcLabel },
     cloud: gcpCloud(region, project, "memorystore"),
     gcp: {
       memorystore: {
@@ -313,10 +362,14 @@ export function generateFirebaseRtdbLog(ts: string, er: number): EcsDocument {
     ? `Firebase RTDB ${path} ${dbOp} denied — rules evaluated=${rulesEvaluated} burst bandwidth`
     : `Firebase RTDB ${dbOp} ${path} bw=${bandwidthBytes}B rules=${rulesEvaluated} conns=${concurrentConnections}`;
 
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+
   return {
     "@timestamp": ts,
     severity,
-    labels: { database_url: databaseUrl },
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { database_url: databaseUrl, ...rpcLabel },
     cloud: gcpCloud(region, project, "firebase-rtdb"),
     gcp: {
       firebase_rtdb: {
@@ -348,10 +401,14 @@ export function generateDatabaseMigrationLog(ts: string, er: number): EcsDocumen
     ? `datamigration.googleapis.com/${migrationJob}: replication error ${phase} ${status} ${sourceEngine} -> ${destinationEngine}`
     : `datamigration.googleapis.com/${migrationJob}: ${phase} ${status} objects=${objectsMigrated} lag=${latencySeconds}s`;
 
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+
   return {
     "@timestamp": ts,
     severity,
-    labels: { migration_job: migrationJob },
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { migration_job: migrationJob, ...rpcLabel },
     cloud: gcpCloud(region, project, "database-migration-service"),
     gcp: {
       database_migration: {
@@ -384,10 +441,14 @@ export function generateBareMetalOracleLog(ts: string, er: number): EcsDocument 
     ? `Bare Metal Oracle ${serverName}/${databaseName} ${operation}: tablespace ${(tablespaceUsedPct * 100).toFixed(1)}% redo_switches=${redoLogSwitches}`
     : `Bare Metal Oracle ${oracleVersion} ${serverName} ${databaseName} ${operation} sessions=${sessionsActive}`;
 
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+
   return {
     "@timestamp": ts,
     severity,
-    labels: { server_name: serverName },
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { server_name: serverName, ...rpcLabel },
     cloud: gcpCloud(region, project, "bare-metal-oracle"),
     gcp: {
       bare_metal_oracle: {

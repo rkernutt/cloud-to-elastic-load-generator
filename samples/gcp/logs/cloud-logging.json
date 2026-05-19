@@ -1,54 +1,61 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "DEBUG",
-  "labels": { "resource.type": "logging.googleapis.com/Project", "sink": "sink-to-gcs" },
+  "severity": "NOTICE",
+  "log": { "level": "notice" },
+  "labels": {
+    "resource.type": "logging.googleapis.com/Project",
+    "sink": "sink-archive",
+    "api_method": "logging.googleapis.com/v2/projects/globex-prod-a1b2c3/sinks",
+    "logging_scenario": "sinks_create"
+  },
   "cloud": {
     "provider": "gcp",
-    "region": "australia-southeast2",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" },
+    "region": "europe-west9",
+    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
+    "account": { "id": "314159265358", "name": "Globex Production" },
     "service": { "name": "logging.googleapis.com" }
   },
   "gcp": {
     "cloud_logging": {
-      "log_name": "projects/globex-shared-m3n4o5/logs/vpc_flow",
-      "sink_name": "sink-to-gcs",
-      "destination": "cloud-storage",
+      "scenario": "sinks_create",
+      "api_method": "logging.googleapis.com/v2/projects/globex-prod-a1b2c3/sinks",
+      "log_name": "projects/globex-prod-a1b2c3/logs/vpc_flow",
+      "sink_name": "sink-archive",
+      "destination": "bigquery",
       "filter_expression": "resource.type=\"gce_instance\" AND severity>=ERROR",
-      "entries_exported": 130418,
-      "errors_count": 1,
-      "exclusion_name": "exclusion-IXBM"
+      "entries_exported": 33340,
+      "errors_count": 2
     }
   },
-  "event": { "outcome": "success", "duration": 115122, "module": "gcp", "dataset": "gcp.logging" },
-  "message": "Exported 130418 log entries via sink=\"sink-to-gcs\" to cloud-storage (log_filter matched projects/globex-shared-m3n4o5/logs/vpc_flow)",
+  "event": { "outcome": "success", "duration": 97326, "module": "gcp", "dataset": "gcp.logging" },
+  "message": "CreateSink LRO completed sink=\"sink-archive\" writers_identity=serviceAccount:logging@...",
   "service": { "name": "cloud-logging", "type": "gcp" },
-  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.logging", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-australia-southeast2",
-    "id": "127mwf0v28kq"
+    "name": "elastic-agent-gcp-europe-west9",
+    "id": "i5fyvxcpkm46sw3lyz7umqg4qalqv48y5oik"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-m3n4o5/logs/cloud-logging",
+  "logName": "projects/globex-prod-a1b2c3/logs/cloud-logging",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-shared-m3n4o5", "region": "australia-southeast2" }
+    "labels": { "project_id": "globex-prod-a1b2c3", "region": "europe-west9" }
   },
-  "insertId": "XY7X5MN2Q3K",
+  "insertId": "R1PZDMTYRSWQ",
   "jsonPayload": {
     "cloud_logging": {
-      "log_name": "projects/globex-shared-m3n4o5/logs/vpc_flow",
-      "sink_name": "sink-to-gcs",
-      "destination": "cloud-storage",
+      "scenario": "sinks_create",
+      "api_method": "logging.googleapis.com/v2/projects/globex-prod-a1b2c3/sinks",
+      "log_name": "projects/globex-prod-a1b2c3/logs/vpc_flow",
+      "sink_name": "sink-archive",
+      "destination": "bigquery",
       "filter_expression": "resource.type=\"gce_instance\" AND severity>=ERROR",
-      "entries_exported": 130418,
-      "errors_count": 1,
-      "exclusion_name": "exclusion-IXBM"
+      "entries_exported": 33340,
+      "errors_count": 2
     },
-    "message": "Exported 130418 log entries via sink=\"sink-to-gcs\" to cloud-storage (log_filter matched projects/globex-shared-m3n4o5/logs/vpc_flow)"
+    "message": "CreateSink LRO completed sink=\"sink-archive\" writers_identity=serviceAccount:logging@..."
   }
 }

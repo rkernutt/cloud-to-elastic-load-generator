@@ -14,6 +14,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 const PROJECTS = [
@@ -98,6 +99,7 @@ export function generateCodebuildTrace(ts: string, er: number) {
         "aws.codebuild.project": projectName,
         build_phase: ph.phase,
         "aws.codebuild.build_id": `${projectName}:${newTraceId().slice(0, 8)}`,
+        ...(spanErr ? awsSpanErrorLabels() : {}),
       },
       event: { outcome: spanErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },

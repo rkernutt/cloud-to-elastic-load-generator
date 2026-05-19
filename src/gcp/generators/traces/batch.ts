@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateBatchTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -43,7 +49,7 @@ export function generateBatchTrace(ts: string, er: number): EcsDocument[] {
       destination: { service: { resource: "batch", type: "external", name: "batch" } },
       labels: {
         "gcp.batch.job": job,
-        ...(failIdx === 0 ? { "gcp.rpc.status_code": "INVALID_ARGUMENT" } : {}),
+        ...(failIdx === 0 ? { ...gcpSpanFailureLabels() } : {}),
       },
     },
     service: svc,
@@ -74,7 +80,7 @@ export function generateBatchTrace(ts: string, er: number): EcsDocument[] {
       },
       labels: {
         "gcp.batch.queue": queue,
-        ...(failIdx === 1 ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" } : {}),
+        ...(failIdx === 1 ? { ...gcpSpanFailureLabels() } : {}),
       },
     },
     service: gcpServiceBase("batch-control-plane", env, "go", {
@@ -104,10 +110,7 @@ export function generateBatchTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: u3 },
       action: "execute",
       destination: { service: { resource: "batch_task", type: "request", name: "batch_task" } },
-      labels:
-        failIdx === 2
-          ? { "gcp.batch.task_status": "FAILED", "gcp.rpc.status_code": "ABORTED" }
-          : {},
+      labels: failIdx === 2 ? { "gcp.batch.task_status": "FAILED", ...gcpSpanFailureLabels() } : {},
     },
     service: gcpServiceBase("batch-worker", env, "python", {
       runtimeName: "python",

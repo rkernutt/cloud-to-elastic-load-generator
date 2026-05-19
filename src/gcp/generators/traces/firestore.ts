@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateFirestoreTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -55,7 +61,7 @@ export function generateFirestoreTrace(ts: string, er: number): EcsDocument[] {
       action: "begin",
       db: { type: "nosql", statement: `BEGIN ${txKind.toUpperCase()} /* inventory */` },
       destination: { service: { resource: "firestore", type: "db", name: "firestore" } },
-      labels: failIdx === si ? { "gcp.rpc.status_code": "ABORTED" } : {},
+      labels: failIdx === si ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "firestore.googleapis.com"),
@@ -89,7 +95,7 @@ export function generateFirestoreTrace(ts: string, er: number): EcsDocument[] {
           statement: `get ${rand(collections)}/${randIdPath()} /* read in ${txKind} */`,
         },
         destination: { service: { resource: "firestore", type: "db", name: "firestore" } },
-        labels: failIdx === si ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {},
+        labels: failIdx === si ? { ...gcpSpanFailureLabels() } : {},
       },
       service: svc,
       cloud: gcpCloud(region, project, "firestore.googleapis.com"),
@@ -123,7 +129,7 @@ export function generateFirestoreTrace(ts: string, er: number): EcsDocument[] {
           statement: `set ${rand(collections)}/${randIdPath()} merge:true`,
         },
         destination: { service: { resource: "firestore", type: "db", name: "firestore" } },
-        labels: failIdx === si ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" } : {},
+        labels: failIdx === si ? { ...gcpSpanFailureLabels() } : {},
       },
       service: svc,
       cloud: gcpCloud(region, project, "firestore.googleapis.com"),
@@ -150,7 +156,7 @@ export function generateFirestoreTrace(ts: string, er: number): EcsDocument[] {
       action: "commit",
       db: { type: "nosql", statement: "COMMIT" },
       destination: { service: { resource: "firestore", type: "db", name: "firestore" } },
-      labels: failIdx === si ? { "gcp.rpc.status_code": "ABORTED" } : {},
+      labels: failIdx === si ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "firestore.googleapis.com"),

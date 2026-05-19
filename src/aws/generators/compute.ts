@@ -1,4 +1,13 @@
-import { rand, randInt, randFloat, randId, randIp, randAccount, REGIONS } from "../../helpers";
+import {
+  rand,
+  randInt,
+  randFloat,
+  randId,
+  randIp,
+  randUUID,
+  randAccount,
+  REGIONS,
+} from "../../helpers";
 import type { EcsDocument } from "./types.js";
 
 function generateEc2Log(ts: string, er: number) {
@@ -55,14 +64,10 @@ function generateEc2Log(ts: string, er: number) {
   };
   const EC2_ERROR_CODES = [
     "InsufficientInstanceCapacity",
-    "InstanceNotFound",
-    "InvalidParameterValue",
-    "AuthFailure",
-    "UnauthorizedOperation",
-    "InvalidInstanceID.NotFound",
-    "InsufficientAddressCapacity",
-    "InvalidAMIID.NotFound",
-    "InvalidKeyPair.NotFound",
+    "InstanceLimitExceeded",
+    "InvalidInstanceID",
+    "VolumeInUse",
+    "Unsupported",
   ];
   const isErr = level === "error";
   const cpuPct = Number(randFloat(1, isErr ? 99 : 70));
@@ -196,7 +201,7 @@ function generateEc2Log(ts: string, er: number) {
     },
     message: message,
     ...(isErr
-      ? { error: { code: rand(EC2_ERROR_CODES), message: rand(MSGS.error), type: "host" } }
+      ? { error: { code: rand(EC2_ERROR_CODES), message: rand(MSGS.error), type: "aws" } }
       : {}),
   };
 }
@@ -249,21 +254,10 @@ function generateEcsLog(ts: string, er: number): EcsDocument {
     ],
   };
   const ECS_ERROR_CODES = [
-    "ClusterContainsContainerInstances",
-    "ClusterContainsServices",
-    "ClusterContainsTasks",
     "ClusterNotFoundException",
-    "InvalidParameterException",
-    "MissingVersionException",
-    "NoUpdateAvailableException",
-    "PlatformTaskDefinitionIncompatibilityException",
-    "PlatformUnknownException",
-    "ResourceNotFoundException",
-    "ServiceNotActiveException",
     "ServiceNotFoundException",
-    "TaskDefinitionFamilyExistsException",
-    "UnsupportedFeatureException",
-    "UpdateInProgressException",
+    "TaskSetNotFoundException",
+    "PlatformUnknownException",
   ];
   const durationSec = randInt(5, isErr ? 300 : 3600);
   const taskId = taskArn.split("/").pop() ?? randId(32).toLowerCase();
@@ -333,7 +327,7 @@ function generateEcsLog(ts: string, er: number): EcsDocument {
     ecs_task_definition: ecsTaskDefinition,
     ecs_task_arn: ecsTaskArn,
     ...(isErr
-      ? { error: { code: rand(ECS_ERROR_CODES), message: rand(MSGS.error), type: "container" } }
+      ? { error: { code: rand(ECS_ERROR_CODES), message: rand(MSGS.error), type: "aws" } }
       : {}),
   };
 }
@@ -369,11 +363,10 @@ function generateEksLog(ts: string, er: number): EcsDocument {
     ],
   };
   const EKS_ERROR_CODES = [
-    "OOMKilled",
-    "CrashLoopBackOff",
-    "ImagePullBackOff",
-    "LivenessProbeFailed",
-    "FailedScheduling",
+    "ResourceNotFoundException",
+    "InvalidParameterException",
+    "ClientException",
+    "ServerException",
   ];
   const durationSec = randInt(1, isErr ? 300 : 3600);
   const nodeName = `ip-${randIp().replace(/\./g, "-")}.${region}.compute.internal`;
@@ -530,7 +523,7 @@ function generateEksLog(ts: string, er: number): EcsDocument {
     },
     message: message,
     ...(isErr
-      ? { error: { code: rand(EKS_ERROR_CODES), message: rand(MSGS.error), type: "container" } }
+      ? { error: { code: rand(EKS_ERROR_CODES), message: rand(MSGS.error), type: "aws" } }
       : {}),
   };
 }
@@ -592,16 +585,7 @@ function generateBatchLog(ts: string, er: number): EcsDocument {
       `stdout:${new Date(ts).toISOString()} INFO spark.SparkContext: Running job 0 stage ${randInt(0, 20)}`,
     ],
   };
-  const BATCH_ERROR_CODES = [
-    "ClientException",
-    "ServerException",
-    "CE_DELETED",
-    "CE_INVALID",
-    "CE_INSUFFICIENT_CAPACITY",
-    "JQ_DELETED",
-    "JD_DELETED",
-    "JobDependencyError",
-  ];
+  const BATCH_ERROR_CODES = ["ClientException", "ServerException", "TooManyRequestsException"];
   const plainMessage = rand(MSGS[level]);
   const useStructuredLogging = Math.random() < 0.6;
   const message = useStructuredLogging
@@ -670,7 +654,7 @@ function generateBatchLog(ts: string, er: number): EcsDocument {
     message: message,
     logStreamName,
     ...(isErr
-      ? { error: { code: rand(BATCH_ERROR_CODES), message: rand(MSGS.error), type: "process" } }
+      ? { error: { code: rand(BATCH_ERROR_CODES), message: rand(MSGS.error), type: "aws" } }
       : {}),
   };
 }
@@ -1152,27 +1136,64 @@ function generateImageBuilderLog(ts: string, er: number): EcsDocument {
 function generateOutpostsLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
-  const isErr = Math.random() < er;
   const outpostId = `op-` + randId(17).toLowerCase();
-  const outpostArn = `arn:aws:outposts:${region}:${acct.id}:outpost/op-${randId(17).toLowerCase()}`;
+  const outpostArn = `arn:aws:outposts:${region}:${acct.id}:outpost/${outpostId}`;
   const siteId = `os-` + randId(17).toLowerCase();
   const rackId = `or-` + randId(17).toLowerCase();
   const instanceType = rand(["m5.xlarge", "m5.2xlarge", "c5.xlarge", "r5.xlarge", "m5d.xlarge"]);
   const availableInstanceCount = randInt(0, 20);
   const totalInstanceCount = randInt(20, 40);
-  const capacityStatus = isErr
-    ? rand(["InsufficientCapacity", "Degraded"])
-    : rand(["Active", "Active", "Active", "Scheduled"]);
-  const connectivityStatus = isErr ? rand(["Disconnected", "Degraded"]) : "Connected";
+  const r = randFloat(0, 1);
+  const scenario =
+    r < 0.26
+      ? "rack_status"
+      : r < 0.46
+        ? "capacity_check"
+        : r < 0.65
+          ? "instance_launch"
+          : r < 0.82
+            ? "network_reachability"
+            : "service_link_health";
+  const connectivityStatus =
+    scenario === "network_reachability"
+      ? Math.random() < 0.72
+        ? "Connected"
+        : rand(["Disconnected", "Degraded"])
+      : "Connected";
+  const capacityStatus =
+    scenario === "capacity_check"
+      ? Math.random() < 0.78
+        ? rand(["Active", "Active", "Scheduled"])
+        : rand(["InsufficientCapacity", "Degraded"])
+      : rand(["Active", "Active", "Scheduled"]);
+  const badNetwork = scenario === "network_reachability" && connectivityStatus !== "Connected";
+  const badCapacity = scenario === "capacity_check" && capacityStatus === "InsufficientCapacity";
+  const isErr = badNetwork || badCapacity || Math.random() < er;
   const assetState = rand(["ACTIVE", "ACTIVE", "RETIRING", "ISOLATED"]);
-  const action = rand([
-    "CapacityReservation",
-    "InstanceLaunch",
-    "InstanceTermination",
-    "ConnectivityStatusChange",
-    "HardwareMaintenanceScheduled",
-    "AssetStateChange",
-  ]);
+  const serviceLink = {
+    vpc_id: `vpc-${randId(8)}`,
+    service_linked_role: `AWSServiceRoleForOutposts`,
+    route_table_revision: randInt(1, 12),
+    last_health_ping_ms: randInt(5, isErr ? 800 : 40),
+  };
+  const rackTelemetry = {
+    power_kw: Number(randFloat(8, isErr ? 40 : 24)),
+    ambient_c: randInt(18, 32),
+    fabric_links_up: randInt(isErr ? 0 : 2, 4),
+  };
+  const errCode = rand([
+    "ValidationException",
+    "InternalServerException",
+    "ConflictException",
+    "NotFoundException",
+  ] as const);
+  const messages: Record<string, string> = {
+    rack_status: `Rack ${rackId}: asset_state=${assetState} lifecycle=${rand(["NORMAL", "RETIRING"])} firmware=${rand(["2.14.5", "2.15.0"])}`,
+    capacity_check: `ListCapacity: ${availableInstanceCount}/${totalInstanceCount} ${instanceType} available status=${capacityStatus}`,
+    instance_launch: `RunInstances on ${outpostId} (${instanceType}) placement_host=${randId(8)} pool=${rand(["POOL_A", "POOL_B"])}`,
+    network_reachability: `LACP ${rand(["AGG1", "AGG2"])} status connectivity=${connectivityStatus} LOS=${randFloat(0, isErr ? 2.5 : 0.01).toFixed(3)}%`,
+    service_link_health: `AWSServiceRoleForOutposts health OK=${!isErr} route_sync=${serviceLink.route_table_revision} ping=${serviceLink.last_health_ping_ms}ms`,
+  };
   return {
     "@timestamp": ts,
     cloud: {
@@ -1188,32 +1209,36 @@ function generateOutpostsLog(ts: string, er: number): EcsDocument {
         outpost_arn: outpostArn,
         site_id: siteId,
         rack_id: rackId,
+        scenario,
         instance_type: instanceType,
         available_instance_count: availableInstanceCount,
         total_instance_count: totalInstanceCount,
         capacity_status: capacityStatus,
         connectivity_status: connectivityStatus,
         asset_state: assetState,
+        service_link:
+          scenario === "service_link_health" || Math.random() < 0.35 ? serviceLink : undefined,
+        ...(scenario === "rack_status" || scenario === "instance_launch"
+          ? { rack_telemetry: rackTelemetry }
+          : {}),
       },
     },
     event: {
-      action,
+      action: scenario,
       outcome: isErr ? "failure" : "success",
       category: ["host", "infrastructure"],
       dataset: "aws.outposts",
       provider: "outposts.amazonaws.com",
       duration: randInt(100, 5000) * 1e6,
     },
-    message: isErr
-      ? `Outpost ${outpostId}: ${capacityStatus} — ${availableInstanceCount}/${totalInstanceCount} ${instanceType} available`
-      : `Outpost ${outpostId}: ${action} ${instanceType} ${capacityStatus}`,
+    message: isErr ? `${messages[scenario]} — ${errCode}` : messages[scenario],
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
           error: {
-            code: capacityStatus,
-            message: `Outpost connectivity: ${connectivityStatus}`,
-            type: "host",
+            code: errCode,
+            message: `Outposts ${scenario} fault on ${outpostId}`,
+            type: "aws",
           },
         }
       : {}),
@@ -1222,7 +1247,6 @@ function generateOutpostsLog(ts: string, er: number): EcsDocument {
 
 function generateWavelengthLog(ts: string, er: number): EcsDocument {
   const acct = randAccount();
-  const isErr = Math.random() < er;
   const WAVELENGTH_ZONES = [
     { zone: "us-east-1-wl1-bos-wlz-1", region: "us-east-1", carrier: "Verizon", city: "Boston" },
     { zone: "us-east-1-wl1-nyc-wlz-1", region: "us-east-1", carrier: "Verizon", city: "New York" },
@@ -1261,25 +1285,59 @@ function generateWavelengthLog(ts: string, er: number): EcsDocument {
   const subnetId = `subnet-${randId(17).toLowerCase()}`;
   const carrierIp = randIp();
   const ueIp = randIp();
+  const bandwidthAllowanceGbps = randInt(1, 25);
+  const r = randFloat(0, 1);
+  const scenario =
+    r < 0.24
+      ? "carrier_gateway_attach"
+      : r < 0.44
+        ? "edge_compute_launch"
+        : r < 0.62
+          ? "low_latency_check"
+          : r < 0.78
+            ? "throughput_probe"
+            : r < 0.92
+              ? "subnet_association"
+              : "metadata_refresh";
+  const gwFail = scenario === "carrier_gateway_attach" && Math.random() < 0.22;
+  const latentFail =
+    (scenario === "low_latency_check" && Math.random() < 0.28) ||
+    (scenario === "edge_compute_launch" && Math.random() < 0.12);
+  const isErr = gwFail || latentFail || Math.random() < er;
   const uplinkMbps = Number(randFloat(1, isErr ? 10 : 500));
   const downlinkMbps = Number(randFloat(1, isErr ? 10 : 1000));
   const latencyMs = Number(randFloat(1, isErr ? 50 : 10));
-  const bandwidthAllowanceGbps = randInt(1, 25);
-  const action = rand([
-    "RunInstances",
-    "TerminateInstances",
-    "AllocateAddress",
-    "CarrierGatewayCreated",
-    "BandwidthThrottled",
-    "PacketLoss",
-    "InstanceStateChange",
-  ]);
-  const errorCode = rand([
+  const errorCodeApi = rand([
     "InsufficientCapacityInWavelengthZone",
     "CarrierGatewayLimitExceeded",
     "BandwidthLimitExceeded",
     "InvalidWavelengthZone",
-  ]);
+  ] as const);
+  const edgeLaunch = {
+    ami_id: `ami-${randId(8)}`,
+    launch_template: `lt-${randId(8)}`,
+    placement_tenancy: "default",
+    carrier_route_table: `rtb-${randId(8)}`,
+  };
+  const carrierGateway = {
+    state: gwFail ? rand(["failed", "pending"]) : "available",
+    attachment_id: `cagw-attach-${randId(8)}`,
+    amazon_side_asn: randInt(64512, 65534),
+  };
+  const latencyProbe = {
+    target_host: rand(["edge-core", "5gc-upf", "mec-app"]),
+    rtt_us_p99: randInt(isErr ? 500 : 120, isErr ? 12000 : 800),
+    jitter_ms: Number(randFloat(0.1, isErr ? 12 : 1.8)),
+    samples: randInt(20, 200),
+  };
+  const messages: Record<string, string> = {
+    carrier_gateway_attach: `CreateCarrierGateway ${carrierGwId} subnet=${subnetId} state=${carrierGateway.state}`,
+    edge_compute_launch: `RunInstances ${instanceType} zone=${wz.zone} instance=${instanceId} template=${edgeLaunch.launch_template}`,
+    low_latency_check: `HealthCheck UE=${ueIp.slice(0, 8)}… carrier=${wz.carrier} p99=${latencyProbe.rtt_us_p99 / 1000}ms jitter=${latencyProbe.jitter_ms}`,
+    throughput_probe: `BW test UL=${uplinkMbps.toFixed(1)}Mbps DL=${downlinkMbps.toFixed(1)}Mbps quota=${bandwidthAllowanceGbps}Gbps`,
+    subnet_association: `AssociateCarrierGateway vpc=vpc-${randId(8)} route_table=${edgeLaunch.carrier_route_table} assoc=${carrierGateway.attachment_id}`,
+    metadata_refresh: `IMDS token refresh ttl=${randInt(1, 6)}h on ${instanceId}`,
+  };
   return {
     "@timestamp": ts,
     cloud: {
@@ -1300,6 +1358,7 @@ function generateWavelengthLog(ts: string, er: number): EcsDocument {
         zone: wz.zone,
         carrier: wz.carrier,
         city: wz.city,
+        scenario,
         instance_id: instanceId,
         instance_type: instanceType,
         carrier_gateway_id: carrierGwId,
@@ -1307,18 +1366,27 @@ function generateWavelengthLog(ts: string, er: number): EcsDocument {
         carrier_ip: carrierIp,
         ue_ip: ueIp,
         bandwidth_allowance_gbps: bandwidthAllowanceGbps,
+        carrier_gateway:
+          scenario === "carrier_gateway_attach" || scenario === "subnet_association"
+            ? carrierGateway
+            : undefined,
+        edge_launch:
+          scenario === "edge_compute_launch" || scenario === "metadata_refresh"
+            ? edgeLaunch
+            : undefined,
+        latency_probe: scenario === "low_latency_check" || latentFail ? latencyProbe : undefined,
         network: {
           uplink_mbps: uplinkMbps,
           downlink_mbps: downlinkMbps,
           latency_ms: latencyMs,
           packet_loss_pct: isErr ? Number(randFloat(1, 15)) : Number(randFloat(0, 0.1)),
         },
-        error_code: isErr ? errorCode : null,
+        api_error_code: isErr ? errorCodeApi : null,
       },
     },
     source: { ip: ueIp },
     event: {
-      action,
+      action: scenario,
       outcome: isErr ? "failure" : "success",
       category: ["network", "host"],
       dataset: "aws.wavelength",
@@ -1326,15 +1394,15 @@ function generateWavelengthLog(ts: string, er: number): EcsDocument {
       duration: randInt(10, 500) * 1e6,
     },
     message: isErr
-      ? `Wavelength [${wz.city}/${wz.carrier}] ${action} FAILED on ${instanceId}: ${errorCode}`
-      : `Wavelength [${wz.city}/${wz.carrier}] ${instanceId} (${instanceType}) UL=${uplinkMbps.toFixed(0)}Mbps DL=${downlinkMbps.toFixed(0)}Mbps lat=${latencyMs.toFixed(1)}ms`,
+      ? `Wavelength [${wz.city}/${wz.carrier}] ${scenario}: ${errorCodeApi} (${instanceId})`
+      : messages[scenario],
     log: { level: isErr ? "error" : latencyMs > 20 ? "warn" : "info" },
     ...(isErr
       ? {
           error: {
-            code: errorCode,
-            message: `Wavelength zone operation failed in ${wz.zone}`,
-            type: "network",
+            code: errorCodeApi,
+            message: `Wavelength ${scenario} failed in ${wz.zone}`,
+            type: "aws",
           },
         }
       : {}),
@@ -1344,16 +1412,61 @@ function generateWavelengthLog(ts: string, er: number): EcsDocument {
 function generateMainframeModernizationLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
-  const isErr = Math.random() < er;
   const applicationId = `app-${randId(6).toLowerCase()}`;
   const environmentId = `env-${randId(8).toLowerCase()}`;
   const engineType = rand(["microfocus", "bluage"]);
   const deploymentId = `deploy-${randId(8).toLowerCase()}`;
+  const r = randFloat(0, 1);
+  const scenario =
+    r < 0.26
+      ? "migration_assess"
+      : r < 0.48
+        ? "refactor_start"
+        : r < 0.68
+          ? "replatform_deploy"
+          : r < 0.86
+            ? "runtime_update"
+            : "batch_cutover";
+  const assessReport = {
+    cobol_loc: randInt(50_000, 5_000_000),
+    dependencies_resolved: randInt(100, 9000),
+    blocker_count: randInt(0, scenario === "migration_assess" && Math.random() < 0.25 ? 12 : 0),
+  };
+  const refactor = {
+    project_id: `ref-${randId(6)}`,
+    transform_rules_applied: randInt(5, 200),
+    compile_warnings: randInt(0, 120),
+  };
+  const replatform = {
+    target_runtime: rand(["AWS Mainframe Runtime", "containerized-mf"]),
+    cloudformation_stack: `m2-${randId(8)}`,
+    blue_green_slice_pct: randInt(5, 50),
+  };
+  const risky =
+    scenario === "replatform_deploy" ||
+    scenario === "runtime_update" ||
+    scenario === "batch_cutover";
+  const isErr =
+    (scenario === "migration_assess" && assessReport.blocker_count > 0 && Math.random() < 0.55) ||
+    (risky && Math.random() < 0.24) ||
+    Math.random() < er;
   const batchJobStatus = isErr ? "Failed" : rand(["Succeeded", "Running", "Succeeded"]);
   const batchJobsRunning = isErr ? 0 : randInt(0, 20);
   const onlineTps = isErr ? 0 : Number(randFloat(1, 500));
   const cpuUtilization = isErr ? Number(randFloat(90, 100)) : Number(randFloat(5, 75));
-  const errorCode = rand(["BatchJobFailed", "ApplicationStartFailed"]);
+  const errCode = rand([
+    "ServiceQuotaExceededException",
+    "InternalServerException",
+    "AccessDeniedException",
+    "ResourceNotFoundException",
+  ] as const);
+  const messages: Record<string, string> = {
+    migration_assess: `GetAssessment ${applicationId}: loc=${assessReport.cobol_loc} blockers=${assessReport.blocker_count}`,
+    refactor_start: `StartTransform ${refactor.project_id} rules=${refactor.transform_rules_applied} warnings=${refactor.compile_warnings}`,
+    replatform_deploy: `CreateDeployment ${deploymentId} stack=${replatform.cloudformation_stack} slice=${replatform.blue_green_slice_pct}%`,
+    runtime_update: `UpdateRuntime ${environmentId} engine=${engineType} build=${rand(["R2024-09", "R2025-01"])}`,
+    batch_cutover: `Batch ${rand(["PAYROLL", "LEDGER", "CLAIMS"])} job state=${batchJobStatus} cput=${cpuUtilization.toFixed(1)}%`,
+  };
   return {
     "@timestamp": ts,
     cloud: {
@@ -1369,16 +1482,21 @@ function generateMainframeModernizationLog(ts: string, er: number): EcsDocument 
         environment_id: environmentId,
         engine_type: engineType,
         deployment_id: deploymentId,
+        scenario,
         batch_job_status: batchJobStatus,
+        assessment: scenario === "migration_assess" ? assessReport : undefined,
+        refactor: scenario === "refactor_start" ? refactor : undefined,
+        replatform: scenario === "replatform_deploy" ? replatform : undefined,
         metrics: {
           batch_jobs_running: batchJobsRunning,
           online_transactions_per_sec: onlineTps,
           cpu_utilization: cpuUtilization,
         },
-        error_code: isErr ? errorCode : null,
+        api_error_code: isErr ? errCode : null,
       },
     },
     event: {
+      action: scenario,
       outcome: isErr ? "failure" : "success",
       category: ["process"],
       dataset: "aws.m2",
@@ -1386,16 +1504,14 @@ function generateMainframeModernizationLog(ts: string, er: number): EcsDocument 
       duration: randInt(100, isErr ? 30000 : 5000) * 1e6,
     },
     data_stream: { type: "logs", dataset: "aws.m2", namespace: "default" },
-    message: isErr
-      ? `Mainframe Modernization ${applicationId}: ${errorCode} (${engineType})`
-      : `Mainframe Modernization ${applicationId}: batch_status=${batchJobStatus}, tps=${onlineTps.toFixed(0)}, cpu=${cpuUtilization.toFixed(1)}%`,
+    message: isErr ? `${messages[scenario]} — ${errCode}` : messages[scenario],
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
           error: {
-            code: errorCode,
-            message: `Mainframe Modernization application ${applicationId} failed`,
-            type: "process",
+            code: errCode,
+            message: `M2 ${scenario} failed for ${applicationId}`,
+            type: "aws",
           },
         }
       : {}),
@@ -1405,16 +1521,67 @@ function generateMainframeModernizationLog(ts: string, er: number): EcsDocument 
 function generateParallelComputingLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
-  const isErr = Math.random() < er;
   const clusterId = `pcs-${randId(8).toLowerCase()}`;
-  const scheduler = "slurm";
+  const scheduler = rand(["slurm", "slurm", "aws-batch-style"]);
   const queueName = rand(["high-priority", "batch", "gpu"]);
   const jobId = `job-${randInt(1, 999999)}`;
-  const jobState = isErr ? "FAILED" : rand(["PENDING", "RUNNING", "COMPLETED", "RUNNING"]);
-  const runningJobs = isErr ? 0 : randInt(0, 500);
+  const r = randFloat(0, 1);
+  const scenario =
+    r < 0.26
+      ? "cluster_create"
+      : r < 0.46
+        ? "job_submit"
+        : r < 0.62
+          ? "node_scale"
+          : r < 0.78
+            ? "mpi_barrier"
+            : r < 0.9
+              ? "queue_drain"
+              : "scheduler_resync";
+  const scalingActivity = {
+    target_nodes: randInt(4, 2800),
+    active_nodes: randInt(2, 800),
+    action: rand(["SCALE_OUT", "SCALE_IN", "REPLACE_UNHEALTHY"]),
+  };
+  const mpi = {
+    comm_world_size: randInt(64, 16384),
+    barrier_wait_ms_p99: randInt(1, 120),
+    ibv_retries: randInt(0, 2),
+    collective: rand(["MPI_Barrier", "MPI_Allreduce", "MPI_Ibarrier"]),
+  };
+  const jobSubmit = {
+    script_path: `/shared/jobs/${rand(["cfd", "molecular", "weather"])}.sbatch`,
+    gres_gpu: randInt(0, 8),
+    walltime_hours: randInt(1, 96),
+    qos: rand(["interactive", "normal", "premium"]),
+  };
+  const risky =
+    scenario === "job_submit" || scenario === "node_scale" || scenario === "mpi_barrier";
+  const isErr = (risky && Math.random() < 0.26) || Math.random() < er;
+  const jobState =
+    scenario === "job_submit" && !isErr
+      ? rand(["SUBMITTED", "PENDING", "RUNNING"])
+      : isErr
+        ? "FAILED"
+        : rand(["PENDING", "RUNNING", "COMPLETED"]);
+  const runningJobs = isErr && scenario === "node_scale" ? randInt(0, 80) : randInt(0, 500);
   const pendingJobs = randInt(0, isErr ? 1000 : 200);
-  const computeNodesActive = isErr ? 0 : randInt(1, 1000);
-  const errorCode = rand(["JobFailed", "NodeProvisioningFailed"]);
+  const computeNodesActive =
+    isErr && scenario === "cluster_create" ? randInt(0, 4) : randInt(1, 1000);
+  const errCode = rand([
+    "ValidationException",
+    "ConflictException",
+    "InternalServerException",
+    "AccessDeniedException",
+  ] as const);
+  const messages: Record<string, string> = {
+    cluster_create: `CreateCluster ${clusterId} controller=${scheduler} vpc=${`vpc-${randId(8)}`}`,
+    job_submit: `sbatch ${jobSubmit.script_path} QOS=${jobSubmit.qos} gpus=${jobSubmit.gres_gpu} -> ${jobId}`,
+    node_scale: `Fleet scale ${scalingActivity.action}: target=${scalingActivity.target_nodes} live=${scalingActivity.active_nodes}`,
+    mpi_barrier: `${mpi.collective} size=${mpi.comm_world_size} p99_wait=${mpi.barrier_wait_ms_p99}ms ibv_retries=${mpi.ibv_retries}`,
+    queue_drain: `Queue ${queueName} drain_requested=${rand([true, false])} backlog=${pendingJobs}`,
+    scheduler_resync: `Slurm REST slurmctld@${rand(["10.0.1.2", "10.1.44.88"])} version=${rand(["23.02", "23.11"])}`,
+  };
   return {
     "@timestamp": ts,
     cloud: {
@@ -1428,18 +1595,23 @@ function generateParallelComputingLog(ts: string, er: number): EcsDocument {
       pcs: {
         cluster_id: clusterId,
         scheduler,
+        scenario,
         queue_name: queueName,
         job_id: jobId,
         job_state: jobState,
+        mpi: scenario === "mpi_barrier" || scenario === "job_submit" ? mpi : undefined,
+        scaling: scenario === "node_scale" ? scalingActivity : undefined,
+        workload: scenario === "job_submit" ? jobSubmit : undefined,
         metrics: {
           running_jobs: runningJobs,
           pending_jobs: pendingJobs,
           compute_nodes_active: computeNodesActive,
         },
-        error_code: isErr ? errorCode : null,
+        api_error_code: isErr ? errCode : null,
       },
     },
     event: {
+      action: scenario,
       outcome: isErr ? "failure" : "success",
       category: ["process"],
       dataset: "aws.pcs",
@@ -1447,16 +1619,14 @@ function generateParallelComputingLog(ts: string, er: number): EcsDocument {
       duration: randInt(1, isErr ? 60000 : 3600) * 1e6,
     },
     data_stream: { type: "logs", dataset: "aws.pcs", namespace: "default" },
-    message: isErr
-      ? `PCS cluster ${clusterId}: ${errorCode} for job ${jobId} in queue ${queueName}`
-      : `PCS cluster ${clusterId}: ${runningJobs} running, ${pendingJobs} pending, ${computeNodesActive} nodes active`,
+    message: isErr ? `${messages[scenario]} — ${errCode}` : messages[scenario],
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
           error: {
-            code: errorCode,
-            message: `Parallel Computing Service job failed on cluster ${clusterId}`,
-            type: "process",
+            code: errCode,
+            message: `PCS ${scenario} failed on cluster ${clusterId}`,
+            type: "aws",
           },
         }
       : {}),
@@ -1466,16 +1636,73 @@ function generateParallelComputingLog(ts: string, er: number): EcsDocument {
 function generateEvsLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
-  const isErr = Math.random() < er;
   const environmentId = `evs-${randId(8).toLowerCase()}`;
   const vcenterHostname = `vcenter-${randId(6).toLowerCase()}.internal`;
   const esxiVersion = "8.0.3";
   const hostCount = randInt(3, 20);
   const vsanDatastoreId = `datastore-${randInt(1, 999)}`;
-  const hostsOnline = isErr ? randInt(1, hostCount - 1) : hostCount;
+  const r = randFloat(0, 1);
+  const scenario =
+    r < 0.27
+      ? "vmware_host_provision"
+      : r < 0.46
+        ? "vsan_extend"
+        : r < 0.62
+          ? "nsx_configure"
+          : r < 0.79
+            ? "ha_failover_drill"
+            : r < 0.93
+              ? "drs_rebalance"
+              : "lifecycle_snapshot";
+  const vmwareHost = {
+    bios_uuid: randUUID(),
+    mgmt_ip: randIp(),
+    cluster_name: rand(["mgmt-a", "edge-b"]),
+    maintenance_mode: rand(["false", "false", "true"]),
+  };
+  const vsan = {
+    stripe_width: randInt(2, 8),
+    fault_domains: randInt(2, 5),
+    resync_bytes_outstanding:
+      scenario === "vsan_extend" && Math.random() < 0.35 ? randInt(1e9, 15e11) : randInt(0, 5e9),
+    disk_group: `dg-${randId(4)}`,
+  };
+  const nsx = {
+    tz_name: rand(["OVERLAY-TZ", "VLAN-uplink"]),
+    tier0: `tier0-${randId(4)}`,
+    segment_count: randInt(5, 200),
+    edge_cluster: rand(["EDGE-A", "EDGE-B"]),
+  };
+  const risky =
+    scenario === "vmware_host_provision" ||
+    scenario === "vsan_extend" ||
+    scenario === "nsx_configure";
+  const isErr =
+    (risky && Math.random() < 0.25) ||
+    (scenario === "ha_failover_drill" && Math.random() < 0.2) ||
+    Math.random() < er;
+  const hostsOnline =
+    scenario === "vmware_host_provision" || scenario === "ha_failover_drill"
+      ? isErr
+        ? randInt(1, Math.max(1, hostCount - 1))
+        : hostCount
+      : hostCount;
   const vsanCapacityUsedTb = Number(randFloat(1, 100));
   const vcpuAllocationRatio = Number(randFloat(1, isErr ? 20 : 8));
-  const errorCode = rand(["HostFailure", "VsanDegradedError"]);
+  const errCode = rand([
+    "ServiceUnavailableException",
+    "ConflictException",
+    "InternalServerException",
+    "ValidationException",
+  ] as const);
+  const messages: Record<string, string> = {
+    vmware_host_provision: `AddHost ${vmwareHost.mgmt_ip} bios=${vmwareHost.bios_uuid.slice(0, 8)}… cluster=*${vmwareHost.cluster_name}`,
+    vsan_extend: `vSAN ResizeDiskGroup ${vsan.disk_group} stripe=${vsan.stripe_width} resync=${vsan.resync_bytes_outstanding}B`,
+    nsx_configure: `NSX ${nsx.tier0}/${nsx.tz_name}: segments=${nsx.segment_count} edge=${nsx.edge_cluster}`,
+    ha_failover_drill: `vSphere HA restart priority=${rand(["medium", "high"])} VMs_affected=${isErr ? randInt(10, 80) : 0}`,
+    drs_rebalance: `DRS lvl=${rand([1, 2, 3])} mig_recs=${randInt(0, 12)} vMotion_window=${randInt(5, 45)}s`,
+    lifecycle_snapshot: `SDDC snapshot policy compliance=${rand(["OK", "OK", "STALE"])}`,
+  };
   return {
     "@timestamp": ts,
     cloud: {
@@ -1490,17 +1717,25 @@ function generateEvsLog(ts: string, er: number): EcsDocument {
         environment_id: environmentId,
         vcenter_hostname: vcenterHostname,
         esxi_version: esxiVersion,
+        scenario,
         host_count: hostCount,
         vsan_datastore_id: vsanDatastoreId,
+        vmware_host:
+          scenario === "vmware_host_provision" || scenario === "drs_rebalance"
+            ? vmwareHost
+            : undefined,
+        vsan: scenario === "vsan_extend" || scenario === "lifecycle_snapshot" ? vsan : undefined,
+        nsx: scenario === "nsx_configure" ? nsx : undefined,
         metrics: {
           hosts_online: hostsOnline,
           vsan_capacity_used_tb: vsanCapacityUsedTb,
           vcpu_allocation_ratio: vcpuAllocationRatio,
         },
-        error_code: isErr ? errorCode : null,
+        api_error_code: isErr ? errCode : null,
       },
     },
     event: {
+      action: scenario,
       outcome: isErr ? "failure" : "success",
       category: ["host"],
       dataset: "aws.evs",
@@ -1508,16 +1743,14 @@ function generateEvsLog(ts: string, er: number): EcsDocument {
       duration: randInt(50, 2000) * 1e6,
     },
     data_stream: { type: "logs", dataset: "aws.evs", namespace: "default" },
-    message: isErr
-      ? `EVS environment ${environmentId}: ${errorCode} — ${hostsOnline}/${hostCount} hosts online`
-      : `EVS environment ${environmentId}: ${hostsOnline}/${hostCount} hosts, vSAN=${vsanCapacityUsedTb.toFixed(1)}TB, vCPU ratio=${vcpuAllocationRatio.toFixed(1)}`,
+    message: isErr ? `${messages[scenario]} — ${errCode}` : messages[scenario],
     log: { level: isErr ? "error" : hostsOnline < hostCount ? "warn" : "info" },
     ...(isErr
       ? {
           error: {
-            code: errorCode,
-            message: `Elastic VMware Service failure in environment ${environmentId}`,
-            type: "host",
+            code: errCode,
+            message: `EVS ${scenario} failed for ${environmentId}`,
+            type: "aws",
           },
         }
       : {}),
@@ -1527,7 +1760,6 @@ function generateEvsLog(ts: string, er: number): EcsDocument {
 function generateSimSpaceWeaverLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
-  const isErr = Math.random() < er;
   const simulationId = `sim-${randId(10).toLowerCase()}`;
   const appName = rand([
     "urban-traffic-sim",
@@ -1537,11 +1769,64 @@ function generateSimSpaceWeaverLog(ts: string, er: number): EcsDocument {
   ]);
   const domainName = rand(["Terrain", "Agents", "Traffic"]);
   const clockTickMs = randInt(100, 1000);
+  const r = randFloat(0, 1);
+  const scenario =
+    r < 0.24
+      ? "simulation_create"
+      : r < 0.4
+        ? "entity_spawn"
+        : r < 0.56
+          ? "clock_tick"
+          : r < 0.72
+            ? "spatial_partition"
+            : r < 0.87
+              ? "state_snapshot"
+              : "weaver_sync";
+  const risky =
+    scenario === "spatial_partition" ||
+    scenario === "clock_tick" ||
+    scenario === "simulation_create";
+  const isErr = (risky && Math.random() < 0.23) || Math.random() < er;
+  const spatial = {
+    partition_id: randInt(0, 511),
+    cell_size_m: Number(randFloat(0.25, isErr ? 64 : 8)),
+    halo_exchange_bytes: randInt(1024, isErr ? 10_000_000_000 : 900_000_000),
+    load_imbalance_pct: Number(randFloat(0.1, isErr ? 62 : 9)),
+    tree_depth: randInt(4, 22),
+  };
+  const entity = {
+    archetype_id: rand(["PED", "VEHICLE", "SIGNAL"]),
+    spawn_rate_per_sec: randInt(50, isErr ? 20000 : 4000),
+    max_entities_budget: randInt(10_000, 2_000_000),
+  };
+  const clock = {
+    tick_index: randInt(0, Math.floor(isErr ? 100_000_000_000 : 900_000_000)),
+    logical_time_ms: randInt(0, 86_400_000),
+    drift_budget_ms: randInt(0, isErr ? 50 : 4),
+    authority: rand(["PRIMARY", "STANDBY"]),
+  };
   const simulationStatus = isErr ? "FAILED" : rand(["RUNNING", "STARTING", "RUNNING"]);
-  const entitiesCount = isErr ? 0 : randInt(100, 1000000);
-  const computeWorkers = isErr ? 0 : randInt(1, 200);
-  const clockLagMs = isErr ? randInt(500, 5000) : randInt(0, 50);
-  const errorCode = rand(["PartitionFailed", "ClockDesyncError"]);
+  const entitiesCount =
+    scenario === "entity_spawn"
+      ? randInt(isErr ? 0 : 100, isErr ? 200 : 1_000_000)
+      : randInt(100, 1_000_000);
+  const computeWorkers =
+    scenario === "simulation_create" ? randInt(isErr ? 1 : 4, isErr ? 20 : 200) : randInt(1, 200);
+  const clockLagMs = isErr ? randInt(120, 5000) : randInt(0, 65);
+  const errCode = rand([
+    "ServiceUnavailableException",
+    "ConflictException",
+    "InternalServerException",
+    "ValidationException",
+  ] as const);
+  const messages: Record<string, string> = {
+    simulation_create: `CreateSimulation workload=${appName} workers=${computeWorkers} domainSeed=${randId(8)}`,
+    entity_spawn: `SpawnBatch archetype=${entity.archetype_id} rate=${entity.spawn_rate_per_sec}/s cap=${entity.max_entities_budget}`,
+    clock_tick: `GlobalClock idx=${clock.tick_index} drift=${clock.drift_budget_ms}ms role=${clock.authority}`,
+    spatial_partition: `SpacePartition pid=${spatial.partition_id} haloB=${spatial.halo_exchange_bytes} imbalance=${spatial.load_imbalance_pct}% depth=${spatial.tree_depth}`,
+    state_snapshot: `Checkpoint s3://ssw-${acct.id}/${simulationId}/ckpt-${randInt(1, 99)}.bin (${randInt(50, 800)} GiB)`,
+    weaver_sync: `WeaverRouteTable version=${randInt(1, 40)} domains=${randInt(2, 12)}`,
+  };
   return {
     "@timestamp": ts,
     cloud: {
@@ -1556,17 +1841,23 @@ function generateSimSpaceWeaverLog(ts: string, er: number): EcsDocument {
         simulation_id: simulationId,
         app_name: appName,
         domain_name: domainName,
+        scenario,
         clock_tick_ms: clockTickMs,
         simulation_status: simulationStatus,
+        spatial: scenario === "spatial_partition" ? spatial : undefined,
+        entity_budget: scenario === "entity_spawn" ? entity : undefined,
+        simulation_clock:
+          scenario === "clock_tick" || scenario === "weaver_sync" ? clock : undefined,
         metrics: {
           entities_count: entitiesCount,
           compute_workers: computeWorkers,
           clock_lag_ms: clockLagMs,
         },
-        error_code: isErr ? errorCode : null,
+        api_error_code: isErr ? errCode : null,
       },
     },
     event: {
+      action: scenario,
       outcome: isErr ? "failure" : "success",
       category: ["process"],
       dataset: "aws.simspaceweaver",
@@ -1574,16 +1865,14 @@ function generateSimSpaceWeaverLog(ts: string, er: number): EcsDocument {
       duration: clockTickMs * 1e6,
     },
     data_stream: { type: "logs", dataset: "aws.simspaceweaver", namespace: "default" },
-    message: isErr
-      ? `SimSpace Weaver simulation ${simulationId}: ${errorCode} in domain ${domainName}`
-      : `SimSpace Weaver ${simulationId} [${appName}]: status=${simulationStatus}, entities=${entitiesCount}, lag=${clockLagMs}ms`,
+    message: isErr ? `${messages[scenario]} — ${errCode}` : messages[scenario],
     log: { level: isErr ? "error" : clockLagMs > 100 ? "warn" : "info" },
     ...(isErr
       ? {
           error: {
-            code: errorCode,
-            message: `SimSpace Weaver simulation ${simulationId} failed`,
-            type: "process",
+            code: errCode,
+            message: `SimSpace Weaver ${scenario} failed for ${simulationId}`,
+            type: "aws",
           },
         }
       : {}),

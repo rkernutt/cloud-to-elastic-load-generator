@@ -10,6 +10,7 @@ import {
   ACCOUNTS,
   rand,
   randInt,
+  randFloat,
   randId,
   dp,
   stat,
@@ -45,8 +46,10 @@ export function generateControltowerMetrics(ts: string, er: number): EcsDocument
 
 // ─── Organizations (AWS/Organizations) ────────────────────────────────────────
 
-export function generateOrganizationsMetrics(ts: string, _er: number): EcsDocument[] {
+export function generateOrganizationsMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const org = `o-${randId(10).toLowerCase()}`;
   return [
     metricDoc(
       ts,
@@ -54,10 +57,26 @@ export function generateOrganizationsMetrics(ts: string, _er: number): EcsDocume
       "aws.organizations",
       region,
       account,
-      { OrganizationId: `o-${randId(10).toLowerCase()}` },
+      { OrganizationId: org },
       {
         AccountCount: counter(randInt(5, 2_000)),
         PolicyAttachmentCount: counter(randInt(10, 15_000)),
+        ApiErrorCount: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        HandshakeFailures: counter(Math.random() < er ? randInt(10, 9000) : randInt(0, 120)),
+      }
+    ),
+    metricDoc(
+      ts,
+      "organizations",
+      "aws.organizations",
+      region,
+      account,
+      { OrganizationId: org, PolicyType: rand(["SERVICE_CONTROL_POLICY", "BACKUP_POLICY"]) },
+      {
+        PolicyMutationLatencyMilliseconds: stat(
+          dp(stressed ? randFloat(800, 9200) : randFloat(45, 980))
+        ),
+        ThrottledInvocations: counter(Math.random() < er ? randInt(10, 500) : 0),
       }
     ),
   ];
@@ -88,8 +107,10 @@ export function generateServicecatalogMetrics(ts: string, er: number): EcsDocume
 
 // ─── Service Quotas (AWS/ServiceQuotas) ─────────────────────────────────────────
 
-export function generateServicequotasMetrics(ts: string, _er: number): EcsDocument[] {
+export function generateServicequotasMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const svc = rand(["ec2", "s3", "lambda", "vpc"]);
   return [
     metricDoc(
       ts,
@@ -97,10 +118,26 @@ export function generateServicequotasMetrics(ts: string, _er: number): EcsDocume
       "aws.servicequotas",
       region,
       account,
-      { ServiceCode: rand(["ec2", "s3", "lambda", "vpc"]) },
+      { ServiceCode: svc },
       {
         QuotaRequestCount: counter(randInt(0, 500)),
         QuotaIncreaseApproved: counter(randInt(0, 80)),
+        QuotaIncreaseDenied: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        RequestProcessingLatencyMilliseconds: stat(
+          dp(stressed ? randFloat(600, 8500) : randFloat(30, 720))
+        ),
+      }
+    ),
+    metricDoc(
+      ts,
+      "servicequotas",
+      "aws.servicequotas",
+      region,
+      account,
+      { ServiceCode: svc, QuotaCode: `q-${randId(8)}` },
+      {
+        QuotaExceededEvents: counter(Math.random() < er ? randInt(50, 18_000) : randInt(0, 400)),
+        ThrottledAPICalls: counter(Math.random() < er ? randInt(10, 500) : 0),
       }
     ),
   ];
@@ -108,8 +145,16 @@ export function generateServicequotasMetrics(ts: string, _er: number): EcsDocume
 
 // ─── Compute Optimizer (AWS/ComputeOptimizer) ───────────────────────────────────
 
-export function generateComputeoptimizerMetrics(ts: string, _er: number): EcsDocument[] {
+export function generateComputeoptimizerMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const resType = rand([
+    "Ec2Instance",
+    "AutoScalingGroup",
+    "EbsVolume",
+    "LambdaFunction",
+    "RdsDatabase",
+  ]);
   return [
     metricDoc(
       ts,
@@ -118,17 +163,27 @@ export function generateComputeoptimizerMetrics(ts: string, _er: number): EcsDoc
       region,
       account,
       {
-        ResourceType: rand([
-          "Ec2Instance",
-          "AutoScalingGroup",
-          "EbsVolume",
-          "LambdaFunction",
-          "RdsDatabase",
-        ]),
+        ResourceType: resType,
       },
       {
         RecommendationCount: counter(randInt(100, 500_000)),
-        OptimizedResourceCount: counter(randInt(50, 80_000)),
+        OptimizedResourceCount: counter(stressed ? randInt(5_000, 45_000) : randInt(50, 80_000)),
+        ExportFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        DiscoveryJobLatencySeconds: stat(
+          dp(stressed ? randFloat(800, 14_000) : randFloat(45, 1800))
+        ),
+      }
+    ),
+    metricDoc(
+      ts,
+      "computeoptimizer",
+      "aws.computeoptimizer",
+      region,
+      account,
+      { ResourceType: resType, AccountId: account.id },
+      {
+        APIThrottles: counter(Math.random() < er ? randInt(10, 500) : 0),
+        UtilizationDataGaps: counter(Math.random() < er ? randInt(200, 80_000) : randInt(0, 9000)),
       }
     ),
   ];
@@ -227,8 +282,10 @@ export function generateIdentitycenterMetrics(ts: string, er: number): EcsDocume
 
 // ─── Detective (AWS/Detective) ─────────────────────────────────────────────────
 
-export function generateDetectiveMetrics(ts: string, _er: number): EcsDocument[] {
+export function generateDetectiveMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const graphArn = `arn:aws:detective:${region}:${account.id}:graph:${randId(32).toLowerCase()}`;
   return [
     metricDoc(
       ts,
@@ -236,10 +293,26 @@ export function generateDetectiveMetrics(ts: string, _er: number): EcsDocument[]
       "aws.detective",
       region,
       account,
-      { GraphArn: `arn:aws:detective:${region}:${account.id}:graph:${randId(32).toLowerCase()}` },
+      { GraphArn: graphArn },
       {
         MemberAccountCount: counter(randInt(1, 120)),
         GraphBytesIngested: counter(randInt(1_000_000, 80_000_000_000)),
+        FindingGenerationFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        InvestigationLatencyMilliseconds: stat(
+          dp(stressed ? randFloat(900, 18_000) : randFloat(120, 2200))
+        ),
+      }
+    ),
+    metricDoc(
+      ts,
+      "detective",
+      "aws.detective",
+      region,
+      account,
+      { GraphArn: graphArn, InvestigationId: `inv-${randId(12)}` },
+      {
+        AthenaQueryErrors: counter(Math.random() < er ? randInt(50, 12_000) : randInt(0, 400)),
+        ThrottledAPICalls: counter(Math.random() < er ? randInt(10, 500) : 0),
       }
     ),
   ];
@@ -339,8 +412,10 @@ export function generateIncidentmanagerMetrics(ts: string, er: number): EcsDocum
 
 // ─── Audit Manager (AWS/AuditManager) ───────────────────────────────────────────
 
-export function generateAuditmanagerMetrics(ts: string, _er: number): EcsDocument[] {
+export function generateAuditmanagerMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const assessId = `assess-${randId(12).toLowerCase()}`;
   return [
     metricDoc(
       ts,
@@ -348,10 +423,26 @@ export function generateAuditmanagerMetrics(ts: string, _er: number): EcsDocumen
       "aws.auditmanager",
       region,
       account,
-      { AssessmentId: `assess-${randId(12).toLowerCase()}` },
+      { AssessmentId: assessId },
       {
         AssessmentCount: counter(randInt(1, 200)),
         ControlComplianceCount: counter(randInt(50, 12_000)),
+        NonCompliantControls: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        EvidenceCollectionLatencyMilliseconds: stat(
+          dp(stressed ? randFloat(800, 16_000) : randFloat(55, 1200))
+        ),
+      }
+    ),
+    metricDoc(
+      ts,
+      "auditmanager",
+      "aws.auditmanager",
+      region,
+      account,
+      { AssessmentId: assessId, ControlDomain: rand(["IAM", "Logging", "Network"]) },
+      {
+        AssessmentReportFailures: counter(Math.random() < er ? randInt(50, 4000) : randInt(0, 180)),
+        ThrottledAPICalls: counter(Math.random() < er ? randInt(10, 500) : 0),
       }
     ),
   ];
@@ -359,8 +450,10 @@ export function generateAuditmanagerMetrics(ts: string, _er: number): EcsDocumen
 
 // ─── License Manager (AWS/LicenseManager) ─────────────────────────────────────
 
-export function generateLicensemanagerMetrics(ts: string, _er: number): EcsDocument[] {
+export function generateLicensemanagerMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const licArn = `arn:aws:license-manager:${region}:${account.id}:license-configuration:lic-${randId(8)}`;
   return [
     metricDoc(
       ts,
@@ -369,11 +462,27 @@ export function generateLicensemanagerMetrics(ts: string, _er: number): EcsDocum
       region,
       account,
       {
-        ResourceArn: `arn:aws:license-manager:${region}:${account.id}:license-configuration:lic-${randId(8)}`,
+        ResourceArn: licArn,
       },
       {
         LicenseCount: counter(randInt(5, 5_000)),
-        LicenseUsage: stat(dp(jitter(65, 25, 5, 100))),
+        LicenseUsage: stat(dp(stressed ? jitter(92, 6, 70, 100) : jitter(65, 25, 5, 100))),
+        EntitlementFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        InventorySyncLatencyMilliseconds: stat(
+          dp(stressed ? randFloat(600, 12_000) : randFloat(40, 900))
+        ),
+      }
+    ),
+    metricDoc(
+      ts,
+      "licensemanager",
+      "aws.licensemanager",
+      region,
+      account,
+      { ResourceArn: licArn, InventoryType: rand(["RDS", "EC2", "ECS"]) },
+      {
+        DiscoveryErrors: counter(Math.random() < er ? randInt(50, 18_000) : randInt(0, 500)),
+        ThrottledAPICalls: counter(Math.random() < er ? randInt(10, 500) : 0),
       }
     ),
   ];
@@ -381,8 +490,10 @@ export function generateLicensemanagerMetrics(ts: string, _er: number): EcsDocum
 
 // ─── CloudShell (AWS/CloudShell) ───────────────────────────────────────────────
 
-export function generateCloudshellMetrics(ts: string, _er: number): EcsDocument[] {
+export function generateCloudshellMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const userArn = `arn:aws:iam::${account.id}:user/${rand(["build", "dba", "secops"])}`;
   return [
     metricDoc(
       ts,
@@ -390,10 +501,23 @@ export function generateCloudshellMetrics(ts: string, _er: number): EcsDocument[
       "aws.cloudshell",
       region,
       account,
-      { UserArn: `arn:aws:iam::${account.id}:user/${rand(["build", "dba", "secops"])}` },
+      { UserArn: userArn },
       {
         SessionCount: counter(randInt(10, 8_000)),
-        SessionDuration: stat(dp(jitter(420, 280, 30, 7200))),
+        SessionDuration: stat(dp(stressed ? randFloat(800, 12_800) : jitter(420, 280, 30, 7200))),
+        ProvisionFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+      }
+    ),
+    metricDoc(
+      ts,
+      "cloudshell",
+      "aws.cloudshell",
+      region,
+      account,
+      { UserArn: userArn, AZ: `${region}a` },
+      {
+        APIThrottles: counter(Math.random() < er ? randInt(10, 500) : 0),
+        MountErrors: counter(Math.random() < er ? randInt(50, 8000) : randInt(0, 280)),
       }
     ),
   ];
@@ -401,10 +525,12 @@ export function generateCloudshellMetrics(ts: string, _er: number): EcsDocument[
 
 // ─── Cloud9 (AWS/Cloud9) ─────────────────────────────────────────────────────────
 
-export function generateCloud9Metrics(ts: string, _er: number): EcsDocument[] {
+export function generateCloud9Metrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
   const total = randInt(2, 400);
-  const active = randInt(0, Math.min(total, 150));
+  const active = stressed ? randInt(0, Math.min(total, 40)) : randInt(0, Math.min(total, 150));
+  const envId = `${randId(16).toLowerCase()}`;
   return [
     metricDoc(
       ts,
@@ -412,10 +538,23 @@ export function generateCloud9Metrics(ts: string, _er: number): EcsDocument[] {
       "aws.cloud9",
       region,
       account,
-      { EnvironmentId: `${randId(16).toLowerCase()}` },
+      { EnvironmentId: envId },
       {
         EnvironmentCount: counter(total),
         ActiveEnvironments: counter(active),
+        EnvironmentProvisioningFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+      }
+    ),
+    metricDoc(
+      ts,
+      "cloud9",
+      "aws.cloud9",
+      region,
+      account,
+      { EnvironmentId: envId, RunnerType: "ec2" },
+      {
+        HealthCheckFailures: counter(Math.random() < er ? randInt(50, 9000) : randInt(0, 200)),
+        ThrottledAPICalls: counter(Math.random() < er ? randInt(10, 500) : 0),
       }
     ),
   ];
@@ -448,8 +587,10 @@ export function generateCodecatalystMetrics(ts: string, er: number): EcsDocument
 
 // ─── CodeGuru Reviewer (AWS/CodeGuruReviewer) ───────────────────────────────────
 
-export function generateCodeguruMetrics(ts: string, _er: number): EcsDocument[] {
+export function generateCodeguruMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const repo = rand(["api-gateway", "billing-svc", "data-pipeline", "authz-lib"]);
   const lines = randInt(50_000, 50_000_000);
   return [
     metricDoc(
@@ -458,10 +599,24 @@ export function generateCodeguruMetrics(ts: string, _er: number): EcsDocument[] 
       "aws.codeguru",
       region,
       account,
-      { RepositoryName: rand(["api-gateway", "billing-svc", "data-pipeline", "authz-lib"]) },
+      { RepositoryName: repo },
       {
         RecommendationCount: counter(randInt(10, 25_000)),
         LinesOfCodeScanned: counter(lines),
+        ScanFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        ScanDurationSeconds: stat(dp(stressed ? randFloat(600, 22_000) : randFloat(45, 4200))),
+      }
+    ),
+    metricDoc(
+      ts,
+      "codeguru",
+      "aws.codeguru",
+      region,
+      account,
+      { RepositoryName: repo, Branch: rand(["main", "develop"]) },
+      {
+        ReviewerThrottles: counter(Math.random() < er ? randInt(10, 500) : 0),
+        SecurityScanErrors: counter(Math.random() < er ? randInt(50, 12_000) : randInt(0, 400)),
       }
     ),
   ];

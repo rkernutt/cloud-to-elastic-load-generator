@@ -14,6 +14,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 const SERVICES = [
@@ -102,7 +103,11 @@ export function generateApprunnerTrace(ts: string, er: number) {
       service: svcBlock,
       agent,
       telemetry,
-      labels: { "aws.apprunner.service_arn": serviceId, ...ph.labels },
+      labels: {
+        "aws.apprunner.service_arn": serviceId,
+        ...ph.labels,
+        ...(spanErr ? awsSpanErrorLabels() : {}),
+      },
       event: { outcome: spanErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     });

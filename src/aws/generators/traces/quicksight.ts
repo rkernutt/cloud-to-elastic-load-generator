@@ -14,6 +14,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 const APPS = [
@@ -102,7 +103,11 @@ export function generateQuicksightTrace(ts: string, er: number) {
       service: svcBlock,
       agent,
       telemetry,
-      labels: { "aws.quicksight.dashboard": dashboardId, ...ph.labels },
+      labels: {
+        "aws.quicksight.dashboard": dashboardId,
+        ...ph.labels,
+        ...(spanErr ? awsSpanErrorLabels() : {}),
+      },
       event: { outcome: spanErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     });

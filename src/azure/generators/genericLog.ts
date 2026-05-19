@@ -190,6 +190,16 @@ const ARM_PROVIDERS: Record<string, string> = {
   "vmware-solution": "Microsoft.AVS/privateClouds",
   "confidential-vm": "Microsoft.Compute/virtualMachines",
   "image-builder": "Microsoft.VirtualMachineImages/imageTemplates",
+  "virtual-desktop": "Microsoft.DesktopVirtualization/hostpools",
+  "elastic-san": "Microsoft.ElasticSan/elasticSans",
+  "managed-grafana": "Microsoft.Dashboard/grafana",
+  "managed-prometheus": "Microsoft.Monitor/accounts",
+  "dns-private-resolver": "Microsoft.Network/dnsResolvers",
+  "application-insights": "Microsoft.Insights/components",
+  "dedicated-hsm": "Microsoft.HardwareSecurityModules/dedicatedHSMs",
+  "video-indexer": "Microsoft.VideoIndexer/accounts",
+  "data-explorer": "Microsoft.Kusto/clusters",
+  "ai-foundry": "Microsoft.MachineLearningServices/workspaces",
   "azure-security-chain": "Microsoft.Security/assessments",
   "azure-cspm": "Microsoft.Security/assessments",
   "azure-kspm": "Microsoft.ContainerService/managedClusters",
@@ -729,6 +739,54 @@ const SERVICE_OPS: Record<string, readonly string[]> = {
     "Microsoft.Storage/storageAccounts/write",
     "Microsoft.Storage/storageAccounts/blobServices/containers/write",
     "Microsoft.Storage/storageAccounts/listKeys/action",
+  ],
+  "virtual-desktop": [
+    "Microsoft.DesktopVirtualization/hostpools/write",
+    "Microsoft.DesktopVirtualization/hostpools/delete",
+    "Microsoft.DesktopVirtualization/hostpools/sessionHosts/write",
+  ],
+  "elastic-san": [
+    "Microsoft.ElasticSan/elasticSans/write",
+    "Microsoft.ElasticSan/elasticSans/delete",
+    "Microsoft.ElasticSan/elasticSans/volumeGroups/write",
+  ],
+  "managed-grafana": [
+    "Microsoft.Dashboard/grafana/write",
+    "Microsoft.Dashboard/grafana/delete",
+    "Microsoft.Dashboard/grafana/apiKeys/action",
+  ],
+  "managed-prometheus": [
+    "Microsoft.Monitor/accounts/write",
+    "Microsoft.Monitor/accounts/delete",
+    "Microsoft.Monitor/accounts/prometheusRuleGroups/write",
+  ],
+  "dns-private-resolver": [
+    "Microsoft.Network/dnsResolvers/write",
+    "Microsoft.Network/dnsResolvers/delete",
+    "Microsoft.Network/dnsResolvers/outboundEndpoints/write",
+  ],
+  "application-insights": [
+    "Microsoft.Insights/components/write",
+    "Microsoft.Insights/components/delete",
+    "Microsoft.Insights/components/linkedStorageAccounts/write",
+  ],
+  "dedicated-hsm": [
+    "Microsoft.HardwareSecurityModules/dedicatedHSMs/write",
+    "Microsoft.HardwareSecurityModules/dedicatedHSMs/delete",
+  ],
+  "video-indexer": [
+    "Microsoft.VideoIndexer/accounts/write",
+    "Microsoft.VideoIndexer/accounts/delete",
+  ],
+  "data-explorer": [
+    "Microsoft.Kusto/clusters/write",
+    "Microsoft.Kusto/clusters/delete",
+    "Microsoft.Kusto/clusters/databases/write",
+  ],
+  "ai-foundry": [
+    "Microsoft.MachineLearningServices/workspaces/write",
+    "Microsoft.MachineLearningServices/workspaces/delete",
+    "Microsoft.MachineLearningServices/workspaces/deployments/write",
   ],
 };
 

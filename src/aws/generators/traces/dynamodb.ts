@@ -22,6 +22,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 // ─── Service configurations ───────────────────────────────────────────────────
@@ -153,6 +154,7 @@ function buildDynamoSpan(
       table_name: tableName,
       consumed_read_capacity_units: String(readCu),
       consumed_write_capacity_units: String(writeCu),
+      ...(isErr ? awsSpanErrorLabels() : {}),
     },
     service: svcBlock,
     agent,

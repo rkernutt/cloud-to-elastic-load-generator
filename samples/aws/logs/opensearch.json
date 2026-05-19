@@ -1,74 +1,76 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "me-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "opensearch" }
   },
   "aws": {
-    "dimensions": { "DomainName": "prod-search-ca-central-1", "ClientId": "738291046572" },
+    "dimensions": { "DomainName": "prod-search-me-south-1", "ClientId": "814726593401" },
     "opensearch": {
-      "domain_name": "prod-search-ca-central-1",
-      "index": "app-logs",
-      "operation": "jvm_gc",
-      "took_ms": 16,
+      "domain_name": "prod-search-me-south-1",
+      "index": "traces",
+      "operation": "shard_allocation",
+      "took_ms": 1132,
       "shards": {
-        "total": 38,
-        "successful": 38,
+        "total": 19,
+        "successful": 19,
         "failed": 0,
-        "active": 38,
+        "active": 19,
         "initializing": 0,
         "relocating": 0,
         "unassigned": 0
       },
-      "hits_total": 45611,
+      "hits_total": 36426,
       "status_code": 200,
-      "gc_event": true,
+      "scenario": "allocation",
+      "aws_api_operation": "UpdateDomainConfig",
+      "allocation_explanation": "ALLOCATED",
       "metrics": {
-        "CPUUtilization": { "avg": 33.38686088486313 },
-        "FreeStorageSpace": { "avg": 305024463345 },
+        "CPUUtilization": { "avg": 8.024472895031526 },
+        "FreeStorageSpace": { "avg": 43422416520 },
         "ClusterStatus": { "green": 1, "yellow": 0, "red": 0 },
-        "Nodes": { "avg": 6 },
-        "SearchableDocuments": { "avg": 932358844 },
-        "IndexingLatency": { "avg": 148 },
-        "SearchLatency": { "avg": 503 },
-        "IndexingRate": { "avg": 95483 },
-        "SearchRate": { "avg": 7500 },
-        "JVMMemoryPressure": { "avg": 55.861178865246934 },
+        "Nodes": { "avg": 4 },
+        "SearchableDocuments": { "avg": 337056050 },
+        "IndexingLatency": { "avg": 25 },
+        "SearchLatency": { "avg": 54 },
+        "IndexingRate": { "avg": 22825 },
+        "SearchRate": { "avg": 6044 },
+        "JVMMemoryPressure": { "avg": 63.60140275724197 },
         "AutomatedSnapshotFailure": { "sum": 0 },
         "CoordinatingWriteRejected": { "sum": 0 },
         "PrimaryWriteRejected": { "sum": 0 },
         "ReplicaWriteRejected": { "sum": 0 },
-        "WarmStorageSpaceUsage": { "avg": 55.43085027996386 },
-        "DeletedDocuments": { "avg": 53853 }
+        "WarmStorageSpaceUsage": { "avg": 86.82467981322472 },
+        "DeletedDocuments": { "avg": 98795 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-opensearch-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-opensearch-logs-738291046572"
+        "name": "aws-opensearch-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-opensearch-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/opensearch/ca-central-1/2026/05/07/opensearch_STF7CGB22Q.log.gz"
+        "key": "AWSLogs/814726593401/opensearch/me-south-1/2026/05/14/opensearch_CEOLBV4IO5RPOXSAPIX3.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/opensearch/logs",
-      "log_stream": "ca-central-1/qrib45kl",
-      "ingestion_time": "2026-05-07T10:17:36.406Z"
+      "log_stream": "me-south-1/wcbi474r",
+      "ingestion_time": "2026-05-14T03:00:07.226Z"
     }
   },
   "http": { "response": { "status_code": 200 } },
   "event": {
-    "duration": 15586684.550400723,
+    "duration": 1132099251.1521819,
     "outcome": "success",
     "category": "database",
     "dataset": "aws.opensearch",
     "provider": "es.amazonaws.com",
     "module": "aws"
   },
-  "message": "[2026-05-07T10:17:35.322Z][INFO ][o.e.m.j.JvmGcMonitorService] [data-0] [gc][2329] overhead, spent [335.4ms] collecting in the last [1s]",
+  "message": "[2026-05-14T03:00:06.257Z] reroute started: allocate replica shard [traces][0] on node [i-0abc] reason=CLUSTER_RECOVERED",
   "log": { "level": "info" },
   "service": { "name": "opensearch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -76,8 +78,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "tixlodmjb6m"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "7zo9u57bftawtvc98eq4edmboxpknqb1jdu5"
   },
   "input": { "type": "aws-cloudwatch" }
 }

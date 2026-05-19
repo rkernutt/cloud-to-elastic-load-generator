@@ -66,7 +66,8 @@ export function generateDatabricksTrace(ts: string, er: number): EcsDocument[] {
           ...dim({ dependency_type: "Azure Databricks" }),
         },
         traceId,
-        "java"
+        "java",
+        { spanFailed: spanErr }
       )
     );
     ms += Math.max(1, Math.round(st.us / 1000));

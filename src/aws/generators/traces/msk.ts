@@ -21,6 +21,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 // ─── Consumer configurations ──────────────────────────────────────────────────
@@ -236,7 +237,10 @@ export function generateMskTrace(ts: string, er: number) {
         service: { resource: shape.dest, type: shape.type, name: shape.dest },
       },
     },
-    labels: { ...sharedLabels },
+    labels: {
+      ...sharedLabels,
+      ...(isErr ? awsSpanErrorLabels() : {}),
+    },
     service: svcBlock,
     agent,
     telemetry,

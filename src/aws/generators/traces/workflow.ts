@@ -61,6 +61,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 import {
   ENVS,
@@ -888,6 +889,7 @@ function workflowDataIngestion(ts: string, er: number) {
         spark_stage_id: stage.stageIdx,
         spark_stage_attempt: "0",
         spark_input_records: String(randInt(10000, 500000)),
+        ...(isErr && i === stages.length - 1 ? awsSpanErrorLabels() : {}),
       },
       event: { outcome: isErr && i === stages.length - 1 ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },

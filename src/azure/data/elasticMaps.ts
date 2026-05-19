@@ -12,6 +12,7 @@ const AZURE_ELASTIC_DATASET_MAP: Record<string, string> = {
   "capacity-reservation": "azure.capacity_reservation",
   "proximity-placement": "azure.proximity_placement_groups",
   "compute-gallery": "azure.compute_gallery",
+  "virtual-desktop": "azure.virtual_desktop",
   // Containers
   aks: "azure.kubernetes",
   "container-apps": "azure.container_apps",
@@ -34,6 +35,7 @@ const AZURE_ELASTIC_DATASET_MAP: Record<string, string> = {
   "nat-gateway": "azure.nat_gateway",
   "private-link": "azure.private_link",
   "private-dns": "azure.private_dns",
+  "dns-private-resolver": "azure.dns_private_resolver",
   "traffic-manager": "azure.traffic_manager",
   "azure-firewall": "azure.firewall",
   "ddos-protection": "azure.ddos_protection",
@@ -51,6 +53,7 @@ const AZURE_ELASTIC_DATASET_MAP: Record<string, string> = {
   "storage-sync": "azure.storage_sync",
   "netapp-files": "azure.netapp_files",
   "hpc-cache": "azure.hpc_cache",
+  "elastic-san": "azure.elastic_san",
   // Databases
   "sql-database": "azure.sql_database",
   "sql-managed-instance": "azure.sql_managed_instance",
@@ -71,7 +74,9 @@ const AZURE_ELASTIC_DATASET_MAP: Record<string, string> = {
   "analysis-services": "azure.analysis_services",
   "power-bi-embedded": "azure.power_bi_embedded",
   "microsoft-fabric": "azure.fabric",
+  "data-explorer": "azure.data_explorer",
   // AI / ML
+  "ai-foundry": "azure.ai_foundry",
   "cognitive-services": "azure.cognitive_services",
   openai: "azure.openai",
   "machine-learning": "azure.machine_learning",
@@ -81,6 +86,7 @@ const AZURE_ELASTIC_DATASET_MAP: Record<string, string> = {
   speech: "azure.speech",
   translator: "azure.translator",
   "document-intelligence": "azure.document_intelligence",
+  "video-indexer": "azure.video_indexer",
   // Identity / security
   "entra-id": "azure.entra_id",
   /** Single combined audit stream; `workload` / `record_type` distinguish Exchange, Teams, etc. */
@@ -95,6 +101,7 @@ const AZURE_ELASTIC_DATASET_MAP: Record<string, string> = {
   sentinel: "azure.sentinel",
   attestation: "azure.attestation",
   "confidential-ledger": "azure.confidential_ledger",
+  "dedicated-hsm": "azure.dedicated_hsm",
   // Integration
   "service-bus": "azure.service_bus",
   "event-grid": "azure.event_grid",
@@ -113,6 +120,9 @@ const AZURE_ELASTIC_DATASET_MAP: Record<string, string> = {
   "notification-hubs": "azure.notification_hubs",
   // Management / governance
   monitor: "azure.monitor",
+  "managed-grafana": "azure.managed_grafana",
+  "managed-prometheus": "azure.managed_prometheus",
+  "application-insights": "azure.application_insights",
   "activity-log": "azure.activity_log",
   policy: "azure.policy",
   advisor: "azure.advisor",
@@ -277,6 +287,16 @@ const AZURE_METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "vmware-solution",
   "vpn-client",
   "vpn-gateway",
+  "video-indexer",
+  "virtual-desktop",
+  "managed-prometheus",
+  "managed-grafana",
+  "elastic-san",
+  "dns-private-resolver",
+  "dedicated-hsm",
+  "data-explorer",
+  "application-insights",
+  "ai-foundry",
   "waf-policy",
 ]);
 
@@ -401,6 +421,16 @@ const AZURE_METRICS_DATASET_MAP: Record<string, string> = {
   "vmware-solution": "azure.vmware_solution_metrics",
   "vpn-client": "azure.vpn_client_metrics",
   "vpn-gateway": "azure.vpn_gateway_metrics",
+  "virtual-desktop": "azure.virtual_desktop_metrics",
+  "video-indexer": "azure.video_indexer_metrics",
+  "managed-prometheus": "azure.managed_prometheus_metrics",
+  "managed-grafana": "azure.managed_grafana_metrics",
+  "elastic-san": "azure.elastic_san_metrics",
+  "dns-private-resolver": "azure.dns_private_resolver_metrics",
+  "dedicated-hsm": "azure.dedicated_hsm_metrics",
+  "data-explorer": "azure.data_explorer_metrics",
+  "application-insights": "azure.application_insights_metrics",
+  "ai-foundry": "azure.ai_foundry_metrics",
   "waf-policy": "azure.waf_metrics",
 };
 

@@ -9,7 +9,13 @@ import {
   randSpanId,
 } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 const BUILD_STEPS = ["pull", "install", "test", "build", "push"] as const;
 type BuildStep = (typeof BUILD_STEPS)[number];
@@ -74,7 +80,7 @@ export function generateCloudBuildTrace(ts: string, er: number): EcsDocument[] {
         labels: {
           step_name: step,
           step_index: String(i),
-          ...(isFailStep ? { "gcp.cloudbuild.status": "FAILURE" } : {}),
+          ...(isFailStep ? { "gcp.cloudbuild.status": "FAILURE", ...gcpSpanFailureLabels() } : {}),
         },
       },
       service: svc,

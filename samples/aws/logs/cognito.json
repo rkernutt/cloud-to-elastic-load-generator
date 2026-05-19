@@ -1,66 +1,77 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-west-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "cognito" }
   },
   "aws": {
-    "dimensions": { "UserPool": "ap-south-2_24AB5UKGY", "UserPoolClient": "mobile-users-web" },
+    "dimensions": { "UserPool": "eu-west-2_IVYW8KYZZ", "UserPoolClient": "us-users-web" },
     "cognito": {
-      "user_pool_id": "ap-south-2_24AB5UKGY",
-      "user_pool_name": "mobile-users",
-      "event_type": "SignUp",
-      "username": "user-zj33u2rz@example.com",
-      "source_ip": "25.141.42.32",
+      "user_pool_id": "eu-west-2_IVYW8KYZZ",
+      "user_pool_name": "us-users",
+      "event_type": "CompromisedCredentials",
+      "username": "user-6cf1i5cp@example.com",
+      "source_ip": "115.191.24.130",
+      "risk_type": "CompromisedCredentials",
+      "action_taken": "BLOCK",
+      "advanced_security": {
+        "risk_level": "MEDIUM",
+        "risk_decision": "ALLOW",
+        "compromised_credentials_detected": true,
+        "impossible_travel": false,
+        "previous_location": { "ip": "70.185.128.182", "country": "DE" },
+        "current_location": { "ip": "164.20.112.55", "country": "RU" },
+        "time_between_events_seconds": 287
+      },
       "metrics": {
-        "SignInSuccesses": { "sum": 8165 },
-        "SignInAttempts": { "sum": 8165 },
-        "TokenRefreshSuccesses": { "sum": 10225 },
-        "SignUpSuccesses": { "sum": 92 },
+        "SignInSuccesses": { "sum": 6731 },
+        "SignInAttempts": { "sum": 6731 },
+        "TokenRefreshSuccesses": { "sum": 27350 },
+        "SignUpSuccesses": { "sum": 0 },
         "FederationSuccesses": { "sum": 0 },
-        "CallCount": { "sum": 74900 },
+        "CallCount": { "sum": 5502 },
         "ThrottleCount": { "sum": 0 },
         "AccountTakeoverRisk": { "sum": 0 },
-        "CompromisedCredentialsRisk": { "sum": 0 }
+        "CompromisedCredentialsRisk": { "sum": 4 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-cognito-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-cognito-logs-164820739518"
+        "name": "aws-cognito-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-cognito-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/cognito/ap-south-2/2026/05/07/cognito_QYIWL9RBC0R.log.gz"
+        "key": "AWSLogs/501938274650/cognito/eu-west-2/2026/05/14/cognito_SD5KFAEEJDO4TMP67QTQ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cognito/logs",
-      "log_stream": "ap-south-2/web84gvq",
-      "ingestion_time": "2026-05-07T10:17:36.338Z"
+      "log_stream": "eu-west-2/a40texv7",
+      "ingestion_time": "2026-05-14T03:00:07.107Z"
     }
   },
-  "user": { "name": "user-zj33u2rz@example.com" },
-  "source": { "ip": "234.246.121.43" },
+  "user": { "name": "user-6cf1i5cp@example.com" },
+  "source": { "ip": "176.165.198.73" },
   "event": {
-    "action": "SignUp",
+    "action": "CompromisedCredentials",
     "outcome": "success",
     "category": ["authentication"],
     "dataset": "aws.cognito",
     "provider": "cognito-idp.amazonaws.com",
     "module": "aws"
   },
-  "message": "Cognito SignUp success [mobile-users]",
-  "log": { "level": "info" },
+  "message": "Cognito CompromisedCredentials detected [MEDIUM]: decision=ALLOW pool=us-users",
+  "log": { "level": "warn" },
   "service": { "name": "cognito", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cognito", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "6ksjfaqiwtm"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "tp671zoqlawwu5fbys68av094q9cb0folpo7"
   },
   "input": { "type": "aws-cloudwatch" }
 }

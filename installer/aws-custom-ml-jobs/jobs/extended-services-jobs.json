@@ -1,0 +1,1811 @@
+{
+  "group": "extended-services",
+  "description": "Extended AWS integrations — anomaly detection for Guardrails, EMR Serverless, GWLB, Classic ELB, media/IVS, search, identity, PCA, MGN, Synthetics, and AMP",
+  "jobs": [
+    {
+      "id": "aws-bedrockguardrails-failure-spike",
+      "description": "Spikes in Bedrock Guardrails failures by region",
+      "job": {
+        "description": "Unusual failure count for Bedrock Guardrails partitioned by AWS Region",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "aws.bedrockguardrails.guardrail_id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.bedrockguardrails"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-bedrockguardrails-intervention-rate-anomaly",
+      "description": "Unusual Bedrock Guardrails intervention rate per guardrail",
+      "job": {
+        "description": "Detects unusual InvocationsIntervened rate for Bedrock Guardrails per guardrail ARN",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.bedrockguardrails.metrics.InvocationsIntervened.avg) partitionfield=aws.bedrockguardrails.dimensions.GuardrailArn",
+              "function": "high_mean",
+              "field_name": "aws.bedrockguardrails.metrics.InvocationsIntervened.avg",
+              "partition_field_name": "aws.bedrockguardrails.dimensions.GuardrailArn",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.bedrockguardrails.dimensions.GuardrailArn", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["metrics-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.bedrockguardrails"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-emrserverless-failure-spike",
+      "description": "Spikes in EMR Serverless job failures by application",
+      "job": {
+        "description": "Unusual failure count for EMR Serverless partitioned by application name",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.emrserverless.application_name",
+              "function": "high_count",
+              "partition_field_name": "aws.emrserverless.application_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.emrserverless.application_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.emrserverless"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-emrserverless-duration-anomaly",
+      "description": "Unusual EMR Serverless job duration by application",
+      "job": {
+        "description": "Detects unusual mean job run duration for EMR Serverless per application",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=aws.emrserverless.application_name",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "aws.emrserverless.application_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.emrserverless.application_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.emrserverless"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-gwlb-failure-spike",
+      "description": "Spikes in Gateway Load Balancer failures by load balancer",
+      "job": {
+        "description": "Unusual failure count for GWLB partitioned by load balancer ARN",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.gwlb.load_balancer_arn",
+              "function": "high_count",
+              "partition_field_name": "aws.gwlb.load_balancer_arn",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.gwlb.load_balancer_arn", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.gwlb"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-gwlb-flow-anomaly",
+      "description": "Unusual Gateway Load Balancer active flow volume",
+      "job": {
+        "description": "Detects unusual ActiveFlowCount per GWLB dimension",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.gwlb.metrics.ActiveFlowCount.avg) partitionfield=aws.gwlb.dimensions.LoadBalancer",
+              "function": "high_mean",
+              "field_name": "aws.gwlb.metrics.ActiveFlowCount.avg",
+              "partition_field_name": "aws.gwlb.dimensions.LoadBalancer",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.gwlb.dimensions.LoadBalancer", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["metrics-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.gwlb"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-elb-classic-5xx-spike",
+      "description": "Unusual Classic ELB backend 5xx rate per load balancer",
+      "job": {
+        "description": "Detects unusual HTTPCode_Backend_5XX_Count for Classic ELB (LoadBalancerName dimension)",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.elb.metrics.HTTPCode_Backend_5XX_Count.avg) partitionfield=aws.elb.dimensions.LoadBalancerName",
+              "function": "high_mean",
+              "field_name": "aws.elb.metrics.HTTPCode_Backend_5XX_Count.avg",
+              "partition_field_name": "aws.elb.dimensions.LoadBalancerName",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.elb.dimensions.LoadBalancerName", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["metrics-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.elb"
+                }
+              },
+              {
+                "exists": {
+                  "field": "aws.elb.dimensions.LoadBalancerName"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-elb-classic-latency-anomaly",
+      "description": "Unusual Classic ELB latency per load balancer",
+      "job": {
+        "description": "Detects unusual mean Latency for Classic ELB per LoadBalancerName",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.elb.metrics.Latency.avg) partitionfield=aws.elb.dimensions.LoadBalancerName",
+              "function": "high_mean",
+              "field_name": "aws.elb.metrics.Latency.avg",
+              "partition_field_name": "aws.elb.dimensions.LoadBalancerName",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.elb.dimensions.LoadBalancerName", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["metrics-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.elb"
+                }
+              },
+              {
+                "exists": {
+                  "field": "aws.elb.dimensions.LoadBalancerName"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-mediaconnect-failure-spike",
+      "description": "Spikes in mediaconnect failures",
+      "job": {
+        "description": "Unusual failure count for aws.mediaconnect partitioned by primary resource",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.mediaconnect.flow_arn",
+              "function": "high_count",
+              "partition_field_name": "aws.mediaconnect.flow_arn",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.mediaconnect.flow_arn", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.mediaconnect"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-mediaconnect-error-count-anomaly",
+      "description": "Unusual MediaConnect error log volume per flow",
+      "job": {
+        "description": "Detects unusual error-level log counts for MediaConnect per flow ARN",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.mediaconnect.flow_arn",
+              "function": "high_count",
+              "partition_field_name": "aws.mediaconnect.flow_arn",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.mediaconnect.flow_arn", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.mediaconnect"
+                }
+              },
+              {
+                "term": {
+                  "log.level": "error"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-mediapackage-failure-spike",
+      "description": "Spikes in mediapackage failures",
+      "job": {
+        "description": "Unusual failure count for aws.mediapackage partitioned by primary resource",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.mediapackage.channel_id",
+              "function": "high_count",
+              "partition_field_name": "aws.mediapackage.channel_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.mediapackage.channel_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.mediapackage"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-mediapackage-error-count-anomaly",
+      "description": "Unusual MediaPackage error log volume per channel",
+      "job": {
+        "description": "Detects unusual error-level log counts for MediaPackage per channel",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.mediapackage.channel_id",
+              "function": "high_count",
+              "partition_field_name": "aws.mediapackage.channel_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.mediapackage.channel_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.mediapackage"
+                }
+              },
+              {
+                "term": {
+                  "log.level": "error"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-mediastore-failure-spike",
+      "description": "Spikes in mediastore failures",
+      "job": {
+        "description": "Unusual failure count for aws.mediastore partitioned by primary resource",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.mediastore.container_name",
+              "function": "high_count",
+              "partition_field_name": "aws.mediastore.container_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.mediastore.container_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.mediastore"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-mediastore-latency-anomaly",
+      "description": "Unusual MediaStore request latency per container",
+      "job": {
+        "description": "Detects unusual mean event duration for MediaStore per container",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=aws.mediastore.container_name",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "aws.mediastore.container_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.mediastore.container_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.mediastore"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-mediatailor-failure-spike",
+      "description": "Spikes in mediatailor failures",
+      "job": {
+        "description": "Unusual failure count for aws.mediatailor partitioned by primary resource",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.mediatailor.playback_configuration_name",
+              "function": "high_count",
+              "partition_field_name": "aws.mediatailor.playback_configuration_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.mediatailor.playback_configuration_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.mediatailor"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-mediatailor-ad-decision-anomaly",
+      "description": "Unusual MediaTailor ad avail fill rate per configuration",
+      "job": {
+        "description": "Detects unusual avail_filled_percent for MediaTailor",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.mediatailor.avail_filled_percent) partitionfield=aws.mediatailor.playback_configuration_name",
+              "function": "high_mean",
+              "field_name": "aws.mediatailor.avail_filled_percent",
+              "partition_field_name": "aws.mediatailor.playback_configuration_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.mediatailor.playback_configuration_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.mediatailor"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-ivs-failure-spike",
+      "description": "Spikes in ivs failures",
+      "job": {
+        "description": "Unusual failure count for aws.ivs partitioned by primary resource",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.ivs.channel_arn",
+              "function": "high_count",
+              "partition_field_name": "aws.ivs.channel_arn",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.ivs.channel_arn", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.ivs"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-ivs-stream-health-anomaly",
+      "description": "Unusual IVS concurrent view patterns per channel",
+      "job": {
+        "description": "Detects unusual concurrent_views for IVS per channel",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.ivs.concurrent_views) partitionfield=aws.ivs.channel_arn",
+              "function": "high_mean",
+              "field_name": "aws.ivs.concurrent_views",
+              "partition_field_name": "aws.ivs.channel_arn",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.ivs.channel_arn", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.ivs"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-ivschat-failure-spike",
+      "description": "Spikes in ivschat failures",
+      "job": {
+        "description": "Unusual failure count for aws.ivschat partitioned by primary resource",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.ivschat.room_id",
+              "function": "high_count",
+              "partition_field_name": "aws.ivschat.room_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.ivschat.room_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.ivschat"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-ivschat-message-volume-anomaly",
+      "description": "Unusual IVS Chat message volume per room",
+      "job": {
+        "description": "Detects unusual chat event counts per room",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.ivschat.room_id",
+              "function": "high_count",
+              "partition_field_name": "aws.ivschat.room_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.ivschat.room_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.ivschat"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-cloudsearch-failure-spike",
+      "description": "Spikes in cloudsearch failures",
+      "job": {
+        "description": "Unusual failure count for aws.cloudsearch partitioned by primary resource",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.cloudsearch.domain_name",
+              "function": "high_count",
+              "partition_field_name": "aws.cloudsearch.domain_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.cloudsearch.domain_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.cloudsearch"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-cloudsearch-query-latency-anomaly",
+      "description": "Unusual CloudSearch query latency per domain",
+      "job": {
+        "description": "Detects unusual search_latency_ms for CloudSearch",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.cloudsearch.search_latency_ms) partitionfield=aws.cloudsearch.domain_name",
+              "function": "high_mean",
+              "field_name": "aws.cloudsearch.search_latency_ms",
+              "partition_field_name": "aws.cloudsearch.domain_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.cloudsearch.domain_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.cloudsearch"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-directoryservice-failure-spike",
+      "description": "Spikes in directoryservice failures",
+      "job": {
+        "description": "Unusual failure count for aws.directoryservice partitioned by primary resource",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.directoryservice.directory_id",
+              "function": "high_count",
+              "partition_field_name": "aws.directoryservice.directory_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.directoryservice.directory_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.directoryservice"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-directoryservice-auth-anomaly",
+      "description": "Unusual Directory Service operation duration per directory",
+      "job": {
+        "description": "Detects unusual mean event duration for Directory Service operations",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=aws.directoryservice.directory_id",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "aws.directoryservice.directory_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.directoryservice.directory_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.directoryservice"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-acmpca-failure-spike",
+      "description": "Spikes in acmpca failures",
+      "job": {
+        "description": "Unusual failure count for aws.acmpca partitioned by primary resource",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.acmpca.certificate_authority_arn",
+              "function": "high_count",
+              "partition_field_name": "aws.acmpca.certificate_authority_arn",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.acmpca.certificate_authority_arn", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.acmpca"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-acmpca-cert-issuance-anomaly",
+      "description": "Unusual ACM PCA operation duration per certificate authority",
+      "job": {
+        "description": "Detects unusual mean API latency for ACM Private CA operations",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=aws.acmpca.certificate_authority_arn",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "aws.acmpca.certificate_authority_arn",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.acmpca.certificate_authority_arn", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.acmpca"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-mgn-failure-spike",
+      "description": "Spikes in mgn failures",
+      "job": {
+        "description": "Unusual failure count for aws.mgn partitioned by primary resource",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.mgn.source_server_id",
+              "function": "high_count",
+              "partition_field_name": "aws.mgn.source_server_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.mgn.source_server_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.mgn"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-mgn-replication-anomaly",
+      "description": "Unusual MGN replication lag per source server",
+      "job": {
+        "description": "Detects unusual replication lag seconds for Application Migration Service",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.mgn.lag_seconds) partitionfield=aws.mgn.source_server_id",
+              "function": "high_mean",
+              "field_name": "aws.mgn.lag_seconds",
+              "partition_field_name": "aws.mgn.source_server_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.mgn.source_server_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.mgn"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-cwsynthetics-failure-spike",
+      "description": "Spikes in cwsynthetics failures",
+      "job": {
+        "description": "Unusual failure count for aws.cwsynthetics partitioned by primary resource",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.cwsynthetics.canary_name",
+              "function": "high_count",
+              "partition_field_name": "aws.cwsynthetics.canary_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.cwsynthetics.canary_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.cwsynthetics"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-cwsynthetics-canary-duration-anomaly",
+      "description": "Unusual CloudWatch Synthetics canary run duration",
+      "job": {
+        "description": "Detects unusual mean canary run duration per canary",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=aws.cwsynthetics.canary_name",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "aws.cwsynthetics.canary_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.cwsynthetics.canary_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.cwsynthetics"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-managedprometheus-failure-spike",
+      "description": "Spikes in Amazon Managed Prometheus failures by workspace",
+      "job": {
+        "description": "Unusual failure count for AMP partitioned by workspace ARN",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.managedprometheus.workspace_arn",
+              "function": "high_count",
+              "partition_field_name": "aws.managedprometheus.workspace_arn",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.managedprometheus.workspace_arn", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.managedprometheus"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-managedprometheus-ingestion-anomaly",
+      "description": "Unusual Prometheus workspace ingestion rate",
+      "job": {
+        "description": "Detects unusual IngestionRate for Amazon Managed Prometheus per workspace",
+        "groups": ["aws", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(aws.managedprometheus.metrics.IngestionRate.avg) partitionfield=aws.managedprometheus.dimensions.Workspace",
+              "function": "high_mean",
+              "field_name": "aws.managedprometheus.metrics.IngestionRate.avg",
+              "partition_field_name": "aws.managedprometheus.dimensions.Workspace",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.managedprometheus.dimensions.Workspace", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["metrics-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.managedprometheus"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    }
+  ]
+}

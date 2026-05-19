@@ -8,13 +8,8 @@
  * Each document is one Cloud Monitoring time series (metric + resource + point).
  */
 
-import {
-  GCP_ELASTIC_DATASET_MAP,
-  GCP_METRICS_DATASET_MAP,
-  GCP_METRICS_SUPPORTED_SERVICE_IDS,
-} from "../../data/elasticMaps.js";
+import { GCP_METRICS_SUPPORTED_SERVICE_IDS } from "../../data/elasticMaps.js";
 import type { MetricGenerator } from "../../../aws/generators/types.js";
-import { makeGcpGenericGenerator } from "./generic.js";
 import { generateComputeEngineMetrics, generateGkeMetrics } from "./compute.js";
 import {
   generateCloudLbMetrics,
@@ -149,20 +144,47 @@ import {
   generateVertexAiTensorboardMetrics,
   generateVmwareEngineMetrics,
 } from "./remaining.js";
-
-function gcpMetricsDataset(svcId: string): string {
-  return (
-    GCP_METRICS_DATASET_MAP[svcId] ??
-    GCP_ELASTIC_DATASET_MAP[svcId] ??
-    `gcp.${svcId.replace(/-/g, "_")}_metrics`
-  );
-}
+import {
+  generateSoleTenantNodesMetrics,
+  generateSpotVmsMetrics,
+  generateShieldedVmsMetrics,
+  generateConfidentialComputingMetrics,
+  generateMigrateToVmsMetrics,
+  generateConfigConnectorMetrics,
+  generatePacketMirroringMetrics,
+  generateNetworkServiceTiersMetrics,
+  generateServerlessNegMetrics,
+  generateStorageTransferMetrics,
+  generateVertexAiSearchMetrics,
+  generateSourceRepositoriesMetrics,
+  generateCloudTraceMetrics,
+  generateCloudProfilerMetrics,
+  generateApiHubMetrics,
+} from "./variants.js";
+import {
+  generateVertexAiAgentBuilderMetrics,
+  generateColabEnterpriseMetrics,
+  generateDistributedCloudMetrics,
+  generateParallelstoreMetrics,
+  generateDataformMetrics,
+  generateBiglakeMetrics,
+  generateCertificateManagerMetrics,
+  generateBlockchainNodeEngineMetrics,
+  generateNetappVolumesMetrics,
+} from "./extendedServices.js";
 
 const DEDICATED: Record<string, MetricGenerator> = {
   "compute-engine": generateComputeEngineMetrics,
+  "sole-tenant-nodes": generateSoleTenantNodesMetrics,
+  "spot-vms": generateSpotVmsMetrics,
+  "shielded-vms": generateShieldedVmsMetrics,
+  "confidential-computing": generateConfidentialComputingMetrics,
+  "migrate-to-vms": generateMigrateToVmsMetrics,
   gke: generateGkeMetrics,
   "gke-autopilot": generateGkeMetrics,
+  "config-connector": generateConfigConnectorMetrics,
   "cloud-lb": generateCloudLbMetrics,
+  "serverless-neg": generateServerlessNegMetrics,
   "cloud-cdn": generateCloudCdnMetrics,
   "cloud-dns": generateCloudDnsMetrics,
   "cloud-armor": generateCloudArmorMetrics,
@@ -171,6 +193,8 @@ const DEDICATED: Record<string, MetricGenerator> = {
   "cloud-vpn": generateCloudVpnMetrics,
   "cloud-router": generateCloudRouterMetrics,
   "vpc-flow": generateVpcFlowMetrics,
+  "packet-mirroring": generatePacketMirroringMetrics,
+  "network-service-tiers": generateNetworkServiceTiersMetrics,
   "cloud-kms": generateCloudKmsMetrics,
   "secret-manager": generateSecretManagerMetrics,
   "cloud-ids": generateCloudIdsMetrics,
@@ -216,7 +240,9 @@ const DEDICATED: Record<string, MetricGenerator> = {
   "app-engine": generateAppEngineMetrics,
   "cloud-tasks": generateCloudTasksMetrics,
   "cloud-storage": generateCloudStorageMetrics,
+  "storage-transfer": generateStorageTransferMetrics,
   "vertex-ai": generateVertexAiMetrics,
+  "vertex-ai-search": generateVertexAiSearchMetrics,
   gemini: generateGeminiMetrics,
   "cloud-run-jobs": generateCloudRunJobsMetrics,
   "cloud-scheduler": generateCloudSchedulerMetrics,
@@ -230,6 +256,7 @@ const DEDICATED: Record<string, MetricGenerator> = {
   firebase: generateFirebaseMetrics,
   "cloud-endpoints": generateCloudEndpointsMetrics,
   "api-gateway": generateApiGatewayMetrics,
+  "api-hub": generateApiHubMetrics,
   "application-integration": generateApplicationIntegrationMetrics,
   "serverless-vpc-access": generateServerlessVpcAccessMetrics,
   "service-directory": generateServiceDirectoryMetrics,
@@ -241,6 +268,8 @@ const DEDICATED: Record<string, MetricGenerator> = {
   "cloud-deploy": generateCloudDeployMetrics,
   "cloud-logging": generateCloudLoggingMetrics,
   "cloud-monitoring": generateCloudMonitoringMetrics,
+  "cloud-trace": generateCloudTraceMetrics,
+  "cloud-profiler": generateCloudProfilerMetrics,
   "cloud-identity": generateCloudIdentityMetrics,
   iam: generateIamMetrics,
   "org-policy": generateOrgPolicyMetrics,
@@ -262,6 +291,7 @@ const DEDICATED: Record<string, MetricGenerator> = {
   "persistent-disk": generatePersistentDiskMetrics,
   filestore: generateFilestoreMetrics,
   "cloud-build": generateCloudBuildMetrics,
+  "source-repositories": generateSourceRepositoriesMetrics,
   "iot-core": generateIotCoreMetrics,
   "gke-enterprise": generateGkeEnterpriseMetrics,
   automl: generateAutomlMetrics,
@@ -281,11 +311,22 @@ const DEDICATED: Record<string, MetricGenerator> = {
   "vertex-ai-feature-store": generateVertexAiFeatureStoreMetrics,
   "vertex-ai-matching-engine": generateVertexAiMatchingEngineMetrics,
   "vertex-ai-tensorboard": generateVertexAiTensorboardMetrics,
+  "vertex-ai-agent-builder": generateVertexAiAgentBuilderMetrics,
   "vmware-engine": generateVmwareEngineMetrics,
+  "colab-enterprise": generateColabEnterpriseMetrics,
+  "distributed-cloud": generateDistributedCloudMetrics,
+  parallelstore: generateParallelstoreMetrics,
+  dataform: generateDataformMetrics,
+  biglake: generateBiglakeMetrics,
+  "certificate-manager": generateCertificateManagerMetrics,
+  "blockchain-node-engine": generateBlockchainNodeEngineMetrics,
+  "netapp-volumes": generateNetappVolumesMetrics,
 };
 
 function metricGenForId(id: string): MetricGenerator {
-  return DEDICATED[id] ?? makeGcpGenericGenerator(id, gcpMetricsDataset(id));
+  const gen = DEDICATED[id];
+  if (!gen) throw new Error(`No dedicated GCP metric generator for: ${id}`);
+  return gen;
 }
 
 /** Parent id → variant ids (random pick each emission). */

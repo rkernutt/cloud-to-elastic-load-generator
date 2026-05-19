@@ -22,6 +22,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 // ─── Service configurations ───────────────────────────────────────────────────
@@ -405,7 +406,11 @@ function buildSqlSpan(
       db: { type: "sql", statement: stmt },
       destination: { service: { resource: "postgresql", type: "db", name: "postgresql" } },
     },
-    labels: { db_name: dbName, db_host: dbHost },
+    labels: {
+      db_name: dbName,
+      db_host: dbHost,
+      ...(isErr ? awsSpanErrorLabels() : {}),
+    },
     service: svcBlock,
     agent,
     telemetry,

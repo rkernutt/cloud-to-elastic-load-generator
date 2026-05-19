@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateCloudArmorTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -42,7 +48,7 @@ export function generateCloudArmorTrace(ts: string, er: number): EcsDocument[] {
       labels: {
         "gcp.security_policy": "public-api-edge",
         ...(wafErr
-          ? { "gcp.cloud_armor.outcome": "deny" }
+          ? { "gcp.cloud_armor.outcome": "deny", ...gcpSpanFailureLabels() }
           : { "gcp.cloud_armor.outcome": "allow" }),
       },
     },
@@ -68,7 +74,9 @@ export function generateCloudArmorTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: u2 },
       action: "call",
       destination: { service: { resource: "https", type: "external", name: "https" } },
-      labels: beErr ? { "http.status_code": "503" } : { "http.status_code": "200" },
+      labels: beErr
+        ? { "http.status_code": "503", ...gcpSpanFailureLabels() }
+        : { "http.status_code": "200" },
     },
     service: svc,
     cloud: backendCloud,

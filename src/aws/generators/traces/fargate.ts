@@ -14,6 +14,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 const SERVICES = [
@@ -115,7 +116,12 @@ export function generateFargateTrace(ts: string, er: number) {
       service: svcBlock,
       agent,
       telemetry,
-      labels: { "aws.ecs.cluster": cluster, "aws.ecs.task_arn": taskArn, ...ph.labels },
+      labels: {
+        "aws.ecs.cluster": cluster,
+        "aws.ecs.task_arn": taskArn,
+        ...ph.labels,
+        ...(spanErr ? awsSpanErrorLabels() : {}),
+      },
       event: { outcome: spanErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     });

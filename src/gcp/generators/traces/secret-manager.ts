@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateSecretManagerTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -45,7 +51,7 @@ export function generateSecretManagerTrace(ts: string, er: number): EcsDocument[
       },
       labels: {
         "gcp.secret.id": secretId,
-        ...(failIdx === 0 ? { "gcp.rpc.status_code": "INVALID_ARGUMENT" } : {}),
+        ...(failIdx === 0 ? { ...gcpSpanFailureLabels() } : {}),
       },
     },
     service: svc,
@@ -72,7 +78,7 @@ export function generateSecretManagerTrace(ts: string, er: number): EcsDocument[
       duration: { us: u2 },
       action: "query",
       destination: { service: { resource: "secret_version", type: "db", name: "secret_version" } },
-      labels: failIdx === 1 ? { "gcp.rpc.status_code": "NOT_FOUND" } : {},
+      labels: failIdx === 1 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,
@@ -98,7 +104,7 @@ export function generateSecretManagerTrace(ts: string, er: number): EcsDocument[
       duration: { us: u3 },
       action: "verify",
       destination: { service: { resource: "iam", type: "external", name: "iam" } },
-      labels: failIdx === 2 ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {},
+      labels: failIdx === 2 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "iam.googleapis.com"),
@@ -126,7 +132,7 @@ export function generateSecretManagerTrace(ts: string, er: number): EcsDocument[
       destination: {
         service: { resource: "secret_payload", type: "external", name: "secret_payload" },
       },
-      labels: failIdx === 3 ? { "gcp.rpc.status_code": "FAILED_PRECONDITION" } : {},
+      labels: failIdx === 3 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,

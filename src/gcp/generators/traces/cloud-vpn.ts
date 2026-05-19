@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateCloudVpnTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -43,7 +49,9 @@ export function generateCloudVpnTrace(ts: string, er: number): EcsDocument[] {
       destination: { service: { resource: "vpn_tunnel", type: "external", name: "vpn_tunnel" } },
       labels: {
         "gcp.vpn.peer_ip": peer,
-        ...(failIdx === 0 ? { "gcp.vpn.phase": "setup_failed" } : { "gcp.vpn.phase": "init" }),
+        ...(failIdx === 0
+          ? { "gcp.vpn.phase": "setup_failed", ...gcpSpanFailureLabels() }
+          : { "gcp.vpn.phase": "init" }),
       },
     },
     service: svc,
@@ -70,7 +78,10 @@ export function generateCloudVpnTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: u2 },
       action: "process",
       destination: { service: { resource: "ike", type: "external", name: "ike" } },
-      labels: failIdx === 1 ? { "gcp.vpn.ike": "auth_failed" } : { "gcp.vpn.ike": "established" },
+      labels:
+        failIdx === 1
+          ? { "gcp.vpn.ike": "auth_failed", ...gcpSpanFailureLabels() }
+          : { "gcp.vpn.ike": "established" },
     },
     service: svc,
     cloud,
@@ -97,7 +108,9 @@ export function generateCloudVpnTrace(ts: string, er: number): EcsDocument[] {
       action: "connect",
       destination: { service: { resource: "ipsec", type: "external", name: "ipsec" } },
       labels:
-        failIdx === 2 ? { "gcp.vpn.tunnel_status": "DOWN" } : { "gcp.vpn.tunnel_status": "UP" },
+        failIdx === 2
+          ? { "gcp.vpn.tunnel_status": "DOWN", ...gcpSpanFailureLabels() }
+          : { "gcp.vpn.tunnel_status": "UP" },
     },
     service: svc,
     cloud,
@@ -125,7 +138,8 @@ export function generateCloudVpnTrace(ts: string, er: number): EcsDocument[] {
       destination: {
         service: { resource: "vpn_data_plane", type: "external", name: "vpn_data_plane" },
       },
-      labels: failIdx === 3 ? { "gcp.vpn.error": "replay_detected" } : {},
+      labels:
+        failIdx === 3 ? { "gcp.vpn.error": "replay_detected", ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,

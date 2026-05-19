@@ -11,6 +11,16 @@ import {
   HTTP_METHODS,
 } from "./helpers.js";
 
+const AZURE_API_ERROR_CODES = [
+  "InternalServerError",
+  "AuthorizationFailed",
+  "QuotaExceeded",
+  "ResourceNotFound",
+  "ConflictError",
+  "BadRequest",
+  "ThrottlingException",
+] as const;
+
 export function generateIotHubLog(ts: string, er: number): EcsDocument {
   const { region, subscription, resourceGroup, isErr } = makeAzureSetup(er);
   const hubName = `iothub-${randId(6).toLowerCase()}`;
@@ -75,6 +85,15 @@ export function generateIotHubLog(ts: string, er: number): EcsDocument {
     message: isErr
       ? `IoT Hub diagnostic ${hubName}: ${operation} failed for ${deviceId} HTTP ${statusCode} tracking=${properties.trackingId}`
       : `IoT Hub diagnostic ${hubName}: ${operation} accepted from ${deviceId} via ${protocol}`,
+    ...(isErr
+      ? {
+          error: {
+            code: rand([...AZURE_API_ERROR_CODES]),
+            message: `IoT Hub connection or twin operation rejected for device.`,
+            type: "azure",
+          },
+        }
+      : {}),
   };
 }
 
@@ -100,6 +119,13 @@ export function generateLogicAppsLog(ts: string, er: number): EcsDocument {
   const operationName = `WorkflowAction${status}`;
   const resultType = status === "Succeeded" ? "Succeeded" : "Failed";
   const level = status === "Failed" ? "Error" : status === "Skipped" ? "Warning" : "Informational";
+  const structuredErr = isErr
+    ? {
+        code: rand([...AZURE_API_ERROR_CODES]),
+        message: "Unable to process template language expressions in action inputs.",
+        type: "azure" as const,
+      }
+    : undefined;
   const properties: Record<string, unknown> = {
     resourceId,
     workflowId,
@@ -111,12 +137,7 @@ export function generateLogicAppsLog(ts: string, er: number): EcsDocument {
     status,
     durationInMilliseconds: durationMs,
     correlation: { clientTrackingId: randUUID() },
-    error: isErr
-      ? {
-          code: "InvalidTemplate",
-          message: "Unable to process template language expressions in action inputs.",
-        }
-      : null,
+    error: structuredErr ?? null,
   };
 
   return {
@@ -146,6 +167,7 @@ export function generateLogicAppsLog(ts: string, er: number): EcsDocument {
     message: isErr
       ? `Logic Apps runtime ${workflowName}: run ${runId} failed on ${actionName} (${String((properties.error as { code?: string })?.code)})`
       : `Logic Apps runtime ${workflowName}: run ${runId} completed in ${durationMs}ms`,
+    ...(structuredErr ? { error: structuredErr } : {}),
   };
 }
 
@@ -251,6 +273,15 @@ export function generateApiManagementLog(ts: string, er: number): EcsDocument {
       style === "PolicyEvaluation"
         ? `API Management ${serviceName}: policy ${properties.policyEvent} outcome HTTP ${responseCode} api=${apiId}`
         : `API Management ${serviceName}: ${method} ${apiId}/${operationId} client=${responseCode} backend=${backendResponseCode} ${backendTimeMs}ms cache=${cache}`,
+    ...(isErr
+      ? {
+          error: {
+            code: rand([...AZURE_API_ERROR_CODES]),
+            message: "API gateway request or policy evaluation failed.",
+            type: "azure",
+          },
+        }
+      : {}),
   };
 }
 
@@ -326,6 +357,15 @@ export function generateEventGridLog(ts: string, er: number): EcsDocument {
     message: isErr
       ? `Event Grid ${topicName}: delivery ${deliveryStatus} for ${eventType} attempts=${deliveryCount} lastHttp=${properties.lastHttpStatusCode}`
       : `Event Grid ${topicName}: delivered ${eventType} to ${subscriptionName}`,
+    ...(isErr
+      ? {
+          error: {
+            code: rand([...AZURE_API_ERROR_CODES]),
+            message: "Event Grid subscription delivery failed.",
+            type: "azure",
+          },
+        }
+      : {}),
   };
 }
 
@@ -389,6 +429,15 @@ export function generateSynapseWorkspaceLog(ts: string, er: number): EcsDocument
     message: isErr
       ? `Synapse diagnostic ${workspaceName}: ${queryIdOrJobName} on ${poolName} ended ${status}`
       : `Synapse diagnostic ${workspaceName}: ${queryIdOrJobName} ${status} duration=${durationMs}ms`,
+    ...(isErr
+      ? {
+          error: {
+            code: rand([...AZURE_API_ERROR_CODES]),
+            message: "Synapse job or SQL pool operation failed.",
+            type: "azure",
+          },
+        }
+      : {}),
   };
 }
 
@@ -408,6 +457,14 @@ export function generateDatabricksLog(ts: string, er: number): EcsDocument {
   const operationName = `cluster.${action.toLowerCase()}`;
   const resultType = isErr ? "Failed" : "Succeeded";
   const level = isErr ? "Error" : "Informational";
+  const errDesc = "Cluster failed to start: insufficient capacity in region.";
+  const controlPlaneErr = isErr
+    ? {
+        code: rand([...AZURE_API_ERROR_CODES]),
+        message: errDesc,
+        type: "azure" as const,
+      }
+    : undefined;
   const properties: Record<string, unknown> = {
     resourceId,
     workspaceId,
@@ -421,7 +478,8 @@ export function generateDatabricksLog(ts: string, er: number): EcsDocument {
     requestId: randUUID(),
     serviceName: "clusters",
     eventTime: ts,
-    errorMessage: isErr ? "Cluster failed to start: insufficient capacity in region." : null,
+    errorMessage: isErr ? errDesc : null,
+    ...(controlPlaneErr ? { statusMessage: { error: controlPlaneErr } } : {}),
   };
 
   return {
@@ -451,5 +509,6 @@ export function generateDatabricksLog(ts: string, er: number): EcsDocument {
     message: isErr
       ? `Databricks audit ${workspaceId}: ${action} failed for cluster ${clusterName} (${properties.errorMessage})`
       : `Databricks audit ${workspaceId}: ${action} on cluster ${clusterName} by ${principal}`,
+    ...(controlPlaneErr ? { error: controlPlaneErr } : {}),
   };
 }

@@ -1,22 +1,23 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
+    "region": "me-south-1",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "iotfleetwise" }
   },
   "aws": {
-    "dimensions": { "FleetId": "executive-fleet", "CampaignName": "safety-systems" },
+    "dimensions": { "FleetId": "executive-fleet", "CampaignName": "fuel-efficiency" },
     "iotfleetwise": {
       "fleet_id": "executive-fleet",
-      "vehicle_id": "VIN-T4ATTG54P7O",
-      "campaign_name": "safety-systems",
-      "campaign_status": "SUSPENDED",
-      "signal_name": "Vehicle.Chassis.Axle.Row1.Wheel.Left.Tire.Pressure",
+      "vehicle_id": "VIN-ZZH48ZH7RG4AWD13E",
+      "campaign_name": "fuel-efficiency",
+      "campaign_status": "RUNNING",
+      "signal_name": "Vehicle.Speed",
+      "signal_value": 60.408855713639,
       "collection_scheme": "EVENT_BASED",
       "compression": "SNAPPY",
-      "data_destination": "S3"
+      "data_destination": "TIMESTREAM"
     },
     "s3": {
       "bucket": {
@@ -24,38 +25,33 @@
         "arn": "arn:aws:s3:::aws-iotfleetwise-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/738291046572/iotfleetwise/us-west-1/2026/05/07/iotfleetwise_NZLZRJVPGV.log.gz"
+        "key": "AWSLogs/738291046572/iotfleetwise/me-south-1/2026/05/14/iotfleetwise_N1Q6TG5GIG7RY8ELTHJO.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotfleetwise/logs",
-      "log_stream": "us-west-1/iqd1q93s",
-      "ingestion_time": "2026-05-07T10:17:36.514Z"
+      "log_stream": "me-south-1/hk0yfyqq",
+      "ingestion_time": "2026-05-14T03:00:07.338Z"
     }
   },
   "event": {
-    "action": "CreateCampaign",
-    "outcome": "failure",
+    "action": "UpdateCampaign",
+    "outcome": "success",
     "category": ["iot", "process"],
     "dataset": "aws.iotfleetwise",
     "provider": "iotfleetwise.amazonaws.com",
     "module": "aws"
   },
-  "message": "IoT FleetWise CreateCampaign FAILED [executive-fleet/VIN-T4ATTG54P7O]: Vehicle not found",
-  "log": { "level": "error" },
-  "error": {
-    "code": "InvalidSignalsException",
-    "message": "IoT FleetWise operation failed",
-    "type": "iot"
-  },
+  "message": "IoT FleetWise UpdateCampaign: fleet=executive-fleet, vehicle=VIN-ZZH48ZH7RG4AWD13E, campaign=fuel-efficiency RUNNING",
+  "log": { "level": "info" },
   "service": { "name": "iotfleetwise", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iotfleetwise", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "ua7noqnz6l"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "x7vbn57k608cccwklecu3w82qo9aspqmj1va"
   },
   "input": { "type": "aws-cloudwatch" }
 }

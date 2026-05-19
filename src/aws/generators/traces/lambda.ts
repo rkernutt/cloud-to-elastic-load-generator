@@ -22,6 +22,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 // ─── Realistic Lambda function names ─────────────────────────────────────────
@@ -283,6 +284,7 @@ function buildSpan(
     service: svcBlock,
     agent,
     telemetry,
+    ...(isErr ? { labels: awsSpanErrorLabels() } : {}),
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };

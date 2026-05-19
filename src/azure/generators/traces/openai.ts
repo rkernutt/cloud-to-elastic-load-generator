@@ -58,7 +58,8 @@ export function generateOpenAiTrace(ts: string, er: number): EcsDocument[] {
       ...dim({ dependency_type: "Azure OpenAI" }),
     },
     traceId,
-    "python"
+    "python",
+    { spanFailed: errEmb }
   );
 
   const spanComp = enrichAzureTraceDoc(
@@ -84,7 +85,8 @@ export function generateOpenAiTrace(ts: string, er: number): EcsDocument[] {
       ...dim({ dependency_type: "Azure OpenAI" }),
     },
     traceId,
-    "python"
+    "python",
+    { spanFailed: !errEmb && errComp }
   );
 
   const totalUs = u1 + u2 + randInt(1_000, 12_000);

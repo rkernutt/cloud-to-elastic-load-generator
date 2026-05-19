@@ -9,7 +9,13 @@ import {
   randSpanId,
 } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 const OPERATIONS = ["start", "stop", "restart"] as const;
 
@@ -50,7 +56,7 @@ export function generateComputeEngineTrace(ts: string, er: number): EcsDocument[
       labels: {
         instance_name: instance.name,
         instance_id: instance.id,
-        ...(isErr ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {}),
+        ...(isErr ? { ...gcpSpanFailureLabels() } : {}),
       },
     },
     service: svc,

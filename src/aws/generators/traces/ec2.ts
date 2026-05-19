@@ -8,6 +8,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 const APPS = [
@@ -106,6 +107,7 @@ export function generateEc2Trace(ts: string, er: number) {
       service: svcBlock,
       agent,
       telemetry,
+      ...(spanErr ? { labels: awsSpanErrorLabels() } : {}),
       event: { outcome: spanErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     });

@@ -112,6 +112,23 @@ const ELASTIC_DATASET_MAP = {
   panorama: "aws.panorama",
   freertos: "aws.freertos",
   cloudwatchrum: "aws.cloudwatch_rum",
+  // Extended AWS integrations pack
+  bedrockguardrails: "aws.bedrockguardrails",
+  emrserverless: "aws.emrserverless",
+  gwlb: "aws.gwlb",
+  elb: "aws.elb_logs",
+  mediaconnect: "aws.mediaconnect",
+  mediapackage: "aws.mediapackage",
+  mediastore: "aws.mediastore",
+  mediatailor: "aws.mediatailor",
+  ivs: "aws.ivs",
+  ivschat: "aws.ivschat",
+  cloudsearch: "aws.cloudsearch",
+  directoryservice: "aws.directoryservice",
+  acmpca: "aws.acmpca",
+  mgn: "aws.mgn",
+  cwsynthetics: "aws.cwsynthetics",
+  managedprometheus: "aws.managedprometheus",
   // Cross-cloud ITSM
   servicenow_cmdb: "servicenow.event",
 };
@@ -327,6 +344,23 @@ const METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "proton",
   "securityir",
   "supplychain",
+  // Extended AWS integrations pack (metrics + logs)
+  "bedrockguardrails",
+  "emrserverless",
+  "gwlb",
+  "elb",
+  "mediaconnect",
+  "mediapackage",
+  "mediastore",
+  "mediatailor",
+  "ivs",
+  "ivschat",
+  "cloudsearch",
+  "directoryservice",
+  "acmpca",
+  "mgn",
+  "cwsynthetics",
+  "managedprometheus",
 ]);
 
 // Dataset for metrics mode when it differs from logs. Omitted = use ELASTIC_DATASET_MAP.
@@ -378,6 +412,8 @@ const ELASTIC_METRICS_DATASET_MAP = {
   proton: "aws.proton",
   securityir: "aws.securityir",
   supplychain: "aws.supplychain",
+  elb: "aws.elb",
+  emrserverless: "aws.emrserverless_metrics",
 };
 
 export { ELASTIC_DATASET_MAP, METRICS_SUPPORTED_SERVICE_IDS, ELASTIC_METRICS_DATASET_MAP };

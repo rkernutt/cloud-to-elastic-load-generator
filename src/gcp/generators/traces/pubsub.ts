@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generatePubSubTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -44,7 +50,7 @@ export function generatePubSubTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: pubUs },
       action: "send",
       destination: { service: { resource: "pubsub", type: "messaging", name: "pubsub" } },
-      labels: failIdx === 0 ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" } : {},
+      labels: failIdx === 0 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: pubSvc,
     cloud: gcpCloud(region, project, "pubsub.googleapis.com"),
@@ -69,7 +75,7 @@ export function generatePubSubTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: topicUs },
       action: "process",
       destination: { service: { resource: "pubsub", type: "messaging", name: "pubsub" } },
-      labels: failIdx === 1 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: failIdx === 1 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: gcpServiceBase("pubsub-control-plane", env, "go", {
       runtimeName: "go",
@@ -97,7 +103,7 @@ export function generatePubSubTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: subUs },
       action: "receive",
       destination: { service: { resource: "pubsub", type: "messaging", name: "pubsub" } },
-      labels: failIdx === 2 ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {},
+      labels: failIdx === 2 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: gcpServiceBase("pubsub-data-plane", env, "go", {
       runtimeName: "go",
@@ -132,7 +138,7 @@ export function generatePubSubTrace(ts: string, er: number): EcsDocument[] {
       destination: {
         service: { resource: "cloudfunctions", type: "request", name: "cloudfunctions" },
       },
-      labels: failIdx === 3 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: failIdx === 3 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: fnSvc,
     cloud: gcpCloud(region, project, "cloudfunctions.googleapis.com"),

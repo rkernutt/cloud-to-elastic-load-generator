@@ -66,7 +66,8 @@ export function generateAppServiceTrace(ts: string, er: number): EcsDocument[] {
       ...dim({ dependency_type: "SQL" }),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: failSql }
   );
   ms += Math.max(1, Math.round(dbUs / 1000));
 
@@ -94,7 +95,8 @@ export function generateAppServiceTrace(ts: string, er: number): EcsDocument[] {
       ...dim({ dependency_type: "redis" }),
     },
     traceId,
-    "dotnet"
+    "dotnet",
+    { spanFailed: failSql || failRedis }
   );
 
   const totalUs = dbUs + cacheUs + randInt(800, 6000) * 1000;

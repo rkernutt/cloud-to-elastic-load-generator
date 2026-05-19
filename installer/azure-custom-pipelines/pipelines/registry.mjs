@@ -41286,4 +41286,519 @@ export const PIPELINE_REGISTRY = [
       },
     ],
   },
+  {
+    id: "logs-azure.ai_foundry-default",
+    dataset: "azure.ai_foundry",
+    group: "ai",
+    description: "Enrich and normalise Azure AI Foundry diagnostic logs (ai-foundry)",
+    processors: [
+      { json: { field: "message", target_field: "azure.ai_foundry.parsed", ignore_failure: true } },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: { field: ["azure.ai_foundry.parsed"], ignore_missing: true, ignore_failure: true },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-azure.data_explorer-default",
+    dataset: "azure.data_explorer",
+    group: "analytics",
+    description: "Enrich and normalise Azure Data Explorer diagnostic logs (data-explorer)",
+    processors: [
+      {
+        json: {
+          field: "message",
+          target_field: "azure.data_explorer.parsed",
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: {
+          field: ["azure.data_explorer.parsed"],
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-azure.virtual_desktop-default",
+    dataset: "azure.virtual_desktop",
+    group: "compute",
+    description: "Enrich and normalise Azure Virtual Desktop diagnostic logs (virtual-desktop)",
+    processors: [
+      {
+        json: {
+          field: "message",
+          target_field: "azure.virtual_desktop.parsed",
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: {
+          field: ["azure.virtual_desktop.parsed"],
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-azure.elastic_san-default",
+    dataset: "azure.elastic_san",
+    group: "storage",
+    description: "Enrich and normalise Azure Elastic SAN diagnostic logs (elastic-san)",
+    processors: [
+      {
+        json: { field: "message", target_field: "azure.elastic_san.parsed", ignore_failure: true },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: { field: ["azure.elastic_san.parsed"], ignore_missing: true, ignore_failure: true },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-azure.managed_grafana-default",
+    dataset: "azure.managed_grafana",
+    group: "management",
+    description: "Enrich and normalise Azure Managed Grafana diagnostic logs (managed-grafana)",
+    processors: [
+      {
+        json: {
+          field: "message",
+          target_field: "azure.managed_grafana.parsed",
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: {
+          field: ["azure.managed_grafana.parsed"],
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-azure.managed_prometheus-default",
+    dataset: "azure.managed_prometheus",
+    group: "management",
+    description:
+      "Enrich and normalise Azure Managed Prometheus diagnostic logs (managed-prometheus)",
+    processors: [
+      {
+        json: {
+          field: "message",
+          target_field: "azure.managed_prometheus.parsed",
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: {
+          field: ["azure.managed_prometheus.parsed"],
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-azure.dns_private_resolver-default",
+    dataset: "azure.dns_private_resolver",
+    group: "networking",
+    description:
+      "Enrich and normalise Azure DNS Private Resolver diagnostic logs (dns-private-resolver)",
+    processors: [
+      {
+        json: {
+          field: "message",
+          target_field: "azure.dns_private_resolver.parsed",
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: {
+          field: ["azure.dns_private_resolver.parsed"],
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-azure.application_insights-default",
+    dataset: "azure.application_insights",
+    group: "management",
+    description:
+      "Enrich and normalise Azure Application Insights diagnostic logs (application-insights)",
+    processors: [
+      {
+        json: {
+          field: "message",
+          target_field: "azure.application_insights.parsed",
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: {
+          field: ["azure.application_insights.parsed"],
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-azure.dedicated_hsm-default",
+    dataset: "azure.dedicated_hsm",
+    group: "security",
+    description: "Enrich and normalise Azure Dedicated HSM diagnostic logs (dedicated-hsm)",
+    processors: [
+      {
+        json: {
+          field: "message",
+          target_field: "azure.dedicated_hsm.parsed",
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: {
+          field: ["azure.dedicated_hsm.parsed"],
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-azure.video_indexer-default",
+    dataset: "azure.video_indexer",
+    group: "media",
+    description: "Enrich and normalise Azure Video Indexer diagnostic logs (video-indexer)",
+    processors: [
+      {
+        json: {
+          field: "message",
+          target_field: "azure.video_indexer.parsed",
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: {
+          field: ["azure.video_indexer.parsed"],
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
 ];

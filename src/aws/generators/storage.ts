@@ -640,7 +640,19 @@ function generateEbsLog(ts: string, er: number): EcsDocument {
     },
     message: message,
     log: { level },
-    ...(isErr ? { error: { code: "EbsError", message, type: "storage" } } : {}),
+    ...(isErr
+      ? {
+          error: {
+            code: rand([
+              "VolumeInUseException",
+              "SnapshotCreationError",
+              "VolumeModificationError",
+            ]),
+            message,
+            type: "aws",
+          },
+        }
+      : {}),
   };
 }
 
@@ -763,9 +775,9 @@ function generateEfsLog(ts: string, er: number): EcsDocument {
     ...(isErr
       ? {
           error: {
-            code: rand(["ThroughputLimitExceeded", "FileLimitExceeded"]),
-            message: "EFS operation failed",
-            type: "storage",
+            code: rand(["FileSystemNotFound", "MountTargetConflict", "ThroughputLimitExceeded"]),
+            message: efsMessage,
+            type: "aws",
           },
         }
       : {}),
@@ -840,7 +852,15 @@ function generateFsxLog(ts: string, er: number): EcsDocument {
     },
     message: rand(MSGS[level]),
     log: { level },
-    ...(isErr ? { error: { code: "FsxError", message: rand(MSGS.error), type: "storage" } } : {}),
+    ...(isErr
+      ? {
+          error: {
+            code: rand(["FileSystemNotFound", "BackupRestoring", "IncompatibleParameterError"]),
+            message: rand(MSGS.error),
+            type: "aws",
+          },
+        }
+      : {}),
   };
 }
 

@@ -9,6 +9,7 @@ import {
   ACCOUNTS,
   rand,
   randInt,
+  randFloat,
   randId,
   dp,
   stat,
@@ -363,8 +364,10 @@ export function generateQdeveloperMetrics(ts: string, er: number): EcsDocument[]
 
 // ─── Network Access Analyzer ──────────────────────────────────────────────────
 
-export function generateNetworkaccessanalyzerMetrics(ts: string, _er: number): EcsDocument[] {
+export function generateNetworkaccessanalyzerMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const analyzerArn = `arn:aws:access-analyzer:${region}:${account.id}:analyzer/${randId(28)}`;
   return [
     metricDoc(
       ts,
@@ -372,12 +375,46 @@ export function generateNetworkaccessanalyzerMetrics(ts: string, _er: number): E
       dataset("networkaccessanalyzer"),
       region,
       account,
-      { AnalyzerArn: `arn:aws:access-analyzer:${region}:${account.id}:analyzer/${randId(28)}` },
+      { AnalyzerArn: analyzerArn },
       {
-        FindingCount: counter(randInt(0, 50_000)),
-        NewFindings: counter(randInt(0, 800)),
-        ActiveFindings: counter(randInt(0, 120_000)),
-        ArchiveRuleMatches: counter(randInt(0, 25_000)),
+        FindingCount: counter(stressed ? randInt(800, 220_000) : randInt(0, 50_000)),
+        NewFindings: counter(Math.random() < er ? randInt(5, 100) : randInt(0, 800)),
+        ActiveFindings: counter(stressed ? randInt(5_000, 400_000) : randInt(0, 120_000)),
+        ArchiveRuleMatches: counter(Math.random() < er ? randInt(800, 80_000) : randInt(0, 25_000)),
+        EvaluationLatencyMilliseconds: stat(
+          dp(stressed ? randFloat(800, 9800) : randFloat(90, 1200))
+        ),
+      }
+    ),
+    metricDoc(
+      ts,
+      "networkaccessanalyzer",
+      dataset("networkaccessanalyzer"),
+      region,
+      account,
+      {
+        AnalyzerArn: analyzerArn,
+        ResourceType: rand(["AWS::IAM::Role", "AWS::EC2::SecurityGroup"]),
+      },
+      {
+        InternalEvaluationErrors: counter(Math.random() < er ? randInt(5, 100) : randInt(0, 2)),
+        ThrottledAPICalls: counter(Math.random() < er ? randInt(10, 500) : 0),
+      }
+    ),
+    metricDoc(
+      ts,
+      "networkaccessanalyzer",
+      dataset("networkaccessanalyzer"),
+      region,
+      account,
+      { AnalyzerArn: analyzerArn, ResourceArn: `arn:aws:iam::${account.id}:role/svc-role` },
+      {
+        PublicAccessIndicators: counter(
+          Math.random() < er ? randInt(200, 50_000) : randInt(0, 3000)
+        ),
+        CrossAccountPathsFlagged: counter(
+          Math.random() < er ? randInt(100, 18_000) : randInt(0, 800)
+        ),
       }
     ),
   ];

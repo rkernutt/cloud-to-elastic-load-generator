@@ -127,6 +127,18 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         icon: "≋",
         desc: "Radio unit status & device activation",
       },
+      {
+        id: "gwlb",
+        label: "Gateway Load Balancer",
+        icon: "⇄",
+        desc: "GENEVE encapsulation & inline security appliance steering",
+      },
+      {
+        id: "elb",
+        label: "Classic Load Balancer",
+        icon: "⚖",
+        desc: "Legacy ELB HTTP(S)/TCP health & access patterns",
+      },
     ],
   },
   {
@@ -156,10 +168,22 @@ const SERVICE_GROUPS: ServiceGroup[] = [
       },
       { id: "acm", label: "ACM", icon: "⊠", desc: "Certificate lifecycle logs" },
       {
+        id: "acmpca",
+        label: "Private CA",
+        icon: "⊠",
+        desc: "ACM Private CA issuance, revocation & CRL metrics",
+      },
+      {
         id: "identitycenter",
         label: "IAM Identity Center",
         icon: "⊞",
         desc: "SSO auth & provisioning",
+      },
+      {
+        id: "directoryservice",
+        label: "Directory Service",
+        icon: "⊞",
+        desc: "Managed Microsoft AD & AD Connector LDAP events",
       },
       { id: "detective", label: "Detective", icon: "⊙", desc: "Behavioral analysis findings" },
       {
@@ -391,6 +415,12 @@ const SERVICE_GROUPS: ServiceGroup[] = [
     icon: "◈",
     services: [
       { id: "emr", label: "EMR", icon: "⚙", desc: "Spark/Hadoop cluster logs" },
+      {
+        id: "emrserverless",
+        label: "EMR Serverless",
+        icon: "⚙",
+        desc: "Serverless Spark/Hive job runs & worker metrics",
+      },
       { id: "glue", label: "Glue", icon: "⟺", desc: "ETL job execution logs" },
       { id: "athena", label: "Athena", icon: "◇", desc: "S3 SQL query logs" },
       { id: "lakeformation", label: "Lake Formation", icon: "◫", desc: "Data lake permissions" },
@@ -429,6 +459,12 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         icon: "⇆",
         desc: "EDI X12/EDIFACT transformation logs",
       },
+      {
+        id: "cloudsearch",
+        label: "CloudSearch",
+        icon: "◇",
+        desc: "Managed search domain indexing & query logs",
+      },
     ],
   },
   {
@@ -444,6 +480,12 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         label: "Bedrock Agent",
         icon: "◇",
         desc: "Agent & knowledge base invocations",
+      },
+      {
+        id: "bedrockguardrails",
+        label: "Bedrock Guardrails",
+        icon: "◈",
+        desc: "Content safety & automated reasoning policy evaluations",
       },
       { id: "rekognition", label: "Rekognition", icon: "◎", desc: "Image & video analysis" },
       { id: "textract", label: "Textract", icon: "⊟", desc: "Document text extraction" },
@@ -553,6 +595,12 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         icon: "⚠",
         desc: "Metric alarms, logs & monitoring events",
       },
+      {
+        id: "cwsynthetics",
+        label: "CloudWatch Synthetics",
+        icon: "◎",
+        desc: "Canary runs, screenshots & availability checks",
+      },
       { id: "health", label: "AWS Health", icon: "⊕", desc: "Service health events" },
       { id: "trustedadvisor", label: "Trusted Advisor", icon: "◎", desc: "Cost & security checks" },
       { id: "controltower", label: "Control Tower", icon: "⊛", desc: "Guardrail & account mgmt" },
@@ -586,6 +634,12 @@ const SERVICE_GROUPS: ServiceGroup[] = [
       { id: "resiliencehub", label: "Resilience Hub", icon: "⊛", desc: "RTO/RPO assessment logs" },
       { id: "migrationhub", label: "Migration Hub", icon: "⟺", desc: "Server migration tracking" },
       {
+        id: "mgn",
+        label: "Application Migration Service",
+        icon: "⟺",
+        desc: "Lift-and-shift replication & cutover events",
+      },
+      {
         id: "networkmanager",
         label: "Network Manager",
         icon: "⊙",
@@ -598,6 +652,12 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         label: "Managed Grafana",
         icon: "◎",
         desc: "Grafana workspace & alert logs",
+      },
+      {
+        id: "managedprometheus",
+        label: "Managed Prometheus",
+        icon: "◎",
+        desc: "Amazon Prometheus workspace ingest, rules & alerts",
       },
       {
         id: "supplychain",
@@ -658,6 +718,37 @@ const SERVICE_GROUPS: ServiceGroup[] = [
     services: [
       { id: "mediaconvert", label: "MediaConvert", icon: "▷", desc: "Video transcoding jobs" },
       { id: "medialive", label: "MediaLive", icon: "◉", desc: "Live video channel logs" },
+      {
+        id: "mediaconnect",
+        label: "MediaConnect",
+        icon: "⟿",
+        desc: "Live video transport flows & Zixi/RIST paths",
+      },
+      {
+        id: "mediapackage",
+        label: "MediaPackage",
+        icon: "◉",
+        desc: "Packaging & origination endpoints",
+      },
+      {
+        id: "mediastore",
+        label: "MediaStore",
+        icon: "○",
+        desc: "Live container object storage ops",
+      },
+      {
+        id: "mediatailor",
+        label: "MediaTailor",
+        icon: "▷",
+        desc: "Manifest stitching & server-side ad insertion",
+      },
+      { id: "ivs", label: "IVS", icon: "▷", desc: "Interactive low-latency streaming" },
+      {
+        id: "ivschat",
+        label: "IVS Chat",
+        icon: "◉",
+        desc: "Real-time messaging rooms & moderation",
+      },
       { id: "workspaces", label: "WorkSpaces", icon: "□", desc: "Virtual desktop sessions" },
       { id: "connect", label: "Amazon Connect", icon: "◯", desc: "Contact centre call logs" },
       { id: "appstream", label: "AppStream", icon: "⊙", desc: "App streaming sessions" },

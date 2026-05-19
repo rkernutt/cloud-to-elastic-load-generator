@@ -9,17 +9,17 @@ COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --ignore-scripts
 
-# Copy only what Vite needs so edits to docs/tests/docker files don’t invalidate this layer
+# Cold / large directories first so code-only edits reuse cached installer layer
 COPY index.html vite.config.ts tsconfig.json tsconfig.node.json ./
-COPY scripts ./scripts
-COPY public ./public
-COPY src ./src
 COPY installer ./installer
-# `src/setup/workflowYaml.ts` inlines this file with `?raw` at build time — Vite/Rollup
-# resolves it during `npm run build`, so it must be present in the build context.
+# `src/setup/workflowYaml.ts` inlines this file with `?raw` at build time
 COPY workflows ./workflows
+COPY public ./public
+COPY scripts ./scripts
+# src/ last — most frequently edited, invalidates fewest downstream layers
+COPY src ./src
 # Fail fast when the build context omits installer JSON (sparse clone, wrong directory, or broken
-# sync). A healthy tree sends ~3–5MB+ to the daemon; ~100KB almost always means dashboards/ML
+# sync). A healthy tree sends ~3-5MB+ to the daemon; ~100KB almost always means dashboards/ML
 # never reached the image — npm run build would then ship an empty AWS (or other) bundle.
 RUN set -eu; \
   aws_d=$(find installer/aws-custom-dashboards -maxdepth 1 -name '*-dashboard.json' 2>/dev/null | wc -l); \
@@ -36,9 +36,9 @@ RUN set -eu; \
     echo "  gcp *-dashboard.json:             $gcp_d (need >= 1)"; \
     echo "  aws-loadgen-packs (index+registry): $aws_packs_ok (need 1)"; \
     echo ""; \
-    echo "Those directories must exist on the Mac/Linux host before docker build — COPY cannot create them."; \
+    echo "Those directories must exist on the Mac/Linux host before docker build -- COPY cannot create them."; \
     echo "If the host has AWS files but Docker does not: installer/aws-custom-dashboards or aws-custom-ml-jobs may be symlinks"; \
-    echo "to paths outside the repo — Docker omits those from the context. Use real dirs: rm <link> && git checkout HEAD -- <path>"; \
+    echo "to paths outside the repo -- Docker omits those from the context. Use real dirs: rm <link> && git checkout HEAD -- <path>"; \
     echo "Run ./scripts/assert-installer-for-docker.sh on the host before docker compose build."; \
     echo ""; \
     du -sh installer 2>/dev/null || true; \
@@ -52,13 +52,7 @@ RUN set -eu; \
     ls -la installer/aws-custom-ml-jobs/jobs 2>&1 | head -20 || true; \
     echo ""; \
     echo "Fix on the host at the same path you run docker compose from:"; \
-    echo "  • First (normal repo, sparse-checkout OFF): git checkout HEAD -- installer/aws-custom-dashboards installer/aws-custom-ml-jobs installer/aws-loadgen-packs"; \
-    echo "    If pathspec did not match: git fetch && git pull on a branch that contains those paths."; \
-    echo "  • If git sparse-checkout add fails with no sparse-checkout: sparse mode is disabled — use checkout above, not sparse-checkout."; \
-    echo "  • If core.sparseCheckout is true: git sparse-checkout add ... && git sparse-checkout reapply"; \
-    echo "  • Or: git sparse-checkout disable"; \
-    echo "  • If the host has full installer/ but the image is still incomplete: ./docker-up or npm run docker:up"; \
-    echo "    then: docker compose up -d --no-build"; \
+    echo "  git checkout HEAD -- installer/aws-custom-dashboards installer/aws-custom-ml-jobs installer/aws-loadgen-packs"; \
     exit 1; \
   fi
 RUN npm run copy-icons && npm run build

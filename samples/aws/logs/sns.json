@@ -1,64 +1,66 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "me-central-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "sns" }
   },
   "aws": {
-    "dimensions": { "TopicName": "deployment-events" },
+    "dimensions": { "TopicName": "user-alerts" },
     "sns": {
+      "scenario": "topic_subscription",
+      "operation": "Subscribe",
+      "topic_arn": "arn:aws:sns:me-central-1:814726593401:user-alerts",
+      "subscription_arn": "arn:aws:sns:me-central-1:814726593401:user-alerts:8C1MLDWM-sub",
+      "protocol": "sqs",
       "metrics": {
-        "NumberOfMessagesPublished": { "sum": 9806 },
-        "NumberOfNotificationsDelivered": { "sum": 8078 },
-        "NumberOfNotificationsFailed": { "sum": 1728 },
+        "NumberOfMessagesPublished": { "sum": 270 },
+        "NumberOfNotificationsDelivered": { "sum": 270 },
+        "NumberOfNotificationsFailed": { "sum": 0 },
         "NumberOfNotificationsFilteredOut": { "sum": 0 },
         "NumberOfNotificationsFilteredOut-InvalidAttributes": { "sum": 0 },
         "NumberOfNotificationsFilteredOut-NoMessageAttributes": { "sum": 0 },
-        "NumberOfNotificationsRedrivenToDlq": { "sum": 1 },
+        "NumberOfNotificationsRedrivenToDlq": { "sum": 0 },
         "NumberOfNotificationsFailedToRedriveToDlq": { "sum": 0 },
-        "PublishSize": { "avg": 3138 },
+        "PublishSize": { "avg": 115568 },
         "SMSSuccessRate": {},
         "SMSMonthToDateSpentUSD": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sns-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-sns-logs-164820739518"
+        "name": "aws-sns-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-sns-logs-814726593401"
       },
-      "object": { "key": "AWSLogs/164820739518/sns/ca-west-1/2026/05/07/sns_YSABPARUCYC.log.gz" }
+      "object": {
+        "key": "AWSLogs/814726593401/sns/me-central-1/2026/05/14/sns_FBB1Y115N8Z2HB2UQR3R.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/sns/logs",
-      "log_stream": "ca-west-1/p09ajey9",
-      "ingestion_time": "2026-05-07T10:17:36.429Z"
+      "log_stream": "me-central-1/c1rlkc77",
+      "ingestion_time": "2026-05-14T03:00:07.253Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.sns",
     "provider": "sns.amazonaws.com",
-    "duration": 10629176591.837587,
+    "duration": 414427381.2705498,
     "module": "aws"
   },
-  "message": "SNS delivery FAILED: deployment-events -> sqs: Lambda error",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "InvalidSecurityException",
-    "message": "SNS delivery failed",
-    "type": "messaging"
-  },
+  "message": "SNS Subscribe confirmed SubscriptionArn=arn:aws:sns:me-central-1:814726593401:user-alerts:8C1MLDWM-sub Owner=814726593401",
+  "log": { "level": "info" },
   "service": { "name": "sns", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sns", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "b2ibwclp075"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "8wh09nrxiu16llzblkf9x6lkw9mnlgkxreuf"
   },
   "input": { "type": "aws-cloudwatch" }
 }

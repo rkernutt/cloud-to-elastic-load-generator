@@ -24,6 +24,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 // ─── ECS cluster names ────────────────────────────────────────────────────────
@@ -291,7 +292,10 @@ function buildEcsSpan(
     service: svcBlock,
     agent,
     telemetry,
-    labels: ecsLabels,
+    labels: {
+      ...ecsLabels,
+      ...(isErr ? awsSpanErrorLabels() : {}),
+    },
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };

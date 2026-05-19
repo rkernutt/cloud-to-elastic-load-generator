@@ -1,35 +1,35 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
+    "region": "eu-central-2",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "eks" }
   },
   "aws": {
     "dimensions": {
-      "ClusterName": "prod-cluster-eu-south-2",
-      "NodeName": "ip-101-140-175-220.eu-south-2.compute.internal",
-      "Namespace": "monitoring",
-      "PodName": "web-0ik6l-8fw3l"
+      "ClusterName": "prod-cluster-eu-central-2",
+      "NodeName": "ip-95-203-155-111.eu-central-2.compute.internal",
+      "Namespace": "kube-system",
+      "PodName": "worker-27vs8-qt6oy"
     },
     "eks": {
       "structured_logging": false,
-      "log_line_kind": "scheduler",
-      "cluster": { "name": "prod-cluster-eu-south-2" },
-      "node": { "name": "ip-101-140-175-220.eu-south-2.compute.internal" },
+      "log_line_kind": "kubelet",
+      "cluster": { "name": "prod-cluster-eu-central-2" },
+      "node": { "name": "ip-95-203-155-111.eu-central-2.compute.internal" },
       "metrics": {
-        "cluster_failed_node_count": { "avg": 3 },
-        "node_cpu_utilization": { "avg": 57.16032840206654 },
-        "node_memory_utilization": { "avg": 57.49981369883356 },
-        "node_network_total_bytes": { "sum": 123702946 },
-        "node_filesystem_utilization": { "avg": 76.86265730201357 },
-        "pod_cpu_utilization": { "avg": 32.49082583902275 },
-        "pod_memory_utilization": { "avg": 56.70596363975348 },
-        "pod_network_rx_bytes": { "sum": 35413691 },
-        "pod_network_tx_bytes": { "sum": 62323285 },
-        "node_count": { "avg": 2 },
-        "pod_count": { "avg": 9 }
+        "cluster_failed_node_count": { "avg": 0 },
+        "node_cpu_utilization": { "avg": 43.43591568116104 },
+        "node_memory_utilization": { "avg": 64.4575231987674 },
+        "node_network_total_bytes": { "sum": 441489148 },
+        "node_filesystem_utilization": { "avg": 67.48983482875698 },
+        "pod_cpu_utilization": { "avg": 21.268735518638064 },
+        "pod_memory_utilization": { "avg": 44.0302367971277 },
+        "pod_network_rx_bytes": { "sum": 53283447 },
+        "pod_network_tx_bytes": { "sum": 17575267 },
+        "node_count": { "avg": 34 },
+        "pod_count": { "avg": 188 }
       }
     },
     "s3": {
@@ -37,46 +37,47 @@
         "name": "aws-eks-logs-293847561023",
         "arn": "arn:aws:s3:::aws-eks-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/293847561023/eks/eu-south-2/2026/05/07/eks_39D5YR149CT.log.gz" }
+      "object": {
+        "key": "AWSLogs/293847561023/eks/eu-central-2/2026/05/14/eks_R04798HJEA3KWFETI2W6.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/eks/logs",
-      "log_stream": "eu-south-2/f4of4ycw",
-      "ingestion_time": "2026-05-07T10:17:36.045Z"
+      "log_stream": "eu-central-2/zkd8vj1e",
+      "ingestion_time": "2026-05-14T03:00:07.037Z"
     }
   },
   "container": {
-    "id": "pejdqwfcuy",
-    "name": "web",
-    "image": { "name": "k8s.gcr.io/web:v1.24.4" },
+    "id": "8qwouvc63une",
+    "name": "worker",
+    "image": { "name": "k8s.gcr.io/worker:v1.25.4" },
     "runtime": "containerd"
   },
   "kubernetes": {
-    "namespace": "monitoring",
-    "pod": { "name": "web-0ik6l-8fw3l" },
-    "container": { "name": "web" },
-    "labels": { "app": "web", "env": "prod" }
+    "namespace": "kube-system",
+    "pod": { "name": "worker-27vs8-qt6oy" },
+    "container": { "name": "worker" },
+    "labels": { "app": "worker", "env": "prod" }
   },
-  "log": { "level": "error" },
+  "log": { "level": "info" },
   "event": {
     "category": ["process", "container"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "aws.eks",
     "provider": "eks.amazonaws.com",
-    "duration": 281000000000,
+    "duration": 1727000000000,
     "module": "aws"
   },
-  "message": "E1285781 10:17:35.322       1 factory.go:901] \"Unable to schedule pod; no fit\" pod=monitoring/web-0ik6l-8fw3l err=\"0/3 nodes available: insufficient cpu\"",
-  "error": { "code": "CrashLoopBackOff", "message": "Liveness probe failed", "type": "container" },
-  "host": { "name": "ip-103-142-94-165.ec2.internal", "hostname": "eks-19vh1lv6" },
+  "message": "2026-05-14 03:00:06.257 W898 VG11ZJ kubelet.go:472] Pod scheduled on node",
+  "host": { "name": "ip-58-5-249-130.ec2.internal", "hostname": "eks-fsqi7nng" },
   "service": { "name": "eks", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.eks", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "np68ek6q93n"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "0lwqjs3aqu5m1jibu8rx7ff3ltar2onpb9co"
   },
   "input": { "type": "aws-cloudwatch" }
 }

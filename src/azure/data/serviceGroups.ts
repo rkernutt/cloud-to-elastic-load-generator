@@ -58,6 +58,12 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
         icon: "🔐",
         desc: "Confidential computing VM logs",
       },
+      {
+        id: "virtual-desktop",
+        label: "Azure Virtual Desktop",
+        icon: "🖥",
+        desc: "Host pools, session hosts, and connection broker events",
+      },
     ],
   },
   {
@@ -133,6 +139,12 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
         icon: "👁",
         desc: "Packet capture & diagnostics",
       },
+      {
+        id: "dns-private-resolver",
+        label: "DNS Private Resolver",
+        icon: "⎆",
+        desc: "Private DNS forwarding and conditional rules",
+      },
     ],
   },
   {
@@ -154,6 +166,7 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
       { id: "storage-sync", label: "Storage Sync", icon: "⟲", desc: "File sync" },
       { id: "netapp-files", label: "Azure NetApp Files", icon: "◧", desc: "NFS/SMB enterprise" },
       { id: "hpc-cache", label: "HPC Cache", icon: "⚡", desc: "Cache I/O" },
+      { id: "elastic-san", label: "Elastic SAN", icon: "⬛", desc: "Block storage over iSCSI" },
       { id: "data-box", label: "Data Box", icon: "📦", desc: "Offline transfer jobs" },
     ],
   },
@@ -199,6 +212,18 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
         desc: "Embedded capacity",
       },
       { id: "microsoft-fabric", label: "Microsoft Fabric", icon: "◉", desc: "Fabric items" },
+      {
+        id: "data-explorer",
+        label: "Azure Data Explorer",
+        icon: "✦",
+        desc: "Kusto clusters — ingest and queries",
+      },
+      {
+        id: "ai-foundry",
+        label: "Azure AI Foundry",
+        icon: "◇",
+        desc: "Hub workspace — model catalog, inference gateways, deployments",
+      },
       {
         id: "cognitive-services",
         label: "Azure AI (Cognitive Services)",
@@ -258,6 +283,12 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
         label: "Confidential Ledger",
         icon: "⛓",
         desc: "Immutable ledger",
+      },
+      {
+        id: "dedicated-hsm",
+        label: "Dedicated HSM",
+        icon: "🗝",
+        desc: "Thales Luna-class hardware security modules",
       },
     ],
   },
@@ -341,6 +372,12 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
         icon: "🔔",
         desc: "Push notifications",
       },
+      {
+        id: "video-indexer",
+        label: "Azure AI Video Indexer",
+        icon: "🎞",
+        desc: "Media indexing and insights jobs",
+      },
     ],
   },
   {
@@ -350,6 +387,24 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
     icon: "⚙",
     services: [
       { id: "monitor", label: "Azure Monitor", icon: "📈", desc: "Metrics & diagnostics" },
+      {
+        id: "managed-prometheus",
+        label: "Managed Prometheus",
+        icon: "∞",
+        desc: "Azure Monitor workspace — Prometheus metrics",
+      },
+      {
+        id: "managed-grafana",
+        label: "Managed Grafana",
+        icon: "📉",
+        desc: "Managed Grafana dashboards and APIs",
+      },
+      {
+        id: "application-insights",
+        label: "Application Insights",
+        icon: "📡",
+        desc: "Standalone APM component — ingestion and availability",
+      },
       { id: "activity-log", label: "Activity Log", icon: "📋", desc: "Subscription control plane" },
       { id: "policy", label: "Azure Policy", icon: "✓", desc: "Compliance evaluations" },
       { id: "advisor", label: "Advisor", icon: "💡", desc: "Recommendations" },

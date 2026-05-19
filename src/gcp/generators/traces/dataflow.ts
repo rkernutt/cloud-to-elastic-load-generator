@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateDataflowTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -58,7 +64,7 @@ export function generateDataflowTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: readUs },
       action: "receive",
       destination: { service: { resource: readResource, type: readSpanType, name: readResource } },
-      labels: failIdx === 0 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: failIdx === 0 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "dataflow.googleapis.com"),
@@ -84,9 +90,7 @@ export function generateDataflowTrace(ts: string, er: number): EcsDocument[] {
       action: "execute",
       destination: { service: { resource: "dataflow", type: "app", name: "dataflow" } },
       labels:
-        failIdx === 1
-          ? { "gcp.dataflow.step": "ParseAndEnrich", "gcp.rpc.status_code": "ABORTED" }
-          : {},
+        failIdx === 1 ? { "gcp.dataflow.step": "ParseAndEnrich", ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "dataflow.googleapis.com"),
@@ -111,7 +115,7 @@ export function generateDataflowTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: gbkUs },
       action: "aggregate",
       destination: { service: { resource: "dataflow", type: "app", name: "dataflow" } },
-      labels: failIdx === 2 ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" } : {},
+      labels: failIdx === 2 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "dataflow.googleapis.com"),
@@ -150,7 +154,7 @@ export function generateDataflowTrace(ts: string, er: number): EcsDocument[] {
       destination: {
         service: { resource: writeResource, type: writeSpanType, name: writeResource },
       },
-      labels: failIdx === 3 ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {},
+      labels: failIdx === 3 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(

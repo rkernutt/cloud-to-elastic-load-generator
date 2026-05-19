@@ -234,6 +234,7 @@ export function LoadGeneratorApp({
 
   /** Must be declared before `log` state initializer (restores seq from activity log). */
   const logSeqRef = useRef(0);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [status, setStatus] = useState<ShipStatus>(null);
   const [progress, setProgress] = useState<ShipProgress>({
@@ -453,19 +454,26 @@ export function LoadGeneratorApp({
         const id = logSeqRef.current++;
         const ts = new Date().toLocaleTimeString();
         const at = new Date().toISOString();
-        const next = [...prev.slice(-(MAX_ACTIVITY_LOG_ENTRIES - 1)), { id, msg, type, ts, at }];
-        saveActivityLog(key, {
-          v: 1,
-          entries: next.map((e) => ({
-            id: e.id,
-            msg: e.msg,
-            type: e.type,
-            ts: e.ts,
-            at: e.at ?? new Date().toISOString(),
-          })),
-        });
-        return next;
+        return [...prev.slice(-(MAX_ACTIVITY_LOG_ENTRIES - 1)), { id, msg, type, ts, at }];
       });
+      if (saveTimerRef.current === null) {
+        saveTimerRef.current = setTimeout(() => {
+          saveTimerRef.current = null;
+          setLog((latest) => {
+            saveActivityLog(key, {
+              v: 1,
+              entries: latest.slice(-MAX_ACTIVITY_LOG_ENTRIES).map((e) => ({
+                id: e.id,
+                msg: e.msg,
+                type: e.type,
+                ts: e.ts,
+                at: e.at ?? new Date().toISOString(),
+              })),
+            });
+            return latest;
+          });
+        }, 500);
+      }
     },
     [LS_KEY]
   );

@@ -66,7 +66,8 @@ export function generateCacheForRedisTrace(ts: string, er: number): EcsDocument[
           ...dim({ dependency_type: "Azure Cache for Redis" }),
         },
         traceId,
-        "dotnet"
+        "dotnet",
+        { spanFailed: spanErr }
       )
     );
     ms += Math.max(1, Math.round(us / 1000));

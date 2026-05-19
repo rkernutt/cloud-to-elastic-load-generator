@@ -1,4 +1,11 @@
-import { randHex, randInt, randFloat, serviceBlock, otelBlocks } from "./helpers.js";
+import {
+  randHex,
+  randInt,
+  randFloat,
+  serviceBlock,
+  otelBlocks,
+  awsSpanErrorLabels,
+} from "./helpers.js";
 
 // ─── Shared constants ─────────────────────────────────────────────────────────
 
@@ -179,7 +186,7 @@ function txDoc(args: WorkflowTxDocArgs) {
     agent: agent,
     telemetry: telemetry,
     cloud: cloud,
-    ...(labels || distro === "aws"
+    ...(labels || distro === "aws" || isErr
       ? {
           labels: {
             ...(labels ?? {}),
@@ -189,6 +196,7 @@ function txDoc(args: WorkflowTxDocArgs) {
                   "aws.xray.segment_id": randHex(16),
                 }
               : {}),
+            ...(isErr ? awsSpanErrorLabels() : {}),
           },
         }
       : {}),
@@ -255,7 +263,14 @@ function spanDoc(args: WorkflowSpanDocArgs) {
     service: svcBlock,
     agent: agent,
     telemetry: telemetry,
-    ...(labels ? { labels: labels } : {}),
+    ...(labels || isErr
+      ? {
+          labels: {
+            ...(labels ?? {}),
+            ...(isErr ? awsSpanErrorLabels() : {}),
+          },
+        }
+      : {}),
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };

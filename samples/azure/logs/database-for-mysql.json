@@ -1,56 +1,56 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-prod-zgwpbc/providers/Microsoft.DBforMySQL/flexibleServers/mysql-pgu2f",
-  "operationName": "audit_log_connection",
-  "category": "MySqlAuditLogs",
-  "resultType": "Failure",
-  "resultSignature": "CONNECT_FAILED",
-  "callerIpAddress": "3.59.31.92",
-  "correlationId": "v3qloeye-r9mo-eus3-d1m4-n3zqnsl98x",
-  "level": "Warning",
+  "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-analytics-vqi9ji/providers/Microsoft.DBforMySQL/flexibleServers/mysql-g1zym",
+  "operationName": "slow_query",
+  "category": "MySqlSlowLogs",
+  "resultType": "Success",
+  "resultSignature": "1619",
+  "callerIpAddress": "167.179.130.189",
+  "correlationId": "8dc00740-570c-4b12-add0-d368ed91d1c2",
+  "level": "Information",
   "properties": {
-    "action": "CONNECT_FAILED",
-    "user": "etl",
-    "ssl": true,
-    "detail": "Access denied for user 'app'@'%'"
+    "schema": "orders",
+    "queryTimeSec": 1.6191306434092052,
+    "rowsExamined": 3953,
+    "sqlText": "SELECT id FROM customers WHERE email = ? LIMIT 1"
   },
   "cloud": {
     "provider": "azure",
-    "region": "northcentralus",
+    "region": "germanywestcentral",
     "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" },
     "service": { "name": "Microsoft.DBforMySQL/servers" }
   },
   "azure": {
     "database_for_mysql": {
-      "server": "mysql-pgu2f",
-      "resource_group": "rg-prod-zgwpbc",
-      "category": "MySqlAuditLogs",
-      "correlation_id": "v3qloeye-r9mo-eus3-d1m4-n3zqnsl98x",
+      "server": "mysql-g1zym",
+      "resource_group": "rg-analytics-vqi9ji",
+      "category": "MySqlSlowLogs",
+      "correlation_id": "8dc00740-570c-4b12-add0-d368ed91d1c2",
       "properties": {
-        "action": "CONNECT_FAILED",
-        "user": "etl",
-        "ssl": true,
-        "detail": "Access denied for user 'app'@'%'"
+        "schema": "orders",
+        "queryTimeSec": 1.6191306434092052,
+        "rowsExamined": 3953,
+        "sqlText": "SELECT id FROM customers WHERE email = ? LIMIT 1"
       }
     }
   },
   "event": {
-    "outcome": "failure",
-    "duration": 29520052,
+    "outcome": "success",
+    "duration": 122966852,
     "module": "azure",
     "dataset": "azure.mysql"
   },
-  "message": "MySQL mysql-pgu2f: CONNECT_FAILED etl — Access denied for user 'app'@'%'",
+  "message": "MySQL mysql-g1zym: query within threshold (1.619s)",
   "service": { "name": "database-for-mysql", "type": "azure" },
-  "log": { "level": "error" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.mysql", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-northcentralus",
-    "id": "td2xc9m8n6"
+    "name": "elastic-agent-azure-germanywestcentral",
+    "id": "aqy40i5azc2m3eu7syix7ibhzg36asw0qi2f"
   },
   "input": { "type": "azure-eventhub" }
 }

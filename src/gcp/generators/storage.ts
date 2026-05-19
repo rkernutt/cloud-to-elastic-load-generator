@@ -22,8 +22,33 @@ function eventBlock(isErr: boolean, durationNs: number) {
   };
 }
 
+const GRPC_ERROR_STATUSES = [
+  "INTERNAL",
+  "DEADLINE_EXCEEDED",
+  "PERMISSION_DENIED",
+  "RESOURCE_EXHAUSTED",
+  "NOT_FOUND",
+  "UNAVAILABLE",
+] as const;
+
+function grpcStructuredFault(isErr: boolean): {
+  spread: Record<string, unknown>;
+  rpcLabel: Record<string, string>;
+} {
+  if (!isErr) return { spread: {}, rpcLabel: {} };
+  const code = rand([...GRPC_ERROR_STATUSES]);
+  return {
+    spread: {
+      "gcp.rpc": { status_code: code },
+      error: { code, message: `${code}: operation failed`, type: "gcp" },
+    },
+    rpcLabel: { "gcp.rpc.status_code": code },
+  };
+}
+
 export function generateCloudStorageLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const bucketName = randBucket();
   const objectName = `${rand(["exports", "uploads", "logs"])}/${randId(8).toLowerCase()}.bin`;
   const objectSize = randInt(256, 500_000_000);
@@ -80,10 +105,13 @@ export function generateCloudStorageLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
     labels: {
       bucket_name: bucketName,
       location: region,
+      ...rpcLabel,
     },
     cloud: gcpCloud(region, project, "cloud-storage"),
     gcp: {
@@ -105,6 +133,7 @@ export function generateCloudStorageLog(ts: string, er: number): EcsDocument {
 
 export function generatePersistentDiskLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const diskType = rand(["pd-standard", "pd-ssd", "pd-balanced", "pd-extreme"] as const);
   const sizeGb = randInt(10, 2000);
   const operation = rand(["CREATE", "RESIZE", "SNAPSHOT", "ATTACH", "DETACH"] as const);
@@ -120,8 +149,10 @@ export function generatePersistentDiskLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { disk_name: diskName, zone },
+    labels: { disk_name: diskName, zone, ...rpcLabel },
     cloud: gcpCloud(region, project, "persistent-disk"),
     gcp: {
       persistent_disk: {
@@ -141,6 +172,7 @@ export function generatePersistentDiskLog(ts: string, er: number): EcsDocument {
 
 export function generateFilestoreLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const tier = rand(["BASIC_HDD", "BASIC_SSD", "HIGH_SCALE_SSD", "ENTERPRISE"] as const);
   const capacityGb = randInt(1024, 102_400);
   const protocol = "NFS" as const;
@@ -155,8 +187,10 @@ export function generateFilestoreLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { instance_name: instanceName },
+    labels: { instance_name: instanceName, ...rpcLabel },
     cloud: gcpCloud(region, project, "filestore"),
     gcp: {
       filestore: {
@@ -175,6 +209,7 @@ export function generateFilestoreLog(ts: string, er: number): EcsDocument {
 
 export function generateStorageTransferLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const status = isErr ? "FAILED" : rand(["IN_PROGRESS", "SUCCESS"] as const);
   const transferType = rand(["gcs-to-gcs", "aws-to-gcs", "azure-to-gcs"] as const);
   const bytesTransferred = isErr ? randInt(0, 50_000_000) : randInt(10_000_000, 5_000_000_000_000);
@@ -195,8 +230,10 @@ export function generateStorageTransferLog(ts: string, er: number): EcsDocument 
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { job_name: jobName },
+    labels: { job_name: jobName, ...rpcLabel },
     cloud: gcpCloud(region, project, "storage-transfer-service"),
     gcp: {
       storage_transfer: {
@@ -216,6 +253,7 @@ export function generateStorageTransferLog(ts: string, er: number): EcsDocument 
 
 export function generateBackupDrLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const resourceType = rand(["compute", "cloud-sql", "gke", "filestore"] as const);
   const status = isErr ? "FAILED" : rand(["CREATING", "SUCCEEDED"] as const);
   const sizeGb = isErr ? randInt(0, 50) : randInt(5, 8000);
@@ -230,8 +268,10 @@ export function generateBackupDrLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { backup_plan: backupPlan, backup_vault: backupVault },
+    labels: { backup_plan: backupPlan, backup_vault: backupVault, ...rpcLabel },
     cloud: gcpCloud(region, project, "backup-dr"),
     gcp: {
       backup_dr: {

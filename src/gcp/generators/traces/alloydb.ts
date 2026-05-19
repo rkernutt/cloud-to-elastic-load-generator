@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateAlloyDbTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -40,7 +46,7 @@ export function generateAlloyDbTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: u1 },
       action: "connect",
       destination: { service: { resource: "alloydb", type: "db", name: "alloydb" } },
-      labels: failAt === 0 ? { "gcp.rpc.status_code": "UNAVAILABLE" } : {},
+      labels: failAt === 0 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,
@@ -66,7 +72,7 @@ export function generateAlloyDbTrace(ts: string, er: number): EcsDocument[] {
       action: "query",
       db: { type: "sql", statement: stmt },
       destination: { service: { resource: "alloydb", type: "db", name: "alloydb" } },
-      labels: failAt === 1 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: failAt === 1 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,
@@ -91,7 +97,7 @@ export function generateAlloyDbTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: u3 },
       action: "fetch",
       destination: { service: { resource: "alloydb", type: "db", name: "alloydb" } },
-      labels: failAt === 2 ? { "gcp.rpc.status_code": "ABORTED" } : {},
+      labels: failAt === 2 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,

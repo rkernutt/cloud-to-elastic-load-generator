@@ -1,42 +1,38 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
+    "region": "ca-west-1",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "msk" }
   },
   "aws": {
-    "dimensions": {
-      "Cluster Name": "prod-kafka-eu-central-1",
-      "Broker ID": "4",
-      "Topic": "user-events"
-    },
+    "dimensions": { "Cluster Name": "prod-kafka-ca-west-1", "Broker ID": "1", "Topic": "payments" },
     "msk": {
-      "cluster_name": "prod-kafka-eu-central-1",
-      "broker_id": 4,
+      "cluster_name": "prod-kafka-ca-west-1",
+      "broker_id": 1,
       "kafka_version": "3.5.1",
-      "topic": "user-events",
-      "partition": 23,
-      "offset": 22800910,
-      "consumer_group": "analytics-consumer",
-      "lag": 13,
-      "under_replicated_partitions": 0,
+      "topic": "payments",
+      "partition": 13,
+      "offset": 77206995,
+      "consumer_group": "alerting-service",
+      "lag": 851150,
+      "under_replicated_partitions": 1,
       "metrics": {
-        "BytesInPerSec": { "avg": 4703712 },
-        "BytesOutPerSec": { "avg": 9726765 },
-        "MessagesInPerSec": { "avg": 746 },
-        "FetchConsumerTotalTimeMsMean": { "avg": 21 },
-        "ProduceTotalTimeMsMean": { "avg": 45 },
-        "UnderReplicatedPartitions": { "avg": 0 },
-        "UnderMinIsrPartitionCount": { "avg": 0 },
-        "OfflinePartitionsCount": { "avg": 0 },
+        "BytesInPerSec": { "avg": 7114965 },
+        "BytesOutPerSec": { "avg": 2690790 },
+        "MessagesInPerSec": { "avg": 9105 },
+        "FetchConsumerTotalTimeMsMean": { "avg": 73 },
+        "ProduceTotalTimeMsMean": { "avg": 47 },
+        "UnderReplicatedPartitions": { "avg": 5 },
+        "UnderMinIsrPartitionCount": { "avg": 3 },
+        "OfflinePartitionsCount": { "avg": 1 },
         "ActiveControllerCount": { "avg": 1 },
-        "GlobalPartitionCount": { "avg": 407 },
-        "GlobalTopicCount": { "avg": 22 },
-        "KafkaDataLogsDiskUsed": { "avg": 54.412783325918525 },
-        "CPUUser": { "avg": 49.136981708368324 },
-        "CPUSystem": { "avg": 3.9315029092556726 },
+        "GlobalPartitionCount": { "avg": 928 },
+        "GlobalTopicCount": { "avg": 7 },
+        "KafkaDataLogsDiskUsed": { "avg": 55.63816486779713 },
+        "CPUUser": { "avg": 15.61374934347617 },
+        "CPUSystem": { "avg": 1.8389149327251981 },
         "NetworkRxDropped": { "sum": 0 },
         "NetworkTxDropped": { "sum": 0 }
       }
@@ -46,33 +42,40 @@
         "name": "aws-msk-logs-164820739518",
         "arn": "arn:aws:s3:::aws-msk-logs-164820739518"
       },
-      "object": { "key": "AWSLogs/164820739518/msk/eu-central-1/2026/05/07/msk_QFM2CO5W9S.log.gz" }
+      "object": {
+        "key": "AWSLogs/164820739518/msk/ca-west-1/2026/05/14/msk_CM33IXFPBUCQF4KB3UMJ.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/msk/logs",
-      "log_stream": "eu-central-1/8e9fknnu",
-      "ingestion_time": "2026-05-07T10:17:36.423Z"
+      "log_stream": "ca-west-1/k25noy3n",
+      "ingestion_time": "2026-05-14T03:00:07.249Z"
     }
   },
-  "kafka": { "topic": "user-events", "partition": 23 },
+  "kafka": { "topic": "payments", "partition": 13 },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process", "network"],
     "dataset": "aws.msk",
     "provider": "kafka.amazonaws.com",
-    "duration": 29000000,
+    "duration": 623000000,
     "module": "aws"
   },
-  "message": "[2026-05-07 10:17:35.322] INFO [ReplicaFetcherManager broker=4] Completed fetch of 602 messages for partition user-events-23 at offset 140883044 (kafka.coordinator.group.GroupCoordinator)",
-  "log": { "level": "info" },
+  "message": "[2026-05-14 03:00:06.257] ERROR [GroupCoordinator broker=1] Error processing fetch for partition payments-13 (kafka.server.ReplicaManager)",
+  "log": { "level": "error" },
+  "error": {
+    "code": "UnderReplicatedPartitions",
+    "message": "MSK partition replication lag",
+    "type": "stream"
+  },
   "service": { "name": "msk", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.kafka_metrics", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "8tuz3ktryj4"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "thngp5py384i77utir7rloy4pycj6ifyc1ha"
   },
   "input": { "type": "aws-cloudwatch" }
 }

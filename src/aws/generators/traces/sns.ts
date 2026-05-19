@@ -24,6 +24,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 // ─── Publisher configurations ─────────────────────────────────────────────────
@@ -101,14 +102,6 @@ export function generateSnsTrace(ts: string, er: number) {
     ...(messageGroupId ? { message_group_id: messageGroupId } : {}),
   };
 
-  // Error type: authorization error or throttling
-  const errorType = isErr
-    ? rand(["AuthorizationError", "ThrottledException", "KMSAccessDeniedException"])
-    : undefined;
-  if (isErr && errorType) {
-    sharedLabels["error_type"] = errorType;
-  }
-
   // Duration: optional pre-lookup (10–80ms) + SNS publish (20–300ms)
   const lookupUs = cfg.hasPreLookup ? randInt(10, 80) * 1000 : 0;
   const publishUs = isErr ? randInt(20, 100) * 1000 : randInt(20, 300) * 1000;
@@ -141,7 +134,7 @@ export function generateSnsTrace(ts: string, er: number) {
       sampled: true,
       span_count: { started: spanCount, dropped: 0 },
     },
-    labels: { ...sharedLabels },
+    labels: { ...sharedLabels, ...(isErr ? awsSpanErrorLabels() : {}) },
     service: svcBlock,
     agent: agent,
     telemetry: telemetry,
@@ -209,7 +202,10 @@ export function generateSnsTrace(ts: string, er: number) {
       action: "send",
       destination: { service: { resource: "sns", type: "messaging", name: "sns" } },
     },
-    labels: { ...sharedLabels },
+    labels: {
+      ...sharedLabels,
+      ...(isErr ? awsSpanErrorLabels() : {}),
+    },
     service: svcBlock,
     agent,
     telemetry,

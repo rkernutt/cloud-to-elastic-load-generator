@@ -14,6 +14,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 const ORCHESTRATION_APPS = [
@@ -103,7 +104,12 @@ export function generateMwaaTrace(ts: string, er: number) {
       service: svcBlock,
       agent,
       telemetry,
-      labels: { "aws.mwaa.environment": envName, "airflow.dag_id": dagId, ...ph.labels },
+      labels: {
+        "aws.mwaa.environment": envName,
+        "airflow.dag_id": dagId,
+        ...ph.labels,
+        ...(spanErr ? awsSpanErrorLabels() : {}),
+      },
       event: { outcome: spanErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },
     });

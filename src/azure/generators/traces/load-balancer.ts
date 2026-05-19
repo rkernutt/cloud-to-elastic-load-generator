@@ -71,7 +71,8 @@ export function generateLoadBalancerTrace(ts: string, er: number): EcsDocument[]
           ...dim({ dependency_type: "Azure Load Balancer", load_balancer: lb }),
         },
         traceId,
-        "go"
+        "go",
+        { spanFailed: spanErr }
       )
     );
     ms += Math.max(1, Math.round(op.us / 1000));

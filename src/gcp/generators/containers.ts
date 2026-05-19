@@ -25,6 +25,30 @@ import {
   USER_AGENTS,
 } from "./helpers.js";
 
+const GRPC_ERROR_STATUSES = [
+  "INTERNAL",
+  "DEADLINE_EXCEEDED",
+  "PERMISSION_DENIED",
+  "RESOURCE_EXHAUSTED",
+  "NOT_FOUND",
+  "UNAVAILABLE",
+] as const;
+
+function grpcStructuredFault(isErr: boolean): {
+  spread: Record<string, unknown>;
+  rpcLabel: Record<string, string>;
+} {
+  if (!isErr) return { spread: {}, rpcLabel: {} };
+  const code = rand([...GRPC_ERROR_STATUSES]);
+  return {
+    spread: {
+      "gcp.rpc": { status_code: code },
+      error: { code, message: `${code}: operation failed`, type: "gcp" },
+    },
+    rpcLabel: { "gcp.rpc.status_code": code },
+  };
+}
+
 function insertId(): string {
   return randId(12).toUpperCase();
 }
@@ -42,6 +66,7 @@ function kubeletDatePrefix(ts: string): { prefix: string; clock: string } {
 
 export function generateGkeLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const clusterName = randGkeCluster();
   const namespace = randGkeNamespace();
   const podName = randGkePod();
@@ -199,6 +224,8 @@ export function generateGkeLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
     labels: {
       project_id: project.id,
@@ -208,6 +235,7 @@ export function generateGkeLog(ts: string, er: number): EcsDocument {
       pod_name: podName,
       container_name: containerName,
       node_name: nodeName,
+      ...rpcLabel,
     },
     insertId: insertId(),
     logName:
@@ -245,6 +273,7 @@ export function generateGkeLog(ts: string, er: number): EcsDocument {
 
 export function generateAnthosLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const clusterName = rand(["on-prem-edge", "aws-attached", "azure-attached", "baremetal-1"]);
   const membershipName = `projects/${project.id}/locations/global/memberships/${clusterName}`;
   const location = rand([region, "global", "us-west1"]);
@@ -261,8 +290,10 @@ export function generateAnthosLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { membership: clusterName, feature, fleet_namespace: fleetNamespace },
+    labels: { membership: clusterName, feature, fleet_namespace: fleetNamespace, ...rpcLabel },
     insertId: insertId(),
     resource: {
       type: "gke_hub_membership",
@@ -290,6 +321,7 @@ export function generateAnthosLog(ts: string, er: number): EcsDocument {
 
 export function generateArtifactRegistryLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const repository = `${rand(["apps", "base", "ml", "security"])}-${randId(4).toLowerCase()}`;
   const format = rand(["docker", "npm", "python", "maven", "apt"] as const);
   const packageName =
@@ -316,8 +348,10 @@ export function generateArtifactRegistryLog(ts: string, er: number): EcsDocument
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { repository, format, action },
+    labels: { repository, format, action, ...rpcLabel },
     insertId: insertId(),
     resource: {
       type: "artifactregistry.googleapis.com/Repository",
@@ -344,6 +378,7 @@ export function generateArtifactRegistryLog(ts: string, er: number): EcsDocument
 
 export function generateContainerRegistryLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const imageName = `gcr.io/${project.id}/${rand(["api", "worker", "batch", "cron"])}-${randId(4).toLowerCase()}`;
   const tag = rand([
     "latest",
@@ -360,8 +395,10 @@ export function generateContainerRegistryLog(ts: string, er: number): EcsDocumen
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { image: imageName.split("/").pop() ?? "image", action },
+    labels: { image: imageName.split("/").pop() ?? "image", action, ...rpcLabel },
     insertId: insertId(),
     resource: {
       type: "gcr.io",
@@ -387,6 +424,7 @@ export function generateContainerRegistryLog(ts: string, er: number): EcsDocumen
 
 export function generateGkeAutopilotLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const cluster = `${randGkeCluster()}-autopilot`;
   const namespace = randGkeNamespace();
   const pod = randGkePod();
@@ -403,8 +441,15 @@ export function generateGkeAutopilotLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { cluster_name: cluster, namespace_name: namespace, scaling_event: scalingEvent },
+    labels: {
+      cluster_name: cluster,
+      namespace_name: namespace,
+      scaling_event: scalingEvent,
+      ...rpcLabel,
+    },
     insertId: insertId(),
     resource: {
       type: "k8s_cluster",
@@ -432,6 +477,7 @@ export function generateGkeAutopilotLog(ts: string, er: number): EcsDocument {
 
 export function generateAnthosServiceMeshLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const meshName = `mesh-${randId(5).toLowerCase()}`;
   const service = rand(["payments.checkout", "catalog.items", "auth.tokens", "orders.api"]);
   const sourceWorkload = `${randGkeNamespace()}/${randGkePod()}`;
@@ -447,8 +493,10 @@ export function generateAnthosServiceMeshLog(ts: string, er: number): EcsDocumen
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { mesh_name: meshName, service },
+    labels: { mesh_name: meshName, service, ...rpcLabel },
     insertId: insertId(),
     resource: {
       type: "k8s_cluster",
@@ -477,6 +525,7 @@ export function generateAnthosServiceMeshLog(ts: string, er: number): EcsDocumen
 
 export function generateAnthosConfigMgmtLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const cluster = randGkeCluster();
   const repoUrl = `https://source.developers.google.com/p/${project.id}/r/config-${randId(4)}`;
   const syncStatus = isErr
@@ -492,8 +541,10 @@ export function generateAnthosConfigMgmtLog(ts: string, er: number): EcsDocument
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { cluster_name: cluster, sync_status: syncStatus },
+    labels: { cluster_name: cluster, sync_status: syncStatus, ...rpcLabel },
     insertId: insertId(),
     resource: {
       type: "k8s_cluster",
@@ -520,6 +571,7 @@ export function generateAnthosConfigMgmtLog(ts: string, er: number): EcsDocument
 
 export function generateGkeEnterpriseLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const fleetName = `fleet-${rand(["prod", "platform", "edge"])}-${randId(4).toLowerCase()}`;
   const membership = `projects/${project.id}/locations/global/memberships/${randGkeCluster()}`;
   const feature = rand(["policyController", "configSync", "serviceDirectory"] as const);
@@ -534,8 +586,10 @@ export function generateGkeEnterpriseLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { fleet_name: fleetName, feature },
+    labels: { fleet_name: fleetName, feature, ...rpcLabel },
     insertId: insertId(),
     resource: {
       type: "gke_hub_fleet",
@@ -561,6 +615,7 @@ export function generateGkeEnterpriseLog(ts: string, er: number): EcsDocument {
 
 export function generateMigrateToContainersLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const sourceVm = `vm-${rand(["legacy", "monolith"])}-${randId(5).toLowerCase()}`;
   const targetImage = `gcr.io/${project.id}/migrated/${rand(["api", "worker"])}:${randId(6).toLowerCase()}`;
   const migrationPlan = `plan-${randId(8).toLowerCase()}`;
@@ -576,8 +631,10 @@ export function generateMigrateToContainersLog(ts: string, er: number): EcsDocum
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { migration_plan: migrationPlan, phase, source_vm: sourceVm },
+    labels: { migration_plan: migrationPlan, phase, source_vm: sourceVm, ...rpcLabel },
     insertId: insertId(),
     resource: {
       type: "gce_instance",

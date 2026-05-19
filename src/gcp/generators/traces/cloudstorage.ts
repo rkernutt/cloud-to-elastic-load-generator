@@ -11,115 +11,151 @@ const OBJECTS = [
   "images/thumb_9f3a.jpg",
 ];
 
+const FAIL_BY_IDX = [
+  { code: "PERMISSION_DENIED", labels: { "gcs.failure": "object_acl" } },
+  { code: "NOT_FOUND", labels: { "gcs.failure": "resumable_session_expired" } },
+  { code: "FAILED_PRECONDITION", labels: { "gcs.failure": "compose_size_mismatch" } },
+  { code: "RESOURCE_EXHAUSTED", labels: { "gcs.failure": "project_bandwidth" } },
+  { code: "ABORTED", labels: { "gcs.failure": "multipart_part_conflict" } },
+] as const;
+
 export function generateCloudStorageTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
   const traceId = randTraceId();
   const txId = randSpanId();
   const base = new Date(ts);
   const env = rand(["production", "production", "staging", "dev"]);
-  const operation = rand(["PutObject", "GetObject", "CopyObject"]);
   const bucket = rand(BUCKETS);
   const object = rand(OBJECTS);
+  const uploadId = `upload_${randTraceId().slice(0, 16)}`;
   const otel = gcpOtelMeta("nodejs");
   const svc = gcpServiceBase("data-pipeline-worker", env, "nodejs", {
     runtimeName: "nodejs",
     runtimeVersion: "20.x",
   });
+  const storageCloud = gcpCloud(region, project, "storage.googleapis.com");
 
-  const gcsUs = randInt(5_000, 800_000) * (isErr ? randInt(2, 6) : 1);
-  const sGcs = randSpanId();
-
-  let offsetMs = 0;
-
-  const spanGcs: EcsDocument = {
-    "@timestamp": offsetTs(base, offsetMs),
-    processor: { name: "transaction", event: "span" },
-    trace: { id: traceId },
-    transaction: { id: txId },
-    parent: { id: txId },
-    span: {
-      id: sGcs,
-      type: "storage",
-      subtype: "gcs",
-      name: `GCS ${operation}`,
-      duration: { us: gcsUs },
-      action: operation.toLowerCase(),
-      destination: { service: { resource: "gcs", type: "storage", name: "gcs" } },
+  const stages = [
+    {
+      name: "GCS.ComposeSession.initiateMultipart",
+      action: "multipart_init",
+      labels: { bucket, object, "gcs.operation": "multipart_init", upload_id: uploadId },
+    },
+    {
+      name: `GCS.ResumableSession.upload chunk`,
+      action: "resumable_upload",
+      labels: { bucket, object, "gcs.operation": "resumable_upload", "gcs.chunk_index": "3" },
+    },
+    {
+      name: "GCS.Objects.compose",
+      action: "compose",
+      labels: {
+        bucket,
+        "gcs.destination": object,
+        "gcs.operation": "compose",
+        "gcs.source_count": "4",
+      },
+    },
+    {
+      name: "GCS.lifecycle.EvaluateRules",
+      action: "lifecycle_eval",
+      labels: { bucket, "gcs.operation": "lifecycle", "gcs.rule_action": "Nearline transition" },
+    },
+    {
+      name: "PubSub.publish ObjectChangeNotification",
+      action: "notification",
       labels: {
         bucket,
         object,
-        ...(isErr ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {}),
+        "gcs.operation": "notification",
+        "pubsub.topic": `${bucket}-objects`,
       },
     },
-    service: svc,
-    cloud: gcpCloud(region, project, "storage.googleapis.com"),
-    data_stream: APM_DS,
-    event: { outcome: isErr ? "failure" : "success" },
-    ...otel,
-    ...gcpCloudTraceMeta(project.id, traceId, sGcs),
-  };
-  offsetMs += Math.max(1, Math.round(gcsUs / 1000));
+  ];
 
-  const docs: EcsDocument[] = [spanGcs];
-  let totalUs = gcsUs;
+  const spanCount = stages.length;
+  const failIdx = isErr ? randInt(0, spanCount - 1) : -1;
+  const failMeta = failIdx >= 0 ? FAIL_BY_IDX[failIdx % FAIL_BY_IDX.length]! : null;
 
-  const hasMetaUpdate = !isErr && operation === "PutObject" && Math.random() < 0.6;
-  if (hasMetaUpdate) {
-    const metaSubtype = rand(["firestore", "bigquery"]);
-    const metaUs = randInt(2_000, 40_000);
-    const sMeta = randSpanId();
-    totalUs += metaUs;
+  let offsetMs = randInt(1, 8);
+  const docs: EcsDocument[] = [];
+  let totalUs = 0;
+
+  for (let i = 0; i < spanCount; i++) {
+    const st = stages[i]!;
+    const sid = randSpanId();
+    const us = randInt(8_000, 450_000);
+    totalUs += us;
+    const spanErr = failIdx === i;
+    const isNotification = st.action === "notification";
     docs.push({
       "@timestamp": offsetTs(base, offsetMs),
       processor: { name: "transaction", event: "span" },
       trace: { id: traceId },
       transaction: { id: txId },
-      parent: { id: sGcs },
+      parent: { id: txId },
       span: {
-        id: sMeta,
-        type: "db",
-        subtype: metaSubtype,
-        name:
-          metaSubtype === "firestore"
-            ? `Firestore.${rand(["setDocument", "updateDocument"])}`
-            : `BigQuery.${rand(["insertRows", "queryJob"])}`,
-        duration: { us: metaUs },
-        action: "write",
-        destination: { service: { resource: metaSubtype, type: "db", name: metaSubtype } },
+        id: sid,
+        type: isNotification ? "messaging" : "storage",
+        subtype: isNotification ? "pubsub" : "gcs",
+        name: st.name,
+        duration: { us },
+        action: st.action,
+        destination: {
+          service: {
+            resource: isNotification ? "pubsub" : "gcs",
+            type: isNotification ? "messaging" : "storage",
+            name: isNotification ? "pubsub" : "gcs",
+          },
+        },
+        labels: st.labels,
       },
       service: svc,
-      cloud: gcpCloud(
-        region,
-        project,
-        metaSubtype === "firestore" ? "firestore.googleapis.com" : "bigquery.googleapis.com"
-      ),
+      cloud: isNotification ? gcpCloud(region, project, "pubsub.googleapis.com") : storageCloud,
       data_stream: APM_DS,
-      event: { outcome: "success" },
+      labels: {
+        ...st.labels,
+        ...(spanErr
+          ? {
+              "gcp.rpc.status_code": failMeta!.code,
+              "error.type": `gcs.${failMeta!.labels["gcs.failure"]}`,
+              "error.message": `Cloud Storage pipeline failed (${failMeta!.labels["gcs.failure"]})`,
+              ...failMeta!.labels,
+            }
+          : {}),
+      },
+      event: { outcome: spanErr ? "failure" : "success" },
       ...otel,
-      ...gcpCloudTraceMeta(project.id, traceId, sMeta),
+      ...gcpCloudTraceMeta(project.id, traceId, sid),
     });
-    offsetMs += Math.max(1, Math.round(metaUs / 1000));
+    offsetMs += Math.max(1, Math.round(us / 1000));
   }
 
   const txOverhead = randInt(100, 2000) * 1000;
+  const txErr = failIdx >= 0;
+
   const txDoc: EcsDocument = {
     "@timestamp": ts,
     processor: { name: "transaction", event: "transaction" },
     trace: { id: traceId },
     transaction: {
       id: txId,
-      name: `GCS ${operation}`,
+      name: "GCS compose + notify pipeline",
       type: "request",
       duration: { us: totalUs + txOverhead },
-      result: isErr ? "failure" : "success",
+      result: txErr ? "failure" : "success",
       sampled: true,
       span_count: { started: docs.length, dropped: 0 },
     },
     service: svc,
-    cloud: gcpCloud(region, project, "storage.googleapis.com"),
-    labels: { "gcp.storage.bucket": bucket },
+    cloud: storageCloud,
+    labels: {
+      "gcp.storage.bucket": bucket,
+      "gcp.storage.object": object,
+      ...(txErr && failMeta ? failMeta.labels : {}),
+    },
     data_stream: APM_DS,
-    event: { outcome: isErr ? "failure" : "success" },
+    event: { outcome: txErr ? "failure" : "success" },
     ...otel,
     ...gcpCloudTraceMeta(project.id, traceId, txId),
   };

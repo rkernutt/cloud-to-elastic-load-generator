@@ -13,6 +13,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 import {
   ENVS,
@@ -301,7 +302,11 @@ function workflowPipelineS3SqsChained(ts: string, er: number) {
     agent: glueAgent,
     telemetry: glueTelemetry,
     cloud: cloudBlock(region, account, "glue"),
-    labels: { glue_job_name: glueJobName, output_bucket: curatedBucket },
+    labels: {
+      glue_job_name: glueJobName,
+      output_bucket: curatedBucket,
+      ...(glueFail ? awsSpanErrorLabels() : {}),
+    },
     event: { outcome: glueFail ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   });
@@ -366,7 +371,7 @@ function workflowPipelineS3SqsChained(ts: string, er: number) {
     service: glueSvcBlock,
     agent: glueAgent,
     telemetry: glueTelemetry,
-    labels: { s3_bucket: curatedBucket },
+    labels: { s3_bucket: curatedBucket, ...(glueFail ? awsSpanErrorLabels() : {}) },
     event: { outcome: glueFail ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   });
@@ -391,7 +396,7 @@ function workflowPipelineS3SqsChained(ts: string, er: number) {
     service: glueSvcBlock,
     agent: glueAgent,
     telemetry: glueTelemetry,
-    labels: { function_name: "warehouse-loader" },
+    labels: { function_name: "warehouse-loader", ...(glueFail ? awsSpanErrorLabels() : {}) },
     event: { outcome: glueFail ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   });
@@ -900,7 +905,12 @@ function workflowPipelineSfnData(ts: string, er: number) {
     service: sfnSvc,
     ...otelBlocks("nodejs", "elastic"),
     cloud: cloudBlock(region, account, "states"),
-    labels: { execution_arn: execArn, state_machine_arn: smArn, pattern: "data_pipeline" },
+    labels: {
+      execution_arn: execArn,
+      state_machine_arn: smArn,
+      pattern: "data_pipeline",
+      ...(isErr ? awsSpanErrorLabels() : {}),
+    },
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   });
@@ -944,7 +954,10 @@ function workflowPipelineSfnData(ts: string, er: number) {
     agent: gjAgent,
     telemetry: gjTelemetry,
     cloud: cloudBlock(region, account, "glue"),
-    labels: { glue_job_name: "dw-glue-spark-job" },
+    labels: {
+      glue_job_name: "dw-glue-spark-job",
+      ...(glueFail ? awsSpanErrorLabels() : {}),
+    },
     event: { outcome: glueFail ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   });
@@ -1240,6 +1253,7 @@ function workflowPipelineSfnData(ts: string, er: number) {
     labels: {
       unified_studio_pipeline: "true",
       processing_job: `prep-${randHex(5)}`,
+      ...(smThrottle ? awsSpanErrorLabels() : {}),
     },
     event: { outcome: smThrottle ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
@@ -1258,6 +1272,7 @@ function workflowPipelineSfnData(ts: string, er: number) {
       name: "ProcessingJob — features for Unified Studio",
       duration: { us: smInnerUs },
       action: "process",
+      labels: smThrottle ? awsSpanErrorLabels() : {},
     },
     service: smSvc2,
     agent: smA2,

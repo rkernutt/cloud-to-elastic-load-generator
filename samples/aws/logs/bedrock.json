@@ -1,74 +1,81 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "me-central-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "bedrock" }
   },
   "aws": {
     "dimensions": { "ModelId": "meta.llama3-70b-instruct-v1:0" },
     "bedrock": {
       "modelId": "meta.llama3-70b-instruct-v1:0",
-      "inputTokenCount": 5164,
-      "outputTokenCount": 349,
-      "inputBodyJson": "{\"messages\":[{\"role\":\"user\",\"content\":[{\"text\":\"Draft a reply to the customer.\"}]}],\"inferenceConfig\":{\"maxTokens\":4096,\"temperature\":0.9381111176084572}}",
-      "outputBodyJson": "{\"output\":{\"message\":{\"role\":\"assistant\",\"content\":[{\"text\":\"Here is a concise summary based on the provided context and figures.Here is a concise summary based on the provided context and figures.Here is a concise summary based on the provided context and figures.\"}]}},\"stopReason\":\"end_turn\",\"usage\":{\"inputTokens\":5164,\"outputTokens\":349,\"totalTokens\":5513}}",
-      "invocationLatency": 7582,
-      "operation": "Converse",
+      "inputTokenCount": 7579,
+      "outputTokenCount": 0,
+      "inputBodyJson": "{\"guardrailIdentifier\":\"gr-a7nrgojdtg\",\"source\":\"OUTPUT\",\"content\":[{\"text\":\"Generated SQL…\"}]}",
+      "outputBodyJson": "{\"message\":\"Invocation failed\",\"__type\":\"ModelTimeoutException\"}",
+      "invocationLatency": 5412,
+      "operation": "ApplyGuardrail",
+      "scenario": "guardrail_check",
       "schemaType": "ModelInvocationLog",
       "schemaVersion": "1.0",
       "model_id": "meta.llama3-70b-instruct-v1:0",
-      "invocation_latency_ms": 7582,
-      "input_token_count": 5164,
-      "output_token_count": 349,
-      "total_token_count": 5513,
-      "stop_reason": "stop_sequence",
-      "use_case": "extraction",
-      "guardrail_action": "INTERVENED",
-      "streaming": false,
+      "invocation_latency_ms": 5412,
+      "input_token_count": 7579,
+      "output_token_count": 0,
+      "total_token_count": 7579,
+      "error_code": "ModelTimeoutException",
+      "use_case": "content-safety",
+      "guardrail_action": "NONE",
+      "streaming": true,
+      "time_to_first_token_ms": 133,
       "model_family": "meta",
       "metrics": {
-        "Invocations": { "sum": 120 },
-        "InvocationLatency": { "avg": 7582, "p99": 15164 },
-        "InputTokenCount": { "sum": 5164 },
-        "OutputTokenCount": { "sum": 349 },
-        "Throttles": { "sum": 0 }
+        "Invocations": { "sum": 417 },
+        "InvocationLatency": { "avg": 5412, "p99": 10824 },
+        "InputTokenCount": { "sum": 7579 },
+        "OutputTokenCount": { "sum": 0 },
+        "Throttles": { "sum": 7 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-bedrock-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-bedrock-logs-814726593401"
+        "name": "aws-bedrock-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-bedrock-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/bedrock/us-west-2/2026/05/07/bedrock_1D3K3GWXC94.log.gz"
+        "key": "AWSLogs/164820739518/bedrock/me-central-1/2026/05/14/bedrock_UCURVSGWFLCROVYDOUXJ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/bedrock/logs",
-      "log_stream": "us-west-2/vz2fhe4q",
-      "ingestion_time": "2026-05-07T10:17:36.477Z"
+      "log_stream": "me-central-1/tpc7k0vs",
+      "ingestion_time": "2026-05-14T03:00:07.304Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.bedrock",
     "provider": "bedrock.amazonaws.com",
-    "duration": 7582484161.636964,
+    "duration": 5412303704.395348,
     "module": "aws"
   },
-  "message": "Bedrock llama3 5164->349 tokens 7.58s",
-  "log": { "level": "info" },
+  "message": "{\"scenario\":\"guardrail_check\",\"operation\":\"ApplyGuardrail\",\"model\":\"meta.llama3-70b-instruct-v1:0\",\"awsException\":\"ModelTimeoutException\",\"message\":\"Model returned empty inference stream chunk\"}",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ModelTimeoutException",
+    "message": "Input failed guardrail precondition checks",
+    "type": "aws"
+  },
   "service": { "name": "bedrock", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.bedrock", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "9uk1vk8oew6"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "mpsot004buo2lixjjefye1ul57sviks4e2kk"
   },
   "input": { "type": "aws-cloudwatch" }
 }

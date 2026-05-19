@@ -21,6 +21,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 // ─── Agent configurations ─────────────────────────────────────────────────────
@@ -216,7 +217,7 @@ export function generateBedrockAgentTrace(ts: string, er: number) {
       action: "orchestrate",
       destination: { service: { resource: "bedrock", type: "external", name: "bedrock" } },
     },
-    labels: { ...sharedLabels },
+    labels: { ...sharedLabels, ...(isErr ? awsSpanErrorLabels() : {}) },
     service: svcBlock,
     agent,
     telemetry,
@@ -289,7 +290,7 @@ export function generateBedrockAgentTrace(ts: string, er: number) {
       action: "invoke",
       destination: { service: { resource: "bedrock", type: "external", name: "bedrock" } },
     },
-    labels: llmLabels,
+    labels: { ...llmLabels, ...(isErr ? awsSpanErrorLabels() : {}) },
     service: svcBlock,
     agent,
     telemetry,
@@ -326,6 +327,7 @@ export function generateBedrockAgentTrace(ts: string, er: number) {
         ...sharedLabels,
         action_group: cfg.actionGroupName,
         ...(actionErr ? { action_error: "ToolCallException" } : {}),
+        ...(actionErr ? awsSpanErrorLabels() : {}),
       },
       service: svcBlock,
       agent,

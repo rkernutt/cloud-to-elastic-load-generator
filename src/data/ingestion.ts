@@ -229,6 +229,22 @@ const SERVICE_INGESTION_DEFAULTS = {
   panorama: "cloudwatch",
   freertos: "cloudwatch",
   cloudwatchrum: "api",
+  bedrockguardrails: "cloudwatch",
+  emrserverless: "cloudwatch",
+  gwlb: "cloudwatch",
+  elb: "s3",
+  mediaconnect: "cloudwatch",
+  mediapackage: "cloudwatch",
+  mediastore: "cloudwatch",
+  mediatailor: "cloudwatch",
+  ivs: "cloudwatch",
+  ivschat: "cloudwatch",
+  cloudsearch: "cloudwatch",
+  directoryservice: "cloudwatch",
+  acmpca: "cloudwatch",
+  mgn: "cloudwatch",
+  cwsynthetics: "cloudwatch",
+  managedprometheus: "cloudwatch",
 };
 
 const INGESTION_META = {

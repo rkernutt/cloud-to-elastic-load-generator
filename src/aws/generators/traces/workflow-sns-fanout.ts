@@ -39,6 +39,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 import type {
   WorkflowCloudBlock,
@@ -191,7 +192,14 @@ function spanDoc({
     service: svcBlock,
     agent: agent,
     telemetry: telemetry,
-    ...(labels ? { labels: labels } : {}),
+    ...(labels || isErr
+      ? {
+          labels: {
+            ...(labels ?? {}),
+            ...(isErr ? awsSpanErrorLabels() : {}),
+          },
+        }
+      : {}),
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };

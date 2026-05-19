@@ -43,11 +43,12 @@ export const randInt = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 /** Uniform random float in [min, max]. */
 export const randFloat = (min: number, max: number): number => Math.random() * (max - min) + min;
-export const randId = (len = 8) =>
-  Math.random()
-    .toString(36)
-    .substring(2, 2 + len)
-    .toUpperCase();
+const BASE36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+export const randId = (len = 8) => {
+  let s = "";
+  for (let i = 0; i < len; i++) s += BASE36[(Math.random() * 36) | 0];
+  return s;
+};
 export const randIp = () =>
   `${randInt(1, 254)}.${randInt(0, 255)}.${randInt(0, 255)}.${randInt(1, 254)}`;
 export const randTs = (start: Date, end: Date) =>
@@ -84,7 +85,9 @@ export const ACCOUNTS: AwsAccount[] = [
 ];
 export const randAccount = () => rand(ACCOUNTS);
 export const randUUID = () =>
-  `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase();
+  typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase();
 
 /**
  * Returns common per-document setup values used by every generator.
@@ -94,14 +97,17 @@ export function makeSetup(er: number) {
   return { region: rand(REGIONS), acct: randAccount(), isErr: Math.random() < clampedEr };
 }
 
-/** Recursively remove object keys whose value is null so output has no pointless null fields. */
+/** Recursively delete object keys whose value is null — mutates in-place to avoid cloning. */
 export function stripNulls(obj: unknown): unknown {
   if (obj === null || typeof obj !== "object") return obj;
-  if (Array.isArray(obj)) return obj.map(stripNulls);
-  const out: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(obj)) {
-    if (v === null) continue;
-    out[k] = stripNulls(v);
+  if (Array.isArray(obj)) {
+    for (let i = 0; i < obj.length; i++) stripNulls(obj[i]);
+    return obj;
   }
-  return out;
+  const rec = obj as Record<string, unknown>;
+  for (const k in rec) {
+    if (rec[k] === null) delete rec[k];
+    else if (typeof rec[k] === "object") stripNulls(rec[k]);
+  }
+  return rec;
 }

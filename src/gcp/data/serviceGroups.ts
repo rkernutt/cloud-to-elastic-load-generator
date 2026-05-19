@@ -77,6 +77,12 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
         icon: "□",
         desc: "Dev workstation session logs",
       },
+      {
+        id: "blockchain-node-engine",
+        label: "Blockchain Node Engine",
+        icon: "⛓",
+        desc: "Managed blockchain node sync & RPC logs",
+      },
     ],
   },
   {
@@ -133,6 +139,12 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
         label: "Migrate to Containers",
         icon: "⟺",
         desc: "Container migration job logs",
+      },
+      {
+        id: "distributed-cloud",
+        label: "Google Distributed Cloud",
+        icon: "⌂",
+        desc: "Edge / hosted Distributed Cloud cluster & fleet logs",
       },
     ],
   },
@@ -232,6 +244,12 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
         desc: "Certificate lifecycle logs",
       },
       {
+        id: "certificate-manager",
+        label: "Certificate Manager",
+        icon: "⊡",
+        desc: "TLS certificate maps & provisioning logs",
+      },
+      {
         id: "beyondcorp",
         label: "BeyondCorp Enterprise",
         icon: "⊜",
@@ -319,6 +337,18 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
         desc: "Block storage I/O logs",
       },
       { id: "filestore", label: "Filestore", icon: "◫", desc: "NFS file share logs" },
+      {
+        id: "parallelstore",
+        label: "Parallelstore",
+        icon: "✦",
+        desc: "HPC parallel filesystem instance logs",
+      },
+      {
+        id: "netapp-volumes",
+        label: "NetApp Volumes",
+        icon: "◫",
+        desc: "Enterprise NFS volume & snapshot logs",
+      },
       { id: "backup-dr", label: "Backup and DR", icon: "⊙", desc: "Backup job & recovery logs" },
     ],
   },
@@ -359,6 +389,12 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
     icon: "◇",
     services: [
       { id: "bigquery", label: "BigQuery", icon: "◇", desc: "Query & job execution logs" },
+      {
+        id: "biglake",
+        label: "BigLake",
+        icon: "◇",
+        desc: "Unified lakehouse catalog & federated table logs",
+      },
       { id: "dataproc", label: "Dataproc", icon: "⚙", desc: "Spark/Hadoop cluster logs" },
       { id: "data-fusion", label: "Data Fusion", icon: "⟺", desc: "ETL pipeline logs" },
       { id: "composer", label: "Cloud Composer", icon: "⟿", desc: "Airflow DAG & task logs" },
@@ -372,6 +408,12 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
         desc: "Data sharing & exchange logs",
       },
       { id: "dataprep", label: "Dataprep", icon: "⊕", desc: "Data preparation job logs" },
+      {
+        id: "dataform",
+        label: "Dataform",
+        icon: "⌗",
+        desc: "SQL workflow & transformation repo logs",
+      },
       { id: "datastream", label: "Datastream", icon: "⟿", desc: "CDC replication logs" },
     ],
   },
@@ -459,6 +501,12 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
         desc: "Experiment tracking & viz logs",
       },
       {
+        id: "vertex-ai-agent-builder",
+        label: "Vertex AI Agent Builder",
+        icon: "✦",
+        desc: "Reasoning Engine / Agent Builder invocation & memory logs",
+      },
+      {
         id: "contact-center-ai",
         label: "Contact Center AI",
         icon: "◯",
@@ -500,6 +548,12 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
       { id: "cloud-endpoints", label: "Cloud Endpoints", icon: "⊕", desc: "API management logs" },
       { id: "apigee", label: "Apigee", icon: "⇌", desc: "API proxy & analytics logs" },
       { id: "cloud-shell", label: "Cloud Shell", icon: "⊙", desc: "Managed shell session logs" },
+      {
+        id: "colab-enterprise",
+        label: "Colab Enterprise",
+        icon: "◇",
+        desc: "Enterprise notebook runtime & scheduled execution logs",
+      },
       {
         id: "api-gateway",
         label: "API Gateway",

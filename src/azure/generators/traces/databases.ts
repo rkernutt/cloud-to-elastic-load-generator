@@ -103,7 +103,8 @@ export function generateCosmosDbTrace(ts: string, er: number): EcsDocument[] {
       ...dim({ dependency_type: "Cosmos DB" }),
     },
     traceId,
-    "python"
+    "python",
+    { spanFailed: failOnSpan === 0 }
   );
   ms += Math.max(1, Math.round(readUs / 1000));
 
@@ -131,7 +132,8 @@ export function generateCosmosDbTrace(ts: string, er: number): EcsDocument[] {
       ...dim({ dependency_type: "Cosmos DB" }),
     },
     traceId,
-    "python"
+    "python",
+    { spanFailed: failOnSpan === 1 }
   );
   ms += Math.max(1, Math.round(writeUs / 1000));
 
@@ -163,7 +165,8 @@ export function generateCosmosDbTrace(ts: string, er: number): EcsDocument[] {
         ...dim({ dependency_type: "HTTP" }),
       },
       traceId,
-      "python"
+      "python",
+      { spanFailed: failOnSpan === 2 }
     );
     docs.push(spanHttp);
   }
@@ -287,7 +290,8 @@ export function generateSqlDatabaseTrace(ts: string, er: number): EcsDocument[] 
       ...dim({ dependency_type: "SQL" }),
     },
     traceId,
-    "java"
+    "java",
+    { spanFailed: failInsert }
   );
   ms += Math.max(1, Math.round(insertUs / 1000));
 

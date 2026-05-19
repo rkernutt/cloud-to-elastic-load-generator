@@ -9,6 +9,16 @@ import {
   randUUID,
 } from "./helpers.js";
 
+const AZURE_API_ERROR_CODES = [
+  "InternalServerError",
+  "AuthorizationFailed",
+  "QuotaExceeded",
+  "ResourceNotFound",
+  "ConflictError",
+  "BadRequest",
+  "ThrottlingException",
+] as const;
+
 export function generateOpenAiLog(ts: string, er: number): EcsDocument {
   const { region, subscription, resourceGroup, isErr } = makeAzureSetup(er);
   const account = `oai-${randId(6).toLowerCase()}`;
@@ -24,6 +34,9 @@ export function generateOpenAiLog(ts: string, er: number): EcsDocument {
   let operationName = "ChatCompletions_Create";
   let resultType = "Succeeded";
   let level: string = "Informational";
+  let deploymentErr:
+    | { code: (typeof AZURE_API_ERROR_CODES)[number]; message: string; type: "azure" }
+    | undefined;
   const properties: Record<string, unknown> = {
     resourceId,
     deploymentName: deployment,
@@ -101,7 +114,37 @@ export function generateOpenAiLog(ts: string, er: number): EcsDocument {
     message = isErr
       ? `Azure OpenAI deployment ${deployment} in ${account}: provisioning failed (quota)`
       : `Azure OpenAI deployment ${deployment}: ${operationName} capacity=${properties.capacity}`;
+    deploymentErr = isErr
+      ? {
+          code: rand([...AZURE_API_ERROR_CODES]),
+          message: "Model deployment could not complete due to quota or provisioning constraints.",
+          type: "azure",
+        }
+      : undefined;
+    if (deploymentErr) {
+      properties.statusMessage = { error: deploymentErr };
+    }
   }
+
+  const failureMessage =
+    style === "RateLimit" || (style === "Request" && rateLimited)
+      ? "Azure OpenAI request was rate limited."
+      : style === "ContentFilter" && filtered
+        ? "Azure OpenAI content filter blocked output."
+        : style === "Request" && Number(properties.statusCode) >= 400
+          ? "Azure OpenAI chat completion request rejected."
+          : style === "Deployment"
+            ? "Azure OpenAI deployment operation failed."
+            : "Azure OpenAI operation failed.";
+
+  const docError =
+    resultType === "Failed"
+      ? (deploymentErr ?? {
+          code: rand([...AZURE_API_ERROR_CODES]),
+          message: failureMessage,
+          type: "azure" as const,
+        })
+      : undefined;
 
   return {
     "@timestamp": ts,
@@ -130,5 +173,6 @@ export function generateOpenAiLog(ts: string, er: number): EcsDocument {
       duration: randInt(2e6, rateLimited ? 6e10 : 4e9),
     },
     message,
+    ...(docError ? { error: docError } : {}),
   };
 }

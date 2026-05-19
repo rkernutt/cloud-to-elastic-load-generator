@@ -14,6 +14,13 @@ function generateIotCoreLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;
+  const scenario = rand([
+    "device_connectivity",
+    "device_provisioning",
+    "fleet_indexing",
+    "job_execution",
+    "shadow_update",
+  ] as const);
   const device = rand([
     "sensor-001",
     "gateway-prod-1",
@@ -21,7 +28,16 @@ function generateIotCoreLog(ts: string, er: number): EcsDocument {
     "camera-entrance",
     "robot-arm-7",
   ]);
-  const eventType = rand(["Connect", "Subscribe", "Publish", "Disconnect", "RuleMatch"]);
+  const eventType =
+    scenario === "device_provisioning"
+      ? rand(["Provisioning", "RegisterThing", "CreateCertificateFromCsr"])
+      : scenario === "fleet_indexing"
+        ? rand(["Indexing", "SearchIndex"])
+        : scenario === "job_execution"
+          ? rand(["JobExecution", "DescribeJob"])
+          : scenario === "shadow_update"
+            ? rand(["UpdateThingShadow", "GetThingShadow"])
+            : rand(["Connect", "Subscribe", "Publish", "Disconnect", "RuleMatch"]);
   const topic = rand([
     "dt/factory/sensors/temperature",
     "dt/home/thermostat/status",
@@ -69,6 +85,15 @@ function generateIotCoreLog(ts: string, er: number): EcsDocument {
     aws: {
       dimensions: { Protocol: protocol },
       iotcore: {
+        scenario,
+        provisioning_template:
+          scenario === "device_provisioning" ? rand(["sensor-fleet", "camera-onboarding"]) : null,
+        job_id: scenario === "job_execution" ? `job-${randId(10).toLowerCase()}` : null,
+        shadow_name: scenario === "shadow_update" ? rand(["classic", "production", ""]) : null,
+        fleet_index_query:
+          scenario === "fleet_indexing"
+            ? "thingGroupNames:warehouse-* AND connectivity:CONNECTED"
+            : null,
         client_id: device,
         thing_name: device,
         thing_group: rand(["factory-sensors", "home-devices", "fleet", "building-management"]),
@@ -126,9 +151,22 @@ function generateIotCoreLog(ts: string, er: number): EcsDocument {
     ...(isErr
       ? {
           error: {
-            code: rand(["UnauthorizedException", "ThrottlingException", "DeviceDisconnected"]),
-            message: "IoT Core operation failed",
-            type: "iot",
+            code: rand([
+              "UnauthorizedException",
+              "ThrottlingException",
+              "CertificateConflictException",
+              "InvalidRequestException",
+              "ResourceAlreadyExistsException",
+            ]),
+            message:
+              scenario === "shadow_update"
+                ? "MQTT publish rejected: rejected version mismatch on thing shadow"
+                : scenario === "job_execution"
+                  ? "DescribeJob denied: fleet policy missing iot:DescribeJob"
+                  : scenario === "device_provisioning"
+                    ? "Fleet provisioning failed: template disallows this claim"
+                    : "IoT data plane authorization failure",
+            type: "aws",
           },
         }
       : {}),
@@ -256,7 +294,7 @@ function generateIotGreengrassLog(ts: string, er: number): EcsDocument {
     message,
     log: { level },
     ...(level === "error"
-      ? { error: { code: "GreengrassError", message: rand(MSGS.error), type: "iot" } }
+      ? { error: { code: "GreengrassError", message: rand(MSGS.error), type: "aws" } }
       : {}),
   };
 }
@@ -308,7 +346,7 @@ function generateIotAnalyticsLog(ts: string, er: number): EcsDocument {
       : `IoT Analytics: ${msgs.toLocaleString()} messages via ${pipeline}`,
     log: { level: isErr ? "error" : "info" },
     ...(isErr
-      ? { error: { code: "PipelineError", message: "IoT Analytics pipeline failed", type: "iot" } }
+      ? { error: { code: "PipelineError", message: "IoT Analytics pipeline failed", type: "aws" } }
       : {}),
   };
 }
@@ -392,7 +430,7 @@ function generateIotDefenderLog(ts: string, er: number): EcsDocument {
               "InternalFailureException",
             ]),
             message: "IoT Defender audit error",
-            type: "iot",
+            type: "aws",
           },
         }
       : {}),
@@ -467,7 +505,7 @@ function generateIotEventsLog(ts: string, er: number): EcsDocument {
           error: {
             code: rand(["ResourceNotFound", "ThrottlingException", "InvalidRequestException"]),
             message: "IoT Events error",
-            type: "iot",
+            type: "aws",
           },
         }
       : {}),
@@ -541,7 +579,7 @@ function generateIotSiteWiseLog(ts: string, er: number): EcsDocument {
       : `IoT SiteWise ${asset}/${property}: ${value} [${quality}]`,
     log: { level: isErr ? "error" : quality === "UNCERTAIN" ? "warn" : "info" },
     ...(isErr
-      ? { error: { code: "SiteWiseError", message: "IoT SiteWise quality/error", type: "iot" } }
+      ? { error: { code: "SiteWiseError", message: "IoT SiteWise quality/error", type: "aws" } }
       : {}),
   };
 }
@@ -637,7 +675,7 @@ function generateIotTwinMakerLog(ts: string, er: number): EcsDocument {
               "TooManyTagsException",
             ]),
             message: "IoT TwinMaker operation failed",
-            type: "iot",
+            type: "aws",
           },
         }
       : {}),
@@ -725,7 +763,7 @@ function generateIotFleetWiseLog(ts: string, er: number): EcsDocument {
               "ThrottlingException",
             ]),
             message: "IoT FleetWise operation failed",
-            type: "iot",
+            type: "aws",
           },
         }
       : {}),
@@ -786,7 +824,7 @@ function generateGroundStationLog(ts: string, er: number): EcsDocument {
           error: {
             code: errorCode,
             message: `Ground Station contact failed at ${groundStationId}`,
-            type: "network",
+            type: "aws",
           },
         }
       : {}),
@@ -847,6 +885,15 @@ function generateKinesisVideoLog(ts: string, er: number): EcsDocument {
     message: isErr
       ? `Kinesis Video ${stream}: ${ev} failed — ${rand(errMsgs)}`
       : `Kinesis Video ${stream}: ${ev} (${randFloat(0.5, 10).toFixed(1)} Mbps)`,
+    ...(isErr
+      ? {
+          error: {
+            code: rand(errMsgs),
+            message: `Amazon Kinesis Video Streams ${ev} refused connection or quota exceeded`,
+            type: "aws",
+          },
+        }
+      : {}),
   };
 }
 
@@ -898,6 +945,20 @@ function generatePanoramaLog(ts: string, er: number): EcsDocument {
     message: isErr
       ? `Panorama ${device}: ${ev} failed — ${rand(errMsgs)}`
       : `Panorama ${device}: ${ev} (${rand(models)}, ${randFloat(10, 30).toFixed(1)} FPS)`,
+    ...(isErr
+      ? {
+          error: {
+            code: rand([
+              "ValidationException",
+              "AccessDeniedException",
+              "ConflictException",
+              "InternalServerException",
+            ]),
+            message: rand(errMsgs),
+            type: "aws",
+          },
+        }
+      : {}),
   };
 }
 
@@ -957,6 +1018,15 @@ function generateFreeRtosLog(ts: string, er: number): EcsDocument {
     message: isErr
       ? `FreeRTOS ${thing}: ${ev} failed — ${rand(errMsgs)}`
       : `FreeRTOS ${thing}: ${ev} OK (${rand(boards)})`,
+    ...(isErr
+      ? {
+          error: {
+            code: rand(["OTAJobFailedException", "NetworkError", "ProvisioningFailed"]),
+            message: rand(errMsgs),
+            type: "aws",
+          },
+        }
+      : {}),
   };
 }
 

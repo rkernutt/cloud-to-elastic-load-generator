@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateIamTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -52,7 +58,7 @@ export function generateIamTrace(ts: string, er: number): EcsDocument[] {
       labels: {
         "gcp.iam.resource": resource,
         "gcp.iam.permission": permission,
-        ...(failIdx === 0 ? { "gcp.rpc.status_code": "INVALID_ARGUMENT" } : {}),
+        ...(failIdx === 0 ? { ...gcpSpanFailureLabels() } : {}),
       },
     },
     service: svc,
@@ -79,7 +85,7 @@ export function generateIamTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: u2 },
       action: "query",
       destination: { service: { resource: "iam_policy", type: "db", name: "iam_policy" } },
-      labels: failIdx === 1 ? { "gcp.rpc.status_code": "NOT_FOUND" } : {},
+      labels: failIdx === 1 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud,
@@ -107,7 +113,7 @@ export function generateIamTrace(ts: string, er: number): EcsDocument[] {
       destination: { service: { resource: "iam_conditions", type: "app", name: "iam_conditions" } },
       labels:
         failIdx === 2
-          ? { "gcp.iam.condition_result": "false" }
+          ? { "gcp.iam.condition_result": "false", ...gcpSpanFailureLabels() }
           : { "gcp.iam.condition_result": "true" },
     },
     service: svc,
@@ -138,7 +144,7 @@ export function generateIamTrace(ts: string, er: number): EcsDocument[] {
       },
       labels:
         failIdx === 3
-          ? { "gcp.iam.decision": "DENY", "gcp.rpc.status_code": "PERMISSION_DENIED" }
+          ? { "gcp.iam.decision": "DENY", ...gcpSpanFailureLabels() }
           : { "gcp.iam.decision": "ALLOW" },
     },
     service: svc,

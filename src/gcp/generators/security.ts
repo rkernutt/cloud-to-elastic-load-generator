@@ -70,8 +70,41 @@ function auditProto(opts: {
   };
 }
 
+const GRPC_ERROR_STATUSES = [
+  "INTERNAL",
+  "DEADLINE_EXCEEDED",
+  "PERMISSION_DENIED",
+  "RESOURCE_EXHAUSTED",
+  "NOT_FOUND",
+  "UNAVAILABLE",
+] as const;
+
+function grpcStructuredFault(isErr: boolean): {
+  spread: Record<string, unknown>;
+  rpcLabel: Record<string, string>;
+} {
+  if (!isErr) return { spread: {}, rpcLabel: {} };
+  const code = rand([...GRPC_ERROR_STATUSES]);
+  return {
+    spread: {
+      "gcp.rpc": { status_code: code },
+      error: { code, message: `${code}: operation failed`, type: "gcp" },
+    },
+    rpcLabel: { "gcp.rpc.status_code": code },
+  };
+}
+
+function faultErrorMerge(faultSpread: Record<string, unknown>, legacy: Record<string, unknown>) {
+  const fe =
+    faultSpread.error && typeof faultSpread.error === "object"
+      ? { ...(faultSpread.error as Record<string, unknown>) }
+      : {};
+  return { ...fe, ...legacy };
+}
+
 export function generateSecurityCommandCenterLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const orgId = randInt(100000, 999999);
   const findingId = `organizations/${orgId}/sources/${randId(8)}/findings/${randUUIDLike()}`;
   const category = rand([
@@ -131,6 +164,9 @@ export function generateSecurityCommandCenterLog(ts: string, er: number): EcsDoc
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: sev,
     logName: gcpLogName(project.id, "cloudaudit.googleapis.com/activity"),
     insertId: randId(16).toLowerCase(),
@@ -160,10 +196,10 @@ export function generateSecurityCommandCenterLog(ts: string, er: number): EcsDoc
       : `securitycenter.googleapis.com/Findings.Notification ${category} ${severity} ${state} ${resourceType}`,
     ...(isErr
       ? {
-          error: {
+          error: faultErrorMerge(faultSpread, {
             type: "PermissionDenied",
             message: "Caller lacks securitycenter.findings.update permission",
-          },
+          }),
         }
       : {}),
   };
@@ -171,6 +207,7 @@ export function generateSecurityCommandCenterLog(ts: string, er: number): EcsDoc
 
 export function generateIamLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const principal = randPrincipal(project);
   const principalEmail = principalToAuditEmail(principal, project);
   const methodName = rand([
@@ -247,6 +284,9 @@ export function generateIamLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "ERROR" : "NOTICE",
     logName: gcpLogName(project.id, "cloudaudit.googleapis.com/activity"),
     insertId: randId(16).toLowerCase(),
@@ -277,10 +317,10 @@ export function generateIamLog(ts: string, er: number): EcsDocument {
       : `cloudaudit.googleapis.com/activity ${methodName} resource=${resource} granted=${permissionGranted}`,
     ...(isErr
       ? {
-          error: {
+          error: faultErrorMerge(faultSpread, {
             type: "PermissionDenied",
             message: `Principal ${principalEmail} is not authorized`,
-          },
+          }),
         }
       : {}),
   };
@@ -288,6 +328,7 @@ export function generateIamLog(ts: string, er: number): EcsDocument {
 
 export function generateSecretManagerLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const secretId = `${rand(["api-key", "db-creds", "jwt-signing", "webhook-hmac", "tls-bundle"])}-${randId(4)}`;
   const secretName = `projects/${project.id}/secrets/${secretId}`;
   const versionNum = randInt(1, 12);
@@ -318,6 +359,9 @@ export function generateSecretManagerLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "ERROR" : "INFO",
     logName: gcpLogName(project.id, "cloudaudit.googleapis.com/data_access"),
     insertId: randId(16).toLowerCase(),
@@ -344,10 +388,10 @@ export function generateSecretManagerLog(ts: string, er: number): EcsDocument {
     message: `secretmanager.googleapis.com ${methodName} ${secretName}`,
     ...(isErr
       ? {
-          error: {
+          error: faultErrorMerge(faultSpread, {
             type: "PermissionDenied",
             message: "Secret payload access denied by IAM policy",
-          },
+          }),
         }
       : {}),
   };
@@ -355,6 +399,7 @@ export function generateSecretManagerLog(ts: string, er: number): EcsDocument {
 
 export function generateCloudKmsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const keyRing = rand(["prod-keys", "payment-hsm", "data-encryption", "signing-keys"]);
   const cryptoKey = rand(["disk-encryption", "backup-dek", "jwt-signing", "tls-cert"]);
   const version = randInt(1, 8);
@@ -425,6 +470,9 @@ export function generateCloudKmsLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "ERROR" : "INFO",
     logName: gcpLogName(project.id, "cloudaudit.googleapis.com/data_access"),
     insertId: randId(16).toLowerCase(),
@@ -458,10 +506,10 @@ export function generateCloudKmsLog(ts: string, er: number): EcsDocument {
     message: `cloudkms.googleapis.com ${methodName} ${keyPath}`,
     ...(isErr
       ? {
-          error: {
+          error: faultErrorMerge(faultSpread, {
             type: "FailedPrecondition",
             message: "Crypto key version is not enabled for requested operation",
-          },
+          }),
         }
       : {}),
   };
@@ -469,6 +517,7 @@ export function generateCloudKmsLog(ts: string, er: number): EcsDocument {
 
 export function generateCertificateAuthorityLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const caPool = rand(["internal-pki", "mesh-ca", "workload-identity"]);
   const caName = rand(["root-ca", "intermediate-prod", "dev-subordinate"]);
   const certificateId = randId(12).toLowerCase();
@@ -508,6 +557,9 @@ export function generateCertificateAuthorityLog(ts: string, er: number): EcsDocu
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "ERROR" : "NOTICE",
     logName: gcpLogName(project.id, "cloudaudit.googleapis.com/activity"),
     insertId: randId(16).toLowerCase(),
@@ -536,10 +588,10 @@ export function generateCertificateAuthorityLog(ts: string, er: number): EcsDocu
     message: `privateca.googleapis.com ${methodName} ${caPath}`,
     ...(isErr
       ? {
-          error: {
+          error: faultErrorMerge(faultSpread, {
             type: "InvalidArgument",
             message: "Certificate template does not allow requested SANs",
-          },
+          }),
         }
       : {}),
   };
@@ -547,6 +599,7 @@ export function generateCertificateAuthorityLog(ts: string, er: number): EcsDocu
 
 export function generateBeyondCorpLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const appConnector = rand(["connector-use1-a", "connector-ew1-b", "corp-edge-1"]);
   const application = rand([
     "erp.globex.internal",
@@ -577,6 +630,9 @@ export function generateBeyondCorpLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr || accessDecision === "DENY" ? "WARNING" : "INFO",
     logName: gcpLogName(project.id, "beyondcorp.googleapis.com/connector_access"),
     insertId: randId(16).toLowerCase(),
@@ -604,10 +660,10 @@ export function generateBeyondCorpLog(ts: string, er: number): EcsDocument {
     message: `beyondcorp.googleapis.com/EvaluateAccess user=${userEmail} app=${application} decision=${accessDecision}`,
     ...(isErr
       ? {
-          error: {
+          error: faultErrorMerge(faultSpread, {
             type: "Unavailable",
             message: `BeyondCorp connector ${appConnector} health check failed`,
-          },
+          }),
         }
       : {}),
   };
@@ -615,6 +671,7 @@ export function generateBeyondCorpLog(ts: string, er: number): EcsDocument {
 
 export function generateBinaryAuthorizationLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const cluster = randGkeCluster();
   const namespace = randGkeNamespace();
   const pod = `checkout-${randId(5).toLowerCase()}-${randId(5).toLowerCase()}`;
@@ -641,6 +698,9 @@ export function generateBinaryAuthorizationLog(ts: string, er: number): EcsDocum
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: verdict === "DENIED" || isErr ? "ERROR" : "INFO",
     logName: gcpLogName(project.id, "binaryauthorization.googleapis.com/policy_events"),
     insertId: randId(16).toLowerCase(),
@@ -669,10 +729,10 @@ export function generateBinaryAuthorizationLog(ts: string, er: number): EcsDocum
     message: `binaryauthorization.googleapis.com/Admission ${verdict} cluster=${cluster} image=${image}`,
     ...(isErr
       ? {
-          error: {
+          error: faultErrorMerge(faultSpread, {
             type: "Internal",
             message: "Binary Authorization policy server returned 503 during admission",
-          },
+          }),
         }
       : {}),
   };
@@ -680,6 +740,7 @@ export function generateBinaryAuthorizationLog(ts: string, er: number): EcsDocum
 
 export function generateVpcServiceControlsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const perimeterName = rand(["prod_default", "pci_services", "data_analytics"]);
   const accessLevel = rand(["corp_devices", "vpn_only", "partner_restricted"]);
   const resource = rand([
@@ -706,6 +767,9 @@ export function generateVpcServiceControlsLog(ts: string, er: number): EcsDocume
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: blocked || isErr ? "WARNING" : "INFO",
     logName: gcpLogName(project.id, "cloudaudit.googleapis.com/policy"),
     insertId: randId(16).toLowerCase(),
@@ -732,10 +796,10 @@ export function generateVpcServiceControlsLog(ts: string, er: number): EcsDocume
       : `accesscontextmanager.googleapis.com/VpcServiceControls ${blocked ? "BLOCK" : "ALLOW"} ${apiMethod}`,
     ...(isErr
       ? {
-          error: {
+          error: faultErrorMerge(faultSpread, {
             type: "PermissionDenied",
             message: "Caller cannot read VPC Service Controls perimeter metadata",
-          },
+          }),
         }
       : {}),
   };
@@ -743,6 +807,7 @@ export function generateVpcServiceControlsLog(ts: string, er: number): EcsDocume
 
 export function generateAccessContextManagerLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const accessLevelName = rand(["corp_trusted", "geo_us_only", "mdm_enrolled"]);
   const conditionType = rand(["ip_subnetwork", "device_policy", "regions"] as const);
   const satisfied = !isErr && Math.random() > 0.25;
@@ -763,6 +828,9 @@ export function generateAccessContextManagerLog(ts: string, er: number): EcsDocu
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr || !satisfied ? "WARNING" : "INFO",
     logName: gcpLogName(project.id, "accesscontextmanager.googleapis.com/evaluations"),
     insertId: randId(16).toLowerCase(),
@@ -789,10 +857,10 @@ export function generateAccessContextManagerLog(ts: string, er: number): EcsDocu
     message: `accesscontextmanager.googleapis.com/EvaluateAccessLevel level=${accessLevelName} satisfied=${satisfied}`,
     ...(isErr
       ? {
-          error: {
+          error: faultErrorMerge(faultSpread, {
             type: "Unavailable",
             message: "Access Context Manager API timeout during condition evaluation",
-          },
+          }),
         }
       : {}),
   };
@@ -800,6 +868,7 @@ export function generateAccessContextManagerLog(ts: string, er: number): EcsDocu
 
 export function generateAssuredWorkloadsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const workloadName = rand([
     "fedramp-moderate-workload",
     "il4-data-plane",
@@ -823,6 +892,9 @@ export function generateAssuredWorkloadsLog(ts: string, er: number): EcsDocument
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "ERROR" : "NOTICE",
     logName: gcpLogName(project.id, "assuredworkloads.googleapis.com/violations"),
     insertId: randId(16).toLowerCase(),
@@ -850,10 +922,10 @@ export function generateAssuredWorkloadsLog(ts: string, er: number): EcsDocument
     message: `assuredworkloads.googleapis.com/Violation ${violationType} regime=${complianceRegime}`,
     ...(isErr
       ? {
-          error: {
+          error: faultErrorMerge(faultSpread, {
             type: "Internal",
             message: "Failed to fetch organization policy for compliance evaluation",
-          },
+          }),
         }
       : {}),
   };
@@ -861,6 +933,7 @@ export function generateAssuredWorkloadsLog(ts: string, er: number): EcsDocument
 
 export function generateChronicleLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const ruleName = rand([
     "suspicious_login_geo",
     "lateral_movement_rdp",
@@ -893,6 +966,9 @@ export function generateChronicleLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr
       ? "ERROR"
       : severity === "ERROR" || severity === "CRITICAL"
@@ -922,10 +998,10 @@ export function generateChronicleLog(ts: string, er: number): EcsDocument {
     message: `chronicle.googleapis.com/Detections ${ruleName} ${detectionType} events=${matchedEventsCount}`,
     ...(isErr
       ? {
-          error: {
+          error: faultErrorMerge(faultSpread, {
             type: "InvalidArgument",
             message: "Rule references missing YARA-L function",
-          },
+          }),
         }
       : {}),
   };
@@ -933,6 +1009,7 @@ export function generateChronicleLog(ts: string, er: number): EcsDocument {
 
 export function generateRecaptchaEnterpriseLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const siteKey = `6L${randId(20)}`;
   const action = rand(["login", "signup", "checkout", "password_reset", "contact_form"]);
   const score = isErr ? randFloat(0, 0.29) : randFloat(0.3, 1.0);
@@ -961,6 +1038,9 @@ export function generateRecaptchaEnterpriseLog(ts: string, er: number): EcsDocum
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr || !tokenValid ? "WARNING" : "INFO",
     logName: gcpLogName(project.id, "recaptchaenterprise.googleapis.com/assessments"),
     insertId: randId(16).toLowerCase(),
@@ -988,10 +1068,10 @@ export function generateRecaptchaEnterpriseLog(ts: string, er: number): EcsDocum
     message: `recaptchaenterprise.googleapis.com/CreateAssessment action=${action} score=${score.toFixed(2)}`,
     ...(isErr
       ? {
-          error: {
+          error: faultErrorMerge(faultSpread, {
             type: "InvalidToken",
             message: "The response token is invalid or malformed",
-          },
+          }),
         }
       : {}),
   };
@@ -999,6 +1079,7 @@ export function generateRecaptchaEnterpriseLog(ts: string, er: number): EcsDocum
 
 export function generateWebSecurityScannerLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const scanConfig = `projects/${project.id}/scanConfigs/${randId(8)}`;
   const findingType = rand([
     "XSS",
@@ -1032,6 +1113,9 @@ export function generateWebSecurityScannerLog(ts: string, er: number): EcsDocume
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "ERROR" : severity === "CRITICAL" || severity === "HIGH" ? "WARNING" : "INFO",
     logName: gcpLogName(project.id, "websecurityscanner.googleapis.com/findings"),
     insertId: randId(16).toLowerCase(),
@@ -1060,10 +1144,10 @@ export function generateWebSecurityScannerLog(ts: string, er: number): EcsDocume
     message: `websecurityscanner.googleapis.com/Finding ${findingType} ${severity} ${url}`,
     ...(isErr
       ? {
-          error: {
+          error: faultErrorMerge(faultSpread, {
             type: "ScanFailed",
             message: "Unable to complete request to target URL",
-          },
+          }),
         }
       : {}),
   };
@@ -1071,6 +1155,7 @@ export function generateWebSecurityScannerLog(ts: string, er: number): EcsDocume
 
 export function generateIdentityAwareProxyLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const resource = `//compute.googleapis.com/projects/${project.id}/zones/${region}-a/instances/iap-${randId(4)}`;
   const userEmail = rand([
     `user@${project.id.split("-")[0]}.example.com`,
@@ -1106,6 +1191,9 @@ export function generateIdentityAwareProxyLog(ts: string, er: number): EcsDocume
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr || accessDecision === "DENY" ? "WARNING" : "INFO",
     logName: gcpLogName(project.id, "cloudaudit.googleapis.com/data_access"),
     insertId: randId(16).toLowerCase(),
@@ -1137,6 +1225,7 @@ export function generateIdentityAwareProxyLog(ts: string, er: number): EcsDocume
 
 export function generateDlpLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const jobName = `projects/${project.id}/dlpJobs/${randId(8).toLowerCase()}`;
   const inspectTemplate = `projects/${project.id}/inspectTemplates/${rand(["pii", "pci", "phi"])}-${randId(4)}`;
   const infoType = rand([
@@ -1179,6 +1268,9 @@ export function generateDlpLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "ERROR" : "INFO",
     logName: gcpLogName(project.id, "cloudaudit.googleapis.com/data_access"),
     insertId: randId(16).toLowerCase(),
@@ -1209,6 +1301,7 @@ export function generateDlpLog(ts: string, er: number): EcsDocument {
 
 export function generateWebRiskLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const uri = rand([
     `https://evil-${randId(6)}.example/download`,
     `http://phish-${randId(4)}.net/login`,
@@ -1234,6 +1327,9 @@ export function generateWebRiskLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "ERROR" : "WARNING",
     logName: gcpLogName(project.id, "webrisk.googleapis.com/lookups"),
     insertId: randId(16).toLowerCase(),
@@ -1262,6 +1358,7 @@ export function generateWebRiskLog(ts: string, er: number): EcsDocument {
 
 export function generateCloudIdentityLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const eventType = rand([
     "USER_CREATED",
     "GROUP_MODIFIED",
@@ -1294,6 +1391,9 @@ export function generateCloudIdentityLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "ERROR" : "NOTICE",
     logName: gcpLogName(project.id, "cloudaudit.googleapis.com/activity"),
     insertId: randId(16).toLowerCase(),
@@ -1323,6 +1423,7 @@ export function generateCloudIdentityLog(ts: string, er: number): EcsDocument {
 
 export function generateManagedAdLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const domainName = `${rand(["corp", "globex", "prod"])}.internal`;
   const forestTrust = rand(["INBOUND", "OUTBOUND", "BIDIRECTIONAL", "NONE"] as const);
   const operation = rand([
@@ -1346,6 +1447,9 @@ export function generateManagedAdLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "ERROR" : "INFO",
     logName: gcpLogName(project.id, "managedidentities.googleapis.com/domain_operations"),
     insertId: randId(16).toLowerCase(),
@@ -1372,6 +1476,7 @@ export function generateManagedAdLog(ts: string, er: number): EcsDocument {
 
 export function generateOsLoginLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const user = rand([
     `dev@${project.id.split("-")[0]}.example.com`,
     `sre@${project.id}.example.com`,
@@ -1403,6 +1508,9 @@ export function generateOsLoginLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "ERROR" : "INFO",
     logName: gcpLogName(project.id, "cloudaudit.googleapis.com/data_access"),
     insertId: randId(16).toLowerCase(),
@@ -1432,6 +1540,7 @@ export function generateOsLoginLog(ts: string, er: number): EcsDocument {
 
 export function generateSecurityOperationsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const caseId = `case-${randId(10).toLowerCase()}`;
   const playbookName = rand(["phish_triage", "malware_contain", "iam_review", "data_exfil"]);
   const actionType = rand([
@@ -1466,6 +1575,9 @@ export function generateSecurityOperationsLog(ts: string, er: number): EcsDocume
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
+    labels: { ...rpcLabel },
     severity: isErr ? "ERROR" : severity === "CRITICAL" ? "ALERT" : "NOTICE",
     logName: gcpLogName(project.id, "chronicle.googleapis.com/soar_events"),
     insertId: randId(16).toLowerCase(),
@@ -1496,6 +1608,7 @@ export function generateSecurityOperationsLog(ts: string, er: number): EcsDocume
 
 export function generateAccessTransparencyLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const product = rand([
     "GMAIL",
     "DRIVE",
@@ -1540,12 +1653,14 @@ export function generateAccessTransparencyLog(ts: string, er: number): EcsDocume
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
     logName,
     insertId: randId(16).toLowerCase(),
     resource: { type: "project", labels: { project_id: project.id } },
     jsonPayload,
-    labels: { "resource.type": "accessapproval.googleapis.com/Note", product },
+    labels: { "resource.type": "accessapproval.googleapis.com/Note", product, ...rpcLabel },
     cloud: gcpCloud(region, project, "accessapproval.googleapis.com"),
     gcp: {
       access_transparency: {

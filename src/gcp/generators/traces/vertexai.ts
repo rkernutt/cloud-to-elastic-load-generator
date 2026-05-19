@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateVertexAiTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -62,7 +68,7 @@ export function generateVertexAiTrace(ts: string, er: number): EcsDocument[] {
       destination: { service: { resource: "vertex_ai", type: "external", name: "vertex_ai" } },
       labels: {
         ...labelsBase,
-        ...(failIdx === 0 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {}),
+        ...(failIdx === 0 ? { ...gcpSpanFailureLabels() } : {}),
       },
     },
     service: svc,
@@ -90,7 +96,7 @@ export function generateVertexAiTrace(ts: string, er: number): EcsDocument[] {
       destination: { service: { resource: "vertex_ai", type: "external", name: "vertex_ai" } },
       labels: {
         ...labelsBase,
-        ...(failIdx === 1 ? { "gcp.rpc.status_code": "INVALID_ARGUMENT" } : {}),
+        ...(failIdx === 1 ? { ...gcpSpanFailureLabels() } : {}),
       },
     },
     service: svc,
@@ -118,7 +124,7 @@ export function generateVertexAiTrace(ts: string, er: number): EcsDocument[] {
       destination: { service: { resource: "vertex_ai", type: "external", name: "vertex_ai" } },
       labels: {
         ...labelsBase,
-        ...(failIdx === 2 ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" } : {}),
+        ...(failIdx === 2 ? { ...gcpSpanFailureLabels() } : {}),
       },
     },
     service: svc,
@@ -144,7 +150,7 @@ export function generateVertexAiTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: postUs },
       action: "decode",
       destination: { service: { resource: "vertex_ai", type: "external", name: "vertex_ai" } },
-      labels: { ...labelsBase, ...(failIdx === 3 ? { "gcp.rpc.status_code": "ABORTED" } : {}) },
+      labels: { ...labelsBase, ...(failIdx === 3 ? { ...gcpSpanFailureLabels() } : {}) },
     },
     service: svc,
     cloud: gcpCloud(region, project, "aiplatform.googleapis.com"),
@@ -171,7 +177,7 @@ export function generateVertexAiTrace(ts: string, er: number): EcsDocument[] {
       destination: { service: { resource: "vertex_ai", type: "external", name: "vertex_ai" } },
       labels: {
         ...labelsBase,
-        ...(failIdx === 4 ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {}),
+        ...(failIdx === 4 ? { ...gcpSpanFailureLabels() } : {}),
       },
     },
     service: svc,

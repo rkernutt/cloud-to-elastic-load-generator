@@ -6,7 +6,6 @@ export default defineConfig({
   server: {
     port: 3000,
     host: true,
-    // Forward /proxy/* to the local bulk proxy (run `node proxy.cjs` on port 3001).
     proxy: {
       "/proxy": {
         target: `http://${process.env.PROXY_HOST || "127.0.0.1"}:${process.env.PROXY_PORT || 3001}`,
@@ -14,7 +13,6 @@ export default defineConfig({
       },
     },
   },
-  // `npm run preview` serves dist/ without dev middleware unless proxy is set here too.
   preview: {
     port: 4173,
     host: true,
@@ -25,10 +23,13 @@ export default defineConfig({
       },
     },
   },
+  optimizeDeps: {
+    include: ["@elastic/eui", "@emotion/react", "@emotion/css", "react", "react-dom", "moment"],
+  },
   build: {
     outDir: "dist",
-    sourcemap: "hidden",
-    // @elastic/eui is a single large bundle; remaining vendor chunk is mostly transitive deps.
+    sourcemap: false,
+    reportCompressedSize: false,
     chunkSizeWarningLimit: 1700,
     rollupOptions: {
       output: {
@@ -39,7 +40,6 @@ export default defineConfig({
             if (id.includes("/moment/")) return "vendor-moment";
             if (id.includes("@elastic/datemath")) return "vendor-datemath";
             if (id.includes("simple-icons")) return "vendor-simple-icons";
-            // React core + scheduler together avoids prior vendor ↔ vendor-react cycles.
             if (/node_modules\/(react-dom|react\/|scheduler\/)/.test(id)) return "vendor-react";
             return "vendor";
           }
@@ -55,5 +55,11 @@ export default defineConfig({
         },
       },
     },
+  },
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./src/test/setup.ts"],
+    include: ["src/**/*.test.{js,jsx,ts,tsx}"],
+    globals: true,
   },
 });

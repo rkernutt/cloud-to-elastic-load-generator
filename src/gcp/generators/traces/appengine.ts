@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 const APPS = ["globex-web", "globex-admin", "globex-api"];
 
@@ -51,7 +57,7 @@ export function generateAppEngineTrace(ts: string, er: number): EcsDocument[] {
         statement: `${rand(["get", "query", "update"])} ${rand(["profiles", "sessions", "preferences"])}/*`,
       },
       destination: { service: { resource: "firestore", type: "db", name: "firestore" } },
-      labels: failIdx === 0 ? { "gcp.rpc.status_code": "PERMISSION_DENIED" } : {},
+      labels: failIdx === 0 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "firestore.googleapis.com"),
@@ -80,7 +86,7 @@ export function generateAppEngineTrace(ts: string, er: number): EcsDocument[] {
         statement: rand(["GET session:id", "SET rate:user", "DELETE cart:tmp"]),
       },
       destination: { service: { resource: "memcache", type: "db", name: "memcache" } },
-      labels: failIdx === 1 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: failIdx === 1 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: cloudAe,
@@ -105,7 +111,7 @@ export function generateAppEngineTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: tqUs },
       action: "send",
       destination: { service: { resource: "cloudtasks", type: "messaging", name: "cloudtasks" } },
-      labels: failIdx === 2 ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" } : {},
+      labels: failIdx === 2 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "cloudtasks.googleapis.com"),
@@ -131,7 +137,7 @@ export function generateAppEngineTrace(ts: string, er: number): EcsDocument[] {
       action: "execute",
       db: { type: "sql", statement: "SELECT ... FROM `reporting.user_facts` WHERE ..." },
       destination: { service: { resource: "bigquery", type: "db", name: "bigquery" } },
-      labels: failIdx === 3 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: failIdx === 3 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "bigquery.googleapis.com"),

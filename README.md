@@ -73,7 +73,7 @@ Two least-privilege key definitions live in `[installer/api-keys/](installer/api
 
 ## Sample data
 
-Reference JSON for every registered generator is under `[samples/{aws,gcp,azure}/{logs,metrics,traces}/](samples/)`. Regenerate with `npm run samples` and verify with `npm run samples:verify`.
+Reference JSON for every registered generator lives under `samples/{aws,gcp,azure}/{logs,metrics,traces}/`. The directory is gitignored — regenerate locally with `npm run samples` and verify with `npm run samples:verify`.
 
 ## Testing
 

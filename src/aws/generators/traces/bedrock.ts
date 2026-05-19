@@ -21,6 +21,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 const FINISH_REASONS = ["end_turn", "max_tokens", "stop_sequence"];
@@ -238,7 +239,7 @@ function buildLlmSpan(
       action: "invoke",
       destination: { service: { resource: "bedrock", type: "gen_ai", name: "bedrock" } },
     },
-    labels: labels,
+    labels: { ...labels, ...(isErr ? awsSpanErrorLabels() : {}) },
     service: svcBlock,
     agent,
     telemetry,

@@ -8,6 +8,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 const APPS = [
@@ -83,6 +84,7 @@ export function generateAuroraTrace(ts: string, er: number) {
       labels: {
         "aws.rds.db_instance_identifier": writer,
         "aws.aurora.role": i === 0 ? "writer" : rand(["writer", "reader"]),
+        ...(spanErr ? awsSpanErrorLabels() : {}),
       },
       event: { outcome: spanErr ? "failure" : "success" },
       data_stream: { type: "traces", dataset: "apm", namespace: "default" },

@@ -2,7 +2,7 @@
 
 Pre-exported individual JSON files for every installer asset. Use these to manually deploy assets to Elasticsearch / Kibana without running the installer scripts.
 
-> **Regenerate after changes:** run `node scripts/export-standalone-assets.mjs` to rebuild this directory from the canonical installer sources.
+> **This directory is gitignored** — it is generated on demand. Run `npm run assets:export` (or `node scripts/export-standalone-assets.mjs`) to rebuild it from the canonical installer sources.
 
 ## Directory structure
 

@@ -3,53 +3,54 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "northamerica-northeast1",
+    "region": "me-central1",
     "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
     "account": { "id": "173205080756", "name": "Globex Shared Services" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-northamerica-northeast1",
-    "ephemeral_id": "pwuq16c76r"
+    "name": "metricbeat-gcp-me-central1",
+    "ephemeral_id": "t5ittfwt3e7eeduxv7v9fnzadrg7zjuksrhc"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "serviceruntime.googleapis.com/api/request_count",
-      "labels": { "credential_id": "resource-a" }
+      "type": "compute.googleapis.com/instance/integrity/early_boot_validation_status",
+      "labels": { "status": "passed" }
     },
     "resource": {
-      "type": "consumed_api",
+      "type": "gce_instance",
       "labels": {
         "project_id": "globex-shared-m3n4o5",
-        "service": "generic.googleapis.com",
-        "method": "resource_id"
+        "instance_id": "4725558718781",
+        "zone": "me-central1-b"
       }
     },
-    "metricKind": "DELTA",
+    "metricKind": "GAUGE",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "75403" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "1" } }
     ]
   },
   "gcp": {
-    "spot-vms": {
+    "shielded-vms": {
       "labels": {
         "project_id": "globex-shared-m3n4o5",
-        "service": "generic.googleapis.com",
-        "method": "resource_id",
-        "credential_id": "resource-a"
+        "instance_id": "4725558718781",
+        "zone": "me-central1-b",
+        "status": "passed",
+        "instance_name": "node-w3ww"
       },
       "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": {
-          "avg": 75403,
-          "sum": 75403,
+        "compute.googleapis.com/instance/integrity/early_boot_validation_status": {
+          "avg": 1,
+          "sum": 1,
           "count": 1
         }
       }
     }
   },
-  "metricset": { "name": "spot-vms", "period": 60000 },
+  "metricset": { "name": "shielded-vms", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.compute_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "dataset": "gcp.compute_metrics", "module": "gcp" }

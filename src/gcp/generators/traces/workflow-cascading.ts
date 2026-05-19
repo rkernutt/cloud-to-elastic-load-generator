@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateCascadingFailureTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -75,9 +81,7 @@ export function generateCascadingFailureTrace(ts: string, er: number): EcsDocume
         statement: "SELECT * FROM order_lines WHERE order_id = $1 FOR UPDATE",
       },
       destination: { service: { resource: "cloudsql", type: "db", name: "cloudsql" } },
-      labels: isErr
-        ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED", "gcp.sql.timeout_ms": "30000" }
-        : {},
+      labels: isErr ? { "gcp.sql.timeout_ms": "30000", ...gcpSpanFailureLabels() } : {},
     },
     service: orders,
     cloud: gcpCloud(region, project, "sqladmin.googleapis.com"),

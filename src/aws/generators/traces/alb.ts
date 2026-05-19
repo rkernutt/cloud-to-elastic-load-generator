@@ -16,6 +16,7 @@ import {
   serviceBlock,
   otelBlocks,
   randHex,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 const APPS = [
@@ -77,7 +78,7 @@ function albSpan(
     service,
     agent,
     telemetry,
-    labels,
+    labels: { ...labels, ...(isErr ? awsSpanErrorLabels() : {}) },
     event: { outcome: isErr ? "failure" : "success" },
     data_stream: { type: "traces", dataset: "apm", namespace: "default" },
   };

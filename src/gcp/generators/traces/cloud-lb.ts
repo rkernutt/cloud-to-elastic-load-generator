@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 const HTTP_METHODS = ["GET", "POST", "PUT"] as const;
 
@@ -46,7 +52,11 @@ export function generateCloudLbTrace(ts: string, er: number): EcsDocument[] {
       destination: { service: { resource: "https_lb", type: "request", name: "https_lb" } },
       labels:
         failIdx === 0
-          ? { "http.status_code": "400", "gcp.load_balancer.type": "EXTERNAL_MANAGED" }
+          ? {
+              "http.status_code": "400",
+              "gcp.load_balancer.type": "EXTERNAL_MANAGED",
+              ...gcpSpanFailureLabels(),
+            }
           : {},
     },
     service: svc,
@@ -77,7 +87,7 @@ export function generateCloudLbTrace(ts: string, er: number): EcsDocument[] {
       },
       labels: {
         "gcp.backend_service": backend,
-        ...(failIdx === 1 ? { "gcp.rpc.status_code": "FAILED_PRECONDITION" } : {}),
+        ...(failIdx === 1 ? { ...gcpSpanFailureLabels() } : {}),
       },
     },
     service: svc,
@@ -108,7 +118,7 @@ export function generateCloudLbTrace(ts: string, er: number): EcsDocument[] {
       },
       labels:
         failIdx === 2
-          ? { "gcp.health_check.result": "UNHEALTHY" }
+          ? { "gcp.health_check.result": "UNHEALTHY", ...gcpSpanFailureLabels() }
           : { "gcp.health_check.result": "HEALTHY" },
     },
     service: svc,
@@ -139,7 +149,7 @@ export function generateCloudLbTrace(ts: string, er: number): EcsDocument[] {
       },
       labels:
         failIdx === 3
-          ? { "http.status_code": "502", "gcp.rpc.status_code": "UNAVAILABLE" }
+          ? { "http.status_code": "502", ...gcpSpanFailureLabels() }
           : { "http.status_code": "200" },
     },
     service: svc,

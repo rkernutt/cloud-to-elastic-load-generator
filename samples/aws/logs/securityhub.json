@@ -1,43 +1,50 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-3",
+    "region": "af-south-1",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "securityhub" }
   },
   "aws": {
-    "dimensions": { "ComplianceStandard": "cis-aws-foundations-benchmark", "ControlId": "IAM.3" },
+    "dimensions": {
+      "ComplianceStandard": "aws-foundational-security-best-practices",
+      "ControlId": "CIS.1.1"
+    },
     "securityhub_findings": {
       "SchemaVersion": "2018-10-08",
-      "Id": "J1R05BNM-FZF2-7FYR-9EYM-YX7N0I2LXFN",
-      "ProductArn": "arn:aws:securityhub:eu-west-3::product/aws/securityhub",
-      "GeneratorId": "arn:aws:securityhub:eu-west-3::product/aws/securityhub/IAM.3",
+      "Id": "A4S6FHRQ-8QZX-EZW4-CW9U-OHK5VSY9LP0A",
+      "ProductArn": "arn:aws:securityhub:af-south-1::product/aws/securityhub",
+      "GeneratorId": "arn:aws:securityhub:af-south-1::product/aws/securityhub/CIS.1.1",
       "AwsAccountId": "501938274650",
-      "Types": ["Software and Configuration Checks/Vulnerabilities/CVE"],
-      "CreatedAt": "2026-05-06T18:19:44.880Z",
-      "UpdatedAt": "2026-05-07T10:17:35.322Z",
-      "Severity": { "Label": "HIGH", "Normalized": 70, "Original": "HIGH" },
-      "Title": "IAM.3: MFA not enabled for root",
-      "Description": "Security check failed: IAM.3 - Default security group allows all traffic",
+      "Types": ["Threat Detections/Tactics/Impact"],
+      "CreatedAt": "2026-05-13T13:29:56.733Z",
+      "UpdatedAt": "2026-05-14T03:00:06.257Z",
+      "Severity": { "Label": "INFORMATIONAL", "Normalized": 0, "Original": "INFORMATIONAL" },
+      "Title": "CIS.1.1: control passed",
+      "Description": "This control evaluated resources and reported a passing status.",
       "Resources": [
         {
-          "Type": "AwsIamUser",
-          "Id": "arn:aws:iam::501938274650:user/alice",
+          "Type": "AwsEc2SecurityGroup",
+          "Id": "arn:aws:ec2:af-south-1:501938274650:security-group/sg-5suvlplq",
           "Partition": "aws",
-          "Region": "eu-west-3",
+          "Region": "af-south-1",
           "Details": {}
         }
       ],
-      "Compliance": { "Status": "FAILED", "SecurityControlId": "IAM.3", "RelatedRequirements": [] },
-      "Workflow": { "Status": "NEW" },
-      "RecordState": "ACTIVE",
+      "Compliance": {
+        "Status": "PASSED",
+        "SecurityControlId": "CIS.1.1",
+        "RelatedRequirements": ["CIS CIS.1.1"]
+      },
+      "Workflow": { "Status": "NOTIFIED" },
+      "RecordState": "ARCHIVED",
       "ProductFields": {
         "aws/securityhub/ProductName": "Security Hub",
         "aws/securityhub/CompanyName": "AWS"
       },
-      "criticality": 7,
-      "confidence": 83
+      "criticality": 4,
+      "confidence": 77
     },
     "s3": {
       "bucket": {
@@ -45,37 +52,36 @@
         "arn": "arn:aws:s3:::aws-securityhub-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/securityhub/eu-west-3/2026/05/07/securityhub_7DV7T49A51.log.gz"
+        "key": "AWSLogs/501938274650/securityhub/af-south-1/2026/05/14/securityhub_AW41KWFV3Q1HJEMHLLVU.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securityhub/logs",
-      "log_stream": "eu-west-3/70h7n8yc",
-      "ingestion_time": "2026-05-07T10:17:36.323Z"
+      "log_stream": "af-south-1/i8junswr",
+      "ingestion_time": "2026-05-14T03:00:07.089Z"
     }
   },
-  "rule": { "id": "IAM.3", "name": "IAM.3 — MFA not enabled for root" },
+  "rule": { "id": "CIS.1.1", "name": "CIS.1.1 — VPC flow logs disabled" },
   "event": {
     "kind": "alert",
-    "severity": 7,
-    "outcome": "failure",
-    "category": ["compliance"],
-    "type": ["indicator"],
+    "severity": 4,
+    "outcome": "success",
+    "category": ["vulnerability"],
+    "type": ["info"],
     "dataset": "aws.securityhub_findings",
     "provider": "securityhub.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security Hub [HIGH]: Compliance check failed",
-  "log": { "level": "warn" },
-  "error": { "code": "ComplianceFailed", "message": "Control IAM.3 failed", "type": "compliance" },
+  "message": "Security Hub: control passed",
+  "log": { "level": "info" },
   "service": { "name": "securityhub", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.securityhub_findings", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-3",
-    "ephemeral_id": "xzg51qivux8"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "7avhheyvyxefjktuhuaf25fvi22e8xkddstb"
   },
   "input": { "type": "http_endpoint" }
 }

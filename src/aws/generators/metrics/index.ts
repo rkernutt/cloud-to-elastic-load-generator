@@ -263,6 +263,25 @@ import {
   generateArtifactMetrics,
 } from "./remaining.js";
 
+import {
+  generateBedrockguardrailsMetrics,
+  generateEmrserverlessMetrics,
+  generateGwlbMetrics,
+  generateElbMetrics,
+  generateMediaconnectMetrics,
+  generateMediapackageMetrics,
+  generateMediastoreMetrics,
+  generateMediatailorMetrics,
+  generateIvsMetrics,
+  generateIvschatMetrics,
+  generateCloudsearchMetrics,
+  generateDirectoryserviceMetrics,
+  generateAcmpcaMetrics,
+  generateMgnMetrics,
+  generateCwsyntheticsMetrics,
+  generateManagedprometheusMetrics,
+} from "./extendedAwsServices.js";
+
 /** All metric services use dedicated generators; this list is intentionally empty. */
 export const GENERIC_SERVICE_IDS: string[] = [];
 
@@ -488,4 +507,21 @@ export const METRICS_GENERATORS = {
   qdeveloper: generateQdeveloperMetrics,
   simspaceweaver: generateSimspaceweaverMetrics,
   workmail: generateWorkmailMetrics,
+
+  bedrockguardrails: generateBedrockguardrailsMetrics,
+  emrserverless: generateEmrserverlessMetrics,
+  gwlb: generateGwlbMetrics,
+  elb: generateElbMetrics,
+  mediaconnect: generateMediaconnectMetrics,
+  mediapackage: generateMediapackageMetrics,
+  mediastore: generateMediastoreMetrics,
+  mediatailor: generateMediatailorMetrics,
+  ivs: generateIvsMetrics,
+  ivschat: generateIvschatMetrics,
+  cloudsearch: generateCloudsearchMetrics,
+  directoryservice: generateDirectoryserviceMetrics,
+  acmpca: generateAcmpcaMetrics,
+  mgn: generateMgnMetrics,
+  cwsynthetics: generateCwsyntheticsMetrics,
+  managedprometheus: generateManagedprometheusMetrics,
 };

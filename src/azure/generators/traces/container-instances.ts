@@ -76,7 +76,8 @@ export function generateContainerInstancesTrace(ts: string, er: number): EcsDocu
           ...dim({ dependency_type: "Azure Container Instances", container_group: group }),
         },
         traceId,
-        "dotnet"
+        "dotnet",
+        { spanFailed: spanErr }
       )
     );
     ms += Math.max(1, Math.round(op.us / 1000));

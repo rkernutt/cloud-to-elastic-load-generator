@@ -10,7 +10,13 @@ import {
   randSpanId,
 } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateBigQueryTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -32,7 +38,7 @@ export function generateBigQueryTrace(ts: string, er: number): EcsDocument[] {
   const stageUs = Array.from({ length: stageCount }, () => randInt(20_000, 900_000));
   const writeUs = randInt(8000, 250_000);
 
-  const failIdx = isErr ? randInt(-1, stageCount) : -1;
+  const failIdx: number | null = isErr ? randInt(-1, stageCount) : null;
 
   let offsetMs = 0;
   const sPlan = randSpanId();
@@ -55,7 +61,7 @@ export function generateBigQueryTrace(ts: string, er: number): EcsDocument[] {
         statement: `SELECT ... FROM \`${project.id}.${dataset}.${table}\` WHERE ...`,
       },
       destination: { service: { resource: "bigquery", type: "db", name: "bigquery" } },
-      labels: failIdx === -1 ? { "gcp.rpc.status_code": "INVALID_ARGUMENT" } : {},
+      labels: failIdx === -1 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "bigquery.googleapis.com"),
@@ -90,7 +96,7 @@ export function generateBigQueryTrace(ts: string, er: number): EcsDocument[] {
           statement: `/* stage ${i + 1} */ EXECUTE ON ${rand(["slot-pool", "reservation"])}`,
         },
         destination: { service: { resource: "bigquery", type: "db", name: "bigquery" } },
-        labels: stageErr ? { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" } : {},
+        labels: stageErr ? { ...gcpSpanFailureLabels() } : {},
       },
       service: svc,
       cloud: gcpCloud(region, project, "bigquery.googleapis.com"),
@@ -119,7 +125,7 @@ export function generateBigQueryTrace(ts: string, er: number): EcsDocument[] {
       duration: { us: writeUs },
       action: "write",
       destination: { service: { resource: "gcs", type: "storage", name: "gcs" } },
-      labels: writeErr ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: writeErr ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: gcpCloud(region, project, "bigquery.googleapis.com"),

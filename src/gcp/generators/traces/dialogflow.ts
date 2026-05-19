@@ -1,7 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
-import { APM_DS, gcpCloudTraceMeta, gcpOtelMeta, gcpServiceBase } from "./trace-kit.js";
+import {
+  APM_DS,
+  gcpCloudTraceMeta,
+  gcpOtelMeta,
+  gcpServiceBase,
+  gcpSpanFailureLabels,
+} from "./trace-kit.js";
 
 export function generateDialogflowTrace(ts: string, er: number): EcsDocument[] {
   const { region, project, isErr } = makeGcpSetup(er);
@@ -90,7 +96,7 @@ export function generateDialogflowTrace(ts: string, er: number): EcsDocument[] {
       action: "query",
       db: { type: "elasticsearch", statement: "search knowledgeArticles" },
       destination: { service: { resource: "dialogflow", type: "db", name: "dialogflow" } },
-      labels: err3 ? { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" } : {},
+      labels: err3 ? { ...gcpSpanFailureLabels() } : {},
     },
     service: svc,
     cloud: dfCloud,

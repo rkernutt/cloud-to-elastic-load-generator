@@ -1,71 +1,85 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-south-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "efs" }
   },
   "aws": {
-    "dimensions": { "FileSystemId": "fs-dpha9n3k", "StorageClass": "InfrequentAccess" },
+    "dimensions": { "FileSystemId": "fs-0f4khsho", "StorageClass": "InfrequentAccess" },
     "efs": {
-      "file_system_id": "fs-dpha9n3k",
-      "file_system_name": "wordpress-content",
-      "mount_target_id": "fsmt-g6wav9xa",
-      "availability_zone": "ap-south-1c",
+      "file_system_id": "fs-0f4khsho",
+      "file_system_name": "ml-datasets",
+      "mount_target_id": "fsmt-3g704i1y",
+      "availability_zone": "eu-south-1a",
       "throughput_mode": "bursting",
       "performance_mode": "generalPurpose",
-      "throughput_mbps": 149.2969400839219,
-      "iops": 3683,
-      "client_connections": 156,
-      "percent_io_limit": 73,
-      "event_kind": "io_metrics",
+      "throughput_mbps": 123.10812233988058,
+      "iops": 4338,
+      "client_connections": 428,
+      "percent_io_limit": 92,
+      "error_code": "FileLimitExceeded",
+      "event_kind": "access_point",
+      "access_point": {
+        "access_point_id": "fsap-4a6vy8zfne1z0unxc",
+        "posix_user": { "uid": 62554, "gid": 28142 },
+        "root_directory": "/app",
+        "event": "CreateAccessPointFailed"
+      },
       "metrics": {
-        "BurstCreditBalance": { "avg": 1728584162745 },
-        "ClientConnections": { "avg": 70 },
-        "DataReadIOBytes": { "sum": 650271807 },
-        "DataWriteIOBytes": { "sum": 555584523 },
-        "MetadataIOBytes": { "sum": 4699316 },
-        "TotalIOBytes": { "sum": 244980230 },
-        "PermittedThroughput": { "avg": 1593.4017548522486 },
-        "MeteredIOBytes": { "sum": 554441684 },
-        "StorageBytes": { "avg": 170544515785 },
-        "PercentIOLimit": { "avg": 18.60743684482055 },
-        "DataReadIOBytesWithQuota": { "sum": 944085376 },
-        "DataWriteIOBytesWithQuota": { "sum": 32938081 }
+        "BurstCreditBalance": { "avg": 1538093891858 },
+        "ClientConnections": { "avg": 388 },
+        "DataReadIOBytes": { "sum": 84072682 },
+        "DataWriteIOBytes": { "sum": 659578483 },
+        "MetadataIOBytes": { "sum": 5616744 },
+        "TotalIOBytes": { "sum": 84284768 },
+        "PermittedThroughput": { "avg": 2110.1005925760737 },
+        "MeteredIOBytes": { "sum": 10414116 },
+        "StorageBytes": { "avg": 412218547144 },
+        "PercentIOLimit": { "avg": 60.80467559717229 },
+        "DataReadIOBytesWithQuota": { "sum": 311383640 },
+        "DataWriteIOBytesWithQuota": { "sum": 770066510 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-efs-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-efs-logs-501938274650"
+        "name": "aws-efs-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-efs-logs-293847561023"
       },
-      "object": { "key": "AWSLogs/501938274650/efs/ap-south-1/2026/05/07/efs_9PCN5TWM397.log.gz" }
+      "object": {
+        "key": "AWSLogs/293847561023/efs/eu-south-1/2026/05/14/efs_U09F45MA6L3I7JEDNMPJ.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/efs/logs",
-      "log_stream": "ap-south-1/0x7fv93v",
-      "ingestion_time": "2026-05-07T10:17:36.382Z"
+      "log_stream": "eu-south-1/j9gvirxq",
+      "ingestion_time": "2026-05-14T03:00:07.216Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["host", "file"],
     "dataset": "aws.efs",
     "provider": "elasticfilesystem.amazonaws.com",
-    "duration": 30000000,
+    "duration": 3159000000,
     "module": "aws"
   },
-  "message": "EFS fs-dpha9n3k: 149.3 MB/s, 205 connections",
-  "log": { "level": "info" },
+  "message": "EFS fs-0f4khsho: access point fsap-4a6vy8zfne1z0unxc creation failed",
+  "log": { "level": "error" },
+  "error": {
+    "code": "FileSystemNotFound",
+    "message": "EFS fs-0f4khsho: access point fsap-4a6vy8zfne1z0unxc creation failed",
+    "type": "aws"
+  },
   "service": { "name": "efs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.efs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "wfepskhzzee"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "8ay2xny4o3pwt70ipkjd3vnno0lfy7z2a6wh"
   },
   "input": { "type": "aws-cloudwatch" }
 }

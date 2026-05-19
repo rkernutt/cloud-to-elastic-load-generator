@@ -71,7 +71,8 @@ export function generateIotHubTrace(ts: string, er: number): EcsDocument[] {
           ...dim({ dependency_type: "Azure IoT Hub", hub }),
         },
         traceId,
-        "java"
+        "java",
+        { spanFailed: spanErr }
       )
     );
     ms += Math.max(1, Math.round(op.us / 1000));

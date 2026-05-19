@@ -30,6 +30,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 // ─── EMR / Spark job templates ────────────────────────────────────────────────
@@ -227,6 +228,7 @@ export function generateEmrTrace(ts: string, er: number) {
         spark_input_records: String(inputRecs),
         spark_output_records: String(Math.floor(inputRecs * randFloat(0.3, 1.1))),
         ...(shuffleBytes ? { spark_shuffle_bytes_written: String(shuffleBytes) } : {}),
+        ...(stageIsErr ? awsSpanErrorLabels() : {}),
       },
       service: svcBlock,
       agent,

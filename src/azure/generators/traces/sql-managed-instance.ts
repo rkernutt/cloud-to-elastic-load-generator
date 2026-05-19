@@ -80,7 +80,8 @@ export function generateSqlManagedInstanceTrace(ts: string, er: number): EcsDocu
           ...dim({ dependency_type: "Azure SQL Managed Instance", managed_instance: mi }),
         },
         traceId,
-        "dotnet"
+        "dotnet",
+        { spanFailed: spanErr }
       )
     );
     ms += Math.max(1, Math.round(op.us / 1000));

@@ -1,0 +1,157 @@
+{
+  "title": "GCP Blockchain Node Engine \u2014 overview",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "gbnek1",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.blockchain_node_engine* | STATS `Log events` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Log events" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gbned1",
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
+      "config": {
+        "title": "Event outcome",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.blockchain_node_engine* | STATS c = COUNT() BY o = event.outcome"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "o" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gbneb1",
+      "grid": { "x": 16, "y": 5, "w": 32, "h": 10 },
+      "config": {
+        "title": "Events over time",
+        "attributes": {
+          "type": "xy",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.blockchain_node_engine* | STATS count = COUNT() BY bucket = DATE_TRUNC(30 minutes, @timestamp)"
+          },
+          "layers": [{ "seriesType": "bar_stacked", "xAccessor": "bucket", "yAccessor": "count" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gbneb2",
+      "grid": { "x": 0, "y": 15, "w": 24, "h": 10 },
+      "config": {
+        "title": "Errors over time",
+        "attributes": {
+          "type": "xy",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.blockchain_node_engine* | WHERE event.outcome == \"failure\" | STATS count = COUNT() BY scenario = COALESCE(`gcp.blockchain_node_engine.scenario`, \"unknown\"), bucket = DATE_TRUNC(30 minutes, @timestamp)"
+          },
+          "layers": [
+            {
+              "seriesType": "bar_stacked",
+              "xAccessor": "bucket",
+              "yAccessor": "count",
+              "splitAccessor": "scenario"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gbneb3",
+      "grid": { "x": 24, "y": 15, "w": 24, "h": 10 },
+      "config": {
+        "title": "Events by region",
+        "attributes": {
+          "type": "xy",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.blockchain_node_engine* | STATS count = COUNT() BY region = cloud.region, bucket = DATE_TRUNC(30 minutes, @timestamp)"
+          },
+          "layers": [
+            {
+              "seriesType": "bar_stacked",
+              "xAccessor": "bucket",
+              "yAccessor": "count",
+              "splitAccessor": "region"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gbnet1",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
+      "config": {
+        "title": "Top operations",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.blockchain_node_engine* | STATS c = COUNT() BY op = COALESCE(event.action, `gcp.blockchain_node_engine.scenario`, \"unknown\") | SORT c DESC | LIMIT 15"
+          },
+          "metrics": [
+            { "operation": "value", "column": "op", "label": "Operation" },
+            { "operation": "value", "column": "c", "label": "Count" }
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gbnex1",
+      "grid": { "x": 0, "y": 37, "w": 24, "h": 10 },
+      "config": {
+        "title": "By scenario",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.blockchain_node_engine* | STATS c = COUNT() BY s = `gcp.blockchain_node_engine.scenario`"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "s" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gbnex2",
+      "grid": { "x": 24, "y": 37, "w": 24, "h": 10 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.blockchain_node_engine* | WHERE `gcp.blockchain_node_engine.block_height` IS NOT NULL | STATS m = AVG(`gcp.blockchain_node_engine.block_height`) | EVAL `Avg block height` = ROUND(m, 0)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg block height" }]
+        }
+      }
+    }
+  ]
+}

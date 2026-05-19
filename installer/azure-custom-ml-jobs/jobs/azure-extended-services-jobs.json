@@ -1,0 +1,1126 @@
+{
+  "group": "extended-services",
+  "description": "Azure extended services — failure spikes and latency anomalies for AI Foundry, data platforms, observability, networking, and security workloads",
+  "jobs": [
+    {
+      "id": "azure-ai-foundry-failure-spike",
+      "description": "Spikes in azure.ai_foundry failures by region",
+      "job": {
+        "description": "Unusual failure count for azure.ai_foundry partitioned by Azure Region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.ai_foundry"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-ai-foundry-latency-anomaly",
+      "description": "Unusual azure.ai_foundry operation duration by region",
+      "job": {
+        "description": "Unusual mean event.duration for azure.ai_foundry partitioned by region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.ai_foundry"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-data-explorer-failure-spike",
+      "description": "Spikes in azure.data_explorer failures by region",
+      "job": {
+        "description": "Unusual failure count for azure.data_explorer partitioned by Azure Region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.data_explorer"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-data-explorer-latency-anomaly",
+      "description": "Unusual azure.data_explorer operation duration by region",
+      "job": {
+        "description": "Unusual mean event.duration for azure.data_explorer partitioned by region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.data_explorer"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-virtual-desktop-failure-spike",
+      "description": "Spikes in azure.virtual_desktop failures by region",
+      "job": {
+        "description": "Unusual failure count for azure.virtual_desktop partitioned by Azure Region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.virtual_desktop"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-virtual-desktop-latency-anomaly",
+      "description": "Unusual azure.virtual_desktop operation duration by region",
+      "job": {
+        "description": "Unusual mean event.duration for azure.virtual_desktop partitioned by region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.virtual_desktop"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-elastic-san-failure-spike",
+      "description": "Spikes in azure.elastic_san failures by region",
+      "job": {
+        "description": "Unusual failure count for azure.elastic_san partitioned by Azure Region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.elastic_san"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-elastic-san-latency-anomaly",
+      "description": "Unusual azure.elastic_san operation duration by region",
+      "job": {
+        "description": "Unusual mean event.duration for azure.elastic_san partitioned by region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.elastic_san"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-managed-grafana-failure-spike",
+      "description": "Spikes in azure.managed_grafana failures by region",
+      "job": {
+        "description": "Unusual failure count for azure.managed_grafana partitioned by Azure Region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.managed_grafana"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-managed-grafana-latency-anomaly",
+      "description": "Unusual azure.managed_grafana operation duration by region",
+      "job": {
+        "description": "Unusual mean event.duration for azure.managed_grafana partitioned by region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.managed_grafana"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-managed-prometheus-failure-spike",
+      "description": "Spikes in azure.managed_prometheus failures by region",
+      "job": {
+        "description": "Unusual failure count for azure.managed_prometheus partitioned by Azure Region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.managed_prometheus"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-managed-prometheus-latency-anomaly",
+      "description": "Unusual azure.managed_prometheus operation duration by region",
+      "job": {
+        "description": "Unusual mean event.duration for azure.managed_prometheus partitioned by region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.managed_prometheus"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-dns-private-resolver-failure-spike",
+      "description": "Spikes in azure.dns_private_resolver failures by region",
+      "job": {
+        "description": "Unusual failure count for azure.dns_private_resolver partitioned by Azure Region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.dns_private_resolver"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-dns-private-resolver-latency-anomaly",
+      "description": "Unusual azure.dns_private_resolver operation duration by region",
+      "job": {
+        "description": "Unusual mean event.duration for azure.dns_private_resolver partitioned by region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.dns_private_resolver"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-application-insights-failure-spike",
+      "description": "Spikes in azure.application_insights failures by region",
+      "job": {
+        "description": "Unusual failure count for azure.application_insights partitioned by Azure Region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.application_insights"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-application-insights-latency-anomaly",
+      "description": "Unusual azure.application_insights operation duration by region",
+      "job": {
+        "description": "Unusual mean event.duration for azure.application_insights partitioned by region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.application_insights"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-dedicated-hsm-failure-spike",
+      "description": "Spikes in azure.dedicated_hsm failures by region",
+      "job": {
+        "description": "Unusual failure count for azure.dedicated_hsm partitioned by Azure Region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.dedicated_hsm"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-dedicated-hsm-latency-anomaly",
+      "description": "Unusual azure.dedicated_hsm operation duration by region",
+      "job": {
+        "description": "Unusual mean event.duration for azure.dedicated_hsm partitioned by region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.dedicated_hsm"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-video-indexer-failure-spike",
+      "description": "Spikes in azure.video_indexer failures by region",
+      "job": {
+        "description": "Unusual failure count for azure.video_indexer partitioned by Azure Region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=cloud.region",
+              "function": "high_count",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.video_indexer"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-video-indexer-latency-anomaly",
+      "description": "Unusual azure.video_indexer operation duration by region",
+      "job": {
+        "description": "Unusual mean event.duration for azure.video_indexer partitioned by region",
+        "groups": ["azure", "extended-services", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "cloud.region",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["cloud.region", "cloud.account.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "azure.video_indexer"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    }
+  ]
+}

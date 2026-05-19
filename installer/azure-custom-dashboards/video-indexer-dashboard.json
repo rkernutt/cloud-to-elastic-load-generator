@@ -1,0 +1,171 @@
+{
+  "title": "Azure Video Indexer \u2014 overview",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "avidxk1",
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.video_indexer* | STATS `Log events` = COUNT()"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Log events" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "avidxd1",
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
+      "config": {
+        "title": "Event outcome",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.video_indexer* | STATS c = COUNT() BY o = event.outcome"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "o" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "avidxb1",
+      "grid": { "x": 16, "y": 5, "w": 32, "h": 10 },
+      "config": {
+        "title": "Events over time",
+        "attributes": {
+          "type": "xy",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.video_indexer* | STATS count = COUNT() BY bucket = DATE_TRUNC(30 minutes, @timestamp), o = COALESCE(event.outcome, \"unknown\")"
+          },
+          "layers": [
+            {
+              "seriesType": "bar_stacked",
+              "xAccessor": "bucket",
+              "yAccessor": "count",
+              "splitAccessor": "o"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "avidxb2",
+      "grid": { "x": 0, "y": 15, "w": 24, "h": 10 },
+      "config": {
+        "title": "Errors over time",
+        "attributes": {
+          "type": "xy",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.video_indexer* | WHERE event.outcome == \"failure\" | STATS count = COUNT() BY bucket = DATE_TRUNC(30 minutes, @timestamp), op = COALESCE(operationName, \"unknown\")"
+          },
+          "layers": [
+            {
+              "seriesType": "bar_stacked",
+              "xAccessor": "bucket",
+              "yAccessor": "count",
+              "splitAccessor": "op"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "avidxb3",
+      "grid": { "x": 24, "y": 15, "w": 24, "h": 10 },
+      "config": {
+        "title": "Events by region",
+        "attributes": {
+          "type": "xy",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.video_indexer* | STATS count = COUNT() BY bucket = DATE_TRUNC(30 minutes, @timestamp), region = cloud.region"
+          },
+          "layers": [
+            {
+              "seriesType": "bar_stacked",
+              "xAccessor": "bucket",
+              "yAccessor": "count",
+              "splitAccessor": "region"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "avidxt1",
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
+      "config": {
+        "title": "Top operations",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.video_indexer* | STATS c = COUNT() BY op = COALESCE(operationName, \"unknown\") | SORT c DESC | LIMIT 15"
+          },
+          "metrics": [
+            { "operation": "value", "column": "op", "label": "Operation" },
+            { "operation": "value", "column": "c", "label": "Count" }
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "avidxp1",
+      "grid": { "x": 0, "y": 37, "w": 24, "h": 10 },
+      "config": {
+        "title": "Events by Video Indexer category",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.video_indexer* | STATS c = COUNT() BY cat = COALESCE(`azure.video_indexer.category`, \"unknown\")"
+          },
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "cat" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "avidxp2",
+      "grid": { "x": 24, "y": 37, "w": 24, "h": 10 },
+      "config": {
+        "title": "Indexing pipeline by insight type",
+        "attributes": {
+          "type": "xy",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.video_indexer* | WHERE operationName == \"VideoIndexer.Index/Pipeline\" | STATS count = COUNT() BY bucket = DATE_TRUNC(30 minutes, @timestamp), insight = COALESCE(`azure.video_indexer.properties.insightsRequested`, \"unknown\")"
+          },
+          "layers": [
+            {
+              "seriesType": "bar_stacked",
+              "xAccessor": "bucket",
+              "yAccessor": "count",
+              "splitAccessor": "insight"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

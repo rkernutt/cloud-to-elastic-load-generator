@@ -22,6 +22,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 // ─── Endpoint configurations ──────────────────────────────────────────────────
@@ -134,6 +135,7 @@ function buildInvokeEndpointSpan(
       sagemaker_instance_type: cfg.instanceType,
       inference_latency_ms: String(inferenceLatencyMs),
       input_content_type: cfg.inputContentType,
+      ...(isErr ? awsSpanErrorLabels() : {}),
     },
     service: svcBlock,
     agent,
@@ -177,6 +179,7 @@ function buildS3PreProcessSpan(
     labels: {
       bucket_name: bucketName,
       operation: "GetObject",
+      ...(isErr ? awsSpanErrorLabels() : {}),
     },
     service: svcBlock,
     agent,
@@ -219,6 +222,7 @@ function buildDynamoPostProcessSpan(
     labels: {
       table_name: "inference-cache",
       operation: "PutItem",
+      ...(isErr ? awsSpanErrorLabels() : {}),
     },
     service: svcBlock,
     agent,

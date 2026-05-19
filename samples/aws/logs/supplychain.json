@@ -1,22 +1,22 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
+    "region": "af-south-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "supplychain" }
   },
   "aws": {
-    "dimensions": { "InstanceId": "arn:aws:scn:eu-south-2:293847561023:instance/9qb64y57fyk" },
+    "dimensions": { "InstanceId": "arn:aws:scn:af-south-1:293847561023:instance/ng5ph6rhq7aa" },
     "supplychain": {
-      "instance_id": "arn:aws:scn:eu-south-2:293847561023:instance/9qb64y57fyk",
-      "instance_name": "global-supply-chain",
-      "namespace": "aws.supply_chain.collaboration",
+      "instance_id": "arn:aws:scn:af-south-1:293847561023:instance/ng5ph6rhq7aa",
+      "instance_name": "north-america-ops",
+      "namespace": "aws.supply_chain.plan",
       "event_type": "scn.data.inventory",
-      "job_status": "SUCCESS",
-      "record_count": 994765,
-      "forecast_horizon_days": 119,
-      "data_lake_dataset": "inventory_levels"
+      "job_status": "FAILED",
+      "record_count": 196006,
+      "forecast_horizon_days": 94,
+      "data_lake_dataset": "demand_forecast"
     },
     "s3": {
       "bucket": {
@@ -24,33 +24,38 @@
         "arn": "arn:aws:s3:::aws-supplychain-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/supplychain/eu-south-2/2026/05/07/supplychain_XV27FQCSG6.log.gz"
+        "key": "AWSLogs/293847561023/supplychain/af-south-1/2026/05/14/supplychain_L6C23FBJI596S0ILTO1G.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/supplychain/logs",
-      "log_stream": "eu-south-2/ystycb2g",
-      "ingestion_time": "2026-05-07T10:17:36.543Z"
+      "log_stream": "af-south-1/rrs7t4ld",
+      "ingestion_time": "2026-05-14T03:00:07.372Z"
     }
   },
   "event": {
-    "action": "CreateDataLakeDataset",
-    "outcome": "success",
+    "action": "CreateBillOfMaterialsImportJob",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.supplychain",
     "provider": "scn.amazonaws.com",
     "module": "aws"
   },
-  "message": "Supply Chain CreateDataLakeDataset: instance=global-supply-chain event=scn.data.inventory status=SUCCESS",
-  "log": { "level": "info" },
+  "message": "Supply Chain CreateBillOfMaterialsImportJob FAILED [north-america-ops]: Dataset not found",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ValidationException",
+    "message": "Supply Chain operation failed",
+    "type": "process"
+  },
   "service": { "name": "supplychain", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.supplychain", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "75v39lf2t79"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "7d5ip91mzmizwjjfw7772zps9bw40kqvepgi"
   },
   "input": { "type": "aws-cloudwatch" }
 }

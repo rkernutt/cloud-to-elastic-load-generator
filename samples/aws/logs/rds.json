@@ -1,71 +1,103 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-southeast-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "rds" }
   },
   "aws": {
     "dimensions": {
-      "DBInstanceIdentifier": "prod-db-replica",
-      "DatabaseClass": "db.m5.large",
-      "EngineName": "aurora-postgresql",
-      "SourceRegion": "eu-west-2"
+      "DBInstanceIdentifier": "prod-db-analytics",
+      "DatabaseClass": "db.r6g.2xlarge",
+      "EngineName": "aurora-mysql",
+      "SourceRegion": "ap-southeast-2"
     },
     "cloudwatch": {
-      "log_group": "/aws/rds/cluster/prod-db-replica/postgresql",
-      "log_stream": "prod-db-replica",
-      "ingestion_time": "2026-05-07T10:17:36.032Z"
+      "log_group": "/aws/rds/cluster/prod-db-analytics/error",
+      "log_stream": "prod-db-analytics",
+      "ingestion_time": "2026-05-14T03:00:07.026Z"
     },
     "rds": {
       "db_instance": {
-        "identifier": "prod-db-replica",
-        "class": "db.m5.large",
-        "engine_name": "aurora-postgresql",
-        "engine_version": "14.2",
-        "arn": "arn:aws:rds:eu-west-2:164820739518:db:prod-db-replica",
+        "identifier": "prod-db-analytics",
+        "class": "db.r6g.2xlarge",
+        "engine_name": "aurora-mysql",
+        "engine_version": "8.0.35",
+        "arn": "arn:aws:rds:ap-southeast-2:501938274650:db:prod-db-analytics",
         "status": "available",
-        "role": "read-replica",
+        "role": "instance",
         "multi_az": true,
         "storage_type": "gp3",
-        "allocated_storage_gb": 100
+        "allocated_storage_gb": 200
       },
-      "log_type": "postgresql",
-      "cpu": { "total": { "pct": 0.5371 } },
-      "freeable_memory": { "bytes": 1282305725 },
-      "free_storage": { "bytes": 369522963601 },
-      "database_connections": 173,
-      "read_io": { "ops_per_sec": 137.08553318213623 },
-      "write_io": { "ops_per_sec": 2537.88383409011 },
-      "latency": { "read": 0.01549057462176592, "write": 0.0052430437188818275 },
+      "log_type": "error",
+      "cpu": { "total": { "pct": 0.592 } },
+      "freeable_memory": { "bytes": 3404383304 },
+      "free_storage": { "bytes": 474163372546 },
+      "database_connections": 390,
+      "read_io": { "ops_per_sec": 1790.2309930210204 },
+      "write_io": { "ops_per_sec": 527.5645664248332 },
+      "latency": { "read": 0.019780334163019414, "write": 0.009807852088808383 },
       "throughput": {
-        "read": 21740415,
-        "write": 88606790,
-        "network_receive": 22503005,
-        "network_transmit": 85596849
+        "read": 24284002,
+        "write": 1032671,
+        "network_receive": 36158668,
+        "network_transmit": 48974537
       },
-      "replica_lag": { "sec": 39.85982559122456 },
-      "swap_usage": { "bytes": 2828404 },
-      "disk_usage": { "bin_log": { "bytes": 636254521 } }
+      "replica_lag": { "sec": 50.790496346785986 },
+      "swap_usage": { "bytes": 45683879 },
+      "disk_usage": { "bin_log": { "bytes": 889961014 } },
+      "enhanced_monitoring": {
+        "cpuUtilization": {
+          "guest": 1.2571770549794656,
+          "irq": 0.8141423799324551,
+          "system": 6.135646472663426,
+          "wait": 1.271519676485819,
+          "idle": 69.3,
+          "user": 21.186338726778068,
+          "total": 30.7
+        },
+        "memory": {
+          "total": 25867496469,
+          "free": 3818533923,
+          "cached": 6649970819,
+          "active": 8152848483,
+          "inactive": 2918514101,
+          "buffers": 364806291
+        },
+        "disk": {
+          "readIOsPS": 463.14316121528776,
+          "writeIOsPS": 2830.9047441066027,
+          "readKbPS": 25263.052633301413,
+          "writeKbPS": 496672.85284957296,
+          "avgQueueLen": 5.735287917552994,
+          "await": 2.9236983725004992
+        },
+        "network": { "rx": 40872287, "tx": 58830701 },
+        "numVCPUs": 64,
+        "uptime": "51 days, 9:14:39"
+      }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-rds-logs-164820739518"
+        "name": "aws-rds-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-rds-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/164820739518/rds/eu-west-2/2026/05/07/rds_V8RU85Z4YGL.log.gz" }
+      "object": {
+        "key": "AWSLogs/501938274650/rds/ap-southeast-2/2026/05/14/rds_Z0FC7ATJAXYGDVJJ5GYC.log.gz"
+      }
     }
   },
   "db": {
-    "user": { "name": "migration_user" },
-    "name": "appdb",
-    "statement": "SELECT * FROM orders WHERE id = 133413",
+    "user": { "name": "readonly" },
+    "name": "users_db",
+    "statement": "INSERT INTO inventory (name, email) VALUES ('alice', 'b@example.com')",
     "type": "sql"
   },
-  "source": { "ip": "136.221.13.163" },
+  "source": { "ip": "135.215.69.146" },
   "event": {
-    "duration": 1512436084.9712355,
+    "duration": 108814537.89039966,
     "outcome": "success",
     "category": ["database"],
     "type": ["info", "access"],
@@ -73,16 +105,18 @@
     "provider": "rds.amazonaws.com",
     "module": "aws"
   },
-  "message": "2026-05-07 10:17:35.322 UTC:136.221.13.163(50959):migration_user@appdb:[37757]:LOG:  duration: 1512.436 ms  parse <unnamed>: SELECT * FROM orders WHERE id = 133413",
+  "message": "2026-05-14 03:00:06.257 35220 [Note] [MY-18942] [Server] /rdsdbbin/mysql/bin/mysqld: ready for connections. Version: '8.0.36'  socket: '/tmp/mysql.sock'  port: 3306",
   "log": { "level": "info" },
+  "trace": { "id": "YDCR2LRTE49PWDK60R1WKT5SXUXB3NQL" },
+  "transaction": { "id": "KAQ42OORO67EK5EZ" },
   "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "xdohsby4hpt"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "ebgu33z1yzalvcmo7d920w3ms24qory155lv"
   },
   "input": { "type": "aws-cloudwatch" }
 }

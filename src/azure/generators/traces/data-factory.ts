@@ -99,7 +99,8 @@ export function generateDataFactoryTrace(ts: string, er: number): EcsDocument[] 
           ...dim({ pipeline, activity: activityKind }),
         },
         traceId,
-        "dotnet"
+        "dotnet",
+        { spanFailed: spanErr }
       )
     );
     ms += Math.max(1, Math.round(op.us / 1000));

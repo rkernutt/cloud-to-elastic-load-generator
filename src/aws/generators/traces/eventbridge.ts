@@ -21,6 +21,7 @@ import {
   offsetTs,
   serviceBlock,
   otelBlocks,
+  awsSpanErrorLabels,
 } from "./helpers.js";
 
 // ─── Rule configurations ──────────────────────────────────────────────────────
@@ -140,6 +141,7 @@ function buildTargetSpan(
     labels: {
       target_name: target.name,
       target_type: target.targetType,
+      ...(isErr ? awsSpanErrorLabels() : {}),
     },
     service: svcBlock,
     agent,

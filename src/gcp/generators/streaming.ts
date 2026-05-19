@@ -12,6 +12,30 @@ import {
   randPrincipal,
 } from "./helpers.js";
 
+const GRPC_ERROR_STATUSES = [
+  "INTERNAL",
+  "DEADLINE_EXCEEDED",
+  "PERMISSION_DENIED",
+  "RESOURCE_EXHAUSTED",
+  "NOT_FOUND",
+  "UNAVAILABLE",
+] as const;
+
+function grpcStructuredFault(isErr: boolean): {
+  spread: Record<string, unknown>;
+  rpcLabel: Record<string, string>;
+} {
+  if (!isErr) return { spread: {}, rpcLabel: {} };
+  const code = rand([...GRPC_ERROR_STATUSES]);
+  return {
+    spread: {
+      "gcp.rpc": { status_code: code },
+      error: { code, message: `${code}: operation failed`, type: "gcp" },
+    },
+    rpcLabel: { "gcp.rpc.status_code": code },
+  };
+}
+
 function eventOutcome(isErr: boolean, durationNs: number) {
   return {
     outcome: isErr ? ("failure" as const) : ("success" as const),
@@ -79,12 +103,21 @@ export function generatePubSubLog(ts: string, er: number): EcsDocument {
     severity = isErr ? "WARNING" : "INFO";
   }
 
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+  const faultErr =
+    faultSpread.error && typeof faultSpread.error === "object"
+      ? (faultSpread.error as Record<string, string>)
+      : undefined;
+
   const doc: EcsDocument = {
     "@timestamp": ts,
     severity,
+    log: { level: isErr ? "error" : "info" },
+    ...(faultSpread["gcp.rpc"] ? { "gcp.rpc": faultSpread["gcp.rpc"] } : {}),
     labels: {
       topic_id: topicShort,
       subscription_id: subShort,
+      ...rpcLabel,
     },
     cloud: gcpCloud(region, project, "pubsub"),
     gcp: {
@@ -100,14 +133,19 @@ export function generatePubSubLog(ts: string, er: number): EcsDocument {
     message,
   };
 
-  if (isErr && variant !== "audit") {
-    doc.error = {
-      type: variant === "dlq" ? "DeadLetterExceeded" : "DeadlineExceeded",
-      message:
-        variant === "dlq"
-          ? "Max delivery attempts exceeded"
-          : "Ack deadline elapsed before subscriber acknowledged",
-    };
+  if (isErr) {
+    doc.error = faultErr
+      ? variant !== "audit"
+        ? {
+            ...faultErr,
+            type: variant === "dlq" ? "DeadLetterExceeded" : "DeadlineExceeded",
+            message:
+              variant === "dlq"
+                ? "Max delivery attempts exceeded"
+                : "Ack deadline elapsed before subscriber acknowledged",
+          }
+        : faultErr
+      : undefined;
   }
 
   return doc;
@@ -161,10 +199,18 @@ export function generateDataflowLog(ts: string, er: number): EcsDocument {
     severity = "ERROR";
   }
 
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+  const faultErr =
+    faultSpread.error && typeof faultSpread.error === "object"
+      ? (faultSpread.error as Record<string, string>)
+      : undefined;
+
   const doc: EcsDocument = {
     "@timestamp": ts,
     severity,
-    labels: { job_id: jobId, job_name: jobName },
+    log: { level: isErr ? "error" : "info" },
+    ...(faultSpread["gcp.rpc"] ? { "gcp.rpc": faultSpread["gcp.rpc"] } : {}),
+    labels: { job_id: jobId, job_name: jobName, ...rpcLabel },
     cloud: gcpCloud(region, project, "dataflow"),
     gcp: {
       dataflow: {
@@ -181,8 +227,9 @@ export function generateDataflowLog(ts: string, er: number): EcsDocument {
     message,
   };
 
-  if (isErr) {
+  if (isErr && faultErr) {
     doc.error = {
+      ...faultErr,
       type: "JobFailed",
       message: `Dataflow job ${jobName} in state ${currentState}`,
     };
@@ -208,10 +255,18 @@ export function generatePubSubLiteLog(ts: string, er: number): EcsDocument {
     ? `pubsublite.googleapis.com/${subscriptionName}: backlog_message_count=${backlogMessageCount} partition_throughput_insufficient subscribers=${subscriberCount}`
     : `pubsublite.googleapis.com/${topicName}: throughput_bytes_per_sec=${messageThroughputBytesPerSec} zone=${zone} partitions=${partitionCount}`;
 
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+  const faultErr =
+    faultSpread.error && typeof faultSpread.error === "object"
+      ? (faultSpread.error as Record<string, string>)
+      : undefined;
+
   const doc: EcsDocument = {
     "@timestamp": ts,
     severity,
-    labels: { zone, topic_id: topicShort },
+    log: { level: isErr ? "error" : "info" },
+    ...(faultSpread["gcp.rpc"] ? { "gcp.rpc": faultSpread["gcp.rpc"] } : {}),
+    labels: { zone, topic_id: topicShort, ...rpcLabel },
     cloud: gcpCloud(region, project, "pubsub-lite"),
     gcp: {
       pubsub_lite: {
@@ -228,8 +283,9 @@ export function generatePubSubLiteLog(ts: string, er: number): EcsDocument {
     message,
   };
 
-  if (isErr) {
+  if (isErr && faultErr) {
     doc.error = {
+      ...faultErr,
       type: "BacklogPressure",
       message: `Partition throughput insufficient; ${subscriberCount} subscribers active`,
     };

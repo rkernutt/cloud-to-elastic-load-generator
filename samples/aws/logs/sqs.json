@@ -1,42 +1,47 @@
 {
-  "@timestamp": "2026-05-07T10:17:35.322Z",
+  "@timestamp": "2026-05-14T03:00:06.257Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-northeast-3",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "sqs" }
   },
   "aws": {
-    "dimensions": { "QueueName": "webhook-events" },
+    "dimensions": { "QueueName": "notification-dlq" },
     "sqs": {
       "queue": {
-        "name": "webhook-events",
-        "url": "https://sqs.ap-south-2.amazonaws.com/293847561023/webhook-events"
+        "name": "notification-dlq",
+        "url": "https://sqs.ap-northeast-3.amazonaws.com/501938274650/notification-dlq"
       },
-      "operation": "ChangeMessageVisibility",
-      "oldest_message_age": { "sec": 230 },
+      "operation": "StartMessageMoveTask",
+      "scenario": "dead_letter_redrive",
+      "fifo": false,
+      "long_poll_wait_seconds": 0,
+      "oldest_message_age": { "sec": 171 },
       "messages": {
-        "delayed": 750,
-        "not_visible": 1506,
-        "visible": 2855,
-        "deleted": 870,
-        "received": 5482,
-        "sent": 8120
+        "delayed": 310,
+        "not_visible": 3395,
+        "visible": 6941,
+        "deleted": 313,
+        "received": 989,
+        "sent": 2156
       },
-      "empty_receives": 74,
-      "sent_message_size": { "bytes": 198340 }
+      "empty_receives": 78,
+      "sent_message_size": { "bytes": 48463 }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sqs-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-sqs-logs-293847561023"
+        "name": "aws-sqs-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-sqs-logs-501938274650"
       },
-      "object": { "key": "AWSLogs/293847561023/sqs/ap-south-2/2026/05/07/sqs_IL038LN80Q.log.gz" }
+      "object": {
+        "key": "AWSLogs/501938274650/sqs/ap-northeast-3/2026/05/14/sqs_WZU6EZXUEFRRJ10I16SP.log.gz"
+      }
     },
     "cloudwatch": {
       "log_group": "/aws/sqs/logs",
-      "log_stream": "ap-south-2/td1gbq7f",
-      "ingestion_time": "2026-05-07T10:17:36.424Z"
+      "log_stream": "ap-northeast-3/l2ubgdd8",
+      "ingestion_time": "2026-05-14T03:00:07.250Z"
     }
   },
   "event": {
@@ -44,21 +49,24 @@
     "category": ["process"],
     "dataset": "aws.sqs",
     "provider": "sqs.amazonaws.com",
-    "duration": 357000000,
+    "duration": 443000000,
     "module": "aws"
   },
-  "message": "SQS ChangeMessageVisibility queue=https://sqs.ap-south-2.amazonaws.com/293847561023/webhook-events receipt_batches=1 new_timeout_sec=100 visible≈2855",
-  "log": { "level": "info" },
-  "trace": { "id": "J387OCHOHBO" },
-  "transaction": { "id": "GWXB38RQ2U" },
+  "message": "SQS StartMessageMoveTask source=https://sqs.ap-northeast-3.amazonaws.com/501938274650/notification-dlq destination=https://sqs.ap-northeast-3.amazonaws.com/501938274650/main-queue maxMessages=4266 | error: 388 messages dead-lettered after max retries",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "AWS.SimpleQueueService.NonExistentQueue",
+    "message": "Message move task failed: destination policy denies sqs:SendMessage",
+    "type": "aws"
+  },
   "service": { "name": "sqs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sqs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "awlokwgvksl"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "j3uru789h5mtozb3urxn1etwadq4jm1uvefg"
   },
   "input": { "type": "aws-cloudwatch" }
 }

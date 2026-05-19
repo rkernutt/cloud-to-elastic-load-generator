@@ -46,6 +46,8 @@ The proxy (`proxy.cjs`) accepts the following environment variables:
 | `PROXY_QUIET`                | _(unset)_    | Set to `1` to disable stderr access logs (metadata only; never logs API keys or bodies)          |
 | `ELASTIC_KIBANA_API_VERSION` | `2023-10-31` | Kibana `Elastic-Api-Version` header; override when your stack requires a different contract date |
 
+The proxy uses **HTTP keep-alive** agents (up to 16 sockets) so TLS/TCP connections to Elasticsearch are reused across bulk requests. Bulk payloads larger than 1 KB are **gzip-compressed** before forwarding, reducing wire time.
+
 The **Setup** wizard installs **Cloud Loadgen Integrations** per service — each integration bundles an ingest pipeline, Kibana dashboard, ML anomaly detection jobs, and alerting rules. All assets are tagged **`cloudloadgen`** so you can filter, view, or bulk-edit them easily in Kibana. Data streams use **TSDS** for metrics where appropriate. **Post-install options** let you enable alerting rules and start ML jobs immediately after installation (both off by default). **Scheduled shipping** is disabled by default — users must explicitly enable it. **Serverless** may limit uninstall/reinstall — [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md).
 
 **Setup UI implementation (for contributors):** Service-category grouping is built in the `servicePackIndex` `useMemo` in `src/pages/SetupPage.tsx`. Title-fragment extraction uses `src/setup/setupAssetMatch.ts`. Service IDs are normalised via `SERVICE_ALIASES`, `GCP_OVERRIDES`, and `AZURE_OVERRIDES` maps (cloud-aware resolution). Category assignment uses the `SERVICE_CATEGORY` map (~200+ entries per cloud). Labels come from `src/setup/setupDisplayPolish.ts` (`polishSetupCategoryLabel`). Behavior is documented in [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md).
@@ -57,9 +59,11 @@ npm run build
 npm run preview
 ```
 
+Production builds have **source maps disabled** (`sourcemap: false`). TypeScript uses **incremental compilation** (`.tsbuildinfo`) and ESLint uses `--cache` (`.eslintcache`) to speed up repeat runs. Both cache files are gitignored.
+
 ## Samples
 
-Regenerate JSON for **all** clouds:
+The `samples/` directory is **gitignored** — regenerate locally:
 
 ```bash
 npm run samples
@@ -72,6 +76,8 @@ npm run samples:verify
 ```
 
 Sample layout: **`samples/aws/{logs,metrics,traces}`**, **`samples/gcp/...`**, **`samples/azure/...`**.
+
+Similarly, `assets/` (standalone asset JSONs) and `installer/aws-custom-dashboards/ndjson/` are gitignored. Regenerate with `npm run assets:export` and `npm run generate:aws-dashboards:ndjson` respectively.
 
 ## One-shot verification
 

@@ -3,48 +3,69 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-southeast2",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "me-west1",
+    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
+    "account": { "id": "161803398874", "name": "Globex Development" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-southeast2",
-    "ephemeral_id": "pyx502bt26n"
+    "name": "metricbeat-gcp-me-west1",
+    "ephemeral_id": "kbo5eapebz102xw2irtp50rykwkqb0170s7g"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "serviceruntime.googleapis.com/api/request_count",
-      "labels": { "credential_id": "resource-a" }
-    },
-    "resource": {
-      "type": "consumed_api",
+      "type": "networking.googleapis.com/region/external_rtt",
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "service": "generic.googleapis.com",
-        "method": "resource_id"
+        "network_tier": "PREMIUM",
+        "remote_continent": "America",
+        "remote_country": "US",
+        "remote_region": "NOT_APPLICABLE",
+        "remote_city": "NOT_APPLICABLE",
+        "remote_location_type": "EXTERNAL",
+        "protocol": "TCP"
       }
     },
+    "resource": {
+      "type": "networking.googleapis.com/Location",
+      "labels": { "project_id": "globex-dev-g7h8i9", "location": "me-west1" }
+    },
     "metricKind": "DELTA",
-    "valueType": "INT64",
+    "valueType": "DISTRIBUTION",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "66903" } }
+      {
+        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
+        "value": {
+          "distributionValue": {
+            "count": "2555",
+            "mean": 0.015414972709680477,
+            "sumOfSquaredDeviation": 0.03,
+            "bucketCounts": ["0", "1405", "639", "307", "204"]
+          }
+        }
+      }
     ]
   },
   "gcp": {
     "network-service-tiers": {
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "service": "generic.googleapis.com",
-        "method": "resource_id",
-        "credential_id": "resource-a"
+        "project_id": "globex-dev-g7h8i9",
+        "location": "me-west1",
+        "network_tier": "PREMIUM",
+        "remote_continent": "America",
+        "remote_country": "US",
+        "remote_region": "NOT_APPLICABLE",
+        "remote_city": "NOT_APPLICABLE",
+        "remote_location_type": "EXTERNAL",
+        "protocol": "TCP"
       },
       "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": {
-          "avg": 66903,
-          "sum": 66903,
-          "count": 1
+        "networking.googleapis.com/region/external_rtt": {
+          "avg": 0.02,
+          "sum": 51.1,
+          "count": 2555,
+          "max": 0.04,
+          "min": 0.01
         }
       }
     }

@@ -348,7 +348,7 @@ flowchart TD
     SWITCH -->|"Metrics"| METRICS
     SWITCH -->|"Traces"| TRACES
 
-    subgraph LOGS["Logs — 212 services"]
+    subgraph LOGS["Logs — 213 services"]
         direction TB
         L1["GENERATORS registry\nsrc/aws/generators/*.ts"]
         L2["fn(ts, er) → single ECS doc"]
@@ -358,12 +358,9 @@ flowchart TD
 
     subgraph METRICS["Metrics — 206 services"]
         direction TB
-        M1{"Dedicated\ngenerator?"}
-        M2["90 specialised generators\nsrc/aws/generators/metrics/*.ts"]
-        M3["52 generic generators\nmakeGenericGenerator()"]
-        M4["fn(ts, er) → Object[ ] array\nCloudWatch-shaped dimensional metrics"]
-        M1 -->|"yes"| M2 --> M4
-        M1 -->|"no"| M3 --> M4
+        M1["206 dedicated generators\nsrc/aws/generators/metrics/*.ts"]
+        M2["fn(ts, er) → Object[ ] array\nCloudWatch-shaped dimensional metrics"]
+        M1 --> M2
     end
 
     subgraph TRACES["Traces — 54 generators"]
@@ -594,42 +591,24 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    SVC(["Service ID"]) --> CHECK{"In dedicated\ngenerators?"}
+    SVC(["Service ID"]) --> CHECK{"Metrics registry\n(generator lookup)"}
 
-    CHECK -->|"yes (90)"| DED
-    CHECK -->|"no"| GENERIC
+    CHECK --> DED
 
     subgraph DED["Dedicated Generators"]
         direction TB
-        D1["Lambda · EC2 · RDS\nALB · DynamoDB · S3\nCloudFront · ECS · EKS\n... 90 specialised fns"]
+        D1["206 dedicated generators\nsrc/aws/generators/metrics/*.ts"]
         D2["Service-specific dimensions\naws.lambda.function.name\naws.ec2.instance.id\naws.rds.db_instance.identifier"]
         D3["Service-specific metrics\nCPUUtilization · Invocations\nReadLatency · BucketSizeBytes"]
         D1 --> D2 --> D3
     end
 
-    subgraph GENERIC["Generic Fallback (52 + 47 inline)"]
-        direction TB
-        G1["makeGenericGenerator(svcId)"]
-        G2{"TEMPLATE_MAP\nlookup"}
-        G_IOT["IoT template\nProtocol dimension\nConnect · Publish · Rules"]
-        G_ANA["Analytics template\nJobName dimension\nRecords · Bytes · Duration"]
-        G_MGT["Management template\nRegion dimension\nRequest · Error · Success"]
-        G_DEF["Default template\nResource dimension\nRequest · Error · Latency\nThrottle"]
-
-        G1 --> G2
-        G2 -->|"iot"| G_IOT
-        G2 -->|"analytics"| G_ANA
-        G2 -->|"management"| G_MGT
-        G2 -->|"default"| G_DEF
-    end
-
-    DED & GENERIC --> SHAPE
+    DED --> SHAPE
 
     SHAPE["CloudWatch metric shape\naws.{svc}.metrics.{Metric}.avg/sum/count\naws.dimensions.{Dim}\nmetricset.name · metricset.period"]
     SHAPE --> IDX["metrics-aws.{dataset}-default\n(TSDS data stream)"]
 
     style DED fill:#FF9900,color:#000
-    style GENERIC fill:#1BA9F5,color:#fff
 ```
 
 ---

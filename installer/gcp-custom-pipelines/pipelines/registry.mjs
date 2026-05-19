@@ -49314,4 +49314,447 @@ export const PIPELINE_REGISTRY = [
       },
     ],
   },
+  {
+    id: "logs-gcp.vertex_ai_agent_builder-default",
+    dataset: "gcp.vertex_ai_agent_builder",
+    group: "ai",
+    description:
+      "Enrich and normalise GCP Vertex AI Agent Builder logs (service vertex-ai-agent-builder)",
+    processors: [
+      {
+        json: {
+          field: "message",
+          target_field: "gcp.vertex_ai_agent_builder.parsed",
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: {
+          field: ["gcp.vertex_ai_agent_builder.parsed"],
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-gcp.colab_enterprise-default",
+    dataset: "gcp.colab_enterprise",
+    group: "ai",
+    description: "Enrich and normalise GCP Colab Enterprise logs (service colab-enterprise)",
+    processors: [
+      {
+        json: {
+          field: "message",
+          target_field: "gcp.colab_enterprise.parsed",
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: {
+          field: ["gcp.colab_enterprise.parsed"],
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-gcp.distributed_cloud-default",
+    dataset: "gcp.distributed_cloud",
+    group: "compute",
+    description: "Enrich and normalise GCP Distributed Cloud logs (service distributed-cloud)",
+    processors: [
+      {
+        json: {
+          field: "message",
+          target_field: "gcp.distributed_cloud.parsed",
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: {
+          field: ["gcp.distributed_cloud.parsed"],
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-gcp.parallelstore-default",
+    dataset: "gcp.parallelstore",
+    group: "storage",
+    description: "Enrich and normalise GCP Parallelstore logs (service parallelstore)",
+    processors: [
+      {
+        json: { field: "message", target_field: "gcp.parallelstore.parsed", ignore_failure: true },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: { field: ["gcp.parallelstore.parsed"], ignore_missing: true, ignore_failure: true },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-gcp.dataform-default",
+    dataset: "gcp.dataform",
+    group: "analytics",
+    description: "Enrich and normalise GCP Dataform logs (service dataform)",
+    processors: [
+      { json: { field: "message", target_field: "gcp.dataform.parsed", ignore_failure: true } },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      { remove: { field: ["gcp.dataform.parsed"], ignore_missing: true, ignore_failure: true } },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-gcp.biglake-default",
+    dataset: "gcp.biglake",
+    group: "analytics",
+    description: "Enrich and normalise GCP BigLake logs (service biglake)",
+    processors: [
+      { json: { field: "message", target_field: "gcp.biglake.parsed", ignore_failure: true } },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      { remove: { field: ["gcp.biglake.parsed"], ignore_missing: true, ignore_failure: true } },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-gcp.certificate_manager-default",
+    dataset: "gcp.certificate_manager",
+    group: "security",
+    description: "Enrich and normalise GCP Certificate Manager logs (service certificate-manager)",
+    processors: [
+      {
+        json: {
+          field: "message",
+          target_field: "gcp.certificate_manager.parsed",
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: {
+          field: ["gcp.certificate_manager.parsed"],
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-gcp.blockchain_node_engine-default",
+    dataset: "gcp.blockchain_node_engine",
+    group: "compute",
+    description:
+      "Enrich and normalise GCP Blockchain Node Engine logs (service blockchain-node-engine)",
+    processors: [
+      {
+        json: {
+          field: "message",
+          target_field: "gcp.blockchain_node_engine.parsed",
+          ignore_failure: true,
+        },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: {
+          field: ["gcp.blockchain_node_engine.parsed"],
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
+  {
+    id: "logs-gcp.netapp_volumes-default",
+    dataset: "gcp.netapp_volumes",
+    group: "storage",
+    description: "Enrich and normalise GCP NetApp Volumes logs (service netapp-volumes)",
+    processors: [
+      {
+        json: { field: "message", target_field: "gcp.netapp_volumes.parsed", ignore_failure: true },
+      },
+      { set: { field: "event.kind", value: "event" } },
+      { set: { field: "event.category", value: ["web"] } },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx?.event?.outcome == 'failure'",
+        },
+      },
+      { lowercase: { field: "log.level", ignore_missing: true, ignore_failure: true } },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{source.ip}}",
+          allow_duplicates: false,
+          if: "ctx?.source?.ip != null",
+        },
+      },
+      {
+        remove: {
+          field: ["gcp.netapp_volumes.parsed"],
+          ignore_missing: true,
+          ignore_failure: true,
+        },
+      },
+    ],
+    on_failure: [
+      { set: { field: "error.message", value: "{{ _ingest.on_failure_message }}" } },
+      { set: { field: "tags", value: ["_ingest_pipeline_failure"] } },
+    ],
+  },
 ];

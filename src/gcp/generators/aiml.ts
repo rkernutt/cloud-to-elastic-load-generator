@@ -43,8 +43,33 @@ function vertexBaseIds(projectId: string, region: string) {
   };
 }
 
+const GRPC_ERROR_STATUSES = [
+  "INTERNAL",
+  "DEADLINE_EXCEEDED",
+  "PERMISSION_DENIED",
+  "RESOURCE_EXHAUSTED",
+  "NOT_FOUND",
+  "UNAVAILABLE",
+] as const;
+
+function grpcStructuredFault(isErr: boolean): {
+  spread: Record<string, unknown>;
+  rpcLabel: Record<string, string>;
+} {
+  if (!isErr) return { spread: {}, rpcLabel: {} };
+  const code = rand([...GRPC_ERROR_STATUSES]);
+  return {
+    spread: {
+      "gcp.rpc": { status_code: code },
+      error: { code, message: `${code}: operation failed`, type: "gcp" },
+    },
+    rpcLabel: { "gcp.rpc.status_code": code },
+  };
+}
+
 export function generateVertexAiLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const { model_id, endpoint_id, pipeline_run_id } = vertexBaseIds(project.id, region);
   const framework = rand(VERTEX_FRAMEWORKS);
   const scenario = isErr
@@ -141,8 +166,12 @@ export function generateVertexAiLog(ts: string, er: number): EcsDocument {
     message = `${job_type_out === "online_prediction" ? "Online" : "Batch"} prediction: model_version=${randInt(1, 12)} latency_ms=${latencyMs} input_shape=${inShape} output_shape=${outShape} instances=${randInt(1, 500)}`;
   }
 
+  Object.assign(labels, rpcLabel);
+
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
     labels,
     cloud: gcpCloud(region, project, "aiplatform.googleapis.com"),
@@ -181,6 +210,7 @@ export function generateVertexAiLog(ts: string, er: number): EcsDocument {
 
 export function generateGeminiLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const model = rand([
     "gemini-1.5-pro",
     "gemini-1.5-flash",
@@ -235,8 +265,12 @@ export function generateGeminiLog(ts: string, er: number): EcsDocument {
     { category: "HARM_CATEGORY_DANGEROUS_CONTENT", probability: rand(["NEGLIGIBLE", "LOW"]) },
   ];
 
+  Object.assign(labels, rpcLabel);
+
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
     labels,
     cloud: gcpCloud(region, project, "generativelanguage.googleapis.com"),
@@ -265,6 +299,7 @@ export function generateGeminiLog(ts: string, er: number): EcsDocument {
 
 export function generateVisionAiLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const features = rand([
     "LABEL_DETECTION",
     "TEXT_DETECTION",
@@ -283,10 +318,13 @@ export function generateVisionAiLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
     labels: {
       "resource.type": "vision.googleapis.com/Image",
       "logging.googleapis.com/timestamp": ts,
+      ...rpcLabel,
     },
     cloud: gcpCloud(region, project, "vision.googleapis.com"),
     gcp: {
@@ -308,6 +346,7 @@ export function generateVisionAiLog(ts: string, er: number): EcsDocument {
 
 export function generateNaturalLanguageLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const operation = rand([
     "analyzeSentiment",
     "analyzeEntities",
@@ -326,8 +365,10 @@ export function generateNaturalLanguageLog(ts: string, er: number): EcsDocument 
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { "resource.type": "language.googleapis.com/Document", method: operation },
+    labels: { "resource.type": "language.googleapis.com/Document", method: operation, ...rpcLabel },
     cloud: gcpCloud(region, project, "language.googleapis.com"),
     gcp: {
       natural_language: {
@@ -349,6 +390,7 @@ export function generateNaturalLanguageLog(ts: string, er: number): EcsDocument 
 
 export function generateTranslationLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const sourceLanguage = rand(["en", "es", "de", "ja", "zh", "fr"]);
   const targetLanguage = rand(["en", "es", "de", "ja", "pt", "ko"]);
   const model = rand(["nmt", "base"] as const);
@@ -362,8 +404,10 @@ export function generateTranslationLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { "resource.type": "translate.googleapis.com/Project" },
+    labels: { "resource.type": "translate.googleapis.com/Project", ...rpcLabel },
     cloud: gcpCloud(region, project, "translate.googleapis.com"),
     gcp: {
       translation: {
@@ -385,6 +429,7 @@ export function generateTranslationLog(ts: string, er: number): EcsDocument {
 
 export function generateSpeechToTextLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const encoding = rand(["FLAC", "LINEAR16", "MULAW", "OGG_OPUS"] as const);
   const model = rand(["latest_long", "latest_short", "phone_call"] as const);
   const audioDurationSeconds = randFloat(0.5, 3600);
@@ -398,8 +443,10 @@ export function generateSpeechToTextLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { "resource.type": "speech.googleapis.com/Recognizer", model },
+    labels: { "resource.type": "speech.googleapis.com/Recognizer", model, ...rpcLabel },
     cloud: gcpCloud(region, project, "speech.googleapis.com"),
     gcp: {
       speech_to_text: {
@@ -422,6 +469,7 @@ export function generateSpeechToTextLog(ts: string, er: number): EcsDocument {
 
 export function generateTextToSpeechLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const textLength = randInt(20, 8000);
   const voiceName = rand([
     "en-US-Wavenet-D",
@@ -440,8 +488,10 @@ export function generateTextToSpeechLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { "resource.type": "texttospeech.googleapis.com/Voice" },
+    labels: { "resource.type": "texttospeech.googleapis.com/Voice", ...rpcLabel },
     cloud: gcpCloud(region, project, "texttospeech.googleapis.com"),
     gcp: {
       text_to_speech: {
@@ -463,6 +513,7 @@ export function generateTextToSpeechLog(ts: string, er: number): EcsDocument {
 
 export function generateDialogflowLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const agentName = `agent-${rand(["support", "sales", "faq", "booking"])}-${randId(4).toLowerCase()}`;
   const sessionId = `sess-${randId(12).toLowerCase()}`;
   const intentName = rand([
@@ -489,8 +540,14 @@ export function generateDialogflowLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { "resource.type": "dialogflow.googleapis.com/Agent", "dialogflow.session": sessionId },
+    labels: {
+      "resource.type": "dialogflow.googleapis.com/Agent",
+      "dialogflow.session": sessionId,
+      ...rpcLabel,
+    },
     cloud: gcpCloud(region, project, "dialogflow.googleapis.com"),
     gcp: {
       dialogflow: {
@@ -515,6 +572,7 @@ export function generateDialogflowLog(ts: string, er: number): EcsDocument {
 
 export function generateDocumentAiLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const processorType = rand([
     "FORM_PARSER",
     "OCR",
@@ -534,8 +592,14 @@ export function generateDocumentAiLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { "resource.type": "documentai.googleapis.com/Processor", processor: processorName },
+    labels: {
+      "resource.type": "documentai.googleapis.com/Processor",
+      processor: processorName,
+      ...rpcLabel,
+    },
     cloud: gcpCloud(region, project, "documentai.googleapis.com"),
     gcp: {
       document_ai: {
@@ -557,6 +621,7 @@ export function generateDocumentAiLog(ts: string, er: number): EcsDocument {
 
 export function generateRecommendationsAiLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const catalogName = `catalog-${rand(["prod", "media", "fashion"])}-${randId(4).toLowerCase()}`;
   const eventType = rand([
     "detail-page-view",
@@ -575,8 +640,10 @@ export function generateRecommendationsAiLog(ts: string, er: number): EcsDocumen
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { "resource.type": "retail.googleapis.com/Catalog", catalog: catalogName },
+    labels: { "resource.type": "retail.googleapis.com/Catalog", catalog: catalogName, ...rpcLabel },
     cloud: gcpCloud(region, project, "retail.googleapis.com"),
     gcp: {
       recommendations_ai: {
@@ -598,6 +665,7 @@ export function generateRecommendationsAiLog(ts: string, er: number): EcsDocumen
 
 export function generateVertexAiSearchLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const engineName = `search-${rand(["prod", "docs", "commerce"])}-${randId(4).toLowerCase()}`;
   const query = rand(["running shoes", "api authentication", "return policy", "project id format"]);
   const resultsCount = isErr ? 0 : randInt(3, 50);
@@ -612,8 +680,14 @@ export function generateVertexAiSearchLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { "resource.type": "discoveryengine.googleapis.com/Engine", engine: engineName },
+    labels: {
+      "resource.type": "discoveryengine.googleapis.com/Engine",
+      engine: engineName,
+      ...rpcLabel,
+    },
     cloud: gcpCloud(region, project, "discoveryengine.googleapis.com"),
     gcp: {
       vertex_ai_search: {
@@ -636,6 +710,7 @@ export function generateVertexAiSearchLog(ts: string, er: number): EcsDocument {
 
 export function generateAutoMlLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const datasetName = `dataset-${rand(["images", "tabular", "text"])}-${randId(5).toLowerCase()}`;
   const modelName = `model-${randId(8).toLowerCase()}`;
   const operation = rand(["TRAINING", "EVALUATING", "DEPLOYING", "PREDICTING"] as const);
@@ -652,8 +727,10 @@ export function generateAutoMlLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { "resource.type": "automl.googleapis.com/Model" },
+    labels: { "resource.type": "automl.googleapis.com/Model", ...rpcLabel },
     cloud: gcpCloud(region, project, "automl.googleapis.com"),
     gcp: {
       automl: {
@@ -677,6 +754,7 @@ export function generateAutoMlLog(ts: string, er: number): EcsDocument {
 
 export function generateVertexAiWorkbenchLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const instanceName = `wb-${rand(["ml", "data", "research"])}-${randId(5).toLowerCase()}`;
   const machineType = rand(VERTEX_MACHINE_TYPES);
   const framework = rand(["tensorflow", "pytorch", "jax"] as const);
@@ -696,8 +774,14 @@ export function generateVertexAiWorkbenchLog(ts: string, er: number): EcsDocumen
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { "resource.type": "notebooks.googleapis.com/Instance", instance: instanceName },
+    labels: {
+      "resource.type": "notebooks.googleapis.com/Instance",
+      instance: instanceName,
+      ...rpcLabel,
+    },
     cloud: gcpCloud(region, project, "notebooks.googleapis.com"),
     gcp: {
       vertex_ai_workbench: {
@@ -720,6 +804,7 @@ export function generateVertexAiWorkbenchLog(ts: string, er: number): EcsDocumen
 
 export function generateVertexAiPipelinesLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const pipelineName = `pipeline-${rand(["train", "batch", "deploy"])}-${randId(5).toLowerCase()}`;
   const runId = `run-${randId(12).toLowerCase()}`;
   const componentName = rand(["preprocess", "train", "evaluate", "export_model", "deploy"]);
@@ -737,10 +822,13 @@ export function generateVertexAiPipelinesLog(ts: string, er: number): EcsDocumen
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
     labels: {
       "resource.type": "aiplatform.googleapis.com/PipelineJob",
       "ml.googleapis.com/pipeline_job_id": runId,
+      ...rpcLabel,
     },
     cloud: gcpCloud(region, project, "aiplatform.googleapis.com"),
     gcp: {
@@ -764,6 +852,7 @@ export function generateVertexAiPipelinesLog(ts: string, er: number): EcsDocumen
 
 export function generateVertexAiFeatureStoreLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const featurestoreName = `fs-${rand(["prod", "reco", "fraud"])}-${randId(4).toLowerCase()}`;
   const entityType = rand(["user", "session", "product", "merchant"]);
   const featureName = rand(["click_count_7d", "avg_order_value", "risk_score", "embedding_v2"]);
@@ -777,10 +866,13 @@ export function generateVertexAiFeatureStoreLog(ts: string, er: number): EcsDocu
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
     labels: {
       "resource.type": "aiplatform.googleapis.com/Featurestore",
       featurestore: featurestoreName,
+      ...rpcLabel,
     },
     cloud: gcpCloud(region, project, "aiplatform.googleapis.com"),
     gcp: {
@@ -803,6 +895,7 @@ export function generateVertexAiFeatureStoreLog(ts: string, er: number): EcsDocu
 
 export function generateVertexAiMatchingEngineLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const indexName = `idx-${rand(["embed", "prod", "doc"])}-${randId(6).toLowerCase()}`;
   const endpointName = `ep-matching-${randId(5).toLowerCase()}`;
   const operation = rand(["QUERY", "UPSERT", "REMOVE"] as const);
@@ -817,8 +910,14 @@ export function generateVertexAiMatchingEngineLog(ts: string, er: number): EcsDo
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { "resource.type": "aiplatform.googleapis.com/IndexEndpoint", index: indexName },
+    labels: {
+      "resource.type": "aiplatform.googleapis.com/IndexEndpoint",
+      index: indexName,
+      ...rpcLabel,
+    },
     cloud: gcpCloud(region, project, "aiplatform.googleapis.com"),
     gcp: {
       vertex_ai_matching_engine: {
@@ -841,6 +940,7 @@ export function generateVertexAiMatchingEngineLog(ts: string, er: number): EcsDo
 
 export function generateVertexAiTensorBoardLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const experimentName = `exp-${rand(["churn", "vision", "nlp"])}-${randId(4).toLowerCase()}`;
   const runName = `run-${randId(8).toLowerCase()}`;
   const tag = rand(["loss", "accuracy", "learning_rate", "val_auc"]);
@@ -854,10 +954,13 @@ export function generateVertexAiTensorBoardLog(ts: string, er: number): EcsDocum
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
     labels: {
       "resource.type": "aiplatform.googleapis.com/TensorboardRun",
       experiment: experimentName,
+      ...rpcLabel,
     },
     cloud: gcpCloud(region, project, "aiplatform.googleapis.com"),
     gcp: {
@@ -880,6 +983,7 @@ export function generateVertexAiTensorBoardLog(ts: string, er: number): EcsDocum
 
 export function generateContactCenterAiLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const projectName = project.id;
   const conversationId = `conv-${randId(12).toLowerCase()}`;
   const agentType = rand(["VIRTUAL", "HUMAN"] as const);
@@ -895,10 +999,13 @@ export function generateContactCenterAiLog(ts: string, er: number): EcsDocument 
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
     labels: {
       "resource.type": "contactcenterai.googleapis.com/Conversation",
       conversation: conversationId,
+      ...rpcLabel,
     },
     cloud: gcpCloud(region, project, "contactcenterai.googleapis.com"),
     gcp: {
@@ -923,6 +1030,7 @@ export function generateContactCenterAiLog(ts: string, er: number): EcsDocument 
 
 export function generateHealthcareApiLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const datasetName = `healthcare-${rand(["dicom", "fhir", "hl7"])}-${randId(4).toLowerCase()}`;
   const storeType = rand(["FHIR", "HL7v2", "DICOM"] as const);
   const operation = rand(["CREATE", "READ", "SEARCH", "IMPORT", "EXPORT", "DEIDENTIFY"] as const);
@@ -936,8 +1044,14 @@ export function generateHealthcareApiLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { "resource.type": "healthcare.googleapis.com/Dataset", dataset: datasetName },
+    labels: {
+      "resource.type": "healthcare.googleapis.com/Dataset",
+      dataset: datasetName,
+      ...rpcLabel,
+    },
     cloud: gcpCloud(region, project, "healthcare.googleapis.com"),
     gcp: {
       healthcare_api: {
@@ -959,6 +1073,7 @@ export function generateHealthcareApiLog(ts: string, er: number): EcsDocument {
 
 export function generateRetailApiLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const catalogName = `catalog-${rand(["global", "seasonal", "b2b"])}-${randId(4).toLowerCase()}`;
   const eventType = rand([
     "detail-page-view",
@@ -978,8 +1093,10 @@ export function generateRetailApiLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    log: { level: isErr ? "error" : "info" },
+    ...faultSpread,
     severity,
-    labels: { "resource.type": "retail.googleapis.com/Catalog", catalog: catalogName },
+    labels: { "resource.type": "retail.googleapis.com/Catalog", catalog: catalogName, ...rpcLabel },
     cloud: gcpCloud(region, project, "retail.googleapis.com"),
     gcp: {
       retail_api: {

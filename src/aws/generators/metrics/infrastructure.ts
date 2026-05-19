@@ -9,6 +9,7 @@ import {
   ACCOUNTS,
   rand,
   randInt,
+  randFloat,
   randId,
   dp,
   stat,
@@ -21,9 +22,12 @@ import type { EcsDocument } from "../types.js";
 
 // ─── App Mesh (AWS/AppMesh) ───────────────────────────────────────────────────
 
-export function generateAppmeshMetrics(ts: string, _er: number): EcsDocument[] {
+export function generateAppmeshMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
   const req = randInt(500, 800_000);
+  const mesh = rand(["prod-mesh", "edge-mesh", "svc-mesh"]);
+  const vn = `vn-${rand(["api", "worker", "gateway"])}-${randInt(1, 9)}`;
   return [
     metricDoc(
       ts,
@@ -32,14 +36,33 @@ export function generateAppmeshMetrics(ts: string, _er: number): EcsDocument[] {
       region,
       account,
       {
-        MeshName: rand(["prod-mesh", "edge-mesh", "svc-mesh"]),
-        VirtualNode: `vn-${rand(["api", "worker", "gateway"])}-${randInt(1, 9)}`,
+        MeshName: mesh,
+        VirtualNode: vn,
       },
       {
         ActiveConnectionCount: counter(randInt(50, 100_000)),
         NewConnectionCount: counter(randInt(100, 50_000)),
         ProcessedBytes: counter(randInt(1_000_000, 20_000_000_000)),
         RequestCount: counter(req),
+        RequestError4xx: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        RequestError5xx: counter(Math.random() < er ? randInt(5, 100) : randInt(0, 2)),
+        ListenerRequestLatencyP99: stat(dp(stressed ? randFloat(420, 9800) : randFloat(18, 920))),
+      }
+    ),
+    metricDoc(
+      ts,
+      "appmesh",
+      "aws.appmesh",
+      region,
+      account,
+      {
+        MeshName: mesh,
+        VirtualNode: vn,
+        Route: `rt-${randId(6)}`,
+      },
+      {
+        ThrottledRequests: counter(Math.random() < er ? randInt(10, 500) : 0),
+        CircuitBreakerOpenCount: counter(Math.random() < er ? randInt(5, 800) : randInt(0, 25)),
       }
     ),
   ];
@@ -47,10 +70,12 @@ export function generateAppmeshMetrics(ts: string, _er: number): EcsDocument[] {
 
 // ─── Client VPN (AWS/ClientVPN) ────────────────────────────────────────────────
 
-export function generateClientvpnMetrics(ts: string, _er: number): EcsDocument[] {
+export function generateClientvpnMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
   const ingress = randInt(10_000_000, 4_000_000_000);
   const egress = Math.round(ingress * jitter(0.35, 0.2, 0.05, 0.95));
+  const ep = `cvpn-endpoint-${randId(12).toLowerCase()}`;
   return [
     metricDoc(
       ts,
@@ -59,12 +84,30 @@ export function generateClientvpnMetrics(ts: string, _er: number): EcsDocument[]
       region,
       account,
       {
-        Endpoint: `cvpn-endpoint-${randId(12).toLowerCase()}`,
+        Endpoint: ep,
       },
       {
         ActiveConnectionsCount: counter(randInt(5, 8_000)),
         IngressBytes: counter(ingress),
         EgressBytes: counter(egress),
+        ConnectionAttemptFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        HandshakeLatencyMilliseconds: stat(
+          dp(stressed ? randFloat(800, 15_000) : randFloat(45, 980))
+        ),
+      }
+    ),
+    metricDoc(
+      ts,
+      "clientvpn",
+      "aws.clientvpn",
+      region,
+      account,
+      { Endpoint: ep, SubnetId: `subnet-${randId(8)}` },
+      {
+        AuthNegotiationFailures: counter(
+          Math.random() < er ? randInt(50, 18_000) : randInt(0, 420)
+        ),
+        CPSExceeded: counter(Math.random() < er ? randInt(10, 500) : 0),
       }
     ),
   ];
@@ -72,8 +115,11 @@ export function generateClientvpnMetrics(ts: string, _er: number): EcsDocument[]
 
 // ─── Cloud Map (AWS/CloudMap) ─────────────────────────────────────────────────
 
-export function generateCloudmapMetrics(ts: string, _er: number): EcsDocument[] {
+export function generateCloudmapMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const ns = rand(["prod.local", "internal", "platform.svc"]);
+  const svc = rand(["api", "worker", "cache", "auth"]);
   return [
     metricDoc(
       ts,
@@ -82,12 +128,29 @@ export function generateCloudmapMetrics(ts: string, _er: number): EcsDocument[] 
       region,
       account,
       {
-        NamespaceName: rand(["prod.local", "internal", "platform.svc"]),
-        ServiceName: rand(["api", "worker", "cache", "auth"]),
+        NamespaceName: ns,
+        ServiceName: svc,
       },
       {
         DiscoveryServiceInstanceCount: counter(randInt(3, 2_000)),
         RegisteredInstances: counter(randInt(3, 5_000)),
+        DeRegistrationStorm: counter(Math.random() < er ? randInt(50, 9000) : randInt(0, 400)),
+        DnsQueryFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+      }
+    ),
+    metricDoc(
+      ts,
+      "cloudmap",
+      "aws.cloudmap",
+      region,
+      account,
+      {
+        NamespaceName: ns,
+        Operation: "DiscoverInstances",
+      },
+      {
+        DiscoveryLatencyP99: stat(dp(stressed ? randFloat(280, 9800) : randFloat(12, 820))),
+        ApiThrottles: counter(Math.random() < er ? randInt(10, 500) : 0),
       }
     ),
   ];
@@ -170,9 +233,11 @@ export function generateNeptuneanalyticsMetrics(ts: string, er: number): EcsDocu
 
 // ─── VPC IPAM (AWS/VPCIPAMPool) ───────────────────────────────────────────────
 
-export function generateVpcipamMetrics(ts: string, _er: number): EcsDocument[] {
+export function generateVpcipamMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  const pct = jitter(35, 25, 2, 98);
+  const stressed = Math.random() < er;
+  const pool = `ipam-pool-${randInt(1, 999)}-${randId(6).toLowerCase()}`;
+  const pct = Math.random() < er ? jitter(88, 12, 58, 100) : jitter(35, 25, 2, 85);
   return [
     metricDoc(
       ts,
@@ -181,11 +246,25 @@ export function generateVpcipamMetrics(ts: string, _er: number): EcsDocument[] {
       region,
       account,
       {
-        IpamPoolId: `ipam-pool-${randInt(1, 999)}-${randId(6).toLowerCase()}`,
+        IpamPoolId: pool,
       },
       {
         PercentIPAddressUsage: stat(dp(pct)),
         IpAddressUsage: counter(randInt(64, 65_536)),
+        AllocationFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        OverlappingAllocationErrors: counter(Math.random() < er ? randInt(5, 800) : 0),
+      }
+    ),
+    metricDoc(
+      ts,
+      "vpcipam",
+      "aws.vpcipam",
+      region,
+      account,
+      { IpamPoolId: pool, ScopeId: `ipam-scope-${randId(6)}` },
+      {
+        ApiThrottles: counter(Math.random() < er ? randInt(10, 500) : 0),
+        IPAMOperationalHealth: stat(dp(stressed ? randFloat(0.85, 0.95) : randFloat(0.99, 1))),
       }
     ),
   ];
@@ -218,11 +297,14 @@ export function generateVerifiedpermissionsMetrics(ts: string, er: number): EcsD
 
 // ─── DAX (AWS/DAX) ───────────────────────────────────────────────────────────
 
-export function generateDaxMetrics(ts: string, _er: number): EcsDocument[] {
+export function generateDaxMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
   const hits = randInt(50_000, 8_000_000);
-  const misses = Math.round(hits * jitter(0.06, 0.04, 0.001, 0.45));
+  const missRate = stressed ? jitter(0.28, 0.12, 0.05, 0.72) : jitter(0.06, 0.04, 0.001, 0.45);
+  const misses = Math.round(hits * missRate);
   const qh = randInt(20_000, 4_000_000);
+  const cluster = rand(["prod-dax", "session-cache", "catalog-dax"]);
   return [
     metricDoc(
       ts,
@@ -231,13 +313,32 @@ export function generateDaxMetrics(ts: string, _er: number): EcsDocument[] {
       region,
       account,
       {
-        ClusterId: rand(["prod-dax", "session-cache", "catalog-dax"]),
+        ClusterId: cluster,
       },
       {
         ItemCacheHits: counter(hits),
         ItemCacheMisses: counter(misses),
         QueryCacheHits: counter(qh),
         TotalRequestCount: counter(hits + misses + qh + randInt(0, hits)),
+        ErrorRequestCount: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        CpuUtilizationPercent: stat(dp(stressed ? jitter(91, 5, 70, 100) : jitter(38, 22, 5, 88))),
+      }
+    ),
+    metricDoc(
+      ts,
+      "dax",
+      "aws.dax",
+      region,
+      account,
+      { ClusterId: cluster, NodeId: `${cluster}-001` },
+      {
+        ReplicationLatencyMilliseconds: stat(
+          dp(stressed ? randFloat(400, 9800) : randFloat(0.35, 95))
+        ),
+        ThrottledCommands: counter(Math.random() < er ? randInt(10, 500) : 0),
+        ConnectionAcquisitionFailures: counter(
+          Math.random() < er ? randInt(50, 12_000) : randInt(0, 400)
+        ),
       }
     ),
   ];
@@ -295,10 +396,13 @@ export function generateDrsMetrics(ts: string, er: number): EcsDocument[] {
 
 // ─── Wavelength (AWS/Wavelength) ──────────────────────────────────────────────
 
-export function generateWavelengthMetrics(ts: string, _er: number): EcsDocument[] {
+export function generateWavelengthMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
   const ni = randInt(10_000_000, 6_000_000_000);
   const no = Math.round(ni * jitter(0.25, 0.15, 0.02, 1.1));
+  const wlz = `${region}-wlz-${randInt(1, 3)}`;
+  const inst = `i-${randId(16).toLowerCase()}`;
   return [
     metricDoc(
       ts,
@@ -307,13 +411,28 @@ export function generateWavelengthMetrics(ts: string, _er: number): EcsDocument[
       region,
       account,
       {
-        WavelengthZone: `${region}-wlz-${randInt(1, 3)}`,
-        InstanceId: `i-${randId(16).toLowerCase()}`,
+        WavelengthZone: wlz,
+        InstanceId: inst,
       },
       {
         NetworkIn: counter(ni),
         NetworkOut: counter(no),
-        Latency: stat(dp(jitter(2.5, 1.2, 0.8, 25))),
+        Latency: stat(dp(stressed ? randFloat(20, 120) : jitter(2.5, 1.2, 0.8, 25))),
+        PacketDroppedCount: counter(Math.random() < er ? randInt(500, 200_000) : randInt(0, 2000)),
+        CarrierGatewayErrors: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+      }
+    ),
+    metricDoc(
+      ts,
+      "wavelength",
+      "aws.wavelength",
+      region,
+      account,
+      { WavelengthZone: wlz, CarrierGatewayId: `cgw-${randId(8)}` },
+      {
+        HealthyTargetCount: stat(Math.random() < er ? randInt(0, 8) : randInt(2, 48)),
+        UnhealthyTargetCount: stat(Math.random() < er ? randInt(5, 100) : randInt(0, 2)),
+        BackboneLatencyP99: stat(dp(Math.random() < er ? randFloat(120, 9800) : randFloat(8, 620))),
       }
     ),
   ];
@@ -421,9 +540,11 @@ export function generateGroundstationMetrics(ts: string, er: number): EcsDocumen
 
 // ─── ParallelCluster (AWS/ParallelCluster) ──────────────────────────────────
 
-export function generateParallelcomputingMetrics(ts: string, _er: number): EcsDocument[] {
+export function generateParallelcomputingMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
   const nodes = randInt(4, 2_048);
+  const cluster = rand(["hpc-prod", "cfd-batch", "genomics-hpc"]);
   return [
     metricDoc(
       ts,
@@ -432,11 +553,25 @@ export function generateParallelcomputingMetrics(ts: string, _er: number): EcsDo
       region,
       account,
       {
-        ClusterName: rand(["hpc-prod", "cfd-batch", "genomics-hpc"]),
+        ClusterName: cluster,
       },
       {
         NodeCount: counter(nodes),
-        ComputeUtilization: stat(dp(jitter(62, 28, 5, 100))),
+        ComputeUtilization: stat(dp(stressed ? jitter(92, 6, 72, 100) : jitter(62, 28, 5, 100))),
+        SchedulerBacklogJobs: counter(Math.random() < er ? randInt(500, 40_000) : randInt(0, 800)),
+        JobFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+      }
+    ),
+    metricDoc(
+      ts,
+      "parallelcomputing",
+      "aws.pcs",
+      region,
+      account,
+      { ClusterName: cluster, QueueName: "gpu-high" },
+      {
+        GpuMemoryPressure: stat(dp(stressed ? randFloat(0.85, 0.98) : randFloat(0.35, 0.78))),
+        FabricLatencyP99: stat(dp(Math.random() < er ? randFloat(80, 6200) : randFloat(2, 180))),
       }
     ),
   ];
@@ -444,9 +579,11 @@ export function generateParallelcomputingMetrics(ts: string, _er: number): EcsDo
 
 // ─── Private 5G (AWS/Private5G) ───────────────────────────────────────────────
 
-export function generatePrivate5gMetrics(ts: string, _er: number): EcsDocument[] {
+export function generatePrivate5gMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
   const tx = randInt(50_000_000, 40_000_000_000);
+  const na = `arn:aws:private-networks:${region}:${account.id}:network-${randId(10).toLowerCase()}`;
   return [
     metricDoc(
       ts,
@@ -455,11 +592,27 @@ export function generatePrivate5gMetrics(ts: string, _er: number): EcsDocument[]
       region,
       account,
       {
-        NetworkArn: `arn:aws:private-networks:${region}:${account.id}:network-${randId(10).toLowerCase()}`,
+        NetworkArn: na,
       },
       {
         ActiveConnections: counter(randInt(10, 50_000)),
         DataTransferred: counter(tx),
+        RadioLinkFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        CoreLatencyMilliseconds: stat(dp(stressed ? randFloat(400, 9000) : randFloat(35, 520))),
+      }
+    ),
+    metricDoc(
+      ts,
+      "private5g",
+      "aws.private5g",
+      region,
+      account,
+      { NetworkArn: na, CellSiteId: `cell-${randId(6)}` },
+      {
+        SubscriberAttachFailures: counter(
+          Math.random() < er ? randInt(50, 25_000) : randInt(0, 850)
+        ),
+        ApiThrottles: counter(Math.random() < er ? randInt(10, 500) : 0),
       }
     ),
   ];
@@ -494,8 +647,10 @@ export function generateProtonMetrics(ts: string, er: number): EcsDocument[] {
 
 // ─── Wickr (AWS/Wickr) ──────────────────────────────────────────────────────
 
-export function generateWickrMetrics(ts: string, _er: number): EcsDocument[] {
+export function generateWickrMetrics(ts: string, er: number): EcsDocument[] {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  const stressed = Math.random() < er;
+  const net = `net-${randId(14).toLowerCase()}`;
   return [
     metricDoc(
       ts,
@@ -504,12 +659,28 @@ export function generateWickrMetrics(ts: string, _er: number): EcsDocument[] {
       region,
       account,
       {
-        NetworkId: `net-${randId(14).toLowerCase()}`,
+        NetworkId: net,
       },
       {
         ActiveUsers: counter(randInt(50, 80_000)),
         MessagesSent: counter(randInt(5_000, 12_000_000)),
         FilesSent: counter(randInt(100, 800_000)),
+        DeliveryFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
+        MessageLatencyP99: stat(dp(stressed ? randFloat(800, 9800) : randFloat(42, 780))),
+      }
+    ),
+    metricDoc(
+      ts,
+      "wickr",
+      "aws.wickr",
+      region,
+      account,
+      { NetworkId: net, RoomId: `room-${randId(10)}` },
+      {
+        WebsocketDisconnectErrors: counter(
+          Math.random() < er ? randInt(500, 90_000) : randInt(0, 6200)
+        ),
+        AttachmentUploadThrottles: counter(Math.random() < er ? randInt(10, 500) : 0),
       }
     ),
   ];
