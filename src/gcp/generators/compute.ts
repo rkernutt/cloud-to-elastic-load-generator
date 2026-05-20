@@ -16,7 +16,10 @@ import {
   randServiceAccount,
   randOperationId,
   randSeverity,
-  randIp,
+  randPublicIp,
+  randSourceIp,
+  gcpStatusMessage,
+  randEmail,
 } from "./helpers.js";
 
 const GCE_MACHINE_TYPES = [
@@ -38,7 +41,10 @@ const GRPC_ERROR_STATUSES = [
   "UNAVAILABLE",
 ] as const;
 
-function grpcStructuredFault(isErr: boolean): {
+function grpcStructuredFault(
+  isErr: boolean,
+  resource: string
+): {
   spread: Record<string, unknown>;
   rpcLabel: Record<string, string>;
 } {
@@ -47,7 +53,7 @@ function grpcStructuredFault(isErr: boolean): {
   return {
     spread: {
       "gcp.rpc": { status_code: code },
-      error: { code, message: `${code}: operation failed`, type: "gcp" },
+      error: { code, message: gcpStatusMessage(code, resource), type: "gcp" },
     },
     rpcLabel: { "gcp.rpc.status_code": code },
   };
@@ -58,19 +64,17 @@ function insertId(): string {
 }
 
 function auditPrincipalEmail(project: ReturnType<typeof makeGcpSetup>["project"]): string {
-  const org = project.id.split("-")[0];
   return Math.random() < 0.45
     ? randServiceAccount(project)
     : rand([
-        `admin@${org}.example.com`,
-        `sre@${org}.example.com`,
+        randEmail("platform-admin"),
+        randEmail("svc-monitoring"),
         `ci-bot@${project.id}.iam.gserviceaccount.com`,
       ]);
 }
 
 export function generateComputeEngineLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const instance = randGceInstance();
   const zone = randZone(region);
   const machineType = rand(GCE_MACHINE_TYPES);
@@ -79,6 +83,7 @@ export function generateComputeEngineLog(ts: string, er: number): EcsDocument {
   const diskSizeGb = randInt(20, 2000);
   const style = randInt(0, 4);
   const resourceName = `projects/${project.id}/zones/${zone}/instances/${instance.name}`;
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr, resourceName);
   const defaultLogName = `projects/${project.id}/logs/${rand(["compute.googleapis.com%2Factivity", "cloudaudit.googleapis.com%2Factivity", "syslog"])}`;
   const baseLabels: Record<string, string> = {
     instance_id: instance.id,
@@ -141,7 +146,7 @@ export function generateComputeEngineLog(ts: string, er: number): EcsDocument {
       resourceName,
       authenticationInfo: { principalEmail },
       requestMetadata: {
-        callerIp: randIp(),
+        callerIp: Math.random() < 0.7 ? randSourceIp() : randPublicIp(),
         callerSuppliedUserAgent: rand([
           "gcloud/492.0.0 command/ssh-login",
           "Terraform/1.7.5",
@@ -265,8 +270,12 @@ export function generateComputeEngineLog(ts: string, er: number): EcsDocument {
       compute_engine: computeEngine,
     },
     event: {
-      outcome,
-      duration,
+      kind: "event",
+      category: ["host"],
+      type: outcome === "failure" ? ["error"] : ["info"],
+      action: String(eventType),
+      outcome: outcome,
+      duration: duration,
     },
     message,
     ...extra,
@@ -275,7 +284,8 @@ export function generateComputeEngineLog(ts: string, er: number): EcsDocument {
 
 export function generateBatchLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+  const gcpResource = `projects/${project.id}`;
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr, gcpResource);
   const jobId = `batch-job-${randId(10).toLowerCase()}`;
   const taskGroup = `group${randInt(0, 5)}`;
   const taskIndex = randInt(0, 127);
@@ -313,6 +323,10 @@ export function generateBatchLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: "compute-engine",
       outcome: isErr ? "failure" : "success",
       duration: randInt(2000, isErr ? 3_600_000 : 900_000),
     },
@@ -322,7 +336,8 @@ export function generateBatchLog(ts: string, er: number): EcsDocument {
 
 export function generateSoleTenantNodesLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+  const gcpResource = `projects/${project.id}`;
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr, gcpResource);
   const nodeGroup = `sole-${rand(["prod", "data", "sap"])}-${randId(4).toLowerCase()}`;
   const nodeType = rand(["n2-node-80-640", "m2-node-416-11776", "c2-node-112-896"]);
   const nodeId = `node-${randId(12).toLowerCase()}`;
@@ -361,6 +376,10 @@ export function generateSoleTenantNodesLog(ts: string, er: number): EcsDocument 
       },
     },
     event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: "compute-engine",
       outcome: isErr ? "failure" : "success",
       duration: randInt(10_000, isErr ? 7200_000 : 1200_000),
     },
@@ -370,7 +389,8 @@ export function generateSoleTenantNodesLog(ts: string, er: number): EcsDocument 
 
 export function generateVmwareEngineLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+  const gcpResource = `projects/${project.id}`;
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr, gcpResource);
   const privateCloud = `pc-${rand(["prod", "dr", "lab"])}-${randId(5).toLowerCase()}`;
   const clusterName = `cluster-${randInt(1, 6)}`;
   const nodeType = rand(["ve1-standard-72", "ve1-standard-96", "ve2-standard-112"]);
@@ -416,6 +436,10 @@ export function generateVmwareEngineLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: "compute-engine",
       outcome: isErr ? "failure" : "success",
       duration: randInt(60_000, isErr ? 14_400_000 : 3_600_000),
     },
@@ -425,7 +449,8 @@ export function generateVmwareEngineLog(ts: string, er: number): EcsDocument {
 
 export function generateBareMetalLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+  const gcpResource = `projects/${project.id}`;
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr, gcpResource);
   const instanceName = `bm-${rand(["db", "hpc", "gpu"])}-${randId(6).toLowerCase()}`;
   const machineType = rand([
     "o2-standard-16-metal",
@@ -466,6 +491,10 @@ export function generateBareMetalLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: "compute-engine",
       outcome: isErr ? "failure" : "success",
       duration: randInt(5000, isErr ? 900_000 : 120_000),
     },
@@ -475,7 +504,8 @@ export function generateBareMetalLog(ts: string, er: number): EcsDocument {
 
 export function generateSpotVmsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+  const gcpResource = `projects/${project.id}`;
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr, gcpResource);
   const instance = randGceInstance();
   const zone = randZone(region);
   const machineType = rand(["n2-standard-4", "c2-standard-8", "n2d-standard-16"]);
@@ -518,6 +548,10 @@ export function generateSpotVmsLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: "compute-engine",
       outcome: isErr ? "failure" : "success",
       duration: randInt(1000, uptimeSeconds * 1000),
     },
@@ -527,7 +561,8 @@ export function generateSpotVmsLog(ts: string, er: number): EcsDocument {
 
 export function generateCloudTpuLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+  const gcpResource = `projects/${project.id}`;
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr, gcpResource);
   const nodeName = `tpu-node-${randId(8).toLowerCase()}`;
   const tpuType = rand(["v2-8", "v3-8", "v4-8", "v5litepod-1"] as const);
   const framework = rand(["tensorflow", "jax", "pytorch"] as const);
@@ -569,6 +604,10 @@ export function generateCloudTpuLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: "compute-engine",
       outcome: isErr ? "failure" : "success",
       duration: randInt(2000, isErr ? 600_000 : 120_000),
     },
@@ -578,19 +617,17 @@ export function generateCloudTpuLog(ts: string, er: number): EcsDocument {
 
 export function generateCloudWorkstationsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+  const gcpResource = `projects/${project.id}`;
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr, gcpResource);
   const clusterName = `ws-cluster-${randId(5).toLowerCase()}`;
   const configName = `config-${rand(["dev", "data", "gpu"])}-${randId(4).toLowerCase()}`;
-  const workstationName = `ws-${rand(["alice", "bob", "build"])}-${randId(4).toLowerCase()}`;
+  const workstationName = `ws-${rand(["jchen", "mwilliams", "build"])}-${randId(4).toLowerCase()}`;
   const action = isErr
     ? rand(["STOP", "DELETE"] as const)
     : rand(["START", "STOP", "CREATE", "DELETE"] as const);
   const machineType = rand(["e2-standard-4", "n1-standard-8", "n1-highgpu-4"]);
   const idleTimeoutMin = randInt(30, 480);
-  const userEmail = rand([
-    `dev@${project.id.split("-")[0]}.example.com`,
-    `engineer@${project.id}.example.com`,
-  ]);
+  const userEmail = rand([randEmail("jchen"), randEmail("agarcia")]);
   const severity = randSeverity(isErr);
   const message = isErr
     ? `workstations.googleapis.com: ${action} failed for workstation "${workstationName}" (cluster ${clusterName}): ${rand(["Quota exceeded", "Config invalid", "Policy denied"])}`
@@ -625,6 +662,10 @@ export function generateCloudWorkstationsLog(ts: string, er: number): EcsDocumen
       },
     },
     event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: "compute-engine",
       outcome: isErr ? "failure" : "success",
       duration: randInt(1000, isErr ? 180_000 : 45_000),
     },
@@ -634,7 +675,8 @@ export function generateCloudWorkstationsLog(ts: string, er: number): EcsDocumen
 
 export function generateShieldedVmsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+  const gcpResource = `projects/${project.id}`;
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr, gcpResource);
   const instance = randGceInstance();
   const zone = randZone(region);
   const eventType = rand([
@@ -675,6 +717,10 @@ export function generateShieldedVmsLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: "compute-engine",
       outcome: isErr ? "failure" : "success",
       duration: randInt(500, isErr ? 30_000 : 5000),
     },
@@ -684,7 +730,8 @@ export function generateShieldedVmsLog(ts: string, er: number): EcsDocument {
 
 export function generateConfidentialComputingLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+  const gcpResource = `projects/${project.id}`;
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr, gcpResource);
   const instance = randGceInstance();
   const zone = randZone(region);
   const technology = rand(["AMD_SEV", "AMD_SEV_SNP", "INTEL_TDX"] as const);
@@ -720,6 +767,10 @@ export function generateConfidentialComputingLog(ts: string, er: number): EcsDoc
       },
     },
     event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: "compute-engine",
       outcome: isErr ? "failure" : "success",
       duration: randInt(800, isErr ? 120_000 : 25_000),
     },
@@ -729,7 +780,8 @@ export function generateConfidentialComputingLog(ts: string, er: number): EcsDoc
 
 export function generateMigrateToVmsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
+  const gcpResource = `projects/${project.id}`;
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr, gcpResource);
   const sourceName = `src-${rand(["vmware-dc1", "aws-ec2-pool", "azure-rg", "rack-42"])}-${randId(4).toLowerCase()}`;
   const sourceType = rand(["VMWARE", "AWS", "AZURE", "PHYSICAL"] as const);
   const targetInstance = `mig-${randGceInstance().name}`;
@@ -771,6 +823,10 @@ export function generateMigrateToVmsLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: "compute-engine",
       outcome: isErr ? "failure" : "success",
       duration: randInt(5000, isErr ? 3_600_000 : 900_000),
     },

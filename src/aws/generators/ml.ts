@@ -1,4 +1,13 @@
-import { rand, randInt, randFloat, randId, randUUID, randAccount, REGIONS } from "../../helpers";
+import {
+  rand,
+  randInt,
+  randFloat,
+  randId,
+  randUUID,
+  randAccount,
+  REGIONS,
+  randIamUser,
+} from "../../helpers";
 import type { EcsDocument } from "./types.js";
 
 function generateSageMakerLog(ts: string, er: number): EcsDocument {
@@ -210,7 +219,12 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
   const level = Math.random() < er ? "error" : Math.random() < 0.12 ? "warn" : "info";
   const domain = rand(["ds-platform", "ml-research", "cv-team", "nlp-experiments", "risk-models"]);
   const domainId = `d-${randId(10).toLowerCase()}`;
-  const user = rand(["alice-ds", "bob-ml", "carol-research", "dan-platform"]);
+  const user = rand([
+    `${randIamUser()}-ds`,
+    `${randIamUser()}-ml`,
+    "svc-monitoring",
+    "platform-admin",
+  ]);
   const model = rand([
     "xgboost-classifier",
     "bert-finetuned",
@@ -1757,7 +1771,7 @@ function generateQBusinessLog(ts: string, er: number): EcsDocument {
     "support-assistant",
     "it-helpdesk",
   ]);
-  const user = rand(["alice", "bob", "carol", "dan", "eve", "svc-account"]);
+  const user = randIamUser();
   const eventType = rand([
     "QUERY",
     "QUERY",

@@ -3,15 +3,16 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west2",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" }
+    "region": "northamerica-northeast1",
+    "project": { "id": "globex-dev-615094", "name": "Globex Development" },
+    "account": { "id": "615094738261", "name": "Globex Development" },
+    "service": { "name": "anthos-service-mesh" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west2",
-    "ephemeral_id": "qg92pa67odctzzn8z8aj4q4qi90ynagz42na"
+    "name": "metricbeat-gcp-northamerica-northeast1",
+    "ephemeral_id": "apzo1xrpzl956yv0gtq29ncsql0d1e01obs4"
   },
   "monitoringTimeSeries": {
     "metric": {
@@ -21,11 +22,11 @@
     "resource": {
       "type": "istio_canonical_service",
       "labels": {
-        "project_id": "globex-shared-m3n4o5",
-        "location": "europe-west2",
-        "mesh_uid": "mesh-partner",
-        "canonical_service_name": "payments",
-        "canonical_service_namespace": "pay-ns"
+        "project_id": "globex-dev-615094",
+        "location": "northamerica-northeast1",
+        "mesh_uid": "mesh-staging",
+        "canonical_service_name": "orders",
+        "canonical_service_namespace": "orders-ns"
       }
     },
     "metricKind": "DELTA",
@@ -33,22 +34,22 @@
     "points": [
       {
         "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "int64Value": "28502672" }
+        "value": { "int64Value": "34169728" }
       }
     ]
   },
   "gcp": {
     "anthos-service-mesh": {
       "labels": {
-        "project_id": "globex-shared-m3n4o5",
-        "location": "europe-west2",
-        "mesh_uid": "mesh-partner",
-        "canonical_service_name": "payments",
-        "canonical_service_namespace": "pay-ns",
+        "project_id": "globex-dev-615094",
+        "location": "northamerica-northeast1",
+        "mesh_uid": "mesh-staging",
+        "canonical_service_name": "orders",
+        "canonical_service_namespace": "orders-ns",
         "response_code": "200"
       },
       "metrics": {
-        "istio.io/service/server/request_count": { "avg": 28502672, "sum": 28502672, "count": 1 }
+        "istio.io/service/server/request_count": { "avg": 34169728, "sum": 34169728, "count": 1 }
       }
     }
   },
@@ -59,5 +60,5 @@
     "namespace": "default"
   },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.anthos_mesh_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.anthos_mesh_metrics", "module": "gcp" }
 }

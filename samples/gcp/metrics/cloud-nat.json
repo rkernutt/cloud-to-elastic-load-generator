@@ -3,49 +3,50 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west1",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "asia-northeast3",
+    "project": { "id": "globex-dev-615094", "name": "Globex Development" },
+    "account": { "id": "615094738261", "name": "Globex Development" },
+    "service": { "name": "cloud-nat" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-us-west1",
-    "ephemeral_id": "t7lya7c6birlj2qm3tleh0co7wq4098nolbc"
+    "name": "metricbeat-gcp-asia-northeast3",
+    "ephemeral_id": "yngqppbitekqr1v2osuevyanac2v16ofkv9c"
   },
   "monitoringTimeSeries": {
     "metric": {
       "type": "router.googleapis.com/nat/new_connections_count",
-      "labels": { "ip_protocol": "TCP" }
+      "labels": { "ip_protocol": "ICMP" }
     },
     "resource": {
       "type": "nat_gateway",
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "region": "us-west1",
-        "router_id": "cr-shared-02",
-        "gateway_name": "nat-gw-primary"
+        "project_id": "globex-dev-615094",
+        "region": "asia-northeast3",
+        "router_id": "cr-edge-01",
+        "gateway_name": "nat-gw-egress"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "99771" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "513989" } }
     ]
   },
   "gcp": {
     "cloud-nat": {
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "region": "us-west1",
-        "router_id": "cr-shared-02",
-        "gateway_name": "nat-gw-primary",
-        "ip_protocol": "TCP"
+        "project_id": "globex-dev-615094",
+        "region": "asia-northeast3",
+        "router_id": "cr-edge-01",
+        "gateway_name": "nat-gw-egress",
+        "ip_protocol": "ICMP"
       },
       "metrics": {
         "router.googleapis.com/nat/new_connections_count": {
-          "avg": 99771,
-          "sum": 99771,
+          "avg": 513989,
+          "sum": 513989,
           "count": 1
         }
       }
@@ -54,5 +55,5 @@
   "metricset": { "name": "cloud-nat", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.nat_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.nat_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.nat_metrics", "module": "gcp" }
 }

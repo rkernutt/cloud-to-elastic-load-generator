@@ -1,53 +1,52 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-northeast-3",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "backup" }
   },
   "aws": {
     "backup": {
-      "event_subtype": "vault_lock",
-      "backup_job_id": "05tqyb0y-9aw6-s88p",
-      "backup_plan_name": "critical-data-plan",
-      "resource_arn": "arn:aws:backup:ca-west-1:501938274650:recovery-point:a941a79oswwp",
-      "resource_type": "FSx",
-      "backup_vault_name": "Default",
-      "status": "COMPLETED",
-      "backup_size_gb": 1208.142575788509,
-      "lifecycle_delete_after_days": 365,
-      "vault_lock": {
-        "compliance_lock_enabled": false,
-        "governance_lock_enabled": false,
-        "lock_event": "VaultLockConfigurationApplied",
-        "max_retention_days": 35
-      }
+      "event_subtype": "restore_job",
+      "backup_job_id": "xdlj5cqo-495l-8ao5",
+      "restore_job_id": "zthtc3jt-51u3-qjdn",
+      "backup_plan_name": "weekly-cold",
+      "resource_arn": "arn:aws:backup:ap-northeast-3:738291046572:recovery-point:ynqr4jnep7ck",
+      "resource_type": "EC2",
+      "backup_vault_name": "compliance-vault",
+      "job_phase": "RUNNING",
+      "restore_job_lifecycle": ["CREATED", "PENDING", "RUNNING", "COMPLETED"],
+      "status": "RUNNING",
+      "backup_size_gb": 539.9455500112796,
+      "lifecycle_delete_after_days": 90
     },
     "s3": {
       "bucket": {
-        "name": "aws-backup-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-backup-logs-501938274650"
+        "name": "aws-backup-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-backup-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/501938274650/backup/ca-west-1/2026/05/19/backup_JIOFAGMMRZIGW5S9P25Q.log.gz"
+        "key": "AWSLogs/738291046572/backup/ap-northeast-3/2026/05/20/backup_2P77E8Y0HQ8189AETZ8D.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/backup/logs",
-      "log_stream": "ca-west-1/c2i7b6g7",
-      "ingestion_time": "2026-05-19T15:25:13.552Z"
+      "log_stream": "ap-northeast-3/wfvctc3k",
+      "ingestion_time": "2026-05-20T13:19:01.318Z"
     }
   },
   "event": {
     "outcome": "success",
     "category": ["process"],
+    "type": ["info"],
     "dataset": "aws.backup",
     "provider": "backup.amazonaws.com",
-    "duration": 3536000000000,
-    "module": "aws"
+    "duration": 1684000000000,
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "AWS Backup vault Default: VaultLockConfigurationApplied governance=false compliance=false",
+  "message": "AWS Backup restore RUNNING: fsx/fs-prod from compliance-vault",
   "log": { "level": "info" },
   "service": { "name": "backup", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -55,8 +54,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "w0qr75rkwxvwhm06bg1dqmnfp7isg3pl7cf3"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "8wa3qep1cw7ap2x6b43qbyuxagcdwd1kl965"
   },
   "input": { "type": "aws-cloudwatch" }
 }

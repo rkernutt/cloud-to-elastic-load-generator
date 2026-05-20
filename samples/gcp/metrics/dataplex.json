@@ -3,48 +3,49 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "me-central2",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" }
+    "region": "asia-southeast2",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
+    "service": { "name": "dataplex" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-me-central2",
-    "ephemeral_id": "xmi6do4c8dc4hxgbloubmo6pxne0s66xbe60"
+    "name": "metricbeat-gcp-asia-southeast2",
+    "ephemeral_id": "wi8ir8ojrnu9f6hrd645rpcop8tded8d4e5z"
   },
   "monitoringTimeSeries": {
     "metric": { "type": "dataplex.googleapis.com/task/execution_count", "labels": {} },
     "resource": {
       "type": "dataplex.googleapis.com/Task",
       "labels": {
-        "resource_container": "globex-shared-m3n4o5",
-        "location": "me-central2",
-        "lake_id": "lake-security",
-        "task_id": "quality-scan"
+        "resource_container": "globex-stg-739158",
+        "location": "asia-southeast2",
+        "lake_id": "lake-sales",
+        "task_id": "profile-daily"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "291" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "3634" } }
     ]
   },
   "gcp": {
     "dataplex": {
       "labels": {
-        "resource_container": "globex-shared-m3n4o5",
-        "location": "me-central2",
-        "lake_id": "lake-security",
-        "task_id": "quality-scan"
+        "resource_container": "globex-stg-739158",
+        "location": "asia-southeast2",
+        "lake_id": "lake-sales",
+        "task_id": "profile-daily"
       },
       "metrics": {
-        "dataplex.googleapis.com/task/execution_count": { "avg": 291, "sum": 291, "count": 1 }
+        "dataplex.googleapis.com/task/execution_count": { "avg": 3634, "sum": 3634, "count": 1 }
       }
     }
   },
   "metricset": { "name": "dataplex", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.dataplex_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.dataplex_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.dataplex_metrics", "module": "gcp" }
 }

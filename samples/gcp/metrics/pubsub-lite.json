@@ -3,24 +3,25 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast1",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "us-west1",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
+    "service": { "name": "pubsub-lite" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-northeast1",
-    "ephemeral_id": "p351cx0xcsj9qf6gxozv8ttbzb6j45d5fxu3"
+    "name": "metricbeat-gcp-us-west1",
+    "ephemeral_id": "j1j55z5n3zybezbr0d2oz9hy0qtunlehwk59"
   },
   "monitoringTimeSeries": {
     "metric": { "type": "pubsublite.googleapis.com/topic/publish_message_count", "labels": {} },
     "resource": {
       "type": "pubsublite_topic_partition",
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "location": "asia-northeast1-c",
-        "topic_id": "lite-orders",
+        "project_id": "globex-stg-739158",
+        "location": "us-west1-c",
+        "topic_id": "lite-audit",
         "partition_id": "4"
       }
     },
@@ -29,22 +30,22 @@
     "points": [
       {
         "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "int64Value": "3968994" }
+        "value": { "int64Value": "4711638" }
       }
     ]
   },
   "gcp": {
     "pubsub-lite": {
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "location": "asia-northeast1-c",
-        "topic_id": "lite-orders",
+        "project_id": "globex-stg-739158",
+        "location": "us-west1-c",
+        "topic_id": "lite-audit",
         "partition_id": "4"
       },
       "metrics": {
         "pubsublite.googleapis.com/topic/publish_message_count": {
-          "avg": 3968994,
-          "sum": 3968994,
+          "avg": 4711638,
+          "sum": 4711638,
           "count": 1
         }
       }
@@ -53,5 +54,5 @@
   "metricset": { "name": "pubsub-lite", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.pubsublite_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.pubsublite_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.pubsublite_metrics", "module": "gcp" }
 }

@@ -1,55 +1,56 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-south-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "codecatalyst" }
   },
   "aws": {
-    "dimensions": { "SpaceName": "platform-team", "ProjectName": "mobile-app" },
+    "dimensions": { "SpaceName": "platform-team", "ProjectName": "infrastructure" },
     "codecatalyst": {
       "space_name": "platform-team",
-      "project_name": "mobile-app",
-      "workflow_name": "pr-checks",
-      "workflow_run_id": "run-bbuepos4w6n55ypbp0e3",
-      "workflow_run_status": "FAILED",
-      "workflow_steps_completed": 3,
-      "pull_request_number": 556,
+      "project_name": "infrastructure",
+      "workflow_name": "cd-pipeline",
+      "workflow_run_id": "run-q9th7zj6jsuji05kjyji",
+      "workflow_run_status": "TIMED_OUT",
+      "workflow_steps_completed": 2,
+      "pull_request_number": 397,
       "pull_request_head_branch": "chore/deps",
-      "dev_environment_id": "dev-tkrxwczl9c5tyj1a",
+      "dev_environment_id": "dev-6r7gtfa4vbl6jk78",
       "dev_environment_status": "FAILED",
       "ide": "IntelliJ IDEA",
-      "branch_name": "main",
-      "event_type": "SOURCE_REPOSITORY"
+      "branch_name": "develop",
+      "event_type": "DEV_ENVIRONMENT"
     },
     "s3": {
       "bucket": {
-        "name": "aws-codecatalyst-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-codecatalyst-logs-738291046572"
+        "name": "aws-codecatalyst-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-codecatalyst-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/codecatalyst/ap-northeast-3/2026/05/19/codecatalyst_D8WE35A3E0PNYW84109V.log.gz"
+        "key": "AWSLogs/164820739518/codecatalyst/ap-south-2/2026/05/20/codecatalyst_PYH2UWJOMJM8Z36PHSPC.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codecatalyst/logs",
-      "log_stream": "ap-northeast-3/tefd7phj",
-      "ingestion_time": "2026-05-19T15:25:13.606Z"
+      "log_stream": "ap-south-2/6j9gq277",
+      "ingestion_time": "2026-05-20T13:19:01.366Z"
     }
   },
   "event": {
-    "action": "CreateSourceRepository",
+    "action": "DeleteDevEnvironment",
     "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.codecatalyst",
     "provider": "codecatalyst.amazonaws.com",
-    "module": "aws"
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "[CodeCatalyst] space=platform-team project=mobile-app workflow=pr-checks run=run-bbuepos4w6n55ypbp0e3 status=FAILED\n[WorkflowRun] trigger=pull_request pr=#556 head=chore/deps base=main sha=edfcrihornbzuem66af6gebfe9178ue2lf0d54i8\n[WorkflowRun:run-bbuepos4w6n55ypbp0e3] step=Checkout status=SUCCEEDED durationMs=87266 order=1\n[WorkflowRun:run-bbuepos4w6n55ypbp0e3] step=Install status=SUCCEEDED durationMs=170581 order=2\n[WorkflowRun:run-bbuepos4w6n55ypbp0e3] step=Lint status=SUCCEEDED durationMs=152714 order=3\n[WorkflowRun:run-bbuepos4w6n55ypbp0e3] step=UnitTests status=FAILED exitCode=6\nCodeCatalyst CreateSourceRepository FAILED: Dev environment error",
+  "message": "[CodeCatalyst] space=platform-team project=infrastructure workflow=cd-pipeline run=run-q9th7zj6jsuji05kjyji status=TIMED_OUT\n[WorkflowRun] trigger=pull_request pr=#397 head=chore/deps base=main sha=eu3cacycoot2b0lo9dg2um324cds0zif5so3ijpc\n[WorkflowRun:run-q9th7zj6jsuji05kjyji] step=Checkout status=SUCCEEDED durationMs=54738 order=1\n[WorkflowRun:run-q9th7zj6jsuji05kjyji] step=Install status=SUCCEEDED durationMs=55931 order=2\n[WorkflowRun:run-q9th7zj6jsuji05kjyji] step=Lint status=FAILED exitCode=57\nDeleteDevEnvironment devEnvId=dev-6r7gtfa4vbl6jk78 statusTransition=DELETED machineType=PERFORMANCE\nCodeCatalyst DeleteDevEnvironment FAILED: Branch conflict",
   "log": { "level": "error" },
   "error": {
-    "code": "ResourceNotFoundException",
+    "code": "ValidationException",
     "message": "CodeCatalyst operation failed",
     "type": "process"
   },
@@ -59,8 +60,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "ycasjmlfcien6nve33a7f0ghu8fvgiqt2raq"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "vmi3xunxm6t02lwb4tunwjv2p4ukriuyrxdr"
   },
   "input": { "type": "aws-cloudwatch" }
 }

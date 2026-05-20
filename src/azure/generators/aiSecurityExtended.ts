@@ -7,6 +7,7 @@ import {
   azureCloud,
   makeAzureSetup,
   randUUID,
+  randIamUser,
 } from "./helpers.js";
 
 const AI_SECURITY_ERR_CODES = [
@@ -194,7 +195,14 @@ export function generateCognitiveServicesLog(ts: string, er: number): EcsDocumen
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 3e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String(op),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e7, 3e9),
+      },
       message: isErr
         ? `Cognitive Services ${account}: ${op} failed (status ${statusCode})`
         : `Cognitive Services ${account}: control plane ${op} completed`,
@@ -246,7 +254,14 @@ export function generateCognitiveServicesLog(ts: string, er: number): EcsDocumen
           properties: propsForDoc,
         },
       },
-      event: { outcome: "failure", duration: randInt(1e6, 2e8) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: ["denied"],
+        action: String("CognitiveServices.Throttled"),
+        outcome: "failure",
+        duration: randInt(1e6, 2e8),
+      },
       message: `Cognitive Services ${account}: throttled on ${op} retryAfter=${props.retryAfter}`,
       ...(docErr ? { error: docErr } : {}),
     };
@@ -284,7 +299,14 @@ export function generateCognitiveServicesLog(ts: string, er: number): EcsDocumen
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e8, 4e10) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.CognitiveServices/accounts/privateEndpointConnections/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(8e8, 4e10),
+      },
       message: isErr
         ? `Cognitive Services ${account}: private endpoint ${props.privateEndpoint} failed`
         : `Private link approved for ${account}/${props.privateEndpoint}`,
@@ -324,7 +346,14 @@ export function generateCognitiveServicesLog(ts: string, er: number): EcsDocumen
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e11, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.CognitiveServices/accounts/deployments/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e11, 2e13),
+      },
       message: isErr
         ? `Cognitive ${account}: deployment ${props.deploymentName} failed`
         : `Cognitive ${account}: deployed ${props.deploymentName} (${props.capacityUnits} units)`,
@@ -364,7 +393,14 @@ export function generateCognitiveServicesLog(ts: string, er: number): EcsDocumen
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(6e9, 2e11) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("CognitiveServices.UsageReport"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(6e9, 2e11),
+      },
       message: isErr
         ? `Cognitive ${account}: usage roll-up failed (${props.statusCode})`
         : `Cognitive ${account}: billed requests=${props.requestCount}`,
@@ -480,7 +516,14 @@ export function generateMachineLearningLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 6e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("AzureML.ExperimentRun"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 6e9),
+      },
       message: isErr
         ? `AML workspace ${ws}: experiment run ${runId} failed`
         : `AML workspace ${ws}: run ${runId} ${props.status}`,
@@ -522,7 +565,14 @@ export function generateMachineLearningLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e7, 12e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("AzureML.ModelDeployment"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(8e7, 12e9),
+      },
       message: isErr
         ? `AML ${ws}: deployment ${endpoint} failed`
         : `AML ${ws}: model deployment ${endpoint} ${props.provisioningState}`,
@@ -564,7 +614,14 @@ export function generateMachineLearningLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 5e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.MachineLearningServices/workspaces/computes/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e8, 5e9),
+      },
       message: isErr
         ? `AML compute ${cluster} in ${ws}: provisioning failed`
         : `AML compute ${cluster}: ${props.operation} ${props.state}`,
@@ -606,7 +663,14 @@ export function generateMachineLearningLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e7, 2e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.MachineLearningServices/workspaces/datastores/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e7, 2e9),
+      },
       message: isErr
         ? `AML datastore ${ds} (${props.storeType}) validation failed (${props.statusCode})`
         : `AML datastore ${ds} registered against ${props.account}`,
@@ -646,7 +710,14 @@ export function generateMachineLearningLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 4e10) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.MachineLearningServices/workspaces/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e8, 4e10),
+      },
       message: isErr
         ? `AML workspace ${ws}: SKU / networking update rejected`
         : `AML workspace ${ws}: SKU ${props.sku} provisioning accepted`,
@@ -688,7 +759,14 @@ export function generateMachineLearningLog(ts: string, er: number): EcsDocument 
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(9e8, 3e11) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("AzureML.ManagedOnlineEndpoint.ScoringRun"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(9e8, 3e11),
+    },
     message: isErr
       ? `AML ${ws}/${endpointName}: realtime scoring degraded (${props.statusCode})`
       : `AML scoring ${endpointName}: ${props.requestType.toLowerCase()} throughput OK`,
@@ -739,7 +817,14 @@ export function generateAiSearchLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e7, 4e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String(`SearchService.IndexManagement/${props.operation}`),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e7, 4e9),
+      },
       message: isErr
         ? `AI Search ${svc}: index ${indexName} operation failed`
         : `AI Search ${svc}: index ${indexName} ${props.operation} OK`,
@@ -781,7 +866,14 @@ export function generateAiSearchLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e5, 2e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("SearchService.SearchQuery"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e5, 2e9),
+      },
       message: isErr
         ? `AI Search ${svc}: query execution error (${props.statusCode})`
         : `AI Search ${svc}: query returned ${props.resultsCount} docs in ${props.queryLatencyMs}ms`,
@@ -822,7 +914,14 @@ export function generateAiSearchLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 8e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("SearchService.SkillExecution"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 8e9),
+      },
       message: isErr
         ? `AI Search ${svc}: skill ${props.skillsetName} execution failed`
         : `AI Search ${svc}: skill ${props.skillType} processed ${props.documentsProcessed} docs`,
@@ -862,7 +961,14 @@ export function generateAiSearchLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 3e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("SearchService.SynonymMaps/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e7, 3e9),
+      },
       message: isErr
         ? `AI Search ${svc}: synonym map ${props.synonymMapName} ${props.operation} failed (${props.statusCode})`
         : `Synonym map ${props.synonymMapName} refreshed (${props.mapsRuleCount} rules)`,
@@ -902,7 +1008,14 @@ export function generateAiSearchLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 2e10) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("SearchService.DataPlaneAuth"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e8, 2e10),
+      },
       message: isErr
         ? `AI Search ${svc}: RBAC denial for principal ${props.objectId.slice(0, 8)}`
         : `AI Search RBAC authorization granted (${props.callerRole})`,
@@ -943,7 +1056,14 @@ export function generateAiSearchLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(4e10, 2e13) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("SearchService.Indexer.Run"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e10, 2e13),
+    },
     message: isErr
       ? `AI Search indexer ${props.indexerName} stalled (${props.itemsFailed} batches failed)`
       : `Indexer ${props.indexerName} ingestion batch committed`,
@@ -1002,7 +1122,14 @@ export function generateBotServiceLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e5, 2e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("BotService.Message"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e5, 2e9),
+      },
       message: isErr
         ? `Bot ${bot}: message delivery failed on ${props.channelId}`
         : `Bot ${bot}: message handled on ${props.channelId}`,
@@ -1041,7 +1168,14 @@ export function generateBotServiceLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e6, 2e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("BotService.ChannelOperation"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(8e6, 2e9),
+      },
       message: isErr
         ? `Bot ${bot}: channel ${props.channel} operation failed`
         : `Bot ${bot}: channel ${props.operation} ${props.channel}`,
@@ -1083,7 +1217,14 @@ export function generateBotServiceLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e5, 1e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("BotService.SessionState"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e5, 1e9),
+      },
       message: isErr
         ? `Bot ${bot}: session ${convId} state error`
         : `Bot ${bot}: session ${convId} ${props.action}`,
@@ -1094,7 +1235,7 @@ export function generateBotServiceLog(ts: string, er: number): EcsDocument {
   if (variant === "webhook") {
     const docErr = aiSecurityPickError(isErr);
     const props = {
-      callbackUrlHost: rand(["botservice.azurewebsites.net", "api.enterprise.contoso"]),
+      callbackUrlHost: rand(["botservice.azurewebsites.net", "api.enterprise.meridiantech"]),
       verifiedSignature: !isErr,
       httpStatus: isErr ? rand([401, 500, 504]) : 202,
       deliveryAttempt: randInt(1, 5),
@@ -1124,7 +1265,14 @@ export function generateBotServiceLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 3e11) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("BotService.OutgoingWebhookDelivery"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e9, 3e11),
+      },
       message: isErr
         ? `Bot ${bot}: webhook callback failed (${props.httpStatus}), attempt=${props.deliveryAttempt}`
         : `Bot ${bot}: outgoing webhook ACK from ${props.callbackUrlHost}`,
@@ -1165,7 +1313,14 @@ export function generateBotServiceLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e11, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("BotService.OAuth.SignInExchange"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e11, 2e13),
+      },
       message: isErr
         ? `Bot ${bot}: OAuth handshake failed for ${props.connectionName}`
         : `OAuth token exchange succeeded for ${props.connectionName}`,
@@ -1206,7 +1361,14 @@ export function generateBotServiceLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e10, 3e13) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("Microsoft.BotService/botServices/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e10, 3e13),
+    },
     message: isErr
       ? `Bot ${bot}: resource provisioning aborted (${sku})`
       : `Bot ${bot}: SKU ${sku} assignment ${props.provisioningState.toLowerCase()}`,
@@ -1266,7 +1428,14 @@ export function generateVisionLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 3e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("ComputerVision.AnalyzeImage"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 3e9),
+      },
       message: isErr
         ? `Computer Vision ${account}: analyze failed (${props.statusCode})`
         : `Computer Vision ${account}: AnalyzeImage completed in ${props.latencyMs}ms`,
@@ -1309,7 +1478,14 @@ export function generateVisionLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 3e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("ComputerVision.Read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 3e9),
+      },
       message: isErr
         ? `Computer Vision ${account}: OCR failed (${props.statusCode})`
         : `Computer Vision ${account}: OCR regions=${props.regionsDetected}`,
@@ -1352,7 +1528,14 @@ export function generateVisionLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 3e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("ComputerVision.AnalyzeImage/spatial"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 3e9),
+      },
       message: isErr
         ? `Computer Vision ${account}: spatial failed (${props.statusCode})`
         : `Spatial analysis peopleCount=${props.peopleCount}`,
@@ -1394,7 +1577,14 @@ export function generateVisionLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 2e10) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("ComputerVision.ModernContentModeration"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 2e10),
+      },
       message: isErr
         ? `Computer Vision ${account}: moderation pipeline error`
         : `Moderation flagged adult=${props.isAdultClassification}`,
@@ -1436,7 +1626,14 @@ export function generateVisionLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 2e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("ComputerVision.TagImage"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e7, 2e9),
+      },
       message: isErr
         ? `Computer Vision ${account}: tagging request timed out (${props.statusCode})`
         : `${props.tagsEmitted} tags emitted above ${props.confidenceThreshold}`,
@@ -1477,7 +1674,14 @@ export function generateVisionLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e9, 2e11) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("ComputerVision.GenerateThumbnail"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e9, 2e11),
+    },
     message: isErr
       ? `Computer Vision ${account}: thumbnail render failed (${props.statusCode})`
       : `${props.thumbDimension}px thumbnail (${props.smartCrop ? "smart" : "center"} crop)`,
@@ -1532,7 +1736,14 @@ export function generateSpeechLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 5e9) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String(op),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e6, 5e9),
+    },
     message,
     ...(docErrReturn ? { error: docErrReturn } : {}),
   });
@@ -1712,7 +1923,14 @@ export function generateTranslatorLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e6, 3e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Translator.Text.Batch"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e6, 3e9),
+      },
       message: isErr
         ? `Translator ${account}: text batch failed`
         : `Translator ${account}: translated ${props.characterCount} chars ${props.from}->${props.to}`,
@@ -1755,7 +1973,14 @@ export function generateTranslatorLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 12e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Translator.Document.Batch"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e8, 12e9),
+      },
       message: isErr
         ? `Translator ${account}: document job ${props.operationId} failed`
         : `Translator ${account}: document batch ${props.status} files=${props.fileCount}`,
@@ -1796,7 +2021,14 @@ export function generateTranslatorLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e10, 2e12) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Translator.Glossary.Upload"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e10, 2e12),
+      },
       message: isErr
         ? `Translator glossary ${props.glossaryGuid.slice(0, 8)} ingestion failed`
         : `Imported ${props.entryCount} glossary segments`,
@@ -1838,7 +2070,14 @@ export function generateTranslatorLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 4e11) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Translator.Detect"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e7, 4e11),
+      },
       message: isErr
         ? `Translator ${account}: detection failed (${props.statusCode})`
         : `Language detected=${props.detectedLanguage} conf=${props.confidence.toFixed(3)}`,
@@ -1878,7 +2117,14 @@ export function generateTranslatorLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 2e10) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Translator.Rbac.Authorization"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e8, 2e10),
+      },
       message: isErr
         ? `Translator RBAC denied principal ${props.principalId.slice(0, 8)}`
         : `RBAC authorization ${props.denialReason.toLowerCase()}`,
@@ -1918,7 +2164,14 @@ export function generateTranslatorLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e10, 2e13) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("Microsoft.CognitiveServices/accounts/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e10, 2e13),
+    },
     message: isErr
       ? `Translator reseller SKU update failed (${props.skuName})`
       : `Translator account scaled to SKU ${props.skuName}`,
@@ -1971,7 +2224,14 @@ export function generateDocumentIntelligenceLog(ts: string, er: number): EcsDocu
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e6, 6e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("DocumentIntelligence.Analyze"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e6, 6e9),
+      },
       message: isErr
         ? `Document Intelligence ${account}: analyze failed`
         : `Document Intelligence ${account}: analyze ${props.pages} pages model=${props.modelId}`,
@@ -2013,7 +2273,14 @@ export function generateDocumentIntelligenceLog(ts: string, er: number): EcsDocu
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 14e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("DocumentIntelligence.TrainModel"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e7, 14e9),
+      },
       message: isErr
         ? `Document Intelligence ${account}: training ${props.modelName} failed`
         : `Document Intelligence ${account}: model ${props.modelName} training ${props.status}`,
@@ -2054,7 +2321,14 @@ export function generateDocumentIntelligenceLog(ts: string, er: number): EcsDocu
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e11, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("DocumentIntelligence.Prebuilt.Layout"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e11, 2e13),
+      },
       message: isErr
         ? `DocIntel layout extraction failed (${props.statusCode})`
         : `${props.lineCount} lines / ${props.figureCount} figures with ${props.readingOrder} order`,
@@ -2095,7 +2369,14 @@ export function generateDocumentIntelligenceLog(ts: string, er: number): EcsDocu
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e11, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("DocumentIntelligence.ClassifyDocument"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e11, 2e13),
+      },
       message: isErr
         ? `Classifier ${props.classifierModel} returned low confidence (${props.confidence})`
         : `Classified as ${props.labelAssigned} conf=${props.confidence.toFixed(3)}`,
@@ -2135,7 +2416,16 @@ export function generateDocumentIntelligenceLog(ts: string, er: number): EcsDocu
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e10, 3e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String(
+          "Microsoft.CognitiveServices/accounts/providers/Microsoft.Authorization/write"
+        ),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e10, 3e13),
+      },
       message: isErr
         ? `DocIntel RBAC assign failed (${props.statusCode})`
         : `${props.scopedRole} granted`,
@@ -2175,7 +2465,14 @@ export function generateDocumentIntelligenceLog(ts: string, er: number): EcsDocu
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e10, 2e13) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("DocumentIntelligence.MeteringReport"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e10, 2e13),
+    },
     message: isErr
       ? `DocIntel metering ingestion failed (${props.statusCode}), est charge ${props.overageChargesEstimated}`
       : `Metered ${props.pagesMeteredThisHour} pages on tier ${props.skuTier}`,
@@ -2234,7 +2531,14 @@ export function generateManagedIdentityLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e5, 8e8) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("ManagedIdentity.GetToken"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e5, 8e8),
+      },
       message: isErr
         ? `Managed Identity ${idName}: token issuance failed (${props.errorCode})`
         : `Managed Identity ${idName}: token issued for audience ${props.audience}`,
@@ -2252,7 +2556,7 @@ export function generateManagedIdentityLog(ts: string, er: number): EcsDocument 
       ]),
       subject: isErr
         ? "invalid-subject"
-        : `repo:contoso/${rand(["api", "infra"])}:ref:refs/heads/main`,
+        : `repo:meridiantech/${rand(["api", "infra"])}:ref:refs/heads/main`,
       operation: isErr ? "delete" : rand(["create", "update"]),
       correlationId,
     };
@@ -2280,7 +2584,16 @@ export function generateManagedIdentityLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 2e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String(
+          `Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials/${props.operation}`
+        ),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e6, 2e9),
+      },
       message: isErr
         ? `Managed Identity ${idName}: federated credential ${props.operation} failed`
         : `Managed Identity ${idName}: federated cred ${props.federatedCredentialName} ${props.operation}`,
@@ -2321,7 +2634,14 @@ export function generateManagedIdentityLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e10, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.ManagedIdentity/userAssignedIdentities/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e10, 2e13),
+      },
       message: isErr
         ? `Provisioning user-assigned MI ${idName} failed`
         : `User-assigned identity ${idName} ${props.provisioningState.toLowerCase()}`,
@@ -2362,7 +2682,14 @@ export function generateManagedIdentityLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e10, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Authorization/roleAssignments/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e10, 2e13),
+      },
       message: isErr
         ? `Could not attach MI ${idName}: ${props.deniedReasonCode}`
         : `Role assignment created for MI ${idName}`,
@@ -2402,7 +2729,14 @@ export function generateManagedIdentityLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e11, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("ManagedIdentity.RevokeActiveSessions"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e11, 2e13),
+      },
       message: isErr
         ? `Revoke operation failed for ${idName} (${props.statusCode})`
         : `Revoked ${props.affectedSessionCount} sessions (${props.revocationReason})`,
@@ -2442,7 +2776,14 @@ export function generateManagedIdentityLog(ts: string, er: number): EcsDocument 
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(9e11, 2e13) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("ManagedIdentity.IMDS.HealthProbe"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(9e11, 2e13),
+    },
     message: isErr
       ? `IMDS probe failed for MI ${idName} (${props.statusCode})`
       : `IMDS OK latency=${props.instanceMetadataLatencyMs}ms`,
@@ -2502,7 +2843,14 @@ export function generateDefenderForCloudLog(ts: string, er: number): EcsDocument
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 4e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Security/assessments/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e7, 4e9),
+      },
       message: isErr
         ? `Defender assessment ${assessmentId}: failed for ${resourceName}`
         : `Defender: assessment ${assessmentId} ${props.status} (${props.severity})`,
@@ -2543,7 +2891,14 @@ export function generateDefenderForCloudLog(ts: string, er: number): EcsDocument
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 2e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Security/recommendations/status"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e6, 2e9),
+      },
       message: isErr
         ? `Defender recommendation ${props.recommendationId}: status update failed`
         : `Defender: recommendation ${props.action} on ${resourceName}`,
@@ -2583,7 +2938,14 @@ export function generateDefenderForCloudLog(ts: string, er: number): EcsDocument
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e11, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Security/secureScores/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e11, 2e13),
+      },
       message: isErr
         ? `Secure score snapshot rejected (${props.staleControlsCount} stale controls)`
         : `Secure score ${props.weightedScorePct}% on ${props.controlName} pillar`,
@@ -2624,7 +2986,14 @@ export function generateDefenderForCloudLog(ts: string, er: number): EcsDocument
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e10, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Security/alerts/suppressions/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e10, 2e13),
+      },
       message: isErr
         ? `Defender suppression create failed (${props.statusCode})`
         : `Suppression persisted for alert rule ${props.ruleId.slice(0, 8)}`,
@@ -2665,7 +3034,14 @@ export function generateDefenderForCloudLog(ts: string, er: number): EcsDocument
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e13, 4e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Security/dataConnectors/ingestion"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e13, 4e13),
+      },
       message: isErr
         ? `Defender ingestion backlog spike lag=${props.lagSeconds}s`
         : `${props.eventsIngested} ${props.streamVendor} events normalized`,
@@ -2706,7 +3082,14 @@ export function generateDefenderForCloudLog(ts: string, er: number): EcsDocument
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e12, 2e14) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("Microsoft.Security/workspaceSettings/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e12, 2e14),
+    },
     message: isErr
       ? `Defender onboarding to ${workspaceName} failed (${props.statusCode})`
       : `${workspaceName} linked (autoAgents=${props.autoProvisionAgents})`,
@@ -2740,7 +3123,7 @@ export function generateSentinelLog(ts: string, er: number): EcsDocument {
       incidentId: incName,
       severity: rand(["High", "Medium", "Low", "Informational"]),
       status: isErr ? "Error" : rand(["New", "Active", "Closed"]),
-      owner: rand(["soc-analyst-a", "soc-analyst-b"]),
+      owner: randIamUser(),
       tactics: rand(["InitialAccess", "Exfiltration", "CredentialAccess"]),
       correlationId,
     };
@@ -2768,7 +3151,14 @@ export function generateSentinelLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 3e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.SecurityInsights/incidents/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e6, 3e9),
+      },
       message: isErr
         ? `Sentinel ${law}: incident ${incName} update failed`
         : `Sentinel: incident ${incName} ${props.status} severity=${props.severity}`,
@@ -2811,7 +3201,14 @@ export function generateSentinelLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 8e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.SecurityInsights/alertRules/query"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 8e9),
+      },
       message: isErr
         ? `Sentinel rule ${props.ruleName}: execution failed`
         : `Sentinel rule ${props.ruleName}: matched ${props.matchedEvents} events`,
@@ -2853,7 +3250,14 @@ export function generateSentinelLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 9e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Logic/workflows/run"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e8, 9e9),
+      },
       message: isErr
         ? `Sentinel playbook ${props.playbookName}: run ${props.runId} failed`
         : `Sentinel playbook ${props.playbookName}: ${props.actionsRun} actions ${props.status}`,
@@ -2895,7 +3299,14 @@ export function generateSentinelLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e12, 2e14) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.SecurityInsights/huntingqueries/run"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e12, 2e14),
+      },
       message: isErr
         ? `Hunting query ${props.queryGuid.slice(0, 8)} failed (${props.statusCode})`
         : `${props.operator} hunting returned ${props.rowsReturned} rows`,
@@ -2935,7 +3346,14 @@ export function generateSentinelLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e13, 2e14) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.SecurityInsights/dataConnectors/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e13, 2e14),
+      },
       message: isErr
         ? `Connector ${props.connectorKind} health=${props.status}`
         : `${props.connectorKind} connector stable poll=${props.lastPollLatencyMs}ms`,
@@ -2975,7 +3393,14 @@ export function generateSentinelLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e12, 2e13) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("Microsoft.OperationalInsights/workspaces/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e12, 2e13),
+    },
     message: isErr
       ? `${props.rbacOperation} blocked (${props.reasoning})`
       : `${props.rbacOperation} succeeded for principal ${props.objectId.slice(0, 8)}`,
@@ -3034,7 +3459,14 @@ export function generateAttestationLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e5, 1e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Attestation/attest"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e5, 1e9),
+      },
       message: isErr
         ? `Attestation ${name}: request rejected`
         : `Attestation ${name}: ${props.tee} quote ${props.verdict}`,
@@ -3074,7 +3506,14 @@ export function generateAttestationLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e6, 2e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Attestation/attestationProviders/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e6, 2e9),
+      },
       message: isErr
         ? `Attestation ${name}: policy update failed`
         : `Attestation ${name}: policy ${props.operator} applied`,
@@ -3116,7 +3555,14 @@ export function generateAttestationLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e11, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Attestation/jwks/refresh"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e11, 2e13),
+      },
       message: isErr
         ? `JWT metadata fetch failed (${props.statusCode})`
         : `${props.signingAlg} JWKS warmup OK cache=${props.jwksCacheHitRate}`,
@@ -3156,7 +3602,14 @@ export function generateAttestationLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e13, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Authorization/roleAssignments/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e13, 2e13),
+      },
       message: isErr
         ? `Attestation RBAC assign failed (${props.statusCode})`
         : `${props.roleName} assigned`,
@@ -3197,7 +3650,14 @@ export function generateAttestationLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: "failure", duration: randInt(9e11, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: ["denied"],
+        action: String("Microsoft.Attestation/attest"),
+        outcome: "failure",
+        duration: randInt(9e11, 2e13),
+      },
       message: `Blocked replayed nonce=${props.nonce.slice(0, 8)} trace=${props.traceId.slice(0, 8)}`,
       ...{ error: errForReplay },
     };
@@ -3235,7 +3695,14 @@ export function generateAttestationLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e13, 2e14) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("Microsoft.Attestation/attestationProviders/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e13, 2e14),
+    },
     message: isErr
       ? `SKU move to ${props.skuTier} failed (${props.statusCode})`
       : `Attestation provider upgraded to ${props.skuTier} hsmBacked=${props.hsmBacked}`,
@@ -3294,7 +3761,14 @@ export function generateConfidentialLedgerLog(ts: string, er: number): EcsDocume
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 3e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("ConfidentialLedger.WriteEntry"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 3e9),
+      },
       message: isErr
         ? `Confidential Ledger ${ledger}: append failed`
         : `Confidential Ledger ${ledger}: committed tx ${props.transactionId} round=${props.round}`,
@@ -3334,7 +3808,14 @@ export function generateConfidentialLedgerLog(ts: string, er: number): EcsDocume
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 4e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("ConfidentialLedger.MembershipChange"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e6, 4e9),
+      },
       message: isErr
         ? `Confidential Ledger ${ledger}: membership change failed`
         : `Confidential Ledger ${ledger}: ${props.action} ${props.memberId}`,
@@ -3375,7 +3856,14 @@ export function generateConfidentialLedgerLog(ts: string, er: number): EcsDocume
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e13, 2e14) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("ConfidentialLedger.GetLedgerEntries"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e13, 2e14),
+      },
       message: isErr
         ? `Ledger read proof verification failed (${props.statusCode})`
         : `Sequence ${props.ledgerSequence} proof depth=${props.merkleDepth}`,
@@ -3415,7 +3903,16 @@ export function generateConfidentialLedgerLog(ts: string, er: number): EcsDocume
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e13, 3e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String(
+          "Microsoft.ConfidentialLedger/ledgers/providers/Microsoft.Authorization/write"
+        ),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e13, 3e13),
+      },
       message: isErr
         ? `Ledger RBAC ${props.rbacOperation} denied`
         : `RBAC mutation accepted for oid ${props.objectId.slice(0, 8)}`,
@@ -3458,7 +3955,14 @@ export function generateConfidentialLedgerLog(ts: string, er: number): EcsDocume
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e14, 4e14) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("ConfidentialLedger.DisasterRecovery.Rebalance"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e14, 4e14),
+      },
       message: isErr
         ? `Ledger DR failover behind RPO>${props.rpoSecondsAchieved}s`
         : `Failover exercised ${props.failoverRegionPair} RPO=${props.rpoSecondsAchieved}s`,
@@ -3498,7 +4002,14 @@ export function generateConfidentialLedgerLog(ts: string, er: number): EcsDocume
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e13, 2e14) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("ConfidentialLedger.Metering.Flush"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e13, 2e14),
+    },
     message: isErr
       ? `Ledger metering rollup failed (${props.statusCode}); est overdue ${props.writeChargesAccrued}`
       : `${props.pageReadsThisHour} read ops billed this interval`,
@@ -3562,7 +4073,14 @@ export function generateActivityLogLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 4e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String(rand(["write", "delete", "read"])),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e6, 4e9),
+      },
       message: isErr
         ? `Activity Log subscription ${subscription.id}: admin operation failed`
         : `Activity Log: subscription-level ${props.status} admin event`,
@@ -3607,7 +4125,14 @@ export function generateActivityLogLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e6, 2e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String(isErr),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e6, 2e9),
+      },
       message: isErr
         ? `Activity Log alert ${alertName}: operation failed`
         : `Activity Log: alert rule ${alertName} updated`,
@@ -3621,7 +4146,7 @@ export function generateActivityLogLog(ts: string, er: number): EcsDocument {
       resourceName: `st${randId(7)}`,
       resourceType: "Microsoft.Storage/storageAccounts",
       actionName: isErr ? "write" : rand(["delete", "action"]),
-      caller: rand(["deploy-bot", "policy-remediation"]),
+      caller: rand(["svc-deploy-prod", "svc-cicd-runner", "policy-remediation"]),
       correlationId,
     };
     const resourceId = `/subscriptions/${subscription.id}/resourceGroups/${resourceGroup}/providers/${props.resourceType}/${props.resourceName}`;
@@ -3648,7 +4173,14 @@ export function generateActivityLogLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e6, 3e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String(`Microsoft.Storage/storageAccounts/${props.actionName}`),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e6, 3e9),
+      },
       message: isErr
         ? `Activity Log: ${props.resourceType} ${props.resourceName} failed (${props.actionName})`
         : `Activity Log: resource ${props.resourceName} ${props.actionName} by ${props.caller}`,
@@ -3689,7 +4221,14 @@ export function generateActivityLogLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e10, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Authorization/roleAssignments/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e10, 2e13),
+      },
       message: isErr
         ? `RBAC assignment failed (${props.statusCode}) for ${props.roleDefinitionName}`
         : `Granted ${props.roleDefinitionName} at ${props.scope}`,
@@ -3729,7 +4268,14 @@ export function generateActivityLogLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e13, 2e14) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Billing/register/action"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(8e13, 2e14),
+      },
       message: isErr
         ? `Delegated partner consent ${props.consentState}`
         : `MSP ${props.offerName} consent updated`,
@@ -3770,7 +4316,14 @@ export function generateActivityLogLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e14, 3e14) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("Microsoft.PolicyInsights/remediations/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e14, 3e14),
+    },
     message: isErr
       ? `Policy remediation ${props.remediationId}: still ${props.nonCompliantResourceCount} non-compliant`
       : `Remediation ${props.remediationId}: subscription sweep ${props.status.toLowerCase()}`,
@@ -3828,7 +4381,14 @@ export function generateMonitorLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e6, 3e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Insights/diagnosticSettings/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e6, 3e9),
+      },
       message: isErr
         ? `Monitor: diagnostic settings update failed for ${targetName}`
         : `Monitor: diagnostics to ${props.destination} ${props.provisioningState}`,
@@ -3872,7 +4432,14 @@ export function generateMonitorLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 4e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String(`Microsoft.Insights/components/${props.operation}`),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e6, 4e9),
+      },
       message: isErr
         ? `Application Insights ${app}: operation failed`
         : `Application Insights ${app}: ${props.operation} sampling=${props.samplingPercentage}%`,
@@ -3913,7 +4480,14 @@ export function generateMonitorLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 7e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Monitor/dataCollection/pipeline"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 7e9),
+      },
       message: isErr
         ? `Monitor ingestion pipeline: drops=${props.droppedSeries}`
         : `Monitor pipeline: ingested ${props.bytesIngested} bytes${props.throttled ? " (throttled)" : ""}`,
@@ -3955,7 +4529,16 @@ export function generateMonitorLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e10, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String(
+          `Microsoft.Insights/actionGroups/${props.operation === "DeleteFailed" ? "delete" : "write"}`
+        ),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e10, 2e13),
+      },
       message: isErr
         ? `Action group ${agName} mutation failed (${props.operation})`
         : `Action group updated webhooks=${props.webhookTargets} sms=${props.smsTargets}`,
@@ -3996,7 +4579,14 @@ export function generateMonitorLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e13, 2e14) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.AlertsManagement/prometheusRuleGroups/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e13, 2e14),
+      },
       message: isErr
         ? `Prometheus rule eval failed (${props.statusCode}) alarms=${props.alertFiringCount}`
         : `Evaluated ${props.rulesEvaluated} rules in ${props.ruleGroupName}`,
@@ -4037,7 +4627,14 @@ export function generateMonitorLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e13, 2e13) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("microsoft.insights/workbooks/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e13, 2e13),
+    },
     message: isErr
       ? `Workbook publish ${wb} failed (${props.statusCode})`
       : `Published workbook ${wb} tiles=${props.tileCount} datasource=${props.dataSources}`,
@@ -4095,7 +4692,14 @@ export function generatePolicyLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 9e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.PolicyInsights/policyStates/triggerEvaluation"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 9e9),
+      },
       message: isErr
         ? `Policy ${assignment}: evaluation failed`
         : `Policy scan ${props.scanId}: ${props.complianceState} (${props.nonCompliantResources} resources)`,
@@ -4137,7 +4741,14 @@ export function generatePolicyLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 12e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.PolicyInsights/remediations/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e7, 12e9),
+      },
       message: isErr
         ? `Policy remediation ${props.taskName}: ${props.failed} failures`
         : `Policy remediation ${props.taskName}: fixed ${props.succeeded}/${props.targetCount}`,
@@ -4178,7 +4789,14 @@ export function generatePolicyLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e13, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Authorization/policyExemptions/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e13, 2e13),
+      },
       message: isErr
         ? `Policy exemption rejected (${props.statusCode})`
         : `Recorded ${props.exemptionCategory} covering ${props.resourcesCovered} scopes`,
@@ -4218,7 +4836,14 @@ export function generatePolicyLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e12, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.PolicyInsights/policyStates/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e12, 2e13),
+      },
       message: isErr
         ? `Deny audit pipeline halted (${props.enforcementMode})`
         : `${props.effectResult} event emitted for RG scope`,
@@ -4258,7 +4883,14 @@ export function generatePolicyLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e14, 4e14) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Authorization/policySetDefinitions/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e14, 4e14),
+      },
       message: isErr
         ? `Initiative ${props.initiativeName} bundle deploy failed (${props.policiesBundled} defs)`
         : `Initiative deployed ${props.initiativeName}`,
@@ -4297,7 +4929,14 @@ export function generatePolicyLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e13, 2e14) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("Microsoft.PolicyInsights/policyStates/summarize/action"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e13, 2e14),
+    },
     message: isErr
       ? `Compliance rollup ${props.rollupWindow} degraded (${props.outstandingFindings} open)`
       : `Rollup compliant=${props.percentCompliantAggregate}% window=${props.rollupWindow}`,
@@ -4354,7 +4993,14 @@ export function generateAdvisorLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 6e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Advisor/recommendations/generate"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e7, 6e9),
+      },
       message: isErr
         ? `Advisor: recommendation generation failed`
         : `Advisor: ${props.freshCount} new ${props.category} recommendations (${props.impact} impact)`,
@@ -4394,7 +5040,14 @@ export function generateAdvisorLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e6, 2e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Advisor/recommendations/suppressions/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e6, 2e9),
+      },
       message: isErr
         ? `Advisor suppression failed for ${props.recommendationId}`
         : `Advisor: suppressed recommendation reason=${props.reason} ttl=${props.ttl}`,
@@ -4433,7 +5086,14 @@ export function generateAdvisorLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e10, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Advisor/recommendations/postpone/action"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e10, 2e13),
+      },
       message: isErr
         ? `Advisor postpone failed (${props.statusCode})`
         : `Recommendation snoozed ${props.snoozeUntil}`,
@@ -4471,7 +5131,14 @@ export function generateAdvisorLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e11, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Advisor/recommendations/dismiss/action"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e11, 2e13),
+      },
       message: isErr
         ? `Dismiss batch failed (${props.statusCode})`
         : `Permanent dismiss for ${props.dismissedIds} recs`,
@@ -4511,7 +5178,14 @@ export function generateAdvisorLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e14, 2e14) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Advisor/recommendations/export/action"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e14, 2e14),
+      },
       message: isErr
         ? `Advisor export failed (${props.statusCode})`
         : `Exported ${props.rowsPacked} findings`,
@@ -4550,7 +5224,14 @@ export function generateAdvisorLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e13, 4e13) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("Microsoft.Advisor/recommendations/rightsizing/evaluate"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e13, 4e13),
+    },
     message: isErr
       ? `Rightsizing check failed for ${props.targetVm}: ${props.riskNote}`
       : `Potential save $${props.savingsUsdMonthly.toFixed(2)}/mo by moving to ${props.resourceSku}`,
@@ -4611,7 +5292,14 @@ export function generateCostManagementLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 15e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.CostManagement/exports/run/action"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e7, 15e9),
+      },
       message: isErr
         ? `Cost export ${exportName}: run ${props.runId} failed`
         : `Cost export ${exportName}: wrote ${props.rowCount} rows to ${props.blobPath}`,
@@ -4657,7 +5345,14 @@ export function generateCostManagementLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 5e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Consumption/budgets/alert"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 5e9),
+      },
       message: props.fired
         ? `Budget ${budgetName}: threshold ${props.thresholdPercent}% reached ($${props.amountUsd})`
         : `Budget ${budgetName}: within threshold`,
@@ -4698,7 +5393,14 @@ export function generateCostManagementLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e13, 2e14) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.CostManagement/Alerts"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e13, 2e14),
+      },
       message: isErr
         ? `Cost anomaly signal failed (${props.statusCode})`
         : `Spike detected on ${props.serviceName} uplift=${props.upliftPct}%`,
@@ -4739,7 +5441,14 @@ export function generateCostManagementLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e14, 4e14) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Capacity/reservationOrders/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e14, 4e14),
+      },
       message: isErr
         ? `RI purchase ${props.riSku} failed (${props.statusCode})`
         : `RI utilization ${props.utilizationPct}% for ${props.term}`,
@@ -4780,7 +5489,14 @@ export function generateCostManagementLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(9e13, 2e14) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.CostManagement/query"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(9e13, 2e14),
+      },
       message: isErr
         ? `Price sheet pull failed (${props.statusCode})`
         : `${props.lineItems} SKUs synced currency=${props.currency}`,
@@ -4820,7 +5536,14 @@ export function generateCostManagementLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e14, 2e14) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("Microsoft.CostManagement/forecast"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e14, 2e14),
+    },
     message: isErr
       ? `Forecast job failed (${props.statusCode})`
       : `${props.horizonMonths}m outlook $${props.projectedSpendUsd.toFixed(0)} conf=${props.confidencePct}%`,
@@ -4881,7 +5604,14 @@ export function generateResourceGraphLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 4e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.ResourceGraph/resources/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 4e9),
+      },
       message: isErr
         ? `Resource Graph query ${queryId}: failed (${props.statusCode})`
         : `Resource Graph: ${props.resultCount} resources in ${props.durationMs}ms${props.truncated ? " [truncated]" : ""}`,
@@ -4921,7 +5651,14 @@ export function generateResourceGraphLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e13, 2e14) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.ResourceGraph/resourceChanges/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e13, 2e14),
+      },
       message: isErr
         ? `Change feed stalled lag=${props.cursorLagMs}ms`
         : `${props.mutationsObserved} ARM mutations since token ${props.changeToken.slice(0, 8)}`,
@@ -4960,7 +5697,14 @@ export function generateResourceGraphLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: "failure", duration: randInt(9e11, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: ["denied"],
+        action: String("Microsoft.ResourceGraph/resources/read"),
+        outcome: "failure",
+        duration: randInt(9e11, 2e13),
+      },
       message: `Resource Graph throttled retryAfter=${props.retryAfterSec}s usage=${props.quotaUsedPct}%`,
       ...(docErr ? { error: docErr } : {}),
     };
@@ -4998,7 +5742,14 @@ export function generateResourceGraphLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e13, 2e14) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.ResourceGraph/resources/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e13, 2e14),
+      },
       message: isErr
         ? `MG-scope query unauthorized (${props.statusCode})`
         : `Traversal depth=${props.mgDepth} matched ${props.descendantResources}`,
@@ -5037,7 +5788,14 @@ export function generateResourceGraphLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e14, 2e14) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.ResourceGraph/queries/scheduledWrites"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e14, 2e14),
+      },
       message: isErr
         ? `Scheduled ARG job ${props.schedulerRuleName} breached SLA (${props.lastRunMs}ms)`
         : `Next fire @${props.nextFireEpochSec}`,
@@ -5076,7 +5834,14 @@ export function generateResourceGraphLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e11, 2e13) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("Microsoft.ResourceGraph/resources/explain"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e11, 2e13),
+    },
     message: isErr
       ? `Explain failed (${props.statusCode}) bytes=${props.explainJsonBytes}`
       : `Planner estimates ${props.estimatedRows} rows`,
@@ -5134,7 +5899,14 @@ export function generateBlueprintsLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 18e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Blueprint/blueprintAssignments/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e8, 18e9),
+      },
       message: isErr
         ? `Blueprint assignment ${assignment}: publish failed`
         : `Blueprint ${assignment}: published ${props.version} artifacts=${props.artifactsDeployed}`,
@@ -5175,7 +5947,14 @@ export function generateBlueprintsLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 5e9) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Blueprint/blueprintAssignments/compliance"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e7, 5e9),
+      },
       message: isErr
         ? `Blueprint compliance scan failed for ${assignment}`
         : `Blueprint ${props.blueprintName}: ${props.compliantArtifacts} compliant, drift=${props.driftCount}`,
@@ -5215,7 +5994,14 @@ export function generateBlueprintsLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e13, 2e13) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Blueprint/blueprintAssignments/locks/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e13, 2e13),
+      },
       message: isErr
         ? `Blueprint lock apply failed (${props.statusCode})`
         : `Assigned ${props.contributorPrincipals} principals with ${props.lockLevel}`,
@@ -5255,7 +6041,14 @@ export function generateBlueprintsLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e14, 2e14) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Blueprint/blueprintAssignments/delegatedWrite"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e14, 2e14),
+      },
       message: isErr
         ? `Delegated blueprint path ${props.status}`
         : `Mgmt tenant ${props.managedByTenantId.slice(0, 8)} active on ${props.assignmentScope}`,
@@ -5296,7 +6089,14 @@ export function generateBlueprintsLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e14, 2e14) },
+      event: {
+        kind: "event",
+        category: ["intrusion_detection"],
+        type: isErr ? ["denied"] : ["info"],
+        action: String("Microsoft.Blueprint/artifacts/rollback"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e14, 2e14),
+      },
       message: isErr
         ? `Artifact ${props.artifactName} rollback failed`
         : `Rolled ${props.artifactName} ${props.fromVersion} -> ${props.toVersion}`,
@@ -5336,7 +6136,14 @@ export function generateBlueprintsLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e13, 2e13) },
+    event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: isErr ? ["denied"] : ["info"],
+      action: String("Microsoft.Blueprint/blueprintAssignments/history/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e13, 2e13),
+    },
     message: isErr
       ? `Blueprint history pull failed (${props.statusCode})`
       : `${props.historyEntries} revisions from ${props.publishedBy}`,

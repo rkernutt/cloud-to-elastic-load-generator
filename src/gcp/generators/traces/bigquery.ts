@@ -58,7 +58,7 @@ export function generateBigQueryTrace(ts: string, er: number): EcsDocument[] {
       action: "plan",
       db: {
         type: "sql",
-        statement: `SELECT ... FROM \`${project.id}.${dataset}.${table}\` WHERE ...`,
+        statement: `SELECT id, status, updated_at FROM \`${project.id}.${dataset}.${table}\` WHERE region = $1 LIMIT 100`,
       },
       destination: { service: { resource: "bigquery", type: "db", name: "bigquery" } },
       labels: failIdx === -1 ? { ...gcpSpanFailureLabels() } : {},

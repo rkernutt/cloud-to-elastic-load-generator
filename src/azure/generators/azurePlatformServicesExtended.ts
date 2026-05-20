@@ -7,6 +7,7 @@ import {
   azureCloud,
   makeAzureSetup,
   randUUID,
+  randAzurePersonEmail,
 } from "./helpers.js";
 
 function azureDiagnosticTime(ts: string): string {
@@ -175,7 +176,14 @@ export function generateAiFoundryLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 5e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("azure-activity"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e7, 5e9),
+    },
       message: isErr
         ? `AI Foundry hub ${hub}: model catalog ${props.catalogOperation} failed for ${model}`
         : `AI Foundry hub ${hub}: catalog ${props.catalogOperation} on ${model}`,
@@ -217,7 +225,14 @@ export function generateAiFoundryLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e6, 3e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("AzureML.InferenceGateway/RequestAudit"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e6, 3e9),
+    },
       message: isErr
         ? `AI Foundry gateway ${gw}: route ${props.route} throttled`
         : `AI Foundry gateway ${gw}: ${props.route} traffic OK`,
@@ -259,7 +274,14 @@ export function generateAiFoundryLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 18e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("AzureML.FineTune/PipelineAudit"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 18e9),
+    },
       message: isErr
         ? `AI Foundry hub ${hub}: fine-tune ${ftJob} failed`
         : `AI Foundry hub ${hub}: fine-tune ${ftJob} ${props.status}`,
@@ -299,7 +321,14 @@ export function generateAiFoundryLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 24e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("AzureML.BatchInference/Execution"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e8, 24e9),
+    },
       message: isErr
         ? `AI Foundry hub ${hub}: batch inference ${batchId} partial failure`
         : `AI Foundry hub ${hub}: batch inference ${batchId} completed`,
@@ -346,7 +375,14 @@ export function generateAiFoundryLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 8e8) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("azure-activity"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e6, 8e8),
+    },
       message: isErr
         ? `AI Foundry hub ${hub}: endpoint ${epName} health probe failed`
         : `AI Foundry hub ${hub}: endpoint ${epName} probe ${props.healthStatus}`,
@@ -387,7 +423,14 @@ export function generateAiFoundryLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(6e7, 14e9) },
+    event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("Microsoft.MachineLearningServices/workspaces/deployments/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(6e7, 14e9),
+    },
     message: isErr
       ? `AI Foundry hub ${hub}: deployment ${dep} failed`
       : `AI Foundry hub ${hub}: deployment ${dep} ${props.provisioningState}`,
@@ -443,7 +486,14 @@ export function generateDataExplorerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e6, 6e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("ADX.DataIngest/BatchReceive"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e6, 6e9),
+    },
       message: isErr
         ? `ADX cluster ${cluster}: ingestion rejected rows=${props.rejectedRows}`
         : `ADX cluster ${cluster}: ingestion batch OK`,
@@ -484,7 +534,14 @@ export function generateDataExplorerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 9e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("ADX.Query/Execution"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e6, 9e9),
+    },
       message: isErr
         ? `ADX cluster ${cluster}: query timed out`
         : `ADX cluster ${cluster}: query returned ${props.rowsReturned} rows`,
@@ -530,7 +587,14 @@ export function generateDataExplorerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e6, 4e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("azure-activity"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e6, 4e9),
+    },
       message: isErr
         ? `ADX cluster ${cluster}: streaming backlog on ${props.streamName}`
         : `ADX cluster ${cluster}: streaming ingestion healthy`,
@@ -569,7 +633,14 @@ export function generateDataExplorerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 12e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("ADX.MaterializedView/RefreshAudit"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e8, 12e9),
+    },
       message: isErr
         ? `ADX cluster ${cluster}: MV ${mvName} refresh failed`
         : `ADX cluster ${cluster}: MV ${mvName} refreshed`,
@@ -612,7 +683,14 @@ export function generateDataExplorerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e8, 9e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("ADX.FollowerDatabase/SyncAudit"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e8, 9e9),
+    },
       message: isErr
         ? `ADX cluster ${cluster}: follower ${followerCluster} sync degraded`
         : `ADX cluster ${cluster}: follower ${followerCluster} ${props.followerState}`,
@@ -651,7 +729,14 @@ export function generateDataExplorerLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 11e9) },
+    event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("Microsoft.Kusto/clusters/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e8, 11e9),
+    },
     message: isErr
       ? `ADX cluster ${cluster}: admin operation failed`
       : `ADX cluster ${cluster}: ${props.operation}`,
@@ -682,7 +767,7 @@ export function generateVirtualDesktopLog(ts: string, er: number): EcsDocument {
 
   if (variant === "session") {
     const props = {
-      userPrincipalName: `user${randInt(1000, 9999)}@${rand(["contoso.com", "fabrikam.net"])}`,
+      userPrincipalName: randAzurePersonEmail(),
       sessionState: isErr ? "DisconnectedError" : rand(["Active", "Disconnected"]),
       fsLogixProfileSeconds: randInt(4, 180),
       gatewayRegion: region,
@@ -713,7 +798,14 @@ export function generateVirtualDesktopLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e6, 2e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("AVD.Connection/SessionBroker"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e6, 2e9),
+    },
       message: isErr
         ? `AVD pool ${pool}: session failed for ${props.userPrincipalName}`
         : `AVD pool ${pool}: session ${props.sessionState}`,
@@ -753,7 +845,14 @@ export function generateVirtualDesktopLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e6, 4e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("AVD.HostPool/HostRegistration"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e6, 4e9),
+    },
       message: isErr
         ? `AVD host ${props.sessionHostName}: health ${props.healthState}`
         : `AVD pool ${pool}: host ${props.sessionHostName} registered`,
@@ -793,7 +892,14 @@ export function generateVirtualDesktopLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e6, 3e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("AVD.ScalingPlan/ScheduleEvaluation"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e6, 3e9),
+    },
       message: isErr
         ? `AVD pool ${pool}: scaling plan ${planId} schedule conflict`
         : `AVD pool ${pool}: scaling plan ${planId} evaluated`,
@@ -835,7 +941,14 @@ export function generateVirtualDesktopLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(6e7, 11e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("Microsoft.DesktopVirtualization/applicationGroups/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(6e7, 11e9),
+    },
       message: isErr
         ? `AVD pool ${pool}: application group RBAC violation`
         : `AVD pool ${pool}: application group updated`,
@@ -881,7 +994,14 @@ export function generateVirtualDesktopLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e6, 28e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("azure-activity"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e6, 28e9),
+    },
       message: isErr
         ? `AVD pool ${pool}: diagnostics ${diagId} failed (${props.logCategory})`
         : `AVD pool ${pool}: diagnostics flowing`,
@@ -922,7 +1042,14 @@ export function generateVirtualDesktopLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 8e9) },
+    event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String(props.operation),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e7, 8e9),
+    },
     message: isErr
       ? `AVD pool ${pool}: control plane error`
       : `AVD pool ${pool}: ${props.provisioningState}`,
@@ -978,7 +1105,14 @@ export function generateElasticSanLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(9e7, 12e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("ElasticSan.Volume/Provision"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(9e7, 12e9),
+    },
       message: isErr
         ? `Elastic SAN ${san}: volume provision failed`
         : `Elastic SAN ${san}: volume ${props.volumeName} OK`,
@@ -1019,7 +1153,14 @@ export function generateElasticSanLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 5e8) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("ElasticSan.Target/IOAudit"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e6, 5e8),
+    },
       message: isErr
         ? `Elastic SAN ${san}: iSCSI error LUN ${props.lunId}`
         : `Elastic SAN ${san}: iSCSI IO OK`,
@@ -1065,7 +1206,14 @@ export function generateElasticSanLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(12e8, 20e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("azure-activity"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(12e8, 20e9),
+    },
       message: isErr
         ? `Elastic SAN ${san}: snapshot ${snapName} failed`
         : `Elastic SAN ${san}: snapshot`,
@@ -1103,7 +1251,14 @@ export function generateElasticSanLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(18e8, 30e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("ElasticSan.SkuChange/Execution"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(18e8, 30e9),
+    },
       message: isErr
         ? `Elastic SAN ${san}: performance tier rollback`
         : `Elastic SAN ${san}: tier migrated`,
@@ -1143,7 +1298,14 @@ export function generateElasticSanLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e7, 3e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("ElasticSan.Network/AccessPolicyAudit"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e7, 3e9),
+    },
       message: isErr
         ? `Elastic SAN ${san}: network rule denial for subnet ${props.subnetCidr}`
         : `Elastic SAN ${san}: network rules OK`,
@@ -1181,7 +1343,14 @@ export function generateElasticSanLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 9e9) },
+    event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("Microsoft.ElasticSan/elasticSans/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e8, 9e9),
+    },
     message: isErr
       ? `Elastic SAN ${san}: ARM update failed`
       : `Elastic SAN ${san}: SKU ${props.skuTier}`,
@@ -1251,7 +1420,14 @@ export function generateManagedGrafanaLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e6, 2e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("azure-activity"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e6, 2e9),
+    },
       message: isErr
         ? `Managed Grafana ${inst}: API ${props.apiPath} failed`
         : `Managed Grafana ${inst}: ${props.method} ${props.apiPath}`,
@@ -1297,7 +1473,14 @@ export function generateManagedGrafanaLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e6, 4e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("azure-activity"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e6, 4e9),
+    },
       message: isErr
         ? `Managed Grafana ${inst}: dashboard snapshot denied`
         : `Managed Grafana ${inst}: dashboard viewed`,
@@ -1339,7 +1522,14 @@ export function generateManagedGrafanaLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e7, 5e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("Grafana.Plugin/Provisioning"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e7, 5e9),
+    },
       message: isErr
         ? `Managed Grafana ${inst}: plugin ${props.pluginId} install failed`
         : `Managed Grafana ${inst}: plugin installed`,
@@ -1379,7 +1569,14 @@ export function generateManagedGrafanaLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 2e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("Grafana.DataSource/TestConnection"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e7, 2e9),
+    },
       message: isErr
         ? `Managed Grafana ${inst}: datasource ${props.dataSourceName} test failed`
         : `Managed Grafana ${inst}: datasource healthy`,
@@ -1417,7 +1614,14 @@ export function generateManagedGrafanaLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e6, 48e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("Grafana.IdP/TeamsSyncAudit"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e6, 48e9),
+    },
       message: isErr
         ? `Managed Grafana ${inst}: team sync drift from Entra ID`
         : `Managed Grafana ${inst}: team sync`,
@@ -1455,7 +1659,14 @@ export function generateManagedGrafanaLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 9e9) },
+    event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String(props.operation),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e7, 9e9),
+    },
     message: isErr
       ? `Managed Grafana ${inst}: control plane failed`
       : `Managed Grafana ${inst}: ${props.operation}`,
@@ -1510,7 +1721,14 @@ export function generateManagedPrometheusLog(ts: string, er: number): EcsDocumen
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e6, 5e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("MonitorWorkspace.RemoteWrite/Ingest"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e6, 5e9),
+    },
       message: isErr
         ? `Prometheus workspace ${acct}: remote write rejected`
         : `Prometheus workspace ${acct}: samples=${props.samplesReceived}`,
@@ -1550,7 +1768,14 @@ export function generateManagedPrometheusLog(ts: string, er: number): EcsDocumen
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e6, 8e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("MonitorWorkspace.Query/Audit"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e6, 8e9),
+    },
       message: isErr
         ? `Prometheus workspace ${acct}: query exceeded limits`
         : `Prometheus workspace ${acct}: query completed`,
@@ -1588,7 +1813,14 @@ export function generateManagedPrometheusLog(ts: string, er: number): EcsDocumen
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e7, 4e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("MonitorWorkspace.ScrapeConfig/Reload"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e7, 4e9),
+    },
       message: isErr
         ? `Prometheus workspace ${acct}: scrape config reload failed`
         : `Prometheus workspace ${acct}: scrape jobs updated`,
@@ -1628,7 +1860,14 @@ export function generateManagedPrometheusLog(ts: string, er: number): EcsDocumen
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e6, 6e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("MonitorWorkspace.Alerting/Evaluation"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e6, 6e9),
+    },
       message: isErr
         ? `Prometheus workspace ${acct}: rule group ${props.ruleGroup} evaluation failed`
         : `Prometheus workspace ${acct}: alerting evaluation OK`,
@@ -1673,7 +1912,14 @@ export function generateManagedPrometheusLog(ts: string, er: number): EcsDocumen
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e6, 8e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("azure-activity"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e6, 8e9),
+    },
       message: isErr
         ? `Prometheus workspace ${acct}: federation pull failed`
         : `Prometheus workspace ${acct}: federation samples=${props.samplesForwarded}`,
@@ -1711,7 +1957,14 @@ export function generateManagedPrometheusLog(ts: string, er: number): EcsDocumen
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(6e7, 11e9) },
+    event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String(props.operation),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(6e7, 11e9),
+    },
     message: isErr
       ? `Prometheus workspace ${acct}: ARM failed`
       : `Prometheus workspace ${acct}: ${props.operation}`,
@@ -1769,7 +2022,14 @@ export function generateDnsPrivateResolverLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 2e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("DnsResolver.Forwarding/Audit"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e6, 2e9),
+    },
       message: isErr
         ? `DNS Private Resolver ${resolver}: forward upstream timeout`
         : `DNS Private Resolver ${resolver}: forwarded ${props.forwardedQueries} queries`,
@@ -1779,7 +2039,7 @@ export function generateDnsPrivateResolverLog(ts: string, er: number): EcsDocume
   if (variant === "conditional") {
     const props = {
       rulesetName: `rs-${rand(["corp", "prod", "dmz"])}`,
-      fqdnMatched: rand(["_ldap._tcp.corp.local", "api.internal.contoso"]),
+      fqdnMatched: rand(["_ldap._tcp.corp.local", "api.internal.meridiantech"]),
       action: rand(["Rewrite", "Forward"]),
       matched: !isErr,
     };
@@ -1807,7 +2067,14 @@ export function generateDnsPrivateResolverLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e5, 15e8) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("DnsResolver.RuleEngine/Match"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e5, 15e8),
+    },
       message: isErr
         ? `DNS Private Resolver ${resolver}: ruleset evaluation error`
         : `DNS Private Resolver ${resolver}: rule matched ${props.fqdnMatched}`,
@@ -1848,7 +2115,14 @@ export function generateDnsPrivateResolverLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(9e6, 2e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("DnsResolver.InboundEndpoint/Health"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(9e6, 2e9),
+    },
       message: isErr
         ? `DNS Private Resolver ${resolver}: inbound endpoint ${iep} unhealthy`
         : `DNS Private Resolver ${resolver}: inbound ${iep} healthy`,
@@ -1886,7 +2160,14 @@ export function generateDnsPrivateResolverLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e7, 8e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("DnsResolver.VirtualNetworkLink/SyncAudit"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e7, 8e9),
+    },
       message: isErr
         ? `DNS Private Resolver ${resolver}: VNet link sync failed`
         : `DNS Private Resolver ${resolver}: link OK`,
@@ -1931,7 +2212,14 @@ export function generateDnsPrivateResolverLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e6, 42e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("azure-activity"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e6, 42e9),
+    },
       message: isErr
         ? `DNS Private Resolver ${resolver}: security policy anomaly`
         : `DNS Private Resolver ${resolver}: policy pass`,
@@ -1972,7 +2260,14 @@ export function generateDnsPrivateResolverLog(ts: string, er: number): EcsDocume
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 10e9) },
+    event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String(props.operation),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e7, 10e9),
+    },
     message: isErr
       ? `DNS resolver ${resolver}: ARM failed`
       : `DNS resolver ${resolver}: ${props.operation}`,
@@ -2029,7 +2324,14 @@ export function generateApplicationInsightsLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e6, 4e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("ApplicationInsights/Ingestion"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e6, 4e9),
+    },
       message: isErr
         ? `App Insights ${comp}: ingestion throttled (${props.dataType})`
         : `App Insights ${comp}: ingested ${props.itemCount} ${props.dataType} items`,
@@ -2074,7 +2376,14 @@ export function generateApplicationInsightsLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: { outcome: props.success ? "success" : "failure", duration: randInt(5e6, 3e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: props.success ? ["info"] : ["change"],
+      action: String("azure-activity"),
+      outcome: props.success ? "success" : "failure",
+      duration: randInt(5e6, 3e9),
+    },
       message: props.success
         ? `App Insights ${comp}: availability ${props.testName} pass`
         : `App Insights ${comp}: availability ${props.testName} failed`,
@@ -2112,7 +2421,14 @@ export function generateApplicationInsightsLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e8, 5e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("ApplicationInsights/SmartDetection"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e8, 5e9),
+    },
       message: isErr
         ? `App Insights ${comp}: smart detection ${props.ruleName} stalled`
         : `App Insights ${comp}: anomaly`,
@@ -2158,7 +2474,14 @@ export function generateApplicationInsightsLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(6e9, 22e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("azure-activity"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(6e9, 22e9),
+    },
       message: isErr
         ? `App Insights ${comp}: profiler session ${sess} dropped`
         : `App Insights ${comp}: profiler ${sess}`,
@@ -2198,7 +2521,14 @@ export function generateApplicationInsightsLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e9, 8e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("ApplicationInsights.Workbook/ExportAudit"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e9, 8e9),
+    },
       message: isErr
         ? `App Insights ${comp}: workbook export failed`
         : `App Insights ${comp}: workbook export`,
@@ -2239,7 +2569,14 @@ export function generateApplicationInsightsLog(ts: string, er: number): EcsDocum
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(4e7, 8e9) },
+    event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String(props.operation),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e7, 8e9),
+    },
     message: isErr
       ? `App Insights ${comp}: ARM failed`
       : `App Insights ${comp}: ${props.operation}`,
@@ -2303,7 +2640,14 @@ export function generateDedicatedHsmLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e5, 8e8) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("azure-activity"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e5, 8e8),
+    },
       message: props.tamperEvent
         ? `Dedicated HSM ${hsm}: tamper indicator raised`
         : `Dedicated HSM ${hsm}: ${props.operation} on ${props.keyName}`,
@@ -2345,7 +2689,14 @@ export function generateDedicatedHsmLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e6, 2e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("DedicatedHSM.Network/Health"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e6, 2e9),
+    },
       message: isErr
         ? `Dedicated HSM ${hsm}: network path unhealthy`
         : `Dedicated HSM ${hsm}: HSM subnet reachability OK`,
@@ -2384,7 +2735,14 @@ export function generateDedicatedHsmLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e9, 28e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("DedicatedHSM.Backup/PartitionExport"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e9, 28e9),
+    },
       message: isErr
         ? `Dedicated HSM ${hsm}: backup ${backupId} verification failed`
         : `Dedicated HSM ${hsm}: partition backup queued`,
@@ -2424,7 +2782,14 @@ export function generateDedicatedHsmLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 2e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("DedicatedHSM.RBAC/Evaluate"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 2e9),
+    },
       message: isErr
         ? `Dedicated HSM ${hsm}: RBAC deny for ${props.roleDefinition}`
         : `Dedicated HSM ${hsm}: RBAC`,
@@ -2462,7 +2827,14 @@ export function generateDedicatedHsmLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e9, 16e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("DedicatedHSM.Firmware/ChannelAudit"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e9, 16e9),
+    },
       message: isErr
         ? `Dedicated HSM ${hsm}: firmware channel blocked`
         : `Dedicated HSM ${hsm}: firmware staged`,
@@ -2503,7 +2875,14 @@ export function generateDedicatedHsmLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(8e7, 14e9) },
+    event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String(props.operation),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e7, 14e9),
+    },
     message: isErr
       ? `Dedicated HSM ${hsm}: provisioning failed`
       : `Dedicated HSM ${hsm}: ${props.operation}`,
@@ -2530,7 +2909,7 @@ export function generateVideoIndexerLog(ts: string, er: number): EcsDocument {
   if (variant === "upload") {
     const props = {
       videoId: randUUID(),
-      sourceUri: `https://${rand(["media", "cdn"])}.${rand(["contoso", "fabrikam"])}.net/asset-${randId(6)}.mp4`,
+      sourceUri: `https://${rand(["media", "cdn"])}.${rand(["meridiantech", "cascadeops"])}.net/asset-${randId(6)}.mp4`,
       bytesUploaded: randInt(500_000, 12_000_000_000),
       transcodingPreset: rand(["AudioOnly", "Basic", "Advanced"]),
       statusCode: isErr ? rand([413, 502]) : rand([200, 202]),
@@ -2568,7 +2947,14 @@ export function generateVideoIndexerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e6, 9e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("azure-activity"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e6, 9e9),
+    },
       message: isErr
         ? `Video Indexer ${acct}: upload failed`
         : `Video Indexer ${acct}: uploaded ${props.bytesUploaded} bytes`,
@@ -2607,7 +2993,14 @@ export function generateVideoIndexerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1.2e7, 15e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("VideoIndexer.Index/Pipeline"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1.2e7, 15e9),
+    },
       message: isErr
         ? `Video Indexer ${acct}: indexing job ${props.jobId} failed`
         : `Video Indexer ${acct}: job ${props.jobId} produced ${props.indexedMinutes} min`,
@@ -2617,7 +3010,7 @@ export function generateVideoIndexerLog(ts: string, er: number): EcsDocument {
   if (variant === "live_stream") {
     const streamId = `live-${randId(8)}`;
     const props = {
-      streamingEndpointHost: rand(["ams-contoso.streaming.media.azure.net"]),
+      streamingEndpointHost: rand(["ams-meridiantech.streaming.media.azure.net"]),
       bitrateKbps: isErr ? randInt(120, 800) : randInt(2800, 12_500),
       bufferUnderruns: isErr ? randInt(12, 1800) : randInt(0, 35),
       hlsFragmentsDropped: isErr ? randInt(40, 900) : randInt(0, 12),
@@ -2650,7 +3043,14 @@ export function generateVideoIndexerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e6, 42e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("VideoIndexer.Live/IngestTelemetry"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e6, 42e9),
+    },
       message: isErr
         ? `Video Indexer ${acct}: live ${streamId} ingest degraded`
         : `Video Indexer ${acct}: live ingest`,
@@ -2690,7 +3090,14 @@ export function generateVideoIndexerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e7, 6e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("VideoIndexer.Transcript/Export"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e7, 6e9),
+    },
       message: isErr
         ? `Video Indexer ${acct}: transcription export failed`
         : `Video Indexer ${acct}: transcript export`,
@@ -2699,7 +3106,7 @@ export function generateVideoIndexerLog(ts: string, er: number): EcsDocument {
 
   if (variant === "webhook_callback") {
     const props = {
-      callbackUrlHost: rand(["hooks.slack.com", "api-internal.contoso"]),
+      callbackUrlHost: rand(["hooks.slack.com", "api-internal.meridiantech"]),
       correlationToken: randId(32),
       retries: isErr ? randInt(4, 42) : randInt(0, 2),
       httpStatusReturned: isErr ? rand([500, 504, 0]) : rand([200, 204]),
@@ -2730,7 +3137,14 @@ export function generateVideoIndexerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e8, 3e9) },
+      event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("VideoIndexer.Webhook/DeliveryAudit"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e8, 3e9),
+    },
       message: isErr
         ? `Video Indexer ${acct}: webhook delivery exhausting retries`
         : `Video Indexer ${acct}: webhook ok`,
@@ -2771,7 +3185,14 @@ export function generateVideoIndexerLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 9e9) },
+    event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String(props.operation),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e7, 9e9),
+    },
     message: isErr
       ? `Video Indexer ${acct}: ARM failed`
       : `Video Indexer ${acct}: ${props.operation}`,

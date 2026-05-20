@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.bedrock* | STATS count = COUNT() BY model = `aws.bedrock.model_id` | SORT count DESC | LIMIT 10"
+            "query": "FROM logs-aws.bedrock* | STATS count = COUNT() BY model = `aws.bedrock.model_id` | SORT ``count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.bedrock* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.bedrock* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.bedrock* | STATS input_t = SUM(`aws.bedrock.metrics.InputTokenCount.sum`), output_t = SUM(`aws.bedrock.metrics.OutputTokenCount.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.bedrock* | STATS input_t = SUM(`aws.bedrock.metrics.InputTokenCount.sum`), output_t = SUM(`aws.bedrock.metrics.OutputTokenCount.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.bedrock* | STATS avg_lat = AVG(`aws.bedrock.metrics.InvocationLatency.avg`), p99_lat = AVG(`aws.bedrock.metrics.InvocationLatency.p99`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.bedrock* | STATS avg_lat = AVG(`aws.bedrock.metrics.InvocationLatency.avg`), p99_lat = AVG(`aws.bedrock.metrics.InvocationLatency.p99`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -393,7 +393,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.bedrock* | STATS avg_l = AVG(`aws.bedrock.invocation_latency_ms`) BY model = `aws.bedrock.model_id` | SORT avg_l DESC | LIMIT 10"
+                "query": "FROM logs-aws.bedrock* | STATS avg_l = AVG(`aws.bedrock.invocation_latency_ms`) BY model = `aws.bedrock.model_id` | SORT ``avg_l DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -441,7 +441,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.bedrock* | STATS throttles = SUM(`aws.bedrock.metrics.Throttles.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.bedrock* | STATS throttles = SUM(`aws.bedrock.metrics.Throttles.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -474,7 +474,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.bedrock* | KEEP `@timestamp`, `aws.bedrock.model_id`, `aws.bedrock.model_family`, `aws.bedrock.input_token_count`, `aws.bedrock.output_token_count`, `aws.bedrock.invocation_latency_ms`, log.level | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.bedrock* | KEEP `@timestamp``@timestamp`, `aws.bedrock.model_id`, `aws.bedrock.model_family`, `aws.bedrock.input_token_count`, `aws.bedrock.output_token_count`, `aws.bedrock.invocation_latency_ms`, log.level | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

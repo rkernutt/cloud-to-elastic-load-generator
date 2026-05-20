@@ -43,7 +43,12 @@ import type {
 } from "../setup/types";
 import { dashboardDefToSavedObjectId } from "../setup/dashboardToImportNdjson";
 import { stableDashboardKey } from "../setup/stableDashboardKey";
-import { runSetupInstall, uninstallSetupWorkflow } from "../setup/runSetupInstall";
+import {
+  runSetupInstall,
+  uninstallAgentBuilder,
+  uninstallSetupWorkflow,
+  uninstallSlos,
+} from "../setup/runSetupInstall";
 import {
   proxyCall,
   resolveFleetPackageVersion,
@@ -205,6 +210,8 @@ export function SetupPage({
   const [activateAlertRules, setActivateAlertRules] = useState(false);
   const [startMlJobs, setStartMlJobs] = useState(false);
   const [enableWorkflow, setEnableWorkflow] = useState(false);
+  const [enableAgentBuilder, setEnableAgentBuilder] = useState(true);
+  const [enableSlos, setEnableSlos] = useState(true);
   const [workflowNotifyTo, setWorkflowNotifyTo] = useState("data-platform-oncall@example.com");
   const [workflowEmailConnector, setWorkflowEmailConnector] = useState("elastic-cloud-email");
   /**
@@ -424,14 +431,18 @@ export function SetupPage({
     enableCsp ||
     enableServiceNow ||
     enableLoadgenIntegrations ||
-    enableWorkflow;
+    enableWorkflow ||
+    enableAgentBuilder ||
+    enableSlos;
   const anyEnabled =
     enableIntegration ||
     enableApm ||
     enableCsp ||
     enableServiceNow ||
     enableLoadgenIntegrations ||
-    enableWorkflow;
+    enableWorkflow ||
+    enableAgentBuilder ||
+    enableSlos;
   const canRun = anyEnabled && hasEs && (!needsKb || hasKb);
 
   function toggleGroup<T>(set: Set<T>, val: T): Set<T> {
@@ -1929,6 +1940,8 @@ export function SetupPage({
         activateAlertRules,
         startMlJobs,
         enableWorkflow,
+        enableAgentBuilder,
+        enableSlos,
         workflowOverrides: {
           notifyTo: workflowNotifyTo,
           emailConnector: workflowEmailConnector,
@@ -2224,6 +2237,22 @@ export function SetupPage({
     if (enableWorkflow) {
       await uninstallSetupWorkflow({ kibanaUrl, apiKey, addLog });
     }
+    if (enableAgentBuilder) {
+      await uninstallAgentBuilder({
+        kibanaUrl,
+        apiKey,
+        vendor: setupBundle.fleetPackage,
+        addLog,
+      });
+    }
+    if (enableSlos) {
+      await uninstallSlos({
+        kibanaUrl,
+        apiKey,
+        vendor: setupBundle.fleetPackage,
+        addLog,
+      });
+    }
   }
 
   const runUninstall = async () => {
@@ -2279,6 +2308,8 @@ export function SetupPage({
         activateAlertRules,
         startMlJobs,
         enableWorkflow,
+        enableAgentBuilder,
+        enableSlos,
         workflowOverrides: {
           notifyTo: workflowNotifyTo,
           emailConnector: workflowEmailConnector,
@@ -2344,6 +2375,8 @@ export function SetupPage({
         activateAlertRules,
         startMlJobs,
         enableWorkflow,
+        enableAgentBuilder,
+        enableSlos,
         workflowOverrides: {
           notifyTo: workflowNotifyTo,
           emailConnector: workflowEmailConnector,
@@ -3100,12 +3133,27 @@ export function SetupPage({
               disabled={!enableLoadgenIntegrations}
             />
           </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiSwitch
+              label="Install AI Analyst agent"
+              checked={enableAgentBuilder}
+              onChange={(e) => setEnableAgentBuilder(e.target.checked)}
+            />
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiSwitch
+              label="Install SLOs"
+              checked={enableSlos}
+              onChange={(e) => setEnableSlos(e.target.checked)}
+            />
+          </EuiFlexItem>
         </EuiFlexGroup>
         <EuiSpacer size="xs" />
         <EuiText size="xs" color="subdued">
           <p>
             Rules are created disabled and ML jobs are created closed by default. Enable these to
-            activate them immediately after installation.
+            activate them immediately after installation. The AI Analyst agent and SLOs require
+            Agent Builder and Observability SLO APIs (skipped automatically if unavailable).
           </p>
         </EuiText>
       </EuiPanel>

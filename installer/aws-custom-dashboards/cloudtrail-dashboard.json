@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cloudtrail* | STATS c = COUNT() BY ev = `aws.cloudtrail.eventName` | SORT c DESC | LIMIT 10"
+            "query": "FROM logs-aws.cloudtrail* | STATS c = COUNT() BY ev = `aws.cloudtrail.eventName` | SORT ``c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cloudtrail* | STATS c = COUNT() BY s = `aws.cloudtrail.eventSource` | SORT c DESC | LIMIT 8"
+            "query": "FROM logs-aws.cloudtrail* | STATS c = COUNT() BY s = `aws.cloudtrail.eventSource` | SORT ``c DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cloudtrail* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.cloudtrail* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cloudtrail* | STATS ok = SUM(CASE(event.outcome == \"success\", 1, 0)), bad = SUM(CASE(event.outcome == \"failure\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.cloudtrail* | STATS ok = SUM(CASE(event.outcome == \"success\", 1, 0)), bad = SUM(CASE(event.outcome == \"failure\", 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cloudtrail* | STATS ro = SUM(CASE(`aws.cloudtrail.readOnly` == true, 1, 0)), rw = SUM(CASE(`aws.cloudtrail.readOnly` == false, 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.cloudtrail* | STATS ro = SUM(CASE(`aws.cloudtrail.readOnly` == true, 1, 0)), rw = SUM(CASE(`aws.cloudtrail.readOnly` == false, 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -393,7 +393,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cloudtrail* | STATS c = COUNT() BY u = `user.name` | SORT c DESC | LIMIT 10"
+                "query": "FROM logs-aws.cloudtrail* | STATS c = COUNT() BY u = `user.name` | SORT ``c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -426,7 +426,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cloudtrail* | KEEP `@timestamp`, `aws.cloudtrail.eventName`, `aws.cloudtrail.eventSource`, event.outcome, `user.name`, `source.ip`, `aws.cloudtrail.errorCode` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.cloudtrail* | KEEP `@timestamp``@timestamp`, `aws.cloudtrail.eventName`, `aws.cloudtrail.eventSource`, event.outcome, `user.name`, `source.ip`, `aws.cloudtrail.errorCode` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

@@ -3,7 +3,7 @@
  * Each metric doc matches the shape produced by the Elastic AWS integration.
  */
 
-export { REGIONS, ACCOUNTS, rand, randInt, randFloat, randId } from "../../../helpers";
+export { REGIONS, ACCOUNTS, rand, randInt, randFloat, randId, randHexId } from "../../../helpers";
 import { rand, randId } from "../../../helpers";
 
 /**
@@ -40,6 +40,7 @@ export function metricDoc(
       provider: "aws",
       region: region,
       account: { id: account.id, name: account.name },
+      service: { name: service },
     },
     agent: {
       type: "metricbeat",
@@ -56,7 +57,7 @@ export function metricDoc(
     metricset: { name: service, period: period },
     data_stream: { type: "metrics", dataset: dataset, namespace: "default" },
     input: { type: "aws-cloudwatch" },
-    event: { dataset: dataset, module: "aws" },
+    event: { kind: "metric", dataset: dataset, module: "aws" },
   };
 }
 

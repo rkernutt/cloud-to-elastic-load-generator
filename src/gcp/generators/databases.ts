@@ -43,6 +43,16 @@ function eventBlock(isErr: boolean, durationNs: number) {
   };
 }
 
+function databaseEvent(isErr: boolean, durationNs: number, action: string) {
+  return {
+    kind: "event" as const,
+    category: ["database"] as const,
+    type: isErr ? (["error"] as const) : (["access"] as const),
+    action,
+    ...eventBlock(isErr, durationNs),
+  };
+}
+
 export function generateCloudSqlLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const databaseType = rand(["POSTGRES", "MYSQL"] as const);
@@ -130,7 +140,7 @@ export function generateCloudSqlLog(ts: string, er: number): EcsDocument {
         disk_utilization: Math.round(diskUtilization * 1000) / 1000,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: databaseEvent(isErr, durationNs, "database"),
     message,
   };
 }
@@ -172,7 +182,7 @@ export function generateCloudSpannerLog(ts: string, er: number): EcsDocument {
         session_count: sessionCount,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: databaseEvent(isErr, durationNs, "database"),
     message,
   };
 }
@@ -215,7 +225,7 @@ export function generateFirestoreLog(ts: string, er: number): EcsDocument {
         read_consistency: readConsistency,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: databaseEvent(isErr, durationNs, "database"),
     message,
   };
 }
@@ -257,7 +267,7 @@ export function generateBigtableLog(ts: string, er: number): EcsDocument {
         zone,
       },
     },
-    event: eventBlock(isErr, latencyMs * 1e6),
+    event: databaseEvent(isErr, latencyMs * 1e6, "database"),
     message,
   };
 }
@@ -300,7 +310,7 @@ export function generateAlloyDbLog(ts: string, er: number): EcsDocument {
         connection_count: connectionCount,
       },
     },
-    event: eventBlock(isErr, queryDurationMs * 1e6),
+    event: databaseEvent(isErr, queryDurationMs * 1e6, "database"),
     message,
   };
 }
@@ -343,7 +353,7 @@ export function generateMemorystoreLog(ts: string, er: number): EcsDocument {
         evicted_keys: evictedKeys,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: databaseEvent(isErr, durationNs, "database"),
     message,
   };
 }
@@ -381,7 +391,7 @@ export function generateFirebaseRtdbLog(ts: string, er: number): EcsDocument {
         concurrent_connections: concurrentConnections,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: databaseEvent(isErr, durationNs, "database"),
     message,
   };
 }
@@ -421,7 +431,7 @@ export function generateDatabaseMigrationLog(ts: string, er: number): EcsDocumen
         latency_seconds: latencySeconds,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: databaseEvent(isErr, durationNs, "database"),
     message,
   };
 }
@@ -461,7 +471,7 @@ export function generateBareMetalOracleLog(ts: string, er: number): EcsDocument 
         redo_log_switches: redoLogSwitches,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: databaseEvent(isErr, durationNs, "database"),
     message,
   };
 }

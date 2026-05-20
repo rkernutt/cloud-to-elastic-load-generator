@@ -1,75 +1,75 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "il-central-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "autoscaling" }
   },
   "aws": {
-    "dimensions": { "AutoScalingGroupName": "api-asg" },
+    "dimensions": { "AutoScalingGroupName": "spot-fleet" },
     "autoscaling": {
-      "group_name": "api-asg",
-      "activity_id": "ip6xzed9-9z1b-w049",
-      "action_type": "LifecycleHook",
-      "instance_id": "i-5ithn8457lhhhucrt",
-      "instance_type": "m5.xlarge",
-      "desired_capacity": 15,
+      "group_name": "spot-fleet",
+      "activity_id": "vfxiwb8d-01yu-9ahj",
+      "action_type": "Terminate",
+      "instance_id": "i-b09e8ad2888b256a2",
+      "instance_type": "c5.2xlarge",
+      "desired_capacity": 8,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 14,
-      "cause": "LifecycleHookNotification for register-targets transition autoscaling:EC2_INSTANCE_TERMINATING",
+      "current_capacity": 6,
+      "cause": "At 2026-05-20T13:19:00.213Z instance failed EC2 health check",
       "status_code": "Successful",
       "launch_template": "web-lt:5",
-      "lifecycle_hook_name": "register-targets",
-      "lifecycle_transition": "autoscaling:EC2_INSTANCE_TERMINATING",
       "predictive_scaling_forecast": false,
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 15 },
-        "GroupInServiceInstances": { "avg": 14 },
+        "GroupDesiredCapacity": { "avg": 8 },
+        "GroupInServiceInstances": { "avg": 6 },
         "GroupPendingInstances": { "avg": 0 },
-        "GroupStandbyInstances": { "avg": 0 },
+        "GroupStandbyInstances": { "avg": 1 },
         "GroupTerminatingInstances": { "avg": 1 },
-        "GroupTotalInstances": { "avg": 15 },
-        "GroupInServiceCapacity": { "avg": 14 },
+        "GroupTotalInstances": { "avg": 8 },
+        "GroupInServiceCapacity": { "avg": 6 },
         "GroupPendingCapacity": { "avg": 0 },
-        "GroupStandbyCapacity": { "avg": 0 },
+        "GroupStandbyCapacity": { "avg": 1 },
         "GroupTerminatingCapacity": { "avg": 1 },
-        "GroupTotalCapacity": { "avg": 15 },
-        "WarmPoolMinSize": { "avg": 2 },
-        "WarmPoolDesiredCapacity": { "avg": 2 },
-        "WarmPoolPendingCapacity": { "avg": 2 },
-        "WarmPoolTerminatingCapacity": { "avg": 2 },
-        "WarmPoolTotalCapacity": { "avg": 6 },
-        "WarmPoolWarmedCapacity": { "avg": 5 }
+        "GroupTotalCapacity": { "avg": 8 },
+        "WarmPoolMinSize": { "avg": 1 },
+        "WarmPoolDesiredCapacity": { "avg": 3 },
+        "WarmPoolPendingCapacity": { "avg": 3 },
+        "WarmPoolTerminatingCapacity": { "avg": 1 },
+        "WarmPoolTotalCapacity": { "avg": 7 },
+        "WarmPoolWarmedCapacity": { "avg": 1 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-autoscaling-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-autoscaling-logs-814726593401"
+        "name": "aws-autoscaling-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-autoscaling-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/autoscaling/ap-south-1/2026/05/19/autoscaling_OUILUWXORIEH3O6AKB0L.log.gz"
+        "key": "AWSLogs/501938274650/autoscaling/il-central-1/2026/05/20/autoscaling_UPC105L8PF96CI45WMFY.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "ap-south-1/682s4nge",
-      "ingestion_time": "2026-05-19T15:25:13.461Z"
+      "log_stream": "il-central-1/fagq4eix",
+      "ingestion_time": "2026-05-20T13:19:01.210Z"
     }
   },
   "event": {
     "category": ["host"],
+    "type": ["info"],
     "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 349000000000,
-    "module": "aws"
+    "duration": 237000000000,
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "SNS lifecycle hook notification published hook=register-targets AutoScalingGroupName=api-asg EC2InstanceId=i-5ithn8457lhhhucrt LifecycleTransition=autoscaling:EC2_INSTANCE_TERMINATING",
+  "message": "SuccessfulScalingActivity: Terminating EC2 instance: i-b09e8ad2888b256a2 ActivityId=vfxiwb8d-01yu-9ahj Cause: At 2026-05-20T13:19:00.213Z instance failed EC2 health check",
   "log": { "level": "info" },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -77,8 +77,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "ne70rqbbbowtfskoe36s27nmvek796wvfddo"
+    "name": "filebeat-aws-il-central-1",
+    "ephemeral_id": "w1nq9e3gxpr55us7y4refhrtjzbd0k5by3qj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

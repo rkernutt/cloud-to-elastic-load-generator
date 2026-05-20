@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.securityhub_findings* | STATS c = COUNT() BY s = `aws.securityhub_findings.Severity.Label` | SORT c DESC"
+            "query": "FROM logs-aws.securityhub_findings* | STATS c = COUNT() BY s = `aws.securityhub_findings.Severity.Label` | SORT ``c DESC"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.securityhub_findings* | STATS c = COUNT() BY z = `aws.securityhub_findings.Compliance.Status` | SORT c DESC"
+            "query": "FROM logs-aws.securityhub_findings* | STATS c = COUNT() BY z = `aws.securityhub_findings.Compliance.Status` | SORT ``c DESC"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.securityhub_findings* | STATS c = COUNT() BY w = `aws.securityhub_findings.Workflow.Status` | SORT c DESC | LIMIT 8"
+            "query": "FROM logs-aws.securityhub_findings* | STATS c = COUNT() BY w = `aws.securityhub_findings.Workflow.Status` | SORT ``c DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.securityhub_findings* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.securityhub_findings* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.securityhub_findings* | STATS bad = SUM(CASE(`aws.securityhub_findings.Compliance.Status` == \"FAILED\", 1, 0)), ok = SUM(CASE(`aws.securityhub_findings.Compliance.Status` == \"PASSED\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.securityhub_findings* | STATS bad = SUM(CASE(`aws.securityhub_findings.Compliance.Status` == \"FAILED\", 1, 0)), ok = SUM(CASE(`aws.securityhub_findings.Compliance.Status` == \"PASSED\", 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.securityhub_findings* | STATS sev = AVG(`aws.securityhub_findings.Severity.Normalized`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.securityhub_findings* | STATS sev = AVG(`aws.securityhub_findings.Severity.Normalized`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -388,7 +388,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.securityhub_findings* | STATS c = COUNT() BY ctl = `aws.securityhub_findings.Compliance.SecurityControlId` | SORT c DESC | LIMIT 10"
+                "query": "FROM logs-aws.securityhub_findings* | STATS c = COUNT() BY ctl = `aws.securityhub_findings.Compliance.SecurityControlId` | SORT ``c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -421,7 +421,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.securityhub_findings* | KEEP `@timestamp`, `aws.securityhub_findings.Title`, `aws.securityhub_findings.Severity.Label`, `aws.securityhub_findings.Compliance.Status`, `rule.id`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.securityhub_findings* | KEEP `@timestamp``@timestamp`, `aws.securityhub_findings.Title`, `aws.securityhub_findings.Severity.Label`, `aws.securityhub_findings.Compliance.Status`, `rule.id`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

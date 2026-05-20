@@ -88,7 +88,7 @@ export function generateAcrDedicatedFinalMetrics(ts: string, er: number): EcsDoc
 export function generateDedicatedHostDedicatedFinalMetrics(ts: string, er: number): EcsDocument[] {
   const ctx = pickAzureContext();
   const dataset = metricsDatasetFor("dedicated-host");
-  const hosts = ["host-0", "host-1", "host-2"];
+  const hosts = ["dhost-prod-eus2-01", "dhost-prod-eus2-02", "dhost-staging-weu-01"];
   return multiDoc(ts, er, ctx, dataset, "dedicated_host", hosts, (h) => {
     const hg = `hg-${randId(4).toLowerCase()}`;
     return {
@@ -107,7 +107,7 @@ export function generateCapacityReservationDedicatedFinalMetrics(
 ): EcsDocument[] {
   const ctx = pickAzureContext();
   const dataset = metricsDatasetFor("capacity-reservation");
-  const crs = ["cr-general", "cr-compute", "cr-memory"];
+  const crs = ["res-general-prod-01", "res-compute-batch-02", "res-memory-analytics-01"];
   return multiDoc(ts, er, ctx, dataset, "capacity_reservation", crs, (cr) => {
     const crg = `crg-${randId(4).toLowerCase()}`;
     const fail = Math.random() < er;

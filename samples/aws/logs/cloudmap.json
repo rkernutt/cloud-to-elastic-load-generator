@@ -1,48 +1,50 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-central-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "cloudmap" }
   },
   "aws": {
-    "dimensions": { "Namespace": "prod-namespace", "ServiceName": "auth" },
+    "dimensions": { "Namespace": "staging-namespace", "ServiceName": "inventory" },
     "cloudmap": {
-      "namespace": "prod-namespace",
-      "service_name": "auth",
-      "instance_id": "i-9bkqxeo3x0twmixp7",
-      "operation": "DeregisterInstance",
-      "health_status": "HEALTHY",
-      "instances_returned": 1,
+      "namespace": "staging-namespace",
+      "service_name": "inventory",
+      "instance_id": "i-3218de881b23a20db",
+      "operation": "RegisterInstance",
+      "health_status": "ALL",
+      "instances_returned": 9,
       "query_type": "API",
-      "ttl": 300
+      "ttl": 15
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudmap-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-cloudmap-logs-738291046572"
+        "name": "aws-cloudmap-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-cloudmap-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/cloudmap/ap-south-2/2026/05/19/cloudmap_IQ9ZMF5A849JSEHS3TCL.log.gz"
+        "key": "AWSLogs/814726593401/cloudmap/eu-central-2/2026/05/20/cloudmap_TGNGSJLFATDW43UV7PE6.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloudmap/logs",
-      "log_stream": "ap-south-2/hyxsgvzn",
-      "ingestion_time": "2026-05-19T15:25:13.492Z"
+      "log_stream": "eu-central-2/y7qe9rxm",
+      "ingestion_time": "2026-05-20T13:19:01.251Z"
     }
   },
   "event": {
-    "action": "RegisterInstance",
+    "action": "RoutingPolicyUpdate",
     "outcome": "success",
     "category": ["network"],
+    "type": ["connection"],
     "dataset": "aws.cloudmap",
     "provider": "cloudmap.amazonaws.com",
-    "duration": 66000000,
-    "module": "aws"
+    "duration": 54000000,
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "Cloud Map auth: DeregisterInstance returned 1 instances",
+  "message": "Cloud Map inventory: RegisterInstance returned 9 instances",
   "log": { "level": "info" },
   "service": { "name": "cloudmap", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -50,8 +52,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "zfmem1dwt7c7oyp1qnkh2zasrdw818l5pv4s"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "ujh7maps6xhoiry4rck4lpe7y0az8n8aqx04"
   },
   "input": { "type": "aws-cloudwatch" }
 }

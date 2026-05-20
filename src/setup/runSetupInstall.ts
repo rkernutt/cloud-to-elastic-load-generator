@@ -31,6 +31,8 @@ import {
   type WorkflowOverrides,
 } from "./workflowInstaller";
 import { ALERT_ENRICHMENT_WORKFLOW_YAML } from "./workflowYaml";
+import { getAgentDef, getAgentTools } from "../../installer/agent-builder/agentDefinitions";
+import { getSloDefinitions } from "../../installer/slos/sloDefinitions";
 
 export type SetupLogFn = (text: string, type?: "info" | "ok" | "error" | "warn") => void;
 
@@ -54,6 +56,17 @@ function workflowsBlockedExplanation(): string {
     " Stack Management → Advanced Settings (or kibana.yml). See" +
     " docs/workflow-deployment.md for the full setup guide."
   );
+}
+
+function isHttpConflict(msg: string): boolean {
+  return msg.includes("HTTP 409") || msg.includes("409") || msg.includes("already exists");
+}
+
+function isKibanaApiUnavailable(msg: string): boolean {
+  if (!msg) return false;
+  if (isKibanaFeatureUnavailable(msg)) return true;
+  if (msg.includes("HTTP 404")) return true;
+  return false;
 }
 
 function savedObjectImportHasConflict(raw: unknown): boolean {
@@ -167,6 +180,10 @@ export async function runSetupInstall(opts: {
   startMlJobs: boolean;
   /** When true, install the bundled alert-enrichment Kibana Workflow. */
   enableWorkflow?: boolean;
+  /** When true, install the Cloud Loadgen AI analyst agent and tools in Agent Builder. */
+  enableAgentBuilder?: boolean;
+  /** When true, install Cloud Loadgen SLO definitions. */
+  enableSlos?: boolean;
   /** Overrides applied to the bundled YAML before sending to Kibana. */
   workflowOverrides?: WorkflowOverrides;
   extraFleetPackages?: { name: string; label: string }[];
@@ -191,6 +208,8 @@ export async function runSetupInstall(opts: {
     activateAlertRules,
     startMlJobs,
     enableWorkflow = false,
+    enableAgentBuilder = false,
+    enableSlos = false,
     workflowOverrides = {},
     extraFleetPackages = [],
     pipelines,
@@ -223,6 +242,8 @@ export async function runSetupInstall(opts: {
     const alertRuleCount = alertRuleFiles.reduce((acc, f) => acc + f.rules.length, 0);
     (enableAlertRules ? planRun : planSkip).push(`${alertRuleCount} alerting rules`);
     (enableWorkflow ? planRun : planSkip).push("alert-enrichment Workflow");
+    (enableAgentBuilder ? planRun : planSkip).push("Agent Builder analyst");
+    (enableSlos ? planRun : planSkip).push("SLO definitions");
     if (planRun.length) addLog(`Plan: install ${planRun.join(", ")}.`, "info");
     if (planSkip.length) addLog(`Skipping (toggles off): ${planSkip.join(", ")}.`, "info");
   }
@@ -950,6 +971,24 @@ export async function runSetupInstall(opts: {
     }
   };
 
+  const installAgentBuilder = async () => {
+    await installAgentBuilderInner({
+      kibanaUrl,
+      apiKey,
+      vendor: setupBundle.fleetPackage,
+      addLog,
+    });
+  };
+
+  const installSlos = async () => {
+    await installSlosInner({
+      kibanaUrl,
+      apiKey,
+      vendor: setupBundle.fleetPackage,
+      addLog,
+    });
+  };
+
   if (enableIntegration) await installIntegration(setupBundle.fleetPackage);
   if (enableApm) await installIntegration("apm");
   for (const pkg of extraFleetPackages) {
@@ -965,6 +1004,192 @@ export async function runSetupInstall(opts: {
   if (activateAlertRules && enableAlertRules) await activateRules();
   if (startMlJobs && enableMlJobs) await openAndStartMlJobs();
   if (enableWorkflow) await installAlertEnrichmentWorkflow();
+  if (enableAgentBuilder) await installAgentBuilder();
+  if (enableSlos) await installSlos();
+}
+
+async function installAgentBuilderForVendor(opts: {
+  kb: string;
+  apiKey: string;
+  vendor: string;
+  addLog: SetupLogFn;
+}): Promise<"ok" | "unavailable" | "partial"> {
+  const { kb, apiKey, vendor, addLog } = opts;
+  const tools = getAgentTools(vendor);
+  const agent = getAgentDef(vendor);
+
+  let toolsOk = 0;
+  let toolsSkipped = 0;
+  let toolsFail = 0;
+
+  for (const tool of tools) {
+    try {
+      await proxyCall({
+        baseUrl: kb,
+        apiKey,
+        path: "/api/agent_builder/tools",
+        method: "POST",
+        body: {
+          id: tool.id,
+          type: tool.type,
+          description: tool.description,
+          configuration: tool.configuration,
+          tags: tool.tags,
+        },
+      });
+      toolsOk++;
+      addLog(`  ✓ Tool ${tool.id}`, "ok");
+    } catch (e) {
+      const msg = String(e);
+      if (isKibanaApiUnavailable(msg)) return "unavailable";
+      if (isHttpConflict(msg)) {
+        toolsSkipped++;
+        addLog(`  — Tool ${tool.id}: already exists, skipping`, "info");
+      } else {
+        toolsFail++;
+        addLog(`  ✗ Tool ${tool.id}: ${msg}`, "error");
+      }
+    }
+  }
+
+  try {
+    await proxyCall({
+      baseUrl: kb,
+      apiKey,
+      path: "/api/agent_builder/agents",
+      method: "POST",
+      body: {
+        id: agent.id,
+        name: agent.name,
+        description: agent.description,
+        instructions: agent.instructions,
+        tool_ids: agent.toolIds,
+      },
+    });
+    addLog(`  ✓ Agent "${agent.name}" (${agent.id})`, "ok");
+  } catch (e) {
+    const msg = String(e);
+    if (isKibanaApiUnavailable(msg)) return "unavailable";
+    if (isHttpConflict(msg)) {
+      addLog(`  — Agent ${agent.id}: already exists, skipping`, "info");
+    } else {
+      addLog(`  ✗ Agent ${agent.id}: ${msg}`, "error");
+      return "partial";
+    }
+  }
+
+  addLog(
+    `  ✓ Agent Builder tools: ${toolsOk} created${toolsSkipped > 0 ? `, ${toolsSkipped} already existed` : ""}${toolsFail > 0 ? `, ${toolsFail} failed` : ""}`,
+    toolsFail > 0 ? "warn" : "ok"
+  );
+  return toolsFail > 0 ? "partial" : "ok";
+}
+
+async function installAgentBuilderInner(opts: {
+  kibanaUrl: string;
+  apiKey: string;
+  vendor: string;
+  addLog: SetupLogFn;
+}): Promise<void> {
+  const { kibanaUrl, apiKey, vendor, addLog } = opts;
+  const kb = kibanaUrl.replace(/\/$/, "");
+  addLog(`Installing Agent Builder analyst for ${vendor.toUpperCase()}…`);
+  try {
+    const result = await installAgentBuilderForVendor({ kb, apiKey, vendor, addLog });
+    if (result === "unavailable") {
+      addLog(
+        "  ⚠ Agent Builder API is not available on this deployment (HTTP 404 or blocked). Skipping.",
+        "warn"
+      );
+    }
+  } catch (e) {
+    const msg = String(e);
+    if (isKibanaApiUnavailable(msg)) {
+      addLog(
+        "  ⚠ Agent Builder API is not available on this deployment. Skipping." +
+          kibanaFeatureBlockedExplanation(msg),
+        "warn"
+      );
+      return;
+    }
+    addLog(`  ✗ Agent Builder install failed: ${msg}`, "error");
+  }
+}
+
+async function installSlosForVendor(opts: {
+  kb: string;
+  apiKey: string;
+  vendor: string;
+  addLog: SetupLogFn;
+}): Promise<"ok" | "unavailable" | "partial"> {
+  const { kb, apiKey, vendor, addLog } = opts;
+  const slos = getSloDefinitions(vendor);
+  let ok = 0;
+  let skipped = 0;
+  let fail = 0;
+
+  for (const slo of slos) {
+    try {
+      await proxyCall({
+        baseUrl: kb,
+        apiKey,
+        path: "/api/observability/slos",
+        method: "POST",
+        body: { ...slo } as Record<string, unknown>,
+      });
+      ok++;
+      addLog(`  ✓ SLO "${slo.name}" (${slo.id})`, "ok");
+    } catch (e) {
+      const msg = String(e);
+      if (isKibanaApiUnavailable(msg)) return "unavailable";
+      if (isHttpConflict(msg)) {
+        skipped++;
+        addLog(`  — SLO ${slo.id}: already exists, skipping`, "info");
+      } else {
+        fail++;
+        addLog(`  ✗ SLO ${slo.id}: ${msg}`, "error");
+      }
+    }
+  }
+
+  addLog(
+    `  ✓ SLOs: ${ok} created${skipped > 0 ? `, ${skipped} already existed` : ""}${fail > 0 ? `, ${fail} failed` : ""}`,
+    fail > 0 ? "warn" : "ok"
+  );
+  return fail > 0 ? "partial" : "ok";
+}
+
+async function installSlosInner(opts: {
+  kibanaUrl: string;
+  apiKey: string;
+  vendor: string;
+  addLog: SetupLogFn;
+}): Promise<void> {
+  const { kibanaUrl, apiKey, vendor, addLog } = opts;
+  const kb = kibanaUrl.replace(/\/$/, "");
+  addLog(
+    `Installing ${getSloDefinitions(vendor).length} SLO definitions for ${vendor.toUpperCase()}…`
+  );
+  try {
+    const result = await installSlosForVendor({ kb, apiKey, vendor, addLog });
+    if (result === "unavailable") {
+      addLog(
+        "  ⚠ Observability SLO API is not available on this deployment (HTTP 404 or blocked). Skipping.",
+        "warn"
+      );
+    }
+  } catch (e) {
+    const msg = String(e);
+    if (isKibanaApiUnavailable(msg)) {
+      addLog(
+        "  ⚠ Observability SLO API is not available on this deployment. Skipping." +
+          kibanaFeatureBlockedExplanation(msg),
+        "warn"
+      );
+      return;
+    }
+    addLog(`  ✗ SLO install failed: ${msg}`, "error");
+  }
 }
 
 /**
@@ -1006,4 +1231,163 @@ export async function uninstallSetupWorkflow(opts: {
     }
     addLog(`  ✗ Workflow uninstall failed: ${msg}`, "error");
   }
+}
+
+/**
+ * Removes the Cloud Loadgen Agent Builder analyst and tools tagged `cloudloadgen`.
+ */
+export async function uninstallAgentBuilder(opts: {
+  kibanaUrl: string;
+  apiKey: string;
+  vendor: string;
+  addLog: SetupLogFn;
+}): Promise<void> {
+  const { kibanaUrl, apiKey, vendor, addLog } = opts;
+  const kb = kibanaUrl.replace(/\/$/, "");
+  const agent = getAgentDef(vendor);
+
+  addLog("Removing Agent Builder analyst…");
+
+  try {
+    const deleted = await proxyCall({
+      baseUrl: kb,
+      apiKey,
+      path: `/api/agent_builder/agents/${encodeURIComponent(agent.id)}`,
+      method: "DELETE",
+      allow404: true,
+    });
+    if (deleted == null) {
+      addLog(`  – Agent ${agent.id} not found, nothing to remove.`, "info");
+    } else {
+      addLog(`  ✓ Agent ${agent.id} deleted.`, "ok");
+    }
+  } catch (e) {
+    const msg = String(e);
+    if (isKibanaApiUnavailable(msg)) {
+      addLog("  ⚠ Agent Builder API unavailable — skipping agent removal.", "warn");
+    } else {
+      addLog(`  ✗ Agent removal failed: ${msg}`, "error");
+    }
+  }
+
+  const toolIds = new Set(getAgentTools(vendor).map((t) => t.id));
+
+  try {
+    const listed = await proxyCall({
+      baseUrl: kb,
+      apiKey,
+      path: "/api/agent_builder/tools",
+      method: "GET",
+      allow404: true,
+    });
+    if (listed === null) {
+      addLog("  ⚠ Agent Builder tools API unavailable — skipping tool enumeration.", "warn");
+    } else {
+      const items = Array.isArray(listed)
+        ? listed
+        : typeof listed === "object" &&
+            listed !== null &&
+            Array.isArray((listed as { tools?: unknown[] }).tools)
+          ? (listed as { tools: unknown[] }).tools
+          : [];
+      for (const item of items) {
+        if (!item || typeof item !== "object") continue;
+        const tool = item as { id?: string; tags?: string[] };
+        if (typeof tool.id === "string" && tool.tags?.some((tag) => tag.includes("cloudloadgen"))) {
+          toolIds.add(tool.id);
+        }
+      }
+    }
+  } catch (e) {
+    const msg = String(e);
+    if (!isKibanaApiUnavailable(msg)) {
+      addLog(`  ⚠ Could not list Agent Builder tools: ${msg}`, "warn");
+    }
+  }
+
+  let ok = 0;
+  let missing = 0;
+  let fail = 0;
+
+  for (const toolId of toolIds) {
+    try {
+      const deleted = await proxyCall({
+        baseUrl: kb,
+        apiKey,
+        path: `/api/agent_builder/tools/${encodeURIComponent(toolId)}`,
+        method: "DELETE",
+        allow404: true,
+      });
+      if (deleted == null) {
+        missing++;
+      } else {
+        ok++;
+        addLog(`  ✓ Tool ${toolId} deleted.`, "ok");
+      }
+    } catch (e) {
+      const msg = String(e);
+      if (isKibanaApiUnavailable(msg)) {
+        addLog("  ⚠ Agent Builder API unavailable — stopping tool removal.", "warn");
+        return;
+      }
+      fail++;
+      addLog(`  ✗ Tool ${toolId}: ${msg}`, "error");
+    }
+  }
+
+  addLog(
+    `  ✓ Agent Builder tools: ${ok} removed${missing > 0 ? `, ${missing} not found` : ""}${fail > 0 ? `, ${fail} failed` : ""}`,
+    fail > 0 ? "warn" : "ok"
+  );
+}
+
+/**
+ * Removes Cloud Loadgen SLO definitions for the given vendor.
+ */
+export async function uninstallSlos(opts: {
+  kibanaUrl: string;
+  apiKey: string;
+  vendor: string;
+  addLog: SetupLogFn;
+}): Promise<void> {
+  const { kibanaUrl, apiKey, vendor, addLog } = opts;
+  const kb = kibanaUrl.replace(/\/$/, "");
+  const slos = getSloDefinitions(vendor);
+
+  addLog(`Removing ${slos.length} SLO definitions…`);
+  let ok = 0;
+  let missing = 0;
+  let fail = 0;
+
+  for (const slo of slos) {
+    try {
+      const deleted = await proxyCall({
+        baseUrl: kb,
+        apiKey,
+        path: `/api/observability/slos/${encodeURIComponent(slo.id)}`,
+        method: "DELETE",
+        allow404: true,
+      });
+      if (deleted == null) {
+        missing++;
+        addLog(`  – SLO ${slo.id} not found, nothing to remove.`, "info");
+      } else {
+        ok++;
+        addLog(`  ✓ SLO ${slo.id} deleted.`, "ok");
+      }
+    } catch (e) {
+      const msg = String(e);
+      if (isKibanaApiUnavailable(msg)) {
+        addLog("  ⚠ Observability SLO API unavailable — skipping remaining SLOs.", "warn");
+        return;
+      }
+      fail++;
+      addLog(`  ✗ SLO ${slo.id}: ${msg}`, "error");
+    }
+  }
+
+  addLog(
+    `  ✓ SLOs: ${ok} removed${missing > 0 ? `, ${missing} not found` : ""}${fail > 0 ? `, ${fail} failed` : ""}`,
+    fail > 0 ? "warn" : "ok"
+  );
 }

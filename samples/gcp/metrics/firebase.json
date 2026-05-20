@@ -3,15 +3,16 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-southwest1",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" }
+    "region": "us-west3",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
+    "service": { "name": "firebase" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-southwest1",
-    "ephemeral_id": "7awchkrnoxh13cyfmhtm4d591dpns26ylme7"
+    "name": "metricbeat-gcp-us-west3",
+    "ephemeral_id": "av413osxsa8ha1a6b6mhfqzbsq4kzi37nkgq"
   },
   "monitoringTimeSeries": {
     "metric": {
@@ -21,9 +22,9 @@
     "resource": {
       "type": "firebase_domain",
       "labels": {
-        "project_id": "globex-shared-m3n4o5",
+        "project_id": "globex-stg-739158",
         "location": "global",
-        "site_id": "globex-web"
+        "site_id": "partner-portal"
       }
     },
     "metricKind": "DELTA",
@@ -31,22 +32,22 @@
     "points": [
       {
         "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "int64Value": "30816228" }
+        "value": { "int64Value": "42005486" }
       }
     ]
   },
   "gcp": {
     "firebase": {
       "labels": {
-        "project_id": "globex-shared-m3n4o5",
+        "project_id": "globex-stg-739158",
         "location": "global",
-        "site_id": "globex-web",
+        "site_id": "partner-portal",
         "response_code": "200"
       },
       "metrics": {
         "firebase.googleapis.com/hosting/request_count": {
-          "avg": 30816228,
-          "sum": 30816228,
+          "avg": 42005486,
+          "sum": 42005486,
           "count": 1
         }
       }
@@ -55,5 +56,5 @@
   "metricset": { "name": "firebase", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.firebase_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.firebase_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.firebase_metrics", "module": "gcp" }
 }

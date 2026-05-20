@@ -6,6 +6,10 @@ import {
   randFloat,
   randId,
   randIp,
+  randPrivateIp,
+  randHexId,
+  ec2PrivateDns,
+  randPublicIp,
   randTs,
   randAccount,
   randUUID,
@@ -73,6 +77,44 @@ describe("randId", () => {
 describe("randIp", () => {
   it("returns dotted quad", () => {
     expect(randIp()).toMatch(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/);
+  });
+});
+
+describe("randPrivateIp", () => {
+  it("returns RFC1918 addresses weighted toward 10.x", () => {
+    for (let i = 0; i < 30; i++) {
+      const ip = randPrivateIp();
+      expect(ip).toMatch(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/);
+      const [a] = ip.split(".").map(Number);
+      expect([10, 172, 192]).toContain(a);
+    }
+  });
+});
+
+describe("randHexId", () => {
+  it("returns lowercase hex string of requested length", () => {
+    const id = randHexId(17);
+    expect(id).toHaveLength(17);
+    expect(id).toMatch(/^[0-9a-f]+$/);
+  });
+});
+
+describe("ec2PrivateDns", () => {
+  it("formats ip-octets.region.compute.internal", () => {
+    expect(ec2PrivateDns("10.0.1.5", "us-east-1")).toBe("ip-10-0-1-5.us-east-1.compute.internal");
+  });
+});
+
+describe("randPublicIp", () => {
+  it("returns dotted quad without RFC1918 first octets", () => {
+    for (let i = 0; i < 30; i++) {
+      const ip = randPublicIp();
+      expect(ip).toMatch(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/);
+      const first = Number(ip.split(".")[0]);
+      expect(first).not.toBe(10);
+      expect(first < 172 || first > 191).toBe(true);
+      expect(first).not.toBe(192);
+    }
   });
 });
 

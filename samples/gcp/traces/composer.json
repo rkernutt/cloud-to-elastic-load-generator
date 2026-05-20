@@ -5,16 +5,16 @@
     "event": "transaction"
   },
   "trace": {
-    "id": "f35d4af4b8241230c2876d14c47ad566"
+    "id": "d9edc4ce5094a96e50d028df9ee1cb3c"
   },
   "transaction": {
-    "id": "5fd4af8231a96ab6",
-    "name": "DAG ingest_hourly",
+    "id": "17e67ffa8c6e8f77",
+    "name": "DAG security_audit",
     "type": "request",
     "duration": {
-      "us": 578027
+      "us": 656397
     },
-    "result": "success",
+    "result": "failure",
     "sampled": true,
     "span_count": {
       "started": 5,
@@ -23,8 +23,8 @@
   },
   "service": {
     "name": "airflow-worker",
-    "environment": "staging",
-    "version": "1.0.0",
+    "environment": "production",
+    "version": "1.42.0",
     "language": {
       "name": "python"
     },
@@ -38,14 +38,14 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west1",
+    "region": "asia-south1",
     "project": {
-      "id": "globex-prod-a1b2c3",
-      "name": "Globex Production"
+      "id": "globex-stg-739158",
+      "name": "Globex Staging"
     },
     "account": {
-      "id": "314159265358",
-      "name": "Globex Production"
+      "id": "739158264830",
+      "name": "Globex Staging"
     },
     "service": {
       "name": "composer.googleapis.com"
@@ -57,12 +57,15 @@
     "namespace": "default"
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "module": "gcp",
-    "dataset": "gcp.composer"
+    "dataset": "gcp.composer",
+    "kind": "event"
   },
   "labels": {
-    "gcp.composer.dag": "ingest_hourly"
+    "gcp.composer.dag": "security_audit",
+    "composer.failure": "xcom_deserialize_bad_type",
+    "airflow.exc": "XComTypeMismatch"
   },
   "ecs": {
     "version": "8.11.0"
@@ -91,7 +94,7 @@
     }
   },
   "gcpCloudTrace": {
-    "trace": "projects/globex-prod-a1b2c3/traces/f35d4af4b8241230c2876d14c47ad566",
-    "spanId": "5fd4af8231a96ab6"
+    "trace": "projects/globex-stg-739158/traces/d9edc4ce5094a96e50d028df9ee1cb3c",
+    "spanId": "17e67ffa8c6e8f77"
   }
 }

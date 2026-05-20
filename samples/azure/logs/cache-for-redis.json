@@ -1,47 +1,53 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-prod-8dofjl/providers/Microsoft.Cache/Redis/redis-uah2i",
-  "operationName": "Redis.ClusterSlotAudit",
-  "category": "ClusterOps",
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-shared-t5yy1u/providers/Microsoft.Cache/Redis/redis-e80rs",
+  "operationName": "RedisEviction",
+  "category": "MemoryPressure",
   "resultType": "Success",
-  "resultSignature": "STABLE",
-  "callerIpAddress": "108.212.212.69",
-  "correlationId": "0f5bf66a-ac0d-4f78-8fff-ba5becf5c034",
+  "resultSignature": "allkeys-lru",
+  "callerIpAddress": "7.12.203.109",
+  "correlationId": "9de95b56-7f5f-4172-be14-27b7d903d600",
   "level": "Information",
   "properties": {
-    "slot": 4521,
-    "nodeId": "FX0AQSUDJ7W7ZQOOTLOYHN7T7GUCXPJ5QA3GZT0I",
-    "migrating": false,
-    "reshardingPhase": "STABLE"
+    "policy": "allkeys-lru",
+    "evictedKeys": 29502,
+    "maxmemoryPolicyViolation": false,
+    "usedMemoryMB": 3499,
+    "detail": ""
   },
   "cloud": {
     "provider": "azure",
-    "region": "swedencentral",
-    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" },
+    "region": "ukwest",
+    "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
     "service": { "name": "Microsoft.Cache/Redis" }
   },
   "azure": {
     "cache_for_redis": {
-      "cache_name": "redis-uah2i",
-      "resource_group": "rg-prod-8dofjl",
-      "category": "ClusterOps",
-      "correlation_id": "0f5bf66a-ac0d-4f78-8fff-ba5becf5c034",
+      "cache_name": "redis-e80rs",
+      "resource_group": "rg-shared-t5yy1u",
+      "category": "MemoryPressure",
+      "correlation_id": "9de95b56-7f5f-4172-be14-27b7d903d600",
       "properties": {
-        "slot": 4521,
-        "nodeId": "FX0AQSUDJ7W7ZQOOTLOYHN7T7GUCXPJ5QA3GZT0I",
-        "migrating": false,
-        "reshardingPhase": "STABLE"
+        "policy": "allkeys-lru",
+        "evictedKeys": 29502,
+        "maxmemoryPolicyViolation": false,
+        "usedMemoryMB": 3499,
+        "detail": ""
       }
     }
   },
   "event": {
+    "kind": "event",
+    "category": ["database"],
+    "type": ["access"],
+    "action": "RedisEviction",
     "outcome": "success",
-    "duration": 1435182188,
+    "duration": 339926229,
     "module": "azure",
     "dataset": "azure.redis_cache"
   },
-  "message": "Redis redis-uah2i: cluster topology stable",
+  "message": "Redis redis-e80rs: evicted 29502 keys (allkeys-lru)",
   "service": { "name": "cache-for-redis", "type": "azure" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -49,8 +55,10 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-swedencentral",
-    "id": "k9c4qpp3cjwbmy5h6ndogzqdf5kfxsf9a48m"
+    "name": "elastic-agent-azure-ukwest",
+    "id": "v0q2pf5nub9ip29b7lqljkgn6oks5ub4223h"
   },
-  "input": { "type": "azure-eventhub" }
+  "input": { "type": "azure-eventhub" },
+  "source": { "ip": "7.12.203.109" },
+  "related": { "ip": ["7.12.203.109"] }
 }

@@ -1,50 +1,46 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "us-east-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "comprehend" }
   },
   "aws": {
-    "dimensions": { "Operation": "DetectSentiment" },
+    "dimensions": { "Operation": "DetectEntities" },
     "comprehend": {
-      "operation": "DetectSentiment",
+      "operation": "DetectEntities",
       "LanguageCode": "es",
       "language_code": "es",
-      "text_bytes": 52713,
-      "sentiment": "NEGATIVE",
-      "entities_detected": 0,
+      "text_bytes": 28685,
+      "entities_detected": 16,
       "key_phrases_detected": 0,
       "pii_entities_detected": 0,
-      "SentimentDetection": {
-        "Sentiment": "NEGATIVE",
-        "SentimentScore": {
-          "Positive": 0.42011545378557097,
-          "Negative": 0.6918881299674703,
-          "Neutral": 0.15900773927013842,
-          "Mixed": 0.48394991396603887
-        }
+      "EntityRecognition": {
+        "Entities": [
+          { "Text": "USD 2.4M", "Score": 0.8875164100748141, "Type": "QUANTITY" },
+          { "Text": "Q3 2025", "Score": 0.7535672581285631, "Type": "OTHER" }
+        ]
       },
       "metrics": {
         "NumberOfSuccessfulRequest": { "sum": 1 },
         "NumberOfFailedRequest": { "sum": 0 },
-        "ResponseTime": { "avg": 243.53113536712664 }
+        "ResponseTime": { "avg": 334.9727681215273 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-comprehend-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-comprehend-logs-738291046572"
+        "name": "aws-comprehend-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-comprehend-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/comprehend/sa-east-1/2026/05/19/comprehend_IQGZ4OTNDUPFQ19IS6Y5.log.gz"
+        "key": "AWSLogs/164820739518/comprehend/us-east-2/2026/05/20/comprehend_CROXZKR26VEBVJV9K43G.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/comprehend/logs",
-      "log_stream": "sa-east-1/w06wo533",
-      "ingestion_time": "2026-05-19T15:25:13.646Z"
+      "log_stream": "us-east-2/yuj0oubw",
+      "ingestion_time": "2026-05-20T13:19:01.404Z"
     }
   },
   "event": {
@@ -52,9 +48,10 @@
     "category": ["process"],
     "dataset": "aws.comprehend",
     "provider": "comprehend.amazonaws.com",
-    "module": "aws"
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "Comprehend DetectSentiment: lang=es, sentiment=NEGATIVE",
+  "message": "Comprehend DetectEntities: lang=es",
   "log": { "level": "info" },
   "service": { "name": "comprehend", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -62,8 +59,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "dtt0b19q1w2859ihbznitkm7ja7xrjkfu2fp"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "pud1cv82mww17x49c8j90lqexel2lylm4ebv"
   },
   "input": { "type": "aws-cloudwatch" }
 }

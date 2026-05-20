@@ -1,55 +1,59 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-app-3go5c0/providers/Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/waf-pci-w81o8",
+  "resourceId": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-analytics-u0qb49/providers/Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/waf-core-b3hxu",
   "operationName": "ApplicationGatewayFirewallLog",
   "category": "WebApplicationFirewallLog",
   "resultType": "Success",
   "resultSignature": "200",
-  "callerIpAddress": "215.97.212.132",
-  "correlationId": "a014968f-56f0-4eaa-b276-a0d4e8ab0b7b",
+  "callerIpAddress": "39.36.107.16",
+  "correlationId": "148d2669-f9b3-420f-b4e5-b4ce261ae92d",
   "level": "Informational",
   "properties": {
-    "ruleId": "94588",
-    "ruleGroup": "REQUEST-920-PROTOCOL-ENFORCEMENT",
-    "action": "Allow",
+    "ruleId": "94520",
+    "ruleGroup": "REQUEST-931-APPLICATION-ATTACK-RFI",
+    "action": "Block",
     "message": "Restricted SQL Character Anomaly Detection (score 3)",
-    "clientIp": "215.97.212.132",
-    "hostname": "api.contoso.com",
-    "requestUri": "/admin/login",
+    "clientIp": "39.36.107.16",
+    "hostname": "api.meridiantech.io",
+    "requestUri": "/api/query",
     "details": { "match": "union select", "severity": "Warning" }
   },
   "cloud": {
     "provider": "azure",
-    "region": "swedencentral",
-    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" },
+    "region": "eastus",
+    "account": { "id": "a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d", "name": "Meridian-Platform" },
     "service": { "name": "Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies" }
   },
   "azure": {
     "waf": {
-      "policy_name": "waf-pci-w81o8",
-      "resource_group": "rg-app-3go5c0",
+      "policy_name": "waf-core-b3hxu",
+      "resource_group": "rg-analytics-u0qb49",
       "category": "WebApplicationFirewallLog",
-      "correlation_id": "a014968f-56f0-4eaa-b276-a0d4e8ab0b7b",
+      "correlation_id": "148d2669-f9b3-420f-b4e5-b4ce261ae92d",
       "properties": {
-        "ruleId": "94588",
-        "ruleGroup": "REQUEST-920-PROTOCOL-ENFORCEMENT",
-        "action": "Allow",
+        "ruleId": "94520",
+        "ruleGroup": "REQUEST-931-APPLICATION-ATTACK-RFI",
+        "action": "Block",
         "message": "Restricted SQL Character Anomaly Detection (score 3)",
-        "clientIp": "215.97.212.132",
-        "hostname": "api.contoso.com",
-        "requestUri": "/admin/login",
+        "clientIp": "39.36.107.16",
+        "hostname": "api.meridiantech.io",
+        "requestUri": "/api/query",
         "details": { "match": "union select", "severity": "Warning" }
       }
     }
   },
   "event": {
+    "kind": "event",
+    "category": ["network"],
+    "type": ["connection"],
+    "action": "ApplicationGatewayFirewallLog",
     "outcome": "success",
-    "duration": 269512584,
+    "duration": 377920994,
     "module": "azure",
     "dataset": "azure.waf"
   },
-  "message": "WAF policy waf-pci-w81o8: Allow rule REQUEST-920-PROTOCOL-ENFORCEMENT",
+  "message": "WAF policy waf-core-b3hxu: Block rule REQUEST-931-APPLICATION-ATTACK-RFI",
   "service": { "name": "waf", "type": "azure" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -57,8 +61,10 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-swedencentral",
-    "id": "hc9nenir65jm0ot6vufywbe70y9vh6to4m31"
+    "name": "elastic-agent-azure-eastus",
+    "id": "nqhb940zybg3ljnr034mn62dmamogdwzklsh"
   },
-  "input": { "type": "azure-eventhub" }
+  "input": { "type": "azure-eventhub" },
+  "source": { "ip": "39.36.107.16" },
+  "related": { "ip": ["39.36.107.16"] }
 }

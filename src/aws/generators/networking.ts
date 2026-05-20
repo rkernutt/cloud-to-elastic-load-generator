@@ -3,7 +3,10 @@ import {
   randInt,
   randFloat,
   randId,
+  randHexId,
   randIp,
+  randPublicIp,
+  randPrivateIp,
   randAccount,
   REGIONS,
   ACCOUNTS,
@@ -11,6 +14,9 @@ import {
   HTTP_METHODS,
   HTTP_PATHS,
   PROTOCOLS,
+  randAppDomain,
+  randFqdn,
+  randVpcCidr16,
 } from "../../helpers";
 import type { EcsDocument } from "./types.js";
 
@@ -153,15 +159,15 @@ function generateAlbLog(ts: string, er: number): EcsDocument {
   const lbName = `app/prod-alb-${region}/${randId(16).toLowerCase()}`;
   const tgArn = `arn:aws:elasticloadbalancing:${region}:${acct.id}:targetgroup/tg-${rand(["web", "api", "admin"])}/${randId(16).toLowerCase()}`;
   const az = `${region}${rand(["a", "b", "c"])}`;
-  const backendIp = randIp();
+  const backendIp = randPrivateIp();
   const backendPort = randInt(3000, 9000);
   const certArn =
     `arn:aws:acm:${region}:${acct.id}:certificate/${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase();
   const isSuspicious = isErr && Math.random() < 0.15;
   const clientGeo = rand(GEO_LOCATIONS);
-  const clientIp = randIp();
+  const clientIp = randPublicIp();
   const clientPort = randInt(1024, 65535);
-  const domain = "api.example.com";
+  const domain = randAppDomain();
   const receivedBytes = randInt(200, 8000);
   const sentBytes = randInt(500, 50000);
   const ua = rand(USER_AGENTS);
@@ -275,7 +281,7 @@ function generateAlbLog(ts: string, er: number): EcsDocument {
           Math.random() < 0.2
             ? rand([
                 "https://www.google.com/",
-                "https://app.example.com/",
+                `https://${randAppDomain()}/`,
                 "https://console.aws.amazon.com/",
               ])
             : undefined,
@@ -346,7 +352,7 @@ function generateNlbLog(ts: string, er: number): EcsDocument {
   const lbName = `net/prod-nlb-${region}/${randId(16).toLowerCase()}`;
   const connDuration = randInt(1, isErr ? 30000 : 5000);
   const bytes = randInt(64, 1048576);
-  const targetIp = randIp();
+  const targetIp = randPrivateIp();
   const srcGeo = rand(GEO_LOCATIONS);
   return {
     "@timestamp": ts,
@@ -378,7 +384,7 @@ function generateNlbLog(ts: string, er: number): EcsDocument {
       },
     },
     source: {
-      ip: randIp(),
+      ip: randPublicIp(),
       port: randInt(1024, 65535),
       geo: {
         country_iso_code: srcGeo.country_iso_code,
@@ -391,6 +397,7 @@ function generateNlbLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["network"],
+      type: ["connection"],
       dataset: "aws.elb_logs",
       provider: "elasticloadbalancing.amazonaws.com",
       duration: connDuration * 1e6,
@@ -433,14 +440,14 @@ function generateCloudFrontLog(ts: string, er: number): EcsDocument {
   const distId = `E${randId(13)}`;
   const timeTaken = Number(randFloat(0.001, isErr ? 5 : 0.5));
   const bytes = randInt(500, 500000);
-  const clientIp = randIp();
+  const clientIp = randPublicIp();
   const clientGeo = rand(GEO_LOCATIONS);
   const edgeResultType = isErr ? "Error" : rand(["Hit", "Miss", "RefreshHit", "Redirect"]);
   const edgeResponseResultType = isErr ? "Error" : rand(["Hit", "Miss", "RefreshHit", "Redirect"]);
   const edgeDetailedResultType = isErr
     ? rand(["Error", "AbortedOrigin", "OriginDNSError", "OriginConnectError"])
     : rand(["Hit", "Miss", "RefreshHit", "Redirect"]);
-  const cookies = rand(["", "session=abc123", "user=guest"]);
+  const cookies = rand(["", `session=${randId(12).toLowerCase()}`, "user=guest"]);
   const cfDomain = `d${randId(12).toLowerCase()}.cloudfront.net`;
   const du = new Date(ts);
   const pad2 = (n: number) => String(n).padStart(2, "0");
@@ -448,7 +455,7 @@ function generateCloudFrontLog(ts: string, er: number): EcsDocument {
   const cfTime = `${pad2(du.getUTCHours())}:${pad2(du.getUTCMinutes())}:${pad2(du.getUTCSeconds())}`;
   const csMethod = "GET";
   const csBytes = randInt(0, 1000);
-  const xForwardedFor = Math.random() < 0.45 ? `${clientIp}, ${randIp()}` : clientIp;
+  const xForwardedFor = Math.random() < 0.45 ? `${clientIp}, ${randPublicIp()}` : clientIp;
   const sslProtocol = "TLSv1.3";
   const sslCipher = "TLS_AES_128_GCM_SHA256";
   const cfExtendedLine = [
@@ -584,7 +591,7 @@ function generateWafLog(ts: string, er: number): EcsDocument {
     `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase();
   const uri = rand(HTTP_PATHS);
   const method = rand(HTTP_METHODS);
-  const clientIp = randIp();
+  const clientIp = randPublicIp();
   const ua = rand(USER_AGENTS);
   const clientGeo = rand(GEO_LOCATIONS);
   const lbId = `${acct.id}-app/${webAclName}/${randId(16).toLowerCase()}`;
@@ -608,7 +615,7 @@ function generateWafLog(ts: string, er: number): EcsDocument {
         : "GROUP";
   const action = isBlock ? "BLOCK" : "ALLOW";
   const httpHeaders = [
-    { name: "Host", value: "api.example.com" },
+    { name: "Host", value: randAppDomain() },
     { name: "User-Agent", value: ua },
     { name: "Accept", value: "*/*" },
   ];
@@ -732,6 +739,7 @@ function generateWafLog(ts: string, er: number): EcsDocument {
       action: isBlock ? "block" : "allow",
       outcome: isBlock ? "failure" : "success",
       category: ["intrusion_detection", "network"],
+      type: ["info"],
       dataset: "aws.waf",
       provider: "wafv2.amazonaws.com",
       duration: randInt(1, isBlock ? 500 : 50) * 1e6,
@@ -784,7 +792,7 @@ function generateWafv2Log(ts: string, er: number) {
   ]);
   const uri = rand(HTTP_PATHS);
   const method = rand(HTTP_METHODS);
-  const ip = randIp();
+  const ip = randPublicIp();
   const ua = rand(USER_AGENTS);
   const srcGeo = rand(GEO_LOCATIONS);
   const isBlock = action === "BLOCK" || action === "CAPTCHA";
@@ -799,7 +807,7 @@ function generateWafv2Log(ts: string, er: number) {
     : [];
   const httpSourceId = `${acct.id}-app/${webAcl}/${randId(16).toLowerCase()}`;
   const httpHeaders = [
-    { name: "Host", value: "api.example.com" },
+    { name: "Host", value: randAppDomain() },
     { name: "User-Agent", value: ua },
     { name: "Accept", value: "*/*" },
   ];
@@ -920,6 +928,7 @@ function generateWafv2Log(ts: string, er: number) {
       action: action.toLowerCase(),
       outcome: action === "ALLOW" ? "success" : "failure",
       category: ["intrusion_detection", "network"],
+      type: ["info"],
       dataset: "aws.waf",
       provider: "wafv2.amazonaws.com",
       duration: randInt(1, isBlock ? 500 : 50) * 1e6,
@@ -936,9 +945,9 @@ function generateRoute53Log(ts: string, er: number) {
   const acct = randAccount();
   const isErr = Math.random() < er;
   const domains = [
-    "api.example.com",
-    "www.example.com",
-    "mail.example.com",
+    randFqdn("api"),
+    randFqdn("www"),
+    randFqdn("mail"),
     "app.internal",
     "db.internal",
     "s3.amazonaws.com",
@@ -946,7 +955,7 @@ function generateRoute53Log(ts: string, er: number) {
   const types = ["A", "AAAA", "CNAME", "MX", "TXT", "SRV"];
   const rcode = isErr ? rand(["NXDOMAIN", "SERVFAIL", "REFUSED"]) : "NOERROR";
   const hostedZoneId = `Z${randId(21)}`;
-  const srcIp = randIp();
+  const srcIp = randPublicIp();
   return {
     "@timestamp": ts,
     cloud: {
@@ -973,7 +982,7 @@ function generateRoute53Log(ts: string, er: number) {
       provider: "route53.amazonaws.com",
       duration: randInt(1, isErr ? 500 : 50) * 1e6,
     },
-    message: `${ts} ${randId(8)} ${rand(["ip4", "ip6"])} ${srcIp} ${53} ${rand(["A", "AAAA", "CNAME", "MX", "TXT", "SRV"])} ${rand(["example.com", "api.example.com", "db.internal", "s3.amazonaws.com"])}. ${rcode}`,
+    message: `${ts} ${randId(8)} ${rand(["ip4", "ip6"])} ${srcIp} ${53} ${rand(["A", "AAAA", "CNAME", "MX", "TXT", "SRV"])} ${rand([randFqdn(), randFqdn("api"), "db.internal", "s3.amazonaws.com"])}. ${rcode}`,
     log: { level: isErr ? "warn" : "info" },
     ...(isErr
       ? {
@@ -998,8 +1007,8 @@ function generateNetworkFirewallLog(ts: string, er: number): EcsDocument {
   const proto = rand([6, 17, 1]);
   const fwName = `fw-${region}`;
   const az = `${region}${rand(["a", "b", "c"])}`;
-  const srcIp = randIp();
-  const dstIp = randIp();
+  const srcIp = randPrivateIp();
+  const dstIp = Math.random() < 0.35 ? randPublicIp() : randPrivateIp();
   const srcPort = randInt(1024, 65535);
   const dstPort = rand([80, 443, 22, 3306, 5432]);
   const flowId = randInt(100000, 999999);
@@ -1053,6 +1062,7 @@ function generateNetworkFirewallLog(ts: string, er: number): EcsDocument {
       action: action.toLowerCase(),
       outcome: action === "PASS" ? "success" : "failure",
       category: ["intrusion_detection", "network"],
+      type: ["info"],
       dataset: "aws.firewall_logs",
       provider: "network-firewall.amazonaws.com",
       duration: randInt(1, action === "DROP" ? 200 : 50) * 1e6,
@@ -1106,6 +1116,7 @@ function generateShieldLog(ts: string, er: number): EcsDocument {
       action: isAttack ? "ddos_detected" : "health_check",
       outcome: isAttack ? "failure" : "success",
       category: ["intrusion_detection", "network"],
+      type: ["info"],
       dataset: "aws.shield",
       provider: "shield.amazonaws.com",
       duration: randInt(1, isAttack ? 3600 : 60) * 1e9,
@@ -1150,14 +1161,15 @@ function generateGlobalAcceleratorLog(ts: string, er: number): EcsDocument {
         endpoint_group_region: rand(REGIONS),
         endpoint_id: ep,
         endpoint_health: health,
-        client_ip: randIp(),
+        client_ip: randPublicIp(),
         rtt_ms: rttMs,
         processing_time_ms: randInt(1, 20),
       },
     },
     event: {
       outcome: isErr ? "failure" : "success",
-      category: "network",
+      category: ["network"],
+      type: ["connection"],
       dataset: "aws.globalaccelerator",
       provider: "globalaccelerator.amazonaws.com",
       duration: rttMs * 1e6,
@@ -1200,8 +1212,8 @@ function generateTransitGatewayLog(ts: string, er: number): EcsDocument {
         tgw_id: tgwId,
         tgw_attachment_id: tgwAttachId,
         resource_type: rand(["vpc", "vpn", "direct-connect-gateway", "peering"]),
-        src_vpc_id: `vpc-${randId(8).toLowerCase()}`,
-        dst_vpc_id: `vpc-${randId(8).toLowerCase()}`,
+        src_vpc_id: `vpc-${randHexId(8)}`,
+        dst_vpc_id: `vpc-${randHexId(8)}`,
         action,
         bytes: randInt(64, 65535),
         packets: randInt(1, 100),
@@ -1218,13 +1230,14 @@ function generateTransitGatewayLog(ts: string, er: number): EcsDocument {
         },
       },
     },
-    source: { ip: randIp(), port: randInt(1024, 65535) },
-    destination: { ip: randIp(), port: rand([80, 443, 22, 3306, 5432]) },
+    source: { ip: randPrivateIp(), port: randInt(1024, 65535) },
+    destination: { ip: randPrivateIp(), port: rand([80, 443, 22, 3306, 5432]) },
     network: { transport: (PROTOCOLS[proto] || "TCP").toLowerCase(), bytes: randInt(64, 65535) },
     event: {
       action,
       outcome: action === "drop" || action === "blackhole" ? "failure" : "success",
       category: ["network"],
+      type: ["connection"],
       dataset: "aws.transitgateway",
       provider: "ec2.amazonaws.com",
     },
@@ -1274,7 +1287,8 @@ function generateDirectConnectLog(ts: string, er: number): EcsDocument {
     },
     event: {
       outcome: isErr ? "failure" : "success",
-      category: "network",
+      category: ["network"],
+      type: ["connection"],
       dataset: "aws.directconnect",
       provider: "directconnect.amazonaws.com",
     },
@@ -1324,7 +1338,8 @@ function generateVpnLog(ts: string, er: number): EcsDocument {
     },
     event: {
       outcome: isErr ? "failure" : "success",
-      category: "network",
+      category: ["network"],
+      type: ["connection"],
       dataset: "aws.vpn",
       provider: "ec2.amazonaws.com",
     },
@@ -1364,14 +1379,15 @@ function generatePrivateLinkLog(ts: string, er: number): EcsDocument {
         endpoint_id: endpointId,
         service_name: svcName,
         endpoint_type: rand(["Interface", "Gateway", "GatewayLoadBalancer"]),
-        vpc_id: `vpc-${randId(8).toLowerCase()}`,
+        vpc_id: `vpc-${randHexId(8)}`,
         state,
         private_dns_enabled: Math.random() > 0.3,
       },
     },
     event: {
       outcome: isErr ? "failure" : "success",
-      category: "network",
+      category: ["network"],
+      type: ["connection"],
       dataset: "aws.privatelink",
       provider: "ec2.amazonaws.com",
     },
@@ -1432,7 +1448,8 @@ function generateNetworkManagerLog(ts: string, er: number): EcsDocument {
     },
     event: {
       outcome: isErr ? "failure" : "success",
-      category: "network",
+      category: ["network"],
+      type: ["connection"],
       dataset: "aws.networkmanager",
       provider: "networkmanager.amazonaws.com",
     },
@@ -1456,10 +1473,10 @@ function generateNatGatewayLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;
-  const natId = `nat-${randId(17).toLowerCase()}`;
+  const natId = `nat-${randHexId(17)}`;
   const privateIp = `10.${randInt(0, 255)}.${randInt(0, 255)}.${randInt(1, 254)}`;
-  const publicIp = randIp();
-  const destIp = randIp();
+  const publicIp = randPublicIp();
+  const destIp = randPublicIp();
   const packets = randInt(1, 1000);
   const bytes = packets * randInt(64, 1500);
   const port = rand([80, 443, 8080, 3306, 5432, 6379, 27017]);
@@ -1517,6 +1534,7 @@ function generateNatGatewayLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["network"],
+      type: ["connection"],
       dataset: "aws.natgateway",
       provider: "natgateway.amazonaws.com",
       duration: randInt(1, 5000) * 1e6,
@@ -1555,8 +1573,8 @@ function generateVpcFlowLog(ts: string, er: number): EcsDocument {
   ]);
   const picked = action === "REJECT" ? rejectTuple : acceptTuple;
   const protoNum = picked.proto;
-  const src = randIp();
-  const dst = randIp();
+  const src = randPrivateIp();
+  const dst = Math.random() < 0.5 ? randPublicIp() : randPrivateIp();
   const dstPort = picked.dstPort;
   const srcPort =
     picked.proto === 1
@@ -1566,9 +1584,9 @@ function generateVpcFlowLog(ts: string, er: number): EcsDocument {
         : randInt(1024, 65535);
   const srcGeo = rand(GEO_LOCATIONS);
   const dstGeo = rand(GEO_LOCATIONS);
-  const vpcId = `vpc-${randId(8).toLowerCase()}`;
-  const eni = `eni-${randId(8).toLowerCase()}`;
-  const subnetId = `subnet-${randId(8).toLowerCase()}`;
+  const vpcId = `vpc-${randHexId(8)}`;
+  const eni = `eni-${randHexId(8)}`;
+  const subnetId = `subnet-${randHexId(8)}`;
   const tsEpoch = Math.floor(new Date(ts).getTime() / 1000);
   const endEpoch = tsEpoch + randInt(1, 60);
   return {
@@ -1596,7 +1614,7 @@ function generateVpcFlowLog(ts: string, er: number): EcsDocument {
         end: endEpoch,
         action,
         log_status: "OK",
-        instance_id: Math.random() > 0.3 ? `i-${randId(17).toLowerCase()}` : undefined,
+        instance_id: Math.random() > 0.3 ? `i-${randHexId(17)}` : undefined,
         pkt_srcaddr: src,
         pkt_dstaddr: dst,
         vpc_id: vpcId,
@@ -1671,8 +1689,8 @@ function generateVpcLatticeLog(ts: string, er: number): EcsDocument {
     "shared-services-network",
   ]);
   const tgId = `tg-${randId(17).toLowerCase()}`;
-  const srcVpc = `vpc-${randId(8).toLowerCase()}`;
-  const dstVpc = `vpc-${randId(8).toLowerCase()}`;
+  const srcVpc = `vpc-${randHexId(8)}`;
+  const dstVpc = `vpc-${randHexId(8)}`;
   const method = rand(HTTP_METHODS);
   const responseCode = isErr ? rand([500, 502, 503, 504]) : rand([200, 200, 200, 201, 204, 301]);
   const responseTimeMs = randInt(1, isErr ? 30000 : 500);
@@ -1719,6 +1737,7 @@ function generateVpcLatticeLog(ts: string, er: number): EcsDocument {
       ]),
       outcome: isErr ? "failure" : "success",
       category: ["network"],
+      type: ["connection"],
       dataset: "aws.vpclattice",
       provider: "vpc-lattice.amazonaws.com",
       duration: responseTimeMs * 1e6,
@@ -1789,6 +1808,7 @@ function generateAppMeshLog(ts: string, er: number): EcsDocument {
       action,
       outcome: isErr ? "failure" : "success",
       category: ["network"],
+      type: ["connection"],
       dataset: "aws.appmesh",
       provider: "appmesh.amazonaws.com",
       duration: responseTimeMs * 1e6,
@@ -1812,7 +1832,7 @@ function generateClientVpnLog(ts: string, er: number): EcsDocument {
   const endpointId = `cvpn-endpoint-` + randId(17).toLowerCase();
   const connectionId = `cvpn-connection-` + randId(17).toLowerCase();
   const username = rand(ACCOUNTS).name.toLowerCase().replace(/ /g, ".");
-  const sourceIp = randIp();
+  const sourceIp = randPublicIp();
   const assignedIp = `10.${randInt(0, 255)}.${randInt(0, 255)}.${randInt(2, 254)}`;
   const egressBytes = randInt(1024, 10485760);
   const ingressBytes = randInt(512, 5242880);
@@ -1858,6 +1878,7 @@ function generateClientVpnLog(ts: string, er: number): EcsDocument {
       action,
       outcome: isErr ? "failure" : "success",
       category: ["network", "authentication"],
+      type: ["connection"],
       dataset: "aws.clientvpn",
       provider: "clientvpn.amazonaws.com",
       duration: connectionDurationSeconds * 1e9,
@@ -1880,7 +1901,7 @@ function generateCloudMapLog(ts: string, er: number): EcsDocument {
   const isErr = Math.random() < er;
   const namespace = rand(["prod-namespace", "staging-namespace", "internal-services"]);
   const serviceName = rand(["checkout", "auth", "inventory", "payment", "notification"]);
-  const instanceId = `i-` + randId(17).toLowerCase();
+  const instanceId = `i-${randHexId(17)}`;
   const operation = rand([
     "RegisterInstance",
     "DeregisterInstance",
@@ -1923,6 +1944,7 @@ function generateCloudMapLog(ts: string, er: number): EcsDocument {
       action,
       outcome: isErr ? "failure" : "success",
       category: ["network"],
+      type: ["connection"],
       dataset: "aws.cloudmap",
       provider: "cloudmap.amazonaws.com",
       duration: randInt(1, 500) * 1e6,
@@ -1951,11 +1973,11 @@ function generateVpcIpamLog(ts: string, er: number): EcsDocument {
   const scopeId = `ipam-scope-${randId(8).toLowerCase()}`;
   const allocationId = `ipam-alloc-${randId(8).toLowerCase()}`;
   const cidrBlocks = [
-    "10.0.0.0/16",
-    "10.1.0.0/16",
+    randVpcCidr16(),
+    randVpcCidr16(),
     "172.16.0.0/12",
     "192.168.0.0/24",
-    "10.100.0.0/16",
+    `10.${randInt(100, 200)}.0.0/16`,
   ];
   const cidr = rand(cidrBlocks);
   const allocationType = rand(["vpc", "subnet", "resource"]);
@@ -1991,6 +2013,7 @@ function generateVpcIpamLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["network"],
+      type: ["connection"],
       dataset: "aws.vpcipam",
       provider: "ec2.amazonaws.com",
       duration: randInt(1, 200) * 1e6,
@@ -2052,6 +2075,7 @@ function generatePrivate5gLog(ts: string, er: number) {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["network"],
+      type: ["connection"],
       dataset: "aws.private5g",
       provider: "private5g.amazonaws.com",
       duration: randInt(10, 500) * 1e6,

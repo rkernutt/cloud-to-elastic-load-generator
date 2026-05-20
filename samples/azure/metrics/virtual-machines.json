@@ -3,42 +3,35 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "westus3",
-    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" }
+    "region": "mexicocentral",
+    "account": { "id": "a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d", "name": "Meridian-Platform" },
+    "service": { "name": "azure.capacity_reservation" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-westus3",
-    "ephemeral_id": "a99a5secmr92kvy3tc1q76ddi5itjp0bsiwn"
+    "name": "metricbeat-azure-mexicocentral",
+    "ephemeral_id": "816lm23j6it1evv5ndmfpgbg3vd1id3alc68"
   },
   "azure": {
-    "proximity_placement": {
+    "capacity_reservation": {
       "metrics": {
-        "Standard SKU Family vCPUs": {
-          "avg": 33.26,
-          "min": 29.27,
-          "max": 37.25,
-          "sum": 33.26,
-          "count": 1
-        },
-        "Standard D Family vCPUs": { "avg": 32, "min": 28.16, "max": 35.84, "sum": 32, "count": 1 },
-        "Standard E Family vCPUs": {
-          "avg": 12.32,
-          "min": 10.84,
-          "max": 13.8,
-          "sum": 12.32,
-          "count": 1
-        }
+        "Used vCPUs": { "avg": 40, "min": 35.2, "max": 44.8, "sum": 40, "count": 1 },
+        "Reserved vCPUs": { "avg": 65.23, "min": 57.4, "max": 73.06, "sum": 65.23, "count": 1 },
+        "Utilization %": { "avg": 60.39, "min": 53.14, "max": 67.64, "sum": 60.39, "count": 1 }
       }
     },
-    "dimensions": { "proximityPlacementGroup": "ppg-ox0wg", "ResourceGroup": "rg-shared-pqyr5" },
-    "resource": {
-      "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-shared-pqyr5/providers/Microsoft.Compute/proximityPlacementGroups/ppg-ox0wg",
-      "group": "rg-shared-pqyr5",
-      "name": "ppg-ox0wg"
+    "dimensions": {
+      "capacityReservationGroup": "crg-2j5u",
+      "capacityReservation": "res-general-prod-01",
+      "ResourceGroup": "rg-prod-pg22q"
     },
-    "namespace": "Microsoft.Compute/proximityPlacementGroups"
+    "resource": {
+      "id": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-prod-pg22q/providers/Microsoft.Compute/capacityReservationGroups/crg-2j5u/capacityReservations/res-general-prod-01",
+      "group": "rg-prod-pg22q",
+      "name": "res-general-prod-01"
+    },
+    "namespace": "Microsoft.Compute/capacityReservations"
   },
   "metricset": { "name": "monitor", "period": 60000 },
   "data_stream": {
@@ -47,5 +40,5 @@
     "namespace": "default"
   },
   "input": { "type": "azure-monitor" },
-  "event": { "dataset": "azure.virtual_machines_metrics", "module": "azure" }
+  "event": { "kind": "metric", "dataset": "azure.virtual_machines_metrics", "module": "azure" }
 }

@@ -1,83 +1,85 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "me-south-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "eks" }
   },
   "aws": {
     "dimensions": {
-      "ClusterName": "prod-cluster-eu-central-2",
-      "NodeName": "ip-198-165-59-26.eu-central-2.compute.internal",
-      "Namespace": "app-prod",
-      "PodName": "cache-8nj0w-8f7a3"
+      "ClusterName": "prod-cluster-me-south-1",
+      "NodeName": "ip-10-122-138-211.me-south-1.compute.internal",
+      "Namespace": "ingress-nginx",
+      "PodName": "worker-w9flm-n0dlp"
     },
     "eks": {
       "structured_logging": true,
-      "log_line_kind": "event",
-      "cluster": { "name": "prod-cluster-eu-central-2" },
-      "node": { "name": "ip-198-165-59-26.eu-central-2.compute.internal" },
+      "log_line_kind": "audit",
+      "cluster": { "name": "prod-cluster-me-south-1" },
+      "node": { "name": "ip-10-122-138-211.me-south-1.compute.internal" },
       "metrics": {
         "cluster_failed_node_count": { "avg": 0 },
-        "node_cpu_utilization": { "avg": 75.17835114716816 },
-        "node_memory_utilization": { "avg": 48.43717658269743 },
-        "node_network_total_bytes": { "sum": 356806897 },
-        "node_filesystem_utilization": { "avg": 44.72887699975784 },
-        "pod_cpu_utilization": { "avg": 19.04065278731144 },
-        "pod_memory_utilization": { "avg": 35.4487329884213 },
-        "pod_network_rx_bytes": { "sum": 14821290 },
-        "pod_network_tx_bytes": { "sum": 45192113 },
-        "node_count": { "avg": 17 },
-        "pod_count": { "avg": 56 }
+        "node_cpu_utilization": { "avg": 21.45264510105873 },
+        "node_memory_utilization": { "avg": 29.648264945357504 },
+        "node_network_total_bytes": { "sum": 578302994 },
+        "node_filesystem_utilization": { "avg": 39.99047124683516 },
+        "pod_cpu_utilization": { "avg": 6.054615633766428 },
+        "pod_memory_utilization": { "avg": 57.86659706900938 },
+        "pod_network_rx_bytes": { "sum": 83339077 },
+        "pod_network_tx_bytes": { "sum": 65061642 },
+        "node_count": { "avg": 37 },
+        "pod_count": { "avg": 66 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-eks-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-eks-logs-164820739518"
+        "name": "aws-eks-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-eks-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/eks/eu-central-2/2026/05/19/eks_50JP14ZYSTJ5MZO59PSH.log.gz"
+        "key": "AWSLogs/814726593401/eks/me-south-1/2026/05/20/eks_LM31BU6U4R78MWG6OL6W.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/eks/logs",
-      "log_stream": "eu-central-2/7m00vyw5",
-      "ingestion_time": "2026-05-19T15:25:13.452Z"
+      "log_stream": "me-south-1/9zxtz9qg",
+      "ingestion_time": "2026-05-20T13:19:01.199Z"
     }
   },
   "container": {
-    "id": "2d8x6p4m78eg",
-    "name": "cache",
-    "image": { "name": "k8s.gcr.io/cache:v1.28.1" },
+    "id": "eql9ehrb2rft",
+    "name": "worker",
+    "image": { "name": "k8s.gcr.io/worker:v1.24.0" },
     "runtime": "containerd"
   },
   "kubernetes": {
-    "namespace": "app-prod",
-    "pod": { "name": "cache-8nj0w-8f7a3" },
-    "container": { "name": "cache" },
-    "labels": { "app": "cache", "env": "prod" }
+    "namespace": "ingress-nginx",
+    "pod": { "name": "worker-w9flm-n0dlp" },
+    "container": { "name": "worker" },
+    "labels": { "app": "worker", "env": "prod" }
   },
   "log": { "level": "info" },
   "event": {
-    "category": ["process", "container"],
+    "category": ["process"],
+    "type": ["info"],
     "outcome": "success",
     "dataset": "aws.eks",
     "provider": "eks.amazonaws.com",
-    "duration": 712000000000,
-    "module": "aws"
+    "duration": 1457000000000,
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "{\"type\":\"Normal\",\"reason\":\"FailedMount\",\"message\":\"Service endpoint added\",\"metadata\":{\"namespace\":\"app-prod\",\"name\":\"cache-8nj0w-8f7a3\",\"creationTimestamp\":\"2026-05-19T15:25:12.772Z\"},\"involvedObject\":{\"kind\":\"Deployment\",\"namespace\":\"app-prod\",\"name\":\"cache-8nj0w-8f7a3\",\"uid\":\"ttb0gezqed\"},\"reportingComponent\":\"deployment-controller\",\"reportingInstance\":\"ip-198-165-59-26.eu-central-2.compute.internal\",\"action\":\"create\",\"user\":{\"username\":\"system:serviceaccount:app-prod:cache-sa\"}}",
-  "host": { "name": "ip-127-114-21-172.ec2.internal", "hostname": "eks-dbob98rr" },
+  "message": "{\"kind\":\"Event\",\"apiVersion\":\"audit.k8s.io/v1\",\"level\":\"Metadata\",\"auditID\":\"mu9wlyir7cdpqjp5\",\"stage\":\"RequestReceived\",\"requestURI\":\"/api/v1/namespaces/ingress-nginx/pods/worker-w9flm-n0dlp\",\"verb\":\"get\",\"user\":{\"username\":\"system:node:ip-10-122-138-211.me-south-1.compute.internal\"},\"objectRef\":{\"kind\":\"Service\",\"namespace\":\"ingress-nginx\",\"name\":\"worker-w9flm-n0dlp\",\"resource\":\"pods\",\"apiVersion\":\"apps/v1\"},\"responseStatus\":{\"code\":200},\"sourceIPs\":[\"100.64.1.54\"],\"timestamp\":\"2026-05-20T13:19:00.213Z\"}",
+  "host": { "name": "ip-131-169-5-49.ec2.internal", "hostname": "eks-5u6ix9mx" },
   "service": { "name": "eks", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.eks", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "vyi4y1ti4pop14cjowzrh9qrr6xjejdcs3ij"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "an3j1qgj8jibf40hdj8mebbybbwglggly39h"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -3,48 +3,49 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-east2",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "southamerica-east1",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
+    "service": { "name": "private-service-connect" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-east2",
-    "ephemeral_id": "ddl5zjzs02sqa136ri9d48vuihh8juh4al1r"
+    "name": "metricbeat-gcp-southamerica-east1",
+    "ephemeral_id": "pan0swzw760zpccjz1r6q74zme4ztn7nd9i2"
   },
   "monitoringTimeSeries": {
     "metric": { "type": "privateca.googleapis.com/endpoint/connection_count", "labels": {} },
     "resource": {
       "type": "privateca.googleapis.com/CaPool",
       "labels": {
-        "resource_container": "globex-security-j0k1l2",
-        "location": "asia-east2",
-        "endpoint_id": "psc-payments",
+        "resource_container": "globex-stg-739158",
+        "location": "southamerica-east1",
+        "endpoint_id": "psc-partner-saas",
         "ca_pool_id": "psc-style-pool"
       }
     },
     "metricKind": "GAUGE",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "416" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "436" } }
     ]
   },
   "gcp": {
     "private-service-connect": {
       "labels": {
-        "resource_container": "globex-security-j0k1l2",
-        "location": "asia-east2",
-        "endpoint_id": "psc-payments",
+        "resource_container": "globex-stg-739158",
+        "location": "southamerica-east1",
+        "endpoint_id": "psc-partner-saas",
         "ca_pool_id": "psc-style-pool"
       },
       "metrics": {
-        "privateca.googleapis.com/endpoint/connection_count": { "avg": 416, "sum": 416, "count": 1 }
+        "privateca.googleapis.com/endpoint/connection_count": { "avg": 436, "sum": 436, "count": 1 }
       }
     }
   },
   "metricset": { "name": "private-service-connect", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.psc_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.psc_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.psc_metrics", "module": "gcp" }
 }

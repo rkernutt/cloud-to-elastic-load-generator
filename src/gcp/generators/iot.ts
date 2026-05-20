@@ -10,6 +10,7 @@ import {
   gcpCloud,
   makeGcpSetup,
   randSeverity,
+  gcpLogEvent,
 } from "./helpers.js";
 
 const GRPC_RPC_STATUSES = [
@@ -99,7 +100,7 @@ export function generateIotCoreLog(ts: string, er: number): EcsDocument {
     connectionDurationSeconds = 0;
     message = isErr
       ? `HTTP 403 CreateDevice DENIED registry=${registryName} body={"error":"public_key_conflict"}grpc=${rand(GRPC_RPC_STATUSES)}`
-      : `CreateDevice OK deviceId=${deviceId} credentials=x509_cn=*.iot.example`;
+      : `CreateDevice OK deviceId=${deviceId} credentials=x509_cn=*.iot.meridiantech.io`;
   } else if (scenario === "devices_get") {
     apiMethod = `cloudiot.googleapis.com/v1/${basePath}`;
     eventType = "SUBSCRIBE";
@@ -176,10 +177,21 @@ export function generateIotCoreLog(ts: string, er: number): EcsDocument {
         resource_path: resourcePath,
       },
     },
-    event: {
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(10, isErr ? 30_000 : 5000),
-    },
+    event: gcpLogEvent(
+      isErr,
+      randInt(10, isErr ? 30_000 : 5000),
+      apiMethod,
+      eventType === "CONNECT" || eventType === "DISCONNECT" ? ["network"] : ["host"],
+      isErr
+        ? ["error"]
+        : eventType === "CONNECT"
+          ? ["connection"]
+          : eventType === "DISCONNECT"
+            ? ["end"]
+            : eventType === "PUBLISH" || eventType === "COMMAND_SEND"
+              ? ["change"]
+              : ["access"]
+    ),
     message,
     ...faultSpread,
   };

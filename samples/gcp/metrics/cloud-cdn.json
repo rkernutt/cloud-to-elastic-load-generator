@@ -3,15 +3,16 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west9",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "us-west1",
+    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
+    "account": { "id": "529384716205", "name": "Globex Shared Services" },
+    "service": { "name": "cloud-cdn" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west9",
-    "ephemeral_id": "3x9rts85bla5voi6tgqxvm6e7d37z4kf3wra"
+    "name": "metricbeat-gcp-us-west1",
+    "ephemeral_id": "dnojo648q85ck83xidqoqrwz243zqfgwtap7"
   },
   "monitoringTimeSeries": {
     "metric": {
@@ -21,10 +22,10 @@
     "resource": {
       "type": "http_load_balancer",
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "url_map_name": "api-map",
-        "forwarding_rule_name": "fr-grpc",
-        "region": "europe-west9"
+        "project_id": "globex-shared-529384",
+        "url_map_name": "web-frontend-map",
+        "forwarding_rule_name": "fr-api-https",
+        "region": "us-west1"
       }
     },
     "metricKind": "DELTA",
@@ -32,27 +33,27 @@
     "points": [
       {
         "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "int64Value": "15536074" }
+        "value": { "int64Value": "20152560" }
       }
     ]
   },
   "gcp": {
     "cloud-cdn": {
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "url_map_name": "api-map",
-        "forwarding_rule_name": "fr-grpc",
-        "region": "europe-west9",
+        "project_id": "globex-shared-529384",
+        "url_map_name": "web-frontend-map",
+        "forwarding_rule_name": "fr-api-https",
+        "region": "us-west1",
         "cache_decision": "HIT",
         "response_code_class": "2xx"
       },
       "metrics": {
-        "cdn.googleapis.com/http/request_count": { "avg": 15536074, "sum": 15536074, "count": 1 }
+        "cdn.googleapis.com/http/request_count": { "avg": 20152560, "sum": 20152560, "count": 1 }
       }
     }
   },
   "metricset": { "name": "cloud-cdn", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.cdn_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.cdn_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.cdn_metrics", "module": "gcp" }
 }

@@ -8,6 +8,8 @@ import {
   azureCloud,
   makeAzureSetup,
   randCorrelationId,
+  randAzurePersonEmail,
+  randEmail,
 } from "./helpers.js";
 import { AZURE_ELASTIC_DATASET_MAP } from "../data/elasticMaps.js";
 
@@ -826,7 +828,7 @@ function buildIdentity(): { claims: Record<string, string> } {
       },
     };
   }
-  const user = `${rand(["alice", "bob", "deploy-bot", "svc-cicd", "analyst"])}@${rand(["contoso.com", "fabrikam.onmicrosoft.com", "northwind.com"])}`;
+  const user = Math.random() < 0.25 ? randEmail() : randAzurePersonEmail();
   return {
     claims: {
       "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn": user,
@@ -959,9 +961,12 @@ export function makeGenericAzureLog(serviceId: string): (ts: string, er: number)
         },
       },
       event: {
+        kind: "event",
+        category: ["configuration"],
+        type: isErr ? ["denied"] : ["change"],
+        action: String(operationName),
         outcome: isErr ? "failure" : "success",
         duration: randInt(50_000, isErr ? 90_000_000 : 8_000_000),
-        action: operationName,
       },
       message,
     };

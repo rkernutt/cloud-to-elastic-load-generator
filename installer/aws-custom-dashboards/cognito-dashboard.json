@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cognito* | WHERE log.level == \"error\" | STATS count = COUNT() BY err = `aws.cognito.error_code` | SORT count DESC | LIMIT 8"
+            "query": "FROM logs-aws.cognito* | WHERE log.level == \"error\" | STATS count = COUNT() BY err = `aws.cognito.error_code` | SORT ``count DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cognito* | STATS sign_ins = SUM(`aws.cognito.metrics.SignInSuccesses.sum`), sign_ups = SUM(`aws.cognito.metrics.SignUpSuccesses.sum`), refreshes = SUM(`aws.cognito.metrics.TokenRefreshSuccesses.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.cognito* | STATS sign_ins = SUM(`aws.cognito.metrics.SignInSuccesses.sum`), sign_ups = SUM(`aws.cognito.metrics.SignUpSuccesses.sum`), refreshes = SUM(`aws.cognito.metrics.TokenRefreshSuccesses.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -297,7 +297,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cognito* | STATS throttles = SUM(`aws.cognito.metrics.ThrottleCount.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.cognito* | STATS throttles = SUM(`aws.cognito.metrics.ThrottleCount.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -345,7 +345,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cognito* | STATS takeover = SUM(`aws.cognito.metrics.AccountTakeoverRisk.sum`), compromised = SUM(`aws.cognito.metrics.CompromisedCredentialsRisk.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.cognito* | STATS takeover = SUM(`aws.cognito.metrics.AccountTakeoverRisk.sum`), compromised = SUM(`aws.cognito.metrics.CompromisedCredentialsRisk.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -398,7 +398,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cognito* | WHERE log.level == \"error\" | STATS count = COUNT() BY err_code = `aws.cognito.error_code` | SORT count DESC | LIMIT 10"
+                "query": "FROM logs-aws.cognito* | WHERE log.level == \"error\" | STATS count = COUNT() BY err_code = `aws.cognito.error_code` | SORT ``count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -446,7 +446,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cognito* | STATS signins = SUM(`aws.cognito.metrics.SignInSuccesses.sum`) BY pool = `aws.cognito.user_pool_name` | SORT signins DESC | LIMIT 10"
+                "query": "FROM logs-aws.cognito* | STATS signins = SUM(`aws.cognito.metrics.SignInSuccesses.sum`) BY pool = `aws.cognito.user_pool_name` | SORT ``signins DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -479,7 +479,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cognito* | KEEP `@timestamp`, `aws.cognito.user_pool_name`, `aws.cognito.event_type`, `aws.cognito.source_ip`, `aws.cognito.error_code`, log.level | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.cognito* | KEEP `@timestamp``@timestamp`, `aws.cognito.user_pool_name`, `aws.cognito.event_type`, `aws.cognito.source_ip`, `aws.cognito.error_code`, log.level | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

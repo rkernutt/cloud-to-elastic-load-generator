@@ -1,50 +1,52 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-northeast-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "appmesh" }
   },
   "aws": {
-    "dimensions": { "MeshName": "dev-mesh", "VirtualNodeName": "checkout-vn" },
+    "dimensions": { "MeshName": "dev-mesh", "VirtualNodeName": "auth-vn" },
     "appmesh": {
       "mesh_name": "dev-mesh",
-      "virtual_node": "checkout-vn",
-      "virtual_service": "payment.svc",
-      "listener_port": 9090,
+      "virtual_node": "auth-vn",
+      "virtual_service": "inventory.svc",
+      "listener_port": 3000,
       "protocol": "http",
-      "response_code": 201,
-      "response_time_ms": 262,
-      "bytes_received": 4412,
-      "bytes_sent": 7001,
+      "response_code": 200,
+      "response_time_ms": 56,
+      "bytes_received": 4528,
+      "bytes_sent": 6747,
       "envoy_response_code_details": "via_upstream"
     },
     "s3": {
       "bucket": {
-        "name": "aws-appmesh-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-appmesh-logs-164820739518"
+        "name": "aws-appmesh-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-appmesh-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/appmesh/eu-north-1/2026/05/19/appmesh_OEH8NLAJ41MNDLWG2I5V.log.gz"
+        "key": "AWSLogs/814726593401/appmesh/ap-northeast-2/2026/05/20/appmesh_93NGTG273CQJSPBIMEPG.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/appmesh/logs",
-      "log_stream": "eu-north-1/hnxb8ety",
-      "ingestion_time": "2026-05-19T15:25:13.490Z"
+      "log_stream": "ap-northeast-2/itfofvng",
+      "ingestion_time": "2026-05-20T13:19:01.249Z"
     }
   },
   "event": {
-    "action": "RequestRejected",
+    "action": "RetryAttempt",
     "outcome": "success",
     "category": ["network"],
+    "type": ["connection"],
     "dataset": "aws.appmesh",
     "provider": "appmesh.amazonaws.com",
-    "duration": 262000000,
-    "module": "aws"
+    "duration": 56000000,
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "App Mesh checkout-vn: http 201 262ms",
+  "message": "App Mesh auth-vn: http 200 56ms",
   "log": { "level": "info" },
   "service": { "name": "appmesh", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -52,8 +54,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "0yrm7wf8ixkc69f6hjy2nzcm2gunwsccsv8s"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "k99jpvkiaizggcrqha4pjhdujjl848sgoo2u"
   },
   "input": { "type": "aws-cloudwatch" }
 }

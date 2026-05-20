@@ -79,7 +79,7 @@
           "type": "xy",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.* | WHERE labels.pipeline_run_id IS NOT NULL | EVAL svc = COALESCE(cloud.service.name, \"unknown\") | STATS count = COUNT() BY svc, bucket = DATE_TRUNC(30 minutes, @timestamp)"
+            "query": "FROM logs-azure.data_factory*, logs-azure.synapse*, logs-azure.databricks*, logs-azure.event_hubs*, logs-azure.stream_analytics*, logs-azure.data_lake* | WHERE labels.pipeline_run_id IS NOT NULL | EVAL svc = COALESCE(cloud.service.name, \"unknown\") | STATS count = COUNT() BY svc, bucket = DATE_TRUNC(30 minutes, `@timestamp`)"
           },
           "layers": [
             {
@@ -119,7 +119,7 @@
           "type": "xy",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.databricks* | WHERE azure.databricks.spark.records_read IS NOT NULL | STATS read = SUM(azure.databricks.spark.records_read), written = SUM(azure.databricks.spark.records_written) BY bucket = DATE_TRUNC(30 minutes, @timestamp)"
+            "query": "FROM logs-azure.databricks* | WHERE azure.databricks.spark.records_read IS NOT NULL | STATS read = SUM(azure.databricks.spark.records_read), written = SUM(azure.databricks.spark.records_written) BY bucket = DATE_TRUNC(30 minutes, `@timestamp`)"
           },
           "layers": [
             {
@@ -148,7 +148,7 @@
           "type": "xy",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.synapse* | WHERE azure.synapse.data_processed_bytes IS NOT NULL | STATS bytes = SUM(azure.synapse.data_processed_bytes) BY bucket = DATE_TRUNC(30 minutes, @timestamp)"
+            "query": "FROM logs-azure.synapse* | WHERE azure.synapse.data_processed_bytes IS NOT NULL | STATS bytes = SUM(azure.synapse.data_processed_bytes) BY bucket = DATE_TRUNC(30 minutes, `@timestamp`)"
           },
           "layers": [{ "seriesType": "area", "xAccessor": "bucket", "yAccessor": "bytes" }]
         }
@@ -164,7 +164,7 @@
           "type": "xy",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.* | WHERE labels.pipeline_run_id IS NOT NULL AND event.outcome == \"failure\" | STATS count = COUNT() BY error.type, bucket = DATE_TRUNC(30 minutes, @timestamp)"
+            "query": "FROM logs-azure.data_factory*, logs-azure.synapse*, logs-azure.databricks*, logs-azure.event_hubs*, logs-azure.stream_analytics*, logs-azure.data_lake* | WHERE labels.pipeline_run_id IS NOT NULL AND event.outcome == \"failure\" | STATS count = COUNT() BY error.type, bucket = DATE_TRUNC(30 minutes, `@timestamp`)"
           },
           "layers": [
             {
@@ -205,7 +205,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.data_factory* | WHERE azure.data_factory.activity_name == \"pipeline_complete\" | KEEP @timestamp, azure.data_factory.pipeline_name, azure.data_factory.status, azure.data_factory.duration_ms, azure.data_factory.quality_check, azure.data_factory.records_processed, cloud.region | SORT @timestamp DESC | LIMIT 20"
+            "query": "FROM logs-azure.data_factory* | WHERE azure.data_factory.activity_name == \"pipeline_complete\" | KEEP `@timestamp``@timestamp`, azure.data_factory.pipeline_name, azure.data_factory.status, azure.data_factory.duration_ms, azure.data_factory.quality_check, azure.data_factory.records_processed, cloud.region | SORT `@timestamp` DESC | LIMIT 20"
           }
         }
       }
@@ -220,7 +220,7 @@
           "type": "xy",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.purview* | WHERE azure.purview.assets_discovered IS NOT NULL | STATS discovered = SUM(azure.purview.assets_discovered) BY bucket = DATE_TRUNC(30 minutes, @timestamp)"
+            "query": "FROM logs-azure.purview* | WHERE azure.purview.assets_discovered IS NOT NULL | STATS discovered = SUM(azure.purview.assets_discovered) BY bucket = DATE_TRUNC(30 minutes, `@timestamp`)"
           },
           "layers": [{ "seriesType": "bar", "xAccessor": "bucket", "yAccessor": "discovered" }]
         }

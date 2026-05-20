@@ -1,60 +1,62 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-west-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "quicksight" }
   },
   "aws": {
     "dimensions": {
-      "DashboardId": "2sn3vbyz3a6ci0i98yumsfw6mefvwnqw19dw",
-      "DataSetId": "zuaf55j8d1jzk7lewwviepeyl00fzd7kcomo"
+      "DashboardId": "ffsmjg60ej79t3hj1c5upxsizm2muvwybh21",
+      "DataSetId": "sbmdkesmfrmxum182ospk7539dwcg2dz9nv7"
     },
     "quicksight": {
-      "dashboard_id": "2sn3vbyz3a6ci0i98yumsfw6mefvwnqw19dw",
-      "dashboard_name": "ops-metrics",
-      "dataset_id": "zuaf55j8d1jzk7lewwviepeyl00fzd7kcomo",
-      "action": "CreateAnalysis",
-      "user_name": "alice@corp.com",
-      "data_source_type": "S3",
-      "query_duration_ms": 2810,
-      "rows_returned": 75185,
+      "dashboard_id": "ffsmjg60ej79t3hj1c5upxsizm2muvwybh21",
+      "dashboard_name": "sales-dashboard",
+      "dataset_id": "sbmdkesmfrmxum182ospk7539dwcg2dz9nv7",
+      "action": "RefreshDataSet",
+      "user_name": "emma.kim@bluepeak.dev",
+      "data_source_type": "REDSHIFT",
+      "query_duration_ms": 2113,
+      "rows_returned": 80488,
       "metrics": {
-        "DashboardViewEvents": { "sum": 810 },
-        "SessionEvent": { "sum": 425 },
-        "SPICECapacityUsed": { "avg": 40.06774391931846 },
-        "SPICECapacityScheduled": { "avg": 77.04507618782102 },
-        "EmbedCallCount": { "sum": 386 },
+        "DashboardViewEvents": { "sum": 295 },
+        "SessionEvent": { "sum": 337 },
+        "SPICECapacityUsed": { "avg": 47.27309764006602 },
+        "SPICECapacityScheduled": { "avg": 23.4464501242433 },
+        "EmbedCallCount": { "sum": 144 },
         "ClientError": { "sum": 0 },
         "RowLevelSecurityEnabled": { "avg": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-quicksight-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-quicksight-logs-501938274650"
+        "name": "aws-quicksight-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-quicksight-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/quicksight/eu-south-1/2026/05/19/quicksight_H6MEX0GCP8GPW9AMSLTT.log.gz"
+        "key": "AWSLogs/814726593401/quicksight/eu-west-2/2026/05/20/quicksight_U27NGAR9KYS5Z4N5S0C1.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/quicksight/logs",
-      "log_stream": "eu-south-1/2smp8003",
-      "ingestion_time": "2026-05-19T15:25:13.624Z"
+      "log_stream": "eu-west-2/r3x1k0zj",
+      "ingestion_time": "2026-05-20T13:19:01.381Z"
     }
   },
-  "user": { "name": "alice@corp.com" },
+  "user": { "name": "emma.kim@bluepeak.dev" },
   "event": {
-    "duration": 2810000000,
+    "duration": 2113000000,
     "outcome": "success",
     "category": ["web", "process"],
+    "type": ["access"],
     "dataset": "aws.quicksight",
     "provider": "quicksight.amazonaws.com",
-    "module": "aws"
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "QuickSight CreateAnalysis: ops-metrics loaded in 2810ms for alice@corp.com",
+  "message": "QuickSight RefreshDataSet: sales-dashboard loaded in 2113ms for emma.kim@bluepeak.dev",
   "log": { "level": "info" },
   "service": { "name": "quicksight", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -62,8 +64,9 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "nsf5753fca7hskxm1br6pedglwvrexdfy33z"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "jwxr1kpqywjd8k56sum1cdbck9647mmt0cie"
   },
-  "input": { "type": "aws-cloudwatch" }
+  "input": { "type": "aws-cloudwatch" },
+  "related": { "user": ["emma.kim@bluepeak.dev"] }
 }

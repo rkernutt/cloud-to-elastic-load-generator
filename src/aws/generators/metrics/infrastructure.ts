@@ -11,6 +11,7 @@ import {
   randInt,
   randFloat,
   randId,
+  randHexId,
   dp,
   stat,
   counter,
@@ -102,7 +103,7 @@ export function generateClientvpnMetrics(ts: string, er: number): EcsDocument[] 
       "aws.clientvpn",
       region,
       account,
-      { Endpoint: ep, SubnetId: `subnet-${randId(8)}` },
+      { Endpoint: ep, SubnetId: `subnet-${randHexId(8)}` },
       {
         AuthNegotiationFailures: counter(
           Math.random() < er ? randInt(50, 18_000) : randInt(0, 420)
@@ -402,7 +403,7 @@ export function generateWavelengthMetrics(ts: string, er: number): EcsDocument[]
   const ni = randInt(10_000_000, 6_000_000_000);
   const no = Math.round(ni * jitter(0.25, 0.15, 0.02, 1.1));
   const wlz = `${region}-wlz-${randInt(1, 3)}`;
-  const inst = `i-${randId(16).toLowerCase()}`;
+  const inst = `i-${randHexId(17)}`;
   return [
     metricDoc(
       ts,

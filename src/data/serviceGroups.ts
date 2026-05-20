@@ -279,7 +279,7 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         id: "data-pipeline-chain",
         label: "Data Pipeline",
         icon: "⛁",
-        desc: "Data & Analytics pipeline: MWAA → S3 → EMR/Spark → Glue → Athena with failure cascades + APM traces",
+        desc: "Data pipeline: S3 (Avro) → EMR/Spark → S3 (Parquet) + metadata → Glue Catalog → Athena → Tableau | orchestrated via MWAA, EventBridge, or manual trigger | schema drift + failure cascades",
       },
       {
         id: "servicenow_cmdb",

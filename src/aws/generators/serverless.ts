@@ -9,6 +9,7 @@ import {
   randInt,
   randFloat,
   randId,
+  randPublicIp,
   randIp,
   randUUID,
   randAccount,
@@ -178,7 +179,7 @@ export function generateLambdaLog(ts: string, er: number): EcsDocument {
               ]),
               errorMessage: rand([
                 "Cannot read properties of undefined (reading 'id')",
-                "connect ECONNREFUSED 10.0.1.5:5432",
+                `connect ECONNREFUSED ${randIp()}:5432`,
                 "Unexpected token u in JSON at position 0",
                 "ETIMEDOUT",
               ]),
@@ -370,7 +371,7 @@ export function generateApiGatewayLog(ts: string, er: number): EcsDocument {
   const apiName = rand(["prod-api", "internal-api", "partner-api", "mobile-api"]);
   const stage = rand(["prod", "v1", "v2", "staging"]);
   const requestId = randUUID();
-  const clientIp = randIp();
+  const clientIp = randPublicIp();
   const caller = rand([
     `-`,
     `arn:aws:iam::${acct.id}:user/api-user`,
@@ -696,7 +697,8 @@ export function generateAppSyncLog(ts: string, er: number): EcsDocument {
     event: {
       duration: dur * 1e6,
       outcome: isErr ? "failure" : "success",
-      category: "api",
+      category: ["api"],
+      type: ["info"],
       dataset: "aws.appsync",
       provider: "appsync.amazonaws.com",
     },
@@ -855,11 +857,12 @@ export function generateAppRunnerLog(ts: string, er: number): EcsDocument {
       response: { status_code: status, bytes: randInt(200, 8000) },
     },
     url: { path: rand(HTTP_PATHS) },
-    client: { ip: randIp() },
+    client: { ip: randPublicIp() },
     event: {
       duration: latMs * 1000000,
       outcome: status >= 400 || (eventKind === "health_check" && isErr) ? "failure" : "success",
       category: ["web", "process"],
+      type: ["access"],
       dataset: "aws.apprunner",
       provider: "apprunner.amazonaws.com",
     },
@@ -964,7 +967,8 @@ export function generateFargateLog(ts: string, er: number): EcsDocument {
     log: { level },
     event: {
       outcome: level === "error" ? "failure" : "success",
-      category: ["process", "container"],
+      category: ["process"],
+      type: ["info"],
       dataset: "aws.ecs_fargate",
       provider: "ecs.amazonaws.com",
       duration: durationSec * 1e9,

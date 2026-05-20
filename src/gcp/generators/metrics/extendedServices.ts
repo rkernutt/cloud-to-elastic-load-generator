@@ -12,7 +12,7 @@ import {
   toInt64String,
   distributionFromMs,
 } from "./helpers.js";
-import { rand, randBigQueryDataset, randId } from "../helpers.js";
+import { rand, randBigQueryDataset, randId, EMAIL_DOMAINS } from "../helpers.js";
 import type { EcsDocument } from "../../../aws/generators/types.js";
 import type { GcpProject } from "../helpers.js";
 
@@ -269,7 +269,7 @@ export function generateColabEnterpriseMetrics(ts: string, er: number): EcsDocum
       resourceType: "uptime_url",
       resourceLabels: {
         project_id: project.id,
-        host: `notebook-${randId(4)}.prod.example.com`,
+        host: `notebook-${randId(4)}.prod.${rand(EMAIL_DOMAINS)}`,
       },
       metricKind: "DELTA",
       valueType: "INT64",

@@ -186,7 +186,14 @@ export function generateRelayLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 4e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String(isErr),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e6, 4e8),
+      },
       message: isErr
         ? `Relay ${ns}: hybrid connection ${hc} session failed`
         : `Relay ${ns}: hybrid connection ${hc} active listeners=${props.listenerCount}`,
@@ -233,7 +240,14 @@ export function generateRelayLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 2e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("azure-activity"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 2e8),
+      },
       message: `Relay ${ns}/${hc}: listener ${props.eventType} (${props.clientRole})`,
     };
   }
@@ -273,7 +287,14 @@ export function generateRelayLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e5, 2e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Relay/namespaces/hybridConnections/sender/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(8e5, 2e8),
+      },
       message: isErr
         ? `Relay ${ns}/${hc}: sender ${props.senderId} rejected`
         : `Relay ${ns}: sender ${props.senderId} bytesPending=${props.bytesPending}`,
@@ -315,7 +336,14 @@ export function generateRelayLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e6, 4e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Relay/namespaces/hybridConnections/metrics/throttle"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e6, 4e8),
+      },
       message: isErr
         ? `Relay ${ns}: throughput cap hit on ${hc}`
         : `Relay ${ns}: throughput healthy mps=${props.messagesPerSec.toFixed(1)}`,
@@ -357,7 +385,14 @@ export function generateRelayLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e5, 9e7) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Relay/namespaces/health/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e5, 9e7),
+      },
       message: isErr
         ? `Relay ${ns}: health ${props.probeName} failed`
         : `Relay ${ns}: ${props.probeName} OK ${props.latencyMs}ms`,
@@ -396,7 +431,14 @@ export function generateRelayLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 3e9) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Relay/namespaces/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 3e9),
+    },
     message: isErr ? `Relay namespace ${ns}: ARM update failed` : `Relay namespace ${ns}: updated`,
   };
 }
@@ -456,7 +498,14 @@ export function generateIotCentralLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 5e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String(isErr),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 5e8),
+      },
       message: isErr
         ? `IoT Central ${app}: provision ${deviceId} failed`
         : `IoT Central ${app}: device ${deviceId} provisioned (${props.templateId})`,
@@ -466,7 +515,7 @@ export function generateIotCentralLog(ts: string, er: number): EcsDocument {
   if (variant === "telemetry") {
     const props = {
       deviceId,
-      schema: rand(["dtmi:contoso:Sensor;1", "dtmi:demo:Gateway;2"]),
+      schema: rand(["dtmi:meridiantech:Sensor;1", "dtmi:demo:Gateway;2"]),
       pointCount: isErr ? 0 : randInt(1, 120),
       ingressLatencyMs: isErr ? -1 : randInt(5, 800),
       dropped: isErr,
@@ -499,7 +548,14 @@ export function generateIotCentralLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 3e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.IoTCentral/iotApps/telemetry/ingress"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 3e8),
+      },
       message: isErr
         ? `IoT Central ${app}: telemetry drop from ${deviceId}`
         : `IoT Central ${app}: telemetry ingested from ${deviceId} points=${props.pointCount}`,
@@ -541,7 +597,14 @@ export function generateIotCentralLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 5e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.IoTCentral/iotApps/rules/evaluate"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e6, 5e8),
+      },
       message: isErr
         ? `IoT Central ${app}: rule ${props.ruleName} action failed`
         : `IoT Central ${app}: rule ${props.ruleName} triggered actions=${props.actionsDispatched}`,
@@ -583,7 +646,14 @@ export function generateIotCentralLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 4e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.IoTCentral/iotApps/dataExport/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e8, 4e10),
+      },
       message: isErr
         ? `IoT Central ${app}: export ${props.exportJob} stalled`
         : `IoT Central ${app}: export ${props.destination} rows=${props.rowsExported}`,
@@ -625,7 +695,14 @@ export function generateIotCentralLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 5e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.IoTCentral/iotApps/devices/commands/send"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e7, 5e8),
+      },
       message: isErr
         ? `IoT Central ${app}: command ${props.commandName} failed for ${deviceId}`
         : `IoT Central ${app}: ${props.commandName} ack ${props.ackLatencyMs}ms`,
@@ -664,7 +741,14 @@ export function generateIotCentralLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 6e8) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.IoTCentral/iotApps/dashboards/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e7, 6e8),
+    },
     message: isErr
       ? `IoT Central ${app}: dashboard ${props.dashboardId} query failures=${props.queryErrors}`
       : `IoT Central ${app}: dashboard ${props.dashboardId} tiles=${props.tilesRefreshed}`,
@@ -723,7 +807,14 @@ export function generateDeviceProvisioningLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e6, 4e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Devices/provisioningServices/enrollmentGroups/attestation"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e6, 4e8),
+      },
       message: isErr
         ? `DPS ${dps}: enrollment attestation failed (${props.rejectionReason})`
         : `DPS ${dps}: enrollment attestation OK for ${props.enrollmentGroup}`,
@@ -765,7 +856,14 @@ export function generateDeviceProvisioningLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e6, 6e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Devices/provisioningServices/registrations/register"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e6, 6e8),
+      },
       message: isErr
         ? `DPS ${dps}: registration ${regId} failed code=${props.errorCode}`
         : `DPS ${dps}: device ${props.deviceId} registered to ${props.assignedHub}`,
@@ -806,7 +904,14 @@ export function generateDeviceProvisioningLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e6, 5e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Devices/provisioningServices/registrations/renew"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e6, 5e8),
+      },
       message: isErr
         ? `DPS ${dps}: reenroll ${regId} ${props.status}`
         : `DPS ${dps}: reenrolled ${regId} (${props.rotationReason})`,
@@ -846,7 +951,14 @@ export function generateDeviceProvisioningLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 8e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Devices/provisioningServices/allocationPolicy/evaluate"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 8e8),
+      },
       message: isErr
         ? `DPS ${dps}: allocation backlog devices=${props.devicesPending}`
         : `DPS ${dps}: allocation healthy partition=${props.hubPartition}`,
@@ -886,7 +998,14 @@ export function generateDeviceProvisioningLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 6e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Devices/provisioningServices/policies/run"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e7, 6e8),
+      },
       message: isErr
         ? `DPS ${dps}: policy ${props.policyName} webhook issue`
         : `DPS ${dps}: policy ${props.policyName} applied`,
@@ -925,7 +1044,14 @@ export function generateDeviceProvisioningLog(ts: string, er: number): EcsDocume
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 4e9) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Devices/provisioningServices/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 4e9),
+    },
     message: isErr ? `DPS ${dps}: ARM update failed` : `DPS ${dps}: configuration updated`,
   };
 }
@@ -974,7 +1100,14 @@ export function generateTimeSeriesInsightsLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 2e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.TimeSeriesInsights/environments/ingress/pipeline"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e7, 2e9),
+      },
       message: isErr
         ? `TSI ${env}: ingress lag ${props.lagSeconds.toFixed(1)}s drops=${props.eventsDropped}`
         : `TSI ${env}: ingested ${props.eventsReceived} events`,
@@ -1016,7 +1149,14 @@ export function generateTimeSeriesInsightsLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 9e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.TimeSeriesInsights/environments/query/execute"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e7, 9e9),
+      },
       message: isErr
         ? `TSI ${env}: query ${props.api} failed (${props.queryIssue})`
         : `TSI ${env}: query ${props.api} rows=${props.rowCount} in ${props.span}`,
@@ -1056,7 +1196,14 @@ export function generateTimeSeriesInsightsLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 2e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.TimeSeriesInsights/environments/warmStore/sync"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e8, 2e10),
+      },
       message: isErr
         ? `TSI ${env}: warm ${props.cacheTier} drift ${props.secondsBehind.toFixed(0)}s`
         : `TSI ${env}: warm path hydrated=${props.blobsHydrated}`,
@@ -1096,7 +1243,14 @@ export function generateTimeSeriesInsightsLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 5e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.TimeSeriesInsights/environments/data/export"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e9, 5e11),
+      },
       message: isErr
         ? `TSI ${env}: export to ${props.sink} failed`
         : `TSI ${env}: export ${props.parquetFiles} parquet files`,
@@ -1136,7 +1290,14 @@ export function generateTimeSeriesInsightsLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e7, 3e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.TimeSeriesInsights/environments/capacity/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(8e7, 3e9),
+      },
       message: isErr
         ? `TSI ${env}: capacity saturation util=${props.utilizationPct.toFixed(1)}%`
         : `TSI ${env}: capacity OK units=${props.skuCapacityUnits}`,
@@ -1175,7 +1336,14 @@ export function generateTimeSeriesInsightsLog(ts: string, er: number): EcsDocume
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 5e9) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.TimeSeriesInsights/environments/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 5e9),
+    },
     message: isErr ? `TSI environment ${env}: update failed` : `TSI environment ${env}: updated`,
   };
 }
@@ -1228,7 +1396,14 @@ export function generateMediaServicesLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e9, 4e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String(isErr),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e9, 4e11),
+      },
       message: isErr
         ? `Media ${acct}: encode job ${jobName} failed at ${props.progressPercent}%`
         : `Media ${acct}: encode job ${jobName} completed`,
@@ -1269,7 +1444,14 @@ export function generateMediaServicesLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 5e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Media/mediaServices/streamingEndpoints/request"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e6, 5e8),
+      },
       message: isErr
         ? `Media ${acct}: streaming endpoint ${props.streamingEndpoint} HTTP ${props.statusCode}`
         : `Media ${acct}: streaming endpoint ${props.streamingEndpoint} reqs=${props.manifestRequests}`,
@@ -1312,7 +1494,14 @@ export function generateMediaServicesLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 3e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String(isErr),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e8, 3e9),
+      },
       message: isErr
         ? `Media ${acct}: live event ${props.liveEventName} ingest failure`
         : `Media ${acct}: live event ${props.liveEventName} ${props.ingestProtocol} OK`,
@@ -1352,7 +1541,14 @@ export function generateMediaServicesLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 2e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Media/mediaServices/assets/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e8, 2e10),
+      },
       message: isErr
         ? `Media ${acct}: asset ${props.assetName} ingest failed`
         : `Media ${acct}: asset ${props.assetName} files=${props.filesIndexed}`,
@@ -1392,7 +1588,14 @@ export function generateMediaServicesLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e6, 4e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Media/mediaServices/streamingPolicies/drm/issue"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e6, 4e8),
+      },
       message: isErr
         ? `Media ${acct}: ${props.drmSystem} license ${props.licenseDelivery}`
         : `Media ${acct}: DRM policy ${props.contentKeyPolicy} OK`,
@@ -1431,7 +1634,14 @@ export function generateMediaServicesLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 4e9) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Media/mediaServices/liveEvents/liveOutputs/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e8, 4e9),
+    },
     message: isErr
       ? `Media ${acct}: live output ${props.liveOutputName} archive error`
       : `Media ${acct}: live output ${props.liveOutputName} segments=${props.segmentsWritten}`,
@@ -1482,7 +1692,14 @@ export function generateCommunicationServicesLog(ts: string, er: number): EcsDoc
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: props.durationSec * 1e9 },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: "Microsoft.Communication/callDiagnostics/summary",
+        outcome: isErr ? "failure" : "success",
+        duration: props.durationSec * 1e9,
+      },
       message: isErr
         ? `ACS ${svc}: call ${props.callId} ended ${props.endReason}`
         : `ACS ${svc}: call ${props.modality} ${props.durationSec}s`,
@@ -1523,7 +1740,14 @@ export function generateCommunicationServicesLog(ts: string, er: number): EcsDoc
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 8e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String(`Microsoft.Communication/chat/${props.operation}`),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e6, 8e8),
+      },
       message: isErr
         ? `ACS ${svc}: chat ${props.operation} failed HTTP ${props.httpStatus}`
         : `ACS ${svc}: chat thread ${props.threadId} msgs=${props.messageCount}`,
@@ -1564,7 +1788,14 @@ export function generateCommunicationServicesLog(ts: string, er: number): EcsDoc
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 6e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Communication/sms/outboundDelivery"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e8, 6e9),
+      },
       message: isErr
         ? `ACS ${svc}: SMS to ${props.to} ${props.deliveryStatus}`
         : `ACS ${svc}: SMS ${props.messageId} delivered via ${props.carrier}`,
@@ -1574,7 +1805,7 @@ export function generateCommunicationServicesLog(ts: string, er: number): EcsDoc
   if (variant === "email") {
     const props = {
       messageId: randUUID(),
-      domain: rand(["mail.contoso.com", "noreply-fabrikam.com"]),
+      domain: rand(["mail.meridiantech.io", "noreply-cascadeops.io"]),
       status: isErr ? "blocked" : "sent",
       ...integrationExtendedErrFields(
         isErr,
@@ -1604,7 +1835,14 @@ export function generateCommunicationServicesLog(ts: string, er: number): EcsDoc
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 5e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Communication/email/outbound/send"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 5e8),
+      },
       message: isErr
         ? `ACS ${svc}: email ${props.messageId} ${props.status}`
         : `ACS ${svc}: routed mail via ${props.domain}`,
@@ -1644,7 +1882,14 @@ export function generateCommunicationServicesLog(ts: string, er: number): EcsDoc
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e8, 2e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Communication/telephony/relay/connect"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e8, 2e9),
+      },
       message: isErr
         ? `ACS ${svc}: telephony relay ${props.routeType} failed`
         : `ACS ${svc}: relay ${props.pstnCorrelationId} UP`,
@@ -1683,7 +1928,14 @@ export function generateCommunicationServicesLog(ts: string, er: number): EcsDoc
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 2e9) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Communication/meetings/participants/action"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e8, 2e9),
+    },
     message: isErr
       ? `ACS ${svc}: participant join issue ${props.muteState}`
       : `ACS ${svc}: room ${props.roomId} participant active`,
@@ -1734,7 +1986,14 @@ export function generateSignalRLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 2e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.SignalRService/SignalR/hub/connection"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 2e8),
+      },
       message: `SignalR ${hub}/${props.hubName}: ${props.event} transport=${props.transport}`,
     };
   }
@@ -1773,7 +2032,14 @@ export function generateSignalRLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e7, 2e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.SignalRService/SignalR/metrics/ingress"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e7, 2e9),
+      },
       message: isErr
         ? `SignalR ${hub}: messaging degraded drops=${props.messagesDropped}`
         : `SignalR ${hub}: message throughput ${props.messagesSent} in window`,
@@ -1813,7 +2079,14 @@ export function generateSignalRLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e5, 9e7) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.SignalRService/SignalR/negotiate"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(8e5, 9e7),
+      },
       message: isErr
         ? `SignalR ${hub}: negotiate failed for ${props.hubName}`
         : `SignalR ${hub}: negotiate client ${props.clientVersion}`,
@@ -1853,7 +2126,14 @@ export function generateSignalRLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 2e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.SignalRService/SignalR/scale/action"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e9, 2e10),
+      },
       message: isErr
         ? `SignalR ${hub}: scale ${props.targetSku} incomplete`
         : `SignalR ${hub}: units=${props.unitCount}`,
@@ -1893,7 +2173,14 @@ export function generateSignalRLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 4e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.SignalRService/SignalR/upstream/call"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 4e8),
+      },
       message: isErr
         ? `SignalR ${hub}: upstream ${props.functionApp} HTTP ${props.httpStatusFromUpstream}`
         : `SignalR ${hub}: upstream invocation OK`,
@@ -1932,7 +2219,14 @@ export function generateSignalRLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 4e9) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.SignalRService/SignalR/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 4e9),
+    },
     message: isErr ? `SignalR ${hub}: service update failed` : `SignalR ${hub}: service updated`,
   };
 }
@@ -1983,7 +2277,14 @@ export function generateNotificationHubsLog(ts: string, er: number): EcsDocument
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 8e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.NotificationHubs/namespaces/notificationHubs/send"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 8e8),
+      },
       message: isErr
         ? `Notification Hub ${hub}: ${props.platform} send failures=${props.failureCount}`
         : `Notification Hub ${hub}: ${props.platform} batch ok success=${props.successCount}`,
@@ -2025,7 +2326,14 @@ export function generateNotificationHubsLog(ts: string, er: number): EcsDocument
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 4e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String(`Microsoft.NotificationHubs/registrations/${props.operation}`),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e6, 4e8),
+      },
       message: isErr
         ? `Notification Hub ${hub}: registration ${props.operation} failed`
         : `Notification Hub ${hub}: registration ${props.operation} OK`,
@@ -2066,7 +2374,14 @@ export function generateNotificationHubsLog(ts: string, er: number): EcsDocument
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e7, 9e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.NotificationHubs/namespaces/notificationHubs/telemetry"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e7, 9e8),
+      },
       message: isErr
         ? `NH ${hub}: telemetry anomaly activeRegs=${props.activeRegistrations}`
         : `NH ${hub}: telemetry healthy`,
@@ -2108,7 +2423,14 @@ export function generateNotificationHubsLog(ts: string, er: number): EcsDocument
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 6e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.NotificationHubs/namespaces/notificationHubs/schedule"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e7, 6e8),
+      },
       message: isErr
         ? `NH ${hub}: schedule ${props.scheduledPushId} ${props.reasonCode}`
         : `NH ${hub}: scheduled push queued`,
@@ -2149,7 +2471,14 @@ export function generateNotificationHubsLog(ts: string, er: number): EcsDocument
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e6, 3e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.NotificationHubs/installations/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e6, 3e8),
+      },
       message: isErr
         ? `NH ${hub}: installation sync ${props.installId} failed`
         : `NH ${hub}: ${props.platform} installation OK`,
@@ -2189,7 +2518,14 @@ export function generateNotificationHubsLog(ts: string, er: number): EcsDocument
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 3e9) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.NotificationHubs/namespaces/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 3e9),
+    },
     message: isErr
       ? `Notification Hubs namespace ${ns}: update failed`
       : `NH namespace ${ns}: updated`,
@@ -2242,7 +2578,14 @@ export function generateAutomationAccountLog(ts: string, er: number): EcsDocumen
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e9, 1.2e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Automation/automationAccounts/runbooks/jobs/create"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e9, 1.2e11),
+      },
       message: isErr
         ? `Automation ${acct}: runbook ${runbook} job failed`
         : `Automation ${acct}: runbook ${runbook} completed lines=${props.outputLines}`,
@@ -2283,7 +2626,14 @@ export function generateAutomationAccountLog(ts: string, er: number): EcsDocumen
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e8, 3e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Automation/automationAccounts/configurations/compile"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e8, 3e10),
+      },
       message: isErr
         ? `Automation ${acct}: DSC compile failed errors=${props.errorCount}`
         : `Automation ${acct}: DSC ${props.configuration} compiled for ${props.nodeName}`,
@@ -2323,7 +2673,14 @@ export function generateAutomationAccountLog(ts: string, er: number): EcsDocumen
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 8e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Automation/automationAccounts/webhooks/trigger"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 8e8),
+      },
       message: isErr
         ? `Automation ${acct}: webhook ${props.webhookName} HTTP ${props.httpStatus}`
         : `Automation ${acct}: webhook invoked ${props.webhookName}`,
@@ -2363,7 +2720,14 @@ export function generateAutomationAccountLog(ts: string, er: number): EcsDocumen
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e8, 6e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Automation/automationAccounts/modules/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(8e8, 6e10),
+      },
       message: isErr
         ? `Automation ${acct}: module ${props.moduleName} import failed`
         : `Automation ${acct}: module ${props.moduleName}@${props.moduleVersion} imported`,
@@ -2403,7 +2767,14 @@ export function generateAutomationAccountLog(ts: string, er: number): EcsDocumen
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e9, 3e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Automation/automationAccounts/softwareInventories/sync"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e9, 3e11),
+      },
       message: isErr
         ? `Automation ${acct}: inventory sync from ${props.source} ${props.batchState}`
         : `Automation ${acct}: inventory +${props.recordsIngested}`,
@@ -2443,7 +2814,14 @@ export function generateAutomationAccountLog(ts: string, er: number): EcsDocumen
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(6e9, 2e11) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Automation/automationAccounts/softwareUpdateConfigurations/run"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(6e9, 2e11),
+    },
     message: isErr
       ? `Automation ${acct}: ${props.jobType} job failed on ${props.machinesFailed} hosts`
       : `Automation ${acct}: ${props.jobType} completed targets=${props.machinesTargeted}`,
@@ -2494,7 +2872,16 @@ export function generateAppConfigurationLog(ts: string, er: number): EcsDocument
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 2e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String(
+          `Microsoft.AppConfiguration/configurationStores/keyValues/${props.operation}`
+        ),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e6, 2e8),
+      },
       message: isErr
         ? `App Config ${store}: ${props.operation} ${props.key} failed (precondition)`
         : `App Config ${store}: ${props.operation} ${props.key}`,
@@ -2535,7 +2922,14 @@ export function generateAppConfigurationLog(ts: string, er: number): EcsDocument
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 4e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.AppConfiguration/configurationStores/featureFlags/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e7, 4e8),
+      },
       message: isErr
         ? `App Config ${store}: feature ${props.featureFlag} change rejected`
         : `App Config ${store}: feature ${props.featureFlag} enabled=${props.enabled}`,
@@ -2575,7 +2969,14 @@ export function generateAppConfigurationLog(ts: string, er: number): EcsDocument
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 5e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.AppConfiguration/configurationStores/snapshots/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e8, 5e10),
+      },
       message: isErr
         ? `App Config ${store}: snapshot ${props.snapshotLabel} failed`
         : `App Config ${store}: snapshot ${props.snapshotLabel} keys=${props.keysCaptured}`,
@@ -2615,7 +3016,14 @@ export function generateAppConfigurationLog(ts: string, er: number): EcsDocument
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 2e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.AppConfiguration/configurationStores/replicas/status"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e8, 2e10),
+      },
       message: isErr
         ? `App Config ${store}: replica ${props.replicaLocation} lag=${props.lagSeconds.toFixed(1)}s`
         : `App Config ${store}: replicas healthy`,
@@ -2655,7 +3063,14 @@ export function generateAppConfigurationLog(ts: string, er: number): EcsDocument
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 2e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.AppConfiguration/configurationStores/events/sentinel"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e7, 2e8),
+      },
       message: isErr
         ? `App Config ${store}: sentinel watch gap clients=${props.refreshClients}`
         : `App Config ${store}: sentinel broadcast OK`,
@@ -2694,7 +3109,14 @@ export function generateAppConfigurationLog(ts: string, er: number): EcsDocument
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 3e9) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.AppConfiguration/configurationStores/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 3e9),
+    },
     message: isErr
       ? `App Configuration ${store}: ARM failed`
       : `App Configuration ${store}: updated`,
@@ -2758,7 +3180,14 @@ export function generateDeploymentEnvironmentsLog(ts: string, er: number): EcsDo
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e9, 4e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("azure-activity"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e9, 4e11),
+      },
       message: isErr
         ? `Deployment Env ${env}: operation failed in ${proj}`
         : `Deployment Env ${dc}/${proj}/${env}: ${props.action} ${props.state}`,
@@ -2801,7 +3230,14 @@ export function generateDeploymentEnvironmentsLog(ts: string, er: number): EcsDo
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e8, 2e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.DevCenter/devcenters/catalogs/sync/action"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(8e8, 2e10),
+      },
       message: isErr
         ? `Dev Center ${dc}: catalog sync failed — ${props.catalogDetail}`
         : `Dev Center ${dc}: catalog synced +${props.definitionsAdded} definitions`,
@@ -2843,7 +3279,14 @@ export function generateDeploymentEnvironmentsLog(ts: string, er: number): EcsDo
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 2e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.DevCenter/projects/developerMachinePools/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e9, 2e11),
+      },
       message: isErr
         ? `Dev Center ${dc}: pool ${props.poolName} slots=${props.availableSlots}`
         : `Dev Center ${dc}: pool ${props.poolName} ready`,
@@ -2885,7 +3328,14 @@ export function generateDeploymentEnvironmentsLog(ts: string, er: number): EcsDo
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 5e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.DevCenter/projects/entitlements/check"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e8, 5e9),
+      },
       message: isErr
         ? `Dev Center ${proj}: entitlement ${props.licenseSku} over limit`
         : `Dev Center ${proj}: entitlement OK`,
@@ -2927,7 +3377,14 @@ export function generateDeploymentEnvironmentsLog(ts: string, er: number): EcsDo
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 8e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.DevCenter/projects/environments/network/diagnostic"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e8, 8e9),
+      },
       message: isErr
         ? `Deployment Env ${env}: VNet ${props.vnetAttachment} unhealthy`
         : `Deployment Env ${env}: network OK ${props.dnsResolutionMs}ms`,
@@ -2968,7 +3425,14 @@ export function generateDeploymentEnvironmentsLog(ts: string, er: number): EcsDo
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 5e9) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.DevCenter/projects/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 5e9),
+    },
     message: isErr
       ? `Dev Center project ${proj}: update failed`
       : `Dev Center project ${proj}: updated`,
@@ -3019,7 +3483,14 @@ export function generateMapsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 4e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Maps/search/searchAddress"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e6, 4e8),
+      },
       message: isErr
         ? `Maps ${acct}: search failed HTTP ${props.httpStatus}`
         : `Maps ${acct}: search returned ${props.resultsCount} results`,
@@ -3060,7 +3531,14 @@ export function generateMapsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 6e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Maps/route/directions"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 6e8),
+      },
       message: isErr
         ? `Maps ${acct}: routing unavailable`
         : `Maps ${acct}: route ${props.distanceMeters} m in ${props.durationSec}s`,
@@ -3101,7 +3579,14 @@ export function generateMapsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 3e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Maps/render/maptile"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e7, 3e8),
+      },
       message: isErr
         ? `Maps ${acct}: render failed HTTP ${props.httpStatus}`
         : `Maps ${acct}: rendered ${props.tilesRendered} tiles z=${props.tileZoom}`,
@@ -3141,7 +3626,14 @@ export function generateMapsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e7, 4e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Maps/search/geocode/batch"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e7, 4e9),
+      },
       message: isErr
         ? `Maps ${acct}: geocode batch ambiguities=${props.ambiguities}`
         : `Maps ${acct}: geocode score=${props.matchScore.toFixed(2)}`,
@@ -3181,7 +3673,14 @@ export function generateMapsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 5e8) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Maps/traffic/flow/segment"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 5e8),
+      },
       message: isErr
         ? `Maps ${acct}: traffic flow HTTP ${props.httpStatus}`
         : `Maps ${acct}: incidents=${props.incidentCount}`,
@@ -3220,7 +3719,14 @@ export function generateMapsLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(8e6, 2e8) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Maps/timezone/byCoordinates"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e6, 2e8),
+    },
     message: isErr
       ? `Maps ${acct}: timezone lookup failed`
       : `Maps ${acct}: TZ ${props.ianaZone} rows=${props.windowsResolved}`,
@@ -3271,7 +3777,14 @@ export function generateBackupLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(6e9, 3e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.RecoveryServices/vaults/backupJobs/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(6e9, 3e11),
+      },
       message: isErr
         ? `Backup vault ${vault}: ${props.jobType} job failed for ${props.backupItem}`
         : `Backup vault ${vault}: ${props.jobType} completed ${props.dataTransferredMB} MB`,
@@ -3312,7 +3825,14 @@ export function generateBackupLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e9, 6e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.RecoveryServices/vaults/backupJobs/restore"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e9, 6e11),
+      },
       message: isErr
         ? `Backup vault ${vault}: restore from ${props.restorePoint} failed`
         : `Backup vault ${vault}: restore to ${props.target} OK`,
@@ -3352,7 +3872,14 @@ export function generateBackupLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 4e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.RecoveryServices/vaults/backupPolicies/compliance/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e8, 4e9),
+      },
       message: isErr
         ? `Backup vault ${vault}: policy ${props.policyName} non-compliant (${props.issues})`
         : `Backup vault ${vault}: policy ${props.policyName} compliant`,
@@ -3392,7 +3919,14 @@ export function generateBackupLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e8, 3e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.RecoveryServices/vaults/backupAlerts/fire"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(8e8, 3e10),
+      },
       message: isErr
         ? `Backup vault ${vault}: alert ${props.alertRule} items=${props.impactedItems}`
         : `Backup vault ${vault}: alert pipeline OK`,
@@ -3432,7 +3966,14 @@ export function generateBackupLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 2e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.RecoveryServices/vaults/backupSecurity/immutability"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e9, 2e11),
+      },
       message: isErr
         ? `Backup vault ${vault}: immutability violation via ${props.solicitor}`
         : `Backup vault ${vault}: immutability ${props.lockedRetentionDays}d enforced`,
@@ -3471,7 +4012,14 @@ export function generateBackupLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(9e10, 4e11) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.RecoveryServices/vaults/backupJobs/geoCopy"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(9e10, 4e11),
+    },
     message: isErr
       ? `Backup vault ${vault}: RP geo copy lag ${props.sourceRegion}->${props.targetRegion}`
       : `Backup vault ${vault}: RP copy complete`,
@@ -3530,7 +4078,14 @@ export function generateSiteRecoveryLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 2e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.RecoveryServices/vaults/replicationHealth/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e7, 2e9),
+      },
       message: isErr
         ? `Site Recovery ${vault}: replication unhealthy for ${vm} RPO=${props.rpoMinutes}m`
         : `Site Recovery ${vault}: ${vm} replicating RPO=${props.rpoMinutes}m`,
@@ -3571,7 +4126,14 @@ export function generateSiteRecoveryLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(6e9, 4e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.RecoveryServices/vaults/replicationFabrics/failover/action"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(6e9, 4e11),
+      },
       message: isErr
         ? `Site Recovery ${vault}: failover ${props.recoveryPlan} failed at ${props.step}`
         : `Site Recovery ${vault}: failover ${props.direction} ${props.status}`,
@@ -3611,7 +4173,14 @@ export function generateSiteRecoveryLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e10, 3e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.RecoveryServices/vaults/replicationProtectedItems/testFailover"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e10, 3e11),
+      },
       message: isErr
         ? `Site Recovery ${vault}: TFO cleanup ${props.testVmName}`
         : `Site Recovery ${vault}: TFO in ${props.isolationNetwork}`,
@@ -3651,7 +4220,14 @@ export function generateSiteRecoveryLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e10, 3e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.RecoveryServices/vaults/capacity/report"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e10, 3e11),
+      },
       message: isErr
         ? `Site Recovery ${vault}: churn VMs=${props.churningVms}`
         : `Site Recovery ${vault}: reserved cores=${props.reservedCoresRecovery}`,
@@ -3691,7 +4267,14 @@ export function generateSiteRecoveryLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e11, 6e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.RecoveryServices/vaults/replicationProviders/driftScan"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e11, 6e11),
+      },
       message: isErr
         ? `Site Recovery ${vault}: drift ${props.configDriftPct.toFixed(1)}% (${props.baselineTag})`
         : `Site Recovery ${vault}: baseline aligned`,
@@ -3730,7 +4313,14 @@ export function generateSiteRecoveryLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 5e9) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.RecoveryServices/vaults/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 5e9),
+    },
     message: isErr ? `ASR vault ${vault}: ARM update failed` : `ASR vault ${vault}: updated`,
   };
 }
@@ -3785,7 +4375,14 @@ export function generateMigrateLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e9, 2e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Migrate/assessmentProjects/assessments/evaluate"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e9, 2e11),
+      },
       message: isErr
         ? `Migrate ${proj}: assessment ${props.assessmentName} failed`
         : `Migrate ${proj}: assessment ${props.assessmentName} readiness=${props.readiness}`,
@@ -3826,7 +4423,14 @@ export function generateMigrateLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 9e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Migrate/assessmentProjects/discoveredMachines/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e8, 9e9),
+      },
       message: isErr
         ? `Migrate ${proj}: discovery via ${props.appliance} degraded`
         : `Migrate ${proj}: discovered ${props.machinesDiscovered} machines`,
@@ -3866,7 +4470,14 @@ export function generateMigrateLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e9, 5e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Migrate/replicationFabrics/replicationProtectionItems/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e9, 5e10),
+      },
       message: isErr
         ? `Migrate ${proj}: replication error for ${props.machine}`
         : `Migrate ${proj}: ${props.machine} ${props.replicationState}`,
@@ -3906,7 +4517,14 @@ export function generateMigrateLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e9, 3e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Migrate/assessmentProjects/dependencyGroups/build"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(8e9, 3e11),
+      },
       message: isErr
         ? `Migrate ${proj}: dependency map ${props.mapId} unresolved=${props.unresolvedPorts}`
         : `Migrate ${proj}: deps edges=${props.edgesResolved}`,
@@ -3945,7 +4563,14 @@ export function generateMigrateLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e10, 9e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.Migrate/replicationFabrics/cutover/action"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e10, 9e11),
+      },
       message: isErr
         ? `Migrate ${proj}: cutover aborted ${props.finalizeState}`
         : `Migrate ${proj}: cutover ${props.plannedDowntimeMin}m window OK`,
@@ -3984,7 +4609,14 @@ export function generateMigrateLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 8e10) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Migrate/assessmentProjects/rightsizing/recommend"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e9, 8e10),
+    },
     message: isErr
       ? `Migrate ${proj}: rightsizing issue ${props.licensingNotes}`
       : `Migrate ${proj}: recommend ${props.vmSizeTarget} Δcores=${props.coresDelta}`,
@@ -4034,7 +4666,14 @@ export function generateDataBoxLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e10, 6e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.DataBox/jobs/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e10, 6e11),
+      },
       message: isErr
         ? `Data Box ${job}: order lifecycle stalled (${props.stage})`
         : `Data Box ${job}: order ${props.sku} stage=${props.stage}`,
@@ -4074,7 +4713,14 @@ export function generateDataBoxLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(6e9, 3e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.DataBox/jobs/copy/status"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(6e9, 3e11),
+      },
       message: isErr
         ? `Data Box ${job}: copy errors=${props.filesErrored} at ${props.percentComplete}%`
         : `Data Box ${job}: copy complete bytes=${props.bytesCopied}`,
@@ -4113,7 +4759,14 @@ export function generateDataBoxLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(7e9, 4e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.DataBox/jobs/validate/action"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(7e9, 4e11),
+      },
       message: isErr
         ? `Data Box ${job}: validate mismatches=${props.hashMismatches}`
         : `Data Box ${job}: manifest files=${props.manifestFiles}`,
@@ -4152,7 +4805,14 @@ export function generateDataBoxLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e11, 9e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.DataBox/jobs/erase/action"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e11, 9e11),
+      },
       message: isErr
         ? `Data Box ${job}: erase incomplete passes=${props.wipePasses}`
         : `Data Box ${job}: disks wiped`,
@@ -4191,7 +4851,14 @@ export function generateDataBoxLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e10, 4e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.DataBox/jobs/receiving/ack"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e10, 4e11),
+      },
       message: isErr
         ? `Data Box ${job}: handoff ${props.datacenterHandoff} ${props.receiptAck}`
         : `Data Box ${job}: received at ${props.datacenterHandoff}`,
@@ -4230,7 +4897,14 @@ export function generateDataBoxLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(8e10, 4e11) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.DataBox/jobs/shipping/update"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e10, 4e11),
+    },
     message: isErr
       ? `Data Box ${job}: shipping event ${props.carrierEvent} at ${props.hub}`
       : `Data Box ${job}: in transit via ${props.hub} ETA ${props.etaDays}d`,
@@ -4288,7 +4962,14 @@ export function generateDevcenterLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e9, 5e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.DevCenter/devcenters/devboxes/action"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e9, 5e10),
+      },
       message: isErr
         ? `Dev Center ${dc}: dev box ${props.devBoxName} ${props.action}`
         : `Dev Center ${dc}: ${props.devBoxName} ${props.action} ${props.state}`,
@@ -4329,7 +5010,14 @@ export function generateDevcenterLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e8, 2e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.DevCenter/devcenters/galleries/sync"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e8, 2e10),
+      },
       message: isErr
         ? `Dev Center ${dc}: catalog ${props.catalogName} sync failed`
         : `Dev Center ${dc}: catalog ${props.catalogName} synced ${props.imagesSynced} images`,
@@ -4368,7 +5056,14 @@ export function generateDevcenterLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e10, 2e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.DevCenter/devcenters/quotas/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e10, 2e11),
+      },
       message: isErr ? `Dev Center ${dc}: quota saturated` : `Dev Center ${dc}: quota OK`,
     };
   }
@@ -4405,7 +5100,14 @@ export function generateDevcenterLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e11, 4e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.DevCenter/devcenters/access/identities/sync"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e11, 4e11),
+      },
       message: isErr ? `Dev Center ${dc}: identity sync degraded` : `Dev Center ${dc}: RBAC ok`,
     };
   }
@@ -4442,7 +5144,14 @@ export function generateDevcenterLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 9e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.DevCenter/devcenters/network/connectivity/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e8, 9e10),
+      },
       message: isErr ? `Dev Center ${dc}: private link unhealthy` : `Dev Center ${dc}: PEP OK`,
     };
   }
@@ -4479,7 +5188,14 @@ export function generateDevcenterLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 5e9) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.DevCenter/devcenters/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 5e9),
+    },
     message: isErr ? `Dev Center ${dc}: update failed` : `Dev Center ${dc}: configuration updated`,
   };
 }
@@ -4528,7 +5244,14 @@ export function generateLabServicesLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(6e8, 2e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.LabServices/labPlans/labs/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(6e8, 2e10),
+      },
       message: isErr
         ? `Lab Services ${plan}: lab ${props.labName} provision failed (${props.reason})`
         : `Lab Services ${plan}: lab ${props.labName} provisioned capacity=${props.capacity}`,
@@ -4569,7 +5292,14 @@ export function generateLabServicesLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 6e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.LabServices/labs/virtualMachines/action"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e8, 6e9),
+      },
       message: isErr
         ? `Lab Services ${plan}: ${props.action} for ${props.studentId} failed`
         : `Lab Services ${plan}: ${props.studentId} ${props.action} ${props.vmName}`,
@@ -4608,7 +5338,14 @@ export function generateLabServicesLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(9e10, 6e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.LabServices/labPlans/images/publish"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(9e10, 6e11),
+      },
       message: isErr
         ? `Lab Services ${plan}: image ${props.galleryImage} publish failed`
         : `Lab Services ${plan}: published ${props.galleryImage}`,
@@ -4647,7 +5384,14 @@ export function generateLabServicesLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 4e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.LabServices/labs/schedules/action"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e8, 4e10),
+      },
       message: isErr
         ? `Lab Services ${plan}: schedule violation user=${props.violatedByUser}`
         : `Lab Services ${plan}: schedule OK`,
@@ -4686,7 +5430,14 @@ export function generateLabServicesLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e10, 9e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.LabServices/labPlans/usage/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e10, 9e10),
+      },
       message: isErr
         ? `Lab Services ${plan}: usage exceeds quota`
         : `Lab Services ${plan}: metering healthy`,
@@ -4725,7 +5476,14 @@ export function generateLabServicesLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 4e9) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.LabServices/labPlans/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 4e9),
+    },
     message: isErr ? `Lab plan ${plan}: update failed` : `Lab plan ${plan}: updated`,
   };
 }
@@ -4776,7 +5534,14 @@ export function generateLoadTestingLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: props.durationSec * 1e9 },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: "Microsoft.LoadTestService/loadTests/testRuns/write",
+        outcome: isErr ? "failure" : "success",
+        duration: props.durationSec * 1e9,
+      },
       message: isErr
         ? `Load test ${test}: run ${runId} failed errorRate=${props.errorRate.toFixed(1)}%`
         : `Load test ${test}: run ${runId} completed VUs=${props.vus}`,
@@ -4817,7 +5582,14 @@ export function generateLoadTestingLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 5e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.LoadTestService/loadTests/metrics/ingest"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e8, 5e9),
+      },
       message: isErr
         ? `Load test ${test}: metrics pipeline lag ${props.aggregatorLagSec.toFixed(1)}s`
         : `Load test ${test}: ingested ${props.samplesIngested} metric samples`,
@@ -4856,7 +5628,14 @@ export function generateLoadTestingLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e8, 8e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.LoadTestService/loadTests/testFiles/validate"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e8, 8e9),
+      },
       message: isErr
         ? `Load test ${test}: artifact ${props.jmxAsset} invalid`
         : `Load test ${test}: artifact validated`,
@@ -4895,7 +5674,14 @@ export function generateLoadTestingLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(9e8, 7e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.LoadTestService/loadTests/network/validate"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(9e8, 7e10),
+      },
       message: isErr
         ? `Load test ${test}: subnet validation failed`
         : `Load test ${test}: subnet OK`,
@@ -4934,7 +5720,14 @@ export function generateLoadTestingLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(6e8, 9e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.LoadTestService/loadTests/limits/check"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(6e8, 9e9),
+      },
       message: isErr
         ? `Load test ${test}: quota cap ${props.maxVUsAllowed}`
         : `Load test ${test}: VU request ${props.requestedVUs}`,
@@ -4973,7 +5766,14 @@ export function generateLoadTestingLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 3e9) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.LoadTestService/loadTests/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 3e9),
+    },
     message: isErr ? `Load test resource ${test}: update failed` : `Load test ${test}: updated`,
   };
 }
@@ -5024,7 +5824,14 @@ export function generatePipelineLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: props.totalDurationMin * 60e9 },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: "Microsoft.DevOps/pipelines/runs/complete",
+        outcome: isErr ? "failure" : "success",
+        duration: props.totalDurationMin * 60e9,
+      },
       message: isErr
         ? `Pipeline ${name}: run ${runId} failed (${props.reason})`
         : `Pipeline ${name}: run ${runId} ${props.result} in ${props.totalDurationMin}m`,
@@ -5066,7 +5873,14 @@ export function generatePipelineLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: props.durationSec * 1e9 },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: "Microsoft.DevOps/pipelines/stages/complete",
+        outcome: isErr ? "failure" : "success",
+        duration: props.durationSec * 1e9,
+      },
       message: isErr
         ? `Pipeline ${name}: stage ${props.stageName}/${props.jobName} failed`
         : `Pipeline ${name}: stage ${props.stageName} job ${props.jobName} OK`,
@@ -5107,7 +5921,14 @@ export function generatePipelineLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e10, 5e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.DevOps/pipelines/approvals/complete"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e10, 5e11),
+      },
       message: isErr
         ? `Pipeline ${name}: approval ${props.environmentName} ${props.decision}`
         : `Pipeline ${name}: ${props.approverGroup} OK`,
@@ -5116,7 +5937,7 @@ export function generatePipelineLog(ts: string, er: number): EcsDocument {
 
   if (variant === "queue") {
     const props = {
-      poolName: rand(["Azure Pipelines", "contoso-ss-linux"]),
+      poolName: rand(["Azure Pipelines", "meridiantech-ss-linux"]),
       waitingJobs: isErr ? randInt(180, 800) : randInt(0, 25),
       ...integrationExtendedErrFields(
         isErr,
@@ -5146,7 +5967,14 @@ export function generatePipelineLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e11, 6e11) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.DevOps/pipelines/agents/queueDepth"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e11, 6e11),
+      },
       message: isErr
         ? `Pipeline ${name}: pool ${props.poolName} backlog=${props.waitingJobs}`
         : `Pipeline ${name}: queue healthy`,
@@ -5185,7 +6013,14 @@ export function generatePipelineLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e9, 4e10) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["info"],
+        action: String("Microsoft.DevOps/pipelines/policyEvaluations/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e9, 4e10),
+      },
       message: isErr
         ? `Pipeline ${name}: policy ${props.policyName} ${props.checkStatus}`
         : `Pipeline ${name}: checks green`,
@@ -5224,7 +6059,14 @@ export function generatePipelineLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 4e9) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.DevOps/pipelines/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 4e9),
+    },
     message: isErr ? `Pipeline ${name}: ARM update failed` : `Pipeline ${name}: definition updated`,
   };
 }

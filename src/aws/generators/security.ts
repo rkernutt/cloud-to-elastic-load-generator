@@ -3,13 +3,23 @@ import {
   randInt,
   randFloat,
   randId,
+  randHexId,
+  randPrivateIp,
+  ec2PrivateDns,
   randIp,
+  randPublicIp,
   randUUID,
   randAccount,
   REGIONS,
   USER_AGENTS,
   HTTP_METHODS,
   HTTP_PATHS,
+  randIamUser,
+  randEmail,
+  randEmailDomain,
+  randFqdn,
+  randAppDomain,
+  randIspOrg,
 } from "../../helpers";
 import type { EcsDocument } from "./types.js";
 import { offsetTs } from "./traces/helpers.js";
@@ -61,7 +71,7 @@ function generateGuardDutyLog(ts: string, er: number): EcsDocument {
   const sevValue = sev >= 7 ? "High" : sev >= 4 ? "Medium" : sev >= 1 ? "Low" : "Informational";
   const findingId = randId(32).toLowerCase();
   const detectorId = randId(32).toLowerCase();
-  const instanceId = `i-${randId(17).toLowerCase()}`;
+  const instanceId = `i-${randHexId(17)}`;
   const isDnsFinding = ft.includes("DNS");
   const isNetworkFinding = ft.includes(":EC2/") || ft.includes("MaliciousIP");
   const srcIp = randIp();
@@ -143,7 +153,7 @@ function generateGuardDutyLog(ts: string, er: number): EcsDocument {
           instanceDetails: {
             instanceId,
             instanceType: rand(["t3.medium", "m5.large"]),
-            imageId: `ami-${randId(8).toLowerCase()}`,
+            imageId: `ami-${randHexId(8)}`,
             imageDescription: "Amazon Linux 2",
             launchTime: new Date(
               new Date(ts).getTime() - randInt(1, 86400 * 30) * 1000
@@ -154,15 +164,13 @@ function generateGuardDutyLog(ts: string, er: number): EcsDocument {
             networkInterfaces: [
               {
                 ipv6Addresses: [],
-                networkInterfaceId: `eni-${randId(8).toLowerCase()}`,
+                networkInterfaceId: `eni-${randHexId(8)}`,
                 privateDnsName: `ip-${randInt(1, 255)}-${randInt(1, 255)}-${randInt(1, 255)}-${randInt(1, 255)}.ec2.internal`,
                 privateIpAddress: randIp(),
                 privateIpAddresses: [{ privateDnsName: "internal", privateIpAddress: randIp() }],
-                subnetId: `subnet-${randId(8).toLowerCase()}`,
-                vpcId: `vpc-${randId(8).toLowerCase()}`,
-                securityGroups: [
-                  { groupName: "default", groupId: `sg-${randId(8).toLowerCase()}` },
-                ],
+                subnetId: `subnet-${randHexId(8)}`,
+                vpcId: `vpc-${randHexId(8)}`,
+                securityGroups: [{ groupName: "default", groupId: `sg-${randHexId(8)}` }],
               },
             ],
             tags: [{ key: "Name", value: "app-server" }],
@@ -192,7 +200,7 @@ function generateGuardDutyLog(ts: string, er: number): EcsDocument {
                 name: `cluster-${randId(6).toLowerCase()}`,
                 arn: `arn:aws:eks:${region}:${acct.id}:cluster/cluster-${randId(6).toLowerCase()}`,
                 createdAt: eventFirstSeen,
-                vpcId: `vpc-${randId(8).toLowerCase()}`,
+                vpcId: `vpc-${randHexId(8)}`,
                 status: "ACTIVE",
                 tags: [{ key: "env", value: "prod" }],
               },
@@ -201,8 +209,8 @@ function generateGuardDutyLog(ts: string, er: number): EcsDocument {
               resourceType: "AccessKey",
               accessKeyDetails: {
                 accessKeyId: `AKIA${randId(16).toUpperCase()}`,
-                principalId: `${acct.id}:${rand(["alice", "deploy-bot"])}`,
-                userName: rand(["alice", "deploy-bot"]),
+                principalId: `${acct.id}:${randIamUser()}`,
+                userName: randIamUser(),
                 userType: "IAMUser",
               },
             };
@@ -240,12 +248,7 @@ function generateGuardDutyLog(ts: string, er: number): EcsDocument {
                 localPortDetails: { port: rand([22, 3389, 445, 3306]) },
                 remoteIpDetails: {
                   ipAddressV4: srcIp,
-                  organization: {
-                    asn: "64496",
-                    asnOrg: "Example ISP",
-                    isp: "Example ISP",
-                    org: "Example Org",
-                  },
+                  organization: randIspOrg(),
                 },
               },
             ],
@@ -266,11 +269,14 @@ function generateGuardDutyLog(ts: string, er: number): EcsDocument {
         : actionType === "DNS_REQUEST"
           ? {
               actionType: "DNS_REQUEST",
-              dnsRequestAction: {
-                domain: `suspicious-${randId(8).toLowerCase()}.example.com`,
-                domainWithSuffix: `suspicious-${randId(8).toLowerCase()}.example.com.`,
-                blocked: false,
-              },
+              dnsRequestAction: (() => {
+                const susp = `suspicious-${randId(8).toLowerCase()}.${randEmailDomain()}`;
+                return {
+                  domain: susp,
+                  domainWithSuffix: `${susp}.`,
+                  blocked: false,
+                };
+              })(),
             }
           : {
               actionType: "AWS_API_CALL",
@@ -330,6 +336,7 @@ function generateGuardDutyLog(ts: string, er: number): EcsDocument {
     },
     rule: {
       category: gdCategory,
+      type: ["info"],
       ruleset: isFinding ? ft.split(":")[0] : undefined,
       name: isFinding ? ft : undefined,
     },
@@ -337,7 +344,9 @@ function generateGuardDutyLog(ts: string, er: number): EcsDocument {
       indicator: [
         {
           type: threatIndicatorType,
-          value: isDnsFinding ? `suspicious-${randId(8).toLowerCase()}.example.com` : srcIp,
+          value: isDnsFinding
+            ? `suspicious-${randId(8).toLowerCase()}.${randEmailDomain()}`
+            : srcIp,
         },
       ],
     },
@@ -429,7 +438,7 @@ function generateSecurityHubLog(ts: string, er: number): EcsDocument {
     ? "vulnerability"
     : findingType.startsWith("Effects")
       ? "vulnerability"
-      : "compliance";
+      : "configuration";
   const shEventType = isFinding ? ["indicator"] : ["info"];
   const productArn = `arn:aws:securityhub:${region}::product/aws/securityhub`;
   const generatorId = `${productArn}/${controlId}`;
@@ -451,9 +460,9 @@ function generateSecurityHubLog(ts: string, er: number): EcsDocument {
     resourceTypeAsff === "AwsS3Bucket"
       ? `arn:aws:s3:::${acct.name}-bucket-${randId(6).toLowerCase()}`
       : resourceTypeAsff === "AwsIamUser"
-        ? `arn:aws:iam::${acct.id}:user/${rand(["alice", "bob", "deploy-bot"])}`
+        ? `arn:aws:iam::${acct.id}:user/${randIamUser()}`
         : resourceTypeAsff === "AwsEc2SecurityGroup"
-          ? `arn:aws:ec2:${region}:${acct.id}:security-group/sg-${randId(8).toLowerCase()}`
+          ? `arn:aws:ec2:${region}:${acct.id}:security-group/sg-${randHexId(8)}`
           : `arn:aws:cloudtrail:${region}:${acct.id}:trail/${rand(["management-events", "org-trail"])}`;
   const resourcesAsff = [
     {
@@ -619,6 +628,7 @@ function generateMacieLog(ts: string, er: number): EcsDocument {
       kind: "alert",
       outcome: isFinding ? "failure" : "success",
       category: [macieCategory],
+      type: ["info"],
       dataset: "aws.macie",
       provider: "macie2.amazonaws.com",
     },
@@ -683,10 +693,10 @@ function generateInspectorLog(ts: string, er: number): EcsDocument {
   const fixedVersion = `${randInt(1, 3)}.${randInt(0, 20)}.${randInt(11, 20)}`;
   const resourceId =
     resourceType === "AWS_EC2_INSTANCE"
-      ? `i-${randId(17).toLowerCase()}`
+      ? `i-${randHexId(17)}`
       : resourceType === "AWS_ECR_CONTAINER_IMAGE"
-        ? `${acct.id}.dkr.ecr.${region}.amazonaws.com/my-repo:latest`
-        : `arn:aws:lambda:${region}:${acct.id}:function:my-fn`;
+        ? `${acct.id}.dkr.ecr.${region}.amazonaws.com/${rand(["api", "worker", "nginx", "batch"])}:latest`
+        : `arn:aws:lambda:${region}:${acct.id}:function:${rand(["api-handler", "etl-worker", "auth-service"])}`;
   const exploitability = rand([
     "NOT_DEFINED",
     "PROOF_OF_CONCEPT",
@@ -920,7 +930,8 @@ function generateConfigLog(ts: string, er: number): EcsDocument {
     },
     event: {
       outcome: isNonCompliantFinal ? "failure" : "success",
-      category: ["configuration", "compliance"],
+      category: ["configuration"],
+      type: ["info"],
       dataset: "aws.config",
       provider: "config.amazonaws.com",
     },
@@ -983,6 +994,7 @@ function generateAccessAnalyzerLog(ts: string, er: number): EcsDocument {
       kind: isFinding ? "alert" : "event",
       outcome: isFinding ? "failure" : "success",
       category: ["configuration", "iam"],
+      type: ["info"],
       dataset: "aws.access_analyzer",
       provider: "access-analyzer.amazonaws.com",
     },
@@ -1026,7 +1038,7 @@ function generateCognitoLog(ts: string, er: number): EcsDocument {
     "TokenGeneration_HostedUI",
   ]);
   const isRiskEvent = riskEvents.includes(action);
-  const user = `user-${randId(8).toLowerCase()}@example.com`;
+  const user = randEmail(`user-${randId(8).toLowerCase()}`);
   const signIns = randInt(100, 10000);
   const tokenRefreshes = randInt(500, 50000);
   const isAccountTakeover = action === "AccountTakeoverRisk";
@@ -1110,6 +1122,7 @@ function generateCognitoLog(ts: string, er: number): EcsDocument {
       action,
       outcome: isErr || (isRiskEvent && riskDecision === "BLOCK") ? "failure" : "success",
       category: ["authentication"],
+      type: ["start"],
       dataset: "aws.cognito",
       provider: "cognito-idp.amazonaws.com",
     },
@@ -1168,7 +1181,7 @@ function generateKmsLog(ts: string, er: number): EcsDocument {
         key_id: keyId,
         key_alias: keyAlias,
         operation: op,
-        principal_arn: `arn:aws:iam::${acct.id}:${rand(["user/alice", "role/lambda-role", "role/ecs-task-role"])}`,
+        principal_arn: `arn:aws:iam::${acct.id}:${rand([`user/${randIamUser()}`, "role/lambda-role", "role/ecs-task-role"])}`,
         key_state: isErr ? "PendingDeletion" : "Enabled",
         encryption_algorithm: rand(["SYMMETRIC_DEFAULT", "RSAES_OAEP_SHA_256"]),
         error_code: isErr
@@ -1186,6 +1199,7 @@ function generateKmsLog(ts: string, er: number): EcsDocument {
       action: op,
       outcome: isErr ? "failure" : "success",
       category: ["authentication", "configuration"],
+      type: ["info"],
       dataset: "aws.kms",
       provider: "kms.amazonaws.com",
     },
@@ -1262,6 +1276,7 @@ function generateSecretsManagerLog(ts: string, er: number): EcsDocument {
       action: op,
       outcome: isErr ? "failure" : "success",
       category: ["authentication", "configuration"],
+      type: ["info"],
       dataset: "aws.secretsmanager",
       provider: "secretsmanager.amazonaws.com",
     },
@@ -1298,7 +1313,12 @@ function generateAcmLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;
-  const domain = rand(["*.example.com", "api.example.com", "www.example.com", "*.internal.corp"]);
+  const domain = rand([
+    `*.${randEmailDomain()}`,
+    randFqdn("api"),
+    randFqdn("www"),
+    `*.ops.${randEmailDomain()}`,
+  ]);
   const status = isErr
     ? rand(["FAILED", "REVOKED", "EXPIRED"])
     : rand(["ISSUED", "ISSUED", "PENDING_VALIDATION"]);
@@ -1326,7 +1346,8 @@ function generateAcmLog(ts: string, er: number): EcsDocument {
     },
     event: {
       outcome: isErr ? "failure" : "success",
-      category: "network",
+      category: ["network"],
+      type: ["connection"],
       dataset: "aws.acm",
       provider: "acm.amazonaws.com",
     },
@@ -1346,7 +1367,7 @@ function generateIamIdentityCenterLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;
-  const user = rand(["alice@corp.com", "bob@corp.com", "carol@corp.com", "svc-account@corp.com"]);
+  const user = randEmail();
   const action = rand([
     "Authenticate",
     "Authorize",
@@ -1385,7 +1406,8 @@ function generateIamIdentityCenterLog(ts: string, er: number): EcsDocument {
     event: {
       action,
       outcome: isErr ? "failure" : "success",
-      category: "authentication",
+      category: ["authentication"],
+      type: ["start"],
       dataset: "aws.identitycenter",
       provider: "sso.amazonaws.com",
     },
@@ -1430,10 +1452,7 @@ function generateDetectiveLog(ts: string, er: number): EcsDocument {
     aws: {
       detective: {
         entity_type: rand(["AwsAccount", "AwsIamRole", "AwsIamUser", "Ec2Instance"]),
-        entity_id: rand([
-          `arn:aws:iam::${acct.id}:user/suspicious`,
-          `i-${randId(17).toLowerCase()}`,
-        ]),
+        entity_id: rand([`arn:aws:iam::${acct.id}:user/suspicious`, `i-${randHexId(17)}`]),
         behavior_type: isFinding ? behavior : "Normal",
         severity_score: isFinding ? Number(randFloat(50, 99)) : Number(randFloat(0, 30)),
         finding_count: isFinding ? randInt(1, 20) : 0,
@@ -1442,7 +1461,8 @@ function generateDetectiveLog(ts: string, er: number): EcsDocument {
     event: {
       kind: isFinding ? "alert" : "event",
       outcome: isFinding ? "failure" : "success",
-      category: "intrusion_detection",
+      category: ["intrusion_detection"],
+      type: ["info"],
       dataset: "aws.detective",
       provider: "detective.amazonaws.com",
     },
@@ -1461,11 +1481,10 @@ function generateVerifiedAccessLog(ts: string, er: number): EcsDocument {
   const acct = randAccount();
   const isErr = Math.random() < er;
   const user = rand([
-    "alice@example.com",
-    "bob@example.com",
-    "carol@example.com",
-    "deploy-svc@example.com",
-    "contractor@partner.com",
+    randEmail(),
+    randEmail("svc-deploy-prod"),
+    randEmail("contractor.ext"),
+    `contractor@${randEmailDomain()}`,
   ]);
   const app = rand([
     "internal-dashboard",
@@ -1503,7 +1522,7 @@ function generateVerifiedAccessLog(ts: string, er: number): EcsDocument {
       verifiedaccess: {
         endpoint_id: `vae-${randId(17).toLowerCase()}`,
         group_id: `vag-${randId(17).toLowerCase()}`,
-        instance_id: `vai-${randId(17).toLowerCase()}`,
+        instance_id: `vai-${randHexId(17)}`,
         policy_name: rand([
           "require-mfa",
           "corporate-device",
@@ -1520,7 +1539,7 @@ function generateVerifiedAccessLog(ts: string, er: number): EcsDocument {
         request_id: randUUID(),
         connection_id: randId(20),
         session_id: randId(32),
-        sni_hostname: `${app}.internal.example.com`,
+        sni_hostname: `${app}.internal.${randEmailDomain()}`,
         application_name: app,
       },
     },
@@ -1618,7 +1637,7 @@ function generateSecurityLakeLog(ts: string, er: number): EcsDocument {
   const statusId = isErr ? 2 : 1;
   const srcIp = randIp();
   const dstIp = randIp();
-  const user = rand(["alice", "bob", "carol", "deploy-bot", "svc-account"]);
+  const user = randIamUser();
   let classFields = {};
   if (ocsfClass === "API_ACTIVITY") {
     classFields = {
@@ -1665,7 +1684,7 @@ function generateSecurityLakeLog(ts: string, er: number): EcsDocument {
     classFields = {
       http_request: {
         method: rand(HTTP_METHODS),
-        url: { path: rand(HTTP_PATHS), hostname: `api.example.com` },
+        url: { path: rand(HTTP_PATHS), hostname: randAppDomain() },
         user_agent: rand(USER_AGENTS),
       },
       http_response: { code: isErr ? rand([400, 403, 500, 503]) : rand([200, 200, 201]) },
@@ -1749,6 +1768,7 @@ function generateSecurityLakeLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["intrusion_detection", "network"],
+      type: ["info"],
       dataset: "aws.securitylake",
       provider: "securitylake.amazonaws.com",
     },
@@ -1770,7 +1790,7 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;
-  const user = rand(["alice", "bob", "carol", "deploy-bot", "ci-pipeline", "admin"]);
+  const user = randIamUser();
   const svcDistribution = rand(["ec2", "ec2", "ec2", "s3", "s3", "iam", "iam", "lambda", "sts"]);
   const ec2Events = rand([
     "RunInstances",
@@ -1827,7 +1847,7 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
   };
   const ev = svcMap[svcDistribution as keyof typeof svcMap];
   const eventName = ev.name;
-  const sourceIPAddress = randIp();
+  const sourceIPAddress = randPublicIp();
   const userAgent = rand(USER_AGENTS);
   const requestId =
     `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase();
@@ -1947,7 +1967,7 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
   const resourceMap = {
     RunInstances: [
       {
-        arn: `arn:aws:ec2:${region}:${acct.id}:instance/i-${randId(17).toLowerCase()}`,
+        arn: `arn:aws:ec2:${region}:${acct.id}:instance/i-${randHexId(17)}`,
         account_id: acct.id,
         type: "AWS::EC2::Instance",
       },
@@ -1972,7 +1992,7 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
     ],
     CreateSecurityGroup: [
       {
-        arn: `arn:aws:ec2:${region}:${acct.id}:security-group/sg-${randId(8).toLowerCase()}`,
+        arn: `arn:aws:ec2:${region}:${acct.id}:security-group/sg-${randHexId(8)}`,
         account_id: acct.id,
         type: "AWS::EC2::SecurityGroup",
       },
@@ -1983,7 +2003,12 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
   const reqParamsBucket = `${acct.name}-${randId(8).toLowerCase()}`;
   const requestParametersObj: Record<string, unknown> =
     eventName === "RunInstances"
-      ? { instanceType: "t3.medium", imageId: "ami-0abcdef1234567890", minCount: 1, maxCount: 1 }
+      ? {
+          instanceType: "t3.medium",
+          imageId: `ami-${randHexId(8)}`,
+          minCount: 1,
+          maxCount: 1,
+        }
       : eventName === "CreateBucket"
         ? { bucketName: reqParamsBucket, createBucketConfiguration: { locationConstraint: region } }
         : eventName === "AssumeRole"
@@ -2004,7 +2029,7 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
                   ? { userName: user }
                   : {};
 
-  const respInstanceId = `i-${randId(17).toLowerCase()}`;
+  const respInstanceId = `i-${randHexId(17)}`;
   const responseElementsObj: Record<string, unknown> | null = isErr
     ? null
     : eventName === "RunInstances"
@@ -2146,7 +2171,7 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
   const srcIp = randIp();
 
   const resourceKind = rand(["ec2", "s3"] as const);
-  const instanceId = `i-${randId(17).toLowerCase()}`;
+  const instanceId = `i-${randHexId(17)}`;
   const bucketName = `${rand(["app-data", "logs-archive", "customer-exports"])}-${acct.id.slice(-6)}`;
   const resourceArn =
     resourceKind === "ec2"
@@ -2169,14 +2194,14 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
           instance_details: {
             instance_id: instanceId,
             instance_type: rand(["t3.medium", "m5.large", "c6i.xlarge"]),
-            image_id: `ami-${randId(8).toLowerCase()}`,
+            image_id: `ami-${randHexId(8)}`,
             availability_zone: `${region}${rand(["a", "b", "c"])}`,
             network_interfaces: [
               {
-                network_interface_id: `eni-${randId(8).toLowerCase()}`,
+                network_interface_id: `eni-${randHexId(8)}`,
                 private_ip_address: randIp(),
-                subnet_id: `subnet-${randId(8).toLowerCase()}`,
-                vpc_id: `vpc-${randId(8).toLowerCase()}`,
+                subnet_id: `subnet-${randHexId(8)}`,
+                vpc_id: `vpc-${randHexId(8)}`,
               },
             ],
             tags: [{ key: "Name", value: "app-server" }],
@@ -2514,12 +2539,18 @@ function buildAwsCspmResource(
   acct: { id: string; name: string }
 ): CspFindingResource {
   const rn = rule.benchmark.rule_number;
-  const user = pick(["alice", "bob", "carol", "svc-deploy", "breakglass-admin"]);
+  const user = pick([
+    "svc-deploy-prod",
+    "svc-monitoring",
+    "breakglass-ops",
+    "platform-admin",
+    "jchen",
+  ]);
   const role = pick(["AdminRole", "PowerUser", "ReadOnly"]);
   const bucket = awsS3BucketName();
-  const vpcId = `vpc-${randId(8).toLowerCase()}`;
-  const sgId = `sg-${randId(8).toLowerCase()}`;
-  const naclId = `acl-${randId(8).toLowerCase()}`;
+  const vpcId = `vpc-${randHexId(8)}`;
+  const sgId = `sg-${randHexId(8)}`;
+  const naclId = `acl-${randHexId(8)}`;
   const trailName = `management-events-${randHex(4)}`;
   const kmsKeyId = `arn:aws:kms:${region}:${acct.id}:key/${randHex(32)}`;
   const dbId = `db-${randHex(10)}`;
@@ -2898,7 +2929,7 @@ function buildKspmResource(
 ): CspFindingResource {
   const rn = rule.benchmark.rule_number;
   const podName = `${pick(["frontend", "backend", "api-gateway", "worker", "cron"])}-${randId(5).toLowerCase()}`;
-  const nodeName = `ip-${randIp().replace(/\./g, "-")}.${region}.compute.internal`;
+  const nodeName = ec2PrivateDns(randPrivateIp(), region);
   const clusterArn = `arn:aws:eks:${region}:${acct.id}:cluster/${cluster}`;
 
   switch (rule.section) {
@@ -3087,7 +3118,7 @@ function generateIamPrivEscChain(ts: string, _er: number): EcsDocument[] {
   const attacker = "compromised-developer";
   const targetUser = rand(["billing-readonly", "data-analyst", "qa-automation"]);
   const attackSessionId = randUUID();
-  const sourceIp = randIp();
+  const sourceIp = randPublicIp();
   const userAgent =
     "aws-cli/2.15.0 md/awscrt#0.19.0 ua/2.0 os/linux#5.15.0.1024-generic exec-env/EC2";
   const principalId = `AIDA${randId(16).toUpperCase()}`;
@@ -3333,7 +3364,7 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
   const bucketName = `${bucket}-${acct.id.slice(-6)}`;
   const objectKey = `data/export-${randId(8).toLowerCase()}.csv`;
   const exfilSourceIp = randIp();
-  const instanceId = `i-${randId(17).toLowerCase()}`;
+  const instanceId = `i-${randHexId(17)}`;
   const instancePrivateIp = `10.${randInt(0, 255)}.${randInt(0, 255)}.${randInt(1, 254)}`;
   const detectorId = randId(32).toLowerCase();
   const gdFindingId = randId(32).toLowerCase();
@@ -3411,7 +3442,10 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
               caller_type: "Remote IP",
               remote_ip_details: {
                 ip_address_v4: exfilSourceIp,
-                organization: { asn: "64496", asn_org: "Suspicious ASN", isp: "Example ISP" },
+                organization: (() => {
+                  const o = randIspOrg();
+                  return { asn: o.asn, asn_org: o.asnOrg, isp: o.isp };
+                })(),
               },
             },
           },
@@ -3547,7 +3581,7 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
       vpcflow: {
         version: "5",
         account_id: acct.id,
-        interface_id: `eni-${randId(8).toLowerCase()}`,
+        interface_id: `eni-${randHexId(8)}`,
         srcaddr: instancePrivateIp,
         dstaddr: exfilSourceIp,
         source_ip: instancePrivateIp,
@@ -3561,8 +3595,8 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
         end: flowEndSec,
         action: "ACCEPT",
         log_status: "OK",
-        vpc_id: `vpc-${randId(8).toLowerCase()}`,
-        subnet_id: `subnet-${randId(8).toLowerCase()}`,
+        vpc_id: `vpc-${randHexId(8)}`,
+        subnet_id: `subnet-${randHexId(8)}`,
         instance_id: instanceId,
         tcp_flags: 18,
         type: "IPv4",
@@ -3661,6 +3695,7 @@ function generateSecurityIrLog(ts: string, er: number): EcsDocument {
       action,
       outcome: isErr ? "failure" : "success",
       category: ["intrusion_detection", "process"],
+      type: ["info"],
       dataset: "aws.securityir",
       provider: "security-ir.amazonaws.com",
     },
@@ -3721,7 +3756,7 @@ function generateCloudHsmLog(ts: string, er: number): EcsDocument {
         hsm_id: hsmId,
         hsm_state: hsmState,
         availability_zone: availabilityZone,
-        subnet_id: `subnet-${randId(8).toLowerCase()}`,
+        subnet_id: `subnet-${randHexId(8)}`,
         eni_ip: `10.${randInt(0, 255)}.${randInt(0, 255)}.${randInt(1, 254)}`,
         key_type: keyType,
         operation_type: rand([
@@ -3739,6 +3774,7 @@ function generateCloudHsmLog(ts: string, er: number): EcsDocument {
       action,
       outcome: isErr ? "failure" : "success",
       category: ["process", "authentication"],
+      type: ["info"],
       dataset: "aws.cloudhsm",
       provider: "cloudhsm.amazonaws.com",
     },
@@ -3818,7 +3854,8 @@ function generateAuditManagerLog(ts: string, er: number): EcsDocument {
     event: {
       action,
       outcome: isErr ? "failure" : "success",
-      category: ["audit"],
+      category: ["configuration"],
+      type: ["info"],
       dataset: "aws.auditmanager",
       provider: "auditmanager.amazonaws.com",
     },
@@ -3891,6 +3928,7 @@ function generateVerifiedPermissionsLog(ts: string, er: number): EcsDocument {
       action,
       outcome: isErr ? "failure" : "success",
       category: ["authentication", "iam"],
+      type: ["info"],
       dataset: "aws.verifiedpermissions",
       provider: "verifiedpermissions.amazonaws.com",
     },
@@ -3969,6 +4007,7 @@ function generatePaymentCryptographyLog(ts: string, er: number): EcsDocument {
       action,
       outcome: isErr ? "failure" : "success",
       category: ["authentication"],
+      type: ["start"],
       dataset: "aws.paymentcryptography",
       provider: "payment-cryptography.amazonaws.com",
     },
@@ -4043,7 +4082,8 @@ function generateArtifactLog(ts: string, er: number): EcsDocument {
     event: {
       action,
       outcome: isErr ? "failure" : "success",
-      category: ["audit"],
+      category: ["configuration"],
+      type: ["info"],
       dataset: "aws.artifact",
       provider: "artifact.amazonaws.com",
     },
@@ -4104,8 +4144,8 @@ function generateNetworkAccessAnalyzerLog(ts: string, er: number): EcsDocument {
         finding_count: isErr ? randInt(5, 50) : randInt(0, 3),
         resources_analyzed: randInt(50, 500),
         paths_found: randInt(0, isErr ? 20 : 5),
-        source_vpc: `vpc-${randId(8).toLowerCase()}`,
-        destination_resource: `arn:aws:ec2:${region}:${acct.id}:instance/i-${randId(17).toLowerCase()}`,
+        source_vpc: `vpc-${randHexId(8)}`,
+        destination_resource: `arn:aws:ec2:${region}:${acct.id}:instance/i-${randHexId(17)}`,
         protocol: rand(["tcp", "udp", "icmp"]),
         port_range: `${randInt(1, 1024)}-${randInt(1025, 65535)}`,
       },

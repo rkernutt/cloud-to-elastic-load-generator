@@ -10,6 +10,7 @@ import {
   rand,
   randInt,
   randId,
+  randHexId,
   dp,
   stat,
   counter,
@@ -713,7 +714,7 @@ export function generateMemorydbMetrics(ts: string, er: number) {
 export function generateEbsMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return Array.from({ length: randInt(2, 6) }, () => {
-    const volId = `vol-${randId(17).toLowerCase()}`;
+    const volId = `vol-${randHexId(17)}`;
     const queueDepth = Math.random() < er ? jitter(20, 15, 1, 64) : jitter(0.5, 0.4, 0, 5);
     const volTypes = ["gp3", "gp2", "io1", "io2", "st1", "sc1"] as const;
     const volType = Math.random() < 0.4 ? "gp2" : rand([...volTypes]);

@@ -19,7 +19,7 @@ import {
 
 const ORCHESTRATORS = [
   {
-    name: "release-bot",
+    name: "svc-cicd-runner",
     language: "python" as const,
     framework: "FastAPI",
     runtimeName: "CPython",

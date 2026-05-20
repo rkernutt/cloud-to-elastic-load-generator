@@ -9,12 +9,36 @@ import {
   randInt,
   randFloat,
   randId,
+  randHexId,
   randIp,
   randUUID,
   randAccount,
   REGIONS,
+  randFqdn,
+  randAppDomain,
+  EMAIL_DOMAINS,
 } from "../../helpers";
 import type { EcsDocument } from "./types.js";
+
+type AwsEventType =
+  | "access"
+  | "admin"
+  | "change"
+  | "connection"
+  | "creation"
+  | "deletion"
+  | "error"
+  | "info"
+  | "start"
+  | "end";
+
+function awsEventType(
+  isErr: boolean,
+  onSuccess: AwsEventType | readonly AwsEventType[]
+): AwsEventType[] {
+  if (isErr) return ["error"];
+  return Array.isArray(onSuccess) ? [...onSuccess] : [onSuccess];
+}
 
 /* ------------------------------------------------------------------ */
 /*  Bedrock Guardrails                                                */
@@ -122,6 +146,7 @@ function generateBedrockGuardrailsLog(ts: string, er: number): EcsDocument {
       outcome: isErr ? "failure" : "success",
       dataset: "aws.bedrockguardrails",
       category: ["process"],
+      type: awsEventType(isErr, scenario === "intervened" ? "change" : "access"),
       duration: Math.round(lat * 1e9),
     },
     message,
@@ -262,6 +287,14 @@ function generateEmrServerlessLog(ts: string, er: number): EcsDocument {
       outcome: isErr ? "failure" : "success",
       dataset: "aws.emrserverless",
       category: ["process"],
+      type: awsEventType(
+        isErr,
+        scenario === "job_submitted" || scenario === "job_running"
+          ? "start"
+          : scenario === "job_success"
+            ? "end"
+            : "change"
+      ),
       duration: Math.round(durSec * 1e9),
     },
     log: { level: isErr ? "error" : scenario === "driver_log" ? "info" : "info" },
@@ -374,6 +407,7 @@ function generateGwlbLog(ts: string, er: number): EcsDocument {
       outcome: isErr ? "failure" : "success",
       dataset: "aws.gwlb",
       category: ["network"],
+      type: awsEventType(isErr, "connection"),
       duration: randInt(1_000_000, 800_000_000),
     },
     source: { ip: srcIp },
@@ -514,6 +548,7 @@ function generateElbClassicLog(ts: string, er: number): EcsDocument {
       outcome: isErr ? "failure" : "success",
       dataset: "aws.elb_logs",
       category: ["network"],
+      type: awsEventType(isErr, "access"),
       duration: Math.round(requestMs * 1e6),
     },
     message,
@@ -620,6 +655,7 @@ function generateMediaConnectLog(ts: string, er: number): EcsDocument {
       outcome: isErr ? "failure" : "success",
       dataset: "aws.mediaconnect",
       category: ["network"],
+      type: awsEventType(isErr, "connection"),
       duration: randInt(5_000_000, 400_000_000),
     },
     message,
@@ -710,6 +746,10 @@ function generateMediaPackageLog(ts: string, er: number): EcsDocument {
       outcome: isErr ? "failure" : "success",
       dataset: "aws.mediapackage",
       category: ["process"],
+      type: awsEventType(
+        isErr,
+        scenario === "endpoint_created" ? "creation" : "change"
+      ),
       duration: randInt(8_000_000, 500_000_000),
     },
     message,
@@ -812,6 +852,14 @@ function generateMediaStoreLog(ts: string, er: number): EcsDocument {
       outcome: isErr ? "failure" : "success",
       dataset: "aws.mediastore",
       category: ["file"],
+      type: awsEventType(
+        isErr,
+        scenario === "delete_object"
+          ? "deletion"
+          : scenario === "put_object"
+            ? "change"
+            : "access"
+      ),
       duration: Math.round(latMs * 1e6),
     },
     message,
@@ -843,7 +891,7 @@ function generateMediaTailorLog(ts: string, er: number): EcsDocument {
   let errorBlock: Record<string, unknown> | null = null;
 
   if (scenario === "ads_timeout") {
-    const adsUrl = `https://ads.example.com/vast/${rand(["v3", "v4"])}`;
+    const adsUrl = `https://ads.${rand(EMAIL_DOMAINS)}/vast/${rand(["v3", "v4"])}`;
     message = `MediaTailor ${config}: ADS timeout — ${adsUrl} did not respond within ${randInt(3, 10)}s. Avail at ${new Date(ts).toISOString()} unfilled.`;
     errorBlock = {
       code: "AdsDecisionServerTimeout",
@@ -896,7 +944,7 @@ function generateMediaTailorLog(ts: string, er: number): EcsDocument {
     aws: {
       mediatailor: {
         playback_configuration_name: config,
-        ads_decision_server: "https://ads.example.com/vast",
+        ads_decision_server: `https://ads.${rand(EMAIL_DOMAINS)}/vast`,
         avail_filled_percent: availFilled,
         stitch_rate: randFloat(0.8, isErr ? 0.92 : 0.999),
         manifest_requests: randInt(100, 900_000),
@@ -906,6 +954,7 @@ function generateMediaTailorLog(ts: string, er: number): EcsDocument {
       outcome: isErr ? "failure" : "success",
       dataset: "aws.mediatailor",
       category: ["process"],
+      type: awsEventType(isErr, "access"),
       duration: randInt(4_000_000, 450_000_000),
     },
     message,
@@ -1550,9 +1599,9 @@ function generateMgnLog(ts: string, er: number): EcsDocument {
       type: "server",
     };
   } else if (scenario === "cutover_ok") {
-    message = `MGN source ${serverId} (${hostname}): CUTOVER SUCCESS — EC2 instance i-${randId(17).toLowerCase()} launched in ${region}. DNS updated. Cutover duration: ${randInt(120, 3600)}s`;
+    message = `MGN source ${serverId} (${hostname}): CUTOVER SUCCESS — EC2 instance i-${randHexId(17)} launched in ${region}. DNS updated. Cutover duration: ${randInt(120, 3600)}s`;
   } else if (scenario === "test_launch") {
-    message = `MGN source ${serverId} (${hostname}): test launch SUCCESS — instance i-${randId(17).toLowerCase()} running. Boot validation: ${rand(["PASSED", "PASSED", "WARNING_DRIVERS"])}`;
+    message = `MGN source ${serverId} (${hostname}): test launch SUCCESS — instance i-${randHexId(17)} running. Boot validation: ${rand(["PASSED", "PASSED", "WARNING_DRIVERS"])}`;
   } else if (scenario === "agent_connect") {
     message = `MGN source ${serverId} (${hostname}): agent connected — OS: ${rand(["Windows Server 2019", "RHEL 8", "Ubuntu 22.04"])}, disks: ${randInt(1, 8)}, total: ${randInt(50, 4000)} GB`;
   } else if (scenario === "finalize") {
@@ -1638,7 +1687,7 @@ function generateCwSyntheticsLog(ts: string, er: number): EcsDocument {
       ? rand([
           `Element "#submit-btn" not found within 10000ms`,
           `Navigation timeout of 30000ms exceeded`,
-          `net::ERR_CONNECTION_REFUSED at https://app.example.com/api`,
+          `net::ERR_CONNECTION_REFUSED at https://${randAppDomain()}/api`,
         ])
       : rand([
           `NoSuchElementException: Unable to locate element: {"method":"css selector","selector":"#submit-btn"}`,
@@ -1669,7 +1718,7 @@ function generateCwSyntheticsLog(ts: string, er: number): EcsDocument {
       type: "test",
     };
   } else if (scenario === "network_error") {
-    const url = `https://${rand(["app", "api", "cdn"])}.example.com/${rand(["health", "api/v1/status", "static/app.js"])}`;
+    const url = `https://${randFqdn()}/${rand(["health", "api/v1/status", "static/app.js"])}`;
     const netErr = rand([
       "net::ERR_CONNECTION_REFUSED",
       "net::ERR_CERT_DATE_INVALID",

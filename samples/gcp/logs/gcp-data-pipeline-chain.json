@@ -2,23 +2,23 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "cloud": {
     "provider": "gcp",
-    "region": "europe-southwest1",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" },
+    "region": "asia-south2",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
     "service": { "name": "composer" }
   },
   "gcp": {
     "composer": {
       "environment_name": "composer-globex-prod",
-      "dag_id": "clickstream_processing",
+      "dag_id": "analytics_etl_hourly",
       "run_id": "scheduled__2026-04-04T12_00_00_000Z",
       "task_id": "trigger_dag",
       "state": "running",
       "execution_date": "2026-04-04T12:00:00.000Z",
       "operator": "TriggerDagRunOperator",
-      "pipeline_run_id": "b8222f33-a04c-4bd8-a9a6-fb8e34185287",
-      "gcs_source_bucket": "event-collector-output",
-      "gcs_source_key": "iot/sensors/temperature_readings.avro"
+      "pipeline_run_id": "0d407339-ae53-4814-b576-27c6d899aa40",
+      "gcs_source_bucket": "data-lake-landing",
+      "gcs_source_key": "events/2025/04/16/hourly_events.avro"
     }
   },
   "event": {
@@ -30,21 +30,19 @@
     "provider": "composer.googleapis.com",
     "module": "gcp"
   },
-  "message": "Airflow [clickstream_processing/trigger_dag]: state=running",
+  "message": "Airflow [analytics_etl_hourly/trigger_dag]: state=running",
   "log": { "level": "info" },
-  "user": { "name": "alex.rodriguez", "email": "alex.rodriguez@globex.example.com" },
+  "user": { "name": "liam.murphy", "email": "liam.murphy@globex.io" },
   "source": {
-    "ip": "192.0.2.88",
-    "geo": { "country_iso_code": "US", "city_name": "Seattle", "region_name": "Washington" }
+    "ip": "185.199.108.65",
+    "geo": { "country_iso_code": "IN", "city_name": "Bangalore", "region_name": "Karnataka" }
   },
-  "user_agent": {
-    "original": "aws-cli/2.15.30 md/awscrt#0.19.19 ua/2.0 os/linux#5.15.0-1058-aws exec-env/CloudShell"
-  },
+  "user_agent": { "original": "Google-API-Java-Client/2.2.0 Google-HTTP-Java-Client/1.43.3" },
   "labels": {
-    "pipeline_run_id": "b8222f33-a04c-4bd8-a9a6-fb8e34185287",
-    "dag_id": "clickstream_processing",
-    "gcs_source_bucket": "event-collector-output",
-    "gcs_source_key": "iot/sensors/temperature_readings.avro"
+    "pipeline_run_id": "0d407339-ae53-4814-b576-27c6d899aa40",
+    "dag_id": "analytics_etl_hourly",
+    "gcs_source_bucket": "data-lake-landing",
+    "gcs_source_key": "events/2025/04/16/hourly_events.avro"
   },
   "service": { "name": "composer", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
@@ -52,30 +50,31 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-southwest1",
-    "id": "xnwnnejf8tbkirjjmcveridjwy6ieo7b0vjb"
+    "name": "elastic-agent-gcp-asia-south2",
+    "id": "tyw4nrvez6dew9c8lh0ug7ozz2nsrli13yyv"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-security-j0k1l2/logs/composer",
+  "logName": "projects/globex-prod-482910/logs/composer",
   "resource": {
     "type": "cloud_composer_environment",
-    "labels": { "project_id": "globex-security-j0k1l2", "region": "europe-southwest1" }
+    "labels": { "project_id": "globex-prod-482910", "region": "asia-south2" }
   },
   "severity": "INFO",
-  "insertId": "DMYKFYEYDG2M",
+  "insertId": "TH6DPFFMU7J2",
   "jsonPayload": {
     "composer": {
       "environment_name": "composer-globex-prod",
-      "dag_id": "clickstream_processing",
+      "dag_id": "analytics_etl_hourly",
       "run_id": "scheduled__2026-04-04T12_00_00_000Z",
       "task_id": "trigger_dag",
       "state": "running",
       "execution_date": "2026-04-04T12:00:00.000Z",
       "operator": "TriggerDagRunOperator",
-      "pipeline_run_id": "b8222f33-a04c-4bd8-a9a6-fb8e34185287",
-      "gcs_source_bucket": "event-collector-output",
-      "gcs_source_key": "iot/sensors/temperature_readings.avro"
+      "pipeline_run_id": "0d407339-ae53-4814-b576-27c6d899aa40",
+      "gcs_source_bucket": "data-lake-landing",
+      "gcs_source_key": "events/2025/04/16/hourly_events.avro"
     },
-    "message": "Airflow [clickstream_processing/trigger_dag]: state=running"
-  }
+    "message": "Airflow [analytics_etl_hourly/trigger_dag]: state=running"
+  },
+  "related": { "ip": ["185.199.108.65"], "user": ["liam.murphy", "liam.murphy@globex.io"] }
 }

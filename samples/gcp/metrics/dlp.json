@@ -3,44 +3,45 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "australia-southeast2",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "northamerica-northeast1",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
+    "service": { "name": "dlp" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-australia-southeast2",
-    "ephemeral_id": "0yfjoi6oem58yjgo21dk0ops2319khkxagvn"
+    "name": "metricbeat-gcp-northamerica-northeast1",
+    "ephemeral_id": "mhzajq3aj4bz1w6pn6zopjrnlx0ugmqip455"
   },
   "monitoringTimeSeries": {
     "metric": { "type": "dlp.googleapis.com/finding_count", "labels": {} },
     "resource": {
       "type": "dlp.googleapis.com/InspectTemplate",
       "labels": {
-        "resource_container": "globex-security-j0k1l2",
-        "location": "australia-southeast2",
-        "inspect_template_id": "dlp-phi"
+        "resource_container": "globex-prod-482910",
+        "location": "northamerica-northeast1",
+        "inspect_template_id": "pii-scan-prod"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "143" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "181" } }
     ]
   },
   "gcp": {
     "dlp": {
       "labels": {
-        "resource_container": "globex-security-j0k1l2",
-        "location": "australia-southeast2",
-        "inspect_template_id": "dlp-phi"
+        "resource_container": "globex-prod-482910",
+        "location": "northamerica-northeast1",
+        "inspect_template_id": "pii-scan-prod"
       },
-      "metrics": { "dlp.googleapis.com/finding_count": { "avg": 143, "sum": 143, "count": 1 } }
+      "metrics": { "dlp.googleapis.com/finding_count": { "avg": 181, "sum": 181, "count": 1 } }
     }
   },
   "metricset": { "name": "dlp", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.dlp_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.dlp_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.dlp_metrics", "module": "gcp" }
 }

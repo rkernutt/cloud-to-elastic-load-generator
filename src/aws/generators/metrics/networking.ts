@@ -55,7 +55,7 @@ export function generateAlbMetrics(ts: string, er: number) {
       "aws.elb",
       region,
       account,
-      { LoadBalancer: `app/${name}/abc123def456` },
+      { LoadBalancer: `app/${name}/${randId(12).toLowerCase()}` },
       {
         RequestCount: counter(req),
         HTTPCode_Target_2XX_Count: counter(req - http5xx - http4xx),

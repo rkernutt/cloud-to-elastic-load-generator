@@ -3,43 +3,44 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "northamerica-northeast1",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "southamerica-east1",
+    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
+    "account": { "id": "529384716205", "name": "Globex Shared Services" },
+    "service": { "name": "traffic-director" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-northamerica-northeast1",
-    "ephemeral_id": "s05dxhck372bjrq0s7rllc83nm7pon2wciqm"
+    "name": "metricbeat-gcp-southamerica-east1",
+    "ephemeral_id": "49cjbrgaynknrz26x130fs4xfdnawdd9xxly"
   },
   "monitoringTimeSeries": {
     "metric": { "type": "trafficdirector.googleapis.com/xds/connected_clients", "labels": {} },
     "resource": {
       "type": "trafficdirector.googleapis.com/Mesh",
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "location": "northamerica-northeast1",
-        "mesh_uid": "mesh-partner"
+        "project_id": "globex-shared-529384",
+        "location": "southamerica-east1",
+        "mesh_uid": "mesh-staging"
       }
     },
     "metricKind": "GAUGE",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "190639" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "217422" } }
     ]
   },
   "gcp": {
     "traffic-director": {
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "location": "northamerica-northeast1",
-        "mesh_uid": "mesh-partner"
+        "project_id": "globex-shared-529384",
+        "location": "southamerica-east1",
+        "mesh_uid": "mesh-staging"
       },
       "metrics": {
         "trafficdirector.googleapis.com/xds/connected_clients": {
-          "avg": 190639,
-          "sum": 190639,
+          "avg": 217422,
+          "sum": 217422,
           "count": 1
         }
       }
@@ -52,5 +53,5 @@
     "namespace": "default"
   },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.trafficdirector_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.trafficdirector_metrics", "module": "gcp" }
 }

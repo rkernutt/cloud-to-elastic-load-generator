@@ -3,15 +3,16 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west6",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "us-west1",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
+    "service": { "name": "serverless-neg" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west6",
-    "ephemeral_id": "pzn7k85g36cxvqaqpj5x1jraa6aqbe2jhndq"
+    "name": "metricbeat-gcp-us-west1",
+    "ephemeral_id": "hp5kd4kkq0ycx74hxoeuq67qpsixfj0dv790"
   },
   "monitoringTimeSeries": {
     "metric": {
@@ -23,7 +24,7 @@
         "cache_result": "UNKNOWN",
         "matcher_type": "PATH_MATCHER",
         "matcher_name": "default",
-        "backend_scope": "europe-west6",
+        "backend_scope": "us-west1",
         "backend_scope_type": "ZONE",
         "backend_target_name": "neg-cloudrun-batch",
         "backend_target_type": "NETWORK_ENDPOINT_GROUP"
@@ -32,41 +33,38 @@
     "resource": {
       "type": "gce_backend_service",
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "backend_service_id": "be-sneg-fn-webhook",
-        "location": "europe-west6"
+        "project_id": "globex-prod-482910",
+        "backend_service_id": "be-sneg-ae-api",
+        "location": "us-west1"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      {
-        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "int64Value": "3176520" }
-      }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "342297" } }
     ]
   },
   "gcp": {
     "serverless-neg": {
       "labels": {
-        "project_id": "globex-security-j0k1l2",
-        "backend_service_id": "be-sneg-fn-webhook",
-        "location": "europe-west6",
+        "project_id": "globex-prod-482910",
+        "backend_service_id": "be-sneg-ae-api",
+        "location": "us-west1",
         "protocol": "HTTP/2.0",
         "response_code_class": "200",
         "response_code": "200",
         "cache_result": "UNKNOWN",
         "matcher_type": "PATH_MATCHER",
         "matcher_name": "default",
-        "backend_scope": "europe-west6",
+        "backend_scope": "us-west1",
         "backend_scope_type": "ZONE",
         "backend_target_name": "neg-cloudrun-batch",
         "backend_target_type": "NETWORK_ENDPOINT_GROUP"
       },
       "metrics": {
         "loadbalancing.googleapis.com/https/backend_request_count": {
-          "avg": 3176520,
-          "sum": 3176520,
+          "avg": 342297,
+          "sum": 342297,
           "count": 1
         }
       }
@@ -79,5 +77,5 @@
     "namespace": "default"
   },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.loadbalancing_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.loadbalancing_metrics", "module": "gcp" }
 }

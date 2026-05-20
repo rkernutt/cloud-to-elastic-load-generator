@@ -12,6 +12,7 @@ import {
   makeGcpSetup,
   randOperationId,
   randSeverity,
+  gcpLogEvent,
 } from "./helpers.js";
 
 const GRPC_RPC_STATUSES = [
@@ -144,10 +145,21 @@ export function generateTranscoderLog(ts: string, er: number): EcsDocument {
         duration_seconds: Math.round(durationSeconds * 100) / 100,
       },
     },
-    event: {
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(2000, isErr ? 3_600_000 : 1_200_000),
-    },
+    event: gcpLogEvent(
+      isErr,
+      randInt(2000, isErr ? 3_600_000 : 1_200_000),
+      apiMethod,
+      ["process"],
+      isErr
+        ? ["error"]
+        : scenario === "create_job" || scenario === "job_template_create"
+          ? ["creation"]
+          : scenario === "delete_job"
+            ? ["deletion"]
+            : state === "SUCCEEDED"
+              ? ["end"]
+              : ["change"]
+    ),
     message,
     ...faultSpread,
   };
@@ -251,10 +263,21 @@ export function generateLiveStreamLog(ts: string, er: number): EcsDocument {
         frame_rate: frameRate,
       },
     },
-    event: {
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(500, 600_000),
-    },
+    event: gcpLogEvent(
+      isErr,
+      randInt(500, 600_000),
+      apiMethod,
+      ["process"],
+      isErr
+        ? ["error"]
+        : eventType === "CHANNEL_STARTED" || scenario === "start_channel"
+          ? ["start"]
+          : eventType === "CHANNEL_STOPPED" || scenario === "stop_channel"
+            ? ["end"]
+            : scenario === "create_channel" || scenario === "create_input"
+              ? ["creation"]
+              : ["change"]
+    ),
     message,
     ...faultSpread,
   };
@@ -347,10 +370,13 @@ export function generateVideoIntelligenceLog(ts: string, er: number): EcsDocumen
         annotations_count: annotationsCount,
       },
     },
-    event: {
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(5000, isErr ? 3_600_000 : 900_000),
-    },
+    event: gcpLogEvent(
+      isErr,
+      randInt(5000, isErr ? 3_600_000 : 900_000),
+      apiMethod,
+      ["process"],
+      isErr ? ["error"] : scenario === "annotate_video" ? ["start"] : ["access"]
+    ),
     message,
     ...faultSpread,
   };

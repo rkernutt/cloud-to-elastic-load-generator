@@ -87,7 +87,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.vpcflow* | WHERE gcp.vpc_flow.bytes_sent IS NOT NULL | STATS mb = SUM(gcp.vpc_flow.bytes_sent) / 1048576 BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.vpcflow* | WHERE gcp.vpc_flow.bytes_sent IS NOT NULL | STATS mb = SUM(gcp.vpc_flow.bytes_sent) / 1048576 BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "mb", "label": "MB" }]
@@ -106,7 +106,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.dlp* | WHERE event.kind == \"alert\" AND gcp.dlp.info_type IS NOT NULL | STATS dlp_cnt = SUM(gcp.dlp.findings_count), ops = COUNT() BY ip = source.ip, it = gcp.dlp.info_type, proj = cloud.project.id | SORT dlp_cnt DESC | LIMIT 25"
+            "query": "FROM logs-gcp.dlp* | WHERE event.kind == \"alert\" AND gcp.dlp.info_type IS NOT NULL | STATS dlp_cnt = SUM(gcp.dlp.findings_count), ops = COUNT() BY ip = source.ip, it = gcp.dlp.info_type, proj = cloud.project.id | SORT ``dlp_cnt DESC | LIMIT 25"
           },
           "metrics": [
             { "operation": "value", "column": "ip", "label": "Source IP" },

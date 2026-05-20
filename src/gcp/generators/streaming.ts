@@ -36,10 +36,25 @@ function grpcStructuredFault(isErr: boolean): {
   };
 }
 
-function eventOutcome(isErr: boolean, durationNs: number) {
+function eventBlock(isErr: boolean, durationNs: number) {
   return {
     outcome: isErr ? ("failure" as const) : ("success" as const),
     duration: durationNs,
+  };
+}
+
+function databaseEvent(
+  isErr: boolean,
+  durationNs: number,
+  action: string,
+  type?: readonly ("access" | "change" | "connection" | "creation" | "error" | "info" | "start" | "end")[]
+) {
+  return {
+    kind: "event" as const,
+    category: ["database"] as const,
+    type: type ?? (isErr ? (["error"] as const) : (["access"] as const)),
+    action,
+    ...eventBlock(isErr, durationNs),
   };
 }
 
@@ -59,6 +74,10 @@ export function generatePubSubLog(ts: string, er: number): EcsDocument {
 
   let message = "";
   let severity = randSeverity(isErr);
+  let auditAction = `pubsub.${variant}`;
+  let eventTypes: readonly ("access" | "change" | "connection" | "creation" | "error")[] = isErr
+    ? ["error"]
+    : ["connection"];
 
   if (variant === "audit") {
     const method = rand([
@@ -71,6 +90,8 @@ export function generatePubSubLog(ts: string, er: number): EcsDocument {
       "google.pubsub.v1.Subscriber.Acknowledge": "pubsub.subscriptions.acknowledge",
       "google.pubsub.v1.Publisher.CreateTopic": "pubsub.topics.create",
     };
+    auditAction = map[method];
+    eventTypes = isErr ? ["error"] : method.includes("Create") ? ["creation"] : ["change"];
     message = `protoPayload.methodName="${map[method]}" protoPayload.serviceName="pubsub.googleapis.com" resource.labels.topic_id="${topicShort}" authenticationInfo.principalEmail="${randPrincipal(project)}"`;
     severity = "NOTICE";
   } else if (variant === "delivery") {
@@ -129,7 +150,7 @@ export function generatePubSubLog(ts: string, er: number): EcsDocument {
         delivery_attempt: deliveryAttempt,
       },
     },
-    event: eventOutcome(isErr, durationNs),
+    event: databaseEvent(isErr, durationNs, auditAction, eventTypes),
     message,
   };
 
@@ -223,7 +244,12 @@ export function generateDataflowLog(ts: string, er: number): EcsDocument {
         region,
       },
     },
-    event: eventOutcome(isErr, durationNs),
+    event: databaseEvent(
+      isErr,
+      durationNs,
+      `dataflow.${variant}`,
+      isErr ? ["error"] : currentState === "JOB_STATE_DONE" ? ["end"] : ["start"]
+    ),
     message,
   };
 
@@ -279,7 +305,7 @@ export function generatePubSubLiteLog(ts: string, er: number): EcsDocument {
         backlog_message_count: backlogMessageCount,
       },
     },
-    event: eventOutcome(isErr, durationNs),
+    event: databaseEvent(isErr, durationNs, "pubsub-lite.throughput", isErr ? ["error"] : ["connection"]),
     message,
   };
 

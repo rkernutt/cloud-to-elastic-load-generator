@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.lookoutvision* | STATS count = COUNT() BY project = `aws.lookoutvision.project_name` | SORT count DESC | LIMIT 10"
+            "query": "FROM logs-aws.lookoutvision* | STATS count = COUNT() BY project = `aws.lookoutvision.project_name` | SORT ``count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.lookoutvision* | WHERE `aws.lookoutvision.is_anomalous` == true | STATS count = COUNT() BY label = `aws.lookoutvision.anomaly_label` | SORT count DESC | LIMIT 10"
+            "query": "FROM logs-aws.lookoutvision* | WHERE `aws.lookoutvision.is_anomalous` == true | STATS count = COUNT() BY label = `aws.lookoutvision.anomaly_label` | SORT ``count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -207,7 +207,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.lookoutvision* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.lookoutvision* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -240,7 +240,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.lookoutvision* | KEEP `@timestamp`, `aws.lookoutvision.project_name`, `aws.lookoutvision.model_version`, `aws.lookoutvision.is_anomalous`, `aws.lookoutvision.anomaly_label`, `aws.lookoutvision.confidence`, `log.level` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.lookoutvision* | KEEP `@timestamp``@timestamp`, `aws.lookoutvision.project_name`, `aws.lookoutvision.model_version`, `aws.lookoutvision.is_anomalous`, `aws.lookoutvision.anomaly_label`, `aws.lookoutvision.confidence`, `log.level` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

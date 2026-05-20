@@ -2,46 +2,49 @@
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "cloud": {
     "provider": "azure",
-    "region": "francecentral",
-    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" },
+    "region": "centralus",
+    "account": { "id": "c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d", "name": "Northpeak-Dev" },
     "service": { "name": "Microsoft.Network/azureFirewalls" }
   },
-  "category": "AzureFirewallNetworkRule",
-  "operationName": "AzureFirewallNetworkRule",
-  "resultType": "Allowed",
-  "level": "Informational",
-  "correlationId": "p8yx3lsrjmgyd86yhq6f1o145rmf12wn",
-  "callerIpAddress": "24.77.243.77",
+  "category": "AzureFirewallThreatIntel",
+  "operationName": "ThreatIntel",
+  "resultType": "Succeeded",
+  "level": "Warning",
+  "correlationId": "s6e01yconncoddmgiv3mhjxqv76ty990",
+  "callerIpAddress": "100.64.1.79",
   "properties": {
-    "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-prod-obx60o/providers/Microsoft.Network/azureFirewalls/afw-lgz0",
-    "firewallName": "afw-lgz0",
-    "RuleCollectionName": "RC-DNS-2U9",
-    "RuleCollectionType": "NetworkRule",
+    "resourceId": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-app-93yxbi/providers/Microsoft.Network/azureFirewalls/afw-e4pz",
+    "firewallName": "afw-e4pz",
+    "RuleCollectionName": "RC-DNS-JBF",
+    "RuleCollectionType": "NatRule",
     "Action": "Allow",
-    "Protocol": "UDP",
-    "SourceIp": "10.0.158.168",
-    "DestinationIp": "128.123.66.84",
-    "DestinationPort": 64032,
-    "RuleName": "Net-WFVF"
+    "threatType": "C2",
+    "indicator": "emerging-threats-ip",
+    "action": "Allow",
+    "priority": 3948
   },
   "azure": {
     "firewall": {
-      "name": "afw-lgz0",
-      "resource_group": "rg-prod-obx60o",
-      "source_ip": "10.0.158.168",
-      "dest_ip": "128.123.66.84",
-      "dest_port": 64032,
+      "name": "afw-e4pz",
+      "resource_group": "rg-app-93yxbi",
+      "source_ip": "100.64.1.79",
+      "dest_ip": "10.47.31.21",
+      "dest_port": 313,
       "action": "Allow",
-      "rule_collection": "RC-DNS-2U9"
+      "rule_collection": "RC-DNS-JBF"
     }
   },
   "event": {
+    "kind": "event",
+    "category": ["network"],
+    "type": ["connection"],
+    "action": "ThreatIntel",
     "outcome": "success",
-    "duration": 74858727,
+    "duration": 75551894,
     "module": "azure",
     "dataset": "azure.firewall"
   },
-  "message": "AzureFirewall: ALLOW UDP flow 10.0.158.168 → 128.123.66.84:64032",
+  "message": "AzureFirewall ThreatIntel: informational hit C2",
   "service": { "name": "firewall", "type": "azure" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -49,9 +52,11 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-francecentral",
-    "id": "jbg49drzz7ozq7fzkkebusqk9q5kpxrsncsq"
+    "name": "elastic-agent-azure-centralus",
+    "id": "etz965pvvt6de2sz5v2l3ssutcdg76dgqkhf"
   },
   "input": { "type": "azure-eventhub" },
-  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourcegroups/rg-prod-obx60o/providers/Microsoft.Network/azureFirewalls/firewall"
+  "resourceId": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourcegroups/rg-app-93yxbi/providers/Microsoft.Network/azureFirewalls/firewall",
+  "source": { "ip": "100.64.1.79" },
+  "related": { "ip": ["100.64.1.79"] }
 }

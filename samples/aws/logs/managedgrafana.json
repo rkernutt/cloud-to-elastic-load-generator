@@ -1,48 +1,49 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "us-west-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "managedgrafana" }
   },
   "aws": {
-    "dimensions": { "WorkspaceId": "g-y277spdqo8" },
+    "dimensions": { "WorkspaceId": "g-ognf9pv7n9" },
     "managedgrafana": {
-      "workspace_id": "g-y277spdqo8",
-      "workspace_name": "prod-observability",
+      "workspace_id": "g-ognf9pv7n9",
+      "workspace_name": "devops-metrics",
       "workspace_status": "CREATING",
-      "grafana_version": "9.4",
+      "grafana_version": "10.4",
       "alert_state": "pending",
-      "dashboard_title": "RDS Metrics",
-      "datasource_type": "prometheus",
+      "dashboard_title": "Cost Analysis",
+      "datasource_type": "athena",
       "authentication_providers": "AWS_SSO",
-      "notification_destinations": "PAGERDUTY"
+      "notification_destinations": "SLACK"
     },
     "s3": {
       "bucket": {
-        "name": "aws-managedgrafana-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-managedgrafana-logs-814726593401"
+        "name": "aws-managedgrafana-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-managedgrafana-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/managedgrafana/me-central-1/2026/05/19/managedgrafana_ACDV6RDZ4EQ56FLXKM9B.log.gz"
+        "key": "AWSLogs/164820739518/managedgrafana/us-west-2/2026/05/20/managedgrafana_5QO4AM1EQBFH55SUP1K9.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/managedgrafana/logs",
-      "log_stream": "me-central-1/1wokochf",
-      "ingestion_time": "2026-05-19T15:25:13.689Z"
+      "log_stream": "us-west-2/ixstp8eg",
+      "ingestion_time": "2026-05-20T13:19:01.452Z"
     }
   },
   "event": {
-    "action": "DisassociateLicense",
+    "action": "DeleteApiKey",
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.managedgrafana",
     "provider": "grafana.amazonaws.com",
-    "module": "aws"
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "Managed Grafana DisassociateLicense: workspace=prod-observability alert=pending dashboard=\"RDS Metrics\"",
+  "message": "Managed Grafana DeleteApiKey: workspace=devops-metrics alert=pending dashboard=\"Cost Analysis\"",
   "log": { "level": "info" },
   "service": { "name": "managedgrafana", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -50,8 +51,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "g8939t8gvm88b8di4geiudti8oebow8szp0f"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "ttgmirqab1offdc9ebucapafzhhgf4ahncgm"
   },
   "input": { "type": "aws-cloudwatch" }
 }

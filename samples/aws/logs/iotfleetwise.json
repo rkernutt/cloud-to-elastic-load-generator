@@ -1,48 +1,50 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-northeast-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "iotfleetwise" }
   },
   "aws": {
-    "dimensions": { "FleetId": "field-service", "CampaignName": "predictive-maintenance" },
+    "dimensions": { "FleetId": "executive-fleet", "CampaignName": "battery-monitoring" },
     "iotfleetwise": {
-      "fleet_id": "field-service",
-      "vehicle_id": "VIN-6MNFNLSUZ2QSEJJYA",
-      "campaign_name": "predictive-maintenance",
+      "fleet_id": "executive-fleet",
+      "vehicle_id": "VIN-XUJGTX36FYIR5MOX0",
+      "campaign_name": "battery-monitoring",
       "campaign_status": "CREATING",
-      "signal_name": "Vehicle.Powertrain.TractionBattery.StateOfCharge",
-      "signal_value": 95.96275322432618,
+      "signal_name": "Vehicle.Speed",
+      "signal_value": 41.57681858034918,
       "collection_scheme": "EVENT_BASED",
-      "compression": "SNAPPY",
-      "data_destination": "TIMESTREAM"
+      "compression": "OFF",
+      "data_destination": "S3"
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotfleetwise-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-iotfleetwise-logs-164820739518"
+        "name": "aws-iotfleetwise-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-iotfleetwise-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/iotfleetwise/ca-west-1/2026/05/19/iotfleetwise_MJAPF21RN4ZFUML730WV.log.gz"
+        "key": "AWSLogs/293847561023/iotfleetwise/ap-northeast-2/2026/05/20/iotfleetwise_3SHPVGIIZH6XELH6EM5L.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotfleetwise/logs",
-      "log_stream": "ca-west-1/tdbz6cdb",
-      "ingestion_time": "2026-05-19T15:25:13.671Z"
+      "log_stream": "ap-northeast-2/709pns7d",
+      "ingestion_time": "2026-05-20T13:19:01.428Z"
     }
   },
   "event": {
-    "action": "CreateCampaign",
+    "action": "CreateVehicle",
     "outcome": "success",
-    "category": ["iot", "process"],
+    "category": ["process"],
+    "type": ["info"],
     "dataset": "aws.iotfleetwise",
     "provider": "iotfleetwise.amazonaws.com",
-    "module": "aws"
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "IoT FleetWise CreateCampaign: fleet=field-service, vehicle=VIN-6MNFNLSUZ2QSEJJYA, campaign=predictive-maintenance CREATING",
+  "message": "IoT FleetWise CreateVehicle: fleet=executive-fleet, vehicle=VIN-XUJGTX36FYIR5MOX0, campaign=battery-monitoring CREATING",
   "log": { "level": "info" },
   "service": { "name": "iotfleetwise", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -50,8 +52,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "22n46ynmvb1l7x7ag88tts1nwl59h5bffbx6"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "4l2sdtf51yxaxptbcgl0f00fd17vrbef6jt5"
   },
   "input": { "type": "aws-cloudwatch" }
 }

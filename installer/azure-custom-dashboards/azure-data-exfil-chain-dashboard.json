@@ -87,7 +87,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.blob_storage* | WHERE azure.blob_storage.bytes_out IS NOT NULL | STATS mb = SUM(azure.blob_storage.bytes_out) / 1048576 BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-azure.blob_storage* | WHERE azure.blob_storage.bytes_out IS NOT NULL | STATS mb = SUM(azure.blob_storage.bytes_out) / 1048576 BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "mb", "label": "MB" }]
@@ -106,7 +106,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.blob_storage* | WHERE azure.blob_storage.bytes_out IS NOT NULL | STATS bytes = SUM(azure.blob_storage.bytes_out), mb = SUM(azure.blob_storage.bytes_out) / 1048576 BY ip = azure.blob_storage.caller_ip_address, acct = cloud.account.id | SORT bytes DESC | LIMIT 25"
+            "query": "FROM logs-azure.blob_storage* | WHERE azure.blob_storage.bytes_out IS NOT NULL | STATS bytes = SUM(azure.blob_storage.bytes_out), mb = SUM(azure.blob_storage.bytes_out) / 1048576 BY ip = azure.blob_storage.caller_ip_address, acct = cloud.account.id | SORT ``bytes DESC | LIMIT 25"
           },
           "metrics": [
             { "operation": "value", "column": "ip", "label": "Caller IP" },

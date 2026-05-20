@@ -1,47 +1,50 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.000Z",
-  "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-network-ijqtzp/providers/Microsoft.Sql/servers/sql-8gta15/databases/app",
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-data-ic8qjk/providers/Microsoft.Sql/servers/sql-xlrl2f/databases/app",
   "cloud": {
     "provider": "azure",
-    "region": "germanywestcentral",
-    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" },
+    "region": "canadacentral",
+    "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
     "service": { "name": "Microsoft.Sql/servers" }
   },
-  "category": "SQLInsights",
-  "operationName": "QueryStoreRuntimeStatistics",
-  "resultType": "Succeeded",
-  "level": "Informational",
-  "correlationId": "tofph0gzn367yovqm7u2i8yetljlfe4g",
-  "callerIpAddress": "193.31.197.168",
+  "category": "SQLSecurityAuditEvents",
+  "operationName": "DATABASE AUTHENTICATION FAILED",
+  "resultType": "Failed",
+  "level": "Warning",
+  "correlationId": "58pn2fox4oct81r2a4ibtfr3g63uxvam",
+  "callerIpAddress": "11.219.168.45",
   "properties": {
-    "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-network-ijqtzp/providers/Microsoft.Sql/servers/sql-8gta15/databases/app",
-    "QueryText": "UPDATE dbo.customers SET last_login_utc = SYSUTCDATETIME() WHERE customer_id = @id",
-    "Duration": 367110,
-    "WaitType": "SOS_SCHEDULER_YIELD",
-    "CPUTime": 14647663,
-    "LogicalReads": 53826,
-    "PhysicalReads": 4388,
-    "query_hash": "0jzesz9chszq98dq"
+    "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-data-ic8qjk/providers/Microsoft.Sql/servers/sql-xlrl2f/databases/app",
+    "action_id": "LGIF",
+    "session_server_principal_name": "report_reader",
+    "database_principal_name": "dbo",
+    "schema_name": "",
+    "object_name": "",
+    "statement": ""
   },
   "azure": {
     "sql_database": {
-      "server": "sql-8gta15",
+      "server": "sql-xlrl2f",
       "database": "app",
-      "resource_group": "rg-network-ijqtzp",
-      "diagnostic_category": "SQLInsights",
-      "dtu_percent": 46.348430447248255,
+      "resource_group": "rg-data-ic8qjk",
+      "diagnostic_category": "SQLSecurityAuditEvents",
+      "dtu_percent": 23.785871042555854,
       "deadlocks": 0,
-      "failed_connections": 1
+      "failed_connections": 2
     }
   },
   "event": {
+    "kind": "event",
+    "category": ["database"],
+    "type": ["admin"],
+    "action": "DATABASE AUTHENTICATION FAILED",
     "outcome": "success",
-    "duration": 631768513,
+    "duration": 355671854,
     "module": "azure",
     "dataset": "azure.sql_database"
   },
-  "message": "Query completed on sql-8gta15/app: cpu 14.65ms, logical reads 53826",
+  "message": "Audit: failed login to sql-xlrl2f/app from 11.219.168.45",
   "service": { "name": "sql-database", "type": "azure" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -49,8 +52,10 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-germanywestcentral",
-    "id": "9h9kmefcxjdq9nsv89tqtblo85bu0c2lag4v"
+    "name": "elastic-agent-azure-canadacentral",
+    "id": "wdthti2ncj08cll6yfz2vy65adbby77cl1s9"
   },
-  "input": { "type": "azure-eventhub" }
+  "input": { "type": "azure-eventhub" },
+  "source": { "ip": "11.219.168.45" },
+  "related": { "ip": ["11.219.168.45"] }
 }

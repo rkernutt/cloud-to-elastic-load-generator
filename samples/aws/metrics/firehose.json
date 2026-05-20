@@ -1,44 +1,45 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" }
+    "region": "eu-west-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
+    "service": { "name": "firehose" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-aws-ca-central-1",
-    "ephemeral_id": "dhbmo35yspqcpjnwcn5dz9uh8jqyimksbw8y"
+    "name": "metricbeat-aws-eu-west-1",
+    "ephemeral_id": "jidyg8573e2krn6b5hhoiino4c1ztv4e827c"
   },
   "aws": {
     "firehose": {
       "metrics": {
-        "IncomingBytes": { "avg": 20999970102, "sum": 20999970102, "count": 1 },
-        "IncomingRecords": { "avg": 1956366, "sum": 1956366, "count": 1 },
-        "DeliveryToS3.Bytes": { "avg": 20916242769, "sum": 20916242769, "count": 1 },
-        "DeliveryToS3.Records": { "avg": 1956366, "sum": 1956366, "count": 1 },
-        "DeliveryToS3.Success": { "avg": 99.96, "sum": 99.96, "count": 1, "max": 100, "min": 99 },
+        "IncomingBytes": { "avg": 26998358522, "sum": 26998358522, "count": 1 },
+        "IncomingRecords": { "avg": 6766946, "sum": 6766946, "count": 1 },
+        "DeliveryToS3.Bytes": { "avg": 26801649730, "sum": 26801649730, "count": 1 },
+        "DeliveryToS3.Records": { "avg": 6766946, "sum": 6766946, "count": 1 },
+        "DeliveryToS3.Success": { "avg": 99.86, "sum": 99.86, "count": 1, "max": 100, "min": 99 },
         "DeliveryToS3.DataFreshness": {
-          "avg": 79.62,
-          "sum": 79.62,
+          "avg": 19.98,
+          "sum": 19.98,
           "count": 1,
-          "max": 164.69,
-          "min": 12.72
+          "max": 52.43,
+          "min": 4.37
         },
-        "ThrottledRecords": { "avg": 91, "sum": 91, "count": 1 },
+        "ThrottledRecords": { "avg": 70, "sum": 70, "count": 1 },
         "FailedConversion.Bytes": { "avg": 0, "sum": 0, "count": 1 },
         "FailedConversion.Records": { "avg": 0, "sum": 0, "count": 1 },
-        "BackupToS3.Bytes": { "avg": 995520044, "sum": 995520044, "count": 1 },
-        "KinesisMillisBehindLatest": { "avg": 3824.02, "sum": 3824.02, "count": 1 },
+        "BackupToS3.Bytes": { "avg": 505410554, "sum": 505410554, "count": 1 },
+        "KinesisMillisBehindLatest": { "avg": 4018.18, "sum": 4018.18, "count": 1 },
         "ThrottledGetShardIterator": { "avg": 0, "sum": 0, "count": 1 }
       },
-      "dimensions": { "DeliveryStreamName": "logs-to-opensearch" }
+      "dimensions": { "DeliveryStreamName": "clickstream-to-s3" }
     }
   },
   "metricset": { "name": "firehose", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "aws.firehose", "namespace": "default" },
   "input": { "type": "aws-cloudwatch" },
-  "event": { "dataset": "aws.firehose", "module": "aws" }
+  "event": { "kind": "metric", "dataset": "aws.firehose", "module": "aws" }
 }

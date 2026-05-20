@@ -1,5 +1,13 @@
 import type { EcsDocument } from "../helpers.js";
-import { rand, randInt, gcpCloud, makeGcpSetup, randTraceId, randSpanId } from "../helpers.js";
+import {
+  rand,
+  randInt,
+  randPublicIp,
+  gcpCloud,
+  makeGcpSetup,
+  randTraceId,
+  randSpanId,
+} from "../helpers.js";
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
 import {
   APM_DS,
@@ -16,7 +24,7 @@ export function generateCloudVpnTrace(ts: string, er: number): EcsDocument[] {
   const base = new Date(ts);
   const env = rand(["production", "staging"]);
   const tunnel = rand(["vpn-to-partner", "vpn-transit-dc", "vpn-dr-site"]);
-  const peer = rand(["203.0.113.10", "198.51.100.44", "192.0.2.9"]);
+  const peer = randPublicIp();
   const otel = gcpOtelMeta("go");
   const svc = gcpServiceBase("vpn-gateway-agent", env, "go", {
     runtimeName: "go",

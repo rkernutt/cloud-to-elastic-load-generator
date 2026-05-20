@@ -1,4 +1,16 @@
-import { rand, randInt, randFloat, randId, randIp, randAccount, REGIONS } from "../../helpers";
+import {
+  rand,
+  randInt,
+  randFloat,
+  randId,
+  randIp,
+  randAccount,
+  REGIONS,
+  randIamUser,
+  randPersonEmail,
+  randEmail,
+  emrExecutorHostname,
+} from "../../helpers";
 import type { EcsDocument } from "./types.js";
 
 function generateEmrLog(ts: string, er: number): EcsDocument {
@@ -53,33 +65,34 @@ function generateEmrLog(ts: string, er: number): EcsDocument {
   const stageId = randInt(0, 12);
   const taskId = randInt(0, numCompletedTasks);
   const tsFormatted = new Date(ts).toISOString().replace("T", " ").replace("Z", "");
+  const executorHost = () => emrExecutorHostname(region);
 
   // Real Spark log output formats
   const sparkInfoMsgs = [
     `${tsFormatted} INFO DAGScheduler: Stage ${stageId} (${rand(["map", "reduce", "count", "collect", "save"])}) finished in ${Number(randFloat(0.5, 120)).toFixed(1)} s`,
-    `${tsFormatted} INFO TaskSetManager: Finished task ${taskId}.0 in stage ${stageId}.0 (TID ${randInt(0, 10000)}) in ${randInt(50, 30000)} ms on ${rand(["ip-10-0-1", "ip-10-0-2", "ip-10-0-3"])}-${randInt(10, 250)}.${region}.compute.internal (executor ${executorId}) (${randInt(1, numCompletedTasks)}/${numCompletedTasks})`,
+    `${tsFormatted} INFO TaskSetManager: Finished task ${taskId}.0 in stage ${stageId}.0 (TID ${randInt(0, 10000)}) in ${randInt(50, 30000)} ms on ${executorHost()} (executor ${executorId}) (${randInt(1, numCompletedTasks)}/${numCompletedTasks})`,
     `${tsFormatted} INFO SparkContext: Created broadcast_${randInt(0, 50)} from broadcast at DAGScheduler.scala:${randInt(1100, 1300)}`,
-    `${tsFormatted} INFO BlockManagerInfo: Added broadcast_${randInt(0, 50)}_piece0 in memory on ${rand(["ip-10-0-1", "ip-10-0-2"])}-${randInt(10, 250)}.${region}.compute.internal:${randInt(30000, 50000)} (size: ${Number(randFloat(1, 500)).toFixed(1)} KiB, free: ${Number(randFloat(1, 12)).toFixed(1)} GiB)`,
+    `${tsFormatted} INFO BlockManagerInfo: Added broadcast_${randInt(0, 50)}_piece0 in memory on ${executorHost()}:${randInt(30000, 50000)} (size: ${Number(randFloat(1, 500)).toFixed(1)} KiB, free: ${Number(randFloat(1, 12)).toFixed(1)} GiB)`,
     `${tsFormatted} INFO MemoryStore: Block broadcast_${randInt(0, 50)} stored as values in memory (estimated size ${Number(randFloat(1, 200)).toFixed(1)} KiB, free ${Number(randFloat(1, 12)).toFixed(1)} GiB)`,
     `${tsFormatted} INFO CodeGenerator: Code generated in ${Number(randFloat(5, 500)).toFixed(1)} ms`,
     `${tsFormatted} INFO FileOutputCommitter: Saved output of task '${rand(["attempt", "task"])}_${tsFormatted.replace(/[- :]/g, "")}_${randInt(0, 200).toString().padStart(4, "0")}_m_${randInt(0, 50).toString().padStart(6, "0")}_0' to s3a://data-lake/processed/${job}/`,
   ];
   const yarnInfoMsgs = [
-    `${tsFormatted} INFO ResourceManager: Registered node: ${rand(["ip-10-0-1", "ip-10-0-2", "ip-10-0-3"])}-${randInt(10, 250)}.${region}.compute.internal:${randInt(8040, 8050)} with capability: <memory:${randInt(4096, 65536)}, vCores:${randInt(2, 16)}>`,
+    `${tsFormatted} INFO ResourceManager: Registered node: ${executorHost()}:${randInt(8040, 8050)} with capability: <memory:${randInt(4096, 65536)}, vCores:${randInt(2, 16)}>`,
     `${tsFormatted} INFO ApplicationMaster: Final app status: ${runState}, exitCode: ${level === "error" ? randInt(1, 143) : 0}`,
     `${tsFormatted} INFO RMAppImpl: ${appId} State change from ACCEPTED to RUNNING on event START`,
   ];
   const infoMsgs =
     logSource === "yarn" ? yarnInfoMsgs : [...sparkInfoMsgs, ...yarnInfoMsgs.slice(0, 1)];
   const warnMsgs = [
-    `${tsFormatted} WARN TaskSetManager: Lost task ${taskId}.0 in stage ${stageId}.0 (TID ${randInt(0, 10000)}) (${rand(["ip-10-0-1", "ip-10-0-2"])}-${randInt(10, 250)}.${region}.compute.internal executor ${executorId}): FetchFailed(null, shuffleId=${randInt(0, 10)}, mapIndex=${randInt(0, 200)}, reduceId=${randInt(0, 200)}, message=\norg.apache.spark.shuffle.FetchFailedException)`,
+    `${tsFormatted} WARN TaskSetManager: Lost task ${taskId}.0 in stage ${stageId}.0 (TID ${randInt(0, 10000)}) (${executorHost()} executor ${executorId}): FetchFailed(null, shuffleId=${randInt(0, 10)}, mapIndex=${randInt(0, 200)}, reduceId=${randInt(0, 200)}, message=\norg.apache.spark.shuffle.FetchFailedException)`,
     `${tsFormatted} WARN HeartbeatReceiver: Removing executor ${executorId} with no recent heartbeats: ${randInt(120000, 300000)} ms exceeds timeout ${randInt(120000, 120000)} ms`,
     `${tsFormatted} WARN TaskMemoryManager: Failed to allocate a page (${randInt(1, 128)} bytes), try again.`,
     `${tsFormatted} WARN Executor: Issue communicating with driver: org.apache.spark.rpc.RpcTimeoutException`,
   ];
   const errorMsgs = [
     `${tsFormatted} ERROR Executor: Exception in task ${taskId}.0 in stage ${stageId}.0 (TID ${randInt(0, 10000)})\njava.lang.OutOfMemoryError: Java heap space\n\tat java.base/java.util.Arrays.copyOf(Arrays.java:3512)\n\tat org.apache.spark.unsafe.memory.HeapMemoryAllocator.allocate(HeapMemoryAllocator.java:56)`,
-    `${tsFormatted} ERROR YarnClusterScheduler: Lost executor ${executorId} on ${rand(["ip-10-0-1", "ip-10-0-2"])}-${randInt(10, 250)}.${region}.compute.internal: Container from a bad node: container_${Date.now()}_${randInt(1, 9999)}_01_${randInt(100000, 999999)} on host: Exit status: 137. Diagnostics: Container killed on request.`,
+    `${tsFormatted} ERROR YarnClusterScheduler: Lost executor ${executorId} on ${executorHost()}: Container from a bad node: container_${Date.now()}_${randInt(1, 9999)}_01_${randInt(100000, 999999)} on host: Exit status: 137. Diagnostics: Container killed on request.`,
     `${tsFormatted} ERROR DAGScheduler: Job aborted due to stage failure: Task ${taskId} in stage ${stageId}.0 failed ${randInt(2, 4)} times, most recent failure: Lost task ${taskId}.${randInt(1, 3)} in stage ${stageId}.0 (TID ${randInt(0, 10000)}): ExecutorLostFailure`,
     `${tsFormatted} ERROR FileFormatWriter: Aborting job ${randId(8).toLowerCase()}: org.apache.spark.SparkException: Job aborted due to stage failure`,
     `${tsFormatted} ERROR ApplicationMaster: RECEIVED SIGNAL TERM`,
@@ -171,6 +184,7 @@ function generateEmrLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: level === "error" ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.emr",
       provider: "elasticmapreduce.amazonaws.com",
       duration: durationSec * 1e9,
@@ -440,6 +454,7 @@ function generateGlueLog(ts: string, er: number): EcsDocument {
       duration: durationSec * 1e9,
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.glue",
       provider: "glue.amazonaws.com",
     },
@@ -574,6 +589,7 @@ function generateAthenaLog(ts: string, er: number): EcsDocument {
       duration: totalMs * 1e6,
       outcome: isErr ? "failure" : "success",
       category: ["database", "process"],
+      type: ["access"],
       dataset: "aws.athena",
       provider: "athena.amazonaws.com",
     },
@@ -605,7 +621,7 @@ function generateLakeFormationLog(ts: string, er: number): EcsDocument {
     "CreateLakeFormationTag",
   ]);
   const perms = rand([["SELECT"], ["SELECT", "INSERT"], ["ALL"], ["DESCRIBE"]]);
-  const principalArn = `arn:aws:iam::${acct.id}:${rand(["role/analyst-role", "user/alice", "role/glue-role"])}`;
+  const principalArn = `arn:aws:iam::${acct.id}:${rand(["role/analyst-role", `user/${randIamUser()}`, "role/glue-role"])}`;
   const resourceArn = `arn:aws:glue:${region}:${acct.id}:table/${db}/${table}`;
   const durationMs = randInt(50, isErr ? 5000 : 1000);
   return {
@@ -642,6 +658,7 @@ function generateLakeFormationLog(ts: string, er: number): EcsDocument {
       duration: durationMs * 1e6,
       outcome: isErr ? "failure" : "success",
       category: ["database", "iam"],
+      type: ["access"],
       dataset: "aws.lakeformation",
       provider: "lakeformation.amazonaws.com",
     },
@@ -671,7 +688,7 @@ function generateQuickSightLog(ts: string, er: number): EcsDocument {
     "marketing-funnel",
     "ops-metrics",
   ]);
-  const user = rand(["alice@corp.com", "bob@corp.com", "carol@corp.com"]);
+  const user = randPersonEmail();
   const action = rand([
     "DescribeDashboard",
     "GetDashboardEmbedUrl",
@@ -723,6 +740,7 @@ function generateQuickSightLog(ts: string, er: number): EcsDocument {
       duration: dur * 1e6,
       outcome: isErr ? "failure" : "success",
       category: ["web", "process"],
+      type: ["access"],
       dataset: "aws.quicksight",
       provider: "quicksight.amazonaws.com",
     },
@@ -805,6 +823,7 @@ function generateDataBrewLog(ts: string, er: number): EcsDocument {
       duration: dur * 1e9,
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.databrew",
       provider: "databrew.amazonaws.com",
     },
@@ -869,6 +888,7 @@ function generateAppFlowLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.appflow",
       provider: "appflow.amazonaws.com",
       duration: durationMs * 1e6,
@@ -944,6 +964,7 @@ function generateMwaaLog(ts: string, er: number): EcsDocument {
       ]),
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.mwaa",
       provider: "airflow.amazonaws.com",
       duration: durationSec * 1e9,
@@ -1016,6 +1037,7 @@ function generateCleanRoomsLog(ts: string, er: number): EcsDocument {
       ]),
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.cleanrooms",
       provider: "cleanrooms.amazonaws.com",
     },
@@ -1100,6 +1122,7 @@ function generateDataZoneLog(ts: string, er: number): EcsDocument {
       action,
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.datazone",
       provider: "datazone.amazonaws.com",
     },
@@ -1176,6 +1199,7 @@ function generateEntityResolutionLog(ts: string, er: number): EcsDocument {
       ]),
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.entityresolution",
       provider: "entityresolution.amazonaws.com",
     },
@@ -1259,6 +1283,7 @@ function generateDataExchangeLog(ts: string, er: number): EcsDocument {
       ]),
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.dataexchange",
       provider: "dataexchange.amazonaws.com",
     },
@@ -1307,7 +1332,7 @@ function generateAppFabricLog(ts: string, er: number): EcsDocument {
     "dataExport",
     "apiAccess",
   ]);
-  const normalizedUser = `user-${randId(8)}@example.com`;
+  const normalizedUser = randEmail(`user-${randId(8)}`);
   const sourceIp = randIp();
   const ingestionStatus = isErr ? rand(["FAILED", "PARTIAL"]) : "ACTIVE";
   const ocsfClass = rand([
@@ -1348,7 +1373,8 @@ function generateAppFabricLog(ts: string, er: number): EcsDocument {
     event: {
       action,
       outcome: isErr ? "failure" : "success",
-      category: ["audit"],
+      category: ["configuration"],
+      type: ["info"],
       dataset: "aws.appfabric",
       provider: "appfabric.amazonaws.com",
     },
@@ -1433,6 +1459,7 @@ function generateB2biLog(ts: string, er: number) {
       action,
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.b2bi",
       provider: "b2bi.amazonaws.com",
     },

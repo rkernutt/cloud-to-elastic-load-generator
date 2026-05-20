@@ -45,6 +45,7 @@ export function azureMetricDoc(
       provider: "azure",
       region,
       account: { id: subscription.id, name: subscription.name },
+      service: { name: dataset },
     },
     agent: {
       type: "metricbeat",
@@ -65,7 +66,7 @@ export function azureMetricDoc(
     metricset: { name: "monitor", period },
     data_stream: { type: "metrics", dataset, namespace: "default" },
     input: { type: "azure-monitor" },
-    event: { dataset, module: "azure" },
+    event: { kind: "metric", dataset, module: "azure" },
   };
 }
 

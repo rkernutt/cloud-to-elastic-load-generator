@@ -1,70 +1,95 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "error" },
-  "gcp.rpc": { "status_code": "DEADLINE_EXCEEDED" },
-  "error": {
-    "code": "DEADLINE_EXCEEDED",
-    "message": "DEADLINE_EXCEEDED: operation failed",
-    "type": "gcp"
-  },
-  "labels": { "gcp.rpc.status_code": "DEADLINE_EXCEEDED" },
-  "severity": "WARNING",
-  "logName": "projects/globex-prod-a1b2c3/logs/compute.googleapis.com%2Fserverless_neg",
-  "insertId": "34iaamk3wgw88gam",
+  "log": { "level": "info" },
+  "labels": {},
+  "severity": "INFO",
+  "logName": "projects/globex-prod-482910/logs/requests",
+  "insertId": "atmashj0i1wh0xyp",
   "resource": {
-    "type": "network_endpoint_group",
+    "type": "http_load_balancer",
     "labels": {
-      "project_id": "globex-prod-a1b2c3",
-      "neg": "neg-i1tfi97b",
-      "region": "asia-southeast1"
+      "project_id": "globex-prod-482910",
+      "zone": "global",
+      "url_map_name": "um-9ilr9z",
+      "target_proxy_name": "tp-https-zo24",
+      "forwarding_rule_name": "fr-europe-central2-vl8i",
+      "backend_service_name": "bes-api-a62s"
     }
   },
+  "httpRequest": {
+    "requestMethod": "PATCH",
+    "requestUrl": "https://api.globex-prod-482910.net/api/v2/analytics",
+    "status": 200,
+    "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1",
+    "remoteIp": "83.111.223.105",
+    "latency": "0.101000s",
+    "protocol": "HTTP/2"
+  },
   "jsonPayload": {
-    "serverless_neg": "projects/globex-prod-a1b2c3/regions/asia-southeast1/networkEndpointGroups/neg-i1tfi97b",
-    "backend_service": "projects/globex-prod-a1b2c3/regions/asia-southeast1/backendServices/bes-fn-ex8l",
-    "target_type": "app-engine",
-    "health_check": { "state": "UNKNOWN", "consecutive_success": 40, "consecutive_failure": 1 },
-    "stats": { "requests": 263, "error_rate": 0.059 }
+    "cacheDecision": "USE_ORIGIN",
+    "backendTargetProjectNumber": "482910375621",
+    "backend_name": "bes-api-a62s",
+    "forwarding_rule_name": "fr-europe-central2-vl8i",
+    "url_map_name": "um-9ilr9z",
+    "target_proxy_name": "tp-https-zo24"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-southeast1",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
-    "service": { "name": "serverless-neg" }
+    "region": "europe-central2",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
+    "service": { "name": "cloud-lb" }
   },
   "gcp": {
-    "serverless_neg": {
-      "json_payload": {
-        "serverless_neg": "projects/globex-prod-a1b2c3/regions/asia-southeast1/networkEndpointGroups/neg-i1tfi97b",
-        "backend_service": "projects/globex-prod-a1b2c3/regions/asia-southeast1/backendServices/bes-fn-ex8l",
-        "target_type": "app-engine",
-        "health_check": { "state": "UNKNOWN", "consecutive_success": 40, "consecutive_failure": 1 },
-        "stats": { "requests": 263, "error_rate": 0.059 }
+    "cloud_lb": {
+      "http_request": {
+        "requestMethod": "PATCH",
+        "requestUrl": "https://api.globex-prod-482910.net/api/v2/analytics",
+        "status": 200,
+        "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1",
+        "remoteIp": "83.111.223.105",
+        "latency": "0.101000s",
+        "protocol": "HTTP/2"
       },
-      "neg_name": "neg-i1tfi97b",
-      "backend_service": "bes-fn-ex8l",
-      "target_type": "app-engine",
-      "health_status": "UNKNOWN",
-      "request_count": 263,
-      "error_rate": 0.059
+      "json_payload": {
+        "cacheDecision": "USE_ORIGIN",
+        "backendTargetProjectNumber": "482910375621",
+        "backend_name": "bes-api-a62s",
+        "forwarding_rule_name": "fr-europe-central2-vl8i",
+        "url_map_name": "um-9ilr9z",
+        "target_proxy_name": "tp-https-zo24"
+      },
+      "backend_service": "bes-api-a62s",
+      "url_map": "um-9ilr9z",
+      "forwarding_rule": "fr-europe-central2-vl8i",
+      "request_method": "PATCH",
+      "url_path": "/api/v2/analytics",
+      "response_code": 200,
+      "latency_ms": 101,
+      "client_ip": "83.111.223.105",
+      "backend_ip": "23.116.40.157",
+      "protocol": "HTTP/2"
     }
   },
   "event": {
-    "outcome": "failure",
-    "duration": 1689000000,
+    "kind": "event",
+    "category": ["network"],
+    "type": ["connection"],
+    "action": "http-request",
+    "outcome": "success",
+    "duration": 101000000,
     "module": "gcp",
-    "dataset": "gcp.serverless_neg"
+    "dataset": "gcp.loadbalancing"
   },
-  "message": "compute.googleapis.com/serverless_negs neg-i1tfi97b health=UNKNOWN",
-  "service": { "name": "serverless-neg", "type": "gcp" },
+  "message": "loadbalancing.googleapis.com/requests PATCH 200 0.101000s https://api.globex-prod-482910.net/api/v2/analytics",
+  "service": { "name": "cloud-lb", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.serverless_neg", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.loadbalancing", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-southeast1",
-    "id": "f9wxlorxkwf4jz9l1w68rabl8ipg52lrwu39"
+    "name": "elastic-agent-gcp-europe-central2",
+    "id": "c4k34t98htf9spnc8jm0sggaab3mt62f3aln"
   },
   "input": { "type": "gcp-pubsub" }
 }

@@ -13,6 +13,7 @@ import {
   randTraceId,
   randSpanId,
   randZone,
+  gcpLogEvent,
 } from "./helpers.js";
 
 const GRPC_RPC_STATUSES = [
@@ -161,10 +162,17 @@ export function generateCloudTraceLog(ts: string, er: number): EcsDocument {
         labels,
       },
     },
-    event: {
-      outcome: isErr ? "failure" : "success",
-      duration: latencyMs,
-    },
+    event: gcpLogEvent(
+      isErr,
+      latencyMs,
+      apiMethod || displayName,
+      ["process"],
+      isErr
+        ? ["error"]
+        : scenario === "batch_write" || scenario === "agent_report"
+          ? ["change"]
+          : ["access"]
+    ),
     message,
     ...faultSpread,
   };
@@ -250,10 +258,19 @@ export function generateCloudProfilerLog(ts: string, er: number): EcsDocument {
         zone,
       },
     },
-    event: {
-      outcome: isErr ? "failure" : "success",
-      duration: durationSeconds * 1000,
-    },
+    event: gcpLogEvent(
+      isErr,
+      durationSeconds * 1000,
+      apiMethod,
+      ["process"],
+      isErr
+        ? ["error"]
+        : scenario === "create_profile" || scenario === "upload_batch"
+          ? ["creation"]
+          : scenario === "update_profile"
+            ? ["change"]
+            : ["access"]
+    ),
     message,
     ...faultSpread,
   };
@@ -364,10 +381,21 @@ export function generateErrorReportingLog(ts: string, er: number): EcsDocument {
         url,
       },
     },
-    event: {
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1, 500),
-    },
+    event: gcpLogEvent(
+      isErr,
+      randInt(1, 500),
+      apiMethod,
+      ["process"],
+      isErr
+        ? ["error"]
+        : scenario === "report_event"
+          ? ["info"]
+          : scenario === "delete_events"
+            ? ["deletion"]
+            : scenario === "update_group"
+              ? ["change"]
+              : ["access"]
+    ),
     message,
     ...faultSpread,
   };

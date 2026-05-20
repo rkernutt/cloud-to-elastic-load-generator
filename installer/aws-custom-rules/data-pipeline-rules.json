@@ -19,8 +19,8 @@
         "threshold": [3],
         "thresholdComparator": ">",
         "size": 100,
-        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.mwaa\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
-        "index": ["logs-aws.mwaa*"],
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.outcome\":\"failure\"}},{\"exists\":{\"field\":\"labels.pipeline_run_id\"}}]}}}",
+        "index": ["logs-aws.mwaa*", "logs-aws.emr*", "logs-aws.glue*", "logs-aws.athena*", "logs-aws.stepfunctions*"],
         "timeField": "@timestamp",
         "aggType": "count"
       },
@@ -148,6 +148,36 @@
         "Amazon MWAA — Managed Airflow"
       ],
       "investigationGuide": "# Slow Pipeline Run (>60s)\n\nA DAG exceeded its informal SLA.\n\n## Triage\n1. Compare to baseline: `FROM logs-aws.mwaa-* | WHERE event.action == \"dag_completed\" AND @timestamp > NOW() - 7d | STATS p50 = PERCENTILE(aws.mwaa.duration_ms, 50), p95 = PERCENTILE(aws.mwaa.duration_ms, 95) BY aws.mwaa.dag_id | WHERE p95 > 30000 | SORT p95 DESC`\n2. If within 2x of p95, likely noise\n3. Check EMR errors and input volume\n\n## Escalate when\n- SLA-bound DAG slow for two consecutive runs\n- Correlated with executor errors"
+    },
+    {
+      "id": "cloudloadgen-data-pipeline-schema-drift",
+      "name": "[CloudLoadGen] Data Pipeline — Glue Schema Drift Detected",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": {
+        "interval": "5m"
+      },
+      "tags": ["cloudloadgen", "data-pipeline", "schema-drift"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 30,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.glue\"}},{\"exists\":{\"field\":\"aws.glue.schema_change_type\"}}]}}}",
+        "index": ["logs-aws.glue*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": [
+        "Data & Analytics Pipeline — overview",
+        "AWS Glue — ETL Jobs & Crawlers"
+      ],
+      "investigationGuide": "# Glue Schema Drift Detected\n\nThe Glue Crawler detected schema changes (columns added, removed, or type-changed) in a catalogued table. Downstream Athena queries may fail.\n\n## Triage\n1. Check drift details: `FROM logs-aws.glue* | WHERE aws.glue.schema_change_type IS NOT NULL AND @timestamp > NOW() - 1h | KEEP @timestamp, aws.glue.crawler_name, aws.glue.database_name, aws.glue.schema_change_type, aws.glue.schema_change_column | SORT @timestamp DESC`\n2. Check for Athena failures caused by the drift: `FROM logs-aws.athena* | WHERE event.outcome == \"failure\" AND error.type == \"COLUMN_NOT_FOUND\" AND @timestamp > NOW() - 1h | KEEP @timestamp, aws.athena.workgroup, aws.athena.database, error.message`\n3. Review the CloudTrail UpdateTable event for the exact schema change\n4. If the change is expected (new upstream column), update downstream queries\n5. If unexpected, investigate the source data for corruption or upstream pipeline changes\n\n## Escalate when\n- Multiple Athena queries fail due to the drift\n- The schema change was not part of a planned release\n- TYPE_CHANGED drift (breaking change for existing queries)"
     }
   ]
 }

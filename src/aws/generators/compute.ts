@@ -3,18 +3,24 @@ import {
   randInt,
   randFloat,
   randId,
-  randIp,
+  randHexId,
+  randPublicIp,
+  randPrivateIp,
+  ec2PrivateDns,
   randUUID,
   randAccount,
   REGIONS,
 } from "../../helpers";
+import { randSourceIp } from "../../helpers/identity.js";
 import type { EcsDocument } from "./types.js";
 
 function generateEc2Log(ts: string, er: number) {
   const region = rand(REGIONS);
   const acct = randAccount();
   const level = Math.random() < er ? "error" : Math.random() < 0.1 ? "warn" : "info";
-  const instanceId = `i-${randId(17).toLowerCase()}`;
+  const instanceId = `i-${randHexId(17)}`;
+  const privateIp = randPrivateIp();
+  const publicIp = randPublicIp();
   const CPU_CORES = { "t3.medium": 2, "m5.xlarge": 4, "c5.2xlarge": 8, "r5.large": 2 } as const;
   const INSTANCE_TYPES = ["t3.medium", "m5.xlarge", "c5.2xlarge", "r5.large"] as const;
   const instanceType = rand(INSTANCE_TYPES);
@@ -40,7 +46,7 @@ function generateEc2Log(ts: string, er: number) {
       "amazon-cloudwatch-agent: W! Deprecation: configuration key 'metrics_collected' nested path changed",
     ],
     info: [
-      "cloud-init: Cloud-init v. 22.2.2 running 'init-local' at Mon, 01 Jan 2024 12:00:00 +0000. Up 2.13 seconds.",
+      `cloud-init: Cloud-init v. 22.2.2 running 'init-local' at ${new Date(ts).toUTCString()}. Up 2.13 seconds.`,
       "cloud-init: Fetching ec2 metadata from http://169.254.169.254/latest/meta-data/instance-id",
       "cloud-init: Reading user-data from /var/lib/cloud/instance/user-data.txt (multipart: False)",
       "cloud-init: Running module write_files (<module>, 0, False) with frequency once-per-instance",
@@ -116,24 +122,24 @@ function generateEc2Log(ts: string, er: number) {
       dimensions: {
         InstanceId: instanceId,
         InstanceType: instanceType,
-        ImageId: `ami-${randId(8).toLowerCase()}`,
+        ImageId: `ami-${randHexId(8)}`,
         AutoScalingGroupName: rand(["web-asg", "api-asg", "worker-asg", null]),
       },
       ec2: {
         instance: {
-          image: { id: `ami-${randId(8).toLowerCase()}` },
+          image: { id: `ami-${randHexId(8)}` },
           state: { name: isErr ? rand(["stopping", "stopped"]) : "running", code: isErr ? 64 : 16 },
           monitoring: { state: rand(["disabled", "enabled"]) },
           core: { count: cpuCores },
           type: instanceType,
           threads_per_core: 2,
           private: {
-            ip: randIp(),
-            dns_name: `ip-${randIp().replace(/\./g, "-")}.${rand(REGIONS)}.compute.internal`,
+            ip: privateIp,
+            dns_name: ec2PrivateDns(privateIp, region),
           },
           public: {
-            ip: randIp(),
-            dns_name: `ec2-${randIp().replace(/\./g, "-")}.compute-1.amazonaws.com`,
+            ip: publicIp,
+            dns_name: `ec2-${publicIp.replace(/\./g, "-")}.compute-1.amazonaws.com`,
           },
         },
         cpu: {
@@ -179,7 +185,7 @@ function generateEc2Log(ts: string, er: number) {
       },
     },
     host: {
-      hostname: `ip-${randIp().replace(/\./g, "-")}`,
+      hostname: ec2PrivateDns(privateIp, region).split(".")[0],
       os: {
         type: "linux",
         kernel: `5.10.${randInt(100, 230)}-${randInt(1, 200)}.amzn2.x86_64`,
@@ -315,7 +321,8 @@ function generateEcsLog(ts: string, er: number): EcsDocument {
     process: { pid: randInt(1, 65535), name: svc },
     log: { level },
     event: {
-      category: ["process", "container"],
+      category: ["process"],
+      type: ["info"],
       outcome: isErr ? "failure" : "success",
       dataset: "aws.ecs",
       provider: "ecs.amazonaws.com",
@@ -369,7 +376,8 @@ function generateEksLog(ts: string, er: number): EcsDocument {
     "ServerException",
   ];
   const durationSec = randInt(1, isErr ? 300 : 3600);
-  const nodeName = `ip-${randIp().replace(/\./g, "-")}.${region}.compute.internal`;
+  const nodePrivateIp = randPrivateIp();
+  const nodeName = ec2PrivateDns(nodePrivateIp, region);
   const iso = new Date(ts).toISOString();
   const kubeletPlain = rand(MSGS[level]);
   const lineKind = rand([
@@ -413,7 +421,7 @@ function generateEksLog(ts: string, er: number): EcsDocument {
       user: { username },
       objectRef,
       responseStatus: { code: isErr ? rand([401, 403, 500]) : 200 },
-      sourceIPs: [randIp()],
+      sourceIPs: [randSourceIp()],
       timestamp: iso,
     });
   } else if (lineKind === "authenticator") {
@@ -451,7 +459,7 @@ function generateEksLog(ts: string, er: number): EcsDocument {
     });
   } else if (lineKind === "coredns") {
     useStructuredLogging = false;
-    const client = randIp();
+    const client = randPrivateIp();
     const qtype = rand(["A", "AAAA", "SRV"]);
     const rcode = isErr ? "SERVFAIL" : "NOERROR";
     message = `[${level === "error" ? "ERROR" : "INFO"}] ${client}:${randInt(40000, 65535)} - ${randInt(10000, 99999)} "${qtype} IN ${svcDns}. udp ${randInt(40, 512)} false ${randInt(512, 4096)}" ${rcode} qr,aa,rd,ra ${randInt(50, 200)} ${Number(randFloat(0.00001, isErr ? 2 : 0.05)).toFixed(8)}s`;
@@ -515,7 +523,8 @@ function generateEksLog(ts: string, er: number): EcsDocument {
     },
     log: { level },
     event: {
-      category: ["process", "container"],
+      category: ["process"],
+      type: ["info"],
       outcome: isErr ? "failure" : "success",
       dataset: "aws.eks",
       provider: "eks.amazonaws.com",
@@ -562,7 +571,7 @@ function generateBatchLog(ts: string, er: number): EcsDocument {
       "IAM role permission denied",
       "Spot instance reclaimed during execution",
       `AWS_BATCH_JOB_ATTEMPT=${attempt} container exited with code ${exitCode}: OOMKilled`,
-      `StatusReason=Host EC2 (instance i-${randId(17).toLowerCase()}) terminated.`,
+      `StatusReason=Host EC2 (instance i-${randHexId(17)}) terminated.`,
     ],
     warn: [
       "Job retry attempt 2/3",
@@ -646,6 +655,7 @@ function generateBatchLog(ts: string, er: number): EcsDocument {
     log: { level },
     event: {
       category: ["process"],
+      type: ["info"],
       outcome: isErr ? "failure" : "success",
       dataset: "aws.batch",
       provider: "batch.amazonaws.com",
@@ -663,12 +673,12 @@ function generateBeanstalkLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;
-  const app = rand(["my-web-app", "admin-portal", "api-service", "worker-app"]);
+  const app = rand(["web-frontend", "admin-portal", "api-service", "worker-app"]);
   const env = `${app}-${rand(["production", "staging", "dev"])}`;
   const status = isErr ? rand([500, 502, 503]) : rand([200, 200, 201, 204, 301]);
-  const instanceId = `i-${randId(17).toLowerCase()}`;
+  const instanceId = `i-${randHexId(17)}`;
   const reqPath = rand(["/api/health", "/index.html", "/v1/status", "/static/app.js"]);
-  const clientIp = randIp();
+  const clientIp = randPublicIp();
   const MSGS = {
     error: [
       "ERROR: Failed to deploy application version",
@@ -764,6 +774,7 @@ function generateBeanstalkLog(ts: string, er: number): EcsDocument {
     log: { level: isErr ? "error" : "info" },
     event: {
       category: ["web", "process"],
+      type: ["access"],
       outcome: isErr ? "failure" : "success",
       dataset: "aws.elasticbeanstalk",
       provider: "elasticbeanstalk.amazonaws.com",
@@ -891,6 +902,7 @@ function generateEcrLog(ts: string, er: number): EcsDocument {
     },
     event: {
       category: ["package"],
+      type: ["info"],
       outcome: isErr ? "failure" : "success",
       dataset: "aws.ecr",
       provider: "ecr.amazonaws.com",
@@ -919,7 +931,7 @@ function generateAutoScalingLog(ts: string, er: number): EcsDocument {
     "WarmPoolTransition",
     "PredictiveScalingForecast",
   ]);
-  const instanceId = `i-${randId(17).toLowerCase()}`;
+  const instanceId = `i-${randHexId(17)}`;
   const activityId = `${randId(8)}-${randId(4)}-${randId(4)}`.toLowerCase();
   const hookName = rand([
     "launch-wait",
@@ -934,15 +946,15 @@ function generateAutoScalingLog(ts: string, er: number): EcsDocument {
   const reason =
     action === "Launch"
       ? rand([
-          "At 2024-01-01T12:00:00Z a user request update of AutoScalingGroup constraints to min: 2, max: 50, desired: 8 changing the desired capacity from 6 to 8",
-          "At 2024-01-01T12:00:00Z a monitor alarm TargetTracking-scale-out-alarm in state ALARM triggered policy scale-out",
-          "At 2024-01-01T12:00:00Z instance i-0abc123456789abcd failed ELB health checks",
+          `At ${ts} a user request update of AutoScalingGroup constraints to min: 2, max: 50, desired: 8 changing the desired capacity from 6 to 8`,
+          `At ${ts} a monitor alarm TargetTracking-scale-out-alarm in state ALARM triggered policy scale-out`,
+          `At ${ts} instance ${instanceId} failed ELB health checks`,
         ])
       : action === "Terminate"
         ? rand([
-            "At 2024-01-01T12:00:00Z a user request update of AutoScalingGroup constraints to min: 2, max: 50, desired: 4 changing the desired capacity from 6 to 4",
-            "At 2024-01-01T12:00:00Z instance i-0abc123456789abcd was taken out of service in response to a spot instance interruption notice",
-            "At 2024-01-01T12:00:00Z instance failed EC2 health check",
+            `At ${ts} a user request update of AutoScalingGroup constraints to min: 2, max: 50, desired: 4 changing the desired capacity from 6 to 4`,
+            `At ${ts} instance ${instanceId} was taken out of service in response to a spot instance interruption notice`,
+            `At ${ts} instance failed EC2 health check`,
           ])
         : action === "LifecycleHook"
           ? `LifecycleHookNotification for ${hookName} transition ${lifecycleTransition}`
@@ -1054,6 +1066,7 @@ function generateAutoScalingLog(ts: string, er: number): EcsDocument {
     },
     event: {
       category: ["host"],
+      type: ["info"],
       outcome: isErr ? "failure" : "success",
       dataset: "aws.autoscaling",
       provider: "autoscaling.amazonaws.com",
@@ -1077,7 +1090,7 @@ function generateImageBuilderLog(ts: string, er: number): EcsDocument {
   ]);
   const phase = rand(["BUILD", "TEST", "DISTRIBUTE", "DEPROVISION"]);
   const dur = randInt(300, isErr ? 3600 : 1800);
-  const imageId = `ami-${randId(8).toLowerCase()}`;
+  const imageId = `ami-${randHexId(8)}`;
   const IB_FAIL_MSGS = [
     "Component execution failed",
     "Health check failed",
@@ -1120,6 +1133,7 @@ function generateImageBuilderLog(ts: string, er: number): EcsDocument {
     },
     event: {
       category: ["process"],
+      type: ["info"],
       duration: dur * 1e9,
       outcome: isErr ? "failure" : "success",
       dataset: "aws.imagebuilder",
@@ -1171,7 +1185,7 @@ function generateOutpostsLog(ts: string, er: number): EcsDocument {
   const isErr = badNetwork || badCapacity || Math.random() < er;
   const assetState = rand(["ACTIVE", "ACTIVE", "RETIRING", "ISOLATED"]);
   const serviceLink = {
-    vpc_id: `vpc-${randId(8)}`,
+    vpc_id: `vpc-${randHexId(8)}`,
     service_linked_role: `AWSServiceRoleForOutposts`,
     route_table_revision: randInt(1, 12),
     last_health_ping_ms: randInt(5, isErr ? 800 : 40),
@@ -1226,7 +1240,8 @@ function generateOutpostsLog(ts: string, er: number): EcsDocument {
     event: {
       action: scenario,
       outcome: isErr ? "failure" : "success",
-      category: ["host", "infrastructure"],
+      category: ["host"],
+      type: ["info"],
       dataset: "aws.outposts",
       provider: "outposts.amazonaws.com",
       duration: randInt(100, 5000) * 1e6,
@@ -1279,12 +1294,12 @@ function generateWavelengthLog(ts: string, er: number): EcsDocument {
     },
   ];
   const wz = rand(WAVELENGTH_ZONES);
-  const instanceId = `i-${randId(17).toLowerCase()}`;
+  const instanceId = `i-${randHexId(17)}`;
   const instanceType = rand(["t3.medium", "t3.xlarge", "g4dn.2xlarge", "r5.large", "c5.2xlarge"]);
   const carrierGwId = `cagw-${randId(17).toLowerCase()}`;
-  const subnetId = `subnet-${randId(17).toLowerCase()}`;
-  const carrierIp = randIp();
-  const ueIp = randIp();
+  const subnetId = `subnet-${randHexId(17)}`;
+  const carrierIp = randPrivateIp();
+  const ueIp = randPrivateIp();
   const bandwidthAllowanceGbps = randInt(1, 25);
   const r = randFloat(0, 1);
   const scenario =
@@ -1314,10 +1329,10 @@ function generateWavelengthLog(ts: string, er: number): EcsDocument {
     "InvalidWavelengthZone",
   ] as const);
   const edgeLaunch = {
-    ami_id: `ami-${randId(8)}`,
+    ami_id: `ami-${randHexId(8)}`,
     launch_template: `lt-${randId(8)}`,
     placement_tenancy: "default",
-    carrier_route_table: `rtb-${randId(8)}`,
+    carrier_route_table: `rtb-${randHexId(8)}`,
   };
   const carrierGateway = {
     state: gwFail ? rand(["failed", "pending"]) : "available",
@@ -1335,7 +1350,7 @@ function generateWavelengthLog(ts: string, er: number): EcsDocument {
     edge_compute_launch: `RunInstances ${instanceType} zone=${wz.zone} instance=${instanceId} template=${edgeLaunch.launch_template}`,
     low_latency_check: `HealthCheck UE=${ueIp.slice(0, 8)}… carrier=${wz.carrier} p99=${latencyProbe.rtt_us_p99 / 1000}ms jitter=${latencyProbe.jitter_ms}`,
     throughput_probe: `BW test UL=${uplinkMbps.toFixed(1)}Mbps DL=${downlinkMbps.toFixed(1)}Mbps quota=${bandwidthAllowanceGbps}Gbps`,
-    subnet_association: `AssociateCarrierGateway vpc=vpc-${randId(8)} route_table=${edgeLaunch.carrier_route_table} assoc=${carrierGateway.attachment_id}`,
+    subnet_association: `AssociateCarrierGateway vpc=vpc-${randHexId(8)} route_table=${edgeLaunch.carrier_route_table} assoc=${carrierGateway.attachment_id}`,
     metadata_refresh: `IMDS token refresh ttl=${randInt(1, 6)}h on ${instanceId}`,
   };
   return {
@@ -1389,6 +1404,7 @@ function generateWavelengthLog(ts: string, er: number): EcsDocument {
       action: scenario,
       outcome: isErr ? "failure" : "success",
       category: ["network", "host"],
+      type: ["connection"],
       dataset: "aws.wavelength",
       provider: "ec2.amazonaws.com",
       duration: randInt(10, 500) * 1e6,
@@ -1499,6 +1515,7 @@ function generateMainframeModernizationLog(ts: string, er: number): EcsDocument 
       action: scenario,
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.m2",
       provider: "m2.amazonaws.com",
       duration: randInt(100, isErr ? 30000 : 5000) * 1e6,
@@ -1575,7 +1592,7 @@ function generateParallelComputingLog(ts: string, er: number): EcsDocument {
     "AccessDeniedException",
   ] as const);
   const messages: Record<string, string> = {
-    cluster_create: `CreateCluster ${clusterId} controller=${scheduler} vpc=${`vpc-${randId(8)}`}`,
+    cluster_create: `CreateCluster ${clusterId} controller=${scheduler} vpc=${`vpc-${randHexId(8)}`}`,
     job_submit: `sbatch ${jobSubmit.script_path} QOS=${jobSubmit.qos} gpus=${jobSubmit.gres_gpu} -> ${jobId}`,
     node_scale: `Fleet scale ${scalingActivity.action}: target=${scalingActivity.target_nodes} live=${scalingActivity.active_nodes}`,
     mpi_barrier: `${mpi.collective} size=${mpi.comm_world_size} p99_wait=${mpi.barrier_wait_ms_p99}ms ibv_retries=${mpi.ibv_retries}`,
@@ -1614,6 +1631,7 @@ function generateParallelComputingLog(ts: string, er: number): EcsDocument {
       action: scenario,
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.pcs",
       provider: "pcs.amazonaws.com",
       duration: randInt(1, isErr ? 60000 : 3600) * 1e6,
@@ -1656,7 +1674,7 @@ function generateEvsLog(ts: string, er: number): EcsDocument {
               : "lifecycle_snapshot";
   const vmwareHost = {
     bios_uuid: randUUID(),
-    mgmt_ip: randIp(),
+    mgmt_ip: randPrivateIp(),
     cluster_name: rand(["mgmt-a", "edge-b"]),
     maintenance_mode: rand(["false", "false", "true"]),
   };
@@ -1738,6 +1756,7 @@ function generateEvsLog(ts: string, er: number): EcsDocument {
       action: scenario,
       outcome: isErr ? "failure" : "success",
       category: ["host"],
+      type: ["info"],
       dataset: "aws.evs",
       provider: "evs.amazonaws.com",
       duration: randInt(50, 2000) * 1e6,
@@ -1860,6 +1879,7 @@ function generateSimSpaceWeaverLog(ts: string, er: number): EcsDocument {
       action: scenario,
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.simspaceweaver",
       provider: "simspaceweaver.amazonaws.com",
       duration: clockTickMs * 1e6,

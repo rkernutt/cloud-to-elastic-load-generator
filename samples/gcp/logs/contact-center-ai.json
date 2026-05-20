@@ -1,59 +1,75 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "info" },
-  "severity": "INFO",
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "DEADLINE_EXCEEDED" },
+  "error": {
+    "code": "DEADLINE_EXCEEDED",
+    "message": "DEADLINE_EXCEEDED: operation failed",
+    "type": "gcp"
+  },
+  "severity": "WARNING",
   "labels": {
     "resource.type": "contactcenterai.googleapis.com/Conversation",
-    "conversation": "conv-tzgchgvjc3gj"
+    "conversation": "conv-9s0zsoj350sh",
+    "gcp.rpc.status_code": "DEADLINE_EXCEEDED"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west1",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" },
+    "region": "europe-west12",
+    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
+    "account": { "id": "847293615048", "name": "Globex Security" },
     "service": { "name": "contactcenterai.googleapis.com" }
   },
   "gcp": {
     "contact_center_ai": {
-      "project_name": "globex-dev-g7h8i9",
-      "conversation_id": "conv-tzgchgvjc3gj",
-      "agent_type": "VIRTUAL",
-      "sentiment_score": 0.064,
-      "intent_name": "billing.support",
-      "turn_count": 38,
-      "csat_score": 3,
-      "transfer_to_human": false
+      "project_name": "globex-sec-847293",
+      "conversation_id": "conv-9s0zsoj350sh",
+      "agent_type": "HUMAN",
+      "sentiment_score": -0.527,
+      "intent_name": "order.status",
+      "turn_count": 2,
+      "csat_score": 4,
+      "transfer_to_human": true
     }
   },
-  "event": { "outcome": "success", "duration": 52022, "module": "gcp", "dataset": "gcp.ccai" },
-  "message": "AnalyzeConversation OK project=globex-dev-g7h8i9 conversation=conv-tzgchgvjc3gj intent=billing.support turns=38 csat=3 agent_type=VIRTUAL",
+  "event": {
+    "kind": "event",
+    "category": ["process"],
+    "type": ["error"],
+    "action": "ml-operation",
+    "outcome": "failure",
+    "duration": 98381,
+    "module": "gcp",
+    "dataset": "gcp.ccai"
+  },
+  "message": "ContactCenterAI AnalyzeConversation conversation_id=conv-9s0zsoj350sh sentiment=-0.53 outcome=ESCALATION transfer_to_human=true",
   "service": { "name": "contact-center-ai", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.ccai", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west1",
-    "id": "1dugmq8hiju0dmk5haqsecz7uowt8tl0pyga"
+    "name": "elastic-agent-gcp-europe-west12",
+    "id": "ktiogb938b2e43c02wnpdecolacfow9ol9dz"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-dev-g7h8i9/logs/contact-center-ai",
+  "logName": "projects/globex-sec-847293/logs/contact-center-ai",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-dev-g7h8i9", "region": "europe-west1" }
+    "labels": { "project_id": "globex-sec-847293", "region": "europe-west12" }
   },
-  "insertId": "6R1X4V61R82A",
+  "insertId": "M94RUS7BVDZ7",
   "jsonPayload": {
     "contact_center_ai": {
-      "project_name": "globex-dev-g7h8i9",
-      "conversation_id": "conv-tzgchgvjc3gj",
-      "agent_type": "VIRTUAL",
-      "sentiment_score": 0.064,
-      "intent_name": "billing.support",
-      "turn_count": 38,
-      "csat_score": 3,
-      "transfer_to_human": false
+      "project_name": "globex-sec-847293",
+      "conversation_id": "conv-9s0zsoj350sh",
+      "agent_type": "HUMAN",
+      "sentiment_score": -0.527,
+      "intent_name": "order.status",
+      "turn_count": 2,
+      "csat_score": 4,
+      "transfer_to_human": true
     },
-    "message": "AnalyzeConversation OK project=globex-dev-g7h8i9 conversation=conv-tzgchgvjc3gj intent=billing.support turns=38 csat=3 agent_type=VIRTUAL"
+    "message": "ContactCenterAI AnalyzeConversation conversation_id=conv-9s0zsoj350sh sentiment=-0.53 outcome=ESCALATION transfer_to_human=true"
   }
 }

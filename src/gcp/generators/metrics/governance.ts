@@ -251,11 +251,7 @@ export function generateResourceManagerMetrics(ts: string, er: number): EcsDocum
 export function generateEssentialContactsMetrics(ts: string, er: number): EcsDocument[] {
   const { region, project } = pickGcpCloudContext();
   const dataset = GCP_METRICS_DATASET_MAP["essential-contacts"]!;
-  const contact = rand([
-    "sec@globex.example",
-    "platform@globex.example",
-    "compliance@globex.example",
-  ]);
+  const contact = rand(["sec@globex.io", "platform@globex.io", "compliance@globex.io"]);
   const stressed = Math.random() < er;
   const res = {
     resource_container: project.id,
@@ -614,7 +610,7 @@ export function generateSecurityOperationsMetrics(ts: string, er: number): EcsDo
 export function generateManagedAdMetrics(ts: string, er: number): EcsDocument[] {
   const { region, project } = pickGcpCloudContext();
   const dataset = GCP_METRICS_DATASET_MAP["managed-ad"]!;
-  const domain_name = rand(["corp.globex.example", "partner.ad.example", "finance.ad.example"]);
+  const domain_name = rand(["corp.globex.io", "partner.ad.globex.io", "finance.ad.globex.io"]);
   const stressed = Math.random() < er;
   const res = {
     resource_container: project.id,

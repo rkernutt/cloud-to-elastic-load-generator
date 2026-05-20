@@ -1,56 +1,63 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-southeast-4",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "paymentcryptography" }
   },
   "aws": {
-    "dimensions": { "KeyAlgorithm": "AES_192", "Operation": "GenerateMac" },
+    "dimensions": { "KeyAlgorithm": "RSA_2048", "Operation": "GenerateMac" },
     "paymentcryptography": {
-      "key_arn": "arn:aws:payment-cryptography:ap-southeast-3:501938274650:key/YQDY45EVEHPRJNJXL0TLI4R1UHMQ5BQ1R4TM",
-      "key_alias": "alias/payment-dek-key",
-      "key_algorithm": "AES_192",
-      "key_usage": "TR31_P0_PIN_ENCRYPTION_KEY",
+      "key_arn": "arn:aws:payment-cryptography:ap-southeast-4:814726593401:key/IZO73SF6BW1JG72VAE4CY7WS8O4SALF2YBTI",
+      "key_alias": "alias/payment-pin-key",
+      "key_algorithm": "RSA_2048",
+      "key_usage": "TR31_B0_BASE_DERIVATION_KEY",
       "operation": "GenerateMac",
-      "key_state": "CREATE_COMPLETE",
+      "key_state": "PENDING_DELETE",
       "exportable": false,
-      "key_check_value": "FHK7HG"
+      "key_check_value": "IF805J"
     },
     "s3": {
       "bucket": {
-        "name": "aws-paymentcryptography-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-paymentcryptography-logs-501938274650"
+        "name": "aws-paymentcryptography-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-paymentcryptography-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/paymentcryptography/ap-southeast-3/2026/05/19/paymentcryptography_CH16ZHV7GC0A4YCUV162.log.gz"
+        "key": "AWSLogs/814726593401/paymentcryptography/ap-southeast-4/2026/05/20/paymentcryptography_0YCZCB39P8PPA0N5VYA6.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/paymentcryptography/logs",
-      "log_stream": "ap-southeast-3/yikeqjqe",
-      "ingestion_time": "2026-05-19T15:25:13.541Z"
+      "log_stream": "ap-southeast-4/s46tdwfs",
+      "ingestion_time": "2026-05-20T13:19:01.292Z"
     }
   },
   "event": {
     "action": "ExportKey",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["authentication"],
+    "type": ["start"],
     "dataset": "aws.paymentcryptography",
     "provider": "payment-cryptography.amazonaws.com",
-    "module": "aws"
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "Payment Cryptography GenerateMac using AES_192 (P0)",
-  "log": { "level": "info" },
+  "message": "Payment Cryptography GenerateMac failed — key RSA_2048 state PENDING_DELETE",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ResourceNotFoundException",
+    "message": "Payment Cryptography operation failed",
+    "type": "authentication"
+  },
   "service": { "name": "paymentcryptography", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.paymentcryptography", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "wzcgrddxeoaxus8rzrgzelr5yuol7xvia9om"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "kir3qibd6ljnxxk3jkjy1fgdz2yxstf4jny0"
   },
   "input": { "type": "aws-cloudwatch" }
 }

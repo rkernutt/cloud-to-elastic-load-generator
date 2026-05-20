@@ -26,6 +26,7 @@ import {
   makeGcpSetup,
   randTraceId,
   randSpanId,
+  randSqlSnippet,
 } from "./helpers.js";
 import {
   randHumanUser,
@@ -675,7 +676,13 @@ export function generateGcpDataPipelineChain(ts: string, er: number): EcsDocumen
         `bigquery-${bqDataset}`,
         "success",
         isNullFile
-          ? { db: { type: "sql", rows_affected: 0, statement: "SELECT ... (0 rows returned)" } }
+          ? {
+              db: {
+                type: "sql",
+                rows_affected: 0,
+                statement: `${randSqlSnippet()} (0 rows returned)`,
+              },
+            }
           : { db: { type: "sql", rows_affected: bqRows } }
       )
     );

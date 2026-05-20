@@ -1,56 +1,62 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-south-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "supplychain" }
   },
   "aws": {
-    "dimensions": { "InstanceId": "arn:aws:scn:il-central-1:814726593401:instance/73vl2gon59qw" },
+    "dimensions": { "InstanceId": "arn:aws:scn:eu-south-2:501938274650:instance/3f33cn1rp4hv" },
     "supplychain": {
-      "instance_id": "arn:aws:scn:il-central-1:814726593401:instance/73vl2gon59qw",
+      "instance_id": "arn:aws:scn:eu-south-2:501938274650:instance/3f33cn1rp4hv",
       "instance_name": "global-supply-chain",
-      "namespace": "aws.supply_chain.plan",
-      "event_type": "scn.data.purchase_order",
-      "job_status": "SUCCESS",
-      "record_count": 985795,
-      "forecast_horizon_days": 177,
-      "data_lake_dataset": "shipments"
+      "namespace": "aws.supply_chain.collaboration",
+      "event_type": "scn.data.supply_plan",
+      "job_status": "FAILED",
+      "record_count": 112689,
+      "forecast_horizon_days": 8,
+      "data_lake_dataset": "supplier_lead_times"
     },
     "s3": {
       "bucket": {
-        "name": "aws-supplychain-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-supplychain-logs-814726593401"
+        "name": "aws-supplychain-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-supplychain-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/supplychain/il-central-1/2026/05/19/supplychain_8E7Q9ODL901FPFK2LBA0.log.gz"
+        "key": "AWSLogs/501938274650/supplychain/eu-south-2/2026/05/20/supplychain_B47BK6L9HFSVYAW5FUOT.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/supplychain/logs",
-      "log_stream": "il-central-1/jtntd3kh",
-      "ingestion_time": "2026-05-19T15:25:13.690Z"
+      "log_stream": "eu-south-2/5t6ke6u5",
+      "ingestion_time": "2026-05-20T13:19:01.453Z"
     }
   },
   "event": {
-    "action": "CreateDataLakeDataset",
-    "outcome": "success",
+    "action": "SendDataIntegrationEvent",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.supplychain",
     "provider": "scn.amazonaws.com",
-    "module": "aws"
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "Supply Chain CreateDataLakeDataset: instance=global-supply-chain event=scn.data.purchase_order status=SUCCESS",
-  "log": { "level": "info" },
+  "message": "Supply Chain SendDataIntegrationEvent FAILED [global-supply-chain]: Dataset not found",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ValidationException",
+    "message": "Supply Chain operation failed",
+    "type": "process"
+  },
   "service": { "name": "supplychain", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.supplychain", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "42hpzaz08ort2fkzaulyxi6ymm3ye3f5z9yq"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "12wzkwnhcuhhsnzu878eoz4ajmb7gb4esh9v"
   },
   "input": { "type": "aws-cloudwatch" }
 }

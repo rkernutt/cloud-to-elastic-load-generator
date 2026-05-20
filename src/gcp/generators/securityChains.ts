@@ -28,6 +28,8 @@ import {
   randGkeCluster,
   randSeverity,
   randLatencyMs,
+  randEmail,
+  EMAIL_DOMAINS,
   randZone,
 } from "./helpers.js";
 
@@ -64,9 +66,9 @@ export function generateGcpSecurityFindingChain(ts: string, _er: number): EcsDoc
   const caseId = `cases/${randUUID()}`;
   const srcIp = randIp();
   const assignee = rand([
-    "soc-analyst@example.com",
-    "tier2-oncall@example.com",
-    "ir-team@example.com",
+    randEmail("breakglass-ops"),
+    `tier2-oncall@${rand(EMAIL_DOMAINS)}`,
+    `ir-team@${rand(EMAIL_DOMAINS)}`,
   ]);
   const priority = rand(["P1", "P2", "P3"] as const);
 
@@ -223,7 +225,7 @@ function gcpCspmResourceForRule(
               },
             ],
             iamPolicy: {
-              bindings: [{ role: "roles/owner", members: ["user:attacker@example.com"] }],
+              bindings: [{ role: "roles/owner", members: [`user:${randEmail()}`] }],
             },
           }
         : undefined;
@@ -545,7 +547,7 @@ function gkeKspmResourceForRule(
               name: "cluster-admin",
               apiGroup: "rbac.authorization.k8s.io",
             },
-            subjects: [{ kind: "User", name: "admin@example.com" }],
+            subjects: [{ kind: "User", name: randEmail("platform-admin") }],
           }
         : undefined;
       return { resource, evidence };
@@ -693,7 +695,7 @@ export function generateGcpIamPrivEscChain(ts: string, _er: number): EcsDocument
 
   const attackSessionId = randUUID();
   const callerIp = randIp();
-  const principalEmail = `attacker-${randId(6)}@${project.id.split("-")[0]}.example.com`;
+  const principalEmail = `attacker-${randId(6)}@${rand(EMAIL_DOMAINS)}`;
   const targetSa = `persistence-sa@${project.id}.iam.gserviceaccount.com`;
   const targetSaResource = `projects/${project.id}/serviceAccounts/${targetSa}`;
   const labels = {

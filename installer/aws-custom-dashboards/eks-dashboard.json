@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.eks* | STATS count = COUNT() BY node = `aws.eks.node.name` | SORT count DESC | LIMIT 8"
+            "query": "FROM logs-aws.eks* | STATS count = COUNT() BY node = `aws.eks.node.name` | SORT ``count DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.eks* | STATS avg_cpu = AVG(`aws.eks.metrics.node_cpu_utilization.avg`), avg_mem = AVG(`aws.eks.metrics.node_memory_utilization.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.eks* | STATS avg_cpu = AVG(`aws.eks.metrics.node_cpu_utilization.avg`), avg_mem = AVG(`aws.eks.metrics.node_memory_utilization.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -292,7 +292,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.eks* | STATS avg_pcpu = AVG(`aws.eks.metrics.pod_cpu_utilization.avg`), avg_pmem = AVG(`aws.eks.metrics.pod_memory_utilization.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.eks* | STATS avg_pcpu = AVG(`aws.eks.metrics.pod_cpu_utilization.avg`), avg_pmem = AVG(`aws.eks.metrics.pod_memory_utilization.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -345,7 +345,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.eks* | STATS pods = AVG(`aws.eks.metrics.pod_count.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.eks* | STATS pods = AVG(`aws.eks.metrics.pod_count.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -393,7 +393,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.eks* | STATS rx = SUM(`aws.eks.metrics.pod_network_rx_bytes.sum`), tx = SUM(`aws.eks.metrics.pod_network_tx_bytes.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.eks* | STATS rx = SUM(`aws.eks.metrics.pod_network_rx_bytes.sum`), tx = SUM(`aws.eks.metrics.pod_network_tx_bytes.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -446,7 +446,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.eks* | STATS avg_cpu = AVG(`aws.eks.metrics.node_cpu_utilization.avg`) BY node = `aws.eks.node.name` | SORT avg_cpu DESC | LIMIT 10"
+                "query": "FROM logs-aws.eks* | STATS avg_cpu = AVG(`aws.eks.metrics.node_cpu_utilization.avg`) BY node = `aws.eks.node.name` | SORT ``avg_cpu DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -494,7 +494,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.eks* | STATS failed = MAX(`aws.eks.metrics.cluster_failed_node_count.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.eks* | STATS failed = MAX(`aws.eks.metrics.cluster_failed_node_count.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -527,7 +527,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.eks* | KEEP `@timestamp`, `aws.eks.cluster.name`, `aws.eks.node.name`, log.level, `aws.eks.metrics.node_cpu_utilization.avg`, `aws.eks.metrics.node_memory_utilization.avg`, `aws.eks.metrics.pod_count.avg` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.eks* | KEEP `@timestamp``@timestamp`, `aws.eks.cluster.name`, `aws.eks.node.name`, log.level, `aws.eks.metrics.node_cpu_utilization.avg`, `aws.eks.metrics.node_memory_utilization.avg`, `aws.eks.metrics.pod_count.avg` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

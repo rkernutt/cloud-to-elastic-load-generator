@@ -1,53 +1,59 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-north-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "trustedadvisor" }
   },
   "aws": {
     "trustedadvisor": {
-      "check_name": "VPCs",
-      "category": "service_limits",
-      "status": "ok",
-      "affected_resource": "i-lxamro2lgt05ng9kb",
-      "flagged_resources": 0
+      "check_name": "Underutilized Amazon RDS",
+      "category": "cost_optimizing",
+      "status": "error",
+      "affected_resource": "i-b51c6c9722f43e2e1",
+      "estimated_monthly_savings": 648.175772777716,
+      "flagged_resources": 8
     },
     "s3": {
       "bucket": {
-        "name": "aws-trustedadvisor-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-trustedadvisor-logs-814726593401"
+        "name": "aws-trustedadvisor-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-trustedadvisor-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/trustedadvisor/eu-south-2/2026/05/19/trustedadvisor_SH9EZJ609NLVN7065NK9.log.gz"
+        "key": "AWSLogs/501938274650/trustedadvisor/eu-north-1/2026/05/20/trustedadvisor_IH3NO7MW8AASMGHIL78J.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/trustedadvisor/logs",
-      "log_stream": "eu-south-2/8qsirz86",
-      "ingestion_time": "2026-05-19T15:25:13.679Z"
+      "log_stream": "eu-north-1/l0bkxcyd",
+      "ingestion_time": "2026-05-20T13:19:01.438Z"
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["configuration", "vulnerability"],
     "dataset": "aws.trustedadvisor",
     "provider": "trustedadvisor.amazonaws.com",
-    "duration": 49000000000,
+    "duration": 37000000000,
     "module": "aws"
   },
-  "message": "Trusted Advisor OK: VPCs",
-  "log": { "level": "info" },
+  "message": "Trusted Advisor [ERROR]: Underutilized Amazon RDS - 8 resources affected",
+  "error": {
+    "code": "TrustedAdvisorFinding",
+    "message": "Underutilized Amazon RDS: error",
+    "type": "configuration"
+  },
+  "log": { "level": "error" },
   "service": { "name": "trustedadvisor", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.trustedadvisor", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "6ua1mod3clmuyelnbxahml6ldmd8nwr14kz6"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "uurm9vlo2cbncv1c8zqw86qnezz5mii3mzz0"
   },
   "input": { "type": "http_endpoint" }
 }

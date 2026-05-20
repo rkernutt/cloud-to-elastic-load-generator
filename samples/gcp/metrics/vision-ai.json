@@ -3,38 +3,39 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west8",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" }
+    "region": "europe-west12",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
+    "service": { "name": "vision-ai" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west8",
-    "ephemeral_id": "txnketipo3j02aua85m2dr9sr5ogwtrkpdm3"
+    "name": "metricbeat-gcp-europe-west12",
+    "ephemeral_id": "13p52ixunc65rs7n20le1y68gccr1zerp5oi"
   },
   "monitoringTimeSeries": {
     "metric": {
       "type": "vision.googleapis.com/annotation_count",
       "labels": { "feature": "TEXT_DETECTION" }
     },
-    "resource": { "type": "project", "labels": { "project_id": "globex-dev-g7h8i9" } },
+    "resource": { "type": "project", "labels": { "project_id": "globex-prod-482910" } },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "105234" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "264093" } }
     ]
   },
   "gcp": {
     "vision-ai": {
-      "labels": { "project_id": "globex-dev-g7h8i9", "feature": "TEXT_DETECTION" },
+      "labels": { "project_id": "globex-prod-482910", "feature": "TEXT_DETECTION" },
       "metrics": {
-        "vision.googleapis.com/annotation_count": { "avg": 105234, "sum": 105234, "count": 1 }
+        "vision.googleapis.com/annotation_count": { "avg": 264093, "sum": 264093, "count": 1 }
       }
     }
   },
   "metricset": { "name": "vision-ai", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.vision_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.vision_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.vision_metrics", "module": "gcp" }
 }

@@ -16,6 +16,8 @@ import {
   makeGcpSetup,
   randBigQueryDataset,
   randBigQueryTable,
+  randEmail,
+  APP_DOMAINS,
 } from "./helpers.js";
 import { GCP_ELASTIC_DATASET_MAP } from "../data/elasticMaps.js";
 
@@ -117,6 +119,10 @@ export function generateVertexAiAgentBuilderLog(ts: string, er: number): EcsDocu
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: "extended-service",
       dataset: GCP_ELASTIC_DATASET_MAP["vertex-ai-agent-builder"],
       module: "gcp",
       outcome: isErr ? "failure" : "success",
@@ -143,7 +149,7 @@ export function generateColabEnterpriseLog(ts: string, er: number): EcsDocument 
   const latencyMs = randLatencyMs(randInt(400, 9000), isErr);
   const severity = randSeverity(isErr);
   const principal = rand([
-    `analyst@${project.id.split("-")[0]}.example.com`,
+    randEmail("agarcia"),
     `colab-runner@${project.id}.iam.gserviceaccount.com`,
   ]);
   const apiMethod =
@@ -193,6 +199,10 @@ export function generateColabEnterpriseLog(ts: string, er: number): EcsDocument 
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: "extended-service",
       dataset: GCP_ELASTIC_DATASET_MAP["colab-enterprise"],
       module: "gcp",
       outcome: isErr ? "failure" : "success",
@@ -261,6 +271,10 @@ export function generateDistributedCloudLog(ts: string, er: number): EcsDocument
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: "extended-service",
       dataset: GCP_ELASTIC_DATASET_MAP["distributed-cloud"],
       module: "gcp",
       outcome: isErr ? "failure" : "success",
@@ -331,6 +345,10 @@ export function generateParallelstoreLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: "extended-service",
       dataset: GCP_ELASTIC_DATASET_MAP.parallelstore,
       module: "gcp",
       outcome: isErr ? "failure" : "success",
@@ -394,6 +412,10 @@ export function generateDataformLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: "extended-service",
       dataset: GCP_ELASTIC_DATASET_MAP.dataform,
       module: "gcp",
       outcome: isErr ? "failure" : "success",
@@ -463,6 +485,10 @@ export function generateBiglakeLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: "extended-service",
       dataset: GCP_ELASTIC_DATASET_MAP.biglake,
       module: "gcp",
       outcome: isErr ? "failure" : "success",
@@ -501,7 +527,7 @@ export function generateCertificateManagerLog(ts: string, er: number): EcsDocume
   } else if (scenario === "dns_fail") {
     message = `Authorization update FAILED certificate_map=${mapId}: TXT record conflict`;
   } else if (scenario === "dns_authorization_fail") {
-    message = `DNS authorization FAILED map=${mapId} domain=${rand(["api.example.com", "cdn.partner.io"])} reason=${rand(["CAA_CONFLICT", "DELEGATION_BREAK"])}`;
+    message = `DNS authorization FAILED map=${mapId} domain=${rand(APP_DOMAINS)} reason=${rand(["CAA_CONFLICT", "DELEGATION_BREAK"])}`;
   } else if (scenario === "cert_active") {
     message = `Certificate ACTIVE map=${mapId} domains=${randInt(1, 18)} authority=${rand(["PUBLIC_CA", "PRIVATE_CA"])}`;
   } else if (scenario === "cert_renewal_ok") {
@@ -511,7 +537,7 @@ export function generateCertificateManagerLog(ts: string, er: number): EcsDocume
   } else if (scenario === "map_primary_rotation") {
     message = `Certificate map PRIMARY rotation completed map=${mapId} hosts=${randInt(2, 120)}`;
   } else if (scenario === "map_attach") {
-    message = `Certificate map entry PRIMARY flip hostname=${rand(["api.example.com", "cdn.partner.io"])} serial=${randId(16)}`;
+    message = `Certificate map entry PRIMARY flip hostname=${rand(APP_DOMAINS)} serial=${randId(16)}`;
   }
 
   return {
@@ -533,6 +559,10 @@ export function generateCertificateManagerLog(ts: string, er: number): EcsDocume
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: "extended-service",
       dataset: GCP_ELASTIC_DATASET_MAP["certificate-manager"],
       module: "gcp",
       outcome: isErr ? "failure" : "success",
@@ -598,6 +628,10 @@ export function generateBlockchainNodeEngineLog(ts: string, er: number): EcsDocu
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: "extended-service",
       dataset: GCP_ELASTIC_DATASET_MAP["blockchain-node-engine"],
       module: "gcp",
       outcome: isErr ? "failure" : "success",
@@ -668,6 +702,10 @@ export function generateNetappVolumesLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: "extended-service",
       dataset: GCP_ELASTIC_DATASET_MAP["netapp-volumes"],
       module: "gcp",
       outcome: isErr ? "failure" : "success",

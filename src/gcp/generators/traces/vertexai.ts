@@ -22,7 +22,7 @@ export function generateVertexAiTrace(ts: string, er: number): EcsDocument[] {
     "churn-xgb-v2",
     "image-classifier-resnet",
   ]);
-  const endpointId = rand(["1234567890123456789", "9876543210987654321"]);
+  const endpointId = Array.from({ length: 19 }, () => randInt(0, 9)).join("");
   const accelerator = rand(["NVIDIA_TESLA_T4", "NVIDIA_L4", "NVIDIA_A100_40GB", "TPU_V5E"]);
 
   const otel = gcpOtelMeta("python");

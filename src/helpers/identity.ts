@@ -17,31 +17,31 @@ export interface PipelineUser {
 }
 
 export const DATA_ENGINEERING_USERS: PipelineUser[] = [
-  { name: "jordan.chen", email: "jordan.chen@globex.example.com", department: "data-engineering" },
+  { name: "jordan.chen", email: "jordan.chen@globex.io", department: "data-engineering" },
   {
     name: "priya.sharma",
-    email: "priya.sharma@globex.example.com",
+    email: "priya.sharma@globex.io",
     department: "data-engineering",
   },
   {
     name: "alex.rodriguez",
-    email: "alex.rodriguez@globex.example.com",
+    email: "alex.rodriguez@globex.io",
     department: "analytics",
   },
-  { name: "sam.wilson", email: "sam.wilson@globex.example.com", department: "data-platform" },
-  { name: "maya.patel", email: "maya.patel@globex.example.com", department: "ml-engineering" },
-  { name: "liam.murphy", email: "liam.murphy@globex.example.com", department: "data-ops" },
+  { name: "sam.wilson", email: "sam.wilson@globex.io", department: "data-platform" },
+  { name: "maya.patel", email: "maya.patel@globex.io", department: "ml-engineering" },
+  { name: "liam.murphy", email: "liam.murphy@globex.io", department: "data-ops" },
 ];
 
 export const SERVICE_USERS: PipelineUser[] = [
   {
     name: "etl-scheduler",
-    email: "etl-scheduler@globex.example.com",
+    email: "etl-scheduler@globex.io",
     department: "automation",
   },
   {
     name: "ci-deploy-bot",
-    email: "ci-deploy-bot@globex.example.com",
+    email: "ci-deploy-bot@globex.io",
     department: "devops",
   },
 ];
@@ -69,11 +69,7 @@ export const randPipelineUserAgent = (): string => rand(PIPELINE_USER_AGENTS);
 
 // ── Source IP pools ─────────────────────────────────────────────────────────
 
-const OFFICE_IP_RANGES = [
-  "203.0.113", // TEST-NET-3 (documentation)
-  "198.51.100", // TEST-NET-2
-  "192.0.2", // TEST-NET-1
-];
+const OFFICE_IP_RANGES = ["52.94.76", "34.102.136", "104.18.22", "18.162.44", "185.199.108"];
 
 const VPN_IP_RANGES = ["100.64.0", "100.64.1", "100.64.2"];
 
@@ -339,6 +335,15 @@ export function gcpCloudAuditEvent(
       logger: `cloudaudit.googleapis.com/activity`,
     },
     message: `Cloud Audit: ${methodName} by ${user.email} on ${resourceName}`,
+    ...(outcome === "failure"
+      ? {
+          error: {
+            code: "PERMISSION_DENIED",
+            message: `Failed to execute ${methodName}`,
+            type: "gcp",
+          },
+        }
+      : {}),
   };
 }
 

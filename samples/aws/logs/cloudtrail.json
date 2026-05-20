@@ -1,90 +1,101 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "us-east-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "cloudtrail" }
   },
   "aws": {
-    "dimensions": {
-      "EventName": "UpdateFunctionCode20150331v2",
-      "EventSource": "lambda.amazonaws.com"
-    },
+    "dimensions": { "EventName": "PutObject", "EventSource": "s3.amazonaws.com" },
     "cloudtrail": {
       "eventVersion": "1.11",
       "userIdentity": {
-        "type": "AWSService",
-        "principalId": "501938274650:alice",
-        "arn": "arn:aws:iam::501938274650:user/alice",
-        "accountId": "501938274650",
-        "accessKeyId": "AKIAQ62HJ65VONOK2FUG",
-        "userName": "alice",
+        "type": "IAMUser",
+        "principalId": "164820739518:svc-monitoring",
+        "arn": "arn:aws:iam::164820739518:user/svc-monitoring",
+        "accountId": "164820739518",
+        "accessKeyId": "AKIA6K2NN8QSJUNHQ1JZ",
+        "userName": "svc-monitoring",
         "sessionContext": {
           "sessionIssuer": {
             "type": "Role",
-            "principalId": "AROAQ9ICAB06W5LYRG5V",
-            "arn": "arn:aws:iam::501938274650:role/service-role/execution-role",
-            "accountId": "501938274650",
+            "principalId": "AROAV44ZFBW8T03UFFWJ",
+            "arn": "arn:aws:iam::164820739518:role/service-role/execution-role",
+            "accountId": "164820739518",
             "userName": "execution-role"
           },
           "webIdFederationData": {},
-          "attributes": { "creationDate": "2026-05-19T14:30:36.772Z", "mfaAuthenticated": "true" }
+          "attributes": { "creationDate": "2026-05-20T12:33:06.213Z", "mfaAuthenticated": "false" }
         }
       },
-      "eventTime": "2026-05-19T15:25:12Z",
-      "eventSource": "lambda.amazonaws.com",
-      "eventName": "UpdateFunctionCode20150331v2",
-      "awsRegion": "eu-west-1",
-      "sourceIPAddress": "96.26.162.128",
-      "userAgent": "curl/7.68.0",
-      "requestParameters": {},
-      "requestID": "h38ke43h-6tcu-04ms-2w2s-xuqbus7zu9ym",
-      "eventID": "5eeeaca9-3751-42f4-86a2-06683eae637c",
+      "eventTime": "2026-05-20T13:19:00Z",
+      "eventSource": "s3.amazonaws.com",
+      "eventName": "PutObject",
+      "awsRegion": "us-east-2",
+      "sourceIPAddress": "72.29.147.12",
+      "userAgent": "Boto3/1.34.84 md/Botocore#1.34.84 ua/2.0 os/linux#6.5.0-1016-aws md/arch#x86_64 lang/python#3.12.3",
+      "requestParameters": { "bucketName": "prod-data", "key": "uploads/file.json" },
+      "requestID": "mxz8k5ah-v1zu-fmji-kj72-8kp79tp76mad",
+      "eventID": "7b5d9479-a416-47eb-a269-7f9ff11540d4",
       "eventType": "AwsApiCall",
-      "recipientAccountId": "501938274650",
+      "recipientAccountId": "164820739518",
       "readOnly": false,
       "eventCategory": "Management",
       "managementEvent": true,
-      "apiVersion": "2012-10-17"
+      "apiVersion": "2012-10-17",
+      "resources": [
+        { "arn": "arn:aws:s3:::prod-data", "account_id": "164820739518", "type": "AWS::S3::Bucket" }
+      ],
+      "errorCode": "DeleteConflictException",
+      "errorMessage": "User is not authorized to perform this operation"
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudtrail-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-cloudtrail-logs-501938274650"
+        "name": "aws-cloudtrail-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-cloudtrail-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/cloudtrail/eu-west-1/2026/05/19/cloudtrail_QLJMTNUT4CGDQQS7971F.log.gz"
+        "key": "AWSLogs/164820739518/cloudtrail/us-east-2/2026/05/20/cloudtrail_VOJIB320X11UFK54Q9WA.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloudtrail/logs",
-      "log_stream": "eu-west-1/dnxvv7gy",
-      "ingestion_time": "2026-05-19T15:25:13.441Z"
+      "log_stream": "us-east-2/x0l9j8ht",
+      "ingestion_time": "2026-05-20T13:19:01.183Z"
     }
   },
-  "user": { "name": "alice" },
-  "source": { "ip": "96.26.162.128", "geo": { "country_iso_code": "AU", "city_name": "Ashburn" } },
-  "user_agent": { "original": "curl/7.68.0" },
+  "user": { "name": "svc-monitoring" },
+  "source": { "ip": "72.29.147.12", "geo": { "country_iso_code": "US", "city_name": "London" } },
+  "user_agent": {
+    "original": "Boto3/1.34.84 md/Botocore#1.34.84 ua/2.0 os/linux#6.5.0-1016-aws md/arch#x86_64 lang/python#3.12.3"
+  },
   "event": {
-    "action": "UpdateFunctionCode20150331v2",
-    "outcome": "success",
+    "action": "PutObject",
+    "outcome": "failure",
     "category": ["configuration"],
-    "type": ["change"],
+    "type": ["creation"],
     "dataset": "aws.cloudtrail",
     "provider": "cloudtrail.amazonaws.com",
-    "module": "aws"
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "CloudTrail: UpdateFunctionCode20150331v2 by alice from 96.26.162.128 - Success",
-  "log": { "level": "info" },
+  "message": "CloudTrail: PutObject by svc-monitoring from 72.29.147.12 - DeleteConflictException",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "DeleteConflictException",
+    "message": "User is not authorized to perform this operation",
+    "type": "access"
+  },
   "service": { "name": "cloudtrail", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudtrail", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "mgykbaq0aedmboesnelw8n20ola1q3ehdzec"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "rvvcr247x2dahcxn4g6daps0yery0vvisgi2"
   },
-  "input": { "type": "aws-s3" }
+  "input": { "type": "aws-s3" },
+  "related": { "ip": ["72.29.147.12"], "user": ["svc-monitoring"] }
 }

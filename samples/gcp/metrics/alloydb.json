@@ -3,23 +3,24 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west8",
-    "project": { "id": "globex-shared-m3n4o5", "name": "Globex Shared Services" },
-    "account": { "id": "173205080756", "name": "Globex Shared Services" }
+    "region": "asia-south2",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
+    "service": { "name": "alloydb" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west8",
-    "ephemeral_id": "ur40z0cadsciluog9d7m8z1x8dm5dtr0nfyc"
+    "name": "metricbeat-gcp-asia-south2",
+    "ephemeral_id": "t2vsruzu4ludbl2s1fz7iixyc6mv85bk9c5s"
   },
   "monitoringTimeSeries": {
     "metric": { "type": "alloydb.googleapis.com/instance/cpu/average_utilization", "labels": {} },
     "resource": {
       "type": "alloydb.googleapis.com/Instance",
       "labels": {
-        "resource_container": "globex-shared-m3n4o5",
-        "location": "europe-west8",
+        "resource_container": "globex-prod-482910",
+        "location": "asia-south2",
         "cluster_id": "loyalty-primary",
         "instance_id": "readpool-01"
       }
@@ -27,21 +28,21 @@
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 53.5 } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 57.76 } }
     ]
   },
   "gcp": {
     "alloydb": {
       "labels": {
-        "resource_container": "globex-shared-m3n4o5",
-        "location": "europe-west8",
+        "resource_container": "globex-prod-482910",
+        "location": "asia-south2",
         "cluster_id": "loyalty-primary",
         "instance_id": "readpool-01"
       },
       "metrics": {
         "alloydb.googleapis.com/instance/cpu/average_utilization": {
-          "avg": 53.5,
-          "sum": 53.5,
+          "avg": 57.76,
+          "sum": 57.76,
           "count": 1
         }
       }
@@ -50,5 +51,5 @@
   "metricset": { "name": "alloydb", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.alloydb_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.alloydb_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.alloydb_metrics", "module": "gcp" }
 }

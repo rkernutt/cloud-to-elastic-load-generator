@@ -3,6 +3,8 @@ import { rand } from "../helpers.js";
 
 export const APM_DS = { type: "traces", dataset: "apm", namespace: "default" } as const;
 
+const SERVICE_VERSIONS = ["2.14.3", "2.14.2", "2.13.8", "3.0.1", "1.42.0", "2026.04.1"] as const;
+
 export type AzureOtelLang = "nodejs" | "python" | "java" | "go" | "dotnet";
 
 const AZURE_SPAN_FAIL_CODES = [
@@ -12,12 +14,18 @@ const AZURE_SPAN_FAIL_CODES = [
   "Unauthorized",
 ] as const;
 
+const AZURE_SPAN_FAIL_MESSAGES = [
+  "The request was throttled. Please retry after 5 seconds.",
+  "Resource not found: /subscriptions/.../providers/Microsoft.Compute/virtualMachines/vm-prod-01",
+  "Authentication failed: token expired",
+] as const;
+
 /** Structured error labels for failed Azure dependency spans (OTel-style). */
-export function azureSpanFailureLabels(message = "descriptive error"): Record<string, string> {
+export function azureSpanFailureLabels(message?: string): Record<string, string> {
   return {
     "error.type": "azure",
     "error.code": rand(AZURE_SPAN_FAIL_CODES),
-    "error.message": message,
+    "error.message": message ?? rand(AZURE_SPAN_FAIL_MESSAGES),
   };
 }
 
@@ -78,7 +86,7 @@ export function azureServiceBase(
   return {
     name,
     ...(environment ? { environment } : {}),
-    version: "1.0.0",
+    version: rand(SERVICE_VERSIONS),
     language: { name: language },
     ...(opts?.framework ? { framework: { name: opts.framework } } : {}),
     ...(opts?.runtimeName

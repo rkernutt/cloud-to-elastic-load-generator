@@ -5,7 +5,7 @@
 
 import { randId } from "./index";
 import type { EnrichOptions } from "./enrich";
-import { enrichDocument as enrichAwsDocument } from "./enrich";
+import { enrichDocument as enrichAwsDocument, populateRelatedFields } from "./enrich";
 import {
   applyOtelTraceIngestionPatch,
   buildOtelLogTelemetry,
@@ -235,7 +235,11 @@ export function enrichGcpAzureDocument(
   const eventModule =
     doc.event?.module ??
     (eventType === "metrics" && metricsKind === "o365_metrics" ? "o365_metrics" : ctx.cloudModule);
-  const event = {
+  // Only sets integration routing fields (module, dataset). ECS normalization
+  // (event.kind, event.category, event.type, event.action) is handled by the
+  // ingest pipeline's ecsNorm() + gcpIdentityExtract()/azureIdentityExtract()
+  // processors — keeping it there mirrors how real integrations work.
+  const event: LooseDoc = {
     ...doc.event,
     module: eventModule,
     dataset: eventType === "metrics" ? indexDataset : doc.event?.dataset || dataset,
@@ -361,6 +365,11 @@ export function enrichGcpAzureDocument(
     applyOtelTraceIngestionPatch(enriched, ctx.cloudModule, source, AGENT_VERSION);
   }
 
+  // callerIpAddress → source.ip and protoPayload → user.email mappings are
+  // handled by the ingest pipeline's azureIdentityExtract()/gcpIdentityExtract()
+  // + vendorCleanup() processors. populateRelatedFields() runs here as a
+  // client-side fallback for docs that bypass ingest pipelines.
+  populateRelatedFields(enriched);
   return enriched;
 }
 

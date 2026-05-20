@@ -493,9 +493,9 @@ export function generateM365DedicatedRemainingMetrics(ts: string, er: number): E
   const { region, subscription, resourceGroup } = pickAzureContext();
   const dataset = AZURE_METRICS_DATASET_MAP.m365!;
   const tenants = [
-    "northwind.onmicrosoft.com",
-    "fabrikam.onmicrosoft.com",
-    "contoso.onmicrosoft.com",
+    "meridiantech.onmicrosoft.com",
+    "cascadeops.onmicrosoft.com",
+    "northpeak.onmicrosoft.com",
   ];
   const n = Math.min(randInt(1, 3), tenants.length);
   return Array.from({ length: n }, (_, i) => {

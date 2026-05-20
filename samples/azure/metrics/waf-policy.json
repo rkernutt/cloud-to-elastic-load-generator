@@ -3,43 +3,56 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "westus3",
-    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" }
+    "region": "uaenorth",
+    "account": { "id": "c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d", "name": "Northpeak-Dev" },
+    "service": { "name": "azure.waf_metrics" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-westus3",
-    "ephemeral_id": "na18vlkf9tvvliovtfv5fosivjcf86wr9jpp"
+    "name": "metricbeat-azure-uaenorth",
+    "ephemeral_id": "i0begn6yz5v86c5xpmyamu55t7s0wp0sag3i"
   },
   "azure": {
     "waf": {
       "metrics": {
         "MatchedWafRequests": {
-          "avg": 199717,
-          "min": 175750.96,
-          "max": 223683.04,
-          "sum": 199717,
+          "avg": 1009543,
+          "min": 888397.84,
+          "max": 1130688.16,
+          "sum": 1009543,
           "count": 1
         },
-        "BlockedWafRequests": { "avg": 34, "min": 29.92, "max": 38.08, "sum": 34, "count": 1 },
-        "WafRuleHits": { "avg": 52711, "min": 46385.68, "max": 59036.32, "sum": 52711, "count": 1 }
+        "BlockedWafRequests": {
+          "avg": 3389,
+          "min": 2982.32,
+          "max": 3795.68,
+          "sum": 3389,
+          "count": 1
+        },
+        "WafRuleHits": {
+          "avg": 172514,
+          "min": 151812.32,
+          "max": 193215.68,
+          "sum": 172514,
+          "count": 1
+        }
       }
     },
     "dimensions": {
       "RuleId": "950100",
-      "PolicyName": "waf-1rd3q",
-      "ResourceGroup": "rg-prod-nxnsa"
+      "PolicyName": "waf-ndr6t",
+      "ResourceGroup": "rg-data-abvgq"
     },
     "resource": {
-      "id": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-prod-nxnsa/providers/Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies/waf-1rd3q",
-      "group": "rg-prod-nxnsa",
-      "name": "waf-1rd3q"
+      "id": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-data-abvgq/providers/Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies/waf-ndr6t",
+      "group": "rg-data-abvgq",
+      "name": "waf-ndr6t"
     },
     "namespace": "Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies"
   },
   "metricset": { "name": "monitor", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "azure.waf_metrics", "namespace": "default" },
   "input": { "type": "azure-monitor" },
-  "event": { "dataset": "azure.waf_metrics", "module": "azure" }
+  "event": { "kind": "metric", "dataset": "azure.waf_metrics", "module": "azure" }
 }

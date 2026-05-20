@@ -1,71 +1,75 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
     "region": "me-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "dynamodb" }
   },
   "aws": {
-    "dimensions": { "TableName": "cache", "Operation": "RegisterScalableTarget" },
+    "dimensions": { "TableName": "products", "Operation": "UpdateContinuousBackups" },
     "dynamodb": {
-      "table_name": "cache",
-      "operation": "RegisterScalableTarget",
-      "scenario": "capacity_autoscale",
-      "consumed_read_capacity_units": 33.74538841052919,
-      "consumed_write_capacity_units": 10.25333672001194,
-      "returned_item_count": 66,
-      "latency_ms": 71,
-      "items_count": 407,
-      "structured_logging": false,
+      "table_name": "products",
+      "operation": "UpdateContinuousBackups",
+      "scenario": "backup_restore",
+      "backup_window": "PT22H",
+      "consumed_read_capacity_units": 28.834299405135358,
+      "consumed_write_capacity_units": 45.54154985918989,
+      "returned_item_count": 36,
+      "latency_ms": 16,
+      "items_count": 372,
+      "structured_logging": true,
       "metrics": {
-        "AccountMaxReads": { "max": 602963 },
-        "AccountMaxWrites": { "max": 407454 },
-        "AccountMaxTableLevelReads": { "max": 39853 },
-        "AccountMaxTableLevelWrites": { "max": 10153 },
-        "AccountProvisionedReadCapacityUtilization": { "avg": 39.3090604441799 },
-        "ConsumedReadCapacityUnits": { "sum": 84 },
-        "ConsumedWriteCapacityUnits": { "sum": 242 },
-        "ProvisionedReadCapacityUnits": { "avg": 4049 },
-        "ProvisionedWriteCapacityUnits": { "avg": 2019 },
+        "AccountMaxReads": { "max": 966857 },
+        "AccountMaxWrites": { "max": 501341 },
+        "AccountMaxTableLevelReads": { "max": 39053 },
+        "AccountMaxTableLevelWrites": { "max": 19764 },
+        "AccountProvisionedReadCapacityUtilization": { "avg": 7.357730223413234 },
+        "ConsumedReadCapacityUnits": { "sum": 111 },
+        "ConsumedWriteCapacityUnits": { "sum": 301 },
+        "ProvisionedReadCapacityUnits": { "avg": 4044 },
+        "ProvisionedWriteCapacityUnits": { "avg": 183 },
         "ReadThrottleEvents": { "sum": 0 },
         "WriteThrottleEvents": { "sum": 0 },
         "SystemErrors": { "sum": 0 },
         "UserErrors": { "sum": 0 },
-        "SuccessfulRequestLatency": { "avg": 1.5539656927453727, "max": 9.250243191713558 },
+        "SuccessfulRequestLatency": { "avg": 0.9407454531398926, "max": 4.419589156286799 },
         "ThrottledRequests": { "sum": 0 },
         "TransactionConflict": { "sum": 0 },
-        "ReturnedItemCount": { "avg": 811 },
-        "ReturnedBytes": { "avg": 42638 }
+        "ReturnedItemCount": { "avg": 172 },
+        "ReturnedBytes": { "avg": 137974 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-dynamodb-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-dynamodb-logs-501938274650"
+        "name": "aws-dynamodb-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-dynamodb-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/dynamodb/me-south-1/2026/05/19/dynamodb_7UVGKXDVE6I1M4LTH2MV.log.gz"
+        "key": "AWSLogs/814726593401/dynamodb/me-south-1/2026/05/20/dynamodb_C7KP6RIS8RVAPM67CWF2.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/dynamodb/logs",
-      "log_stream": "me-south-1/a89jvqjp",
-      "ingestion_time": "2026-05-19T15:25:13.554Z"
+      "log_stream": "me-south-1/fxayivuy",
+      "ingestion_time": "2026-05-20T13:19:01.321Z"
     }
   },
-  "db": { "name": "cache", "operation": "RegisterScalableTarget", "type": "nosql" },
+  "db": { "name": "products", "operation": "UpdateContinuousBackups", "type": "nosql" },
   "event": {
     "outcome": "success",
     "category": ["database"],
     "type": ["access"],
     "dataset": "aws.dynamodb",
     "provider": "dynamodb.amazonaws.com",
-    "duration": 71000000,
-    "module": "aws"
+    "duration": 16000000,
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "Consumed capacity auto-scale applied targetReadCapacityUnits=91 (RegisterScalableTarget)",
+  "message": "{\"table\":\"products\",\"operation\":\"UpdateContinuousBackups\",\"scenario\":\"backup_restore\",\"backup_arn\":\"arn:aws:dynamodb:me-south-1:814726593401:table/products/backup/JG2LZFCPY2M6\",\"consumedReadCapacityUnits\":28.834299405135358,\"consumedWriteCapacityUnits\":45.54154985918989,\"returnedItemCount\":36,\"latencyMs\":16,\"timestamp\":\"2026-05-20T13:19:00.213Z\"}",
   "log": { "level": "info" },
+  "trace": { "id": "KWQJ55ROH0IYOPFPMGTRPHPAN1DZFWTI" },
+  "transaction": { "id": "D7WPWI6PL0SJAVQ1" },
   "service": { "name": "dynamodb", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.dynamodb", "namespace": "default" },
@@ -73,7 +77,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "aydw1anyq68tjr9tivec187bahhx6hef1n8r"
+    "ephemeral_id": "4e51zjct2s1pn564ws9au6tdw1chdff850ns"
   },
   "input": { "type": "aws-cloudwatch" }
 }

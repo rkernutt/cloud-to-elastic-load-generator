@@ -5,7 +5,9 @@ import {
   randInt,
   randId,
   randFloat,
-  randIp,
+  randPublicIp,
+  randSourceIp,
+  gcpStatusMessage,
   gcpCloud,
   makeGcpSetup,
   randPrincipal,
@@ -17,6 +19,8 @@ import {
   randServiceAccount,
   randUUID,
   USER_AGENTS,
+  randEmail,
+  EMAIL_DOMAINS,
 } from "./helpers.js";
 
 const AUDIT_TYPE = "type.googleapis.com/google.cloud.audit.AuditLog";
@@ -61,7 +65,7 @@ function auditProto(opts: {
     serviceName: opts.serviceName,
     resourceName: opts.resourceName,
     requestMetadata: {
-      callerIp: randIp(),
+      callerIp: randSourceIp(),
       callerSuppliedUserAgent: rand(USER_AGENTS),
       requestAttributes: {},
     },
@@ -79,7 +83,10 @@ const GRPC_ERROR_STATUSES = [
   "UNAVAILABLE",
 ] as const;
 
-function grpcStructuredFault(isErr: boolean): {
+function grpcStructuredFault(
+  isErr: boolean,
+  resource = "resource"
+): {
   spread: Record<string, unknown>;
   rpcLabel: Record<string, string>;
 } {
@@ -88,7 +95,7 @@ function grpcStructuredFault(isErr: boolean): {
   return {
     spread: {
       "gcp.rpc": { status_code: code },
-      error: { code, message: `${code}: operation failed`, type: "gcp" },
+      error: { code, message: gcpStatusMessage(code, resource), type: "gcp" },
     },
     rpcLabel: { "gcp.rpc.status_code": code },
   };
@@ -188,6 +195,10 @@ export function generateSecurityCommandCenterLog(ts: string, er: number): EcsDoc
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["denied"] : ["info"],
+      action: String("security-event"),
       outcome: isErr ? "failure" : "success",
       duration: durationNs,
     },
@@ -309,6 +320,10 @@ export function generateIamLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["denied"] : ["info"],
+      action: String("security-event"),
       outcome: isErr ? "failure" : "success",
       duration: durationNs,
     },
@@ -382,6 +397,10 @@ export function generateSecretManagerLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["denied"] : ["info"],
+      action: String("security-event"),
       outcome: isErr ? "failure" : "success",
       duration: durationNs,
     },
@@ -500,6 +519,10 @@ export function generateCloudKmsLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["denied"] : ["info"],
+      action: String("security-event"),
       outcome: isErr ? "failure" : "success",
       duration: durationNs,
     },
@@ -582,6 +605,10 @@ export function generateCertificateAuthorityLog(ts: string, er: number): EcsDocu
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["denied"] : ["info"],
+      action: String("security-event"),
       outcome: isErr ? "failure" : "success",
       duration: durationNs,
     },
@@ -607,11 +634,7 @@ export function generateBeyondCorpLog(ts: string, er: number): EcsDocument {
     "jira.globex.io",
     "wiki.globex.io",
   ]);
-  const userEmail = rand([
-    "alice@globex.example.com",
-    "bob@globex.example.com",
-    "contractor@partner.example.com",
-  ]);
+  const userEmail = rand([randEmail(), randEmail("kpatel"), `contractor@${rand(EMAIL_DOMAINS)}`]);
   const deviceTrustLevel = rand(["TRUST", "UNTRUST"] as const);
   const accessDecision = isErr ? "DENY" : rand(["ALLOW", "DENY"] as const);
   const policyName = rand(["corp-baseline", "vendor-restricted", "break-glass-admin"]);
@@ -624,7 +647,7 @@ export function generateBeyondCorpLog(ts: string, er: number): EcsDocument {
     access_decision: accessDecision,
     access_policy: policyName,
     session_id: randUUID(),
-    client_ip: randIp(),
+    client_ip: randSourceIp(),
     user_agent: rand(USER_AGENTS),
   };
 
@@ -654,6 +677,13 @@ export function generateBeyondCorpLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type:
+        (accessDecision === "ALLOW" && !isErr ? "success" : "failure") === "failure"
+          ? ["denied"]
+          : ["info"],
+      action: String("security-event"),
       outcome: accessDecision === "ALLOW" && !isErr ? "success" : "failure",
       duration: durationNs,
     },
@@ -723,6 +753,13 @@ export function generateBinaryAuthorizationLog(ts: string, er: number): EcsDocum
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type:
+        (verdict === "ALLOWED" || verdict === "BREAK_GLASS" ? "success" : "failure") === "failure"
+          ? ["denied"]
+          : ["info"],
+      action: String("security-event"),
       outcome: verdict === "ALLOWED" || verdict === "BREAK_GLASS" ? "success" : "failure",
       duration: durationNs,
     },
@@ -811,7 +848,7 @@ export function generateAccessContextManagerLog(ts: string, er: number): EcsDocu
   const accessLevelName = rand(["corp_trusted", "geo_us_only", "mdm_enrolled"]);
   const conditionType = rand(["ip_subnetwork", "device_policy", "regions"] as const);
   const satisfied = !isErr && Math.random() > 0.25;
-  const requestIp = randIp();
+  const requestIp = randSourceIp();
   const deviceState = rand(["COMPLIANT", "NON_COMPLIANT", "UNKNOWN"] as const);
   const durationNs = randLatencyMs(20, isErr) * 1e6;
   const jsonPayload = {
@@ -851,6 +888,10 @@ export function generateAccessContextManagerLog(ts: string, er: number): EcsDocu
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: (satisfied ? "success" : "failure") === "failure" ? ["denied"] : ["info"],
+      action: String("security-event"),
       outcome: satisfied ? "success" : "failure",
       duration: durationNs,
     },
@@ -887,7 +928,7 @@ export function generateAssuredWorkloadsLog(ts: string, er: number): EcsDocument
     workload: `organizations/${randInt(100000, 999999)}/locations/us/assuredWorkloads/${workloadName}`,
     complianceRegime,
     violation: { type: violationType, resourceType, resource: `projects/${project.id}` },
-    remediation: { status: remediationStatus, assignedTo: "security@globex.example.com" },
+    remediation: { status: remediationStatus, assignedTo: "security@globex.io" },
   };
 
   return {
@@ -916,6 +957,10 @@ export function generateAssuredWorkloadsLog(ts: string, er: number): EcsDocument
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["denied"] : ["info"],
+      action: String("security-event"),
       outcome: isErr ? "failure" : "success",
       duration: durationNs,
     },
@@ -955,7 +1000,7 @@ export function generateChronicleLog(ts: string, er: number): EcsDocument {
         type: iocType,
         value:
           iocType === "IP"
-            ? randIp()
+            ? randPublicIp()
             : iocType === "DOMAIN"
               ? `evil-${randId(6)}.net`
               : `sha256:${randId(64).toLowerCase()}`,
@@ -992,6 +1037,10 @@ export function generateChronicleLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["denied"] : ["info"],
+      action: String("security-event"),
       outcome: isErr ? "failure" : "success",
       duration: durationNs,
     },
@@ -1062,6 +1111,10 @@ export function generateRecaptchaEnterpriseLog(ts: string, er: number): EcsDocum
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: (tokenValid ? "success" : "failure") === "failure" ? ["denied"] : ["info"],
+      action: String("security-event"),
       outcome: tokenValid ? "success" : "failure",
       duration: durationNs,
     },
@@ -1090,8 +1143,8 @@ export function generateWebSecurityScannerLog(ts: string, er: number): EcsDocume
   ] as const);
   const severity = rand(["CRITICAL", "HIGH", "MEDIUM", "LOW"] as const);
   const url = rand([
-    `https://app.${project.id.split("-")[0]}.example.com/search?q=test`,
-    `https://api.${project.id.split("-")[0]}.example.com/v1/users`,
+    `https://app.${rand(EMAIL_DOMAINS)}/search?q=test`,
+    `https://api.${rand(EMAIL_DOMAINS)}/v1/users`,
   ]);
   const httpMethod = rand(["GET", "POST", "PUT"] as const);
   const responseCode = isErr ? rand([0, 502, 503] as const) : rand([200, 301, 403, 404] as const);
@@ -1138,6 +1191,10 @@ export function generateWebSecurityScannerLog(ts: string, er: number): EcsDocume
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["denied"] : ["info"],
+      action: String("security-event"),
       outcome: isErr ? "failure" : "success",
       duration: durationNs,
     },
@@ -1157,15 +1214,12 @@ export function generateIdentityAwareProxyLog(ts: string, er: number): EcsDocume
   const { region, project, isErr } = makeGcpSetup(er);
   const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const resource = `//compute.googleapis.com/projects/${project.id}/zones/${region}-a/instances/iap-${randId(4)}`;
-  const userEmail = rand([
-    `user@${project.id.split("-")[0]}.example.com`,
-    `contractor@partner.example.com`,
-  ]);
+  const userEmail = rand([randEmail(), `contractor@${rand(EMAIL_DOMAINS)}`]);
   const deviceState = rand(["COMPLIANT", "NON_COMPLIANT", "UNKNOWN"] as const);
   const accessDecision = isErr ? "DENY" : rand(["ALLOW", "DENY"] as const);
   const policyName = rand(["iap-baseline", "vendor-restricted", "admin-breakglass"]);
   const contextLevel = rand(["LEVEL_1", "LEVEL_2", "LEVEL_3"] as const);
-  const clientIp = randIp();
+  const clientIp = randSourceIp();
   const durationNs = randLatencyMs(25, isErr) * 1e6;
   const protoPayload = auditProto({
     methodName: "AuthorizeUser",
@@ -1216,6 +1270,13 @@ export function generateIdentityAwareProxyLog(ts: string, er: number): EcsDocume
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type:
+        (accessDecision === "ALLOW" && !isErr ? "success" : "failure") === "failure"
+          ? ["denied"]
+          : ["info"],
+      action: String("security-event"),
       outcome: accessDecision === "ALLOW" && !isErr ? "success" : "failure",
       duration: durationNs,
     },
@@ -1292,6 +1353,10 @@ export function generateDlpLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["denied"] : ["info"],
+      action: String("security-event"),
       outcome: isErr ? "failure" : "success",
       duration: durationNs,
     },
@@ -1303,9 +1368,9 @@ export function generateWebRiskLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const uri = rand([
-    `https://evil-${randId(6)}.example/download`,
+    `https://evil-${randId(6)}.${rand(EMAIL_DOMAINS)}/download`,
     `http://phish-${randId(4)}.net/login`,
-    `https://cdn.${project.id}.example/asset`,
+    `https://cdn.${rand(EMAIL_DOMAINS)}/asset`,
   ]);
   const threatType = rand([
     "MALWARE",
@@ -1321,7 +1386,7 @@ export function generateWebRiskLog(ts: string, er: number): EcsDocument {
     threatTypes: [threatType],
     confidence: Math.round(confidence * 1000) / 1000,
     platform: platformType,
-    clientMetadata: { clientIp: randIp(), userAgent: rand(USER_AGENTS) },
+    clientMetadata: { clientIp: randSourceIp(), userAgent: rand(USER_AGENTS) },
     api: "webrisk.googleapis.com/v1/uris:search",
   };
 
@@ -1349,6 +1414,10 @@ export function generateWebRiskLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["denied"] : ["info"],
+      action: String("security-event"),
       outcome: isErr ? "failure" : "success",
       duration: durationNs,
     },
@@ -1366,13 +1435,10 @@ export function generateCloudIdentityLog(ts: string, er: number): EcsDocument {
     "2SV_ENABLED",
     "SSO_LOGIN",
   ] as const);
-  const userEmail = rand([
-    `user@${project.id.split("-")[0]}.example.com`,
-    `admin@${project.id.split("-")[0]}.example.com`,
-  ]);
+  const userEmail = rand([randEmail(), randEmail("platform-admin")]);
   const groupName = rand(["engineering", "security", "contractors", "all-staff"]);
   const deviceType = rand(["CHROME_OS", "ANDROID", "IOS", "WINDOWS"] as const);
-  const adminActor = rand([`admin@${project.id.split("-")[0]}.example.com`, "system@google.com"]);
+  const adminActor = rand([randEmail("platform-admin"), "system@google.com"]);
   const durationNs = randLatencyMs(40, isErr) * 1e6;
   const protoPayload = auditProto({
     methodName: `admin.googleapis.com/${eventType === "USER_CREATED" ? "directory.users.insert" : "directory.groups.patch"}`,
@@ -1414,6 +1480,10 @@ export function generateCloudIdentityLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["denied"] : ["info"],
+      action: String("security-event"),
       outcome: isErr ? "failure" : "success",
       duration: durationNs,
     },
@@ -1467,6 +1537,10 @@ export function generateManagedAdLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["denied"] : ["info"],
+      action: String("security-event"),
       outcome: isErr ? "failure" : "success",
       duration: durationNs,
     },
@@ -1477,10 +1551,7 @@ export function generateManagedAdLog(ts: string, er: number): EcsDocument {
 export function generateOsLoginLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
-  const user = rand([
-    `dev@${project.id.split("-")[0]}.example.com`,
-    `sre@${project.id}.example.com`,
-  ]);
+  const user = rand([randEmail("jchen"), randEmail("svc-monitoring")]);
   const methodName = rand([
     "google.cloud.oslogin.v1.OsLoginService.Login",
     "google.cloud.oslogin.v1.OsLoginService.DeletePosixAccount",
@@ -1531,6 +1602,10 @@ export function generateOsLoginLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["denied"] : ["info"],
+      action: String("security-event"),
       outcome: isErr ? "failure" : "success",
       duration: durationNs,
     },
@@ -1599,6 +1674,10 @@ export function generateSecurityOperationsLog(ts: string, er: number): EcsDocume
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["denied"] : ["info"],
+      action: String("security-event"),
       outcome: isErr ? "failure" : "success",
       duration: durationNs,
     },
@@ -1643,7 +1722,7 @@ export function generateAccessTransparencyLog(ts: string, er: number): EcsDocume
     reason: accessReason,
     action: rand(["DATA_ACCESS", "CONFIGURATION_CHANGE", "ACCOUNT_RECOVERY"]),
     status: isErr ? "FAILED" : "COMPLETED",
-    ipAddress: randIp(),
+    ipAddress: randSourceIp(),
     justification,
     accessDurationSeconds,
   };
@@ -1675,6 +1754,10 @@ export function generateAccessTransparencyLog(ts: string, er: number): EcsDocume
       },
     },
     event: {
+      kind: "event",
+      category: ["intrusion_detection"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["denied"] : ["info"],
+      action: String("security-event"),
       outcome: isErr ? "failure" : "success",
       duration: accessDurationSeconds * 1000,
     },

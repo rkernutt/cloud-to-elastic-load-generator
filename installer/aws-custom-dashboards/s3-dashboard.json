@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.s3access* | STATS c = COUNT() BY s = `aws.s3access.http_status` | SORT c DESC | LIMIT 10"
+            "query": "FROM logs-aws.s3access* | STATS c = COUNT() BY s = `aws.s3access.http_status` | SORT ``c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.s3access* | STATS c = COUNT() BY o = `aws.s3access.operation` | SORT c DESC | LIMIT 10"
+            "query": "FROM logs-aws.s3access* | STATS c = COUNT() BY o = `aws.s3access.operation` | SORT ``c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.s3access* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.s3access* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.s3access* | STATS e4 = SUM(CASE(`aws.s3access.http_status` >= 400 AND `aws.s3access.http_status` < 500, 1, 0)), e5 = SUM(CASE(`aws.s3access.http_status` >= 500, 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.s3access* | STATS e4 = SUM(CASE(`aws.s3access.http_status` >= 400 AND `aws.s3access.http_status` < 500, 1, 0)), e5 = SUM(CASE(`aws.s3access.http_status` >= 500, 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.s3access* | STATS bts = SUM(`aws.s3access.bytes_sent`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.s3access* | STATS bts = SUM(`aws.s3access.bytes_sent`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -388,7 +388,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.s3access* | STATS c = COUNT() BY bk = `aws.s3access.bucket` | SORT c DESC | LIMIT 10"
+                "query": "FROM logs-aws.s3access* | STATS c = COUNT() BY bk = `aws.s3access.bucket` | SORT ``c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -421,7 +421,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.s3access* | KEEP `@timestamp`, `aws.s3access.bucket`, `aws.s3access.operation`, `aws.s3access.http_status`, `aws.s3access.bytes_sent`, `aws.s3access.error_code`, `aws.s3access.remote_ip`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.s3access* | KEEP `@timestamp``@timestamp`, `aws.s3access.bucket`, `aws.s3access.operation`, `aws.s3access.http_status`, `aws.s3access.bytes_sent`, `aws.s3access.error_code`, `aws.s3access.remote_ip`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

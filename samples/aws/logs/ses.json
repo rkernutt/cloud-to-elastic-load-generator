@@ -1,31 +1,37 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-4",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-central-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "ses" }
   },
   "aws": {
     "dimensions": {
-      "ses:configuration-set": "marketing",
+      "ses:configuration-set": "transactional",
       "ses:from-domain": "company.com",
-      "ses:to-country": "FR",
-      "ses:to-isp": "Gmail"
+      "ses:to-country": "DE",
+      "ses:to-isp": "AOL"
     },
     "ses": {
-      "message_id": "assbmriwqgwqwdkttmf6.3yp8l4n7ur@ap-southeast-4.amazonses.com",
-      "event_type": "RenderingFailure",
+      "message_id": "grztzcyc1k9fzyoq6iiu.qs5mxfdmxa@eu-central-2.amazonses.com",
+      "event_type": "Bounce",
       "from_address": "alerts@company.com",
-      "destination": ["user_7mtr7n@company.org"],
-      "configuration_set": "marketing",
-      "bounce": { "bounced_recipients": [] },
+      "destination": ["user_oq9hoo@gmail.com", "archive+QB9D@company.org"],
+      "configuration_set": "transactional",
+      "bounce": {
+        "bounce_type": "Permanent",
+        "bounce_sub_type": "Suppressed",
+        "bounced_recipients": [
+          { "emailAddress": "user_oq9hoo@gmail.com", "action": "failed", "status": "5.1.1" }
+        ]
+      },
       "complaint": { "complained_recipients": [] },
-      "sending_account_id": "738291046572",
+      "sending_account_id": "293847561023",
       "delivery": {
-        "recipients": ["user_7mtr7n@company.org"],
-        "timestamp": "2026-05-19T15:25:12.772Z",
-        "processing_time_ms": 1162,
+        "recipients": ["user_oq9hoo@gmail.com", "archive+QB9D@company.org"],
+        "timestamp": "2026-05-20T13:19:00.213Z",
+        "processing_time_ms": 1135,
         "smtp_response": "250 2.0.0 OK"
       },
       "metrics": {
@@ -35,44 +41,50 @@
         "Complaint": { "sum": 0 },
         "Reject": { "sum": 0 },
         "Open": { "sum": 1 },
-        "Click": { "sum": 1 },
+        "Click": { "sum": 0 },
         "RenderingFailure": { "sum": 0 },
         "DeliveryDelay": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-ses-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-ses-logs-738291046572"
+        "name": "aws-ses-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-ses-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/ses/ap-southeast-4/2026/05/19/ses_DZA4BLKWJUMK3KJPFZWK.log.gz"
+        "key": "AWSLogs/293847561023/ses/eu-central-2/2026/05/20/ses_6M9P8PDQ3BGFIZDTPFNQ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/ses/logs",
-      "log_stream": "ap-southeast-4/0dqs560y",
-      "ingestion_time": "2026-05-19T15:25:13.703Z"
+      "log_stream": "eu-central-2/1up4j6rv",
+      "ingestion_time": "2026-05-20T13:19:01.476Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["email", "process"],
     "dataset": "aws.ses",
     "provider": "email.amazonaws.com",
-    "duration": 2788000000,
-    "module": "aws"
+    "duration": 1867000000,
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "{\"eventType\":\"RenderingFailure\",\"mail\":{\"timestamp\":\"2026-05-19T15:25:12.772Z\",\"messageId\":\"assbmriwqgwqwdkttmf6.3yp8l4n7ur@ap-southeast-4.amazonses.com\",\"source\":\"alerts@company.com\",\"sourceArn\":\"arn:aws:ses:ap-southeast-4:738291046572:identity/company.com\",\"sendingAccountId\":\"738291046572\",\"destination\":[\"user_7mtr7n@company.org\"],\"headersTruncated\":false,\"commonHeaders\":{\"from\":[\"alerts@company.com\"],\"to\":[\"user_7mtr7n@company.org\"],\"subject\":\"Your order\",\"messageId\":\"<assbmriwqgwqwdkttmf6.3yp8l4n7ur@ap-southeast-4.amazonses.com>\"},\"tags\":{\"ses:configuration-set\":[\"marketing\"],\"ses:source-ip\":[\"130.182.182.42\"],\"ses:outgoing-ip\":[\"139.109.194.75\"]}},\"failure\":{\"errorMessage\":\"Template rendering failed\",\"templateName\":\"welcome\"}}",
-  "log": { "level": "info" },
+  "message": "{\"eventType\":\"Bounce\",\"mail\":{\"timestamp\":\"2026-05-20T13:19:00.213Z\",\"messageId\":\"grztzcyc1k9fzyoq6iiu.qs5mxfdmxa@eu-central-2.amazonses.com\",\"source\":\"alerts@company.com\",\"sourceArn\":\"arn:aws:ses:eu-central-2:293847561023:identity/company.com\",\"sendingAccountId\":\"293847561023\",\"destination\":[\"user_oq9hoo@gmail.com\",\"archive+QB9D@company.org\"],\"headersTruncated\":false,\"commonHeaders\":{\"from\":[\"alerts@company.com\"],\"to\":[\"user_oq9hoo@gmail.com\",\"archive+QB9D@company.org\"],\"subject\":\"Security alert\",\"messageId\":\"<grztzcyc1k9fzyoq6iiu.qs5mxfdmxa@eu-central-2.amazonses.com>\"},\"tags\":{\"ses:configuration-set\":[\"transactional\"],\"ses:source-ip\":[\"115.129.229.165\"],\"ses:outgoing-ip\":[\"66.202.209.72\"]}},\"bounce\":{\"bounceType\":\"Permanent\",\"bounceSubType\":\"Suppressed\",\"bouncedRecipients\":[{\"emailAddress\":\"user_oq9hoo@gmail.com\",\"action\":\"failed\",\"status\":\"5.1.1\",\"diagnosticCode\":\"smtp; 552 user unknown\"}],\"timestamp\":\"2026-05-20T13:19:00.213Z\",\"feedbackId\":\"KF9VNY1V-eu-central-2-293847561023\"}}",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "MessageRejected",
+    "message": "Rendering template data failed KMS decrypt of nested attribute",
+    "type": "aws"
+  },
   "service": { "name": "ses", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.ses", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-4",
-    "ephemeral_id": "aw5bahaetex84l3rh4ficg7jl4consbtx42y"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "odaffbksoxj7jha1b9f97k8fbfkybtmi4jp9"
   },
   "input": { "type": "aws-cloudwatch" }
 }

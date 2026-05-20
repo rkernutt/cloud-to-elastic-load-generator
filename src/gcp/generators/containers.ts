@@ -20,6 +20,7 @@ import {
   randTraceId,
   randSpanId,
   randIp,
+  randEmail,
   HTTP_METHODS,
   HTTP_PATHS,
   USER_AGENTS,
@@ -144,7 +145,7 @@ export function generateGkeLog(ts: string, er: number): EcsDocument {
     ] as const);
     const principal = rand([
       `system:serviceaccount:${namespace}:default`,
-      `user:cluster-admin@${project.id.split("-")[0]}.example.com`,
+      `user:${randEmail("platform-admin")}`,
       `system:serviceaccount:kube-system:replicaset-controller`,
     ]);
     const resourceName = rand([
@@ -263,8 +264,12 @@ export function generateGkeLog(ts: string, er: number): EcsDocument {
       gke: gkeBlock,
     },
     event: {
-      outcome,
-      duration,
+      kind: "event",
+      category: ["host"],
+      type: outcome === "failure" ? ["error"] : ["info"],
+      action: String("container-operation"),
+      outcome: outcome,
+      duration: duration,
     },
     message,
     ...extra,
@@ -312,6 +317,10 @@ export function generateAnthosLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("container-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(2000, isErr ? 600_000 : 120_000),
     },
@@ -369,6 +378,10 @@ export function generateArtifactRegistryLog(ts: string, er: number): EcsDocument
       },
     },
     event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("container-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(100, action === "scan" ? 120_000 : 8000),
     },
@@ -415,6 +428,10 @@ export function generateContainerRegistryLog(ts: string, er: number): EcsDocumen
       },
     },
     event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("container-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(200, isErr ? 60_000 : 25_000),
     },
@@ -468,6 +485,10 @@ export function generateGkeAutopilotLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("container-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(500, isErr ? 180_000 : 45_000),
     },
@@ -516,6 +537,10 @@ export function generateAnthosServiceMeshLog(ts: string, er: number): EcsDocumen
       },
     },
     event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("container-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(1000, isErr ? 120_000 : 30_000),
     },

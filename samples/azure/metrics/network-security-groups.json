@@ -3,51 +3,56 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "azure",
-    "region": "uksouth",
-    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" }
+    "region": "brazilsouth",
+    "account": { "id": "c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d", "name": "Northpeak-Dev" },
+    "service": { "name": "azure.nsg_metrics" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-azure-uksouth",
-    "ephemeral_id": "mfjldbx32m56y5770cth8bsty3aqng4egewr"
+    "name": "metricbeat-azure-brazilsouth",
+    "ephemeral_id": "l8uf2ym652frzs0qreuahpzewu1mn398lgfl"
   },
   "azure": {
     "network_security_groups": {
       "metrics": {
         "AllowedFlowsCount": {
-          "avg": 12168314,
-          "min": 10708116.32,
-          "max": 13628511.68,
-          "sum": 12168314,
+          "avg": 44892889,
+          "min": 39505742.32,
+          "max": 50280035.68,
+          "sum": 44892889,
           "count": 1
         },
         "BlockedFlowsCount": {
-          "avg": 112008,
-          "min": 98567.04,
-          "max": 125448.96,
-          "sum": 112008,
+          "avg": 46545,
+          "min": 40959.6,
+          "max": 52130.4,
+          "sum": 46545,
           "count": 1
         }
       }
     },
-    "dimensions": { "Direction": "In", "RuleName": "DenyRdp", "ResourceGroup": "rg-shared-ppbnh" },
+    "dimensions": {
+      "Direction": "Out",
+      "RuleName": "AllowHttps",
+      "ResourceGroup": "rg-data-3u5jx"
+    },
     "resource": {
-      "id": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-shared-ppbnh/providers/Microsoft.Network/networkSecurityGroups/nsg-web-izja",
-      "group": "rg-shared-ppbnh",
-      "name": "nsg-web-izja"
+      "id": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-data-3u5jx/providers/Microsoft.Network/networkSecurityGroups/nsg-web-yl5j",
+      "group": "rg-data-3u5jx",
+      "name": "nsg-web-yl5j"
     },
     "namespace": "Microsoft.Network/networkSecurityGroups"
   },
   "metricset": { "name": "monitor", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "azure.nsg_metrics", "namespace": "default" },
   "input": { "type": "azure-monitor" },
-  "event": { "dataset": "azure.nsg_metrics", "module": "azure" },
+  "event": { "kind": "metric", "dataset": "azure.nsg_metrics", "module": "azure" },
   "azureMonitorMetric": {
     "time": "2026-04-07T12:00:00.000Z",
     "metricName": "AllowedFlowsCount",
     "resourceGroup": "rg-network-security-groups",
-    "subscriptionId": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
-    "timeseries": [{ "data": [{ "average": 12168314, "count": 1 }] }]
+    "subscriptionId": "c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d",
+    "timeseries": [{ "data": [{ "average": 44892889, "count": 1 }] }]
   }
 }

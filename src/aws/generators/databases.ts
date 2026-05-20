@@ -1,4 +1,15 @@
-import { rand, randInt, randFloat, randId, randIp, randAccount, REGIONS } from "../../helpers";
+import {
+  rand,
+  randInt,
+  randFloat,
+  randId,
+  randHexId,
+  randIp,
+  randAccount,
+  REGIONS,
+  randIamUser,
+  randPersonEmail,
+} from "../../helpers";
 import type { EcsDocument } from "./types.js";
 
 function generateDynamoDbLog(ts: string, er: number): EcsDocument {
@@ -361,7 +372,7 @@ function generateElastiCacheLog(ts: string, er: number): EcsDocument {
           operation: apiOp,
           clusterId,
           ...(scenario === "snapshot_create"
-            ? { snapshotName: `snap-${randId(10).toLowerCase()}`, retention: randInt(1, 35) }
+            ? { snapshotName: `snap-${randHexId(10)}`, retention: randInt(1, 35) }
             : {}),
           ...(scenario === "scaling_event"
             ? { shardCount: randInt(2, 8), appliedStrategy: rand(["preferred", "none"]) }
@@ -436,6 +447,7 @@ function generateElastiCacheLog(ts: string, er: number): EcsDocument {
       duration: lat * 1000,
       outcome: isErr ? "failure" : "success",
       category: ["database", "network"],
+      type: ["connection"],
       dataset: "aws.elasticache",
       provider: "elasticache.amazonaws.com",
     },
@@ -730,6 +742,7 @@ function generateRedshiftLog(ts: string, er: number): EcsDocument {
       duration: dur * 1e9,
       outcome: isErr ? "failure" : "success",
       category: ["database"],
+      type: ["access"],
       dataset: "aws.redshift",
       provider: "redshift.amazonaws.com",
     },
@@ -794,7 +807,7 @@ function generateOpenSearchLog(ts: string, er: number): EcsDocument {
     message = `[${new Date(ts).toISOString()}] cluster=${domainName} action=${operation} index=${idx} ack=${isErr ? "false" : "true"}`;
   } else if (variant === "allocation") {
     operation = "shard_allocation";
-    message = `[${new Date(ts).toISOString()}] reroute started: allocate replica shard [${idx}][${randInt(0, 9)}] on node [${rand(["i-0abc", "i-0def"])}] reason=CLUSTER_RECOVERED`;
+    message = `[${new Date(ts).toISOString()}] reroute started: allocate replica shard [${idx}][${randInt(0, 9)}] on node [i-${randHexId(17)}] reason=CLUSTER_RECOVERED`;
     logExtras = { allocation_explanation: isErr ? "NO_VALID_SHARD_COPY" : "ALLOCATED" };
   } else if (variant === "cluster_health") {
     operation = "cluster_health";
@@ -920,7 +933,8 @@ function generateOpenSearchLog(ts: string, er: number): EcsDocument {
     event: {
       duration: dur * 1e6,
       outcome: isErr ? "failure" : "success",
-      category: "database",
+      category: ["database"],
+      type: ["access"],
       dataset: "aws.opensearch",
       provider: "es.amazonaws.com",
     },
@@ -1005,6 +1019,7 @@ function generateDocumentDbLog(ts: string, er: number): EcsDocument {
       duration: dur * 1e6,
       outcome: isErr ? "failure" : "success",
       category: ["database"],
+      type: ["access"],
       dataset: "aws.docdb",
       provider: "docdb.amazonaws.com",
     },
@@ -1122,6 +1137,7 @@ function generateAuroraLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["database"],
+      type: ["access"],
       dataset: "aws.aurora",
       provider: "rds.amazonaws.com",
       duration: durationSec * 1e9,
@@ -1202,6 +1218,7 @@ function generateNeptuneLog(ts: string, er: number): EcsDocument {
       duration: dur * 1e6,
       outcome: isErr ? "failure" : "success",
       category: ["database"],
+      type: ["access"],
       dataset: "aws.neptune",
       provider: "neptune.amazonaws.com",
     },
@@ -1258,7 +1275,8 @@ function generateTimestreamLog(ts: string, er: number): EcsDocument {
     event: {
       duration: dur * 1e6,
       outcome: isErr ? "failure" : "success",
-      category: "database",
+      category: ["database"],
+      type: ["access"],
       dataset: "aws.timestream",
       provider: "timestream.amazonaws.com",
     },
@@ -1320,7 +1338,8 @@ function generateQldbLog(ts: string, er: number): EcsDocument {
     event: {
       duration: dur * 1e6,
       outcome: isErr ? "failure" : "success",
-      category: "database",
+      category: ["database"],
+      type: ["access"],
       dataset: "aws.qldb",
       provider: "qldb.amazonaws.com",
     },
@@ -1382,7 +1401,8 @@ function generateKeyspacesLog(ts: string, er: number): EcsDocument {
     event: {
       duration: dur * 1e6,
       outcome: isErr ? "failure" : "success",
-      category: "database",
+      category: ["database"],
+      type: ["access"],
       dataset: "aws.keyspaces",
       provider: "cassandra.amazonaws.com",
     },
@@ -1438,7 +1458,8 @@ function generateMemoryDbLog(ts: string, er: number): EcsDocument {
     event: {
       duration: lat * 1000,
       outcome: isErr ? "failure" : "success",
-      category: "database",
+      category: ["database"],
+      type: ["access"],
       dataset: "aws.memorydb",
       provider: "memory-db.amazonaws.com",
     },
@@ -1464,7 +1485,7 @@ function generateRdsLog(ts: string, er: number): EcsDocument {
     const r = rand(REGIONS);
     const a = randAccount();
     const e = Math.random() < er;
-    const proxies = ["my-app-proxy", "api-proxy", "read-proxy", "writer-proxy"];
+    const proxies = ["api-proxy", "read-proxy", "writer-proxy", "analytics-proxy"];
     const proxy = rand(proxies);
     const tg = rand(["default", "read-only", "writer"]);
     const connId = randInt(1000, 99999);
@@ -1700,7 +1721,7 @@ function generateRdsLog(ts: string, er: number): EcsDocument {
     // MySQL log formats vary by log type
     const mysqlStatements = [
       `SELECT * FROM ${tableName} WHERE id = ${randInt(1, 1000000)}`,
-      `INSERT INTO ${tableName} (name, email) VALUES ('${rand(["alice", "bob", "carol"])}', '${rand(["a", "b", "c"])}@example.com')`,
+      `INSERT INTO ${tableName} (name, email) VALUES ('${randIamUser()}', '${randPersonEmail()}')`,
       `UPDATE ${tableName} SET status = 'active' WHERE user_id = ${randInt(1, 100000)}`,
       `SELECT o.*, p.name FROM orders o INNER JOIN products p ON o.product_id = p.id WHERE o.created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)`,
     ];
@@ -1884,6 +1905,7 @@ function generateDaxLog(ts: string, er: number): EcsDocument {
       action,
       outcome: isErr ? "failure" : "success",
       category: ["database"],
+      type: ["access"],
       dataset: "aws.dax",
       provider: "dax.amazonaws.com",
       duration: requestLatencyMs * 1e6,
@@ -1940,6 +1962,7 @@ function generateNeptuneAnalyticsLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["database"],
+      type: ["access"],
       dataset: "aws.neptuneanalytics",
       provider: "neptune-graph.amazonaws.com",
       duration: durationMs * 1e6,
@@ -2002,6 +2025,7 @@ function generateAuroraDsqlLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["database"],
+      type: ["access"],
       dataset: "aws.auroradsql",
       provider: "dsql.amazonaws.com",
       duration: randInt(1, isErr ? 5000 : 200) * 1e6,

@@ -1,61 +1,72 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-app-9gynbu/providers/Microsoft.Network/bastionHosts/bastion-hub-wa8r",
-  "operationName": "BastionHostSessionEvent",
-  "category": "BastionAudit",
-  "resultType": "Success",
-  "resultSignature": "200",
-  "callerIpAddress": "222.81.140.119",
-  "correlationId": "1115e96e-ce7c-4041-afa4-49a3aff47757",
-  "level": "Informational",
+  "resourceId": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-analytics-f77zfz/providers/Microsoft.Network/bastionHosts/bastion-corp-9l11",
+  "operationName": "BastionClipboardInspection",
+  "category": "BastionDlpSignals",
+  "resultType": "Failure",
+  "resultSignature": "406",
+  "callerIpAddress": "95.4.47.65",
+  "correlationId": "35c74ea3-9f8c-420e-a504-06f695958eec",
+  "level": "Warning",
   "properties": {
-    "sessionType": "rdp",
-    "targetVmResourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-app-9gynbu/providers/Microsoft.Compute/virtualMachines/vm-jump-PPI",
-    "clientPublicIp": "222.81.140.119",
-    "sessionId": "e32816a6-12fd-4687-94ac-b60fe65ddb5d",
-    "sessionState": "Connected",
-    "disconnectReason": "",
-    "userPrincipalName": "breakglass-admin"
+    "clipboardDirectionBlocked": "Inbound",
+    "fileTransferAttempts": 85,
+    "dataExfilFingerprint": "application/octet-stream",
+    "verdict": "InterceptedMalwareSweep",
+    "message": "Adaptive DLP heuristic flagged pasted payload hash against sanctioned blocklist",
+    "scanLatencyMs": 4515,
+    "userPrincipalName": "james.brown@meridiantech.io"
+  },
+  "error": {
+    "code": "SubnetInUse",
+    "message": "The subnet references active IP configurations or delegation and cannot be modified.",
+    "type": "azure"
   },
   "cloud": {
     "provider": "azure",
-    "region": "northeurope",
-    "account": { "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "Northwind-Dev" },
+    "region": "eastasia",
+    "account": { "id": "c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d", "name": "Northpeak-Dev" },
     "service": { "name": "Microsoft.Network/bastionHosts" }
   },
   "azure": {
     "bastion": {
-      "host_name": "bastion-hub-wa8r",
-      "resource_group": "rg-app-9gynbu",
-      "category": "BastionAudit",
-      "correlation_id": "1115e96e-ce7c-4041-afa4-49a3aff47757",
+      "host_name": "bastion-corp-9l11",
+      "resource_group": "rg-analytics-f77zfz",
+      "category": "BastionDlpSignals",
+      "correlation_id": "35c74ea3-9f8c-420e-a504-06f695958eec",
       "properties": {
-        "sessionType": "rdp",
-        "targetVmResourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-app-9gynbu/providers/Microsoft.Compute/virtualMachines/vm-jump-PPI",
-        "clientPublicIp": "222.81.140.119",
-        "sessionId": "e32816a6-12fd-4687-94ac-b60fe65ddb5d",
-        "sessionState": "Connected",
-        "disconnectReason": ""
+        "clipboardDirectionBlocked": "Inbound",
+        "fileTransferAttempts": 85,
+        "dataExfilFingerprint": "application/octet-stream",
+        "verdict": "InterceptedMalwareSweep",
+        "message": "Adaptive DLP heuristic flagged pasted payload hash against sanctioned blocklist",
+        "scanLatencyMs": 4515
       }
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 23135913082,
+    "kind": "event",
+    "category": ["network"],
+    "type": ["denied"],
+    "action": "BastionClipboardInspection",
+    "outcome": "failure",
+    "duration": 4066032439,
     "module": "azure",
     "dataset": "azure.bastion"
   },
-  "message": "Bastion bastion-hub-wa8r: breakglass-admin Connected rdp session",
+  "message": "[dlp] Bastion bastion-corp-9l11: InterceptedMalwareSweep",
   "service": { "name": "bastion", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.bastion", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-northeurope",
-    "id": "p0jznr6kvbyvk8f1ibj5db20pm59jl0f5788"
+    "name": "elastic-agent-azure-eastasia",
+    "id": "yxrv7r00o3iivdg5hivct8exr3m0xiqv8xf6"
   },
-  "input": { "type": "azure-eventhub" }
+  "input": { "type": "azure-eventhub" },
+  "source": { "ip": "95.4.47.65" },
+  "related": { "ip": ["95.4.47.65"] }
 }

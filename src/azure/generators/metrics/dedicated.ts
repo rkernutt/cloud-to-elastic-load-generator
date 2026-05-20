@@ -15,8 +15,13 @@ import { AZURE_METRICS_DATASET_MAP } from "../../data/elasticMaps.js";
 export function generateIotHubMetrics(ts: string, er: number): EcsDocument[] {
   const { region, subscription, resourceGroup } = pickAzureContext();
   const hubName = `iot-${randId(6).toLowerCase()}`;
-  const dims = ["device-001", "device-002", "sensor-fleet-1"];
-  const n = Math.min(randInt(1, 3), dims.length);
+  const dims = [
+    "temp-sensor-warehouse-3a",
+    "gps-tracker-fleet-7b",
+    "hvac-controller-bldg-12",
+    "power-meter-substation-4",
+  ];
+  const n = Math.min(randInt(1, 4), dims.length);
   return Array.from({ length: n }, (_, i) => {
     const deviceId = dims[i];
     const fail = Math.random() < er;

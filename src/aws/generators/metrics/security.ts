@@ -10,6 +10,7 @@ import {
   ACCOUNTS,
   rand,
   randInt,
+  randId,
   dp,
   stat,
   counter,
@@ -31,7 +32,7 @@ export function generateShieldMetrics(ts: string, er: number) {
       region,
       account,
       {
-        ResourceArn: `arn:aws:elasticloadbalancing:${region}:${account.id}:loadbalancer/app/prod-alb/abc123`,
+        ResourceArn: `arn:aws:elasticloadbalancing:${region}:${account.id}:loadbalancer/app/prod-alb/${randId(12).toLowerCase()}`,
       },
       {
         DDoSAttackBitsPerSecond: stat(
@@ -145,7 +146,7 @@ export function generateCognitoMetrics(ts: string, er: number) {
 
 export function generateGuarddutyMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  const detectorId = `abc123def456ghi789jkl012`;
+  const detectorId = randId(26).toLowerCase();
   const severities = ["HIGH", "MEDIUM", "LOW", "INFO"] as const;
   const bySev = severities.map((sev) => {
     const n =
@@ -521,7 +522,7 @@ export function generateAmplifyMetrics(ts: string, er: number) {
       "aws.amplify",
       region,
       account,
-      { App: rand(["my-app", "frontend", "dashboard", "mobile-web"]) },
+      { App: rand(["web-frontend", "frontend", "dashboard", "mobile-web"]) },
       {
         Requests: counter(req),
         BytesServed: counter(randInt(0, 100_000_000_000)),
@@ -569,7 +570,7 @@ export function generateAutoscalingMetrics(ts: string, er: number) {
 
 // ─── Route 53 ─────────────────────────────────────────────────────────────────
 
-const HOSTED_ZONES = ["example.com", "api.example.com", "internal.corp", "my-app.io"];
+const HOSTED_ZONES = ["globex.io", "api.globex.io", "internal.globex.corp", "cdn.globex.io"];
 
 export function generateRoute53Metrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
@@ -829,7 +830,9 @@ export function generateConnectMetrics(ts: string, er: number) {
       "aws.connect",
       region,
       account,
-      { InstanceId: `arn:aws:connect:${region}:${account.id}:instance/abc123` },
+      {
+        InstanceId: `arn:aws:connect:${region}:${account.id}:instance/${randId(12).toLowerCase()}`,
+      },
       {
         CallsPerInterval: counter(randInt(0, 5_000)),
         MissedCallsPerInterval: counter(Math.random() < er ? randInt(0, 500) : 0),

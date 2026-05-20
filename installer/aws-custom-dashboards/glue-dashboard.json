@@ -207,7 +207,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.glue* | WHERE log.level == \"error\" | STATS count = COUNT() BY category = `aws.glue.error_category` | SORT count DESC | LIMIT 10"
+                "query": "FROM logs-aws.glue* | WHERE log.level == \"error\" | STATS count = COUNT() BY category = `aws.glue.error_category` | SORT ``count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -254,7 +254,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.glue* | STATS avg_ns = AVG(event.duration) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | EVAL avg_duration_s = avg_ns / 1000000000 | SORT bucket"
+                "query": "FROM logs-aws.glue* | STATS avg_ns = AVG(event.duration) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | EVAL avg_duration_s = avg_ns / 1000000000 | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -302,7 +302,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.glue* | STATS avg_heap = AVG(`aws.glue.metrics.driver.jvm.heap.usage`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.glue* | STATS avg_heap = AVG(`aws.glue.metrics.driver.jvm.heap.usage`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -350,7 +350,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.glue* | STATS avg_executors = AVG(`aws.glue.metrics.driver.ExecutorAllocationManager.executors.numberAllExecutors`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.glue* | STATS avg_executors = AVG(`aws.glue.metrics.driver.ExecutorAllocationManager.executors.numberAllExecutors`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -398,7 +398,7 @@
               "type": "bar",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.glue* | STATS failed = SUM(`aws.glue.metrics.driver.aggregate.numFailedTasks`), killed = SUM(`aws.glue.metrics.driver.aggregate.numKilledTasks`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.glue* | STATS failed = SUM(`aws.glue.metrics.driver.aggregate.numFailedTasks`), killed = SUM(`aws.glue.metrics.driver.aggregate.numKilledTasks`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -451,7 +451,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.glue* | STATS avg_elapsed = AVG(`aws.glue.metrics.driver.aggregate.elapsedTime`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.glue* | STATS avg_elapsed = AVG(`aws.glue.metrics.driver.aggregate.elapsedTime`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -499,7 +499,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.glue* | STATS records = SUM(`aws.glue.metrics.driver.aggregate.numRecords`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.glue* | STATS records = SUM(`aws.glue.metrics.driver.aggregate.numRecords`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -547,7 +547,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.glue* | STATS count = COUNT() BY job_name = `aws.glue.job.name` | SORT count DESC | LIMIT 10"
+                "query": "FROM logs-aws.glue* | STATS count = COUNT() BY job_name = `aws.glue.job.name` | SORT ``count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -580,7 +580,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.glue* | KEEP `@timestamp`, `aws.glue.job.name`, `aws.glue.job.run_state`, log.level, event.duration, `aws.glue.error_category` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.glue* | KEEP `@timestamp``@timestamp`, `aws.glue.job.name`, `aws.glue.job.run_state`, log.level, event.duration, `aws.glue.error_category` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

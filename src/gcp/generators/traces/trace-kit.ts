@@ -3,6 +3,8 @@ import { rand } from "../helpers.js";
 
 export const APM_DS = { type: "traces", dataset: "apm", namespace: "default" } as const;
 
+const SERVICE_VERSIONS = ["2.14.3", "2.14.2", "2.13.8", "3.0.1", "1.42.0", "2026.04.1"] as const;
+
 const GCP_SPAN_RPC_FAIL_CODES = [
   "INTERNAL",
   "DEADLINE_EXCEEDED",
@@ -10,11 +12,22 @@ const GCP_SPAN_RPC_FAIL_CODES = [
   "RESOURCE_EXHAUSTED",
 ] as const;
 
-export function gcpSpanFailureLabels(message = "descriptive error"): Record<string, string> {
+const GCP_SPAN_ERROR_MESSAGES = [
+  "upstream connect error or disconnect/reset before headers",
+  "deadline exceeded after 30.0s waiting for connection",
+  "connection reset by peer while reading response body",
+  "quota exceeded for project: rate limit on concurrent requests",
+  "permission denied on resource: caller lacks iam.serviceAccounts.actAs",
+  "backend service unavailable: no healthy instances in instance group",
+  "context deadline exceeded while waiting for metadata server",
+  "failed to authenticate: invalid OAuth2 access token",
+] as const;
+
+export function gcpSpanFailureLabels(message?: string): Record<string, string> {
   return {
     "gcp.rpc.status_code": rand(GCP_SPAN_RPC_FAIL_CODES),
     "error.type": "gcp",
-    "error.message": message,
+    "error.message": message ?? rand(GCP_SPAN_ERROR_MESSAGES),
   };
 }
 
@@ -79,7 +92,7 @@ export function gcpServiceBase(
   return {
     name,
     environment,
-    version: "1.0.0",
+    version: rand(SERVICE_VERSIONS),
     language: { name: language },
     ...(opts?.framework ? { framework: { name: opts.framework } } : {}),
     ...(opts?.runtimeName

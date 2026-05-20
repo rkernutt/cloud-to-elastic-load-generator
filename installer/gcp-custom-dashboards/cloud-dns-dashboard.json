@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.dns* | STATS c = COUNT() BY r = `gcp.cloud_dns.response_code` | SORT c DESC"
+            "query": "FROM logs-gcp.dns* | STATS c = COUNT() BY r = `gcp.cloud_dns.response_code` | SORT ``c DESC"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.dns* | STATS c = COUNT() BY t = `gcp.cloud_dns.query_type` | SORT c DESC | LIMIT 10"
+            "query": "FROM logs-gcp.dns* | STATS c = COUNT() BY t = `gcp.cloud_dns.query_type` | SORT ``c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.dns* | STATS c = COUNT() BY p = `gcp.cloud_dns.protocol` | SORT c DESC"
+            "query": "FROM logs-gcp.dns* | STATS c = COUNT() BY p = `gcp.cloud_dns.protocol` | SORT ``c DESC"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.dns* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.dns* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.dns* | STATS bad = SUM(CASE(event.outcome == \"failure\", 1, 0)), ok = SUM(CASE(event.outcome == \"success\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.dns* | STATS bad = SUM(CASE(event.outcome == \"failure\", 1, 0)), ok = SUM(CASE(event.outcome == \"success\", 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.dns* | STATS lat = AVG(event.duration) / 1000000.0 BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.dns* | STATS lat = AVG(event.duration) / 1000000.0 BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -388,7 +388,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.dns* | STATS c = COUNT() BY q = `gcp.cloud_dns.query_name` | SORT c DESC | LIMIT 10"
+                "query": "FROM logs-gcp.dns* | STATS c = COUNT() BY q = `gcp.cloud_dns.query_name` | SORT ``c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -421,7 +421,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.dns* | KEEP `@timestamp`, `gcp.cloud_dns.query_name`, `gcp.cloud_dns.query_type`, `gcp.cloud_dns.response_code`, `gcp.cloud_dns.source_ip`, `gcp.cloud_dns.zone_name`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.dns* | KEEP `@timestamp``@timestamp`, `gcp.cloud_dns.query_name`, `gcp.cloud_dns.query_type`, `gcp.cloud_dns.response_code`, `gcp.cloud_dns.source_ip`, `gcp.cloud_dns.zone_name`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

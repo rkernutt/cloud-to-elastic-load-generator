@@ -1,5 +1,14 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, azureCloud, makeAzureSetup, randTraceId, randSpanId } from "../helpers.js";
+
+const AZURE_FUNC_NAMES = [
+  "ingest-fn",
+  "checkout-fn",
+  "auth-fn",
+  "notify-fn",
+  "transform-fn",
+  "api-fn",
+];
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
 import { azureServiceBase, enrichAzureTraceDoc } from "./trace-kit.js";
 
@@ -62,7 +71,7 @@ export function generateFunctionsTrace(ts: string, er: number): EcsDocument[] {
       service: svc,
       cloud: azureCloud(region, subscription, "Microsoft.Web/sites"),
       event: { outcome: hubErr ? "failure" : "success" },
-      azure: { trace: { function_name: `func-${randInt(1, 9)}` } },
+      azure: { trace: { function_name: rand(AZURE_FUNC_NAMES) } },
       ...dim({ dependency_type: "Azure Event Hubs" }),
     },
     traceId,

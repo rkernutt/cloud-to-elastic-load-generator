@@ -3,46 +3,47 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west1",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "us-south1",
+    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
+    "account": { "id": "529384716205", "name": "Globex Shared Services" },
+    "service": { "name": "datastream" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west1",
-    "ephemeral_id": "7qfzlzgjpddyixotf4nq63cqb1jo2tvndaji"
+    "name": "metricbeat-gcp-us-south1",
+    "ephemeral_id": "5b1ljo5c3l2dc6k37g9mkodq04rscuosmz37"
   },
   "monitoringTimeSeries": {
     "metric": { "type": "datastream.googleapis.com/stream/freshness_age", "labels": {} },
     "resource": {
       "type": "datastream.googleapis.com/Stream",
       "labels": {
-        "resource_container": "globex-security-j0k1l2",
-        "location": "europe-west1",
+        "resource_container": "globex-shared-529384",
+        "location": "us-south1",
         "stream_id": "stream-pg-gcs"
       }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 1.47 } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 4.93 } }
     ]
   },
   "gcp": {
     "datastream": {
       "labels": {
-        "resource_container": "globex-security-j0k1l2",
-        "location": "europe-west1",
+        "resource_container": "globex-shared-529384",
+        "location": "us-south1",
         "stream_id": "stream-pg-gcs"
       },
       "metrics": {
-        "datastream.googleapis.com/stream/freshness_age": { "avg": 1.47, "sum": 1.47, "count": 1 }
+        "datastream.googleapis.com/stream/freshness_age": { "avg": 4.93, "sum": 4.93, "count": 1 }
       }
     }
   },
   "metricset": { "name": "datastream", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.datastream_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.datastream_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.datastream_metrics", "module": "gcp" }
 }

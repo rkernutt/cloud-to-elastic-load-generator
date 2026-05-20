@@ -12,23 +12,26 @@ import {
   toInt64String,
   distributionFromMs,
 } from "./helpers.js";
-import { rand } from "../helpers.js";
+import { rand, randIp, randId, randSqlSnippet } from "../helpers.js";
 import type { EcsDocument } from "../../../aws/generators/types.js";
 
-const SQL_IDS = [
-  "globex-prod-a1b2c3:sql-primary",
-  "globex-prod-a1b2c3:sql-replica",
-  "globex-staging-d4e5f6:sql-1",
-];
+const SQL_INSTANCE_SUFFIXES = ["sql-primary", "sql-replica", "sql-1", "sql-analytics"];
 const SPANNER_INSTANCES = ["spanner-prod", "spanner-staging", "spanner-analytics"];
 const SPANNER_DBS = ["inventory", "orders", "reporting"];
 const BT_CLUSTERS = ["bt-events", "bt-sessions", "bt-telemetry"];
 const BT_TABLES = ["events_raw", "sessions", "metrics_hourly"];
+const ALLOYDB_USERS = [
+  "reporting_svc",
+  "etl_reader",
+  "analytics_app",
+  "batch_loader",
+  "readonly_replica",
+];
 
 export function generateCloudSqlMetrics(ts: string, er: number): EcsDocument[] {
   const { region, project } = pickGcpCloudContext();
   const dataset = GCP_METRICS_DATASET_MAP["cloud-sql"]!;
-  const database_id = SQL_IDS[randInt(0, SQL_IDS.length - 1)];
+  const database_id = `${project.id}:${rand(SQL_INSTANCE_SUFFIXES)}`;
   const hot = Math.random() < er;
   const res = { project_id: project.id, database_id, region };
   const cpu = hot ? jitter(0.91, 0.05, 0.78, 1) : jitter(0.39, 0.24, 0.05, 0.88);
@@ -342,10 +345,10 @@ export function generateAlloyDbMetrics(ts: string, er: number): EcsDocument[] {
       resourceType: "alloydb.googleapis.com/Database",
       resourceLabels: dbRes,
       metricLabels: {
-        user: "app_user",
-        client_addr: "10.0.0.12",
-        querystring: "SELECT ...",
-        query_hash: "qh-8a2f",
+        user: rand(ALLOYDB_USERS),
+        client_addr: randIp(),
+        querystring: randSqlSnippet(),
+        query_hash: `qh-${randId(4).toLowerCase()}`,
       },
       metricKind: "DELTA",
       valueType: "DISTRIBUTION",

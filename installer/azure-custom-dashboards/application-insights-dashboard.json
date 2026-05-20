@@ -48,7 +48,7 @@
           "type": "xy",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.application_insights* | STATS count = COUNT() BY bucket = DATE_TRUNC(30 minutes, @timestamp), o = COALESCE(event.outcome, \"unknown\")"
+            "query": "FROM logs-azure.application_insights* | STATS count = COUNT() BY bucket = DATE_TRUNC(30 minutes, `@timestamp`), o = COALESCE(event.outcome, \"unknown\")"
           },
           "layers": [
             {
@@ -71,7 +71,7 @@
           "type": "xy",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.application_insights* | WHERE event.outcome == \"failure\" | STATS count = COUNT() BY bucket = DATE_TRUNC(30 minutes, @timestamp), op = COALESCE(operationName, \"unknown\")"
+            "query": "FROM logs-azure.application_insights* | WHERE event.outcome == \"failure\" | STATS count = COUNT() BY bucket = DATE_TRUNC(30 minutes, `@timestamp`), op = COALESCE(operationName, \"unknown\")"
           },
           "layers": [
             {
@@ -94,7 +94,7 @@
           "type": "xy",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.application_insights* | STATS count = COUNT() BY bucket = DATE_TRUNC(30 minutes, @timestamp), region = cloud.region"
+            "query": "FROM logs-azure.application_insights* | STATS count = COUNT() BY bucket = DATE_TRUNC(30 minutes, `@timestamp`), region = cloud.region"
           },
           "layers": [
             {
@@ -117,7 +117,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.application_insights* | STATS c = COUNT() BY op = COALESCE(operationName, \"unknown\") | SORT c DESC | LIMIT 15"
+            "query": "FROM logs-azure.application_insights* | STATS c = COUNT() BY op = COALESCE(operationName, \"unknown\") | SORT ``c DESC | LIMIT 15"
           },
           "metrics": [
             { "operation": "value", "column": "op", "label": "Operation" },
@@ -154,7 +154,7 @@
           "type": "xy",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.application_insights* | WHERE operationName == \"ApplicationInsights/Ingestion\" | STATS count = COUNT() BY bucket = DATE_TRUNC(30 minutes, @timestamp), dtype = COALESCE(`azure.application_insights.properties.dataType`, \"unknown\")"
+            "query": "FROM logs-azure.application_insights* | WHERE operationName == \"ApplicationInsights/Ingestion\" | STATS count = COUNT() BY bucket = DATE_TRUNC(30 minutes, `@timestamp`), dtype = COALESCE(`azure.application_insights.properties.dataType`, \"unknown\")"
           },
           "layers": [
             {

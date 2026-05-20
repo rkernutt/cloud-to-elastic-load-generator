@@ -3,35 +3,36 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-south1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" }
+    "region": "southamerica-west1",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
+    "service": { "name": "video-intelligence" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-us-south1",
-    "ephemeral_id": "z7bpkmh8kukel7ocpd13ehsnjao8j5ybhm0i"
+    "name": "metricbeat-gcp-southamerica-west1",
+    "ephemeral_id": "hwj6ie9lnex516ugskix1toagh8ws1p6xq1e"
   },
   "monitoringTimeSeries": {
     "metric": {
       "type": "videointelligence.googleapis.com/annotation_count",
-      "labels": { "feature": "SHOT_CHANGE_DETECTION" }
+      "labels": { "feature": "EXPLICIT_CONTENT_DETECTION" }
     },
-    "resource": { "type": "project", "labels": { "project_id": "globex-staging-d4e5f6" } },
+    "resource": { "type": "project", "labels": { "project_id": "globex-prod-482910" } },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "17961" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "72901" } }
     ]
   },
   "gcp": {
     "video-intelligence": {
-      "labels": { "project_id": "globex-staging-d4e5f6", "feature": "SHOT_CHANGE_DETECTION" },
+      "labels": { "project_id": "globex-prod-482910", "feature": "EXPLICIT_CONTENT_DETECTION" },
       "metrics": {
         "videointelligence.googleapis.com/annotation_count": {
-          "avg": 17961,
-          "sum": 17961,
+          "avg": 72901,
+          "sum": 72901,
           "count": 1
         }
       }
@@ -44,5 +45,5 @@
     "namespace": "default"
   },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.videointelligence_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.videointelligence_metrics", "module": "gcp" }
 }

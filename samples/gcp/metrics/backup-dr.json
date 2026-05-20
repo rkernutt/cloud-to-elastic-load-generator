@@ -3,15 +3,16 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west8",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "us-east4",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
+    "service": { "name": "backup-dr" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west8",
-    "ephemeral_id": "xd0nei3iymup7a744qoxrqdhkvuzmlzrzr6h"
+    "name": "metricbeat-gcp-us-east4",
+    "ephemeral_id": "nnklgr6rym6gt3z457pkrh2je5iroihsquza"
   },
   "monitoringTimeSeries": {
     "metric": {
@@ -21,9 +22,9 @@
     "resource": {
       "type": "backupdr.googleapis.com/BackupVault",
       "labels": {
-        "resource_container": "globex-security-j0k1l2",
-        "location": "europe-west8",
-        "backup_vault_id": "vault-dr-eu"
+        "resource_container": "globex-prod-482910",
+        "location": "us-east4",
+        "backup_vault_id": "vault-sql-1"
       }
     },
     "metricKind": "GAUGE",
@@ -31,23 +32,23 @@
     "points": [
       {
         "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "int64Value": "120529746266122" }
+        "value": { "int64Value": "401073773440862" }
       }
     ]
   },
   "gcp": {
     "backup-dr": {
       "labels": {
-        "resource_container": "globex-security-j0k1l2",
-        "location": "europe-west8",
-        "backup_vault_id": "vault-dr-eu",
+        "resource_container": "globex-prod-482910",
+        "location": "us-east4",
+        "backup_vault_id": "vault-sql-1",
         "resource_type": "GCPInstance",
         "backup_schedule_type": "BackupPlan"
       },
       "metrics": {
         "backupdr.googleapis.com/storage/stored_bytes": {
-          "avg": 120529746266122,
-          "sum": 120529746266122,
+          "avg": 401073773440862,
+          "sum": 401073773440862,
           "count": 1
         }
       }
@@ -56,5 +57,5 @@
   "metricset": { "name": "backup-dr", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.backupdr_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.backupdr_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.backupdr_metrics", "module": "gcp" }
 }

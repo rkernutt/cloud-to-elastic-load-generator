@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.route53_public_logs* | STATS c = COUNT() BY r = `dns.response_code` | SORT c DESC"
+            "query": "FROM logs-aws.route53_public_logs* | STATS c = COUNT() BY r = `dns.response_code` | SORT ``c DESC"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.route53_public_logs* | STATS c = COUNT() BY t = `dns.question.type` | SORT c DESC | LIMIT 10"
+            "query": "FROM logs-aws.route53_public_logs* | STATS c = COUNT() BY t = `dns.question.type` | SORT ``c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.route53_public_logs* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.route53_public_logs* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.route53_public_logs* | STATS nx = SUM(CASE(`dns.response_code` == \"NXDOMAIN\", 1, 0)), ok = SUM(CASE(`dns.response_code` == \"NOERROR\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.route53_public_logs* | STATS nx = SUM(CASE(`dns.response_code` == \"NXDOMAIN\", 1, 0)), ok = SUM(CASE(`dns.response_code` == \"NOERROR\", 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.route53_public_logs* | STATS lat = AVG(event.duration) / 1000.0 BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.route53_public_logs* | STATS lat = AVG(event.duration) / 1000.0 BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -388,7 +388,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.route53_public_logs* | STATS c = COUNT() BY q = `dns.question.name` | SORT c DESC | LIMIT 10"
+                "query": "FROM logs-aws.route53_public_logs* | STATS c = COUNT() BY q = `dns.question.name` | SORT ``c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -421,7 +421,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.route53_public_logs* | KEEP `@timestamp`, `dns.question.name`, `dns.question.type`, `dns.response_code`, `client.ip`, `aws.route53.hosted_zone_id`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.route53_public_logs* | KEEP `@timestamp``@timestamp`, `dns.question.name`, `dns.question.type`, `dns.response_code`, `client.ip`, `aws.route53.hosted_zone_id`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

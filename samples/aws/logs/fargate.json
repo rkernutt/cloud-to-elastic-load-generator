@@ -1,67 +1,69 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "us-west-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "fargate" }
   },
   "aws": {
     "dimensions": {
       "ServiceName": "data-processor",
-      "ClusterName": "staging-cluster",
+      "ClusterName": "prod-cluster",
       "TaskDefinitionFamily": "data-processor"
     },
     "ecs": {
       "metrics": {
-        "CPUUtilization": { "avg": 73 },
-        "CPUReservation": { "avg": 21.657866455751815 },
-        "MemoryUtilization": { "avg": 12.520712254210705 },
-        "MemoryReservation": { "avg": 46.180052020801924 },
+        "CPUUtilization": { "avg": 79 },
+        "CPUReservation": { "avg": 75.3524809116946 },
+        "MemoryUtilization": { "avg": 16.088680319376337 },
+        "MemoryReservation": { "avg": 57.67823479960912 },
         "GPUReservation": { "avg": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-fargate-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-fargate-logs-738291046572"
+        "name": "aws-fargate-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-fargate-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/fargate/eu-north-1/2026/05/19/fargate_NT363QUM04ZXQ9UP0S7Y.log.gz"
+        "key": "AWSLogs/164820739518/fargate/us-west-2/2026/05/20/fargate_EOTJU5L1A98BIBX5OWWI.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/fargate/logs",
-      "log_stream": "eu-north-1/51m2q8c4",
-      "ingestion_time": "2026-05-19T15:25:13.459Z"
+      "log_stream": "us-west-2/26y6vk9k",
+      "ingestion_time": "2026-05-20T13:19:01.208Z"
     }
   },
   "container": {
-    "id": "nj0uq0anryq9",
+    "id": "nmfsvxn34tei",
     "name": "data-processor",
     "image": { "name": "myrepo/data-processor:latest", "tag": "latest" },
     "runtime": "docker"
   },
-  "process": { "pid": 4725, "name": "data-processor" },
-  "log": { "level": "info" },
+  "process": { "pid": 49956, "name": "data-processor" },
+  "log": { "level": "warn" },
   "event": {
     "outcome": "success",
-    "category": ["process", "container"],
+    "category": ["process"],
+    "type": ["info"],
     "dataset": "aws.ecs_fargate",
     "provider": "ecs.amazonaws.com",
-    "duration": 1377000000000,
-    "module": "aws"
+    "duration": 2132000000000,
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "{\"cluster\":\"staging-cluster\",\"taskId\":\"q1mx62qw11o9g95yt0ie2le69z2fxbh6\",\"taskDefinition\":\"data-processor:10\",\"container\":\"data-processor\",\"level\":\"info\",\"message\":\"Task registered with load balancer\",\"timestamp\":\"2026-05-19T15:25:12.772Z\"}",
-  "host": { "name": "ip-78-125-158-143.ec2.internal", "hostname": "fargate-afsu0stu" },
+  "message": "Network throughput spike detected",
+  "host": { "name": "ip-218-93-81-223.ec2.internal", "hostname": "fargate-fpjwxka5" },
   "service": { "name": "fargate", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.fargate", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "fln6tibjtlt87c06yjwh12k3m6kj9nw9ekro"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "rwxl66vd61tne3x50dqiykuvhrzb0lob4tyh"
   },
   "input": { "type": "aws-cloudwatch" }
 }

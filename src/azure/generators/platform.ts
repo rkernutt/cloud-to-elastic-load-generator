@@ -11,6 +11,9 @@ import {
   makeAzureSetup,
   randUUID,
   randIp,
+  randPublicIp,
+  randAzureOrgEmail,
+  randAzureOnMicrosoftEmail,
 } from "./helpers.js";
 
 function azureDiagnosticTime(ts: string): string {
@@ -51,6 +54,12 @@ export function generateAppServiceLog(ts: string, er: number): EcsDocument {
   const correlationId = randUUID();
   const time = azureDiagnosticTime(ts);
   const variant = rand(["http", "app", "platform", "audit", "http"] as const);
+  const armOp = rand([
+    "Microsoft.Web/sites/write",
+    "Microsoft.Web/sites/delete",
+    "Microsoft.Web/sites/start/action",
+    "Microsoft.Web/sites/stop/action",
+  ] as const);
 
   if (variant === "http") {
     const method = rand(HTTP_METHODS);
@@ -103,7 +112,14 @@ export function generateAppServiceLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 1e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["start"],
+        action: "Microsoft.Web/sites/log",
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 1e9),
+      },
       message: `${method} ${path} ${sc} ${(timeTaken * 1000) | 0}ms ${callerIp} ${ua}`,
     };
   }
@@ -168,7 +184,14 @@ export function generateAppServiceLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 1e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["start"],
+        action: "Microsoft.Web/sites/log",
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 1e9),
+      },
       message: `[${level}] ${msg}`,
     };
   }
@@ -218,17 +241,18 @@ export function generateAppServiceLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 1e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["start"],
+        action: "Microsoft.Web/sites/log",
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 1e9),
+      },
       message: `${evt}: ${msg}`,
     };
   }
 
-  const armOp = rand([
-    "Microsoft.Web/sites/write",
-    "Microsoft.Web/sites/delete",
-    "Microsoft.Web/sites/start/action",
-    "Microsoft.Web/sites/stop/action",
-  ] as const);
   const props = {
     statusCode: isErr ? "Conflict" : "OK",
     serviceRequestId: randUUID(),
@@ -261,7 +285,14 @@ export function generateAppServiceLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 1e9) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["start"],
+      action: String(armOp),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e6, 1e9),
+    },
     message: isErr
       ? `Activity failed: ${armOp} on ${app}`
       : `Activity succeeded: ${armOp} on ${app}`,
@@ -286,6 +317,7 @@ export function generateFunctionsLog(ts: string, er: number): EcsDocument {
     "eventHubTrigger",
     "queueTrigger",
   ] as const);
+  const armOp = "Microsoft.Web/sites/functions/log/action";
 
   if (variant === "host") {
     const cold = !isErr && Math.random() > 0.65;
@@ -335,7 +367,14 @@ export function generateFunctionsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 9e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["start"],
+        action: String(armOp),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 9e9),
+      },
       message: String(props.Message),
     };
   }
@@ -401,7 +440,19 @@ export function generateFunctionsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: "failure", duration: randInt(1e6, 9e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: ["error"],
+        action: String(kind),
+        outcome: "failure",
+        duration: randInt(1e6, 9e9),
+      },
+      error: {
+        code: kind === "timeout" ? "TimeoutException" : "OutOfMemoryException",
+        message: String(props.Message),
+        type: "azure",
+      },
       message: String(props.Message),
     };
   }
@@ -485,7 +536,14 @@ export function generateFunctionsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 9e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["start"],
+        action: String(armOp),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 9e9),
+      },
       message: String(props.Message),
     };
   }
@@ -564,7 +622,14 @@ export function generateFunctionsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 9e9) },
+      event: {
+        kind: "event",
+        category: ["process"],
+        type: isErr ? ["error"] : ["start"],
+        action: String(armOp),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 9e9),
+      },
       message: `Trigger ${trigger} for ${fnName}`,
     };
   }
@@ -605,7 +670,14 @@ export function generateFunctionsLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 9e9) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["start"],
+      action: String(armOp),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e6, 9e9),
+    },
     message: String(props.Message),
   };
 }
@@ -632,11 +704,12 @@ export function generateServiceBusLog(ts: string, er: number): EcsDocument {
     PartitionId: randInt(0, 3),
     ServerBusy: isErr && Math.random() > 0.5,
   };
+  const operationName = `Microsoft.ServiceBus/namespaces/messages/${op.toLowerCase()}/action`;
   return {
     "@timestamp": ts,
     time,
     resourceId,
-    operationName: `Microsoft.ServiceBus/namespaces/messages/${op.toLowerCase()}/action`,
+    operationName,
     category: "OperationalLogs",
     resultType: isErr ? "Failure" : "Success",
     resultSignature: isErr ? "500" : "200",
@@ -658,7 +731,14 @@ export function generateServiceBusLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 5e8) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["start"],
+      action: operationName,
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e6, 5e8),
+    },
     message: isErr
       ? `Service Bus namespace ${nsFqdn}: ${op} failed on entity '${ent}' (deliveryCount=${props.DeliveryCount})`
       : `Service Bus namespace ${nsFqdn}: ${op} succeeded for '${ent}'`,
@@ -685,13 +765,14 @@ export function generateEventHubsLog(ts: string, er: number): EcsDocument {
     OperationResult: isErr ? "ThrottlingError" : "Success",
     ThroughputUnits: randInt(1, 20),
   };
+  const operationName = isErr
+    ? "Microsoft.EventHub/namespaces/throttling"
+    : "Microsoft.EventHub/namespaces/ingress";
   return {
     "@timestamp": ts,
     time,
     resourceId,
-    operationName: isErr
-      ? "Microsoft.EventHub/namespaces/throttling"
-      : "Microsoft.EventHub/namespaces/ingress",
+    operationName,
     category: "OperationalLogs",
     resultType: isErr ? "Failure" : "Success",
     resultSignature: isErr ? "503" : "200",
@@ -713,7 +794,14 @@ export function generateEventHubsLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(5e5, 4e8) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["start"],
+      action: operationName,
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e5, 4e8),
+    },
     message: isErr
       ? `Event Hubs '${hub}' throttling detected on ${partition}`
       : `Event Hubs '${hub}' ingress healthy (${incoming} bytes)`,
@@ -724,7 +812,7 @@ export function generateKeyVaultLog(ts: string, er: number): EcsDocument {
   const { region, subscription, resourceGroup, isErr } = makeAzureSetup(er);
   const vault = `kv-${randId(8).toLowerCase()}`;
   const resourceId = armKeyVault(subscription.id, resourceGroup, vault);
-  const callerIp = `203.0.113.${randInt(1, 200)}`;
+  const callerIp = randPublicIp();
   const correlationId = randUUID();
   const time = azureDiagnosticTime(ts);
   const op = rand([
@@ -739,7 +827,7 @@ export function generateKeyVaultLog(ts: string, er: number): EcsDocument {
     ? { claim: { appid: randUUID(), oid: randUUID(), tid: subscription.id } }
     : {
         claim: {
-          upn: `svc-${randId(4)}@${rand(["contoso", "fabrikam"])}.com`,
+          upn: `svc-${randId(4)}@${rand(["meridiantech", "cascadeops"])}.com`,
           oid: randUUID(),
           tid: subscription.id,
         },
@@ -771,11 +859,12 @@ export function generateKeyVaultLog(ts: string, er: number): EcsDocument {
   const callerLabel = useSp
     ? (identity.claim as { appid: string }).appid
     : (identity.claim as { upn: string }).upn;
+  const operationName = `Microsoft.KeyVault/vaults/${op.toLowerCase()}/action`;
   return {
     "@timestamp": ts,
     time,
     resourceId,
-    operationName: `Microsoft.KeyVault/vaults/${op.toLowerCase()}/action`,
+    operationName,
     category: "AuditEvent",
     resultType: isErr ? "Failure" : "Success",
     resultSignature: String(httpStatus),
@@ -799,7 +888,14 @@ export function generateKeyVaultLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(5e5, 4e7) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["start"],
+      action: operationName,
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e5, 4e7),
+    },
     message: isErr
       ? `KeyVault audit: ${op} denied (${httpStatus}) caller=${callerLabel}`
       : `KeyVault audit: ${op} succeeded vault=${vault}`,
@@ -808,9 +904,9 @@ export function generateKeyVaultLog(ts: string, er: number): EcsDocument {
 
 export function generateEntraIdLog(ts: string, er: number): EcsDocument {
   const { region, subscription, isErr } = makeAzureSetup(er);
-  const user = `user${randInt(1000, 9999)}@${rand(["contoso", "fabrikam"])}.com`;
+  const user = randAzureOrgEmail();
   const tenantId = randUUID();
-  const callerIp = `198.51.100.${randInt(2, 250)}`;
+  const callerIp = randPublicIp();
   const correlationId = randUUID();
   const time = azureDiagnosticTime(ts);
   const cat = rand(["SignInLogs", "AuditLogs", "RiskDetection"] as const);
@@ -854,16 +950,17 @@ export function generateEntraIdLog(ts: string, er: number): EcsDocument {
             userPrincipalName: user,
             ipAddress: callerIp,
           };
+  const operationName =
+    cat === "SignInLogs"
+      ? "Sign-in activity"
+      : cat === "AuditLogs"
+        ? "Audit activity"
+        : "Risk detection";
   return {
     "@timestamp": ts,
     time,
     resourceId,
-    operationName:
-      cat === "SignInLogs"
-        ? "Sign-in activity"
-        : cat === "AuditLogs"
-          ? "Audit activity"
-          : "Risk detection",
+    operationName,
     category: cat,
     resultType: isErr ? "Failure" : "Success",
     resultSignature: isErr ? "1" : "0",
@@ -885,7 +982,14 @@ export function generateEntraIdLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(5e5, 2e8) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["start"],
+      action: operationName,
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e5, 2e8),
+    },
     message: isErr ? `Entra ${cat}: failure for ${user}` : `Entra ${cat}: success for ${user}`,
   };
 }
@@ -908,10 +1012,10 @@ const M365_RECORD_BY_WORKLOAD: Record<(typeof M365_WORKLOADS)[number], readonly 
 
 export function generateM365Log(ts: string, er: number): EcsDocument {
   const { region, subscription, isErr } = makeAzureSetup(er);
-  const user = `user${randInt(100, 999)}@${rand(["contoso", "fabrikam"])}.onmicrosoft.com`;
+  const user = randAzureOnMicrosoftEmail();
   const workload = rand(M365_WORKLOADS);
   const recordType = rand(M365_RECORD_BY_WORKLOAD[workload]);
-  const callerIp = `198.51.100.${randInt(2, 250)}`;
+  const callerIp = randPublicIp();
   const correlationId = randUUID();
   const time = azureDiagnosticTime(ts);
   const orgId = randId(8).toUpperCase();
@@ -927,11 +1031,12 @@ export function generateM365Log(ts: string, er: number): EcsDocument {
     AuditLogRecordType: 1,
     ExtendedProperties: { SessionId: randUUID(), ApplicationId: randUUID() },
   };
+  const operationName = `Microsoft.Office365/${workload}/${recordType}`;
   return {
     "@timestamp": ts,
     time,
     resourceId,
-    operationName: `Microsoft.Office365/${workload}/${recordType}`,
+    operationName,
     category: "Audit.General",
     resultType: isErr ? "Failure" : "Success",
     resultSignature: isErr ? "Failed" : "Succeeded",
@@ -953,7 +1058,14 @@ export function generateM365Log(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(5e5, 2e8) },
+    event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["start"],
+      action: operationName,
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e5, 2e8),
+    },
     message: isErr
       ? `Microsoft 365 ${workload}: ${recordType} failed for ${user}`
       : `Microsoft 365 ${workload}: ${recordType} by ${user}`,

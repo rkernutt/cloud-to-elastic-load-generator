@@ -8,6 +8,7 @@ import {
   azureCloud,
   makeAzureSetup,
   randUUID,
+  randAzurePersonEmail,
 } from "./helpers.js";
 
 const DATA_EXTENDED_ERR_CODES = [
@@ -195,7 +196,14 @@ export function generateFileStorageLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 4e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String(props.operation),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 4e9),
+      },
       message: isErr
         ? `Files ${account}/${share}: snapshot ${snap} failed`
         : `Files ${account}/${share}: snapshot ${snap} created`,
@@ -244,7 +252,14 @@ export function generateFileStorageLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 5e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String(props.operationName as string),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 5e8),
+      },
       message: isErr
         ? `${proto} I/O failed on //${account}.file.core.windows.net/${share}`
         : `${proto} read on share ${share} OK (${props.readLatencyMs}ms)`,
@@ -286,7 +301,14 @@ export function generateFileStorageLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e5, 2e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String(`File.${props.operation}`),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e5, 2e8),
+      },
       message: isErr
         ? `Files lease ${props.operation} failed on ${share}/${props.filePath}`
         : `Files lease acquired on ${share}/${props.filePath}`,
@@ -328,7 +350,14 @@ export function generateFileStorageLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e5, 2e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String(props.operation),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e5, 2e8),
+      },
       message: isErr
         ? `File metadata write failed under ${share}`
         : `File metadata updated (${props.metadataKeys} keys) on ${share}`,
@@ -369,7 +398,14 @@ export function generateFileStorageLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(6e5, 3e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("ListFilesAndDirectories"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(6e5, 3e8),
+      },
       message: isErr
         ? `Directory listing failed on ${share} prefix ${props.prefix}`
         : `Listed ${props.entriesReturned} entries under ${share}/${props.prefix}`,
@@ -409,7 +445,14 @@ export function generateFileStorageLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 2e9) },
+    event: {
+      kind: "event",
+      category: ["database"],
+      type: isErr ? ["error"] : ["access"],
+      action: String("Microsoft.Storage/storageAccounts/fileServices/shares/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 2e9),
+    },
     message: isErr
       ? `Quota change rejected for ${share}: ${props.reason}`
       : `Share ${share} quota ${props.previousQuotaGiB} GiB -> ${props.newQuotaGiB} GiB`,
@@ -463,7 +506,14 @@ export function generateQueueStorageLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e5, 2e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("PutMessage"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e5, 2e8),
+      },
       message: isErr
         ? `Enqueue failed on ${queue} HTTP ${props.statusCode}`
         : `Enqueued message ${msgId} to ${queue}`,
@@ -505,7 +555,14 @@ export function generateQueueStorageLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e5, 1e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("GetMessages"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e5, 1e8),
+      },
       message: isErr
         ? `Dequeue: no visible messages in ${queue}`
         : `Dequeued ${msgId} from ${queue}`,
@@ -546,7 +603,14 @@ export function generateQueueStorageLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e5, 9e7) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("PeekMessages"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e5, 9e7),
+      },
       message: isErr
         ? `Peek failed on queue ${queue}`
         : `Peeked ${props.messagesPeeked} message(s) on ${queue}`,
@@ -586,7 +650,14 @@ export function generateQueueStorageLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e5, 2e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("ClearMessages"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e5, 2e8),
+      },
       message: isErr
         ? `Clear queue rejected for ${queue}`
         : `Cleared queue ${queue} removed=${props.messagesRemoved}`,
@@ -627,7 +698,14 @@ export function generateQueueStorageLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e5, 9e7) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("SetQueueMetadata"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e5, 9e7),
+      },
       message: isErr
         ? `Queue metadata update failed on ${queue}`
         : `Queue metadata updated on ${queue} (${props.metadataKeys} keys)`,
@@ -671,7 +749,14 @@ export function generateQueueStorageLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 4e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("UpdateMessage"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 4e8),
+      },
       message: `Queue ${queue}: ${props.reason} (dequeueCount=${props.dequeueCount})`,
       ...(docErr ? { error: docErr } : {}),
     };
@@ -727,7 +812,14 @@ export function generateTableStorageLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e5, 3e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String(op),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e5, 3e8),
+      },
       message: isErr
         ? `Table ${table}: ${op} failed (PK=${partitionKey})`
         : `Table ${table}: ${op} succeeded`,
@@ -767,7 +859,14 @@ export function generateTableStorageLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 6e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("QueryEntities"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 6e8),
+      },
       message: `Table ${table}: ${props.event} on partition ${partitionKey}`,
       ...(docErr ? { error: docErr } : {}),
     };
@@ -805,7 +904,14 @@ export function generateTableStorageLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e5, 5e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("BatchCommit"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(8e5, 5e8),
+      },
       message: isErr
         ? `Table ${table}: batch commit partially failed`
         : `Table ${table}: batch committed ${props.operationsSucceeded}/${props.batchSize}`,
@@ -846,7 +952,14 @@ export function generateTableStorageLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e5, 2e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("QueryEntities"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e5, 2e8),
+      },
       message: isErr
         ? `SAS-authenticated table query rejected on ${table}`
         : `SAS query OK ${table}`,
@@ -887,7 +1000,14 @@ export function generateTableStorageLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e5, 2e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("QueryEntities"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e5, 2e8),
+      },
       message: isErr
         ? `Table ${table}: server busy throttling (retry ${props.retryAfterMs}ms)`
         : `Table ${table}: throughput within burst limits`,
@@ -926,7 +1046,14 @@ export function generateTableStorageLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(8e7, 2e9) },
+    event: {
+      kind: "event",
+      category: ["database"],
+      type: isErr ? ["error"] : ["access"],
+      action: String("Microsoft.Storage/storageAccounts/tableServices/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e7, 2e9),
+    },
     message: isErr
       ? `Table service config update failed on ${account}`
       : `Table service ${account} updated`,
@@ -979,7 +1106,14 @@ export function generateDataLakeStorageLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e5, 4e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String(`dfs.${op}`),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e5, 4e8),
+      },
       message: isErr
         ? `ADLS ${account}/${fs}: ${op} failed on ${path}`
         : `ADLS ${op} OK ${fs}/${path}`,
@@ -1020,7 +1154,14 @@ export function generateDataLakeStorageLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 9e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("dfs.SetAccessControlRecursive"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e8, 9e9),
+      },
       message: isErr
         ? `ACL recursive failed on abfs://${account}.dfs.core.windows.net/${fs}/${path}`
         : `ACL updated ${props.entriesChanged} entries under ${path}`,
@@ -1060,7 +1201,14 @@ export function generateDataLakeStorageLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 2e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("StorageLifecycleManagement"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e7, 2e9),
+      },
       message: isErr
         ? `Blob lifecycle on ${fs} failed rule ${props.ruleId}`
         : `Lifecycle applied tier ${props.tier} under ${fs}`,
@@ -1102,7 +1250,14 @@ export function generateDataLakeStorageLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e5, 2e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("dfs.CreateDirectory"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e5, 2e8),
+      },
       message: isErr
         ? `ADLS mkdir failed under ${fs}/${dirPath}`
         : `ADLS directory created ${fs}/${dirPath}`,
@@ -1143,7 +1298,14 @@ export function generateDataLakeStorageLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(6e5, 6e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("dfs.PathRead"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(6e5, 6e8),
+      },
       message: isErr ? `ADLS read checksum mismatch on ${path}` : `ADLS checksum OK for ${path}`,
       ...(docErr ? { error: docErr } : {}),
     };
@@ -1182,7 +1344,14 @@ export function generateDataLakeStorageLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 9e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("dfs.GetFilesystemProperties"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 9e8),
+      },
       message: isErr
         ? `ADLS filesystem ${fs} over soft quota (${props.usedBytes} bytes)`
         : `ADLS capacity within limits for ${fs}`,
@@ -1238,7 +1407,14 @@ export function generateStorageSyncLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 1.2e10) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.StorageSync/storageSyncServices/syncGroups/syncSessions/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e8, 1.2e10),
+      },
       message: `Storage Sync ${svc}: ${props.detail}`,
       ...(docErr ? { error: docErr } : {}),
     };
@@ -1277,7 +1453,14 @@ export function generateStorageSyncLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 4e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.StorageSync/storageSyncServices/cloudTiering/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e8, 4e9),
+      },
       message: isErr
         ? `Cloud tiering recall failed: ${props.reason}`
         : `Tiered file to ${props.toTier}: ${props.filePath}`,
@@ -1316,7 +1499,14 @@ export function generateStorageSyncLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 2e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.StorageSync/storageSyncServices/syncGroups/cloudEndpoints/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e8, 2e9),
+      },
       message: isErr
         ? `Cloud endpoint unhealthy for ${svc}/${props.syncGroup}`
         : `Cloud endpoint OK for ${props.cloudEndpoint}`,
@@ -1355,7 +1545,14 @@ export function generateStorageSyncLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 4e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("StorageSync.SyncDriftCheck"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e8, 4e9),
+      },
       message: isErr
         ? `Sync drift detected: ${props.divergenceFiles} files out of alignment`
         : `Sync drift check OK for ${svc}`,
@@ -1394,7 +1591,14 @@ export function generateStorageSyncLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 2e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("StorageSync.FileConflictEvent"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e8, 2e9),
+      },
       message: isErr
         ? `File sync conflict persists on ${props.conflictPath}`
         : `Conflict resolved (${props.resolution}) for ${props.conflictPath}`,
@@ -1432,7 +1636,14 @@ export function generateStorageSyncLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 6e9) },
+    event: {
+      kind: "event",
+      category: ["database"],
+      type: isErr ? ["error"] : ["access"],
+      action: String("Microsoft.StorageSync/storageSyncServices/registerServers/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e8, 6e9),
+    },
     message: isErr
       ? `Server endpoint registration failed for ${props.serverName}`
       : `Registered server endpoint ${props.serverName} on ${svc}`,
@@ -1486,7 +1697,14 @@ export function generateNetappFilesLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 8e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.NetApp/netAppAccounts/capacityPools/volumes/snapshots/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e8, 8e9),
+      },
       message: isErr
         ? `NetApp ${vol}: snapshot ${snap} failed`
         : `NetApp snapshot ${snap} created on ${vol}`,
@@ -1529,7 +1747,14 @@ export function generateNetappFilesLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 6e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.NetApp/netAppAccounts/capacityPools/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e8, 6e9),
+      },
       message: isErr
         ? `NetApp pool resize failed: ${props.reason}`
         : `Capacity pool ${pool} resized ${props.previousSizeTiB}TiB -> ${props.newSizeTiB}TiB`,
@@ -1569,7 +1794,14 @@ export function generateNetappFilesLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 4e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.NetApp/netAppAccounts/capacityPools/volumes/replication/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e8, 4e9),
+      },
       message: isErr
         ? `Cross-region replication broken on ${vol}, lag ${props.lagSec}s`
         : `Replication healthy for ${vol} (lag ${props.lagSec}s)`,
@@ -1610,7 +1842,14 @@ export function generateNetappFilesLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e8, 1.2e10) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.NetApp/netAppAccounts/backupBuckets/backup/action"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e8, 1.2e10),
+      },
       message: isErr
         ? `NetApp vault backup failed for volume ${vol}`
         : `NetApp backup vault transfer completed (${props.bytesTransferred} bytes)`,
@@ -1651,7 +1890,14 @@ export function generateNetappFilesLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 7e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.NetApp/netAppAccounts/capacityPools/volumes/clone/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e8, 7e9),
+      },
       message: isErr
         ? `NetApp flexclone create failed from ${vol}`
         : `NetApp clone ${props.cloneName} created from ${vol}`,
@@ -1691,7 +1937,14 @@ export function generateNetappFilesLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 3e9) },
+    event: {
+      kind: "event",
+      category: ["database"],
+      type: isErr ? ["error"] : ["access"],
+      action: String("Microsoft.NetApp/netAppAccounts/capacityPools/volumes/qos/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 3e9),
+    },
     message: isErr
       ? `NetApp volume ${vol} throughput below policy minimum`
       : `NetApp throughput ${props.observedMbps}/${props.maxMbps} Mbps`,
@@ -1742,7 +1995,14 @@ export function generateHpcCacheLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 2e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.StorageCache/caches/mountTargets/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e8, 2e9),
+      },
       message: `HPC Cache ${cache} mount ${props.mountTarget}: ${props.detail}`,
       ...(docErr ? { error: docErr } : {}),
     };
@@ -1779,7 +2039,14 @@ export function generateHpcCacheLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 7e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String(`Microsoft.StorageCache/caches/storageTargets/${props.operation === "DeleteStorageTarget" ? "delete" : "write"}`),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e8, 7e9),
+      },
       message: isErr
         ? `Storage target ${props.storageTarget} operation failed on ${cache}`
         : `Storage target ${props.storageTarget}: ${props.operation} OK`,
@@ -1818,7 +2085,14 @@ export function generateHpcCacheLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 5e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.StorageCache/caches/warmup/status"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e8, 5e9),
+      },
       message: isErr
         ? `HPC Cache ${cache} warmup stalled at ${props.warmupPercent}%`
         : `HPC Cache ${cache} warmup complete (${props.filesWarmed} files)`,
@@ -1856,7 +2130,14 @@ export function generateHpcCacheLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 5e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("HpcCache.DnsResolution"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 5e8),
+      },
       message: isErr
         ? `HPC Cache DNS failure for ${props.fqdn}`
         : `HPC Cache DNS OK ${props.fqdn} (${props.dnsResolutionMs}ms)`,
@@ -1895,7 +2176,14 @@ export function generateHpcCacheLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 2e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.StorageCache/caches/metering/report"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e7, 2e9),
+      },
       message: isErr
         ? `HPC Cache ${cache} usage metering failed`
         : `HPC Cache ${cache} metering reported ${props.cacheGbHours} GB-hrs`,
@@ -1932,7 +2220,14 @@ export function generateHpcCacheLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 4e9) },
+    event: {
+      kind: "event",
+      category: ["database"],
+      type: isErr ? ["error"] : ["access"],
+      action: String("Microsoft.StorageCache/caches/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 4e9),
+    },
     message: isErr
       ? `HPC Cache ${cache}: ARM update failed`
       : `HPC Cache ${cache}: configuration updated`,
@@ -1982,7 +2277,14 @@ export function generateSqlManagedInstanceLog(ts: string, er: number): EcsDocume
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 3e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("AUTOMATIC_TUNING"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e8, 3e9),
+      },
       message: isErr
         ? `MI ${mi}: auto-tuning could not verify ${props.objectName}`
         : `MI ${mi}: applied tuning ${props.recommendation} on ${props.objectName}`,
@@ -2024,7 +2326,14 @@ export function generateSqlManagedInstanceLog(ts: string, er: number): EcsDocume
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e9, 5e10) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("FailoverManagedInstance"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e9, 5e10),
+      },
       message: isErr
         ? `SQL MI ${mi}: failover (${props.failoverType}) failed`
         : `SQL MI ${mi}: ${props.failoverType} failover done in ${props.durationSec}s`,
@@ -2064,7 +2373,14 @@ export function generateSqlManagedInstanceLog(ts: string, er: number): EcsDocume
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 3.6e10) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("ManagedInstanceBackupCompleted"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e9, 3.6e10),
+      },
       message: isErr
         ? `MI ${mi}: ${props.backupType} backup failed: ${props.backupErrorDetail}`
         : `MI ${mi}: ${props.backupType} backup ${props.sizeMB} MB`,
@@ -2103,7 +2419,14 @@ export function generateSqlManagedInstanceLog(ts: string, er: number): EcsDocume
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e9, 2e10) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.Sql/managedInstances/maintenanceConfiguration/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e9, 2e10),
+      },
       message: isErr
         ? `MI ${mi}: patch ${props.kbArticle} rolled back`
         : `MI ${mi}: patch applied ${props.kbArticle} (${props.durationMin}m)`,
@@ -2142,7 +2465,14 @@ export function generateSqlManagedInstanceLog(ts: string, er: number): EcsDocume
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 4e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("DeadlockCaptured"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 4e9),
+      },
       message: isErr
         ? `MI ${mi}: elevated deadlocks (${props.deadlockCount}) in ${props.database}`
         : `MI ${mi}: routine deadlock telemetry OK`,
@@ -2181,7 +2511,14 @@ export function generateSqlManagedInstanceLog(ts: string, er: number): EcsDocume
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(8e8, 4e10) },
+    event: {
+      kind: "event",
+      category: ["database"],
+      type: isErr ? ["error"] : ["access"],
+      action: String("ManagedInstancePerfAlert"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e8, 4e10),
+    },
     message: isErr
       ? `MI ${mi}: data IO latency ${props.value.toFixed(0)}ms exceeded SLA`
       : `MI ${mi}: IO latency within bounds (${props.value.toFixed(1)}ms)`,
@@ -2231,7 +2568,14 @@ export function generateCacheForRedisLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e5, 2e7) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("RedisConnectionEvent"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e5, 2e7),
+      },
       message: isErr
         ? `Redis ${redis}: client ${props.clientId} auth failed from ${props.ip}`
         : `Redis ${redis}: client ${props.clientId} connected (db ${props.db})`,
@@ -2271,7 +2615,14 @@ export function generateCacheForRedisLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 4e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("RedisEviction"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e6, 4e8),
+      },
       message: isErr
         ? `Redis ${redis}: eviction issue — ${props.detail}`
         : `Redis ${redis}: evicted ${props.evictedKeys} keys (${props.policy})`,
@@ -2310,7 +2661,14 @@ export function generateCacheForRedisLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 5e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("RedisPersistenceEvent"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e8, 5e9),
+      },
       message: isErr
         ? `Redis ${redis}: ${props.persistence} ${props.operation} ${props.error}`
         : `Redis ${redis}: ${props.persistence} snapshot OK (offset ${props.lastSaveOffset})`,
@@ -2348,7 +2706,14 @@ export function generateCacheForRedisLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 4e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("RedisReplicationHealth"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 4e9),
+      },
       message: isErr
         ? `Redis ${redis}: replication lag ${props.lagMs}ms`
         : `Redis ${redis}: replication lag healthy`,
@@ -2387,7 +2752,14 @@ export function generateCacheForRedisLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 3e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Redis.ClusterSlotAudit"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e8, 3e9),
+      },
       message: isErr
         ? `Redis ${redis}: inconsistent slot assignment for ${props.slot}`
         : `Redis ${redis}: cluster topology stable`,
@@ -2424,7 +2796,14 @@ export function generateCacheForRedisLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 1.2e10) },
+    event: {
+      kind: "event",
+      category: ["database"],
+      type: isErr ? ["error"] : ["access"],
+      action: String("Microsoft.Cache/Redis/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e9, 1.2e10),
+    },
     message: isErr
       ? `Redis ${redis}: SKU / shard patch failed (${props.targetShardCount})`
       : `Redis ${redis}: configuration patch completed`,
@@ -2475,7 +2854,14 @@ export function generateDatabaseForPostgresqlLog(ts: string, er: number): EcsDoc
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 2e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("pg_stat_statements_sample"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e7, 2e9),
+      },
       message: isErr
         ? `PostgreSQL ${srv}: slow query mean ${props.meanTimeMs.toFixed(0)}ms (${props.waitEvent})`
         : `PostgreSQL ${srv}: query stats OK mean ${props.meanTimeMs.toFixed(1)}ms`,
@@ -2517,7 +2903,14 @@ export function generateDatabaseForPostgresqlLog(ts: string, er: number): EcsDoc
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e5, 5e7) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("connection_log"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e5, 5e7),
+      },
       message: `PostgreSQL ${srv}: ${props.event} ${props.user} from ${callerIp}`,
       ...(docErr ? { error: docErr } : {}),
     };
@@ -2554,7 +2947,14 @@ export function generateDatabaseForPostgresqlLog(ts: string, er: number): EcsDoc
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e9, 4e10) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("autovacuum_log"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e9, 4e10),
+      },
       message: isErr
         ? `PostgreSQL ${srv}: autovacuum error on ${props.database}`
         : `PostgreSQL ${srv}: vacuum ${props.phase} OK`,
@@ -2593,7 +2993,14 @@ export function generateDatabaseForPostgresqlLog(ts: string, er: number): EcsDoc
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 2e10) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("checkpoint_complete"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e9, 2e10),
+      },
       message: isErr
         ? `PostgreSQL ${srv}: checkpoint lag ${props.checkpointLagSec}s`
         : `PostgreSQL ${srv}: checkpoint complete buffers=${props.buffersWritten}`,
@@ -2632,7 +3039,14 @@ export function generateDatabaseForPostgresqlLog(ts: string, er: number): EcsDoc
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e9, 3e11) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("blocked_session"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e9, 3e11),
+      },
       message: isErr
         ? `PostgreSQL ${srv}: session blocked ${props.waitMs}ms on ${props.relation}`
         : `PostgreSQL ${srv}: locks healthy on ${props.relation}`,
@@ -2669,7 +3083,14 @@ export function generateDatabaseForPostgresqlLog(ts: string, er: number): EcsDoc
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(4e10, 2e11) },
+    event: {
+      kind: "event",
+      category: ["database"],
+      type: isErr ? ["error"] : ["access"],
+      action: String("Microsoft.DBforPostgreSQL/flexibleServers/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e10, 2e11),
+    },
     message: isErr
       ? `PostgreSQL ${srv}: administrative ${props.operation} failed`
       : `PostgreSQL ${srv}: ${props.operation} -> ${props.state}`,
@@ -2720,7 +3141,14 @@ export function generateDatabaseForMysqlLog(ts: string, er: number): EcsDocument
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 5e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("slow_query"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e7, 5e8),
+      },
       message: isErr
         ? `MySQL ${srv}: slow query ${props.queryTimeSec.toFixed(2)}s rows=${props.rowsExamined}`
         : `MySQL ${srv}: query within threshold (${props.queryTimeSec.toFixed(3)}s)`,
@@ -2759,7 +3187,14 @@ export function generateDatabaseForMysqlLog(ts: string, er: number): EcsDocument
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e5, 3e7) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("audit_log_connection"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e5, 3e7),
+      },
       message: `MySQL ${srv}: ${props.action} ${props.user} — ${props.detail}`,
       ...(docErr ? { error: docErr } : {}),
     };
@@ -2796,7 +3231,14 @@ export function generateDatabaseForMysqlLog(ts: string, er: number): EcsDocument
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 3e10) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("SHOW_REPLICA_STATUS"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e8, 3e10),
+      },
       message: isErr
         ? `MySQL ${srv}: replication broken lag=${props.lagSec}s`
         : `MySQL ${srv}: replica healthy lag=${props.lagSec}s`,
@@ -2835,7 +3277,14 @@ export function generateDatabaseForMysqlLog(ts: string, er: number): EcsDocument
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 2e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("mysql_kill_thread"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e8, 2e9),
+      },
       message: isErr
         ? `MySQL ${srv}: kill ignored for thread ${props.victimThread}`
         : `MySQL ${srv}: terminated long query thread ${props.victimThread}`,
@@ -2874,7 +3323,14 @@ export function generateDatabaseForMysqlLog(ts: string, er: number): EcsDocument
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e10, 3e13) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("ddl_audit"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e10, 3e13),
+      },
       message: isErr
         ? `MySQL ${srv}: DDL blocked on ${props.tableName}`
         : `MySQL ${srv}: ${props.ddlType} completed (${props.durationSec}s)`,
@@ -2911,7 +3367,14 @@ export function generateDatabaseForMysqlLog(ts: string, er: number): EcsDocument
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e11, 4e11) },
+    event: {
+      kind: "event",
+      category: ["database"],
+      type: isErr ? ["error"] : ["access"],
+      action: String("Microsoft.DBforMySQL/flexibleServers/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e11, 4e11),
+    },
     message: isErr
       ? `MySQL ${srv}: administrative ${props.operationType} failed`
       : `MySQL ${srv}: ${props.operationType} ${props.state}`,
@@ -2961,7 +3424,14 @@ export function generateDatabaseForMariadbLog(ts: string, er: number): EcsDocume
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e5, 2e7) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("MariaDBConnection"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e5, 2e7),
+      },
       message: isErr
         ? `MariaDB ${srv}: ${props.status} (${props.detail})`
         : `MariaDB ${srv}: connection thread ${props.threadId} OK`,
@@ -3000,7 +3470,14 @@ export function generateDatabaseForMariadbLog(ts: string, er: number): EcsDocume
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e8, 3e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("replication_health"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e8, 3e9),
+      },
       message: isErr
         ? `MariaDB ${srv}: replication lag ${props.secondsBehindMaster}s (IO=${props.ioRunning})`
         : `MariaDB ${srv}: replication within SLA (${props.secondsBehindMaster}s)`,
@@ -3039,7 +3516,14 @@ export function generateDatabaseForMariadbLog(ts: string, er: number): EcsDocume
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e10, 2e11) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("MariaDB.FailoverOrchestration"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e10, 2e11),
+      },
       message: isErr
         ? `MariaDB ${srv}: failover ${props.event} failed (binlog_gap=${props.binlogGap})`
         : `MariaDB ${srv}: failover ${props.event} in ${props.cutoverSeconds}s`,
@@ -3078,7 +3562,14 @@ export function generateDatabaseForMariadbLog(ts: string, er: number): EcsDocume
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 9e11) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("MariaDB.MetaDataLockAudit"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e9, 9e11),
+      },
       message: isErr
         ? `MariaDB ${srv}: MDL contention on ${props.objectName}`
         : `MariaDB ${srv}: ${props.ddl} completed without escalation`,
@@ -3116,7 +3607,14 @@ export function generateDatabaseForMariadbLog(ts: string, er: number): EcsDocume
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 4e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("MariaDB.TlsHandshake"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e6, 4e9),
+      },
       message: isErr
         ? `MariaDB ${srv}: TLS handshake ${props.handshakeResult}`
         : `MariaDB ${srv}: TLS ${props.tlsVersionOffered} negotiated (${props.cipher})`,
@@ -3152,7 +3650,14 @@ export function generateDatabaseForMariadbLog(ts: string, er: number): EcsDocume
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(3e11, 5e11) },
+    event: {
+      kind: "event",
+      category: ["database"],
+      type: isErr ? ["error"] : ["access"],
+      action: String("Microsoft.DBforMariaDB/servers/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e11, 5e11),
+    },
     message: isErr
       ? `MariaDB ${srv}: provisioning update failed`
       : `MariaDB ${srv}: administrative update succeeded`,
@@ -3202,7 +3707,14 @@ export function generatePurviewLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(6e9, 4e11) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.Purview/accounts/scans/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(6e9, 4e11),
+      },
       message: isErr
         ? `Purview ${acct}: scan ${props.scanId} failed — ${props.detail}`
         : `Purview scan completed: ${props.assetsScanned} assets from ${props.dataSource}`,
@@ -3241,7 +3753,14 @@ export function generatePurviewLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 8e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("PurviewClassificationResult"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 8e8),
+      },
       message: isErr
         ? `Purview: low-confidence classification on ${props.columnName}`
         : `Purview classified ${props.classification} on ${props.columnName}`,
@@ -3252,7 +3771,7 @@ export function generatePurviewLog(ts: string, er: number): EcsDocument {
   if (variant === "catalog") {
     const docErr = dataExtendedPickError(isErr);
     const props = {
-      operationUser: `entra:${rand(["analyst", "steward"])}@contoso.com`,
+      operationUser: `entra:${randAzurePersonEmail()}`,
       entityType: rand(["azure_sql_table", "abfss_path"]),
       entityId: `/subscriptions/.../${randId(8)}`,
       changeType: isErr ? "DeleteDenied" : "UpsertEntity",
@@ -3280,7 +3799,14 @@ export function generatePurviewLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 4e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.Purview/accounts/catalog/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e8, 4e9),
+      },
       message: isErr
         ? `Purview catalog: ${props.changeType} denied for ${props.entityId}`
         : `Purview catalog: ${props.changeType} for ${props.entityType}`,
@@ -3318,7 +3844,14 @@ export function generatePurviewLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 3e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Purview.GlossaryPublish"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e8, 3e9),
+      },
       message: isErr
         ? `Purview glossary term ${props.termName} blocked`
         : `Purview glossary term ${props.termName} ${props.publishState}`,
@@ -3357,7 +3890,14 @@ export function generatePurviewLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 7e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Purview.LineageIngestion"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e8, 7e9),
+      },
       message: isErr
         ? `Purview lineage ingest failed parseErrors=${props.parseErrors}`
         : `Purview lineage updated ${props.edgesMaterialized} edges`,
@@ -3394,7 +3934,14 @@ export function generatePurviewLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(3e9, 1.5e11) },
+    event: {
+      kind: "event",
+      category: ["database"],
+      type: isErr ? ["error"] : ["access"],
+      action: String("Microsoft.Purview/accounts/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e9, 1.5e11),
+    },
     message: isErr
       ? `Purview account ${acct}: provisioning update failed`
       : `Purview account ${acct}: ${props.state}`,
@@ -3488,7 +4035,14 @@ export function generateDataFactoryLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 9e10) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("ActivityRun"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e8, 9e10),
+      },
       message: isErr
         ? `ADF activity ${props.activityName} failed: ${props.detail}`
         : `ADF activity ${props.activityName} (${props.activityType}) completed`,
@@ -3527,7 +4081,14 @@ export function generateDataFactoryLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 5e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("TriggerRun"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e7, 5e8),
+      },
       message: isErr
         ? `ADF trigger ${props.triggerName} did not fire (validation error)`
         : `ADF trigger ${props.triggerName} fired (${props.triggerType})`,
@@ -3566,7 +4127,14 @@ export function generateDataFactoryLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 6e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.DataFactory/factories/integrationRuntimes/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e8, 6e9),
+      },
       message: isErr
         ? `ADF IR ${props.irName} offline (no heartbeat ${props.lastHeartbeatSec}s)`
         : `ADF IR ${props.irName} healthy nodes=${props.registeredNodes}`,
@@ -3604,7 +4172,14 @@ export function generateDataFactoryLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 4e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("LinkedService.TestConnection"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 4e9),
+      },
       message: isErr
         ? `ADF linked service ${props.linkedService} test failed: ${props.detail}`
         : `ADF linked service ${props.linkedService} OK`,
@@ -3640,7 +4215,14 @@ export function generateDataFactoryLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(5e9, 1.8e11) },
+    event: {
+      kind: "event",
+      category: ["database"],
+      type: isErr ? ["error"] : ["access"],
+      action: String("Microsoft.DataFactory/factories/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e9, 1.8e11),
+    },
     message: isErr
       ? `ADF factory ${factory}: administrative ${props.change} failed`
       : `ADF factory ${factory}: ${props.change} ${props.state}`,
@@ -3688,7 +4270,14 @@ export function generateStreamAnalyticsLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e8, 1.2e10) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String(`Microsoft.StreamAnalytics/streamingjobs/${props.operation === "StartJob" ? "start" : "stop"}`),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e8, 1.2e10),
+      },
       message: isErr
         ? `ASA ${job}: lifecycle ${props.operation} failed — ${props.detail}`
         : `ASA ${job}: ${props.operation} -> ${props.state}`,
@@ -3728,7 +4317,14 @@ export function generateStreamAnalyticsLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e7, 4e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("StreamingIO"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e7, 4e8),
+      },
       message: isErr
         ? `ASA ${job}: ${props.direction} ${props.alias} errors=${props.errors} ${props.detail}`
         : `ASA ${job}: processed ${props.records} records on ${props.alias}`,
@@ -3766,7 +4362,14 @@ export function generateStreamAnalyticsLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 2e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("StreamingWatermark"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e8, 2e9),
+      },
       message: isErr
         ? `ASA ${job}: watermark behind; lateness ${props.latenessSec}s (${props.state})`
         : `ASA ${job}: watermark ${props.watermark} within tolerance`,
@@ -3804,7 +4407,14 @@ export function generateStreamAnalyticsLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 9e8) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("ASA.CompileQuery"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 9e8),
+      },
       message: isErr
         ? `ASA ${job}: query compile failed (${props.diagnostics})`
         : `ASA ${job}: compile OK hash=${props.queryHash}`,
@@ -3842,7 +4452,14 @@ export function generateStreamAnalyticsLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 5e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.StreamAnalytics/streamingjobs/scale"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e8, 5e9),
+      },
       message: isErr
         ? `ASA ${job}: autoscale failed — ${props.reason}`
         : `ASA ${job}: streaming units ${props.suBefore} -> ${props.suAfter}`,
@@ -3879,7 +4496,14 @@ export function generateStreamAnalyticsLog(ts: string, er: number): EcsDocument 
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(3e7, 2e9) },
+    event: {
+      kind: "event",
+      category: ["database"],
+      type: isErr ? ["error"] : ["access"],
+      action: String("ASA.RuntimeCompatibilityScan"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e7, 2e9),
+    },
     message: isErr
       ? `ASA ${job}: runtime ${props.runtime} incompatible — ${props.detail}`
       : `ASA ${job}: compatibility scan OK (${props.runtime})`,
@@ -3900,7 +4524,7 @@ export function generateDigitalTwinsLog(ts: string, er: number): EcsDocument {
   if (variant === "model") {
     const docErr = dataExtendedPickError(isErr);
     const props = {
-      modelId: `dtmi:contoso:${rand(["Factory", "Sensor"])};${randInt(1, 3)}`,
+      modelId: `dtmi:meridiantech:${rand(["Factory", "Sensor"])};${randInt(1, 3)}`,
       operation: isErr ? "CreateModels" : rand(["CreateModels", "DeleteModels"]),
       status: isErr ? "InvalidModel" : "OK",
       detail: isErr ? "DTDL validation: duplicate property ids in interface" : "",
@@ -3928,7 +4552,14 @@ export function generateDigitalTwinsLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 5e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.DigitalTwins/models/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e8, 5e9),
+      },
       message: isErr
         ? `Digital Twins ${inst}: model ${props.modelId} invalid — ${props.detail}`
         : `Digital Twins ${inst}: ${props.operation} ${props.modelId}`,
@@ -3966,7 +4597,14 @@ export function generateDigitalTwinsLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 3e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.DigitalTwins/twins/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e8, 3e9),
+      },
       message: isErr
         ? `ADT ${inst}: twin ${props.twinId} patch conflict`
         : `ADT ${inst}: ${props.operation} ${props.twinId}`,
@@ -4005,7 +4643,14 @@ export function generateDigitalTwinsLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 2e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.DigitalTwins/eventRoutes/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e7, 2e9),
+      },
       message: isErr
         ? `ADT route to ${props.endpoint} failed after ${props.retryCount} retries`
         : `ADT routing delivered to ${props.endpoint}`,
@@ -4043,7 +4688,14 @@ export function generateDigitalTwinsLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e7, 3e10) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("ADT.Query"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e7, 3e10),
+      },
       message: isErr
         ? `ADT ${inst}: twin graph query rejected (${props.throttleCode})`
         : `ADT ${inst}: query returned ${props.resultCount} twins`,
@@ -4082,7 +4734,14 @@ export function generateDigitalTwinsLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e8, 4e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.DigitalTwins/relationships/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(8e8, 4e9),
+      },
       message: isErr
         ? `ADT ${inst}: relationship create failed (${props.relationshipId})`
         : `ADT ${inst}: relationship ${props.status} ${props.relationshipId}`,
@@ -4119,7 +4778,14 @@ export function generateDigitalTwinsLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 9e11) },
+    event: {
+      kind: "event",
+      category: ["database"],
+      type: isErr ? ["error"] : ["access"],
+      action: String("Microsoft.DigitalTwins/digitalTwinsInstances/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e9, 9e11),
+    },
     message: isErr
       ? `ADT ${inst}: administrative update failed (${props.publicNetworkAccess})`
       : `ADT ${inst}: instance patched ${props.sku}`,
@@ -4168,7 +4834,14 @@ export function generateHdinsightLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e9, 6e10) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.HDInsight/clusters/resize"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e9, 6e10),
+      },
       message: isErr
         ? `HDInsight ${cluster}: resize failed — ${props.detail}`
         : `HDInsight ${cluster}: workers ${props.previousWorkers} -> ${props.targetWorkers}`,
@@ -4206,7 +4879,14 @@ export function generateHdinsightLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 3e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.HDInsight/clusters/read"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e8, 3e9),
+      },
       message: `HDInsight ${cluster} ${props.component}: ${props.state} — ${props.detail}`,
       ...(docErr ? { error: docErr } : {}),
     };
@@ -4286,7 +4966,14 @@ export function generateHdinsightLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e9, 4e10) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.HDInsight/clusters/extensions/scriptAction"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e9, 4e10),
+      },
       message: isErr
         ? `HDInsight ${cluster}: script action failed exit=${props.exitCode}`
         : `HDInsight ${cluster}: script action OK on ${props.runOn}`,
@@ -4324,7 +5011,14 @@ export function generateHdinsightLog(ts: string, er: number): EcsDocument {
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 2e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("HDInsight.DiskMonitor"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e8, 2e9),
+      },
       message: isErr
         ? `HDInsight ${cluster}: disk pressure ${props.mountPoint} ${props.usedPercent}%`
         : `HDInsight ${cluster}: disk usage OK ${props.mountPoint}`,
@@ -4361,7 +5055,14 @@ export function generateHdinsightLog(ts: string, er: number): EcsDocument {
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(6e10, 3e12) },
+    event: {
+      kind: "event",
+      category: ["database"],
+      type: isErr ? ["error"] : ["access"],
+      action: String("Microsoft.HDInsight/clusters/upgrade"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(6e10, 3e12),
+    },
     message: isErr
       ? `HDInsight ${cluster}: upgrade ${props.fromVersion}->${props.toVersion} rolled back`
       : `HDInsight ${cluster}: runtime upgrade ${props.state}`,
@@ -4502,7 +5203,14 @@ export function generateAnalysisServicesLog(ts: string, er: number): EcsDocument
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 6e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String(`Microsoft.AnalysisServices/servers/${props.operation}`),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e8, 6e9),
+      },
       message: isErr
         ? `AAS ${server}: ${props.operation} failed — ${props.detail}`
         : `AAS ${server}: ${props.operation} -> ${props.state}`,
@@ -4540,7 +5248,14 @@ export function generateAnalysisServicesLog(ts: string, er: number): EcsDocument
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e8, 2e10) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("TraceEvent"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(8e8, 2e10),
+      },
       message: isErr
         ? `AAS ${server}: subsystem ${props.subsystem} logged error`
         : `AAS ${server}: ${props.text}`,
@@ -4579,7 +5294,14 @@ export function generateAnalysisServicesLog(ts: string, er: number): EcsDocument
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e11, 3e13) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("TABULAR_PARTITION_PROCESS"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e11, 3e13),
+      },
       message: isErr
         ? `AAS ${server}: partition process failed (${props.tablePartition})`
         : `AAS ${server}: partition ${props.mode} rows=${props.rowsProcessed}`,
@@ -4616,7 +5338,14 @@ export function generateAnalysisServicesLog(ts: string, er: number): EcsDocument
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e11, 4e11) },
+    event: {
+      kind: "event",
+      category: ["database"],
+      type: isErr ? ["error"] : ["access"],
+      action: String("Microsoft.AnalysisServices/servers/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e11, 4e11),
+    },
     message: isErr
       ? `AAS ${server}: server provisioning update failed`
       : `AAS ${server}: patch applied ${props.sku}`,
@@ -4674,7 +5403,14 @@ export function generatePowerBiEmbeddedLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 1.2e10) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String(`Microsoft.PowerBIDedicated/capacities/${props.operation}`),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(4e8, 1.2e10),
+      },
       message: isErr
         ? `Power BI Embedded ${cap}: ${props.operation} failed`
         : `Power BI Embedded ${cap}: ${props.operation} ${props.skuTier} -> ${props.targetSku}`,
@@ -4757,7 +5493,14 @@ export function generatePowerBiEmbeddedLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(6e8, 3e10) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("PowerBI.WorkspaceRbacAudit"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(6e8, 3e10),
+      },
       message: isErr
         ? `PBI workspace ${props.workspaceName}: RBAC issue — ${props.detail}`
         : `PBI workspace ${props.workspaceName}: role assigned`,
@@ -4796,7 +5539,14 @@ export function generatePowerBiEmbeddedLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e10, 3e11) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.PowerBIDedicated/capacities/gatewayHealth"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e10, 3e11),
+      },
       message: isErr
         ? `PBI gateway ${props.gatewayCluster} unhealthy (${props.errors24h} errors)`
         : `PBI gateway cluster ${props.gatewayCluster}: members OK`,
@@ -4835,7 +5585,14 @@ export function generatePowerBiEmbeddedLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e10, 2e13) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("PowerBI.ExportReport"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e10, 2e13),
+      },
       message: isErr
         ? `PBI export ${props.exportId} ${props.status}`
         : `PBI export OK ${props.rowsExported} rows as ${props.format}`,
@@ -4934,7 +5691,14 @@ export function generateMicrosoftFabricLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e8, 1.5e10) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String(`Microsoft.Fabric/capacities/${props.operation}`),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(5e8, 1.5e10),
+      },
       message: isErr
         ? `Fabric capacity ${cap}: ${props.operation} failed — ${props.detail}`
         : `Fabric capacity ${cap}: ${props.operation} OK (units=${props.capacityUnit})`,
@@ -4974,7 +5738,14 @@ export function generateMicrosoftFabricLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 5e9) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Microsoft.Fabric/workspaces/write"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e8, 5e9),
+      },
       message: isErr
         ? `Fabric workspace ${props.workspaceName}: ${props.event} ${props.detail}`
         : `Fabric workspace ${props.workspaceName}: ${props.event} for ${props.principal}`,
@@ -5013,7 +5784,14 @@ export function generateMicrosoftFabricLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e10, 3e13) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Fabric.LakehouseTableMaintenance"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(2e10, 3e13),
+      },
       message: isErr
         ? `Fabric lakehouse ${props.lakehouse}: optimization commit ${props.commitStatus}`
         : `Fabric lakehouse ${props.lakehouse}: ingested ${props.filesIngested} files`,
@@ -5052,7 +5830,14 @@ export function generateMicrosoftFabricLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e11, 2e13) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Fabric.PipelineRunTelemetry"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(3e11, 2e13),
+      },
       message: isErr
         ? `Fabric pipeline orchestration failed on ${props.failedActivity}`
         : `Fabric pipeline OK activities=${props.activityCount}`,
@@ -5091,7 +5876,14 @@ export function generateMicrosoftFabricLog(ts: string, er: number): EcsDocument 
           properties: propsForDoc,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e11, 3e13) },
+      event: {
+        kind: "event",
+        category: ["database"],
+        type: isErr ? ["error"] : ["access"],
+        action: String("Fabric.EventStream.Health"),
+        outcome: isErr ? "failure" : "success",
+        duration: randInt(1e11, 3e13),
+      },
       message: isErr
         ? `Fabric eventstream ${props.streamName} backlog ${props.lagMs}ms`
         : `Fabric eventstream ${props.streamName} throughput ${props.throughputKbps} KB/s`,
@@ -5129,7 +5921,14 @@ export function generateMicrosoftFabricLog(ts: string, er: number): EcsDocument 
         properties: propsForDoc,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e11, 3e13) },
+    event: {
+      kind: "event",
+      category: ["database"],
+      type: isErr ? ["error"] : ["access"],
+      action: String("Microsoft.Fabric/domains/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e11, 3e13),
+    },
     message: isErr
       ? `Fabric domain ${props.domainName} publish blocked (${props.publishState})`
       : `Fabric domain ${props.domainName} staged ${props.itemCount} endorsed items`,

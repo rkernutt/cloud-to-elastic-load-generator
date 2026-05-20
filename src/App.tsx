@@ -176,6 +176,8 @@ export function LoadGeneratorApp({
   );
   const [batchDelayMs, setBatchDelayMs] = useState(savedConfig.batchDelayMs ?? 20);
   const [injectAnomalies, setInjectAnomalies] = useState(savedConfig.injectAnomalies ?? false);
+  const [pipelineOrchestration, setPipelineOrchestration] =
+    useState<import("./aws/generators/dataPipelineChain").PipelineOrchestrationPreference>("all");
   const [scheduleEnabled, setScheduleEnabled] = useState(DEFAULT_SCHEDULE_ENABLED);
   const [scheduleTotalRuns, setScheduleTotalRuns] = useState(savedConfig.scheduleTotalRuns ?? 12);
   const [scheduleIntervalMin, setScheduleIntervalMin] = useState(
@@ -709,6 +711,11 @@ export function LoadGeneratorApp({
   };
 
   const ship = useCallback(async () => {
+    // Apply pipeline orchestration preference before shipping
+    const { setPipelineOrchestration: setOrch } =
+      await import("./aws/generators/dataPipelineChain");
+    setOrch(pipelineOrchestration);
+
     await runShipWorkload({
       config,
       isTracesMode,
@@ -755,6 +762,7 @@ export function LoadGeneratorApp({
     traceIngestionSource,
     runConnectionValidation,
     injectAnomalies,
+    pipelineOrchestration,
     dryRun,
     config,
     addLog,
@@ -773,6 +781,10 @@ export function LoadGeneratorApp({
 
   const shipWithOverride = useCallback(
     async (inject: boolean) => {
+      const { setPipelineOrchestration: setOrch } =
+        await import("./aws/generators/dataPipelineChain");
+      setOrch(pipelineOrchestration);
+
       await runShipWorkload({
         config,
         isTracesMode,
@@ -1322,12 +1334,15 @@ export function LoadGeneratorApp({
             batchSize={batchSize}
             batchDelayMs={batchDelayMs}
             injectAnomalies={injectAnomalies}
+            showPipelineOrchestration={selectedServices.includes("data-pipeline-chain")}
+            pipelineOrchestration={pipelineOrchestration}
             onLogsPerServiceChange={setLogsPerService}
             onTracesPerServiceChange={setTracesPerService}
             onErrorRateChange={setErrorRate}
             onBatchSizeChange={setBatchSize}
             onBatchDelayMsChange={setBatchDelayMs}
             onInjectAnomaliesChange={setInjectAnomalies}
+            onPipelineOrchestrationChange={setPipelineOrchestration}
           />
         )}
 

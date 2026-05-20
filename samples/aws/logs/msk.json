@@ -1,80 +1,82 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "il-central-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "msk" }
   },
   "aws": {
     "dimensions": {
-      "Cluster Name": "prod-kafka-ap-northeast-1",
-      "Broker ID": "4",
-      "Topic": "notifications"
+      "Cluster Name": "prod-kafka-il-central-1",
+      "Broker ID": "2",
+      "Topic": "user-events"
     },
     "msk": {
-      "cluster_name": "prod-kafka-ap-northeast-1",
-      "broker_id": 4,
+      "cluster_name": "prod-kafka-il-central-1",
+      "broker_id": 2,
       "kafka_version": "3.5.1",
-      "topic": "notifications",
-      "partition": 13,
-      "offset": 54912835,
-      "consumer_group": "etl-pipeline",
-      "lag": 86,
+      "topic": "user-events",
+      "partition": 15,
+      "offset": 51970367,
+      "consumer_group": "alerting-service",
+      "lag": 91,
       "under_replicated_partitions": 0,
       "metrics": {
-        "BytesInPerSec": { "avg": 7744782 },
-        "BytesOutPerSec": { "avg": 233411 },
-        "MessagesInPerSec": { "avg": 5969 },
-        "FetchConsumerTotalTimeMsMean": { "avg": 35 },
-        "ProduceTotalTimeMsMean": { "avg": 44 },
+        "BytesInPerSec": { "avg": 4602115 },
+        "BytesOutPerSec": { "avg": 6458989 },
+        "MessagesInPerSec": { "avg": 8842 },
+        "FetchConsumerTotalTimeMsMean": { "avg": 14 },
+        "ProduceTotalTimeMsMean": { "avg": 26 },
         "UnderReplicatedPartitions": { "avg": 0 },
         "UnderMinIsrPartitionCount": { "avg": 0 },
         "OfflinePartitionsCount": { "avg": 0 },
         "ActiveControllerCount": { "avg": 1 },
-        "GlobalPartitionCount": { "avg": 148 },
-        "GlobalTopicCount": { "avg": 21 },
-        "KafkaDataLogsDiskUsed": { "avg": 52.76330584294139 },
-        "CPUUser": { "avg": 50.46589912465944 },
-        "CPUSystem": { "avg": 7.094747077533398 },
+        "GlobalPartitionCount": { "avg": 437 },
+        "GlobalTopicCount": { "avg": 61 },
+        "KafkaDataLogsDiskUsed": { "avg": 39.83482691984761 },
+        "CPUUser": { "avg": 35.738097961491476 },
+        "CPUSystem": { "avg": 9.703329292521179 },
         "NetworkRxDropped": { "sum": 0 },
         "NetworkTxDropped": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-msk-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-msk-logs-164820739518"
+        "name": "aws-msk-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-msk-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/164820739518/msk/ap-northeast-1/2026/05/19/msk_T988DXQLWDVYRICAAOZ2.log.gz"
+        "key": "AWSLogs/738291046572/msk/il-central-1/2026/05/20/msk_KMKI8XUXP1DW8U4HONCT.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/msk/logs",
-      "log_stream": "ap-northeast-1/811ryrtr",
-      "ingestion_time": "2026-05-19T15:25:13.583Z"
+      "log_stream": "il-central-1/i30x7gua",
+      "ingestion_time": "2026-05-20T13:19:01.343Z"
     }
   },
-  "kafka": { "topic": "notifications", "partition": 13 },
+  "kafka": { "topic": "user-events", "partition": 15 },
   "event": {
     "outcome": "success",
     "category": ["process", "network"],
+    "type": ["connection"],
     "dataset": "aws.msk",
     "provider": "kafka.amazonaws.com",
-    "duration": 76000000,
-    "module": "aws"
+    "duration": 41000000,
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "[2026-05-19 15:25:12.772] INFO [LogManager broker=4] Completed fetch of 4986 messages for partition notifications-13 at offset 60104494 (kafka.coordinator.group.GroupCoordinator)",
-  "log": { "level": "info" },
+  "message": "[2026-05-20 13:19:00.213] WARN [KafkaApi broker=2] ISR shrink: partition user-events-15 isr=[2,3] -> [2] (kafka.server.ReplicaFetcherManager)",
+  "log": { "level": "warn" },
   "service": { "name": "msk", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.kafka_metrics", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "33z2a7skn0pov9bhp3xm0xvmk7pdc5k1u0uz"
+    "name": "filebeat-aws-il-central-1",
+    "ephemeral_id": "du7l8zw2oknnt6rqp5z6h5s0edjvyv5vqkvo"
   },
   "input": { "type": "aws-cloudwatch" }
 }

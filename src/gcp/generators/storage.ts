@@ -3,7 +3,9 @@ import {
   rand,
   randInt,
   randId,
-  randIp,
+  randPublicIp,
+  randSourceIp,
+  gcpStatusMessage,
   gcpCloud,
   makeGcpSetup,
   randZone,
@@ -22,6 +24,16 @@ function eventBlock(isErr: boolean, durationNs: number) {
   };
 }
 
+function fileEvent(isErr: boolean, durationNs: number, action: string) {
+  return {
+    kind: "event" as const,
+    category: ["file"] as const,
+    type: isErr ? (["error"] as const) : (["access"] as const),
+    action,
+    ...eventBlock(isErr, durationNs),
+  };
+}
+
 const GRPC_ERROR_STATUSES = [
   "INTERNAL",
   "DEADLINE_EXCEEDED",
@@ -31,7 +43,10 @@ const GRPC_ERROR_STATUSES = [
   "UNAVAILABLE",
 ] as const;
 
-function grpcStructuredFault(isErr: boolean): {
+function grpcStructuredFault(
+  isErr: boolean,
+  resource = "resource"
+): {
   spread: Record<string, unknown>;
   rpcLabel: Record<string, string>;
 } {
@@ -40,7 +55,7 @@ function grpcStructuredFault(isErr: boolean): {
   return {
     spread: {
       "gcp.rpc": { status_code: code },
-      error: { code, message: `${code}: operation failed`, type: "gcp" },
+      error: { code, message: gcpStatusMessage(code, resource), type: "gcp" },
     },
     rpcLabel: { "gcp.rpc.status_code": code },
   };
@@ -48,8 +63,9 @@ function grpcStructuredFault(isErr: boolean): {
 
 export function generateCloudStorageLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
-  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
   const bucketName = randBucket();
+  const storageResource = `projects/${project.id}/buckets/${bucketName}`;
+  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr, storageResource);
   const objectName = `${rand(["exports", "uploads", "logs"])}/${randId(8).toLowerCase()}.bin`;
   const objectSize = randInt(256, 500_000_000);
   const storageClass = rand(["STANDARD", "NEARLINE", "COLDLINE", "ARCHIVE"] as const);
@@ -123,10 +139,10 @@ export function generateCloudStorageLog(ts: string, er: number): EcsDocument {
         operation,
         content_type: contentType,
         generation,
-        requester_ip: randIp(),
+        requester_ip: Math.random() < 0.7 ? randSourceIp() : randPublicIp(),
       },
     },
-    event: eventBlock(isErr, latencyMs * 1e6),
+    event: fileEvent(isErr, latencyMs * 1e6, "storage"),
     message,
   };
 }
@@ -165,7 +181,7 @@ export function generatePersistentDiskLog(ts: string, er: number): EcsDocument {
         throughput_mbps: throughputMbps,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: fileEvent(isErr, durationNs, "storage"),
     message,
   };
 }
@@ -202,7 +218,7 @@ export function generateFilestoreLog(ts: string, er: number): EcsDocument {
         connected_clients: connectedClients,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: fileEvent(isErr, durationNs, "storage"),
     message,
   };
 }
@@ -246,7 +262,7 @@ export function generateStorageTransferLog(ts: string, er: number): EcsDocument 
         transfer_type: transferType,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: fileEvent(isErr, durationNs, "storage"),
     message,
   };
 }
@@ -283,7 +299,7 @@ export function generateBackupDrLog(ts: string, er: number): EcsDocument {
         recovery_point: recoveryPoint,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: fileEvent(isErr, durationNs, "storage"),
     message,
   };
 }

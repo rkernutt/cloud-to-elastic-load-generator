@@ -1,22 +1,22 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
+    "region": "ap-northeast-3",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "servicecatalog" }
   },
   "aws": {
     "servicecatalog": {
       "operation": "AssociatePrincipal",
-      "product_name": "Standard EC2 Instance",
-      "product_id": "prod-E33AIJ2YVTFKJ",
-      "portfolio_id": "port-HKDMO7NTB09QG",
-      "provisioned_product_name": "standard-ec2-instance-xx43oe",
-      "record_id": "rec-I8U5EZIN98HNU",
-      "status": "SUCCEEDED",
-      "requester_arn": "arn:aws:iam::501938274650:user/contractor-dan",
-      "launch_role": "arn:aws:iam::123456789:role/ServiceCatalogLaunchRole"
+      "product_name": "EKS Cluster",
+      "product_id": "prod-H8GDTFOCQCSH8",
+      "portfolio_id": "port-D82IRQZLQCIKH",
+      "provisioned_product_name": "eks-cluster-k16mwi",
+      "record_id": "rec-4AW53WUHYCSOS",
+      "status": "AVAILABLE",
+      "requester_arn": "arn:aws:iam::501938274650:user/svc-deploy-prod",
+      "launch_role": "arn:aws:iam::501938274650:role/ServiceCatalogLaunchRole"
     },
     "s3": {
       "bucket": {
@@ -24,26 +24,27 @@
         "arn": "arn:aws:s3:::aws-servicecatalog-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/servicecatalog/ca-west-1/2026/05/19/servicecatalog_IN07RK8PPL9U5QBRANBG.log.gz"
+        "key": "AWSLogs/501938274650/servicecatalog/ap-northeast-3/2026/05/20/servicecatalog_C1LHN8HNF3VBI947II91.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/servicecatalog/logs",
-      "log_stream": "ca-west-1/h2arj7hr",
-      "ingestion_time": "2026-05-19T15:25:13.686Z"
+      "log_stream": "ap-northeast-3/syhmtqc5",
+      "ingestion_time": "2026-05-20T13:19:01.448Z"
     }
   },
-  "user": { "name": "contractor-dan" },
+  "user": { "name": "svc-deploy-prod" },
   "event": {
     "action": "AssociatePrincipal",
     "outcome": "success",
     "category": ["configuration", "process"],
     "dataset": "aws.servicecatalog",
     "provider": "servicecatalog.amazonaws.com",
-    "duration": 49000000000,
-    "module": "aws"
+    "duration": 359000000000,
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "ServiceCatalog AssociatePrincipal: contractor-dan → Standard EC2 Instance [SUCCEEDED]",
+  "message": "ServiceCatalog AssociatePrincipal: svc-deploy-prod → EKS Cluster [AVAILABLE]",
   "log": { "level": "info" },
   "service": { "name": "servicecatalog", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -51,8 +52,9 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "n3dn0m39fmrkla2p0ji1f65cz6mursau07by"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "k840r585pgtcdemxv5e867b6vs62s2fu6srf"
   },
-  "input": { "type": "aws-cloudwatch" }
+  "input": { "type": "aws-cloudwatch" },
+  "related": { "user": ["svc-deploy-prod"] }
 }

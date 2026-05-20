@@ -3,42 +3,39 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-north1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" }
+    "region": "asia-south1",
+    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
+    "account": { "id": "847293615048", "name": "Globex Security" },
+    "service": { "name": "cloud-logging" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-north1",
-    "ephemeral_id": "06rialq3piq1a7ev139u5xnt7yqly6551v4p"
+    "name": "metricbeat-gcp-asia-south1",
+    "ephemeral_id": "nywo8fe3uamswrfr5y9xtqdcknnxyb1v7pdz"
   },
   "monitoringTimeSeries": {
     "metric": { "type": "logging.googleapis.com/exports/byte_count", "labels": { "state": "OK" } },
     "resource": {
       "type": "logging.googleapis.com/LogSink",
-      "labels": { "project_id": "globex-staging-d4e5f6", "sink_name": "sec-central" }
+      "labels": { "project_id": "globex-sec-847293", "sink_name": "_Default" }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
       {
         "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "int64Value": "224661081685" }
+        "value": { "int64Value": "46595609135" }
       }
     ]
   },
   "gcp": {
     "cloud-logging": {
-      "labels": {
-        "project_id": "globex-staging-d4e5f6",
-        "sink_name": "sec-central",
-        "state": "OK"
-      },
+      "labels": { "project_id": "globex-sec-847293", "sink_name": "_Default", "state": "OK" },
       "metrics": {
         "logging.googleapis.com/exports/byte_count": {
-          "avg": 224661081685,
-          "sum": 224661081685,
+          "avg": 46595609135,
+          "sum": 46595609135,
           "count": 1
         }
       }
@@ -47,5 +44,5 @@
   "metricset": { "name": "cloud-logging", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.logging_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.logging_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.logging_metrics", "module": "gcp" }
 }

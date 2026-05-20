@@ -1,54 +1,72 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
   "log": { "level": "info" },
-  "labels": {
-    "resource.type": "cloudresourcemanager.googleapis.com/TagValue",
-    "tag_key": "team",
-    "api_method": "cloudresourcemanager.googleapis.com/v3/projects/globex-dev-g7h8i9/zones/us-central1-a/instances/vm-V4QL/tagBindings:create"
+  "severity": "INFO",
+  "logName": "projects/globex-stg-739158/logs/cloudaudit.googleapis.com%2Faccess_transparency",
+  "insertId": "pakrn2mfyxqtwh5e",
+  "resource": { "type": "project", "labels": { "project_id": "globex-stg-739158" } },
+  "jsonPayload": {
+    "id": "AX-M3HSJ6TSBLGL",
+    "actor": { "email": "google-support-QDQ0@google.com", "title": "Support Engineer" },
+    "target": { "customerId": "CFNZ676PYIA", "projectNumber": "739158264830" },
+    "product": "DRIVE",
+    "reason": "THIRD_PARTY_DATA_REQUEST",
+    "action": "ACCOUNT_RECOVERY",
+    "status": "COMPLETED",
+    "ipAddress": "100.64.0.104",
+    "justification": "Abuse and fraud investigation",
+    "accessDurationSeconds": 1865
   },
+  "labels": { "resource.type": "accessapproval.googleapis.com/Note", "product": "DRIVE" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-central1",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" },
-    "service": { "name": "tags" }
+    "region": "us-west4",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
+    "service": { "name": "accessapproval.googleapis.com" }
   },
   "gcp": {
-    "tags": {
-      "tag_key": "team",
-      "tag_value": "prod",
-      "resource_name": "projects/globex-dev-g7h8i9/zones/us-central1-a/instances/vm-V4QL",
-      "action": "UNBIND",
-      "policy_affected": "conditional-binding"
+    "access_transparency": {
+      "json_payload": {
+        "id": "AX-M3HSJ6TSBLGL",
+        "actor": { "email": "google-support-QDQ0@google.com", "title": "Support Engineer" },
+        "target": { "customerId": "CFNZ676PYIA", "projectNumber": "739158264830" },
+        "product": "DRIVE",
+        "reason": "THIRD_PARTY_DATA_REQUEST",
+        "action": "ACCOUNT_RECOVERY",
+        "status": "COMPLETED",
+        "ipAddress": "100.64.0.104",
+        "justification": "Abuse and fraud investigation",
+        "accessDurationSeconds": 1865
+      },
+      "product": "DRIVE",
+      "access_reason": "THIRD_PARTY_DATA_REQUEST",
+      "accessor_email": "google-support-QDQ0@google.com",
+      "principal_email": "monitoring-sa@globex-stg-739158.iam.gserviceaccount.com",
+      "justification": "Abuse and fraud investigation",
+      "access_duration_seconds": 1865,
+      "status": "COMPLETED"
     }
   },
-  "event": { "outcome": "success", "duration": 10950, "module": "gcp", "dataset": "gcp.tags" },
-  "message": "Tag binding UNBIND: team=prod attached_to=projects/globex-dev-g7h8i9/zones/us-central1-a/instances/vm-V4QL policy=conditional-binding",
-  "service": { "name": "tags", "type": "gcp" },
+  "event": {
+    "kind": "event",
+    "category": ["intrusion_detection"],
+    "type": ["info"],
+    "action": "security-event",
+    "outcome": "success",
+    "duration": 1865000,
+    "module": "gcp",
+    "dataset": "gcp.accesstransparency"
+  },
+  "message": "cloudaudit.googleapis.com/access_transparency THIRD_PARTY_DATA_REQUEST DRIVE by google-support-QDQ0@google.com",
+  "service": { "name": "access-transparency", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.tags", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.accesstransparency", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-central1",
-    "id": "yot2udpaspsm7oglj9iqamis0gm9cwmy3bgy"
+    "name": "elastic-agent-gcp-us-west4",
+    "id": "hqk8r0z8pwt7sfhzyrx4uiac6ccwsnwyolkp"
   },
-  "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-dev-g7h8i9/logs/tags",
-  "resource": {
-    "type": "global",
-    "labels": { "project_id": "globex-dev-g7h8i9", "region": "us-central1" }
-  },
-  "insertId": "IIP8N3A0PK2M",
-  "jsonPayload": {
-    "tags": {
-      "tag_key": "team",
-      "tag_value": "prod",
-      "resource_name": "projects/globex-dev-g7h8i9/zones/us-central1-a/instances/vm-V4QL",
-      "action": "UNBIND",
-      "policy_affected": "conditional-binding"
-    },
-    "message": "Tag binding UNBIND: team=prod attached_to=projects/globex-dev-g7h8i9/zones/us-central1-a/instances/vm-V4QL policy=conditional-binding"
-  }
+  "input": { "type": "gcp-pubsub" }
 }

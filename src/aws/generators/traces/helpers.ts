@@ -41,10 +41,12 @@ export const TRACE_REGIONS = [
 ];
 
 export const TRACE_ACCOUNTS = [
-  { id: "123456789012", name: "prod-aws" },
-  { id: "234567890123", name: "staging-aws" },
-  { id: "345678901234", name: "dev-aws" },
+  { id: "814726593401", name: "prod-aws" },
+  { id: "293847561023", name: "staging-aws" },
+  { id: "571938264710", name: "dev-aws" },
 ];
+
+const SERVICE_VERSIONS = ["2.14.3", "2.14.2", "2.13.8", "3.0.1", "1.42.0", "2026.04.1"];
 
 /** Lowercase hex string of `len` characters (len = 2× byte count). */
 export function randHex(len: number) {
@@ -74,14 +76,37 @@ const AWS_OTEL_SPAN_ERROR_CODES = [
   "ResourceNotFoundException",
 ] as const;
 
+const AWS_SPAN_ERROR_MESSAGES: Record<(typeof AWS_OTEL_SPAN_ERROR_CODES)[number], string[]> = {
+  ThrottlingException: [
+    "Rate exceeded for operation; retry after backoff",
+    "Request rate too high. Reduce request frequency or increase quota.",
+    "TooManyRequestsException: throttling rate limit exceeded",
+  ],
+  ServiceUnavailableException: [
+    "The service is temporarily unable to handle the request",
+    "Service unavailable. Please retry the request.",
+    "503 Service Unavailable from upstream dependency",
+  ],
+  InternalServerError: [
+    "An internal error occurred while processing the request",
+    "Internal failure in service control plane",
+    "Unexpected server error; request id logged for support",
+  ],
+  ResourceNotFoundException: [
+    "The requested resource does not exist",
+    "Resource not found in this account or region",
+    "No matching resource for the given identifier",
+  ],
+};
+
 /** Structured error labels for failed AWS SDK / service spans (OTel-style). */
-export function awsSpanErrorLabels(
-  message = "service-specific error description"
-): Record<string, string> {
+export function awsSpanErrorLabels(message?: string): Record<string, string> {
+  const code = rand(AWS_OTEL_SPAN_ERROR_CODES);
+  const defaultMessage = rand(AWS_SPAN_ERROR_MESSAGES[code]);
   return {
     "error.type": "aws",
-    "error.code": rand(AWS_OTEL_SPAN_ERROR_CODES),
-    "error.message": message,
+    "error.code": code,
+    "error.message": message ?? defaultMessage,
   };
 }
 export function randInt(min: number, max: number) {
@@ -111,7 +136,7 @@ export function serviceBlock(
   return {
     name,
     environment,
-    version: "1.0.0",
+    version: rand(SERVICE_VERSIONS),
     language: { name: language },
     runtime: { name: runtimeName, version: runtimeVersion },
     framework: framework ? { name: framework } : undefined,

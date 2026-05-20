@@ -7,6 +7,7 @@ import {
   makeAzureSetup,
   randCorrelationId,
   randUUID,
+  azureLogEvent,
 } from "./helpers.js";
 
 const AZURE_API_ERROR_CODES = [
@@ -168,10 +169,17 @@ export function generateOpenAiLog(ts: string, er: number): EcsDocument {
         finish_reason: filtered ? "content_filter" : rateLimited ? "length" : "stop",
       },
     },
-    event: {
-      outcome: resultType === "Failed" ? "failure" : "success",
-      duration: randInt(2e6, rateLimited ? 6e10 : 4e9),
-    },
+    event: azureLogEvent(
+      resultType === "Failed",
+      randInt(2e6, rateLimited ? 6e10 : 4e9),
+      operationName,
+      ["process"],
+      resultType === "Failed"
+        ? ["error"]
+        : style === "Deployment"
+          ? ["change"]
+          : ["access"]
+    ),
     message,
     ...(docError ? { error: docError } : {}),
   };

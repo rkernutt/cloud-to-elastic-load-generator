@@ -148,7 +148,13 @@ export function generateCloudWorkstationsMetrics(ts: string, er: number): EcsDoc
   const { region, project } = pickGcpCloudContext();
   const dataset = GCP_METRICS_DATASET_MAP["cloud-workstations"]!;
   const workstation_cluster_id = rand(["eng-primary", "data-science-pool", "sec-review"]);
-  const workstation_id = rand(["ws-alice", "ws-bob", "ws-ci-builder"]);
+  const workstation_id = rand([
+    "ws-jchen",
+    "ws-mwilliams",
+    "ws-kpatel",
+    "ws-ci-builder",
+    "ws-agarcia",
+  ]);
   const stressed = Math.random() < er;
   const res = {
     resource_container: project.id,

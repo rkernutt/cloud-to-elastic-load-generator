@@ -8,7 +8,7 @@ import {
   ACCOUNTS,
   rand,
   randInt,
-  randId,
+  randHexId,
   sample,
   jitter,
   dp,
@@ -117,7 +117,7 @@ const EC2_INSTANCE_TYPES = [
 export function generateEc2Metrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return sample(EC2_INSTANCE_TYPES, randInt(3, 10)).map((itype, idx) => {
-    const instanceId = `i-${randId(17).toLowerCase()}`;
+    const instanceId = `i-${randHexId(17)}`;
     const cpu = Math.random() < er ? jitter(80, 15, 60, 100) : jitter(30, 20, 1, 95);
     const isTInstance = /^t[0-9]/i.test(itype);
     const tUnlimited = isTInstance && Math.random() < 0.35;
@@ -263,7 +263,7 @@ export function generateFargateMetrics(ts: string, er: number) {
         },
       },
       data_stream: { type: "metrics", dataset: "aws.ecs_metrics", namespace: "default" },
-      event: { dataset: "aws.ecs_metrics", module: "aws" },
+      event: { kind: "metric", dataset: "aws.ecs_metrics", module: "aws" },
     };
   });
 }

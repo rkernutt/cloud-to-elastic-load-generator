@@ -12,6 +12,7 @@ import {
   makeGcpSetup,
   randLatencyMs,
   randSeverity,
+  randEmail,
 } from "./helpers.js";
 
 const ACCELERATORS = [
@@ -290,6 +291,10 @@ export function generateGeminiLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: latencyMs,
     },
@@ -337,6 +342,10 @@ export function generateVisionAiLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: latencyMs,
     },
@@ -381,6 +390,10 @@ export function generateNaturalLanguageLog(ts: string, er: number): EcsDocument 
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(30, isErr ? 8000 : 1200),
     },
@@ -420,6 +433,10 @@ export function generateTranslationLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: latencyMs,
     },
@@ -460,6 +477,10 @@ export function generateSpeechToTextLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(100, isErr ? 15000 : 4000),
     },
@@ -504,6 +525,10 @@ export function generateTextToSpeechLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(50, isErr ? 6000 : 1500),
     },
@@ -563,6 +588,10 @@ export function generateDialogflowLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(80, isErr ? 12000 : 2500),
     },
@@ -612,6 +641,10 @@ export function generateDocumentAiLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: processingTimeMs,
     },
@@ -656,6 +689,10 @@ export function generateRecommendationsAiLog(ts: string, er: number): EcsDocumen
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(20, isErr ? 5000 : 800),
     },
@@ -701,6 +738,10 @@ export function generateVertexAiSearchLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: latencyMs,
     },
@@ -745,6 +786,10 @@ export function generateAutoMlLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(1000, isErr ? 3_600_000 : 900_000),
     },
@@ -763,10 +808,7 @@ export function generateVertexAiWorkbenchLog(ts: string, er: number): EcsDocumen
     ? rand(["PROVISIONING", "STOPPED"] as const)
     : rand(["ACTIVE", "STOPPED", "PROVISIONING"] as const);
   const idleTimeoutMin = randInt(15, 240);
-  const userEmail = rand([
-    `analyst@${project.id.split("-")[0]}.example.com`,
-    `ds@${project.id}.example.com`,
-  ]);
+  const userEmail = rand([randEmail("agarcia"), randEmail("kpatel")]);
   const severity = randSeverity(isErr);
   const message = isErr
     ? `notebooks.googleapis.com/v1/projects/${project.id}/locations/${region}/instances/${instanceName}: start FAILED: ${framework} image pull timeout on ${machineType}`
@@ -795,6 +837,10 @@ export function generateVertexAiWorkbenchLog(ts: string, er: number): EcsDocumen
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(2000, isErr ? 600_000 : 120_000),
     },
@@ -843,6 +889,13 @@ export function generateVertexAiPipelinesLog(ts: string, er: number): EcsDocumen
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type:
+        (isErr || state === "FAILED" || state === "CANCELLED" ? "failure" : "success") === "failure"
+          ? ["error"]
+          : ["info"],
+      action: String("ml-operation"),
       outcome: isErr || state === "FAILED" || state === "CANCELLED" ? "failure" : "success",
       duration: executionTimeSeconds * 1000,
     },
@@ -886,6 +939,10 @@ export function generateVertexAiFeatureStoreLog(ts: string, er: number): EcsDocu
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: onlineServingLatencyMs,
     },
@@ -931,6 +988,10 @@ export function generateVertexAiMatchingEngineLog(ts: string, er: number): EcsDo
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: latencyMs,
     },
@@ -974,6 +1035,10 @@ export function generateVertexAiTensorBoardLog(ts: string, er: number): EcsDocum
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(500, isErr ? 120_000 : 30_000),
     },
@@ -1021,6 +1086,10 @@ export function generateContactCenterAiLog(ts: string, er: number): EcsDocument 
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(2000, isErr ? 300_000 : 90_000),
     },
@@ -1064,6 +1133,10 @@ export function generateHealthcareApiLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(100, isErr ? 60_000 : 8000),
     },
@@ -1109,6 +1182,10 @@ export function generateRetailApiLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("ml-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(20, isErr ? 5000 : 800),
     },

@@ -417,7 +417,7 @@ function genCmdbCi(ts: string, user: PipelineUser): EcsDocument {
         first_discovered: snDateField(new Date(Date.now() - 90 * 86400000).toISOString()),
         last_discovered: snDateField(ts),
         ip_address: snField(`10.${randInt(0, 255)}.${randInt(0, 255)}.${randInt(1, 254)}`),
-        fqdn: snField(`${ci.name}.internal.globex.example.com`),
+        fqdn: snField(`${ci.name}.internal.globex.io`),
       },
     },
     message: `CMDB CI: ${ci.name} [${ci.class}] — ${ci.desc}`,
@@ -764,7 +764,7 @@ function genSysUserGroup(ts: string): EcsDocument {
           `Support group responsible for ${group.name.toLowerCase()} operations and incident response`
         ),
         manager: snRefField(sysId(), manager.name),
-        email: snField(`${group.name.toLowerCase().replace(/\s+/g, "-")}@globex.example.com`),
+        email: snField(`${group.name.toLowerCase().replace(/\s+/g, "-")}@globex.io`),
         active: snField("true", "true"),
         type: snField(""),
         company: snField("Globex Corporation"),

@@ -8,6 +8,7 @@ import {
   makeAzureSetup,
   randCorrelationId,
   randUUID,
+  azureLogEvent,
 } from "./helpers.js";
 
 export function generateSqlDatabaseLog(ts: string, er: number): EcsDocument {
@@ -171,10 +172,17 @@ export function generateSqlDatabaseLog(ts: string, er: number): EcsDocument {
           style === "Errors" && operationName === "Error" ? randInt(1, 40) : randInt(0, 2),
       },
     },
-    event: {
-      outcome: failed ? "failure" : "success",
-      duration: randInt(1e6, failed ? 9e9 : 8e8),
-    },
+    event: azureLogEvent(
+      failed,
+      randInt(1e6, failed ? 9e9 : 8e8),
+      operationName,
+      ["database"],
+      failed
+        ? ["error"]
+        : style === "Audit"
+          ? ["admin"]
+          : ["access"]
+    ),
     message,
   };
 }
@@ -291,10 +299,19 @@ export function generateCosmosDbLog(ts: string, er: number): EcsDocument {
         status_code: (properties as { statusCode?: number }).statusCode ?? (throttled ? 429 : 200),
       },
     },
-    event: {
-      outcome: throttled || resultType === "Failed" ? "failure" : "success",
-      duration: randInt(2e6, throttled ? 5e9 : 2e8),
-    },
+    event: azureLogEvent(
+      throttled || resultType === "Failed",
+      randInt(2e6, throttled ? 5e9 : 2e8),
+      operationName,
+      ["database"],
+      throttled
+        ? ["error"]
+        : operationName === "Delete"
+          ? ["deletion"]
+          : operationName === "Create" || operationName === "Upsert"
+            ? ["change"]
+            : ["access"]
+    ),
     message,
   };
 }

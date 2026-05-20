@@ -217,7 +217,14 @@ export function generateContainerAppsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 4e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(op),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 4e9),
+    },
       message: isErr
         ? `Container App ${app}: ${op} failed (${props.status})`
         : `Container App ${app}: deployment operation ${op} succeeded`,
@@ -266,7 +273,14 @@ export function generateContainerAppsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 2e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.App/containerApps/logStream/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e7, 2e9),
+    },
       message: `ContainerApps console ${app}/${rev}: ${line.slice(0, 100)}`,
     };
   }
@@ -311,7 +325,14 @@ export function generateContainerAppsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 5e8) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.App/containerApps/httpLogs/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e6, 5e8),
+    },
       message: `Ingress ${props.RequestMethod} ${props.RequestPath} -> ${code} for ${app}`,
     };
   }
@@ -358,7 +379,14 @@ export function generateContainerAppsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 6e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.App/containerApps/revisions/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 6e9),
+    },
       message: isErr
         ? `[revision] Activation stalled for ${app}: ${props.lastTransitionReason}`
         : `[revision] Traffic shift complete on ${app} (${props.activeRevisionName})`,
@@ -413,7 +441,14 @@ export function generateContainerAppsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 4e8) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.App/containerApps/diagnostics/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e7, 4e8),
+    },
       message: isErr
         ? `Dapr ${props.Component} ${props.Operation} failed on ${app}: ${props.detail}`
         : `Dapr ${props.Operation} ok for ${app} (${props.Component})`,
@@ -458,7 +493,16 @@ export function generateContainerAppsLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 3e9) },
+    event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: isErr
+        ? "Microsoft.App/containerApps/write"
+        : "Microsoft.App/containerApps/scalingRules/evaluate",
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 3e9),
+    },
     message: isErr
       ? `Scale-out blocked for ${app}: ${props.Reason}`
       : `Scaled ${app} replicas ${props.From} -> ${props.To}`,
@@ -498,7 +542,7 @@ export function generateContainerInstancesLog(ts: string, er: number): EcsDocume
       containers: [
         {
           name: container,
-          image: `${rand(["contoso", "fabrikam"])}.azurecr.io/app:${rand(["1.2", "2.0"])}`,
+          image: `${rand(["meridiantech", "cascadeops"])}.azurecr.io/app:${rand(["1.2", "2.0"])}`,
         },
       ],
       eventCategory: "Administrative",
@@ -534,7 +578,14 @@ export function generateContainerInstancesLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 6e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(op),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 6e9),
+    },
       message: isErr
         ? `ACI group ${group}: provisioning failed during ${op}`
         : `ACI group ${group}: ${op} completed`,
@@ -583,7 +634,16 @@ export function generateContainerInstancesLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 2e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: isErr
+        ? "Microsoft.ContainerInstance/containerGroups/containers/exec/action"
+        : "Microsoft.ContainerInstance/containerGroups/containers/attach/action",
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e7, 2e9),
+    },
       message: isErr
         ? `ACI exec failed on ${group}/${container}: ${props.Reason}`
         : `ACI attach/exec session ended cleanly on ${group}/${container}`,
@@ -633,7 +693,14 @@ export function generateContainerInstancesLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 5e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.ContainerInstance/containerGroups/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e8, 5e9),
+    },
       message: isErr
         ? `ACI ${group}: network profile ${props.profileName} failed — ${props.detail}`
         : `ACI ${group}: ${props.detail}`,
@@ -642,8 +709,8 @@ export function generateContainerInstancesLog(ts: string, er: number): EcsDocume
 
   if (variant === "image_pull") {
     const props = {
-      image: `${rand(["contoso", "fabrikam"])}.azurecr.io/${rand(["api", "batch"])}:${rand(["prod", "staging"])}`,
-      registryServer: `${rand(["contoso", "fabrikam"])}.azurecr.io`,
+      image: `${rand(["meridiantech", "cascadeops"])}.azurecr.io/${rand(["api", "batch"])}:${rand(["prod", "staging"])}`,
+      registryServer: `${rand(["meridiantech", "cascadeops"])}.azurecr.io`,
       pullPolicy: "IfNotPresent",
       credentialSource: "managedIdentity",
       cachedLayersHitRatio: isErr ? randFloat(0, 0.35) : randFloat(0.72, 0.99),
@@ -680,7 +747,14 @@ export function generateContainerInstancesLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e7, 4e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.ContainerInstance/containerGroups/containers/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e7, 4e9),
+    },
       message: isErr
         ? `ACI image pull failed for ${group}/${container}: ${props.criMessage}`
         : `ACI pulled ${props.image} (${(props.cachedLayersHitRatio as number).toFixed(2)} cache hit)`,
@@ -728,7 +802,14 @@ export function generateContainerInstancesLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 8e8) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("azure-activity"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e7, 8e8),
+    },
       message: isErr
         ? `[metrics] ACI ${group}: ${props.MetricName} sustained above budget (${cpuMw.toFixed(1)}mW)`
         : `[metrics] ${props.MetricName} nominal on ${group}/${container}`,
@@ -772,7 +853,14 @@ export function generateContainerInstancesLog(ts: string, er: number): EcsDocume
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 1e9) },
+    event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.ContainerInstance/containerGroups/events/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e7, 1e9),
+    },
     message: `ACI event on ${group}: ${props.reason} — ${props.message}`,
   };
 }
@@ -835,7 +923,14 @@ export function generateKubernetesFleetLog(ts: string, er: number): EcsDocument 
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 5e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(isErr),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 5e9),
+    },
       message: isErr
         ? `Fleet ${fleet}: member update failed for ${member.split("/").pop()}`
         : `Fleet ${fleet}: member cluster joined successfully`,
@@ -882,7 +977,14 @@ export function generateKubernetesFleetLog(ts: string, er: number): EcsDocument 
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e8, 1.2e10) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(isErr),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e8, 1.2e10),
+    },
       message: isErr
         ? `Fleet ${fleet}: deployment run ${props.updateRunName} failed at ${props.stageName}`
         : `Fleet ${fleet}: update run ${props.updateRunName} succeeded (${props.clustersUpdated} clusters)`,
@@ -931,7 +1033,14 @@ export function generateKubernetesFleetLog(ts: string, er: number): EcsDocument 
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e8, 6e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.ContainerService/fleets/workloads/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e8, 6e9),
+    },
       message: isErr
         ? `Fleet ${fleet}: placement rejected for ${props.namespace}/${props.name}`
         : `Fleet ${fleet}: workload ${props.name} placed on ${props.targetMember}`,
@@ -976,7 +1085,14 @@ export function generateKubernetesFleetLog(ts: string, er: number): EcsDocument 
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 2e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.ContainerService/fleets/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e8, 2e9),
+    },
       message: isErr
         ? `[hub] Fleet ${fleet} unhealthy: ${props.details}`
         : `[hub] Fleet ${fleet}: latency ${props.apiserverLatencyMs}ms`,
@@ -1023,7 +1139,14 @@ export function generateKubernetesFleetLog(ts: string, er: number): EcsDocument 
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e9, 8e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.ContainerService/fleets/autoUpgradeProfiles/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e9, 8e9),
+    },
       message: isErr
         ? `Fleet ${fleet}: ${props.profileName} reconcile failed (${props.membersBlockedByPolicy} blocked)`
         : `Fleet ${fleet}: auto-upgrade OK toward ${props.stagedPatchVersion}`,
@@ -1064,7 +1187,14 @@ export function generateKubernetesFleetLog(ts: string, er: number): EcsDocument 
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 4e9) },
+    event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(op),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 4e9),
+    },
     message: isErr
       ? `Fleet resource ${fleet}: ARM write failed`
       : `Fleet ${fleet}: configuration updated`,
@@ -1137,7 +1267,14 @@ export function generateAcrLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 5e8) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(isErr),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e6, 5e8),
+    },
       message: isErr
         ? `ACR ${registry}: ${action} failed for ${repo}:${tag} (${props.result})`
         : `ACR ${registry}: ${action} ${repo}:${tag} (${digest.slice(0, 19)}...)`,
@@ -1186,7 +1323,14 @@ export function generateAcrLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e9, 1.8e10) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(isErr),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e9, 1.8e10),
+    },
       message: isErr
         ? `ACR vulnerability scan failed for ${repo}:${tag}`
         : `ACR scan completed for ${repo} (critical=${props.severitySummary.critical})`,
@@ -1235,7 +1379,14 @@ export function generateAcrLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 9e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.ContainerRegistry/registries/replications/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e9, 9e9),
+    },
       message: isErr
         ? `ACR geo-replicate to ${tgt} failed for ${repo}:${tag}`
         : `ACR ${registry}: synced ${(props.commitManifestDigest as string).slice(0, 22)}... to ${tgt}`,
@@ -1247,7 +1398,7 @@ export function generateAcrLog(ts: string, er: number): EcsDocument {
     const props = {
       webhookId: hookId,
       action: rand(["push", "delete", "chart_push"]),
-      targetUri: `https://${rand(["jenkins", "argocd"])}.contoso.com/hooks/acr-${registry}`,
+      targetUri: `https://${rand(["jenkins", "argocd"])}.meridiantech.io/hooks/acr-${registry}`,
       responseCode: isErr ? rand([401, 403, 502, 504]) : 202,
       attempt: randInt(1, 5),
       bodyPreview: `{"repository":"${repo}","tag":"${tag}"}`,
@@ -1285,7 +1436,14 @@ export function generateAcrLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 2e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.ContainerRegistry/registries/webhooks/events/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 2e9),
+    },
       message: isErr
         ? `ACR webhook ${hookId} delivery failed (${props.responseCode})`
         : `ACR webhook dispatched for ${props.action} on ${repo}`,
@@ -1334,7 +1492,14 @@ export function generateAcrLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e9, 4.5e10) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.ContainerRegistry/registries/runs/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e9, 4.5e10),
+    },
       message: isErr
         ? `ACR task ${runName} failed at step ${props.step}`
         : `ACR task ${runName}: ${props.step} completed (exit ${props.exitCode})`,
@@ -1375,7 +1540,14 @@ export function generateAcrLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e9, 6e9) },
+    event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.ContainerRegistry/registries/importImage/action"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e9, 6e9),
+    },
     message: isErr
       ? `ACR import failed into ${registry} (${props.sourceRegistry})`
       : `ACR import queued for ${registry} image ${repo}:${tag}`,
@@ -1405,7 +1577,7 @@ export function generateStaticWebAppsLog(ts: string, er: number): EcsDocument {
       job: rand(["build_and_deploy", "validate_pr"]),
       conclusion: isErr ? "failure" : "success",
       runner: `GitHub-Actions-${randInt(100, 999)}`,
-      logUrl: `https://github.com/contoso/${site}/actions/runs/${randInt(1e9, 9e9)}`,
+      logUrl: `https://github.com/meridiantech/${site}/actions/runs/${randInt(1e9, 9e9)}`,
     };
     const { properties: wfProps, error: wfErr } = withComputeAzureErrors(
       isErr,
@@ -1437,7 +1609,14 @@ export function generateStaticWebAppsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e9, 2.4e10) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(isErr),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e9, 2.4e10),
+    },
       message: isErr
         ? `Static Web App ${site}: workflow ${props.job} failed`
         : `Static Web App ${site}: build ${props.workflowId} succeeded`,
@@ -1482,7 +1661,14 @@ export function generateStaticWebAppsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e8, 9e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(isErr),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e8, 9e9),
+    },
       message: isErr
         ? `SWA ${site}: content deployment ${props.deploymentId} failed`
         : `SWA ${site}: deployed to ${props.environment} (${props.hostname})`,
@@ -1529,7 +1715,14 @@ export function generateStaticWebAppsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(6e8, 6e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Web/staticSites/hostNameBindings/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(6e8, 6e9),
+    },
       message: isErr
         ? `SWA ${site}: ${props.slotName} swap failed`
         : `SWA ${site}: swap ${props.slotName} completed`,
@@ -1573,7 +1766,14 @@ export function generateStaticWebAppsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e7, 4e8) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Web/staticSites/functions/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e7, 4e8),
+    },
       message: isErr
         ? `SWA Functions ${props.FunctionName}: ${props.SubError}`
         : `SWA Functions ${props.ApiRoute} ok (${props.DurationMs}ms)`,
@@ -1583,7 +1783,7 @@ export function generateStaticWebAppsLog(ts: string, er: number): EcsDocument {
   if (variant === "auth_redirect") {
     const props = {
       provider: rand(["github", "aad", "google"]),
-      allowedAudiences: [`api://${site}`, `https://${site}.contoso.com`],
+      allowedAudiences: [`api://${site}`, `https://${site}.meridiantech.io`],
       redirectUri: `https://${site}.${rand(["azurestaticapps", "preview"])}.net/.auth/login/aad/callback`,
       authorizationResult: isErr ? "Denied" : "Granted",
       clientPrincipalDebug: isErr
@@ -1619,7 +1819,14 @@ export function generateStaticWebAppsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 2e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Web/staticSites/config/authsettings/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 2e9),
+    },
       message: isErr
         ? `SWA auth (${props.provider}) blocked: ${props.clientPrincipalDebug}`
         : `SWA auth redirect issued for ${props.provider}`,
@@ -1627,7 +1834,7 @@ export function generateStaticWebAppsLog(ts: string, er: number): EcsDocument {
   }
 
   const props = {
-    hostname: isErr ? `bad.${site}.contoso.com` : `www.${site}.contoso.com`,
+    hostname: isErr ? `bad.${site}.meridiantech.io` : `www.${site}.meridiantech.io`,
     validationMethod: "cname-delegation",
     status: isErr ? "ValidationFailed" : "Ready",
     error: isErr ? "DNS TXT record _dnsauth not found or mismatched" : "",
@@ -1660,7 +1867,14 @@ export function generateStaticWebAppsLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 4e9) },
+    event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Web/staticSites/customDomains/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 4e9),
+    },
     message: isErr
       ? `SWA custom domain binding failed for ${props.hostname}`
       : `SWA custom domain ${props.hostname} validated and active`,
@@ -1732,7 +1946,14 @@ export function generateSpringAppsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 8e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(op),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e8, 8e9),
+    },
       message: isErr
         ? `Spring Apps ${service}/${app}: ${op} failed`
         : `Spring Apps ${service}: ${op} succeeded`,
@@ -1778,7 +1999,14 @@ export function generateSpringAppsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 2e8) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.AppPlatform/Spring/apps/logStream/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e6, 2e8),
+    },
       message: `Spring Apps ${service}/${app}: ${line.slice(0, 90)}`,
     };
   }
@@ -1825,7 +2053,14 @@ export function generateSpringAppsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 4e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.AppPlatform/Spring/apps/refresh/action"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 4e9),
+    },
       message: isErr
         ? `Spring config refresh failed for ${app}: ${props.fault}`
         : `Spring config refreshed (${props.keysLoaded} keys)`,
@@ -1874,7 +2109,14 @@ export function generateSpringAppsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 6e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.AppPlatform/Spring/apps/bindings/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e8, 6e9),
+    },
       message: isErr
         ? `Service binding ${props.BindingOperation} failed (${props.ServiceType})`
         : `${props.ServiceType} binding ready for ${app}`,
@@ -1921,7 +2163,14 @@ export function generateSpringAppsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e9, 4e10) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.AppPlatform/Spring/apps/build/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e9, 4e10),
+    },
       message: isErr
         ? `Buildpack build failed during ${props.failurePhase}`
         : `Buildpack reused layers (${props.layerCacheHitRatio.toFixed(2)} hit ratio)`,
@@ -1963,7 +2212,14 @@ export function generateSpringAppsLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 1e9) },
+    event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.AppPlatform/Spring/apps/metrics/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 1e9),
+    },
     message: isErr
       ? `Spring Apps JVM pressure on ${service}/${app}: heap ${props.heapUsedPercent.toFixed(1)}%`
       : `Spring Apps ${app} JVM heap ${props.heapUsedPercent.toFixed(1)}% within limits`,
@@ -2031,7 +2287,14 @@ export function generateDedicatedHostLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 6e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(op),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 6e9),
+    },
       message: isErr
         ? `Dedicated host ${host} in ${hg}: allocation failed (capacity / SKU constraint)`
         : `Dedicated host ${host}: ${op.split("/").pop()} completed`,
@@ -2075,7 +2338,14 @@ export function generateDedicatedHostLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 8e8) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/hostGroups/hosts/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e7, 8e8),
+    },
       message: `Dedicated host ${host}: ${props.availabilityState} — ${props.reason}`,
     };
   }
@@ -2120,7 +2390,14 @@ export function generateDedicatedHostLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 5e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(props.hubOperation),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 5e9),
+    },
       message: isErr
         ? `Dedicated host queue ${host}: ${props.detail}`
         : `Dedicated host ${host}: ${props.detail}`,
@@ -2167,7 +2444,14 @@ export function generateDedicatedHostLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 9e8) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/hostGroups/hosts/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 9e8),
+    },
       message: `Dedicated host licensing ${props.licenseType}: ${props.detail}`,
     };
   }
@@ -2212,7 +2496,14 @@ export function generateDedicatedHostLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 6e8) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/hostGroups/hosts/instanceView/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e7, 6e8),
+    },
       message: isErr
         ? `Dedicated host binpack risk on ${host}: ${props.recommendation}`
         : `Dedicated host binpack OK (${props.usedCores}/${props.totalCores} cores used)`,
@@ -2254,7 +2545,14 @@ export function generateDedicatedHostLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e9, 4e9) },
+    event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/hostGroups/hosts/maintenance/schedule"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e9, 4e9),
+    },
     message: isErr
       ? `Dedicated host ${host}: maintenance event requires action — ${props.impact}`
       : `Dedicated host ${host}: ${props.impact}`,
@@ -2325,7 +2623,14 @@ export function generateCapacityReservationLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 1e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("azure-activity"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 1e9),
+    },
       message: isErr
         ? `Capacity reservation ${cr}: utilization check failed — ${props.message}`
         : `Capacity reservation ${cr}: ${used}/${total} slots utilized (${props.utilizationPercent.toFixed(1)}%)`,
@@ -2377,7 +2682,14 @@ export function generateCapacityReservationLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 5e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(props.armOperation),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e8, 5e9),
+    },
       message: isErr
         ? `CR share failed: ${props.detail}`
         : `CR ${cr}: shared ${props.splitPercentToChild}% to ${props.childReservationName}`,
@@ -2428,7 +2740,14 @@ export function generateCapacityReservationLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 2e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("azure-activity"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 2e9),
+    },
       message: isErr
         ? `CR forecast ${cr}: ${props.plannerMessage}`
         : `CR forecast ${cr}: +${props.recommendedQuantityDelta} slots (${props.skuFamily})`,
@@ -2475,7 +2794,14 @@ export function generateCapacityReservationLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 8e8) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(props.operation),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 8e8),
+    },
       message: isErr
         ? `CR ${cr}: tag policy violation ${props.missingRequired.join(",")}`
         : `CR ${cr}: tags applied for chargeback`,
@@ -2526,7 +2852,14 @@ export function generateCapacityReservationLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 4e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(props.operation),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e8, 4e9),
+    },
       message: isErr
         ? `CR cross-sub share failed: ${props.detail}`
         : `CR ${cr}: sharing profile ${props.state.toLowerCase()}`,
@@ -2575,7 +2908,14 @@ export function generateCapacityReservationLog(ts: string, er: number): EcsDocum
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 5e9) },
+    event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/capacityReservationGroups/capacityReservations/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 5e9),
+    },
     message: isErr
       ? `Capacity reservation ${cr}: write failed — ${props.reason}`
       : `Capacity reservation ${cr}: quantity ${props.previousQuantity} -> ${props.newQuantity}`,
@@ -2635,7 +2975,14 @@ export function generateProximityPlacementLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 3e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/proximityPlacementGroups/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 3e9),
+    },
       message: isErr
         ? `PPG ${ppg}: update failed (intent / zone constraint)`
         : `PPG ${ppg}: configuration updated`,
@@ -2681,7 +3028,14 @@ export function generateProximityPlacementLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 12e8) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/proximityPlacementGroups/instanceView/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 12e8),
+    },
       message: props.detail,
     };
   }
@@ -2724,7 +3078,14 @@ export function generateProximityPlacementLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e7, 9e8) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/proximityPlacementGroups/virtualMachines/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e7, 9e8),
+    },
       message: `[ppg] Zone balance ${ppg}: ${props.suggestion}`,
     };
   }
@@ -2767,7 +3128,14 @@ export function generateProximityPlacementLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 8e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/proximityPlacementGroups/scheduledEvents/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e9, 8e9),
+    },
       message: `PPG maintenance on ${props.hostId}: ${props.impact}`,
     };
   }
@@ -2813,7 +3181,14 @@ export function generateProximityPlacementLog(ts: string, er: number): EcsDocume
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 2e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(isErr),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 2e9),
+    },
       message: props.detail,
     };
   }
@@ -2855,7 +3230,14 @@ export function generateProximityPlacementLog(ts: string, er: number): EcsDocume
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 2e9) },
+    event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/proximityPlacementGroups/virtualMachines/join/action"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 2e9),
+    },
     message: props.message as string,
   };
 }
@@ -2924,7 +3306,14 @@ export function generateComputeGalleryLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e8, 2e10) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/galleries/images/versions/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e8, 2e10),
+    },
       message: isErr
         ? `Gallery ${gallery}: image ${image}:${version} publish failed`
         : `Gallery ${gallery}: published ${image} version ${version}`,
@@ -2969,7 +3358,14 @@ export function generateComputeGalleryLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e8, 1.5e10) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/galleries/images/versions/replicate/action"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e8, 1.5e10),
+    },
       message: isErr
         ? `Gallery replication to ${targetRegion} failed for ${gallery}/${image}:${version}`
         : `Gallery image ${image}:${version} replicated to ${targetRegion}`,
@@ -3017,7 +3413,14 @@ export function generateComputeGalleryLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(8e8, 5e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/galleries/images/versions/startSigning/action"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(8e8, 5e9),
+    },
       message: isErr
         ? `Gallery signing failed: ${props.reason}`
         : `Gallery ${gallery}: ${image}:${version} signed`,
@@ -3066,7 +3469,14 @@ export function generateComputeGalleryLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(6e8, 4e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/galleries/images/versions/endOfLife/action"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(6e8, 4e9),
+    },
       message: `Gallery deprecation ${gallery}/${props.imageVersionName}: ${props.detail}`,
     };
   }
@@ -3112,7 +3522,14 @@ export function generateComputeGalleryLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 7e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(props.operation),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e9, 7e9),
+    },
       message: isErr
         ? `Gallery share RBAC failed: ${props.detail}`
         : `Gallery share ${props.shareName} granted`,
@@ -3153,7 +3570,14 @@ export function generateComputeGalleryLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 4e9) },
+    event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/galleries/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 4e9),
+    },
     message: isErr
       ? `Compute gallery ${gallery}: create/update failed`
       : `Compute gallery ${gallery}: ARM write succeeded`,
@@ -3213,7 +3637,14 @@ export function generateConfidentialVmLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 2e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/virtualMachines/guestAttestationStatus/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e7, 2e9),
+    },
       message: isErr
         ? `Confidential VM ${vmName}: attestation invalid (${props.error})`
         : `Confidential VM ${vmName}: attestation verified (${props.attestationType})`,
@@ -3258,7 +3689,14 @@ export function generateConfidentialVmLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, 1e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/virtualMachines/instanceView/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e7, 1e9),
+    },
       message: isErr
         ? `Confidential VM ${vmName}: secure boot violation — ${props.detail}`
         : `Confidential VM ${vmName}: secure boot and vTPM policy OK`,
@@ -3309,7 +3747,14 @@ export function generateConfidentialVmLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 2e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.PolicyInsights/policyTrackedResources/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 2e9),
+    },
       message: isErr
         ? `Confidential VM ${vmName}: policy audit failed (${props.failedRules.join(",")})`
         : `Confidential VM ${vmName}: policy baseline OK`,
@@ -3355,7 +3800,14 @@ export function generateConfidentialVmLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e8, 4e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Compute/virtualMachines/extensions/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e8, 4e9),
+    },
       message: isErr
         ? `Key release failed for ${vmName}: ${props.reason}`
         : `Key release ticket ${props.releaseTicket} consumed`,
@@ -3402,7 +3854,14 @@ export function generateConfidentialVmLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 3e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("azure-activity"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e8, 3e9),
+    },
       message: isErr
         ? `Defender on CVM ${vmName}: ${props.detail}`
         : `Defender scan (${props.scanMode}) clean on ${vmName}`,
@@ -3447,7 +3906,14 @@ export function generateConfidentialVmLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 6e9) },
+    event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(op),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 6e9),
+    },
     message: isErr
       ? `Confidential VM ${vmName}: control-plane operation failed`
       : `Confidential VM ${vmName}: ${op} succeeded`,
@@ -3510,7 +3976,14 @@ export function generateImageBuilderLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(6e9, 3.6e11) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.VirtualMachineImages/imageTemplates/run/action"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(6e9, 3.6e11),
+    },
       message: isErr
         ? `Image Builder ${tmpl}: run ${runId} failed — ${props.error}`
         : `Image Builder ${tmpl}: template run ${runId} completed`,
@@ -3554,7 +4027,14 @@ export function generateImageBuilderLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 5e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.VirtualMachineImages/imageTemplates/customize/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e8, 5e9),
+    },
       message: isErr
         ? `Image Builder ${tmpl}: customize step '${props.step}' failed`
         : `Image Builder ${tmpl}: customize step '${props.step}' ok`,
@@ -3599,7 +4079,14 @@ export function generateImageBuilderLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 1.2e11) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.VirtualMachineImages/imageTemplates/distribute/action"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e9, 1.2e11),
+    },
       message: isErr
         ? `Image Builder ${tmpl}: distribute failed — ${props.message}`
         : `Image Builder ${tmpl}: distributed to ${props.targetRegions.join(", ")}`,
@@ -3647,7 +4134,14 @@ export function generateImageBuilderLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 3e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.VirtualMachineImages/imageTemplates/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 3e9),
+    },
       message: isErr
         ? `Image template validate failed: ${props.detail}`
         : `Image template ${tmpl}: preflight OK`,
@@ -3693,7 +4187,14 @@ export function generateImageBuilderLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e9, 9e10) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.VirtualMachineImages/imageTemplates/run/action"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e9, 9e10),
+    },
       message: isErr
         ? `Sysprep specialize failed on ${props.guestOs}: ${props.lastProviderError}`
         : `Sysprep specialize completed (${props.specializePass})`,
@@ -3733,7 +4234,14 @@ export function generateImageBuilderLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 3e9) },
+    event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.VirtualMachineImages/imageTemplates/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 3e9),
+    },
     message: isErr
       ? `Image template ${tmpl}: ARM template write failed`
       : `Image template ${tmpl}: create or update succeeded`,
@@ -3799,7 +4307,14 @@ export function generateVmwareSolutionLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e8, 1.8e10) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(op),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e8, 1.8e10),
+    },
       message: isErr
         ? `AVS private cloud ${cloudName}: ${op} failed`
         : `AVS private cloud ${cloudName}: ${op} completed`,
@@ -3843,7 +4358,14 @@ export function generateVmwareSolutionLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 4e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.AVS/privateClouds/workloadNetworks/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 4e9),
+    },
       message: `AVS ${cloudName} NSX: ${props.eventType} — ${props.message}`,
     };
   }
@@ -3887,7 +4409,14 @@ export function generateVmwareSolutionLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e9, 1.2e10) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.AVS/privateClouds/hcxEnterpriseSites/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e9, 1.2e10),
+    },
       message: `HCX ${cloudName}: ${props.detail}`,
     };
   }
@@ -3931,7 +4460,14 @@ export function generateVmwareSolutionLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e9, 2e11) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.AVS/privateClouds/scriptExecutions/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e9, 2e11),
+    },
       message: `AVS SRM (${props.protectionGroup}): ${props.message}`,
     };
   }
@@ -3975,7 +4511,14 @@ export function generateVmwareSolutionLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 9e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("microsoft.insights/diagnosticSettings/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 9e9),
+    },
       message: props.detail,
     };
   }
@@ -4017,7 +4560,14 @@ export function generateVmwareSolutionLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 8e9) },
+    event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.AVS/privateClouds/scriptExecutions/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e8, 8e9),
+    },
     message: `AVS ${cloudName} vCenter: ${props.task} on ${props.cluster}`,
   };
 }
@@ -4076,7 +4626,14 @@ export function generateOracleOnAzureLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(6e9, 4.32e11) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Oracle.Database/cloudExadataInfrastructures/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(6e9, 4.32e11),
+    },
       message: isErr
         ? `Oracle Exadata ${exa}: provisioning failed — ${props.message}`
         : `Oracle Exadata ${exa}: ${props.shape} ready (${props.storageSizeTb} TB storage)`,
@@ -4122,7 +4679,14 @@ export function generateOracleOnAzureLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e8, 9e9) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Oracle.Database/cloudVmClusters/databases/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e8, 9e9),
+    },
       message: isErr
         ? `Oracle@Azure DB ${db}: ${props.operation} failed ${props.oracleError}`
         : `Oracle@Azure DB ${db}: ${props.operation} completed on ${exa}`,
@@ -4168,7 +4732,14 @@ export function generateOracleOnAzureLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 8e10) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Oracle.Database/cloudExadataInfrastructures/cells/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e9, 8e10),
+    },
       message: `[cell] ${props.cellNode} ${props.cellCliCommand}: ${props.message}`,
     };
   }
@@ -4212,7 +4783,14 @@ export function generateOracleOnAzureLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e11, 2e12) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Oracle.Database/cloudVmClusters/backup/action"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e11, 2e12),
+    },
       message: isErr
         ? `RMAN ${props.tag} failed ${props.oraErrorStack}`
         : `RMAN ${props.tag}: ${props.compressedTb.toFixed(1)} TB to object storage`,
@@ -4258,7 +4836,14 @@ export function generateOracleOnAzureLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(4e10, 2e11) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Oracle.Database/cloudVmClusters/licenseReports/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(4e10, 2e11),
+    },
       message: `Oracle license (${props.metric}): ${props.detail}`,
     };
   }
@@ -4298,7 +4883,14 @@ export function generateOracleOnAzureLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1.2e10, 8.64e11) },
+    event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Oracle.Database/cloudExadataInfrastructures/maintenance/action"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1.2e10, 8.64e11),
+    },
     message: isErr
       ? `Oracle Exadata ${exa}: maintenance ${props.windowId} failed`
       : `Oracle Exadata ${exa}: maintenance ${props.windowId} completed`,
@@ -4364,7 +4956,14 @@ export function generateSapOnAzureLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e8, 5e10) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(op),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e8, 5e10),
+    },
       message: isErr
         ? `SAP VI ${svi} (${props.sid}): ARM operation failed`
         : `SAP VI ${svi} (${props.sid}): ${op.split("/").pop()} completed`,
@@ -4411,7 +5010,14 @@ export function generateSapOnAzureLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(3e9, 2.7e10) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String(op),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(3e9, 2.7e10),
+    },
       message: isErr
         ? `SAP VI ${svi}: ${action} failed — ${props.error}`
         : `SAP VI ${svi}: ${action} -> ${props.sapInstanceState}`,
@@ -4457,7 +5063,14 @@ export function generateSapOnAzureLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e9, 8e10) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Workloads/sapApplicationServerInstances/extensionRequests/write"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e9, 8e10),
+    },
       message: `[STMS] TR ${props.trkorr}: ${props.detail}`,
     };
   }
@@ -4499,7 +5112,14 @@ export function generateSapOnAzureLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e8, 3e11) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Workloads/sapVirtualInstances/startInstallation/action"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(5e8, 3e11),
+    },
       message: `[sapinst] ${props.hostRole}: ${props.logTail}`,
     };
   }
@@ -4543,7 +5163,14 @@ export function generateSapOnAzureLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 2e10) },
+      event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Workloads/sapCentralServicesInstances/http/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(1e8, 2e10),
+    },
       message: `ICM HTTP ${props.httpStatus} ${props.requestUri}: ${props.message}`,
     };
   }
@@ -4585,7 +5212,14 @@ export function generateSapOnAzureLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 2e9) },
+    event: {
+      kind: "event",
+      category: ["host"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("Microsoft.Workloads/sapVirtualInstances/databaseInstances/read"),
+      outcome: isErr ? "failure" : "success",
+      duration: randInt(2e8, 2e9),
+    },
     message: isErr
       ? `SAP HANA SR on ${svi}: ${props.detail}`
       : `SAP HANA SR on ${svi}: ${props.detail}`,

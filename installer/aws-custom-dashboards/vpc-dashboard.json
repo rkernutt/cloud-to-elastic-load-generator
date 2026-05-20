@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.vpcflow* | STATS c = COUNT() BY a = `aws.vpcflow.action` | SORT c DESC"
+            "query": "FROM logs-aws.vpcflow* | STATS c = COUNT() BY a = `aws.vpcflow.action` | SORT ``c DESC"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.vpcflow* | STATS c = COUNT() BY p = `network.transport` | SORT c DESC | LIMIT 8"
+            "query": "FROM logs-aws.vpcflow* | STATS c = COUNT() BY p = `network.transport` | SORT ``c DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.vpcflow* | STATS c = COUNT() BY d = `network.direction` | SORT c DESC"
+            "query": "FROM logs-aws.vpcflow* | STATS c = COUNT() BY d = `network.direction` | SORT ``c DESC"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.vpcflow* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.vpcflow* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.vpcflow* | STATS acc = SUM(CASE(`aws.vpcflow.action` == \"ACCEPT\", 1, 0)), rej = SUM(CASE(`aws.vpcflow.action` == \"REJECT\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.vpcflow* | STATS acc = SUM(CASE(`aws.vpcflow.action` == \"ACCEPT\", 1, 0)), rej = SUM(CASE(`aws.vpcflow.action` == \"REJECT\", 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.vpcflow* | STATS bts = SUM(`network.bytes`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.vpcflow* | STATS bts = SUM(`network.bytes`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -388,7 +388,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.vpcflow* | STATS c = COUNT() BY s = `source.ip` | SORT c DESC | LIMIT 10"
+                "query": "FROM logs-aws.vpcflow* | STATS c = COUNT() BY s = `source.ip` | SORT ``c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -421,7 +421,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.vpcflow* | KEEP `@timestamp`, `aws.vpcflow.vpc_id`, `aws.vpcflow.action`, `network.transport`, `source.ip`, `destination.ip`, `aws.vpcflow.dstport`, `network.bytes` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.vpcflow* | KEEP `@timestamp``@timestamp`, `aws.vpcflow.vpc_id`, `aws.vpcflow.action`, `network.transport`, `source.ip`, `destination.ip`, `aws.vpcflow.dstport`, `network.bytes` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

@@ -3,46 +3,47 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "northamerica-northeast1",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "europe-west3",
+    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
+    "account": { "id": "847293615048", "name": "Globex Security" },
+    "service": { "name": "dataprep" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-northamerica-northeast1",
-    "ephemeral_id": "c9vvojgapinqqs0ltp7uyaimbykpj5wtcpr9"
+    "name": "metricbeat-gcp-europe-west3",
+    "ephemeral_id": "reykhaycw8lyc8lvd8j4jaoax4novrxr3nuc"
   },
   "monitoringTimeSeries": {
     "metric": { "type": "dataprep.googleapis.com/job/execution_count", "labels": {} },
     "resource": {
       "type": "dataprep.googleapis.com/Job",
       "labels": {
-        "resource_container": "globex-prod-a1b2c3",
-        "location": "northamerica-northeast1",
-        "job_name": "job-pii-mask"
+        "resource_container": "globex-sec-847293",
+        "location": "europe-west3",
+        "job_name": "job-curate-01"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "2703" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "2559" } }
     ]
   },
   "gcp": {
     "dataprep": {
       "labels": {
-        "resource_container": "globex-prod-a1b2c3",
-        "location": "northamerica-northeast1",
-        "job_name": "job-pii-mask"
+        "resource_container": "globex-sec-847293",
+        "location": "europe-west3",
+        "job_name": "job-curate-01"
       },
       "metrics": {
-        "dataprep.googleapis.com/job/execution_count": { "avg": 2703, "sum": 2703, "count": 1 }
+        "dataprep.googleapis.com/job/execution_count": { "avg": 2559, "sum": 2559, "count": 1 }
       }
     }
   },
   "metricset": { "name": "dataprep", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.dataprep_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.dataprep_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.dataprep_metrics", "module": "gcp" }
 }

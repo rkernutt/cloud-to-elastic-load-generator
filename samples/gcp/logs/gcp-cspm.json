@@ -7,40 +7,56 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "me-central1",
-    "account": { "id": "globex-dev-g7h8i9", "name": "Globex Development" }
+    "region": "us-east4",
+    "account": { "id": "globex-prod-482910", "name": "Globex Production" }
   },
   "resource": {
-    "id": "//compute.googleapis.com/projects/globex-dev-g7h8i9/global/firewalls/fw-XPNNVI",
-    "name": "fw-XPNNVI",
-    "type": "compute.googleapis.com/Firewall",
-    "sub_type": "firewall"
+    "id": "//compute.googleapis.com/projects/globex-prod-482910/zones/us-east4-b/instances/vm-RDBU4V",
+    "name": "vm-RDBU4V",
+    "type": "compute.googleapis.com/Instance",
+    "sub_type": "gce-instance"
   },
   "rule": {
-    "id": "fe083488-fa0f-5408-9624-ac27607ac2ff",
-    "name": "Ensure that VPC Flow Logs is Enabled for Every Subnet in a VPC Network",
-    "section": "3.8",
-    "description": "Flow Logs is a feature that enables users to capture information about the IP traffic going to and from network interfaces in the organization's VPC Subnets.",
-    "tags": ["CIS", "GCP", "CIS 3.8", "Networking"],
+    "id": "2f7d9d2a-ec1f-545a-8258-ea62bbffad7f",
+    "name": "Ensure That Instances Are Not Configured To Use the Default Service Account With Full Access to All Cloud APIs",
+    "section": "4.2",
+    "description": "To support principle of least privileges and prevent potential privilege escalation it is recommended that instances are not assigned to default service account `Compute Engine default service account` with Scope `Allow full access to all Cloud APIs`.",
+    "tags": ["CIS", "GCP", "CIS 4.2", "Virtual Machines"],
     "benchmark": {
       "id": "cis_gcp",
       "name": "CIS Google Cloud Platform Foundation",
       "version": "v2.0.0",
-      "rule_number": "3.8",
+      "rule_number": "4.2",
       "posture_type": "cspm"
     },
-    "profile_applicability": "* Level 2"
+    "profile_applicability": "* Level 1",
+    "impact": "Non-compliance with CIS Google Cloud Platform Foundation 4.2 — Ensure That Instances Are Not Configured To Use the Default Service Account With Full Access to All Cloud APIs",
+    "remediation": "Remediate per CIS Google Cloud Platform Foundation v2.0.0 section 4.2."
   },
-  "result": { "evaluation": "passed" },
+  "result": {
+    "evaluation": "failed",
+    "evidence": {
+      "metadata": {
+        "items": [
+          { "key": "block-project-ssh-keys", "value": "false" },
+          { "key": "enable-oslogin", "value": "FALSE" }
+        ]
+      },
+      "networkInterfaces": [
+        { "accessConfigs": [{ "natIP": "206.210.58.23", "name": "External NAT" }] }
+      ],
+      "canIpForward": true
+    }
+  },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_cspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_gcp/3.8] passed: Ensure that VPC Flow Logs is Enabled for Every Subnet in a VPC Network",
-  "log": { "level": "info" }
+  "message": "[cis_gcp/4.2] failed: Ensure That Instances Are Not Configured To Use the Default Service Account With Full Access to All Cloud APIs",
+  "log": { "level": "warn" }
 }

@@ -1,63 +1,70 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "DEBUG",
-  "log": { "level": "debug" },
+  "severity": "NOTICE",
+  "log": { "level": "notice" },
   "labels": {
     "resource.type": "logging.googleapis.com/Project",
-    "sink": "sink-to-gcs",
-    "api_method": "logging.googleapis.com/v2/projects/globex-dev-g7h8i9/metrics",
-    "logging_scenario": "metrics_create"
+    "sink": "sink-security",
+    "api_method": "logging.googleapis.com/v2/projects/globex-shared-529384/sinks/sink-security",
+    "logging_scenario": "sinks_patch"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west3",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" },
+    "region": "us-south1",
+    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
+    "account": { "id": "529384716205", "name": "Globex Shared Services" },
     "service": { "name": "logging.googleapis.com" }
   },
   "gcp": {
     "cloud_logging": {
-      "scenario": "metrics_create",
-      "api_method": "logging.googleapis.com/v2/projects/globex-dev-g7h8i9/metrics",
-      "log_name": "projects/globex-dev-g7h8i9/logs/audit",
-      "sink_name": "sink-to-gcs",
+      "scenario": "sinks_patch",
+      "api_method": "logging.googleapis.com/v2/projects/globex-shared-529384/sinks/sink-security",
+      "log_name": "projects/globex-shared-529384/logs/loadbalancer",
+      "sink_name": "sink-security",
       "destination": "pubsub",
       "filter_expression": "resource.type=\"gce_instance\" AND severity>=ERROR",
-      "entries_exported": 162266,
-      "errors_count": 2,
-      "exclusion_name": "exclusion-SLDR"
+      "entries_exported": 387142,
+      "errors_count": 2
     }
   },
-  "event": { "outcome": "success", "duration": 36491, "module": "gcp", "dataset": "gcp.logging" },
-  "message": "CreateLogMetric OK name=severity_error_count sinks=sink-to-gcs",
+  "event": {
+    "kind": "event",
+    "category": ["configuration"],
+    "type": ["info"],
+    "action": "management-operation",
+    "outcome": "success",
+    "duration": 24282,
+    "module": "gcp",
+    "dataset": "gcp.logging"
+  },
+  "message": "UpdateSink sink-security destination=pubsub updated exclusions=0",
   "service": { "name": "cloud-logging", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.logging", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-west3",
-    "id": "h4ztporf96cyp8zup3r6e156sg9qivuzd8hd"
+    "name": "elastic-agent-gcp-us-south1",
+    "id": "x6yolluoxbp2awermbyqzoq6zn8nv5hahf0f"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-dev-g7h8i9/logs/cloud-logging",
+  "logName": "projects/globex-shared-529384/logs/cloud-logging",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-dev-g7h8i9", "region": "us-west3" }
+    "labels": { "project_id": "globex-shared-529384", "region": "us-south1" }
   },
-  "insertId": "QEXHIIWJGRNH",
+  "insertId": "I1OM0U4SOHIX",
   "jsonPayload": {
     "cloud_logging": {
-      "scenario": "metrics_create",
-      "api_method": "logging.googleapis.com/v2/projects/globex-dev-g7h8i9/metrics",
-      "log_name": "projects/globex-dev-g7h8i9/logs/audit",
-      "sink_name": "sink-to-gcs",
+      "scenario": "sinks_patch",
+      "api_method": "logging.googleapis.com/v2/projects/globex-shared-529384/sinks/sink-security",
+      "log_name": "projects/globex-shared-529384/logs/loadbalancer",
+      "sink_name": "sink-security",
       "destination": "pubsub",
       "filter_expression": "resource.type=\"gce_instance\" AND severity>=ERROR",
-      "entries_exported": 162266,
-      "errors_count": 2,
-      "exclusion_name": "exclusion-SLDR"
+      "entries_exported": 387142,
+      "errors_count": 2
     },
-    "message": "CreateLogMetric OK name=severity_error_count sinks=sink-to-gcs"
+    "message": "UpdateSink sink-security destination=pubsub updated exclusions=0"
   }
 }

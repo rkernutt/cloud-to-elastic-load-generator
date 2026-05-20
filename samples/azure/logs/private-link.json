@@ -1,51 +1,55 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/1a2b3c4d-5e6f-7890-abcd-ef1234567890/resourceGroups/rg-prod-p1521b/providers/Microsoft.Network/privateEndpoints/pe-sql-z0teg",
-  "operationName": "PrivateLinkServiceConsumptionMeter",
-  "category": "PrivateEndpointScaleSignals",
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-network-1ue83n/providers/Microsoft.Network/privateEndpoints/pe-sql-tkseb",
+  "operationName": "PrivateEndpointNicLinkConsistency",
+  "category": "PrivateEndpointNicAudit",
   "resultType": "Success",
   "resultSignature": "200",
-  "callerIpAddress": "34.167.247.13",
-  "correlationId": "d57f4682-2efe-4ce2-bf5a-7544e5b3def4",
+  "callerIpAddress": "91.8.108.25",
+  "correlationId": "b907f993-6fbd-4972-ada6-05fb421d1e83",
   "level": "Informational",
   "properties": {
-    "privateLinkServiceAlias": "pls-sql-eastus-alias",
-    "concurrentConnectionsObserved": 1589,
-    "scaleUnitSaturationPct": 28.452335561583418,
-    "backPressureApplied": false,
-    "remediationHint": "headroom nominal for advertised RPS envelope",
-    "stamp": "germanywestcentral-N30"
+    "linkedNicResourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-network-1ue83n/providers/Microsoft.Network/networkInterfaces/nic-pe-JKMX",
+    "ipConfigName": "pe-ipconfig",
+    "linkState": "Healthy",
+    "privateLinkServiceFqdnMismatch": false,
+    "message": "NIC IP configuration aligns with stable private endpoint linkage",
+    "evaluationWindowSec": 57
   },
   "cloud": {
     "provider": "azure",
-    "region": "germanywestcentral",
-    "account": { "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890", "name": "Fabrikam-Prod" },
+    "region": "eastus2",
+    "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
     "service": { "name": "Microsoft.Network/privateEndpoints" }
   },
   "azure": {
     "private_link": {
-      "endpoint_name": "pe-sql-z0teg",
-      "resource_group": "rg-prod-p1521b",
-      "category": "PrivateEndpointScaleSignals",
-      "correlation_id": "d57f4682-2efe-4ce2-bf5a-7544e5b3def4",
+      "endpoint_name": "pe-sql-tkseb",
+      "resource_group": "rg-network-1ue83n",
+      "category": "PrivateEndpointNicAudit",
+      "correlation_id": "b907f993-6fbd-4972-ada6-05fb421d1e83",
       "properties": {
-        "privateLinkServiceAlias": "pls-sql-eastus-alias",
-        "concurrentConnectionsObserved": 1589,
-        "scaleUnitSaturationPct": 28.452335561583418,
-        "backPressureApplied": false,
-        "remediationHint": "headroom nominal for advertised RPS envelope",
-        "stamp": "germanywestcentral-N30"
+        "linkedNicResourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-network-1ue83n/providers/Microsoft.Network/networkInterfaces/nic-pe-JKMX",
+        "ipConfigName": "pe-ipconfig",
+        "linkState": "Healthy",
+        "privateLinkServiceFqdnMismatch": false,
+        "message": "NIC IP configuration aligns with stable private endpoint linkage",
+        "evaluationWindowSec": 57
       }
     }
   },
   "event": {
+    "kind": "event",
+    "category": ["network"],
+    "type": ["connection"],
+    "action": "PrivateEndpointNicLinkConsistency",
     "outcome": "success",
-    "duration": 2882570698,
+    "duration": 1732699458,
     "module": "azure",
     "dataset": "azure.private_link"
   },
-  "message": "[scale] Private Link pe-sql-z0teg: PLS alias pls-sql-eastus-alias saturation 28.5%",
+  "message": "[nic] Private Link pe-sql-tkseb: NIC IP configuration aligns with stable private endpoint linkage",
   "service": { "name": "private-link", "type": "azure" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -53,8 +57,10 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-germanywestcentral",
-    "id": "2bn4952ofonkfph9xftfvtn9ucwkarsygpk0"
+    "name": "elastic-agent-azure-eastus2",
+    "id": "3zd4h92f530ba8kdrnug7c8p5zqr3nvn88in"
   },
-  "input": { "type": "azure-eventhub" }
+  "input": { "type": "azure-eventhub" },
+  "source": { "ip": "91.8.108.25" },
+  "related": { "ip": ["91.8.108.25"] }
 }

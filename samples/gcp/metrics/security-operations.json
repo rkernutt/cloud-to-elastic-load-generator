@@ -3,51 +3,52 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "me-west1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" }
+    "region": "asia-east2",
+    "project": { "id": "globex-dev-615094", "name": "Globex Development" },
+    "account": { "id": "615094738261", "name": "Globex Development" },
+    "service": { "name": "security-operations" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-me-west1",
-    "ephemeral_id": "2zs1jmliffsb9qf65xqx6ds88l698egv7f2c"
+    "name": "metricbeat-gcp-asia-east2",
+    "ephemeral_id": "jt2z0ofnyv3fm7a48rzlq15a5ws614q2mr7l"
   },
   "monitoringTimeSeries": {
     "metric": {
       "type": "chronicle.googleapis.com/rule/detection_count",
-      "labels": { "rule_name": "lateral_movement_proxy", "severity": "LOW" }
+      "labels": { "rule_name": "lateral_movement_proxy", "severity": "HIGH" }
     },
     "resource": {
       "type": "chronicle.googleapis.com/Instance",
       "labels": {
-        "resource_container": "globex-staging-d4e5f6",
-        "location": "me-west1",
+        "resource_container": "globex-dev-615094",
+        "location": "asia-east2",
         "chronicle_instance": "globex-secops"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "615" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "1554" } }
     ]
   },
   "gcp": {
     "security-operations": {
       "labels": {
-        "resource_container": "globex-staging-d4e5f6",
-        "location": "me-west1",
+        "resource_container": "globex-dev-615094",
+        "location": "asia-east2",
         "chronicle_instance": "globex-secops",
         "rule_name": "lateral_movement_proxy",
-        "severity": "LOW"
+        "severity": "HIGH"
       },
       "metrics": {
-        "chronicle.googleapis.com/rule/detection_count": { "avg": 615, "sum": 615, "count": 1 }
+        "chronicle.googleapis.com/rule/detection_count": { "avg": 1554, "sum": 1554, "count": 1 }
       }
     }
   },
   "metricset": { "name": "security-operations", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.secops_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.secops_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.secops_metrics", "module": "gcp" }
 }

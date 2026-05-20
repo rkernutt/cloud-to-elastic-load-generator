@@ -3,46 +3,47 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast1",
-    "project": { "id": "globex-dev-g7h8i9", "name": "Globex Development" },
-    "account": { "id": "161803398874", "name": "Globex Development" }
+    "region": "us-central1",
+    "project": { "id": "globex-dev-615094", "name": "Globex Development" },
+    "account": { "id": "615094738261", "name": "Globex Development" },
+    "service": { "name": "cloud-sql" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-northeast1",
-    "ephemeral_id": "rmg0fuzce5hlwo7dg9k4yfvzqowg6gegg4l8"
+    "name": "metricbeat-gcp-us-central1",
+    "ephemeral_id": "fyg616vmcuimp5a95chqw6tpftdyyd2zhfal"
   },
   "monitoringTimeSeries": {
     "metric": { "type": "cloudsql.googleapis.com/database/cpu/utilization", "labels": {} },
     "resource": {
       "type": "cloudsql_database",
       "labels": {
-        "project_id": "globex-dev-g7h8i9",
-        "database_id": "globex-prod-a1b2c3:sql-primary",
-        "region": "asia-northeast1"
+        "project_id": "globex-dev-615094",
+        "database_id": "globex-dev-615094:sql-replica",
+        "region": "us-central1"
       }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 0.35 } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 0.22 } }
     ]
   },
   "gcp": {
     "cloud-sql": {
       "labels": {
-        "project_id": "globex-dev-g7h8i9",
-        "database_id": "globex-prod-a1b2c3:sql-primary",
-        "region": "asia-northeast1"
+        "project_id": "globex-dev-615094",
+        "database_id": "globex-dev-615094:sql-replica",
+        "region": "us-central1"
       },
       "metrics": {
-        "cloudsql.googleapis.com/database/cpu/utilization": { "avg": 0.35, "sum": 0.35, "count": 1 }
+        "cloudsql.googleapis.com/database/cpu/utilization": { "avg": 0.22, "sum": 0.22, "count": 1 }
       }
     }
   },
   "metricset": { "name": "cloud-sql", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.cloudsql_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.cloudsql_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.cloudsql_metrics", "module": "gcp" }
 }

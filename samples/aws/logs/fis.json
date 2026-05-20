@@ -1,22 +1,22 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
+    "region": "us-east-2",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "fis" }
   },
   "aws": {
-    "dimensions": { "ExperimentTemplateId": "EXTI639AH7L" },
+    "dimensions": { "ExperimentTemplateId": "EXTCMNDBUCX" },
     "fis": {
-      "experiment_id": "EXPXBSBCF1A",
-      "experiment_template_id": "EXTI639AH7L",
-      "experiment_name": "database-failover",
+      "experiment_id": "EXPXGPID1Y5",
+      "experiment_template_id": "EXTCMNDBUCX",
+      "experiment_name": "network-latency-inject",
       "experiment_state": "pending",
       "target_resource_type": "EKS nodes",
-      "action_type": "aws:ec2:stop-instances",
-      "stop_condition": "none",
-      "role_arn": "arn:aws:iam::293847561023:role/FISRole-database-failover"
+      "action_type": "aws:network-acl:replace-entries",
+      "stop_condition": "aws:cloudwatch:alarm",
+      "role_arn": "arn:aws:iam::293847561023:role/FISRole-network-latency-inject"
     },
     "s3": {
       "bucket": {
@@ -24,24 +24,25 @@
         "arn": "arn:aws:s3:::aws-fis-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/fis/il-central-1/2026/05/19/fis_6E450P2G1OX1TTOYAARI.log.gz"
+        "key": "AWSLogs/293847561023/fis/us-east-2/2026/05/20/fis_HUOUG78LP2Y7HGAMORKG.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/fis/logs",
-      "log_stream": "il-central-1/r84z0uxw",
-      "ingestion_time": "2026-05-19T15:25:13.689Z"
+      "log_stream": "us-east-2/98uiw4ut",
+      "ingestion_time": "2026-05-20T13:19:01.451Z"
     }
   },
   "event": {
-    "action": "GetExperiment",
+    "action": "CreateExperimentTemplate",
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.fis",
     "provider": "fis.amazonaws.com",
-    "module": "aws"
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "FIS GetExperiment: exp=EXPXBSBCF1A (database-failover) state=pending, target=EKS nodes",
+  "message": "FIS CreateExperimentTemplate: exp=EXPXGPID1Y5 (network-latency-inject) state=pending, target=EKS nodes",
   "log": { "level": "info" },
   "service": { "name": "fis", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -49,8 +50,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "5ssm24g88y8ix3awo04mp3246nlmdwa1p3c9"
+    "name": "filebeat-aws-us-east-2",
+    "ephemeral_id": "l0w9jykv1gunvvz81ykpapn1zkeyk2gv9ddj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

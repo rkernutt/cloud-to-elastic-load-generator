@@ -104,7 +104,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.defender*, logs-azure.sentinel*, logs-azure.activity_log* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-azure.defender*, logs-azure.sentinel*, logs-azure.activity_log* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "c", "label": "Events" }]
@@ -123,7 +123,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.defender*, logs-azure.sentinel* | WHERE source.ip IS NOT NULL AND cloud.account.id IS NOT NULL | STATS def_sev = MAX(azure.defender.severity), sent_sev = MAX(azure.sentinel.severity), entity = MAX(azure.defender.compromised_entity), alert_t = MAX(azure.defender.alert_type), inc = MAX(azure.sentinel.incident_id) BY src = source.ip, acct = cloud.account.id | SORT def_sev DESC | LIMIT 25"
+            "query": "FROM logs-azure.defender*, logs-azure.sentinel* | WHERE source.ip IS NOT NULL AND cloud.account.id IS NOT NULL | STATS def_sev = MAX(azure.defender.severity), sent_sev = MAX(azure.sentinel.severity), entity = MAX(azure.defender.compromised_entity), alert_t = MAX(azure.defender.alert_type), inc = MAX(azure.sentinel.incident_id) BY src = source.ip, acct = cloud.account.id | SORT ``def_sev DESC | LIMIT 25"
           },
           "metrics": [
             { "operation": "value", "column": "src", "label": "Source IP" },

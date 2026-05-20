@@ -1,40 +1,40 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-south-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "frauddetector" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "online-fraud-v2" },
+    "dimensions": { "DetectorId": "identity-fraud" },
     "frauddetector": {
-      "detector_id": "online-fraud-v2",
-      "detector_version_id": "5",
-      "event_id": "locenefrdv7o45gz0lzct8y5vr99paaprs7u",
-      "event_type": "wire_transfer",
+      "detector_id": "identity-fraud",
+      "detector_version_id": "3",
+      "event_id": "1zxijc1uitylk5n8yqhguw932ck92jm44x33",
+      "event_type": "login",
       "entity_type": "customer",
-      "entity_id": "entity_k45dvwus43",
+      "entity_id": "entity_qqi06ah66l",
       "outcomes": ["BLOCK"],
-      "risk_score": 898,
-      "model_scores": { "online-fraud-v2": 898 },
-      "used_rules": ["approve-low"],
-      "ip_address": "123.34.105.138",
-      "event_variables": { "billing_postal": "13076", "phone_verified": "false" }
+      "risk_score": 947,
+      "model_scores": { "identity-fraud": 947 },
+      "used_rules": ["review-medium"],
+      "ip_address": "71.120.161.117",
+      "event_variables": { "billing_postal": "43485", "phone_verified": "false" }
     },
     "s3": {
       "bucket": {
-        "name": "aws-frauddetector-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-frauddetector-logs-814726593401"
+        "name": "aws-frauddetector-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-frauddetector-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/814726593401/frauddetector/eu-south-2/2026/05/19/frauddetector_64EC9ZI1M685MVN2GZIN.log.gz"
+        "key": "AWSLogs/293847561023/frauddetector/ap-south-2/2026/05/20/frauddetector_S6LQQVQVZS2OWMGI8F06.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/frauddetector/logs",
-      "log_stream": "eu-south-2/p7gb9zby",
-      "ingestion_time": "2026-05-19T15:25:13.706Z"
+      "log_stream": "ap-south-2/s6naki42",
+      "ingestion_time": "2026-05-20T13:19:01.481Z"
     }
   },
   "event": {
@@ -42,13 +42,14 @@
     "category": ["intrusion_detection", "process"],
     "dataset": "aws.frauddetector",
     "provider": "frauddetector.amazonaws.com",
-    "duration": 2384000000,
-    "module": "aws"
+    "duration": 1339000000,
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "Fraud Detector BLOCK [online-fraud-v2]: entity entity_k45dvwus43 score 898/1000",
+  "message": "Fraud Detector BLOCK [identity-fraud]: entity entity_qqi06ah66l score 947/1000",
   "log": { "level": "warn" },
   "error": {
-    "code": "AccessDeniedException",
+    "code": "ValidationException",
     "message": "Fraud Detector invoked GetEventPrediction and returned an outcome that blocks the caller path",
     "type": "aws"
   },
@@ -58,8 +59,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "wr2byu98joddd3gybdfrxb5bba9b1m5yao2t"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "k93pyb3raxwvgsh75xuqz0skkbjj1l46xd1j"
   },
   "input": { "type": "http_endpoint" }
 }

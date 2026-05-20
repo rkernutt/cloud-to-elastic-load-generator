@@ -88,7 +88,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.audit* | WHERE threat.tactic.name IS NOT NULL OR gcp.cloud_audit.method_name IS NOT NULL | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.audit* | WHERE threat.tactic.name IS NOT NULL OR gcp.cloud_audit.method_name IS NOT NULL | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "c", "label": "Events" }]
@@ -107,7 +107,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.audit* | WHERE threat.tactic.name IS NOT NULL OR gcp.cloud_audit.method_name IS NOT NULL | STATS ops = COUNT(), methods = COUNT_DISTINCT(gcp.cloud_audit.method_name), tgt = MAX(resource.name) BY caller = user.name, src = source.ip, proj = cloud.project.id | SORT ops DESC | LIMIT 25"
+            "query": "FROM logs-gcp.audit* | WHERE threat.tactic.name IS NOT NULL OR gcp.cloud_audit.method_name IS NOT NULL | STATS ops = COUNT(), methods = COUNT_DISTINCT(gcp.cloud_audit.method_name), tgt = MAX(resource.name) BY caller = user.name, src = source.ip, proj = cloud.project.id | SORT ``ops DESC | LIMIT 25"
           },
           "metrics": [
             { "operation": "value", "column": "caller", "label": "Caller" },

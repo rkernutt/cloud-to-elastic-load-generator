@@ -15,7 +15,7 @@ import {
   distributionFromMs,
 } from "./helpers.js";
 import type { MonitoringPointValue } from "./helpers.js";
-import { rand } from "../helpers.js";
+import { rand, EMAIL_DOMAINS } from "../helpers.js";
 import type { EcsDocument } from "../../../aws/generators/types.js";
 
 const ZONES = ["a", "b", "c"];
@@ -161,7 +161,11 @@ export function generateCloudCdnMetrics(ts: string, er: number): EcsDocument[] {
   ];
 }
 
-const DNS_TARGETS = ["api.internal.example.com.", "db.prod.example.com.", "external"];
+const DNS_TARGETS = [
+  `api.internal.${EMAIL_DOMAINS[0]}.`,
+  `db.prod.${EMAIL_DOMAINS[1]}.`,
+  "external",
+];
 const DNS_ZONES = ["globex-public", "globex-private", "partner-delegation"];
 
 export function generateCloudDnsMetrics(ts: string, er: number): EcsDocument[] {

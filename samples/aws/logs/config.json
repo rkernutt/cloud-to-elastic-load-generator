@@ -1,53 +1,58 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-northeast-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "config" }
   },
   "aws": {
-    "dimensions": { "ConfigRuleName": "ec2-stopped-instance", "ResourceType": "AWS::S3::Bucket" },
+    "dimensions": {
+      "ConfigRuleName": "s3-bucket-ssl-requests-only",
+      "ResourceType": "AWS::EC2::Instance"
+    },
     "config": {
-      "rule_name": "ec2-stopped-instance",
-      "compliance_type": "NON_COMPLIANT",
-      "resource_type": "AWS::S3::Bucket",
-      "resource_id": "s3-mq5f7mvn",
-      "annotation": "Encryption not enabled",
+      "rule_name": "s3-bucket-ssl-requests-only",
+      "compliance_type": "INSUFFICIENT_DATA",
+      "resource_type": "AWS::EC2::Instance",
+      "resource_id": "sg-zlenwpl2",
+      "annotation": "Missing required tag",
       "metrics": {
         "ComplianceByConfigRule": { "avg": 0 },
         "NonCompliantRules": { "sum": 1 },
         "CompliantRules": { "sum": 0 },
-        "ConfigurationItemsRecorded": { "sum": 90 }
+        "ConfigurationItemsRecorded": { "sum": 51 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-config-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-config-logs-164820739518"
+        "name": "aws-config-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-config-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/config/us-west-1/2026/05/19/config_O6VOFDCL0W5138HVCHAH.log.gz"
+        "key": "AWSLogs/293847561023/config/ap-northeast-1/2026/05/20/config_KWLU8J4XI97IQNF8I8IK.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/config/logs",
-      "log_stream": "us-west-1/s1oypyul",
-      "ingestion_time": "2026-05-19T15:25:13.510Z"
+      "log_stream": "ap-northeast-1/vawzp8s7",
+      "ingestion_time": "2026-05-20T13:19:01.262Z"
     }
   },
   "event": {
     "outcome": "failure",
-    "category": ["configuration", "compliance"],
+    "category": ["configuration"],
+    "type": ["info"],
     "dataset": "aws.config",
     "provider": "config.amazonaws.com",
-    "module": "aws"
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "Config rule FAILED: ec2-stopped-instance",
+  "message": "Config rule FAILED: s3-bucket-ssl-requests-only",
   "log": { "level": "warn" },
   "error": {
     "code": "NonCompliant",
-    "message": "Config rule ec2-stopped-instance failed",
+    "message": "Config rule s3-bucket-ssl-requests-only failed",
     "type": "compliance"
   },
   "service": { "name": "config", "type": "aws" },
@@ -56,8 +61,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "21ynrfbsog018s1h4c1j5u8w6444slaqc2uw"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "7kjtftm3lb2topp7c9hppsu7foviovsm83fy"
   },
   "input": { "type": "http_endpoint" }
 }

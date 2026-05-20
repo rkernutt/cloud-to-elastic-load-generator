@@ -1,72 +1,73 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
     "region": "us-east-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "wavelength" },
     "availability_zone": "us-east-1-wl1-bos-wlz-1",
-    "instance": { "id": "i-4hvshrvv5mw3c7y9a" }
+    "instance": { "id": "i-2ede15a130eb1bb2b" }
   },
   "aws": {
     "dimensions": {
       "WavelengthZone": "us-east-1-wl1-bos-wlz-1",
-      "InstanceId": "i-4hvshrvv5mw3c7y9a",
-      "CarrierGatewayId": "cagw-kvkhjp0usoq8u1ak4"
+      "InstanceId": "i-2ede15a130eb1bb2b",
+      "CarrierGatewayId": "cagw-m3givoyubz0v8v5hb"
     },
     "wavelength": {
       "zone": "us-east-1-wl1-bos-wlz-1",
       "carrier": "Verizon",
       "city": "Boston",
-      "scenario": "edge_compute_launch",
-      "instance_id": "i-4hvshrvv5mw3c7y9a",
-      "instance_type": "t3.medium",
-      "carrier_gateway_id": "cagw-kvkhjp0usoq8u1ak4",
-      "subnet_id": "subnet-w3rn0q2oi9ljzm5la",
-      "carrier_ip": "208.245.244.201",
-      "ue_ip": "184.208.60.210",
-      "bandwidth_allowance_gbps": 22,
-      "edge_launch": {
-        "ami_id": "ami-AG247PDO",
-        "launch_template": "lt-HD5VTB8A",
-        "placement_tenancy": "default",
-        "carrier_route_table": "rtb-4R2PIWQQ"
+      "scenario": "subnet_association",
+      "instance_id": "i-2ede15a130eb1bb2b",
+      "instance_type": "r5.large",
+      "carrier_gateway_id": "cagw-m3givoyubz0v8v5hb",
+      "subnet_id": "subnet-84ecec0a1ce8a2ca3",
+      "carrier_ip": "10.233.11.148",
+      "ue_ip": "10.253.65.53",
+      "bandwidth_allowance_gbps": 17,
+      "carrier_gateway": {
+        "state": "available",
+        "attachment_id": "cagw-attach-2CBLATLU",
+        "amazon_side_asn": 64698
       },
       "network": {
-        "uplink_mbps": 51.61445670400487,
-        "downlink_mbps": 625.6431849736055,
-        "latency_ms": 3.36669216325388,
-        "packet_loss_pct": 0.07488159365342696
+        "uplink_mbps": 240.98206114030472,
+        "downlink_mbps": 705.4084371199591,
+        "latency_ms": 7.692780375373807,
+        "packet_loss_pct": 0.08846014728198341
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-wavelength-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-wavelength-logs-293847561023"
+        "name": "aws-wavelength-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-wavelength-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/wavelength/us-east-1/2026/05/19/wavelength_5URYYD9L62GES5LKYQSV.log.gz"
+        "key": "AWSLogs/164820739518/wavelength/us-east-1/2026/05/20/wavelength_3SK0EL6QMKYL9EEPURK0.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/wavelength/logs",
-      "log_stream": "us-east-1/4wjrwobo",
-      "ingestion_time": "2026-05-19T15:25:13.450Z"
+      "log_stream": "us-east-1/y5c4g3kb",
+      "ingestion_time": "2026-05-20T13:19:01.196Z"
     }
   },
-  "source": { "ip": "184.208.60.210" },
+  "source": { "ip": "10.253.65.53" },
   "event": {
-    "action": "edge_compute_launch",
+    "action": "subnet_association",
     "outcome": "success",
     "category": ["network", "host"],
+    "type": ["connection"],
     "dataset": "aws.wavelength",
     "provider": "ec2.amazonaws.com",
-    "duration": 23000000,
-    "module": "aws"
+    "duration": 317000000,
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "RunInstances t3.medium zone=us-east-1-wl1-bos-wlz-1 instance=i-4hvshrvv5mw3c7y9a template=lt-HD5VTB8A",
+  "message": "AssociateCarrierGateway vpc=vpc-4eb3bcb7 route_table=rtb-B12C4MY8 assoc=cagw-attach-2CBLATLU",
   "log": { "level": "info" },
-  "host": { "name": "ip-241-173-194-36.ec2.internal", "hostname": "wavelength-jmc04kdk" },
+  "host": { "name": "ip-217-245-77-188.ec2.internal", "hostname": "wavelength-6ovh3z19" },
   "service": { "name": "wavelength", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.wavelength", "namespace": "default" },
@@ -74,7 +75,8 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "tb0it4yxlgih4veir6y8vda9xd7a49vp6a2a"
+    "ephemeral_id": "7dpvlq69j0tnoqltyq2qafyn7bt804g8dk98"
   },
-  "input": { "type": "aws-cloudwatch" }
+  "input": { "type": "aws-cloudwatch" },
+  "related": { "ip": ["10.253.65.53"] }
 }

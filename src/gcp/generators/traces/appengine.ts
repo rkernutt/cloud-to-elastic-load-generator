@@ -135,7 +135,11 @@ export function generateAppEngineTrace(ts: string, er: number): EcsDocument[] {
       name: "BigQuery.queryJob reporting.user_facts",
       duration: { us: bqUs },
       action: "execute",
-      db: { type: "sql", statement: "SELECT ... FROM `reporting.user_facts` WHERE ..." },
+      db: {
+        type: "sql",
+        statement:
+          "SELECT id, status, updated_at FROM `reporting.user_facts` WHERE updated_at > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY) LIMIT 500",
+      },
       destination: { service: { resource: "bigquery", type: "db", name: "bigquery" } },
       labels: failIdx === 3 ? { ...gcpSpanFailureLabels() } : {},
     },

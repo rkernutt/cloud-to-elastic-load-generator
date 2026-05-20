@@ -124,7 +124,8 @@ export function generatePubSubFanoutTrace(ts: string, er: number): EcsDocument[]
         ? {
             db: {
               type: "sql",
-              statement: "INSERT INTO `analytics.order_fanout` SELECT ...",
+              statement:
+                "INSERT INTO `analytics.order_fanout` (order_id, line_id, qty) SELECT order_id, line_id, qty FROM staging_lines WHERE batch_id = $1",
             },
             destination: { service: { resource: "bigquery", type: "db", name: "bigquery" } },
           }

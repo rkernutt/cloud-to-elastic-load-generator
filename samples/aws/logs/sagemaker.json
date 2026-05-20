@@ -1,55 +1,89 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
-    "service": { "name": "sagemaker-model-monitor" }
+    "region": "eu-west-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "service": { "name": "sagemaker" }
   },
   "aws": {
-    "sagemaker_model_monitor": {
-      "endpoint_name": "recommendation-engine",
-      "monitoring_type": "ModelExplainability",
-      "monitoring_schedule": "recommendation-engine-modelexplainability-schedule",
-      "execution_status": "Completed",
-      "violation_count": 0,
-      "violation_types": [],
-      "baseline_statistics_uri": "s3://sagemaker-ap-south-1/baselines/recommendation-engine/statistics.json",
-      "constraints_uri": "s3://sagemaker-ap-south-1/baselines/recommendation-engine/constraints.json",
-      "data_captured_count": 8608,
-      "features_analyzed": 67
+    "dimensions": {
+      "TrainingJobName": "bert-finetuned-endpoint-20260520-5v1qqx",
+      "JobType": "Endpoint"
+    },
+    "cloudwatch": {
+      "log_group": "/aws/sagemaker/Endpoints/bert-finetuned-endpoint/AllTraffic",
+      "log_stream": "bert-finetuned-endpoint/AllTraffic/2026/05/20/8nrgw9f46xd43btsv1sb62b6w9wvx1pb",
+      "ingestion_time": "2026-05-20T13:19:01.393Z"
+    },
+    "sagemaker": {
+      "domain_id": "d-462s2ple2w",
+      "domain_name": "risk-models",
+      "user_profile": "svc-monitoring",
+      "job": {
+        "name": "bert-finetuned-endpoint-20260520-5v1qqx",
+        "type": "Endpoint",
+        "arn": "arn:aws:sagemaker:eu-west-1:501938274650:endpoint/bert-finetuned-endpoint-20260520-5v1qqx",
+        "status": "Completed",
+        "secondary_status": "Training"
+      },
+      "model": { "name": "bert-finetuned", "version": 17 },
+      "pipeline": { "name": "batch-inference-pipeline", "execution_id": "pipe-fkpu2s5lnmdq" },
+      "instance": { "type": "ml.m5.4xlarge", "count": 1 },
+      "metrics": { "gpu_utilization_pct": 14, "cpu_utilization_pct": 41 },
+      "studio": {
+        "space_name": "ds-platform",
+        "app_type": "CodeEditor",
+        "app_name": "instance-xycwi2dw",
+        "lifecycle_config": true,
+        "continuous_logging": true
+      },
+      "cloudwatch_metrics": {
+        "Invocations": { "sum": 4045 },
+        "ModelLatency": { "avg": 45000 },
+        "OverheadLatency": { "avg": 5000 },
+        "GPUUtilization": { "avg": 60 },
+        "GPUMemoryUtilization": { "avg": 60 },
+        "CPUUtilization": { "avg": 57 },
+        "DiskUtilization": { "avg": 21 },
+        "MemoryUtilization": { "avg": 70 },
+        "Invocations4XXError": { "sum": 0 },
+        "Invocations5XXError": { "sum": 0 },
+        "ModelSetupTime": { "avg": 2268 }
+      }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sagemaker-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-sagemaker-logs-293847561023"
+        "name": "aws-sagemaker-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-sagemaker-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/sagemaker/ap-south-1/2026/05/19/sagemaker_G3EZ901H2A17QVYBV4EK.log.gz"
+        "key": "AWSLogs/501938274650/sagemaker/eu-west-1/2026/05/20/sagemaker_U5AU3MH1R456KVHFURAA.log.gz"
       }
-    },
-    "cloudwatch": {
-      "log_group": "/aws/sagemaker/logs",
-      "log_stream": "ap-south-1/gooxjis9",
-      "ingestion_time": "2026-05-19T15:25:13.638Z"
     }
   },
-  "event": {
-    "outcome": "success",
-    "duration": 440720135,
-    "module": "aws",
-    "dataset": "aws.sagemaker"
-  },
-  "message": "Model Monitor recommendation-engine: ModelExplainability passed (2940 samples)",
-  "service": { "name": "sagemaker", "type": "aws" },
   "log": { "level": "info" },
+  "user": { "name": "svc-monitoring" },
+  "event": {
+    "action": "LifecycleConfigOnStart",
+    "duration": 1584127707903.7593,
+    "outcome": "success",
+    "category": ["process"],
+    "dataset": "aws.sagemaker",
+    "provider": "sagemaker.amazonaws.com",
+    "module": "aws",
+    "kind": "event"
+  },
+  "message": "{\"domainId\":\"d-462s2ple2w\",\"space\":\"ds-platform\",\"appType\":\"CodeEditor\",\"user\":\"svc-monitoring\",\"level\":\"INFO\",\"message\":\"Endpoint bert-finetuned-endpoint is now InService\",\"timestamp\":\"2026-05-20T13:19:00.213Z\",\"event\":\"LifecycleConfigOnStart\"}",
+  "service": { "name": "sagemaker", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sagemaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "462rth3mut5aihj147qeskz3ifc6dhgido8o"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "5cme22wbsfqydlxbryej5dx72hlecdx8j62b"
   },
-  "input": { "type": "aws-cloudwatch" }
+  "input": { "type": "aws-cloudwatch" },
+  "related": { "user": ["svc-monitoring"] }
 }

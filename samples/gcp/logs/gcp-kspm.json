@@ -7,27 +7,27 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west3",
-    "account": { "id": "globex-security-j0k1l2", "name": "Globex Security" }
+    "region": "us-east1",
+    "account": { "id": "globex-stg-739158", "name": "Globex Staging" }
   },
-  "orchestrator": { "cluster": { "name": "staging-cluster" } },
+  "orchestrator": { "cluster": { "name": "gke-ml-asia-southeast1" } },
   "resource": {
-    "id": "node/gke-staging-cluster-np-6f1a",
-    "name": "gke-staging-cluster-np-6f1a",
+    "id": "control-plane/file/_etc_kubernetes_manifests_etcd.yaml",
+    "name": "/etc/kubernetes/manifests/etcd.yaml",
     "type": "k8s_object",
-    "sub_type": "kubelet"
+    "sub_type": "node-config-file"
   },
   "rule": {
-    "id": "374309b1-b87a-58bd-b795-1067d2e8ee9f",
-    "name": "Ensure that the --streaming-connection-idle-timeout argument is not set to 0",
-    "section": "4.2.5",
-    "description": "Do not disable timeouts on streaming connections.",
-    "tags": ["CIS", "Kubernetes", "CIS 4.2.5", "Kubelet"],
+    "id": "3fb6051e-31f8-5fb5-bd45-4f140fa4442e",
+    "name": "Ensure that the scheduler pod specification file ownership is set to root:root",
+    "section": "1.1.6",
+    "description": "Ensure that the scheduler pod specification file ownership is set to `root:root`.",
+    "tags": ["CIS", "Kubernetes", "CIS 1.1.6", "Control Plane Node Configuration Files"],
     "benchmark": {
       "id": "cis_k8s",
       "name": "CIS Kubernetes V1.23",
       "version": "v1.0.1",
-      "rule_number": "4.2.5",
+      "rule_number": "1.1.6",
       "posture_type": "kspm"
     },
     "profile_applicability": "* Level 1"
@@ -42,6 +42,6 @@
     "provider": "elastic_kspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_k8s/4.2.5] passed: Ensure that the --streaming-connection-idle-timeout argument is not set to 0",
+  "message": "[cis_k8s/1.1.6] passed: Ensure that the scheduler pod specification file ownership is set to root:root",
   "log": { "level": "info" }
 }

@@ -1,60 +1,69 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-app-vsulxb/providers/Microsoft.Workloads/sapVirtualInstances/svi-bw-apjr2",
-  "operationName": "Microsoft.Workloads/sapCentralServicesInstances/http/read",
-  "category": "SapIcmDiagnostics",
-  "resultType": "Success",
-  "resultSignature": "201",
-  "callerIpAddress": "97.191.255.8",
-  "correlationId": "58aa4982-b2f5-42e4-b99f-7830ddcde5b2",
-  "level": "Information",
+  "resourceId": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-analytics-nin0yw/providers/Microsoft.Workloads/sapVirtualInstances/svi-bw-b0djw",
+  "operationName": "Microsoft.Workloads/sapVirtualInstances/databaseInstances/read",
+  "category": "SapHanaReplication",
+  "resultType": "Failure",
+  "resultSignature": "ERROR",
+  "callerIpAddress": "129.149.216.137",
+  "correlationId": "aca2c8b8-e400-49ea-b646-1add3d84532d",
+  "level": "Error",
   "properties": {
-    "icmThread": 29,
-    "httpStatus": 201,
-    "requestUri": "/sap/bc/icf/service942",
-    "clientIp": "97.191.255.8",
-    "workerQueueDepth": 69,
-    "message": "ICM routed request to dispatcher group 02"
+    "scenario": "HANA System Replication",
+    "replicationStatus": "ERROR",
+    "primaryNode": "hanadb-svi-bw-b0djw-0",
+    "secondaryNode": "hanadb-svi-bw-b0djw-1",
+    "detail": "Replication channel broken: log shipping blocked on secondary"
+  },
+  "error": {
+    "code": "OverconstrainedAllocationRequest",
+    "message": "Overconstrained allocation request could not be satisfied with zone/PPG constraints.",
+    "type": "azure"
   },
   "cloud": {
     "provider": "azure",
-    "region": "switzerlandnorth",
-    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" },
+    "region": "southeastasia",
+    "account": { "id": "c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d", "name": "Northpeak-Dev" },
     "service": { "name": "Microsoft.Workloads/sapVirtualInstances" }
   },
   "azure": {
     "sap_on_azure": {
-      "virtual_instance": "svi-bw-apjr2",
-      "resource_group": "rg-app-vsulxb",
-      "category": "SapIcmDiagnostics",
-      "correlation_id": "58aa4982-b2f5-42e4-b99f-7830ddcde5b2",
+      "virtual_instance": "svi-bw-b0djw",
+      "resource_group": "rg-analytics-nin0yw",
+      "category": "SapHanaReplication",
+      "correlation_id": "aca2c8b8-e400-49ea-b646-1add3d84532d",
       "properties": {
-        "icmThread": 29,
-        "httpStatus": 201,
-        "requestUri": "/sap/bc/icf/service942",
-        "clientIp": "97.191.255.8",
-        "workerQueueDepth": 69,
-        "message": "ICM routed request to dispatcher group 02"
+        "scenario": "HANA System Replication",
+        "replicationStatus": "ERROR",
+        "primaryNode": "hanadb-svi-bw-b0djw-0",
+        "secondaryNode": "hanadb-svi-bw-b0djw-1",
+        "detail": "Replication channel broken: log shipping blocked on secondary"
       }
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 7419104947,
+    "kind": "event",
+    "category": ["host"],
+    "type": ["error"],
+    "action": "Microsoft.Workloads/sapVirtualInstances/databaseInstances/read",
+    "outcome": "failure",
+    "duration": 648010425,
     "module": "azure",
     "dataset": "azure.sap_on_azure"
   },
-  "message": "ICM HTTP 201 /sap/bc/icf/service942: ICM routed request to dispatcher group 02",
+  "message": "SAP HANA SR on svi-bw-b0djw: Replication channel broken: log shipping blocked on secondary",
   "service": { "name": "sap-on-azure", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.sap_on_azure", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-switzerlandnorth",
-    "id": "vwhl0kb0o9uczyn5favj5ylbn9jt58gwyo1i"
+    "name": "elastic-agent-azure-southeastasia",
+    "id": "9ndgrtwu0u5aly5qhmp0mq2c5336tcj7n310"
   },
-  "input": { "type": "azure-eventhub" }
+  "input": { "type": "azure-eventhub" },
+  "source": { "ip": "129.149.216.137" },
+  "related": { "ip": ["129.149.216.137"] }
 }

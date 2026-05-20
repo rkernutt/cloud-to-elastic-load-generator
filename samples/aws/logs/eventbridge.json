@@ -1,57 +1,58 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "us-east-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "events" }
   },
   "aws": {
-    "dimensions": { "EventBusName": "app-events", "RuleName": "order-created-rule" },
+    "dimensions": { "EventBusName": "app-events", "RuleName": "security-event-forwarder" },
     "eventbridge": {
       "event_bus": "app-events",
-      "rule": "order-created-rule",
-      "source": "aws.ec2",
-      "detail_type": "Object Created",
-      "targets_invoked": 1,
+      "rule": "security-event-forwarder",
+      "source": "custom.app",
+      "detail_type": "Health Event",
+      "targets_invoked": 4,
       "targets_failed": 0,
-      "event_id": "fdc5b7a9-8e4f-4e8a-9354-9a735d9b0eda",
-      "log_kind": "target_delivery",
+      "event_id": "9a20de6d-ddb1-4bb7-a81d-038427183bc0",
+      "log_kind": "schema_discovery",
       "structured_logging": true,
       "metrics": {
         "Invocations": { "sum": 1 },
         "FailedInvocations": { "sum": 0 },
         "TriggeredRules": { "sum": 1 },
-        "MatchedEvents": { "sum": 51 },
+        "MatchedEvents": { "sum": 55 },
         "ThrottledRules": { "sum": 0 },
         "DeadLetterInvocations": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-eventbridge-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-eventbridge-logs-501938274650"
+        "name": "aws-eventbridge-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-eventbridge-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/eventbridge/us-west-2/2026/05/19/eventbridge_Q8WZZKL2MQ0XO82HN7YL.log.gz"
+        "key": "AWSLogs/814726593401/eventbridge/us-east-1/2026/05/20/eventbridge_NUL9BQ3HRKOO3AU17HY9.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/eventbridge/logs",
-      "log_stream": "us-west-2/duqca5b4",
-      "ingestion_time": "2026-05-19T15:25:13.585Z"
+      "log_stream": "us-east-1/qb3aknss",
+      "ingestion_time": "2026-05-20T13:19:01.346Z"
     }
   },
   "event": {
     "outcome": "success",
     "category": ["process"],
-    "type": ["creation"],
+    "type": ["deletion"],
     "dataset": "aws.eventbridge",
     "provider": "events.amazonaws.com",
-    "duration": 121000000,
-    "module": "aws"
+    "duration": 86000000,
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "{\"id\":\"fdc5b7a9-8e4f-4e8a-9354-9a735d9b0eda\",\"source\":\"aws.ec2\",\"detailType\":\"Order Placed\",\"rule\":\"order-created-rule\",\"eventBus\":\"app-events\",\"log_kind\":\"target_delivery\",\"target_arn\":\"arn:aws:lambda:us-west-2:501938274650:function:emitMetric\",\"dlq_arn\":\"arn:aws:sqs:us-west-2:501938274650:rules-dlq\",\"message\":\"EventBridge TargetDelivery rule=order-created-rule target=arn:aws:lambda:us-west-2:501938274650:function:emitMetric status=SUCCESS httpStatus=200 attempt=2\",\"timestamp\":\"2026-05-19T15:25:12.772Z\"}",
+  "message": "{\"id\":\"9a20de6d-ddb1-4bb7-a81d-038427183bc0\",\"source\":\"custom.app\",\"detailType\":\"Order Placed\",\"rule\":\"security-event-forwarder\",\"eventBus\":\"app-events\",\"log_kind\":\"schema_discovery\",\"schema_registry\":\"internal-schemas\",\"dlq_arn\":\"arn:aws:sqs:us-east-1:814726593401:rules-dlq\",\"message\":\"EventBridge SchemaDiscovery registry=internal-schemas discovered_type=InvoicePaid@v1 revision=12\",\"timestamp\":\"2026-05-20T13:19:00.213Z\"}",
   "log": { "level": "info" },
   "service": { "name": "eventbridge", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -59,8 +60,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "e50qmzw5icypm7jcknm7dzqpokpz7alca2uw"
+    "name": "filebeat-aws-us-east-1",
+    "ephemeral_id": "pi9fup2u4mvo35u9fwj0as6cm4kqyxo8jnx1"
   },
   "input": { "type": "aws-cloudwatch" }
 }

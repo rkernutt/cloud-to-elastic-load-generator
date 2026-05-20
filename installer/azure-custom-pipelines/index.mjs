@@ -276,7 +276,7 @@ async function main() {
   let failedCount = 0;
 
   for (const pipeline of selectedPipelines) {
-    const { id, processors, description } = pipeline;
+    const { id, processors, description, on_failure } = pipeline;
 
     try {
       const existing = await client.getPipeline(id);
@@ -287,7 +287,9 @@ async function main() {
         continue;
       }
 
-      await client.putPipeline(id, { description, processors });
+      const body = { description, processors };
+      if (on_failure) body.on_failure = on_failure;
+      await client.putPipeline(id, body);
 
       console.log(`  ✓ ${id} — installed`);
       installedCount++;

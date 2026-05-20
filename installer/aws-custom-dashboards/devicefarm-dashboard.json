@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.devicefarm* | STATS count = COUNT() BY project = `aws.devicefarm.project_name` | SORT count DESC | LIMIT 10"
+            "query": "FROM logs-aws.devicefarm* | STATS count = COUNT() BY project = `aws.devicefarm.project_name` | SORT ``count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.devicefarm* | STATS count = COUNT() BY platform = `aws.devicefarm.device_platform` | SORT count DESC | LIMIT 10"
+            "query": "FROM logs-aws.devicefarm* | STATS count = COUNT() BY platform = `aws.devicefarm.device_platform` | SORT ``count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -207,7 +207,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.devicefarm* | STATS count = COUNT(), total_tests = SUM(`aws.devicefarm.total_tests`), passed_tests = SUM(`aws.devicefarm.passed_tests`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.devicefarm* | STATS count = COUNT(), total_tests = SUM(`aws.devicefarm.total_tests`), passed_tests = SUM(`aws.devicefarm.passed_tests`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -245,7 +245,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.devicefarm* | KEEP `@timestamp`, `aws.devicefarm.project_name`, `aws.devicefarm.run_status`, `aws.devicefarm.device_platform`, `aws.devicefarm.passed_tests`, `aws.devicefarm.total_tests` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.devicefarm* | KEEP `@timestamp``@timestamp`, `aws.devicefarm.project_name`, `aws.devicefarm.run_status`, `aws.devicefarm.device_platform`, `aws.devicefarm.passed_tests`, `aws.devicefarm.total_tests` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

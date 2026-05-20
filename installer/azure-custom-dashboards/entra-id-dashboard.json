@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.entra_id* | STATS c = COUNT() BY cat = `azure.entra_id.category` | SORT c DESC | LIMIT 8"
+            "query": "FROM logs-azure.entra_id* | STATS c = COUNT() BY cat = `azure.entra_id.category` | SORT ``c DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.entra_id* | STATS c = COUNT() BY r = `azure.entra_id.result` | SORT c DESC"
+            "query": "FROM logs-azure.entra_id* | STATS c = COUNT() BY r = `azure.entra_id.result` | SORT ``c DESC"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.entra_id* | STATS c = COUNT() BY ca = `azure.entra_id.conditional_access` | SORT c DESC | LIMIT 8"
+            "query": "FROM logs-azure.entra_id* | STATS c = COUNT() BY ca = `azure.entra_id.conditional_access` | SORT ``c DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.entra_id* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-azure.entra_id* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.entra_id* | STATS bad = SUM(CASE(event.outcome == \"failure\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-azure.entra_id* | STATS bad = SUM(CASE(event.outcome == \"failure\", 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -335,7 +335,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.entra_id* | STATS rsk = SUM(CASE(`azure.entra_id.category` == \"RiskyUsers\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-azure.entra_id* | STATS rsk = SUM(CASE(`azure.entra_id.category` == \"RiskyUsers\", 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -383,7 +383,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.entra_id* | STATS c = COUNT() BY u = `azure.entra_id.user` | SORT c DESC | LIMIT 10"
+                "query": "FROM logs-azure.entra_id* | STATS c = COUNT() BY u = `azure.entra_id.user` | SORT ``c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -416,7 +416,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.entra_id* | KEEP `@timestamp`, `azure.entra_id.category`, `azure.entra_id.user`, `azure.entra_id.result`, `azure.entra_id.conditional_access`, `azure.entra_id.ip_address`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-azure.entra_id* | KEEP `@timestamp``@timestamp`, `azure.entra_id.category`, `azure.entra_id.user`, `azure.entra_id.result`, `azure.entra_id.conditional_access`, `azure.entra_id.ip_address`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

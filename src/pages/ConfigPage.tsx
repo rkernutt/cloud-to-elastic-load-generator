@@ -1,4 +1,13 @@
-import { EuiFormRow, EuiRange, EuiSwitch, EuiCallOut, EuiSpacer, EuiTitle } from "@elastic/eui";
+import {
+  EuiFormRow,
+  EuiRange,
+  EuiSwitch,
+  EuiCallOut,
+  EuiSpacer,
+  EuiTitle,
+  EuiSuperSelect,
+} from "@elastic/eui";
+import type { PipelineOrchestrationPreference } from "../aws/generators/dataPipelineChain";
 
 interface ConfigPageProps {
   eventType: string;
@@ -9,13 +18,39 @@ interface ConfigPageProps {
   batchSize: number;
   batchDelayMs: number;
   injectAnomalies: boolean;
+  showPipelineOrchestration: boolean;
+  pipelineOrchestration: PipelineOrchestrationPreference;
   onLogsPerServiceChange: (val: number) => void;
   onTracesPerServiceChange: (val: number) => void;
   onErrorRateChange: (val: number) => void;
   onBatchSizeChange: (val: number) => void;
   onBatchDelayMsChange: (val: number) => void;
   onInjectAnomaliesChange: (val: boolean) => void;
+  onPipelineOrchestrationChange: (val: PipelineOrchestrationPreference) => void;
 }
+
+const ORCHESTRATION_OPTIONS = [
+  {
+    value: "all",
+    inputDisplay: "All (random blend)",
+    dropdownDisplay: "All — random blend of manual, MWAA, and EventBridge",
+  },
+  {
+    value: "mwaa",
+    inputDisplay: "MWAA (Airflow)",
+    dropdownDisplay: "MWAA — S3 event → Airflow DAG → pipeline stages",
+  },
+  {
+    value: "eventbridge",
+    inputDisplay: "EventBridge + Step Functions",
+    dropdownDisplay: "EventBridge — S3 event → EventBridge rule → Step Functions → pipeline stages",
+  },
+  {
+    value: "manual",
+    inputDisplay: "Manual trigger",
+    dropdownDisplay: "Manual — user triggers EMR Spark step directly via console/CLI",
+  },
+];
 
 export function ConfigPage({
   eventType,
@@ -26,12 +61,15 @@ export function ConfigPage({
   batchSize,
   batchDelayMs,
   injectAnomalies,
+  showPipelineOrchestration,
+  pipelineOrchestration,
   onLogsPerServiceChange,
   onTracesPerServiceChange,
   onErrorRateChange,
   onBatchSizeChange,
   onBatchDelayMsChange,
   onInjectAnomaliesChange,
+  onPipelineOrchestrationChange,
 }: ConfigPageProps) {
   return (
     <>
@@ -80,6 +118,21 @@ export function ConfigPage({
           showLabels
         />
       </EuiFormRow>
+
+      {showPipelineOrchestration && (
+        <EuiFormRow
+          label="Data pipeline orchestration"
+          helpText="Controls how the data pipeline chain is triggered"
+        >
+          <EuiSuperSelect
+            options={ORCHESTRATION_OPTIONS}
+            valueOfSelected={pipelineOrchestration}
+            onChange={(val) =>
+              onPipelineOrchestrationChange(val as PipelineOrchestrationPreference)
+            }
+          />
+        </EuiFormRow>
+      )}
 
       <EuiFormRow label="Batch size" helpText={`${batchSize} docs/batch`}>
         <EuiRange

@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cloudfront_logs* | STATS c = COUNT() BY r = `aws.cloudfront.edge_result_type` | SORT c DESC | LIMIT 8"
+            "query": "FROM logs-aws.cloudfront_logs* | STATS c = COUNT() BY r = `aws.cloudfront.edge_result_type` | SORT ``c DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cloudfront_logs* | STATS c = COUNT() BY s = `http.response.status_code` | SORT c DESC | LIMIT 10"
+            "query": "FROM logs-aws.cloudfront_logs* | STATS c = COUNT() BY s = `http.response.status_code` | SORT ``c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cloudfront_logs* | STATS c = COUNT() BY d = `aws.dimensions.DistributionId` | SORT c DESC | LIMIT 8"
+            "query": "FROM logs-aws.cloudfront_logs* | STATS c = COUNT() BY d = `aws.dimensions.DistributionId` | SORT ``c DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cloudfront_logs* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.cloudfront_logs* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cloudfront_logs* | STATS bytes = SUM(`http.response.bytes`), ttfb = AVG(`aws.cloudfront.time_to_first_byte`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.cloudfront_logs* | STATS bytes = SUM(`http.response.bytes`), ttfb = AVG(`aws.cloudfront.time_to_first_byte`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cloudfront_logs* | STATS err = SUM(CASE(`http.response.status_code` >= 400, 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.cloudfront_logs* | STATS err = SUM(CASE(`http.response.status_code` >= 400, 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -388,7 +388,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cloudfront_logs* | STATS c = COUNT() BY e = `aws.cloudfront.edge_location` | SORT c DESC | LIMIT 10"
+                "query": "FROM logs-aws.cloudfront_logs* | STATS c = COUNT() BY e = `aws.cloudfront.edge_location` | SORT ``c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -421,7 +421,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cloudfront_logs* | KEEP `@timestamp`, `aws.dimensions.DistributionId`, `aws.cloudfront.edge_location`, `http.response.status_code`, `aws.cloudfront.edge_result_type`, `http.response.bytes`, `url.path` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.cloudfront_logs* | KEEP `@timestamp``@timestamp`, `aws.dimensions.DistributionId`, `aws.cloudfront.edge_location`, `http.response.status_code`, `aws.cloudfront.edge_result_type`, `http.response.bytes`, `url.path` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

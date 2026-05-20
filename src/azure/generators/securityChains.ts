@@ -26,6 +26,7 @@ import {
   randUUID,
   azureCloud,
   makeAzureSetup,
+  randAzurePersonEmail,
 } from "./helpers.js";
 
 const DEFENDER_ALERT_TYPES = [
@@ -149,7 +150,7 @@ export function generateAzureSecurityFindingChain(ts: string, _er: number): EcsD
           aud: "https://management.azure.com/",
           "http://schemas.microsoft.com/identity/claims/objectidentifier": randUUID(),
           ipaddr: srcIp,
-          name: "sentinel-incident-writer@contoso.com",
+          name: "sentinel-incident-writer@meridiantech.io",
         },
       },
     },
@@ -907,7 +908,11 @@ function azureKspmResourceAndEvidence(
       ? {
           spec: {
             containers: [
-              { name: "app", image: "unscanned.example.com/app:latest", imagePullPolicy: "Always" },
+              {
+                name: "app",
+                image: "unscanned.registry.meridiantech.io/app:latest",
+                imagePullPolicy: "Always",
+              },
             ],
           },
         }
@@ -981,7 +986,7 @@ export function generateAzureIamPrivEscChain(ts: string, _er: number): EcsDocume
   const baseDate = new Date(ts);
   const attackSessionId = randUUID();
   const principalId = randUUID();
-  const userPrincipalName = `attacker${randInt(100, 999)}@contoso.com`;
+  const userPrincipalName = randAzurePersonEmail();
   const privEscUserAgent = randPipelineUserAgent();
   const ipAddress = randIp();
   const roleAssignmentId = randUUID();

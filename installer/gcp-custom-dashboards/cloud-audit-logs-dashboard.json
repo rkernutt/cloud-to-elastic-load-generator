@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.audit* | STATS c = COUNT() BY a = `gcp.cloud_audit.authorization_decision` | SORT c DESC"
+            "query": "FROM logs-gcp.audit* | STATS c = COUNT() BY a = `gcp.cloud_audit.authorization_decision` | SORT ``c DESC"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.audit* | STATS c = COUNT() BY t = `gcp.cloud_audit.caller_type` | SORT c DESC"
+            "query": "FROM logs-gcp.audit* | STATS c = COUNT() BY t = `gcp.cloud_audit.caller_type` | SORT ``c DESC"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.audit* | STATS c = COUNT() BY m = `gcp.cloud_audit.method_name` | SORT c DESC | LIMIT 8"
+            "query": "FROM logs-gcp.audit* | STATS c = COUNT() BY m = `gcp.cloud_audit.method_name` | SORT ``c DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.audit* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.audit* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.audit* | STATS den = SUM(CASE(`gcp.cloud_audit.authorization_decision` == \"DENIED\", 1, 0)), ok = SUM(CASE(`gcp.cloud_audit.authorization_decision` == \"ALLOWED\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.audit* | STATS den = SUM(CASE(`gcp.cloud_audit.authorization_decision` == \"DENIED\", 1, 0)), ok = SUM(CASE(`gcp.cloud_audit.authorization_decision` == \"ALLOWED\", 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.audit* | STATS bad = SUM(CASE(event.outcome == \"failure\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.audit* | STATS bad = SUM(CASE(event.outcome == \"failure\", 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -388,7 +388,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.audit* | STATS c = COUNT() BY u = `user.name` | SORT c DESC | LIMIT 10"
+                "query": "FROM logs-gcp.audit* | STATS c = COUNT() BY u = `user.name` | SORT ``c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -421,7 +421,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.audit* | KEEP `@timestamp`, `gcp.cloud_audit.service_name`, `gcp.cloud_audit.method_name`, `gcp.cloud_audit.resource_name`, `gcp.cloud_audit.authorization_decision`, `user.name`, `gcp.cloud_audit.caller_ip`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.audit* | KEEP `@timestamp``@timestamp`, `gcp.cloud_audit.service_name`, `gcp.cloud_audit.method_name`, `gcp.cloud_audit.resource_name`, `gcp.cloud_audit.authorization_decision`, `user.name`, `gcp.cloud_audit.caller_ip`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

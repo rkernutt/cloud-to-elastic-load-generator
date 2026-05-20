@@ -29,8 +29,8 @@ export function generateContainerInstancesTrace(ts: string, er: number): EcsDocu
   const cloud = azureCloud(region, subscription, "Microsoft.ContainerInstance/containerGroups");
   const group = rand(["cg-batch-worker", "cg-sidecar-job", "cg-api-smoke"]);
   const image = rand([
-    "contoso/worker:2026.04.1",
-    "fabrikam/tools:latest",
+    "meridiantech/worker:2026.04.1",
+    "cascadeops/tools:latest",
     "mcr.microsoft.com/dotnet/runtime:8.0",
   ]);
   const failIdx = isErr ? randInt(0, 3) : -1;

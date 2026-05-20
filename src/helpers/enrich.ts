@@ -151,6 +151,36 @@ function buildInputType(source: string): string | undefined {
   return (INGESTION_META as LooseDoc)[source]?.inputType;
 }
 
+/** Populate ECS related.* from source/destination/client/server/host/user fields. */
+export function populateRelatedFields(doc: LooseDoc): void {
+  const relatedIps: string[] = [];
+  if (typeof doc.source?.ip === "string") relatedIps.push(doc.source.ip);
+  if (typeof doc.destination?.ip === "string") relatedIps.push(doc.destination.ip);
+  if (typeof doc.client?.ip === "string") relatedIps.push(doc.client.ip);
+  if (typeof doc.server?.ip === "string") relatedIps.push(doc.server.ip);
+  if (Array.isArray(doc.host?.ip)) {
+    for (const ip of doc.host.ip) {
+      if (typeof ip === "string") relatedIps.push(ip);
+    }
+  }
+  if (relatedIps.length > 0) {
+    doc.related = {
+      ...(typeof doc.related === "object" && doc.related !== null ? doc.related : {}),
+      ip: [...new Set(relatedIps)],
+    };
+  }
+
+  const relatedUsers: string[] = [];
+  if (typeof doc.user?.name === "string") relatedUsers.push(doc.user.name);
+  if (typeof doc.user?.email === "string") relatedUsers.push(doc.user.email);
+  if (relatedUsers.length > 0) {
+    doc.related = {
+      ...(typeof doc.related === "object" && doc.related !== null ? doc.related : {}),
+      user: [...new Set(relatedUsers)],
+    };
+  }
+}
+
 // ─── Main enrichment function ────────────────────────────────────────────────
 
 /**
@@ -186,7 +216,11 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
   const input = doc.input ?? (inputType ? { type: inputType } : undefined);
 
   // ── event enrichment ───────────────────────────────────────────────────────
-  const event = {
+  // Only sets integration routing fields (module, dataset). ECS normalization
+  // (event.kind, event.category, event.type, event.action) is handled by the
+  // ingest pipeline's ecsNorm() + awsIdentityExtract() processors — keeping
+  // it there mirrors how real integrations work.
+  const event: LooseDoc = {
     ...doc.event,
     module: doc.event?.module || "aws",
     dataset: doc.event?.dataset || dataset,
@@ -298,5 +332,6 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
     applyOtelTraceIngestionPatch(enriched, "aws", source, AGENT_VERSION);
   }
 
+  populateRelatedFields(enriched);
   return enriched;
 }

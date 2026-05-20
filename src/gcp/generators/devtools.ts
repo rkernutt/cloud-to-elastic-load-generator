@@ -14,6 +14,7 @@ import {
   randLatencyMs,
   randSeverity,
   HTTP_METHODS,
+  randEmail,
 } from "./helpers.js";
 
 const GRPC_RPC_STATUSES = [
@@ -198,6 +199,10 @@ export function generateCloudBuildLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["error"] : ["info"],
+      action: String("devtools-operation"),
       outcome: isErr ? "failure" : "success",
       duration: buildDurationSeconds * 1000,
     },
@@ -248,6 +253,10 @@ export function generateCloudDeployLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("devtools-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(5000, isErr ? 900_000 : 600_000),
     },
@@ -265,7 +274,7 @@ export function generateSourceRepositoriesLog(ts: string, er: number): EcsDocume
     `refs/heads/feature/${randId(4)}`,
     `refs/tags/v${randInt(1, 9)}.${randInt(0, 20)}.${randInt(0, 9)}`,
   ]);
-  const authorEmail = rand([`dev@${project.id}.example.com`, `ci@${project.id}.example.com`]);
+  const authorEmail = rand([randEmail("svc-cicd-runner"), randEmail("platform-admin")]);
   const commitCount = randInt(1, isErr ? 1 : 25);
   const filesChanged = isErr ? 0 : randInt(1, 200);
 
@@ -364,6 +373,10 @@ export function generateSourceRepositoriesLog(ts: string, er: number): EcsDocume
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("devtools-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(100, 8000),
     },
@@ -421,6 +434,10 @@ export function generateFirebaseLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("devtools-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(500, isErr ? 120_000 : 45_000),
     },
@@ -469,6 +486,10 @@ export function generateCloudEndpointsLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["error"] : ["info"],
+      action: String("devtools-operation"),
       outcome: isErr ? "failure" : "success",
       duration: latencyMs,
     },
@@ -537,6 +558,10 @@ export function generateApigeeLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["error"] : ["info"],
+      action: String("devtools-operation"),
       outcome: isErr ? "failure" : "success",
       duration: latencyMs,
     },
@@ -585,6 +610,10 @@ export function generateCloudShellLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["info"],
+      action: String("devtools-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(500, isErr ? 60_000 : 15_000),
     },
@@ -630,6 +659,10 @@ export function generateGeminiCodeAssistLog(ts: string, er: number): EcsDocument
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["error"] : ["info"],
+      action: String("devtools-operation"),
       outcome: isErr ? "failure" : "success",
       duration: latencyMs,
     },
@@ -678,6 +711,10 @@ export function generateApiGatewayLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: (isErr ? "failure" : "success") === "failure" ? ["error"] : ["info"],
+      action: String("devtools-operation"),
       outcome: isErr ? "failure" : "success",
       duration: latencyMs,
     },

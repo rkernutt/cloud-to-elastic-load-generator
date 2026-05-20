@@ -17,12 +17,28 @@ import {
   HTTP_METHODS,
   HTTP_PATHS,
   USER_AGENTS,
+  EMAIL_DOMAINS,
 } from "./helpers.js";
 
 function eventBlock(isErr: boolean, durationNs: number) {
   return {
     outcome: isErr ? ("failure" as const) : ("success" as const),
     duration: durationNs,
+  };
+}
+
+function networkEvent(
+  isErr: boolean,
+  durationNs: number,
+  action: string,
+  denied = false
+) {
+  return {
+    kind: "event" as const,
+    category: ["network"] as const,
+    type: denied || isErr ? (["denied"] as const) : (["connection"] as const),
+    action,
+    ...eventBlock(isErr, durationNs),
   };
 }
 
@@ -108,7 +124,7 @@ export function generateVpcFlowLog(ts: string, er: number): EcsDocument {
   const srcIp = randIp();
   const destIp = randIp();
   const vpc = randVpcNetwork();
-  const subnet = randSubnet(region);
+  const subnet = randSubnet(region, project);
   const bytesSent = randInt(64, isErr ? 512 : 1_500_000);
   const packetsSent = Math.max(1, Math.floor(bytesSent / randInt(512, 1500)));
   const latencyNs = randLatencyMs(randInt(1, 5), isErr) * 1e6;
@@ -173,7 +189,7 @@ export function generateVpcFlowLog(ts: string, er: number): EcsDocument {
           : `allow-internal-${randId(4).toLowerCase()}`,
       },
     },
-    event: eventBlock(isErr || action === "DENY", latencyNs),
+    event: networkEvent(isErr || action === "DENY", latencyNs, "vpc-flow-log"),
     message,
   };
 }
@@ -247,7 +263,7 @@ export function generateCloudLbLog(ts: string, er: number): EcsDocument {
         protocol: "HTTP/2",
       },
     },
-    event: eventBlock(isErr, latencyMs * 1e6),
+    event: networkEvent(isErr, latencyMs * 1e6, "http-request"),
     message,
   };
 }
@@ -261,7 +277,7 @@ export function generateCloudCdnLog(ts: string, er: number): EcsDocument {
     "/api/config.json",
     "/fonts.woff2",
   ]);
-  const requestUrl = `https://cdn.${project.id}.example.com${urlPath}`;
+  const requestUrl = `https://cdn.${rand(EMAIL_DOMAINS)}${urlPath}`;
   const cacheHit = !isErr && Math.random() > 0.35;
   const responseCode = randHttpStatus(isErr);
   const servedBytes = randInt(1024, 8_000_000);
@@ -321,7 +337,7 @@ export function generateCloudCdnLog(ts: string, er: number): EcsDocument {
         ttl_seconds: ttlSeconds,
       },
     },
-    event: eventBlock(isErr, originLatencyMs * 1e6),
+    event: networkEvent(isErr, originLatencyMs * 1e6, "cdn-cache"),
     message,
   };
 }
@@ -332,7 +348,7 @@ export function generateCloudDnsLog(ts: string, er: number): EcsDocument {
   const queryType = rand(["A", "AAAA", "CNAME", "MX", "TXT"] as const);
   const responseCode = isErr ? rand(["NXDOMAIN", "SERVFAIL"] as const) : "NOERROR";
   const dnsProto = rand(["UDP", "TCP"] as const);
-  const zoneName = `${rand(["prod", "staging", "internal"])}.${randId(4).toLowerCase()}.example.com.`;
+  const zoneName = `${rand(["prod", "staging", "internal"])}.${randId(4).toLowerCase()}.${rand(EMAIL_DOMAINS)}.`;
   const queryName = `${rand(["api", "db", "cdn", "auth"])}.${zoneName}`;
   const durationNs = randLatencyMs(randInt(2, 25), isErr) * 1e6;
   const sourceIp = randIp();
@@ -345,7 +361,7 @@ export function generateCloudDnsLog(ts: string, er: number): EcsDocument {
     sourceIP: sourceIp,
     sourceNetwork: randVpcNetwork(),
     serverLatency: `${randInt(1, 40)}`,
-    rdata: isErr ? "" : rand(["10.0.0.5", "2001:db8::1", "cname.example.com."]),
+    rdata: isErr ? "" : rand([randIp(), "2001:db8::1", `lb-${randId(4).toLowerCase()}.${rand(EMAIL_DOMAINS)}.`]),
   };
   const message = `dns.googleapis.com/dns_queries ${queryName} ${queryType} ${responseCode} from ${sourceIp}`;
 
@@ -374,7 +390,7 @@ export function generateCloudDnsLog(ts: string, er: number): EcsDocument {
         protocol: dnsProto,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: networkEvent(isErr, durationNs, "dns-query"),
     message,
   };
 }
@@ -407,7 +423,7 @@ export function generateCloudArmorLog(ts: string, er: number): EcsDocument {
   const ruleId = wafMatch
     ? rand(["owasp-crs-v030001-id942100-sqli", "owasp-crs-v030001-id941100-xss"])
     : `custom-${randId(6)}`;
-  const requestUrl = `https://api.${project.id}.example.com${rand(HTTP_PATHS)}`;
+  const requestUrl = `https://api.${rand(EMAIL_DOMAINS)}${rand(HTTP_PATHS)}`;
   const status = randHttpStatus(isErr);
   const remoteIp = randIp();
   const userAgent = rand(USER_AGENTS);
@@ -482,7 +498,7 @@ export function generateCloudArmorLog(ts: string, er: number): EcsDocument {
         rate_limit_action: rateLimitAction,
       },
     },
-    event: eventBlock(isErr && !previewMode, latencyMs * 1e6),
+    event: networkEvent(isErr && !previewMode, latencyMs * 1e6, "waf-evaluate"),
     message,
   };
 }
@@ -540,7 +556,7 @@ export function generateCloudNatLog(ts: string, er: number): EcsDocument {
         ...(isErr ? { packets_dropped: packetsDropped } : {}),
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: networkEvent(isErr, durationNs, "nat-translation"),
     message,
   };
 }
@@ -595,7 +611,7 @@ export function generateCloudVpnLog(ts: string, er: number): EcsDocument {
         sent_bytes: sentBytes,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: networkEvent(isErr, durationNs, "vpn-tunnel"),
     message,
   };
 }
@@ -646,7 +662,7 @@ export function generateCloudInterconnectLog(ts: string, er: number): EcsDocumen
         circuits_count: circuitsCount,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: networkEvent(isErr, durationNs, "interconnect-link"),
     message,
   };
 }
@@ -702,7 +718,7 @@ export function generateCloudRouterLog(ts: string, er: number): EcsDocument {
         status: routerStatus,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: networkEvent(isErr, durationNs, "bgp-route"),
     message,
   };
 }
@@ -749,7 +765,7 @@ export function generateTrafficDirectorLog(ts: string, er: number): EcsDocument 
         error_rate: Math.round(errorRate * 10_000) / 10_000,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: networkEvent(isErr, durationNs, "traffic-director-route"),
     message,
   };
 }
@@ -794,7 +810,7 @@ export function generatePrivateServiceConnectLog(ts: string, er: number): EcsDoc
         forwarding_rule: forwardingRule,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: networkEvent(isErr, durationNs, "psc-endpoint"),
     message,
   };
 }
@@ -842,7 +858,7 @@ export function generateNetworkConnectivityCenterLog(ts: string, er: number): Ec
         linked_vpc: linkedVpc,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: networkEvent(isErr, durationNs, "ncc-hub"),
     message,
   };
 }
@@ -895,7 +911,7 @@ export function generateNetworkIntelligenceCenterLog(ts: string, er: number): Ec
         packet_trace_hops: packetTraceHops,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: networkEvent(isErr, durationNs, "nic-analysis"),
     message,
   };
 }
@@ -958,7 +974,7 @@ export function generateCloudIdsLog(ts: string, er: number): EcsDocument {
         action,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: networkEvent(isErr, durationNs, "ids-detection"),
     message,
   };
 }
@@ -1008,7 +1024,7 @@ export function generatePacketMirroringLog(ts: string, er: number): EcsDocument 
         filter_cidr: filterCidr,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: networkEvent(isErr, durationNs, "packet-mirror"),
     message,
   };
 }
@@ -1052,7 +1068,7 @@ export function generateNetworkServiceTiersLog(ts: string, er: number): EcsDocum
         routing_type: routingType,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: networkEvent(isErr, durationNs, "network-tier"),
     message,
   };
 }
@@ -1060,7 +1076,7 @@ export function generateNetworkServiceTiersLog(ts: string, er: number): EcsDocum
 export function generateCloudDomainsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
-  const domainName = `${rand(["app", "shop", "corp"])}-${randId(4).toLowerCase()}.example.com`;
+  const domainName = `${rand(["app", "shop", "corp"])}-${randId(4).toLowerCase()}.${rand(EMAIL_DOMAINS)}`;
   const action = rand(["REGISTER", "RENEW", "TRANSFER", "CONFIGURE_DNS", "DELETE"] as const);
   const registrarStatus = isErr
     ? rand(["PENDING", "FAILED"] as const)
@@ -1105,7 +1121,7 @@ export function generateCloudDomainsLog(ts: string, er: number): EcsDocument {
         dnssec_enabled: dnssecEnabled,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: networkEvent(isErr, durationNs, "domain-registration"),
     message,
   };
 }
@@ -1123,7 +1139,7 @@ export function generateMediaCdnLog(ts: string, er: number): EcsDocument {
   const ttfbMs = randLatencyMs(randInt(8, 200), isErr);
   const protocol = rand(["QUIC", "HTTP2", "HTTP3"] as const);
   const durationNs = ttfbMs * 1e6;
-  const requestUrl = `https://stream.${project.id}.example.com${rand(["/live/seg.ts", "/vod/manifest.m3u8", "/clip.mp4"])}`;
+  const requestUrl = `https://stream.${rand(EMAIL_DOMAINS)}${rand(["/live/seg.ts", "/vod/manifest.m3u8", "/clip.mp4"])}`;
   const remoteIp = randIp();
   const httpRequest = {
     requestMethod: "GET",
@@ -1173,7 +1189,7 @@ export function generateMediaCdnLog(ts: string, er: number): EcsDocument {
         protocol,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: networkEvent(isErr, durationNs, "media-cdn-request"),
     message,
   };
 }
@@ -1232,7 +1248,7 @@ export function generateServerlessNegLog(ts: string, er: number): EcsDocument {
         error_rate: Math.round(errorRate * 10_000) / 10_000,
       },
     },
-    event: eventBlock(isErr, durationNs),
+    event: networkEvent(isErr, durationNs, "serverless-neg"),
     message,
   };
 }

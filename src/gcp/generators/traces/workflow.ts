@@ -253,7 +253,11 @@ export function generateMlInferenceTrace(ts: string, er: number): EcsDocument[] 
       name: "BigQuery.insertRows ml_predictions",
       duration: { us: bqUs },
       action: "execute",
-      db: { type: "sql", statement: "INSERT INTO `analytics.ml_predictions` SELECT ..." },
+      db: {
+        type: "sql",
+        statement:
+          "INSERT INTO `analytics.ml_predictions` (model_id, score, predicted_at) SELECT model_id, score, predicted_at FROM staging_scores WHERE batch_id = $1",
+      },
       destination: { service: { resource: "bigquery", type: "db", name: "bigquery" } },
       labels: failIdx === 1 ? { ...gcpSpanFailureLabels() } : {},
     },

@@ -1,4 +1,15 @@
-import { rand, randInt, randFloat, randId, randUUID, randAccount, REGIONS } from "../../helpers";
+import {
+  rand,
+  randInt,
+  randFloat,
+  randId,
+  randHexId,
+  randUUID,
+  randAccount,
+  REGIONS,
+  randIamUser,
+  randEmailDomain,
+} from "../../helpers";
 import type { EcsDocument } from "./types.js";
 
 function generateCloudFormationLog(ts: string, er: number): EcsDocument {
@@ -50,7 +61,7 @@ function generateCloudFormationLog(ts: string, er: number): EcsDocument {
     "VPC",
   ]);
   const physicalResourceId = rand([
-    `vpc-${randId(8)}`,
+    `vpc-${randHexId(8)}`,
     `arn:aws:ecs:${region}:${acct.id}:service/prod/api`,
     `arn:aws:rds:${region}:${acct.id}:db:prod-001`,
     `arn:aws:lambda:${region}:${acct.id}:function:api-handler`,
@@ -189,7 +200,7 @@ function generateSsmLog(ts: string, er: number): EcsDocument {
   ] as const);
   const maintenanceWindowId = `mw-${randId(8).toLowerCase()}`;
   const maintenanceWindowExecId = `${maintenanceWindowId}-${randId(8)}`;
-  const instance = `i-${randId(17).toLowerCase()}`;
+  const instance = `i-${randHexId(17)}`;
   const action =
     scenario === "run_command"
       ? rand(["RunCommand", "SendCommand"])
@@ -542,9 +553,9 @@ function generateTrustedAdvisorLog(ts: string, er: number): EcsDocument {
         category: cat,
         status,
         affected_resource: rand([
-          `i-${randId(17).toLowerCase()}`,
-          `sg-${randId(8).toLowerCase()}`,
-          `arn:aws:s3:::my-bucket`,
+          `i-${randHexId(17)}`,
+          `sg-${randHexId(8)}`,
+          `arn:aws:s3:::${acct.name}-${rand(["data", "logs", "backups", "assets"])}-${randId(4).toLowerCase()}`,
         ]),
         estimated_monthly_savings:
           cat === "cost_optimizing" && isFinding ? Number(randFloat(10, 5000)) : null,
@@ -715,7 +726,7 @@ function generateServiceCatalogLog(ts: string, er: number): EcsDocument {
     "S3 Static Site",
     "Data Pipeline",
   ]);
-  const user = rand(["developer-alice", "team-lead-bob", "sre-carol", "contractor-dan"]);
+  const user = randIamUser();
   const action = rand([
     "ProvisionProduct",
     "UpdateProvisionedProduct",
@@ -742,7 +753,7 @@ function generateServiceCatalogLog(ts: string, er: number): EcsDocument {
         record_id: `rec-${randId(13)}`,
         status,
         requester_arn: `arn:aws:iam::${acct.id}:user/${user}`,
-        launch_role: rand([null, "arn:aws:iam::123456789:role/ServiceCatalogLaunchRole"]),
+        launch_role: rand([null, `arn:aws:iam::${acct.id}:role/ServiceCatalogLaunchRole`]),
         error: isErr
           ? rand(["Launch role not authorized", "Resource limit exceeded", "Invalid parameters"])
           : null,
@@ -860,7 +871,7 @@ function generateComputeOptimizerLog(ts: string, er: number): EcsDocument {
     aws: {
       computeoptimizer: {
         resource_type: resourceType,
-        resource_arn: `arn:aws:ec2:${region}:${acct.id}:instance/i-${randId(17).toLowerCase()}`,
+        resource_arn: `arn:aws:ec2:${region}:${acct.id}:instance/i-${randHexId(17)}`,
         finding,
         current_configuration: {
           instance_type: currentType,
@@ -1593,7 +1604,7 @@ function generateDrsLog(ts: string, er: number): EcsDocument {
         source_hostname: sourceHostname,
         replication_status: replicationStatus,
         lag_duration_seconds: lagDuration,
-        recovery_instance_id: rand([null, null, `i-` + randId(17).toLowerCase()]),
+        recovery_instance_id: rand([null, null, `i-${randHexId(17)}`]),
         data_replication_state: rand(["Continuous", "InProgress", "Paused", "Disconnected"]),
         ebs_volume_count: randInt(1, 8),
         staging_area: rand(["us-east-1", "us-west-2", "eu-west-1"]),
@@ -1819,7 +1830,7 @@ function generateCloudWatchRumLog(ts: string, er: number): EcsDocument {
         app_monitor_name: appMonitor,
         app_monitor_id: randId(36).toLowerCase(),
         event_type: evType,
-        page_url: `https://${appMonitor}.example.com${rand(pages)}`,
+        page_url: `https://${appMonitor}.${randEmailDomain()}${rand(pages)}`,
         browser: rand(browsers),
         os: rand(["Windows 11", "macOS 14", "iOS 17", "Android 14"]),
         device_type: rand(["desktop", "mobile", "tablet"]),

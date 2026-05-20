@@ -130,7 +130,7 @@ function depSpan(
       dest: "bigquery",
       db: {
         type: "sql",
-        statement: "INSERT INTO `analytics.events` SELECT ...",
+        statement: "INSERT INTO `analytics.events` (user_id, action, ts) VALUES ($1, $2, NOW())",
       },
       labels: isErr ? { ...gcpSpanFailureLabels() } : {},
     },

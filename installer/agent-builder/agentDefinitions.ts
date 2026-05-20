@@ -1,0 +1,122 @@
+export interface AgentToolDef {
+  id: string;
+  type: "esql" | "index_search" | "workflow";
+  description: string;
+  configuration: Record<string, unknown>;
+  tags?: string[];
+}
+
+export interface AgentDef {
+  id: string;
+  name: string;
+  description: string;
+  instructions: string;
+  toolIds: string[];
+}
+
+// Cloud vendor is "aws" | "gcp" | "azure"
+export function getAgentTools(vendor: string): AgentToolDef[] {
+  const logPattern = `logs-${vendor}.*`;
+
+  return [
+    {
+      id: `cloudloadgen-${vendor}-error-summary`,
+      type: "esql",
+      description: `Summarises ${vendor.toUpperCase()} service errors by service, region, and error code for a given time window.`,
+      configuration: {
+        query: `FROM ${logPattern} | WHERE event.outcome == "failure" AND @timestamp >= NOW() - ?hours::integer * 1h | STATS error_count = COUNT(*) BY event.dataset, cloud.region, error.code | SORT error_count DESC | LIMIT 20`,
+        params: {
+          hours: { type: "integer", description: "Look-back window in hours (e.g. 1, 6, 24)" },
+        },
+      },
+      tags: ["cloudloadgen"],
+    },
+    {
+      id: `cloudloadgen-${vendor}-service-health`,
+      type: "esql",
+      description: `Shows ${vendor.toUpperCase()} service health — success/failure counts and error rate per service over the last N hours.`,
+      configuration: {
+        query: `FROM ${logPattern} | WHERE @timestamp >= NOW() - ?hours::integer * 1h | STATS total = COUNT(*), failures = SUM(CASE(event.outcome == "failure", 1, 0)) BY event.dataset | EVAL error_rate = ROUND(failures * 100.0 / total, 2) | SORT error_rate DESC | LIMIT 20`,
+        params: {
+          hours: { type: "integer", description: "Look-back window in hours" },
+        },
+      },
+      tags: ["cloudloadgen"],
+    },
+    {
+      id: `cloudloadgen-${vendor}-top-errors`,
+      type: "esql",
+      description: `Lists the most frequent error messages from ${vendor.toUpperCase()} services in the given time window.`,
+      configuration: {
+        query: `FROM ${logPattern} | WHERE event.outcome == "failure" AND @timestamp >= NOW() - ?hours::integer * 1h | STATS count = COUNT(*) BY error.code, error.message | SORT count DESC | LIMIT 15`,
+        params: {
+          hours: { type: "integer", description: "Look-back window in hours" },
+        },
+      },
+      tags: ["cloudloadgen"],
+    },
+    {
+      id: `cloudloadgen-${vendor}-ml-anomalies`,
+      type: "esql",
+      description: `Queries ML anomaly detection results for ${vendor.toUpperCase()} jobs — shows jobs with the highest anomaly scores.`,
+      configuration: {
+        query: `FROM .ml-anomalies-* | WHERE anomaly_score > 0 AND job_id LIKE "${vendor}-*" | STATS max_score = MAX(anomaly_score), latest = MAX(timestamp) BY job_id | SORT max_score DESC | LIMIT 20`,
+        params: {},
+      },
+      tags: ["cloudloadgen"],
+    },
+    {
+      id: `cloudloadgen-${vendor}-logs-search`,
+      type: "index_search",
+      description: `Search ${vendor.toUpperCase()} log data — find specific events, error messages, or patterns across all ${vendor.toUpperCase()} services.`,
+      configuration: {
+        pattern: logPattern,
+      },
+      tags: ["cloudloadgen"],
+    },
+    {
+      id: `cloudloadgen-${vendor}-trace-latency`,
+      type: "esql",
+      description: `Shows ${vendor.toUpperCase()} service trace latency percentiles and throughput. Identifies slow services.`,
+      configuration: {
+        query: `FROM traces-apm* | WHERE service.name LIKE "${vendor}-*" AND @timestamp >= NOW() - ?hours::integer * 1h | STATS p50 = PERCENTILE(transaction.duration.us, 50), p95 = PERCENTILE(transaction.duration.us, 95), p99 = PERCENTILE(transaction.duration.us, 99), throughput = COUNT(*) BY service.name | SORT p99 DESC | LIMIT 20`,
+        params: {
+          hours: { type: "integer", description: "Look-back window in hours" },
+        },
+      },
+      tags: ["cloudloadgen"],
+    },
+    {
+      id: `cloudloadgen-${vendor}-security-findings`,
+      type: "esql",
+      description: `Summarises ${vendor.toUpperCase()} security findings — compliance failures, GuardDuty/Defender alerts, and posture checks.`,
+      configuration: {
+        query: `FROM logs-${vendor}.*,logs-cloud_security_posture.* | WHERE (event.kind == "alert" OR event.category == "configuration") AND @timestamp >= NOW() - ?hours::integer * 1h | STATS count = COUNT(*) BY rule.name, event.outcome | SORT count DESC | LIMIT 20`,
+        params: {
+          hours: { type: "integer", description: "Look-back window in hours" },
+        },
+      },
+      tags: ["cloudloadgen"],
+    },
+  ];
+}
+
+export function getAgentDef(vendor: string): AgentDef {
+  const tools = getAgentTools(vendor);
+  const v = vendor.toUpperCase();
+  return {
+    id: `cloudloadgen-${vendor}-analyst`,
+    name: `Cloud Loadgen ${v} Analyst`,
+    description: `AI analyst for ${v} cloud infrastructure — queries logs, traces, ML anomalies, and security findings generated by Cloud Loadgen.`,
+    instructions: [
+      `You are an infrastructure analyst for ${v} cloud services.`,
+      `Use the available tools to answer questions about service health, errors, latency, anomalies, and security findings.`,
+      `Always specify a reasonable time window (default to 24 hours if the user doesn't specify).`,
+      `When reporting errors, include the service name, region, and error code.`,
+      `For latency analysis, report p50, p95, and p99 percentiles.`,
+      `Flag any ML anomaly scores above 75 as critical and above 50 as warning.`,
+      `Keep responses concise and use tables when presenting multiple data points.`,
+    ].join(" "),
+    toolIds: [...tools.map((t) => t.id), "platform.core.esql", "platform.core.search"],
+  };
+}

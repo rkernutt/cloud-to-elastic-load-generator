@@ -4,10 +4,13 @@ import {
   randInt,
   randFloat,
   randId,
-  randIp,
+  randSourceIp,
+  randPublicIp,
+  randPrivateIp,
   azureCloud,
   makeAzureSetup,
   randCorrelationId,
+  azureLogEvent,
 } from "./helpers.js";
 
 const AZURE_API_ERROR_CODES = [
@@ -24,7 +27,7 @@ export function generateVirtualNetworkLog(ts: string, er: number): EcsDocument {
   const { region, subscription, resourceGroup, isErr } = makeAzureSetup(er);
   const vnet = `vnet-${randId(4).toLowerCase()}`;
   const correlationId = randCorrelationId();
-  const callerIp = randIp();
+  const callerIp = randSourceIp();
   const resourceId = `/subscriptions/${subscription.id}/resourceGroups/${resourceGroup}/providers/Microsoft.Network/virtualNetworks/${vnet}`;
   const style = rand([
     "SubnetWrite",
@@ -117,7 +120,13 @@ export function generateVirtualNetworkLog(ts: string, er: number): EcsDocument {
         operation: style,
       },
     },
-    event: { outcome: failed ? "failure" : "success", duration: randInt(1e8, 3e9) },
+    event: azureLogEvent(
+      failed,
+      randInt(1e8, 3e9),
+      operationName,
+      ["network"],
+      failed ? ["error"] : ["change"]
+    ),
     message,
     ...(failureErr ? { error: failureErr } : {}),
   };
@@ -127,7 +136,7 @@ export function generateLoadBalancerLog(ts: string, er: number): EcsDocument {
   const { region, subscription, resourceGroup, isErr } = makeAzureSetup(er);
   const lb = `lb-${randId(5).toLowerCase()}`;
   const correlationId = randCorrelationId();
-  const callerIp = randIp();
+  const callerIp = randSourceIp();
   const resourceId = `/subscriptions/${subscription.id}/resourceGroups/${resourceGroup}/providers/Microsoft.Network/loadBalancers/${lb}`;
   const style = rand([
     "LoadBalancerAlertEvent",
@@ -180,7 +189,7 @@ export function generateLoadBalancerLog(ts: string, er: number): EcsDocument {
     properties.snatPortExhaustion = failed && Number(properties.usedSnatPorts) > 950;
     message = failed
       ? `Load balancer ${lb}: SNAT port pressure frontend=${feIp} used=${properties.usedSnatPorts}/${properties.allocatedSnatPorts}`
-      : `Load balancer ${lb}: outbound flow ${randIp()}:${randInt(40000, 60000)} → ${properties.backendIPAddress}:${properties.backendPort}`;
+      : `Load balancer ${lb}: outbound flow ${randPublicIp()}:${randInt(40000, 60000)} → ${properties.backendIPAddress}:${properties.backendPort}`;
   }
 
   return {
@@ -207,7 +216,13 @@ export function generateLoadBalancerLog(ts: string, er: number): EcsDocument {
         bytes_in: randInt(1_000_000, 500_000_000),
       },
     },
-    event: { outcome: failed ? "failure" : "success", duration: randInt(1e7, 2e8) },
+    event: azureLogEvent(
+      failed,
+      randInt(1e7, 2e8),
+      operationName,
+      ["network"],
+      failed ? ["error"] : operationName === "OutboundSnatConnection" ? ["connection"] : ["info"]
+    ),
     message,
     ...(failed
       ? {
@@ -225,7 +240,7 @@ export function generateApplicationGatewayLog(ts: string, er: number): EcsDocume
   const { region, subscription, resourceGroup, isErr } = makeAzureSetup(er);
   const agw = `agw-${randId(4).toLowerCase()}`;
   const correlationId = randCorrelationId();
-  const callerIp = randIp();
+  const callerIp = randSourceIp();
   const resourceId = `/subscriptions/${subscription.id}/resourceGroups/${resourceGroup}/providers/Microsoft.Network/applicationGateways/${agw}`;
   const style = rand([
     "ApplicationGatewayAccess",
@@ -250,7 +265,7 @@ export function generateApplicationGatewayLog(ts: string, er: number): EcsDocume
   if (style === "ApplicationGatewayAccess") {
     operationName = "ApplicationGatewayAccess";
     properties.httpMethod = rand(["GET", "POST", "PUT", "DELETE"]);
-    properties.requestUri = `https://${rand(["api", "www"])}.${rand(["contoso", "fabrikam"])}.com${rand(["/v1/orders", "/health", "/graphql"])}`;
+    properties.requestUri = `https://${rand(["api", "www"])}.${rand(["meridiantech", "cascadeops"])}.com${rand(["/v1/orders", "/health", "/graphql"])}`;
     properties.listener = "listener-https-443";
     properties.ruleName = `rule-${randId(3)}`;
     properties.backendPoolName = `pool-${rand(["api", "web"])}`;
@@ -311,7 +326,13 @@ export function generateApplicationGatewayLog(ts: string, er: number): EcsDocume
         rule: String(properties.ruleName ?? `rule-${randId(3)}`),
       },
     },
-    event: { outcome: failed ? "failure" : "success", duration: randInt(5e6, 5e8) },
+    event: azureLogEvent(
+      failed,
+      randInt(5e6, 5e8),
+      operationName,
+      ["network"],
+      failed ? ["error"] : style === "ApplicationGatewayAccess" ? ["access"] : ["info"]
+    ),
     message,
     ...(failed
       ? {
@@ -329,7 +350,7 @@ export function generateAzureFirewallLog(ts: string, er: number): EcsDocument {
   const { region, subscription, resourceGroup, isErr } = makeAzureSetup(er);
   const fw = `afw-${randId(4).toLowerCase()}`;
   const correlationId = randCorrelationId();
-  const callerIp = randIp();
+  const callerIp = randSourceIp();
   const resourceId = `/subscriptions/${subscription.id}/resourceGroups/${resourceGroup}/providers/Microsoft.Network/azureFirewalls/${fw}`;
   const style = rand([
     "AzureFirewallApplicationRule",
@@ -373,7 +394,7 @@ export function generateAzureFirewallLog(ts: string, er: number): EcsDocument {
     operationName = "AzureFirewallNetworkRule";
     properties.Protocol = rand(["TCP", "UDP", "Any"]);
     properties.SourceIp = `${randInt(10, 10)}.${randInt(0, 5)}.${randInt(0, 255)}.${randInt(2, 250)}`;
-    properties.DestinationIp = randIp();
+    properties.DestinationIp = randPrivateIp();
     properties.DestinationPort = randInt(22, 65535);
     properties.RuleName = `Net-${randId(4)}`;
     properties.Action = deny ? "Deny" : "Allow";
@@ -385,7 +406,7 @@ export function generateAzureFirewallLog(ts: string, er: number): EcsDocument {
     operationName = "AzureFirewallDnsProxy";
     category = "AzureFirewallDnsProxy";
     properties.QueryName = rand([
-      "_ldap._tcp.contoso.com",
+      "_ldap._tcp.meridiantech.io",
       "login.windows.net",
       "cdn.shop.example",
     ]);
@@ -429,7 +450,9 @@ export function generateAzureFirewallLog(ts: string, er: number): EcsDocument {
         name: fw,
         resource_group: resourceGroup,
         source_ip: String((properties as { SourceIp?: string }).SourceIp ?? callerIp),
-        dest_ip: String((properties as { DestinationIp?: string }).DestinationIp ?? randIp()),
+        dest_ip: String(
+          (properties as { DestinationIp?: string }).DestinationIp ?? randPrivateIp()
+        ),
         dest_port: Number(
           (properties as { DestinationPort?: number }).DestinationPort ?? randInt(80, 443)
         ),
@@ -437,7 +460,13 @@ export function generateAzureFirewallLog(ts: string, er: number): EcsDocument {
         rule_collection: String(properties.RuleCollectionName),
       },
     },
-    event: { outcome: deny ? "failure" : "success", duration: randInt(1e6, 8e7) },
+    event: azureLogEvent(
+      deny,
+      randInt(1e6, 8e7),
+      operationName,
+      ["network"],
+      deny ? ["error"] : ["connection"]
+    ),
     message,
     ...(deny
       ? {

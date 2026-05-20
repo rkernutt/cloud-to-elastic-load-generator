@@ -18,6 +18,7 @@ import {
   newTraceId,
   newSpanId,
   rand,
+  randHex,
   randInt,
   offsetTs,
   serviceBlock,
@@ -34,7 +35,7 @@ const SERVICE_CONFIGS = [
     runtimeName: "OpenJDK",
     runtimeVersion: "21.0.3",
     dbName: "orders_db",
-    clusterSuffix: "prod-postgres.cluster-abc123",
+    clusterSuffix: `prod-postgres.cluster-${randHex(6)}`,
     operations: [
       {
         txName: "CreateOrder",
@@ -106,7 +107,7 @@ const SERVICE_CONFIGS = [
     runtimeName: "CPython",
     runtimeVersion: "3.12.3",
     dbName: "analytics_db",
-    clusterSuffix: "analytics-postgres.cluster-def456",
+    clusterSuffix: `analytics-postgres.cluster-${randHex(6)}`,
     slow: true,
     operations: [
       {
@@ -152,7 +153,7 @@ const SERVICE_CONFIGS = [
     runtimeName: "node",
     runtimeVersion: "20.15.1",
     dbName: "users_db",
-    clusterSuffix: "users-postgres.cluster-ghi789",
+    clusterSuffix: `users-postgres.cluster-${randHex(6)}`,
     operations: [
       {
         txName: "GetUserProfile",
@@ -226,7 +227,7 @@ const SERVICE_CONFIGS = [
     runtimeName: "OpenJDK",
     runtimeVersion: "21.0.3",
     dbName: "billing_db",
-    clusterSuffix: "billing-postgres.cluster-jkl012",
+    clusterSuffix: `billing-postgres.cluster-${randHex(6)}`,
     operations: [
       {
         txName: "ListInvoices",
@@ -290,7 +291,7 @@ const SERVICE_CONFIGS = [
     runtimeName: "CPython",
     runtimeVersion: "3.11.9",
     dbName: "reporting_db",
-    clusterSuffix: "reporting-postgres.cluster-mno345",
+    clusterSuffix: `reporting-postgres.cluster-${randHex(6)}`,
     slow: true,
     operations: [
       {

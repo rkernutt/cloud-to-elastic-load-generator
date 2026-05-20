@@ -1,62 +1,69 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/8f6b5c4d-3e2a-1098-7654-3210fedcba98/resourceGroups/rg-network-hcz18q/providers/Microsoft.Network/trafficmanagerprofiles/tm-global-d7vy",
-  "operationName": "TrafficManagerEndpointDrainStatus",
-  "category": "TrafficManagerDrainSignals",
-  "resultType": "Success",
-  "resultSignature": "200",
-  "callerIpAddress": "137.130.174.159",
-  "correlationId": "60a2d6f6-8adc-4548-b487-a4c787b7ab06",
-  "level": "Informational",
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-data-u2llt7/providers/Microsoft.Network/trafficmanagerprofiles/tm-global-qjpj",
+  "operationName": "TrafficManagerEndpointProbeResult",
+  "category": "ProbeHealthStatusEvents",
+  "resultType": "Failure",
+  "resultSignature": "503",
+  "callerIpAddress": "146.130.253.58",
+  "correlationId": "58d3b4aa-3471-4b01-acf4-2636dfed3744",
+  "level": "Warning",
   "properties": {
-    "drainTarget": "ep-eastus-7EX",
-    "connectionsDrainedEstimate": 65898,
-    "minChildRequestsRemaining": 0,
-    "drainPolicy": "WeightedZero",
-    "completed": true,
-    "message": "Drain window closed with zero routed answers to retired endpoint",
-    "observedRpsTail": 9.656570901752293
+    "endpointName": "ep-eastus-XWH",
+    "probeTarget": "https://api.meridiantech.io/health",
+    "probeStatus": "Degraded",
+    "httpStatusCode": 0,
+    "failureReason": "TcpReset"
+  },
+  "error": {
+    "code": "PrivateEndpointNotFound",
+    "message": "Referenced private endpoint or NIC linkage was missing or orphaned.",
+    "type": "azure"
   },
   "cloud": {
     "provider": "azure",
-    "region": "brazilsouth",
-    "account": { "id": "8f6b5c4d-3e2a-1098-7654-3210fedcba98", "name": "Contoso-Platform" },
+    "region": "switzerlandnorth",
+    "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
     "service": { "name": "Microsoft.Network/trafficmanagerprofiles" }
   },
   "azure": {
     "traffic_manager": {
-      "profile_name": "tm-global-d7vy",
-      "resource_group": "rg-network-hcz18q",
-      "category": "TrafficManagerDrainSignals",
-      "correlation_id": "60a2d6f6-8adc-4548-b487-a4c787b7ab06",
+      "profile_name": "tm-global-qjpj",
+      "resource_group": "rg-data-u2llt7",
+      "category": "ProbeHealthStatusEvents",
+      "correlation_id": "58d3b4aa-3471-4b01-acf4-2636dfed3744",
       "properties": {
-        "drainTarget": "ep-eastus-7EX",
-        "connectionsDrainedEstimate": 65898,
-        "minChildRequestsRemaining": 0,
-        "drainPolicy": "WeightedZero",
-        "completed": true,
-        "message": "Drain window closed with zero routed answers to retired endpoint",
-        "observedRpsTail": 9.656570901752293
+        "endpointName": "ep-eastus-XWH",
+        "probeTarget": "https://api.meridiantech.io/health",
+        "probeStatus": "Degraded",
+        "httpStatusCode": 0,
+        "failureReason": "TcpReset"
       }
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 107330996,
+    "kind": "event",
+    "category": ["network"],
+    "type": ["denied"],
+    "action": "TrafficManagerEndpointProbeResult",
+    "outcome": "failure",
+    "duration": 70092399,
     "module": "azure",
     "dataset": "azure.traffic_manager"
   },
-  "message": "[drain] Traffic Manager tm-global-d7vy: ep-eastus-7EX Drain window closed with zero routed answers to retired endpoint",
+  "message": "Traffic Manager tm-global-qjpj: probe failed for ep-eastus-XWH (TcpReset)",
   "service": { "name": "traffic-manager", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.traffic_manager", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-brazilsouth",
-    "id": "0cdr0cj40eutxwqp4ubpixr02j8iwmbxuu6m"
+    "name": "elastic-agent-azure-switzerlandnorth",
+    "id": "4f7kyah5i37bdo9qhxnhj7wcgxz8bnkwa1n5"
   },
-  "input": { "type": "azure-eventhub" }
+  "input": { "type": "azure-eventhub" },
+  "source": { "ip": "146.130.253.58" },
+  "related": { "ip": ["146.130.253.58"] }
 }

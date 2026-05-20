@@ -8,6 +8,7 @@ import {
   REGIONS,
   ACCOUNTS,
   rand,
+  randId,
   randInt,
   dp,
   stat,
@@ -385,7 +386,7 @@ export function generateEventbridgeMetrics(ts: string, er: number) {
 
 export function generateAmazonmqMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  const brokerId = `b-${rand(["1a2b3c4d", "5e6f7a8b", "9c0d1e2f"])}-${randInt(1, 3)}`;
+  const brokerId = `b-${randId(8).toLowerCase()}-${randInt(1, 3)}`;
   return [
     metricDoc(
       ts,

@@ -1,5 +1,7 @@
 import type { EcsDocument } from "../helpers.js";
 import { rand, randInt, azureCloud, makeAzureSetup, randTraceId, randSpanId } from "../helpers.js";
+
+const AKS_CLUSTER_NAMES = ["aks-prod-eastus", "aks-staging-westus", "aks-dev-northeu"];
 import { offsetTs } from "../../../aws/generators/traces/helpers.js";
 import { azureServiceBase, enrichAzureTraceDoc } from "./trace-kit.js";
 
@@ -58,7 +60,7 @@ export function generateAksTrace(ts: string, er: number): EcsDocument[] {
       service: svc,
       cloud: azureCloud(region, subscription, "Microsoft.ContainerService/managedClusters"),
       event: { outcome: "success" },
-      azure: { trace: { cluster: `aks-${randInt(1, 9)}` } },
+      azure: { trace: { cluster: rand(AKS_CLUSTER_NAMES) } },
       ...dim({ mesh: "istio" }),
     },
     traceId,
@@ -142,7 +144,7 @@ export function generateAksTrace(ts: string, er: number): EcsDocument[] {
       service: svc,
       cloud: azureCloud(region, subscription, "Microsoft.ContainerService/managedClusters"),
       event: { outcome: txErr ? "failure" : "success" },
-      azure: { trace: { cluster: `aks-${randInt(1, 9)}` } },
+      azure: { trace: { cluster: rand(AKS_CLUSTER_NAMES) } },
       ...dim({ workload: "checkout" }),
     },
     traceId,

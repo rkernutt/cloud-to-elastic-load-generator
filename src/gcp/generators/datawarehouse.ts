@@ -13,19 +13,13 @@ import {
   randSeverity,
   randPrincipal,
   randOperationId,
+  gcpLogEvent,
 } from "./helpers.js";
 
 function isoPlusMs(baseIso: string, deltaMs: number): string {
   const t = Date.parse(baseIso);
   if (Number.isNaN(t)) return baseIso;
   return new Date(t + deltaMs).toISOString();
-}
-
-function eventOutcome(isErr: boolean, durationNs: number) {
-  return {
-    outcome: isErr ? ("failure" as const) : ("success" as const),
-    duration: durationNs,
-  };
 }
 
 export function generateBigQueryLog(ts: string, er: number): EcsDocument {
@@ -233,7 +227,15 @@ export function generateBigQueryLog(ts: string, er: number): EcsDocument {
         completion_ratio: jobStatistics.completionRatio,
       },
     },
-    event: eventOutcome(isErr, durationNs),
+    event: gcpLogEvent(
+      isErr,
+      durationNs,
+      variant === "audit"
+        ? String((jsonPayload as { methodName?: string }).methodName ?? "bigquery.audit")
+        : `bigquery.${jobType.toLowerCase()}`,
+      ["database"],
+      isErr ? ["error"] : variant === "audit" ? ["change"] : ["access"]
+    ),
     message,
   };
 
@@ -305,7 +307,13 @@ export function generateDataprocLog(ts: string, er: number): EcsDocument {
         job_type: jobType,
       },
     },
-    event: eventOutcome(isErr, durationNs),
+    event: gcpLogEvent(
+      isErr,
+      durationNs,
+      variant === "audit" ? "dataproc.audit" : `dataproc.${variant}`,
+      ["database"],
+      isErr ? ["error"] : variant === "cluster" ? ["start"] : ["change"]
+    ),
     message,
   };
 
@@ -347,7 +355,13 @@ export function generateDataFusionLog(ts: string, er: number): EcsDocument {
         records_out: recordsOut,
       },
     },
-    event: eventOutcome(isErr, durationNs),
+    event: gcpLogEvent(
+      isErr,
+      durationNs,
+      `datafusion.${pipelineName}`,
+      ["database"],
+      isErr ? ["error"] : status === "SUCCEEDED" ? ["end"] : ["change"]
+    ),
     message,
   };
 
@@ -403,10 +417,13 @@ export function generateComposerLog(ts: string, er: number): EcsDocument {
         duration_seconds: durationSeconds,
       },
     },
-    event: {
-      outcome: state === "failed" || isErr ? "failure" : "success",
-      duration: durationNs,
-    },
+    event: gcpLogEvent(
+      state === "failed" || isErr,
+      durationNs,
+      `${dagId}.${taskId}`,
+      ["database"],
+      state === "failed" || isErr ? ["error"] : state === "running" ? ["start"] : ["end"]
+    ),
     message,
   };
 
@@ -426,7 +443,7 @@ export function generateLookerLog(ts: string, er: number): EcsDocument {
   const queryId = `query_${randId(12)}`;
   const model = rand(["sales", "marketing", "operations", "finance"]);
   const explore = rand(["orders", "users", "campaigns", "inventory"]);
-  const userEmail = rand(["analyst@globex.example.com", "exec@globex.example.com"]);
+  const userEmail = rand(["analyst@globex.io", "exec@globex.io"]);
   const status = isErr ? "error" : rand(["complete", "killed"] as const);
   const queryRuntimeSeconds = isErr ? randFloat(0.5, 30) : randFloat(0.1, 45);
   const rowsReturned = isErr ? 0 : randInt(1, 500_000);
@@ -457,10 +474,13 @@ export function generateLookerLog(ts: string, er: number): EcsDocument {
         sql_query_truncated: sqlQueryTruncated,
       },
     },
-    event: {
-      outcome: status === "complete" && !isErr ? "success" : "failure",
-      duration: durationNs,
-    },
+    event: gcpLogEvent(
+      status !== "complete" || isErr,
+      durationNs,
+      `looker.${explore}`,
+      ["database"],
+      status === "complete" && !isErr ? ["access"] : ["error"]
+    ),
     message,
   };
 
@@ -502,7 +522,13 @@ export function generateDataplexLog(ts: string, er: number): EcsDocument {
         quality_score_pct: Math.round(qualityScorePct * 10) / 10,
       },
     },
-    event: eventOutcome(isErr, durationNs),
+    event: gcpLogEvent(
+      isErr,
+      durationNs,
+      `dataplex.${actionType}`,
+      ["database"],
+      isErr ? ["error"] : ["access"]
+    ),
     message,
   };
 
@@ -545,7 +571,13 @@ export function generateDataCatalogLog(ts: string, er: number): EcsDocument {
         search_results_count: searchResultsCount,
       },
     },
-    event: eventOutcome(isErr, durationNs),
+    event: gcpLogEvent(
+      isErr,
+      durationNs,
+      action,
+      ["database"],
+      isErr ? ["error"] : action === "CreateTag" || action === "CreateEntryGroup" ? ["creation"] : ["access"]
+    ),
     message,
   };
 
@@ -585,7 +617,13 @@ export function generateAnalyticsHubLog(ts: string, er: number): EcsDocument {
         shared_resource_type: sharedResourceType,
       },
     },
-    event: eventOutcome(isErr, durationNs),
+    event: gcpLogEvent(
+      isErr,
+      durationNs,
+      action,
+      ["database"],
+      isErr ? ["error"] : action === "SUBSCRIBE" ? ["change"] : ["access"]
+    ),
     message,
   };
 
@@ -634,7 +672,13 @@ export function generateDataprepLog(ts: string, er: number): EcsDocument {
         profile_columns_count: profileColumnsCount,
       },
     },
-    event: eventOutcome(isErr, durationNs),
+    event: gcpLogEvent(
+      isErr,
+      durationNs,
+      `dataprep.${flowName}`,
+      ["database"],
+      isErr ? ["error"] : ["change"]
+    ),
     message,
   };
 
@@ -679,7 +723,13 @@ export function generateDatastreamLog(ts: string, er: number): EcsDocument {
         lag_seconds: lagSeconds,
       },
     },
-    event: eventOutcome(isErr, durationNs),
+    event: gcpLogEvent(
+      isErr,
+      durationNs,
+      streamName.split("/").pop() ?? "datastream",
+      ["database"],
+      isErr ? ["error"] : ["connection"]
+    ),
     message,
   };
 

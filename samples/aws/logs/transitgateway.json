@@ -1,31 +1,31 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-4",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-south-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "transitgateway" }
   },
   "aws": {
     "dimensions": {
-      "TransitGateway": "tgw-j64foqiwprp4iclj3",
-      "TransitGatewayAttachment": "tgw-attach-fewoozc0ak2hkgzw6"
+      "TransitGateway": "tgw-mv9629j84653u7srq",
+      "TransitGatewayAttachment": "tgw-attach-78s91567bot6agphv"
     },
     "transitgateway": {
-      "tgw_id": "tgw-j64foqiwprp4iclj3",
-      "tgw_attachment_id": "tgw-attach-fewoozc0ak2hkgzw6",
-      "resource_type": "direct-connect-gateway",
-      "src_vpc_id": "vpc-qocrn6fa",
-      "dst_vpc_id": "vpc-xp549kom",
+      "tgw_id": "tgw-mv9629j84653u7srq",
+      "tgw_attachment_id": "tgw-attach-78s91567bot6agphv",
+      "resource_type": "vpc",
+      "src_vpc_id": "vpc-9bf6e72a",
+      "dst_vpc_id": "vpc-0a5f7c01",
       "action": "accept",
-      "bytes": 18333,
-      "packets": 32,
-      "protocol": "ICMP",
+      "bytes": 54186,
+      "packets": 40,
+      "protocol": "UDP",
       "metrics": {
-        "BytesIn": { "sum": 8323653343 },
-        "BytesOut": { "sum": 3322178178 },
-        "PacketsIn": { "sum": 1961472 },
-        "PacketsOut": { "sum": 1526840 },
+        "BytesIn": { "sum": 1148326714 },
+        "BytesOut": { "sum": 2826391489 },
+        "PacketsIn": { "sum": 5354635 },
+        "PacketsOut": { "sum": 2134 },
         "PacketDropCountBlackhole": { "sum": 0 },
         "PacketDropCountNoRoute": { "sum": 0 },
         "BytesDropCountBlackhole": { "sum": 0 },
@@ -34,31 +34,33 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-transitgateway-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-transitgateway-logs-738291046572"
+        "name": "aws-transitgateway-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-transitgateway-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/transitgateway/ap-southeast-4/2026/05/19/transitgateway_DT2T8QSEPM71G9AP57FH.log.gz"
+        "key": "AWSLogs/293847561023/transitgateway/eu-south-2/2026/05/20/transitgateway_5RR1FF41HZV82PDZTI2D.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/transitgateway/logs",
-      "log_stream": "ap-southeast-4/dlsnng20",
-      "ingestion_time": "2026-05-19T15:25:13.481Z"
+      "log_stream": "eu-south-2/mzdve6qw",
+      "ingestion_time": "2026-05-20T13:19:01.238Z"
     }
   },
-  "source": { "ip": "191.145.51.213", "port": 33090 },
-  "destination": { "ip": "210.86.120.20", "port": 80 },
-  "network": { "transport": "icmp", "bytes": 31293 },
+  "source": { "ip": "10.33.33.247", "port": 39267 },
+  "destination": { "ip": "10.112.15.62", "port": 80 },
+  "network": { "transport": "udp", "bytes": 62056 },
   "event": {
     "action": "accept",
     "outcome": "success",
     "category": ["network"],
+    "type": ["connection"],
     "dataset": "aws.transitgateway",
     "provider": "ec2.amazonaws.com",
-    "module": "aws"
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "TGW tgw-j64foqiwprp4iclj3 ACCEPT ICMP flow",
+  "message": "TGW tgw-mv9629j84653u7srq ACCEPT UDP flow",
   "log": { "level": "info" },
   "service": { "name": "transitgateway", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -66,8 +68,9 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-4",
-    "ephemeral_id": "gej11kg6uluwcm11frwlrz6f7lrbbfjya8q9"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "gbl9l1zxlvtjhokqgob7fdan4jkfdt8mbhri"
   },
-  "input": { "type": "aws-cloudwatch" }
+  "input": { "type": "aws-cloudwatch" },
+  "related": { "ip": ["10.33.33.247", "10.112.15.62"] }
 }

@@ -199,7 +199,10 @@ export function generateCloudRunTrace(ts: string, er: number): EcsDocument[] {
       name: "BigQuery.insertAll analytics.order_facts",
       duration: { us: bqUs },
       action: "execute",
-      db: { type: "sql", statement: "INSERT INTO `analytics.order_facts` SELECT ..." },
+      db: {
+        type: "sql",
+        statement: `INSERT INTO \`analytics.order_facts\` (order_id, status, ts) SELECT order_id, status, created_at FROM staging_orders WHERE ingested_at > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1 DAY)`,
+      },
       destination: { service: { resource: "bigquery", type: "db", name: "bigquery" } },
       labels: failIdx === 4 ? { ...gcpSpanFailureLabels() } : {},
     },

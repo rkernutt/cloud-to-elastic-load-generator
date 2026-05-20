@@ -3,49 +3,47 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west8",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" }
+    "region": "southamerica-east1",
+    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
+    "account": { "id": "529384716205", "name": "Globex Shared Services" },
+    "service": { "name": "retail-api" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west8",
-    "ephemeral_id": "eml05ug5inkjymqowddttw34o7jnryp0jrj2"
+    "name": "metricbeat-gcp-southamerica-east1",
+    "ephemeral_id": "pg4o8wbkqektv0sejh90ng5g52gxpe4bxptd"
   },
   "monitoringTimeSeries": {
     "metric": { "type": "retail.googleapis.com/search_count", "labels": {} },
     "resource": {
       "type": "retail.googleapis.com/Catalog",
       "labels": {
-        "resource_container": "globex-staging-d4e5f6",
+        "resource_container": "globex-shared-529384",
         "location": "global",
-        "catalog_id": "outlet-seasonal"
+        "catalog_id": "globex-primary"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      {
-        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "int64Value": "3976646" }
-      }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "806972" } }
     ]
   },
   "gcp": {
     "retail-api": {
       "labels": {
-        "resource_container": "globex-staging-d4e5f6",
+        "resource_container": "globex-shared-529384",
         "location": "global",
-        "catalog_id": "outlet-seasonal"
+        "catalog_id": "globex-primary"
       },
       "metrics": {
-        "retail.googleapis.com/search_count": { "avg": 3976646, "sum": 3976646, "count": 1 }
+        "retail.googleapis.com/search_count": { "avg": 806972, "sum": 806972, "count": 1 }
       }
     }
   },
   "metricset": { "name": "retail-api", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.retail_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.retail_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.retail_metrics", "module": "gcp" }
 }

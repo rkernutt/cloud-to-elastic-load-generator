@@ -10,6 +10,7 @@ import {
   randFloat,
   randId,
   randIp,
+  randHexId,
   randAccount,
   REGIONS,
   USER_AGENTS,
@@ -343,6 +344,7 @@ function generateS3Log(ts: string, er: number) {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["web", "file"],
+      type: ["access"],
       dataset: "aws.s3",
       provider: "s3.amazonaws.com",
       duration: totalTime * 1e6,
@@ -392,7 +394,7 @@ function generateEbsLog(ts: string, er: number): EcsDocument {
   const acct = randAccount();
   const isErr = Math.random() < er;
   const az = `${region}${rand(["a", "b", "c"])}`;
-  const volumeId = `vol-${randId(17).toLowerCase()}`;
+  const volumeId = `vol-${randHexId(17)}`;
   const volumeTypes = ["gp3", "gp2", "io1", "io2", "st1", "sc1"];
   const volType = rand(volumeTypes);
   const sizeGb = rand([8, 20, 50, 100, 200, 500, 1000, 2000]);
@@ -402,7 +404,7 @@ function generateEbsLog(ts: string, er: number): EcsDocument {
       : volType === "gp3"
         ? randInt(3000, 16000)
         : null;
-  const instanceId = `i-${randId(17).toLowerCase()}`;
+  const instanceId = `i-${randHexId(17)}`;
   const device = rand([
     "/dev/xvda",
     "/dev/xvdb",
@@ -492,7 +494,7 @@ function generateEbsLog(ts: string, er: number): EcsDocument {
       ? `EBS volume ${volumeId} entered error state from ${fromState}: ${rand(["I/O error", "hardware failure", "data integrity issue"])}`
       : `EBS volume ${volumeId} state change: ${fromState} -> ${toState}${toState === "in-use" ? " on " + instanceId + " (" + device + ")" : ""}`;
   } else if (eventType === "snapshot") {
-    const snapshotId = `snap-${randId(17).toLowerCase()}`;
+    const snapshotId = `snap-${randHexId(17)}`;
     const snapshotState = isErr ? "error" : rand(["pending", "completed", "completed"]);
     const progress =
       snapshotState === "completed"
@@ -548,7 +550,7 @@ function generateEbsLog(ts: string, er: number): EcsDocument {
       ? `EBS volume modification FAILED for ${volumeId}: ${rand(["Instance type does not support requested volume type", "Insufficient capacity for io2 in AZ", "IOPS exceeds maximum for volume size"])}`
       : `EBS volume ${volumeId} modification: ${oldType}/${oldSize}GB -> ${newType}/${newSize}GB [${modState}]`;
   } else if (eventType === "fast_snapshot_restore") {
-    const snapId = `snap-${randId(17).toLowerCase()}`;
+    const snapId = `snap-${randHexId(17)}`;
     const fsrState = isErr
       ? "create-failed"
       : rand(["enabling", "optimizing", "enabled", "disabled"]);
@@ -634,6 +636,7 @@ function generateEbsLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["host", "file"],
+      type: ["access"],
       dataset: "aws.ebs",
       provider: "ec2.amazonaws.com",
       duration: randInt(1, isErr ? 60000 : 5000) * 1e6,
@@ -671,8 +674,8 @@ function generateEfsLog(ts: string, er: number): EcsDocument {
     "lifecycle",
     "access_point",
   ]);
-  const mountSubnet = `subnet-${randId(8).toLowerCase()}`;
-  const mountEni = `eni-${randId(8).toLowerCase()}`;
+  const mountSubnet = `subnet-${randHexId(8)}`;
+  const mountEni = `eni-${randHexId(8)}`;
   const apId = `fsap-${randId(17).toLowerCase()}`;
   const prevMode = rand(["bursting", "provisioned", "elastic"]);
   const newMode = rand(["bursting", "provisioned", "elastic"].filter((m) => m !== prevMode));
@@ -766,6 +769,7 @@ function generateEfsLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["host", "file"],
+      type: ["access"],
       dataset: "aws.efs",
       provider: "elasticfilesystem.amazonaws.com",
       duration: randInt(1, isErr ? 5000 : 200) * 1e6,
@@ -846,6 +850,7 @@ function generateFsxLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["host", "file"],
+      type: ["access"],
       dataset: "aws.fsx",
       provider: "fsx.amazonaws.com",
       duration: randInt(100, isErr ? 30000 : 5000) * 1e6,
@@ -896,6 +901,7 @@ function generateDataSyncLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["file"],
+      type: ["access"],
       dataset: "aws.datasync",
       provider: "datasync.amazonaws.com",
       duration: durationSec * 1e9,
@@ -1024,6 +1030,7 @@ function generateBackupLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.backup",
       provider: "backup.amazonaws.com",
       duration: durationSec * 1e9,
@@ -1110,6 +1117,7 @@ function generateStorageGatewayLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["host", "file"],
+      type: ["access"],
       dataset: "aws.storagegateway",
       provider: "storagegateway.amazonaws.com",
       duration: randInt(100, isErr ? 10000 : 2000) * 1e6,
@@ -1169,8 +1177,8 @@ function generateS3StorageLensLog(ts: string, er: number) {
       },
     },
     event: {
+      kind: "event",
       outcome: isErr ? "failure" : "success",
-      category: ["metric"],
       dataset: "aws.s3_storage_lens",
       provider: "s3.amazonaws.com",
       duration: randInt(60, 300) * 1e9,

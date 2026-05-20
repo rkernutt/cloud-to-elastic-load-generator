@@ -142,6 +142,7 @@ function generateIotCoreLog(ts: string, er: number): EcsDocument {
       action: eventType,
       outcome: isErr ? "failure" : "success",
       category: ["network", "process"],
+      type: ["connection"],
       dataset: "aws.iot",
       provider: "iot.amazonaws.com",
       duration: randInt(1, isErr ? 5000 : 200) * 1e6,
@@ -287,6 +288,7 @@ function generateIotGreengrassLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["process", "host"],
+      type: ["info"],
       dataset: "aws.greengrass",
       provider: "greengrass.amazonaws.com",
       duration: randInt(5, isErr ? 600 : 120) * 1e9,
@@ -337,6 +339,7 @@ function generateIotAnalyticsLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.iotanalytics",
       provider: "iotanalytics.amazonaws.com",
       duration: randInt(500, isErr ? 120000 : 30000) * 1e6,
@@ -413,6 +416,7 @@ function generateIotDefenderLog(ts: string, er: number): EcsDocument {
       kind: "alert",
       outcome: isErr ? "failure" : "success",
       category: ["intrusion_detection", "vulnerability"],
+      type: ["info"],
       dataset: "aws.iotdefender",
       provider: "iot.amazonaws.com",
       duration: randInt(30, isErr ? 600 : 300) * 1e9,
@@ -492,6 +496,7 @@ function generateIotEventsLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.iotevents",
       provider: "iotevents.amazonaws.com",
       duration: randInt(1, isErr ? 5000 : 500) * 1e6,
@@ -570,6 +575,7 @@ function generateIotSiteWiseLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["process", "host"],
+      type: ["info"],
       dataset: "aws.iotsitewise",
       provider: "iotsitewise.amazonaws.com",
       duration: randInt(1, isErr ? 2000 : 200) * 1e6,
@@ -658,7 +664,8 @@ function generateIotTwinMakerLog(ts: string, er: number): EcsDocument {
     event: {
       action,
       outcome: isErr ? "failure" : "success",
-      category: ["iot", "process"],
+      category: ["process"],
+      type: ["info"],
       dataset: "aws.iottwinmaker",
       provider: "iottwinmaker.amazonaws.com",
     },
@@ -746,7 +753,8 @@ function generateIotFleetWiseLog(ts: string, er: number): EcsDocument {
     event: {
       action,
       outcome: isErr ? "failure" : "success",
-      category: ["iot", "process"],
+      category: ["process"],
+      type: ["info"],
       dataset: "aws.iotfleetwise",
       provider: "iotfleetwise.amazonaws.com",
     },
@@ -810,6 +818,7 @@ function generateGroundStationLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["network"],
+      type: ["connection"],
       dataset: "aws.groundstation",
       provider: "groundstation.amazonaws.com",
       duration: contactDurationSec * 1e9,

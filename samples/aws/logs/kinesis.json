@@ -1,33 +1,33 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "il-central-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "kinesis" }
   },
   "aws": {
-    "dimensions": { "StreamName": "audit-trail" },
+    "dimensions": { "StreamName": "transaction-feed" },
     "kinesis": {
-      "operation": "MergeShards",
-      "scenario": "shard_merge",
-      "shard_id": "shardId-00000000006",
-      "enhanced_fan_out_subscribers": 14,
+      "operation": "PutRecords",
+      "scenario": "data_plane_put_get",
+      "shard_id": "shardId-00000000009",
+      "enhanced_fan_out_subscribers": 23,
       "metrics": {
-        "GetRecords_Bytes": { "avg": 183318 },
-        "GetRecords_IteratorAgeMilliseconds": { "avg": 716 },
-        "GetRecords_Latency": { "avg": 20 },
-        "GetRecords_Records": { "avg": 327, "sum": 875 },
+        "GetRecords_Bytes": { "avg": 591302 },
+        "GetRecords_IteratorAgeMilliseconds": { "avg": 830 },
+        "GetRecords_Latency": { "avg": 23 },
+        "GetRecords_Records": { "avg": 162, "sum": 87 },
         "GetRecords_Success": { "sum": 1 },
-        "IncomingBytes": { "avg": 895028 },
-        "IncomingRecords": { "avg": 9112 },
-        "PutRecord_Bytes": { "avg": 85408 },
-        "PutRecord_Latency": { "avg": 6 },
-        "PutRecords_Latency": { "avg": 100 },
+        "IncomingBytes": { "avg": 9792439 },
+        "IncomingRecords": { "avg": 9050 },
+        "PutRecord_Bytes": { "avg": 465676 },
+        "PutRecord_Latency": { "avg": 47 },
+        "PutRecords_Latency": { "avg": 67 },
         "PutRecord_Success": { "avg": 1 },
-        "PutRecords_Bytes": { "avg": 6444208 },
+        "PutRecords_Bytes": { "avg": 3561900 },
         "PutRecords_FailedRecords": { "sum": 0 },
-        "PutRecords_SuccessfulRecords": { "sum": 222 },
+        "PutRecords_SuccessfulRecords": { "sum": 889 },
         "PutRecords_ThrottledRecords": { "sum": 0 },
         "ReadProvisionedThroughputExceeded": { "avg": 0 },
         "WriteProvisionedThroughputExceeded": { "avg": 0 }
@@ -35,28 +35,30 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-kinesis-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-kinesis-logs-293847561023"
+        "name": "aws-kinesis-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-kinesis-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/kinesis/us-west-2/2026/05/19/kinesis_W3BWFWTD162ELUS7RZXO.log.gz"
+        "key": "AWSLogs/814726593401/kinesis/il-central-1/2026/05/20/kinesis_QPNVEX9IH1PAF8JNRJTJ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/kinesis/logs",
-      "log_stream": "us-west-2/3pgka1k1",
-      "ingestion_time": "2026-05-19T15:25:13.570Z"
+      "log_stream": "il-central-1/8lesc8vi",
+      "ingestion_time": "2026-05-20T13:19:01.340Z"
     }
   },
   "event": {
     "outcome": "success",
     "category": ["network"],
+    "type": ["connection"],
     "dataset": "aws.kinesis",
     "provider": "kinesis.amazonaws.com",
-    "duration": 2770000000,
-    "module": "aws"
+    "duration": 1389000000,
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "MergeShards adjacent shards into target=shardId-00000000006 stream=audit-trail completed",
+  "message": "PutRecords succeeded: 19 records (2434837 bytes) to transaction-feed/shardId-00000000009",
   "log": { "level": "info" },
   "service": { "name": "kinesis", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -64,8 +66,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "jeuxoc8iv47o2diad0y4hm95vn7qgtpsc70i"
+    "name": "filebeat-aws-il-central-1",
+    "ephemeral_id": "6g6zyhxbyzx5ow3kutfn0m9q1mjbl1i0x1lj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

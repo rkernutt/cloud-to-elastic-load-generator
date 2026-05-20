@@ -10,6 +10,7 @@ import {
   otelBlocks,
   awsSpanErrorLabels,
 } from "./helpers.js";
+import { randHexId } from "../../../helpers";
 
 const APPS = [
   {
@@ -145,7 +146,9 @@ function pickFlow(isMfa: boolean): SpanSpec[] {
         name: "CognitoIdentity.GetCredentialsForIdentity",
         action: "GetCredentialsForIdentity",
         resource: "cognito-identity",
-        extraLabels: { "aws.cognito.identity_pool_id": "placeholder" },
+        extraLabels: {
+          "aws.cognito.identity_pool_id": `us-east-1:${randHexId(8)}-${randHexId(4)}-${randHexId(4)}-${randHexId(4)}-${randHexId(12)}`,
+        },
       },
     ],
     [
@@ -173,7 +176,7 @@ export function generateCognitoTrace(ts: string, er: number) {
   const isErr = Math.random() < er;
   const poolId = `${region}_${newTraceId().slice(0, 9)}`;
   const clientId = newTraceId().slice(0, 16);
-  const identityPoolId = `${region}:${newTraceId().slice(0, 12)}`;
+  const identityPoolId = `${region}:${randHexId(8)}-${randHexId(4)}-${randHexId(4)}-${randHexId(4)}-${randHexId(12)}`;
 
   const flow = pickFlow(Math.random() < 0.45);
   const spanCount = flow.length;
@@ -201,7 +204,7 @@ export function generateCognitoTrace(ts: string, er: number) {
     sumUs += us;
     const spanErr = failIdx === i;
     const extra = { ...step.extraLabels };
-    if (extra["aws.cognito.identity_pool_id"] === "placeholder") {
+    if ("aws.cognito.identity_pool_id" in extra) {
       extra["aws.cognito.identity_pool_id"] = identityPoolId;
     }
 

@@ -74,7 +74,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mediapackage* | STATS count = COUNT() BY outcome = COALESCE(event.outcome, \"unknown\") | SORT count DESC | LIMIT 10"
+            "query": "FROM logs-aws.mediapackage* | STATS count = COUNT() BY outcome = COALESCE(event.outcome, \"unknown\") | SORT ``count DESC | LIMIT 10"
           },
           "dimensions": [
             {
@@ -107,7 +107,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mediapackage* | STATS count = COUNT() BY acct = COALESCE(cloud.account.id, \"unknown\") | SORT count DESC | LIMIT 10"
+            "query": "FROM logs-aws.mediapackage* | STATS count = COUNT() BY acct = COALESCE(cloud.account.id, \"unknown\") | SORT ``count DESC | LIMIT 10"
           },
           "dimensions": [
             {
@@ -140,7 +140,7 @@
           "type": "bar_stacked",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mediapackage* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend), outcome = COALESCE(event.outcome, \"unknown\") | SORT bucket"
+            "query": "FROM logs-aws.mediapackage* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend), outcome = COALESCE(event.outcome, \"unknown\") | SORT ``bucket"
           },
           "xAxis": {
             "column": "bucket",
@@ -175,7 +175,7 @@
           "type": "bar_stacked",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mediapackage* | WHERE log.level == \"error\" OR event.outcome == \"failure\" | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend), kind = COALESCE(event.action, log.level, \"error\") | SORT bucket"
+            "query": "FROM logs-aws.mediapackage* | WHERE log.level == \"error\" OR event.outcome == \"failure\" | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend), kind = COALESCE(event.action, log.level, \"error\") | SORT ``bucket"
           },
           "xAxis": {
             "column": "bucket",
@@ -210,7 +210,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mediapackage* | STATS count = COUNT() BY action = COALESCE(event.action, \"unknown\") | SORT count DESC | LIMIT 15"
+            "query": "FROM logs-aws.mediapackage* | STATS count = COUNT() BY action = COALESCE(event.action, \"unknown\") | SORT ``count DESC | LIMIT 15"
           },
           "metrics": [
             {
@@ -243,7 +243,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mediapackage* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT count DESC | LIMIT 15"
+            "query": "FROM logs-aws.mediapackage* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT ``count DESC | LIMIT 15"
           },
           "metrics": [
             {

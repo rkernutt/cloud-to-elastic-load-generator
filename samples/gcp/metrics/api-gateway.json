@@ -3,53 +3,55 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "me-central2",
-    "project": { "id": "globex-security-j0k1l2", "name": "Globex Security" },
-    "account": { "id": "141421356237", "name": "Globex Security" }
+    "region": "europe-southwest1",
+    "project": { "id": "globex-dev-615094", "name": "Globex Development" },
+    "account": { "id": "615094738261", "name": "Globex Development" },
+    "service": { "name": "api-hub" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-me-central2",
-    "ephemeral_id": "7encxcuxiv37tseabj9l53kxitg0qqse66jv"
+    "name": "metricbeat-gcp-europe-southwest1",
+    "ephemeral_id": "epq7x3knr3bbhed3agpipwgjvxk5ty167lpj"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "apigateway.googleapis.com/request_count",
-      "labels": { "response_code_class": "2xx" }
+      "type": "apigee.googleapis.com/apihub/security/score",
+      "labels": { "security_profile_id": "pci-api-baseline-2026" }
     },
     "resource": {
-      "type": "apigateway.googleapis.com/Gateway",
+      "type": "apigee.googleapis.com/APIHubDeployment",
       "labels": {
-        "resource_container": "globex-security-j0k1l2",
-        "location": "me-central2",
-        "gateway_id": "mobile-edge-gw"
+        "resource_container": "globex-dev-615094",
+        "location": "europe-southwest1",
+        "gateway_type": "API_GATEWAY_HYBRID",
+        "gateway_id": "apidp-prod-globex",
+        "deployment_id": "deploy-dr-905"
       }
     },
-    "metricKind": "DELTA",
+    "metricKind": "GAUGE",
     "valueType": "INT64",
     "points": [
-      {
-        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "int64Value": "10959855" }
-      }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "91" } }
     ]
   },
   "gcp": {
-    "api-gateway": {
+    "api-hub": {
       "labels": {
-        "resource_container": "globex-security-j0k1l2",
-        "location": "me-central2",
-        "gateway_id": "mobile-edge-gw",
-        "response_code_class": "2xx"
+        "resource_container": "globex-dev-615094",
+        "location": "europe-southwest1",
+        "gateway_type": "API_GATEWAY_HYBRID",
+        "gateway_id": "apidp-prod-globex",
+        "deployment_id": "deploy-dr-905",
+        "security_profile_id": "pci-api-baseline-2026"
       },
       "metrics": {
-        "apigateway.googleapis.com/request_count": { "avg": 10959855, "sum": 10959855, "count": 1 }
+        "apigee.googleapis.com/apihub/security/score": { "avg": 91, "sum": 91, "count": 1 }
       }
     }
   },
-  "metricset": { "name": "api-gateway", "period": 60000 },
+  "metricset": { "name": "api-hub", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.apigateway_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.apigateway_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.apigateway_metrics", "module": "gcp" }
 }

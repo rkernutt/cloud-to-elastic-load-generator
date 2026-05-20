@@ -1,70 +1,84 @@
 # Data & Analytics Pipeline
 
-A chained event scenario modelling a realistic multi-service AWS data pipeline commonly used by Data & Analytics teams. The chain generates correlated **log documents and APM traces** (no dedicated metrics payloads) across S3, EMR (Spark), Glue, Athena, and MWAA (Apache Airflow), enabling end-to-end observability of a production data workflow inside Elastic.
+A chained event scenario modelling a realistic multi-service AWS data pipeline. Data lands in S3 in **Avro** format, is processed by **Spark on EMR** into **Parquet**, written to S3 with metadata going to a separate bucket, catalogued in **Glue Data Catalog**, and consumed via **Athena** and **Tableau**. The chain generates correlated **log documents, CloudTrail audit events, and APM traces** across all services.
 
 > **Investigation guide for the alerts in this chain:** [../runbooks/data-pipeline-alerts.md](../runbooks/data-pipeline-alerts.md) — five-minute triage, ES|QL queries, containment, and escalation per rule. Each rule also links the chain overview dashboard plus the per-service dashboard for its primary dataset (MWAA / Athena / EMR / S3) — see [../SETUP-WIZARD-AND-UNINSTALL.md → Linked dashboards on alerts](../SETUP-WIZARD-AND-UNINSTALL.md#linked-dashboards-on-alerts).
 
 ## Services Involved
 
-| Service           | Role                                                                       | AWS Dataset    |
-| ----------------- | -------------------------------------------------------------------------- | -------------- |
-| **Amazon S3**     | Source and output storage (Avro files, processed output, catalog metadata) | `aws.s3access` |
-| **Amazon EMR**    | Spark-based data processing (serverless, EC2, or EKS compute)              | `aws.emr`      |
-| **AWS Glue**      | Data cataloguing and metadata generation                                   | `aws.glue`     |
-| **Amazon Athena** | Interactive query against the Glue Catalog                                 | `aws.athena`   |
-| **Amazon MWAA**   | Apache Airflow orchestration of the full pipeline                          | `aws.mwaa`     |
+| Service                | Role                                                                    | AWS Dataset          |
+| ---------------------- | ----------------------------------------------------------------------- | -------------------- |
+| **Amazon S3**          | Source (Avro), output (Parquet), metadata (run manifests)               | `aws.s3access`       |
+| **Amazon EMR**         | Spark-based Avro → Parquet conversion (EC2, Serverless, or EKS compute) | `aws.emr`            |
+| **AWS Glue**           | Data cataloguing, schema discovery, partition management                | `aws.glue`           |
+| **Amazon Athena**      | Interactive query + BI connector for Tableau                            | `aws.athena`         |
+| **Amazon MWAA**        | Apache Airflow orchestration (one of three orchestration modes)         | `aws.mwaa`           |
+| **Amazon EventBridge** | S3 event-driven trigger → Step Functions (alternative orchestration)    | `aws.eventbridge`    |
+| **AWS Step Functions** | State machine orchestration (alternative to MWAA)                       | `aws.stepfunctions`  |
+| **Tableau**            | BI tool querying processed data via Athena JDBC connector               | (Athena access logs) |
+
+## Orchestration Modes
+
+Each pipeline run randomly selects one of three orchestration modes, reflecting how real teams trigger data pipelines:
+
+| Mode            | Trigger                                     | Flow                                                                                 |
+| --------------- | ------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **MWAA**        | S3 event notification → Airflow S3KeySensor | MWAA DAG → S3 Get → EMR Spark → S3 Put (data + metadata) → Glue → Athena → Tableau   |
+| **EventBridge** | S3 `ObjectCreated` → EventBridge rule → SFN | EventBridge → Step Functions → S3 Get → EMR Spark → S3 Put → Glue → Athena → Tableau |
+| **Manual**      | User triggers EMR step via console/CLI      | CloudTrail `AddJobFlowSteps` → S3 Get → EMR Spark → S3 Put → Glue → Athena → Tableau |
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    subgraph orchestration [MWAA - Apache Airflow]
-        DAG["DAG: data_pipeline_daily"]
+    subgraph trigger [Data Landing]
+        S3land["S3 PutObject\n(Avro file lands)"]
     end
 
-    subgraph ingest [Ingest]
-        S3src["S3\nsource bucket\n(Avro files)"]
+    subgraph orchestration [Orchestration — one of three]
+        MWAA["MWAA DAG\n(Airflow)"]
+        EB["EventBridge Rule\n→ Step Functions"]
+        Manual["Manual Trigger\n(Console/CLI)"]
     end
 
     subgraph process [Processing]
-        EMR["EMR Cluster\n(Spark)"]
-        SparkDriver["Spark Driver"]
-        SparkExec["Spark Executors"]
-        EMR --> SparkDriver --> SparkExec
+        S3src["S3 GetObject\n(read Avro)"]
+        EMR["EMR Spark\n(Avro → Parquet)"]
     end
 
     subgraph output [Output]
-        S3out["S3\noutput bucket\n(processed data)"]
+        S3data["S3 PutObject\n(Parquet — data bucket)"]
+        S3meta["S3 PutObject\n(manifest — metadata bucket)"]
     end
 
     subgraph catalog [Cataloguing]
-        Glue["Glue Crawler\n+ Data Catalog"]
-        S3meta["S3\nmetadata bucket"]
-        Glue --> S3meta
+        Glue["Glue Crawler\n→ Data Catalog"]
     end
 
-    subgraph query [Consumption]
-        Athena["Athena\nworkgroup"]
-        Tableau["Tableau\n(via JDBC/ODBC)"]
-        Athena --> Tableau
+    subgraph consume [Consumption]
+        Athena["Athena Query\n(validation)"]
+        Tableau["Tableau\n(BI via JDBC)"]
     end
 
-    DAG -->|"1. trigger"| S3src
-    S3src -->|"2. read Avro"| EMR
-    SparkExec -->|"3. write output"| S3out
-    DAG -->|"4. start crawler"| Glue
-    S3out -->|"5. catalog"| Glue
-    DAG -->|"6. run query"| Athena
-    Athena -->|"query via\nGlue Catalog"| Glue
+    S3land -->|"S3 event"| MWAA
+    S3land -->|"S3 event"| EB
+    S3land -.->|"no event"| Manual
 
-    DAG -.->|monitors| EMR
-    DAG -.->|monitors| Glue
-    DAG -.->|monitors| Athena
+    MWAA --> S3src
+    EB --> S3src
+    Manual --> S3src
+
+    S3src --> EMR
+    EMR --> S3data
+    EMR --> S3meta
+    S3data --> Glue
+    Glue --> Athena
+    Athena --> Tableau
 ```
 
 ### EMR Compute Variants
 
-EMR jobs in this pipeline can run on three different compute backends. The generator randomly selects one per pipeline run to produce realistic variety:
+EMR jobs run on three different compute backends (randomly selected per run):
 
 | Variant            | Description                            | Key Differences                                                                              |
 | ------------------ | -------------------------------------- | -------------------------------------------------------------------------------------------- |
@@ -74,215 +88,154 @@ EMR jobs in this pipeline can run on three different compute backends. The gener
 
 ## Generated Documents
 
-Each pipeline run produces two categories of output:
+Each pipeline run produces 12–25 documents depending on orchestration mode and success/failure.
 
-### Log Documents (6-8 per run)
+### Log Documents
 
-Every document shares a `pipeline_run_id` and correlated timestamps. The `__dataset` field routes each document to the correct Elasticsearch data stream.
+Every document shares a `pipeline_run_id`, `dag_id`, and `orchestration_mode` label for correlation.
 
-| Step | Document               | `__dataset`    | Key Fields                                                              |
-| ---- | ---------------------- | -------------- | ----------------------------------------------------------------------- |
-| 1    | MWAA DAG triggered     | `aws.mwaa`     | `dag_id`, `run_id`, `task_id`, `state: running`                         |
-| 2    | S3 GetObject (source)  | `aws.s3access` | `bucket`, `key` (Avro file), `operation: GetObject`, `bytes_sent`       |
-| 3    | EMR Step submitted     | `aws.emr`      | `cluster_id`, `step_id`, `spark.app.id`, `state: RUNNING`               |
-| 4    | Spark job log          | `aws.emr`      | `spark.stage.id`, `spark.task.count`, `records_read`, `records_written` |
-| 5    | S3 PutObject (output)  | `aws.s3access` | `bucket`, `key` (output path), `operation: PutObject`, `bytes_sent`     |
-| 6    | Glue Crawler run       | `aws.glue`     | `crawler_name`, `tables_created`, `tables_updated`, `state: SUCCEEDED`  |
-| 7    | Athena query execution | `aws.athena`   | `query_execution_id`, `workgroup`, `data_scanned_bytes`, `state`        |
-| 8    | MWAA DAG completed     | `aws.mwaa`     | `dag_id`, `run_id`, `state: success/failed`, `duration_ms`              |
+| Step | Document                    | `__dataset`                                          | Key Fields                                                                   |
+| ---- | --------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 1    | S3 PutObject (Avro landing) | `aws.s3access`                                       | Trigger event (MWAA/EventBridge modes only)                                  |
+| 1b   | Orchestrator start          | `aws.mwaa` / `aws.eventbridge` / `aws.stepfunctions` | Mode-specific trigger and routing                                            |
+| 2    | S3 GetObject (source)       | `aws.s3access`                                       | `bucket`, `key` (Avro file), `bytes_sent`                                    |
+| 3    | EMR Spark job               | `aws.emr`                                            | `cluster_id`, `spark_app_id`, `input_format: avro`, `output_format: parquet` |
+| 4    | S3 PutObject (Parquet)      | `aws.s3access`                                       | `bucket` (data bucket), `key` (Parquet output)                               |
+| 5    | S3 PutObject (metadata)     | `aws.s3access`                                       | `bucket` (metadata bucket), `key` (run manifest)                             |
+| 6    | Glue Crawler                | `aws.glue`                                           | `crawler_name`, `tables_updated`, `partitions_added`, schema drift info      |
+| 7    | Athena validation query     | `aws.athena`                                         | `query_execution_id`, `workgroup`, `data_scanned_bytes`, `rows_returned`     |
+| 8    | Tableau BI query            | `aws.athena`                                         | `workgroup: tableau-connector`, `client_request_token`, BI aggregation query |
+| 9    | Orchestrator completion     | `aws.mwaa` / `aws.stepfunctions`                     | Duration, quality check result                                               |
+
+### CloudTrail Audit Events
+
+Every API call produces a companion CloudTrail event with full `userIdentity`, `requestParameters`, and `responseElements` — matching what a real CloudTrail trail records.
 
 ### APM Trace (1 per run)
 
-A single distributed trace with the MWAA orchestrator as the root transaction and child spans for each service call. This trace powers the Elastic Service Map.
+The root transaction uses the orchestrator as `service.name` with child spans for each stage:
 
 ```mermaid
 flowchart TD
-    TX["Transaction\nservice.name: mwaa-data-pipeline\ntransaction.name: dag_run\nduration: ~45s"]
-    TX --> SpanS3Get["Span: s3.GetObject\nspan.destination.service.resource: s3-source-bucket\nduration: ~200ms"]
-    TX --> SpanEMR["Span: emr.RunJobFlow\nspan.destination.service.resource: emr-spark-cluster\nduration: ~30s"]
-    SpanEMR --> SpanSpark1["Child Span: spark.stage.0\nScan + filter\nduration: ~12s"]
-    SpanEMR --> SpanSpark2["Child Span: spark.stage.1\nAggregate + write\nduration: ~15s"]
-    TX --> SpanS3Put["Span: s3.PutObject\nspan.destination.service.resource: s3-output-bucket\nduration: ~500ms"]
-    TX --> SpanGlue["Span: glue.StartCrawler\nspan.destination.service.resource: glue-data-catalog\nduration: ~8s"]
-    TX --> SpanAthena["Span: athena.StartQueryExecution\nspan.destination.service.resource: athena-workgroup\nduration: ~3s"]
+    TX["Transaction\nservice.name: {orchestrator}-data-pipeline\ntransaction.name: dag_run / sfn:execution / emr_step"]
+    TX --> SpanEB["Span: eventbridge.PutEvents\n(EventBridge mode only)"]
+    TX --> SpanS3Get["Span: s3.GetObject (Avro source)"]
+    TX --> SpanEMR["Span: emr.Spark Avro→Parquet"]
+    SpanEMR --> SparkStages["Child Spans: spark.stage.0..N"]
+    TX --> SpanS3Put["Span: s3.PutObject (Parquet output)"]
+    TX --> SpanS3Meta["Span: s3.PutObject (run metadata)"]
+    TX --> SpanGlue["Span: glue.StartCrawler"]
+    TX --> SpanAthena["Span: athena.StartQueryExecution"]
 ```
 
-### User Identity & Audit Trail
+## Failure Scenarios
+
+The error rate slider controls how frequently failures are injected. Four failure modes are available:
+
+### 1. Null / Empty Source Files
+
+A source file contains zero bytes. The pipeline succeeds technically but produces empty downstream results — a **silent degradation**.
+
+**Detection signals:**
+
+- Spark: `records_read: 0` with `state: COMPLETED`
+- Athena: `data_scanned_bytes: 0`
+- MWAA: `quality_check: DEGRADED`
+
+### 2. Incorrect File Format
+
+A source file is not valid Avro. EMR Spark throws `AvroParseException` and the pipeline **halts at EMR** — no Glue, Athena, or Tableau stages are produced.
+
+**Detection signals:**
+
+- EMR: `error.type: org.apache.avro.AvroParseException`
+- APM: EMR span `outcome: failure`, downstream spans absent
+
+### 3. Special Characters in S3 Keys
+
+S3 paths contain URL-unsafe characters. EMR fails to resolve the path, throwing `FileNotFoundException`.
+
+**Detection signals:**
+
+- EMR: `error.type: java.io.FileNotFoundException` with encoded path
+- Pipeline halts at EMR (same as format error)
+
+### 4. Schema Drift in Glue Catalog
+
+The Glue Crawler detects that the Parquet schema has changed — columns added, removed, or type-changed compared to the existing Catalog table. The crawler **succeeds** (it updates the table), but downstream Athena queries may **fail** if they reference columns that were removed or changed type.
+
+**Detection signals:**
+
+- Glue: `schema_change_type: COLUMN_ADDED | COLUMN_REMOVED | TYPE_CHANGED`
+- Glue: `log.level: warn` with schema drift details in message
+- Glue: companion CloudTrail `UpdateTable` event
+- Athena (sometimes): `error.type: COLUMN_NOT_FOUND` — query references a column that was removed or renamed
+- Labels: `schema_drift_detected: true`
+
+```mermaid
+flowchart LR
+    S3ok["S3 GetObject\n(valid Avro)"]
+    EMRok["EMR Spark\nCOMPLETED\n(new columns in data)"]
+    GlueDrift["Glue Crawler\nSUCCEEDED\n⚠ SCHEMA DRIFT\ncolumn 'loyalty_tier' added"]
+    AthenaFail["Athena Query\nFAILED\nCOLUMN_NOT_FOUND: 'amount'\n(type changed int → double)"]
+    AthenaOK["Athena Query\nSUCCEEDED\n(query compatible with drift)"]
+
+    S3ok --> EMRok --> GlueDrift
+    GlueDrift -->|"~25% chance"| AthenaFail
+    GlueDrift -->|"~75% chance"| AthenaOK
+```
+
+### Error Rate Behaviour
+
+| Error Rate | Behaviour                                                        |
+| ---------- | ---------------------------------------------------------------- |
+| 0%         | All pipeline runs succeed end-to-end                             |
+| 1-10%      | Occasional failures; primarily null-file and schema drift        |
+| 11-30%     | Mix of all four failure modes; some pipeline halts               |
+| 31%+       | All four failure modes appear frequently; many pipeline failures |
+
+## User Identity & Audit Trail
 
 Every pipeline run includes **ECS user identity fields** on all operational log documents:
 
 | Field                 | Example                                      | Description                       |
 | --------------------- | -------------------------------------------- | --------------------------------- |
 | `user.name`           | `jordan.chen`                                | Pipeline operator                 |
-| `user.email`          | `jordan.chen@globex.example.com`             | Operator email                    |
+| `user.email`          | `jordan.chen@globex.io`                      | Operator email                    |
 | `source.ip`           | `10.0.12.34`                                 | Office/VPN source IP              |
 | `user_agent.original` | `aws-cli/2.15.0 Python/3.11.6 Darwin/23.4.0` | Tool used to trigger the pipeline |
 
-In addition, the generator produces **companion AWS CloudTrail audit events** for key API calls (e.g. `StartJobRun`, `StartCrawler`, `StartQueryExecution`). These CloudTrail documents include the full `aws.cloudtrail.user_identity` block with `type`, `arn`, `access_key_id`, and `session_context` — matching what a real CloudTrail trail would record for these API calls.
+Companion **CloudTrail audit events** include the full `aws.cloudtrail.user_identity` block with `type`, `arn`, `access_key_id`, and `session_context`.
 
-Users are drawn from a shared `DATA_ENGINEERING_USERS` pool (defined in `src/helpers/identity.ts`) that is also used by the **ServiceNow CMDB generator**, enabling **cross-index correlation**: an alert about a failed pipeline run can be enriched with the operator's ServiceNow profile (department, manager, phone, support group).
+Users are drawn from a shared `DATA_ENGINEERING_USERS` pool (in `src/helpers/identity.ts`) also used by the **ServiceNow CMDB generator**, enabling cross-index alert enrichment.
 
-### Document Correlation
+## Document Correlation
 
-This pipeline is tuned for **orchestrated batch analytics**: events for a run share a base timeline and `pipeline_run_id`, with realistic spacing between stages inside a single workflow (minutes-scale DAG duration). That differs from the **Security Finding**, **IAM Privilege Escalation**, and **Data Exfiltration** chains, which deliberately spread `@timestamp` across longer windows and use `labels.finding_chain_id`, `labels.attack_session_id`, or `labels.exfil_chain_id` for cross-service security correlation.
+All documents in a single pipeline run are linked by:
 
-All documents in a single pipeline run are linked by shared identifiers:
-
-```mermaid
-flowchart LR
-    subgraph sharedContext ["Shared Context"]
-        RunID["pipeline_run_id\ne.g. run-2025-04-16T08:00:00Z"]
-        Bucket["s3.bucket: analytics-raw"]
-        Key["s3.key: input/2025/04/16/events.avro"]
-        Account["cloud.account.id: 123456789012"]
-        Region["cloud.region: us-east-1"]
-    end
-
-    MWAA["MWAA logs"] --- RunID
-    S3logs["S3 access logs"] --- Bucket
-    S3logs --- Key
-    EMRlogs["EMR / Spark logs"] --- RunID
-    EMRlogs --- Key
-    Gluelog["Glue logs"] --- Bucket
-    Athenalog["Athena logs"] --- RunID
-    APMtrace["APM Trace"] --- RunID
-```
-
-The `pipeline_run_id` is the primary correlation key. S3 bucket and key names provide a secondary join path. The APM trace ID (`trace.id`) links all spans within the trace, while `transaction.id` connects back to the MWAA DAG run.
-
-## Failure Scenarios
-
-The error rate slider in the UI controls how frequently failure scenarios are injected. When a failure is triggered, the generator randomly selects one of the following failure modes. Each produces a realistic cascade of correlated error documents across the pipeline.
-
-### Null / Empty Source Files
-
-A source S3 object contains zero bytes or Avro files with only null records. The error propagates silently through the pipeline, producing no hard failures but resulting in empty or null downstream query results.
-
-```mermaid
-flowchart LR
-    S3null["S3 GetObject\n0 bytes / null records\nstatus: 200 OK"]
-    EMRwarn["EMR Spark\nWARN: 0 records read\npartial output written"]
-    S3partial["S3 PutObject\noutput: empty parquet"]
-    GlueOK["Glue Crawler\ntables_updated: 1\n0 new partitions"]
-    AthenaNull["Athena Query\nrows_returned: 0\ndata_scanned: 0 bytes"]
-    MWAAdegraded["MWAA Task\nstate: success\nrecords_processed: 0\nquality_check: DEGRADED"]
-
-    S3null -->|"no error thrown"| EMRwarn
-    EMRwarn -->|"writes empty output"| S3partial
-    S3partial --> GlueOK
-    GlueOK --> AthenaNull
-    AthenaNull --> MWAAdegraded
-```
-
-**Detection signals:**
-
-- Spark log: `records_read: 0` combined with `state: SUCCEEDED`
-- Athena log: `data_scanned_bytes: 0` for a query that normally scans gigabytes
-- MWAA log: `quality_check: DEGRADED` (custom application-level field)
-- APM trace: all spans succeed but Athena span returns `rows: 0`
-
-### Incorrect File Format
-
-A source file in S3 is CSV or JSON instead of expected Avro. EMR Spark throws a deserialization exception and the pipeline fails at the processing stage.
-
-```mermaid
-flowchart LR
-    S3bad["S3 GetObject\nkey: events.csv\ncontent_type: text/csv"]
-    EMRfail["EMR Spark\nERROR: AvroParseException\nnot an Avro data file"]
-    SparkFail["Spark Task\nstate: FAILED\nexit_code: 1"]
-    MWAAretry["MWAA Task\nstate: up_for_retry\nattempt: 1/3"]
-    MWAAfail["MWAA Task\nstate: failed\nattempt: 3/3"]
-
-    S3bad -->|"wrong format"| EMRfail
-    EMRfail --> SparkFail
-    SparkFail -->|"retry logic"| MWAAretry
-    MWAAretry -->|"max retries exceeded"| MWAAfail
-```
-
-**Detection signals:**
-
-- Spark log: `error.message` contains `AvroParseException` or `not an Avro data file`
-- EMR step: `state: FAILED`, `exit_code: 1`
-- MWAA log: `state: failed` after `max_retries` attempts
-- APM trace: EMR span has `outcome: failure` with error details; downstream spans (Glue, Athena) are absent
-- No Glue or Athena documents are produced (pipeline halted)
-
-### Special Characters in S3 Keys
-
-Source file paths contain URL-unsafe characters (`%`, `+`, spaces, unicode). EMR Spark fails to resolve the S3 path, throwing an IOException.
-
-```mermaid
-flowchart LR
-    S3special["S3 GetObject\nkey: input/report+2025 Q1.avro\nURL-encoded path"]
-    EMRpath["EMR Spark\nERROR: IOException\nNo such file or directory\ns3://bucket/input/report 2025 Q1.avro"]
-    SparkIO["Spark Task\njava.io.FileNotFoundException\nexit_code: 1"]
-    MWAAfail["MWAA Task\nstate: failed\nerror: S3 path resolution"]
-
-    S3special -->|"path encoding mismatch"| EMRpath
-    EMRpath --> SparkIO
-    SparkIO --> MWAAfail
-```
-
-**Detection signals:**
-
-- Spark log: `error.type: java.io.FileNotFoundException` with S3 path containing encoded characters
-- EMR step: `state: FAILED` with `IOException` in failure reason
-- MWAA log: `state: failed`, `error.message` references S3 path
-- APM trace: EMR span has `outcome: failure`; S3 GetObject span succeeds (S3 served the file, EMR couldn't parse the path)
-- No Glue or Athena documents are produced (pipeline halted)
-
-## Service Map Visualization
-
-The APM trace structure maps directly to the Elastic Service Map. Each `service.name` becomes a node, and each `span.destination.service.resource` becomes an edge.
-
-```mermaid
-flowchart TD
-    subgraph serviceMap ["Elastic Service Map"]
-        MWAA["mwaa-data-pipeline\n(root service)"]
-        S3svc["Amazon S3\n(2 connections)"]
-        EMRsvc["Amazon EMR\n(Spark)"]
-        Gluesvc["AWS Glue"]
-        Athenasvc["Amazon Athena"]
-
-        MWAA -->|"~200ms\n100% success"| S3svc
-        MWAA -->|"~30s\nerror rate varies"| EMRsvc
-        MWAA -->|"~500ms\n100% success"| S3svc
-        MWAA -->|"~8s\n100% success"| Gluesvc
-        MWAA -->|"~3s\nerror rate varies"| Athenasvc
-    end
-```
-
-### Key APM fields
-
-| Field                               | Value                                                                                                | Purpose                                   |
-| ----------------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| `service.name`                      | `mwaa-data-pipeline`                                                                                 | Root service node in Service Map          |
-| `transaction.name`                  | `dag_run`                                                                                            | Groups all pipeline executions            |
-| `span.destination.service.resource` | `s3-source-bucket`, `emr-spark-cluster`, `s3-output-bucket`, `glue-data-catalog`, `athena-workgroup` | Creates edges to downstream service nodes |
-| `span.type`                         | `storage`, `compute`, `catalog`, `query`                                                             | Categorises span types                    |
-| `span.outcome`                      | `success` / `failure`                                                                                | Drives error rate overlays on edges       |
-| `trace.id`                          | UUID shared across all spans                                                                         | Links the entire distributed trace        |
-
-### What you see in Kibana
-
-- **Healthy pipeline**: all nodes green, latency within normal bounds on every edge.
-- **Null file scenario**: all nodes green (no hard errors), but the Athena edge shows `0 rows returned` in metadata — requires ML or alerting to detect.
-- **Format / path error**: the EMR node turns red with elevated error rate, downstream Glue and Athena nodes show no traffic (pipeline halted before reaching them).
+| Correlation Key        | Scope                                 |
+| ---------------------- | ------------------------------------- |
+| `pipeline_run_id`      | Primary key — all docs in a run       |
+| `dag_id`               | Groups runs of the same pipeline      |
+| `orchestration_mode`   | Distinguishes manual/mwaa/eventbridge |
+| `trace.id`             | Links all APM spans                   |
+| `s3_source_bucket/key` | Secondary join path via S3            |
 
 ## Supporting Elastic Assets
 
-These assets are installed as part of the Cloud Loadgen Integration for this chained event and tagged with `cloudloadgen`.
+Installed as part of the setup wizard and tagged with `cloudloadgen`:
 
 ### Dashboard: Data Pipeline Health
 
-| Panel                      | Visualisation       | Data Source                                              |
-| -------------------------- | ------------------- | -------------------------------------------------------- |
-| Pipeline Success Rate      | KPI / gauge         | MWAA logs — `state: success` vs `state: failed`          |
-| Stage Latency              | Bar chart per stage | APM spans grouped by `span.destination.service.resource` |
-| Error Breakdown            | Donut chart         | EMR + Spark logs grouped by `error.type`                 |
-| Null Data Incidents        | Time series         | Athena logs where `data_scanned_bytes: 0`                |
-| Pipeline Duration Trend    | Line chart          | APM transaction `duration` over time                     |
-| Active Pipelines by Region | Table               | MWAA logs grouped by `cloud.region`                      |
+| Panel                   | Visualisation       | Data Source                                              |
+| ----------------------- | ------------------- | -------------------------------------------------------- |
+| Pipeline Success Rate   | KPI / gauge         | MWAA logs — `state: success` vs `state: failed`          |
+| Stage Latency           | Bar chart per stage | APM spans grouped by `span.destination.service.resource` |
+| Error Breakdown         | Donut chart         | EMR + Spark logs grouped by `error.type`                 |
+| Null Data Incidents     | Time series         | Athena logs where `data_scanned_bytes: 0`                |
+| Schema Drift Events     | Time series         | Glue logs where `schema_drift_detected: true`            |
+| Pipeline Duration Trend | Line chart          | APM transaction `duration` over time                     |
+| Orchestration Mode Mix  | Donut chart         | All pipeline logs grouped by `orchestration_mode`        |
 
 ### ML Anomaly Detection Jobs
 
@@ -308,41 +261,22 @@ These assets are installed as part of the Cloud Loadgen Integration for this cha
 
 1. Set event type to **Logs** in the wizard.
 2. On the **Advanced Data Types** step, select **Data & Analytics Pipeline**.
-3. Adjust the **Error rate** slider to control how frequently failure scenarios are injected (0% = all successful runs, higher values = more failures mixed in).
+3. Adjust the **Error rate** slider to control failure injection.
 
-### Error Rate Behaviour
+### ServiceNow CMDB Correlation
 
-| Error Rate | Behaviour                                                               |
-| ---------- | ----------------------------------------------------------------------- |
-| 0%         | All pipeline runs succeed end-to-end                                    |
-| 1-10%      | Occasional failures; primarily null-file scenarios (silent degradation) |
-| 11-30%     | Mix of null-file and format errors; some pipeline halts                 |
-| 31%+       | All three failure modes appear; frequent pipeline failures and retries  |
+When the **ServiceNow CMDB** generator is enabled, CMDB records include CIs matching the cloud infrastructure in this chain. This enables enrichment workflows that look up affected CI owners, support groups, and open incidents from pipeline failure alerts.
 
-### EMR Compute Variant
-
-The generator randomly selects between EC2, Serverless, and EKS compute for each pipeline run. This produces realistic variety in log formats without requiring manual configuration.
-
-## ServiceNow CMDB Correlation
-
-When the **ServiceNow CMDB** generator is enabled (see [README](../../README.md#servicenow-cmdb-integration)), CMDB records include configuration items that match the cloud infrastructure used in this chain (e.g. `mwaa-globex-prod`, `emr-analytics-cluster`, `analytics-raw-ingest`). This enables enrichment workflows that:
-
-1. Take a pipeline failure alert (e.g. "Null/Empty Data Detected")
-2. Look up the affected CI in `logs-servicenow.event-*` (tag: `cmdb_ci`)
-3. Find the CI owner, support group, and department
-4. Check for open incidents and recent change requests
-5. Contact the responsible engineer with full context
-
-A sample Elastic Workflow automating this pattern is provided in [`workflows/data-pipeline-alert-enrichment.yaml`](../../workflows/data-pipeline-alert-enrichment.yaml).
+A sample Elastic Workflow is provided in [`workflows/data-pipeline-alert-enrichment.yaml`](../../workflows/data-pipeline-alert-enrichment.yaml).
 
 ## ML Training Mode
 
-To get ML anomaly detection working effectively with this chain:
+To get ML anomaly detection working effectively:
 
-1. **Reset ML jobs** — clears stale model state from any previous training runs (prevents score renormalization)
-2. **Build a baseline** — ship 5-10 batches of normal data (error rate ≈ 0%) to establish the "normal" pattern
-3. **Wait for ML to learn** — allow 15-30 minutes for the ML jobs to model the baseline
-4. **Inject anomalies** — ship one batch with anomalies enabled (the app applies 100% error rate, 15x duration scaling on logs and traces, 20x metric scaling)
-5. **Stabilise & freeze** _(optional)_ — wait 2 minutes for ML to score the anomalies, then stop datafeeds to lock in the anomaly scores
+1. **Reset ML jobs** — clears stale model state
+2. **Build a baseline** — ship 5-10 batches at 0% error rate
+3. **Wait for ML to learn** — allow 15-30 minutes
+4. **Inject anomalies** — ship one batch with anomalies enabled
+5. **Stabilise & freeze** — wait for ML to score, then stop datafeeds
 
-The reset step is essential when re-running training — without it, the ML model retains learned patterns from previous runs and may normalize new anomaly spikes to zero. The **Ship** page's **ML Training Mode** automates all five steps. See the [README](../../README.md#ml-training-mode) for configuration details.
+The **Ship** page's **ML Training Mode** automates all five steps.

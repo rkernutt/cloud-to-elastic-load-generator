@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.lambda* | STATS count = COUNT() BY fn = `aws.lambda.function.name` | SORT count DESC | LIMIT 10"
+            "query": "FROM logs-aws.lambda* | STATS count = COUNT() BY fn = `aws.lambda.function.name` | SORT ``count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.lambda* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.lambda* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.lambda* | STATS errors = SUM(`aws.lambda.metrics.Errors.sum`), throttles = SUM(`aws.lambda.metrics.Throttles.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.lambda* | STATS errors = SUM(`aws.lambda.metrics.Errors.sum`), throttles = SUM(`aws.lambda.metrics.Throttles.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.lambda* | STATS avg_dur = AVG(`aws.lambda.metrics.Duration.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.lambda* | STATS avg_dur = AVG(`aws.lambda.metrics.Duration.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -388,7 +388,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.lambda* | STATS avg_d = AVG(`aws.lambda.metrics.Duration.avg`) BY fn = `aws.lambda.function.name` | SORT avg_d DESC | LIMIT 10"
+                "query": "FROM logs-aws.lambda* | STATS avg_d = AVG(`aws.lambda.metrics.Duration.avg`) BY fn = `aws.lambda.function.name` | SORT ``avg_d DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -436,7 +436,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.lambda* | STATS avg_conc = AVG(`aws.lambda.metrics.ConcurrentExecutions.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.lambda* | STATS avg_conc = AVG(`aws.lambda.metrics.ConcurrentExecutions.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -469,7 +469,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.lambda* | KEEP `@timestamp`, `aws.lambda.function.name`, `aws.lambda.event_type`, log.level, `aws.lambda.metrics.Duration.avg`, `aws.lambda.metrics.Errors.sum`, `aws.lambda.request_id` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.lambda* | KEEP `@timestamp``@timestamp`, `aws.lambda.function.name`, `aws.lambda.event_type`, log.level, `aws.lambda.metrics.Duration.avg`, `aws.lambda.metrics.Errors.sum`, `aws.lambda.request_id` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

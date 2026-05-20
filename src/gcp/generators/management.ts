@@ -15,6 +15,7 @@ import {
   randProject,
   randLatencyMs,
   randSeverity,
+  EMAIL_DOMAINS,
 } from "./helpers.js";
 
 const GRPC_RPC_STATUSES = [
@@ -102,8 +103,8 @@ export function generateCloudMonitoringLog(ts: string, er: number): EcsDocument 
   } else if (kind === "uptime") {
     apiMethod = `monitoring.googleapis.com/v3/projects/${project.id}/uptimeCheckConfigs`;
     const url = rand([
-      `https://api.${project.id}.example.com/health`,
-      `https://status.${project.id}.example.com/ready`,
+      `https://api.${rand(EMAIL_DOMAINS)}/health`,
+      `https://status.${rand(EMAIL_DOMAINS)}/ready`,
     ]);
     const checkLatency = randLatencyMs(randInt(20, 800), isErr);
     message = isErr
@@ -163,6 +164,10 @@ export function generateCloudMonitoringLog(ts: string, er: number): EcsDocument 
       },
     },
     event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("management-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(200, 15_000),
     },
@@ -257,6 +262,10 @@ export function generateCloudLoggingLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("management-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(1000, 120_000),
     },
@@ -367,6 +376,10 @@ export function generateResourceManagerLog(ts: string, er: number): EcsDocument 
       },
     },
     event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("management-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(80, 25_000),
     },
@@ -468,6 +481,10 @@ export function generateDeploymentManagerLog(ts: string, er: number): EcsDocumen
       },
     },
     event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("management-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(2000, isErr ? 1_800_000 : 600_000),
     },
@@ -563,6 +580,10 @@ export function generateCloudAssetInventoryLog(ts: string, er: number): EcsDocum
       },
     },
     event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("management-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(100, 90_000),
     },
@@ -657,6 +678,10 @@ export function generateOrgPolicyLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("management-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(50, 8000),
     },
@@ -705,6 +730,10 @@ export function generateRecommenderLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("management-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(200, 60_000),
     },
@@ -766,6 +795,10 @@ export function generateBillingLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("management-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(50, 5000),
     },
@@ -815,6 +848,10 @@ export function generateServiceDirectoryLog(ts: string, er: number): EcsDocument
       },
     },
     event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("management-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(5, 3000),
     },
@@ -868,6 +905,10 @@ export function generateConfigConnectorLog(ts: string, er: number): EcsDocument 
       },
     },
     event: {
+      kind: "event",
+      category: ["configuration"],
+      type: ((isErr ? "failure" : "success") === "failure" ? ["change"] : ["info"]),
+      action: String("management-operation"),
       outcome: isErr ? "failure" : "success",
       duration: reconcileDurationMs,
     },
@@ -930,6 +971,10 @@ export function generateCloudAuditLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["configuration"],
+      type: ((authorizationDecision === "ALLOWED" && !isErr ? "success" : "failure") === "failure" ? ["change"] : ["info"]),
+      action: String("management-operation"),
       outcome: authorizationDecision === "ALLOWED" && !isErr ? "success" : "failure",
       duration: durationNs,
     },
@@ -980,6 +1025,10 @@ export function generateActiveAssistLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("management-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(200, 45_000),
     },
@@ -991,8 +1040,8 @@ export function generateActiveAssistLog(ts: string, er: number): EcsDocument {
 export function generateEssentialContactsLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const contactEmail = rand([
-    `security@${project.id.split("-")[0]}.example.com`,
-    `billing-admin@${project.id}.example.com`,
+    `security@${rand(EMAIL_DOMAINS)}`,
+    `billing-admin@${rand(EMAIL_DOMAINS)}`,
   ]);
   const notificationCategory = rand([
     "TECHNICAL",
@@ -1031,6 +1080,10 @@ export function generateEssentialContactsLog(ts: string, er: number): EcsDocumen
       },
     },
     event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("management-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(100, 8000),
     },
@@ -1075,6 +1128,10 @@ export function generateTagsLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("management-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(50, 12_000),
     },
@@ -1120,6 +1177,10 @@ export function generateCarbonFootprintLog(ts: string, er: number): EcsDocument 
       },
     },
     event: {
+      kind: "event",
+      category: ["configuration"],
+      type: isErr ? ["change"] : ["info"],
+      action: String("management-operation"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(500, 20_000),
     },

@@ -9,6 +9,8 @@ import {
   randCorrelationId,
   randUUID,
   HTTP_METHODS,
+  randAzureOrgEmail,
+  azureLogEvent,
 } from "./helpers.js";
 
 const AZURE_API_ERROR_CODES = [
@@ -81,7 +83,13 @@ export function generateIotHubLog(ts: string, er: number): EcsDocument {
         status: statusCode,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e5, 5e8) },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e5, 5e8),
+      operation,
+      ["configuration"],
+      isErr ? ["error"] : ["connection"]
+    ),
     message: isErr
       ? `IoT Hub diagnostic ${hubName}: ${operation} failed for ${deviceId} HTTP ${statusCode} tracking=${properties.trackingId}`
       : `IoT Hub diagnostic ${hubName}: ${operation} accepted from ${deviceId} via ${protocol}`,
@@ -163,7 +171,13 @@ export function generateLogicAppsLog(ts: string, er: number): EcsDocument {
         duration_ms: durationMs,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: durationMs * 1_000_000 },
+    event: azureLogEvent(
+      isErr,
+      durationMs * 1_000_000,
+      actionName,
+      ["configuration"],
+      isErr ? ["error"] : ["change"]
+    ),
     message: isErr
       ? `Logic Apps runtime ${workflowName}: run ${runId} failed on ${actionName} (${String((properties.error as { code?: string })?.code)})`
       : `Logic Apps runtime ${workflowName}: run ${runId} completed in ${durationMs}ms`,
@@ -353,7 +367,13 @@ export function generateEventGridLog(ts: string, er: number): EcsDocument {
         subscription_name: subscriptionName,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(5e5, 2e8) },
+    event: azureLogEvent(
+      isErr,
+      randInt(5e5, 2e8),
+      eventType,
+      ["configuration"],
+      isErr ? ["error"] : ["connection"]
+    ),
     message: isErr
       ? `Event Grid ${topicName}: delivery ${deliveryStatus} for ${eventType} attempts=${deliveryCount} lastHttp=${properties.lastHttpStatusCode}`
       : `Event Grid ${topicName}: delivered ${eventType} to ${subscriptionName}`,
@@ -425,7 +445,13 @@ export function generateSynapseWorkspaceLog(ts: string, er: number): EcsDocument
         data_processed_bytes: dataProcessedBytes,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: durationMs * 1_000_000 },
+    event: azureLogEvent(
+      isErr,
+      durationMs * 1_000_000,
+      queryIdOrJobName,
+      ["database"],
+      isErr ? ["error"] : ["access"]
+    ),
     message: isErr
       ? `Synapse diagnostic ${workspaceName}: ${queryIdOrJobName} on ${poolName} ended ${status}`
       : `Synapse diagnostic ${workspaceName}: ${queryIdOrJobName} ${status} duration=${durationMs}ms`,
@@ -449,7 +475,7 @@ export function generateDatabricksLog(ts: string, er: number): EcsDocument {
   const jobId = randInt(1000, 999_999);
   const runId = randInt(10_000, 9_999_999);
   const action = rand(["Create", "Delete", "Start", "Terminate", "RunNow"] as const);
-  const principal = `user${randInt(100, 999)}@${rand(["contoso", "fabrikam"])}.com`;
+  const principal = randAzureOrgEmail();
   const sourceIp = `${randInt(100, 203)}.${randInt(0, 255)}.${randInt(0, 255)}.${randInt(1, 254)}`;
   const correlationId = randCorrelationId();
   const resourceId = `/subscriptions/${subscription.id}/resourceGroups/${resourceGroup}/providers/Microsoft.Databricks/workspaces/dbw-${randId(5)}`;
@@ -505,7 +531,13 @@ export function generateDatabricksLog(ts: string, er: number): EcsDocument {
         source_ip: sourceIp,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e6, 2e9) },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e6, 2e9),
+      action,
+      ["configuration"],
+      isErr ? ["error"] : ["admin"]
+    ),
     message: isErr
       ? `Databricks audit ${workspaceId}: ${action} failed for cluster ${clusterName} (${properties.errorMessage})`
       : `Databricks audit ${workspaceId}: ${action} on cluster ${clusterName} by ${principal}`,

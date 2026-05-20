@@ -1,57 +1,59 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-northeast-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "door-sensor-model", "KeyValue": "machine-prod-1" },
+    "dimensions": { "DetectorModelName": "temperature-alert-model", "KeyValue": "zone-B" },
     "iotevents": {
-      "detector_model_name": "door-sensor-model",
-      "detector_id": "machine-prod-1",
-      "key_value": "machine-prod-1",
+      "detector_model_name": "temperature-alert-model",
+      "detector_id": "zone-B",
+      "key_value": "zone-B",
       "event_name": "AlarmActivated",
       "from_state": "Normal",
-      "to_state": "Warning",
-      "input_name": "CommandInput",
-      "action_type": "Lambda",
-      "timer_name": "alarmTimer"
+      "to_state": "Alarm",
+      "input_name": "HealthCheck",
+      "action_type": "SQS",
+      "condition_expression": "$input.SensorInput.temperature > 85"
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotevents-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-iotevents-logs-293847561023"
+        "name": "aws-iotevents-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-iotevents-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/iotevents/sa-east-1/2026/05/19/iotevents_YV5BZFWBBKON4U9TFZYM.log.gz"
+        "key": "AWSLogs/814726593401/iotevents/ap-northeast-3/2026/05/20/iotevents_DNGWF1L2I01TTZL91GFB.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "sa-east-1/a6m1jtdy",
-      "ingestion_time": "2026-05-19T15:25:13.713Z"
+      "log_stream": "ap-northeast-3/dsmor2fr",
+      "ingestion_time": "2026-05-20T13:19:01.491Z"
     }
   },
   "event": {
     "outcome": "success",
     "category": ["process"],
+    "type": ["info"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 154000000,
-    "module": "aws"
+    "duration": 483000000,
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "IoT Events door-sensor-model/machine-prod-1: Normal → Warning [AlarmActivated]",
-  "log": { "level": "info" },
+  "message": "IoT Events temperature-alert-model/zone-B: Normal → Alarm [AlarmActivated]",
+  "log": { "level": "warn" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iotevents", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "kz5fwtjew8c39asbwzx9w2vta4fkljzxvghx"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "hbo4exsw3a1nquj1hp7b3wnnxkzz3ivvsfqg"
   },
   "input": { "type": "aws-cloudwatch" }
 }

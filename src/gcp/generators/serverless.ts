@@ -22,6 +22,7 @@ import {
   randServiceAccount,
   randPrincipal,
   randOperationId,
+  EMAIL_DOMAINS,
 } from "./helpers.js";
 
 const CF_RUNTIMES = ["nodejs20", "python312", "go122", "java17"] as const;
@@ -290,7 +291,7 @@ export function generateCloudRunLog(ts: string, er: number): EcsDocument {
       protocol: rand(["HTTP/1.1", "HTTP/1.1", "HTTP/2"]),
       referer:
         Math.random() < 0.25
-          ? `https://${rand(["app", "portal", "admin"])}.${rand(["example.com", "corp.internal"])}${rand(HTTP_PATHS)}`
+          ? `https://${rand(["app", "portal", "admin"])}.${rand(EMAIL_DOMAINS)}${rand(HTTP_PATHS)}`
           : undefined,
     };
     message = JSON.stringify({ httpRequest, trace: withTrace ? trace : undefined });
@@ -431,7 +432,7 @@ export function generateAppEngineLog(ts: string, er: number): EcsDocument {
   } else if (style === "app_json") {
     jsonPayload = {
       severity: isErr ? "ERROR" : "INFO",
-      logger: rand(["root", "app.request", "werkzeug", "com.example.api"]),
+      logger: rand(["root", "app.request", "werkzeug", "com.globex.api"]),
       message: isErr
         ? rand(["Datastore timeout", "Memcache miss storm", "Thread pool exhausted"])
         : rand(["served static asset", "rendered template", "RPC ok"]),
@@ -537,7 +538,7 @@ export function generateCloudTasksLog(ts: string, er: number): EcsDocument {
         task: {
           name: taskName,
           httpRequest: {
-            url: `https://${rand(["worker", "hooks"])}.${project.id}.example.com${rand(HTTP_PATHS)}`,
+            url: `https://${rand(["worker", "hooks"])}.${rand(EMAIL_DOMAINS)}${rand(HTTP_PATHS)}`,
             httpMethod: rand(HTTP_METHODS),
           },
         },
@@ -606,6 +607,10 @@ export function generateCloudTasksLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["start"],
+      action: String("serverless-invoke"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(50, isErr ? 9000 : 2000),
     },
@@ -709,6 +714,10 @@ export function generateCloudSchedulerLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["start"],
+      action: String("serverless-invoke"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(200, isErr ? 120_000 : 5000),
     },
@@ -910,6 +919,10 @@ export function generateEventarcLog(ts: string, er: number): EcsDocument {
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["start"],
+      action: String("serverless-invoke"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(30, isErr ? 8000 : 1200),
     },
@@ -1116,6 +1129,10 @@ export function generateServerlessVpcAccessLog(ts: string, er: number): EcsDocum
       },
     },
     event: {
+      kind: "event",
+      category: ["process"],
+      type: isErr ? ["error"] : ["start"],
+      action: String("serverless-invoke"),
       outcome: isErr ? "failure" : "success",
       duration: randInt(500, isErr ? 60_000 : 8000),
     },

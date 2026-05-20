@@ -3,35 +3,36 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west9",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "asia-south2",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
+    "service": { "name": "bigquery" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west9",
-    "ephemeral_id": "qnchvkrpxge6udas795mbxvybhneqlyr995p"
+    "name": "metricbeat-gcp-asia-south2",
+    "ephemeral_id": "vainp914m3ks4spxcy902wnqsy2klpqidxl3"
   },
   "monitoringTimeSeries": {
     "metric": { "type": "bigquery.googleapis.com/query/scanned_bytes", "labels": {} },
-    "resource": { "type": "bigquery_project", "labels": { "project_id": "globex-prod-a1b2c3" } },
+    "resource": { "type": "bigquery_project", "labels": { "project_id": "globex-stg-739158" } },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
       {
         "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "int64Value": "120017303485562" }
+        "value": { "int64Value": "124698910790775" }
       }
     ]
   },
   "gcp": {
     "bigquery": {
-      "labels": { "project_id": "globex-prod-a1b2c3" },
+      "labels": { "project_id": "globex-stg-739158" },
       "metrics": {
         "bigquery.googleapis.com/query/scanned_bytes": {
-          "avg": 120017303485562,
-          "sum": 120017303485562,
+          "avg": 124698910790775,
+          "sum": 124698910790775,
           "count": 1
         }
       }
@@ -40,5 +41,5 @@
   "metricset": { "name": "bigquery", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.bigquery_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.bigquery_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.bigquery_metrics", "module": "gcp" }
 }

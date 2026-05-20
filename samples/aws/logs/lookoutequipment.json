@@ -1,22 +1,22 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
+    "region": "ap-northeast-2",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "lookoutequipment" }
   },
   "aws": {
     "lookoutequipment": {
-      "model_name": "hvac-efficiency",
-      "event_type": "StartInferenceScheduler",
-      "inference_scheduler": "hvac-efficiency-scheduler",
-      "anomaly_detected": false,
-      "anomalous_sensors": [],
-      "diagnostics_score": 0.0700829492393592,
-      "data_points_ingested": 37586,
-      "inference_latency_ms": 179,
-      "dataset_arn": "arn:aws:lookoutequipment:ap-south-2:164820739518:dataset/hvac-efficiency-data"
+      "model_name": "pump-anomaly-detector",
+      "event_type": "InferenceExecution",
+      "inference_scheduler": "pump-anomaly-detector-scheduler",
+      "anomaly_detected": true,
+      "anomalous_sensors": ["vibration_x", "vibration_y"],
+      "diagnostics_score": 0.6980906150528704,
+      "data_points_ingested": 26650,
+      "inference_latency_ms": 4874,
+      "dataset_arn": "arn:aws:lookoutequipment:ap-northeast-2:164820739518:dataset/pump-anomaly-detector-data"
     },
     "s3": {
       "bucket": {
@@ -24,31 +24,32 @@
         "arn": "arn:aws:s3:::aws-lookoutequipment-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/lookoutequipment/ap-south-2/2026/05/19/lookoutequipment_AKGZCUIVTD4PSHC9NUYJ.log.gz"
+        "key": "AWSLogs/164820739518/lookoutequipment/ap-northeast-2/2026/05/20/lookoutequipment_POTS8KOW6ZNBNP8ER6BW.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lookoutequipment/logs",
-      "log_stream": "ap-south-2/xfebrw3p",
-      "ingestion_time": "2026-05-19T15:25:13.666Z"
+      "log_stream": "ap-northeast-2/tpsf0uml",
+      "ingestion_time": "2026-05-20T13:19:01.421Z"
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 295866,
+    "outcome": "failure",
+    "duration": 2471808,
     "module": "aws",
-    "dataset": "aws.lookoutequipment"
+    "dataset": "aws.lookoutequipment",
+    "kind": "event"
   },
-  "message": "Lookout Equipment hvac-efficiency: StartInferenceScheduler completed normally",
+  "message": "Lookout Equipment pump-anomaly-detector: anomaly detected in vibration_y",
   "service": { "name": "lookoutequipment", "type": "aws" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lookoutequipment", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "pqoevrz5ix4k78vsk6wk8m506vv4bkvii9f3"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "zwegtt9qq5r0xq2nf2qgdddg3t3clkztsfz7"
   },
   "input": { "type": "aws-cloudwatch" }
 }

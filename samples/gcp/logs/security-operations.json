@@ -3,72 +3,73 @@
   "log": { "level": "info" },
   "labels": {},
   "severity": "NOTICE",
-  "logName": "projects/globex-staging-d4e5f6/logs/chronicle.googleapis.com%2Fsoar_events",
-  "insertId": "1j031zmthiv2pixf",
+  "logName": "projects/globex-dev-615094/logs/chronicle.googleapis.com%2Falert",
+  "insertId": "xs9tphe6g3vftj0o",
   "resource": {
-    "type": "security_operations_case",
-    "labels": { "project_id": "globex-staging-d4e5f6", "case_id": "case-2sztask2nt" }
+    "type": "chronicle_instance",
+    "labels": { "project_id": "globex-dev-615094", "region": "asia-south2" }
   },
   "jsonPayload": {
-    "case": {
-      "name": "projects/globex-staging-d4e5f6/locations/global/cases/case-2sztask2nt",
-      "displayName": "Investigation case-2sztask2nt",
-      "stage": "OPEN",
-      "priority": "LOW"
+    "result": {
+      "ruleName": "lateral_movement_rdp",
+      "versionId": "ru_AZMUZCXP",
+      "detections": [{ "type": "RULE_DETECTION", "severity": "DEBUG", "eventsMatched": 47264 }],
+      "ioc": {
+        "type": "HASH",
+        "value": "sha256:mqttfhacqa061noqg5gjb0492qrx5t2bee8ae66k2mwu6dzj92ubnubqmnsyxv7o"
+      }
     },
-    "playbook": { "name": "malware_contain", "revisionId": "rev_A7S0LN" },
-    "action": { "type": "ENTITY_ENRICHED", "entitiesTouched": 128, "indicatorsTouched": 25 },
-    "siem": {
-      "product": "Google Security Operations",
-      "instance": "projects/globex-staging-d4e5f6/locations/global"
-    }
+    "case": { "name": "CASE-IBQGUD", "stage": "DISMISSED" }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-south1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" },
+    "region": "asia-south2",
+    "project": { "id": "globex-dev-615094", "name": "Globex Development" },
+    "account": { "id": "615094738261", "name": "Globex Development" },
     "service": { "name": "security-operations" }
   },
   "gcp": {
-    "security_operations": {
+    "secops_detection": {
       "json_payload": {
-        "case": {
-          "name": "projects/globex-staging-d4e5f6/locations/global/cases/case-2sztask2nt",
-          "displayName": "Investigation case-2sztask2nt",
-          "stage": "OPEN",
-          "priority": "LOW"
+        "result": {
+          "ruleName": "lateral_movement_rdp",
+          "versionId": "ru_AZMUZCXP",
+          "detections": [{ "type": "RULE_DETECTION", "severity": "DEBUG", "eventsMatched": 47264 }],
+          "ioc": {
+            "type": "HASH",
+            "value": "sha256:mqttfhacqa061noqg5gjb0492qrx5t2bee8ae66k2mwu6dzj92ubnubqmnsyxv7o"
+          }
         },
-        "playbook": { "name": "malware_contain", "revisionId": "rev_A7S0LN" },
-        "action": { "type": "ENTITY_ENRICHED", "entitiesTouched": 128, "indicatorsTouched": 25 },
-        "siem": {
-          "product": "Google Security Operations",
-          "instance": "projects/globex-staging-d4e5f6/locations/global"
-        }
+        "case": { "name": "CASE-IBQGUD", "stage": "DISMISSED" }
       },
-      "case_id": "case-2sztask2nt",
-      "playbook_name": "malware_contain",
-      "action_type": "ENTITY_ENRICHED",
-      "severity": "LOW",
-      "entities_count": 128,
-      "indicators_count": 25
+      "rule_name": "lateral_movement_rdp",
+      "detection_type": "RULE_DETECTION",
+      "severity": "DEBUG",
+      "alert_state": "DISMISSED",
+      "ioc_type": "HASH",
+      "matched_events_count": 47264,
+      "case_name": "CASE-IRPZS0"
     }
   },
   "event": {
+    "kind": "event",
+    "category": ["intrusion_detection"],
+    "type": ["info"],
+    "action": "security-event",
     "outcome": "success",
-    "duration": 161000000,
+    "duration": 93000000,
     "module": "gcp",
-    "dataset": "gcp.secops"
+    "dataset": "gcp.secops_detection"
   },
-  "message": "securityoperations.googleapis.com/ENTITY_ENRICHED case=case-2sztask2nt playbook=malware_contain",
-  "service": { "name": "security-operations", "type": "gcp" },
+  "message": "chronicle.googleapis.com/Detections lateral_movement_rdp RULE_DETECTION events=47264",
+  "service": { "name": "secops-detection", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.secops", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.secops_detection", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-south1",
-    "id": "qi8y0qlwog7ifzjhe6ve2o75qsq3njnbjpaf"
+    "name": "elastic-agent-gcp-asia-south2",
+    "id": "qym68kzl5sogpdra0lrr3kl9s915xd2o0dfh"
   },
-  "input": { "type": "http_endpoint" }
+  "input": { "type": "gcp-pubsub" }
 }

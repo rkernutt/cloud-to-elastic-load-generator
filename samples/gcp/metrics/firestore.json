@@ -3,15 +3,16 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-southwest1",
-    "project": { "id": "globex-staging-d4e5f6", "name": "Globex Staging" },
-    "account": { "id": "271828182845", "name": "Globex Staging" }
+    "region": "us-east4",
+    "project": { "id": "globex-dev-615094", "name": "Globex Development" },
+    "account": { "id": "615094738261", "name": "Globex Development" },
+    "service": { "name": "firestore" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-southwest1",
-    "ephemeral_id": "83ovmo3wxqe4fs4ll1tificrg2dpqju0625x"
+    "name": "metricbeat-gcp-us-east4",
+    "ephemeral_id": "2msqd44zn6u66oku6dun7pae20ypha1v8edp"
   },
   "monitoringTimeSeries": {
     "metric": {
@@ -21,8 +22,8 @@
     "resource": {
       "type": "firestore.googleapis.com/Database",
       "labels": {
-        "resource_container": "globex-staging-d4e5f6",
-        "location": "europe-southwest1",
+        "resource_container": "globex-dev-615094",
+        "location": "us-east4",
         "database_id": "inventory-db"
       }
     },
@@ -31,22 +32,22 @@
     "points": [
       {
         "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "int64Value": "1082331" }
+        "value": { "int64Value": "2089620" }
       }
     ]
   },
   "gcp": {
     "firestore": {
       "labels": {
-        "resource_container": "globex-staging-d4e5f6",
-        "location": "europe-southwest1",
+        "resource_container": "globex-dev-615094",
+        "location": "us-east4",
         "database_id": "inventory-db",
         "type": "QUERY"
       },
       "metrics": {
         "firestore.googleapis.com/document/read_count": {
-          "avg": 1082331,
-          "sum": 1082331,
+          "avg": 2089620,
+          "sum": 2089620,
           "count": 1
         }
       }
@@ -55,5 +56,5 @@
   "metricset": { "name": "firestore", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.firestore_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.firestore_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.firestore_metrics", "module": "gcp" }
 }

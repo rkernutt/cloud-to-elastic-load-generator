@@ -87,7 +87,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.entra_id*, logs-azure.activity_log* | WHERE azure.entra_id.riskLevel IS NOT NULL OR azure.activity_log.operation_name IN (\"Microsoft.Authorization/roleAssignments/write\", \"Microsoft.Resources/subscriptions/read\") | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-azure.entra_id*, logs-azure.activity_log* | WHERE azure.entra_id.riskLevel IS NOT NULL OR azure.activity_log.operation_name IN (\"Microsoft.Authorization/roleAssignments/write\", \"Microsoft.Resources/subscriptions/read\") | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "c", "label": "Events" }]
@@ -106,7 +106,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.entra_id*, logs-azure.activity_log* | WHERE azure.entra_id.riskLevel IS NOT NULL OR azure.activity_log.operation_name IN (\"Microsoft.Authorization/roleAssignments/write\", \"Microsoft.Resources/subscriptions/read\") | STATS ops = COUNT(), upn = MAX(azure.entra_id.user_principal_name), op = MAX(azure.activity_log.operation_name) BY src = source.ip, user = user.name | SORT ops DESC | LIMIT 25"
+            "query": "FROM logs-azure.entra_id*, logs-azure.activity_log* | WHERE azure.entra_id.riskLevel IS NOT NULL OR azure.activity_log.operation_name IN (\"Microsoft.Authorization/roleAssignments/write\", \"Microsoft.Resources/subscriptions/read\") | STATS ops = COUNT(), upn = MAX(azure.entra_id.user_principal_name), op = MAX(azure.activity_log.operation_name) BY src = source.ip, user = user.name | SORT ``ops DESC | LIMIT 25"
           },
           "metrics": [
             { "operation": "value", "column": "src", "label": "Source IP" },

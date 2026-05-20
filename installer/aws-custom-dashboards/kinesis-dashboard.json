@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.kinesis* | STATS count = COUNT() BY stream = `aws.dimensions.StreamName` | SORT count DESC | LIMIT 8"
+            "query": "FROM logs-aws.kinesis* | STATS count = COUNT() BY stream = `aws.dimensions.StreamName` | SORT ``count DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.kinesis* | STATS records = AVG(`aws.kinesis.metrics.IncomingRecords.avg`), bytes = AVG(`aws.kinesis.metrics.IncomingBytes.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.kinesis* | STATS records = AVG(`aws.kinesis.metrics.IncomingRecords.avg`), bytes = AVG(`aws.kinesis.metrics.IncomingBytes.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -292,7 +292,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.kinesis* | STATS iter_age = AVG(`aws.kinesis.metrics.GetRecords_IteratorAgeMilliseconds.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.kinesis* | STATS iter_age = AVG(`aws.kinesis.metrics.GetRecords_IteratorAgeMilliseconds.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.kinesis* | STATS put_lat = AVG(`aws.kinesis.metrics.PutRecords_Latency.avg`), get_lat = AVG(`aws.kinesis.metrics.GetRecords_Latency.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.kinesis* | STATS put_lat = AVG(`aws.kinesis.metrics.PutRecords_Latency.avg`), get_lat = AVG(`aws.kinesis.metrics.GetRecords_Latency.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -393,7 +393,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.kinesis* | STATS success = SUM(`aws.kinesis.metrics.PutRecords_SuccessfulRecords.sum`), failed = SUM(`aws.kinesis.metrics.PutRecords_FailedRecords.sum`) BY stream = `aws.dimensions.StreamName` | SORT success DESC | LIMIT 10"
+                "query": "FROM logs-aws.kinesis* | STATS success = SUM(`aws.kinesis.metrics.PutRecords_SuccessfulRecords.sum`), failed = SUM(`aws.kinesis.metrics.PutRecords_FailedRecords.sum`) BY stream = `aws.dimensions.StreamName` | SORT ``success DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -446,7 +446,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.kinesis* | STATS read_ex = AVG(`aws.kinesis.metrics.ReadProvisionedThroughputExceeded.avg`), write_ex = AVG(`aws.kinesis.metrics.WriteProvisionedThroughputExceeded.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.kinesis* | STATS read_ex = AVG(`aws.kinesis.metrics.ReadProvisionedThroughputExceeded.avg`), write_ex = AVG(`aws.kinesis.metrics.WriteProvisionedThroughputExceeded.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -484,7 +484,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.kinesis* | KEEP `@timestamp`, `aws.dimensions.StreamName`, `aws.kinesis.metrics.IncomingRecords.avg`, `aws.kinesis.metrics.GetRecords_IteratorAgeMilliseconds.avg`, `aws.kinesis.metrics.PutRecords_FailedRecords.sum`, log.level | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.kinesis* | KEEP `@timestamp``@timestamp`, `aws.dimensions.StreamName`, `aws.kinesis.metrics.IncomingRecords.avg`, `aws.kinesis.metrics.GetRecords_IteratorAgeMilliseconds.avg`, `aws.kinesis.metrics.PutRecords_FailedRecords.sum`, log.level | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

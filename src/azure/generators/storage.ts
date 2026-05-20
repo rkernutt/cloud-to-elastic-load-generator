@@ -6,6 +6,7 @@ import {
   azureCloud,
   makeAzureSetup,
   randCorrelationId,
+  azureLogEvent,
 } from "./helpers.js";
 
 export function generateBlobStorageLog(ts: string, er: number): EcsDocument {
@@ -122,10 +123,19 @@ export function generateBlobStorageLog(ts: string, er: number): EcsDocument {
         e2e_latency_ms: Number(properties.serverLatencyMs) + randInt(0, 40),
       },
     },
-    event: {
-      outcome: failed ? "failure" : "success",
-      duration: randInt(1e6, failed ? 6e10 : 4e8),
-    },
+    event: azureLogEvent(
+      failed,
+      randInt(1e6, failed ? 6e10 : 4e8),
+      operationName,
+      ["file"],
+      failed
+        ? ["error"]
+        : operationName === "DeleteBlob"
+          ? ["deletion"]
+          : operationName === "PutBlob"
+            ? ["change"]
+            : ["access"]
+    ),
     message,
   };
 }

@@ -3,15 +3,16 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "northamerica-northeast2",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" }
+    "region": "me-central1",
+    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
+    "account": { "id": "529384716205", "name": "Globex Shared Services" },
+    "service": { "name": "cloud-endpoints" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-northamerica-northeast2",
-    "ephemeral_id": "b13unt3rk33tyi63ji590m81nrup941t7ay3"
+    "name": "metricbeat-gcp-me-central1",
+    "ephemeral_id": "zor87s63scb5h3wmpxmhb0z4nsskuy8dddu6"
   },
   "monitoringTimeSeries": {
     "metric": {
@@ -21,29 +22,29 @@
     "resource": {
       "type": "consumed_api",
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "service": "partner-api.endpoints.globex-prod-a1b2c3.cloud.goog",
-        "method": "POST /v1/events"
+        "project_id": "globex-shared-529384",
+        "service": "globex-api.endpoints.globex-shared-529384.cloud.goog",
+        "method": "GET /v1/orders"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "331123" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "878318" } }
     ]
   },
   "gcp": {
     "cloud-endpoints": {
       "labels": {
-        "project_id": "globex-prod-a1b2c3",
-        "service": "partner-api.endpoints.globex-prod-a1b2c3.cloud.goog",
-        "method": "POST /v1/events",
+        "project_id": "globex-shared-529384",
+        "service": "globex-api.endpoints.globex-shared-529384.cloud.goog",
+        "method": "GET /v1/orders",
         "response_code": "200"
       },
       "metrics": {
         "serviceruntime.googleapis.com/api/request_count": {
-          "avg": 331123,
-          "sum": 331123,
+          "avg": 878318,
+          "sum": 878318,
           "count": 1
         }
       }
@@ -52,5 +53,5 @@
   "metricset": { "name": "cloud-endpoints", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.endpoints_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
-  "event": { "dataset": "gcp.endpoints_metrics", "module": "gcp" }
+  "event": { "kind": "metric", "dataset": "gcp.endpoints_metrics", "module": "gcp" }
 }

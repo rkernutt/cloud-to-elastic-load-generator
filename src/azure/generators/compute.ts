@@ -7,8 +7,9 @@ import {
   azureCloud,
   makeAzureSetup,
   randUUID,
-  randIp,
+  randSourceIp,
   USER_AGENTS,
+  azureLogEvent,
 } from "./helpers.js";
 
 const VM_SIZES = [
@@ -51,7 +52,7 @@ export function generateVirtualMachinesLog(ts: string, er: number): EcsDocument 
   const { region, subscription, resourceGroup, isErr } = makeAzureSetup(er);
   const vmName = `vm-${rand(["web", "app", "db", "batch"])}-${randId(4).toLowerCase()}`;
   const resourceId = armVm(subscription.id, resourceGroup, vmName);
-  const callerIp = randIp();
+  const callerIp = randSourceIp();
   const correlationId = randUUID();
   const time = azureDiagnosticTime(ts);
   const variant = rand(["activity", "guest_perf", "guest_event", "boot", "extension"] as const);
@@ -103,7 +104,13 @@ export function generateVirtualMachinesLog(ts: string, er: number): EcsDocument 
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, isErr ? 6e9 : 3e9) },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e8, isErr ? 6e9 : 3e9),
+        op,
+        ["host"],
+        isErr ? ["error"] : op.includes("delete") ? ["deletion"] : ["change"]
+      ),
       message: isErr
         ? `Activity log: ${op} failed on ${vmName} (${status})`
         : `Activity log: ${op} succeeded on ${vmName}`,
@@ -155,7 +162,7 @@ export function generateVirtualMachinesLog(ts: string, er: number): EcsDocument 
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 3e9) },
+      event: azureLogEvent(isErr, randInt(1e8, 3e9), counter, ["host"], ["info"]),
       message: `Guest metrics ${counter}=${val} on ${vmName}`,
     };
   }
@@ -205,7 +212,13 @@ export function generateVirtualMachinesLog(ts: string, er: number): EcsDocument 
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 3e9) },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e8, 3e9),
+        `EventID-${evtId}`,
+        ["host"],
+        isErr ? ["error"] : ["info"]
+      ),
       message: `[${channel}] EventID=${evtId} on ${vmName}`,
     };
   }
@@ -251,7 +264,13 @@ export function generateVirtualMachinesLog(ts: string, er: number): EcsDocument 
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 3e9) },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e8, 3e9),
+        "BootDiagnostics",
+        ["host"],
+        isErr ? ["error"] : ["start"]
+      ),
       message: `Boot diagnostics serial snippet for ${vmName}`,
     };
   }
@@ -291,7 +310,13 @@ export function generateVirtualMachinesLog(ts: string, er: number): EcsDocument 
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e8, 3e9) },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 3e9),
+      extName,
+      ["configuration"],
+      isErr ? ["error"] : ["change"]
+    ),
     message: `VM extension ${extName} on ${vmName}: ${props.StatusMessage}`,
   };
 }
@@ -300,7 +325,7 @@ export function generateVmScaleSetsLog(ts: string, er: number): EcsDocument {
   const { region, subscription, resourceGroup, isErr } = makeAzureSetup(er);
   const name = `vmss-${randId(6).toLowerCase()}`;
   const resourceId = armVmss(subscription.id, resourceGroup, name);
-  const callerIp = randIp();
+  const callerIp = randSourceIp();
   const correlationId = randUUID();
   const time = azureDiagnosticTime(ts);
   const variant = rand(["activity", "rolling", "instance", "capacity"] as const);
@@ -344,7 +369,7 @@ export function generateVmScaleSetsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 8e9) },
+      event: azureLogEvent(isErr, randInt(2e8, 8e9), op, ["host"], isErr ? ["error"] : ["change"]),
       message: isErr
         ? `VMSS ${name}: activity failed during scale operation`
         : `VMSS ${name}: ${op} completed`,
@@ -385,7 +410,13 @@ export function generateVmScaleSetsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 8e9) },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e8, 8e9),
+        "RollingUpgrade",
+        ["host"],
+        isErr ? ["error"] : ["change"]
+      ),
       message: isErr
         ? `VMSS ${name}: rolling upgrade failed`
         : `VMSS ${name}: rolling upgrade completed`,
@@ -427,7 +458,7 @@ export function generateVmScaleSetsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 8e9) },
+      event: azureLogEvent(isErr, randInt(2e8, 8e9), "InstanceHealth", ["host"], ["info"]),
       message: `VMSS instance ${inst}: ${props.healthStatus}`,
     };
   }
@@ -462,7 +493,13 @@ export function generateVmScaleSetsLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(2e8, 8e9) },
+    event: azureLogEvent(
+      isErr,
+      randInt(2e8, 8e9),
+      "Autoscale",
+      ["host"],
+      isErr ? ["error"] : ["change"]
+    ),
     message: `VMSS ${name}: autoscale evaluation ${isErr ? "blocked" : "triggered"}`,
   };
 }
@@ -474,7 +511,7 @@ export function generateBatchLog(ts: string, er: number): EcsDocument {
   const task = `task-${randId(8).toLowerCase()}`;
   const job = `job-${randId(6).toLowerCase()}`;
   const resourceId = armBatch(subscription.id, resourceGroup, acct);
-  const callerIp = randIp();
+  const callerIp = randSourceIp();
   const correlationId = randUUID();
   const time = azureDiagnosticTime(ts);
   const exitCode = isErr ? randInt(-1, 255) : 0;
@@ -537,7 +574,7 @@ export function generateAksLog(ts: string, er: number): EcsDocument {
   const { region, subscription, resourceGroup, isErr } = makeAzureSetup(er);
   const cluster = `aks-${rand(["prod", "stg", "dev"])}-${randId(4).toLowerCase()}`;
   const resourceId = armAks(subscription.id, resourceGroup, cluster);
-  const callerIp = randIp();
+  const callerIp = randSourceIp();
   const correlationId = randUUID();
   const time = azureDiagnosticTime(ts);
   const nodePool = rand(["system", "user", "gpu"]);
@@ -620,7 +657,7 @@ export function generateAksLog(ts: string, er: number): EcsDocument {
       ContainerID: `docker://${randId(64)}`,
       Image: rand([
         "mcr.microsoft.com/oss/nginx/nginx:1.25",
-        `ghcr.io/contoso/api:${rand(["1.4.2", "2.0.0-rc1"])}`,
+        `ghcr.io/meridiantech/api:${rand(["1.4.2", "2.0.0-rc1"])}`,
       ]),
       RestartCount: isErr ? randInt(3, 18) : 0,
     };
@@ -650,7 +687,7 @@ export function generateAksLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, isErr ? 3e10 : 2e9) },
+      event: azureLogEvent(isErr, randInt(5e7, isErr ? 3e10 : 2e9), stream, ["host"], ["info"]),
       message: `container ${stream} ${ns}/${pod}: ${logLine.slice(0, 120)}`,
     };
   }
@@ -670,7 +707,7 @@ export function generateAksLog(ts: string, er: number): EcsDocument {
             : `Node ${cluster}-vmss00000${randInt(0, 9)} status is now: NodeReady`
           : kind === "Pod"
             ? isErr
-              ? `Failed to pull image "${rand(["bad.registry/api", "contoso.azurecr.io/api"])}": rpc error: code = NotFound`
+              ? `Failed to pull image "${rand(["bad.registry/api", "meridiantech.azurecr.io/api"])}": rpc error: code = NotFound`
               : `Started container ${pod} in namespace ${ns}`
             : `Cluster autoscaler scaled node group ${nodePool} from ${randInt(2, 6)} to ${randInt(7, 18)}`,
       involvedObject: {
@@ -708,7 +745,13 @@ export function generateAksLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, isErr ? 3e10 : 2e9) },
+      event: azureLogEvent(
+        isErr,
+        randInt(5e7, isErr ? 3e10 : 2e9),
+        reason,
+        ["host"],
+        isErr ? ["error"] : ["change"]
+      ),
       message: `cluster event ${reason} on ${cluster}`,
     };
   }
@@ -754,7 +797,13 @@ export function generateAksLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(5e7, isErr ? 3e10 : 2e9) },
+    event: azureLogEvent(
+      isErr,
+      randInt(5e7, isErr ? 3e10 : 2e9),
+      policy,
+      ["configuration"],
+      isErr ? ["error"] : ["access"]
+    ),
     message: isErr
       ? `Azure Policy deny on ${cluster}: ${policy}`
       : `Azure Policy audit passed for ${cluster}`,

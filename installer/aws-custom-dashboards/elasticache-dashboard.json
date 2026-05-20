@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.elasticache* | STATS count = COUNT() BY cluster = `aws.elasticache.cluster_id` | SORT count DESC | LIMIT 8"
+            "query": "FROM logs-aws.elasticache* | STATS count = COUNT() BY cluster = `aws.elasticache.cluster_id` | SORT ``count DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.elasticache* | STATS count = COUNT() BY cmd = `aws.elasticache.command` | SORT count DESC | LIMIT 8"
+            "query": "FROM logs-aws.elasticache* | STATS count = COUNT() BY cmd = `aws.elasticache.command` | SORT ``count DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.elasticache* | STATS hit_rate = AVG(`aws.elasticache.metrics.CacheHitRate.avg`), cpu = AVG(`aws.elasticache.metrics.CPUUtilization.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.elasticache* | STATS hit_rate = AVG(`aws.elasticache.metrics.CacheHitRate.avg`), cpu = AVG(`aws.elasticache.metrics.CPUUtilization.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -292,7 +292,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.elasticache* | STATS curr_conn = AVG(`aws.elasticache.metrics.CurrConnections.avg`), new_conn = SUM(`aws.elasticache.metrics.NewConnections.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.elasticache* | STATS curr_conn = AVG(`aws.elasticache.metrics.CurrConnections.avg`), new_conn = SUM(`aws.elasticache.metrics.NewConnections.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -345,7 +345,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.elasticache* | STATS mem_pct = AVG(`aws.elasticache.metrics.DatabaseMemoryUsagePercentage.avg`), bytes_used = AVG(`aws.elasticache.metrics.BytesUsedForCache.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.elasticache* | STATS mem_pct = AVG(`aws.elasticache.metrics.DatabaseMemoryUsagePercentage.avg`), bytes_used = AVG(`aws.elasticache.metrics.BytesUsedForCache.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -398,7 +398,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.elasticache* | STATS avg_lat = AVG(`aws.elasticache.latency_us`) BY cluster = `aws.elasticache.cluster_id` | SORT avg_lat DESC | LIMIT 10"
+                "query": "FROM logs-aws.elasticache* | STATS avg_lat = AVG(`aws.elasticache.latency_us`) BY cluster = `aws.elasticache.cluster_id` | SORT ``avg_lat DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -446,7 +446,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.elasticache* | STATS evictions = SUM(`aws.elasticache.metrics.Evictions.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM logs-aws.elasticache* | STATS evictions = SUM(`aws.elasticache.metrics.Evictions.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -479,7 +479,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.elasticache* | KEEP `@timestamp`, `aws.elasticache.cluster_id`, `aws.elasticache.command`, `aws.elasticache.cache_hit`, `aws.elasticache.latency_us`, `aws.elasticache.metrics.CacheHitRate.avg`, log.level | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.elasticache* | KEEP `@timestamp``@timestamp`, `aws.elasticache.cluster_id`, `aws.elasticache.command`, `aws.elasticache.cache_hit`, `aws.elasticache.latency_us`, `aws.elasticache.metrics.CacheHitRate.avg`, log.level | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

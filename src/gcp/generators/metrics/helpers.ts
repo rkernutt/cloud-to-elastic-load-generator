@@ -87,6 +87,7 @@ export function gcpMetricDoc(
       region,
       project: { id: project.id, name: project.name },
       account: { id: project.number, name: project.name },
+      service: { name: service },
     },
     agent: {
       type: "metricbeat",
@@ -116,7 +117,7 @@ export function gcpMetricDoc(
     metricset: { name: service, period: spec.period ?? 60_000 },
     data_stream: { type: "metrics", dataset, namespace: "default" },
     input: { type: "gcp-monitoring" },
-    event: { dataset, module: "gcp" },
+    event: { kind: "metric", dataset, module: "gcp" },
   };
 }
 

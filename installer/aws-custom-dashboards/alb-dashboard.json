@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS c = COUNT() BY st = `http.response.status_code` | SORT c DESC | LIMIT 10"
+            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS c = COUNT() BY st = `http.response.status_code` | SORT ``c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS c = COUNT() BY lb = `aws.elb.name` | SORT c DESC | LIMIT 10"
+            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS c = COUNT() BY lb = `aws.elb.name` | SORT ``c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS c5 = SUM(CASE(`http.response.status_code` >= 500, 1, 0)), c4 = SUM(CASE(`http.response.status_code` >= 400 AND `http.response.status_code` < 500, 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS c5 = SUM(CASE(`http.response.status_code` >= 500, 1, 0)), c4 = SUM(CASE(`http.response.status_code` >= 400 AND `http.response.status_code` < 500, 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS avg_ms = AVG(`aws.elb.backend_processing_time.sec` + `aws.elb.request_processing_time.sec` + `aws.elb.response_processing_time.sec`) * 1000 BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS avg_ms = AVG(`aws.elb.backend_processing_time.sec` + `aws.elb.request_processing_time.sec` + `aws.elb.response_processing_time.sec`) * 1000 BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -388,7 +388,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS c = COUNT() BY tg = `aws.elb.target_group.arn` | SORT c DESC | LIMIT 10"
+                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | STATS c = COUNT() BY tg = `aws.elb.target_group.arn` | SORT ``c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -421,7 +421,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | KEEP `@timestamp`, `aws.elb.name`, `http.request.method`, `http.response.status_code`, event.outcome, `client.ip`, `aws.elb.trace_id` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"alb\" | KEEP `@timestamp``@timestamp`, `aws.elb.name`, `http.request.method`, `http.response.status_code`, event.outcome, `client.ip`, `aws.elb.trace_id` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

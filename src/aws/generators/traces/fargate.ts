@@ -68,7 +68,7 @@ export function generateFargateTrace(ts: string, er: number) {
       us: randInt(3_000_000, 90_000_000),
       labels: {
         image: rand([
-          "123456789012.dkr.ecr.us-east-1.amazonaws.com/api:v42",
+          `${account.id}.dkr.ecr.${region}.amazonaws.com/api:v42`,
           "public.ecr.aws/nginx:latest",
         ]),
       },

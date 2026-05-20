@@ -18,7 +18,7 @@ export function generateCloudDnsTrace(ts: string, er: number): EcsDocument[] {
   const base = new Date(ts);
   const env = rand(["production", "staging", "dev"]);
   const zone = rand(["prod-public", "internal-corp", "edge-dns"]);
-  const fqdn = rand(["api.globex.example.", "cdn.globex.example.", "mail.globex.example."]);
+  const fqdn = rand(["api.globex.io.", "cdn.globex.io.", "mail.globex.io."]);
   const rtype = rand(RECORD_TYPES);
   const otel = gcpOtelMeta("python");
   const svc = gcpServiceBase("dns-resolver-agent", env, "python", {

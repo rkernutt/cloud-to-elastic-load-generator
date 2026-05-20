@@ -8,6 +8,12 @@ import {
   randAccount,
   REGIONS,
   USER_AGENTS,
+  IAM_USERS,
+  randIamUser,
+  randEmail,
+  randAppDomain,
+  FIRST_NAMES,
+  LAST_NAMES,
 } from "../../helpers";
 import type { EcsDocument } from "./types.js";
 
@@ -15,7 +21,7 @@ function generateWorkSpacesLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
   const isErr = Math.random() < er;
-  const user = rand(["alice", "bob", "carol", "david", "eva"]);
+  const user = randIamUser();
   const wsId = `ws-${randId(10).toLowerCase()}`;
   const directoryId = `d-${randId(10).toLowerCase()}`;
   const action = rand([
@@ -162,7 +168,7 @@ function generateConnectLog(ts: string, er: number): EcsDocument {
   ]);
   const channel = rand(["VOICE", "CHAT", "TASK"]);
   const queueName = rand(["BasicQueue", "TechSupport", "Billing", "Sales", "Priority-Enterprise"]);
-  const agent = rand(["agent-alice", "agent-bob", "agent-carol", null]);
+  const agent = rand([`agent-${randIamUser()}`, `agent-${randIamUser()}`, null]);
   const dur = randInt(10, 1800);
   const sentiment = rand(["POSITIVE", "NEUTRAL", "NEGATIVE", "MIXED"]);
   const contactId = `${randId(8)}-${randId(4)}-${randId(4)}`.toLowerCase();
@@ -569,7 +575,9 @@ function generateSesLog(ts: string, er: number): EcsDocument {
             timestamp: new Date(ts).toISOString(),
             userAgent: rand(USER_AGENTS),
             ipAddress: randIp(),
-            ...(eventType === "Click" ? { link: `https://example.com/track/${randId(8)}` } : {}),
+            ...(eventType === "Click"
+              ? { link: `https://${randAppDomain()}/track/${randId(8)}` }
+              : {}),
           },
         }
       : {}),
@@ -732,7 +740,7 @@ function generatePinpointLog(ts: string, er: number): EcsDocument {
         status_message: isErr ? "Address on suppression list" : null,
         destination:
           channel === "EMAIL"
-            ? `${user}@example.com`
+            ? randEmail(user)
             : channel === "SMS"
               ? `+1555${randInt(1000000, 9999999)}`
               : user,
@@ -1806,10 +1814,10 @@ function generateWorkMailLog(ts: string, er: number): EcsDocument {
   const action = isErr
     ? rand(["EmailBounced", "EmailBounced"])
     : rand(["EmailDelivered", "Login", "Logout", "SendMail"]);
-  const users = ["alice", "bob", "carol", "david", "eva", "frank", "grace"];
+  const users = IAM_USERS;
   const fromUser = rand(users);
   const toUser = rand(users);
-  const domain = "globex.example.com";
+  const domain = "globex.io";
   const emailsDelivered = isErr ? 0 : randInt(1, 1000);
   const emailsBounced = isErr ? randInt(1, 100) : 0;
   const activeUsers = randInt(1, 500);
@@ -1873,7 +1881,7 @@ function generateWickrLog(ts: string, er: number): EcsDocument {
   const roomId = `room-${randId(8).toLowerCase()}`;
   const messageType = rand(["text", "file", "call"]);
   const retentionPolicy = rand(["30d", "90d", "365d", "7d"]);
-  const userName = rand(["alice.smith", "bob.jones", "carol.white", "david.brown", "eva.martin"]);
+  const userName = `${rand(FIRST_NAMES)}.${rand(LAST_NAMES)}`;
   const messagesSent = isErr ? 0 : randInt(1, 10000);
   const activeUsers = randInt(1, 500);
   const filesShared = isErr ? 0 : randInt(0, 100);

@@ -1,4 +1,13 @@
-import { rand, randInt, randFloat, randId, randAccount, REGIONS, randUUID } from "../../helpers";
+import {
+  rand,
+  randInt,
+  randFloat,
+  randId,
+  randAccount,
+  REGIONS,
+  randUUID,
+  randPersonEmail,
+} from "../../helpers";
 import type { EcsDocument } from "./types.js";
 
 function generateKinesisStreamsLog(ts: string, er: number): EcsDocument {
@@ -143,6 +152,7 @@ function generateKinesisStreamsLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["network"],
+      type: ["connection"],
       dataset: "aws.kinesis",
       provider: "kinesis.amazonaws.com",
       duration: randInt(1, isErr ? 60000 : 5000) * 1e6,
@@ -292,6 +302,7 @@ function generateFirehoseLog(ts: string, er: number): EcsDocument {
       action: scenario,
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.firehose",
       provider: "firehose.amazonaws.com",
       duration:
@@ -384,7 +395,8 @@ function generateKinesisAnalyticsLog(ts: string, er: number): EcsDocument {
     },
     event: {
       outcome: isErr ? "failure" : "success",
-      category: "process",
+      category: ["process"],
+      type: ["info"],
       dataset: "aws.kinesisanalytics",
       provider: "kinesisanalytics.amazonaws.com",
       duration: randInt(100, isErr ? 30000 : 2000) * 1e6,
@@ -490,6 +502,7 @@ function generateMskLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["process", "network"],
+      type: ["connection"],
       dataset: "aws.msk",
       provider: "kafka.amazonaws.com",
       duration: randInt(1, isErr ? 5000 : 100) * 1e6,
@@ -613,6 +626,7 @@ function generateSqsLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.sqs",
       provider: "sqs.amazonaws.com",
       duration: randInt(1, isErr ? 30000 : 500) * 1e6,
@@ -724,7 +738,7 @@ function generateSnsLog(ts: string, er: number): EcsDocument {
         delivery: {
           statusCode: isErr ? rand([502, 503]) : 200,
           providerResponse: isErr ? "Endpoint disabled or unreachable" : "OK",
-          destination: rand(["mailto:user@corp.com", "lambda arn"]),
+          destination: rand([`mailto:${randPersonEmail()}`, "lambda arn"]),
         },
         status: isErr ? "FAILURE" : "SUCCESS",
       }) + ` [DeliveryStatusLogging]`;
@@ -784,6 +798,7 @@ function generateSnsLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.sns",
       provider: "sns.amazonaws.com",
       duration: deliveryLatencyMs * 1e6,
@@ -891,6 +906,7 @@ function generateAmazonMqLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["process", "network"],
+      type: ["connection"],
       dataset: "aws.amazonmq",
       provider: "mq.amazonaws.com",
       duration: durSec * 1e9,
@@ -1181,7 +1197,8 @@ function generateStepFunctionsLog(ts: string, er: number): EcsDocument {
     event: {
       duration: dur * 1e9,
       outcome: isErr ? "failure" : "success",
-      category: "process",
+      category: ["process"],
+      type: ["info"],
       dataset: "aws.stepfunctions",
       provider: "states.amazonaws.com",
     },
@@ -1263,6 +1280,7 @@ function generateMskConnectLog(ts: string, er: number): EcsDocument {
       ]),
       outcome: isErr ? "failure" : "success",
       category: ["process"],
+      type: ["info"],
       dataset: "aws.mskconnect",
       provider: "kafkaconnect.amazonaws.com",
       duration: randInt(1, isErr ? 60000 : 5000) * 1e6,
@@ -1323,6 +1341,7 @@ function generateEndUserMessagingLog(ts: string, er: number): EcsDocument {
     event: {
       outcome: isErr ? "failure" : "success",
       category: ["network"],
+      type: ["connection"],
       dataset: "aws.endusermessaging",
       provider: "sms-voice.amazonaws.com",
       duration: randInt(10, isErr ? 10000 : 1000) * 1e6,

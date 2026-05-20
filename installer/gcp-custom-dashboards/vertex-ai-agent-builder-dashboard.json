@@ -48,7 +48,7 @@
           "type": "xy",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.vertex_ai_agent_builder* | STATS count = COUNT() BY bucket = DATE_TRUNC(30 minutes, @timestamp)"
+            "query": "FROM logs-gcp.vertex_ai_agent_builder* | STATS count = COUNT() BY bucket = DATE_TRUNC(30 minutes, `@timestamp`)"
           },
           "layers": [{ "seriesType": "bar_stacked", "xAccessor": "bucket", "yAccessor": "count" }]
         }
@@ -64,7 +64,7 @@
           "type": "xy",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.vertex_ai_agent_builder* | WHERE event.outcome == \"failure\" | STATS count = COUNT() BY scenario = COALESCE(`gcp.vertex_ai_agent_builder.scenario`, \"unknown\"), bucket = DATE_TRUNC(30 minutes, @timestamp)"
+            "query": "FROM logs-gcp.vertex_ai_agent_builder* | WHERE event.outcome == \"failure\" | STATS count = COUNT() BY scenario = COALESCE(`gcp.vertex_ai_agent_builder.scenario`, \"unknown\"), bucket = DATE_TRUNC(30 minutes, `@timestamp`)"
           },
           "layers": [
             {
@@ -87,7 +87,7 @@
           "type": "xy",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.vertex_ai_agent_builder* | STATS count = COUNT() BY region = cloud.region, bucket = DATE_TRUNC(30 minutes, @timestamp)"
+            "query": "FROM logs-gcp.vertex_ai_agent_builder* | STATS count = COUNT() BY region = cloud.region, bucket = DATE_TRUNC(30 minutes, `@timestamp`)"
           },
           "layers": [
             {
@@ -110,7 +110,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.vertex_ai_agent_builder* | STATS c = COUNT() BY op = COALESCE(event.action, `gcp.vertex_ai_agent_builder.scenario`, \"unknown\") | SORT c DESC | LIMIT 15"
+            "query": "FROM logs-gcp.vertex_ai_agent_builder* | STATS c = COUNT() BY op = COALESCE(event.action, `gcp.vertex_ai_agent_builder.scenario`, \"unknown\") | SORT ``c DESC | LIMIT 15"
           },
           "metrics": [
             { "operation": "value", "column": "op", "label": "Operation" },

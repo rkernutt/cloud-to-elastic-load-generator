@@ -1,57 +1,58 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-south-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "verified-access" }
   },
   "aws": {
-    "dimensions": { "ApplicationId": "va-app-k1q1z8b9" },
+    "dimensions": { "ApplicationId": "va-app-fsztr0a9" },
     "verifiedaccess": {
-      "endpoint_id": "vae-h8dxwd28yjtpt380i",
-      "group_id": "vag-zj0z0vacxmdxc8jlx",
-      "instance_id": "vai-srx9epg1upom030uw",
-      "policy_name": "require-mfa-and-device",
+      "endpoint_id": "vae-lb178e4umh82cu1a0",
+      "group_id": "vag-m7ury616h5kunpiv2",
+      "instance_id": "vai-5a1cefa721e5e3a3d",
+      "policy_name": "jump-server-only",
       "trust_provider_type": "oidc-azure-ad",
       "device_posture": "COMPLIANT",
       "verdict": "allow",
-      "http_method": "DELETE",
-      "http_path": "/api/v1/users",
-      "http_status": 204,
-      "request_id": "ca413d65-d08c-4538-9f27-460bb85ecf85",
-      "connection_id": "KWQDRH012HUATKNWDN0S",
-      "session_id": "Y9BIXS7ZCFYPK009PJCZ8HY534M9S59U",
-      "sni_hostname": "dev-tools.internal.example.com",
-      "application_name": "dev-tools"
+      "http_method": "PUT",
+      "http_path": "/api/v2/search",
+      "http_status": 200,
+      "request_id": "bb5f8d40-7b1b-4784-863f-a76c3cc992ac",
+      "connection_id": "Y8HWK3NHU2DHPB50WRVL",
+      "session_id": "8A1KHHSRKCLQTBMVER55K677R3WRV3M8",
+      "sni_hostname": "internal-dashboard.internal.northwind-infra.net",
+      "application_name": "internal-dashboard"
     },
     "s3": {
       "bucket": {
-        "name": "aws-verifiedaccess-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-verifiedaccess-logs-738291046572"
+        "name": "aws-verifiedaccess-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-verifiedaccess-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/verifiedaccess/eu-central-1/2026/05/19/verifiedaccess_NC57THR27RMTIGYOOEQB.log.gz"
+        "key": "AWSLogs/814726593401/verifiedaccess/eu-south-2/2026/05/20/verifiedaccess_LHGCV4CJ4JWEGHWZJM3H.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/verifiedaccess/logs",
-      "log_stream": "eu-central-1/w8dmefh1",
-      "ingestion_time": "2026-05-19T15:25:13.522Z"
+      "log_stream": "eu-south-2/128fjm7n",
+      "ingestion_time": "2026-05-20T13:19:01.273Z"
     }
   },
-  "user": { "email": "deploy-svc@example.com", "name": "deploy-svc" },
-  "source": { "ip": "169.68.186.104" },
+  "user": { "email": "svc-deploy-prod@bluepeak.dev", "name": "svc-deploy-prod" },
+  "source": { "ip": "130.49.40.129" },
   "event": {
     "outcome": "success",
     "category": ["authentication", "network"],
     "type": ["allowed"],
     "dataset": "aws.verifiedaccess",
     "provider": "verified-access.amazonaws.com",
-    "duration": 151000000,
-    "module": "aws"
+    "duration": 165000000,
+    "module": "aws",
+    "kind": "event"
   },
-  "message": "Verified Access allowed: deploy-svc@example.com -> dev-tools (COMPLIANT)",
+  "message": "Verified Access allowed: svc-deploy-prod@bluepeak.dev -> internal-dashboard (COMPLIANT)",
   "log": { "level": "info" },
   "service": { "name": "verifiedaccess", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -59,8 +60,12 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "giu5r4bbn0ooc26huya236pn1e7syia0c6ev"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "4nspy1yu1c9g9gg2s43bpg1f72ghascg7w4m"
   },
-  "input": { "type": "aws-cloudwatch" }
+  "input": { "type": "aws-cloudwatch" },
+  "related": {
+    "ip": ["130.49.40.129"],
+    "user": ["svc-deploy-prod", "svc-deploy-prod@bluepeak.dev"]
+  }
 }

@@ -1,68 +1,78 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "info" },
-  "labels": {},
-  "severity": "NOTICE",
-  "logName": "projects/globex-prod-a1b2c3/logs/interconnect.googleapis.com%2Finterconnect_events",
-  "insertId": "q6ex0sh1lvw5zerf",
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "PERMISSION_DENIED" },
+  "error": {
+    "code": "PERMISSION_DENIED",
+    "message": "PERMISSION_DENIED: operation failed",
+    "type": "gcp"
+  },
+  "labels": { "gcp.rpc.status_code": "PERMISSION_DENIED" },
+  "severity": "ERROR",
+  "logName": "projects/globex-sec-847293/logs/interconnect.googleapis.com%2Finterconnect_events",
+  "insertId": "yhwsi7wfltwpb928",
   "resource": {
     "type": "interconnect_attachment",
     "labels": {
-      "project_id": "globex-prod-a1b2c3",
-      "attachment": "attach-t0uyn",
-      "region": "asia-northeast2"
+      "project_id": "globex-sec-847293",
+      "attachment": "attach-benaa",
+      "region": "asia-northeast3"
     }
   },
   "jsonPayload": {
-    "interconnect": "projects/globex-prod-a1b2c3/global/interconnects/ic-dfw-4cvc",
-    "interconnect_attachment": "projects/globex-prod-a1b2c3/regions/asia-northeast2/interconnectAttachments/attach-t0uyn",
-    "operational_status": "OS_ACTIVE",
-    "interconnect_type": "DEDICATED",
-    "bandwidth_gbps": 100,
-    "circuits": 4,
-    "google_circuit_id": "GC-6QQBP5BD"
+    "interconnect": "projects/globex-sec-847293/global/interconnects/ic-iad-fly4",
+    "interconnect_attachment": "projects/globex-sec-847293/regions/asia-northeast3/interconnectAttachments/attach-benaa",
+    "operational_status": "OS_DOWN",
+    "interconnect_type": "PARTNER",
+    "bandwidth_gbps": 200,
+    "circuits": 1,
+    "google_circuit_id": "GC-TDIUG1JK"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast2",
-    "project": { "id": "globex-prod-a1b2c3", "name": "Globex Production" },
-    "account": { "id": "314159265358", "name": "Globex Production" },
+    "region": "asia-northeast3",
+    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
+    "account": { "id": "847293615048", "name": "Globex Security" },
     "service": { "name": "cloud-interconnect" }
   },
   "gcp": {
     "cloud_interconnect": {
       "json_payload": {
-        "interconnect": "projects/globex-prod-a1b2c3/global/interconnects/ic-dfw-4cvc",
-        "interconnect_attachment": "projects/globex-prod-a1b2c3/regions/asia-northeast2/interconnectAttachments/attach-t0uyn",
-        "operational_status": "OS_ACTIVE",
-        "interconnect_type": "DEDICATED",
-        "bandwidth_gbps": 100,
-        "circuits": 4,
-        "google_circuit_id": "GC-6QQBP5BD"
+        "interconnect": "projects/globex-sec-847293/global/interconnects/ic-iad-fly4",
+        "interconnect_attachment": "projects/globex-sec-847293/regions/asia-northeast3/interconnectAttachments/attach-benaa",
+        "operational_status": "OS_DOWN",
+        "interconnect_type": "PARTNER",
+        "bandwidth_gbps": 200,
+        "circuits": 1,
+        "google_circuit_id": "GC-TDIUG1JK"
       },
-      "attachment_name": "attach-t0uyn",
-      "interconnect_name": "ic-dfw-4cvc",
-      "type": "DEDICATED",
-      "bandwidth_gbps": 100,
-      "operational_status": "OS_ACTIVE",
-      "circuits_count": 4
+      "attachment_name": "attach-benaa",
+      "interconnect_name": "ic-iad-fly4",
+      "type": "PARTNER",
+      "bandwidth_gbps": 200,
+      "operational_status": "OS_DOWN",
+      "circuits_count": 1
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 58000000,
+    "kind": "event",
+    "category": ["network"],
+    "type": ["denied"],
+    "action": "interconnect-link",
+    "outcome": "failure",
+    "duration": 1856000000,
     "module": "gcp",
     "dataset": "gcp.interconnect"
   },
-  "message": "interconnect.googleapis.com/interconnect_events ic-dfw-4cvc OS_ACTIVE",
+  "message": "interconnect.googleapis.com/interconnect_events ic-iad-fly4 OS_DOWN",
   "service": { "name": "cloud-interconnect", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.interconnect", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-northeast2",
-    "id": "woazu09u2po30yjhz4w9ev1azkykvmvpk4d7"
+    "name": "elastic-agent-gcp-asia-northeast3",
+    "id": "luygfrot8ndx58lboykxu0g9hmqflvz6svsy"
   },
   "input": { "type": "gcp-pubsub" }
 }

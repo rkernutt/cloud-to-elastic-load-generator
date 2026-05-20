@@ -1,37 +1,36 @@
 {
-  "@timestamp": "2026-05-19T15:25:12.772Z",
+  "@timestamp": "2026-05-20T13:19:00.213Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "be61d66a12ef88585e7c058538c9d752" },
+  "trace": { "id": "0996515e63b9e2d5480cfe5ae3752c3c" },
   "transaction": {
-    "id": "30b9dab5d9e0d9cc",
-    "name": "web-clickstream-delivery deliver",
+    "id": "34937b92860e4230",
+    "name": "app-events-delivery deliver",
     "type": "messaging",
-    "duration": { "us": 587000 },
-    "result": "failure",
+    "duration": { "us": 3520000 },
+    "result": "success",
     "sampled": true,
     "span_count": { "started": 2, "dropped": 0 }
   },
   "labels": {
-    "stream_arn": "arn:aws:firehose:af-south-1:234567890123:deliverystream/web-clickstream-delivery",
-    "delivery_stream_name": "web-clickstream-delivery",
-    "destination": "redshift",
-    "records_count": "2074",
-    "data_freshness_ms": "159895",
-    "bytes_sent": "1402024",
-    "dlq_count": "1246"
+    "stream_arn": "arn:aws:firehose:us-east-2:293847561023:deliverystream/app-events-delivery",
+    "delivery_stream_name": "app-events-delivery",
+    "destination": "opensearch",
+    "records_count": "4021",
+    "data_freshness_ms": "869536",
+    "bytes_sent": "1479728"
   },
   "service": {
-    "name": "web-analytics-producer",
+    "name": "clickstream-ingestor",
     "environment": "dev",
-    "version": "1.0.0",
-    "language": { "name": "nodejs" },
-    "runtime": { "name": "node", "version": "20.15.1" },
-    "framework": { "name": "Express" }
+    "version": "2.14.2",
+    "language": { "name": "java" },
+    "runtime": { "name": "OpenJDK", "version": "21.0.3" },
+    "framework": { "name": "Spring Boot" }
   },
-  "agent": { "name": "otlp", "version": "1.4.0" },
+  "agent": { "name": "otlp", "version": "1.6.0" },
   "telemetry": {
-    "sdk": { "name": "opentelemetry", "language": "nodejs", "version": "1.30.1" },
-    "distro": { "name": "elastic", "version": "1.4.0" },
+    "sdk": { "name": "opentelemetry", "language": "java", "version": "2.12.0" },
+    "distro": { "name": "elastic", "version": "1.6.0" },
     "otel_pipeline": {
       "hop": "otel_collector",
       "export_protocol": "otlp",
@@ -40,11 +39,11 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
-    "account": { "id": "234567890123", "name": "staging-aws" },
+    "region": "us-east-2",
+    "account": { "id": "293847561023", "name": "staging-aws" },
     "service": { "name": "firehose" }
   },
-  "event": { "outcome": "failure", "module": "aws", "dataset": "aws.firehose" },
+  "event": { "outcome": "success", "module": "aws", "dataset": "aws.firehose", "kind": "event" },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
   "ecs": { "version": "8.11.0" },
   "input": { "type": "opentelemetry" }

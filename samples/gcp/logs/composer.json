@@ -1,20 +1,20 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
+  "severity": "WARNING",
   "labels": {
-    "environment_name": "composer-prod",
+    "environment_name": "composer-data",
     "dag_id": "ml_feature_refresh"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-northeast2",
+    "region": "europe-west2",
     "project": {
-      "id": "globex-security-j0k1l2",
-      "name": "Globex Security"
+      "id": "globex-prod-482910",
+      "name": "Globex Production"
     },
     "account": {
-      "id": "141421356237",
-      "name": "Globex Security"
+      "id": "482910375621",
+      "name": "Globex Production"
     },
     "service": {
       "name": "composer"
@@ -22,23 +22,31 @@
   },
   "gcp": {
     "composer": {
-      "environment_name": "composer-prod",
+      "environment_name": "composer-data",
       "dag_id": "ml_feature_refresh",
-      "task_id": "notify_slack",
-      "execution_date": "2026-05-19 09:41:28",
-      "state": "running",
-      "try_number": 1,
-      "operator": "BigQueryInsertJobOperator",
-      "duration_seconds": 3013
+      "task_id": "transform_load",
+      "execution_date": "2026-05-19 16:58:31",
+      "state": "up_for_retry",
+      "try_number": 2,
+      "operator": "BashOperator",
+      "duration_seconds": 2370
     }
   },
   "event": {
+    "kind": "event",
+    "category": [
+      "database"
+    ],
+    "type": [
+      "end"
+    ],
+    "action": "ml_feature_refresh.transform_load",
     "outcome": "success",
-    "duration": 3013000000000,
+    "duration": 2370000000000,
     "module": "gcp",
     "dataset": "gcp.composer"
   },
-  "message": "[2026-04-04T12:00:00.000Z] {composer-prod} INFO - Marking task as running: ml_feature_refresh.notify_slack duration=3013s",
+  "message": "[2026-04-04T12:00:00.000Z] {composer-data} INFO - Marking task as up_for_retry: ml_feature_refresh.transform_load duration=2370s",
   "service": {
     "name": "composer",
     "type": "gcp"
@@ -57,32 +65,32 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-northeast2",
-    "id": "k2iu9tarl9z64b8fzrvb2wbru37j8llnqa0f"
+    "name": "elastic-agent-gcp-europe-west2",
+    "id": "iyn5u7zs0ow0nt52ye8qlgflnp57r0zheveh"
   },
   "input": {
     "type": "gcp-pubsub"
   },
-  "logName": "projects/globex-security-j0k1l2/logs/composer",
+  "logName": "projects/globex-prod-482910/logs/composer",
   "resource": {
     "type": "cloud_composer_environment",
     "labels": {
-      "project_id": "globex-security-j0k1l2",
-      "region": "asia-northeast2"
+      "project_id": "globex-prod-482910",
+      "region": "europe-west2"
     }
   },
-  "insertId": "FAA5YRQ2XXF0",
+  "insertId": "8EZ2QFH9WH7A",
   "jsonPayload": {
     "composer": {
-      "environment_name": "composer-prod",
+      "environment_name": "composer-data",
       "dag_id": "ml_feature_refresh",
-      "task_id": "notify_slack",
-      "execution_date": "2026-05-19 09:41:28",
-      "state": "running",
-      "try_number": 1,
-      "operator": "BigQueryInsertJobOperator",
-      "duration_seconds": 3013
+      "task_id": "transform_load",
+      "execution_date": "2026-05-19 16:58:31",
+      "state": "up_for_retry",
+      "try_number": 2,
+      "operator": "BashOperator",
+      "duration_seconds": 2370
     },
-    "message": "[2026-04-04T12:00:00.000Z] {composer-prod} INFO - Marking task as running: ml_feature_refresh.notify_slack duration=3013s"
+    "message": "[2026-04-04T12:00:00.000Z] {composer-data} INFO - Marking task as up_for_retry: ml_feature_refresh.transform_load duration=2370s"
   }
 }

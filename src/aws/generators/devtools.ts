@@ -3,12 +3,15 @@ import {
   randInt,
   randFloat,
   randId,
+  randHexId,
   randUUID,
   randAccount,
   REGIONS,
   HTTP_METHODS,
   HTTP_PATHS,
   USER_AGENTS,
+  randIamUser,
+  randFqdn,
 } from "../../helpers";
 import type { EcsDocument } from "./types.js";
 
@@ -71,7 +74,7 @@ function generateCodeBuildLog(ts: string, er: number): EcsDocument {
       lines.push(`[Container] ${nextTs()} CODEBUILD_CONTAINER_TYPE: LINUX_CONTAINER`);
       lines.push(`[Container] ${nextTs()} Downloading managed image ${img}`);
       lines.push(
-        `[Container] ${nextTs()} Authenticating with ECR registry 123456789012.dkr.ecr.${region}.amazonaws.com`
+        `[Container] ${nextTs()} Authenticating with ECR registry ${acct.id}.dkr.ecr.${region}.amazonaws.com`
       );
     }
     if (p === "DOWNLOAD_SOURCE") {
@@ -296,9 +299,7 @@ function generateCodePipelineLog(ts: string, er: number): EcsDocument {
           lines.push(
             `[Stage:Approval] Waiting for manual approval (notificationArn=arn:aws:sns:${region}:${acct.id}:pipeline-approvals)`
           );
-          lines.push(
-            `[Stage:Approval] Transitioning: SUCCEEDED approvedBy=${rand(["alice", "bob", "release-bot"])}`
-          );
+          lines.push(`[Stage:Approval] Transitioning: SUCCEEDED approvedBy=${randIamUser()}`);
         }
       }
     }
@@ -398,7 +399,7 @@ function generateCodeDeployLog(ts: string, er: number): EcsDocument {
     "ApplicationStart",
     "ValidateService",
   ] as const;
-  const instId = `i-${randId(8)}`;
+  const instId = `i-${randHexId(8)}`;
   const hookLines = hookOrder
     .map((h) => {
       const failedHere = isErr && ev === h;
@@ -506,7 +507,7 @@ function generateCodeCommitLog(ts: string, er: number): EcsDocument {
         event_type: ev,
         reference_name: branch,
         commit_id: randId(40).toLowerCase(),
-        author: rand(["alice", "bob", "carol", "github-actions", "codebuild"]),
+        author: rand([randIamUser(), "github-actions", "codebuild", "svc-cicd-runner"]),
         files_changed: randInt(1, 50),
         lines_added: randInt(0, 500),
         lines_deleted: randInt(0, 200),
@@ -518,7 +519,7 @@ function generateCodeCommitLog(ts: string, er: number): EcsDocument {
           : null,
       },
     },
-    user: { name: rand(["alice", "bob", "carol"]) },
+    user: { name: randIamUser() },
     event: {
       action: ev,
       outcome: isErr ? "failure" : "success",
@@ -767,7 +768,7 @@ function generateXRayLog(ts: string, er: number): EcsDocument {
         : rand([200, 200, 201, 204]);
   const method = rand(HTTP_METHODS);
   const path = rand(HTTP_PATHS);
-  const url = `https://${rand(["api", "app", "service"])}.${rand(["example.com", "myapp.io", "internal.corp"])}${path}`;
+  const url = `https://${randFqdn()}${path}`;
   const clientIp = `${randInt(10, 223)}.${randInt(0, 255)}.${randInt(0, 255)}.${randInt(1, 254)}`;
   const userAgent = rand(USER_AGENTS);
 
@@ -1634,7 +1635,7 @@ function generateCloud9Log(ts: string, er: number): EcsDocument {
               : "auto_save";
   const collaboration = {
     environment_arn: `arn:aws:cloud9:${region}:${acct.id}:environment/${environmentId}`,
-    member_user_arn: `arn:aws:iam::${acct.id}:user/${rand(["alice", "bob", "buildsvc"])}`,
+    member_user_arn: `arn:aws:iam::${acct.id}:user/${randIamUser()}`,
     permission: rand(["read-write", "read-only"]),
   };
   const riskyScenario = scenario === "environment_create" || scenario === "ssh_connect";
@@ -1644,7 +1645,7 @@ function generateCloud9Log(ts: string, er: number): EcsDocument {
     : undefined;
   const messages: Record<string, string> = {
     ide_open: `Cloud9 IDE session opened for ${env} (${environmentId}) via ${rand(["SSM", "SSH"])}`,
-    environment_create: `CreateEnvironmentEC2: ${env} instanceType=${rand(instanceTypes)} subnet=${`subnet-${randId(8)}`}`,
+    environment_create: `CreateEnvironmentEC2: ${env} instanceType=${rand(instanceTypes)} subnet=${`subnet-${randHexId(8)}`}`,
     collaboration_join: `Member ${collaboration.member_user_arn.split("/").pop()} joined with ${collaboration.permission}`,
     terminal_exec: `[terminal-1] ${rand(["npm test", "docker ps", "pytest -q", "cdk synth"])} completed rc=${isErr ? 1 : 0}`,
     ssh_connect: `SSH_CONNECT host=${`ip-${randId(8)}.${region}.compute.internal`} fingerprint=${randId(16)}`,
@@ -1674,8 +1675,8 @@ function generateCloud9Log(ts: string, er: number): EcsDocument {
           c9_plugin_version: rand(["1.44.0", "1.45.2"]),
         },
         network: {
-          vpc_id: `vpc-${randId(8)}`,
-          subnet_id: `subnet-${randId(8)}`,
+          vpc_id: `vpc-${randHexId(8)}`,
+          subnet_id: `subnet-${randHexId(8)}`,
         },
       },
     },
@@ -1780,8 +1781,8 @@ function generateRoboMakerLog(ts: string, er: number): EcsDocument {
         ros: { distro: rosDistro, graph: rosGraph },
         physics,
         vpc_config: {
-          subnets: [`subnet-${randId(8)}`, `subnet-${randId(8)}`],
-          security_groups: [`sg-${randId(8)}`],
+          subnets: [`subnet-${randHexId(8)}`, `subnet-${randHexId(8)}`],
+          security_groups: [`sg-${randHexId(8)}`],
         },
       },
     },

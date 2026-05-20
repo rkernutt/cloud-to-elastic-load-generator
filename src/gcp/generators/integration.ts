@@ -12,6 +12,7 @@ import {
   randOperationId,
   randLatencyMs,
   randSeverity,
+  gcpLogEvent,
 } from "./helpers.js";
 
 const GRPC_RPC_STATUSES = [
@@ -155,7 +156,19 @@ export function generateIntegrationConnectorsLog(ts: string, er: number): EcsDoc
         status,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: Math.round(latencyMs) },
+    event: gcpLogEvent(
+      isErr,
+      Math.round(latencyMs),
+      action,
+      ["configuration"],
+      isErr
+        ? ["error"]
+        : action === "CREATE_CONNECTION"
+          ? ["creation"]
+          : action === "EXECUTE_ACTION"
+            ? ["change"]
+            : ["access"]
+    ),
     message,
     ...faultSpread,
   };
@@ -264,7 +277,21 @@ export function generateApplicationIntegrationLog(ts: string, er: number): EcsDo
         tasks_executed: tasksExecuted,
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: executionTimeMs },
+    event: gcpLogEvent(
+      isErr,
+      executionTimeMs,
+      apiMethod,
+      ["configuration"],
+      isErr
+        ? ["error"]
+        : scenario === "integrations_execute"
+          ? ["start"]
+          : scenario === "integrations_delete"
+            ? ["deletion"]
+            : scenario === "integrations_deploy"
+              ? ["change"]
+              : ["access"]
+    ),
     message,
     ...faultSpread,
   };
@@ -355,7 +382,19 @@ export function generateApiHubLog(ts: string, er: number): EcsDocument {
         consumers_count: randInt(0, 50),
       },
     },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e4, 5e6) },
+    event: gcpLogEvent(
+      isErr,
+      randInt(1e4, 5e6),
+      action,
+      ["api"],
+      isErr
+        ? ["error"]
+        : action === "REGISTER_API" || action === "CREATE_LISTING"
+          ? ["creation"]
+          : action === "UPDATE_VERSION"
+            ? ["change"]
+            : ["access"]
+    ),
     message,
     ...faultSpread,
   };
