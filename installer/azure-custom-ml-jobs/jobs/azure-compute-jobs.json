@@ -369,6 +369,214 @@
           "enabled": true
         }
       }
+    },
+    {
+      "id": "azure-aks-pod-restart-anomaly",
+      "description": "Detects spikes in AKS pod failure and restart events per namespace (crash loops, OOM, probe failures)",
+      "job": {
+        "description": "Detects spikes in AKS pod failure and restart events per namespace",
+        "groups": ["azure", "compute", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=kubernetes.namespace",
+              "function": "high_count",
+              "partition_field_name": "kubernetes.namespace",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "kubernetes.namespace",
+            "kubernetes.pod.name",
+            "azure.kubernetes.cluster_name",
+            "cloud.region"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "cloud.service.name": "Microsoft.ContainerService/managedClusters"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ],
+            "should": [
+              {
+                "wildcard": {
+                  "message": "*Back-off restarting*"
+                }
+              },
+              {
+                "wildcard": {
+                  "message": "*OOMKilled*"
+                }
+              },
+              {
+                "wildcard": {
+                  "message": "*CrashLoopBackOff*"
+                }
+              }
+            ],
+            "minimum_should_match": 1
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-functions-invocation-error-spike",
+      "description": "Detects spikes in Azure Functions invocation failures per function (handler errors, host crashes, dependency timeouts)",
+      "job": {
+        "description": "Detects spikes in Azure Functions invocation failures per function",
+        "groups": ["azure", "compute", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.functions.function_name",
+              "function": "high_count",
+              "partition_field_name": "azure.functions.function_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.functions.function_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.functions*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "exists": {
+                  "field": "azure.functions.function_name"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-app-service-response-time-anomaly",
+      "description": "Detects unusual App Service HTTP response time per app (thread pool saturation, downstream slowness, cold start)",
+      "job": {
+        "description": "Detects unusual App Service HTTP response time per app",
+        "groups": ["azure", "compute", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=azure.app_service.app_name",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "azure.app_service.app_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.app_service.app_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.app_service*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "exists": {
+                  "field": "azure.app_service.app_name"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
     }
   ]
 }

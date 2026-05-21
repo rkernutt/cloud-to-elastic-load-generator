@@ -1,5 +1,5 @@
 {
-  "title": "Azure Databricks \u2014 overview",
+  "title": "Azure Databricks — Clusters & Spark Jobs",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -7,7 +7,7 @@
   "panels": [
     {
       "type": "lens",
-      "uid": "adatabricksk1",
+      "uid": "az-dbr-k1",
       "grid": {
         "x": 0,
         "y": 0,
@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.databricks* | STATS `Log events` = COUNT()"
+            "query": "FROM logs-azure.databricks* | STATS Events = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Log events"
+              "column": "Events"
             }
           ]
         }
@@ -34,7 +34,88 @@
     },
     {
       "type": "lens",
-      "uid": "adatabricksd1",
+      "uid": "az-dbr-k2",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.databricks* | STATS total = COUNT(), ok = SUM(CASE(`azure.databricks.state` == \"SUCCEEDED\", 1, 0)) | EVAL `Job success %` = ROUND(ok * 100.0 / total, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Job success %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-dbr-k3",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.databricks* | STATS `Avg duration (ms)` = ROUND(AVG(`azure.databricks.duration_ms`), 0)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg duration (ms)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-dbr-k4",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.databricks* | STATS `Records read` = SUM(`azure.databricks.spark.records_read`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Records read"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-dbr-d1",
       "grid": {
         "x": 0,
         "y": 5,
@@ -42,12 +123,76 @@
         "h": 10
       },
       "config": {
-        "title": "Event outcome",
+        "title": "State",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.databricks* | STATS c = COUNT() BY o = event.outcome"
+            "query": "FROM logs-azure.databricks* | STATS c = COUNT() BY st = `azure.databricks.state` | SORT ``c DESC"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "st"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-dbr-d2",
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Workspace",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.databricks* | STATS c = COUNT() BY ws = `azure.databricks.workspace_name` | SORT ``c DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "ws"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-dbr-d3",
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Outcome",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.databricks* | STATS c = COUNT() BY o = event.outcome | SORT ``c DESC"
           },
           "metrics": [
             {
@@ -66,7 +211,7 @@
     },
     {
       "type": "lens",
-      "uid": "adatabricksl1",
+      "uid": "az-dbr-l1",
       "grid": {
         "x": 0,
         "y": 15,
@@ -74,7 +219,7 @@
         "h": 10
       },
       "config": {
-        "title": "Event volume",
+        "title": "Cluster utilization events",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -114,31 +259,162 @@
     },
     {
       "type": "lens",
-      "uid": "adatabrickst1",
+      "uid": "az-dbr-l2",
       "grid": {
         "x": 0,
         "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Spark records over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-azure.databricks* | STATS read = SUM(`azure.databricks.spark.records_read`), written = SUM(`azure.databricks.spark.records_written`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "read",
+                  "label": "Read"
+                },
+                {
+                  "operation": "value",
+                  "column": "written",
+                  "label": "Written"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-dbr-b1",
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Stage latency by cluster (ms)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-azure.databricks* | STATS lat = ROUND(AVG(`azure.databricks.duration_ms`), 0) BY cl = `azure.databricks.cluster_id` | SORT ``lat DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "cl"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "lat",
+                  "label": "Avg ms"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-dbr-t1",
+      "grid": {
+        "x": 0,
+        "y": 35,
         "w": 48,
         "h": 12
       },
       "config": {
-        "title": "By resource group",
+        "title": "Recent jobs",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.databricks* | STATS c = COUNT() BY region = COALESCE(`azure.databricks.resource_group`, \"unknown\") | SORT ``c DESC | LIMIT 15"
+            "query": "FROM logs-azure.databricks* | KEEP `@timestamp``@timestamp`, `azure.databricks.workspace_name`, `azure.databricks.cluster_id`, `azure.databricks.job_id`, `azure.databricks.state`, `azure.databricks.duration_ms`, `azure.databricks.spark.records_read`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "region",
-              "label": "Resource group"
+              "column": "`@timestamp`",
+              "label": "Time"
             },
             {
               "operation": "value",
-              "column": "c",
-              "label": "Count"
+              "column": "azure.databricks.workspace_name",
+              "label": "Workspace"
+            },
+            {
+              "operation": "value",
+              "column": "azure.databricks.cluster_id",
+              "label": "Cluster"
+            },
+            {
+              "operation": "value",
+              "column": "azure.databricks.job_id",
+              "label": "Job"
+            },
+            {
+              "operation": "value",
+              "column": "azure.databricks.state",
+              "label": "State"
+            },
+            {
+              "operation": "value",
+              "column": "azure.databricks.duration_ms",
+              "label": "Duration ms"
+            },
+            {
+              "operation": "value",
+              "column": "azure.databricks.spark.records_read",
+              "label": "Records read"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
             }
           ],
           "rows": []

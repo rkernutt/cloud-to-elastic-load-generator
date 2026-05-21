@@ -182,6 +182,193 @@
           "enabled": true
         }
       }
+    },
+    {
+      "id": "gcp-dataflow-pipeline-failure-spike",
+      "description": "Detects spikes in failed Dataflow pipeline jobs per job name (worker OOM, shuffle errors, quota exceeded)",
+      "job": {
+        "description": "Detects spikes in failed Dataflow pipeline jobs per job name",
+        "groups": ["gcp", "analytics", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.dataflow.job_name",
+              "function": "high_count",
+              "partition_field_name": "gcp.dataflow.job_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.dataflow.job_name", "gcp.dataflow.job_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.dataflow*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "term": {
+                  "gcp.dataflow.current_state": "JOB_STATE_FAILED"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-pubsub-dead-letter-anomaly",
+      "description": "Detects spikes in Pub/Sub dead-letter deliveries per subscription (max delivery attempts exceeded)",
+      "job": {
+        "description": "Detects spikes in Pub/Sub dead-letter deliveries per subscription",
+        "groups": ["gcp", "analytics", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.pubsub.subscription_name",
+              "function": "high_count",
+              "partition_field_name": "gcp.pubsub.subscription_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.pubsub.subscription_name", "gcp.pubsub.topic_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.pubsub*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              }
+            ],
+            "should": [
+              {
+                "wildcard": {
+                  "message": "*dead-letter*"
+                }
+              },
+              {
+                "wildcard": {
+                  "message": "*DeadLetter*"
+                }
+              },
+              {
+                "term": {
+                  "error.type": "DeadLetterExceeded"
+                }
+              }
+            ],
+            "minimum_should_match": 1
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-composer-dag-failure-spike",
+      "description": "Detects spikes in failed Cloud Composer DAG task runs per DAG (Airflow operator failures, retries exhausted)",
+      "job": {
+        "description": "Detects spikes in failed Cloud Composer DAG task runs per DAG",
+        "groups": ["gcp", "analytics", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.composer.dag_id",
+              "function": "high_count",
+              "partition_field_name": "gcp.composer.dag_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.composer.dag_id", "gcp.composer.task_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.composer*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "term": {
+                  "gcp.composer.state": "failed"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
     }
   ]
 }

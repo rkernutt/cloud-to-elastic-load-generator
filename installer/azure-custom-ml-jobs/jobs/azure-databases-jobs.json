@@ -182,6 +182,136 @@
           "enabled": true
         }
       }
+    },
+    {
+      "id": "azure-cosmos-db-ru-consumption-anomaly",
+      "description": "Detects unusual Cosmos DB request unit consumption per account (hot partitions, 429 throttling, query fan-out)",
+      "job": {
+        "description": "Detects unusual Cosmos DB request unit consumption per account",
+        "groups": ["azure", "databases", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(azure.cosmos_db.ru_consumed) partitionfield=azure.cosmos_db.account",
+              "function": "high_mean",
+              "field_name": "azure.cosmos_db.ru_consumed",
+              "partition_field_name": "azure.cosmos_db.account",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.cosmos_db.account", "azure.cosmos_db.database", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.cosmos_db*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "exists": {
+                  "field": "azure.cosmos_db.ru_consumed"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-postgresql-connection-spike",
+      "description": "Detects spikes in failed PostgreSQL connection attempts per server (auth failures, max connections, network blocks)",
+      "job": {
+        "description": "Detects spikes in failed PostgreSQL connection attempts per server",
+        "groups": ["azure", "databases", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.database_for_postgresql.server",
+              "function": "high_count",
+              "partition_field_name": "azure.database_for_postgresql.server",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.database_for_postgresql.server", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.postgresql*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ],
+            "should": [
+              {
+                "wildcard": {
+                  "message": "*connection_failed*"
+                }
+              },
+              {
+                "wildcard": {
+                  "message": "*authentication failed*"
+                }
+              }
+            ],
+            "minimum_should_match": 1
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
     }
   ]
 }

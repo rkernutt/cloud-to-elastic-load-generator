@@ -1,5 +1,5 @@
 {
-  "title": "Azure Logic Apps \u2014 overview",
+  "title": "Azure Logic Apps — Workflow Runs",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -7,7 +7,7 @@
   "panels": [
     {
       "type": "lens",
-      "uid": "alogicappsk1",
+      "uid": "az-la-k1",
       "grid": {
         "x": 0,
         "y": 0,
@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.logic_apps* | STATS `Log events` = COUNT()"
+            "query": "FROM logs-azure.logic_apps* | STATS Executions = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Log events"
+              "column": "Executions"
             }
           ]
         }
@@ -34,7 +34,88 @@
     },
     {
       "type": "lens",
-      "uid": "alogicappsd1",
+      "uid": "az-la-k2",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.logic_apps* | STATS total = COUNT(), ok = SUM(CASE(`azure.logic_apps.status` IN (\"Succeeded\", \"Completed\"), 1, 0)) | EVAL `Success %` = ROUND(ok * 100.0 / total, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Success %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-la-k3",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.logic_apps* | STATS `Avg duration (ms)` = ROUND(AVG(`azure.logic_apps.duration_ms`), 0)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg duration (ms)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-la-k4",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.logic_apps* | STATS `Action failures` = SUM(CASE(event.outcome == \"failure\", 1, 0))"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Action failures"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-la-d1",
       "grid": {
         "x": 0,
         "y": 5,
@@ -42,12 +123,12 @@
         "h": 10
       },
       "config": {
-        "title": "Event outcome",
+        "title": "Status",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.logic_apps* | STATS c = COUNT() BY o = event.outcome"
+            "query": "FROM logs-azure.logic_apps* | STATS c = COUNT() BY st = `azure.logic_apps.status` | SORT ``c DESC"
           },
           "metrics": [
             {
@@ -58,7 +139,7 @@
           "group_by": [
             {
               "operation": "value",
-              "column": "o"
+              "column": "st"
             }
           ]
         }
@@ -66,7 +147,71 @@
     },
     {
       "type": "lens",
-      "uid": "alogicappsl1",
+      "uid": "az-la-d2",
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Action type",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.logic_apps* | STATS c = COUNT() BY at = `azure.logic_apps.action_type` | SORT ``c DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "at"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-la-d3",
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Workflow",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.logic_apps* | STATS c = COUNT() BY wf = `azure.logic_apps.workflow_name` | SORT ``c DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "wf"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-la-l1",
       "grid": {
         "x": 0,
         "y": 15,
@@ -74,7 +219,7 @@
         "h": 10
       },
       "config": {
-        "title": "Event volume",
+        "title": "Executions over time",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -104,7 +249,7 @@
                 {
                   "operation": "value",
                   "column": "c",
-                  "label": "Events"
+                  "label": "Runs"
                 }
               ]
             }
@@ -114,31 +259,157 @@
     },
     {
       "type": "lens",
-      "uid": "alogicappst1",
+      "uid": "az-la-l2",
       "grid": {
         "x": 0,
         "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Run duration over time (ms)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-azure.logic_apps* | STATS d = AVG(`azure.logic_apps.duration_ms`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "d",
+                  "label": "Duration ms"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-la-b1",
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Failures by action",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-azure.logic_apps* | WHERE event.outcome == \"failure\" | STATS c = COUNT() BY act = `azure.logic_apps.action_name` | SORT ``c DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "act"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c",
+                  "label": "Failures"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-la-t1",
+      "grid": {
+        "x": 0,
+        "y": 35,
         "w": 48,
         "h": 12
       },
       "config": {
-        "title": "By resource group",
+        "title": "Recent runs",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.logic_apps* | STATS c = COUNT() BY region = COALESCE(`azure.logic_apps.resource_group`, \"unknown\") | SORT ``c DESC | LIMIT 15"
+            "query": "FROM logs-azure.logic_apps* | KEEP `@timestamp``@timestamp`, `azure.logic_apps.workflow_name`, `azure.logic_apps.run_id`, `azure.logic_apps.action_name`, `azure.logic_apps.action_type`, `azure.logic_apps.status`, `azure.logic_apps.duration_ms`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "region",
-              "label": "Resource group"
+              "column": "`@timestamp`",
+              "label": "Time"
             },
             {
               "operation": "value",
-              "column": "c",
-              "label": "Count"
+              "column": "azure.logic_apps.workflow_name",
+              "label": "Workflow"
+            },
+            {
+              "operation": "value",
+              "column": "azure.logic_apps.run_id",
+              "label": "Run ID"
+            },
+            {
+              "operation": "value",
+              "column": "azure.logic_apps.action_name",
+              "label": "Action"
+            },
+            {
+              "operation": "value",
+              "column": "azure.logic_apps.action_type",
+              "label": "Type"
+            },
+            {
+              "operation": "value",
+              "column": "azure.logic_apps.status",
+              "label": "Status"
+            },
+            {
+              "operation": "value",
+              "column": "azure.logic_apps.duration_ms",
+              "label": "Duration ms"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
             }
           ],
           "rows": []

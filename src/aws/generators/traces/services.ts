@@ -386,4 +386,18 @@ export const TRACE_SERVICES = [
     icon: "AWS-CloudFormation",
     group: "Single-Service",
   },
+  {
+    id: "route53",
+    label: "Route 53",
+    desc: "DNS resolution — hosted zone lookup, record set query, resolver response",
+    icon: "Amazon-Route-53",
+    group: "Single-Service",
+  },
+  {
+    id: "nlb",
+    label: "Network Load Balancer",
+    desc: "Layer-4 pass-through — flow hash, target selection, TCP/UDP forward, connection tracking",
+    icon: "Elastic-Load-Balancing",
+    group: "Single-Service",
+  },
 ];

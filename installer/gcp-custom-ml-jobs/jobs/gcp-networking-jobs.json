@@ -123,6 +123,149 @@
           "enabled": true
         }
       }
+    },
+    {
+      "id": "gcp-cloud-lb-5xx-rate-spike",
+      "description": "Detects spikes in Cloud Load Balancer HTTP 5xx responses per backend service",
+      "job": {
+        "description": "Detects spikes in Cloud Load Balancer HTTP 5xx responses per backend service",
+        "groups": ["gcp", "networking", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.cloud_lb.backend_service",
+              "function": "high_count",
+              "partition_field_name": "gcp.cloud_lb.backend_service",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "gcp.cloud_lb.backend_service",
+            "gcp.cloud_lb.forwarding_rule",
+            "cloud.region"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.loadbalancing*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "term": {
+                  "event.dataset": "gcp.loadbalancing"
+                }
+              },
+              {
+                "range": {
+                  "gcp.cloud_lb.response_code": {
+                    "gte": 500
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-cloud-nat-port-exhaustion",
+      "description": "Detects unusual Cloud NAT port allocation and dropped packets per gateway (SNAT exhaustion, endpoint conflicts)",
+      "job": {
+        "description": "Detects unusual Cloud NAT port allocation and dropped packets per gateway",
+        "groups": ["gcp", "networking", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(gcp.cloud_nat.allocated_ports) partitionfield=gcp.cloud_nat.gateway_name",
+              "function": "high_mean",
+              "field_name": "gcp.cloud_nat.allocated_ports",
+              "partition_field_name": "gcp.cloud_nat.gateway_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.cloud_nat.gateway_name", "gcp.cloud_nat.nat_ip", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.nat*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "exists": {
+                  "field": "gcp.cloud_nat.gateway_name"
+                }
+              }
+            ],
+            "should": [
+              {
+                "range": {
+                  "gcp.cloud_nat.allocated_ports": {
+                    "gte": 40000
+                  }
+                }
+              },
+              {
+                "exists": {
+                  "field": "gcp.cloud_nat.packets_dropped"
+                }
+              }
+            ],
+            "minimum_should_match": 1
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
     }
   ]
 }

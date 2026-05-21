@@ -1,5 +1,5 @@
 {
-  "title": "GCP Cloud Storage \u2014 overview",
+  "title": "GCP Cloud Storage — Objects & Access",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -7,7 +7,7 @@
   "panels": [
     {
       "type": "lens",
-      "uid": "gcloudstoragek1",
+      "uid": "gcp-gcs-k1",
       "grid": {
         "x": 0,
         "y": 0,
@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.gcs* | STATS `Log events` = COUNT()"
+            "query": "FROM logs-gcp.gcs* | STATS Operations = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Log events"
+              "column": "Operations"
             }
           ]
         }
@@ -34,7 +34,88 @@
     },
     {
       "type": "lens",
-      "uid": "gcloudstoraged1",
+      "uid": "gcp-gcs-k2",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.gcs* | STATS Buckets = COUNT_DISTINCT(`gcp.cloud_storage.bucket_name`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Buckets"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-gcs-k3",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.gcs* | STATS gb = SUM(`gcp.cloud_storage.object_size`) | EVAL `GB stored` = ROUND(gb / 1073741824.0, 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "GB stored"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-gcs-k4",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.gcs* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Error %` = ROUND(e * 100, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Error %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-gcs-d1",
       "grid": {
         "x": 0,
         "y": 5,
@@ -42,12 +123,76 @@
         "h": 10
       },
       "config": {
-        "title": "Event outcome",
+        "title": "Storage class",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.gcs* | STATS c = COUNT() BY o = event.outcome"
+            "query": "FROM logs-gcp.gcs* | STATS c = COUNT() BY sc = `gcp.cloud_storage.storage_class` | SORT ``c DESC"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "sc"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-gcs-d2",
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Operation",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.gcs* | STATS c = COUNT() BY op = `gcp.cloud_storage.operation` | SORT ``c DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "op"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-gcs-d3",
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Outcome",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.gcs* | STATS c = COUNT() BY o = event.outcome | SORT ``c DESC"
           },
           "metrics": [
             {
@@ -66,7 +211,7 @@
     },
     {
       "type": "lens",
-      "uid": "gcloudstoragel1",
+      "uid": "gcp-gcs-l1",
       "grid": {
         "x": 0,
         "y": 15,
@@ -74,7 +219,7 @@
         "h": 10
       },
       "config": {
-        "title": "Event volume",
+        "title": "Operations over time",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -104,7 +249,7 @@
                 {
                   "operation": "value",
                   "column": "c",
-                  "label": "Events"
+                  "label": "Operations"
                 }
               ]
             }
@@ -114,31 +259,157 @@
     },
     {
       "type": "lens",
-      "uid": "gcloudstoraget1",
+      "uid": "gcp-gcs-l2",
       "grid": {
         "x": 0,
         "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Errors by bucket",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-gcp.gcs* | WHERE event.outcome == \"failure\" | STATS e = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "e",
+                  "label": "Errors"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-gcs-b1",
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Top buckets by errors",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-gcp.gcs* | WHERE event.outcome == \"failure\" | STATS c = COUNT() BY bucket = `gcp.cloud_storage.bucket_name` | SORT ``c DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c",
+                  "label": "Errors"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-gcs-t1",
+      "grid": {
+        "x": 0,
+        "y": 35,
         "w": 48,
         "h": 12
       },
       "config": {
-        "title": "By project",
+        "title": "Recent operations",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.gcs* | STATS c = COUNT() BY region = COALESCE(`cloud.project.id`, \"unknown\") | SORT ``c DESC | LIMIT 15"
+            "query": "FROM logs-gcp.gcs* | KEEP `@timestamp``@timestamp`, `gcp.cloud_storage.bucket_name`, `gcp.cloud_storage.object_name`, `gcp.cloud_storage.operation`, `gcp.cloud_storage.storage_class`, `gcp.cloud_storage.object_size`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "region",
-              "label": "Project"
+              "column": "`@timestamp`",
+              "label": "Time"
             },
             {
               "operation": "value",
-              "column": "c",
-              "label": "Count"
+              "column": "gcp.cloud_storage.bucket_name",
+              "label": "Bucket"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.cloud_storage.object_name",
+              "label": "Object"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.cloud_storage.operation",
+              "label": "Operation"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.cloud_storage.storage_class",
+              "label": "Class"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.cloud_storage.object_size",
+              "label": "Size"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
+            },
+            {
+              "operation": "value",
+              "column": "message",
+              "label": "Message"
             }
           ],
           "rows": []

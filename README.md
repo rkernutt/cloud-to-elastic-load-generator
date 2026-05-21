@@ -49,17 +49,21 @@ The wizard opens on the **Start** step, where you pick cloud vendor, deployment 
 
 Catalog size today:
 
-| Cloud | Services | Pipelines | Dashboards | ML jobs | Alerting rules |
-| ----- | -------- | --------- | ---------- | ------- | -------------- |
-| AWS   | 213      | 188       | 220        | 384     | 17             |
-| GCP   | 130      | 149       | 127        | 152     | 17             |
-| Azure | 132      | 121       | 120        | 154     | 17             |
+| Cloud | Services | Pipelines | Dashboards | ML jobs | Traces | Alerting rules |
+| ----- | -------- | --------- | ---------- | ------- | ------ | -------------- |
+| AWS   | 246      | 188       | 236        | 384     | 56     | 18             |
+| GCP   | 139      | 149       | 136        | 152     | 59     | 17             |
+| Azure | 143      | 121       | 130        | 154     | 51     | 17             |
+
+Trace generators produce APM transactions and spans for the Elastic **Service Map**; the remaining services emit logs and metrics only — matching real-world instrumentation patterns where not every cloud service is OTel-instrumented.
 
 Behaviour, categories, post-install toggles, Serverless limits, dashboard fallback, and uninstall semantics are all in **[docs/SETUP-WIZARD-AND-UNINSTALL.md](docs/SETUP-WIZARD-AND-UNINSTALL.md)**. CLI equivalents for every Setup action live in **[installer/README.md](installer/README.md)**, and standalone JSON for one-asset-at-a-time deploys is in **[assets/README.md](assets/README.md)**.
 
 ## Beyond per-service generators
 
-Cloud Loadgen for Elastic also produces multi-service **chained scenarios** with shared correlation IDs and audit attribution, **CSPM/KSPM findings using 321 real CIS rule UUIDs**, and a **ServiceNow CMDB** generator for cross-index enrichment. A canonical alert-enrichment **Elastic Workflow** ties them together. Detail in **[docs/advanced-data-types.md](docs/advanced-data-types.md)**.
+Cloud Loadgen for Elastic also produces multi-service **chained scenarios** with shared correlation IDs and audit attribution, **CSPM/KSPM findings using 321 real CIS rule UUIDs**, a **ServiceNow CMDB** generator for cross-index enrichment, and **Microsoft 365** metrics (Teams, Outlook, OneDrive). A canonical alert-enrichment **Elastic Workflow** ties them together. Detail in **[docs/advanced-data-types.md](docs/advanced-data-types.md)**.
+
+The Setup wizard also installs **SLO definitions** (availability and data-pipeline SLIs per cloud) via the Kibana Observability SLO API, and optional **Agent Builder** tool definitions for AI-assisted investigation.
 
 The **17 chained-scenario alerting rules per cloud** (51 total) ship with two on-call extras: each rule's `artifacts.dashboards` field links **the chain overview plus the per-service dashboards** that match the rule's primary dataset (Stack 8.19 / 9.1+), and **per-rule investigation guides** in [docs/runbooks/](docs/runbooks/) cover triage, ES|QL queries, containment, and escalation criteria. Both surface from the alert's "Related dashboards" tab and the optional alert-enrichment workflow's email body.
 
@@ -100,6 +104,9 @@ CI runs format, lint, typecheck, test, and build on Node 20.
 | Investigation guides (per-rule runbooks for the chained-scenario alerts)              | [docs/runbooks/](docs/runbooks/)                                                                                                                                                                                                       |
 | AWS CloudWatch routing, Glue/SageMaker walkthrough, OTel traces                       | [docs/CLOUDWATCH-TO-INDEX-ROUTING.md](docs/CLOUDWATCH-TO-INDEX-ROUTING.md), [docs/GUIDE-CLOUDWATCH-GLUE-SAGEMAKER-ELASTIC.md](docs/GUIDE-CLOUDWATCH-GLUE-SAGEMAKER-ELASTIC.md), [docs/otel-traces-setup.md](docs/otel-traces-setup.md) |
 | CLI installers (per-service bundles, individual asset installers, alert rules)        | [installer/README.md](installer/README.md)                                                                                                                                                                                             |
+| Per-service loadgen integration packs (pipeline + dashboard + ML per service)        | `npm run setup:aws-loadgen-packs` / `setup:gcp-loadgen-packs` / `setup:azure-loadgen-packs`                                                                                                                                           |
+| GCP ingest pipeline reference                                                        | [docs/GCP-INGEST-PIPELINE-REFERENCE.md](docs/GCP-INGEST-PIPELINE-REFERENCE.md)                                                                                                                                                        |
+| Azure ingest pipeline reference                                                      | [docs/AZURE-INGEST-PIPELINE-REFERENCE.md](docs/AZURE-INGEST-PIPELINE-REFERENCE.md)                                                                                                                                                    |
 | Standalone JSON assets with copy-pasteable `curl` commands                            | [assets/README.md](assets/README.md)                                                                                                                                                                                                   |
 
 Full docs index: **[docs/README.md](docs/README.md)**.

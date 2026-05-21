@@ -123,6 +123,196 @@
           "enabled": true
         }
       }
+    },
+    {
+      "id": "azure-application-gateway-5xx-rate-spike",
+      "description": "Detects spikes in Application Gateway HTTP 5xx responses per gateway (backend pool unhealthy, TLS issues)",
+      "job": {
+        "description": "Detects spikes in Application Gateway HTTP 5xx responses per gateway",
+        "groups": ["azure", "networking", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.application_gateway.name",
+              "function": "high_count",
+              "partition_field_name": "azure.application_gateway.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.application_gateway.name", "azure.application_gateway.backend_host", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.application_gateway*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "range": {
+                  "azure.application_gateway.http_status": {
+                    "gte": 500
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-load-balancer-health-probe-failure-spike",
+      "description": "Detects spikes in Azure Load Balancer backend health probe failures per load balancer",
+      "job": {
+        "description": "Detects spikes in Load Balancer backend health probe failures per load balancer",
+        "groups": ["azure", "networking", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.load_balancer.name",
+              "function": "high_count",
+              "partition_field_name": "azure.load_balancer.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.load_balancer.name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.load_balancer*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              }
+            ],
+            "should": [
+              {
+                "term": {
+                  "operationName": "UnhealthyBackendPool"
+                }
+              },
+              {
+                "wildcard": {
+                  "message": "*health probe failed*"
+                }
+              },
+              {
+                "term": {
+                  "properties.healthState": "Unhealthy"
+                }
+              }
+            ],
+            "minimum_should_match": 1
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-front-door-latency-anomaly",
+      "description": "Detects unusual Azure Front Door edge response latency per profile (origin slowness, POP congestion, TLS overhead)",
+      "job": {
+        "description": "Detects unusual Azure Front Door edge response latency per profile",
+        "groups": ["azure", "networking", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=azure.front_door.profile_name",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "azure.front_door.profile_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.front_door.profile_name", "azure.front_door.endpoint", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.front_door*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "category": "FrontDoorAccessLog"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
     }
   ]
 }

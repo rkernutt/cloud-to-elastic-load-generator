@@ -186,6 +186,135 @@
           "enabled": true
         }
       }
+    },
+    {
+      "id": "azure-event-hubs-throttle-anomaly",
+      "description": "Detects unusual Event Hubs throttling and server-busy events per hub (throughput unit exhaustion, partition hot spots)",
+      "job": {
+        "description": "Detects unusual Event Hubs throttling events per hub",
+        "groups": ["azure", "streaming", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.event_hubs.eventhub",
+              "function": "high_count",
+              "partition_field_name": "azure.event_hubs.eventhub",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.event_hubs.eventhub", "azure.event_hubs.namespace", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.event_hubs*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              }
+            ],
+            "should": [
+              {
+                "term": {
+                  "azure.event_hubs.server_busy": true
+                }
+              },
+              {
+                "wildcard": {
+                  "message": "*throttling*"
+                }
+              },
+              {
+                "term": {
+                  "properties.OperationResult": "ThrottlingError"
+                }
+              }
+            ],
+            "minimum_should_match": 1
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-service-bus-dead-letter-anomaly",
+      "description": "Detects spikes in Service Bus dead-letter messages per entity (max delivery count, poison messages, lock lost)",
+      "job": {
+        "description": "Detects spikes in Service Bus dead-letter messages per entity",
+        "groups": ["azure", "streaming", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.service_bus.entity",
+              "function": "high_count",
+              "partition_field_name": "azure.service_bus.entity",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.service_bus.entity", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.service_bus*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "azure.service_bus.dead_letter": true
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
     }
   ]
 }

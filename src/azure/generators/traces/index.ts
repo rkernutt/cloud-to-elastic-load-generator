@@ -48,6 +48,18 @@ import { generateSqlManagedInstanceTrace } from "./sql-managed-instance.js";
 import { generateSentinelTrace } from "./sentinel.js";
 import { generateDefenderForCloudTrace } from "./defender-for-cloud.js";
 import { generateContainerInstancesTrace } from "./container-instances.js";
+import { generateVirtualNetworkTrace } from "./virtual-network.js";
+import { generateFrontDoorTrace } from "./front-door.js";
+import { generateCdnTrace } from "./cdn.js";
+import { generateVpnGatewayTrace } from "./vpn-gateway.js";
+import { generateNatGatewayTrace } from "./nat-gateway.js";
+import { generateFileStorageTrace } from "./file-storage.js";
+import { generateQueueStorageTrace } from "./queue-storage.js";
+import { generateAcrTrace } from "./acr.js";
+import { generateBatchTrace } from "./batch.js";
+import { generateAutomationAccountTrace } from "./automation-account.js";
+import { generateAppConfigurationTrace } from "./app-configuration.js";
+import { generateNotificationHubsTrace } from "./notification-hubs.js";
 
 const AZURE_TRACE_GENERATORS: Record<
   string,
@@ -93,6 +105,18 @@ const AZURE_TRACE_GENERATORS: Record<
   sentinel: generateSentinelTrace,
   "defender-for-cloud": generateDefenderForCloudTrace,
   "container-instances": generateContainerInstancesTrace,
+  "virtual-network": generateVirtualNetworkTrace,
+  "front-door": generateFrontDoorTrace,
+  cdn: generateCdnTrace,
+  "vpn-gateway": generateVpnGatewayTrace,
+  "nat-gateway": generateNatGatewayTrace,
+  "file-storage": generateFileStorageTrace,
+  "queue-storage": generateQueueStorageTrace,
+  acr: generateAcrTrace,
+  batch: generateBatchTrace,
+  "automation-account": generateAutomationAccountTrace,
+  "app-configuration": generateAppConfigurationTrace,
+  "notification-hubs": generateNotificationHubsTrace,
 };
 
 export { AZURE_TRACE_SERVICES, AZURE_TRACE_GENERATORS };

@@ -1,5 +1,5 @@
 {
-  "title": "Azure Openai \u2014 overview",
+  "title": "Azure OpenAI — Tokens & Model Latency",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -7,7 +7,7 @@
   "panels": [
     {
       "type": "lens",
-      "uid": "aopenaik1",
+      "uid": "az-oai-k1",
       "grid": {
         "x": 0,
         "y": 0,
@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.openai* | STATS `Log events` = COUNT()"
+            "query": "FROM logs-azure.openai* | STATS Requests = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Log events"
+              "column": "Requests"
             }
           ]
         }
@@ -34,7 +34,88 @@
     },
     {
       "type": "lens",
-      "uid": "aopenaid1",
+      "uid": "az-oai-k2",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.openai* | STATS `Tokens` = SUM(`azure.openai.prompt_tokens`) + SUM(`azure.openai.completion_tokens`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Tokens"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-oai-k3",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.openai* | STATS `Avg latency (ms)` = ROUND(AVG(event.duration) / 1000000.0, 0)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg latency (ms)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-oai-k4",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.openai* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Error %` = ROUND(e * 100, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Error %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-oai-d1",
       "grid": {
         "x": 0,
         "y": 5,
@@ -42,12 +123,12 @@
         "h": 10
       },
       "config": {
-        "title": "Event outcome",
+        "title": "Model",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.openai* | STATS c = COUNT() BY o = event.outcome"
+            "query": "FROM logs-azure.openai* | STATS c = COUNT() BY m = `azure.openai.model` | SORT ``c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -58,7 +139,7 @@
           "group_by": [
             {
               "operation": "value",
-              "column": "o"
+              "column": "m"
             }
           ]
         }
@@ -66,7 +147,71 @@
     },
     {
       "type": "lens",
-      "uid": "aopenail1",
+      "uid": "az-oai-d2",
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Deployment",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.openai* | STATS c = COUNT() BY d = `azure.openai.deployment` | SORT ``c DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "d"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-oai-d3",
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Finish reason",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.openai* | STATS c = COUNT() BY fr = `azure.openai.finish_reason` | SORT ``c DESC"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "fr"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-oai-l1",
       "grid": {
         "x": 0,
         "y": 15,
@@ -74,7 +219,7 @@
         "h": 10
       },
       "config": {
-        "title": "Event volume",
+        "title": "Request rate over time",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -104,7 +249,7 @@
                 {
                   "operation": "value",
                   "column": "c",
-                  "label": "Events"
+                  "label": "Requests"
                 }
               ]
             }
@@ -114,31 +259,157 @@
     },
     {
       "type": "lens",
-      "uid": "aopenait1",
+      "uid": "az-oai-l2",
       "grid": {
         "x": 0,
         "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Token usage over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-azure.openai* | STATS tok = SUM(`azure.openai.prompt_tokens`) + SUM(`azure.openai.completion_tokens`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "tok",
+                  "label": "Tokens"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-oai-b1",
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Latency by model (ms)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-azure.openai* | STATS lat = ROUND(AVG(event.duration) / 1000000.0, 0) BY m = `azure.openai.model` | SORT ``lat DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "m"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "lat",
+                  "label": "Avg ms"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-oai-t1",
+      "grid": {
+        "x": 0,
+        "y": 35,
         "w": 48,
         "h": 12
       },
       "config": {
-        "title": "By resource group",
+        "title": "Recent requests",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.openai* | STATS c = COUNT() BY region = COALESCE(`azure.openai.resource_group`, \"unknown\") | SORT ``c DESC | LIMIT 15"
+            "query": "FROM logs-azure.openai* | KEEP `@timestamp``@timestamp`, `azure.openai.deployment`, `azure.openai.model`, `azure.openai.prompt_tokens`, `azure.openai.completion_tokens`, `azure.openai.finish_reason`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "region",
-              "label": "Resource group"
+              "column": "`@timestamp`",
+              "label": "Time"
             },
             {
               "operation": "value",
-              "column": "c",
-              "label": "Count"
+              "column": "azure.openai.deployment",
+              "label": "Deployment"
+            },
+            {
+              "operation": "value",
+              "column": "azure.openai.model",
+              "label": "Model"
+            },
+            {
+              "operation": "value",
+              "column": "azure.openai.prompt_tokens",
+              "label": "Prompt tokens"
+            },
+            {
+              "operation": "value",
+              "column": "azure.openai.completion_tokens",
+              "label": "Completion tokens"
+            },
+            {
+              "operation": "value",
+              "column": "azure.openai.finish_reason",
+              "label": "Finish"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
+            },
+            {
+              "operation": "value",
+              "column": "message",
+              "label": "Message"
             }
           ],
           "rows": []

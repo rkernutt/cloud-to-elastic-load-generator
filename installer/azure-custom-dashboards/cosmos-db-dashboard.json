@@ -1,5 +1,5 @@
 {
-  "title": "Azure Cosmos Db \u2014 overview",
+  "title": "Azure Cosmos DB — RU & Request Latency",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -7,7 +7,7 @@
   "panels": [
     {
       "type": "lens",
-      "uid": "acosmosdbk1",
+      "uid": "az-cosmos-k1",
       "grid": {
         "x": 0,
         "y": 0,
@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.cosmos_db* | STATS `Log events` = COUNT()"
+            "query": "FROM logs-azure.cosmos_db* | STATS Requests = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Log events"
+              "column": "Requests"
             }
           ]
         }
@@ -34,7 +34,88 @@
     },
     {
       "type": "lens",
-      "uid": "acosmosdbd1",
+      "uid": "az-cosmos-k2",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.cosmos_db* | STATS `RU consumed` = ROUND(SUM(`azure.cosmos_db.ru_consumed`), 0)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "RU consumed"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-cosmos-k3",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.cosmos_db* | STATS Throttled = SUM(CASE(`azure.cosmos_db.status_code` == 429, 1, 0))"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Throttled"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-cosmos-k4",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.cosmos_db* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Error %` = ROUND(e * 100, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Error %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-cosmos-d1",
       "grid": {
         "x": 0,
         "y": 5,
@@ -42,12 +123,12 @@
         "h": 10
       },
       "config": {
-        "title": "Event outcome",
+        "title": "Operation",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.cosmos_db* | STATS c = COUNT() BY o = event.outcome"
+            "query": "FROM logs-azure.cosmos_db* | STATS c = COUNT() BY op = operationName | SORT ``c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -58,7 +139,7 @@
           "group_by": [
             {
               "operation": "value",
-              "column": "o"
+              "column": "op"
             }
           ]
         }
@@ -66,7 +147,71 @@
     },
     {
       "type": "lens",
-      "uid": "acosmosdbl1",
+      "uid": "az-cosmos-d2",
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Container",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.cosmos_db* | STATS c = COUNT() BY ct = `azure.cosmos_db.container` | SORT ``c DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "ct"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-cosmos-d3",
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Status",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.cosmos_db* | STATS c = COUNT() BY sc = TO_STRING(`azure.cosmos_db.status_code`) | SORT ``c DESC"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "sc"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-cosmos-l1",
       "grid": {
         "x": 0,
         "y": 15,
@@ -74,7 +219,7 @@
         "h": 10
       },
       "config": {
-        "title": "Event volume",
+        "title": "Request rate over time",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -104,7 +249,7 @@
                 {
                   "operation": "value",
                   "column": "c",
-                  "label": "Events"
+                  "label": "Requests"
                 }
               ]
             }
@@ -114,31 +259,157 @@
     },
     {
       "type": "lens",
-      "uid": "acosmosdbt1",
+      "uid": "az-cosmos-l2",
       "grid": {
         "x": 0,
         "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "RU consumption over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-azure.cosmos_db* | STATS ru = SUM(`azure.cosmos_db.ru_consumed`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "ru",
+                  "label": "RU"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-cosmos-b1",
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Latency by collection (ms)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-azure.cosmos_db* | STATS lat = ROUND(AVG(event.duration) / 1000000.0, 1) BY ct = `azure.cosmos_db.container` | SORT ``lat DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "ct"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "lat",
+                  "label": "Avg ms"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-cosmos-t1",
+      "grid": {
+        "x": 0,
+        "y": 35,
         "w": 48,
         "h": 12
       },
       "config": {
-        "title": "By resource group",
+        "title": "Recent requests",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.cosmos_db* | STATS c = COUNT() BY region = COALESCE(`azure.cosmos_db.resource_group`, \"unknown\") | SORT ``c DESC | LIMIT 15"
+            "query": "FROM logs-azure.cosmos_db* | KEEP `@timestamp``@timestamp`, `azure.cosmos_db.account`, `azure.cosmos_db.database`, `azure.cosmos_db.container`, operationName, `azure.cosmos_db.ru_consumed`, `azure.cosmos_db.status_code`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "region",
-              "label": "Resource group"
+              "column": "`@timestamp`",
+              "label": "Time"
             },
             {
               "operation": "value",
-              "column": "c",
-              "label": "Count"
+              "column": "azure.cosmos_db.account",
+              "label": "Account"
+            },
+            {
+              "operation": "value",
+              "column": "azure.cosmos_db.database",
+              "label": "Database"
+            },
+            {
+              "operation": "value",
+              "column": "azure.cosmos_db.container",
+              "label": "Container"
+            },
+            {
+              "operation": "value",
+              "column": "operationName",
+              "label": "Operation"
+            },
+            {
+              "operation": "value",
+              "column": "azure.cosmos_db.ru_consumed",
+              "label": "RU"
+            },
+            {
+              "operation": "value",
+              "column": "azure.cosmos_db.status_code",
+              "label": "Status"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
             }
           ],
           "rows": []

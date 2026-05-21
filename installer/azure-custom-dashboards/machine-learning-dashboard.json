@@ -1,5 +1,5 @@
 {
-  "title": "Azure Machine Learning \u2014 overview",
+  "title": "Azure Machine Learning — Experiments & Deployments",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -7,7 +7,7 @@
   "panels": [
     {
       "type": "lens",
-      "uid": "amachinelearnk1",
+      "uid": "az-aml-k1",
       "grid": {
         "x": 0,
         "y": 0,
@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.machine_learning* | STATS `Log events` = COUNT()"
+            "query": "FROM logs-azure.machine_learning* | STATS Events = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Log events"
+              "column": "Events"
             }
           ]
         }
@@ -34,7 +34,88 @@
     },
     {
       "type": "lens",
-      "uid": "amachinelearnd1",
+      "uid": "az-aml-k2",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.machine_learning* | WHERE `azure.machine_learning.category` == \"AmlRunStatus\" | STATS `Experiment runs` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Experiment runs"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-aml-k3",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.machine_learning* | WHERE `azure.machine_learning.category` == \"AmlDeploymentEvent\" | STATS Deployments = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Deployments"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-aml-k4",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.machine_learning* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Error %` = ROUND(e * 100, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Error %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-aml-d1",
       "grid": {
         "x": 0,
         "y": 5,
@@ -42,12 +123,76 @@
         "h": 10
       },
       "config": {
-        "title": "Event outcome",
+        "title": "Category",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.machine_learning* | STATS c = COUNT() BY o = event.outcome"
+            "query": "FROM logs-azure.machine_learning* | STATS c = COUNT() BY cat = `azure.machine_learning.category` | SORT ``c DESC"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "cat"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-aml-d2",
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Workspace",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.machine_learning* | STATS c = COUNT() BY ws = `azure.machine_learning.workspace` | SORT ``c DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "ws"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-aml-d3",
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Outcome",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.machine_learning* | STATS c = COUNT() BY o = event.outcome | SORT ``c DESC"
           },
           "metrics": [
             {
@@ -66,7 +211,7 @@
     },
     {
       "type": "lens",
-      "uid": "amachinelearnl1",
+      "uid": "az-aml-l1",
       "grid": {
         "x": 0,
         "y": 15,
@@ -74,7 +219,7 @@
         "h": 10
       },
       "config": {
-        "title": "Event volume",
+        "title": "Experiment runs over time",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -94,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.machine_learning* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.machine_learning* | WHERE `azure.machine_learning.category` == \"AmlRunStatus\" | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -104,7 +249,7 @@
                 {
                   "operation": "value",
                   "column": "c",
-                  "label": "Events"
+                  "label": "Runs"
                 }
               ]
             }
@@ -114,31 +259,152 @@
     },
     {
       "type": "lens",
-      "uid": "amachinelearnt1",
+      "uid": "az-aml-l2",
       "grid": {
         "x": 0,
         "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Training duration over time (ms)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-azure.machine_learning* | STATS d = AVG(event.duration) / 1000000.0 BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "d",
+                  "label": "Duration ms"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-aml-b1",
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Inference latency by workspace (ms)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-azure.machine_learning* | WHERE `azure.machine_learning.category` == \"Inferencing\" | STATS lat = ROUND(AVG(event.duration) / 1000000.0, 1) BY ws = `azure.machine_learning.workspace` | SORT ``lat DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "ws"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "lat",
+                  "label": "Avg ms"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-aml-t1",
+      "grid": {
+        "x": 0,
+        "y": 35,
         "w": 48,
         "h": 12
       },
       "config": {
-        "title": "By resource group",
+        "title": "Recent ML events",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.machine_learning* | STATS c = COUNT() BY region = COALESCE(`azure.machine_learning.resource_group`, \"unknown\") | SORT ``c DESC | LIMIT 15"
+            "query": "FROM logs-azure.machine_learning* | KEEP `@timestamp``@timestamp`, `azure.machine_learning.workspace`, `azure.machine_learning.category`, operationName, resultType, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "region",
-              "label": "Resource group"
+              "column": "`@timestamp`",
+              "label": "Time"
             },
             {
               "operation": "value",
-              "column": "c",
-              "label": "Count"
+              "column": "azure.machine_learning.workspace",
+              "label": "Workspace"
+            },
+            {
+              "operation": "value",
+              "column": "azure.machine_learning.category",
+              "label": "Category"
+            },
+            {
+              "operation": "value",
+              "column": "operationName",
+              "label": "Operation"
+            },
+            {
+              "operation": "value",
+              "column": "resultType",
+              "label": "Result"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
+            },
+            {
+              "operation": "value",
+              "column": "message",
+              "label": "Message"
             }
           ],
           "rows": []

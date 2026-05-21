@@ -1,5 +1,5 @@
 {
-  "title": "GCP Cloud Armor \u2014 overview",
+  "title": "GCP Cloud Armor — WAF & Edge Protection",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -7,7 +7,7 @@
   "panels": [
     {
       "type": "lens",
-      "uid": "gcloudarmork1",
+      "uid": "gcp-armor-k1",
       "grid": {
         "x": 0,
         "y": 0,
@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudarmor* | STATS `Log events` = COUNT()"
+            "query": "FROM logs-gcp.cloudarmor* | STATS Requests = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Log events"
+              "column": "Requests"
             }
           ]
         }
@@ -34,7 +34,88 @@
     },
     {
       "type": "lens",
-      "uid": "gcloudarmord1",
+      "uid": "gcp-armor-k2",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.cloudarmor* | STATS Blocked = SUM(CASE(`gcp.cloud_armor.action` IN (\"DENY\", \"DENY_403\", \"RATE_LIMITED\"), 1, 0))"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Blocked"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-armor-k3",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.cloudarmor* | STATS total = COUNT(), blocked = SUM(CASE(`gcp.cloud_armor.action` IN (\"DENY\", \"DENY_403\", \"RATE_LIMITED\"), 1, 0)) | EVAL `Block %` = ROUND(blocked * 100.0 / total, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Block %"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-armor-k4",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.cloudarmor* | STATS `Source IPs` = COUNT_DISTINCT(`gcp.cloud_armor.source_ip`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Source IPs"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-armor-d1",
       "grid": {
         "x": 0,
         "y": 5,
@@ -42,12 +123,12 @@
         "h": 10
       },
       "config": {
-        "title": "Event outcome",
+        "title": "Action",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudarmor* | STATS c = COUNT() BY o = event.outcome"
+            "query": "FROM logs-gcp.cloudarmor* | STATS c = COUNT() BY a = `gcp.cloud_armor.action` | SORT ``c DESC"
           },
           "metrics": [
             {
@@ -58,7 +139,7 @@
           "group_by": [
             {
               "operation": "value",
-              "column": "o"
+              "column": "a"
             }
           ]
         }
@@ -66,7 +147,71 @@
     },
     {
       "type": "lens",
-      "uid": "gcloudarmorl1",
+      "uid": "gcp-armor-d2",
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Rule",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.cloudarmor* | STATS c = COUNT() BY r = `gcp.cloud_armor.rule_name` | SORT ``c DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "r"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-armor-d3",
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Region",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-gcp.cloudarmor* | STATS c = COUNT() BY reg = cloud.region | SORT c DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "reg"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-armor-l1",
       "grid": {
         "x": 0,
         "y": 15,
@@ -74,7 +219,7 @@
         "h": 10
       },
       "config": {
-        "title": "Event volume",
+        "title": "Requests over time",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -104,7 +249,7 @@
                 {
                   "operation": "value",
                   "column": "c",
-                  "label": "Events"
+                  "label": "Requests"
                 }
               ]
             }
@@ -114,31 +259,157 @@
     },
     {
       "type": "lens",
-      "uid": "gcloudarmort1",
+      "uid": "gcp-armor-l2",
       "grid": {
         "x": 0,
         "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Blocked over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-gcp.cloudarmor* | STATS blocked = SUM(CASE(`gcp.cloud_armor.action` IN (\"DENY\", \"DENY_403\", \"RATE_LIMITED\"), 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "blocked",
+                  "label": "Blocked"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-armor-b1",
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Top blocked IPs",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-gcp.cloudarmor* | WHERE `gcp.cloud_armor.action` IN (\"DENY\", \"DENY_403\", \"RATE_LIMITED\") | STATS c = COUNT() BY ip = `gcp.cloud_armor.source_ip` | SORT ``c DESC | LIMIT 15"
+              },
+              "x": {
+                "operation": "value",
+                "column": "ip"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c",
+                  "label": "Blocks"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-armor-t1",
+      "grid": {
+        "x": 0,
+        "y": 35,
         "w": 48,
         "h": 12
       },
       "config": {
-        "title": "By project",
+        "title": "Recent WAF events",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudarmor* | STATS c = COUNT() BY region = COALESCE(`cloud.project.id`, \"unknown\") | SORT ``c DESC | LIMIT 15"
+            "query": "FROM logs-gcp.cloudarmor* | KEEP `@timestamp``@timestamp`, `gcp.cloud_armor.source_ip`, `gcp.cloud_armor.action`, `gcp.cloud_armor.rule_name`, `gcp.cloud_armor.policy_name`, `gcp.cloud_armor.matched_expression`, cloud.region, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "region",
-              "label": "Project"
+              "column": "`@timestamp`",
+              "label": "Time"
             },
             {
               "operation": "value",
-              "column": "c",
-              "label": "Count"
+              "column": "gcp.cloud_armor.source_ip",
+              "label": "Source IP"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.cloud_armor.action",
+              "label": "Action"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.cloud_armor.rule_name",
+              "label": "Rule"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.cloud_armor.policy_name",
+              "label": "Policy"
+            },
+            {
+              "operation": "value",
+              "column": "gcp.cloud_armor.matched_expression",
+              "label": "Expression"
+            },
+            {
+              "operation": "value",
+              "column": "cloud.region",
+              "label": "Region"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
             }
           ],
           "rows": []

@@ -366,6 +366,209 @@
           "enabled": true
         }
       }
+    },
+    {
+      "id": "gcp-gke-pod-restart-anomaly",
+      "description": "Detects spikes in GKE pod restart and crash-loop events per pod (OOMKilled, unhealthy, back-off restarting)",
+      "job": {
+        "description": "Detects spikes in GKE pod restart and crash-loop events per pod",
+        "groups": ["gcp", "compute", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.gke.pod",
+              "function": "high_count",
+              "partition_field_name": "gcp.gke.pod",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.gke.pod", "gcp.gke.namespace", "gcp.gke.cluster", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.gke*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "term": {
+                  "gcp.gke.event_type": "KUBERNETES_EVENT"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ],
+            "should": [
+              {
+                "wildcard": {
+                  "message": "*OOMKilled*"
+                }
+              },
+              {
+                "wildcard": {
+                  "message": "*Back-off restarting*"
+                }
+              },
+              {
+                "wildcard": {
+                  "message": "*Unhealthy*"
+                }
+              }
+            ],
+            "minimum_should_match": 1
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-cloud-functions-invocation-error-spike",
+      "description": "Detects spikes in Cloud Functions invocation failures per function (handler errors, timeouts, resource exhaustion)",
+      "job": {
+        "description": "Detects spikes in Cloud Functions invocation failures per function",
+        "groups": ["gcp", "compute", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.cloud_functions.function_name",
+              "function": "high_count",
+              "partition_field_name": "gcp.cloud_functions.function_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.cloud_functions.function_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.cloudfunctions*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "exists": {
+                  "field": "gcp.cloud_functions.function_name"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-cloud-run-request-latency-anomaly",
+      "description": "Detects unusual Cloud Run HTTP request latency per revision (cold starts, upstream slowness, resource limits)",
+      "job": {
+        "description": "Detects unusual Cloud Run HTTP request latency per revision",
+        "groups": ["gcp", "compute", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=gcp.cloud_run.revision",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "gcp.cloud_run.revision",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.cloud_run.revision", "gcp.cloud_run.service_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.cloudrun*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "exists": {
+                  "field": "gcp.cloud_run.service_name"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
     }
   ]
 }

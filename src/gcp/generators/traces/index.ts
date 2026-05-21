@@ -57,6 +57,16 @@ import { generateCloudVpnTrace } from "./cloud-vpn.js";
 import { generateSecurityCommandCenterTrace } from "./security-command-center.js";
 import { generateCloudIdsTrace } from "./cloud-ids.js";
 import { generateBatchTrace } from "./batch.js";
+import { generateVpcFlowTrace } from "./vpc-flow.js";
+import { generateCloudCdnTrace } from "./cloud-cdn.js";
+import { generateCloudInterconnectTrace } from "./cloud-interconnect.js";
+import { generateFilestoreTrace } from "./filestore.js";
+import { generatePersistentDiskTrace } from "./persistent-disk.js";
+import { generateDataplexTrace } from "./dataplex.js";
+import { generateDataCatalogTrace } from "./data-catalog.js";
+import { generatePubSubLiteTrace } from "./pubsub-lite.js";
+import { generateCloudEndpointsTrace } from "./cloud-endpoints.js";
+import { generateFirebaseTrace } from "./firebase.js";
 
 const GCP_TRACE_GENERATORS: Record<string, (ts: string, er: number) => Record<string, unknown>[]> =
   {
@@ -108,6 +118,16 @@ const GCP_TRACE_GENERATORS: Record<string, (ts: string, er: number) => Record<st
     "security-command-center": generateSecurityCommandCenterTrace,
     "cloud-ids": generateCloudIdsTrace,
     batch: generateBatchTrace,
+    "vpc-flow": generateVpcFlowTrace,
+    "cloud-cdn": generateCloudCdnTrace,
+    "cloud-interconnect": generateCloudInterconnectTrace,
+    filestore: generateFilestoreTrace,
+    "persistent-disk": generatePersistentDiskTrace,
+    dataplex: generateDataplexTrace,
+    "data-catalog": generateDataCatalogTrace,
+    "pubsub-lite": generatePubSubLiteTrace,
+    "cloud-endpoints": generateCloudEndpointsTrace,
+    firebase: generateFirebaseTrace,
   };
 
 export { GCP_TRACE_GENERATORS };

@@ -1,5 +1,5 @@
 {
-  "title": "Azure Event Hubs \u2014 overview",
+  "title": "Azure Event Hubs — Throughput & Consumer Lag",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -7,7 +7,7 @@
   "panels": [
     {
       "type": "lens",
-      "uid": "zaevthubk1",
+      "uid": "az-eh-k1",
       "grid": {
         "x": 0,
         "y": 0,
@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.event_hubs* | STATS `Log events` = COUNT()"
+            "query": "FROM logs-azure.event_hubs* | STATS Events = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Log events"
+              "column": "Events"
             }
           ]
         }
@@ -34,7 +34,88 @@
     },
     {
       "type": "lens",
-      "uid": "zaevthubd1",
+      "uid": "az-eh-k2",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.event_hubs* | STATS mb = SUM(`azure.event_hubs.incoming_bytes`) / 1048576 | EVAL `Incoming (MB)` = ROUND(mb, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Incoming (MB)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-eh-k3",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.event_hubs* | STATS Throttled = SUM(CASE(`azure.event_hubs.server_busy` == true, 1, 0))"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Throttled"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-eh-k4",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.event_hubs* | STATS Namespaces = COUNT_DISTINCT(`azure.event_hubs.namespace`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Namespaces"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-eh-d1",
       "grid": {
         "x": 0,
         "y": 5,
@@ -42,12 +123,76 @@
         "h": 10
       },
       "config": {
-        "title": "Event outcome",
+        "title": "Event hub",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.event_hubs* | STATS c = COUNT() BY o = event.outcome"
+            "query": "FROM logs-azure.event_hubs* | STATS c = COUNT() BY hub = `azure.event_hubs.eventhub` | SORT ``c DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "hub"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-eh-d2",
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Partition",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.event_hubs* | STATS c = COUNT() BY p = TO_STRING(`azure.event_hubs.partition`) | SORT ``c DESC | LIMIT 10"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "p"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-eh-d3",
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Outcome",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-azure.event_hubs* | STATS c = COUNT() BY o = event.outcome | SORT ``c DESC"
           },
           "metrics": [
             {
@@ -66,7 +211,7 @@
     },
     {
       "type": "lens",
-      "uid": "zaevthubl1",
+      "uid": "az-eh-l1",
       "grid": {
         "x": 0,
         "y": 15,
@@ -74,7 +219,7 @@
         "h": 10
       },
       "config": {
-        "title": "Event volume",
+        "title": "Message rate over time",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -114,64 +259,152 @@
     },
     {
       "type": "lens",
-      "uid": "zaevthubt1",
+      "uid": "az-eh-l2",
       "grid": {
         "x": 0,
         "y": 25,
-        "w": 48,
-        "h": 12
+        "w": 24,
+        "h": 10
       },
       "config": {
-        "title": "By resource group",
+        "title": "Incoming bytes over time (MB)",
         "attributes": {
-          "type": "datatable",
-          "dataset": {
-            "type": "esql",
-            "query": "FROM logs-azure.event_hubs* | STATS c = COUNT() BY region = COALESCE(`azure.event_hubs.resource_group`, \"unknown\") | SORT ``c DESC | LIMIT 15"
-          },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "region",
-              "label": "Resource group"
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
             },
-            {
-              "operation": "value",
-              "column": "c",
-              "label": "Count"
+            "left": {
+              "title": {
+                "visible": false
+              }
             }
-          ],
-          "rows": []
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-azure.event_hubs* | STATS mb = SUM(`azure.event_hubs.incoming_bytes`) / 1048576 BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+              },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "mb",
+                  "label": "MB"
+                }
+              ]
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
-      "uid": "zaevthubt2",
+      "uid": "az-eh-b1",
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
+      "config": {
+        "title": "Throughput by namespace (MB)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-azure.event_hubs* | STATS mb = ROUND(SUM(`azure.event_hubs.incoming_bytes`) / 1048576.0, 1) BY ns = `azure.event_hubs.namespace` | SORT ``mb DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "ns"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "mb",
+                  "label": "MB"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "az-eh-t1",
       "grid": {
         "x": 0,
-        "y": 37,
+        "y": 35,
         "w": 48,
         "h": 12
       },
       "config": {
-        "title": "Top Event Hubs by event count",
+        "title": "Recent events",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.event_hubs* | STATS c = COUNT() BY hub = COALESCE(azure.event_hubs.namespace, \"unknown\") | SORT ``c DESC | LIMIT 15"
+            "query": "FROM logs-azure.event_hubs* | KEEP `@timestamp``@timestamp`, `azure.event_hubs.namespace`, `azure.event_hubs.eventhub`, `azure.event_hubs.partition`, `azure.event_hubs.incoming_bytes`, `azure.event_hubs.server_busy`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "hub",
+              "column": "`@timestamp`",
+              "label": "Time"
+            },
+            {
+              "operation": "value",
+              "column": "azure.event_hubs.namespace",
               "label": "Namespace"
             },
             {
               "operation": "value",
-              "column": "c",
-              "label": "Count"
+              "column": "azure.event_hubs.eventhub",
+              "label": "Hub"
+            },
+            {
+              "operation": "value",
+              "column": "azure.event_hubs.partition",
+              "label": "Partition"
+            },
+            {
+              "operation": "value",
+              "column": "azure.event_hubs.incoming_bytes",
+              "label": "Bytes"
+            },
+            {
+              "operation": "value",
+              "column": "azure.event_hubs.server_busy",
+              "label": "Throttled"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
             }
           ],
           "rows": []

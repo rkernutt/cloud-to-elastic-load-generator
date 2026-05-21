@@ -425,6 +425,203 @@
           "enabled": true
         }
       }
+    },
+    {
+      "id": "azure-stream-analytics-output-error-spike",
+      "description": "Detects spikes in Stream Analytics output sink errors per job (serialization failures, destination throttling)",
+      "job": {
+        "description": "Detects spikes in Stream Analytics output sink errors per job",
+        "groups": ["azure", "analytics", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.stream_analytics.job",
+              "function": "high_count",
+              "partition_field_name": "azure.stream_analytics.job",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.stream_analytics.job", "azure.stream_analytics.resource_group", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.stream_analytics*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
+            ],
+            "should": [
+              {
+                "wildcard": {
+                  "message": "*Output*errors=*"
+                }
+              },
+              {
+                "term": {
+                  "category": "StreamingIOEvents"
+                }
+              }
+            ],
+            "minimum_should_match": 1
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-data-factory-pipeline-failure-spike",
+      "description": "Detects spikes in failed Azure Data Factory pipeline runs per pipeline (activity failures, linked service errors)",
+      "job": {
+        "description": "Detects spikes in failed Data Factory pipeline runs per pipeline",
+        "groups": ["azure", "analytics", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=azure.data_factory.pipeline_name",
+              "function": "high_count",
+              "partition_field_name": "azure.data_factory.pipeline_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "azure.data_factory.pipeline_name",
+            "azure.data_factory.resource_name",
+            "cloud.region"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.data_factory*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              },
+              {
+                "exists": {
+                  "field": "azure.data_factory.pipeline_name"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "azure-synapse-query-anomaly",
+      "description": "Detects unusual Synapse SQL pool query duration (expensive scans, pool saturation, compilation delays)",
+      "job": {
+        "description": "Detects unusual Synapse SQL pool query duration",
+        "groups": ["azure", "analytics", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=azure.synapse.pool_name",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "azure.synapse.pool_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["azure.synapse.pool_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "azure-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-azure.synapse*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "azure"
+                }
+              },
+              {
+                "term": {
+                  "cloud.service.name": "Microsoft.Synapse/workspaces"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
     }
   ]
 }

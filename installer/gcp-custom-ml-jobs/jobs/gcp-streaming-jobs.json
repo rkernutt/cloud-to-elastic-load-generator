@@ -182,6 +182,141 @@
           "enabled": true
         }
       }
+    },
+    {
+      "id": "gcp-pubsub-unacked-message-anomaly",
+      "description": "Detects unusual Pub/Sub unacknowledged message backlog per subscription (subscriber lag, push endpoint failures)",
+      "job": {
+        "description": "Detects unusual Pub/Sub unacknowledged message backlog per subscription",
+        "groups": ["gcp", "streaming", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=gcp.pubsub.subscription_name",
+              "function": "high_count",
+              "partition_field_name": "gcp.pubsub.subscription_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.pubsub.subscription_name", "gcp.pubsub.topic_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.pubsub*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              }
+            ],
+            "should": [
+              {
+                "wildcard": {
+                  "message": "*num_undelivered_messages*"
+                }
+              },
+              {
+                "wildcard": {
+                  "message": "*oldest_unacked_message_age*"
+                }
+              }
+            ],
+            "minimum_should_match": 1
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-dataflow-backlog-anomaly",
+      "description": "Detects unusual Dataflow system lag per job (processing backlog, watermark delay, autoscaling stalls)",
+      "job": {
+        "description": "Detects unusual Dataflow system lag per job",
+        "groups": ["gcp", "streaming", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(gcp.dataflow.watermark_lag_seconds) partitionfield=gcp.dataflow.job_name",
+              "function": "high_mean",
+              "field_name": "gcp.dataflow.watermark_lag_seconds",
+              "partition_field_name": "gcp.dataflow.job_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.dataflow.job_name", "gcp.dataflow.job_type", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.dataflow*", "metrics-gcp.dataflow*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              }
+            ],
+            "should": [
+              {
+                "exists": {
+                  "field": "gcp.dataflow.watermark_lag_seconds"
+                }
+              },
+              {
+                "range": {
+                  "gcp.dataflow.watermark_lag_seconds": {
+                    "gte": 60
+                  }
+                }
+              }
+            ],
+            "minimum_should_match": 1
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
     }
   ]
 }

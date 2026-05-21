@@ -182,6 +182,124 @@
           "enabled": true
         }
       }
+    },
+    {
+      "id": "gcp-bigquery-slot-usage-anomaly",
+      "description": "Detects unusual BigQuery slot consumption per dataset (capacity pressure, expensive scans, reservation contention)",
+      "job": {
+        "description": "Detects unusual BigQuery slot consumption per dataset",
+        "groups": ["gcp", "databases", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(gcp.bigquery.total_slot_ms) partitionfield=gcp.bigquery.dataset",
+              "function": "high_mean",
+              "field_name": "gcp.bigquery.total_slot_ms",
+              "partition_field_name": "gcp.bigquery.dataset",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.bigquery.dataset", "gcp.bigquery.job_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "48mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.bigquery*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "exists": {
+                  "field": "gcp.bigquery.total_slot_ms"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "gcp-spanner-request-latency-anomaly",
+      "description": "Detects unusual Cloud Spanner request latency per database (hot keys, transaction conflicts, instance saturation)",
+      "job": {
+        "description": "Detects unusual Cloud Spanner request latency per database",
+        "groups": ["gcp", "databases", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=gcp.cloud_spanner.database",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "gcp.cloud_spanner.database",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["gcp.cloud_spanner.database", "gcp.cloud_spanner.instance_id", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-gcp.spanner*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "exists": {
+                  "field": "gcp.cloud_spanner.database"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
     }
   ]
 }

@@ -63,6 +63,8 @@ import { generateIotcoreTrace } from "./iotcore.js";
 import { generateMwaaTrace } from "./mwaa.js";
 import { generateQuicksightTrace } from "./quicksight.js";
 import { generateWafTrace } from "./waf.js";
+import { generateRoute53Trace } from "./route53.js";
+import { generateNlbTrace } from "./nlb.js";
 
 /**
  * Map of service id → trace generator function.
@@ -123,6 +125,8 @@ const TRACE_GENERATORS = {
   mwaa: generateMwaaTrace,
   quicksight: generateQuicksightTrace,
   waf: generateWafTrace,
+  route53: generateRoute53Trace,
+  nlb: generateNlbTrace,
 };
 
 export { TRACE_GENERATORS };
