@@ -15,7 +15,10 @@ export function generateCloudEndpointsTrace(ts: string, er: number): EcsDocument
   const txId = randSpanId();
   const base = new Date(ts);
   const env = rand(["production", "staging"]);
-  const service = rand(["orders-api.endpoints.globex.cloud.goog", "users-api.endpoints.globex.cloud.goog"]);
+  const service = rand([
+    "orders-api.endpoints.globex.cloud.goog",
+    "users-api.endpoints.globex.cloud.goog",
+  ]);
   const method = rand(["GET", "POST"]);
   const path = rand(["/v1/orders", "/v1/users", "/health"]);
   const otel = gcpOtelMeta("nodejs");
@@ -27,7 +30,11 @@ export function generateCloudEndpointsTrace(ts: string, er: number): EcsDocument
   const cloud = gcpCloud(region, project, "endpoints.googleapis.com");
 
   const ops = [
-    { name: `Endpoints.validateConfig ${service}`, resource: "endpoints", us: randInt(500, 18_000) },
+    {
+      name: `Endpoints.validateConfig ${service}`,
+      resource: "endpoints",
+      us: randInt(500, 18_000),
+    },
     { name: `Endpoints.authCheck ${method}`, resource: "iam", us: randInt(1_000, 30_000) },
     { name: `Endpoints.proxy ${method} ${path}`, resource: "backend", us: randInt(3_000, 95_000) },
   ];

@@ -60,7 +60,9 @@ export function generateFileStorageTrace(ts: string, er: number): EcsDocument[] 
             name: op.name,
             duration: { us: op.us },
             action: i === 1 ? "read" : "access",
-            destination: { service: { resource: "file-storage", type: "storage", name: "azure-files" } },
+            destination: {
+              service: { resource: "file-storage", type: "storage", name: "azure-files" },
+            },
             labels: spanErr ? { "azure.storage.error": "share_not_found" } : { share, file },
           },
           service: svc,

@@ -17,7 +17,10 @@ export function generateVpcFlowTrace(ts: string, er: number): EcsDocument[] {
   const env = rand(["production", "staging"]);
   const subnet = rand(["subnet-app-01", "subnet-data-02", "subnet-dmz"]);
   const otel = gcpOtelMeta("go");
-  const svc = gcpServiceBase("flow-collector", env, "go", { runtimeName: "go", runtimeVersion: "1.23" });
+  const svc = gcpServiceBase("flow-collector", env, "go", {
+    runtimeName: "go",
+    runtimeVersion: "1.23",
+  });
   const cloud = gcpCloud(region, project, "compute.googleapis.com");
 
   const ops = [

@@ -545,7 +545,8 @@ function azureIdentityExtract() {
         ignore_missing: true,
         ignore_failure: true,
         tag: "rename_azure_category",
-        description: "Move Azure diagnostic log category to vendor namespace to avoid collision with ECS event.category.",
+        description:
+          "Move Azure diagnostic log category to vendor namespace to avoid collision with ECS event.category.",
       },
     },
     {

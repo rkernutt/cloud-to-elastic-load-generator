@@ -60,7 +60,9 @@ export function generateFrontDoorTrace(ts: string, er: number): EcsDocument[] {
             name: op.name,
             duration: { us: op.us },
             action: i === 2 ? "call" : "process",
-            destination: { service: { resource: "front-door", type: "app", name: "azure-front-door" } },
+            destination: {
+              service: { resource: "front-door", type: "app", name: "azure-front-door" },
+            },
             labels: spanErr ? { "http.status_code": "502" } : { profile },
           },
           service: svc,

@@ -2043,7 +2043,9 @@ export function generateHpcCacheLog(ts: string, er: number): EcsDocument {
         kind: "event",
         category: ["database"],
         type: isErr ? ["error"] : ["access"],
-        action: String(`Microsoft.StorageCache/caches/storageTargets/${props.operation === "DeleteStorageTarget" ? "delete" : "write"}`),
+        action: String(
+          `Microsoft.StorageCache/caches/storageTargets/${props.operation === "DeleteStorageTarget" ? "delete" : "write"}`
+        ),
         outcome: isErr ? "failure" : "success",
         duration: randInt(3e8, 7e9),
       },
@@ -4274,7 +4276,9 @@ export function generateStreamAnalyticsLog(ts: string, er: number): EcsDocument 
         kind: "event",
         category: ["database"],
         type: isErr ? ["error"] : ["access"],
-        action: String(`Microsoft.StreamAnalytics/streamingjobs/${props.operation === "StartJob" ? "start" : "stop"}`),
+        action: String(
+          `Microsoft.StreamAnalytics/streamingjobs/${props.operation === "StartJob" ? "start" : "stop"}`
+        ),
         outcome: isErr ? "failure" : "success",
         duration: randInt(5e8, 1.2e10),
       },

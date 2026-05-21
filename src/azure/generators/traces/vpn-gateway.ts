@@ -59,7 +59,9 @@ export function generateVpnGatewayTrace(ts: string, er: number): EcsDocument[] {
             name: op.name,
             duration: { us: op.us },
             action: "connect",
-            destination: { service: { resource: "vpn-gateway", type: "external", name: "azure-vpn" } },
+            destination: {
+              service: { resource: "vpn-gateway", type: "external", name: "azure-vpn" },
+            },
             labels: spanErr ? { "azure.vpn.error": "tunnel_down" } : { gateway },
           },
           service: svc,

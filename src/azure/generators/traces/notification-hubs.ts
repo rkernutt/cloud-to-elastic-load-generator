@@ -61,7 +61,11 @@ export function generateNotificationHubsTrace(ts: string, er: number): EcsDocume
             duration: { us: op.us },
             action: i === 1 ? "send" : "process",
             destination: {
-              service: { resource: "notification-hubs", type: "messaging", name: "azure-notification-hubs" },
+              service: {
+                resource: "notification-hubs",
+                type: "messaging",
+                name: "azure-notification-hubs",
+              },
             },
             labels: spanErr ? { "azure.notification.error": "delivery_failed" } : { hub, platform },
           },

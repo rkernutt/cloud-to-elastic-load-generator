@@ -33,8 +33,7 @@ export function parseElasticMapsFile(path = ELASTIC_MAPS_TS) {
   const logsMap = {};
   const metricsMap = {};
   let mode = null;
-  const keyVal =
-    /^\s*(?:"([^"]+)"|([a-zA-Z0-9_]+))\s*:\s*"([^"]+)"\s*,?\s*$/;
+  const keyVal = /^\s*(?:"([^"]+)"|([a-zA-Z0-9_]+))\s*:\s*"([^"]+)"\s*,?\s*$/;
 
   for (const line of lines) {
     if (line.includes("const AZURE_ELASTIC_DATASET_MAP")) {

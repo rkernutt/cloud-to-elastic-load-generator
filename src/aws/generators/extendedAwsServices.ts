@@ -746,10 +746,7 @@ function generateMediaPackageLog(ts: string, er: number): EcsDocument {
       outcome: isErr ? "failure" : "success",
       dataset: "aws.mediapackage",
       category: ["process"],
-      type: awsEventType(
-        isErr,
-        scenario === "endpoint_created" ? "creation" : "change"
-      ),
+      type: awsEventType(isErr, scenario === "endpoint_created" ? "creation" : "change"),
       duration: randInt(8_000_000, 500_000_000),
     },
     message,
@@ -854,11 +851,7 @@ function generateMediaStoreLog(ts: string, er: number): EcsDocument {
       category: ["file"],
       type: awsEventType(
         isErr,
-        scenario === "delete_object"
-          ? "deletion"
-          : scenario === "put_object"
-            ? "change"
-            : "access"
+        scenario === "delete_object" ? "deletion" : scenario === "put_object" ? "change" : "access"
       ),
       duration: Math.round(latMs * 1e6),
     },

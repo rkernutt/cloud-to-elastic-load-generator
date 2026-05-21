@@ -59,7 +59,9 @@ export function generateQueueStorageTrace(ts: string, er: number): EcsDocument[]
             name: op.name,
             duration: { us: op.us },
             action: i === 0 ? "receive" : i === 1 ? "process" : "delete",
-            destination: { service: { resource: "queue-storage", type: "messaging", name: "azure-queue" } },
+            destination: {
+              service: { resource: "queue-storage", type: "messaging", name: "azure-queue" },
+            },
             labels: spanErr ? { "azure.queue.error": "visibility_timeout" } : { queue },
           },
           service: svc,

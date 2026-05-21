@@ -27,12 +27,7 @@ function eventBlock(isErr: boolean, durationNs: number) {
   };
 }
 
-function networkEvent(
-  isErr: boolean,
-  durationNs: number,
-  action: string,
-  denied = false
-) {
+function networkEvent(isErr: boolean, durationNs: number, action: string, denied = false) {
   return {
     kind: "event" as const,
     category: ["network"] as const,
@@ -361,7 +356,9 @@ export function generateCloudDnsLog(ts: string, er: number): EcsDocument {
     sourceIP: sourceIp,
     sourceNetwork: randVpcNetwork(),
     serverLatency: `${randInt(1, 40)}`,
-    rdata: isErr ? "" : rand([randIp(), "2001:db8::1", `lb-${randId(4).toLowerCase()}.${rand(EMAIL_DOMAINS)}.`]),
+    rdata: isErr
+      ? ""
+      : rand([randIp(), "2001:db8::1", `lb-${randId(4).toLowerCase()}.${rand(EMAIL_DOMAINS)}.`]),
   };
   const message = `dns.googleapis.com/dns_queries ${queryName} ${queryType} ${responseCode} from ${sourceIp}`;
 

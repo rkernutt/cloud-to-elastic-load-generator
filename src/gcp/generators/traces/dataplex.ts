@@ -27,7 +27,11 @@ export function generateDataplexTrace(ts: string, er: number): EcsDocument[] {
 
   const ops = [
     { name: `Dataplex.triggerTask ${task}`, resource: "dataplex_task", us: randInt(3_000, 40_000) },
-    { name: `Dataplex.scanAssets ${lake}`, resource: "dataplex_lake", us: randInt(10_000, 180_000) },
+    {
+      name: `Dataplex.scanAssets ${lake}`,
+      resource: "dataplex_lake",
+      us: randInt(10_000, 180_000),
+    },
     { name: "Dataplex.publishMetadata", resource: "catalog_entry", us: randInt(2_000, 55_000) },
   ];
   const failIdx = isErr ? randInt(0, ops.length - 1) : -1;

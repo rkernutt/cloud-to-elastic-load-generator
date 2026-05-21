@@ -174,11 +174,7 @@ export function generateOpenAiLog(ts: string, er: number): EcsDocument {
       randInt(2e6, rateLimited ? 6e10 : 4e9),
       operationName,
       ["process"],
-      resultType === "Failed"
-        ? ["error"]
-        : style === "Deployment"
-          ? ["change"]
-          : ["access"]
+      resultType === "Failed" ? ["error"] : style === "Deployment" ? ["change"] : ["access"]
     ),
     message,
     ...(docError ? { error: docError } : {}),

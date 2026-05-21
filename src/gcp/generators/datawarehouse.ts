@@ -576,7 +576,11 @@ export function generateDataCatalogLog(ts: string, er: number): EcsDocument {
       durationNs,
       action,
       ["database"],
-      isErr ? ["error"] : action === "CreateTag" || action === "CreateEntryGroup" ? ["creation"] : ["access"]
+      isErr
+        ? ["error"]
+        : action === "CreateTag" || action === "CreateEntryGroup"
+          ? ["creation"]
+          : ["access"]
     ),
     message,
   };

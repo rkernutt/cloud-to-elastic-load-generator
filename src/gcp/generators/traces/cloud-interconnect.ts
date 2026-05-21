@@ -26,7 +26,11 @@ export function generateCloudInterconnectTrace(ts: string, er: number): EcsDocum
 
   const ops = [
     { name: "Interconnect.BGP.session", resource: "bgp", us: randInt(2_000, 40_000) },
-    { name: `Interconnect.VLAN.attach ${attachment}`, resource: "vlan_attachment", us: randInt(1_500, 30_000) },
+    {
+      name: `Interconnect.VLAN.attach ${attachment}`,
+      resource: "vlan_attachment",
+      us: randInt(1_500, 30_000),
+    },
     { name: "Interconnect.route-advertise", resource: "cloud_router", us: randInt(3_000, 55_000) },
   ];
   const failIdx = isErr ? randInt(0, ops.length - 1) : -1;

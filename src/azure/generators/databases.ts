@@ -177,11 +177,7 @@ export function generateSqlDatabaseLog(ts: string, er: number): EcsDocument {
       randInt(1e6, failed ? 9e9 : 8e8),
       operationName,
       ["database"],
-      failed
-        ? ["error"]
-        : style === "Audit"
-          ? ["admin"]
-          : ["access"]
+      failed ? ["error"] : style === "Audit" ? ["admin"] : ["access"]
     ),
     message,
   };

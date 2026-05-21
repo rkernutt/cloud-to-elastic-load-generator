@@ -907,7 +907,7 @@ export function generateConfigConnectorLog(ts: string, er: number): EcsDocument 
     event: {
       kind: "event",
       category: ["configuration"],
-      type: ((isErr ? "failure" : "success") === "failure" ? ["change"] : ["info"]),
+      type: (isErr ? "failure" : "success") === "failure" ? ["change"] : ["info"],
       action: String("management-operation"),
       outcome: isErr ? "failure" : "success",
       duration: reconcileDurationMs,
@@ -973,7 +973,10 @@ export function generateCloudAuditLog(ts: string, er: number): EcsDocument {
     event: {
       kind: "event",
       category: ["configuration"],
-      type: ((authorizationDecision === "ALLOWED" && !isErr ? "success" : "failure") === "failure" ? ["change"] : ["info"]),
+      type:
+        (authorizationDecision === "ALLOWED" && !isErr ? "success" : "failure") === "failure"
+          ? ["change"]
+          : ["info"],
       action: String("management-operation"),
       outcome: authorizationDecision === "ALLOWED" && !isErr ? "success" : "failure",
       duration: durationNs,

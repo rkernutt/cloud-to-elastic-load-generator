@@ -22,7 +22,10 @@ export function generateAcrTrace(ts: string, er: number): EcsDocument[] {
   const env = rand(["production", "staging"]);
   const registry = rand(["acrprodshared", "acrdevops", "acrcicd"]);
   const image = rand(["api:2.14.3", "worker:1.8.0", "frontend:2026.04.1"]);
-  const svc = azureServiceBase("deploy-pipeline", env, "go", { runtimeName: "go", runtimeVersion: "1.23" });
+  const svc = azureServiceBase("deploy-pipeline", env, "go", {
+    runtimeName: "go",
+    runtimeVersion: "1.23",
+  });
   const dim = (e: Record<string, string>) => cd(region, resourceGroup, subscription.id, e);
   const cloud = azureCloud(region, subscription, "Microsoft.ContainerRegistry/registries");
   const failIdx = isErr ? randInt(0, 2) : -1;

@@ -22,7 +22,10 @@ export function generateCdnTrace(ts: string, er: number): EcsDocument[] {
   const env = rand(["production", "staging"]);
   const endpoint = rand(["cdn-assets", "cdn-media", "cdn-api-cache"]);
   const cacheStatus = rand(["HIT", "MISS", "REVALIDATED"]);
-  const svc = azureServiceBase("static-delivery", env, "go", { runtimeName: "go", runtimeVersion: "1.23" });
+  const svc = azureServiceBase("static-delivery", env, "go", {
+    runtimeName: "go",
+    runtimeVersion: "1.23",
+  });
   const dim = (e: Record<string, string>) => cd(region, resourceGroup, subscription.id, e);
   const cloud = azureCloud(region, subscription, "Microsoft.Cdn/profiles");
   const failIdx = isErr ? randInt(0, 2) : -1;
@@ -57,7 +60,9 @@ export function generateCdnTrace(ts: string, er: number): EcsDocument[] {
             duration: { us: op.us },
             action: "process",
             destination: { service: { resource: "cdn", type: "app", name: "azure-cdn" } },
-            labels: spanErr ? { "azure.cdn.error": "origin_timeout" } : { cache_status: cacheStatus },
+            labels: spanErr
+              ? { "azure.cdn.error": "origin_timeout" }
+              : { cache_status: cacheStatus },
           },
           service: svc,
           cloud,

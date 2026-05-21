@@ -47,7 +47,16 @@ function databaseEvent(
   isErr: boolean,
   durationNs: number,
   action: string,
-  type?: readonly ("access" | "change" | "connection" | "creation" | "error" | "info" | "start" | "end")[]
+  type?: readonly (
+    | "access"
+    | "change"
+    | "connection"
+    | "creation"
+    | "error"
+    | "info"
+    | "start"
+    | "end"
+  )[]
 ) {
   return {
     kind: "event" as const,
@@ -305,7 +314,12 @@ export function generatePubSubLiteLog(ts: string, er: number): EcsDocument {
         backlog_message_count: backlogMessageCount,
       },
     },
-    event: databaseEvent(isErr, durationNs, "pubsub-lite.throughput", isErr ? ["error"] : ["connection"]),
+    event: databaseEvent(
+      isErr,
+      durationNs,
+      "pubsub-lite.throughput",
+      isErr ? ["error"] : ["connection"]
+    ),
     message,
   };
 

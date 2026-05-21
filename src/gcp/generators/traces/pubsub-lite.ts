@@ -18,12 +18,19 @@ export function generatePubSubLiteTrace(ts: string, er: number): EcsDocument[] {
   const topic = rand(["events-lite", "metrics-lite", "audit-lite"]);
   const subscription = `${topic}-sub`;
   const otel = gcpOtelMeta("go");
-  const svc = gcpServiceBase("lite-consumer", env, "go", { runtimeName: "go", runtimeVersion: "1.23" });
+  const svc = gcpServiceBase("lite-consumer", env, "go", {
+    runtimeName: "go",
+    runtimeVersion: "1.23",
+  });
   const cloud = gcpCloud(region, project, "pubsublite.googleapis.com");
 
   const ops = [
     { name: `PubSubLite.publish ${topic}`, resource: "pubsub_lite", us: randInt(1_000, 25_000) },
-    { name: `PubSubLite.subscribe ${subscription}`, resource: "pubsub_lite", us: randInt(2_000, 45_000) },
+    {
+      name: `PubSubLite.subscribe ${subscription}`,
+      resource: "pubsub_lite",
+      us: randInt(2_000, 45_000),
+    },
     { name: "PubSubLite.acknowledge", resource: "pubsub_lite", us: randInt(300, 12_000) },
   ];
   const failIdx = isErr ? randInt(0, ops.length - 1) : -1;

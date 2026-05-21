@@ -21,7 +21,10 @@ export function generateVirtualNetworkTrace(ts: string, er: number): EcsDocument
   const base = new Date(ts);
   const env = rand(["production", "staging"]);
   const vnet = rand(["vnet-hub", "vnet-spoke-app", "vnet-data"]);
-  const svc = azureServiceBase("network-controller", env, "go", { runtimeName: "go", runtimeVersion: "1.23" });
+  const svc = azureServiceBase("network-controller", env, "go", {
+    runtimeName: "go",
+    runtimeVersion: "1.23",
+  });
   const dim = (e: Record<string, string>) => cd(region, resourceGroup, subscription.id, e);
   const cloud = azureCloud(region, subscription, "Microsoft.Network/virtualNetworks");
   const failIdx = isErr ? randInt(0, 2) : -1;

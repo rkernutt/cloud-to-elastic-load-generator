@@ -17,7 +17,10 @@ export function generatePersistentDiskTrace(ts: string, er: number): EcsDocument
   const env = rand(["production", "staging"]);
   const disk = rand(["pd-ssd-data-01", "pd-balanced-logs", "pd-extreme-db"]);
   const otel = gcpOtelMeta("go");
-  const svc = gcpServiceBase("vm-io-agent", env, "go", { runtimeName: "go", runtimeVersion: "1.22" });
+  const svc = gcpServiceBase("vm-io-agent", env, "go", {
+    runtimeName: "go",
+    runtimeVersion: "1.22",
+  });
   const cloud = gcpCloud(region, project, "compute.googleapis.com");
 
   const ops = [
