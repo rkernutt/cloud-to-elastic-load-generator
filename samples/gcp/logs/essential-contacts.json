@@ -1,61 +1,64 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
-  "log": { "level": "info" },
+  "severity": "CRITICAL",
+  "log": { "level": "critical" },
   "labels": {
     "resource.type": "essentialcontacts.googleapis.com/Contact",
     "category": "LEGAL",
-    "api_method": "essentialcontacts.googleapis.com/v1/projects/globex-sec-847293/contacts:list"
+    "api_method": "essentialcontacts.googleapis.com/v1/projects/globex-stg-739158/contacts:list",
+    "gcp.rpc.status_code": "INTERNAL"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-south1",
-    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
-    "account": { "id": "847293615048", "name": "Globex Security" },
+    "region": "asia-east2",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
     "service": { "name": "essential-contacts" }
   },
   "gcp": {
     "essential_contacts": {
-      "contact_email": "security@northwind-infra.net",
+      "contact_email": "billing-admin@meridiantech.io",
       "notification_category": "LEGAL",
-      "resource": "projects/globex-sec-847293",
-      "action": "SUBSCRIBE"
+      "resource": "projects/globex-stg-739158",
+      "action": "BOUNCE"
     }
   },
   "event": {
     "kind": "event",
     "category": ["configuration"],
-    "type": ["info"],
+    "type": ["change"],
     "action": "management-operation",
-    "outcome": "success",
-    "duration": 462,
+    "outcome": "failure",
+    "duration": 432,
     "module": "gcp",
     "dataset": "gcp.essentialcontacts"
   },
-  "message": "Essential Contacts: SUBSCRIBE category=LEGAL recipient=security@northwind-infra.net resource=projects/globex-sec-847293",
+  "message": "essentialcontacts.googleapis.com: Notification BOUNCE FAILED category=LEGAL to=billing-admin@meridiantech.io: DMARC policy reject",
+  "gcp.rpc": { "status_code": "INTERNAL" },
+  "error": { "code": "INTERNAL", "message": "Management API internal error", "type": "gcp" },
   "service": { "name": "essential-contacts", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.essentialcontacts", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-south1",
-    "id": "ox6t47xplw83w82yw95htfvt9fbvlomto1gd"
+    "name": "elastic-agent-gcp-asia-east2",
+    "id": "74prnelspkqn5dlrqiyfu083ncfxetcvo1h5"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-sec-847293/logs/essential-contacts",
+  "logName": "projects/globex-stg-739158/logs/essential-contacts",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-sec-847293", "region": "us-south1" }
+    "labels": { "project_id": "globex-stg-739158", "region": "asia-east2" }
   },
-  "insertId": "YA0KDN4K8KJI",
+  "insertId": "LN3WWLC7O3YM",
   "jsonPayload": {
     "essential_contacts": {
-      "contact_email": "security@northwind-infra.net",
+      "contact_email": "billing-admin@meridiantech.io",
       "notification_category": "LEGAL",
-      "resource": "projects/globex-sec-847293",
-      "action": "SUBSCRIBE"
+      "resource": "projects/globex-stg-739158",
+      "action": "BOUNCE"
     },
-    "message": "Essential Contacts: SUBSCRIBE category=LEGAL recipient=security@northwind-infra.net resource=projects/globex-sec-847293"
+    "message": "essentialcontacts.googleapis.com: Notification BOUNCE FAILED category=LEGAL to=billing-admin@meridiantech.io: DMARC policy reject"
   }
 }

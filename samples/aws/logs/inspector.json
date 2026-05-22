@@ -1,96 +1,81 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-west-3",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "inspector2" }
   },
   "aws": {
-    "dimensions": { "Severity": "LOW" },
+    "dimensions": { "Severity": "INFORMATIONAL" },
     "inspector2": {
-      "findingArn": "arn:aws:inspector2:ap-northeast-3:814726593401:finding/33pstecr-0e2c-smgn-n990-bpqhwvat2dak",
-      "type": "PACKAGE_VULNERABILITY",
-      "title": "CVE-2024-23226: werkzeug 3.17.3 has a known vulnerability",
-      "description": "A package used by the workload has a vulnerability tracked as CVE-2024-23226 with CVSS 1.1.",
+      "findingArn": "arn:aws:inspector2:eu-west-3:164820739518:finding/kz7kd4xn-uckh-4ph6-23q1-j0aihrsedymt",
+      "type": "CODE_VULNERABILITY",
+      "title": "Code vulnerability in Controller.java",
+      "description": "Inspector identified a code pattern that matches a known weakness category.",
       "remediation": {
         "recommendation": {
-          "text": "Upgrade werkzeug to 2.19.19 or later to remediate CVE-2024-23226."
+          "text": "Apply the suggested code change from your static analysis workflow or suppress with a documented risk acceptance."
         }
       },
       "resources": [
         {
           "type": "AWS_LAMBDA_FUNCTION",
-          "id": "arn:aws:lambda:ap-northeast-3:814726593401:function:api-handler",
+          "id": "arn:aws:lambda:eu-west-3:164820739518:function:api-handler",
           "partition": "aws",
-          "region": "ap-northeast-3",
-          "tags": { "Environment": "prod" }
+          "region": "eu-west-3",
+          "tags": { "Environment": "staging" }
         }
       ],
       "exploitAvailable": "NO",
       "fixAvailable": true,
       "finding_status": "ACTIVE",
-      "severity": "LOW",
-      "severity_score": 1.1,
-      "exploitability": "NOT_DEFINED",
+      "severity": "INFORMATIONAL",
+      "severity_score": 0.9,
+      "exploitability": "PROOF_OF_CONCEPT",
       "resource_type": "AWS_LAMBDA_FUNCTION",
-      "resource_id": "arn:aws:lambda:ap-northeast-3:814726593401:function:api-handler",
-      "first_observed_at": "2026-04-25T13:19:00.213Z",
-      "last_observed_at": "2026-05-20T13:19:00.213Z",
-      "package_vulnerability": {
-        "cve_id": "CVE-2024-23226",
-        "source": "GHSA",
-        "cvss3_score": 1.0667828913097221,
-        "vulnerable_packages": [
-          {
-            "name": "werkzeug",
-            "version": "3.17.3",
-            "fixed_in_version": "2.19.19",
-            "package_manager": "PYTHON"
-          }
-        ],
-        "related_vulnerabilities": []
+      "resource_id": "arn:aws:lambda:eu-west-3:164820739518:function:api-handler",
+      "first_observed_at": "2026-05-13T12:29:30.113Z",
+      "last_observed_at": "2026-05-22T12:29:30.113Z",
+      "code_vulnerability": {
+        "cwes": ["CWE-287"],
+        "detector_name": "CodeGuru Detector",
+        "file_path": { "name": "app.py", "line_number": 43 }
       },
       "metrics": {
-        "TotalFindings": { "sum": 380 },
+        "TotalFindings": { "sum": 176 },
         "CriticalFindings": { "sum": 0 },
         "HighFindings": { "sum": 0 },
         "MediumFindings": { "sum": 0 },
-        "LowFindings": { "sum": 138 },
-        "CoveredResources": { "avg": 1404 }
+        "LowFindings": { "sum": 236 },
+        "CoveredResources": { "avg": 4356 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-inspector-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-inspector-logs-814726593401"
+        "name": "aws-inspector-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-inspector-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/inspector/ap-northeast-3/2026/05/20/inspector_6U0H5NE5TP0KP5DMV6LE.log.gz"
+        "key": "AWSLogs/164820739518/inspector/eu-west-3/2026/05/22/inspector_GLMKKKS4H8FRIB63WFOL.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/inspector/logs",
-      "log_stream": "ap-northeast-3/1n8v05va",
-      "ingestion_time": "2026-05-20T13:19:01.261Z"
+      "log_stream": "eu-west-3/c5r44v5h",
+      "ingestion_time": "2026-05-22T12:29:31.315Z"
     }
   },
-  "vulnerability": {
-    "severity": "LOW",
-    "id": "CVE-2024-23226",
-    "score": { "base": 1.0667828913097221 }
-  },
-  "package": { "name": "werkzeug", "version": "3.17.3" },
+  "vulnerability": { "severity": "INFORMATIONAL", "score": { "base": 0.9339345418609329 } },
   "event": {
     "outcome": "success",
     "category": ["vulnerability"],
     "type": ["info"],
     "dataset": "aws.inspector2",
     "provider": "inspector2.amazonaws.com",
-    "module": "aws",
-    "kind": "event"
+    "module": "aws"
   },
-  "message": "Inspector2 [LOW]: CVE-2024-23226 in werkzeug 3.17.3 on AWS_LAMBDA_FUNCTION (fix: 2.19.19)",
+  "message": "Inspector2 [INFORMATIONAL]: CODE_VULNERABILITY detected on AWS_LAMBDA_FUNCTION",
   "log": { "level": "info" },
   "service": { "name": "inspector", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -98,8 +83,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "x9w1s6mpn0y7ebmjcct0j74b01nwjy224dpb"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "e7t9eglszzuz4tzjd6rwhi81cfbpxdbjqj2w"
   },
   "input": { "type": "http_endpoint" }
 }

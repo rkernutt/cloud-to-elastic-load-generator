@@ -1,69 +1,73 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "il-central-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "outposts" }
   },
   "aws": {
-    "dimensions": { "OutpostId": "op-x2kzk63kr1n0e384t", "InstanceType": "m5.2xlarge" },
+    "dimensions": { "OutpostId": "op-adu89vybjxsz77v7a", "InstanceType": "m5d.xlarge" },
     "outposts": {
-      "outpost_id": "op-x2kzk63kr1n0e384t",
-      "outpost_arn": "arn:aws:outposts:eu-west-1:814726593401:outpost/op-x2kzk63kr1n0e384t",
-      "site_id": "os-bfgmdhzf2uozfu2kh",
-      "rack_id": "or-xhjr71gfj2byq7sm0",
+      "outpost_id": "op-adu89vybjxsz77v7a",
+      "outpost_arn": "arn:aws:outposts:il-central-1:293847561023:outpost/op-adu89vybjxsz77v7a",
+      "site_id": "os-s04rpnn5ebc2i4njv",
+      "rack_id": "or-5mxti3i0c0f9tkoye",
       "scenario": "service_link_health",
-      "instance_type": "m5.2xlarge",
-      "available_instance_count": 0,
-      "total_instance_count": 32,
-      "capacity_status": "Active",
+      "instance_type": "m5d.xlarge",
+      "available_instance_count": 10,
+      "total_instance_count": 20,
+      "capacity_status": "Scheduled",
       "connectivity_status": "Connected",
       "asset_state": "RETIRING",
       "service_link": {
-        "vpc_id": "vpc-f415e463",
+        "vpc_id": "vpc-bffd8e4a",
         "service_linked_role": "AWSServiceRoleForOutposts",
-        "route_table_revision": 7,
-        "last_health_ping_ms": 17
+        "route_table_revision": 1,
+        "last_health_ping_ms": 478
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-outposts-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-outposts-logs-814726593401"
+        "name": "aws-outposts-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-outposts-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/814726593401/outposts/eu-west-1/2026/05/20/outposts_83NG1CDSIMRNOM5F0VHV.log.gz"
+        "key": "AWSLogs/293847561023/outposts/il-central-1/2026/05/22/outposts_BUCWWJK5410ISX0T9FRG.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/outposts/logs",
-      "log_stream": "eu-west-1/c6bono65",
-      "ingestion_time": "2026-05-20T13:19:01.194Z"
+      "log_stream": "il-central-1/fovlypr2",
+      "ingestion_time": "2026-05-22T12:29:31.236Z"
     }
   },
   "event": {
     "action": "service_link_health",
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["host"],
     "type": ["info"],
     "dataset": "aws.outposts",
     "provider": "outposts.amazonaws.com",
-    "duration": 3941000000,
-    "module": "aws",
-    "kind": "event"
+    "duration": 1380000000,
+    "module": "aws"
   },
-  "message": "AWSServiceRoleForOutposts health OK=true route_sync=7 ping=17ms",
-  "log": { "level": "info" },
-  "host": { "name": "ip-72-121-77-217.ec2.internal", "hostname": "outposts-ugsyd8or" },
+  "message": "AWSServiceRoleForOutposts health OK=false route_sync=1 ping=478ms — ValidationException",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ValidationException",
+    "message": "Outposts service_link_health fault on op-adu89vybjxsz77v7a",
+    "type": "aws"
+  },
+  "host": { "name": "ip-160-168-140-176.ec2.internal", "hostname": "outposts-3tzx7ne7" },
   "service": { "name": "outposts", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.outposts", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "ofaorihxhiocy7mmyfvzs9iqh3jweuzsi2p4"
+    "name": "filebeat-aws-il-central-1",
+    "ephemeral_id": "0towqt7gggnon4nophx0cxvtq0yfprhd5d5a"
   },
   "input": { "type": "aws-cloudwatch" }
 }

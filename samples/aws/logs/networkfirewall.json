@@ -1,86 +1,80 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-west-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "network-firewall" }
   },
   "aws": {
     "dimensions": {
-      "FirewallName": "fw-ap-northeast-3",
-      "AvailabilityZone": "ap-northeast-3a",
-      "CustomAction": "CustomBlockAction"
+      "FirewallName": "fw-eu-west-2",
+      "AvailabilityZone": "eu-west-2a",
+      "CustomAction": "CustomPassAction"
     },
     "firewall_logs": {
-      "flow_id": 307871,
-      "event_timestamp": "2026-05-20T13:19:00.213Z",
-      "action": "DROP",
-      "src_ip": "10.147.167.46",
-      "dest_ip": "10.37.171.182",
-      "src_port": 14418,
-      "dest_port": 443,
-      "protocol": "TCP",
-      "firewall_name": "fw-ap-northeast-3",
-      "availability_zone": "ap-northeast-3a"
+      "flow_id": 161104,
+      "event_timestamp": "2026-05-22T12:29:30.113Z",
+      "action": "PASS",
+      "src_ip": "172.26.186.5",
+      "dest_ip": "10.251.181.204",
+      "src_port": 23905,
+      "dest_port": 5432,
+      "protocol": "ICMP",
+      "firewall_name": "fw-eu-west-2",
+      "availability_zone": "eu-west-2a"
     },
     "network_firewall": {
-      "firewall_name": "fw-ap-northeast-3",
-      "availability_zone": "ap-northeast-3a",
+      "firewall_name": "fw-eu-west-2",
+      "availability_zone": "eu-west-2a",
       "policy_name": "prod-fw-policy",
       "metrics": {
-        "DroppedPackets": { "sum": 972 },
-        "PassedPackets": { "sum": 0 },
+        "DroppedPackets": { "sum": 0 },
+        "PassedPackets": { "sum": 14135 },
         "RejectedPackets": { "sum": 0 },
-        "Packets": { "sum": 80199 },
-        "DroppedBytes": { "sum": 4959 }
+        "Packets": { "sum": 95726 },
+        "DroppedBytes": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-networkfirewall-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-networkfirewall-logs-814726593401"
+        "name": "aws-networkfirewall-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-networkfirewall-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/networkfirewall/ap-northeast-3/2026/05/20/networkfirewall_ME9FU0PZN4FHW4TBUZL1.log.gz"
+        "key": "AWSLogs/501938274650/networkfirewall/eu-west-2/2026/05/22/networkfirewall_AVN8TCZM8XU9A4JJ5JTL.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/networkfirewall/logs",
-      "log_stream": "ap-northeast-3/qva28ydt",
-      "ingestion_time": "2026-05-20T13:19:01.233Z"
+      "log_stream": "eu-west-2/a54vggwr",
+      "ingestion_time": "2026-05-22T12:29:31.279Z"
     }
   },
-  "source": { "ip": "10.147.167.46", "port": 14418 },
-  "destination": { "ip": "10.37.171.182", "port": 443 },
-  "network": { "transport": "tcp", "bytes": 58949, "packets": 15 },
+  "source": { "ip": "172.26.186.5", "port": 23905 },
+  "destination": { "ip": "10.251.181.204", "port": 5432 },
+  "network": { "transport": "icmp", "bytes": 182, "packets": 46 },
   "event": {
-    "action": "drop",
-    "outcome": "failure",
+    "action": "pass",
+    "outcome": "success",
     "category": ["intrusion_detection", "network"],
     "type": ["info"],
     "dataset": "aws.firewall_logs",
     "provider": "network-firewall.amazonaws.com",
-    "duration": 72000000,
-    "module": "aws",
-    "kind": "event"
+    "duration": 24000000,
+    "module": "aws"
   },
-  "message": "DROP TCP flow",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "FlowDropped",
-    "message": "Packet dropped by firewall rule",
-    "type": "network"
-  },
+  "message": "PASS ICMP flow",
+  "log": { "level": "info" },
   "service": { "name": "networkfirewall", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.firewall_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "dtfvkmviwolw514084sw6nu9r1jocukk74fp"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "hb0ijh2469tbqwufj8cypu0n3b619m00vi2d"
   },
   "input": { "type": "aws-s3" },
-  "related": { "ip": ["10.147.167.46", "10.37.171.182"] }
+  "related": { "ip": ["172.26.186.5", "10.251.181.204"] }
 }

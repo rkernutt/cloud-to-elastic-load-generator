@@ -1,63 +1,55 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
-    "service": { "name": "mwaa" }
+    "region": "us-east-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "service": { "name": "s3" }
   },
   "aws": {
-    "dimensions": { "DagId": "customer_360_pipeline", "TaskId": "trigger_dag" },
-    "mwaa": {
-      "dag_id": "customer_360_pipeline",
-      "run_id": "scheduled__2026-05-20T13_19_00_213Z",
-      "task_id": "trigger_dag",
-      "state": "running",
-      "execution_date": "2026-05-20T13:19:00.213Z",
-      "operator": "TriggerDagRunOperator",
-      "pipeline_run_id": "04ec33b5-bbbc-46a2-9891-868bd9b100b7",
-      "s3_source_bucket": "data-lake-ingest",
-      "s3_source_key": "transactions/2025/04/16/batch_001.avro"
+    "s3access": {
+      "bucket": "iot-telemetry-landing",
+      "key": "transactions/2025/04/16/batch_001.avro",
+      "operation": "REST.PUT.OBJECT",
+      "http_status": 200,
+      "bytes_sent": 531984934,
+      "total_time": 412,
+      "turn_around_time": 26,
+      "request_id": "GV5CEPYMAP0707CZ",
+      "requester": "arn:aws:iam::164820739518:role/upstream-data-producer"
     },
     "s3": {
       "bucket": {
-        "name": "aws-data-pipeline-chain-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-data-pipeline-chain-logs-501938274650"
+        "name": "aws-data-pipeline-chain-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-data-pipeline-chain-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/data-pipeline-chain/ca-central-1/2026/05/20/data-pipeline-chain_5KUM83NV8PUBR1Q0G4YR.log.gz"
+        "key": "AWSLogs/164820739518/data-pipeline-chain/us-east-1/2026/05/22/data-pipeline-chain_N6WN7OJII53MVFPAINAE.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/data-pipeline-chain/logs",
-      "log_stream": "ca-central-1/5ab8lm85",
-      "ingestion_time": "2026-05-20T13:19:01.286Z"
+      "log_stream": "us-east-1/8vwszjb4",
+      "ingestion_time": "2026-05-22T12:29:31.352Z"
     }
   },
   "event": {
     "kind": "event",
     "outcome": "success",
-    "category": ["process"],
-    "type": ["info"],
-    "dataset": "aws.mwaa",
-    "provider": "airflow.amazonaws.com",
+    "category": ["file"],
+    "type": ["creation"],
+    "dataset": "aws.s3access",
+    "provider": "s3.amazonaws.com",
     "module": "aws"
   },
-  "message": "Airflow [customer_360_pipeline/trigger_dag]: state=running",
+  "message": "S3 PutObject s3://iot-telemetry-landing/transactions/2025/04/16/batch_001.avro (Avro landing — triggers EventBridge)",
   "log": { "level": "info" },
-  "user": { "name": "priya.sharma", "email": "priya.sharma@globex.io" },
-  "source": {
-    "ip": "100.64.0.241",
-    "geo": { "country_iso_code": "US", "city_name": "Seattle", "region_name": "Washington" }
-  },
-  "user_agent": {
-    "original": "aws-cli/2.15.30 md/awscrt#0.19.19 ua/2.0 os/linux#5.15.0-1058-aws exec-env/CloudShell"
-  },
   "labels": {
-    "pipeline_run_id": "04ec33b5-bbbc-46a2-9891-868bd9b100b7",
-    "dag_id": "customer_360_pipeline",
-    "s3_source_bucket": "data-lake-ingest",
-    "s3_source_key": "transactions/2025/04/16/batch_001.avro"
+    "pipeline_run_id": "3714a243-22fc-46c4-ab0d-29df76769d38",
+    "dag_id": "clickstream_processing",
+    "s3_source_bucket": "iot-telemetry-landing",
+    "s3_source_key": "transactions/2025/04/16/batch_001.avro",
+    "orchestration_mode": "eventbridge"
   },
   "service": { "name": "data-pipeline-chain", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -65,9 +57,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "roe9g7nrfuxek1i246rlc2xyd6k41818ycfg"
+    "name": "filebeat-aws-us-east-1",
+    "ephemeral_id": "gktlhdi0cofhmqjngijwgkld1vkehg6ioqh2"
   },
-  "input": { "type": "http_endpoint" },
-  "related": { "ip": ["100.64.0.241"], "user": ["priya.sharma", "priya.sharma@globex.io"] }
+  "input": { "type": "http_endpoint" }
 }

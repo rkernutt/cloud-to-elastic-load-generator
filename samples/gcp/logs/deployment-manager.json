@@ -1,70 +1,77 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "NOTICE",
-  "log": { "level": "notice" },
+  "severity": "ERROR",
+  "log": { "level": "error" },
   "labels": {
     "resource.type": "deploymentmanager.googleapis.com/Deployment",
-    "deployment": "deploy-data-FLCO",
-    "api_method": "deploymentmanager.googleapis.com/v2/projects/globex-sec-847293/global/deployments/deploy-data-FLCO/manifest",
-    "dm_scenario": "manifests_get"
+    "deployment": "deploy-app-32ML",
+    "api_method": "deploymentmanager.googleapis.com/v2/projects/globex-prod-482910/global/deployments/deploy-app-32ML",
+    "dm_scenario": "deployments_delete",
+    "gcp.rpc.status_code": "RESOURCE_EXHAUSTED"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west4",
-    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
-    "account": { "id": "847293615048", "name": "Globex Security" },
+    "region": "europe-west1",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
     "service": { "name": "deploymentmanager.googleapis.com" }
   },
   "gcp": {
     "deployment_manager": {
-      "scenario": "manifests_get",
-      "api_method": "deploymentmanager.googleapis.com/v2/projects/globex-sec-847293/global/deployments/deploy-data-FLCO/manifest",
-      "deployment_name": "deploy-data-FLCO",
-      "resource_type": "storage.v1.bucket",
-      "resource_name": "db-REQG92",
-      "operation": "GET",
-      "manifest_config": "https://www.googleapis.com/deploymentmanager/v2/projects/globex-sec-847293/global/deployments/deploy-data-FLCO",
-      "status": "DONE"
+      "scenario": "deployments_delete",
+      "api_method": "deploymentmanager.googleapis.com/v2/projects/globex-prod-482910/global/deployments/deploy-app-32ML",
+      "deployment_name": "deploy-app-32ML",
+      "resource_type": "compute.v1.instance",
+      "resource_name": "cluster-F0KJ1M",
+      "operation": "DELETE",
+      "manifest_config": "https://www.googleapis.com/deploymentmanager/v2/projects/globex-prod-482910/global/deployments/deploy-app-32ML",
+      "status": "CANCELLED"
     }
   },
   "event": {
     "kind": "event",
     "category": ["configuration"],
-    "type": ["info"],
+    "type": ["change"],
     "action": "management-operation",
-    "outcome": "success",
-    "duration": 520861,
+    "outcome": "failure",
+    "duration": 291649,
     "module": "gcp",
     "dataset": "gcp.deploymentmanager"
   },
-  "message": "Manifest config size_bytes=674536",
+  "message": "Delete deployment FAILED FAILED_PRECONDITION resources still updating",
+  "gcp.rpc": { "status_code": "RESOURCE_EXHAUSTED" },
+  "error": {
+    "code": "RESOURCE_EXHAUSTED",
+    "message": "Change quota or concurrency limit exhausted",
+    "type": "gcp"
+  },
   "service": { "name": "deployment-manager", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.deploymentmanager", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-west4",
-    "id": "enn5bmdnctny9y3yrm79cw38h4286p9knz91"
+    "name": "elastic-agent-gcp-europe-west1",
+    "id": "j8iauqd79f7zwem2xqfqv46lv34wg7pvyr9i"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-sec-847293/logs/deployment-manager",
+  "logName": "projects/globex-prod-482910/logs/deployment-manager",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-sec-847293", "region": "us-west4" }
+    "labels": { "project_id": "globex-prod-482910", "region": "europe-west1" }
   },
-  "insertId": "H0DU3KCQAS77",
+  "insertId": "P5632BEAVEB9",
   "jsonPayload": {
     "deployment_manager": {
-      "scenario": "manifests_get",
-      "api_method": "deploymentmanager.googleapis.com/v2/projects/globex-sec-847293/global/deployments/deploy-data-FLCO/manifest",
-      "deployment_name": "deploy-data-FLCO",
-      "resource_type": "storage.v1.bucket",
-      "resource_name": "db-REQG92",
-      "operation": "GET",
-      "manifest_config": "https://www.googleapis.com/deploymentmanager/v2/projects/globex-sec-847293/global/deployments/deploy-data-FLCO",
-      "status": "DONE"
+      "scenario": "deployments_delete",
+      "api_method": "deploymentmanager.googleapis.com/v2/projects/globex-prod-482910/global/deployments/deploy-app-32ML",
+      "deployment_name": "deploy-app-32ML",
+      "resource_type": "compute.v1.instance",
+      "resource_name": "cluster-F0KJ1M",
+      "operation": "DELETE",
+      "manifest_config": "https://www.googleapis.com/deploymentmanager/v2/projects/globex-prod-482910/global/deployments/deploy-app-32ML",
+      "status": "CANCELLED"
     },
-    "message": "Manifest config size_bytes=674536"
+    "message": "Delete deployment FAILED FAILED_PRECONDITION resources still updating"
   }
 }

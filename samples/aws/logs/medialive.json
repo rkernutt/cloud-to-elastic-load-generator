@@ -1,65 +1,69 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-southeast-4",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "medialive" }
   },
   "aws": {
-    "dimensions": { "ChannelId": "RI2DPBRJH8M", "Pipeline": "PIPELINE_1" },
+    "dimensions": { "ChannelId": "PM2AJW1HK61", "Pipeline": "PIPELINE_0" },
     "medialive": {
-      "channel_id": "RI2DPBRJH8M",
-      "channel_name": "corporate-broadcast",
-      "channel_state": "IDLE",
-      "pipeline": "PIPELINE_1",
-      "input_type": "UDP_PUSH",
-      "output_type": "MEDIAPACKAGE",
-      "video_bitrate_kbps": 3408,
-      "input_loss_frames": 0,
-      "encoder_fps": 30,
+      "channel_id": "PM2AJW1HK61",
+      "channel_name": "live-news",
+      "channel_state": "ERROR",
+      "pipeline": "PIPELINE_0",
+      "input_type": "RTP_PUSH",
+      "output_type": "DASH",
+      "video_bitrate_kbps": 1612,
+      "input_loss_frames": 157,
+      "encoder_fps": 13,
       "metrics": {
-        "ActiveAlerts": { "sum": 0 },
-        "ChannelInputErrorSeconds": { "sum": 0 },
-        "NetworkOut": { "avg": 17792672 },
-        "OutputLossSeconds": { "sum": 0 },
-        "FillMsec": { "sum": 0 }
+        "ActiveAlerts": { "sum": 5 },
+        "ChannelInputErrorSeconds": { "sum": 206 },
+        "NetworkOut": { "avg": 1363970 },
+        "OutputLossSeconds": { "sum": 49 },
+        "FillMsec": { "sum": 2416 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-medialive-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-medialive-logs-738291046572"
+        "name": "aws-medialive-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-medialive-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/medialive/ap-southeast-3/2026/05/20/medialive_70SCZI340TEXCE7OVZ9U.log.gz"
+        "key": "AWSLogs/814726593401/medialive/ap-southeast-4/2026/05/22/medialive_O6C3RTFMUKAD5Z3QS1RJ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/medialive/logs",
-      "log_stream": "ap-southeast-3/8xov39tj",
-      "ingestion_time": "2026-05-20T13:19:01.465Z"
+      "log_stream": "ap-southeast-4/p9b5bn96",
+      "ingestion_time": "2026-05-22T12:29:31.514Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.medialive",
     "provider": "medialive.amazonaws.com",
-    "duration": 3033000000,
-    "module": "aws",
-    "kind": "event"
+    "duration": 4316000000,
+    "module": "aws"
   },
-  "message": "Pipeline A running, Pipeline B standby",
-  "log": { "level": "info" },
+  "message": "Input loss detected: primary input failed",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ThrottlingException",
+    "message": "Input loss detected: primary input failed",
+    "type": "aws"
+  },
   "service": { "name": "medialive", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.medialive", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "3kni3ihrf4k9gkw5ieue6y8ft79hzxdmf0t0"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "8bxzpbts0rofsf9edtu5dixe301d4n646a4o"
   },
   "input": { "type": "aws-cloudwatch" }
 }

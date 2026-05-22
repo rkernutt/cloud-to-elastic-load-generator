@@ -1,71 +1,76 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-northeast-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "verified-access" }
   },
   "aws": {
-    "dimensions": { "ApplicationId": "va-app-fsztr0a9" },
+    "dimensions": { "ApplicationId": "va-app-a7azc9lj" },
     "verifiedaccess": {
-      "endpoint_id": "vae-lb178e4umh82cu1a0",
-      "group_id": "vag-m7ury616h5kunpiv2",
-      "instance_id": "vai-5a1cefa721e5e3a3d",
+      "endpoint_id": "vae-16aydsp86ib00h96u",
+      "group_id": "vag-2zsrdyope7l0zji4v",
+      "instance_id": "vai-ba214bbc9db22b4e3",
       "policy_name": "jump-server-only",
-      "trust_provider_type": "oidc-azure-ad",
-      "device_posture": "COMPLIANT",
-      "verdict": "allow",
-      "http_method": "PUT",
-      "http_path": "/api/v2/search",
-      "http_status": 200,
-      "request_id": "bb5f8d40-7b1b-4784-863f-a76c3cc992ac",
-      "connection_id": "Y8HWK3NHU2DHPB50WRVL",
-      "session_id": "8A1KHHSRKCLQTBMVER55K677R3WRV3M8",
-      "sni_hostname": "internal-dashboard.internal.northwind-infra.net",
-      "application_name": "internal-dashboard"
+      "trust_provider_type": "oidc-okta",
+      "device_posture": "NON_COMPLIANT",
+      "verdict": "deny",
+      "deny_reason": "policy_evaluation_failed",
+      "http_method": "POST",
+      "http_path": "/api/v2/analytics",
+      "http_status": 403,
+      "request_id": "da7b6c81-8b0e-4608-9181-2a9fcec9c56c",
+      "connection_id": "VRW6DIXGS9LVM1935CYF",
+      "session_id": "54NFCBZ68NQ5J917KPJKBI3CF1TUSEJ5",
+      "sni_hostname": "dev-tools.internal.northwind-infra.net",
+      "application_name": "dev-tools"
     },
     "s3": {
       "bucket": {
-        "name": "aws-verifiedaccess-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-verifiedaccess-logs-814726593401"
+        "name": "aws-verifiedaccess-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-verifiedaccess-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/814726593401/verifiedaccess/eu-south-2/2026/05/20/verifiedaccess_LHGCV4CJ4JWEGHWZJM3H.log.gz"
+        "key": "AWSLogs/293847561023/verifiedaccess/ap-northeast-2/2026/05/22/verifiedaccess_B2OOVTHH3SIW6TXB21SL.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/verifiedaccess/logs",
-      "log_stream": "eu-south-2/128fjm7n",
-      "ingestion_time": "2026-05-20T13:19:01.273Z"
+      "log_stream": "ap-northeast-2/1pq9i2p9",
+      "ingestion_time": "2026-05-22T12:29:31.336Z"
     }
   },
-  "user": { "email": "svc-deploy-prod@bluepeak.dev", "name": "svc-deploy-prod" },
-  "source": { "ip": "130.49.40.129" },
+  "user": { "email": "svc-deploy-prod@meridiantech.io", "name": "svc-deploy-prod" },
+  "source": { "ip": "232.194.110.16" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["authentication", "network"],
-    "type": ["allowed"],
+    "type": ["denied"],
     "dataset": "aws.verifiedaccess",
     "provider": "verified-access.amazonaws.com",
-    "duration": 165000000,
-    "module": "aws",
-    "kind": "event"
+    "duration": 5000000,
+    "module": "aws"
   },
-  "message": "Verified Access allowed: svc-deploy-prod@bluepeak.dev -> internal-dashboard (COMPLIANT)",
-  "log": { "level": "info" },
+  "message": "Verified Access DENIED: svc-deploy-prod@meridiantech.io -> dev-tools [policy_evaluation_failed]",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "AccessDenied",
+    "message": "Verified Access policy denied: policy_evaluation_failed",
+    "type": "authentication"
+  },
   "service": { "name": "verifiedaccess", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.verifiedaccess", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "4nspy1yu1c9g9gg2s43bpg1f72ghascg7w4m"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "vtvt17zz2s06aceu18vbtp71nwh928oz2web"
   },
   "input": { "type": "aws-cloudwatch" },
   "related": {
-    "ip": ["130.49.40.129"],
-    "user": ["svc-deploy-prod", "svc-deploy-prod@bluepeak.dev"]
+    "ip": ["232.194.110.16"],
+    "user": ["svc-deploy-prod", "svc-deploy-prod@meridiantech.io"]
   }
 }

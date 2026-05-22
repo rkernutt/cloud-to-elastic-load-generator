@@ -1,55 +1,60 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-analytics-02eewq/providers/Microsoft.Sql/managedInstances/mi-rzy02",
-  "operationName": "ManagedInstancePerfAlert",
-  "category": "SqlMiIoAlerts",
-  "resultType": "Success",
-  "resultSignature": "AvgDataIoLatencyMs",
-  "callerIpAddress": "229.167.92.228",
-  "correlationId": "1765e376-0eea-43fc-8572-1200f4856d0c",
-  "level": "Information",
+  "resourceId": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-data-x68w3e/providers/Microsoft.Sql/managedInstances/mi-o4p0b",
+  "operationName": "AUTOMATIC_TUNING",
+  "category": "AutomaticTuning",
+  "resultType": "Failure",
+  "resultSignature": "VerificationFailed",
+  "callerIpAddress": "224.250.83.136",
+  "correlationId": "e712e5d4-ddb2-447c-b88c-e47507fcb606",
+  "level": "Warning",
   "properties": {
-    "metric": "AvgDataIoLatencyMs",
-    "value": 168.3530613605334,
-    "fileId": 21481,
-    "databaseId": 40,
-    "thresholdExceeded": false
+    "recommendation": "FORCE_LAST_GOOD_PLAN",
+    "state": "VerificationFailed",
+    "schema": "dbo",
+    "objectName": "IX_orders_status",
+    "cpuGainPercent": 0
   },
   "cloud": {
     "provider": "azure",
     "region": "francecentral",
-    "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
+    "account": { "id": "c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d", "name": "Northpeak-Dev" },
     "service": { "name": "Microsoft.Sql/managedInstances" }
   },
   "azure": {
     "sql_managed_instance": {
-      "instance": "mi-rzy02",
-      "resource_group": "rg-analytics-02eewq",
-      "category": "SqlMiIo",
-      "correlation_id": "1765e376-0eea-43fc-8572-1200f4856d0c",
+      "instance": "mi-o4p0b",
+      "resource_group": "rg-data-x68w3e",
+      "category": "AutomaticTuning",
+      "correlation_id": "e712e5d4-ddb2-447c-b88c-e47507fcb606",
       "properties": {
-        "metric": "AvgDataIoLatencyMs",
-        "value": 168.3530613605334,
-        "fileId": 21481,
-        "databaseId": 40,
-        "thresholdExceeded": false
+        "recommendation": "FORCE_LAST_GOOD_PLAN",
+        "state": "VerificationFailed",
+        "schema": "dbo",
+        "objectName": "IX_orders_status",
+        "cpuGainPercent": 0
       }
     }
   },
   "event": {
     "kind": "event",
     "category": ["database"],
-    "type": ["access"],
-    "action": "ManagedInstancePerfAlert",
-    "outcome": "success",
-    "duration": 38076930866,
+    "type": ["error"],
+    "action": "AUTOMATIC_TUNING",
+    "outcome": "failure",
+    "duration": 2302627563,
     "module": "azure",
     "dataset": "azure.sql_managed_instance"
   },
-  "message": "MI mi-rzy02: IO latency within bounds (168.4ms)",
+  "message": "MI mi-o4p0b: auto-tuning could not verify IX_orders_status",
+  "error": {
+    "code": "QuotaExceeded",
+    "message": "Regional subscription quota prevented this operation.",
+    "type": "azure"
+  },
   "service": { "name": "sql-managed-instance", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": {
     "type": "logs",
@@ -60,9 +65,7 @@
     "type": "elastic-agent",
     "version": "8.18.0",
     "name": "elastic-agent-azure-francecentral",
-    "id": "nwyazauft937ud2vu2gf12m243dudpyuynva"
+    "id": "59lpgguzsr41vp82dcb84upsbgoao2odqpye"
   },
-  "input": { "type": "azure-eventhub" },
-  "source": { "ip": "229.167.92.228" },
-  "related": { "ip": ["229.167.92.228"] }
+  "input": { "type": "azure-eventhub" }
 }

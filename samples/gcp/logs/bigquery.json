@@ -1,89 +1,67 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
+  "severity": "NOTICE",
   "labels": {
-    "dataset_id": "raw_events",
-    "table_id": "users",
-    "job_id": "globex-sec-847293:northamerica-northeast1.ed0hg2yx"
+    "dataset_id": "analytics",
+    "table_id": "transactions",
+    "job_id": "globex-stg-739158:us-west3.7syff7fv"
   },
   "jsonPayload": {
-    "job": {
-      "jobName": "globex-sec-847293:northamerica-northeast1.ed0hg2yx",
-      "jobStatistics": {
-        "creationTime": "2026-04-04T11:48:14.376Z",
-        "startTime": "2026-04-04T11:48:14.819Z",
-        "endTime": "2026-04-04T12:00:00.000Z",
-        "totalBytesProcessed": "22292486633118",
-        "totalBytesBilled": "19543487258584",
-        "totalSlotMs": 51682156,
-        "reservationId": "projects/globex-sec-847293/locations/northamerica-northeast1/reservations/adhoc-s90h",
-        "cacheHit": false,
-        "query": {
-          "totalBytesProcessed": 22292486633118,
-          "totalSlotMs": 51682156,
-          "cacheHit": false,
-          "statementType": "CREATE_TABLE",
-          "referencedTables": [
-            { "projectId": "globex-sec-847293", "datasetId": "raw_events", "tableId": "users_0" },
-            { "projectId": "globex-sec-847293", "datasetId": "raw_events", "tableId": "users_1" },
-            { "projectId": "globex-sec-847293", "datasetId": "raw_events", "tableId": "users_2" },
-            { "projectId": "globex-sec-847293", "datasetId": "raw_events", "tableId": "users_3" },
-            { "projectId": "globex-sec-847293", "datasetId": "raw_events", "tableId": "users_4" }
-          ],
-          "queryPlan": {
-            "estimatedBytesProcessed": "21177862301462",
-            "stages": [
-              { "name": "S00: Output", "waitMsAvg": 78, "recordsRead": "544249281" },
-              { "name": "S01: Aggregate", "waitMsAvg": 1467, "recordsRead": "73082241" }
-            ]
-          },
-          "schema": { "fields": [{ "name": "id", "type": "INTEGER" }] }
-        },
-        "completionRatio": 1
-      }
+    "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+    "authenticationInfo": { "principalEmail": "group:engineering@northwind-infra.net" },
+    "requestMetadata": {
+      "callerIp": "203.0.55.208",
+      "callerSuppliedUserAgent": "google-cloud-sdk gcloud/…"
+    },
+    "serviceName": "bigquery.googleapis.com",
+    "methodName": "tabledata.list",
+    "resourceName": "projects/globex-stg-739158/datasets/analytics/tables/transactions",
+    "metadata": {
+      "@type": "type.googleapis.com/google.cloud.bigquery.logging.v1.AuditData",
+      "tableDataRead": { "fields": ["id", "email"] }
     }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "northamerica-northeast1",
-    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
-    "account": { "id": "847293615048", "name": "Globex Security" },
+    "region": "us-west3",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
     "service": { "name": "bigquery" }
   },
   "gcp": {
     "bigquery": {
-      "job_id": "globex-sec-847293:northamerica-northeast1.ed0hg2yx",
-      "job_type": "LOAD",
-      "project": "globex-sec-847293",
-      "dataset": "raw_events",
-      "table": "users",
+      "job_id": "globex-stg-739158:us-west3.7syff7fv",
+      "job_type": "QUERY",
+      "project": "globex-stg-739158",
+      "dataset": "analytics",
+      "table": "transactions",
       "statement_type": "CREATE_TABLE",
-      "total_bytes_processed": 22292486633118,
-      "total_bytes_billed": 19543487258584,
-      "total_slot_ms": 51682156,
+      "total_bytes_processed": 9040723720816,
+      "total_bytes_billed": 8718103737572,
+      "total_slot_ms": 207673075,
       "billing_tier": "STANDARD",
       "cache_hit": false,
-      "referenced_tables_count": 44,
-      "output_rows": 296144245,
-      "creation_time": "2026-04-04T11:48:14.376Z",
-      "start_time": "2026-04-04T11:48:14.819Z",
+      "referenced_tables_count": 14,
+      "output_rows": 240790957,
+      "creation_time": "2026-04-04T11:52:56.713Z",
+      "start_time": "2026-04-04T11:52:57.053Z",
       "end_time": "2026-04-04T12:00:00.000Z",
-      "priority": "BATCH",
-      "reservation_name": "projects/globex-sec-847293/locations/northamerica-northeast1/reservations/adhoc-s90h",
+      "priority": "INTERACTIVE",
+      "reservation_name": "projects/globex-stg-739158/locations/us-west3/reservations/adhoc-9oil",
       "completion_ratio": 1
     }
   },
   "event": {
     "kind": "event",
     "category": ["database"],
-    "type": ["access"],
-    "action": "bigquery.load",
+    "type": ["change"],
+    "action": "tabledata.list",
     "outcome": "success",
-    "duration": 705181000000,
+    "duration": 422947000000,
     "module": "gcp",
     "dataset": "gcp.bigquery"
   },
-  "message": "insertId=WZD3V6DWT7NC jsonPayload.job.jobStatistics.query.queryPlan.stages=2 totalBytesProcessed=22292486633118",
+  "message": "protoPayload.methodName=\"bigquery.tables.getData\" protoPayload.serviceName=\"bigquery.googleapis.com\" resourceName=\"projects/globex-stg-739158/datasets/analytics/tables/transactions\"",
   "service": { "name": "bigquery", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -91,14 +69,14 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-northamerica-northeast1",
-    "id": "a5lepet4fl6abo1zjs85vz1irn1r5q8fj9iq"
+    "name": "elastic-agent-gcp-us-west3",
+    "id": "m3twm9m4bv066j29wy97i6ee1nodjlm474fv"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-sec-847293/logs/bigquery",
+  "logName": "projects/globex-stg-739158/logs/bigquery",
   "resource": {
     "type": "bigquery_resource",
-    "labels": { "project_id": "globex-sec-847293", "region": "northamerica-northeast1" }
+    "labels": { "project_id": "globex-stg-739158", "region": "us-west3" }
   },
-  "insertId": "6M9BDX77TYAK"
+  "insertId": "TI3HRJD3HWPG"
 }

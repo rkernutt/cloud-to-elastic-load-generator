@@ -1,53 +1,123 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
-    "service": { "name": "rds-custom" }
+    "region": "ca-central-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
+    "service": { "name": "rds" }
   },
   "aws": {
-    "rdscustom": {
-      "instance_id": "orcl-migration",
-      "engine": "custom-sqlserver-ee",
-      "cev_id": "cev-b2p7ey5o",
-      "event_type": "ModifyInstance",
-      "automation_id": "exec-7yerwx4lgcjrxloxh",
-      "pause_automation": false,
-      "os_patch_level": "2024.8.9"
+    "dimensions": {
+      "DBInstanceIdentifier": "prod-db-reporting",
+      "DatabaseClass": "db.m5.large",
+      "EngineName": "aurora-postgresql",
+      "SourceRegion": "ca-central-1"
+    },
+    "cloudwatch": {
+      "log_group": "/aws/rds/cluster/prod-db-reporting/postgresql",
+      "log_stream": "prod-db-reporting",
+      "ingestion_time": "2026-05-22T12:29:31.226Z"
+    },
+    "rds": {
+      "db_instance": {
+        "identifier": "prod-db-reporting",
+        "class": "db.m5.large",
+        "engine_name": "aurora-postgresql",
+        "engine_version": "14.1",
+        "arn": "arn:aws:rds:ca-central-1:738291046572:db:prod-db-reporting",
+        "status": "available",
+        "role": "instance",
+        "multi_az": true,
+        "storage_type": "gp3",
+        "allocated_storage_gb": 200
+      },
+      "log_type": "postgresql",
+      "cpu": { "total": { "pct": 0.386 } },
+      "freeable_memory": { "bytes": 340257349 },
+      "free_storage": { "bytes": 499578292015 },
+      "database_connections": 323,
+      "read_io": { "ops_per_sec": 2722.8286388354177 },
+      "write_io": { "ops_per_sec": 694.9705368221549 },
+      "latency": { "read": 0.011431393157828575, "write": 0.0013250587838390423 },
+      "throughput": {
+        "read": 91125924,
+        "write": 39218183,
+        "network_receive": 64108280,
+        "network_transmit": 85227007
+      },
+      "replica_lag": { "sec": 83.85275195360016 },
+      "swap_usage": { "bytes": 69631276 },
+      "disk_usage": { "bin_log": { "bytes": 216394344 } },
+      "enhanced_monitoring": {
+        "cpuUtilization": {
+          "guest": 1.2433808672285624,
+          "irq": 0.028126488962813778,
+          "system": 8.111428388331962,
+          "wait": 0.6620919234285794,
+          "idle": 75.9,
+          "user": 14.101091645390563,
+          "total": 24.1
+        },
+        "memory": {
+          "total": 61528787892,
+          "free": 5481764805,
+          "cached": 1107913070,
+          "active": 11755271916,
+          "inactive": 1175099551,
+          "buffers": 410748546
+        },
+        "disk": {
+          "readIOsPS": 2439.6873141590863,
+          "writeIOsPS": 638.043583452489,
+          "readKbPS": 168699.07808725213,
+          "writeKbPS": 353220.5092229036,
+          "avgQueueLen": 1.4143865463497098,
+          "await": 10.285046660643914
+        },
+        "network": { "rx": 63977612, "tx": 96536182 },
+        "numVCPUs": 16,
+        "uptime": "97 days, 21:34:13"
+      }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-rds-logs-293847561023"
+        "name": "aws-rds-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-rds-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/293847561023/rds/ap-southeast-1/2026/05/20/rds_RN2WXKASRCZZE3VJBFAO.log.gz"
+        "key": "AWSLogs/738291046572/rds/ca-central-1/2026/05/22/rds_D8220RCN6CJNASA5RD7T.log.gz"
       }
-    },
-    "cloudwatch": {
-      "log_group": "/aws/rds/logs",
-      "log_stream": "ap-southeast-1/zo93qu5r",
-      "ingestion_time": "2026-05-20T13:19:01.186Z"
     }
   },
-  "event": {
-    "outcome": "success",
-    "duration": 150094856,
-    "module": "aws",
-    "dataset": "aws.rds",
-    "kind": "event"
+  "db": {
+    "user": { "name": "appuser" },
+    "name": "appdb",
+    "statement": "SELECT * FROM events WHERE id = 568497",
+    "type": "sql"
   },
-  "message": "RDS Custom orcl-migration: ModifyInstance completed (custom-sqlserver-ee)",
-  "service": { "name": "rds", "type": "aws" },
+  "source": { "ip": "184.66.159.153" },
+  "event": {
+    "duration": 1795555788.0020502,
+    "outcome": "success",
+    "category": ["database"],
+    "type": ["info", "access"],
+    "dataset": "aws.rds",
+    "provider": "rds.amazonaws.com",
+    "module": "aws"
+  },
+  "message": "2026-05-22 12:29:30.113 UTC:184.66.159.153(59847):appuser@appdb:[56591]:LOG:  duration: 1795.556 ms  statement: SELECT * FROM events WHERE id = 568497",
   "log": { "level": "info" },
+  "trace": { "id": "Q016VP0R0439QTMFSFP2282AK925W2GA" },
+  "transaction": { "id": "8G68ZZHKKCFGDJG0" },
+  "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "jfrk0ls2ou45lcdas0cb2a33zs47orurtzaj"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "u9ef7de4x6s74hpn375yrcgr24dhb0xme61c"
   },
-  "input": { "type": "aws-cloudwatch" }
+  "input": { "type": "aws-cloudwatch" },
+  "related": { "ip": ["184.66.159.153"] }
 }

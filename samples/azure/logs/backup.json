@@ -1,52 +1,68 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-app-8fmvxh/providers/Microsoft.RecoveryServices/vaults/rsv-gpufc1",
-  "operationName": "Microsoft.RecoveryServices/vaults/backupPolicies/compliance/read",
-  "category": "PolicyCompliance",
-  "resultType": "Success",
-  "resultSignature": "compliant",
-  "callerIpAddress": "174.147.28.12",
-  "correlationId": "5920a72c-5d3e-4496-a20a-86588890d79d",
-  "level": "Information",
-  "properties": { "policyName": "policy-tiered", "compliant": true, "issues": "" },
+  "resourceId": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-app-kcsww7/providers/Microsoft.RecoveryServices/vaults/rsv-on6phi",
+  "operationName": "Microsoft.RecoveryServices/vaults/backupSecurity/immutability",
+  "category": "ImmutabilityGuard",
+  "resultType": "Failure",
+  "resultSignature": "blocked",
+  "callerIpAddress": "236.218.132.99",
+  "correlationId": "97bc3d76-a6a0-45d2-86c8-b29e62eb6d3e",
+  "level": "Warning",
+  "properties": {
+    "lockedRetentionDays": 89,
+    "mutateAttemptBlocked": true,
+    "solicitor": "arm",
+    "error": {
+      "code": "LogicAppTriggerNotFound",
+      "message": "Attempt to shorten immutability window or delete immutable RP was denied",
+      "type": "azure"
+    }
+  },
   "cloud": {
     "provider": "azure",
-    "region": "switzerlandnorth",
-    "account": { "id": "a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d", "name": "Meridian-Platform" },
+    "region": "australiaeast",
+    "account": { "id": "c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d", "name": "Northpeak-Dev" },
     "service": { "name": "Microsoft.RecoveryServices/vaults" }
   },
   "azure": {
     "backup": {
-      "vault": "rsv-gpufc1",
-      "resource_group": "rg-app-8fmvxh",
-      "category": "PolicyCompliance",
-      "correlation_id": "5920a72c-5d3e-4496-a20a-86588890d79d",
-      "properties": { "policyName": "policy-tiered", "compliant": true, "issues": "" }
+      "vault": "rsv-on6phi",
+      "resource_group": "rg-app-kcsww7",
+      "category": "ImmutabilityGuard",
+      "correlation_id": "97bc3d76-a6a0-45d2-86c8-b29e62eb6d3e",
+      "properties": {
+        "lockedRetentionDays": 89,
+        "mutateAttemptBlocked": true,
+        "solicitor": "arm",
+        "error": {
+          "code": "LogicAppTriggerNotFound",
+          "message": "Attempt to shorten immutability window or delete immutable RP was denied",
+          "type": "azure"
+        }
+      }
     }
   },
   "event": {
     "kind": "event",
     "category": ["process"],
-    "type": ["info"],
-    "action": "Microsoft.RecoveryServices/vaults/backupPolicies/compliance/read",
-    "outcome": "success",
-    "duration": 3447920343,
+    "type": ["error"],
+    "action": "Microsoft.RecoveryServices/vaults/backupSecurity/immutability",
+    "outcome": "failure",
+    "duration": 173135670686,
     "module": "azure",
     "dataset": "azure.backup"
   },
-  "message": "Backup vault rsv-gpufc1: policy policy-tiered compliant",
+  "message": "Backup vault rsv-on6phi: immutability violation via arm",
   "service": { "name": "backup", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.backup", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-switzerlandnorth",
-    "id": "xarfoa0awv2jr5c8w1p1y67ap5wfx6y69inv"
+    "name": "elastic-agent-azure-australiaeast",
+    "id": "hbcqpicqtoie3lqlulg6lylotjfvb1ick7bv"
   },
-  "input": { "type": "azure-eventhub" },
-  "source": { "ip": "174.147.28.12" },
-  "related": { "ip": ["174.147.28.12"] }
+  "input": { "type": "azure-eventhub" }
 }

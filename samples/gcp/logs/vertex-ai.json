@@ -3,71 +3,64 @@
   "log": { "level": "info" },
   "severity": "DEBUG",
   "labels": {
-    "resource.type": "aiplatform.googleapis.com/CustomJob",
-    "location": "europe-central2"
+    "resource.type": "discoveryengine.googleapis.com/Engine",
+    "engine": "search-commerce-mq7a"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-central2",
-    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
-    "account": { "id": "739158264830", "name": "Globex Staging" },
-    "service": { "name": "aiplatform.googleapis.com" }
+    "region": "africa-south1",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
+    "service": { "name": "discoveryengine.googleapis.com" }
   },
   "gcp": {
-    "vertex_ai": {
-      "model_id": "projects/globex-stg-739158/locations/europe-central2/models/oxa8s1xx23",
-      "endpoint_id": "projects/globex-stg-739158/locations/europe-central2/endpoints/h3nnkav9",
-      "job_type": "training",
-      "framework": "jax",
-      "model_name": "oxa8s1xx23",
-      "model_version": "v3",
-      "instances_count": 90,
-      "latency_ms": 318,
-      "training_job_id": "customjob-c806y2gmwl7h",
-      "training_state": "RUNNING",
-      "accelerator_type": "NVIDIA_TESLA_A100",
-      "machine_type": "g2-standard-4"
+    "vertex_ai_search": {
+      "engine_name": "search-commerce-mq7a",
+      "query": "return policy",
+      "results_count": 44,
+      "search_type": "SEARCH",
+      "serving_config": "projects/globex-prod-482910/locations/global/collections/default_collection/engines/search-commerce-mq7a/servingConfigs/default_search",
+      "latency_ms": 311,
+      "session_id": "search-00y1n41zawzb"
     }
   },
   "event": {
+    "kind": "event",
+    "category": ["process"],
+    "type": ["info"],
+    "action": "ml-operation",
     "outcome": "success",
-    "duration": 636,
+    "duration": 311,
     "module": "gcp",
-    "dataset": "gcp.vertexai",
-    "kind": "event"
+    "dataset": "gcp.vertexaisearch"
   },
-  "message": "Training completed: final_val_loss=1.7954 val_accuracy=0.8964 total_wall_time=56081s checkpoint_uri=gs://globex-stg-739158-vertex/out/optx53ht",
-  "service": { "name": "vertex-ai", "type": "gcp" },
+  "message": "search OK engine=search-commerce-mq7a type=SEARCH query=\"return policy\" results=44 session=search-00y1n41zawzb latency_ms=311",
+  "service": { "name": "vertex-ai-search", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.vertexai", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.vertexaisearch", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-central2",
-    "id": "cdoqpzcv5gqeddkl01hfy6gmxc1zzj76zkmx"
+    "name": "elastic-agent-gcp-africa-south1",
+    "id": "heidqobc279a5h5uqr9x1b3z3h9hyukyf4e4"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-stg-739158/logs/vertex-ai",
+  "logName": "projects/globex-prod-482910/logs/vertex-ai-search",
   "resource": {
-    "type": "aiplatform.googleapis.com/Endpoint",
-    "labels": { "project_id": "globex-stg-739158", "region": "europe-central2" }
+    "type": "global",
+    "labels": { "project_id": "globex-prod-482910", "region": "africa-south1" }
   },
-  "insertId": "AQPRNEH1VHSG",
+  "insertId": "QC2GF6BXQ80X",
   "jsonPayload": {
-    "vertex_ai": {
-      "model_id": "projects/globex-stg-739158/locations/europe-central2/models/oxa8s1xx23",
-      "endpoint_id": "projects/globex-stg-739158/locations/europe-central2/endpoints/h3nnkav9",
-      "job_type": "training",
-      "framework": "jax",
-      "model_name": "oxa8s1xx23",
-      "model_version": "v3",
-      "instances_count": 90,
-      "latency_ms": 318,
-      "training_job_id": "customjob-c806y2gmwl7h",
-      "training_state": "RUNNING",
-      "accelerator_type": "NVIDIA_TESLA_A100",
-      "machine_type": "g2-standard-4"
+    "vertex_ai_search": {
+      "engine_name": "search-commerce-mq7a",
+      "query": "return policy",
+      "results_count": 44,
+      "search_type": "SEARCH",
+      "serving_config": "projects/globex-prod-482910/locations/global/collections/default_collection/engines/search-commerce-mq7a/servingConfigs/default_search",
+      "latency_ms": 311,
+      "session_id": "search-00y1n41zawzb"
     },
-    "message": "Training completed: final_val_loss=1.7954 val_accuracy=0.8964 total_wall_time=56081s checkpoint_uri=gs://globex-stg-739158-vertex/out/optx53ht"
+    "message": "search OK engine=search-commerce-mq7a type=SEARCH query=\"return policy\" results=44 session=search-00y1n41zawzb latency_ms=311"
   }
 }

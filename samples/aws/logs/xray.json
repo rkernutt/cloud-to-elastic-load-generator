@@ -1,93 +1,54 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
-  "trace": { "id": "1-6a0db4c4-awlo7epc6c2sxxpr1zr75hu4" },
-  "span": { "id": "iixwtt4g2y9fhyfx" },
+  "@timestamp": "2026-05-22T12:29:30.113Z",
+  "trace": { "id": "1-6a104c2a-w5vyvq3auxtm4ig3mf68tqff" },
+  "span": { "id": "2mcqa9nzbd3zo1vf" },
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
+    "region": "ca-west-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "xray" }
   },
   "aws": {
-    "dimensions": { "GroupName": "Default", "ServiceType": "AWS::S3::Bucket" },
+    "dimensions": { "GroupName": "Default", "ServiceType": "AWS::RDS::DBInstance" },
     "xray": {
-      "trace_id": "1-6a0db4c4-awlo7epc6c2sxxpr1zr75hu4",
-      "segment_id": "iixwtt4g2y9fhyfx",
-      "parent_id": "b8f3skt8gfz4edlw",
-      "start_time": 1779283140.213,
-      "end_time": 1779283142.7190752,
-      "origin": "AWS::S3::Bucket",
-      "service": { "name": "data-bucket", "type": "AWS::S3::Bucket" },
-      "duration": 2.5060750773635405,
+      "trace_id": "1-6a104c2a-w5vyvq3auxtm4ig3mf68tqff",
+      "segment_id": "2mcqa9nzbd3zo1vf",
+      "start_time": 1779452970.113,
+      "end_time": 1779452972.4847894,
+      "origin": "AWS::RDS::DBInstance",
+      "service": { "name": "prod-db-primary", "type": "AWS::RDS::DBInstance" },
+      "duration": 2.371789524842212,
       "fault": false,
       "error": false,
       "throttle": false,
       "http": {
         "request": {
-          "method": "GET",
-          "url": "https://cdn.meridiantech.io/api/v1/users",
-          "client_ip": "86.240.237.130",
-          "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"
+          "method": "PATCH",
+          "url": "https://dashboard.bluepeak.dev/api/v1/health",
+          "client_ip": "149.79.39.238",
+          "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
         },
-        "response": { "status": 204, "content_length": 117 }
+        "response": { "status": 201, "content_length": 44893 }
       },
       "aws": {
         "account_id": "293847561023",
-        "region": "ap-northeast-3",
-        "resource_names": ["data-bucket"]
+        "region": "ca-west-1",
+        "resource_names": ["prod-db-primary"]
       },
-      "annotations": { "environment": "staging", "version": "v6.8.67", "team": "data" },
-      "subsegments": [
-        {
-          "id": "a12gxekrxk3bzdh6",
-          "name": "S3",
-          "start_time": 1779283140.5823896,
-          "end_time": 1779283142.562315,
-          "namespace": "aws",
-          "aws": {
-            "operation": "ListObjects",
-            "region": "ap-northeast-3",
-            "retries": 0,
-            "bucket_name": "logs-bucket",
-            "key": "uploads/6rmmd4yq30rg.parquet",
-            "request_id": "QN0FEXNWBHU3ROHF"
-          },
-          "http": { "response": { "status": 200, "content_length": 33697 } },
-          "fault": false,
-          "error": false,
-          "throttle": false
-        },
-        {
-          "id": "6eb5943hxfp0b4kl",
-          "name": "user-service.internal:8080",
-          "start_time": 1779283140.860989,
-          "end_time": 1779283141.7441785,
-          "namespace": "remote",
-          "http": {
-            "request": {
-              "method": "GET",
-              "url": "http://user-service.internal:8080/api/v2/analytics"
-            },
-            "response": { "status": 200, "content_length": 9482 }
-          },
-          "fault": false,
-          "error": false,
-          "throttle": false
-        }
-      ],
+      "annotations": { "environment": "production", "version": "v14.6.26", "team": "backend" },
       "metrics": {
-        "ErrorRate": { "avg": 0.560191387755191 },
-        "FaultRate": { "avg": 0.01839347601895891 },
-        "ThrottleRate": { "avg": 0.37660075883104144 },
-        "TotalCount": { "sum": 5299 },
+        "ErrorRate": { "avg": 0.283108039459121 },
+        "FaultRate": { "avg": 0.2653233181478292 },
+        "ThrottleRate": { "avg": 0.3715474274018809 },
+        "TotalCount": { "sum": 6982 },
         "Latency": {
-          "avg": 2506.0750773635405,
-          "p50": 2004.8600618908324,
-          "p90": 3759.112616045311,
-          "p95": 5012.150154727081,
-          "p99": 7518.225232090622
+          "avg": 2371.789524842212,
+          "p50": 1897.4316198737697,
+          "p90": 3557.6842872633183,
+          "p95": 4743.579049684424,
+          "p99": 7115.368574526637
         },
-        "OkCount": { "sum": 922 },
+        "OkCount": { "sum": 8355 },
         "ErrorCount": { "sum": 0 },
         "FaultCount": { "sum": 0 },
         "ThrottleCount": { "sum": 0 }
@@ -99,35 +60,34 @@
         "arn": "arn:aws:s3:::aws-xray-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/xray/ap-northeast-3/2026/05/20/xray_WYMNTZ2W66AKQHT33ZJN.log.gz"
+        "key": "AWSLogs/293847561023/xray/ca-west-1/2026/05/22/xray_S4JC806R6LCP3AEQOOHA.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/xray/logs",
-      "log_stream": "ap-northeast-3/h9o8xj3l",
-      "ingestion_time": "2026-05-20T13:19:01.360Z"
+      "log_stream": "ca-west-1/sqq19b6t",
+      "ingestion_time": "2026-05-22T12:29:31.423Z"
     }
   },
   "http": {
-    "request": { "method": "GET", "body": { "bytes": 753 } },
-    "response": { "status_code": 204, "body": { "bytes": 29938 } }
+    "request": { "method": "PATCH", "body": { "bytes": 1616 } },
+    "response": { "status_code": 201, "body": { "bytes": 19317 } }
   },
-  "url": { "path": "/api/v1/users", "full": "https://cdn.meridiantech.io/api/v1/users" },
+  "url": { "path": "/api/v1/health", "full": "https://dashboard.bluepeak.dev/api/v1/health" },
   "user_agent": {
-    "original": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"
+    "original": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
   },
-  "source": { "ip": "86.240.237.130" },
+  "source": { "ip": "149.79.39.238" },
   "event": {
-    "duration": 2506075077,
+    "duration": 2371789525,
     "outcome": "success",
     "category": ["network"],
     "type": ["connection"],
     "dataset": "aws.xray",
     "provider": "xray.amazonaws.com",
-    "module": "aws",
-    "kind": "event"
+    "module": "aws"
   },
-  "message": "2026-05-20T13:19:01.053Z [Info] Service map update applied nodes=48 edges=271 version=5\n2026-05-20T13:19:00.453Z [Info] Buffering segments queueDepth=11\n2026-05-20T13:19:00.693Z [Info] Traces uploaded batchBytes=14057 latencyMs=20\n2026-05-20T13:19:00.573Z [Info] Successfully sent batch of 21 segment document(s) to 169.254.100.0:2000\n{\"trace_id\":\"1-6a0db4c4-awlo7epc6c2sxxpr1zr75hu4\",\"id\":\"iixwtt4g2y9fhyfx\",\"name\":\"data-bucket\",\"start_time\":1779283140.213,\"end_time\":1779283142.7190752,\"parent_id\":\"b8f3skt8gfz4edlw\",\"http\":{\"request\":{\"method\":\"GET\",\"url\":\"https://cdn.meridiantech.io/api/v1/users\",\"client_ip\":\"86.240.237.130\",\"user_agent\":\"Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1\"},\"response\":{\"status\":204,\"content_length\":24991}},\"aws\":{\"account_id\":\"293847561023\",\"region\":\"ap-northeast-3\",\"operation\":\"Bucket\",\"resource_names\":[\"data-bucket\"]},\"annotations\":{\"environment\":\"production\",\"version\":\"v6.6.72\",\"team\":\"platform\"},\"metadata\":{\"default\":{\"response_size\":40502}},\"fault\":false,\"error\":false,\"throttle\":false,\"origin\":\"AWS::S3::Bucket\",\"resource_arn\":\"arn:aws:s3:ap-northeast-3:293847561023:data-bucket\"}",
+  "message": "2026-05-22T12:29:30.113Z [Info] X-Ray daemon 3.3.14 listening on address 127.0.0.1:2000\n2026-05-22T12:29:30.353Z [Info] Buffering segments queueDepth=3\n2026-05-22T12:29:30.593Z [Info] Traces uploaded batchBytes=671129 latencyMs=213\n{\"trace_id\":\"1-6a104c2a-w5vyvq3auxtm4ig3mf68tqff\",\"id\":\"2mcqa9nzbd3zo1vf\",\"name\":\"prod-db-primary\",\"start_time\":1779452970.113,\"end_time\":1779452972.4847894,\"http\":{\"request\":{\"method\":\"PATCH\",\"url\":\"https://dashboard.bluepeak.dev/api/v1/health\",\"client_ip\":\"149.79.39.238\",\"user_agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36\"},\"response\":{\"status\":201,\"content_length\":9164}},\"aws\":{\"account_id\":\"293847561023\",\"region\":\"ca-west-1\",\"operation\":\"DBInstance\",\"resource_names\":[\"prod-db-primary\"]},\"annotations\":{\"environment\":\"production\",\"version\":\"v10.7.33\",\"team\":\"data\"},\"metadata\":{\"default\":{\"response_size\":41058}},\"fault\":false,\"error\":false,\"throttle\":false,\"origin\":\"AWS::RDS::DBInstance\",\"resource_arn\":\"arn:aws:rds:ca-west-1:293847561023:prod-db-primary\"}",
   "log": { "level": "info" },
   "service": { "name": "xray", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -135,9 +95,9 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "m97dcnmiopvzipkbae3f4e9fvpi8pwox5hms"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "3goo964v24o8aalscjrmi81ob9q36lzqb8km"
   },
   "input": { "type": "http_endpoint" },
-  "related": { "ip": ["86.240.237.130"] }
+  "related": { "ip": ["149.79.39.238"] }
 }

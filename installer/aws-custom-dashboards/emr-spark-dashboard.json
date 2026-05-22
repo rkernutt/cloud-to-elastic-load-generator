@@ -1,0 +1,451 @@
+{
+  "title": "Amazon EMR — Spark Driver & Executor Logs",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "emr-spark-kpi-active-apps",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 16,
+        "h": 5
+      },
+      "config": {
+        "title": "Active Spark Applications",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.emr_logs* | WHERE spark.event_type == \"SparkListenerApplicationStart\" | STATS `Active Apps` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Active Apps"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "emr-spark-kpi-avg-stage-dur",
+      "grid": {
+        "x": 16,
+        "y": 0,
+        "w": 16,
+        "h": 5
+      },
+      "config": {
+        "title": "Avg Stage Duration",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.emr_logs* | WHERE spark.stage.duration_s IS NOT NULL | STATS avg_dur = AVG(spark.stage.duration_s) | EVAL `Avg Stage (s)` = ROUND(avg_dur, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg Stage (s)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "emr-spark-kpi-failed-tasks",
+      "grid": {
+        "x": 32,
+        "y": 0,
+        "w": 16,
+        "h": 5
+      },
+      "config": {
+        "title": "Total Failed Tasks",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.emr_logs* | WHERE spark.task.duration_ms IS NOT NULL AND log.level == \"ERROR\" | STATS `Failed Tasks` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed Tasks"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "emr-spark-donut-log-level",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 8
+      },
+      "config": {
+        "title": "Log Level Distribution",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.emr_logs* | WHERE spark.component IS NOT NULL | STATS count = COUNT() BY log.level"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "log.level"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "emr-spark-donut-component",
+      "grid": {
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 8
+      },
+      "config": {
+        "title": "Component Distribution",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.emr_logs* | WHERE spark.component_short IS NOT NULL | STATS count = COUNT() BY spark.component_short"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "spark.component_short"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "emr-spark-events-over-time",
+      "grid": {
+        "x": 0,
+        "y": 13,
+        "w": 48,
+        "h": 8
+      },
+      "config": {
+        "title": "Spark Events Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.emr_logs* | WHERE spark.component IS NOT NULL | STATS count = COUNT() BY ts = BUCKET(`@timestamp````@timestamp`, 50, ?_tstart, ?_tend) | SORT ``ts"
+              },
+              "x": {
+                "operation": "value",
+                "column": "ts"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "emr-spark-stage-duration-over-time",
+      "grid": {
+        "x": 0,
+        "y": 21,
+        "w": 24,
+        "h": 8
+      },
+      "config": {
+        "title": "Stage Duration Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.emr_logs* | WHERE spark.stage.duration_s IS NOT NULL | STATS avg_dur = AVG(spark.stage.duration_s) BY ts = BUCKET(`@timestamp````@timestamp`, 50, ?_tstart, ?_tend) | SORT ``ts"
+              },
+              "x": {
+                "operation": "value",
+                "column": "ts"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_dur",
+                  "label": "Avg Stage Duration (s)"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "emr-spark-shuffle-io-over-time",
+      "grid": {
+        "x": 24,
+        "y": 21,
+        "w": 24,
+        "h": 8
+      },
+      "config": {
+        "title": "Shuffle I/O Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_stacked",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.emr_logs* | WHERE spark.shuffle.read_bytes IS NOT NULL OR spark.shuffle.write_bytes IS NOT NULL | STATS read = SUM(spark.shuffle.read_bytes), write = SUM(spark.shuffle.write_bytes) BY ts = BUCKET(`@timestamp````@timestamp`, 50, ?_tstart, ?_tend) | SORT ``ts"
+              },
+              "x": {
+                "operation": "value",
+                "column": "ts"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "read",
+                  "label": "Shuffle Read (bytes)"
+                },
+                {
+                  "operation": "value",
+                  "column": "write",
+                  "label": "Shuffle Write (bytes)"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "emr-spark-task-duration-dist",
+      "grid": {
+        "x": 0,
+        "y": 29,
+        "w": 24,
+        "h": 8
+      },
+      "config": {
+        "title": "Task Duration Distribution",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.emr_logs* | WHERE spark.task.duration_ms IS NOT NULL | STATS p50 = PERCENTILE(spark.task.duration_ms, 50), p95 = PERCENTILE(spark.task.duration_ms, 95), p99 = PERCENTILE(spark.task.duration_ms, 99) BY ts = BUCKET(`@timestamp````@timestamp`, 50, ?_tstart, ?_tend) | SORT ``ts"
+              },
+              "x": {
+                "operation": "value",
+                "column": "ts"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "p50",
+                  "label": "P50 (ms)"
+                },
+                {
+                  "operation": "value",
+                  "column": "p95",
+                  "label": "P95 (ms)"
+                },
+                {
+                  "operation": "value",
+                  "column": "p99",
+                  "label": "P99 (ms)"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "emr-spark-gc-over-time",
+      "grid": {
+        "x": 24,
+        "y": 29,
+        "w": 24,
+        "h": 8
+      },
+      "config": {
+        "title": "GC Time Over Time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.emr_logs* | WHERE spark.gc.time_ms IS NOT NULL | STATS avg_gc = AVG(spark.gc.time_ms) BY ts = BUCKET(`@timestamp````@timestamp`, 50, ?_tstart, ?_tend) | SORT ``ts"
+              },
+              "x": {
+                "operation": "value",
+                "column": "ts"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_gc",
+                  "label": "Avg GC Time (ms)"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "emr-spark-recent-events",
+      "grid": {
+        "x": 0,
+        "y": 37,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Spark Events",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.emr_logs* | WHERE spark.component IS NOT NULL | SORT `@timestamp` DESC | KEEP `@timestamp``@timestamp`, log.level, spark.component_short, spark.log_message | LIMIT 50"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
+            },
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Log Level"
+            },
+            {
+              "operation": "value",
+              "column": "spark.component_short",
+              "label": "Component"
+            },
+            {
+              "operation": "value",
+              "column": "spark.log_message",
+              "label": "Message"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

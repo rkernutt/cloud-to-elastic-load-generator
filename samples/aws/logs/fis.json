@@ -1,57 +1,61 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "sa-east-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "fis" }
   },
   "aws": {
-    "dimensions": { "ExperimentTemplateId": "EXTCMNDBUCX" },
+    "dimensions": { "ExperimentTemplateId": "EXT5TO53QFT" },
     "fis": {
-      "experiment_id": "EXPXGPID1Y5",
-      "experiment_template_id": "EXTCMNDBUCX",
-      "experiment_name": "network-latency-inject",
-      "experiment_state": "pending",
-      "target_resource_type": "EKS nodes",
-      "action_type": "aws:network-acl:replace-entries",
-      "stop_condition": "aws:cloudwatch:alarm",
-      "role_arn": "arn:aws:iam::293847561023:role/FISRole-network-latency-inject"
+      "experiment_id": "EXPB8QC0A23",
+      "experiment_template_id": "EXT5TO53QFT",
+      "experiment_name": "cpu-stress-test",
+      "experiment_state": "stopped",
+      "target_resource_type": "RDS clusters",
+      "action_type": "aws:eks:terminate-nodegroup-instances",
+      "stop_condition": "none",
+      "role_arn": "arn:aws:iam::501938274650:role/FISRole-cpu-stress-test"
     },
     "s3": {
       "bucket": {
-        "name": "aws-fis-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-fis-logs-293847561023"
+        "name": "aws-fis-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-fis-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/fis/us-east-2/2026/05/20/fis_HUOUG78LP2Y7HGAMORKG.log.gz"
+        "key": "AWSLogs/501938274650/fis/sa-east-1/2026/05/22/fis_UVGTQOD0K9JLY27YTD8W.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/fis/logs",
-      "log_stream": "us-east-2/98uiw4ut",
-      "ingestion_time": "2026-05-20T13:19:01.451Z"
+      "log_stream": "sa-east-1/g2iay0v3",
+      "ingestion_time": "2026-05-22T12:29:31.505Z"
     }
   },
   "event": {
-    "action": "CreateExperimentTemplate",
-    "outcome": "success",
+    "action": "StartExperiment",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.fis",
     "provider": "fis.amazonaws.com",
-    "module": "aws",
-    "kind": "event"
+    "module": "aws"
   },
-  "message": "FIS CreateExperimentTemplate: exp=EXPXGPID1Y5 (network-latency-inject) state=pending, target=EKS nodes",
-  "log": { "level": "info" },
+  "message": "FIS StartExperiment FAILED [EXPB8QC0A23]: Experiment failed",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ServiceQuotaExceededException",
+    "message": "FIS experiment failed",
+    "type": "process"
+  },
   "service": { "name": "fis", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.fis", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "l0w9jykv1gunvvz81ykpapn1zkeyk2gv9ddj"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "u8z3kixympia785jtkwkqfnj4bpzvc19nh4u"
   },
   "input": { "type": "aws-cloudwatch" }
 }

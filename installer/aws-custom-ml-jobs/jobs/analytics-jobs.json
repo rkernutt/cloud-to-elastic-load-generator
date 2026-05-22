@@ -1,6 +1,6 @@
 {
   "group": "analytics",
-  "description": "Analytics anomaly detection — AWS Glue job failures, Athena cost & performance, Amazon EMR task failures",
+  "description": "Analytics anomaly detection — AWS Glue job failures, Athena cost & performance, Amazon EMR task failures, Spark stage/executor/GC/shuffle anomalies",
   "jobs": [
     {
       "id": "aws-glue-job-duration-anomaly",
@@ -274,6 +274,205 @@
         "delayed_data_check_config": {
           "enabled": true
         }
+      }
+    },
+    {
+      "id": "aws-spark-stage-duration-anomaly",
+      "description": "Detects unusually long Spark stages — catches data skew, bad partitioning, or degraded executors",
+      "job": {
+        "description": "Detects unusually long Spark stages per cluster",
+        "groups": ["aws", "analytics", "spark", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(spark.stage.duration_s) partitionfield=aws.emr.cluster_id",
+              "function": "high_mean",
+              "field_name": "spark.stage.duration_s",
+              "partition_field_name": "aws.emr.cluster_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.emr.cluster_id", "spark.component_short", "spark.app.name"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator", "tags": ["cloudloadgen"] }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.emr_logs" } },
+              { "exists": { "field": "spark.stage.duration_s" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-spark-executor-loss-rate",
+      "description": "Detects unusual executor loss rate — catches node instability, OOM pressure, or preemption",
+      "job": {
+        "description": "Detects unusual executor loss rate per cluster",
+        "groups": ["aws", "analytics", "spark", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.emr.cluster_id",
+              "function": "high_count",
+              "partition_field_name": "aws.emr.cluster_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.emr.cluster_id", "spark.executor.id", "spark.executor.host"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator", "tags": ["cloudloadgen"] }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.emr_logs" } },
+              { "exists": { "field": "spark.executor.loss_reason" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-spark-gc-pressure",
+      "description": "Detects unusual GC time in Spark executors — early warning for OOM or memory-heavy jobs",
+      "job": {
+        "description": "Detects unusual GC time per Spark cluster",
+        "groups": ["aws", "analytics", "spark", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(spark.gc.time_ms) partitionfield=aws.emr.cluster_id",
+              "function": "high_mean",
+              "field_name": "spark.gc.time_ms",
+              "partition_field_name": "aws.emr.cluster_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.emr.cluster_id", "spark.app.name", "spark.executor.id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator", "tags": ["cloudloadgen"] }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.emr_logs" } },
+              { "exists": { "field": "spark.gc.time_ms" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-spark-shuffle-volume-anomaly",
+      "description": "Detects unusual shuffle write volume — catches data skew, exploding joins, or cartesian products",
+      "job": {
+        "description": "Detects unusual shuffle write volume per cluster",
+        "groups": ["aws", "analytics", "spark", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_sum(spark.shuffle.write_bytes) partitionfield=aws.emr.cluster_id",
+              "function": "high_sum",
+              "field_name": "spark.shuffle.write_bytes",
+              "partition_field_name": "aws.emr.cluster_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.emr.cluster_id", "spark.app.name"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator", "tags": ["cloudloadgen"] }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.emr_logs" } },
+              { "exists": { "field": "spark.shuffle.write_bytes" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-spark-task-duration-anomaly",
+      "description": "Detects straggler tasks with unusually high duration — catches data skew at the task level",
+      "job": {
+        "description": "Detects straggler tasks with unusually high duration per cluster",
+        "groups": ["aws", "analytics", "spark", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(spark.task.duration_ms) partitionfield=aws.emr.cluster_id",
+              "function": "high_mean",
+              "field_name": "spark.task.duration_ms",
+              "partition_field_name": "aws.emr.cluster_id",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.emr.cluster_id", "spark.task.executor_id", "spark.task.host"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator", "tags": ["cloudloadgen"] }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.emr_logs" } },
+              { "exists": { "field": "spark.task.duration_ms" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
       }
     }
   ]

@@ -416,6 +416,12 @@ const SERVICE_GROUPS: ServiceGroup[] = [
     services: [
       { id: "emr", label: "EMR", icon: "⚙", desc: "Spark/Hadoop cluster logs" },
       {
+        id: "emr-spark",
+        label: "EMR Spark Logs",
+        icon: "⚙",
+        desc: "Spark event logs, driver/executor log4j, and metrics from EMR clusters",
+      },
+      {
         id: "emrserverless",
         label: "EMR Serverless",
         icon: "⚙",

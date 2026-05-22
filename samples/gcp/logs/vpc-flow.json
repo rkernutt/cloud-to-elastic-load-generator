@@ -1,70 +1,76 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "info" },
-  "labels": {},
-  "severity": "INFO",
-  "logName": "projects/globex-sec-847293/logs/compute.googleapis.com%2Fpacket_mirroring",
-  "insertId": "xaps2av1zw3u748p",
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "PERMISSION_DENIED" },
+  "error": {
+    "code": "PERMISSION_DENIED",
+    "message": "PERMISSION_DENIED: operation failed",
+    "type": "gcp"
+  },
+  "labels": { "gcp.rpc.status_code": "PERMISSION_DENIED" },
+  "severity": "ERROR",
+  "logName": "projects/globex-prod-482910/logs/compute.googleapis.com%2Fpacket_mirroring",
+  "insertId": "ea0i16iq25c5ephd",
   "resource": {
     "type": "packet_mirroring_policy",
     "labels": {
-      "project_id": "globex-sec-847293",
-      "policy": "pm-policy-2fm7s",
-      "region": "europe-north1"
+      "project_id": "globex-prod-482910",
+      "policy": "pm-policy-fpixr",
+      "region": "europe-central2"
     }
   },
   "jsonPayload": {
-    "packet_mirroring_policy": "projects/globex-sec-847293/regions/europe-north1/packetMirrorings/pm-policy-2fm7s",
-    "mirrored_network": "projects/globex-sec-847293/global/networks/data-vpc",
-    "collector_ilb": "projects/globex-sec-847293/regions/europe-north1/forwardingRules/ilb-api-15ki",
-    "mirrored_instance_count": 45,
-    "filter": { "ip_cidr_range": "10.104.65.0/24", "protocol": "udp" },
-    "health": "HEALTHY"
+    "packet_mirroring_policy": "projects/globex-prod-482910/regions/europe-central2/packetMirrorings/pm-policy-fpixr",
+    "mirrored_network": "projects/globex-prod-482910/global/networks/shared-vpc",
+    "collector_ilb": "projects/globex-prod-482910/regions/europe-central2/forwardingRules/ilb-web-1cp2",
+    "mirrored_instance_count": 1,
+    "filter": { "ip_cidr_range": "10.187.5.0/24", "protocol": "all" },
+    "health": "UNHEALTHY"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-north1",
-    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
-    "account": { "id": "847293615048", "name": "Globex Security" },
+    "region": "europe-central2",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
     "service": { "name": "packet-mirroring" }
   },
   "gcp": {
     "packet_mirroring": {
       "json_payload": {
-        "packet_mirroring_policy": "projects/globex-sec-847293/regions/europe-north1/packetMirrorings/pm-policy-2fm7s",
-        "mirrored_network": "projects/globex-sec-847293/global/networks/data-vpc",
-        "collector_ilb": "projects/globex-sec-847293/regions/europe-north1/forwardingRules/ilb-api-15ki",
-        "mirrored_instance_count": 45,
-        "filter": { "ip_cidr_range": "10.104.65.0/24", "protocol": "udp" },
-        "health": "HEALTHY"
+        "packet_mirroring_policy": "projects/globex-prod-482910/regions/europe-central2/packetMirrorings/pm-policy-fpixr",
+        "mirrored_network": "projects/globex-prod-482910/global/networks/shared-vpc",
+        "collector_ilb": "projects/globex-prod-482910/regions/europe-central2/forwardingRules/ilb-web-1cp2",
+        "mirrored_instance_count": 1,
+        "filter": { "ip_cidr_range": "10.187.5.0/24", "protocol": "all" },
+        "health": "UNHEALTHY"
       },
-      "policy_name": "pm-policy-2fm7s",
-      "mirrored_network": "data-vpc",
-      "collector_instance": "api-15ki",
-      "mirrored_instances_count": 45,
-      "filter_protocol": "udp",
-      "filter_cidr": "10.104.65.0/24"
+      "policy_name": "pm-policy-fpixr",
+      "mirrored_network": "shared-vpc",
+      "collector_instance": "web-1cp2",
+      "mirrored_instances_count": 1,
+      "filter_protocol": "all",
+      "filter_cidr": "10.187.5.0/24"
     }
   },
   "event": {
     "kind": "event",
     "category": ["network"],
-    "type": ["connection"],
+    "type": ["denied"],
     "action": "packet-mirror",
-    "outcome": "success",
-    "duration": 109000000,
+    "outcome": "failure",
+    "duration": 436000000,
     "module": "gcp",
     "dataset": "gcp.packetmirroring"
   },
-  "message": "compute.googleapis.com/packet_mirroring pm-policy-2fm7s mirrored=45",
+  "message": "compute.googleapis.com/packet_mirroring pm-policy-fpixr mirrored=1",
   "service": { "name": "packet-mirroring", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.packetmirroring", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-north1",
-    "id": "j0fheb5i096fs95g4jm2euu7qoolk9rmffv9"
+    "name": "elastic-agent-gcp-europe-central2",
+    "id": "kmdwk1bcsix1wg6xvqdoq0nlamdnyouqaqll"
   },
   "input": { "type": "gcp-pubsub" }
 }

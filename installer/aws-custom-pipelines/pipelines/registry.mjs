@@ -35976,7 +35976,8 @@ export const PIPELINE_REGISTRY = [
     id: "logs-aws.emr_logs-default",
     dataset: "aws.emr_logs",
     group: "analytics",
-    description: "Parse Amazon EMR container/application log JSON from message field",
+    description:
+      "Parse Amazon EMR container/application log JSON and Spark log4j / event-log text from message field",
     processors: [
       {
         set: {
@@ -36012,6 +36013,195 @@ export const PIPELINE_REGISTRY = [
           target_field: "emr_logs.parsed",
           ignore_failure: true,
           tag: "parse_json",
+        },
+      },
+      {
+        json: {
+          field: "event.original",
+          target_field: "spark.event",
+          ignore_failure: true,
+          tag: "parse_spark_event_json",
+          if: "ctx.emr_logs?.parsed == null && ctx.event?.original != null && ctx.event.original.startsWith('{')",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "extract_spark_event_fields",
+          if: "ctx.spark?.event?.Event != null",
+          source:
+            "def evt = ctx.spark.event; ctx.spark.event_type = evt.Event; if (evt['App ID'] != null) { if (ctx.spark.app == null) ctx.spark.app = new HashMap(); ctx.spark.app.id = evt['App ID']; } if (evt['App Name'] != null) { if (ctx.spark.app == null) ctx.spark.app = new HashMap(); ctx.spark.app.name = evt['App Name']; } if (evt['Stage Info'] != null) { def si = evt['Stage Info']; if (ctx.spark.stage == null) ctx.spark.stage = new HashMap(); if (si['Stage ID'] != null) ctx.spark.stage.id = si['Stage ID']; if (si['Stage Name'] != null) ctx.spark.stage.name = si['Stage Name']; if (si['Number of Tasks'] != null) ctx.spark.stage.tasks_total = si['Number of Tasks']; } if (evt['Task Info'] != null) { def ti = evt['Task Info']; if (ctx.spark.task == null) ctx.spark.task = new HashMap(); if (ti['Task ID'] != null) ctx.spark.task.id = ti['Task ID']; if (ti['Executor ID'] != null) ctx.spark.task.executor_id = ti['Executor ID']; if (ti['Host'] != null) ctx.spark.task.host = ti['Host']; if (ti['Duration'] != null) ctx.spark.task.duration_ms = ti['Duration']; } if (evt['Task Metrics'] != null) { def tm = evt['Task Metrics']; if (tm['JVM GC Time'] != null) { if (ctx.spark.gc == null) ctx.spark.gc = new HashMap(); ctx.spark.gc.time_ms = tm['JVM GC Time']; } if (tm['Shuffle Read Metrics'] != null && tm['Shuffle Read Metrics']['Remote Bytes Read'] != null) { if (ctx.spark.shuffle == null) ctx.spark.shuffle = new HashMap(); ctx.spark.shuffle.read_bytes = tm['Shuffle Read Metrics']['Remote Bytes Read']; } if (tm['Shuffle Write Metrics'] != null && tm['Shuffle Write Metrics']['Shuffle Bytes Written'] != null) { if (ctx.spark.shuffle == null) ctx.spark.shuffle = new HashMap(); ctx.spark.shuffle.write_bytes = tm['Shuffle Write Metrics']['Shuffle Bytes Written']; } }",
+          ignore_failure: true,
+        },
+      },
+      {
+        grok: {
+          field: "event.original",
+          patterns: [
+            "%{TIMESTAMP_ISO8601:spark.log_timestamp}[,.]%{INT} %{LOGLEVEL:log.level} %{DATA:spark.thread} %{JAVACLASS:spark.component}: %{GREEDYDATA:spark.log_message}",
+            "%{TIMESTAMP_ISO8601:spark.log_timestamp} %{LOGLEVEL:log.level} %{JAVACLASS:spark.component}: %{GREEDYDATA:spark.log_message}",
+          ],
+          ignore_failure: true,
+          tag: "grok_spark_log4j",
+          if: "ctx.emr_logs?.parsed == null && ctx.event?.original != null && ctx.event.original.length() > 20",
+          pattern_definitions: {
+            JAVACLASS: "[a-zA-Z0-9_.]+(?:\\$[a-zA-Z0-9_]+)*",
+          },
+        },
+      },
+      {
+        grok: {
+          field: "spark.log_message",
+          patterns: [
+            "Stage %{INT:spark.stage.id} \\(%{DATA:spark.stage.name}\\) finished in %{NUMBER:spark.stage.duration_s} s",
+          ],
+          ignore_failure: true,
+          tag: "grok_spark_stage_complete",
+          if: "ctx.spark?.log_message != null && ctx.spark.log_message.contains('finished in')",
+        },
+      },
+      {
+        grok: {
+          field: "spark.log_message",
+          patterns: [
+            "Finished task %{NUMBER:spark.task.id}\\.%{INT} in stage %{INT:spark.task.stage_id}\\.%{INT} \\(TID %{INT:spark.task.tid}\\) in %{INT:spark.task.duration_ms} ms on %{HOSTNAME:spark.task.host} \\(executor %{DATA:spark.task.executor_id}\\) \\(%{INT:spark.task.completed_count}/%{INT:spark.task.total_count}\\)",
+          ],
+          ignore_failure: true,
+          tag: "grok_spark_task_complete",
+          if: "ctx.spark?.log_message != null && ctx.spark.log_message.contains('Finished task')",
+        },
+      },
+      {
+        grok: {
+          field: "spark.log_message",
+          patterns: [
+            "Starting task %{NUMBER:spark.task.id}\\.%{INT} in stage %{INT:spark.task.stage_id}\\.%{INT} \\(TID %{INT:spark.task.tid}, %{HOSTNAME:spark.task.host}, executor %{DATA:spark.task.executor_id}, partition %{INT:spark.task.partition}, %{WORD:spark.task.locality}, %{INT:spark.task.size_bytes} bytes\\)",
+          ],
+          ignore_failure: true,
+          tag: "grok_spark_task_start",
+          if: "ctx.spark?.log_message != null && ctx.spark.log_message.contains('Starting task')",
+        },
+      },
+      {
+        grok: {
+          field: "spark.log_message",
+          patterns: [
+            "Removing executor %{DATA:spark.executor.id} with no recent heartbeats: %{INT:spark.executor.heartbeat_gap_ms} ms exceeds timeout %{INT:spark.executor.heartbeat_timeout_ms} ms",
+            "Lost executor %{DATA:spark.executor.id} on %{HOSTNAME:spark.executor.host}: %{GREEDYDATA:spark.executor.loss_reason}",
+          ],
+          ignore_failure: true,
+          tag: "grok_spark_executor_lost",
+          if: "ctx.spark?.log_message != null && (ctx.spark.log_message.contains('Removing executor') || ctx.spark.log_message.contains('Lost executor'))",
+        },
+      },
+      {
+        grok: {
+          field: "spark.log_message",
+          patterns: [
+            "Lost task %{NUMBER:spark.task.id}\\.%{INT} in stage %{INT:spark.task.stage_id}\\.%{INT} \\(TID %{INT:spark.task.tid}\\).*FetchFailed\\(.*shuffleId=%{INT:spark.shuffle.id}",
+          ],
+          ignore_failure: true,
+          tag: "grok_spark_shuffle_fail",
+          if: "ctx.spark?.log_message != null && ctx.spark.log_message.contains('FetchFailed')",
+        },
+      },
+      {
+        grok: {
+          field: "spark.log_message",
+          patterns: [
+            "Added %{DATA:spark.block.name} in memory on %{HOSTNAME:spark.block.host}:%{INT:spark.block.port} \\(size: %{NUMBER:spark.block.size_value} %{WORD:spark.block.size_unit}, free: %{NUMBER:spark.block.free_value} %{WORD:spark.block.free_unit}\\)",
+            "Block %{DATA:spark.block.name} stored as values in memory \\(estimated size %{NUMBER:spark.block.size_value} %{WORD:spark.block.size_unit}, free %{NUMBER:spark.block.free_value} %{WORD:spark.block.free_unit}\\)",
+          ],
+          ignore_failure: true,
+          tag: "grok_spark_block_memory",
+          if: "ctx.spark?.log_message != null && (ctx.spark.log_message.contains('in memory') || ctx.spark.log_message.contains('stored as values'))",
+        },
+      },
+      {
+        grok: {
+          field: "spark.log_message",
+          patterns: ["Code generated in %{NUMBER:spark.codegen.duration_ms} ms"],
+          ignore_failure: true,
+          tag: "grok_spark_codegen",
+          if: "ctx.spark?.log_message != null && ctx.spark.log_message.contains('Code generated')",
+        },
+      },
+      {
+        grok: {
+          field: "spark.log_message",
+          patterns: [
+            "Opening '%{URI:spark.s3.path}' for reading",
+            "%{URI:spark.s3.path}: %{GREEDYDATA:spark.s3.error_detail}",
+          ],
+          ignore_failure: true,
+          tag: "grok_spark_s3a",
+          if: "ctx.spark?.component != null && ctx.spark.component.contains('S3AFileSystem')",
+        },
+      },
+      {
+        grok: {
+          field: "spark.log_message",
+          patterns: [
+            "Launching container %{DATA:spark.yarn.container_id} on host %{HOSTNAME:spark.yarn.host} for executor with ID %{DATA:spark.executor.id}",
+          ],
+          ignore_failure: true,
+          tag: "grok_spark_yarn_launch",
+          if: "ctx.spark?.log_message != null && ctx.spark.log_message.contains('Launching container')",
+        },
+      },
+      {
+        convert: {
+          field: "spark.stage.duration_s",
+          type: "float",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "convert_spark_stage_duration",
+        },
+      },
+      {
+        convert: {
+          field: "spark.task.duration_ms",
+          type: "long",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "convert_spark_task_duration",
+        },
+      },
+      {
+        convert: {
+          field: "spark.codegen.duration_ms",
+          type: "float",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "convert_spark_codegen_duration",
+        },
+      },
+      {
+        convert: {
+          field: "spark.stage.id",
+          type: "integer",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "convert_spark_stage_id",
+        },
+      },
+      {
+        convert: {
+          field: "spark.task.id",
+          type: "integer",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "convert_spark_task_id",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_spark_component_shortname",
+          if: "ctx.spark?.component != null",
+          source:
+            "String full = ctx.spark.component; int lastDot = full.lastIndexOf('.'); if (lastDot >= 0 && lastDot < full.length() - 1) { ctx.spark.component_short = full.substring(lastDot + 1); } else { ctx.spark.component_short = full; }",
+          ignore_failure: true,
         },
       },
       {

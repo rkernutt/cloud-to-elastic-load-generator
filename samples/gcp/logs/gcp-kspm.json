@@ -7,27 +7,27 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-east1",
-    "account": { "id": "globex-stg-739158", "name": "Globex Staging" }
+    "region": "us-east5",
+    "account": { "id": "globex-dev-615094", "name": "Globex Development" }
   },
-  "orchestrator": { "cluster": { "name": "gke-ml-asia-southeast1" } },
+  "orchestrator": { "cluster": { "name": "gke-dev-us-east1" } },
   "resource": {
-    "id": "control-plane/file/_etc_kubernetes_manifests_etcd.yaml",
-    "name": "/etc/kubernetes/manifests/etcd.yaml",
+    "id": "kube-system/pod/kube-apiserver-master-3",
+    "name": "kube-apiserver-master-3",
     "type": "k8s_object",
-    "sub_type": "node-config-file"
+    "sub_type": "kube-apiserver"
   },
   "rule": {
-    "id": "3fb6051e-31f8-5fb5-bd45-4f140fa4442e",
-    "name": "Ensure that the scheduler pod specification file ownership is set to root:root",
-    "section": "1.1.6",
-    "description": "Ensure that the scheduler pod specification file ownership is set to `root:root`.",
-    "tags": ["CIS", "Kubernetes", "CIS 1.1.6", "Control Plane Node Configuration Files"],
+    "id": "7eebf1d9-7a68-54fd-89b7-0f8b1441a179",
+    "name": "Ensure that the admission control plugin NodeRestriction is set",
+    "section": "1.2.16",
+    "description": "Limit the `Node` and `Pod` objects that a kubelet could modify.",
+    "tags": ["CIS", "Kubernetes", "CIS 1.2.16", "API Server"],
     "benchmark": {
       "id": "cis_k8s",
       "name": "CIS Kubernetes V1.23",
       "version": "v1.0.1",
-      "rule_number": "1.1.6",
+      "rule_number": "1.2.16",
       "posture_type": "kspm"
     },
     "profile_applicability": "* Level 1"
@@ -42,6 +42,6 @@
     "provider": "elastic_kspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_k8s/1.1.6] passed: Ensure that the scheduler pod specification file ownership is set to root:root",
+  "message": "[cis_k8s/1.2.16] passed: Ensure that the admission control plugin NodeRestriction is set",
   "log": { "level": "info" }
 }

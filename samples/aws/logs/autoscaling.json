@@ -1,62 +1,62 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-central-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "autoscaling" }
   },
   "aws": {
-    "dimensions": { "AutoScalingGroupName": "spot-fleet" },
+    "dimensions": { "AutoScalingGroupName": "worker-asg" },
     "autoscaling": {
-      "group_name": "spot-fleet",
-      "activity_id": "vfxiwb8d-01yu-9ahj",
-      "action_type": "Terminate",
-      "instance_id": "i-b09e8ad2888b256a2",
-      "instance_type": "c5.2xlarge",
-      "desired_capacity": 8,
+      "group_name": "worker-asg",
+      "activity_id": "tm4p5iqd-zn32-hqyv",
+      "action_type": "Launch",
+      "instance_id": "i-9f2a14f30fcd6cc04",
+      "instance_type": "t3.medium",
+      "desired_capacity": 5,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 6,
-      "cause": "At 2026-05-20T13:19:00.213Z instance failed EC2 health check",
+      "current_capacity": 4,
+      "cause": "At 2026-05-22T12:29:30.113Z a monitor alarm TargetTracking-scale-out-alarm in state ALARM triggered policy scale-out",
       "status_code": "Successful",
-      "launch_template": "web-lt:5",
+      "launch_template": "api-lt:3",
       "predictive_scaling_forecast": false,
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 8 },
-        "GroupInServiceInstances": { "avg": 6 },
+        "GroupDesiredCapacity": { "avg": 5 },
+        "GroupInServiceInstances": { "avg": 4 },
         "GroupPendingInstances": { "avg": 0 },
         "GroupStandbyInstances": { "avg": 1 },
-        "GroupTerminatingInstances": { "avg": 1 },
-        "GroupTotalInstances": { "avg": 8 },
-        "GroupInServiceCapacity": { "avg": 6 },
+        "GroupTerminatingInstances": { "avg": 0 },
+        "GroupTotalInstances": { "avg": 5 },
+        "GroupInServiceCapacity": { "avg": 4 },
         "GroupPendingCapacity": { "avg": 0 },
         "GroupStandbyCapacity": { "avg": 1 },
-        "GroupTerminatingCapacity": { "avg": 1 },
-        "GroupTotalCapacity": { "avg": 8 },
-        "WarmPoolMinSize": { "avg": 1 },
-        "WarmPoolDesiredCapacity": { "avg": 3 },
-        "WarmPoolPendingCapacity": { "avg": 3 },
-        "WarmPoolTerminatingCapacity": { "avg": 1 },
-        "WarmPoolTotalCapacity": { "avg": 7 },
-        "WarmPoolWarmedCapacity": { "avg": 1 }
+        "GroupTerminatingCapacity": { "avg": 0 },
+        "GroupTotalCapacity": { "avg": 5 },
+        "WarmPoolMinSize": { "avg": 0 },
+        "WarmPoolDesiredCapacity": { "avg": 0 },
+        "WarmPoolPendingCapacity": { "avg": 0 },
+        "WarmPoolTerminatingCapacity": { "avg": 0 },
+        "WarmPoolTotalCapacity": { "avg": 0 },
+        "WarmPoolWarmedCapacity": { "avg": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-autoscaling-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-autoscaling-logs-501938274650"
+        "name": "aws-autoscaling-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-autoscaling-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/autoscaling/il-central-1/2026/05/20/autoscaling_UPC105L8PF96CI45WMFY.log.gz"
+        "key": "AWSLogs/293847561023/autoscaling/eu-central-2/2026/05/22/autoscaling_O1OE5QJHIFUG4EF32UW6.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "il-central-1/fagq4eix",
-      "ingestion_time": "2026-05-20T13:19:01.210Z"
+      "log_stream": "eu-central-2/vdq6aobr",
+      "ingestion_time": "2026-05-22T12:29:31.254Z"
     }
   },
   "event": {
@@ -65,11 +65,10 @@
     "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 237000000000,
-    "module": "aws",
-    "kind": "event"
+    "duration": 595000000000,
+    "module": "aws"
   },
-  "message": "SuccessfulScalingActivity: Terminating EC2 instance: i-b09e8ad2888b256a2 ActivityId=vfxiwb8d-01yu-9ahj Cause: At 2026-05-20T13:19:00.213Z instance failed EC2 health check",
+  "message": "SuccessfulScalingActivity: Launching a new EC2 instance: i-9f2a14f30fcd6cc04 ActivityId=tm4p5iqd-zn32-hqyv Cause: At 2026-05-22T12:29:30.113Z a monitor alarm TargetTracking-scale-out-alarm in state ALARM triggered policy scale-out",
   "log": { "level": "info" },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -77,8 +76,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "w1nq9e3gxpr55us7y4refhrtjzbd0k5by3qj"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "s5dyngb86u2mgjzep2jf2tvuhjj5fx8fxqi6"
   },
   "input": { "type": "aws-cloudwatch" }
 }

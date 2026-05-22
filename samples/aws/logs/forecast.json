@@ -1,48 +1,47 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-northeast-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "forecast" }
   },
   "aws": {
-    "dimensions": { "DatasetGroup": "sales-prediction", "Operation": "CreateDatasetImportJob" },
+    "dimensions": { "DatasetGroup": "demand-forecast", "Operation": "CreateDatasetImportJob" },
     "forecast": {
-      "dataset_group": "sales-prediction",
-      "predictor_name": "sales-prediction-predictor-v17",
+      "dataset_group": "demand-forecast",
+      "predictor_name": "demand-forecast-predictor-v6",
       "action": "CreateDatasetImportJob",
-      "algorithm": "NPTS",
-      "forecast_horizon": 90,
-      "weighted_quantile_loss": 0.11641050069011608,
-      "duration_seconds": 5454,
+      "algorithm": "DeepAR+",
+      "forecast_horizon": 60,
+      "weighted_quantile_loss": 0.21146864904466262,
+      "duration_seconds": 3535,
       "status": "ACTIVE"
     },
     "s3": {
       "bucket": {
-        "name": "aws-forecast-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-forecast-logs-164820739518"
+        "name": "aws-forecast-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-forecast-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/forecast/eu-central-2/2026/05/20/forecast_T15M5YJ683YR6K20I1X3.log.gz"
+        "key": "AWSLogs/814726593401/forecast/ap-northeast-3/2026/05/22/forecast_YZBZSELYZ8NQC210M4TA.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/forecast/logs",
-      "log_stream": "eu-central-2/hu04h6l8",
-      "ingestion_time": "2026-05-20T13:19:01.410Z"
+      "log_stream": "ap-northeast-3/0awb3chs",
+      "ingestion_time": "2026-05-22T12:29:31.467Z"
     }
   },
   "event": {
-    "duration": 5454000000000,
+    "duration": 3535000000000,
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.forecast",
     "provider": "forecast.amazonaws.com",
-    "module": "aws",
-    "kind": "event"
+    "module": "aws"
   },
-  "message": "Forecast CreateDatasetImportJob: sales-prediction, WQL=0.116",
+  "message": "Forecast CreateDatasetImportJob: demand-forecast, WQL=0.211",
   "log": { "level": "info" },
   "service": { "name": "forecast", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -50,8 +49,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "npb5tbghkuixxl569hi0knwlaa2uxyvs7ml3"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "psyompqnuv01zti71lns3hkqajpfrs7lotf6"
   },
   "input": { "type": "aws-cloudwatch" }
 }

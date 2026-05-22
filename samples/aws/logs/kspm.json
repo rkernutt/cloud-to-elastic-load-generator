@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,46 +7,48 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" }
+    "region": "eu-west-2",
+    "account": { "id": "738291046572", "name": "globex-development" }
   },
   "orchestrator": {
     "cluster": { "id": "prod-eks-cluster", "name": "prod-eks-cluster" },
     "type": "kubernetes",
-    "namespace": "default"
+    "namespace": "logging"
   },
   "resource": {
-    "id": "k8s-node/ip-10-212-185-253.eu-south-2.compute.internal",
-    "name": "ip-10-212-185-253.eu-south-2.compute.internal",
+    "id": "k8s-node/ip-172-21-168-110.eu-west-2.compute.internal",
+    "name": "ip-172-21-168-110.eu-west-2.compute.internal",
     "type": "k8s_object",
     "sub_type": "Node",
-    "raw": { "node": "ip-10-212-185-253.eu-south-2.compute.internal" }
+    "raw": { "node": "ip-172-21-168-110.eu-west-2.compute.internal" }
   },
   "rule": {
-    "id": "9e87e9e4-2701-5c8e-8dc3-4ccb712afa4b",
-    "name": "Ensure that the --client-ca-file argument is set as appropriate",
-    "section": "3.2.3",
-    "description": "Enable Kubelet authentication using certificates.",
-    "tags": ["CIS", "EKS", "CIS 3.2.3", "Kubelet"],
+    "id": "1706a986-39d7-5900-93eb-f191f6a40892",
+    "name": "Ensure that the --authorization-mode argument is not set to AlwaysAllow",
+    "section": "3.2.2",
+    "description": "Do not allow all requests.",
+    "tags": ["CIS", "EKS", "CIS 3.2.2", "Kubelet"],
     "benchmark": {
       "id": "cis_eks",
       "name": "CIS Amazon Elastic Kubernetes Service (EKS)",
       "version": "v1.0.1",
-      "rule_number": "3.2.3",
+      "rule_number": "3.2.2",
       "posture_type": "kspm"
     },
-    "profile_applicability": "* Level 1"
+    "profile_applicability": "* Level 1",
+    "impact": "Non-compliance with CIS Amazon Elastic Kubernetes Service (EKS) 3.2.2 — Ensure that the --authorization-mode argument is not set to AlwaysAllow",
+    "remediation": "Remediate per CIS Amazon Elastic Kubernetes Service (EKS) v1.0.1 section 3.2.2."
   },
-  "result": { "evaluation": "passed" },
+  "result": { "evaluation": "failed", "evidence": { "authorizationMode": "AlwaysAllow" } },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_eks/3.2.3] passed: Ensure that the --client-ca-file argument is set as appropriate",
-  "log": { "level": "info" }
+  "message": "[cis_eks/3.2.2] failed: Ensure that the --authorization-mode argument is not set to AlwaysAllow",
+  "log": { "level": "warn" }
 }

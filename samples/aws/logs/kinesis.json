@@ -1,73 +1,77 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-southeast-4",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "kinesis" }
   },
   "aws": {
-    "dimensions": { "StreamName": "transaction-feed" },
+    "dimensions": { "StreamName": "iot-telemetry" },
     "kinesis": {
-      "operation": "PutRecords",
-      "scenario": "data_plane_put_get",
-      "shard_id": "shardId-00000000009",
-      "enhanced_fan_out_subscribers": 23,
+      "operation": "MergeShards",
+      "scenario": "shard_merge",
+      "shard_id": "shardId-00000000002",
+      "enhanced_fan_out_subscribers": 30,
       "metrics": {
-        "GetRecords_Bytes": { "avg": 591302 },
-        "GetRecords_IteratorAgeMilliseconds": { "avg": 830 },
+        "GetRecords_Bytes": { "avg": 25732 },
+        "GetRecords_IteratorAgeMilliseconds": { "avg": 3400772 },
         "GetRecords_Latency": { "avg": 23 },
-        "GetRecords_Records": { "avg": 162, "sum": 87 },
-        "GetRecords_Success": { "sum": 1 },
-        "IncomingBytes": { "avg": 9792439 },
-        "IncomingRecords": { "avg": 9050 },
-        "PutRecord_Bytes": { "avg": 465676 },
-        "PutRecord_Latency": { "avg": 47 },
-        "PutRecords_Latency": { "avg": 67 },
-        "PutRecord_Success": { "avg": 1 },
-        "PutRecords_Bytes": { "avg": 3561900 },
-        "PutRecords_FailedRecords": { "sum": 0 },
-        "PutRecords_SuccessfulRecords": { "sum": 889 },
-        "PutRecords_ThrottledRecords": { "sum": 0 },
-        "ReadProvisionedThroughputExceeded": { "avg": 0 },
-        "WriteProvisionedThroughputExceeded": { "avg": 0 }
+        "GetRecords_Records": { "avg": 806, "sum": 582 },
+        "GetRecords_Success": { "sum": 0 },
+        "IncomingBytes": { "avg": 7692791 },
+        "IncomingRecords": { "avg": 4827 },
+        "PutRecord_Bytes": { "avg": 561923 },
+        "PutRecord_Latency": { "avg": 25 },
+        "PutRecords_Latency": { "avg": 132 },
+        "PutRecord_Success": { "avg": 0 },
+        "PutRecords_Bytes": { "avg": 3854911 },
+        "PutRecords_FailedRecords": { "sum": 83 },
+        "PutRecords_SuccessfulRecords": { "sum": 247 },
+        "PutRecords_ThrottledRecords": { "sum": 5 },
+        "ReadProvisionedThroughputExceeded": { "avg": 8 },
+        "WriteProvisionedThroughputExceeded": { "avg": 5 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-kinesis-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-kinesis-logs-814726593401"
+        "name": "aws-kinesis-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-kinesis-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/814726593401/kinesis/il-central-1/2026/05/20/kinesis_QPNVEX9IH1PAF8JNRJTJ.log.gz"
+        "key": "AWSLogs/738291046572/kinesis/ap-southeast-4/2026/05/22/kinesis_FCCL04944IME6M2GY0B1.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/kinesis/logs",
-      "log_stream": "il-central-1/8lesc8vi",
-      "ingestion_time": "2026-05-20T13:19:01.340Z"
+      "log_stream": "ap-southeast-4/fav5vx7t",
+      "ingestion_time": "2026-05-22T12:29:31.404Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["network"],
     "type": ["connection"],
     "dataset": "aws.kinesis",
     "provider": "kinesis.amazonaws.com",
-    "duration": 1389000000,
-    "module": "aws",
-    "kind": "event"
+    "duration": 51837000000,
+    "module": "aws"
   },
-  "message": "PutRecords succeeded: 19 records (2434837 bytes) to transaction-feed/shardId-00000000009",
-  "log": { "level": "info" },
+  "message": "MergeShards adjacent shards into target=shardId-00000000002 stream=iot-telemetry completed [KMSThrottlingException]",
+  "log": { "level": "error" },
+  "error": {
+    "code": "KMSThrottlingException",
+    "message": "Kinesis MergeShards failed (shard_merge)",
+    "type": "aws"
+  },
   "service": { "name": "kinesis", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.kinesis", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "6g6zyhxbyzx5ow3kutfn0m9q1mjbl1i0x1lj"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "e0h4sh1ibhu9fy9nqcxbe9zhkut1qwbtuou7"
   },
   "input": { "type": "aws-cloudwatch" }
 }

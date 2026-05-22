@@ -143,6 +143,7 @@ import {
 } from "./devtools.js";
 import {
   generateEmrLog,
+  generateSparkLogs,
   generateGlueLog,
   generateAthenaLog,
   generateLakeFormationLog,
@@ -391,6 +392,7 @@ const GENERATORS = {
   robomaker: generateRoboMakerLog,
   // Group 8 — Analytics
   emr: generateEmrLog,
+  "emr-spark": generateSparkLogs,
   glue: generateGlueLog,
   athena: generateAthenaLog,
   lakeformation: generateLakeFormationLog,

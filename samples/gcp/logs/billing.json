@@ -3,26 +3,28 @@
   "severity": "DEBUG",
   "log": { "level": "debug" },
   "labels": {
-    "resource.type": "carbonfootprint.googleapis.com/Project",
-    "project_id": "globex-stg-739158",
-    "api_method": "carbonfootprint.googleapis.com/v1/projects/globex-stg-739158/carbonFootprint:retrieve"
+    "resource.type": "cloudbilling.googleapis.com/BillingAccount",
+    "billing_account": "01OO9GLH-P9ZO-QT76",
+    "api_method": "cloudbilling.googleapis.com/v1/billingAccounts/01OO9GLH-P9ZO-QT76/projects:list"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west4",
-    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
-    "account": { "id": "739158264830", "name": "Globex Staging" },
-    "service": { "name": "carbon-footprint" }
+    "region": "northamerica-northeast2",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
+    "service": { "name": "cloudbilling.googleapis.com" }
   },
   "gcp": {
-    "carbon_footprint": {
-      "project_id": "globex-stg-739158",
-      "service": "Cloud Storage",
-      "region": "europe-west4",
-      "carbon_kg_co2e": 3803.238,
-      "electricity_kwh": 78861.2,
-      "scope": "SCOPE_2",
-      "period_month": "2026-04"
+    "billing": {
+      "billing_account_id": "01OO9GLH-P9ZO-QT76",
+      "service_description": "Kubernetes Engine",
+      "sku_description": "Analysis TB",
+      "cost_amount": 4101.61,
+      "currency": "USD",
+      "usage_amount": 121438.453,
+      "usage_unit": "request",
+      "credits_amount": 946.74,
+      "project_id": "globex-dev-615094"
     }
   },
   "event": {
@@ -31,37 +33,39 @@
     "type": ["info"],
     "action": "management-operation",
     "outcome": "success",
-    "duration": 7725,
+    "duration": 3244,
     "module": "gcp",
-    "dataset": "gcp.carbon"
+    "dataset": "gcp.billing"
   },
-  "message": "Carbon footprint row: month=2026-04 service=\"Cloud Storage\" region=europe-west4 kgCO2e=3803.238 kWh=78861.2 scope=SCOPE_2",
-  "service": { "name": "carbon-footprint", "type": "gcp" },
+  "message": "Billing cost row: service=\"Kubernetes Engine\" sku=\"Analysis TB\" cost=4101.61 USD usage=121438.45 request credits=-946.74 project=globex-dev-615094",
+  "service": { "name": "billing", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.carbon", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.billing", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west4",
-    "id": "iae5pbg37jwlnzcbjazsxwx5q5dvpj5pxsxy"
+    "name": "elastic-agent-gcp-northamerica-northeast2",
+    "id": "qgqaa22i3gkapr7epl20yfuk47lh1cvlz6xj"
   },
-  "input": { "type": "http_endpoint" },
-  "logName": "projects/globex-stg-739158/logs/carbon-footprint",
+  "input": { "type": "gcp-pubsub" },
+  "logName": "projects/globex-prod-482910/logs/billing",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-stg-739158", "region": "europe-west4" }
+    "labels": { "project_id": "globex-prod-482910", "region": "northamerica-northeast2" }
   },
-  "insertId": "52KSL6THERYA",
+  "insertId": "6GZ9M191SI70",
   "jsonPayload": {
-    "carbon_footprint": {
-      "project_id": "globex-stg-739158",
-      "service": "Cloud Storage",
-      "region": "europe-west4",
-      "carbon_kg_co2e": 3803.238,
-      "electricity_kwh": 78861.2,
-      "scope": "SCOPE_2",
-      "period_month": "2026-04"
+    "billing": {
+      "billing_account_id": "01OO9GLH-P9ZO-QT76",
+      "service_description": "Kubernetes Engine",
+      "sku_description": "Analysis TB",
+      "cost_amount": 4101.61,
+      "currency": "USD",
+      "usage_amount": 121438.453,
+      "usage_unit": "request",
+      "credits_amount": 946.74,
+      "project_id": "globex-dev-615094"
     },
-    "message": "Carbon footprint row: month=2026-04 service=\"Cloud Storage\" region=europe-west4 kgCO2e=3803.238 kWh=78861.2 scope=SCOPE_2"
+    "message": "Billing cost row: service=\"Kubernetes Engine\" sku=\"Analysis TB\" cost=4101.61 USD usage=121438.45 request credits=-946.74 project=globex-dev-615094"
   }
 }

@@ -9,6 +9,7 @@ import {
   randIamUser,
   randPersonEmail,
   randEmail,
+  randUUID,
   emrExecutorHostname,
 } from "../../helpers";
 import type { EcsDocument } from "./types.js";
@@ -194,6 +195,739 @@ function generateEmrLog(ts: string, er: number): EcsDocument {
       ? { error: { code: "JobFailed", message: rand(errorMsgs).split("\n")[0], type: "process" } }
       : {}),
   };
+}
+
+type SparkComponent =
+  | "DAGScheduler"
+  | "TaskSetManager"
+  | "SparkContext"
+  | "SparkEnv"
+  | "BlockManager"
+  | "MemoryStore"
+  | "Executor"
+  | "HeartbeatReceiver"
+  | "CodeGenerator"
+  | "SparkSQL"
+  | "S3A"
+  | "Shuffle"
+  | "YARN"
+  | "Metrics";
+
+function formatSparkLog4jTs(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number, w = 2) => String(n).padStart(w, "0");
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())},${pad(d.getUTCMilliseconds(), 3)}`;
+}
+
+function sparkLoggerName(component: SparkComponent): string {
+  const map: Record<SparkComponent, string> = {
+    DAGScheduler: "org.apache.spark.scheduler.DAGScheduler",
+    TaskSetManager: "org.apache.spark.scheduler.TaskSetManager",
+    SparkContext: "org.apache.spark.SparkContext",
+    SparkEnv: "org.apache.spark.SparkEnv",
+    BlockManager: "org.apache.spark.storage.BlockManagerInfo",
+    MemoryStore: "org.apache.spark.storage.MemoryStore",
+    Executor: "org.apache.spark.executor.Executor",
+    HeartbeatReceiver: "org.apache.spark.scheduler.HeartbeatReceiver",
+    CodeGenerator: "org.apache.spark.sql.execution.WholeStageCodegenExec",
+    SparkSQL: "org.apache.spark.sql.execution.datasources.FileSourceStrategy",
+    S3A: "org.apache.hadoop.fs.s3a.S3AFileSystem",
+    Shuffle: "org.apache.spark.shuffle.sort.SortShuffleManager",
+    YARN: "org.apache.spark.deploy.yarn.YarnAllocator",
+    Metrics: "org.apache.spark.metrics",
+  };
+  return map[component];
+}
+
+function generateSparkLogs(ts: string, er: number): EcsDocument[] {
+  const region = rand(REGIONS);
+  const acct = randAccount();
+  const isErr = Math.random() < er;
+  const clusterId = `j-${randId(13)}`;
+  const appName = rand([
+    "etl-daily-aggregation",
+    "clickstream-processing",
+    "ml-feature-pipeline",
+    "log-enrichment",
+    "revenue-attribution",
+  ]);
+  const appId = `application_${Date.now()}_${randInt(1000, 9999)}`;
+  const logGroup = `/aws/emr/${clusterId}/spark/${appId}`;
+  const stageId = randInt(0, 8);
+  const stageName = `${rand(["count", "collect", "save", "map", "reduce"])} at MyApp.scala:${randInt(35, 55)}`;
+  const tasksTotal = randInt(50, 200);
+  const executorCount = randInt(4, 32);
+  const primaryExecutorId = String(randInt(1, executorCount));
+  const failedExecutorId = String(randInt(1, executorCount));
+  const taskId = randInt(0, tasksTotal - 1);
+  const tid = randInt(100, 20000);
+  const shuffleId = randInt(1, 10);
+  const host = () => emrExecutorHostname(region);
+  const primaryHost = host();
+  const secondaryHost = host();
+
+  let cursorMs = new Date(ts).getTime();
+  const nextTs = () => {
+    cursorMs += randInt(50, 2000);
+    return new Date(cursorMs).toISOString();
+  };
+
+  const docCount = randInt(8, 15);
+  const logSlots = docCount - 1;
+  const driverCount = Math.max(1, Math.round(logSlots * 0.6));
+  const eventCount = Math.max(1, Math.round(logSlots * 0.25));
+  const executorCount_docs = Math.max(1, logSlots - driverCount - eventCount);
+
+  const shuffleReadBytes = randInt(1 << 20, 1 << 30);
+  const shuffleWriteBytes = randInt(1 << 19, shuffleReadBytes);
+  const heapUsed = randInt(2 << 30, 6 << 30);
+  const heapMax = 8 << 30;
+  const gcMajorCount = randInt(3, 12);
+  const gcMinorCount = randInt(20, 80);
+  const containerId = `container_${Date.now()}_${randInt(1, 9999)}_01_${randInt(100000, 999999).toString().padStart(6, "0")}`;
+  const sparkSessionId = randUUID();
+
+  const buildBase = (
+    docTs: string,
+    opts: {
+      logStream: string;
+      level: string;
+      message: string;
+      spark: Record<string, unknown>;
+      outcome?: string;
+      error?: Record<string, unknown>;
+    }
+  ): EcsDocument => ({
+    "@timestamp": docTs,
+    __dataset: "aws.emr_logs",
+    cloud: {
+      provider: "aws",
+      region,
+      account: { id: acct.id, name: acct.name },
+      service: { name: "emr" },
+    },
+    aws: {
+      dimensions: { JobFlowId: clusterId },
+      cloudwatch: { log_group: logGroup, log_stream: opts.logStream },
+      emr: {
+        cluster_id: clusterId,
+        cluster_name: `${appName}-cluster`,
+        application: "spark",
+        release: `emr-${rand(["6.15", "7.0", "7.1"])}.0`,
+        log_source: "spark",
+        job: { name: appName, id: appId, run_state: isErr ? "FAILED" : "SUCCEEDED" },
+        spark_session_id: sparkSessionId,
+      },
+    },
+    log: { level: opts.level },
+    event: {
+      outcome: opts.outcome ?? (opts.level === "error" ? "failure" : "success"),
+      category: ["process"],
+      type: ["info"],
+      dataset: "aws.emr_logs",
+      provider: "elasticmapreduce.amazonaws.com",
+    },
+    message: opts.message,
+    spark: opts.spark,
+    ...(opts.error ? { error: opts.error } : {}),
+  });
+
+  const buildLog4j = (
+    docTs: string,
+    component: SparkComponent,
+    level: "INFO" | "WARN" | "ERROR",
+    body: string,
+    logStream: string,
+    sparkExtra: Record<string, unknown> = {}
+  ): EcsDocument => {
+    const logger = sparkLoggerName(component);
+    const line = `${formatSparkLog4jTs(docTs)} ${level} ${logger}: ${body}`;
+    return buildBase(docTs, {
+      logStream,
+      level: level.toLowerCase(),
+      message: line,
+      spark: {
+        app: { id: appId, name: appName },
+        component,
+        ...sparkExtra,
+      },
+    });
+  };
+
+  const docs: EcsDocument[] = [];
+
+  // ── Spark event log (JSON) ───────────────────────────────────────────────
+  const eventEpoch = () => cursorMs;
+
+  const pushEvent = (
+    eventName: string,
+    payload: Record<string, unknown>,
+    sparkFields: Record<string, unknown>
+  ) => {
+    const docTs = nextTs();
+    const eventObj = { Event: eventName, Timestamp: eventEpoch(), ...payload };
+    docs.push(
+      buildBase(docTs, {
+        logStream: "spark-events",
+        level: "info",
+        message: JSON.stringify(eventObj),
+        spark: {
+          app: { id: appId, name: appName },
+          component: "EventLog",
+          event_type: eventName,
+          ...sparkFields,
+        },
+      })
+    );
+  };
+
+  const eventBuilders: (() => void)[] = [
+    () =>
+      pushEvent(
+        "SparkListenerApplicationStart",
+        { "App Name": appName, "App ID": appId, User: "hadoop" },
+        {}
+      ),
+    () =>
+      pushEvent(
+        "SparkListenerEnvironmentUpdate",
+        {
+          "JVM Information": { "Java Version": "11.0.21", "Scala Version": "2.12.18" },
+          "Spark Properties": {
+            "spark.app.name": appName,
+            "spark.executor.memory": "8g",
+            "spark.executor.cores": "4",
+            "spark.driver.memory": "4g",
+            "spark.sql.shuffle.partitions": String(tasksTotal),
+          },
+        },
+        {}
+      ),
+    () =>
+      pushEvent(
+        "SparkListenerJobStart",
+        {
+          "Job ID": stageId,
+          "Stage Infos": [{ "Stage ID": stageId, "Stage Name": stageName }],
+          Properties: { "spark.job.description": stageName },
+        },
+        { stage: { id: stageId, name: stageName, tasks_total: tasksTotal } }
+      ),
+    () =>
+      pushEvent(
+        "SparkListenerStageSubmitted",
+        {
+          "Stage Info": {
+            "Stage ID": stageId,
+            "Stage Attempt ID": 0,
+            "Stage Name": stageName,
+            "Number of Tasks": tasksTotal,
+          },
+        },
+        { stage: { id: stageId, name: stageName, tasks_total: tasksTotal } }
+      ),
+    () =>
+      pushEvent(
+        "SparkListenerTaskEnd",
+        {
+          "Stage ID": stageId,
+          "Task Info": {
+            "Task ID": taskId,
+            "Executor ID": primaryExecutorId,
+            Host: primaryHost,
+            Duration: 892,
+          },
+          "Task Metrics": {
+            "Executor Run Time": 850,
+            "JVM GC Time": 42,
+            "Result Size": 2048,
+            "Shuffle Read Metrics": { "Remote Bytes Read": shuffleReadBytes },
+            "Shuffle Write Metrics": { "Shuffle Bytes Written": shuffleWriteBytes },
+            "Input Metrics": { "Bytes Read": 4194304, "Records Read": 50000 },
+            "Output Metrics": { "Bytes Written": 2097152, "Records Written": 25000 },
+          },
+        },
+        {
+          stage: { id: stageId, name: stageName },
+          task: {
+            id: taskId,
+            executor_id: primaryExecutorId,
+            host: primaryHost,
+            duration_ms: 892,
+            gc_time_ms: 42,
+          },
+          shuffle: { read_bytes: shuffleReadBytes, write_bytes: shuffleWriteBytes },
+        }
+      ),
+    () =>
+      pushEvent(
+        "SparkListenerStageCompleted",
+        {
+          "Stage Info": {
+            "Stage ID": stageId,
+            "Stage Attempt ID": 0,
+            "Completion Time": eventEpoch() + randInt(5000, 120000),
+            "Failure Reason": isErr ? "Job aborted due to stage failure" : "",
+            "Number of Tasks": tasksTotal,
+            Accumulables: [
+              {
+                Name: "internal.metrics.shuffle.write.bytesWritten",
+                Value: shuffleWriteBytes * tasksTotal,
+              },
+            ],
+          },
+        },
+        {
+          stage: {
+            id: stageId,
+            name: stageName,
+            duration_ms: randInt(5000, 120000),
+            tasks_total: tasksTotal,
+            tasks_completed: isErr ? randInt(1, tasksTotal - 1) : tasksTotal,
+            tasks_failed: isErr ? randInt(1, 5) : 0,
+          },
+          shuffle: { write_bytes: shuffleWriteBytes * tasksTotal },
+        }
+      ),
+    () =>
+      pushEvent(
+        "SparkListenerJobEnd",
+        {
+          "Job ID": stageId,
+          "Completion Time": eventEpoch() + randInt(10000, 180000),
+          "Job Result": { Result: isErr ? "JobFailed" : "JobSucceeded" },
+        },
+        { stage: { id: stageId, name: stageName } }
+      ),
+    () => pushEvent("SparkListenerApplicationEnd", { Timestamp: eventEpoch() + 200000 }, {}),
+  ];
+
+  for (let i = 0; i < eventCount; i++) {
+    eventBuilders[i % eventBuilders.length]();
+  }
+
+  // ── Driver log4j ─────────────────────────────────────────────────────────
+  const driverBuilders: (() => EcsDocument)[] = [
+    () =>
+      buildLog4j(nextTs(), "SparkContext", "INFO", "Running Spark version 3.5.0", "driver/stdout"),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "SparkContext",
+        "INFO",
+        `Submitted application: ${appName}`,
+        "driver/stdout"
+      ),
+    () => buildLog4j(nextTs(), "SparkEnv", "INFO", "Registering MapOutputTracker", "driver/stdout"),
+    () =>
+      buildLog4j(nextTs(), "SparkEnv", "INFO", "Registering BlockManagerMaster", "driver/stdout"),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "DAGScheduler",
+        "INFO",
+        `Registering RDD 42 (map at MyApp.scala:35) as input to shuffle ${shuffleId}`,
+        "driver/stdout",
+        { shuffle: { read_bytes: shuffleReadBytes, write_bytes: shuffleWriteBytes } }
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "DAGScheduler",
+        "INFO",
+        `Stage ${stageId} (${stageName}) finished in ${Number(randFloat(1, 45)).toFixed(1)} s`,
+        "driver/stdout",
+        {
+          stage: {
+            id: stageId,
+            name: stageName,
+            duration_ms: randInt(1000, 45000),
+            tasks_total: tasksTotal,
+            tasks_completed: tasksTotal,
+          },
+        }
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "DAGScheduler",
+        "INFO",
+        `Parents of final stage: List(Stage ${Math.max(0, stageId - 1)}, Stage ${Math.max(0, stageId - 2)})`,
+        "driver/stdout"
+      ),
+    () => buildLog4j(nextTs(), "DAGScheduler", "INFO", "Missing parents: List()", "driver/stdout"),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "TaskSetManager",
+        "INFO",
+        `Starting task ${taskId}.0 in stage ${stageId}.0 (TID ${tid}, ${primaryHost}, executor ${primaryExecutorId}, partition ${taskId}, PROCESS_LOCAL, ${randInt(1000, 12000)} bytes)`,
+        "driver/stdout",
+        {
+          task: { id: taskId, executor_id: primaryExecutorId, host: primaryHost },
+          stage: { id: stageId, name: stageName, tasks_total: tasksTotal },
+        }
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "TaskSetManager",
+        "INFO",
+        `Finished task ${taskId}.0 in stage ${stageId}.0 (TID ${tid}) in ${randInt(50, 3000)} ms on ${primaryHost} (executor ${primaryExecutorId}) (${randInt(1, tasksTotal)}/${tasksTotal})`,
+        "driver/stdout",
+        {
+          task: {
+            id: taskId,
+            executor_id: primaryExecutorId,
+            host: primaryHost,
+            duration_ms: randInt(50, 3000),
+          },
+        }
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "BlockManager",
+        "INFO",
+        `Added broadcast_${shuffleId}_piece0 in memory on ${primaryHost}:${randInt(30000, 50000)} (size: ${Number(randFloat(10, 500)).toFixed(1)} KiB, free: ${Number(randFloat(1, 8)).toFixed(1)} GiB)`,
+        "driver/stdout",
+        { memory: { heap_used: heapUsed, heap_max: heapMax } }
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "MemoryStore",
+        "INFO",
+        `Block broadcast_${shuffleId} stored as values in memory (estimated size ${Number(randFloat(10, 200)).toFixed(1)} KiB, free ${Number(randFloat(1, 8)).toFixed(1)} GiB)`,
+        "driver/stdout",
+        { memory: { heap_used: heapUsed, heap_max: heapMax } }
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "BlockManager",
+        "INFO",
+        `Removed broadcast_${shuffleId - 1}_piece0 on ${primaryHost}:${randInt(30000, 50000)} in memory (size: ${Number(randFloat(5, 50)).toFixed(1)} KiB, free: ${Number(randFloat(2, 8)).toFixed(1)} GiB)`,
+        "driver/stdout"
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "CodeGenerator",
+        "INFO",
+        `Code generated in ${Number(randFloat(50, 250)).toFixed(1)} ms`,
+        "driver/stdout",
+        { sql: { plan_description: stageName } }
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "SparkSQL",
+        "INFO",
+        "Pushed Filters: IsNotNull(user_id), GreaterThan(revenue, 0)",
+        "driver/stdout",
+        { sql: { pushed_filters: ["IsNotNull(user_id)", "GreaterThan(revenue, 0)"] } }
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "SparkSQL",
+        "INFO",
+        "Post-Scan Filters: (length(name) > 0)",
+        "driver/stdout",
+        { sql: { pushed_filters: ["length(name) > 0"] } }
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "S3A",
+        "INFO",
+        `Opening 's3a://data-lake/raw/events/dt=${new Date(ts).toISOString().slice(0, 10)}/part-${String(taskId).padStart(5, "0")}.parquet' for reading`,
+        "driver/stdout",
+        {
+          s3: {
+            path: `s3a://data-lake/raw/events/dt=${new Date(ts).toISOString().slice(0, 10)}/`,
+            operation: "open",
+          },
+        }
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "S3A",
+        "WARN",
+        "s3a://data-lake/raw/: S3 slow operation. Duration: 12.3s",
+        "driver/stdout",
+        { s3: { path: "s3a://data-lake/raw/", operation: "read", duration_ms: 12300 } }
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "Shuffle",
+        "INFO",
+        `Registering shuffle ${shuffleId} with ShuffleManager`,
+        "driver/stdout",
+        { shuffle: { read_bytes: shuffleReadBytes, write_bytes: shuffleWriteBytes } }
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "Shuffle",
+        "WARN",
+        `Failed to fetch shuffle block from ${secondaryHost}:7337`,
+        "driver/stdout"
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "Shuffle",
+        "INFO",
+        `Asked to send map output locations for shuffle ${shuffleId} to ${primaryHost}:42891`,
+        "driver/stdout"
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "YARN",
+        "INFO",
+        `Launching container ${containerId} on host ${primaryHost} for executor with ID ${primaryExecutorId}`,
+        "driver/stdout",
+        {
+          executor: {
+            id: primaryExecutorId,
+            host: primaryHost,
+            cores: 4,
+            memory_mb: 8192,
+          },
+        }
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "YARN",
+        isErr ? "WARN" : "INFO",
+        isErr
+          ? `Container from a bad node: ${containerId} on host: ${primaryHost}. Exit status: 137`
+          : "Final app status: SUCCEEDED, exitCode: 0, (reason: Shutdown hook called before final status was reported.)",
+        "driver/stdout"
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "Executor",
+        "INFO",
+        `Executor GC time: ${randInt(500, 8000)} ms, total: ${Number(randFloat(5, 18)).toFixed(1)}% of task time`,
+        "driver/stdout",
+        {
+          gc: {
+            major_count: gcMajorCount,
+            major_time_ms: randInt(1000, 20000),
+            minor_count: gcMinorCount,
+            minor_time_ms: randInt(500, 8000),
+          },
+        }
+      ),
+  ];
+
+  if (isErr) {
+    driverBuilders.push(
+      () =>
+        buildLog4j(
+          nextTs(),
+          "S3A",
+          "ERROR",
+          "s3a://restricted-bucket/data/: getFileStatus on s3a://restricted-bucket/data/: com.amazonaws.services.s3.model.AmazonS3Exception: Access Denied (Service: Amazon S3; Status Code: 403)",
+          "driver/stdout",
+          {
+            s3: {
+              path: "s3a://restricted-bucket/data/",
+              operation: "getFileStatus",
+              status_code: 403,
+            },
+          }
+        ),
+      () =>
+        buildLog4j(
+          nextTs(),
+          "DAGScheduler",
+          "ERROR",
+          `Job aborted due to stage failure: Task ${taskId} in stage ${stageId}.0 failed ${randInt(2, 4)} times, most recent failure: ExecutorLostFailure`,
+          "driver/stdout",
+          {
+            stage: {
+              id: stageId,
+              name: stageName,
+              tasks_failed: randInt(1, 5),
+              tasks_completed: randInt(1, tasksTotal - 1),
+            },
+          }
+        ),
+      () =>
+        buildLog4j(
+          nextTs(),
+          "HeartbeatReceiver",
+          "WARN",
+          `Removing executor ${failedExecutorId} with no recent heartbeats: ${randInt(150000, 300000)} ms exceeds timeout 120000 ms`,
+          "driver/stdout",
+          { executor: { id: failedExecutorId, host: secondaryHost } }
+        )
+    );
+  }
+
+  for (let i = 0; i < driverCount; i++) {
+    docs.push(driverBuilders[i % driverBuilders.length]());
+  }
+
+  // ── Executor log4j ───────────────────────────────────────────────────────
+  const execStream = `executor/${primaryExecutorId}/stdout`;
+  const executorBuilders: (() => EcsDocument)[] = [
+    () =>
+      buildLog4j(
+        nextTs(),
+        "Executor",
+        "INFO",
+        `Running task ${taskId}.0 in stage ${stageId}.0 (TID ${tid})`,
+        execStream,
+        {
+          task: { id: taskId, executor_id: primaryExecutorId, host: primaryHost },
+          executor: {
+            id: primaryExecutorId,
+            host: primaryHost,
+            cores: 4,
+            memory_mb: 8192,
+            active_tasks: randInt(1, 8),
+            completed_tasks: randInt(100, 1500),
+            failed_tasks: 0,
+          },
+        }
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "Executor",
+        "INFO",
+        `Finished task ${taskId}.0 in stage ${stageId}.0 (TID ${tid})`,
+        execStream,
+        {
+          task: {
+            id: taskId,
+            executor_id: primaryExecutorId,
+            host: primaryHost,
+            duration_ms: randInt(100, 5000),
+          },
+        }
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "BlockManager",
+        "INFO",
+        `Added rdd_${stageId}_${taskId} on ${primaryHost}`,
+        execStream
+      ),
+    () =>
+      buildLog4j(
+        nextTs(),
+        "Shuffle",
+        "INFO",
+        `Writing shuffle ${shuffleId}, bytes written: ${shuffleWriteBytes}`,
+        execStream,
+        { shuffle: { write_bytes: shuffleWriteBytes } }
+      ),
+  ];
+
+  if (isErr) {
+    executorBuilders.unshift(() =>
+      buildLog4j(
+        nextTs(),
+        "Executor",
+        "ERROR",
+        `Exception in task ${taskId}.0 in stage ${stageId}.0 (TID ${tid})\njava.lang.OutOfMemoryError: Java heap space\n\tat java.base/java.util.Arrays.copyOf(Arrays.java:3512)\n\tat org.apache.spark.unsafe.memory.HeapMemoryAllocator.allocate(HeapMemoryAllocator.java:56)`,
+        execStream,
+        {
+          task: { id: taskId, executor_id: primaryExecutorId, host: primaryHost },
+          executor: {
+            id: primaryExecutorId,
+            host: primaryHost,
+            failed_tasks: randInt(1, 3),
+          },
+          memory: { heap_used: heapMax, heap_max: heapMax },
+        }
+      )
+    );
+  }
+
+  for (let i = 0; i < executorCount_docs; i++) {
+    docs.push(executorBuilders[i % executorBuilders.length]());
+  }
+
+  // ── Structured Spark metrics (Prometheus / REST API style) ─────────────────
+  const metricsTs = nextTs();
+  const activeExecutors = randInt(2, executorCount);
+  const metricLines = [
+    `spark.executor.activeCount: ${activeExecutors}`,
+    `spark.executor.rddBlocks: ${randInt(10, 80)}`,
+    `spark.executor.memoryUsed: ${randInt(1 << 30, 6 << 30)}`,
+    `spark.executor.diskUsed: ${randInt(1 << 29, 2 << 30)}`,
+    `spark.executor.totalCores: ${activeExecutors * 4}`,
+    `spark.executor.maxTasks: ${activeExecutors * 4}`,
+    `spark.executor.activeTasks: ${randInt(1, 16)}`,
+    `spark.executor.failedTasks: ${isErr ? randInt(1, 5) : 0}`,
+    `spark.executor.completedTasks: ${randInt(500, 5000)}`,
+    `spark.executor.totalDuration: ${randInt(100000, 2000000)}`,
+    `spark.executor.totalGCTime: ${randInt(10000, 100000)}`,
+    `spark.executor.totalInputBytes: ${randInt(1 << 32, 1 << 36)}`,
+    `spark.executor.totalShuffleRead: ${shuffleReadBytes * activeExecutors}`,
+    `spark.executor.totalShuffleWrite: ${shuffleWriteBytes * activeExecutors}`,
+    `spark.streaming.totalCompletedBatches: 0`,
+    `spark.jvm.heap.used: ${heapUsed}`,
+    `spark.jvm.heap.max: ${heapMax}`,
+    `spark.jvm.nonHeap.used: ${randInt(64 << 20, 256 << 20)}`,
+    `spark.jvm.gc.PS-MarkSweep.count: ${gcMajorCount}`,
+    `spark.jvm.gc.PS-MarkSweep.time: ${randInt(5000, 25000)}`,
+    `spark.jvm.gc.PS-Scavenge.count: ${gcMinorCount}`,
+    `spark.jvm.gc.PS-Scavenge.time: ${randInt(1000, 10000)}`,
+  ];
+
+  docs.push(
+    buildBase(metricsTs, {
+      logStream: "spark-metrics",
+      level: "info",
+      message: metricLines.join("\n"),
+      spark: {
+        app: { id: appId, name: appName },
+        component: "Metrics",
+        executor: {
+          id: primaryExecutorId,
+          host: primaryHost,
+          cores: 4,
+          memory_mb: 8192,
+          active_tasks: randInt(1, 12),
+          completed_tasks: randInt(500, 5000),
+          failed_tasks: isErr ? randInt(1, 5) : 0,
+        },
+        memory: {
+          heap_used: heapUsed,
+          heap_max: heapMax,
+          off_heap_used: randInt(64 << 20, 256 << 20),
+        },
+        gc: {
+          major_count: gcMajorCount,
+          major_time_ms: randInt(5000, 25000),
+          minor_count: gcMinorCount,
+          minor_time_ms: randInt(1000, 10000),
+        },
+        shuffle: {
+          read_bytes: shuffleReadBytes * activeExecutors,
+          write_bytes: shuffleWriteBytes * activeExecutors,
+          spill_bytes: isErr ? randInt(1 << 20, 1 << 28) : 0,
+        },
+      },
+      outcome: isErr ? "failure" : "success",
+    })
+  );
+
+  return docs.slice(0, docCount);
 }
 
 function generateGlueLog(ts: string, er: number): EcsDocument {
@@ -1485,6 +2219,7 @@ function generateB2biLog(ts: string, er: number) {
 
 export {
   generateEmrLog,
+  generateSparkLogs,
   generateGlueLog,
   generateAthenaLog,
   generateLakeFormationLog,

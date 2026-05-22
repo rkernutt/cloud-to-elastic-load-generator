@@ -1,50 +1,50 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.000Z",
-  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-data-ic8qjk/providers/Microsoft.Sql/servers/sql-xlrl2f/databases/app",
+  "resourceId": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-app-s8skl3/providers/Microsoft.Sql/servers/sql-h85sgj/databases/reporting",
   "cloud": {
     "provider": "azure",
-    "region": "canadacentral",
-    "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
+    "region": "uaenorth",
+    "account": { "id": "c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d", "name": "Northpeak-Dev" },
     "service": { "name": "Microsoft.Sql/servers" }
   },
   "category": "SQLSecurityAuditEvents",
-  "operationName": "DATABASE AUTHENTICATION FAILED",
-  "resultType": "Failed",
-  "level": "Warning",
-  "correlationId": "58pn2fox4oct81r2a4ibtfr3g63uxvam",
-  "callerIpAddress": "11.219.168.45",
+  "operationName": "SCHEMA OBJECT CHANGE",
+  "resultType": "Succeeded",
+  "level": "Informational",
+  "correlationId": "ecsr4begt78obcedl6h4gaf70e9ndnka",
+  "callerIpAddress": "217.75.55.176",
   "properties": {
-    "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-data-ic8qjk/providers/Microsoft.Sql/servers/sql-xlrl2f/databases/app",
-    "action_id": "LGIF",
-    "session_server_principal_name": "report_reader",
+    "resourceId": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-app-s8skl3/providers/Microsoft.Sql/servers/sql-h85sgj/databases/reporting",
+    "action_id": "SC",
+    "session_server_principal_name": "deploy_bot",
     "database_principal_name": "dbo",
-    "schema_name": "",
-    "object_name": "",
-    "statement": ""
+    "schema_name": "dbo",
+    "object_name": "customers",
+    "statement": "ALTER TABLE dbo.orders ADD CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES dbo.customers(id)"
   },
   "azure": {
     "sql_database": {
-      "server": "sql-xlrl2f",
-      "database": "app",
-      "resource_group": "rg-data-ic8qjk",
+      "server": "sql-h85sgj",
+      "database": "reporting",
+      "resource_group": "rg-app-s8skl3",
       "diagnostic_category": "SQLSecurityAuditEvents",
-      "dtu_percent": 23.785871042555854,
+      "dtu_percent": 43.72835412248966,
       "deadlocks": 0,
-      "failed_connections": 2
+      "failed_connections": 0
     }
   },
   "event": {
     "kind": "event",
     "category": ["database"],
     "type": ["admin"],
-    "action": "DATABASE AUTHENTICATION FAILED",
+    "action": "SCHEMA OBJECT CHANGE",
     "outcome": "success",
-    "duration": 355671854,
+    "duration": 377336104,
     "module": "azure",
     "dataset": "azure.sql_database"
   },
-  "message": "Audit: failed login to sql-xlrl2f/app from 11.219.168.45",
+  "message": "Audit: SCHEMA OBJECT CHANGE on sql-h85sgj/reporting",
   "service": { "name": "sql-database", "type": "azure" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -52,10 +52,8 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-canadacentral",
-    "id": "wdthti2ncj08cll6yfz2vy65adbby77cl1s9"
+    "name": "elastic-agent-azure-uaenorth",
+    "id": "wm26dtvxub0oxupe48r638fj5yxom1qmcot3"
   },
-  "input": { "type": "azure-eventhub" },
-  "source": { "ip": "11.219.168.45" },
-  "related": { "ip": ["11.219.168.45"] }
+  "input": { "type": "azure-eventhub" }
 }

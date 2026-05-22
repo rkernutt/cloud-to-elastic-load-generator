@@ -1,60 +1,60 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
     "region": "ap-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "firehose" }
   },
   "aws": {
-    "dimensions": { "DeliveryStreamName": "logs-to-s3" },
+    "dimensions": { "DeliveryStreamName": "metrics-to-opensearch" },
     "firehose": {
-      "delivery_stream_name": "logs-to-s3",
+      "delivery_stream_name": "metrics-to-opensearch",
       "destination": "HTTPEndpoint",
-      "operation": "CreateDeliveryStream",
+      "operation": "PutRecordBatch",
       "scenario": "buffer_flush",
-      "incoming_records": 35562,
-      "incoming_bytes": 66749874,
+      "incoming_records": 9009,
+      "incoming_bytes": 9828819,
       "delivery_success": true,
-      "delivery_records": 29797,
-      "data_freshness_seconds": 72,
+      "delivery_records": 7301,
+      "data_freshness_seconds": 114,
       "transformation": {
-        "buffer_size_mb": 3,
-        "interval_seconds": 80,
+        "buffer_size_mb": 1,
+        "interval_seconds": 115,
         "compression": "UNCOMPRESSED"
       },
-      "s3_delivery": { "prefix_template": "!{timestamp:yyyy/MM/dd}/", "encryption": "SSE_S3" },
+      "s3_delivery": { "prefix_template": "!{timestamp:yyyy/MM/dd}/", "encryption": "SSE_KMS" },
       "metrics": {
-        "IncomingBytes": { "sum": 66749874 },
-        "IncomingRecords": { "sum": 35562 },
+        "IncomingBytes": { "sum": 9828819 },
+        "IncomingRecords": { "sum": 9009 },
         "DeliveryToS3.Success": { "avg": 1 },
-        "DeliveryToS3.Bytes": { "sum": 14597516 },
-        "DeliveryToS3.DataFreshness": { "avg": 159 },
-        "DeliveryToS3.Records": { "sum": 35562 },
-        "ExecuteProcessing.Duration": { "avg": 422, "max": 764 },
+        "DeliveryToS3.Bytes": { "sum": 6100298 },
+        "DeliveryToS3.DataFreshness": { "avg": 88 },
+        "DeliveryToS3.Records": { "sum": 9009 },
+        "ExecuteProcessing.Duration": { "avg": 888, "max": 923 },
         "ExecuteProcessing.Success": { "avg": 1 },
-        "BackupToS3.Bytes": { "sum": 43029 },
-        "BackupToS3.Records": { "sum": 73 },
+        "BackupToS3.Bytes": { "sum": 16050 },
+        "BackupToS3.Records": { "sum": 58 },
         "BackupToS3.Success": { "avg": 1 },
-        "DataReadFromKinesisStream.Bytes": { "sum": 45300979 },
-        "DataReadFromKinesisStream.Records": { "sum": 405 },
+        "DataReadFromKinesisStream.Bytes": { "sum": 86476979 },
+        "DataReadFromKinesisStream.Records": { "sum": 8427 },
         "ThrottledGetRecords": { "sum": 0 },
         "ThrottledGetShardIterator": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-firehose-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-firehose-logs-814726593401"
+        "name": "aws-firehose-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-firehose-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/814726593401/firehose/ap-south-1/2026/05/20/firehose_3D26B5TLFLDPHJBVV3VA.log.gz"
+        "key": "AWSLogs/738291046572/firehose/ap-south-1/2026/05/22/firehose_6F31RDDCJ7VMD4LDW1VC.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/firehose/logs",
-      "log_stream": "ap-south-1/e41gx6si",
-      "ingestion_time": "2026-05-20T13:19:01.342Z"
+      "log_stream": "ap-south-1/ulgqsz44",
+      "ingestion_time": "2026-05-22T12:29:31.406Z"
     }
   },
   "event": {
@@ -64,11 +64,10 @@
     "type": ["info"],
     "dataset": "aws.firehose",
     "provider": "firehose.amazonaws.com",
-    "duration": 68000000000,
-    "module": "aws",
-    "kind": "event"
+    "duration": 70000000000,
+    "module": "aws"
   },
-  "message": "Flush triggered: BufferingHints SizeInMB=3 IntervalSeconds=257 stream=logs-to-s3",
+  "message": "Flush triggered: BufferingHints SizeInMB=1 IntervalSeconds=68 stream=metrics-to-opensearch",
   "log": { "level": "info" },
   "service": { "name": "firehose", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -77,7 +76,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "cmw9s1sn993guxtf4z7f8i2bc722dqt99d8j"
+    "ephemeral_id": "rvbk2eb5npoc92ewaf2zb7jte2i6zmd9cml1"
   },
   "input": { "type": "aws-firehose" }
 }

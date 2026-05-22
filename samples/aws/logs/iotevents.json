@@ -1,37 +1,37 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-southeast-3",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "temperature-alert-model", "KeyValue": "zone-B" },
+    "dimensions": { "DetectorModelName": "temperature-alert-model", "KeyValue": "zone-A" },
     "iotevents": {
       "detector_model_name": "temperature-alert-model",
-      "detector_id": "zone-B",
-      "key_value": "zone-B",
-      "event_name": "AlarmActivated",
-      "from_state": "Normal",
-      "to_state": "Alarm",
+      "detector_id": "zone-A",
+      "key_value": "zone-A",
+      "event_name": "AlarmReset",
+      "from_state": "Acknowledged",
+      "to_state": "Warning",
       "input_name": "HealthCheck",
       "action_type": "SQS",
-      "condition_expression": "$input.SensorInput.temperature > 85"
+      "condition_expression": "$input.data.value < threshold"
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotevents-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-iotevents-logs-814726593401"
+        "name": "aws-iotevents-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-iotevents-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/814726593401/iotevents/ap-northeast-3/2026/05/20/iotevents_DNGWF1L2I01TTZL91GFB.log.gz"
+        "key": "AWSLogs/738291046572/iotevents/ap-southeast-3/2026/05/22/iotevents_03VGQ7E9DGN4MFHHC6XN.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "ap-northeast-3/dsmor2fr",
-      "ingestion_time": "2026-05-20T13:19:01.491Z"
+      "log_stream": "ap-southeast-3/4mxb8vxb",
+      "ingestion_time": "2026-05-22T12:29:31.534Z"
     }
   },
   "event": {
@@ -40,20 +40,19 @@
     "type": ["info"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 483000000,
-    "module": "aws",
-    "kind": "event"
+    "duration": 83000000,
+    "module": "aws"
   },
-  "message": "IoT Events temperature-alert-model/zone-B: Normal → Alarm [AlarmActivated]",
-  "log": { "level": "warn" },
+  "message": "IoT Events temperature-alert-model/zone-A: Acknowledged → Warning [AlarmReset]",
+  "log": { "level": "info" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.iotevents", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "hbo4exsw3a1nquj1hp7b3wnnxkzz3ivvsfqg"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "9tdqj23yfx4mz5d96be53569qztv0nkn75wt"
   },
   "input": { "type": "aws-cloudwatch" }
 }

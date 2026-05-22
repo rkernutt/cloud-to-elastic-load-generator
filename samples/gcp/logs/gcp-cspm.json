@@ -7,56 +7,41 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-east4",
+    "region": "us-west2",
     "account": { "id": "globex-prod-482910", "name": "Globex Production" }
   },
   "resource": {
-    "id": "//compute.googleapis.com/projects/globex-prod-482910/zones/us-east4-b/instances/vm-RDBU4V",
-    "name": "vm-RDBU4V",
-    "type": "compute.googleapis.com/Instance",
-    "sub_type": "gce-instance"
+    "id": "//cloudresourcemanager.googleapis.com/projects/globex-prod-482910",
+    "name": "globex-prod-482910",
+    "type": "cloudresourcemanager.googleapis.com/Project",
+    "sub_type": "audit-logging",
+    "raw": { "projectId": "globex-prod-482910" }
   },
   "rule": {
-    "id": "2f7d9d2a-ec1f-545a-8258-ea62bbffad7f",
-    "name": "Ensure That Instances Are Not Configured To Use the Default Service Account With Full Access to All Cloud APIs",
-    "section": "4.2",
-    "description": "To support principle of least privileges and prevent potential privilege escalation it is recommended that instances are not assigned to default service account `Compute Engine default service account` with Scope `Allow full access to all Cloud APIs`.",
-    "tags": ["CIS", "GCP", "CIS 4.2", "Virtual Machines"],
+    "id": "8f88e7f7-6924-5913-bc18-95fcdc5ae744",
+    "name": "Ensure Cloud Asset Inventory Is Enabled",
+    "section": "2.13",
+    "description": "GCP Cloud Asset Inventory is services that provides a historical view of GCP resources and IAM policies through a time-series database.",
+    "tags": ["CIS", "GCP", "CIS 2.13", "Logging and Monitoring"],
     "benchmark": {
       "id": "cis_gcp",
       "name": "CIS Google Cloud Platform Foundation",
       "version": "v2.0.0",
-      "rule_number": "4.2",
+      "rule_number": "2.13",
       "posture_type": "cspm"
     },
-    "profile_applicability": "* Level 1",
-    "impact": "Non-compliance with CIS Google Cloud Platform Foundation 4.2 — Ensure That Instances Are Not Configured To Use the Default Service Account With Full Access to All Cloud APIs",
-    "remediation": "Remediate per CIS Google Cloud Platform Foundation v2.0.0 section 4.2."
+    "profile_applicability": "* Level 1"
   },
-  "result": {
-    "evaluation": "failed",
-    "evidence": {
-      "metadata": {
-        "items": [
-          { "key": "block-project-ssh-keys", "value": "false" },
-          { "key": "enable-oslogin", "value": "FALSE" }
-        ]
-      },
-      "networkInterfaces": [
-        { "accessConfigs": [{ "natIP": "206.210.58.23", "name": "External NAT" }] }
-      ],
-      "canIpForward": true
-    }
-  },
+  "result": { "evaluation": "passed" },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_cspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_gcp/4.2] failed: Ensure That Instances Are Not Configured To Use the Default Service Account With Full Access to All Cloud APIs",
-  "log": { "level": "warn" }
+  "message": "[cis_gcp/2.13] passed: Ensure Cloud Asset Inventory Is Enabled",
+  "log": { "level": "info" }
 }

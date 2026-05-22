@@ -3,49 +3,54 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "northamerica-northeast2",
-    "project": { "id": "globex-dev-615094", "name": "Globex Development" },
-    "account": { "id": "615094738261", "name": "Globex Development" },
-    "service": { "name": "vertex-ai-search" }
+    "region": "us-east1",
+    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
+    "account": { "id": "529384716205", "name": "Globex Shared Services" },
+    "service": { "name": "vertex-ai" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-northamerica-northeast2",
-    "ephemeral_id": "vzssv399jvktvuqtn0ndqkuw8l69lh1jcgxa"
+    "name": "metricbeat-gcp-us-east1",
+    "ephemeral_id": "cy2n98uj9tdr63zk8kgmk0sn8qtm58a487oh"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "discoveryengine.googleapis.com/search_requests_regional",
-      "labels": { "regional_location": "northamerica-northeast2" }
+      "type": "aiplatform.googleapis.com/prediction/online_prediction_request_count",
+      "labels": { "deployed_model_id": "deployed-md-prod" }
     },
     "resource": {
-      "type": "discoveryengine.googleapis.com/Location",
-      "labels": { "resource_container": "globex-dev-615094", "location": "northamerica-northeast2" }
+      "type": "aiplatform.googleapis.com/Endpoint",
+      "labels": {
+        "project_id": "globex-shared-529384",
+        "location": "us-east1",
+        "endpoint_id": "endpoint-classify"
+      }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "22637" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "2532" } }
     ]
   },
   "gcp": {
-    "vertex-ai-search": {
+    "vertex-ai": {
       "labels": {
-        "resource_container": "globex-dev-615094",
-        "location": "northamerica-northeast2",
-        "regional_location": "northamerica-northeast2"
+        "project_id": "globex-shared-529384",
+        "location": "us-east1",
+        "endpoint_id": "endpoint-classify",
+        "deployed_model_id": "deployed-md-prod"
       },
       "metrics": {
-        "discoveryengine.googleapis.com/search_requests_regional": {
-          "avg": 22637,
-          "sum": 22637,
+        "aiplatform.googleapis.com/prediction/online_prediction_request_count": {
+          "avg": 2532,
+          "sum": 2532,
           "count": 1
         }
       }
     }
   },
-  "metricset": { "name": "vertex-ai-search", "period": 60000 },
+  "metricset": { "name": "vertex-ai", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.vertexai_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "kind": "metric", "dataset": "gcp.vertexai_metrics", "module": "gcp" }

@@ -1,65 +1,65 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.000Z",
-  "resourceId": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-prod-7pvsdx/providers/Microsoft.DocumentDB/databaseAccounts/cosmos-lhtctp",
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-app-obzrin/providers/Microsoft.DocumentDB/databaseAccounts/cosmos-anjyuj",
   "cloud": {
     "provider": "azure",
-    "region": "centralus",
-    "account": { "id": "a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d", "name": "Meridian-Platform" },
+    "region": "ukwest",
+    "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
     "service": { "name": "Microsoft.DocumentDB/databaseAccounts" }
   },
-  "category": "DataPlaneRequests",
-  "operationName": "Create",
-  "resultType": "Succeeded",
-  "level": "Informational",
-  "correlationId": "ydzvygd4zs4tfrbjajl8adbt1fc0m27r",
-  "callerIpAddress": "49.30.216.157",
+  "category": "QueryRuntimeStatistics",
+  "operationName": "Query",
+  "resultType": "Failed",
+  "level": "Warning",
+  "correlationId": "6jo1rl8elf3jrc1my3h6z7i84vhy26l8",
+  "callerIpAddress": "68.34.116.131",
   "properties": {
-    "resourceId": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-prod-7pvsdx/providers/Microsoft.DocumentDB/databaseAccounts/cosmos-lhtctp",
-    "databaseName": "catalog",
+    "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-app-obzrin/providers/Microsoft.DocumentDB/databaseAccounts/cosmos-anjyuj",
+    "databaseName": "events",
     "collectionName": "items",
-    "activityId": "f4af48e2-2a86-4500-afef-0beda8ab649a",
-    "statusCode": 200,
-    "requestCharge": 1.4068040661139438,
-    "duration": 26.159591696271075,
-    "partitionKey": "/partition26",
-    "requestResourceType": "StoredProcedure",
-    "requestResourceId": "f0bzddejiwxy",
-    "region": "centralus"
+    "activityId": "53681922-56f6-4c91-8c2f-1b11393359e4",
+    "queryText": "SELECT * FROM c WHERE c.region = @region ORDER BY c._ts DESC",
+    "indexUtilizationRatio": 0.29383639370736414,
+    "retrievedDocumentCount": 10826,
+    "retrievedDocumentSize": 21811201,
+    "outputDocumentCount": 36,
+    "vmExecutionTimeMs": 3384.5198896569127,
+    "totalQueryExecutionTimeMs": 3384.5198896569127,
+    "crossPartition": true,
+    "statusCode": 400
   },
   "azure": {
     "cosmos_db": {
-      "account": "cosmos-lhtctp",
-      "resource_group": "rg-prod-7pvsdx",
-      "database": "catalog",
+      "account": "cosmos-anjyuj",
+      "resource_group": "rg-app-obzrin",
+      "database": "events",
       "container": "items",
-      "partition_key": "/partition26",
-      "ru_consumed": 1.4068040661139438,
-      "status_code": 200
+      "partition_key": "/partition23",
+      "ru_consumed": 1333,
+      "status_code": 400
     }
   },
   "event": {
     "kind": "event",
     "category": ["database"],
-    "type": ["change"],
-    "action": "Create",
-    "outcome": "success",
-    "duration": 100315439,
+    "type": ["error"],
+    "action": "Query",
+    "outcome": "failure",
+    "duration": 1805294525,
     "module": "azure",
     "dataset": "azure.cosmos_db"
   },
-  "message": "Cosmos DB cosmos-lhtctp: Create completed status=200 RU=1.41 in 26.2ms",
+  "message": "Cosmos DB cosmos-anjyuj: cross-partition query high latency indexUtil=0.29",
   "service": { "name": "cosmos-db", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.cosmos_db", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-centralus",
-    "id": "b7z3ysrjkwhgx4xkc7h1qvvuzcayr3fwv5t1"
+    "name": "elastic-agent-azure-ukwest",
+    "id": "7h2m0m91dpwp56appbws9veexu7cu2tue9qv"
   },
-  "input": { "type": "azure-eventhub" },
-  "source": { "ip": "49.30.216.157" },
-  "related": { "ip": ["49.30.216.157"] }
+  "input": { "type": "azure-eventhub" }
 }

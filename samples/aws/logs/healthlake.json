@@ -1,60 +1,64 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-west-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "healthlake" }
   },
   "aws": {
     "dimensions": {
-      "DatastoreId": "99nh1ynk-k0bo-cahh-5x1j-909kpftanfkr",
-      "ResourceType": "Patient"
+      "DatastoreId": "nluhh1ye-3nbj-we8b-j9xt-sgpgsqk6jmk9",
+      "ResourceType": "DiagnosticReport"
     },
     "healthlake": {
-      "datastore_id": "99nh1ynk-k0bo-cahh-5x1j-909kpftanfkr",
-      "datastore_name": "pharmacy-db",
-      "resource_type": "Patient",
-      "operation": "ReadResource",
-      "request_id": "RUZD0IDB-F4UU-XXR0-29JU-RCQ6Q2CF2GKR",
-      "response_code": 200,
+      "datastore_id": "nluhh1ye-3nbj-we8b-j9xt-sgpgsqk6jmk9",
+      "datastore_name": "ehr-primary",
+      "resource_type": "DiagnosticReport",
+      "operation": "CreateResource",
+      "request_id": "OIIT9EJU-WVPE-ALHE-BFNC-EI82W326DSZ9",
+      "response_code": 403,
       "fhir_version": "R4"
     },
     "s3": {
       "bucket": {
-        "name": "aws-healthlake-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-healthlake-logs-293847561023"
+        "name": "aws-healthlake-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-healthlake-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/healthlake/ap-southeast-1/2026/05/20/healthlake_TG882MA89ZSLDMF6749W.log.gz"
+        "key": "AWSLogs/164820739518/healthlake/us-west-1/2026/05/22/healthlake_49EDA1YFFC1M4P2NTZV6.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/healthlake/logs",
-      "log_stream": "ap-southeast-1/jp88imcu",
-      "ingestion_time": "2026-05-20T13:19:01.416Z"
+      "log_stream": "us-west-1/f2plg8iy",
+      "ingestion_time": "2026-05-22T12:29:31.476Z"
     }
   },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "event": {
-    "action": "ReadResource",
-    "outcome": "success",
+    "action": "CreateResource",
+    "outcome": "failure",
     "category": ["process", "database"],
     "dataset": "aws.healthlake",
     "provider": "healthlake.amazonaws.com",
-    "duration": 247000000,
-    "module": "aws",
-    "kind": "event"
+    "duration": 2063000000,
+    "module": "aws"
   },
-  "message": "HealthLake ReadResource: datastore=pharmacy-db, resource=Patient, 247ms",
+  "message": "HealthLake CreateResource FAILED [ehr-primary/DiagnosticReport]: HTTP 403 - Invalid FHIR resource",
+  "error": {
+    "code": "ValidationException",
+    "message": "HealthLake FHIR operation failed",
+    "type": "database"
+  },
   "service": { "name": "healthlake", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.healthlake", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "lasqs0zja15g6n3136npn5tknjeb8rw86x2g"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "x6uuq39yasyxs4da0t4d3zudueskll6vui7z"
   },
   "input": { "type": "aws-cloudwatch" }
 }

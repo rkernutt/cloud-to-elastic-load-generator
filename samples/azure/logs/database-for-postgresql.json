@@ -1,15 +1,20 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-app-977qty/providers/Microsoft.DBforPostgreSQL/flexibleServers/psql-zenca",
-  "operationName": "autovacuum_log",
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-network-731fd3/providers/Microsoft.DBforPostgreSQL/flexibleServers/psql-v45kf",
+  "operationName": "checkpoint_complete",
   "category": "PostgreSQLLogs",
   "resultType": "Success",
-  "resultSignature": "scan heap",
-  "callerIpAddress": "58.182.82.109",
-  "correlationId": "51d5c63f-fce7-4f71-8883-ba179a9b6918",
+  "resultSignature": "time",
+  "callerIpAddress": "137.185.215.156",
+  "correlationId": "321acf06-bd99-427e-b9c5-6d7eea6119bd",
   "level": "Information",
-  "properties": { "database": "app", "phase": "scan heap", "deadTuples": 4558, "durationSec": 230 },
+  "properties": {
+    "buffersWritten": 211476,
+    "checkpointLagSec": 22.72605406028462,
+    "walSizeMb": 372,
+    "reason": "time"
+  },
   "cloud": {
     "provider": "azure",
     "region": "uksouth",
@@ -18,15 +23,15 @@
   },
   "azure": {
     "database_for_postgresql": {
-      "server": "psql-zenca",
-      "resource_group": "rg-app-977qty",
-      "category": "PostgreSQLVacuum",
-      "correlation_id": "51d5c63f-fce7-4f71-8883-ba179a9b6918",
+      "server": "psql-v45kf",
+      "resource_group": "rg-network-731fd3",
+      "category": "PostgreSQLCheckpoint",
+      "correlation_id": "321acf06-bd99-427e-b9c5-6d7eea6119bd",
       "properties": {
-        "database": "app",
-        "phase": "scan heap",
-        "deadTuples": 4558,
-        "durationSec": 230
+        "buffersWritten": 211476,
+        "checkpointLagSec": 22.72605406028462,
+        "walSizeMb": 372,
+        "reason": "time"
       }
     }
   },
@@ -34,13 +39,13 @@
     "kind": "event",
     "category": ["database"],
     "type": ["access"],
-    "action": "autovacuum_log",
+    "action": "checkpoint_complete",
     "outcome": "success",
-    "duration": 35055573409,
+    "duration": 15782956775,
     "module": "azure",
     "dataset": "azure.postgresql"
   },
-  "message": "PostgreSQL psql-zenca: vacuum scan heap OK",
+  "message": "PostgreSQL psql-v45kf: checkpoint complete buffers=211476",
   "service": { "name": "database-for-postgresql", "type": "azure" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -49,9 +54,7 @@
     "type": "elastic-agent",
     "version": "8.18.0",
     "name": "elastic-agent-azure-uksouth",
-    "id": "1698i03fkjc0q99s5mf21g901yvmd6wxvb4r"
+    "id": "xge899sur4qit46j15zgjar8b280cf70mbq1"
   },
-  "input": { "type": "azure-eventhub" },
-  "source": { "ip": "58.182.82.109" },
-  "related": { "ip": ["58.182.82.109"] }
+  "input": { "type": "azure-eventhub" }
 }

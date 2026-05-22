@@ -1,58 +1,57 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-southeast-3",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "codedeploy" }
   },
   "aws": {
-    "dimensions": { "DeploymentGroupName": "canary", "ApplicationName": "web-app" },
+    "dimensions": { "DeploymentGroupName": "prod", "ApplicationName": "worker-service" },
     "codedeploy": {
-      "application_name": "web-app",
-      "deployment_group": "canary",
-      "deployment_id": "d-G4O1L2OBJ",
+      "application_name": "worker-service",
+      "deployment_group": "prod",
+      "deployment_id": "d-50G5SSKCR",
       "deployment_type": "BLUE_GREEN",
-      "lifecycle_event": "ApplicationStart",
+      "lifecycle_event": "BeforeAllowTraffic",
       "event_status": "Succeeded",
-      "duration_seconds": 457,
-      "instances_succeeded": 6,
+      "duration_seconds": 155,
+      "instances_succeeded": 9,
       "instances_failed": 0,
       "metrics": {
         "DeploymentAttempts": { "sum": 1 },
         "DeploymentSuccesses": { "sum": 1 },
         "DeploymentFailures": { "sum": 0 },
         "RollbackAttempts": { "sum": 0 },
-        "DeploymentDuration": { "avg": 457 },
-        "InstanceSuccesses": { "sum": 10 },
+        "DeploymentDuration": { "avg": 155 },
+        "InstanceSuccesses": { "sum": 1 },
         "InstanceFailures": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-codedeploy-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-codedeploy-logs-164820739518"
+        "name": "aws-codedeploy-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-codedeploy-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/164820739518/codedeploy/eu-central-2/2026/05/20/codedeploy_AMOQK73OH7DTIM7QT4O8.log.gz"
+        "key": "AWSLogs/738291046572/codedeploy/ap-southeast-3/2026/05/22/codedeploy_7O6OFRM0524RA0TVI7C2.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codedeploy/logs",
-      "log_stream": "eu-central-2/jrbukgjx",
-      "ingestion_time": "2026-05-20T13:19:01.357Z"
+      "log_stream": "ap-southeast-3/674mb1li",
+      "ingestion_time": "2026-05-22T12:29:31.422Z"
     }
   },
   "event": {
-    "duration": 457000000000,
+    "duration": 155000000000,
     "outcome": "success",
     "category": ["process", "configuration"],
     "dataset": "aws.codedeploy",
     "provider": "codedeploy.amazonaws.com",
-    "module": "aws",
-    "kind": "event"
+    "module": "aws"
   },
-  "message": "[CodeDeploy] deploymentId=d-G4O1L2OBJ application=web-app deploymentGroup=canary deploymentStyle=BLUE_GREEN\n[CodeDeploy] Targeting instances: count=3 tagSet=Environment:canary\n[Lifecycle:BeforeInstall] instanceId=i-9b30ea66 script=appspec/before_install.sh status=SUCCEEDED durationSec=103\n[Lifecycle:Install] instanceId=i-9b30ea66 script=appspec/install.sh status=SUCCEEDED durationSec=75\n[Lifecycle:AfterInstall] instanceId=i-9b30ea66 script=appspec/after_install.sh status=SUCCEEDED durationSec=109\n[Lifecycle:ApplicationStart] instanceId=i-9b30ea66 script=appspec/application_start.sh status=SUCCEEDED durationSec=63\n[CodeDeploy] deploymentId=d-G4O1L2OBJ status=SUCCEEDED overallDurationSec=457",
+  "message": "[CodeDeploy] deploymentId=d-50G5SSKCR application=worker-service deploymentGroup=prod deploymentStyle=BLUE_GREEN\n[CodeDeploy] Targeting instances: count=19 tagSet=Environment:prod\n[Lifecycle:BeforeInstall] instanceId=i-9aaeab98 script=scripts/before_install.sh status=SUCCEEDED durationSec=136\n[Lifecycle:Install] instanceId=i-9aaeab98 script=scripts/install.sh status=SUCCEEDED durationSec=49\n[Lifecycle:AfterInstall] instanceId=i-9aaeab98 script=appspec/after_install.sh status=SUCCEEDED durationSec=13\n[Lifecycle:ApplicationStart] instanceId=i-9aaeab98 script=scripts/application_start.sh status=SUCCEEDED durationSec=153\n[CodeDeploy] deploymentId=d-50G5SSKCR status=SUCCEEDED overallDurationSec=155",
   "log": { "level": "info" },
   "service": { "name": "codedeploy", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -60,8 +59,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "o02inv2oz1q47pt80k2rovitps0rbt8ldjxk"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "265oaba42gzg4vfsyd93uc3wzi3jjcucvnn1"
   },
   "input": { "type": "aws-cloudwatch" }
 }

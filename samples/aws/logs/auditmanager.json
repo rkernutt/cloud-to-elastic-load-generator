@@ -1,59 +1,63 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-southeast-3",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "auditmanager" }
   },
   "aws": {
-    "dimensions": { "AssessmentName": "HIPAA-Readiness", "ControlSetId": "Change Management" },
+    "dimensions": { "AssessmentName": "PCI-DSS-v4", "ControlSetId": "Change Management" },
     "auditmanager": {
-      "assessment_name": "HIPAA-Readiness",
-      "assessment_id": "ee899b03-ec56-4c11-a543-4b8f4ce06e43",
+      "assessment_name": "PCI-DSS-v4",
+      "assessment_id": "c74f3dcd-3541-458b-95eb-24d4f48414da",
       "control_set": "Change Management",
-      "control_id": "CTRL-7498",
-      "evidence_status": "COMPLIANT",
+      "control_id": "CTRL-2999",
+      "evidence_status": "NON_COMPLIANT",
       "data_source": "AWS_SECURITY_HUB",
-      "evidence_count": 42,
-      "compliance_check": "PASSED",
+      "evidence_count": 21,
+      "compliance_check": "FAILED",
       "reviewer": "compliance-team"
     },
     "s3": {
       "bucket": {
-        "name": "aws-auditmanager-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-auditmanager-logs-293847561023"
+        "name": "aws-auditmanager-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-auditmanager-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/293847561023/auditmanager/us-west-1/2026/05/20/auditmanager_2JUFD24ZYTP7S1C35YNZ.log.gz"
+        "key": "AWSLogs/814726593401/auditmanager/ap-southeast-3/2026/05/22/auditmanager_QAMFIJUJ2IBL3ZCQUWO1.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/auditmanager/logs",
-      "log_stream": "us-west-1/0m5dv6iq",
-      "ingestion_time": "2026-05-20T13:19:01.290Z"
+      "log_stream": "ap-southeast-3/qb6c9g9s",
+      "ingestion_time": "2026-05-22T12:29:31.354Z"
     }
   },
   "event": {
-    "action": "ReviewEvidence",
-    "outcome": "success",
+    "action": "SubmitReviewRequest",
+    "outcome": "failure",
     "category": ["configuration"],
     "type": ["info"],
     "dataset": "aws.auditmanager",
     "provider": "auditmanager.amazonaws.com",
-    "module": "aws",
-    "kind": "event"
+    "module": "aws"
   },
-  "message": "Audit Manager HIPAA-Readiness — CTRL-7498 COMPLIANT",
-  "log": { "level": "info" },
+  "message": "Audit Manager PCI-DSS-v4 — CTRL-2999 NON_COMPLIANT: insufficient evidence in Change Management",
+  "log": { "level": "error" },
+  "error": {
+    "code": "AccessDeniedException",
+    "message": "Audit Manager evidence collection failed",
+    "type": "audit"
+  },
   "service": { "name": "auditmanager", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.auditmanager", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "ukdk33043g3rq4s4d9sbykjnrdn5n7aq75jr"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "w5g5trcwca04ycxnx3iy0hptow56bciqpl4i"
   },
   "input": { "type": "http_endpoint" }
 }

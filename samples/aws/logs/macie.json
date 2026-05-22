@@ -1,78 +1,73 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ca-west-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "macie" }
   },
   "aws": {
-    "dimensions": { "BucketName": "raw-uploads-ap-southeast-3" },
+    "dimensions": { "BucketName": "customer-exports-ca-west-1" },
     "macie": {
-      "finding_id": "6g73coh3-8qdc-7v85",
-      "finding_type": "Policy:IAMUser/S3BucketSharedWithCloudFront",
-      "severity": "HIGH",
+      "finding_id": "8uk4p24n-4vts-643h",
+      "finding_type": "none",
+      "severity": "INFORMATIONAL",
       "s3_bucket": {
-        "name": "raw-uploads-ap-southeast-3",
-        "arn": "arn:aws:s3:::raw-uploads-ap-southeast-3"
+        "name": "customer-exports-ca-west-1",
+        "arn": "arn:aws:s3:::customer-exports-ca-west-1"
       },
       "s3_bucket_full": {
-        "name": "raw-uploads-ap-southeast-3",
-        "arn": "arn:aws:s3:::raw-uploads-ap-southeast-3",
-        "owner_id": "te5ya8vevkpgqgu9hgrqvs80384hrrslyb00rqj7hdj8ir2spziwoxpmjbp1r3x6",
-        "default_server_side_encryption": { "encryption_type": "AES256" },
+        "name": "customer-exports-ca-west-1",
+        "arn": "arn:aws:s3:::customer-exports-ca-west-1",
+        "owner_id": "uxopd26y100f0xw72jf0ia39ryf8apmslcn9iy5cxpgzpyctpmheorept3jyupe1",
+        "default_server_side_encryption": { "encryption_type": "NONE" },
         "tags": [{ "key": "Environment", "value": "dev" }],
         "public_access": {
-          "effective_permission": "PUBLIC",
-          "block_public_acls": false,
-          "block_public_policy": false,
-          "ignore_public_acls": false,
-          "restrict_public_buckets": false
+          "effective_permission": "NOT_PUBLIC",
+          "block_public_acls": true,
+          "block_public_policy": true,
+          "ignore_public_acls": true,
+          "restrict_public_buckets": true
         }
       },
-      "occurrences": 37971,
-      "sensitive_data_categories": ["CREDENTIALS"],
-      "data_identifiers": ["DRIVER_LICENSE_US"]
+      "occurrences": 0,
+      "sensitive_data_categories": [],
+      "data_identifiers": []
     },
     "s3": {
       "bucket": {
-        "name": "aws-macie-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-macie-logs-164820739518"
+        "name": "aws-macie-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-macie-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/macie/ap-southeast-3/2026/05/20/macie_TSZDCEO6828CW8W804UT.log.gz"
+        "key": "AWSLogs/293847561023/macie/ca-west-1/2026/05/22/macie_RW7B6L4ZWO63BYF9LMP8.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/macie/logs",
-      "log_stream": "ap-southeast-3/twd920rl",
-      "ingestion_time": "2026-05-20T13:19:01.258Z"
+      "log_stream": "ca-west-1/go0qs3cj",
+      "ingestion_time": "2026-05-22T12:29:31.314Z"
     }
   },
   "event": {
     "kind": "alert",
-    "outcome": "failure",
-    "category": ["intrusion_detection"],
+    "outcome": "success",
+    "category": ["vulnerability"],
     "type": ["info"],
     "dataset": "aws.macie",
     "provider": "macie2.amazonaws.com",
     "module": "aws"
   },
-  "message": "Macie detected sensitive data in s3://raw-uploads-ap-southeast-3: Policy:IAMUser/S3BucketSharedWithCloudFront",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "SensitiveDataFound",
-    "message": "Sensitive data in s3://raw-uploads-ap-southeast-3",
-    "type": "data"
-  },
+  "message": "Macie scan complete: no sensitive data found",
+  "log": { "level": "info" },
   "service": { "name": "macie", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.macie", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "e9xmf9xjs0zheutu9cb1lk51p5yjrawn3zbq"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "ta2u4n2h4ckg42uqng3hwy10g429j9524qha"
   },
   "input": { "type": "http_endpoint" }
 }

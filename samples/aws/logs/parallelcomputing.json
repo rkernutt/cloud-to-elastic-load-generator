@@ -1,77 +1,58 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-northeast-3",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "pcs" }
   },
   "aws": {
-    "dimensions": { "ClusterId": "pcs-zc3xv3s3", "QueueName": "batch" },
+    "dimensions": { "ClusterId": "pcs-6x6uu6ac", "QueueName": "batch" },
     "pcs": {
-      "cluster_id": "pcs-zc3xv3s3",
-      "scheduler": "aws-batch-style",
-      "scenario": "job_submit",
+      "cluster_id": "pcs-6x6uu6ac",
+      "scheduler": "slurm",
+      "scenario": "cluster_create",
       "queue_name": "batch",
-      "job_id": "job-804016",
-      "job_state": "FAILED",
-      "mpi": {
-        "comm_world_size": 12879,
-        "barrier_wait_ms_p99": 85,
-        "ibv_retries": 2,
-        "collective": "MPI_Ibarrier"
-      },
-      "workload": {
-        "script_path": "/shared/jobs/weather.sbatch",
-        "gres_gpu": 7,
-        "walltime_hours": 22,
-        "qos": "normal"
-      },
-      "metrics": { "running_jobs": 31, "pending_jobs": 731, "compute_nodes_active": 106 },
-      "api_error_code": "ConflictException"
+      "job_id": "job-137866",
+      "job_state": "PENDING",
+      "metrics": { "running_jobs": 160, "pending_jobs": 137, "compute_nodes_active": 520 }
     },
     "s3": {
       "bucket": {
-        "name": "aws-parallelcomputing-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-parallelcomputing-logs-164820739518"
+        "name": "aws-parallelcomputing-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-parallelcomputing-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/parallelcomputing/ap-south-1/2026/05/20/parallelcomputing_GUDE7B593ARMSTXB0S19.log.gz"
+        "key": "AWSLogs/501938274650/parallelcomputing/ap-northeast-3/2026/05/22/parallelcomputing_A7X2EY6B9LQUU1NIVAN2.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/parallelcomputing/logs",
-      "log_stream": "ap-south-1/grg9uwqj",
-      "ingestion_time": "2026-05-20T13:19:01.215Z"
+      "log_stream": "ap-northeast-3/ae388r73",
+      "ingestion_time": "2026-05-22T12:29:31.260Z"
     }
   },
   "event": {
-    "action": "job_submit",
-    "outcome": "failure",
+    "action": "cluster_create",
+    "outcome": "success",
     "category": ["process"],
     "type": ["info"],
     "dataset": "aws.pcs",
     "provider": "pcs.amazonaws.com",
-    "duration": 24413000000,
-    "module": "aws",
-    "kind": "event"
+    "duration": 1044000000,
+    "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.pcs", "namespace": "default" },
-  "message": "sbatch /shared/jobs/weather.sbatch QOS=normal gpus=7 -> job-804016 — ConflictException",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ConflictException",
-    "message": "PCS job_submit failed on cluster pcs-zc3xv3s3",
-    "type": "aws"
-  },
-  "host": { "name": "ip-36-215-83-53.ec2.internal", "hostname": "parallelcomputing-taxl933t" },
+  "message": "CreateCluster pcs-6x6uu6ac controller=slurm vpc=vpc-6b67de3d",
+  "log": { "level": "info" },
+  "host": { "name": "ip-243-180-204-57.ec2.internal", "hostname": "parallelcomputing-drb1e4iz" },
   "service": { "name": "parallelcomputing", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "ekobxv5ht05nzynllsdgduz5aomifchvqtwu"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "c55n8jx8oe3xl3lparwwj0xjba1tizjpitu0"
   },
   "input": { "type": "aws-cloudwatch" }
 }

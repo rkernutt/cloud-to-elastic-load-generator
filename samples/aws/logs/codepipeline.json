@@ -1,21 +1,21 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "us-west-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "codepipeline" }
   },
   "aws": {
     "dimensions": { "PipelineName": "api-deploy" },
     "codepipeline": {
       "pipeline_name": "api-deploy",
-      "pipeline_arn": "arn:aws:codepipeline:eu-central-2:738291046572:api-deploy",
-      "execution_id": "a466ee0b-1a64-4a31-95c2-d5051b8051b1",
-      "stage_name": "Deploy",
-      "action_name": "CodeBuild",
+      "pipeline_arn": "arn:aws:codepipeline:us-west-2:293847561023:api-deploy",
+      "execution_id": "c7fc521b-9a78-499e-9086-f12eb9796c61",
+      "stage_name": "Production",
+      "action_name": "Source",
       "state": "Succeeded",
-      "revision_id": "bcpzs5ca0v6efy4j2w01uuzvdabowss5hdahwfsm",
+      "revision_id": "rsztbbq70j9l7li48ziichvyxmmug2t0mzhap991",
       "structured_logging": false,
       "metrics": {
         "PipelineExecutionAttempts": { "sum": 1 },
@@ -28,17 +28,17 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-codepipeline-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-codepipeline-logs-738291046572"
+        "name": "aws-codepipeline-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-codepipeline-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/codepipeline/eu-central-2/2026/05/20/codepipeline_TQB22HNEDMYY1428W9Y7.log.gz"
+        "key": "AWSLogs/293847561023/codepipeline/us-west-2/2026/05/22/codepipeline_04UALE9B4K3SN7YGV45Z.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codepipeline/logs",
-      "log_stream": "eu-central-2/nfja9zqx",
-      "ingestion_time": "2026-05-20T13:19:01.355Z"
+      "log_stream": "us-west-2/2l6vcn7c",
+      "ingestion_time": "2026-05-22T12:29:31.421Z"
     }
   },
   "event": {
@@ -46,11 +46,10 @@
     "category": ["process", "configuration"],
     "dataset": "aws.codepipeline",
     "provider": "codepipeline.amazonaws.com",
-    "duration": 72000000000,
-    "module": "aws",
-    "kind": "event"
+    "duration": 53000000000,
+    "module": "aws"
   },
-  "message": "[CodePipeline] executionId=a466ee0b-1a64-4a31-95c2-d5051b8051b1 pipeline=api-deploy state=SUCCEEDED region=eu-central-2\n[CodePipeline] Execution started for pipeline api-deploy (pipelineVersion=33)\n[Stage:Source] Transitioning: STARTED action=Source provider=S3 revision=bcpzs5c\n[Stage:Source] Output artifact location: s3://738291046572-codepipeline-eu-central-2/api-deploy/source_out/bcpzs5ca0v6efy4j2w01uuzvdabowss5hdahwfsm.zip\n[Stage:Source] Transitioning: SUCCEEDED durationMs=34868\n[Stage:Build] Transitioning: STARTED action=CodeBuild project=api-service-build\n[Stage:Build] Input artifact: s3://738291046572-codepipeline-eu-central-2/api-deploy/source_out/bcpzs5ca0v6efy4j2w01uuzvdabowss5hdahwfsm.zip\n[Stage:Build] Output artifact: s3://738291046572-codepipeline-eu-central-2/api-deploy/build_out/a466ee0b-1a64-4a31-95c2-d5051b8051b1/BuildOut\n[Stage:Build] Transitioning: SUCCEEDED durationMs=127458\n[Stage:Deploy] Transitioning: STARTED action=CodeDeploy deploymentGroup=prod\n[Stage:Deploy] Output artifact: s3://738291046572-codepipeline-eu-central-2/api-deploy/deploy/a466ee0b-1a64-4a31-95c2-d5051b8051b1/DeploymentBundle\n[Stage:Deploy] Transitioning: SUCCEEDED durationMs=153690\n[Stage:Test] Transitioning: STARTED action=LambdaInvoke\n[Stage:Test] Transitioning: SUCCEEDED durationMs=250248\n[CodePipeline] Execution succeeded for pipeline api-deploy executionId=a466ee0b-1a64-4a31-95c2-d5051b8051b1",
+  "message": "[CodePipeline] executionId=c7fc521b-9a78-499e-9086-f12eb9796c61 pipeline=api-deploy state=SUCCEEDED region=us-west-2\n[CodePipeline] Execution started for pipeline api-deploy (pipelineVersion=8)\n[Stage:Source] Transitioning: STARTED action=Source provider=CodeCommit revision=rsztbbq\n[Stage:Source] Output artifact location: s3://293847561023-codepipeline-us-west-2/api-deploy/source_out/rsztbbq70j9l7li48ziichvyxmmug2t0mzhap991.zip\n[Stage:Source] Transitioning: SUCCEEDED durationMs=28531\n[Stage:Build] Transitioning: STARTED action=CodeBuild project=web-build\n[Stage:Build] Input artifact: s3://293847561023-codepipeline-us-west-2/api-deploy/source_out/rsztbbq70j9l7li48ziichvyxmmug2t0mzhap991.zip\n[Stage:Build] Output artifact: s3://293847561023-codepipeline-us-west-2/api-deploy/build_out/c7fc521b-9a78-499e-9086-f12eb9796c61/BuildOut\n[Stage:Build] Transitioning: SUCCEEDED durationMs=318929\n[Stage:Deploy] Transitioning: STARTED action=CloudFormation deploymentGroup=prod\n[Stage:Deploy] Output artifact: s3://293847561023-codepipeline-us-west-2/api-deploy/deploy/c7fc521b-9a78-499e-9086-f12eb9796c61/DeploymentBundle\n[Stage:Deploy] Transitioning: SUCCEEDED durationMs=336868\n[Stage:Test] Transitioning: STARTED action=CodeBuild\n[Stage:Test] Transitioning: SUCCEEDED durationMs=320445\n[Stage:Approval] Transitioning: STARTED action=SecuritySignOff token=Q8Z3R97WCWNQTGQWVT8GRVL2\n[Stage:Approval] Waiting for manual approval (notificationArn=arn:aws:sns:us-west-2:293847561023:pipeline-approvals)\n[Stage:Approval] Transitioning: SUCCEEDED approvedBy=lkim\n[CodePipeline] Execution succeeded for pipeline api-deploy executionId=c7fc521b-9a78-499e-9086-f12eb9796c61",
   "log": { "level": "info" },
   "service": { "name": "codepipeline", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -58,8 +57,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "tbehch83tiw4g46dkk9wizu2aohwmwv2e71s"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "cysxfwmr6jyw09bv25egmhxvuno3a9cugs4l"
   },
   "input": { "type": "aws-cloudwatch" }
 }

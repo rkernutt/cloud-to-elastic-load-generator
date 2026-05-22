@@ -1,89 +1,101 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-southeast-3",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "sagemaker" }
   },
   "aws": {
     "dimensions": {
-      "TrainingJobName": "bert-finetuned-endpoint-20260520-5v1qqx",
-      "JobType": "Endpoint"
+      "TrainingJobName": "lstm-timeseries-training-20260522-f1zwzj",
+      "JobType": "Training"
     },
     "cloudwatch": {
-      "log_group": "/aws/sagemaker/Endpoints/bert-finetuned-endpoint/AllTraffic",
-      "log_stream": "bert-finetuned-endpoint/AllTraffic/2026/05/20/8nrgw9f46xd43btsv1sb62b6w9wvx1pb",
-      "ingestion_time": "2026-05-20T13:19:01.393Z"
+      "log_group": "/aws/sagemaker/TrainingJobs",
+      "log_stream": "lstm-timeseries-training-20260522-f1zwzj/algo-1",
+      "ingestion_time": "2026-05-22T12:29:31.453Z"
     },
     "sagemaker": {
-      "domain_id": "d-462s2ple2w",
+      "domain_id": "d-opf4e10864",
       "domain_name": "risk-models",
-      "user_profile": "svc-monitoring",
+      "user_profile": "mwilliams-ml",
       "job": {
-        "name": "bert-finetuned-endpoint-20260520-5v1qqx",
-        "type": "Endpoint",
-        "arn": "arn:aws:sagemaker:eu-west-1:501938274650:endpoint/bert-finetuned-endpoint-20260520-5v1qqx",
-        "status": "Completed",
-        "secondary_status": "Training"
+        "name": "lstm-timeseries-training-20260522-f1zwzj",
+        "type": "Training",
+        "arn": "arn:aws:sagemaker:ap-southeast-3:293847561023:training-job/lstm-timeseries-training-20260522-f1zwzj",
+        "status": "Failed",
+        "secondary_status": "MaxRuntimeExceeded"
       },
-      "model": { "name": "bert-finetuned", "version": 17 },
-      "pipeline": { "name": "batch-inference-pipeline", "execution_id": "pipe-fkpu2s5lnmdq" },
-      "instance": { "type": "ml.m5.4xlarge", "count": 1 },
-      "metrics": { "gpu_utilization_pct": 14, "cpu_utilization_pct": 41 },
+      "model": { "name": "lstm-timeseries", "version": 8 },
+      "pipeline": { "name": "feature-engineering-pipeline", "execution_id": "pipe-8g7fgjqnycro" },
+      "instance": { "type": "ml.m5.xlarge", "count": 1 },
+      "metrics": {
+        "train:loss": 0.1357,
+        "train:accuracy": 0.8708,
+        "validation:loss": 0.2643,
+        "validation:accuracy": 0.7339,
+        "epoch": 45,
+        "gpu_utilization_pct": 41,
+        "cpu_utilization_pct": 65
+      },
       "studio": {
-        "space_name": "ds-platform",
-        "app_type": "CodeEditor",
-        "app_name": "instance-xycwi2dw",
-        "lifecycle_config": true,
+        "space_name": "cv-team",
+        "app_type": "RStudio",
+        "app_name": "instance-wqjw9ist",
+        "lifecycle_config": false,
         "continuous_logging": true
       },
       "cloudwatch_metrics": {
-        "Invocations": { "sum": 4045 },
-        "ModelLatency": { "avg": 45000 },
-        "OverheadLatency": { "avg": 5000 },
-        "GPUUtilization": { "avg": 60 },
-        "GPUMemoryUtilization": { "avg": 60 },
-        "CPUUtilization": { "avg": 57 },
-        "DiskUtilization": { "avg": 21 },
-        "MemoryUtilization": { "avg": 70 },
+        "Invocations": { "sum": 4979 },
+        "ModelLatency": { "avg": 3655000 },
+        "OverheadLatency": { "avg": 37000 },
+        "GPUUtilization": { "avg": 94 },
+        "GPUMemoryUtilization": { "avg": 73 },
+        "CPUUtilization": { "avg": 82 },
+        "DiskUtilization": { "avg": 83 },
+        "MemoryUtilization": { "avg": 63 },
         "Invocations4XXError": { "sum": 0 },
-        "Invocations5XXError": { "sum": 0 },
-        "ModelSetupTime": { "avg": 2268 }
+        "Invocations5XXError": { "sum": 17 },
+        "ModelSetupTime": { "avg": 3758 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sagemaker-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-sagemaker-logs-501938274650"
+        "name": "aws-sagemaker-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-sagemaker-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/sagemaker/eu-west-1/2026/05/20/sagemaker_U5AU3MH1R456KVHFURAA.log.gz"
+        "key": "AWSLogs/293847561023/sagemaker/ap-southeast-3/2026/05/22/sagemaker_GTT718F4DIL00754VG20.log.gz"
       }
     }
   },
-  "log": { "level": "info" },
-  "user": { "name": "svc-monitoring" },
+  "log": { "level": "error" },
+  "user": { "name": "mwilliams-ml" },
   "event": {
-    "action": "LifecycleConfigOnStart",
-    "duration": 1584127707903.7593,
-    "outcome": "success",
+    "action": "AppDeleted",
+    "duration": 54433746770.28245,
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.sagemaker",
     "provider": "sagemaker.amazonaws.com",
-    "module": "aws",
-    "kind": "event"
+    "module": "aws"
   },
-  "message": "{\"domainId\":\"d-462s2ple2w\",\"space\":\"ds-platform\",\"appType\":\"CodeEditor\",\"user\":\"svc-monitoring\",\"level\":\"INFO\",\"message\":\"Endpoint bert-finetuned-endpoint is now InService\",\"timestamp\":\"2026-05-20T13:19:00.213Z\",\"event\":\"LifecycleConfigOnStart\"}",
+  "message": "{\"domainId\":\"d-opf4e10864\",\"space\":\"cv-team\",\"appType\":\"RStudio\",\"user\":\"mwilliams-ml\",\"level\":\"ERROR\",\"message\":\"Algorithm Error: framework error from container\",\"timestamp\":\"2026-05-22T12:29:30.113Z\",\"event\":\"AppDeleted\"}",
+  "error": {
+    "code": "ClientError",
+    "message": "Model deployment failed: health check timeout after 300 seconds",
+    "type": "aws"
+  },
   "service": { "name": "sagemaker", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sagemaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "5cme22wbsfqydlxbryej5dx72hlecdx8j62b"
+    "name": "filebeat-aws-ap-southeast-3",
+    "ephemeral_id": "qjw8ipg80xmotvngq57wfo9qbrtllzb50kq7"
   },
   "input": { "type": "aws-cloudwatch" },
-  "related": { "user": ["svc-monitoring"] }
+  "related": { "user": ["mwilliams-ml"] }
 }

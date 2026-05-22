@@ -86,6 +86,7 @@ const SERVICE_INGESTION_DEFAULTS = {
   amazonmq: "cloudwatch",
   appsync: "cloudwatch",
   emr: "cloudwatch",
+  "emr-spark": "cloudwatch",
   glue: "cloudwatch",
   athena: "cloudwatch",
   kinesisanalytics: "cloudwatch",

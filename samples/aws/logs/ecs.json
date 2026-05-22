@@ -1,47 +1,47 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "sa-east-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "ecs" }
   },
   "aws": {
-    "dimensions": { "ClusterName": "staging", "ServiceName": "scheduler" },
+    "dimensions": { "ClusterName": "prod-cluster", "ServiceName": "auth-service" },
     "ecs": {
-      "ecs_cluster": "staging",
-      "ecs_task_definition": "scheduler-td:12",
-      "ecs_task_arn": "arn:aws:ecs:us-west-2:501938274650:task/staging/jlxtgpxfrjwscj0y52yle1oqfzdxt22r",
+      "ecs_cluster": "prod-cluster",
+      "ecs_task_definition": "auth-service-td:11",
+      "ecs_task_arn": "arn:aws:ecs:sa-east-1:164820739518:task/prod-cluster/c2va4auymd31z7xpzoinveltxxiopr4m",
       "metrics": {
-        "CPUUtilization": { "avg": 67.60069609345072 },
-        "CPUReservation": { "avg": 40.17505160089223 },
-        "MemoryUtilization": { "avg": 46.439263725799 },
-        "MemoryReservation": { "avg": 67.74418254423034 },
+        "CPUUtilization": { "avg": 61.45256904222836 },
+        "CPUReservation": { "avg": 44.204891648487404 },
+        "MemoryUtilization": { "avg": 21.82017502458045 },
+        "MemoryReservation": { "avg": 39.454057861759814 },
         "GPUReservation": { "avg": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-ecs-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-ecs-logs-501938274650"
+        "name": "aws-ecs-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-ecs-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/ecs/us-west-2/2026/05/20/ecs_YMFUBK7V1MY6D2SQGHSJ.log.gz"
+        "key": "AWSLogs/164820739518/ecs/sa-east-1/2026/05/22/ecs_5MWLHT28OQAEW832VCX1.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/ecs/logs",
-      "log_stream": "us-west-2/zpj6fj0w",
-      "ingestion_time": "2026-05-20T13:19:01.188Z"
+      "log_stream": "sa-east-1/r6wgppix",
+      "ingestion_time": "2026-05-22T12:29:31.231Z"
     }
   },
   "container": {
-    "id": "4jj5ntaex6av",
-    "name": "scheduler",
-    "image": { "name": "nginx:1.24", "tag": "alpine" },
+    "id": "dekfsnl1xllf",
+    "name": "auth-service",
+    "image": { "name": "java:1.24", "tag": "1.24" },
     "runtime": "docker"
   },
-  "process": { "pid": 4161, "name": "scheduler" },
+  "process": { "pid": 30937, "name": "auth-service" },
   "log": { "level": "info" },
   "event": {
     "category": ["process"],
@@ -49,23 +49,22 @@
     "outcome": "success",
     "dataset": "aws.ecs",
     "provider": "ecs.amazonaws.com",
-    "duration": 2203000000000,
-    "module": "aws",
-    "kind": "event"
+    "duration": 1640000000000,
+    "module": "aws"
   },
-  "message": "service scheduler has reached a steady state.",
-  "service": { "name": "scheduler", "type": "ecs" },
-  "ecs_cluster": "staging",
-  "ecs_task_definition": "scheduler-td:12",
-  "ecs_task_arn": "arn:aws:ecs:us-west-2:501938274650:task/staging/jlxtgpxfrjwscj0y52yle1oqfzdxt22r",
-  "host": { "name": "ip-62-18-163-139.ec2.internal", "hostname": "ecs-pslnbq70" },
+  "message": "{\"cluster\":\"prod-cluster\",\"service\":\"auth-service\",\"taskId\":\"c2va4auymd31z7xpzoinveltxxiopr4m\",\"container\":\"auth-service\",\"level\":\"info\",\"message\":\"containerd: creating container ys90vptopz6k name=auth-service\",\"timestamp\":\"2026-05-22T12:29:30.113Z\",\"ecs_cluster\":\"prod-cluster\",\"ecs_task_definition\":\"auth-service-td:11\",\"ecs_task_arn\":\"arn:aws:ecs:sa-east-1:164820739518:task/prod-cluster/c2va4auymd31z7xpzoinveltxxiopr4m\"}",
+  "service": { "name": "auth-service", "type": "ecs" },
+  "ecs_cluster": "prod-cluster",
+  "ecs_task_definition": "auth-service-td:11",
+  "ecs_task_arn": "arn:aws:ecs:sa-east-1:164820739518:task/prod-cluster/c2va4auymd31z7xpzoinveltxxiopr4m",
+  "host": { "name": "ip-71-86-62-56.ec2.internal", "hostname": "ecs-4qpo85fe" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.ecs_metrics", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "rgvii1vk0bc89a9wbw4wtmv6p844vkw62qvy"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "ls2n797yoq3k0mreuz1piwoyul0uee8muycg"
   },
   "input": { "type": "aws-cloudwatch" }
 }

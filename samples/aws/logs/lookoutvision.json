@@ -1,56 +1,63 @@
 {
-  "@timestamp": "2026-05-20T13:19:00.213Z",
+  "@timestamp": "2026-05-22T12:29:30.113Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-south-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "lookoutvision" }
   },
   "aws": {
-    "dimensions": { "ProjectName": "weld-quality-check", "ModelVersion": "3.0" },
+    "dimensions": { "ProjectName": "turbine-blade-check", "ModelVersion": "2.0" },
     "lookoutvision": {
-      "project_name": "weld-quality-check",
-      "model_version": "3.0",
-      "model_arn": "arn:aws:lookoutvision:ap-east-1:293847561023:model/weld-quality-check/3.0",
-      "event_type": "StopModel",
-      "image_source": "camera-stream",
-      "is_anomalous": false,
-      "confidence": 0.8897710216173516
+      "project_name": "turbine-blade-check",
+      "model_version": "2.0",
+      "model_arn": "arn:aws:lookoutvision:ap-south-1:164820739518:model/turbine-blade-check/2.0",
+      "event_type": "DescribeModelPackagingJob",
+      "image_source": "local-file",
+      "is_anomalous": true,
+      "confidence": 0.7862596617860353,
+      "anomaly_label": "crack",
+      "anomaly_mask_uri": "s3://lookoutvision-masks-164820739518/turbine-blade-check/ltnzaubl.png",
+      "error_code": "InternalServerException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-lookoutvision-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-lookoutvision-logs-293847561023"
+        "name": "aws-lookoutvision-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-lookoutvision-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/lookoutvision/ap-east-1/2026/05/20/lookoutvision_E4CDIA6KFO33VOGQ5TN5.log.gz"
+        "key": "AWSLogs/164820739518/lookoutvision/ap-south-1/2026/05/22/lookoutvision_1LY26Y0ECDWC6SO22Q78.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lookoutvision/logs",
-      "log_stream": "ap-east-1/p44yv3o3",
-      "ingestion_time": "2026-05-20T13:19:01.419Z"
+      "log_stream": "ap-south-1/9u6dbzrs",
+      "ingestion_time": "2026-05-22T12:29:31.478Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.lookoutvision",
     "provider": "lookoutvision.amazonaws.com",
-    "duration": 131000000,
-    "module": "aws",
-    "kind": "event"
+    "duration": 2316000000,
+    "module": "aws"
   },
-  "message": "Lookout for Vision [weld-quality-check] OK confidence=0.890 131ms",
-  "log": { "level": "info" },
+  "message": "Lookout for Vision [turbine-blade-check v2.0] DescribeModelPackagingJob FAILED: Invalid image format",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ResourceNotFoundException",
+    "message": "Lookout for Vision operation failed",
+    "type": "process"
+  },
   "service": { "name": "lookoutvision", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lookoutvision", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "zuqsz5noz0d964hcj8mmhlsj0em4t2z5etzw"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "87edn7tyd6se332bxs5cl0y7mpuz4wtwzxha"
   },
   "input": { "type": "aws-cloudwatch" }
 }
