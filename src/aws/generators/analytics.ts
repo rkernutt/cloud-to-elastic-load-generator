@@ -14,7 +14,7 @@ import {
 } from "../../helpers";
 import type { EcsDocument } from "./types.js";
 
-function generateEmrLog(ts: string, er: number): EcsDocument {
+function generateEmrLog(ts: string, er: number): EcsDocument[] {
   const region = rand(REGIONS);
   const acct = randAccount();
   const app = rand(["spark", "spark", "spark", "hive", "flink", "presto"]);
@@ -119,7 +119,7 @@ function generateEmrLog(ts: string, er: number): EcsDocument {
     gc_time_ms: randInt(500, 45000),
     numberAllExecutors: randInt(executorCount, executorCount * 2),
   };
-  return {
+  const emrDoc: EcsDocument = {
     "@timestamp": ts,
     cloud: {
       provider: "aws",
@@ -195,6 +195,9 @@ function generateEmrLog(ts: string, er: number): EcsDocument {
       ? { error: { code: "JobFailed", message: rand(errorMsgs).split("\n")[0], type: "process" } }
       : {}),
   };
+
+  const sparkDocs = generateSparkLogs(ts, er);
+  return [emrDoc, ...sparkDocs];
 }
 
 type SparkComponent =

@@ -317,7 +317,7 @@ describe("DevTools generators", () => {
 // ─── Analytics ───────────────────────────────────────────────────────────────
 describe("Analytics generators", () => {
   it.each([
-    ["EMR", () => generateEmrLog(TS, 0)],
+    ["EMR", () => generateEmrLog(TS, 0)[0]],
     ["Glue", () => generateGlueLog(TS, 0)],
     ["Athena", () => generateAthenaLog(TS, 0)],
   ])("%s returns valid base doc with duration", (_name, gen) => {
