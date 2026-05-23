@@ -1,0 +1,131 @@
+{
+  "group": "devops",
+  "description": "Alerting rules for AWS DevOps and CI/CD services — CodeBuild, CodePipeline, and X-Ray",
+  "rules": [
+    {
+      "id": "cloudloadgen-aws-codebuild-failure-spike",
+      "name": "[CloudLoadGen] CodeBuild — Build Failures",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "codebuild", "devops"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [3],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.codebuild\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
+        "index": ["logs-aws.codebuild*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": ["AWS CodeBuild — overview"],
+      "investigationGuide": "# CodeBuild Build Failures\n\nCodeBuild projects are failing at an elevated rate. CI/CD pipelines may be blocked and deployments delayed.\n\n## Triage\n1. Rank failing projects: `FROM logs-aws.codebuild* | WHERE event.outcome == \"failure\" | STATS failures = COUNT(*) BY aws.codebuild.project_name | SORT failures DESC | LIMIT 10`\n2. Identify failing phases: `FROM logs-aws.codebuild* | WHERE event.outcome == \"failure\" | STATS failures = COUNT(*) BY aws.codebuild.current_phase | SORT failures DESC | LIMIT 10`\n3. Review recent build logs: `FROM logs-aws.codebuild* | WHERE event.outcome == \"failure\" | KEEP @timestamp, aws.codebuild.project_name, aws.codebuild.build_id, aws.codebuild.current_phase, error.message, message | SORT @timestamp DESC | LIMIT 25`\n\n## Resolution\n- Open the failed build in CodeBuild and inspect phase logs (INSTALL, BUILD, POST_BUILD)\n- Fix test failures, dependency install errors, or Docker build issues\n- Verify IAM service role permissions for S3 artifacts, ECR, and Secrets Manager\n- Pin dependency versions or cache layers if failures are flaky"
+    },
+    {
+      "id": "cloudloadgen-aws-codebuild-slow-build",
+      "name": "[CloudLoadGen] CodeBuild — Slow Build",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "codebuild", "devops"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 30,
+        "timeWindowUnit": "m",
+        "threshold": [2],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.codebuild\"}},{\"range\":{\"event.duration\":{\"gt\":600000000000}}}]}}}",
+        "index": ["logs-aws.codebuild*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": ["AWS CodeBuild — overview"],
+      "investigationGuide": "# CodeBuild Slow Build\n\nMultiple builds exceeded 10 minutes of execution time. Queue backlog, oversized artifacts, or inefficient build steps may be impacting delivery velocity.\n\n## Triage\n1. Find slowest projects: `FROM logs-aws.codebuild* | WHERE event.duration > 600000000000 | STATS max_min = MAX(event.duration) / 60000000000, count = COUNT(*) BY aws.codebuild.project_name | SORT max_min DESC | LIMIT 10`\n2. Compare duration to queued time: `FROM logs-aws.codebuild* | WHERE event.duration > 600000000000 | KEEP @timestamp, aws.codebuild.project_name, aws.codebuild.duration_seconds, aws.codebuild.queued_duration_seconds | SORT event.duration DESC | LIMIT 15`\n3. Trend build duration over time: `FROM logs-aws.codebuild* | STATS avg_dur_sec = AVG(aws.codebuild.duration_seconds) BY ts = BUCKET(@timestamp, 15, ?_tstart, ?_tend)`\n\n## Resolution\n- Enable Docker layer caching and S3 cache for npm/Maven/Gradle dependencies\n- Right-size compute type (build.general1.large or larger) for CPU-bound builds\n- Split monolithic buildspec phases or parallelize test suites\n- Investigate VPC-attached builds with slow NAT or artifact upload paths"
+    },
+    {
+      "id": "cloudloadgen-aws-codebuild-timeout",
+      "name": "[CloudLoadGen] CodeBuild — Build Timeout",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "codebuild", "devops"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.codebuild\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"TIMED_OUT\"}},{\"match_phrase\":{\"message\":\"Build timed out\"}}],\"minimum_should_match\":1}}]}}}",
+        "index": ["logs-aws.codebuild*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": ["AWS CodeBuild — overview"],
+      "investigationGuide": "# CodeBuild Build Timeout\n\nAt least one build hit the configured timeout. Long-running tests, hung package installs, or blocking network calls are common causes.\n\n## Triage\n1. List timed-out builds: `FROM logs-aws.codebuild* | WHERE message LIKE \"*TIMED_OUT*\" OR message LIKE \"*Build timed out*\" | KEEP @timestamp, aws.codebuild.project_name, aws.codebuild.build_id, aws.codebuild.current_phase, message | SORT @timestamp DESC | LIMIT 20`\n2. Check duration near timeout: `FROM logs-aws.codebuild* | WHERE aws.codebuild.build_status == \"FAILED\" | STATS max_sec = MAX(aws.codebuild.duration_seconds) BY aws.codebuild.project_name | SORT max_sec DESC | LIMIT 10`\n3. Review phase stuck in BUILD or POST_BUILD: `FROM logs-aws.codebuild* | WHERE aws.codebuild.current_phase IS NOT NULL | STATS builds = COUNT(*) BY aws.codebuild.current_phase, aws.codebuild.build_status | SORT builds DESC | LIMIT 15`\n\n## Resolution\n- Increase project timeout in CodeBuild settings after confirming the work is legitimate\n- Fix hung scripts (add timeouts to curl, npm, docker commands)\n- Use smaller test matrices or shard integration tests across builds\n- Move very long workloads to Batch or dedicated runners"
+    },
+    {
+      "id": "cloudloadgen-aws-codepipeline-failure",
+      "name": "[CloudLoadGen] CodePipeline — Stage Failure",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "codepipeline", "devops"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [2],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.codepipeline\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
+        "index": ["logs-aws.codepipeline*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": ["AWS CodePipeline — overview"],
+      "investigationGuide": "# CodePipeline Stage Failure\n\nPipeline stages or actions are failing. Releases may be halted before production deploy or approval gates.\n\n## Triage\n1. Group failures by pipeline and stage: `FROM logs-aws.codepipeline* | WHERE event.outcome == \"failure\" | STATS failures = COUNT(*) BY aws.codepipeline.pipeline_name, aws.codepipeline.stage_name | SORT failures DESC | LIMIT 10`\n2. Inspect failure messages: `FROM logs-aws.codepipeline* | WHERE event.outcome == \"failure\" | KEEP @timestamp, aws.codepipeline.pipeline_name, aws.codepipeline.execution_id, aws.codepipeline.stage_name, error.message, message | SORT @timestamp DESC | LIMIT 25`\n3. Check action failure metrics: `FROM logs-aws.codepipeline* | WHERE aws.codepipeline.metrics.ActionFailureCount.sum > 0 | STATS failures = SUM(aws.codepipeline.metrics.ActionFailureCount.sum) BY aws.codepipeline.pipeline_name | SORT failures DESC | LIMIT 10`\n\n## Resolution\n- Open the failed execution in CodePipeline and drill into the failing action\n- Fix CodeBuild, CodeDeploy, CloudFormation, or manual approval action configuration\n- Validate artifact bucket permissions and cross-account KMS keys\n- Retry the stage after fixing infrastructure or application issues"
+    },
+    {
+      "id": "cloudloadgen-aws-codepipeline-approval-timeout",
+      "name": "[CloudLoadGen] CodePipeline — Approval Timeout",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "codepipeline", "devops"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 30,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.codepipeline\"}},{\"match_phrase\":{\"message\":\"Approval\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"expired\"}},{\"match_phrase\":{\"message\":\"timed_out\"}}],\"minimum_should_match\":1}}]}}}",
+        "index": ["logs-aws.codepipeline*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": ["AWS CodePipeline — overview"],
+      "investigationGuide": "# CodePipeline Approval Timeout\n\nA manual approval stage expired or timed out without action. Deployments may be stuck waiting for operator sign-off.\n\n## Triage\n1. Find approval timeouts by pipeline: `FROM logs-aws.codepipeline* | WHERE message LIKE \"*Approval*\" AND (message LIKE \"*expired*\" OR message LIKE \"*timed_out*\") | STATS events = COUNT(*) BY aws.codepipeline.pipeline_name | SORT events DESC | LIMIT 10`\n2. Review pending approval context: `FROM logs-aws.codepipeline* | WHERE message LIKE \"*Approval*\" | KEEP @timestamp, aws.codepipeline.pipeline_name, aws.codepipeline.execution_id, message | SORT @timestamp DESC | LIMIT 20`\n3. Check SNS notification delivery for approval topics: `FROM logs-aws.sns* | WHERE message LIKE \"*pipeline*approval*\" OR message LIKE \"*Approval*\" | STATS events = COUNT(*) BY aws.sns.topic_arn | SORT events DESC | LIMIT 5`\n\n## Resolution\n- Re-run the pipeline or restart the approval stage after obtaining sign-off\n- Adjust approval timeout settings or escalation notifications in the action configuration\n- Ensure approvers receive SNS/email/Slack notifications with valid subscription endpoints\n- Document on-call approval procedures for time-sensitive releases"
+    }
+  ]
+}

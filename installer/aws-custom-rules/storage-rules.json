@@ -1,0 +1,131 @@
+{
+  "group": "storage",
+  "description": "Alerting rules for AWS storage services — Amazon S3",
+  "rules": [
+    {
+      "id": "cloudloadgen-aws-s3-access-denied",
+      "name": "[CloudLoadGen] S3 — Access Denied",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "s3", "storage"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [5],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"term\":{\"http.response.status_code\":403}},{\"match_phrase\":{\"message\":\"AccessDenied\"}}],\"minimum_should_match\":1}}]}}}",
+        "index": ["logs-aws.s3*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": ["Amazon S3 — Access & Errors"],
+      "investigationGuide": "# S3 Access Denied\n\nS3 requests are returning HTTP 403 or AccessDenied errors. This may indicate IAM policy gaps, bucket policy denials, SCP restrictions, or cross-account access misconfiguration.\n\n## Triage\n1. Top buckets with denials: `FROM logs-aws.s3* | WHERE http.response.status_code == 403 OR message LIKE \"*AccessDenied*\" | STATS denials = COUNT(*) BY aws.s3.bucket.name | SORT denials DESC | LIMIT 10`\n2. Identify requesters and operations: `FROM logs-aws.s3* | WHERE http.response.status_code == 403 | STATS denials = COUNT(*) BY aws.s3access.requester, aws.s3access.operation | SORT denials DESC | LIMIT 15`\n3. Sample denied requests: `FROM logs-aws.s3* | WHERE http.response.status_code == 403 | KEEP @timestamp, aws.s3.bucket.name, aws.s3.object.key, aws.s3access.remote_ip, message | SORT @timestamp DESC | LIMIT 20`\n\n## Resolution\n- Review bucket policy, ACL, and Block Public Access settings for unintended Deny statements\n- Confirm the principal's IAM policy allows the required s3:GetObject, s3:PutObject, or List actions\n- Check KMS key policy if objects use SSE-KMS\n- Validate VPC endpoint or IP condition keys if access is network-restricted"
+    },
+    {
+      "id": "cloudloadgen-aws-s3-5xx-errors",
+      "name": "[CloudLoadGen] S3 — Server Errors",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "s3", "storage"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [3],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"range\":{\"http.response.status_code\":{\"gte\":500}}}]}}}",
+        "index": ["logs-aws.s3*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": ["Amazon S3 — Access & Errors"],
+      "investigationGuide": "# S3 Server Errors\n\nS3 is returning 5xx responses. Server-side errors may reflect transient AWS issues, overloaded clients, or InternalError conditions on specific buckets or prefixes.\n\n## Triage\n1. Count 5xx by status code: `FROM logs-aws.s3* | WHERE http.response.status_code >= 500 | STATS errors = COUNT(*) BY http.response.status_code | SORT errors DESC`\n2. Identify affected buckets: `FROM logs-aws.s3* | WHERE http.response.status_code >= 500 | STATS errors = COUNT(*) BY aws.s3.bucket.name, aws.s3access.operation | SORT errors DESC | LIMIT 15`\n3. Check error trend: `FROM logs-aws.s3* | WHERE http.response.status_code >= 500 | STATS errors = COUNT(*) BY ts = BUCKET(@timestamp, 5, ?_tstart, ?_tend) | SORT ts`\n\n## Resolution\n- Check AWS Service Health Dashboard for S3 incidents in the region\n- Retry with exponential backoff for transient 503 Slow Down or 500 InternalError\n- Reduce aggressive parallel upload/download concurrency if throttling is suspected\n- Open AWS Support case if errors persist on a single bucket across multiple clients"
+    },
+    {
+      "id": "cloudloadgen-aws-s3-slow-requests",
+      "name": "[CloudLoadGen] S3 — Slow Requests",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "s3", "storage"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [5],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"range\":{\"event.duration\":{\"gt\":5000000000}}}]}}}",
+        "index": ["logs-aws.s3*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": ["Amazon S3 — Access & Errors"],
+      "investigationGuide": "# S3 Slow Requests\n\nMultiple S3 requests exceeded 5 seconds end-to-end. Slow requests may indicate large object transfers, cross-region access, network path issues, or LIST operations on wide prefixes.\n\n## Triage\n1. Slowest operations by bucket: `FROM logs-aws.s3* | WHERE event.duration > 5000000000 | STATS max_ms = MAX(event.duration) / 1000000, count = COUNT(*) BY aws.s3.bucket.name, aws.s3access.operation | SORT max_ms DESC | LIMIT 15`\n2. Compare access log total_time vs ECS duration: `FROM logs-aws.s3* | WHERE event.duration > 5000000000 | KEEP @timestamp, aws.s3.bucket.name, aws.s3access.total_time, event.duration, aws.s3.object.size | SORT event.duration DESC | LIMIT 20`\n3. Volume of slow requests over time: `FROM logs-aws.s3* | WHERE event.duration > 5000000000 | STATS slow = COUNT(*) BY ts = BUCKET(@timestamp, 5, ?_tstart, ?_tend) | SORT ts`\n\n## Resolution\n- Use multipart upload for large objects and tune part size for throughput\n- Co-locate compute and buckets in the same region; use S3 Transfer Acceleration only when justified\n- Replace broad LIST with prefix partitioning or S3 Inventory for analytics\n- Investigate client network latency and DNS resolution to the correct regional endpoint"
+    },
+    {
+      "id": "cloudloadgen-aws-s3-delete-spike",
+      "name": "[CloudLoadGen] S3 — Mass Delete",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "s3", "storage"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [50],
+        "thresholdComparator": ">",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"wildcard\":{\"event.action\":\"*DeleteObject*\"}}]}}}",
+        "index": ["logs-aws.s3*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": ["Amazon S3 — Access & Errors"],
+      "investigationGuide": "# S3 Mass Delete\n\nA high volume of delete operations was detected. Bulk deletes may be normal lifecycle cleanup, but can also indicate misconfigured automation, ransomware cleanup, or accidental data loss.\n\n## Triage\n1. Deletes by bucket and principal: `FROM logs-aws.s3* | WHERE event.action LIKE \"*DeleteObject*\" | STATS deletes = COUNT(*) BY aws.s3.bucket.name, aws.s3access.requester | SORT deletes DESC | LIMIT 15`\n2. Source IPs for delete activity: `FROM logs-aws.s3* | WHERE event.action LIKE \"*DeleteObject*\" | STATS deletes = COUNT(*) BY aws.s3access.remote_ip | SORT deletes DESC | LIMIT 10`\n3. Timeline of delete volume: `FROM logs-aws.s3* | WHERE event.action LIKE \"*DeleteObject*\" | STATS deletes = COUNT(*) BY ts = BUCKET(@timestamp, 5, ?_tstart, ?_tend) | SORT ts`\n\n## Resolution\n- Confirm whether a scheduled lifecycle rule, batch operation, or ETL job initiated the deletes\n- Enable S3 Versioning and MFA Delete on sensitive buckets if not already configured\n- Review CloudTrail for DeleteObject API calls with user identity and source IP\n- Restore from versioning or cross-region replication if deletes were unintended"
+    },
+    {
+      "id": "cloudloadgen-aws-s3-public-access",
+      "name": "[CloudLoadGen] S3 — Public Access Change",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "s3", "storage"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match_phrase\":{\"message\":\"PutBucketPolicy\"}},{\"match_phrase\":{\"message\":\"public\"}}]}},{\"bool\":{\"must\":[{\"match_phrase\":{\"message\":\"PutBucketAcl\"}},{\"match_phrase\":{\"message\":\"public\"}}]}}],\"minimum_should_match\":1}}]}}}",
+        "index": ["logs-aws.s3*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": ["Amazon S3 — Access & Errors"],
+      "investigationGuide": "# S3 Public Access Change\n\nAn S3 bucket policy or ACL change referencing public access was detected. Public exposure increases data breach risk and may violate compliance controls.\n\n## Triage\n1. Find the affected bucket and message: `FROM logs-aws.s3* | WHERE message LIKE \"*PutBucketPolicy*\" OR message LIKE \"*PutBucketAcl*\" | WHERE message LIKE \"*public*\" | KEEP @timestamp, aws.s3.bucket.name, message, aws.s3access.requester | SORT @timestamp DESC | LIMIT 10`\n2. Cross-check CloudTrail S3 API events if present in the same index pattern\n3. Verify Block Public Access account and bucket settings in AWS console\n\n## Resolution\n- Revert unauthorized policy or ACL changes immediately if exposure was not intended\n- Enable S3 Block Public Access at account and bucket level\n- Restrict PutBucketPolicy and PutBucketAcl to break-glass IAM roles\n- Run IAM Access Analyzer or Macie to confirm no objects are publicly readable"
+    }
+  ]
+}

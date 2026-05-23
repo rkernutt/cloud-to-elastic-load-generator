@@ -1,0 +1,277 @@
+{
+  "group": "spark",
+  "description": "Alerting rules for Apache Spark on Amazon EMR — executor health, stage performance, shuffle, GC, and S3 access",
+  "rules": [
+    {
+      "id": "cloudloadgen-spark-executor-oom",
+      "name": "[CloudLoadGen] Spark — Executor Out of Memory",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "spark", "emr"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"term\":{\"log.level\":\"ERROR\"}},{\"term\":{\"spark.component_short\":\"Executor\"}},{\"match_phrase\":{\"message\":\"OutOfMemoryError\"}}]}}}",
+        "index": ["logs-aws.emr_logs*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": [
+        "Amazon EMR — Spark Driver & Executor Logs",
+        "Amazon EMR — Clusters & Job Performance"
+      ],
+      "investigationGuide": "# Executor Out of Memory\n\nA Spark executor threw `java.lang.OutOfMemoryError`. The container will be killed by YARN shortly.\n\n## Triage\n1. Check which executor and host: `FROM logs-aws.emr_logs* | WHERE spark.component_short == \"Executor\" AND log.level == \"ERROR\" | KEEP @timestamp, spark.executor.id, spark.task.host, message | SORT @timestamp DESC | LIMIT 10`\n2. Check GC pressure leading up to the OOM: `FROM logs-aws.emr_logs* | WHERE spark.gc.time_ms IS NOT NULL | STATS avg_gc = AVG(spark.gc.time_ms) BY ts = BUCKET(@timestamp, 50, ?_tstart, ?_tend)`\n3. Check if the same executor keeps failing (bad node vs bad data)\n\n## Resolution\n- Increase `spark.executor.memory` or `spark.executor.memoryOverhead`\n- Check for data skew — one partition may be much larger than others\n- Enable adaptive query execution: `spark.sql.adaptive.enabled=true`\n- If recurring on one node, check node health in YARN"
+    },
+    {
+      "id": "cloudloadgen-spark-executor-lost",
+      "name": "[CloudLoadGen] Spark — Executor Lost (Heartbeat Timeout)",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "spark", "emr"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [2],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"exists\":{\"field\":\"spark.executor.loss_reason\"}}]}}}",
+        "index": ["logs-aws.emr_logs*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": [
+        "Amazon EMR — Spark Driver & Executor Logs",
+        "Amazon EMR — Clusters & Job Performance"
+      ],
+      "investigationGuide": "# Executor Lost\n\nMultiple executors lost contact with the driver. This causes task re-computation and can cascade into job failure.\n\n## Triage\n1. Check which executors and hosts: `FROM logs-aws.emr_logs* | WHERE spark.executor.loss_reason IS NOT NULL | KEEP @timestamp, spark.executor.id, spark.executor.host, spark.executor.loss_reason | SORT @timestamp DESC | LIMIT 20`\n2. Check if losses cluster on one host (hardware issue) or are spread across the cluster (network/GC)\n3. Look for YARN container kill events (exit 137 = OOM killed, exit 143 = SIGTERM)\n\n## Resolution\n- If OOM-killed: increase executor memory or reduce parallelism\n- If network timeout: check `spark.network.timeout` and security group rules\n- If on Spot instances: check for Spot interruptions in CloudTrail\n- If on one host: consider decommissioning the node"
+    },
+    {
+      "id": "cloudloadgen-spark-stage-failure",
+      "name": "[CloudLoadGen] Spark — Stage Failure (Job Aborted)",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "spark", "emr"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"term\":{\"spark.component_short\":\"DAGScheduler\"}},{\"term\":{\"log.level\":\"ERROR\"}},{\"match_phrase\":{\"message\":\"Job aborted due to stage failure\"}}]}}}",
+        "index": ["logs-aws.emr_logs*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": [
+        "Amazon EMR — Spark Driver & Executor Logs",
+        "Amazon EMR — Clusters & Job Performance"
+      ],
+      "investigationGuide": "# Stage Failure — Job Aborted\n\nThe DAGScheduler aborted a job because a stage failed too many times. This is typically the final failure after multiple task retries.\n\n## Triage\n1. Find which stage failed: `FROM logs-aws.emr_logs* | WHERE spark.component_short == \"DAGScheduler\" AND log.level == \"ERROR\" | KEEP @timestamp, message | SORT @timestamp DESC | LIMIT 5`\n2. Check task-level failures: `FROM logs-aws.emr_logs* | WHERE spark.component_short == \"TaskSetManager\" AND log.level == \"WARN\" | KEEP @timestamp, spark.task.id, spark.task.executor_id, message | SORT @timestamp DESC | LIMIT 20`\n3. Look for the root cause in executor errors (OOM, FetchFailed, S3 access denied)\n\n## Resolution\n- If FetchFailed: likely a shuffle issue — increase `spark.shuffle.io.maxRetries`\n- If executor OOM: increase memory or check for skewed partitions\n- If S3 errors: check IAM roles and bucket policies\n- Consider enabling speculative execution: `spark.speculation=true`"
+    },
+    {
+      "id": "cloudloadgen-spark-shuffle-fetch-failure",
+      "name": "[CloudLoadGen] Spark — Shuffle Fetch Failures",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "spark", "emr"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [3],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"exists\":{\"field\":\"spark.shuffle.id\"}},{\"match_phrase\":{\"message\":\"FetchFailed\"}}]}}}",
+        "index": ["logs-aws.emr_logs*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": ["Amazon EMR — Spark Driver & Executor Logs"],
+      "investigationGuide": "# Shuffle Fetch Failures\n\nExecutors are failing to fetch shuffle blocks from other executors. This causes task retries and can lead to stage/job failure.\n\n## Triage\n1. Check shuffle volume: `FROM logs-aws.emr_logs* | WHERE spark.shuffle.write_bytes IS NOT NULL | STATS total_write = SUM(spark.shuffle.write_bytes), total_read = SUM(spark.shuffle.read_bytes)`\n2. Check if failures are from specific executors: `FROM logs-aws.emr_logs* | WHERE message LIKE \"*FetchFailed*\" | KEEP @timestamp, spark.task.executor_id, spark.shuffle.id, message | SORT @timestamp DESC | LIMIT 20`\n3. Look for executor losses around the same time\n\n## Resolution\n- Increase `spark.shuffle.io.maxRetries` and `spark.shuffle.io.retryWait`\n- If disk-bound: increase `spark.local.dir` to use multiple disks\n- If network-bound: check for network saturation between nodes\n- Reduce shuffle by repartitioning: `spark.sql.shuffle.partitions`\n- Enable external shuffle service: `spark.shuffle.service.enabled=true`"
+    },
+    {
+      "id": "cloudloadgen-spark-high-gc-pressure",
+      "name": "[CloudLoadGen] Spark — High GC Pressure",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "spark", "emr"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"range\":{\"spark.gc.time_ms\":{\"gte\":30000}}}]}}}",
+        "index": ["logs-aws.emr_logs*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": ["Amazon EMR — Spark Driver & Executor Logs"],
+      "investigationGuide": "# High GC Pressure\n\nSpark executors are spending over 30 seconds in garbage collection. This is an early warning before OOM failures.\n\n## Triage\n1. Check GC trends: `FROM logs-aws.emr_logs* | WHERE spark.gc.time_ms IS NOT NULL | STATS avg_gc = AVG(spark.gc.time_ms), max_gc = MAX(spark.gc.time_ms) BY ts = BUCKET(@timestamp, 50, ?_tstart, ?_tend)`\n2. Check memory usage on the Spark dashboard\n3. Look for which application is causing pressure: `FROM logs-aws.emr_logs* | WHERE spark.gc.time_ms > 20000 | STATS count = COUNT() BY spark.app.name | SORT count DESC`\n\n## Resolution\n- Increase `spark.executor.memory` (heap) and `spark.executor.memoryOverhead` (off-heap)\n- Switch to G1GC: `-XX:+UseG1GC` in `spark.executor.extraJavaOptions`\n- Reduce in-memory caching: `.unpersist()` DataFrames when no longer needed\n- Check for broadcast joins on large tables — disable with `spark.sql.autoBroadcastJoinThreshold=-1`"
+    },
+    {
+      "id": "cloudloadgen-spark-s3-access-denied",
+      "name": "[CloudLoadGen] Spark — S3 Access Denied",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "spark", "emr"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"term\":{\"spark.component_short\":\"S3AFileSystem\"}},{\"term\":{\"log.level\":\"ERROR\"}},{\"match_phrase\":{\"message\":\"Access Denied\"}}]}}}",
+        "index": ["logs-aws.emr_logs*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": [
+        "Amazon EMR — Spark Driver & Executor Logs",
+        "AWS S3 — Operations & Access Logs"
+      ],
+      "investigationGuide": "# S3 Access Denied\n\nSpark cannot read or write S3 data due to permissions. The job will fail if the data is required.\n\n## Triage\n1. Find the S3 path: `FROM logs-aws.emr_logs* | WHERE spark.component_short == \"S3AFileSystem\" AND log.level == \"ERROR\" | KEEP @timestamp, message | SORT @timestamp DESC | LIMIT 10`\n2. Check the EMR cluster's IAM instance profile and EC2 role\n3. Cross-reference with CloudTrail S3 events for the denied call\n\n## Resolution\n- Update the EMR instance profile IAM policy to include the S3 bucket\n- Check for S3 bucket policies that deny cross-account access\n- If using EMRFS: verify the EMRFS role mappings in security configuration\n- Check for S3 VPC endpoint policies if in a private subnet"
+    },
+    {
+      "id": "cloudloadgen-spark-slow-stages",
+      "name": "[CloudLoadGen] Spark — Abnormally Slow Stages",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "10m" },
+      "tags": ["cloudloadgen", "spark", "emr"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 30,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"exists\":{\"field\":\"spark.stage.duration_s\"}},{\"range\":{\"spark.stage.duration_s\":{\"gte\":300}}}]}}}",
+        "index": ["logs-aws.emr_logs*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": ["Amazon EMR — Spark Driver & Executor Logs"],
+      "investigationGuide": "# Abnormally Slow Stages\n\nA Spark stage took over 5 minutes to complete. This often indicates data skew, insufficient parallelism, or resource contention.\n\n## Triage\n1. Find which stages are slow: `FROM logs-aws.emr_logs* | WHERE spark.stage.duration_s > 300 | KEEP @timestamp, spark.stage.id, spark.stage.name, spark.stage.duration_s | SORT spark.stage.duration_s DESC | LIMIT 10`\n2. Check task duration spread — a few long tasks indicate skew: `FROM logs-aws.emr_logs* | WHERE spark.task.duration_ms IS NOT NULL | STATS p50 = PERCENTILE(spark.task.duration_ms, 50), p99 = PERCENTILE(spark.task.duration_ms, 99)`\n3. If p99 >> p50, you have data skew\n\n## Resolution\n- Enable AQE: `spark.sql.adaptive.enabled=true` and `spark.sql.adaptive.skewJoin.enabled=true`\n- Repartition skewed data: `.repartition(col(\"skewed_key\"))`\n- Add salt keys for skewed joins\n- Increase `spark.sql.shuffle.partitions` if stages have too few tasks"
+    },
+    {
+      "id": "cloudloadgen-spark-yarn-container-killed",
+      "name": "[CloudLoadGen] Spark — YARN Container Killed",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "spark", "emr"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [2],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"Exit status: 137\"}},{\"match_phrase\":{\"message\":\"Container killed on request\"}},{\"match_phrase\":{\"message\":\"Container from a bad node\"}}],\"minimum_should_match\":1}}]}}}",
+        "index": ["logs-aws.emr_logs*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": [
+        "Amazon EMR — Spark Driver & Executor Logs",
+        "Amazon EMR — Clusters & Job Performance"
+      ],
+      "investigationGuide": "# YARN Container Killed\n\nYARN is killing Spark executor containers. Exit code 137 means the container was OOM-killed by the OS; exit 143 means graceful termination.\n\n## Triage\n1. Check which containers and hosts: `FROM logs-aws.emr_logs* | WHERE message LIKE \"*Exit status*\" OR message LIKE \"*Container killed*\" | KEEP @timestamp, spark.executor.id, spark.executor.host, message | SORT @timestamp DESC | LIMIT 20`\n2. Check YARN memory utilization on the EMR dashboard\n3. Look at `yarn.nodemanager.resource.memory-mb` vs actual usage\n\n## Resolution\n- Exit 137 (OOM): increase `spark.executor.memoryOverhead` (YARN kills when total exceeds allocated)\n- Exit 143 (SIGTERM): usually from cluster scaling or preemption — check auto-scaling events\n- If on one host: the node may have hardware issues\n- Consider enabling `spark.dynamicAllocation.enabled=true` with proper min/max executors"
+    },
+    {
+      "id": "cloudloadgen-spark-application-failure",
+      "name": "[CloudLoadGen] Spark — Application Failed",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "5m" },
+      "tags": ["cloudloadgen", "spark", "emr"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"term\":{\"spark.event_type\":\"SparkListenerApplicationEnd\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"JobFailed\"}},{\"match_phrase\":{\"message\":\"FAILED\"}},{\"term\":{\"log.level\":\"ERROR\"}}],\"minimum_should_match\":1}}]}}}",
+        "index": ["logs-aws.emr_logs*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": [
+        "Amazon EMR — Spark Driver & Executor Logs",
+        "Amazon EMR — Clusters & Job Performance"
+      ],
+      "investigationGuide": "# Spark Application Failed\n\nA Spark application ended with a failure status. This is the top-level failure event.\n\n## Triage\n1. Find the application: `FROM logs-aws.emr_logs* | WHERE spark.event_type IS NOT NULL | KEEP @timestamp, spark.app.id, spark.app.name, spark.event_type, message | SORT @timestamp DESC | LIMIT 20`\n2. Work backwards through the failure chain: application → job → stage → task\n3. Check the Spark dashboard for the timeline of events\n\n## Resolution\n- Identify the root cause from the stage/task failure alerts\n- Check if this is a recurring failure (same app, same time of day)\n- If the app was killed externally: check EMR step status and YARN app status\n- Consider setting `spark.task.maxFailures` higher for transient issues"
+    },
+    {
+      "id": "cloudloadgen-spark-s3-slow-operations",
+      "name": "[CloudLoadGen] Spark — S3 Slow Operations",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": { "interval": "10m" },
+      "tags": ["cloudloadgen", "spark", "emr"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 30,
+        "timeWindowUnit": "m",
+        "threshold": [5],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"term\":{\"spark.component_short\":\"S3AFileSystem\"}},{\"term\":{\"log.level\":\"WARN\"}},{\"match_phrase\":{\"message\":\"slow operation\"}}]}}}",
+        "index": ["logs-aws.emr_logs*"],
+        "timeField": "@timestamp",
+        "aggType": "count"
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": [
+        "Amazon EMR — Spark Driver & Executor Logs",
+        "AWS S3 — Operations & Access Logs"
+      ],
+      "investigationGuide": "# S3 Slow Operations\n\nThe S3A filesystem client is logging slow operations. This can cause stages to take much longer than expected.\n\n## Triage\n1. Check which S3 paths are slow: `FROM logs-aws.emr_logs* | WHERE spark.component_short == \"S3AFileSystem\" AND log.level == \"WARN\" | KEEP @timestamp, message | SORT @timestamp DESC | LIMIT 20`\n2. Check if this correlates with high S3 request rates (throttling)\n3. Compare with S3 CloudWatch metrics for the bucket\n\n## Resolution\n- If throttled: add randomised prefixes to S3 keys to spread across partitions\n- Enable S3A fast upload: `fs.s3a.fast.upload=true`\n- Use committer v2: `spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version=2`\n- Consider S3 Express One Zone for latency-sensitive workloads"
+    }
+  ]
+}
