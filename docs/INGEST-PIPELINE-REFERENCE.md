@@ -4,7 +4,7 @@ This document lists pipeline IDs, target fields, index patterns, and example par
 
 The pattern is simple: one `json` processor on `message` → target field, with `ignore_failure: true` so plain-text messages are left unchanged.
 
-> **Easy install:** `npm run setup:aws-pipelines` installs all 100 pipelines interactively — no manual JSON needed. This document is a reference for understanding what each pipeline does and which fields are available after parsing.
+> **Easy install:** `npm run setup:aws-pipelines` installs all pipelines interactively — no manual JSON needed. This document is a reference for understanding what each pipeline does and which fields are available after parsing.
 
 ---
 
@@ -35,13 +35,14 @@ The pattern is simple: one `json` processor on `message` → target field, with 
 | CloudFormation    | `cloudformation-parse-json-message`   | `cloudformation.parsed`   | `logs-aws.cloudformation*`   |
 | SSM               | `ssm-parse-json-message`              | `ssm.parsed`              | `logs-aws.ssm*`              |
 | EMR               | `emr-parse-json-message`              | `emr.parsed`              | `logs-aws.emr*`              |
+| EMR Spark         | `logs-aws.emr_logs-default`           | `spark.*`                 | `logs-aws.emr_logs*`         |
 | SageMaker         | `sagemaker-parse-json-message`        | `sagemaker.parsed`        | `logs-aws.sagemaker*`        |
 
 ---
 
 ## Apply and attach (all pipelines)
 
-- **Easy way:** `npm run setup:aws-pipelines` — interactive CLI installs all 100 pipelines; skips already-installed ones.
+- **Easy way:** `npm run setup:aws-pipelines` — interactive CLI installs all pipelines; skips already-installed ones.
 
 - **Manual (API):**
   `PUT _ingest/pipeline/<pipeline-id>` with the body below (replace `<target_field>` with the value from the table).

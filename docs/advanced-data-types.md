@@ -27,7 +27,7 @@ flowchart LR
 | **IAM Privilege Escalation**  | `iam-privesc-chain` dashboard, **4** rules, ML jobs (MITRE-aligned IAM audit progression with stable attacker/target identity)                                             | [chained-events/iam-privilege-escalation-chain.md](./chained-events/iam-privilege-escalation-chain.md)            |
 | **Data Exfiltration**         | `data-exfil-chain` dashboard, **4** rules, ML jobs (storage and network evidence with MB-scale volumes)                                                                    | [chained-events/data-exfiltration-chain.md](./chained-events/data-exfiltration-chain.md)                          |
 
-Installing **all** rule files for one cloud gives you 17 rules (5 + 4 + 4 + 4). Use `npm run setup:alert-rules` (cross-cloud) or the web-UI Setup step.
+Installing **all** chained-scenario rule files for one cloud gives you 17 rules (5 + 4 + 4 + 4). Beyond these, **per-service domain rules** cover compute, database, networking, AI/ML, storage, messaging, DevOps, and security-ops — **243 rules total** across all clouds (AWS 115, GCP 62, Azure 66). Use `npm run setup:alert-rules` (cross-cloud) or the web-UI Setup step.
 
 Each rule ships with **per-rule context** wired in two ways:
 

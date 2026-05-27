@@ -51,9 +51,9 @@ Catalog size today:
 
 | Cloud | Services | Pipelines | Dashboards | ML jobs | Traces | Alerting rules |
 | ----- | -------- | --------- | ---------- | ------- | ------ | -------------- |
-| AWS   | 246      | 188       | 236        | 384     | 56     | 18             |
-| GCP   | 139      | 149       | 136        | 152     | 59     | 17             |
-| Azure | 143      | 121       | 130        | 154     | 51     | 17             |
+| AWS   | 246      | 188       | 237        | 421     | 56     | 115            |
+| GCP   | 139      | 149       | 136        | 182     | 59     | 62             |
+| Azure | 143      | 121       | 130        | 186     | 51     | 66             |
 
 Trace generators produce APM transactions and spans for the Elastic **Service Map**; the remaining services emit logs and metrics only — matching real-world instrumentation patterns where not every cloud service is OTel-instrumented.
 
@@ -65,7 +65,7 @@ Cloud Loadgen for Elastic also produces multi-service **chained scenarios** with
 
 The Setup wizard also installs **SLO definitions** (availability and data-pipeline SLIs per cloud) via the Kibana Observability SLO API, and optional **Agent Builder** tool definitions for AI-assisted investigation.
 
-The **17 chained-scenario alerting rules per cloud** (51 total) ship with two on-call extras: each rule's `artifacts.dashboards` field links **the chain overview plus the per-service dashboards** that match the rule's primary dataset (Stack 8.19 / 9.1+), and **per-rule investigation guides** in [docs/runbooks/](docs/runbooks/) cover triage, ES|QL queries, containment, and escalation criteria. Both surface from the alert's "Related dashboards" tab and the optional alert-enrichment workflow's email body.
+Alerting rules ship in two tiers. **51 chained-scenario rules** (17 per cloud) cover the four multi-service chains. **192 per-service domain rules** cover compute, database, networking, AI/ML, storage, messaging, DevOps, and security-ops — **243 rules total** across AWS (115), GCP (62), and Azure (66). Each rule's `artifacts.dashboards` field links **the chain overview plus per-service dashboards** that match the rule's primary dataset (Stack 8.19 / 9.1+), and **per-rule investigation guides** in [docs/runbooks/](docs/runbooks/) cover triage, ES|QL queries, containment, and escalation criteria. Both surface from the alert's "Related dashboards" tab and the optional alert-enrichment workflow's email body.
 
 ## ML training mode
 

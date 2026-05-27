@@ -2,7 +2,7 @@
 
 Practical "what to do when this alert fires" guides for the alerting rules that **Cloud Loadgen for Elastic** installs. They're designed for the on-call engineer who lands on an Alert Details page and needs to triage in under five minutes.
 
-The runbooks are **cloud-agnostic** in structure and call out vendor-specific datasets/queries inline (AWS, GCP, Azure). They cover all 51 rules across the four chained scenarios and apply to ESS, Serverless, and self-hosted deployments.
+The runbooks are **cloud-agnostic** in structure and call out vendor-specific datasets/queries inline (AWS, GCP, Azure). They cover the 51 chained-scenario rules across the four chains and apply to ESS, Serverless, and self-hosted deployments. An additional **192 per-service domain rules** (compute, database, networking, AI/ML, storage, messaging, DevOps, security-ops) ship alongside the chains — **243 rules total** — each with its own investigation guide and linked dashboards.
 
 ## Runbooks by chain
 

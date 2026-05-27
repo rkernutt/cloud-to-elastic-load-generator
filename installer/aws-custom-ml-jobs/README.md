@@ -1,6 +1,6 @@
 # Installer 4 — ML Anomaly Detection Jobs
 
-Interactive CLI that installs **Elasticsearch ML anomaly detection jobs** for AWS services across multiple service groups (384 jobs across 32 groups for AWS alone). Jobs are created via the Elasticsearch ML API directly — no Kibana required.
+Interactive CLI that installs **Elasticsearch ML anomaly detection jobs** for AWS services across multiple service groups (421 jobs across 33 groups for AWS alone). Jobs are created via the Elasticsearch ML API directly — no Kibana required.
 
 ---
 
@@ -55,7 +55,7 @@ The installer will prompt you for:
 | 8   | `databases-extended`  | Extended databases — DynamoDB, Redshift, OpenSearch                                                                                                                                                                                                                | 5    |
 | 9   | `streaming`           | Streaming & messaging — Kinesis, SQS, Firehose, Kinesis Analytics, MSK, SNS (see `streaming-jobs.json`)                                                                                                                                                            | 12   |
 | 10  | `messaging`           | Messaging & event bus — SNS, MSK, EventBridge, Step Functions                                                                                                                                                                                                      | 5    |
-| 11  | `analytics`           | Analytics — Glue, Athena, EMR                                                                                                                                                                                                                                      | 5    |
+| 11  | `analytics`           | Analytics — Glue, Athena, EMR, Spark                                                                                                                                                                                                                               | 10   |
 | 12  | `aiml`                | AI & ML services — Bedrock                                                                                                                                                                                                                                         | 4    |
 | 13  | `storage`             | Storage — S3                                                                                                                                                                                                                                                       | 4    |
 | 14  | `management`          | Management & governance — CloudWatch, CloudFormation, Billing, SSM                                                                                                                                                                                                 | 4    |
@@ -67,6 +67,17 @@ The installer will prompt you for:
 | 20  | `siem`                | SIEM anomaly detection — CloudTrail source IP anomalies, root account activity, IAM creation spikes, Route53 DNS exfiltration detection                                                                                                                            | 4    |
 | 21  | `new-services`        | v10 services — Kendra, VPC Lattice, FIS, Clean Rooms, DataZone, Security IR, CloudHSM, Managed Grafana, Supply Chain, IoT TwinMaker, IoT FleetWise, CodeCatalyst, Entity Resolution, Data Exchange, Device Farm, MSK Connect, A2I, Deadline Cloud, HealthLake, ARC | 21   |
 | 22  | `v11-services`        | v11 services — App Mesh, Client VPN, Cloud Map, Outposts, Audit Manager, Verified Permissions, Payment Cryptography, DAX, Proton, AppFabric, B2B Interchange, AppConfig, Elastic DRS, License Manager, Chatbot, Chime SDK Voice, Artifact                          | 17   |
+| 23  | `data-pipeline`       | Data & Analytics Pipeline chain — cross-service failure, null-data, slow-run anomalies                                                                                                                                                                             | 4    |
+| 24  | `data-exfil-chain`    | Data Exfiltration Chain — egress volume, mass object access, threat-detector signals                                                                                                                                                                               | 3    |
+| 25  | `iam-privesc-chain`   | IAM Privilege Escalation Chain — key creation, admin attach, AssumeRole patterns                                                                                                                                                                                   | 3    |
+| 26  | `security-chain`      | Security Finding Chain — finding burst, multi-stage correlation, compliance failure                                                                                                                                                                                | 4    |
+| 27  | `nlb`                 | NLB — Network Load Balancer connection and error anomalies                                                                                                                                                                                                         | 2    |
+| 28  | `extended-services`   | Extended service coverage — broader anomaly detection across additional AWS services                                                                                                                                                                               | 32   |
+| 29  | `gap-coverage`        | Gap coverage — ML jobs for services that previously lacked anomaly detection                                                                                                                                                                                       | 152  |
+| 30  | `minimal-coverage`    | Minimal coverage — lightweight jobs for long-tail services                                                                                                                                                                                                         | 30   |
+| 31  | `edge-ai-supplement`  | Edge & AI supplement — IoT Greengrass, Panorama, Lookout, Monitron, Lex, Textract                                                                                                                                                                                  | 6    |
+| 32  | `platform-wide`       | Platform-wide coverage — Control Tower, Organizations, Service Catalog, Resource Groups, Trusted Advisor                                                                                                                                                           | 15   |
+| 33  | `data-ml-operations`  | Data & ML operations — Data Pipeline, SageMaker Pipelines, Lake Formation, Glue DataBrew, MWAA                                                                                                                                                                     | 20   |
 
 You can install individual groups or all groups at once.
 
@@ -183,15 +194,20 @@ Also includes Kinesis Data Analytics, Firehose, and SNS jobs — see the JSON fi
 | `aws-eventbridge-failed-invocations`        | EventBridge    | high_mean by rule          | Unusual EventBridge target invocation failure spikes             |
 | `aws-stepfunctions-execution-failure-spike` | Step Functions | high_mean by state machine | Unusual Step Functions execution failure rates per state machine |
 
-### analytics (5 jobs)
+### analytics (10 jobs)
 
-| Job ID                              | Service | Detector               | What it detects                                                  |
-| ----------------------------------- | ------- | ---------------------- | ---------------------------------------------------------------- |
-| `aws-glue-job-duration-anomaly`     | Glue    | high_mean by job       | Unusual ETL job durations per Glue job (silently getting slower) |
-| `aws-glue-failure-spike`            | Glue    | high_count by job      | Spikes in Glue job failures                                      |
-| `aws-athena-data-scanned-spike`     | Athena  | high_sum by workgroup  | Unusual data scan volumes (primary cost anomaly signal)          |
-| `aws-athena-query-duration-anomaly` | Athena  | high_mean by workgroup | Unusual Athena query execution times (performance regression)    |
-| `aws-emr-task-failure-spike`        | EMR     | high_mean by cluster   | Unusual task failure rates in EMR clusters                       |
+| Job ID                              | Service   | Detector               | What it detects                                                          |
+| ----------------------------------- | --------- | ---------------------- | ------------------------------------------------------------------------ |
+| `aws-glue-job-duration-anomaly`     | Glue      | high_mean by job       | Unusual ETL job durations per Glue job (silently getting slower)         |
+| `aws-glue-failure-spike`            | Glue      | high_count by job      | Spikes in Glue job failures                                              |
+| `aws-athena-data-scanned-spike`     | Athena    | high_sum by workgroup  | Unusual data scan volumes (primary cost anomaly signal)                  |
+| `aws-athena-query-duration-anomaly` | Athena    | high_mean by workgroup | Unusual Athena query execution times (performance regression)            |
+| `aws-emr-task-failure-spike`        | EMR       | high_mean by cluster   | Unusual task failure rates in EMR clusters                               |
+| `aws-spark-stage-duration-anomaly`  | EMR Spark | high_mean by app       | Unusually long Spark stage durations (data skew, OOM)                    |
+| `aws-spark-executor-loss-rate`      | EMR Spark | high_count by app      | Unusual executor loss rates (node failures, preemption)                  |
+| `aws-spark-gc-pressure`             | EMR Spark | high_mean by executor  | Unusual GC pause time indicating memory pressure                         |
+| `aws-spark-shuffle-volume-anomaly`  | EMR Spark | high_sum by app        | Unusual shuffle data volume (partition skew, wide transformations)       |
+| `aws-spark-task-duration-anomaly`   | EMR Spark | high_mean by stage     | Unusually long task durations within a Spark stage (straggler detection) |
 
 ### aiml (4 jobs)
 
@@ -333,7 +349,9 @@ Available job groups:
    18. iot               (4 jobs)  — IoT anomaly detection — IoT Core connections, message volume, rule errors
    19. media             (4 jobs)  — Media & end-user computing — MediaConvert, Connect, WorkSpaces
    20. siem              (4 jobs)  — SIEM anomaly detection — CloudTrail source IP anomalies, root account activity, IAM creation spikes, Route53 DNS exfiltration
-   21. all               (install every group)
+   ...
+   33. data-ml-operations (20 jobs) — Data & ML operations — Data Pipeline, SageMaker Pipelines, Lake Formation, Glue DataBrew, MWAA
+   34. all               (install every group)
 
 Enter number(s) comma-separated, or "all":
 > 1,3
