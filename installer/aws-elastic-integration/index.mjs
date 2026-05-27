@@ -103,7 +103,7 @@ function validateApiKey(raw) {
 // TLS
 // ---------------------------------------------------------------------------
 
-async function maybeSKipTls(prompt, deploymentType) {
+async function maybeSkipTls(prompt, deploymentType) {
   if (deploymentType !== "self-managed") return;
 
   const answer = await prompt(
@@ -138,7 +138,7 @@ async function main() {
     console.log("");
 
     // -- TLS (self-managed only) -----------------------------------------------
-    await maybeSKipTls(prompt, deploymentType);
+    await maybeSkipTls(prompt, deploymentType);
 
     // -- Kibana URL ------------------------------------------------------------
     while (true) {

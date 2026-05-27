@@ -5,8 +5,8 @@
 /** A single ECS-shaped log or APM document returned by a log generator. */
 export type EcsDocument = Record<string, unknown>;
 
-/** Signature for all log generators: returns one document. */
-export type LogGenerator = (ts: string, er: number) => EcsDocument;
+/** Signature for log generators: returns one document or a correlated burst. */
+export type LogGenerator = (ts: string, er: number) => EcsDocument | EcsDocument[];
 
 /** Signature for metric generators: returns an array of per-dimension documents. */
 export type MetricGenerator = (ts: string, er: number) => EcsDocument[];

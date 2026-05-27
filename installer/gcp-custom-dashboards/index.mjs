@@ -78,7 +78,7 @@ function getUrlExample(deploymentType) {
   return "https://my-deployment.kb.us-east-1.aws.elastic-cloud.com:9243";
 }
 
-async function maybeSKipTls(rl, deploymentType) {
+async function maybeSkipTls(rl, deploymentType) {
   if (deploymentType !== "self-managed") return;
 
   const answer = await prompt(
@@ -418,7 +418,7 @@ async function main() {
   console.log("");
 
   // 2. TLS (self-managed only)
-  await maybeSKipTls(rl, deploymentType);
+  await maybeSkipTls(rl, deploymentType);
 
   // 3. Kibana URL
   const kibanaUrl = await prompt(rl, `Kibana URL (e.g. ${getUrlExample(deploymentType)}):\n> `);

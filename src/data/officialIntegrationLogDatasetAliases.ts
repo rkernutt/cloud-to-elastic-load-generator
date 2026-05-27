@@ -27,7 +27,6 @@ export const OFFICIAL_LOG_DATASET_ALIASES: Record<
 
   azure: {
     /** Synthetic slug vs Fleet dataset naming */
-    "azure.activity_log": "azure.activitylogs",
     "azure.firewall": "azure.firewall_logs",
     "azure.spring_apps": "azure.springcloudlogs",
     "azure.event_hubs": "azure.eventhub",

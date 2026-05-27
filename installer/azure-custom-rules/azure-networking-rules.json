@@ -199,6 +199,7 @@
       },
       "actions": [],
       "notify_when": "onActiveAlert",
+      "relatedDashboards": ["Azure Network Security Groups — overview"],
       "investigationGuide": "# NSG Deny Spike\n\nNetwork Security Group flow logs show a spike in denied connections. High deny volume may reflect misconfigured rules, port scans, or intentional blocking of unexpected traffic.\n\n## Triage\n1. Count denies by NSG: `FROM logs-azure.network_security_groups* | WHERE message LIKE \"*denied*\" OR message LIKE \"*Denied*\" OR event.action LIKE \"*Deny*\" | STATS denies = COUNT(*) BY azure.network_security_groups.nsg_name | SORT denies DESC | LIMIT 15`\n2. Top denied ports and protocols: `FROM logs-azure.network_security_groups* | WHERE message LIKE \"*denied*\" | STATS denies = COUNT(*) BY destination.port, network.protocol | SORT denies DESC | LIMIT 20`\n3. Deny trend over time: `FROM logs-azure.network_security_groups* | STATS denies = SUM(CASE(message LIKE \"*denied*\" OR message LIKE \"*Denied*\", 1, 0)) BY ts = BUCKET(@timestamp, 15, ?_tstart, ?_tend) | SORT ts`\n\n## Resolution\n- Identify whether denies map to expected security rules or accidental implicit deny after a change\n- Fix application or service misconfiguration sending traffic to blocked ports\n- Tighten source IP restrictions if denies indicate scanning from external ranges\n- Document baseline deny rates after NSG or UDR changes for future comparison"
     },
     {
@@ -223,6 +224,7 @@
       },
       "actions": [],
       "notify_when": "onActiveAlert",
+      "relatedDashboards": ["Azure Network Security Groups — overview"],
       "investigationGuide": "# NSG Suspicious Inbound\n\nNSG flow logs show inbound allows from Internet-facing paths to non-standard ports. Exposing administrative or database ports to the internet increases compromise risk.\n\n## Triage\n1. List suspicious allows: `FROM logs-azure.network_security_groups* | WHERE message LIKE \"*Internet*\" AND (message LIKE \"*allowed*\" OR event.action == \"Allow\") AND destination.port NOT IN (80, 443) | KEEP @timestamp, azure.network_security_groups.nsg_name, source.ip, destination.ip, destination.port, message | SORT @timestamp DESC | LIMIT 25`\n2. Rank by destination port: `FROM logs-azure.network_security_groups* | WHERE message LIKE \"*Internet*\" AND message LIKE \"*allowed*\" | STATS allows = COUNT(*) BY destination.port | SORT allows DESC | LIMIT 15`\n3. Correlate with deny spikes on the same NSG: `FROM logs-azure.network_security_groups* | STATS allows = SUM(CASE(message LIKE \"*allowed*\", 1, 0)), denies = SUM(CASE(message LIKE \"*denied*\", 1, 0)) BY azure.network_security_groups.nsg_name | SORT denies DESC | LIMIT 10`\n\n## Resolution\n- Remove or restrict NSG rules that allow Internet inbound on admin or data ports (22, 3389, 1433, etc.)\n- Prefer Azure Bastion, VPN, or Private Link instead of direct internet exposure\n- Validate change tickets or IaC pipelines if rules were modified recently\n- Escalate to security if allows coincide with Defender alerts or Sentinel incidents"
     }
   ]

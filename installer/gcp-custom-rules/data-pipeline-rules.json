@@ -26,7 +26,10 @@
       },
       "actions": [],
       "notify_when": "onActiveAlert",
-      "relatedDashboards": ["GCP Data & Analytics Pipeline — overview", "GCP Composer — overview"],
+      "relatedDashboards": [
+        "GCP Data & Analytics Pipeline — overview",
+        "GCP Composer — Airflow DAGs & Scheduler"
+      ],
       "investigationGuide": "# High Failure Rate\n\nThe orchestrator is logging more failures than normal.\n\n## Triage\n1. Are failures on one DAG? Run: `FROM logs-gcp.composer-* | WHERE event.outcome == \"failure\" | STATS failures = COUNT(*) BY gcp.composer.dag_id | SORT failures DESC | LIMIT 10`\n2. Check linked dashboard for the spike shape\n3. Check if Dataproc/Spark or GCS rules also fired\n\n## Escalate when\n- Multiple DAGs failing\n- Failures still rising after 15 min\n- SLA-bound data affected"
     },
     {
@@ -103,8 +106,8 @@
         "threshold": [1],
         "thresholdComparator": ">=",
         "size": 100,
-        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.cloud_storage\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"gcp.cloud_storage.object_name\":{\"value\":\"*%*\"}}},{\"bool\":{\"must_not\":{\"wildcard\":{\"gcp.cloud_storage.object_name\":{\"value\":\"*.avro\"}}}}}]}}]}}}",
-        "index": ["logs-gcp.cloud_storage*"],
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.gcs\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"gcp.gcs.object_name\":{\"value\":\"*%*\"}}},{\"bool\":{\"must_not\":{\"wildcard\":{\"gcp.gcs.object_name\":{\"value\":\"*.avro\"}}}}}]}}]}}}",
+        "index": ["logs-gcp.gcs*"],
         "timeField": "@timestamp",
         "aggType": "count"
       },
@@ -140,7 +143,10 @@
       },
       "actions": [],
       "notify_when": "onActiveAlert",
-      "relatedDashboards": ["GCP Data & Analytics Pipeline — overview", "GCP Composer — overview"],
+      "relatedDashboards": [
+        "GCP Data & Analytics Pipeline — overview",
+        "GCP Composer — Airflow DAGs & Scheduler"
+      ],
       "investigationGuide": "# Slow Pipeline Run (>60s)\n\nA DAG exceeded its informal SLA.\n\n## Triage\n1. Compare to baseline: `FROM logs-gcp.composer-* | WHERE event.action == \"dag_completed\" AND @timestamp > NOW() - 7d | STATS p50 = PERCENTILE(gcp.composer.duration_ms, 50), p95 = PERCENTILE(gcp.composer.duration_ms, 95) BY gcp.composer.dag_id | WHERE p95 > 30000 | SORT p95 DESC`\n2. If within 2x of p95, likely noise\n3. Check Dataproc errors and input volume\n\n## Escalate when\n- SLA-bound DAG slow for two consecutive runs\n- Correlated with executor errors"
     }
   ]

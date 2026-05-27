@@ -123,7 +123,7 @@ const AZURE_ELASTIC_DATASET_MAP: Record<string, string> = {
   "managed-grafana": "azure.managed_grafana",
   "managed-prometheus": "azure.managed_prometheus",
   "application-insights": "azure.application_insights",
-  "activity-log": "azure.activity_log",
+  "activity-log": "azure.activitylogs",
   policy: "azure.policy",
   advisor: "azure.advisor",
   "cost-management": "azure.cost_management",
@@ -160,7 +160,7 @@ const AZURE_ELASTIC_DATASET_MAP: Record<string, string> = {
   "azure-security-chain": "azure.defender",
   "azure-cspm": "cloud_security_posture.findings",
   "azure-kspm": "cloud_security_posture.findings",
-  "azure-iam-privesc-chain": "azure.activity_log",
+  "azure-iam-privesc-chain": "azure.activitylogs",
   "azure-data-exfil-chain": "azure.defender",
   "azure-data-pipeline-chain": "azure.data_factory",
   // Cross-cloud ITSM

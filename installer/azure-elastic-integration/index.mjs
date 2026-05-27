@@ -83,7 +83,7 @@ function validateApiKey(raw) {
   return { valid: true };
 }
 
-async function maybeSKipTls(prompt, deploymentType) {
+async function maybeSkipTls(prompt, deploymentType) {
   if (deploymentType !== "self-managed") return;
 
   const answer = await prompt(
@@ -112,7 +112,7 @@ async function main() {
     const deploymentType = await promptDeploymentType(prompt);
     console.log("");
 
-    await maybeSKipTls(prompt, deploymentType);
+    await maybeSkipTls(prompt, deploymentType);
 
     while (true) {
       const raw = await prompt(`Kibana URL (e.g. ${getUrlExample(deploymentType)}): `);

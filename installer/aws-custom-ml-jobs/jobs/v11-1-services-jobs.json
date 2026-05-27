@@ -6,7 +6,6 @@
       "id": "aws-wavelength-latency-anomaly",
       "description": "Detects anomalous edge latency spikes in AWS Wavelength zones (expected <10ms; spikes indicate carrier network issues)",
       "job": {
-        "job_id": "aws-wavelength-latency-anomaly",
         "description": "Detects anomalous edge latency spikes in Wavelength zones",
         "groups": ["aws", "aws-ml-edge-ai-supplement", "cloudloadgen"],
         "analysis_config": {
@@ -24,17 +23,16 @@
         "data_description": {
           "time_field": "@timestamp"
         },
-        "model_plot_config": {
-          "enabled": false
-        },
         "analysis_limits": {
           "model_memory_limit": "32mb"
         },
-        "allow_lazy_open": true
+        "allow_lazy_open": true,
+        "custom_settings": {
+          "created_by": "cloudloadgen",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
-        "datafeed_id": "datafeed-aws-wavelength-latency-anomaly",
-        "job_id": "aws-wavelength-latency-anomaly",
         "indices": ["logs-aws.wavelength*"],
         "query": {
           "bool": {
@@ -47,15 +45,19 @@
             ]
           }
         },
-        "scroll_size": 1000,
-        "query_delay": "60s"
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-wavelength-failure-spike",
       "description": "Detects spikes in AWS Wavelength zone failures (InsufficientCapacity, BandwidthLimitExceeded) by carrier",
       "job": {
-        "job_id": "aws-wavelength-failure-spike",
         "description": "Detects spikes in Wavelength zone failures by carrier",
         "groups": ["aws", "aws-ml-edge-ai-supplement", "cloudloadgen"],
         "analysis_config": {
@@ -72,17 +74,16 @@
         "data_description": {
           "time_field": "@timestamp"
         },
-        "model_plot_config": {
-          "enabled": false
-        },
         "analysis_limits": {
           "model_memory_limit": "16mb"
         },
-        "allow_lazy_open": true
+        "allow_lazy_open": true,
+        "custom_settings": {
+          "created_by": "cloudloadgen",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
-        "datafeed_id": "datafeed-aws-wavelength-failure-spike",
-        "job_id": "aws-wavelength-failure-spike",
         "indices": ["logs-aws.wavelength*"],
         "query": {
           "bool": {
@@ -95,15 +96,19 @@
             ]
           }
         },
-        "scroll_size": 1000,
-        "query_delay": "60s"
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-nova-latency-spike",
       "description": "Detects invocation latency spikes per Amazon Nova model tier (micro/lite/pro/premier)",
       "job": {
-        "job_id": "aws-nova-latency-spike",
         "description": "Detects invocation latency spikes per Nova model tier",
         "groups": ["aws", "aws-ml-edge-ai-supplement", "cloudloadgen"],
         "analysis_config": {
@@ -121,17 +126,16 @@
         "data_description": {
           "time_field": "@timestamp"
         },
-        "model_plot_config": {
-          "enabled": false
-        },
         "analysis_limits": {
           "model_memory_limit": "32mb"
         },
-        "allow_lazy_open": true
+        "allow_lazy_open": true,
+        "custom_settings": {
+          "created_by": "cloudloadgen",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
-        "datafeed_id": "datafeed-aws-nova-latency-spike",
-        "job_id": "aws-nova-latency-spike",
         "indices": ["logs-aws.nova*"],
         "query": {
           "bool": {
@@ -144,15 +148,19 @@
             ]
           }
         },
-        "scroll_size": 1000,
-        "query_delay": "60s"
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-nova-throttle-spike",
       "description": "Detects ThrottlingException spikes for Amazon Nova invocations indicating capacity pressure",
       "job": {
-        "job_id": "aws-nova-throttle-spike",
         "description": "Detects ThrottlingException spikes for Nova invocations",
         "groups": ["aws", "aws-ml-edge-ai-supplement", "cloudloadgen"],
         "analysis_config": {
@@ -168,17 +176,16 @@
         "data_description": {
           "time_field": "@timestamp"
         },
-        "model_plot_config": {
-          "enabled": false
-        },
         "analysis_limits": {
           "model_memory_limit": "16mb"
         },
-        "allow_lazy_open": true
+        "allow_lazy_open": true,
+        "custom_settings": {
+          "created_by": "cloudloadgen",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
-        "datafeed_id": "datafeed-aws-nova-throttle-spike",
-        "job_id": "aws-nova-throttle-spike",
         "indices": ["logs-aws.nova*"],
         "query": {
           "bool": {
@@ -191,15 +198,19 @@
             ]
           }
         },
-        "scroll_size": 1000,
-        "query_delay": "60s"
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-lookoutvision-anomaly-rate-spike",
       "description": "Detects unusual spikes in defect detection rate per project (may indicate camera/process issues)",
       "job": {
-        "job_id": "aws-lookoutvision-anomaly-rate-spike",
         "description": "Detects unusual spikes in defect detection rate per project",
         "groups": ["aws", "aws-ml-edge-ai-supplement", "cloudloadgen"],
         "analysis_config": {
@@ -220,17 +231,16 @@
         "data_description": {
           "time_field": "@timestamp"
         },
-        "model_plot_config": {
-          "enabled": false
-        },
         "analysis_limits": {
           "model_memory_limit": "32mb"
         },
-        "allow_lazy_open": true
+        "allow_lazy_open": true,
+        "custom_settings": {
+          "created_by": "cloudloadgen",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
-        "datafeed_id": "datafeed-aws-lookoutvision-anomaly-rate-spike",
-        "job_id": "aws-lookoutvision-anomaly-rate-spike",
         "indices": ["logs-aws.lookoutvision*"],
         "query": {
           "bool": {
@@ -243,15 +253,19 @@
             ]
           }
         },
-        "scroll_size": 1000,
-        "query_delay": "60s"
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
       "id": "aws-lookoutvision-confidence-drop",
       "description": "Detects drops in model confidence that indicate model drift or image quality degradation",
       "job": {
-        "job_id": "aws-lookoutvision-confidence-drop",
         "description": "Detects drops in model confidence per Lookout for Vision project",
         "groups": ["aws", "aws-ml-edge-ai-supplement", "cloudloadgen"],
         "analysis_config": {
@@ -273,17 +287,16 @@
         "data_description": {
           "time_field": "@timestamp"
         },
-        "model_plot_config": {
-          "enabled": false
-        },
         "analysis_limits": {
           "model_memory_limit": "32mb"
         },
-        "allow_lazy_open": true
+        "allow_lazy_open": true,
+        "custom_settings": {
+          "created_by": "cloudloadgen",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
-        "datafeed_id": "datafeed-aws-lookoutvision-confidence-drop",
-        "job_id": "aws-lookoutvision-confidence-drop",
         "indices": ["logs-aws.lookoutvision*"],
         "query": {
           "bool": {
@@ -296,8 +309,13 @@
             ]
           }
         },
-        "scroll_size": 1000,
-        "query_delay": "60s"
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "60s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

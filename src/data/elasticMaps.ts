@@ -22,7 +22,7 @@ const ELASTIC_DATASET_MAP = {
   route53: "aws.route53_public_logs",
   emr: "aws.emr_logs",
   ec2: "aws.ec2_logs",
-  ecs: "aws.ecs_metrics",
+  ecs: "aws.ecs",
   config: "aws.config",
   inspector: "aws.inspector",
   dynamodb: "aws.dynamodb",

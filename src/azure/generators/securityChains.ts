@@ -130,7 +130,7 @@ export function generateAzureSecurityFindingChain(ts: string, _er: number): EcsD
   const activity: EcsDocument = {
     ...attackerIdentity,
     "@timestamp": activityTs,
-    __dataset: "azure.activity_log",
+    __dataset: "azure.activitylogs",
     labels: chainLabels,
     cloud: azureCloud(region, subscription, "Microsoft.Resources/subscriptions"),
     azure: {
@@ -1035,7 +1035,7 @@ export function generateAzureIamPrivEscChain(ts: string, _er: number): EcsDocume
     user: { name: userPrincipalName, email: userPrincipalName },
     user_agent: { original: privEscUserAgent },
     "@timestamp": roleTs,
-    __dataset: "azure.activity_log",
+    __dataset: "azure.activitylogs",
     labels: sessionLabels,
     cloud: azureCloud(region, subscription, "Microsoft.Authorization"),
     azure: {
@@ -1071,7 +1071,7 @@ export function generateAzureIamPrivEscChain(ts: string, _er: number): EcsDocume
     user: { name: userPrincipalName, email: userPrincipalName },
     user_agent: { original: privEscUserAgent },
     "@timestamp": enumTs,
-    __dataset: "azure.activity_log",
+    __dataset: "azure.activitylogs",
     labels: sessionLabels,
     cloud: azureCloud(region, subscription, "Microsoft.Resources/subscriptions"),
     azure: {

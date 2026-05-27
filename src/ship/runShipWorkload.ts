@@ -494,8 +494,9 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
           if (Array.isArray(result)) {
             for (const d of result) {
               if (abortRef.current) break invocationLoop;
-              stripNulls(d as LooseDoc);
-              await pushPreparedDoc(d as LooseDoc);
+              const enriched = enrichDoc(d as LooseDoc, svc, src, eventType);
+              stripNulls(enriched);
+              await pushPreparedDoc(enriched as LooseDoc);
             }
           } else {
             const enriched = enrichDoc(result as LooseDoc, svc, src, eventType);

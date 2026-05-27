@@ -1511,64 +1511,6 @@
       }
     },
     {
-      "id": "azure-data-factory-failure-spike",
-      "description": "Unusual spike in failure events for azure.data_factory (load generator baseline)",
-      "job": {
-        "description": "Unusual spike in failure events for azure.data_factory",
-        "groups": ["azure", "minimal-coverage", "cloudloadgen"],
-        "analysis_config": {
-          "bucket_span": "15m",
-          "detectors": [
-            {
-              "detector_description": "high_count partitionfield=cloud.region azure.data_factory",
-              "function": "high_count",
-              "partition_field_name": "cloud.region",
-              "detector_index": 0
-            }
-          ],
-          "influencers": ["cloud.region", "event.outcome"]
-        },
-        "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
-        "custom_settings": {
-          "created_by": "azure-load-generator-minimal-coverage",
-          "tags": ["cloudloadgen"]
-        }
-      },
-      "datafeed": {
-        "indices": ["logs-azure.*"],
-        "max_empty_searches": 10,
-        "query": {
-          "bool": {
-            "filter": [
-              {
-                "term": {
-                  "event.dataset": "azure.data_factory"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
-            ]
-          }
-        },
-        "chunking_config": {
-          "mode": "auto"
-        },
-        "query_delay": "60s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
-      }
-    },
-    {
       "id": "azure-data-lake-storage-failure-spike",
       "description": "Unusual spike in failure events for azure.data_lake_storage (load generator baseline)",
       "job": {

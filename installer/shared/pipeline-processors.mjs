@@ -105,6 +105,18 @@ const GROUP_ECS = {
   "data-ai": { kind: "event", category: ["database"], type: ["info"] },
   "serverless-apps": { kind: "event", category: ["process"], type: ["info"] },
   platform: { kind: "event", category: ["configuration"], type: ["info"] },
+  "resilience-migration": {
+    kind: "event",
+    category: ["configuration"],
+    type: ["info"],
+  },
+  "identity-security": {
+    kind: "event",
+    category: ["iam"],
+    type: ["info"],
+  },
+  "iot-media": { kind: "event", category: ["host"], type: ["info"] },
+  ai: { kind: "event", category: ["process"], type: ["info"] },
   misc: { kind: "event", category: ["process"], type: ["info"] },
 };
 

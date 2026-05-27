@@ -181,7 +181,7 @@
       "notify_when": "onActiveAlert",
       "relatedDashboards": [
         "Data & Analytics Pipeline — overview",
-        "AWS Glue — ETL Jobs & Crawlers"
+        "AWS Glue — Jobs & Performance"
       ],
       "investigationGuide": "# Glue Schema Drift Detected\n\nThe Glue Crawler detected schema changes (columns added, removed, or type-changed) in a catalogued table. Downstream Athena queries may fail.\n\n## Triage\n1. Check drift details: `FROM logs-aws.glue* | WHERE aws.glue.schema_change_type IS NOT NULL AND @timestamp > NOW() - 1h | KEEP @timestamp, aws.glue.crawler_name, aws.glue.database_name, aws.glue.schema_change_type, aws.glue.schema_change_column | SORT @timestamp DESC`\n2. Check for Athena failures caused by the drift: `FROM logs-aws.athena* | WHERE event.outcome == \"failure\" AND error.type == \"COLUMN_NOT_FOUND\" AND @timestamp > NOW() - 1h | KEEP @timestamp, aws.athena.workgroup, aws.athena.database, error.message`\n3. Review the CloudTrail UpdateTable event for the exact schema change\n4. If the change is expected (new upstream column), update downstream queries\n5. If unexpected, investigate the source data for corruption or upstream pipeline changes\n\n## Escalate when\n- Multiple Athena queries fail due to the drift\n- The schema change was not part of a planned release\n- TYPE_CHANGED drift (breaking change for existing queries)"
     }
