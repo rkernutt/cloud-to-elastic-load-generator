@@ -3193,13 +3193,13 @@ export function SetupPage({
 
       <EuiPanel paddingSize="m" hasBorder color="subdued">
         <EuiTitle size="xxs">
-          <h4>Post-install options</h4>
+          <h4>{removeMode ? "Uninstall options" : "Post-install options"}</h4>
         </EuiTitle>
         <EuiSpacer size="s" />
         <EuiFlexGroup gutterSize="l" wrap responsive={false}>
           <EuiFlexItem grow={false}>
             <EuiSwitch
-              label="Enable alerting rules after install"
+              label={removeMode ? "Disable alerting rules before uninstall" : "Enable alerting rules after install"}
               checked={activateAlertRules}
               onChange={(e) => setActivateAlertRules(e.target.checked)}
               disabled={!enableLoadgenIntegrations}
@@ -3207,7 +3207,7 @@ export function SetupPage({
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiSwitch
-              label="Start ML jobs after install"
+              label={removeMode ? "Stop ML jobs before uninstall" : "Start ML jobs after install"}
               checked={startMlJobs}
               onChange={(e) => setStartMlJobs(e.target.checked)}
               disabled={!enableLoadgenIntegrations}
@@ -3215,14 +3215,14 @@ export function SetupPage({
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiSwitch
-              label="Install AI Analyst agent"
+              label={removeMode ? "Uninstall AI Analyst agent" : "Install AI Analyst agent"}
               checked={enableAgentBuilder}
               onChange={(e) => setEnableAgentBuilder(e.target.checked)}
             />
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiSwitch
-              label="Install SLOs"
+              label={removeMode ? "Uninstall SLOs" : "Install SLOs"}
               checked={enableSlos}
               onChange={(e) => setEnableSlos(e.target.checked)}
             />
@@ -3230,11 +3230,18 @@ export function SetupPage({
         </EuiFlexGroup>
         <EuiSpacer size="xs" />
         <EuiText size="xs" color="subdued">
-          <p>
-            Rules are created disabled and ML jobs are created closed by default. Enable these to
-            activate them immediately after installation. The AI Analyst agent and SLOs require
-            Agent Builder and Observability SLO APIs (skipped automatically if unavailable).
-          </p>
+          {removeMode ? (
+            <p>
+              Toggle these to include them in the uninstall. Alerting rules will be disabled and ML
+              jobs will be stopped before removal when selected.
+            </p>
+          ) : (
+            <p>
+              Rules are created disabled and ML jobs are created closed by default. Enable these to
+              activate them immediately after installation. The AI Analyst agent and SLOs require
+              Agent Builder and Observability SLO APIs (skipped automatically if unavailable).
+            </p>
+          )}
         </EuiText>
       </EuiPanel>
 

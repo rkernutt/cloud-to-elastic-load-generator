@@ -685,8 +685,6 @@ export async function runSetupInstall(opts: {
     let skipped = 0;
     let fail = 0;
     let totalDashboardsLinked = 0;
-    let totalGuidesAttached = 0;
-
     // Resolve every dashboard title referenced via `relatedDashboards` on the
     // rules to its deterministic saved-object ID. Only titles present in the
     // current install bundle are eligible — this means rules quietly drop
@@ -726,9 +724,12 @@ export async function runSetupInstall(opts: {
       }
 
       try {
-        const { id: _id, relatedDashboards, investigationGuide, ...body } = rule;
-        // Resolve linked dashboards and investigation guide into the
-        // `artifacts` block (Kibana 8.19 / 9.1+; older versions ignore it).
+        const { id: _id, relatedDashboards, investigationGuide: _guide, ...body } = rule;
+        // Resolve linked dashboards into the `artifacts` block
+        // (Kibana 8.19 / 9.1+; older versions ignore it).
+        // investigationGuide is stripped — the .es-query rule type does not
+        // support artifacts.investigationGuide; guides live in the KB index
+        // and docs/runbooks/ instead.
         const dashboardIds: Array<{ id: string }> = [];
         if (relatedDashboards && relatedDashboards.length > 0) {
           for (const title of relatedDashboards) {
@@ -738,7 +739,6 @@ export async function runSetupInstall(opts: {
         }
         const artifacts: Record<string, unknown> = {};
         if (dashboardIds.length > 0) artifacts.dashboards = dashboardIds;
-        if (investigationGuide) artifacts.investigationGuide = { blob: investigationGuide };
         const ruleBody: Record<string, unknown> =
           Object.keys(artifacts).length > 0 ? { ...body, artifacts } : { ...body };
         await proxyCall({
@@ -750,13 +750,11 @@ export async function runSetupInstall(opts: {
         });
         ok++;
         totalDashboardsLinked += dashboardIds.length;
-        if (investigationGuide) totalGuidesAttached++;
         const suffixParts: string[] = [];
         if (dashboardIds.length > 0)
           suffixParts.push(
             `${dashboardIds.length} dashboard${dashboardIds.length === 1 ? "" : "s"}`
           );
-        if (investigationGuide) suffixParts.push("investigation guide");
         const linkSuffix = suffixParts.length > 0 ? ` (${suffixParts.join(", ")})` : "";
         addLog(`  ✓ ${rule.name}${linkSuffix}`, "ok");
       } catch (e) {
@@ -775,7 +773,7 @@ export async function runSetupInstall(opts: {
     }
 
     addLog(
-      `  Alerting rules: ${ok} created${skipped > 0 ? `, ${skipped} already existed` : ""}${fail > 0 ? `, ${fail} failed` : ""}${totalDashboardsLinked > 0 ? `, ${totalDashboardsLinked} dashboard ${totalDashboardsLinked === 1 ? "link" : "links"}` : ""}${totalGuidesAttached > 0 ? `, ${totalGuidesAttached} investigation ${totalGuidesAttached === 1 ? "guide" : "guides"}` : ""}`,
+      `  Alerting rules: ${ok} created${skipped > 0 ? `, ${skipped} already existed` : ""}${fail > 0 ? `, ${fail} failed` : ""}${totalDashboardsLinked > 0 ? `, ${totalDashboardsLinked} dashboard ${totalDashboardsLinked === 1 ? "link" : "links"}` : ""}`,
       fail > 0 ? "warn" : "ok"
     );
     addLog(
@@ -1318,24 +1316,24 @@ export async function uninstallKnowledgeBase(opts: {
   addLog: SetupLogFn;
 }): Promise<void> {
   const { elasticUrl, apiKey, addLog } = opts;
-  const es = elasticUrl.replace(/\/$/, "");
-  const headers: Record<string, string> = {
-    Authorization: `ApiKey ${apiKey}`,
-    "Content-Type": "application/json",
-  };
 
   addLog("Removing SOC knowledge base index…");
   try {
-    const res = await fetch(`${es}/${KB_INDEX}`, { method: "DELETE", headers });
-    if (res.ok) {
-      addLog(`  ✓ Index "${KB_INDEX}" deleted.`, "ok");
-    } else if (res.status === 404) {
+    await proxyCall({
+      baseUrl: elasticUrl,
+      apiKey,
+      path: `/${KB_INDEX}`,
+      method: "DELETE",
+      allow404: true,
+    });
+    addLog(`  ✓ Index "${KB_INDEX}" deleted.`, "ok");
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (msg.includes("404") || msg.includes("index_not_found")) {
       addLog(`  – Index "${KB_INDEX}" not found, nothing to remove.`, "info");
     } else {
-      addLog(`  ✗ Delete failed: ${await res.text()}`, "error");
+      addLog(`  ✗ Knowledge base removal failed: ${msg}`, "error");
     }
-  } catch (e) {
-    addLog(`  ✗ Knowledge base removal failed: ${e}`, "error");
   }
 }
 

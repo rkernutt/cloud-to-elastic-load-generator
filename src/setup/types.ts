@@ -53,9 +53,10 @@ export interface AlertRuleEntry {
    */
   relatedDashboards?: string[];
   /**
-   * Markdown investigation guide shown on the rule's Details page in Kibana.
-   * Sent as `artifacts.investigationGuide.blob` alongside `artifacts.dashboards`.
-   * Available from Kibana 8.19 / 9.1+; older versions ignore the field.
+   * Markdown investigation guide stored in the rule JSON for reference and
+   * KB indexing. Not sent to the Kibana alerting API (`.es-query` rules do
+   * not support `artifacts.investigationGuide`). Full guides live in
+   * `docs/runbooks/` and the `kb-cloudloadgen-soc` index.
    */
   investigationGuide?: string;
 }
