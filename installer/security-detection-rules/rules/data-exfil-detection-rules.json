@@ -1,0 +1,145 @@
+{
+  "description": "Elastic Security detection rules for data exfiltration chain events. Generates alerts for Attack Discovery.",
+  "rules": [
+    {
+      "rule_id": "cloudloadgen-exfil-guardduty-s3",
+      "name": "[CloudLoadGen] GuardDuty S3 Data Exfiltration Finding",
+      "description": "Detects GuardDuty findings indicating S3 data exfiltration — high-confidence threat signal.",
+      "type": "query",
+      "language": "kuery",
+      "query": "event.dataset:aws.guardduty AND (message:*Exfiltration* OR message:*exfil*)",
+      "index": ["logs-aws.guardduty*"],
+      "severity": "critical",
+      "risk_score": 99,
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0010",
+            "name": "Exfiltration",
+            "reference": "https://attack.mitre.org/tactics/TA0010/"
+          },
+          "technique": [
+            {
+              "id": "T1537",
+              "name": "Transfer Data to Cloud Account",
+              "reference": "https://attack.mitre.org/techniques/T1537/"
+            }
+          ]
+        }
+      ],
+      "tags": ["Cloud", "AWS", "GuardDuty", "Exfiltration", "Attack Discovery"],
+      "false_positives": ["Cross-account replication configurations"],
+      "interval": "5m",
+      "from": "now-6m",
+      "enabled": true,
+      "max_signals": 100
+    },
+    {
+      "rule_id": "cloudloadgen-exfil-s3-burst",
+      "name": "[CloudLoadGen] S3 Mass Object Access (GetObject Burst)",
+      "description": "Detects burst of S3 GetObject calls from a single IP — potential data exfiltration or scraping.",
+      "type": "threshold",
+      "language": "kuery",
+      "query": "event.dataset:aws.cloudtrail AND event.action:GetObject",
+      "index": ["logs-aws.cloudtrail*"],
+      "threshold": {
+        "field": ["source.ip"],
+        "value": 10
+      },
+      "severity": "high",
+      "risk_score": 73,
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0009",
+            "name": "Collection",
+            "reference": "https://attack.mitre.org/tactics/TA0009/"
+          },
+          "technique": [
+            {
+              "id": "T1530",
+              "name": "Data from Cloud Storage",
+              "reference": "https://attack.mitre.org/techniques/T1530/"
+            }
+          ]
+        }
+      ],
+      "tags": ["Cloud", "AWS", "S3", "Collection", "Threshold", "Attack Discovery"],
+      "false_positives": ["Batch data processing pipelines"],
+      "interval": "5m",
+      "from": "now-6m",
+      "enabled": true,
+      "max_signals": 100
+    },
+    {
+      "rule_id": "cloudloadgen-exfil-vpc-high-egress",
+      "name": "[CloudLoadGen] VPC Flow Unusually High Egress Volume",
+      "description": "Detects unusually high outbound network traffic in VPC Flow logs — potential data exfiltration over network.",
+      "type": "query",
+      "language": "kuery",
+      "query": "event.dataset:aws.vpcflow AND event.outcome:success AND network.direction:outbound AND message:*egress*",
+      "index": ["logs-aws.vpcflow*"],
+      "severity": "high",
+      "risk_score": 73,
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0010",
+            "name": "Exfiltration",
+            "reference": "https://attack.mitre.org/tactics/TA0010/"
+          },
+          "technique": [
+            {
+              "id": "T1048",
+              "name": "Exfiltration Over Alternative Protocol",
+              "reference": "https://attack.mitre.org/techniques/T1048/"
+            }
+          ]
+        }
+      ],
+      "tags": ["Cloud", "AWS", "VPC Flow", "Exfiltration", "Attack Discovery"],
+      "false_positives": ["Large data transfers to partner organizations", "CDN origin pulls"],
+      "interval": "5m",
+      "from": "now-6m",
+      "enabled": true,
+      "max_signals": 100
+    },
+    {
+      "rule_id": "cloudloadgen-waf-block-spike",
+      "name": "[CloudLoadGen] WAF Block Rate Spike",
+      "description": "Detects spikes in WAF blocked requests — indicates active scanning or attack attempts.",
+      "type": "query",
+      "language": "kuery",
+      "query": "event.dataset:aws.waf AND event.outcome:failure AND message:*BLOCK*",
+      "index": ["logs-aws.waf*"],
+      "severity": "medium",
+      "risk_score": 47,
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0043",
+            "name": "Reconnaissance",
+            "reference": "https://attack.mitre.org/tactics/TA0043/"
+          },
+          "technique": [
+            {
+              "id": "T1595",
+              "name": "Active Scanning",
+              "reference": "https://attack.mitre.org/techniques/T1595/"
+            }
+          ]
+        }
+      ],
+      "tags": ["Cloud", "AWS", "WAF", "Reconnaissance", "Attack Discovery"],
+      "false_positives": ["Vulnerability scanners", "Load testing"],
+      "interval": "5m",
+      "from": "now-6m",
+      "enabled": true,
+      "max_signals": 100
+    }
+  ]
+}

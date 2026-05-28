@@ -30,8 +30,16 @@ import {
   uninstallWorkflow,
   type WorkflowOverrides,
 } from "./workflowInstaller";
-import { ALERT_ENRICHMENT_WORKFLOW_YAML } from "./workflowYaml";
-import { getAgentDef, getAgentTools } from "../../installer/agent-builder/agentDefinitions";
+import {
+  ALERT_ENRICHMENT_WORKFLOW_YAML,
+  SECURITY_ALERT_ENRICHMENT_WORKFLOW_YAML,
+} from "./workflowYaml";
+import {
+  getAgentDef,
+  getAgentTools,
+  getSecurityAgentDef,
+  getSecurityTools,
+} from "../../installer/agent-builder/agentDefinitions";
 import { getSloDefinitions } from "../../installer/slos/sloDefinitions";
 
 export type SetupLogFn = (text: string, type?: "info" | "ok" | "error" | "warn") => void;
@@ -969,6 +977,21 @@ export async function runSetupInstall(opts: {
       }
       addLog(`  ✗ Workflow install failed: ${msg}`, "error");
     }
+
+    addLog("Installing Security Alert Enrichment workflow (SOC demo)…");
+    try {
+      const secYaml = applyWorkflowOverrides(SECURITY_ALERT_ENRICHMENT_WORKFLOW_YAML, merged);
+      const secResult = await installWorkflow({ kibanaUrl: kb, apiKey, yaml: secYaml });
+      const secVerb = secResult.outcome === "created" ? "created" : "updated";
+      addLog(`  ✓ Security workflow ${secVerb} (id=${secResult.id}, DISABLED).`, "ok");
+    } catch (e) {
+      const msg = String(e);
+      if (isHttpConflict(msg)) {
+        addLog("  — Security workflow already exists, skipping.", "info");
+      } else {
+        addLog(`  ✗ Security workflow install failed: ${msg}`, "error");
+      }
+    }
   };
 
   const installAgentBuilder = async () => {
@@ -1085,6 +1108,82 @@ async function installAgentBuilderForVendor(opts: {
   return toolsFail > 0 ? "partial" : "ok";
 }
 
+async function installSecurityAgentBuilder(opts: {
+  kb: string;
+  apiKey: string;
+  addLog: SetupLogFn;
+}): Promise<"ok" | "unavailable" | "partial"> {
+  const { kb, apiKey, addLog } = opts;
+  const tools = getSecurityTools();
+  const agent = getSecurityAgentDef();
+
+  let toolsOk = 0;
+  let toolsSkipped = 0;
+  let toolsFail = 0;
+
+  for (const tool of tools) {
+    try {
+      await proxyCall({
+        baseUrl: kb,
+        apiKey,
+        path: "/api/agent_builder/tools",
+        method: "POST",
+        body: {
+          id: tool.id,
+          type: tool.type,
+          description: tool.description,
+          configuration: tool.configuration,
+          tags: tool.tags,
+        },
+      });
+      toolsOk++;
+      addLog(`  ✓ Tool ${tool.id}`, "ok");
+    } catch (e) {
+      const msg = String(e);
+      if (isKibanaApiUnavailable(msg)) return "unavailable";
+      if (isHttpConflict(msg)) {
+        toolsSkipped++;
+        addLog(`  — Tool ${tool.id}: already exists, skipping`, "info");
+      } else {
+        toolsFail++;
+        addLog(`  ✗ Tool ${tool.id}: ${msg}`, "error");
+      }
+    }
+  }
+
+  try {
+    await proxyCall({
+      baseUrl: kb,
+      apiKey,
+      path: "/api/agent_builder/agents",
+      method: "POST",
+      body: {
+        id: agent.id,
+        name: agent.name,
+        description: agent.description,
+        instructions: agent.instructions,
+        tool_ids: agent.toolIds,
+      },
+    });
+    addLog(`  ✓ Agent "${agent.name}" (${agent.id})`, "ok");
+  } catch (e) {
+    const msg = String(e);
+    if (isKibanaApiUnavailable(msg)) return "unavailable";
+    if (isHttpConflict(msg)) {
+      addLog(`  — Agent ${agent.id}: already exists, skipping`, "info");
+    } else {
+      addLog(`  ✗ Agent ${agent.id}: ${msg}`, "error");
+      return "partial";
+    }
+  }
+
+  addLog(
+    `  ✓ SOC Analyst tools: ${toolsOk} created${toolsSkipped > 0 ? `, ${toolsSkipped} already existed` : ""}${toolsFail > 0 ? `, ${toolsFail} failed` : ""}`,
+    toolsFail > 0 ? "warn" : "ok"
+  );
+  return toolsFail > 0 ? "partial" : "ok";
+}
+
 async function installAgentBuilderInner(opts: {
   kibanaUrl: string;
   apiKey: string;
@@ -1101,6 +1200,7 @@ async function installAgentBuilderInner(opts: {
         "  ⚠ Agent Builder API is not available on this deployment (HTTP 404 or blocked). Skipping.",
         "warn"
       );
+      return;
     }
   } catch (e) {
     const msg = String(e);
@@ -1113,6 +1213,16 @@ async function installAgentBuilderInner(opts: {
       return;
     }
     addLog(`  ✗ Agent Builder install failed: ${msg}`, "error");
+  }
+
+  addLog(`Installing SOC Analyst agent (security investigation)…`);
+  try {
+    const result = await installSecurityAgentBuilder({ kb, apiKey, addLog });
+    if (result === "unavailable") {
+      addLog("  ⚠ Agent Builder API unavailable for SOC agent. Skipping.", "warn");
+    }
+  } catch (e) {
+    addLog(`  ✗ SOC Analyst agent install failed: ${String(e)}`, "error");
   }
 }
 
@@ -1245,28 +1355,32 @@ export async function uninstallAgentBuilder(opts: {
   const { kibanaUrl, apiKey, vendor, addLog } = opts;
   const kb = kibanaUrl.replace(/\/$/, "");
   const agent = getAgentDef(vendor);
+  const socAgent = getSecurityAgentDef();
 
-  addLog("Removing Agent Builder analyst…");
+  addLog("Removing Agent Builder analysts…");
 
-  try {
-    const deleted = await proxyCall({
-      baseUrl: kb,
-      apiKey,
-      path: `/api/agent_builder/agents/${encodeURIComponent(agent.id)}`,
-      method: "DELETE",
-      allow404: true,
-    });
-    if (deleted == null) {
-      addLog(`  – Agent ${agent.id} not found, nothing to remove.`, "info");
-    } else {
-      addLog(`  ✓ Agent ${agent.id} deleted.`, "ok");
-    }
-  } catch (e) {
-    const msg = String(e);
-    if (isKibanaApiUnavailable(msg)) {
-      addLog("  ⚠ Agent Builder API unavailable — skipping agent removal.", "warn");
-    } else {
-      addLog(`  ✗ Agent removal failed: ${msg}`, "error");
+  for (const a of [agent, socAgent]) {
+    try {
+      const deleted = await proxyCall({
+        baseUrl: kb,
+        apiKey,
+        path: `/api/agent_builder/agents/${encodeURIComponent(a.id)}`,
+        method: "DELETE",
+        allow404: true,
+      });
+      if (deleted == null) {
+        addLog(`  – Agent ${a.id} not found, nothing to remove.`, "info");
+      } else {
+        addLog(`  ✓ Agent ${a.id} deleted.`, "ok");
+      }
+    } catch (e) {
+      const msg = String(e);
+      if (isKibanaApiUnavailable(msg)) {
+        addLog("  ⚠ Agent Builder API unavailable — skipping agent removal.", "warn");
+        break;
+      } else {
+        addLog(`  ✗ Agent removal failed: ${msg}`, "error");
+      }
     }
   }
 

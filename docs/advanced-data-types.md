@@ -96,6 +96,14 @@ A sample workflow lives in [`workflows/data-pipeline-alert-enrichment.yaml`](../
 
 This is the canonical end-to-end demo of pipeline alert → CMDB lookup → SOC case + notification.
 
+### Security alert enrichment workflow
+
+A second workflow at [`workflows/security-alert-enrichment.yaml`](../workflows/security-alert-enrichment.yaml) targets **security alerts** (IAM PrivEsc, data exfiltration, GuardDuty findings). It enriches alerts with the **originating IP address and hostname** from ServiceNow CMDB, the **attacker's source IP, user identity, and user agent**, plus open incident counts and related alert volume. Cases are created under `securitySolution` and the enriched alert is indexed to `logs-security-alert-enriched-default` for Agent Builder queries. See [SOC-DEMO-SETUP.md](./SOC-DEMO-SETUP.md) for the full AI SOC demo walkthrough.
+
+### Elastic Security detection rules
+
+Cloud Loadgen also ships **16 Elastic Security detection rules** (`installer/security-detection-rules/`) installed via the Detection Engine API. These produce alerts in `.alerts-security.alerts-*` — required for **Attack Discovery**. The rules cover IAM privilege escalation (6), security findings (6), and data exfiltration (4), each with MITRE ATT&CK mappings, severity, and risk scores. Install with `npm run setup:security-detection-rules`.
+
 > **The workflow installs disconnected.** None of the Cloud Loadgen
 > alerting rules attach the workflow as an action — every rule ships with
 > `"actions": []` and the installers (wizard / CLI / paste) never modify
@@ -121,7 +129,8 @@ On Stack 9.4+ the workflow can also use the new first-class `cases.createCase` s
 
 ## Related
 
-- [workflow-deployment.md](./workflow-deployment.md) — install, configure, and troubleshoot the alert-enrichment workflow per deployment type.
+- [SOC-DEMO-SETUP.md](./SOC-DEMO-SETUP.md) — full AI SOC demo walkthrough: Attack Discovery, Agent Builder, security workflow, detection rules.
+- [workflow-deployment.md](./workflow-deployment.md) — install, configure, and troubleshoot the alert-enrichment workflows per deployment type.
 - [chained-events/](./chained-events/) — per-scenario timing, field-level correlation, and failure-mode docs.
 - [runbooks/](./runbooks/) — per-rule investigation guides for the 51 chained-scenario alerts.
 - [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md) — installing the assets, the Serverless use-case selector, and the per-rule linked-dashboard mapping.

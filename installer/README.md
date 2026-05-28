@@ -253,21 +253,22 @@ Any `*-dashboard.json` file placed in the appropriate `installer/{cloud}-custom-
 
 ## All installer commands
 
-| Command                             | Path                                   |
-| ----------------------------------- | -------------------------------------- |
-| `npm run setup:aws-loadgen-packs`   | `installer/aws-loadgen-packs/`         |
-| `npm run setup:alert-rules`         | `installer/alert-rules-installer/`     |
-| `npm run setup:workflow`            | `installer/workflow-installer/`        |
-| `npm run setup:aws-integration`     | `installer/aws-elastic-integration/`   |
-| `npm run setup:aws-pipelines`       | `installer/aws-custom-pipelines/`      |
-| `npm run setup:aws-dashboards`      | `installer/aws-custom-dashboards/`     |
-| `npm run setup:aws-ml-jobs`         | `installer/aws-custom-ml-jobs/`        |
-| `npm run setup:aws-apm-integration` | `installer/aws-apm-integration/`       |
-| `npm run setup:gcp-integration`     | `installer/gcp-elastic-integration/`   |
-| `npm run setup:gcp-pipelines`       | `installer/gcp-custom-pipelines/`      |
-| `npm run setup:gcp-dashboards`      | `installer/gcp-custom-dashboards/`     |
-| `npm run setup:gcp-ml-jobs`         | `installer/gcp-custom-ml-jobs/`        |
-| `npm run setup:azure-integration`   | `installer/azure-elastic-integration/` |
-| `npm run setup:azure-pipelines`     | `installer/azure-custom-pipelines/`    |
-| `npm run setup:azure-dashboards`    | `installer/azure-custom-dashboards/`   |
-| `npm run setup:azure-ml-jobs`       | `installer/azure-custom-ml-jobs/`      |
+| Command                                  | Path                                   |
+| ---------------------------------------- | -------------------------------------- |
+| `npm run setup:aws-loadgen-packs`        | `installer/aws-loadgen-packs/`         |
+| `npm run setup:alert-rules`              | `installer/alert-rules-installer/`     |
+| `npm run setup:security-detection-rules` | `installer/security-detection-rules/`  |
+| `npm run setup:workflow`                 | `installer/workflow-installer/`        |
+| `npm run setup:aws-integration`          | `installer/aws-elastic-integration/`   |
+| `npm run setup:aws-pipelines`            | `installer/aws-custom-pipelines/`      |
+| `npm run setup:aws-dashboards`           | `installer/aws-custom-dashboards/`     |
+| `npm run setup:aws-ml-jobs`              | `installer/aws-custom-ml-jobs/`        |
+| `npm run setup:aws-apm-integration`      | `installer/aws-apm-integration/`       |
+| `npm run setup:gcp-integration`          | `installer/gcp-elastic-integration/`   |
+| `npm run setup:gcp-pipelines`            | `installer/gcp-custom-pipelines/`      |
+| `npm run setup:gcp-dashboards`           | `installer/gcp-custom-dashboards/`     |
+| `npm run setup:gcp-ml-jobs`              | `installer/gcp-custom-ml-jobs/`        |
+| `npm run setup:azure-integration`        | `installer/azure-elastic-integration/` |
+| `npm run setup:azure-pipelines`          | `installer/azure-custom-pipelines/`    |
+| `npm run setup:azure-dashboards`         | `installer/azure-custom-dashboards/`   |
+| `npm run setup:azure-ml-jobs`            | `installer/azure-custom-ml-jobs/`      |

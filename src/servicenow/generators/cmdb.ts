@@ -78,6 +78,66 @@ function getLocations() {
   return _locations;
 }
 
+// Security infrastructure CIs for SOC demo — IAM PrivEsc / Data Exfil targets
+const SECURITY_CIS = [
+  {
+    name: "iam-admin-role",
+    class: "cmdb_ci_cloud_service_account",
+    cat: "Identity",
+    env: "Production",
+    desc: "AWS IAM AdminRole — privileged cross-account role for emergency access",
+  },
+  {
+    name: "compromised-developer-workstation",
+    class: "cmdb_ci_computer",
+    cat: "Compute",
+    env: "Production",
+    desc: "Developer workstation — EC2 instance used by dev team for interactive access",
+  },
+  {
+    name: "guardduty-findings-aggregator",
+    class: "cmdb_ci_cloud_service_account",
+    cat: "Security",
+    env: "Production",
+    desc: "AWS GuardDuty aggregator for centralized security finding collection",
+  },
+  {
+    name: "cloudtrail-audit-trail",
+    class: "cmdb_ci_cloud_service_account",
+    cat: "Security",
+    env: "Production",
+    desc: "AWS CloudTrail audit trail — management event logging for all API calls",
+  },
+  {
+    name: "securityhub-central",
+    class: "cmdb_ci_cloud_service_account",
+    cat: "Security",
+    env: "Production",
+    desc: "AWS Security Hub central account — aggregates compliance and threat findings",
+  },
+  {
+    name: "vpc-prod-us-east-1",
+    class: "cmdb_ci_network_segment",
+    cat: "Network",
+    env: "Production",
+    desc: "Production VPC in us-east-1 — hosts application tier and data workloads",
+  },
+  {
+    name: "waf-api-gateway",
+    class: "cmdb_ci_cloud_service_account",
+    cat: "Security",
+    env: "Production",
+    desc: "AWS WAF protecting API Gateway — blocks known attack patterns and rate limiting",
+  },
+  {
+    name: "s3-sensitive-data-bucket",
+    class: "cmdb_ci_storage_volume",
+    cat: "Storage",
+    env: "Production",
+    desc: "S3 bucket containing PII and financial data — SSE-KMS encrypted, access logged",
+  },
+];
+
 // Cloud infrastructure CIs that mirror the data pipeline chain generators
 const AWS_CIS = [
   {
@@ -221,7 +281,7 @@ const AZURE_CIS = [
   },
 ];
 
-const ALL_CIS = [...AWS_CIS, ...GCP_CIS, ...AZURE_CIS];
+const ALL_CIS = [...SECURITY_CIS, ...AWS_CIS, ...GCP_CIS, ...AZURE_CIS];
 
 const BUSINESS_SERVICES = [
   {
@@ -252,6 +312,41 @@ const BUSINESS_SERVICES = [
 ];
 
 const INCIDENT_TEMPLATES = [
+  {
+    short: "Unauthorized IAM access key creation detected — potential credential compromise",
+    cat: "Security",
+    subcat: "IAM Compromise",
+    impact: 1,
+    urgency: 1,
+  },
+  {
+    short: "AdministratorAccess policy attached to user without change request",
+    cat: "Security",
+    subcat: "Privilege Escalation",
+    impact: 1,
+    urgency: 1,
+  },
+  {
+    short: "GuardDuty HIGH severity finding — suspicious API activity from unknown IP",
+    cat: "Security",
+    subcat: "Threat Detection",
+    impact: 1,
+    urgency: 1,
+  },
+  {
+    short: "S3 data exfiltration attempt — mass GetObject from external IP",
+    cat: "Security",
+    subcat: "Data Exfiltration",
+    impact: 1,
+    urgency: 1,
+  },
+  {
+    short: "CloudTrail logging interruption detected — possible defense evasion",
+    cat: "Security",
+    subcat: "Defense Evasion",
+    impact: 1,
+    urgency: 1,
+  },
   {
     short: "Pipeline failure — null/empty data detected in source files",
     cat: "Data Processing",

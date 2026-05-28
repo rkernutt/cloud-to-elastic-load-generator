@@ -101,6 +101,124 @@ export function getAgentTools(vendor: string): AgentToolDef[] {
   ];
 }
 
+export function getSecurityTools(): AgentToolDef[] {
+  return [
+    {
+      id: "cloudloadgen-soc-attack-timeline",
+      type: "esql",
+      description:
+        "Reconstructs the full attack timeline by correlating events across CloudTrail, GuardDuty, and VPC Flow logs. Use to trace an attack chain from initial access to impact.",
+      configuration: {
+        query: `FROM logs-aws.cloudtrail*,logs-aws.guardduty*,logs-aws.vpcflow* | WHERE @timestamp >= NOW() - ?hours::integer * 1h AND (labels.attack_session_id IS NOT NULL OR event.category == "intrusion_detection") | STATS count = COUNT(*) BY event.action, event.dataset, source.ip, user.name, @timestamp | SORT @timestamp ASC | LIMIT 50`,
+        params: {
+          hours: {
+            type: "integer",
+            description: "Look-back window in hours (e.g. 1, 6, 24)",
+          },
+        },
+      },
+      tags: ["cloudloadgen", "security", "soc"],
+    },
+    {
+      id: "cloudloadgen-soc-iam-privesc-details",
+      type: "esql",
+      description:
+        "Retrieves IAM privilege escalation events — ListUsers, CreateAccessKey, AttachUserPolicy, AssumeRole — with attacker identity and MITRE ATT&CK context.",
+      configuration: {
+        query: `FROM logs-aws.cloudtrail* | WHERE @timestamp >= NOW() - ?hours::integer * 1h AND event.category == "iam" AND (event.action == "CreateAccessKey" OR event.action == "AttachUserPolicy" OR event.action == "AssumeRole" OR event.action == "ListUsers") | KEEP @timestamp, event.action, user.name, source.ip, event.outcome, labels.attack_session_id, labels.target_user, threat.tactic.name, threat.technique.name | SORT @timestamp ASC | LIMIT 50`,
+        params: {
+          hours: { type: "integer", description: "Look-back window in hours" },
+        },
+      },
+      tags: ["cloudloadgen", "security", "soc"],
+    },
+    {
+      id: "cloudloadgen-soc-attacker-ip-activity",
+      type: "esql",
+      description:
+        "Analyses all activity from a specific IP address across all log sources to assess scope of compromise.",
+      configuration: {
+        query: `FROM logs-aws.*,logs-gcp.*,logs-azure.* | WHERE source.ip == ?ip AND @timestamp >= NOW() - ?hours::integer * 1h | STATS actions = COUNT(*) BY event.dataset, event.action, event.outcome | SORT actions DESC | LIMIT 30`,
+        params: {
+          ip: { type: "string", description: "Source IP address to investigate" },
+          hours: { type: "integer", description: "Look-back window in hours" },
+        },
+      },
+      tags: ["cloudloadgen", "security", "soc"],
+    },
+    {
+      id: "cloudloadgen-soc-security-alerts",
+      type: "esql",
+      description:
+        "Lists Elastic Security alerts with rule name, severity, risk score, and MITRE tactic. Use to understand the alert landscape before triaging with Attack Discovery.",
+      configuration: {
+        query: `FROM .alerts-security.alerts-* | WHERE @timestamp >= NOW() - ?hours::integer * 1h AND kibana.alert.status != "closed" | STATS count = COUNT(*) BY kibana.alert.rule.name, kibana.alert.severity, kibana.alert.risk_score | SORT count DESC | LIMIT 30`,
+        params: {
+          hours: { type: "integer", description: "Look-back window in hours" },
+        },
+      },
+      tags: ["cloudloadgen", "security", "soc"],
+    },
+    {
+      id: "cloudloadgen-soc-cmdb-enrichment",
+      type: "esql",
+      description:
+        "Looks up ServiceNow CMDB context for an affected CI — returns owner, IP address, hostname, support group, and department.",
+      configuration: {
+        query: `FROM logs-servicenow.event-* | WHERE tags == "cmdb_ci" AND @timestamp >= NOW() - 30d | KEEP servicenow.event.name.value, servicenow.event.ip_address.value, servicenow.event.fqdn.value, servicenow.event.owned_by.display_value, servicenow.event.support_group.display_value, servicenow.event.department.display_value, servicenow.event.category.value, servicenow.event.environment.value | LIMIT 20`,
+        params: {},
+      },
+      tags: ["cloudloadgen", "security", "soc", "cmdb"],
+    },
+    {
+      id: "cloudloadgen-soc-enriched-alerts",
+      type: "index_search",
+      description:
+        "Search enriched security alerts that have been correlated with CMDB context — includes attacker IP, hostname, CI owner.",
+      configuration: {
+        pattern: "logs-security-alert-enriched-*",
+      },
+      tags: ["cloudloadgen", "security", "soc"],
+    },
+    {
+      id: "cloudloadgen-soc-guardduty-findings",
+      type: "esql",
+      description:
+        "Lists GuardDuty findings with severity, finding type, and affected resources. Filters by severity level.",
+      configuration: {
+        query: `FROM logs-aws.guardduty* | WHERE @timestamp >= NOW() - ?hours::integer * 1h | STATS count = COUNT(*) BY event.action, event.severity, source.ip | SORT event.severity DESC, count DESC | LIMIT 20`,
+        params: {
+          hours: { type: "integer", description: "Look-back window in hours" },
+        },
+      },
+      tags: ["cloudloadgen", "security", "soc"],
+    },
+  ];
+}
+
+export function getSecurityAgentDef(): AgentDef {
+  const tools = getSecurityTools();
+  return {
+    id: "cloudloadgen-soc-analyst",
+    name: "Cloud Loadgen SOC Analyst",
+    description:
+      "AI-powered SOC analyst for investigating security incidents — traces attack chains across CloudTrail, GuardDuty, and VPC Flow logs, enriches with ServiceNow CMDB context (IP, hostname, owner), and summarises findings for triage.",
+    instructions: [
+      "You are a Security Operations Centre (SOC) analyst investigating cloud security incidents.",
+      "Use the available tools to trace attack chains, identify compromised accounts, and assess blast radius.",
+      "Always start by checking the attack timeline to understand the sequence of events.",
+      "When investigating IAM privilege escalation, trace the full chain: reconnaissance → persistence → escalation → lateral movement.",
+      "For each attacker IP, check all activity across CloudTrail, GuardDuty, and VPC Flow logs.",
+      "Enrich findings with ServiceNow CMDB context to identify affected CI owners and support groups.",
+      "Report the originating IP address and hostname of the attack source.",
+      "Include MITRE ATT&CK tactic and technique references when describing attack stages.",
+      "Recommend immediate containment actions (revoke keys, disable users, block IPs) based on severity.",
+      "Keep responses structured: timeline, affected assets, CMDB context, recommended actions.",
+    ].join(" "),
+    toolIds: [...tools.map((t) => t.id), "platform.core.esql", "platform.core.search"],
+  };
+}
+
 export function getAgentDef(vendor: string): AgentDef {
   const tools = getAgentTools(vendor);
   const v = vendor.toUpperCase();

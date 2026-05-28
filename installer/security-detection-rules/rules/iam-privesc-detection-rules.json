@@ -1,0 +1,217 @@
+{
+  "description": "Elastic Security detection rules for IAM Privilege Escalation chain events. These rules generate alerts in .alerts-security.alerts-* for Attack Discovery.",
+  "rules": [
+    {
+      "rule_id": "cloudloadgen-iam-create-access-key",
+      "name": "[CloudLoadGen] IAM Access Key Created for Another User",
+      "description": "Detects when a user creates an access key for a different IAM user, which may indicate credential theft or persistence.",
+      "type": "query",
+      "language": "kuery",
+      "query": "event.dataset:aws.cloudtrail AND event.action:CreateAccessKey AND NOT user.name:*service* AND NOT user.name:*admin*",
+      "index": ["logs-aws.cloudtrail*"],
+      "severity": "high",
+      "risk_score": 73,
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0003",
+            "name": "Persistence",
+            "reference": "https://attack.mitre.org/tactics/TA0003/"
+          },
+          "technique": [
+            {
+              "id": "T1098.001",
+              "name": "Additional Cloud Credentials",
+              "reference": "https://attack.mitre.org/techniques/T1098/001/"
+            }
+          ]
+        }
+      ],
+      "tags": ["Cloud", "AWS", "IAM", "Persistence", "Attack Discovery"],
+      "false_positives": ["Automated CI/CD key rotation", "Legitimate admin key provisioning"],
+      "interval": "5m",
+      "from": "now-6m",
+      "enabled": true,
+      "max_signals": 100,
+      "note": "## Investigation\n1. Check `user.name` and `source.ip` for the actor\n2. Look up the target user in `labels.target_user`\n3. Check `labels.attack_session_id` for correlated events\n4. Verify IP is from a known corporate range"
+    },
+    {
+      "rule_id": "cloudloadgen-iam-admin-policy-attached",
+      "name": "[CloudLoadGen] AdministratorAccess Policy Attached to User",
+      "description": "Detects when AdministratorAccess is attached to an IAM user — a critical privilege escalation indicator.",
+      "type": "query",
+      "language": "kuery",
+      "query": "event.dataset:aws.cloudtrail AND event.action:AttachUserPolicy AND message:*AdministratorAccess*",
+      "index": ["logs-aws.cloudtrail*"],
+      "severity": "critical",
+      "risk_score": 99,
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0004",
+            "name": "Privilege Escalation",
+            "reference": "https://attack.mitre.org/tactics/TA0004/"
+          },
+          "technique": [
+            {
+              "id": "T1078.004",
+              "name": "Cloud Accounts",
+              "reference": "https://attack.mitre.org/techniques/T1078/004/"
+            }
+          ]
+        }
+      ],
+      "tags": ["Cloud", "AWS", "IAM", "Privilege Escalation", "Attack Discovery"],
+      "false_positives": ["Emergency break-glass procedures"],
+      "interval": "5m",
+      "from": "now-6m",
+      "enabled": true,
+      "max_signals": 100,
+      "note": "## Investigation\n1. Identify the actor via `user.name` and `source.ip`\n2. Check if `mfa_authenticated` is false — strong indicator of compromised credentials\n3. Correlate with `labels.attack_session_id` for full attack chain\n4. Check CMDB for the target user's role and department"
+    },
+    {
+      "rule_id": "cloudloadgen-iam-assume-role-suspicious",
+      "name": "[CloudLoadGen] AssumeRole to AdminRole from Non-Corporate IP",
+      "description": "Detects AssumeRole API calls targeting admin roles, especially from external IPs without MFA.",
+      "type": "query",
+      "language": "kuery",
+      "query": "event.dataset:aws.cloudtrail AND event.action:AssumeRole AND message:*AdminRole*",
+      "index": ["logs-aws.cloudtrail*"],
+      "severity": "critical",
+      "risk_score": 95,
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0008",
+            "name": "Lateral Movement",
+            "reference": "https://attack.mitre.org/tactics/TA0008/"
+          },
+          "technique": [
+            {
+              "id": "T1550.001",
+              "name": "Application Access Token",
+              "reference": "https://attack.mitre.org/techniques/T1550/001/"
+            }
+          ]
+        }
+      ],
+      "tags": ["Cloud", "AWS", "IAM", "Lateral Movement", "Attack Discovery"],
+      "false_positives": ["Automated cross-account access via trusted roles"],
+      "interval": "5m",
+      "from": "now-6m",
+      "enabled": true,
+      "max_signals": 100,
+      "note": "## Investigation\n1. Check `source.ip` — is it from a known range?\n2. Verify `aws.cloudtrail.user_identity.session_context.attributes.mfa_authenticated`\n3. Check `labels.attack_session_id` for the full attack chain\n4. Look for preceding CreateAccessKey and AttachUserPolicy events"
+    },
+    {
+      "rule_id": "cloudloadgen-iam-user-enumeration",
+      "name": "[CloudLoadGen] IAM User Enumeration (ListUsers)",
+      "description": "Detects IAM ListUsers API calls which often precede privilege escalation — reconnaissance phase.",
+      "type": "query",
+      "language": "kuery",
+      "query": "event.dataset:aws.cloudtrail AND event.action:ListUsers AND NOT user.name:*admin* AND NOT user.name:*service*",
+      "index": ["logs-aws.cloudtrail*"],
+      "severity": "medium",
+      "risk_score": 47,
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0007",
+            "name": "Discovery",
+            "reference": "https://attack.mitre.org/tactics/TA0007/"
+          },
+          "technique": [
+            {
+              "id": "T1087.004",
+              "name": "Cloud Account",
+              "reference": "https://attack.mitre.org/techniques/T1087/004/"
+            }
+          ]
+        }
+      ],
+      "tags": ["Cloud", "AWS", "IAM", "Discovery", "Attack Discovery"],
+      "false_positives": ["IAM audit scripts", "Cloud security posture tools"],
+      "interval": "5m",
+      "from": "now-6m",
+      "enabled": true,
+      "max_signals": 100
+    },
+    {
+      "rule_id": "cloudloadgen-iam-no-mfa-api-call",
+      "name": "[CloudLoadGen] IAM API Call Without MFA Authentication",
+      "description": "Detects IAM management API calls where MFA was not used — indicates potentially compromised long-term credentials.",
+      "type": "query",
+      "language": "kuery",
+      "query": "event.dataset:aws.cloudtrail AND event.category:iam AND message:*mfa_authenticated*false* AND (event.action:CreateAccessKey OR event.action:AttachUserPolicy OR event.action:AssumeRole)",
+      "index": ["logs-aws.cloudtrail*"],
+      "severity": "high",
+      "risk_score": 73,
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "Credential Access",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1528",
+              "name": "Steal Application Access Token",
+              "reference": "https://attack.mitre.org/techniques/T1528/"
+            }
+          ]
+        }
+      ],
+      "tags": ["Cloud", "AWS", "IAM", "Credential Access", "Attack Discovery"],
+      "false_positives": ["Service accounts that don't support MFA"],
+      "interval": "5m",
+      "from": "now-6m",
+      "enabled": true,
+      "max_signals": 100
+    },
+    {
+      "rule_id": "cloudloadgen-iam-multiple-actions-single-ip",
+      "name": "[CloudLoadGen] Multiple IAM Privilege Changes from Single IP",
+      "description": "Detects when multiple IAM privilege modification events originate from the same source IP within a short window — indicates automated attack tooling.",
+      "type": "threshold",
+      "language": "kuery",
+      "query": "event.dataset:aws.cloudtrail AND event.category:iam AND event.type:change",
+      "index": ["logs-aws.cloudtrail*"],
+      "threshold": {
+        "field": ["source.ip"],
+        "value": 3,
+        "cardinality": [{ "field": "event.action", "value": 2 }]
+      },
+      "severity": "critical",
+      "risk_score": 95,
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0004",
+            "name": "Privilege Escalation",
+            "reference": "https://attack.mitre.org/tactics/TA0004/"
+          },
+          "technique": [
+            {
+              "id": "T1078",
+              "name": "Valid Accounts",
+              "reference": "https://attack.mitre.org/techniques/T1078/"
+            }
+          ]
+        }
+      ],
+      "tags": ["Cloud", "AWS", "IAM", "Privilege Escalation", "Threshold", "Attack Discovery"],
+      "false_positives": ["Terraform or CloudFormation applying IAM changes"],
+      "interval": "5m",
+      "from": "now-6m",
+      "enabled": true,
+      "max_signals": 100
+    }
+  ]
+}
