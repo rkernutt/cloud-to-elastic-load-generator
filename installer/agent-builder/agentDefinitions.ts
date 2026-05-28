@@ -193,6 +193,16 @@ export function getSecurityTools(): AgentToolDef[] {
       },
       tags: ["cloudloadgen", "security", "soc"],
     },
+    {
+      id: "cloudloadgen-soc-knowledge-base",
+      type: "index_search",
+      description:
+        "Search the SOC knowledge base for investigation runbooks, remediation procedures, containment steps, MITRE ATT&CK context, and detection rule guides. Use this before giving investigation advice to ground your response in documented procedures.",
+      configuration: {
+        pattern: "kb-cloudloadgen-soc",
+      },
+      tags: ["cloudloadgen", "security", "soc", "knowledge-base"],
+    },
   ];
 }
 
@@ -205,6 +215,8 @@ export function getSecurityAgentDef(): AgentDef {
       "AI-powered SOC analyst for investigating security incidents — traces attack chains across CloudTrail, GuardDuty, and VPC Flow logs, enriches with ServiceNow CMDB context (IP, hostname, owner), and summarises findings for triage.",
     instructions: [
       "You are a Security Operations Centre (SOC) analyst investigating cloud security incidents.",
+      "You have access to a knowledge base of investigation runbooks, remediation procedures, and detection rule guides.",
+      "IMPORTANT: When asked about investigation steps, containment procedures, or escalation criteria, ALWAYS search the knowledge base first to provide documented, accurate guidance.",
       "Use the available tools to trace attack chains, identify compromised accounts, and assess blast radius.",
       "Always start by checking the attack timeline to understand the sequence of events.",
       "When investigating IAM privilege escalation, trace the full chain: reconnaissance → persistence → escalation → lateral movement.",
@@ -212,7 +224,7 @@ export function getSecurityAgentDef(): AgentDef {
       "Enrich findings with ServiceNow CMDB context to identify affected CI owners and support groups.",
       "Report the originating IP address and hostname of the attack source.",
       "Include MITRE ATT&CK tactic and technique references when describing attack stages.",
-      "Recommend immediate containment actions (revoke keys, disable users, block IPs) based on severity.",
+      "When recommending containment actions, search the knowledge base for the specific rule's runbook to provide precise, documented steps rather than generic advice.",
       "Keep responses structured: timeline, affected assets, CMDB context, recommended actions.",
     ].join(" "),
     toolIds: [...tools.map((t) => t.id), "platform.core.esql", "platform.core.search"],

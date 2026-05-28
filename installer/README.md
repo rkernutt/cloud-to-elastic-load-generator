@@ -258,6 +258,8 @@ Any `*-dashboard.json` file placed in the appropriate `installer/{cloud}-custom-
 | `npm run setup:aws-loadgen-packs`        | `installer/aws-loadgen-packs/`         |
 | `npm run setup:alert-rules`              | `installer/alert-rules-installer/`     |
 | `npm run setup:security-detection-rules` | `installer/security-detection-rules/`  |
+| `npm run setup:knowledge-base`           | `installer/knowledge-base/`            |
+| `npm run generate:knowledge-base`        | `installer/knowledge-base/`            |
 | `npm run setup:workflow`                 | `installer/workflow-installer/`        |
 | `npm run setup:aws-integration`          | `installer/aws-elastic-integration/`   |
 | `npm run setup:aws-pipelines`            | `installer/aws-custom-pipelines/`      |

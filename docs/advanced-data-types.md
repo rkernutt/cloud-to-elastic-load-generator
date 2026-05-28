@@ -104,6 +104,10 @@ A second workflow at [`workflows/security-alert-enrichment.yaml`](../workflows/s
 
 Cloud Loadgen also ships **16 Elastic Security detection rules** (`installer/security-detection-rules/`) installed via the Detection Engine API. These produce alerts in `.alerts-security.alerts-*` — required for **Attack Discovery**. The rules cover IAM privilege escalation (6), security findings (6), and data exfiltration (4), each with MITRE ATT&CK mappings, severity, and risk scores. Install with `npm run setup:security-detection-rules`.
 
+### SOC knowledge base
+
+A **364-document knowledge base** is indexed into `kb-cloudloadgen-soc` when Agent Builder is installed via the setup wizard (or standalone via `npm run setup:knowledge-base`). The index contains chunked runbooks (40 docs), chain references (40 docs), 259 detection rule investigation guides, workflow guides (12 docs), SOC procedures (7 docs), and architecture references (6 docs). The Agent Builder SOC Analyst uses an `index_search` tool to query this index, grounding its investigation advice in documented procedures rather than generating generic responses. The index supports `semantic_text` (ELSER/vector search) when available, falling back to BM25 keyword search.
+
 > **The workflow installs disconnected.** None of the Cloud Loadgen
 > alerting rules attach the workflow as an action — every rule ships with
 > `"actions": []` and the installers (wizard / CLI / paste) never modify

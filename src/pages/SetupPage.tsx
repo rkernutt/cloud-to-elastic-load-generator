@@ -46,6 +46,7 @@ import { stableDashboardKey } from "../setup/stableDashboardKey";
 import {
   runSetupInstall,
   uninstallAgentBuilder,
+  uninstallKnowledgeBase,
   uninstallSetupWorkflow,
   uninstallSlos,
 } from "../setup/runSetupInstall";
@@ -2244,6 +2245,7 @@ export function SetupPage({
         vendor: setupBundle.fleetPackage,
         addLog,
       });
+      await uninstallKnowledgeBase({ elasticUrl, apiKey, addLog });
     }
     if (enableSlos) {
       await uninstallSlos({

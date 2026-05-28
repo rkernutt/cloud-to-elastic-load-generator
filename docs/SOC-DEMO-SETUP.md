@@ -10,6 +10,7 @@ Run a live Security Operations Centre demo with Attack Discovery, Agent Builder,
 | **Agent Builder**    | A conversational SOC analyst that traces the attack chain, looks up CMDB context, and recommends containment                                      |
 | **Workflow**         | A security alert fires and is automatically enriched with the originating IP address, hostname, CI owner, and open incidents from ServiceNow CMDB |
 | **Detection Rules**  | 16 custom Elastic Security detection rules with MITRE ATT&CK mappings, severity, and risk scores                                                  |
+| **Knowledge Base**   | 364 indexed documents — runbooks, investigation guides, and detection rule context — enabling grounded Agent Builder responses                    |
 
 ## Prerequisites
 
@@ -95,17 +96,43 @@ All rules include MITRE ATT&CK tactic/technique mappings and are tagged `Attack 
 
 The setup wizard automatically installs the SOC Analyst agent alongside the vendor-specific analyst. The SOC Analyst has 7 security-focused tools:
 
-| Tool                       | What it does                                                         |
-| -------------------------- | -------------------------------------------------------------------- |
-| `soc-attack-timeline`      | Reconstructs the attack chain across CloudTrail, GuardDuty, VPC Flow |
-| `soc-iam-privesc-details`  | IAM escalation events with MITRE context                             |
-| `soc-attacker-ip-activity` | All activity from a specific IP across all log sources               |
-| `soc-security-alerts`      | Elastic Security alert summary with severity and risk                |
-| `soc-cmdb-enrichment`      | ServiceNow CMDB context: CI owner, IP, hostname                      |
-| `soc-enriched-alerts`      | Workflow-enriched alerts with full CMDB context                      |
-| `soc-guardduty-findings`   | GuardDuty finding breakdown                                          |
+| Tool                       | What it does                                                                                     |
+| -------------------------- | ------------------------------------------------------------------------------------------------ |
+| `soc-attack-timeline`      | Reconstructs the attack chain across CloudTrail, GuardDuty, VPC Flow                             |
+| `soc-iam-privesc-details`  | IAM escalation events with MITRE context                                                         |
+| `soc-attacker-ip-activity` | All activity from a specific IP across all log sources                                           |
+| `soc-security-alerts`      | Elastic Security alert summary with severity and risk                                            |
+| `soc-cmdb-enrichment`      | ServiceNow CMDB context: CI owner, IP, hostname                                                  |
+| `soc-enriched-alerts`      | Workflow-enriched alerts with full CMDB context                                                  |
+| `soc-guardduty-findings`   | GuardDuty finding breakdown                                                                      |
+| `soc-knowledge-base`       | Searches investigation runbooks, containment procedures, and MITRE context for grounded guidance |
 
-### 4. Install the Security Alert Enrichment workflow
+### 4. Install the SOC Knowledge Base
+
+The setup wizard automatically indexes 364 knowledge base documents when Agent Builder is enabled. The knowledge base includes:
+
+| Category              | Documents | Content                                                                    |
+| --------------------- | --------- | -------------------------------------------------------------------------- |
+| Detection rule guides | 259       | Investigation guides embedded in all AWS/GCP/Azure alerting rules          |
+| Runbooks              | 40        | Detailed triage, ES\|QL queries, containment, and escalation procedures    |
+| Chain references      | 40        | Correlation IDs, service relationships, and failure modes for chain events |
+| Workflow guides       | 12        | Alert enrichment workflow configuration and customization                  |
+| SOC guides            | 7         | Demo setup, architecture, and operational procedures                       |
+| Reference docs        | 6         | Advanced data types, CSPM/KSPM, CMDB architecture                          |
+
+The index (`kb-cloudloadgen-soc`) uses `semantic_text` when ELSER is available, falling back to standard BM25 text search otherwise.
+
+You can also install the knowledge base standalone:
+
+```bash
+# Interactive installer (prompts for connection details and semantic/text choice)
+npm run setup:knowledge-base
+
+# Generate NDJSON only (no Elasticsearch connection needed)
+npm run generate:knowledge-base
+```
+
+### 5. Install the Security Alert Enrichment workflow
 
 The security workflow is installed automatically alongside the data-pipeline workflow when you enable "Alert-enrichment Workflow" in the setup wizard. After install:
 
@@ -122,7 +149,7 @@ The workflow enriches security alerts with:
 - **Open incident count** and recent change requests
 - **Related security alert count** (for Attack Discovery context)
 
-### 5. CMDB data for the demo
+### 6. CMDB data for the demo
 
 The CMDB generator produces security infrastructure CIs that correlate with the attack chain:
 
@@ -170,16 +197,20 @@ Plus security-themed incidents:
    - "Who owns the compromised infrastructure?"
    - "What's the CMDB context for the affected CIs?"
    - "What containment actions do you recommend?"
+   - "What does the runbook say about this type of attack?" (triggers KB search)
+   - "What MITRE ATT&CK techniques are involved?" (grounded in indexed rule guides)
 
 ## Troubleshooting
 
-| Symptom                              | Cause                                | Fix                                                 |
-| ------------------------------------ | ------------------------------------ | --------------------------------------------------- |
-| Attack Discovery shows no patterns   | Fewer than 50 alerts                 | Ship data longer; check Security → Alerts for count |
-| Detection rules not firing           | Data not in correct index patterns   | Verify `logs-aws.cloudtrail*` has documents         |
-| Workflow enrichment fields are blank | CMDB data not shipped                | Enable the `cmdb` generator                         |
-| Agent Builder SOC analyst missing    | Setup didn't include Agent Builder   | Re-run setup wizard with Agent Builder enabled      |
-| Workflow not running                 | Not attached to rules or not enabled | See workflow deployment guide                       |
+| Symptom                              | Cause                                | Fix                                                  |
+| ------------------------------------ | ------------------------------------ | ---------------------------------------------------- |
+| Attack Discovery shows no patterns   | Fewer than 50 alerts                 | Ship data longer; check Security → Alerts for count  |
+| Detection rules not firing           | Data not in correct index patterns   | Verify `logs-aws.cloudtrail*` has documents          |
+| Workflow enrichment fields are blank | CMDB data not shipped                | Enable the `cmdb` generator                          |
+| Agent Builder SOC analyst missing    | Setup didn't include Agent Builder   | Re-run setup wizard with Agent Builder enabled       |
+| Workflow not running                 | Not attached to rules or not enabled | See workflow deployment guide                        |
+| KB search returns no results         | Index not populated                  | Run `npm run setup:knowledge-base` or re-run wizard  |
+| Agent gives generic advice           | KB tool not registered               | Ensure `soc-knowledge-base` tool is in Agent Builder |
 
 ## Related docs
 

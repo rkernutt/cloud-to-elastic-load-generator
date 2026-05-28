@@ -1012,6 +1012,10 @@ export async function runSetupInstall(opts: {
     });
   };
 
+  const installKnowledgeBase = async () => {
+    await installKnowledgeBaseInner({ elasticUrl, apiKey, addLog });
+  };
+
   if (enableIntegration) await installIntegration(setupBundle.fleetPackage);
   if (enableApm) await installIntegration("apm");
   for (const pkg of extraFleetPackages) {
@@ -1028,6 +1032,7 @@ export async function runSetupInstall(opts: {
   if (startMlJobs && enableMlJobs) await openAndStartMlJobs();
   if (enableWorkflow) await installAlertEnrichmentWorkflow();
   if (enableAgentBuilder) await installAgentBuilder();
+  if (enableAgentBuilder) await installKnowledgeBase();
   if (enableSlos) await installSlos();
 }
 
@@ -1299,6 +1304,167 @@ async function installSlosInner(opts: {
       return;
     }
     addLog(`  ✗ SLO install failed: ${msg}`, "error");
+  }
+}
+
+const KB_INDEX = "kb-cloudloadgen-soc";
+
+const KB_MAPPING_TEXT = {
+  mappings: {
+    properties: {
+      "@timestamp": { type: "date" },
+      id: { type: "keyword" },
+      title: { type: "text", fields: { keyword: { type: "keyword" } } },
+      parent_title: { type: "text", fields: { keyword: { type: "keyword" } } },
+      content: { type: "text" },
+      source: { type: "keyword" },
+      category: { type: "keyword" },
+      tags: { type: "keyword" },
+      severity: { type: "keyword" },
+      risk_score: { type: "integer" },
+      mitre_tactic: { type: "keyword" },
+      mitre_technique: { type: "keyword" },
+      rule_name: { type: "text", fields: { keyword: { type: "keyword" } } },
+      rule_id: { type: "keyword" },
+    },
+  },
+  settings: { number_of_shards: 1, number_of_replicas: 0 },
+};
+
+async function installKnowledgeBaseInner(opts: {
+  elasticUrl: string;
+  apiKey: string;
+  addLog: SetupLogFn;
+}): Promise<void> {
+  const { elasticUrl, apiKey, addLog } = opts;
+  const es = elasticUrl.replace(/\/$/, "");
+
+  addLog("Installing SOC knowledge base index…");
+
+  const headers: Record<string, string> = {
+    Authorization: `ApiKey ${apiKey}`,
+    "Content-Type": "application/json",
+  };
+
+  try {
+    const headRes = await fetch(`${es}/${KB_INDEX}`, { method: "HEAD", headers });
+    if (headRes.ok) {
+      addLog(`  — Knowledge base index "${KB_INDEX}" already exists, skipping creation.`, "info");
+    } else {
+      try {
+        const semMapping = JSON.parse(JSON.stringify(KB_MAPPING_TEXT));
+        semMapping.mappings.properties.content = { type: "semantic_text" };
+        const createRes = await fetch(`${es}/${KB_INDEX}`, {
+          method: "PUT",
+          headers,
+          body: JSON.stringify(semMapping),
+        });
+        if (createRes.ok) {
+          addLog(`  ✓ Index "${KB_INDEX}" created with semantic_text mapping.`, "ok");
+        } else {
+          const err = await createRes.text();
+          if (err.includes("semantic_text") || err.includes("mapper_parsing_exception")) {
+            const fallbackRes = await fetch(`${es}/${KB_INDEX}`, {
+              method: "PUT",
+              headers,
+              body: JSON.stringify(KB_MAPPING_TEXT),
+            });
+            if (!fallbackRes.ok) {
+              addLog(`  ✗ Index creation failed: ${await fallbackRes.text()}`, "error");
+              return;
+            }
+            addLog(
+              `  ✓ Index "${KB_INDEX}" created with text mapping (ELSER not available).`,
+              "ok"
+            );
+          } else {
+            addLog(`  ✗ Index creation failed: ${err.slice(0, 200)}`, "error");
+            return;
+          }
+        }
+      } catch (e) {
+        addLog(`  ✗ Index creation error: ${e}`, "error");
+        return;
+      }
+    }
+
+    addLog("  Generating KB documents from project content…");
+
+    const { generate } = await import("../../installer/knowledge-base/generate-kb-documents.mjs");
+    const docs: Array<Record<string, unknown>> = generate();
+
+    addLog(`  Bulk-indexing ${docs.length} documents…`);
+
+    const BATCH = 200;
+    let indexed = 0;
+    let errors = 0;
+
+    for (let i = 0; i < docs.length; i += BATCH) {
+      const batch = docs.slice(i, i + BATCH);
+      const ndjsonLines: string[] = [];
+      for (const doc of batch) {
+        ndjsonLines.push(JSON.stringify({ index: { _index: KB_INDEX, _id: doc.id } }));
+        ndjsonLines.push(JSON.stringify(doc));
+      }
+      const body = ndjsonLines.join("\n") + "\n";
+
+      const bulkRes = await fetch(`${es}/_bulk`, {
+        method: "POST",
+        headers: { ...headers, "Content-Type": "application/x-ndjson" },
+        body,
+      });
+
+      if (bulkRes.ok) {
+        const result = (await bulkRes.json()) as {
+          items?: Array<{ index?: { error?: unknown } }>;
+        };
+        for (const item of result.items || []) {
+          if (item.index?.error) errors++;
+          else indexed++;
+        }
+      } else {
+        errors += batch.length;
+      }
+    }
+
+    await fetch(`${es}/${KB_INDEX}/_refresh`, { method: "POST", headers });
+
+    addLog(
+      `  ✓ Knowledge base: ${indexed} documents indexed${errors > 0 ? `, ${errors} errors` : ""}.`,
+      errors > 0 ? "warn" : "ok"
+    );
+  } catch (e) {
+    addLog(`  ✗ Knowledge base install failed: ${e}`, "error");
+  }
+}
+
+/**
+ * Removes the Cloud Loadgen SOC knowledge base index.
+ */
+export async function uninstallKnowledgeBase(opts: {
+  elasticUrl: string;
+  apiKey: string;
+  addLog: SetupLogFn;
+}): Promise<void> {
+  const { elasticUrl, apiKey, addLog } = opts;
+  const es = elasticUrl.replace(/\/$/, "");
+  const headers: Record<string, string> = {
+    Authorization: `ApiKey ${apiKey}`,
+    "Content-Type": "application/json",
+  };
+
+  addLog("Removing SOC knowledge base index…");
+  try {
+    const res = await fetch(`${es}/${KB_INDEX}`, { method: "DELETE", headers });
+    if (res.ok) {
+      addLog(`  ✓ Index "${KB_INDEX}" deleted.`, "ok");
+    } else if (res.status === 404) {
+      addLog(`  – Index "${KB_INDEX}" not found, nothing to remove.`, "info");
+    } else {
+      addLog(`  ✗ Delete failed: ${await res.text()}`, "error");
+    }
+  } catch (e) {
+    addLog(`  ✗ Knowledge base removal failed: ${e}`, "error");
   }
 }
 
