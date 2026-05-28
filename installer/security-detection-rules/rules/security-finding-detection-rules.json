@@ -33,7 +33,8 @@
       "interval": "5m",
       "from": "now-6m",
       "enabled": true,
-      "max_signals": 100
+      "max_signals": 100,
+      "note": "## Investigation\n1. Read the finding type (`event.action`) — it tells you the kill-chain phase.\n2. Identify the resource: instance ID, IAM user, or S3 bucket.\n3. Check for related chains: `Exfiltration*` → data exfil runbook; `*PrivEsc*` → IAM PrivEsc runbook.\n\n## ES|QL — HIGH/CRITICAL findings\n```\nFROM logs-aws.guardduty-*\n| WHERE @timestamp > NOW() - 1h AND (event.severity >= 7 OR message LIKE \"*HIGH*\")\n| KEEP @timestamp, event.action, event.severity, source.ip, destination.ip, message\n| SORT @timestamp DESC\n| LIMIT 25\n```\n\n## Containment\n- `Backdoor*` → Isolate instance, snapshot for forensics.\n- `Trojan*` → Quarantine, scan with endpoint protection.\n- `Exfiltration*` → Block destination IP, rotate credentials.\n- `CryptoCurrency*` → Terminate instance, check for lateral spread.\n\n## Runbook\nFull guide: `docs/runbooks/security-detection-findings.md`"
     },
     {
       "rule_id": "cloudloadgen-guardduty-crypto-mining",
@@ -67,7 +68,8 @@
       "interval": "5m",
       "from": "now-6m",
       "enabled": true,
-      "max_signals": 100
+      "max_signals": 100,
+      "note": "## Investigation\n1. Identify the instance: `aws.guardduty.resource.instance_details.instance_id`.\n2. Check the instance role — privileged roles mean the attacker may have pivoted.\n3. Is the instance internet-facing? Check security groups.\n\n## ES|QL — Instance role activity\n```\nFROM logs-aws.cloudtrail-*\n| WHERE @timestamp > NOW() - 6h AND source.ip == \"<instance_private_ip>\"\n| STATS actions = COUNT(*) BY event.action, event.outcome\n| SORT actions DESC\n| LIMIT 20\n```\n\n## Containment\n1. **Terminate the instance** — crypto miners should be killed, not isolated.\n2. **Revoke the instance role's sessions** and rotate secrets.\n3. **Check for lateral movement** — did the role access other services?\n4. **Block known mining pool IPs** at VPC level.\n\n## Runbook\nFull guide: `docs/runbooks/security-detection-findings.md`"
     },
     {
       "rule_id": "cloudloadgen-securityhub-compliance-fail",
@@ -101,7 +103,8 @@
       "interval": "5m",
       "from": "now-6m",
       "enabled": true,
-      "max_signals": 100
+      "max_signals": 100,
+      "note": "## Investigation\n1. Which controls failed? Check the compliance control ID and severity.\n2. Was this caused by a recent change? Cross-reference with ServiceNow change requests.\n3. Is the resource production? Production failures need immediate remediation.\n\n## ES|QL — Recent changes that might explain drift\n```\nFROM logs-servicenow.event-*\n| WHERE tags == \"change_request\" AND @timestamp > NOW() - 7d\n| KEEP servicenow.event.number.value, servicenow.event.short_description.value, servicenow.event.state.display_value\n| SORT @timestamp DESC\n| LIMIT 10\n```\n\n## Containment\n- Production + HIGH → Fix today.\n- Non-production or LOW → Create a posture-debt ticket.\n- Regulatory control → Escalate immediately.\n\n## Runbook\nFull guide: `docs/runbooks/security-detection-findings.md`"
     },
     {
       "rule_id": "cloudloadgen-securitylake-ocsf-alert",
@@ -118,7 +121,8 @@
       "interval": "5m",
       "from": "now-6m",
       "enabled": true,
-      "max_signals": 100
+      "max_signals": 100,
+      "note": "## Investigation\n1. Check the original source: `metadata.product.name` tells you which tool generated the finding.\n2. Compare `event.severity` and `log.level` to determine urgency.\n3. Cross-reference with GuardDuty or Security Hub if the finding also appears there.\n\n## ES|QL — Security Lake findings\n```\nFROM logs-aws.securitylake-*\n| WHERE @timestamp > NOW() - 1h AND (event.severity >= 7 OR log.level IN (\"error\", \"warn\"))\n| KEEP @timestamp, event.action, event.severity, log.level, message\n| SORT @timestamp DESC\n| LIMIT 25\n```\n\n## Containment\nFollow the source-specific playbook (GuardDuty, Macie, Inspector).\n\n## Runbook\nFull guide: `docs/runbooks/security-detection-findings.md`"
     },
     {
       "rule_id": "cloudloadgen-cloudtrail-root-activity",
@@ -152,7 +156,8 @@
       "interval": "5m",
       "from": "now-6m",
       "enabled": true,
-      "max_signals": 100
+      "max_signals": 100,
+      "note": "## Investigation\n1. What action was performed? Root calling CreateUser/CreateAccessKey/DeleteTrail is an emergency.\n2. Check `source.ip` — root from an unknown IP is confirmed compromise.\n3. Was MFA used? Root without MFA means email+password credentials are compromised.\n\n## ES|QL — Root account activity\n```\nFROM logs-aws.cloudtrail-*\n| WHERE @timestamp > NOW() - 24h AND (user.name == \"root\" OR message LIKE \"*Root*\")\n| KEEP @timestamp, event.action, source.ip, user_agent.original, event.outcome\n| SORT @timestamp DESC\n| LIMIT 50\n```\n\n## Containment\n1. **Change root password immediately** from a trusted device.\n2. **Enable MFA** on root if not already enabled.\n3. **Delete root access keys.**\n4. **Enable SCPs** to deny root API access.\n\n**Always page security leadership.** Root compromise is Sev-1.\n\n## Runbook\nFull guide: `docs/runbooks/security-detection-findings.md`"
     },
     {
       "rule_id": "cloudloadgen-cloudtrail-logging-disabled",
@@ -186,7 +191,8 @@
       "interval": "5m",
       "from": "now-6m",
       "enabled": true,
-      "max_signals": 100
+      "max_signals": 100,
+      "note": "## Investigation\n1. Which trail was affected? Check `aws.cloudtrail.request_parameters` for the trail name.\n2. Is logging currently stopped? Verify: `aws cloudtrail get-trail-status`.\n3. Who did it? Check `user.name` and `source.ip`.\n4. What happened between the stop and now? There's a gap in your audit trail.\n\n## ES|QL — Trail tampering events\n```\nFROM logs-aws.cloudtrail-*\n| WHERE @timestamp > NOW() - 24h\n| WHERE event.action IN (\"StopLogging\", \"DeleteTrail\", \"UpdateTrail\")\n| KEEP @timestamp, event.action, user.name, source.ip, event.outcome\n| SORT @timestamp DESC\n```\n\n## ES|QL — Gap analysis\n```\nFROM logs-aws.cloudtrail-*\n| WHERE @timestamp > NOW() - 6h\n| STATS events = COUNT(*) BY BUCKET(@timestamp, 5 minutes)\n| SORT @timestamp ASC\n```\nA gap in the histogram = period when logging was stopped.\n\n## Containment\n1. **Re-enable logging immediately.**\n2. **Disable the actor** who stopped logging.\n3. **Assume the worst** for the gap period — rotate all credentials.\n4. **Add SCP** to deny `cloudtrail:StopLogging`.\n\n**Always page security leadership.** Audit log tampering is Sev-1.\n\n## Runbook\nFull guide: `docs/runbooks/security-detection-findings.md`"
     }
   ]
 }

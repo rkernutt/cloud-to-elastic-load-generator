@@ -33,7 +33,8 @@
       "interval": "5m",
       "from": "now-6m",
       "enabled": true,
-      "max_signals": 100
+      "max_signals": 100,
+      "note": "## Investigation\n1. Read the finding type — different exfiltration types indicate different vectors.\n2. Identify the principal: IAM user, role, or instance.\n3. Check the destination: external IP, different AWS account, or foreign region.\n4. Is the principal still active? Contain NOW if sessions are open.\n\n## ES|QL — Exfiltration details\n```\nFROM logs-aws.guardduty-*\n| WHERE @timestamp > NOW() - 1h AND (message LIKE \"*Exfiltration*\" OR message LIKE \"*exfil*\")\n| KEEP @timestamp, event.action, event.severity, source.ip, destination.ip, message\n| SORT @timestamp DESC\n```\n\n## ES|QL — CMDB context for affected storage\n```\nFROM logs-servicenow.event-*\n| WHERE tags == \"cmdb_ci\" AND servicenow.event.category.value == \"Storage\"\n| KEEP servicenow.event.name.value, servicenow.event.owned_by.display_value, servicenow.event.ip_address.value\n| LIMIT 10\n```\n\n## Containment\n1. **Rotate credentials immediately.**\n2. **Block outbound traffic** to the destination IP.\n3. **Apply deny-all S3 bucket policy** for the compromised principal.\n4. **Open Sev-1 incident.**\n\n## Runbook\nFull guide: `docs/runbooks/security-detection-exfil.md`"
     },
     {
       "rule_id": "cloudloadgen-exfil-s3-burst",
@@ -71,7 +72,8 @@
       "interval": "5m",
       "from": "now-6m",
       "enabled": true,
-      "max_signals": 100
+      "max_signals": 100,
+      "note": "## Investigation\n1. Which IP triggered the threshold? Identify the source.\n2. Which bucket(s) were accessed? Check `aws.cloudtrail.resources.arn`.\n3. Is this a known data pipeline? Check `user_agent.original` for Spark, EMR, Glue.\n\n## ES|QL — Burst source identification\n```\nFROM logs-aws.cloudtrail-*\n| WHERE @timestamp > NOW() - 30m AND event.action == \"GetObject\"\n| STATS reads = COUNT(*) BY source.ip, user.name\n| SORT reads DESC\n| LIMIT 10\n```\n\n## Containment\n- Unknown IP/principal → Block IP and rotate credentials.\n- Known pipeline → Add exception to detection rule.\n- Sensitive bucket → Audit exactly which objects were read.\n\n## Runbook\nFull guide: `docs/runbooks/security-detection-exfil.md`"
     },
     {
       "rule_id": "cloudloadgen-exfil-vpc-high-egress",
@@ -105,7 +107,8 @@
       "interval": "5m",
       "from": "now-6m",
       "enabled": true,
-      "max_signals": 100
+      "max_signals": 100,
+      "note": "## Investigation\n1. Which source instance? Map source IP to EC2 instance.\n2. Which destination? Foreign IPs, Tor nodes, or file-sharing services are high-signal.\n3. Compare to the last 7 days of egress from the same source.\n\n## ES|QL — Cross-reference with CloudTrail\n```\nFROM logs-aws.cloudtrail-*\n| WHERE @timestamp > NOW() - 1h AND source.ip == \"<high_egress_ip>\"\n| STATS actions = COUNT(*) BY event.action, event.outcome\n| SORT actions DESC\n| LIMIT 20\n```\n\n## Containment\n1. **Block the destination** at SG/NACL.\n2. **Investigate the source instance** for malware.\n3. **Capture flow logs** for forensic analysis.\n\n## Runbook\nFull guide: `docs/runbooks/security-detection-exfil.md`"
     },
     {
       "rule_id": "cloudloadgen-waf-block-spike",
@@ -139,7 +142,8 @@
       "interval": "5m",
       "from": "now-6m",
       "enabled": true,
-      "max_signals": 100
+      "max_signals": 100,
+      "note": "## Investigation\n1. What's being blocked? Check WAF rule IDs — SQLi, XSS, rate limiting?\n2. From where? Identify top source IPs.\n3. Is it automated? High volume from few IPs = scanner; many IPs = distributed.\n\n## ES|QL — Source IP concentration\n```\nFROM logs-aws.waf-*\n| WHERE @timestamp > NOW() - 1h AND event.outcome == \"failure\"\n| STATS blocks = COUNT(*) BY source.ip\n| SORT blocks DESC\n| LIMIT 10\n```\n\n## Containment\n- Single-source scanner → Add IP to WAF blacklist.\n- Distributed → Enable Shield Advanced or increase rate limits.\n- Check for bypass attempts on non-WAF endpoints.\n\n## Runbook\nFull guide: `docs/runbooks/security-detection-exfil.md`"
     }
   ]
 }

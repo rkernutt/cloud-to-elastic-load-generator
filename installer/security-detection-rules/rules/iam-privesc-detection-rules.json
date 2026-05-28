@@ -34,7 +34,7 @@
       "from": "now-6m",
       "enabled": true,
       "max_signals": 100,
-      "note": "## Investigation\n1. Check `user.name` and `source.ip` for the actor\n2. Look up the target user in `labels.target_user`\n3. Check `labels.attack_session_id` for correlated events\n4. Verify IP is from a known corporate range"
+      "note": "## Investigation\n1. Identify the **actor** (`user.name`) and **target** (check `labels.target_user` or `aws.cloudtrail.request_parameters` for `UserName`).\n2. Are they the same person? Cross-user key creation is high-signal.\n3. Check `source.ip` against known corporate/VPN ranges.\n4. Check `labels.attack_session_id` — if present, this is part of a coordinated attack chain.\n\n## ES|QL — Key creation lookup\n```\nFROM logs-aws.cloudtrail-*\n| WHERE @timestamp > NOW() - 1h AND event.action == \"CreateAccessKey\"\n| KEEP @timestamp, user.name, source.ip, user_agent.original, labels.attack_session_id, labels.target_user\n| SORT @timestamp DESC\n```\n\n## Containment\n1. **Disable the new access key** — `aws iam update-access-key --status Inactive`\n2. **Rotate the actor's credentials** if compromised.\n3. **Review all keys** for the target user.\n\n## Runbook\nFull guide: `docs/runbooks/security-detection-iam-privesc.md`"
     },
     {
       "rule_id": "cloudloadgen-iam-admin-policy-attached",
@@ -69,7 +69,7 @@
       "from": "now-6m",
       "enabled": true,
       "max_signals": 100,
-      "note": "## Investigation\n1. Identify the actor via `user.name` and `source.ip`\n2. Check if `mfa_authenticated` is false — strong indicator of compromised credentials\n3. Correlate with `labels.attack_session_id` for full attack chain\n4. Check CMDB for the target user's role and department"
+      "note": "## Investigation\n1. Confirm the policy and target user from `aws.cloudtrail.request_parameters`.\n2. Check `mfa_authenticated` — if `false`, credentials are likely compromised.\n3. Was there a matching ServiceNow change request? Check CMDB.\n4. Look backward — ListUsers and CreateAccessKey often precede this.\n\n## ES|QL — Policy attach lookup\n```\nFROM logs-aws.cloudtrail-*\n| WHERE @timestamp > NOW() - 1h AND event.action == \"AttachUserPolicy\" AND message LIKE \"*AdministratorAccess*\"\n| KEEP @timestamp, user.name, source.ip, user_agent.original, labels.attack_session_id\n| SORT @timestamp DESC\n```\n\n## ES|QL — Full attack chain\n```\nFROM logs-aws.cloudtrail-*\n| WHERE @timestamp > NOW() - 6h AND user.name == \"<attacker>\"\n| KEEP @timestamp, event.action, source.ip, event.outcome\n| SORT @timestamp ASC\n```\n\n## Containment\n1. **Detach the policy immediately.**\n2. **Disable the actor's credentials.**\n3. **Audit all IAM changes** by the actor in the last 24h.\n\n## Runbook\nFull guide: `docs/runbooks/security-detection-iam-privesc.md`"
     },
     {
       "rule_id": "cloudloadgen-iam-assume-role-suspicious",
@@ -104,7 +104,7 @@
       "from": "now-6m",
       "enabled": true,
       "max_signals": 100,
-      "note": "## Investigation\n1. Check `source.ip` — is it from a known range?\n2. Verify `aws.cloudtrail.user_identity.session_context.attributes.mfa_authenticated`\n3. Check `labels.attack_session_id` for the full attack chain\n4. Look for preceding CreateAccessKey and AttachUserPolicy events"
+      "note": "## Investigation\n1. Check the role ARN in `aws.cloudtrail.request_parameters`.\n2. Verify `source.ip` against known corporate/VPN ranges — non-corporate IP is extremely high signal.\n3. Trace forward: what did the assumed role do next?\n4. Use `labels.attack_session_id` to find the full attack sequence.\n\n## ES|QL — Role assumption + post-assume activity\n```\nFROM logs-aws.cloudtrail-*\n| WHERE @timestamp > NOW() - 1h AND labels.attack_session_id IS NOT NULL\n| KEEP @timestamp, event.action, user.name, source.ip, event.outcome, threat.tactic.name\n| SORT @timestamp ASC\n```\n\n## Containment\n1. **Revoke all active sessions** for the assumed role.\n2. **Block the source IP** at WAF/NACL/SG.\n3. **Disable the actor's original credentials.**\n4. **Audit post-assume activity** for data access or secret retrieval.\n\n## Runbook\nFull guide: `docs/runbooks/security-detection-iam-privesc.md`"
     },
     {
       "rule_id": "cloudloadgen-iam-user-enumeration",
@@ -138,7 +138,8 @@
       "interval": "5m",
       "from": "now-6m",
       "enabled": true,
-      "max_signals": 100
+      "max_signals": 100,
+      "note": "## Investigation\n1. Who called ListUsers? Check `user.name` and `source.ip`.\n2. Was it followed by CreateAccessKey or AttachUserPolicy within 5 minutes?\n3. Is this user expected to enumerate IAM? Developers rarely need this.\n\n## ES|QL — Did dangerous actions follow?\n```\nFROM logs-aws.cloudtrail-*\n| WHERE @timestamp > NOW() - 1h AND user.name == \"<user>\"\n| WHERE event.action IN (\"ListUsers\", \"CreateAccessKey\", \"AttachUserPolicy\", \"AssumeRole\")\n| KEEP @timestamp, event.action, source.ip, event.outcome\n| SORT @timestamp ASC\n```\n\n## Containment\n- If followed by key creation/policy changes: treat as **confirmed reconnaissance** and follow IAM PrivEsc containment.\n- If standalone: investigate but don't contain yet.\n\n## Runbook\nFull guide: `docs/runbooks/security-detection-iam-privesc.md`"
     },
     {
       "rule_id": "cloudloadgen-iam-no-mfa-api-call",
@@ -172,7 +173,8 @@
       "interval": "5m",
       "from": "now-6m",
       "enabled": true,
-      "max_signals": 100
+      "max_signals": 100,
+      "note": "## Investigation\n1. Confirm MFA status: `aws.cloudtrail.user_identity.session_context.attributes.mfa_authenticated` = `false`.\n2. Is this a service account? Check `user_agent.original` for SDK/CLI patterns.\n3. What action was performed? CreateAccessKey without MFA is higher risk.\n\n## ES|QL — Non-MFA privileged actions\n```\nFROM logs-aws.cloudtrail-*\n| WHERE @timestamp > NOW() - 1h AND event.category == \"iam\"\n| WHERE event.action IN (\"CreateAccessKey\", \"AttachUserPolicy\", \"AssumeRole\")\n| WHERE message LIKE \"*mfa_authenticated*false*\"\n| KEEP @timestamp, event.action, user.name, source.ip, user_agent.original\n| SORT @timestamp DESC\n```\n\n## Containment\n1. **Enforce MFA** on the user via IAM policy.\n2. **Rotate access keys** — long-term credentials may be compromised.\n3. **Enable AWS SCP** to deny IAM actions without MFA.\n\n## Runbook\nFull guide: `docs/runbooks/security-detection-iam-privesc.md`"
     },
     {
       "rule_id": "cloudloadgen-iam-multiple-actions-single-ip",
@@ -211,7 +213,8 @@
       "interval": "5m",
       "from": "now-6m",
       "enabled": true,
-      "max_signals": 100
+      "max_signals": 100,
+      "note": "## Investigation\n1. Identify the IP — this is the key pivot. All activity from this IP should be investigated.\n2. What actions were performed? Check for automated attack tooling patterns.\n3. Check `user_agent.original` for `python-requests`, `boto3`, `pacu`, or enumeration tools.\n4. Cross-reference with CMDB — is this a known corporate/developer IP?\n\n## ES|QL — Action breakdown per IP\n```\nFROM logs-aws.cloudtrail-*\n| WHERE @timestamp > NOW() - 30m AND event.category == \"iam\" AND event.type == \"change\"\n| STATS actions = COUNT(*) BY source.ip, event.action, user.name\n| SORT actions DESC\n| LIMIT 20\n```\n\n## ES|QL — All activity from suspicious IP\n```\nFROM logs-aws.cloudtrail-*,logs-aws.guardduty-*,logs-aws.vpcflow-*\n| WHERE @timestamp > NOW() - 1h AND source.ip == \"<ip>\"\n| STATS count = COUNT(*) BY event.dataset, event.action, event.outcome\n| SORT count DESC\n```\n\n## Containment\n1. **Block the source IP** at WAF, SG, and NACL.\n2. **Disable all users** that acted from this IP.\n3. **Revert all IAM changes** made from this IP.\n\n## Runbook\nFull guide: `docs/runbooks/security-detection-iam-privesc.md`"
     }
   ]
 }

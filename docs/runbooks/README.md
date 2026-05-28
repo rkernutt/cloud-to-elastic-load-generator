@@ -2,7 +2,7 @@
 
 Practical "what to do when this alert fires" guides for the alerting rules that **Cloud Loadgen for Elastic** installs. They're designed for the on-call engineer who lands on an Alert Details page and needs to triage in under five minutes.
 
-The runbooks are **cloud-agnostic** in structure and call out vendor-specific datasets/queries inline (AWS, GCP, Azure). They cover the 51 chained-scenario rules across the four chains and apply to ESS, Serverless, and self-hosted deployments. An additional **192 per-service domain rules** (compute, database, networking, AI/ML, storage, messaging, DevOps, security-ops) ship alongside the chains — **243 rules total** — each with its own investigation guide and linked dashboards.
+The runbooks are **cloud-agnostic** in structure and call out vendor-specific datasets/queries inline (AWS, GCP, Azure). They cover the 51 chained-scenario rules across the four chains and apply to ESS, Serverless, and self-hosted deployments. An additional **192 per-service domain rules** (compute, database, networking, AI/ML, storage, messaging, DevOps, security-ops) ship alongside the chains — **243 rules total** — each with its own investigation guide and linked dashboards. Plus **16 Elastic Security detection rules** for Attack Discovery, each with a full runbook.
 
 ## Runbooks by chain
 
@@ -12,6 +12,18 @@ The runbooks are **cloud-agnostic** in structure and call out vendor-specific da
 | Data Exfiltration Chain        | Threat-detector exfiltration, high egress, mass object access, full chain          | [data-exfil-chain-alerts.md](./data-exfil-chain-alerts.md)             |
 | IAM Privilege Escalation Chain | Access-key creation, admin policy attach, AssumeRole+TTPs, dangerous-action volume | [iam-privesc-chain-alerts.md](./iam-privesc-chain-alerts.md)           |
 | Security Finding Chain         | High/critical findings, multi-stage burst, compliance failed, source-IP repetition | [security-finding-chain-alerts.md](./security-finding-chain-alerts.md) |
+
+## Security detection rule runbooks (Attack Discovery)
+
+These runbooks cover the **16 Elastic Security detection rules** installed via the Detection Engine API. They produce alerts in `.alerts-security.alerts-*` for Attack Discovery and Agent Builder investigation.
+
+| Category                 | Rules                                                                                                            | Runbook                                                                  |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| IAM Privilege Escalation | Access key creation, admin policy attach, AssumeRole, user enumeration, no-MFA, threshold                        | [security-detection-iam-privesc.md](./security-detection-iam-privesc.md) |
+| Security Findings        | GuardDuty HIGH/CRITICAL, crypto mining, Security Hub compliance, Security Lake, root account, CloudTrail disable | [security-detection-findings.md](./security-detection-findings.md)       |
+| Data Exfiltration        | GuardDuty exfiltration, S3 mass access, VPC egress, WAF blocks                                                   | [security-detection-exfil.md](./security-detection-exfil.md)             |
+
+Each detection rule also embeds its investigation guide directly in the `note` field (visible in the Security → Rules → Rule details page), with ES|QL queries, containment steps, and a link back to the full runbook.
 
 ## How to find a runbook from an alert
 
