@@ -88,6 +88,7 @@ const SERVICE_GROUPS: ServiceGroup[] = [
       { id: "waf", label: "WAF", icon: "◈", desc: "Web ACL block/allow events" },
       { id: "wafv2", label: "WAF v2", icon: "◈", desc: "Web ACL allow/block rules" },
       { id: "route53", label: "Route 53", icon: "◉", desc: "DNS query logs" },
+      { id: "route53resolver", label: "Route 53 Resolver", icon: "◎", desc: "VPC DNS query logs" },
       { id: "networkfirewall", label: "Network FW", icon: "⊘", desc: "Firewall flow logs" },
       { id: "shield", label: "Shield", icon: "⬡", desc: "DDoS detection events" },
       {

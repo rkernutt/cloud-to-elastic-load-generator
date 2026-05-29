@@ -1003,6 +1003,185 @@ function generateRoute53Log(ts: string, er: number) {
   };
 }
 
+function generateRoute53ResolverLog(ts: string, er: number): EcsDocument {
+  const region = rand(REGIONS);
+  const acct = randAccount();
+  const vpcId = `vpc-${randHexId(8)}`;
+  const isErr = Math.random() < er;
+
+  const internalDomains = [
+    "api.payments.internal",
+    "db-primary.rds.internal",
+    "cache-01.redis.internal",
+    "kafka-broker-1.streaming.internal",
+    "vault.secrets.internal",
+    "grafana.monitoring.internal",
+    "registry.containers.internal",
+    "auth.identity.internal",
+  ];
+  const externalDomains = [
+    "s3.amazonaws.com",
+    "dynamodb.us-east-1.amazonaws.com",
+    "sqs.eu-west-2.amazonaws.com",
+    "secretsmanager.us-east-1.amazonaws.com",
+    "api.github.com",
+    "registry.npmjs.org",
+    "pypi.org",
+    "hub.docker.com",
+  ];
+  const suspiciousDomains = [
+    `c2-${randId(6).toLowerCase()}.duckdns.org`,
+    `exfil-${randId(4).toLowerCase()}.ngrok.io`,
+    `data.${randId(8).toLowerCase()}.xyz`,
+    `tunnel-${randId(5).toLowerCase()}.serveo.net`,
+  ];
+
+  const isSuspicious = Math.random() < 0.08;
+  const isInternal = !isSuspicious && Math.random() < 0.4;
+  const queryName = isSuspicious
+    ? rand(suspiciousDomains)
+    : isInternal
+      ? rand(internalDomains)
+      : rand(externalDomains);
+
+  const queryType = rand(["A", "A", "A", "AAAA", "CNAME", "PTR", "MX", "TXT", "SRV", "SOA"]);
+  const rcode = isErr
+    ? rand(["NXDOMAIN", "SERVFAIL", "REFUSED"])
+    : isSuspicious && Math.random() < 0.5
+      ? "NXDOMAIN"
+      : "NOERROR";
+
+  const srcIp = randPrivateIp();
+  const srcPort = randInt(32768, 61000);
+  const instanceId = `i-${randHexId(17)}`;
+  const resolverEndpointId = `rslvr-in-${randHexId(12)}`;
+  const resolverNetworkInterfaceId = `rni-${randHexId(12)}`;
+
+  const hasFirewall = isSuspicious && Math.random() < 0.7;
+  const firewallAction = hasFirewall ? rand(["BLOCK", "BLOCK", "ALERT"]) : undefined;
+  const firewallRuleGroupId = hasFirewall ? `rslvr-frg-${randHexId(12)}` : undefined;
+  const firewallDomainListId = hasFirewall ? `rslvr-fdl-${randHexId(12)}` : undefined;
+
+  const answers =
+    rcode === "NOERROR"
+      ? queryType === "A"
+        ? [
+            {
+              Rdata: `${randInt(1, 254)}.${randInt(0, 255)}.${randInt(0, 255)}.${randInt(1, 254)}`,
+              Type: "A",
+              Class: "IN",
+            },
+          ]
+        : queryType === "AAAA"
+          ? [{ Rdata: `2600:1f18:${randHexId(4)}::${randInt(1, 9)}`, Type: "AAAA", Class: "IN" }]
+          : queryType === "CNAME"
+            ? [
+                {
+                  Rdata: `${queryName.split(".")[0]}.elb.${region}.amazonaws.com`,
+                  Type: "CNAME",
+                  Class: "IN",
+                },
+              ]
+            : []
+      : [];
+
+  const nativeLog = {
+    version: "1.100000",
+    account_id: acct.id,
+    region,
+    vpc_id: vpcId,
+    query_timestamp: ts,
+    query_name: `${queryName}.`,
+    query_type: queryType,
+    query_class: "IN",
+    rcode,
+    answers,
+    srcaddr: srcIp,
+    srcport: String(srcPort),
+    transport: rand(["UDP", "UDP", "UDP", "TCP"]),
+    srcids: {
+      instance: instanceId,
+      resolver_endpoint: resolverEndpointId,
+      resolver_network_interface: resolverNetworkInterfaceId,
+    },
+    ...(hasFirewall
+      ? {
+          firewall_rule_group_id: firewallRuleGroupId,
+          firewall_rule_action: firewallAction,
+          firewall_domain_list_id: firewallDomainListId,
+        }
+      : {}),
+  };
+
+  const eventCategory: string[] = ["network"];
+  if (hasFirewall) eventCategory.push("intrusion_detection");
+
+  return {
+    "@timestamp": ts,
+    host: { name: randTargetHost() },
+    cloud: {
+      provider: "aws",
+      region,
+      account: { id: acct.id, name: acct.name },
+      service: { name: "route53resolver" },
+      instance: { id: instanceId },
+    },
+    aws: {
+      dimensions: { VpcId: vpcId, Region: region },
+      route53_resolver: {
+        ...nativeLog,
+      },
+    },
+    dns: {
+      question: { name: queryName, type: queryType, class: "IN" },
+      response_code: rcode,
+      ...(answers.length > 0
+        ? {
+            answers: answers.map((a) => ({
+              data: a.Rdata,
+              type: a.Type,
+              class: a.Class,
+            })),
+          }
+        : {}),
+    },
+    source: { ip: srcIp, port: srcPort },
+    network: { transport: nativeLog.transport.toLowerCase(), protocol: "dns" },
+    ...(hasFirewall
+      ? {
+          rule: {
+            id: firewallRuleGroupId,
+            name: `DNS Firewall ${firewallAction}`,
+            category: "dns_firewall",
+            ruleset: firewallDomainListId,
+          },
+        }
+      : {}),
+    event: {
+      outcome: rcode === "NOERROR" && !hasFirewall ? "success" : "failure",
+      category: eventCategory,
+      type: hasFirewall && firewallAction === "BLOCK" ? ["denied"] : ["protocol", "info"],
+      dataset: "aws.route53_resolver_logs",
+      provider: "route53resolver.amazonaws.com",
+      duration: randInt(1, isErr ? 2000 : 50) * 1e6,
+    },
+    message: `Route 53 Resolver: ${queryType} ${queryName} → ${rcode}${hasFirewall ? ` [DNS Firewall: ${firewallAction}]` : ""} from ${srcIp} in ${vpcId}`,
+    log: { level: hasFirewall && firewallAction === "BLOCK" ? "error" : isErr ? "warn" : "info" },
+    ...(hasFirewall && firewallAction === "BLOCK"
+      ? {
+          error: {
+            code: "DNSFirewallBlock",
+            message: `DNS Firewall blocked query for ${queryName}`,
+            type: "dns_firewall",
+          },
+        }
+      : {}),
+    labels: {
+      ...(isSuspicious ? { dns_threat_indicator: "suspicious_domain" } : {}),
+    },
+  };
+}
+
 function generateNetworkFirewallLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
@@ -2108,6 +2287,7 @@ export {
   generateWafLog,
   generateWafv2Log,
   generateRoute53Log,
+  generateRoute53ResolverLog,
   generateNetworkFirewallLog,
   generateShieldLog,
   generateGlobalAcceleratorLog,

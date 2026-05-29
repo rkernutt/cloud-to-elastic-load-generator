@@ -50,6 +50,7 @@ const SERVICE_INGESTION_DEFAULTS = {
   ecr: "cloudwatch",
   imagebuilder: "cloudwatch",
   route53: "cloudwatch",
+  route53resolver: "cloudwatch",
   globalaccelerator: "cloudwatch",
   transitgateway: "cloudwatch",
   directconnect: "cloudwatch",

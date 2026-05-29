@@ -20,6 +20,7 @@ const ELASTIC_DATASET_MAP = {
   wafv2: "aws.waf",
   rds: "aws.rds",
   route53: "aws.route53_public_logs",
+  route53resolver: "aws.route53_resolver_logs",
   emr: "aws.emr_logs",
   ec2: "aws.ec2_logs",
   ecs: "aws.ecs",
@@ -308,6 +309,7 @@ const METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "managedblockchain",
   // Additional CloudWatch-capable
   "route53",
+  "route53resolver",
   "autoscaling",
   "quicksight",
   "mwaa",
@@ -381,6 +383,7 @@ const ELASTIC_METRICS_DATASET_MAP = {
   storagelens: "aws.s3_storage_lens",
   vpc: "aws.vpcflow",
   route53: "aws.route53_public_logs",
+  route53resolver: "aws.route53_resolver_logs",
   // Security services
   guardduty: "aws.guardduty",
   cloudtrail: "aws.cloudtrail",
