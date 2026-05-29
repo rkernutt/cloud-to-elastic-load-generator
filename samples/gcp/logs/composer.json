@@ -1,20 +1,20 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
+  "severity": "WARNING",
   "labels": {
     "environment_name": "composer-prod",
-    "dag_id": "hourly_sync"
+    "dag_id": "daily_etl"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west8",
+    "region": "asia-northeast3",
     "project": {
-      "id": "globex-prod-482910",
-      "name": "Globex Production"
+      "id": "globex-shared-529384",
+      "name": "Globex Shared Services"
     },
     "account": {
-      "id": "482910375621",
-      "name": "Globex Production"
+      "id": "529384716205",
+      "name": "Globex Shared Services"
     },
     "service": {
       "name": "composer"
@@ -23,13 +23,13 @@
   "gcp": {
     "composer": {
       "environment_name": "composer-prod",
-      "dag_id": "hourly_sync",
-      "task_id": "notify_slack",
-      "execution_date": "2026-05-21 20:21:12",
-      "state": "success",
+      "dag_id": "daily_etl",
+      "task_id": "transform_load",
+      "execution_date": "2026-05-28 10:59:39",
+      "state": "up_for_retry",
       "try_number": 1,
       "operator": "KubernetesPodOperator",
-      "duration_seconds": 3375
+      "duration_seconds": 2057
     }
   },
   "event": {
@@ -40,13 +40,13 @@
     "type": [
       "end"
     ],
-    "action": "hourly_sync.notify_slack",
+    "action": "daily_etl.transform_load",
     "outcome": "success",
-    "duration": 3375000000000,
+    "duration": 2057000000000,
     "module": "gcp",
     "dataset": "gcp.composer"
   },
-  "message": "[2026-04-04T12:00:00.000Z] {composer-prod} INFO - Marking task as success: hourly_sync.notify_slack duration=3375s",
+  "message": "[2026-04-04T12:00:00.000Z] {composer-prod} INFO - Marking task as up_for_retry: daily_etl.transform_load duration=2057s",
   "service": {
     "name": "composer",
     "type": "gcp"
@@ -65,32 +65,32 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west8",
-    "id": "yp1nqmqzjgtuhodmezboss2qz1bn6fiflx1m"
+    "name": "elastic-agent-gcp-asia-northeast3",
+    "id": "8rxan6a5p32f27nxezgm9d4iwbjvn45dzpdj"
   },
   "input": {
     "type": "gcp-pubsub"
   },
-  "logName": "projects/globex-prod-482910/logs/composer",
+  "logName": "projects/globex-shared-529384/logs/composer",
   "resource": {
     "type": "cloud_composer_environment",
     "labels": {
-      "project_id": "globex-prod-482910",
-      "region": "europe-west8"
+      "project_id": "globex-shared-529384",
+      "region": "asia-northeast3"
     }
   },
-  "insertId": "EDI4ORCI5XAF",
+  "insertId": "TS92E7SZ86BI",
   "jsonPayload": {
     "composer": {
       "environment_name": "composer-prod",
-      "dag_id": "hourly_sync",
-      "task_id": "notify_slack",
-      "execution_date": "2026-05-21 20:21:12",
-      "state": "success",
+      "dag_id": "daily_etl",
+      "task_id": "transform_load",
+      "execution_date": "2026-05-28 10:59:39",
+      "state": "up_for_retry",
       "try_number": 1,
       "operator": "KubernetesPodOperator",
-      "duration_seconds": 3375
+      "duration_seconds": 2057
     },
-    "message": "[2026-04-04T12:00:00.000Z] {composer-prod} INFO - Marking task as success: hourly_sync.notify_slack duration=3375s"
+    "message": "[2026-04-04T12:00:00.000Z] {composer-prod} INFO - Marking task as up_for_retry: daily_etl.transform_load duration=2057s"
   }
 }

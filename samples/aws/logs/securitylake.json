@@ -1,44 +1,46 @@
 {
-  "@timestamp": "2026-05-22T12:29:30.113Z",
+  "@timestamp": "2026-05-28T16:58:15.156Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
+    "region": "ap-southeast-2",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "securitylake" }
   },
   "aws": {
-    "dimensions": { "OcsfClass": "Security Finding", "SourceType": "LAMBDA:SecurityHub" },
+    "dimensions": { "OcsfClass": "Authentication", "SourceType": "LAMBDA:CloudTrail" },
     "securitylake": {
-      "source_type": "LAMBDA:SecurityHub",
-      "class_uid": 2001,
-      "class_name": "Security Finding",
-      "category_uid": 2,
-      "category_name": "Findings",
-      "activity_id": 4,
-      "activity_name": "Read",
-      "severity_id": 3,
-      "severity": "Medium",
+      "source_type": "LAMBDA:CloudTrail",
+      "class_uid": 3002,
+      "class_name": "Authentication",
+      "category_uid": 3,
+      "category_name": "Identity & Access Management Activity",
+      "activity_id": 2,
+      "activity_name": "Create",
+      "severity_id": 2,
+      "severity": "Low",
       "status_id": 1,
       "status": "Success",
-      "time": 1779452970113,
+      "time": 1779987495156,
       "metadata": {
         "version": "1.1.0",
-        "product": { "name": "SecurityHub", "vendor_name": "AWS" },
-        "uid": "422ea5f0-a1f4-4eb4-9f51-6ca993f95bd3"
+        "product": { "name": "CloudTrail", "vendor_name": "AWS" },
+        "uid": "08c9e79b-da15-424c-9b4f-85522849312f"
       },
       "ocsf_cloud": {
         "provider": "AWS",
         "account": { "uid": "738291046572" },
-        "region": "us-east-2"
+        "region": "ap-southeast-2"
       },
-      "finding": {
-        "uid": "a0fd52f5-55a7-4e11-baac-01571f38a4ce",
-        "title": "Trojan:EC2/DNSDataExfiltration",
-        "types": ["TTPs/Initial Access"],
-        "first_seen_time": 1779445770113,
-        "last_seen_time": 1779452970113,
-        "confidence_score": 90
-      }
+      "actor": {
+        "user": {
+          "name": "breakglass-ops",
+          "uid": "arn:aws:iam::738291046572:user/breakglass-ops"
+        },
+        "session": { "is_mfa": true, "uid": "ASIA446KU4QMECQJU355" }
+      },
+      "auth_protocol": "SAML",
+      "src_endpoint": { "ip": "111.218.231.211" },
+      "is_mfa": true
     },
     "s3": {
       "bucket": {
@@ -46,13 +48,13 @@
         "arn": "arn:aws:s3:::aws-securitylake-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/738291046572/securitylake/us-east-2/2026/05/22/securitylake_FMYM3MKL0LOZPYA4ORGQ.log.gz"
+        "key": "AWSLogs/738291046572/securitylake/ap-southeast-2/2026/05/28/securitylake_LBYRYTCKZMZPLVFNADIF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securitylake/logs",
-      "log_stream": "us-east-2/41hr03dt",
-      "ingestion_time": "2026-05-22T12:29:31.338Z"
+      "log_stream": "ap-southeast-2/z9ruthlb",
+      "ingestion_time": "2026-05-28T16:58:16.015Z"
     }
   },
   "event": {
@@ -63,16 +65,16 @@
     "provider": "securitylake.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security Lake [Security Finding/Read] Medium: SecurityHub success",
-  "log": { "level": "warn" },
+  "message": "Security Lake [Authentication/Create] Low: CloudTrail success",
+  "log": { "level": "info" },
   "service": { "name": "securitylake", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.securitylake", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "4rh350bgzx0tpnzqbcqwzs3jjqeq7sdqqjfu"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "t1h7s8xnz8zm1oowo9frqyqp7pf7g84k83w2"
   },
   "input": { "type": "http_endpoint" }
 }

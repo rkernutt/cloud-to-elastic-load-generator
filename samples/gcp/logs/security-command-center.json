@@ -2,61 +2,61 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "log": { "level": "info" },
   "labels": {},
-  "severity": "INFO",
-  "logName": "projects/globex-sec-847293/logs/cloudaudit.googleapis.com%2Fpolicy",
-  "insertId": "x89yabmo7p41c3e1",
-  "resource": { "type": "project", "labels": { "project_id": "globex-sec-847293" } },
+  "severity": "WARNING",
+  "logName": "projects/globex-prod-482910/logs/cloudaudit.googleapis.com%2Fpolicy",
+  "insertId": "xpsyz1en1ufmcom2",
+  "resource": { "type": "project", "labels": { "project_id": "globex-prod-482910" } },
   "jsonPayload": {
-    "servicePerimeter": "accessPolicies/140864/servicePerimeters/pci_services",
+    "servicePerimeter": "accessPolicies/709697/servicePerimeters/prod_default",
     "violation": {
-      "type": "RESOURCES_NOT_IN_SAME_PERIMETER",
-      "resource": "//storage.googleapis.com/projects/_/buckets/globex-dev-615094-exports",
-      "apiMethod": "bigquery.jobs.create",
-      "accessLevel": "partner_restricted",
+      "type": "ACCESS_NOT_ALLOWED",
+      "resource": "projects/globex-prod-482910",
+      "apiMethod": "storage.objects.get",
+      "accessLevel": "vpn_only",
       "dryRun": false
     },
     "ingressPolicy": "INGRESS_FROM_ORGANIZATION",
-    "vpc_network": "projects/globex-sec-847293/global/networks/default"
+    "vpc_network": "projects/globex-prod-482910/global/networks/prod-vpc"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west9",
-    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
-    "account": { "id": "847293615048", "name": "Globex Security" },
+    "region": "me-central1",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
     "service": { "name": "vpc-service-controls" }
   },
   "gcp": {
     "vpc_service_controls": {
       "json_payload": {
-        "servicePerimeter": "accessPolicies/140864/servicePerimeters/pci_services",
+        "servicePerimeter": "accessPolicies/709697/servicePerimeters/prod_default",
         "violation": {
-          "type": "RESOURCES_NOT_IN_SAME_PERIMETER",
-          "resource": "//storage.googleapis.com/projects/_/buckets/globex-dev-615094-exports",
-          "apiMethod": "bigquery.jobs.create",
-          "accessLevel": "partner_restricted",
+          "type": "ACCESS_NOT_ALLOWED",
+          "resource": "projects/globex-prod-482910",
+          "apiMethod": "storage.objects.get",
+          "accessLevel": "vpn_only",
           "dryRun": false
         },
         "ingressPolicy": "INGRESS_FROM_ORGANIZATION",
-        "vpc_network": "projects/globex-sec-847293/global/networks/default"
+        "vpc_network": "projects/globex-prod-482910/global/networks/prod-vpc"
       },
-      "perimeter_name": "pci_services",
-      "access_level": "partner_restricted",
-      "resource": "//storage.googleapis.com/projects/_/buckets/globex-dev-615094-exports",
-      "api_method": "bigquery.jobs.create",
-      "violation_type": "RESOURCES_NOT_IN_SAME_PERIMETER",
+      "perimeter_name": "prod_default",
+      "access_level": "vpn_only",
+      "resource": "projects/globex-prod-482910",
+      "api_method": "storage.objects.get",
+      "violation_type": "ACCESS_NOT_ALLOWED",
       "dry_run_mode": false
     }
   },
-  "event": { "outcome": "success", "duration": 8000000, "module": "gcp", "dataset": "gcp.vpcsc" },
-  "message": "accesscontextmanager.googleapis.com/VpcServiceControls ALLOW bigquery.jobs.create",
+  "event": { "outcome": "failure", "duration": 11000000, "module": "gcp", "dataset": "gcp.vpcsc" },
+  "message": "accesscontextmanager.googleapis.com/VpcServiceControls BLOCK storage.objects.get",
   "service": { "name": "vpc-service-controls", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.vpcsc", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west9",
-    "id": "u8xaadp4igvid0q9z9h1tmjp6llrhg6d1adn"
+    "name": "elastic-agent-gcp-me-central1",
+    "id": "jy0agj5bjo6jduul5i66hdn5ill6addzf5tp"
   },
   "input": { "type": "http_endpoint" }
 }

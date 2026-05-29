@@ -1,24 +1,24 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "NOTICE",
+  "severity": "INFO",
   "log": { "level": "info" },
-  "labels": { "database_id": "inventory", "instance_id": "sql-prod-zea2" },
+  "labels": { "database_id": "auth", "instance_id": "sql-stg-kc7a" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-south2",
-    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
-    "account": { "id": "482910375621", "name": "Globex Production" },
+    "region": "asia-south1",
+    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
+    "account": { "id": "847293615048", "name": "Globex Security" },
     "service": { "name": "cloud-sql" }
   },
   "gcp": {
     "cloud_sql": {
-      "instance_name": "sql-prod-zea2",
-      "database_id": "inventory",
+      "instance_name": "sql-stg-kc7a",
+      "database_id": "auth",
       "database_type": "MYSQL",
-      "tier": "db-g1-small",
-      "connection_count": 5,
-      "cpu_utilization": 0.073,
-      "disk_utilization": 0.18
+      "tier": "db-n1-standard-4",
+      "connection_count": 95,
+      "cpu_utilization": 0.379,
+      "disk_utilization": 0.655
     }
   },
   "event": {
@@ -27,41 +27,41 @@
     "type": ["access"],
     "action": "database",
     "outcome": "success",
-    "duration": 708000000,
+    "duration": 483000000,
     "module": "gcp",
     "dataset": "gcp.cloudsql"
   },
-  "message": "protoPayload.methodName=\"cloudsql.instances.update\" protoPayload.resourceName=\"projects/globex-prod-482910/instances/sql-prod-zea2\" principal_email=\"group:engineering@meridiantech.io\"",
+  "message": "LOG: statement: SELECT * FROM orders WHERE status = ? AND created_at > ?\nLOG: duration: 39.465 ms",
   "service": { "name": "cloud-sql", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.cloudsql", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-south2",
-    "id": "9uqq3pnmyqcrwz73w9skaf1klfj9beyy9gpa"
+    "name": "elastic-agent-gcp-asia-south1",
+    "id": "xoxukinx4hro3ag88dtkc2c2lijno6okvylo"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-prod-482910/logs/cloud-sql",
+  "logName": "projects/globex-sec-847293/logs/cloud-sql",
   "resource": {
     "type": "cloudsql_database",
     "labels": {
-      "project_id": "globex-prod-482910",
-      "database_id": "globex-prod-482910:asia-south2:db",
-      "region": "asia-south2"
+      "project_id": "globex-sec-847293",
+      "database_id": "globex-sec-847293:asia-south1:db",
+      "region": "asia-south1"
     }
   },
-  "insertId": "TWXSMW9AXIUO",
+  "insertId": "DD0UNDX4GUSO",
   "jsonPayload": {
     "cloud_sql": {
-      "instance_name": "sql-prod-zea2",
-      "database_id": "inventory",
+      "instance_name": "sql-stg-kc7a",
+      "database_id": "auth",
       "database_type": "MYSQL",
-      "tier": "db-g1-small",
-      "connection_count": 5,
-      "cpu_utilization": 0.073,
-      "disk_utilization": 0.18
+      "tier": "db-n1-standard-4",
+      "connection_count": 95,
+      "cpu_utilization": 0.379,
+      "disk_utilization": 0.655
     },
-    "message": "protoPayload.methodName=\"cloudsql.instances.update\" protoPayload.resourceName=\"projects/globex-prod-482910/instances/sql-prod-zea2\" principal_email=\"group:engineering@meridiantech.io\""
+    "message": "LOG: statement: SELECT * FROM orders WHERE status = ? AND created_at > ?\nLOG: duration: 39.465 ms"
   }
 }

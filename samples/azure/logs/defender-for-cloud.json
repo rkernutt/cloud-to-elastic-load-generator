@@ -1,63 +1,66 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-shared-p0pcxk/providers/Microsoft.Security/assessments/assess-WEWZ0ZS5",
-  "operationName": "Microsoft.Security/alerts/suppressions/write",
-  "category": "SuppressionRules",
-  "resultType": "Success",
-  "resultSignature": "204",
-  "callerIpAddress": "112.164.103.51",
-  "correlationId": "c0dc6ed0-89a8-43e1-b35c-64b69f2f4899",
-  "level": "Information",
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-shared-2lvq2o/providers/Microsoft.Security/assessments/assess-GEHV0FLL",
+  "operationName": "Microsoft.Security/secureScores/write",
+  "category": "SecureScore",
+  "resultType": "Failure",
+  "resultSignature": "48.34%",
+  "callerIpAddress": "240.174.144.172",
+  "correlationId": "c640daf7-b753-4fb1-8f78-82a27a60b9b5",
+  "level": "Warning",
   "properties": {
-    "suppressionReason": "false positive",
-    "ruleId": "996ff409-0c1d-4809-85e9-a30150ff2b8c",
-    "expiresOn": "3c67a5ac-695a-45ad-b33e-fbe33a78179b",
-    "statusCode": 204,
-    "correlationId": "c0dc6ed0-89a8-43e1-b35c-64b69f2f4899"
+    "weightedScorePct": 48.34,
+    "staleControlsCount": 145,
+    "controlName": "Networking",
+    "correlationId": "c640daf7-b753-4fb1-8f78-82a27a60b9b5"
   },
   "cloud": {
     "provider": "azure",
-    "region": "westus2",
-    "account": { "id": "a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d", "name": "Meridian-Platform" },
-    "service": { "name": "Microsoft.Security/alerts" }
+    "region": "eastasia",
+    "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
+    "service": { "name": "Microsoft.Security/secureScores" }
   },
   "azure": {
     "defender": {
-      "resource_group": "rg-shared-p0pcxk",
-      "assessment_id": "assess-WEWZ0ZS5",
-      "resource_id": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-shared-p0pcxk/providers/Microsoft.Security/assessments/assess-WEWZ0ZS5",
-      "category": "Suppression",
-      "correlation_id": "c0dc6ed0-89a8-43e1-b35c-64b69f2f4899",
+      "resource_group": "rg-shared-2lvq2o",
+      "assessment_id": "assess-GEHV0FLL",
+      "resource_id": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-shared-2lvq2o/providers/Microsoft.Security/assessments/assess-GEHV0FLL",
+      "category": "ScoreBoard",
+      "correlation_id": "c640daf7-b753-4fb1-8f78-82a27a60b9b5",
       "properties": {
-        "suppressionReason": "false positive",
-        "ruleId": "996ff409-0c1d-4809-85e9-a30150ff2b8c",
-        "expiresOn": "3c67a5ac-695a-45ad-b33e-fbe33a78179b",
-        "statusCode": 204,
-        "correlationId": "c0dc6ed0-89a8-43e1-b35c-64b69f2f4899"
+        "weightedScorePct": 48.34,
+        "staleControlsCount": 145,
+        "controlName": "Networking",
+        "correlationId": "c640daf7-b753-4fb1-8f78-82a27a60b9b5"
       }
     }
   },
   "event": {
     "kind": "event",
     "category": ["intrusion_detection"],
-    "type": ["info"],
-    "action": "Microsoft.Security/alerts/suppressions/write",
-    "outcome": "success",
-    "duration": 430172915017,
+    "type": ["denied"],
+    "action": "Microsoft.Security/secureScores/write",
+    "outcome": "failure",
+    "duration": 15556122340537,
     "module": "azure",
     "dataset": "azure.defender"
   },
-  "message": "Suppression persisted for alert rule 996ff409",
+  "message": "Secure score snapshot rejected (145 stale controls)",
+  "error": {
+    "code": "ThrottlingException",
+    "message": "Too many inference requests — rate limiting applied.",
+    "type": "azure"
+  },
   "service": { "name": "defender", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.defender", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-westus2",
-    "id": "yubwobbg8u3fons9npunp4fu7845qvny0j4e"
+    "name": "elastic-agent-azure-eastasia",
+    "id": "zyxk2q3uipjksqxvgskltgrh8flhmx2zqisg"
   },
   "input": { "type": "azure-eventhub" }
 }

@@ -1,21 +1,27 @@
 {
-  "@timestamp": "2026-05-22T12:29:30.113Z",
+  "@timestamp": "2026-05-28T16:58:15.156Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
+    "region": "ap-southeast-2",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "pcs" }
   },
   "aws": {
-    "dimensions": { "ClusterId": "pcs-6x6uu6ac", "QueueName": "batch" },
+    "dimensions": { "ClusterId": "pcs-npu9hta6", "QueueName": "gpu" },
     "pcs": {
-      "cluster_id": "pcs-6x6uu6ac",
+      "cluster_id": "pcs-npu9hta6",
       "scheduler": "slurm",
-      "scenario": "cluster_create",
-      "queue_name": "batch",
-      "job_id": "job-137866",
+      "scenario": "mpi_barrier",
+      "queue_name": "gpu",
+      "job_id": "job-172811",
       "job_state": "PENDING",
-      "metrics": { "running_jobs": 160, "pending_jobs": 137, "compute_nodes_active": 520 }
+      "mpi": {
+        "comm_world_size": 6230,
+        "barrier_wait_ms_p99": 38,
+        "ibv_retries": 0,
+        "collective": "MPI_Allreduce"
+      },
+      "metrics": { "running_jobs": 187, "pending_jobs": 60, "compute_nodes_active": 464 }
     },
     "s3": {
       "bucket": {
@@ -23,36 +29,36 @@
         "arn": "arn:aws:s3:::aws-parallelcomputing-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/parallelcomputing/ap-northeast-3/2026/05/22/parallelcomputing_A7X2EY6B9LQUU1NIVAN2.log.gz"
+        "key": "AWSLogs/501938274650/parallelcomputing/ap-southeast-2/2026/05/28/parallelcomputing_OAJJIP8CRFCIIGNHILAI.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/parallelcomputing/logs",
-      "log_stream": "ap-northeast-3/ae388r73",
-      "ingestion_time": "2026-05-22T12:29:31.260Z"
+      "log_stream": "ap-southeast-2/9tp02f41",
+      "ingestion_time": "2026-05-28T16:58:15.953Z"
     }
   },
   "event": {
-    "action": "cluster_create",
+    "action": "mpi_barrier",
     "outcome": "success",
     "category": ["process"],
     "type": ["info"],
     "dataset": "aws.pcs",
     "provider": "pcs.amazonaws.com",
-    "duration": 1044000000,
+    "duration": 1003000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.pcs", "namespace": "default" },
-  "message": "CreateCluster pcs-6x6uu6ac controller=slurm vpc=vpc-6b67de3d",
+  "message": "MPI_Allreduce size=6230 p99_wait=38ms ibv_retries=0",
   "log": { "level": "info" },
-  "host": { "name": "ip-243-180-204-57.ec2.internal", "hostname": "parallelcomputing-drb1e4iz" },
+  "host": { "name": "ip-34-117-141-51.ec2.internal", "hostname": "parallelcomputing-wjcyvltz" },
   "service": { "name": "parallelcomputing", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "c55n8jx8oe3xl3lparwwj0xjba1tizjpitu0"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "zqgw6huv3yhfkjff7bsy2sp6b9drbtz11d0g"
   },
   "input": { "type": "aws-cloudwatch" }
 }

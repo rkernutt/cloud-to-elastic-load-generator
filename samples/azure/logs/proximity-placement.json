@@ -1,61 +1,65 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-data-ciippv/providers/Microsoft.Compute/proximityPlacementGroups/ppg-qjmhqv",
-  "operationName": "Microsoft.Compute/proximityPlacementGroups/write",
-  "category": "Administrative",
-  "resultType": "Success",
-  "resultSignature": "200",
-  "callerIpAddress": "147.94.132.169",
-  "correlationId": "99d02254-6373-478c-b128-ffab0083311c",
-  "level": "Information",
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-network-j01d45/providers/Microsoft.Compute/proximityPlacementGroups/ppg-ijx2y0",
+  "operationName": "Microsoft.Compute/proximityPlacementGroups/virtualMachines/join/action",
+  "category": "ProximityPlacementGroupEvents",
+  "resultType": "Failure",
+  "resultSignature": "Remove",
+  "callerIpAddress": "106.177.153.187",
+  "correlationId": "be819127-32fc-4afd-bca6-c902b1a52a44",
+  "level": "Warning",
   "properties": {
-    "eventCategory": "Administrative",
-    "status": "Succeeded",
-    "intent": "Cluster",
-    "httpRequest": {
-      "clientRequestId": "d42a012a-70da-4d04-b869-91ced77fb9dd",
-      "clientIpAddress": "147.94.132.169",
-      "method": "PUT"
+    "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-network-j01d45/providers/Microsoft.Compute/virtualMachines/vm-gijc6",
+    "action": "Remove",
+    "outcome": "Failed",
+    "message": "Cannot add VM vm-gijc6: not colocated in allowed region/zone for PPG ppg-ijx2y0",
+    "statusMessage": {
+      "error": {
+        "code": "OperationNotAllowed",
+        "message": "Long-running operation status: Operation is not allowed on the resource while it is locked or updating."
+      }
     }
+  },
+  "error": {
+    "code": "OperationNotAllowed",
+    "message": "Operation is not allowed on the resource while it is locked or updating.",
+    "type": "azure"
   },
   "cloud": {
     "provider": "azure",
-    "region": "westeurope",
-    "account": { "id": "c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d", "name": "Northpeak-Dev" },
+    "region": "canadacentral",
+    "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
     "service": { "name": "Microsoft.Compute/proximityPlacementGroups" }
   },
   "azure": {
     "proximity_placement_groups": {
-      "name": "ppg-qjmhqv",
-      "resource_group": "rg-data-ciippv",
-      "category": "Administrative",
-      "correlation_id": "99d02254-6373-478c-b128-ffab0083311c",
+      "name": "ppg-ijx2y0",
+      "vm_name": "vm-gijc6",
+      "resource_group": "rg-network-j01d45",
+      "category": "ProximityPlacementGroupEvents",
+      "correlation_id": "be819127-32fc-4afd-bca6-c902b1a52a44",
       "properties": {
-        "eventCategory": "Administrative",
-        "status": "Succeeded",
-        "intent": "Cluster",
-        "httpRequest": {
-          "clientRequestId": "d42a012a-70da-4d04-b869-91ced77fb9dd",
-          "clientIpAddress": "147.94.132.169",
-          "method": "PUT"
-        }
+        "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-network-j01d45/providers/Microsoft.Compute/virtualMachines/vm-gijc6",
+        "action": "Remove",
+        "outcome": "Failed",
+        "message": "Cannot add VM vm-gijc6: not colocated in allowed region/zone for PPG ppg-ijx2y0"
       }
     }
   },
   "event": {
     "kind": "event",
     "category": ["host"],
-    "type": ["info"],
-    "action": "Microsoft.Compute/proximityPlacementGroups/write",
-    "outcome": "success",
-    "duration": 813983385,
+    "type": ["error"],
+    "action": "Microsoft.Compute/proximityPlacementGroups/virtualMachines/join/action",
+    "outcome": "failure",
+    "duration": 1887293198,
     "module": "azure",
     "dataset": "azure.proximity_placement_groups"
   },
-  "message": "PPG ppg-qjmhqv: configuration updated",
+  "message": "Cannot add VM vm-gijc6: not colocated in allowed region/zone for PPG ppg-ijx2y0",
   "service": { "name": "proximity-placement-groups", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": {
     "type": "logs",
@@ -65,8 +69,8 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-westeurope",
-    "id": "lz7nc1sr1xoqcp8jeuaub5onapgxzi3ojkt8"
+    "name": "elastic-agent-azure-canadacentral",
+    "id": "8nw08a6pe3jvgbyb68ean895rmzbqxy7tsql"
   },
   "input": { "type": "azure-eventhub" }
 }

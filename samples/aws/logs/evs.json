@@ -1,68 +1,74 @@
 {
-  "@timestamp": "2026-05-22T12:29:30.113Z",
+  "@timestamp": "2026-05-28T16:58:15.156Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-south-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "evs" }
   },
   "aws": {
-    "dimensions": { "EnvironmentId": "evs-95pn8b3n" },
+    "dimensions": { "EnvironmentId": "evs-iiaeho1r" },
     "evs": {
-      "environment_id": "evs-95pn8b3n",
-      "vcenter_hostname": "vcenter-mxnhck.internal",
+      "environment_id": "evs-iiaeho1r",
+      "vcenter_hostname": "vcenter-6fk9jg.internal",
       "esxi_version": "8.0.3",
-      "scenario": "vmware_host_provision",
-      "host_count": 14,
-      "vsan_datastore_id": "datastore-25",
-      "vmware_host": {
-        "bios_uuid": "4cabdc03-4221-42ed-bfd1-4f2e91ec8434",
-        "mgmt_ip": "10.174.181.218",
-        "cluster_name": "edge-b",
-        "maintenance_mode": "false"
+      "scenario": "vsan_extend",
+      "host_count": 12,
+      "vsan_datastore_id": "datastore-289",
+      "vsan": {
+        "stripe_width": 2,
+        "fault_domains": 2,
+        "resync_bytes_outstanding": 3131719153,
+        "disk_group": "dg-LHEG"
       },
       "metrics": {
-        "hosts_online": 14,
-        "vsan_capacity_used_tb": 25.270820370161697,
-        "vcpu_allocation_ratio": 5.702510914042039
-      }
+        "hosts_online": 12,
+        "vsan_capacity_used_tb": 11.000753526937924,
+        "vcpu_allocation_ratio": 8.320624736098605
+      },
+      "api_error_code": "InternalServerException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-evs-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-evs-logs-814726593401"
+        "name": "aws-evs-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-evs-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/evs/af-south-1/2026/05/22/evs_NAQIKN08O26UC7V656LB.log.gz"
+        "key": "AWSLogs/501938274650/evs/eu-south-2/2026/05/28/evs_WGU1F9WWSUSE0O4QGBL8.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/evs/logs",
-      "log_stream": "af-south-1/mmuuhad8",
-      "ingestion_time": "2026-05-22T12:29:31.262Z"
+      "log_stream": "eu-south-2/vlf5nlbj",
+      "ingestion_time": "2026-05-28T16:58:15.954Z"
     }
   },
   "event": {
-    "action": "vmware_host_provision",
-    "outcome": "success",
+    "action": "vsan_extend",
+    "outcome": "failure",
     "category": ["host"],
     "type": ["info"],
     "dataset": "aws.evs",
     "provider": "evs.amazonaws.com",
-    "duration": 1621000000,
+    "duration": 1853000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.evs", "namespace": "default" },
-  "message": "AddHost 10.174.181.218 bios=4cabdc03… cluster=*edge-b",
-  "log": { "level": "info" },
-  "host": { "name": "ip-166-115-108-214.ec2.internal", "hostname": "evs-u216u6yl" },
+  "message": "vSAN ResizeDiskGroup dg-LHEG stripe=2 resync=3131719153B — InternalServerException",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InternalServerException",
+    "message": "EVS vsan_extend failed for evs-iiaeho1r",
+    "type": "aws"
+  },
+  "host": { "name": "ip-95-213-65-32.ec2.internal", "hostname": "evs-s3bo119g" },
   "service": { "name": "evs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "z33nr7m4cs5zvt78fuy4vth2kt7vox0auoin"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "s4rbh3630qtfkiv6wip6a073hefqeybg6wce"
   },
   "input": { "type": "aws-cloudwatch" }
 }

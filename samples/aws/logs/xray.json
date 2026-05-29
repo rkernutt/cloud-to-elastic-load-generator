@@ -1,103 +1,149 @@
 {
-  "@timestamp": "2026-05-22T12:29:30.113Z",
-  "trace": { "id": "1-6a104c2a-w5vyvq3auxtm4ig3mf68tqff" },
-  "span": { "id": "2mcqa9nzbd3zo1vf" },
+  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "trace": { "id": "1-6a187427-khkxuh3y7wqbpu5w7fma85f0" },
+  "span": { "id": "nknuexcijr393btk" },
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-east-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "xray" }
   },
   "aws": {
-    "dimensions": { "GroupName": "Default", "ServiceType": "AWS::RDS::DBInstance" },
+    "dimensions": { "GroupName": "Default", "ServiceType": "AWS::SQS::Queue" },
     "xray": {
-      "trace_id": "1-6a104c2a-w5vyvq3auxtm4ig3mf68tqff",
-      "segment_id": "2mcqa9nzbd3zo1vf",
-      "start_time": 1779452970.113,
-      "end_time": 1779452972.4847894,
-      "origin": "AWS::RDS::DBInstance",
-      "service": { "name": "prod-db-primary", "type": "AWS::RDS::DBInstance" },
-      "duration": 2.371789524842212,
-      "fault": false,
+      "trace_id": "1-6a187427-khkxuh3y7wqbpu5w7fma85f0",
+      "segment_id": "nknuexcijr393btk",
+      "parent_id": "mf6deow4mmtlqnho",
+      "start_time": 1779987495.156,
+      "end_time": 1779987500.5070252,
+      "origin": "AWS::SQS::Queue",
+      "service": { "name": "order-queue", "type": "AWS::SQS::Queue" },
+      "duration": 5.351025437985105,
+      "fault": true,
       "error": false,
       "throttle": false,
       "http": {
         "request": {
-          "method": "PATCH",
-          "url": "https://dashboard.bluepeak.dev/api/v1/health",
-          "client_ip": "149.79.39.238",
-          "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+          "method": "PUT",
+          "url": "https://mail.cascadeops.com/webhooks/stripe",
+          "client_ip": "180.69.33.254",
+          "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.2478.97"
         },
-        "response": { "status": 201, "content_length": 44893 }
+        "response": { "status": 500, "content_length": 22143 }
       },
       "aws": {
-        "account_id": "293847561023",
-        "region": "ca-west-1",
-        "resource_names": ["prod-db-primary"]
+        "account_id": "164820739518",
+        "region": "us-east-1",
+        "resource_names": ["order-queue"]
       },
-      "annotations": { "environment": "production", "version": "v14.6.26", "team": "backend" },
-      "metrics": {
-        "ErrorRate": { "avg": 0.283108039459121 },
-        "FaultRate": { "avg": 0.2653233181478292 },
-        "ThrottleRate": { "avg": 0.3715474274018809 },
-        "TotalCount": { "sum": 6982 },
-        "Latency": {
-          "avg": 2371.789524842212,
-          "p50": 1897.4316198737697,
-          "p90": 3557.6842872633183,
-          "p95": 4743.579049684424,
-          "p99": 7115.368574526637
+      "annotations": { "environment": "staging", "version": "v3.4.3", "team": "backend" },
+      "cause": {
+        "working_directory": "/var/task",
+        "paths": [],
+        "exceptions": [
+          {
+            "id": "9omaxeyn4hbputus",
+            "message": "Task timed out after 30.00 seconds",
+            "type": "ThrottlingException",
+            "remote": false,
+            "stack": [{ "path": "index.js", "line": 50, "label": "handleEvent" }]
+          }
+        ]
+      },
+      "subsegments": [
+        {
+          "id": "786g4nc0o7xulkga",
+          "name": "Lambda",
+          "start_time": 1779987495.5086644,
+          "end_time": 1779987496.0047863,
+          "namespace": "aws",
+          "aws": { "operation": "Invoke", "region": "us-east-1", "retries": 1 },
+          "http": { "response": { "status": 400, "content_length": 32734 } },
+          "fault": true,
+          "error": false,
+          "throttle": false
         },
-        "OkCount": { "sum": 8355 },
+        {
+          "id": "ktwsqy7mj7i6ix24",
+          "name": "SNS",
+          "start_time": 1779987495.2808673,
+          "end_time": 1779987497.6588073,
+          "namespace": "aws",
+          "aws": { "operation": "Publish", "region": "us-east-1", "retries": 2 },
+          "http": { "response": { "status": 500, "content_length": 22904 } },
+          "fault": true,
+          "error": false,
+          "throttle": false
+        }
+      ],
+      "metrics": {
+        "ErrorRate": { "avg": 0.2739603811667082 },
+        "FaultRate": { "avg": 2.5500156926068853 },
+        "ThrottleRate": { "avg": 0.11859622010987098 },
+        "TotalCount": { "sum": 3393 },
+        "Latency": {
+          "avg": 5351.025437985105,
+          "p50": 4280.820350388084,
+          "p90": 8026.538156977657,
+          "p95": 10702.05087597021,
+          "p99": 16053.076313955315
+        },
+        "OkCount": { "sum": 0 },
         "ErrorCount": { "sum": 0 },
-        "FaultCount": { "sum": 0 },
+        "FaultCount": { "sum": 25 },
         "ThrottleCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-xray-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-xray-logs-293847561023"
+        "name": "aws-xray-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-xray-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/xray/ca-west-1/2026/05/22/xray_S4JC806R6LCP3AEQOOHA.log.gz"
+        "key": "AWSLogs/164820739518/xray/us-east-1/2026/05/28/xray_7O4D6N1XER9OCS4T5XBI.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/xray/logs",
-      "log_stream": "ca-west-1/sqq19b6t",
-      "ingestion_time": "2026-05-22T12:29:31.423Z"
+      "log_stream": "us-east-1/p2i5v73g",
+      "ingestion_time": "2026-05-28T16:58:16.127Z"
     }
   },
   "http": {
-    "request": { "method": "PATCH", "body": { "bytes": 1616 } },
-    "response": { "status_code": 201, "body": { "bytes": 19317 } }
+    "request": { "method": "PUT", "body": { "bytes": 3120 } },
+    "response": { "status_code": 500, "body": { "bytes": 17630 } }
   },
-  "url": { "path": "/api/v1/health", "full": "https://dashboard.bluepeak.dev/api/v1/health" },
+  "url": { "path": "/webhooks/stripe", "full": "https://mail.cascadeops.com/webhooks/stripe" },
   "user_agent": {
-    "original": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    "original": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.2478.97"
   },
-  "source": { "ip": "149.79.39.238" },
+  "source": { "ip": "180.69.33.254" },
   "event": {
-    "duration": 2371789525,
-    "outcome": "success",
+    "duration": 5351025438,
+    "outcome": "failure",
     "category": ["network"],
-    "type": ["connection"],
+    "type": ["connection", "denied"],
     "dataset": "aws.xray",
     "provider": "xray.amazonaws.com",
     "module": "aws"
   },
-  "message": "2026-05-22T12:29:30.113Z [Info] X-Ray daemon 3.3.14 listening on address 127.0.0.1:2000\n2026-05-22T12:29:30.353Z [Info] Buffering segments queueDepth=3\n2026-05-22T12:29:30.593Z [Info] Traces uploaded batchBytes=671129 latencyMs=213\n{\"trace_id\":\"1-6a104c2a-w5vyvq3auxtm4ig3mf68tqff\",\"id\":\"2mcqa9nzbd3zo1vf\",\"name\":\"prod-db-primary\",\"start_time\":1779452970.113,\"end_time\":1779452972.4847894,\"http\":{\"request\":{\"method\":\"PATCH\",\"url\":\"https://dashboard.bluepeak.dev/api/v1/health\",\"client_ip\":\"149.79.39.238\",\"user_agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36\"},\"response\":{\"status\":201,\"content_length\":9164}},\"aws\":{\"account_id\":\"293847561023\",\"region\":\"ca-west-1\",\"operation\":\"DBInstance\",\"resource_names\":[\"prod-db-primary\"]},\"annotations\":{\"environment\":\"production\",\"version\":\"v10.7.33\",\"team\":\"data\"},\"metadata\":{\"default\":{\"response_size\":41058}},\"fault\":false,\"error\":false,\"throttle\":false,\"origin\":\"AWS::RDS::DBInstance\",\"resource_arn\":\"arn:aws:rds:ca-west-1:293847561023:prod-db-primary\"}",
-  "log": { "level": "info" },
+  "message": "2026-05-28T16:58:15.876Z [Info] PublishSlices segments=2486 faults=86 throttles=0\n2026-05-28T16:58:15.156Z [Info] X-Ray daemon 1.37.0 listening on address 127.0.0.1:2000\n2026-05-28T16:58:15.756Z [Info] Sampling decision trace_id=1-6a187427-khkxuh3y7wqbpu5w7fma85f0 rule=Default reservoir=1 outcome=Borrowed\n2026-05-28T16:58:15.756Z [Info] Sampling decision trace_id=1-6a187427-khkxuh3y7wqbpu5w7fma85f0 rule=Default reservoir=1 outcome=Borrowed\n2026-05-28T16:58:15.156Z [Info] X-Ray daemon 1.37.0 listening on address 127.0.0.1:2000\n{\"trace_id\":\"1-6a187427-khkxuh3y7wqbpu5w7fma85f0\",\"id\":\"nknuexcijr393btk\",\"name\":\"order-queue\",\"start_time\":1779987495.156,\"end_time\":1779987500.5070252,\"parent_id\":\"mf6deow4mmtlqnho\",\"http\":{\"request\":{\"method\":\"PUT\",\"url\":\"https://mail.cascadeops.com/webhooks/stripe\",\"client_ip\":\"180.69.33.254\",\"user_agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.2478.97\"},\"response\":{\"status\":500,\"content_length\":48847}},\"aws\":{\"account_id\":\"164820739518\",\"region\":\"us-east-1\",\"operation\":\"Queue\",\"resource_names\":[\"order-queue\"]},\"annotations\":{\"environment\":\"production\",\"version\":\"v13.1.77\",\"team\":\"backend\"},\"metadata\":{\"default\":{\"response_size\":4435,\"error_details\":\"Task timed out after 30.00 seconds\"}},\"fault\":true,\"error\":false,\"throttle\":false,\"cause\":{\"working_directory\":\"/var/task\",\"paths\":[],\"exceptions\":[{\"id\":\"9omaxeyn4hbputus\",\"message\":\"Task timed out after 30.00 seconds\",\"type\":\"ThrottlingException\",\"remote\":false,\"stack\":[{\"path\":\"index.js\",\"line\":50,\"label\":\"handleEvent\"}]}]},\"origin\":\"AWS::SQS::Queue\",\"resource_arn\":\"arn:aws:sqs:us-east-1:164820739518:order-queue\"}",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ThrottlingException",
+    "message": "Task timed out after 30.00 seconds",
+    "type": "trace",
+    "stack_trace": "  at handleEvent (index.js:50)"
+  },
   "service": { "name": "xray", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.xray", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "3goo964v24o8aalscjrmi81ob9q36lzqb8km"
+    "name": "filebeat-aws-us-east-1",
+    "ephemeral_id": "pn4b29uhnolntv1zeu3iblel7l4af1yh0se5"
   },
   "input": { "type": "http_endpoint" },
-  "related": { "ip": ["149.79.39.238"] }
+  "related": { "ip": ["180.69.33.254"] }
 }

@@ -1,72 +1,67 @@
 {
-  "@timestamp": "2026-05-22T12:29:30.113Z",
+  "@timestamp": "2026-05-28T16:58:15.156Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "me-central-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "sns" }
   },
   "aws": {
-    "dimensions": { "TopicName": "security-alarms" },
+    "dimensions": { "TopicName": "system-events" },
     "sns": {
       "scenario": "delivery_failure_logging",
       "operation": "GetTopicAttributes",
-      "topic_arn": "arn:aws:sns:ap-northeast-2:738291046572:security-alarms",
-      "subscription_arn": "arn:aws:sns:ap-northeast-2:738291046572:security-alarms:8f296805-55d",
+      "topic_arn": "arn:aws:sns:me-central-1:501938274650:system-events",
+      "subscription_arn": "arn:aws:sns:me-central-1:501938274650:system-events:9243467b-1ea",
       "protocol": "lambda",
       "metrics": {
-        "NumberOfMessagesPublished": { "sum": 668 },
-        "NumberOfNotificationsDelivered": { "sum": 595 },
-        "NumberOfNotificationsFailed": { "sum": 73 },
+        "NumberOfMessagesPublished": { "sum": 937 },
+        "NumberOfNotificationsDelivered": { "sum": 937 },
+        "NumberOfNotificationsFailed": { "sum": 0 },
         "NumberOfNotificationsFilteredOut": { "sum": 0 },
         "NumberOfNotificationsFilteredOut-InvalidAttributes": { "sum": 0 },
         "NumberOfNotificationsFilteredOut-NoMessageAttributes": { "sum": 0 },
-        "NumberOfNotificationsRedrivenToDlq": { "sum": 1 },
+        "NumberOfNotificationsRedrivenToDlq": { "sum": 0 },
         "NumberOfNotificationsFailedToRedriveToDlq": { "sum": 0 },
-        "PublishSize": { "avg": 98774 },
+        "PublishSize": { "avg": 85095 },
         "SMSSuccessRate": {},
         "SMSMonthToDateSpentUSD": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sns-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-sns-logs-738291046572"
+        "name": "aws-sns-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-sns-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/sns/ap-northeast-2/2026/05/22/sns_1KV85OBW9JBKVXNSEHT4.log.gz"
+        "key": "AWSLogs/501938274650/sns/me-central-1/2026/05/28/sns_LAH34C3PDP67JAYJBH2J.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/sns/logs",
-      "log_stream": "ap-northeast-2/wfchb487",
-      "ingestion_time": "2026-05-22T12:29:31.414Z"
+      "log_stream": "me-central-1/wyy2gcco",
+      "ingestion_time": "2026-05-28T16:58:16.106Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process"],
     "type": ["info"],
     "dataset": "aws.sns",
     "provider": "sns.amazonaws.com",
-    "duration": 23836224512.69216,
+    "duration": 69147790.80907628,
     "module": "aws"
   },
-  "message": "{\"notification\":{\"messageId\":\"592b0e85-207c-4df6-bc88-56066403f472\",\"topicArn\":\"arn:aws:sns:ap-northeast-2:738291046572:security-alarms\"},\"delivery\":{\"statusCode\":502,\"providerResponse\":\"Endpoint disabled or unreachable\",\"destination\":\"mailto:daniel.williams@cascadeops.com\"},\"status\":\"FAILURE\"} [DeliveryStatusLogging]",
-  "log": { "level": "warn" },
-  "error": {
-    "code": "InvalidParameterValueException",
-    "message": "SNS endpoint delivery failed",
-    "type": "aws"
-  },
+  "message": "{\"notification\":{\"messageId\":\"4486b793-084a-4b33-a4e3-2aca4488ce03\",\"topicArn\":\"arn:aws:sns:me-central-1:501938274650:system-events\"},\"delivery\":{\"statusCode\":200,\"providerResponse\":\"OK\",\"destination\":\"mailto:omar.williams@meridiantech.io\"},\"status\":\"SUCCESS\"} [DeliveryStatusLogging]",
+  "log": { "level": "info" },
   "service": { "name": "sns", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sns", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-2",
-    "ephemeral_id": "b0eicx7jgl86bkk2kgh4xub9jk4agq6ti9ls"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "wnlko965km1nllc9gotm23fpmeynvannshy7"
   },
   "input": { "type": "aws-cloudwatch" }
 }

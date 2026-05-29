@@ -1,50 +1,50 @@
 {
-  "@timestamp": "2026-05-22T12:29:30.113Z",
+  "@timestamp": "2026-05-28T16:58:15.156Z",
   "cloud": {
     "provider": "aws",
     "region": "us-west-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "codecatalyst" }
   },
   "aws": {
-    "dimensions": { "SpaceName": "infra-team", "ProjectName": "infrastructure" },
+    "dimensions": { "SpaceName": "data-team", "ProjectName": "infrastructure" },
     "codecatalyst": {
-      "space_name": "infra-team",
+      "space_name": "data-team",
       "project_name": "infrastructure",
-      "workflow_name": "cd-pipeline",
-      "workflow_run_id": "run-s93ugwo2m0m1pk8n83y3",
-      "workflow_run_status": "QUEUED",
+      "workflow_name": "security-scan",
+      "workflow_run_id": "run-97n19l6hvfo0p50hx0ot",
+      "workflow_run_status": "IN_PROGRESS",
       "workflow_steps_completed": 6,
-      "dev_environment_id": "dev-o5vv5wj5cbm2hgv4",
-      "dev_environment_status": "RUNNING",
-      "ide": "AWS Cloud9",
-      "branch_name": "main",
-      "event_type": "DEV_ENVIRONMENT"
+      "dev_environment_id": "dev-gpix5i3gqyn54mh2",
+      "dev_environment_status": "STOPPED",
+      "ide": "IntelliJ IDEA",
+      "branch_name": "feature/new-api",
+      "event_type": "WORKFLOW_RUN"
     },
     "s3": {
       "bucket": {
-        "name": "aws-codecatalyst-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-codecatalyst-logs-501938274650"
+        "name": "aws-codecatalyst-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-codecatalyst-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/codecatalyst/us-west-1/2026/05/22/codecatalyst_88S7ZB9DB6O1KVZ4WK9G.log.gz"
+        "key": "AWSLogs/814726593401/codecatalyst/us-west-1/2026/05/28/codecatalyst_2W793YKT807CGLHC4M51.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codecatalyst/logs",
-      "log_stream": "us-west-1/3wc894z9",
-      "ingestion_time": "2026-05-22T12:29:31.428Z"
+      "log_stream": "us-west-1/sv0cc4rw",
+      "ingestion_time": "2026-05-28T16:58:16.135Z"
     }
   },
   "event": {
-    "action": "DeleteDevEnvironment",
+    "action": "MergeSourceBranchesToTarget",
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.codecatalyst",
     "provider": "codecatalyst.amazonaws.com",
     "module": "aws"
   },
-  "message": "[CodeCatalyst] space=infra-team project=infrastructure workflow=cd-pipeline run=run-s93ugwo2m0m1pk8n83y3 status=QUEUED\n[WorkflowRun] trigger=manual ref=refs/heads/main\n[WorkflowRun:run-s93ugwo2m0m1pk8n83y3] step=Checkout status=SUCCEEDED durationMs=95152 order=1\n[WorkflowRun:run-s93ugwo2m0m1pk8n83y3] step=Install status=SUCCEEDED durationMs=31890 order=2\n[WorkflowRun:run-s93ugwo2m0m1pk8n83y3] step=Lint status=SUCCEEDED durationMs=101095 order=3\n[WorkflowRun:run-s93ugwo2m0m1pk8n83y3] step=UnitTests status=SUCCEEDED durationMs=104589 order=4\n[WorkflowRun:run-s93ugwo2m0m1pk8n83y3] step=BuildImage status=SUCCEEDED durationMs=140994 order=5\n[WorkflowRun:run-s93ugwo2m0m1pk8n83y3] step=PublishArtifacts status=SUCCEEDED durationMs=44896 order=6\nDeleteDevEnvironment devEnvId=dev-o5vv5wj5cbm2hgv4 statusTransition=READY machineType=PERFORMANCE",
+  "message": "[CodeCatalyst] space=data-team project=infrastructure workflow=security-scan run=run-97n19l6hvfo0p50hx0ot status=IN_PROGRESS\n[WorkflowRun] trigger=manual ref=refs/heads/develop\n[WorkflowRun:run-97n19l6hvfo0p50hx0ot] step=Checkout status=SUCCEEDED durationMs=64632 order=1\n[WorkflowRun:run-97n19l6hvfo0p50hx0ot] step=Install status=SUCCEEDED durationMs=135300 order=2\n[WorkflowRun:run-97n19l6hvfo0p50hx0ot] step=Lint status=SUCCEEDED durationMs=179645 order=3\n[WorkflowRun:run-97n19l6hvfo0p50hx0ot] step=UnitTests status=SUCCEEDED durationMs=142953 order=4\n[WorkflowRun:run-97n19l6hvfo0p50hx0ot] step=BuildImage status=SUCCEEDED durationMs=151061 order=5\n[WorkflowRun:run-97n19l6hvfo0p50hx0ot] step=PublishArtifacts status=SUCCEEDED durationMs=110605 order=6",
   "log": { "level": "info" },
   "service": { "name": "codecatalyst", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -53,7 +53,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "qicsrvyns71qx6wzfuxktcjydwrsq51x7s2r"
+    "ephemeral_id": "hxr7uexr64mhv02xksl4ra3li24v61geeb6w"
   },
   "input": { "type": "aws-cloudwatch" }
 }

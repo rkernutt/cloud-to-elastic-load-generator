@@ -1,58 +1,64 @@
 {
-  "@timestamp": "2026-05-22T12:29:30.113Z",
+  "@timestamp": "2026-05-28T16:58:15.156Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-south-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "networkmanager" }
   },
   "aws": {
     "networkmanager": {
-      "global_network_id": "network-kdvubmovnx5a4ya14",
+      "global_network_id": "network-ciywbfrzisuwprtmz",
       "global_network_name": "global-network-prod",
-      "event_type": "LINK_STATUS_UP",
-      "device_id": "device-0xbpzsq5tdgsm221m",
-      "link_id": "link-x1ek4w1toro0nhdnr",
-      "site_id": "site-vcz0ernv6hrwoc11f",
-      "site_name": "colo-frankfurt",
-      "bandwidth_mbps": 10,
-      "provider": "BT",
-      "type": "mpls",
-      "state": "UP"
+      "event_type": "TOPOLOGY_CHANGE",
+      "device_id": "device-4qvr1x9cx6h80pr49",
+      "link_id": "link-odl9ahsvxeq58m9sf",
+      "site_id": "site-jg2nyhp4py7chsb97",
+      "site_name": "dc-us-east",
+      "bandwidth_mbps": 10000,
+      "provider": "Telstra",
+      "type": "direct-connect",
+      "state": "DOWN",
+      "error_code": "ValidationException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-networkmanager-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-networkmanager-logs-164820739518"
+        "name": "aws-networkmanager-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-networkmanager-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/networkmanager/eu-central-2/2026/05/22/networkmanager_ODSGPHUDOY3YMTQAYZ5X.log.gz"
+        "key": "AWSLogs/501938274650/networkmanager/eu-south-1/2026/05/28/networkmanager_3I4LHLTFHLBC9B3N8W6E.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/networkmanager/logs",
-      "log_stream": "eu-central-2/56k1b7a9",
-      "ingestion_time": "2026-05-22T12:29:31.296Z"
+      "log_stream": "eu-south-1/mt2h32hn",
+      "ingestion_time": "2026-05-28T16:58:15.979Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["network"],
     "type": ["connection"],
     "dataset": "aws.networkmanager",
     "provider": "networkmanager.amazonaws.com",
     "module": "aws"
   },
-  "message": "Network Manager LINK_STATUS_UP [global-network-prod]: dc-us-east link UP",
-  "log": { "level": "info" },
+  "message": "Network Manager TOPOLOGY_CHANGE [global-network-prod]: connection degraded",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ResourceNotFoundException",
+    "message": "Network Manager connection degraded",
+    "type": "network"
+  },
   "service": { "name": "networkmanager", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.networkmanager", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "xdoloy4w61xajsksec79wbi9uow2o5ve80pa"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "ieewa92660iv1dy2vmhdrbhb1oxsw2pfa2cj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

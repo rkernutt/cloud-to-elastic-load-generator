@@ -1,38 +1,39 @@
 {
-  "@timestamp": "2026-05-22T12:29:30.113Z",
+  "@timestamp": "2026-05-28T16:58:15.156Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-central-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "backup" }
   },
   "aws": {
     "backup": {
-      "event_subtype": "backup_job",
-      "backup_job_id": "6s4mmrwh-9hu4-2l5f",
-      "backup_plan_name": "daily-backup-plan",
-      "resource_arn": "arn:aws:backup:ap-northeast-1:293847561023:recovery-point:p6a2yvk88hhx",
-      "resource_type": "EFS",
-      "backup_vault_name": "compliance-vault",
-      "job_phase": "RUNNING",
-      "job_lifecycle": ["CREATED", "PENDING", "RUNNING", "COMPLETED"],
-      "status": "RUNNING",
-      "backup_size_gb": 174.58216340853468,
+      "event_subtype": "restore_job",
+      "backup_job_id": "7c7pw8ro-cogb-10d4",
+      "restore_job_id": "cyqymo7t-opkr-r6qf",
+      "backup_plan_name": "compliance-backup",
+      "resource_arn": "arn:aws:backup:eu-central-2:164820739518:recovery-point:dcan4e61kij4",
+      "resource_type": "FSx",
+      "backup_vault_name": "prod-vault",
+      "job_phase": "PENDING",
+      "restore_job_lifecycle": ["CREATED", "PENDING", "RUNNING", "COMPLETED"],
+      "status": "COMPLETED",
+      "backup_size_gb": 1825.8748455203033,
       "lifecycle_delete_after_days": 90
     },
     "s3": {
       "bucket": {
-        "name": "aws-backup-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-backup-logs-293847561023"
+        "name": "aws-backup-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-backup-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/backup/ap-northeast-1/2026/05/22/backup_REINMSHDCAWK5CVPE1LT.log.gz"
+        "key": "AWSLogs/164820739518/backup/eu-central-2/2026/05/28/backup_4JSL2VBM0BXJKW0L98ER.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/backup/logs",
-      "log_stream": "ap-northeast-1/v67zerl4",
-      "ingestion_time": "2026-05-22T12:29:31.383Z"
+      "log_stream": "eu-central-2/maitn3yb",
+      "ingestion_time": "2026-05-28T16:58:16.071Z"
     }
   },
   "event": {
@@ -41,10 +42,10 @@
     "type": ["info"],
     "dataset": "aws.backup",
     "provider": "backup.amazonaws.com",
-    "duration": 1839000000000,
+    "duration": 1866000000000,
     "module": "aws"
   },
-  "message": "AWS Backup RUNNING: ec2/i-prod -> compliance-vault (174.6GB)",
+  "message": "AWS Backup restore COMPLETED: dynamodb/users-table from prod-vault",
   "log": { "level": "info" },
   "service": { "name": "backup", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -52,8 +53,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "z0fum9dm3g0o7otbv74aw2ggozetztijqpmk"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "wg0dmv2w4dzuvpt1qgrdmq4vemzv0bxzxle5"
   },
   "input": { "type": "aws-cloudwatch" }
 }

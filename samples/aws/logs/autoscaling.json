@@ -1,47 +1,47 @@
 {
-  "@timestamp": "2026-05-22T12:29:30.113Z",
+  "@timestamp": "2026-05-28T16:58:15.156Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
+    "region": "ap-southeast-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "autoscaling" }
   },
   "aws": {
-    "dimensions": { "AutoScalingGroupName": "worker-asg" },
+    "dimensions": { "AutoScalingGroupName": "batch-asg" },
     "autoscaling": {
-      "group_name": "worker-asg",
-      "activity_id": "tm4p5iqd-zn32-hqyv",
-      "action_type": "Launch",
-      "instance_id": "i-9f2a14f30fcd6cc04",
-      "instance_type": "t3.medium",
-      "desired_capacity": 5,
+      "group_name": "batch-asg",
+      "activity_id": "9h896fv1-nwoq-0c3b",
+      "action_type": "PredictiveScalingForecast",
+      "instance_id": "i-2d01a8431652c7a3d",
+      "instance_type": "c5.2xlarge",
+      "desired_capacity": 14,
       "min_size": 2,
       "max_size": 50,
-      "current_capacity": 4,
-      "cause": "At 2026-05-22T12:29:30.113Z a monitor alarm TargetTracking-scale-out-alarm in state ALARM triggered policy scale-out",
+      "current_capacity": 13,
+      "cause": "PredictiveScaling: forecast shows load increase; preemptive capacity adjustment recommended for batch-asg",
       "status_code": "Successful",
-      "launch_template": "api-lt:3",
-      "predictive_scaling_forecast": false,
+      "launch_template": "web-lt:5",
+      "predictive_scaling_forecast": true,
       "metrics": {
         "GroupMinSize": { "avg": 2 },
         "GroupMaxSize": { "avg": 50 },
-        "GroupDesiredCapacity": { "avg": 5 },
-        "GroupInServiceInstances": { "avg": 4 },
+        "GroupDesiredCapacity": { "avg": 14 },
+        "GroupInServiceInstances": { "avg": 13 },
         "GroupPendingInstances": { "avg": 0 },
         "GroupStandbyInstances": { "avg": 1 },
         "GroupTerminatingInstances": { "avg": 0 },
-        "GroupTotalInstances": { "avg": 5 },
-        "GroupInServiceCapacity": { "avg": 4 },
+        "GroupTotalInstances": { "avg": 14 },
+        "GroupInServiceCapacity": { "avg": 13 },
         "GroupPendingCapacity": { "avg": 0 },
         "GroupStandbyCapacity": { "avg": 1 },
         "GroupTerminatingCapacity": { "avg": 0 },
-        "GroupTotalCapacity": { "avg": 5 },
+        "GroupTotalCapacity": { "avg": 14 },
         "WarmPoolMinSize": { "avg": 0 },
-        "WarmPoolDesiredCapacity": { "avg": 0 },
-        "WarmPoolPendingCapacity": { "avg": 0 },
-        "WarmPoolTerminatingCapacity": { "avg": 0 },
-        "WarmPoolTotalCapacity": { "avg": 0 },
-        "WarmPoolWarmedCapacity": { "avg": 0 }
+        "WarmPoolDesiredCapacity": { "avg": 2 },
+        "WarmPoolPendingCapacity": { "avg": 1 },
+        "WarmPoolTerminatingCapacity": { "avg": 2 },
+        "WarmPoolTotalCapacity": { "avg": 5 },
+        "WarmPoolWarmedCapacity": { "avg": 1 }
       }
     },
     "s3": {
@@ -50,13 +50,13 @@
         "arn": "arn:aws:s3:::aws-autoscaling-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/autoscaling/eu-central-2/2026/05/22/autoscaling_O1OE5QJHIFUG4EF32UW6.log.gz"
+        "key": "AWSLogs/293847561023/autoscaling/ap-southeast-1/2026/05/28/autoscaling_LW2A7WP1XS21PJ9EAVIN.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/autoscaling/logs",
-      "log_stream": "eu-central-2/vdq6aobr",
-      "ingestion_time": "2026-05-22T12:29:31.254Z"
+      "log_stream": "ap-southeast-1/f0slu5og",
+      "ingestion_time": "2026-05-28T16:58:15.948Z"
     }
   },
   "event": {
@@ -65,10 +65,10 @@
     "outcome": "success",
     "dataset": "aws.autoscaling",
     "provider": "autoscaling.amazonaws.com",
-    "duration": 595000000000,
+    "duration": 320000000000,
     "module": "aws"
   },
-  "message": "SuccessfulScalingActivity: Launching a new EC2 instance: i-9f2a14f30fcd6cc04 ActivityId=tm4p5iqd-zn32-hqyv Cause: At 2026-05-22T12:29:30.113Z a monitor alarm TargetTracking-scale-out-alarm in state ALARM triggered policy scale-out",
+  "message": "PredictiveScalingForecast asg=batch-asg forecastTime=2026-05-28T16:58:15.156Z predictedCPU=53.8% recommendedDesiredCapacity=14",
   "log": { "level": "info" },
   "service": { "name": "autoscaling", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -76,8 +76,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "s5dyngb86u2mgjzep2jf2tvuhjj5fx8fxqi6"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "dt04wojkse5vpj7kslbdicycvskzw231grs5"
   },
   "input": { "type": "aws-cloudwatch" }
 }

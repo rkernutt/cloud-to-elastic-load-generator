@@ -1,62 +1,67 @@
 {
-  "@timestamp": "2026-05-22T12:29:30.113Z",
+  "@timestamp": "2026-05-28T16:58:15.156Z",
   "cloud": {
     "provider": "aws",
     "region": "eu-south-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "sqs" }
   },
   "aws": {
-    "dimensions": { "QueueName": "webhook-events" },
+    "dimensions": { "QueueName": "order-processing" },
     "sqs": {
       "queue": {
-        "name": "webhook-events",
-        "url": "https://sqs.eu-south-2.amazonaws.com/814726593401/webhook-events"
+        "name": "order-processing",
+        "url": "https://sqs.eu-south-2.amazonaws.com/501938274650/order-processing"
       },
       "operation": "ChangeMessageVisibility",
       "scenario": "visibility_timeout",
       "fifo": false,
       "long_poll_wait_seconds": 0,
-      "oldest_message_age": { "sec": 220 },
+      "oldest_message_age": { "sec": 64838 },
       "messages": {
-        "delayed": 452,
-        "not_visible": 1162,
-        "visible": 6692,
-        "deleted": 463,
-        "received": 6391,
-        "sent": 7257
+        "delayed": 822,
+        "not_visible": 2934,
+        "visible": 42502,
+        "deleted": 90,
+        "received": 1063,
+        "sent": 6676
       },
-      "empty_receives": 54,
-      "sent_message_size": { "bytes": 45458 }
+      "empty_receives": 9,
+      "sent_message_size": { "bytes": 157973 }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sqs-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-sqs-logs-814726593401"
+        "name": "aws-sqs-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-sqs-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/sqs/eu-south-2/2026/05/22/sqs_IBPP3FGCNYPWO6U2S7WU.log.gz"
+        "key": "AWSLogs/501938274650/sqs/eu-south-2/2026/05/28/sqs_WHES0KFOIMRL1A041ZA2.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/sqs/logs",
-      "log_stream": "eu-south-2/pkwbrixt",
-      "ingestion_time": "2026-05-22T12:29:31.411Z"
+      "log_stream": "eu-south-2/bu57fexw",
+      "ingestion_time": "2026-05-28T16:58:16.102Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "type": ["info"],
     "dataset": "aws.sqs",
     "provider": "sqs.amazonaws.com",
-    "duration": 381000000,
+    "duration": 21793000000,
     "module": "aws"
   },
-  "message": "SQS ChangeMessageVisibility queue=https://sqs.eu-south-2.amazonaws.com/814726593401/webhook-events receipt_batches=1 new_timeout_sec=231 visible≈6692",
-  "log": { "level": "info" },
-  "trace": { "id": "WD6533444Q5IOSG2LQ9LBGPMNYVV2RC3" },
-  "transaction": { "id": "QVHXVPZGG0IIQNPK" },
+  "message": "SQS ChangeMessageVisibility queue=https://sqs.eu-south-2.amazonaws.com/501938274650/order-processing receipt_batches=1 new_timeout_sec=79 visible≈42502 | error: 648 messages dead-lettered after max retries",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "InvalidMessageContents",
+    "message": "SQS API rejected the request",
+    "type": "aws"
+  },
+  "trace": { "id": "EH27QRFKPXJHDP2RDZ4JW1750BF71KHH" },
+  "transaction": { "id": "J91CXMGVG3UEYRKZ" },
   "service": { "name": "sqs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.sqs", "namespace": "default" },
@@ -64,7 +69,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "7d9t8ue2ql5tbct1xdx8qz4r0ct5nbyz3t5u"
+    "ephemeral_id": "or6refmzkfb3slp0xqx2qh30za4z4i590pyc"
   },
   "input": { "type": "aws-cloudwatch" }
 }

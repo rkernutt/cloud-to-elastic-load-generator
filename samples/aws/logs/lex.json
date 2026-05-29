@@ -1,24 +1,25 @@
 {
-  "@timestamp": "2026-05-22T12:29:30.113Z",
+  "@timestamp": "2026-05-28T16:58:15.156Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
+    "region": "eu-south-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "lex" }
   },
   "aws": {
-    "dimensions": { "BotName": "order-bot", "Operation": "CheckStatus" },
+    "dimensions": { "BotName": "customer-service-bot", "Operation": "TransferToAgent" },
     "lex": {
-      "bot_id": "TFZI2N3KKU",
-      "bot_name": "order-bot",
+      "bot_id": "TG553S2KYW",
+      "bot_name": "customer-service-bot",
       "bot_version": "2",
-      "locale_id": "es_US",
-      "session_id": "jas2b8wr6bh77g1xgin7kodzcy81oaatvawa",
-      "input_transcript": "What is my order status",
-      "intent_name": "CheckStatus",
-      "intent_nlu_confidence_score": 0.631872293754588,
-      "dialog_state": "Fulfilled",
-      "sentiment": "NEGATIVE"
+      "locale_id": "en_US",
+      "session_id": "jn7j9c7le7iv6j2f0z20i7ng24qng6q6x4av",
+      "input_transcript": "Cancel my order",
+      "intent_name": "TransferToAgent",
+      "intent_nlu_confidence_score": 0.920454763309605,
+      "dialog_state": "Failed",
+      "sentiment": "NEGATIVE",
+      "error_code": "BadRequestException"
     },
     "s3": {
       "bucket": {
@@ -26,32 +27,33 @@
         "arn": "arn:aws:s3:::aws-lex-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/lex/eu-west-2/2026/05/22/lex_ZG4FFQCF3M9RM697NB9N.log.gz"
+        "key": "AWSLogs/293847561023/lex/eu-south-1/2026/05/28/lex_SAFULFB5OGCEMJQLG2DQ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lex/logs",
-      "log_stream": "eu-west-2/mf6s5hgn",
-      "ingestion_time": "2026-05-22T12:29:31.471Z"
+      "log_stream": "eu-south-1/k4h0jqox",
+      "ingestion_time": "2026-05-28T16:58:16.189Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.lex",
     "provider": "lex.amazonaws.com",
     "module": "aws"
   },
-  "message": "Lex order-bot: intent=CheckStatus (63%)",
-  "log": { "level": "warn" },
+  "message": "Lex customer-service-bot FAILED: intent TransferToAgent - NLU confidence too low",
+  "log": { "level": "error" },
+  "error": { "code": "LexError", "message": "Lex intent failed", "type": "ml" },
   "service": { "name": "lex", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lex", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "q845xcfsgsyi4iu0glat7x1s3fi87fiprhbr"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "1bd7lswrmajorih4g4s7qdovzlq2dhfta0w2"
   },
   "input": { "type": "aws-cloudwatch" }
 }

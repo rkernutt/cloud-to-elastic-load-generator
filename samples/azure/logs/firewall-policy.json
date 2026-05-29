@@ -1,64 +1,73 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-prod-884esm/providers/Microsoft.Network/firewallPolicies/afwp-pci-aq0e",
-  "operationName": "FirewallPolicyPropagationStatus",
-  "category": "AzureFirewallPolicyCommit",
-  "resultType": "Success",
-  "resultSignature": "200",
-  "callerIpAddress": "109.153.83.90",
-  "correlationId": "315e0b18-025e-4efe-9454-98bb76bd79c8",
-  "level": "Informational",
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-network-rro4uf/providers/Microsoft.Network/firewallPolicies/afwp-prod-u2t0",
+  "operationName": "FirewallPolicyRuleCollectionGroupChanged",
+  "category": "AzureFirewallPolicyRuleCollectionGroup",
+  "resultType": "Failure",
+  "resultSignature": "400",
+  "callerIpAddress": "37.119.14.246",
+  "correlationId": "78984000-3e58-49e3-ba0a-bb66860d690d",
+  "level": "Error",
   "properties": {
-    "attachedFirewalls": [
-      "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-prod-884esm/providers/Microsoft.Network/azureFirewalls/afw-9KR"
-    ],
-    "commitId": "5dddabbc-b9e1-4405-8380-72699a0bd448",
-    "propagationStatus": "Complete",
-    "failedTargets": []
+    "ruleCollectionGroup": "DefaultDnat-GI3",
+    "priority": 27525,
+    "ruleCount": 0,
+    "changeType": "Rollback",
+    "validationErrors": ["OverlappingRulePriorities", "InvalidFqdnPattern"],
+    "statusMessage": {
+      "error": {
+        "code": "LoadBalancerInUseByVirtualMachineScaleSet",
+        "message": "ARM provisioning: Backend pool members from a Virtual Machine Scale Set block deletion or SKU change."
+      }
+    }
+  },
+  "error": {
+    "code": "LoadBalancerInUseByVirtualMachineScaleSet",
+    "message": "Backend pool members from a Virtual Machine Scale Set block deletion or SKU change.",
+    "type": "azure"
   },
   "cloud": {
     "provider": "azure",
-    "region": "germanywestcentral",
+    "region": "canadacentral",
     "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
     "service": { "name": "Microsoft.Network/firewallPolicies" }
   },
   "azure": {
     "firewall_policy": {
-      "name": "afwp-pci-aq0e",
-      "resource_group": "rg-prod-884esm",
-      "category": "AzureFirewallPolicyCommit",
-      "correlation_id": "315e0b18-025e-4efe-9454-98bb76bd79c8",
+      "name": "afwp-prod-u2t0",
+      "resource_group": "rg-network-rro4uf",
+      "category": "AzureFirewallPolicyRuleCollectionGroup",
+      "correlation_id": "78984000-3e58-49e3-ba0a-bb66860d690d",
       "properties": {
-        "attachedFirewalls": [
-          "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-prod-884esm/providers/Microsoft.Network/azureFirewalls/afw-9KR"
-        ],
-        "commitId": "5dddabbc-b9e1-4405-8380-72699a0bd448",
-        "propagationStatus": "Complete",
-        "failedTargets": []
+        "ruleCollectionGroup": "DefaultDnat-GI3",
+        "priority": 27525,
+        "ruleCount": 0,
+        "changeType": "Rollback",
+        "validationErrors": ["OverlappingRulePriorities", "InvalidFqdnPattern"]
       }
     }
   },
   "event": {
     "kind": "event",
     "category": ["network"],
-    "type": ["connection"],
-    "action": "FirewallPolicyPropagationStatus",
-    "outcome": "success",
-    "duration": 1511824382,
+    "type": ["denied"],
+    "action": "FirewallPolicyRuleCollectionGroupChanged",
+    "outcome": "failure",
+    "duration": 294301211,
     "module": "azure",
     "dataset": "azure.firewall_policy"
   },
-  "message": "Firewall policy afwp-pci-aq0e: committed to 1 firewall(s)",
+  "message": "Firewall policy afwp-prod-u2t0: RCG DefaultDnat-GI3 validation failed",
   "service": { "name": "firewall-policy", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.firewall_policy", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-germanywestcentral",
-    "id": "upb5we0nv9rf1um4elx3hmv85sd0fa1jaejb"
+    "name": "elastic-agent-azure-canadacentral",
+    "id": "m73kn3whyirmkekdtwuqgx38xwgluabj4ns6"
   },
   "input": { "type": "azure-eventhub" }
 }

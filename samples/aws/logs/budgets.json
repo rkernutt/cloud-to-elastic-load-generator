@@ -1,58 +1,59 @@
 {
-  "@timestamp": "2026-05-22T12:29:30.113Z",
+  "@timestamp": "2026-05-28T16:58:15.156Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-north-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "budgets" }
   },
   "aws": {
     "budgets": {
-      "budget_name": "rds-cluster",
-      "budget_type": "COST",
+      "budget_name": "monthly-total",
+      "budget_type": "RI_COVERAGE",
       "time_period": "ANNUALLY",
       "currency": "USD",
-      "budget_limit": 5172.62,
-      "actual_spend": 3893.74,
-      "forecasted_spend": 3627.08,
-      "threshold_exceeded": false,
-      "threshold_percentage": 50,
-      "notification_type": "ACTUAL",
-      "subscribers": "finance@company.com"
+      "budget_limit": 4500.64,
+      "actual_spend": 5472.67,
+      "forecasted_spend": 5535.22,
+      "threshold_exceeded": true,
+      "threshold_percentage": 90,
+      "notification_type": "FORECASTED",
+      "subscribers": "ops@company.com"
     },
     "s3": {
       "bucket": {
-        "name": "aws-budgets-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-budgets-logs-164820739518"
+        "name": "aws-budgets-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-budgets-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/budgets/us-west-1/2026/05/22/budgets_PWD6I3U8IK5OIEEHSFTV.log.gz"
+        "key": "AWSLogs/501938274650/budgets/eu-north-1/2026/05/28/budgets_51HAA6RDV2M6IASVNBLK.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/budgets/logs",
-      "log_stream": "us-west-1/lzecpywo",
-      "ingestion_time": "2026-05-22T12:29:31.503Z"
+      "log_stream": "eu-north-1/pwp5sr0d",
+      "ingestion_time": "2026-05-28T16:58:16.230Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["configuration", "process"],
     "dataset": "aws.budgets",
     "provider": "budgets.amazonaws.com",
-    "duration": 15000000000,
+    "duration": 28000000000,
     "module": "aws"
   },
-  "message": "Budget OK: rds-cluster at 3894/5173 (75%)",
-  "log": { "level": "info" },
+  "message": "Budget ALERT: monthly-total exceeded 90% — 5473 of 4501",
+  "log": { "level": "warn" },
+  "error": { "code": "BudgetExceeded", "message": "Budget threshold exceeded", "type": "billing" },
   "service": { "name": "budgets", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.budgets", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "dv7grt43lyz3ww4ge9ce2a837esv1znwmgtq"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "glz40gtx2n10e9d5ml7r72jnynz0tpmzodyz"
   },
   "input": { "type": "http_endpoint" }
 }

@@ -3,39 +3,30 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-north1",
+    "region": "europe-west4",
     "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
     "account": { "id": "739158264830", "name": "Globex Staging" },
-    "service": { "name": "serverless-neg" }
+    "service": { "name": "cloud-lb" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-north1",
-    "ephemeral_id": "dasppoxm7iar9gx47kk6gwyeu6hwxjmkkiak"
+    "name": "metricbeat-gcp-europe-west4",
+    "ephemeral_id": "mgrxr174l0djrqohfhobl9324he0p3yqpzg7"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "loadbalancing.googleapis.com/https/backend_request_count",
-      "labels": {
-        "protocol": "HTTP/2.0",
-        "response_code_class": "200",
-        "response_code": "200",
-        "cache_result": "UNKNOWN",
-        "matcher_type": "PATH_MATCHER",
-        "matcher_name": "default",
-        "backend_scope": "europe-north1",
-        "backend_scope_type": "ZONE",
-        "backend_target_name": "ae-svc-catalog",
-        "backend_target_type": "NETWORK_ENDPOINT_GROUP"
-      }
+      "type": "loadbalancing.googleapis.com/https/request_count",
+      "labels": { "response_code_class": "2xx" }
     },
     "resource": {
-      "type": "gce_backend_service",
+      "type": "https_lb_rule",
       "labels": {
         "project_id": "globex-stg-739158",
-        "backend_service_id": "be-sneg-fn-webhook",
-        "location": "europe-north1"
+        "url_map_name": "web-frontend-map",
+        "forwarding_rule_name": "fr-web-https",
+        "target_proxy_name": "tp-web-https",
+        "region": "europe-west4"
       }
     },
     "metricKind": "DELTA",
@@ -43,37 +34,30 @@
     "points": [
       {
         "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "int64Value": "1752877" }
+        "value": { "int64Value": "3255395" }
       }
     ]
   },
   "gcp": {
-    "serverless-neg": {
+    "cloud-lb": {
       "labels": {
         "project_id": "globex-stg-739158",
-        "backend_service_id": "be-sneg-fn-webhook",
-        "location": "europe-north1",
-        "protocol": "HTTP/2.0",
-        "response_code_class": "200",
-        "response_code": "200",
-        "cache_result": "UNKNOWN",
-        "matcher_type": "PATH_MATCHER",
-        "matcher_name": "default",
-        "backend_scope": "europe-north1",
-        "backend_scope_type": "ZONE",
-        "backend_target_name": "ae-svc-catalog",
-        "backend_target_type": "NETWORK_ENDPOINT_GROUP"
+        "url_map_name": "web-frontend-map",
+        "forwarding_rule_name": "fr-web-https",
+        "target_proxy_name": "tp-web-https",
+        "region": "europe-west4",
+        "response_code_class": "2xx"
       },
       "metrics": {
-        "loadbalancing.googleapis.com/https/backend_request_count": {
-          "avg": 1752877,
-          "sum": 1752877,
+        "loadbalancing.googleapis.com/https/request_count": {
+          "avg": 3255395,
+          "sum": 3255395,
           "count": 1
         }
       }
     }
   },
-  "metricset": { "name": "serverless-neg", "period": 60000 },
+  "metricset": { "name": "cloud-lb", "period": 60000 },
   "data_stream": {
     "type": "metrics",
     "dataset": "gcp.loadbalancing_metrics",

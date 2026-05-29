@@ -1,71 +1,66 @@
 {
-  "@timestamp": "2026-05-22T12:29:30.113Z",
+  "@timestamp": "2026-05-28T16:58:15.156Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-south-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "cloudformation" }
   },
   "aws": {
     "cloudformation": {
-      "stack_name": "api-gateway-stack",
-      "stack_id": "arn:aws:cloudformation:us-east-2:501938274650:stack/api-gateway-stack/ou7561i6",
-      "scenario": "rollback_complete",
-      "aws_api_operation": "CancelUpdateStack",
+      "stack_name": "prod-web-stack",
+      "stack_id": "arn:aws:cloudformation:ap-south-2:164820739518:stack/prod-web-stack/0a2rop53",
+      "scenario": "changeset_execute",
+      "aws_api_operation": "DescribeChangeSet",
+      "change_set_id": "arn:aws:cloudformation:ap-south-2:164820739518:changeSet/cs-UIC41RRZ64",
       "stack_status": "UPDATE_COMPLETE",
-      "resource_type": "AWS::Lambda::Function",
-      "logical_resource_id": "WebServerASG",
-      "physical_resource_id": "arn:aws:rds:us-east-2:501938274650:db:prod-001",
-      "resource_status": "DELETE_FAILED",
-      "resource_status_reason": "IAM policy error",
+      "resource_type": "AWS::IAM::Role",
+      "logical_resource_id": "DatabaseCluster",
+      "physical_resource_id": "arn:aws:iam::164820739518:role/TaskRole",
+      "resource_status": "UPDATE_COMPLETE",
       "drift_status": "NOT_CHECKED",
-      "structured_logging": false,
+      "structured_logging": true,
       "metrics": {
-        "TotalStack": { "avg": 259 },
-        "ErroredStack": { "avg": 9 },
-        "RollbackStack": { "avg": 1 },
-        "DeletedStack": { "avg": 50 },
-        "StackInstancesDeployed": { "avg": 5391 }
+        "TotalStack": { "avg": 388 },
+        "ErroredStack": { "avg": 0 },
+        "RollbackStack": { "avg": 0 },
+        "DeletedStack": { "avg": 9 },
+        "StackInstancesDeployed": { "avg": 4537 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudformation-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-cloudformation-logs-501938274650"
+        "name": "aws-cloudformation-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-cloudformation-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/501938274650/cloudformation/us-east-2/2026/05/22/cloudformation_2ZDJZZ05X9RCLCL3R62M.log.gz"
+        "key": "AWSLogs/164820739518/cloudformation/ap-south-2/2026/05/28/cloudformation_0NNQD22NNGGV6DWYQ70Z.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloudformation/logs",
-      "log_stream": "us-east-2/tmjo0r5u",
-      "ingestion_time": "2026-05-22T12:29:31.489Z"
+      "log_stream": "ap-south-2/nnwjs9jy",
+      "ingestion_time": "2026-05-28T16:58:16.214Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["configuration", "process"],
     "dataset": "aws.cloudformation",
     "provider": "cloudformation.amazonaws.com",
-    "duration": 2533000000000,
+    "duration": 404000000000,
     "module": "aws"
   },
-  "message": "Rollback CancelUpdateStack: api-gateway-stack stabilized=false failed_events=8",
-  "error": {
-    "code": "ValidationError",
-    "message": "CloudFormation stack mutation failed",
-    "type": "aws"
-  },
-  "log": { "level": "error" },
+  "message": "{\"StackId\":\"arn:aws:cloudformation:ap-south-2:164820739518:stack/prod-web-stack/0a2rop53\",\"StackName\":\"prod-web-stack\",\"ResourceType\":\"AWS::IAM::Role\",\"LogicalResourceId\":\"DatabaseCluster\",\"PhysicalResourceId\":\"arn:aws:iam::164820739518:role/TaskRole\",\"ResourceStatus\":\"UPDATE_COMPLETE\",\"ResourceStatusReason\":null,\"Timestamp\":\"2026-05-28T16:58:15.156Z\"}",
+  "log": { "level": "info" },
   "service": { "name": "cloudformation", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudformation", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "d9mtahf4xdriw8vclci67wgit3nk5ljwemxz"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "au5xn8ufe2qyhg3diuib4epekvfl35k9hyuj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

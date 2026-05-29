@@ -1,44 +1,42 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-network-sjmqqn/providers/Microsoft.Network/bastionHosts/bastion-hub-wys2",
-  "operationName": "BastionShareableLinkEvent",
-  "category": "BastionEphemeralLinks",
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-prod-ixw9xl/providers/Microsoft.Network/bastionHosts/bastion-corp-imet",
+  "operationName": "BastionClipboardInspection",
+  "category": "BastionDlpSignals",
   "resultType": "Success",
   "resultSignature": "200",
-  "callerIpAddress": "81.244.80.168",
-  "correlationId": "0111620f-18d6-4bb5-a3d1-dcd1b95fa4af",
+  "callerIpAddress": "235.192.223.96",
+  "correlationId": "5ff6db2f-56c9-4084-a55f-1002c687a963",
   "level": "Informational",
   "properties": {
-    "shareableLinkId": "9f9f571d-1d99-4c87-b2bd-2b4ad72a5fca",
-    "ephemeralTokenTtlMinutes": 190,
-    "linkRevokedEarly": false,
-    "originatingConditionalAccessPolicy": "BreakGlass-Excluded",
-    "devicePlatform": "Windows",
-    "message": "Ephemeral JWT consumption matched entitlement matrix",
-    "targetResourceGroup": "rg-network-sjmqqn",
-    "userPrincipalName": "daniel.williams@cascadeops.com"
+    "clipboardDirectionBlocked": "None",
+    "fileTransferAttempts": 1,
+    "dataExfilFingerprint": "multipart/x-zip-compressed",
+    "verdict": "AllowedPolicy",
+    "message": "Clipboard and drive redirection stayed within sanctioned patterns",
+    "scanLatencyMs": 103,
+    "userPrincipalName": "daniel.garcia@bluepeak.dev"
   },
   "cloud": {
     "provider": "azure",
-    "region": "eastus",
+    "region": "westus3",
     "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
     "service": { "name": "Microsoft.Network/bastionHosts" }
   },
   "azure": {
     "bastion": {
-      "host_name": "bastion-hub-wys2",
-      "resource_group": "rg-network-sjmqqn",
-      "category": "BastionEphemeralLinks",
-      "correlation_id": "0111620f-18d6-4bb5-a3d1-dcd1b95fa4af",
+      "host_name": "bastion-corp-imet",
+      "resource_group": "rg-prod-ixw9xl",
+      "category": "BastionDlpSignals",
+      "correlation_id": "5ff6db2f-56c9-4084-a55f-1002c687a963",
       "properties": {
-        "shareableLinkId": "9f9f571d-1d99-4c87-b2bd-2b4ad72a5fca",
-        "ephemeralTokenTtlMinutes": 190,
-        "linkRevokedEarly": false,
-        "originatingConditionalAccessPolicy": "BreakGlass-Excluded",
-        "devicePlatform": "Windows",
-        "message": "Ephemeral JWT consumption matched entitlement matrix",
-        "targetResourceGroup": "rg-network-sjmqqn"
+        "clipboardDirectionBlocked": "None",
+        "fileTransferAttempts": 1,
+        "dataExfilFingerprint": "multipart/x-zip-compressed",
+        "verdict": "AllowedPolicy",
+        "message": "Clipboard and drive redirection stayed within sanctioned patterns",
+        "scanLatencyMs": 103
       }
     }
   },
@@ -46,13 +44,13 @@
     "kind": "event",
     "category": ["network"],
     "type": ["connection"],
-    "action": "BastionShareableLinkEvent",
+    "action": "BastionClipboardInspection",
     "outcome": "success",
-    "duration": 12121184556,
+    "duration": 18152747467,
     "module": "azure",
     "dataset": "azure.bastion"
   },
-  "message": "[link] Bastion bastion-hub-wys2: Ephemeral JWT consumption matched entitlement matrix",
+  "message": "[dlp] Bastion bastion-corp-imet: AllowedPolicy",
   "service": { "name": "bastion", "type": "azure" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -60,8 +58,8 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-eastus",
-    "id": "nuqzchtze754a12xe4zp6jgw9ty5cbxpsnfj"
+    "name": "elastic-agent-azure-westus3",
+    "id": "cialhm7n2rohiuusdqcthoecvf5gbpqhbrjj"
   },
   "input": { "type": "azure-eventhub" }
 }

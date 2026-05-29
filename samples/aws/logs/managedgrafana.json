@@ -1,57 +1,57 @@
 {
-  "@timestamp": "2026-05-22T12:29:30.113Z",
+  "@timestamp": "2026-05-28T16:58:15.156Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-northeast-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "managedgrafana" }
   },
   "aws": {
-    "dimensions": { "WorkspaceId": "g-77fdu57t0t" },
+    "dimensions": { "WorkspaceId": "g-dr8o4fh1xg" },
     "managedgrafana": {
-      "workspace_id": "g-77fdu57t0t",
-      "workspace_name": "security-monitoring",
-      "workspace_status": "ACTIVE",
+      "workspace_id": "g-dr8o4fh1xg",
+      "workspace_name": "prod-observability",
+      "workspace_status": "UPDATING",
       "grafana_version": "10.2",
-      "alert_state": "no_data",
-      "dashboard_title": "EC2 Overview",
-      "datasource_type": "athena",
+      "alert_state": "alerting",
+      "dashboard_title": "RDS Metrics",
+      "datasource_type": "cloudwatch",
       "authentication_providers": "AWS_SSO",
-      "notification_destinations": "PAGERDUTY"
+      "notification_destinations": "SLACK"
     },
     "s3": {
       "bucket": {
-        "name": "aws-managedgrafana-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-managedgrafana-logs-164820739518"
+        "name": "aws-managedgrafana-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-managedgrafana-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/managedgrafana/me-central-1/2026/05/22/managedgrafana_00S38YQRG4V2FZ5Q7CAR.log.gz"
+        "key": "AWSLogs/814726593401/managedgrafana/ap-northeast-2/2026/05/28/managedgrafana_NUM3XB2WNAR8RUM7JCIL.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/managedgrafana/logs",
-      "log_stream": "me-central-1/6ixoadww",
-      "ingestion_time": "2026-05-22T12:29:31.506Z"
+      "log_stream": "ap-northeast-2/uevu3b87",
+      "ingestion_time": "2026-05-28T16:58:16.233Z"
     }
   },
   "event": {
-    "action": "UpdateWorkspace",
+    "action": "CreateApiKey",
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.managedgrafana",
     "provider": "grafana.amazonaws.com",
     "module": "aws"
   },
-  "message": "Managed Grafana UpdateWorkspace: workspace=security-monitoring alert=no_data dashboard=\"EC2 Overview\"",
-  "log": { "level": "info" },
+  "message": "Managed Grafana CreateApiKey: workspace=prod-observability alert=alerting dashboard=\"RDS Metrics\"",
+  "log": { "level": "warn" },
   "service": { "name": "managedgrafana", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.managedgrafana", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "4efyfpc35aelh7xi03dew792coh3gx732har"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "becffnt2aem7bz2z1l44rftpfc7bunbllyxg"
   },
   "input": { "type": "aws-cloudwatch" }
 }

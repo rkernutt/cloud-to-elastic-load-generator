@@ -1,103 +1,73 @@
 {
-  "@timestamp": "2026-05-22T12:29:30.113Z",
+  "@timestamp": "2026-05-28T16:58:15.156Z",
   "cloud": {
     "provider": "aws",
     "region": "ca-central-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "rds" }
   },
   "aws": {
     "dimensions": {
-      "DBInstanceIdentifier": "prod-db-reporting",
-      "DatabaseClass": "db.m5.large",
-      "EngineName": "aurora-postgresql",
+      "DBInstanceIdentifier": "prod-db-primary",
+      "DatabaseClass": "db.r5.large",
+      "EngineName": "mysql",
       "SourceRegion": "ca-central-1"
     },
     "cloudwatch": {
-      "log_group": "/aws/rds/cluster/prod-db-reporting/postgresql",
-      "log_stream": "prod-db-reporting",
-      "ingestion_time": "2026-05-22T12:29:31.226Z"
+      "log_group": "/aws/rds/instance/prod-db-primary/error",
+      "log_stream": "prod-db-primary",
+      "ingestion_time": "2026-05-28T16:58:15.914Z"
     },
     "rds": {
       "db_instance": {
-        "identifier": "prod-db-reporting",
-        "class": "db.m5.large",
-        "engine_name": "aurora-postgresql",
-        "engine_version": "14.1",
-        "arn": "arn:aws:rds:ca-central-1:738291046572:db:prod-db-reporting",
+        "identifier": "prod-db-primary",
+        "class": "db.r5.large",
+        "engine_name": "mysql",
+        "engine_version": "8.0.40",
+        "arn": "arn:aws:rds:ca-central-1:814726593401:db:prod-db-primary",
         "status": "available",
-        "role": "instance",
-        "multi_az": true,
-        "storage_type": "gp3",
-        "allocated_storage_gb": 200
+        "role": "read-replica",
+        "multi_az": false,
+        "storage_type": "io1",
+        "allocated_storage_gb": 100
       },
-      "log_type": "postgresql",
-      "cpu": { "total": { "pct": 0.386 } },
-      "freeable_memory": { "bytes": 340257349 },
-      "free_storage": { "bytes": 499578292015 },
-      "database_connections": 323,
-      "read_io": { "ops_per_sec": 2722.8286388354177 },
-      "write_io": { "ops_per_sec": 694.9705368221549 },
-      "latency": { "read": 0.011431393157828575, "write": 0.0013250587838390423 },
+      "log_type": "error",
+      "cpu": { "total": { "pct": 0.5844 } },
+      "freeable_memory": { "bytes": 1104166696 },
+      "free_storage": { "bytes": 284545095471 },
+      "database_connections": 235,
+      "read_io": { "ops_per_sec": 2446.562365986969 },
+      "write_io": { "ops_per_sec": 1685.0027418680918 },
+      "latency": { "read": 0.009276317430034903, "write": 0.001005023780768498 },
       "throughput": {
-        "read": 91125924,
-        "write": 39218183,
-        "network_receive": 64108280,
-        "network_transmit": 85227007
+        "read": 75601439,
+        "write": 82945936,
+        "network_receive": 33910843,
+        "network_transmit": 15135620
       },
-      "replica_lag": { "sec": 83.85275195360016 },
-      "swap_usage": { "bytes": 69631276 },
-      "disk_usage": { "bin_log": { "bytes": 216394344 } },
-      "enhanced_monitoring": {
-        "cpuUtilization": {
-          "guest": 1.2433808672285624,
-          "irq": 0.028126488962813778,
-          "system": 8.111428388331962,
-          "wait": 0.6620919234285794,
-          "idle": 75.9,
-          "user": 14.101091645390563,
-          "total": 24.1
-        },
-        "memory": {
-          "total": 61528787892,
-          "free": 5481764805,
-          "cached": 1107913070,
-          "active": 11755271916,
-          "inactive": 1175099551,
-          "buffers": 410748546
-        },
-        "disk": {
-          "readIOsPS": 2439.6873141590863,
-          "writeIOsPS": 638.043583452489,
-          "readKbPS": 168699.07808725213,
-          "writeKbPS": 353220.5092229036,
-          "avgQueueLen": 1.4143865463497098,
-          "await": 10.285046660643914
-        },
-        "network": { "rx": 63977612, "tx": 96536182 },
-        "numVCPUs": 16,
-        "uptime": "97 days, 21:34:13"
-      }
+      "replica_lag": { "sec": 30.34479906184907 },
+      "swap_usage": { "bytes": 95015057 },
+      "disk_usage": { "bin_log": { "bytes": 378934607 } }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-rds-logs-738291046572"
+        "name": "aws-rds-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-rds-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/rds/ca-central-1/2026/05/22/rds_D8220RCN6CJNASA5RD7T.log.gz"
+        "key": "AWSLogs/814726593401/rds/ca-central-1/2026/05/28/rds_6S5GGAKFWUKD028DYNLF.log.gz"
       }
     }
   },
   "db": {
-    "user": { "name": "appuser" },
-    "name": "appdb",
-    "statement": "SELECT * FROM events WHERE id = 568497",
+    "user": { "name": "admin" },
+    "name": "analytics",
+    "statement": "SELECT * FROM orders WHERE id = 887756",
     "type": "sql"
   },
-  "source": { "ip": "184.66.159.153" },
+  "source": { "ip": "195.83.235.186" },
   "event": {
-    "duration": 1795555788.0020502,
+    "duration": 212523914.8681338,
     "outcome": "success",
     "category": ["database"],
     "type": ["info", "access"],
@@ -105,10 +75,10 @@
     "provider": "rds.amazonaws.com",
     "module": "aws"
   },
-  "message": "2026-05-22 12:29:30.113 UTC:184.66.159.153(59847):appuser@appdb:[56591]:LOG:  duration: 1795.556 ms  statement: SELECT * FROM events WHERE id = 568497",
+  "message": "2026-05-28 16:58:15.156 98793 [Note] [MY-20348] [Server] /rdsdbbin/mysql/bin/mysqld: ready for connections. Version: '8.0.32'  socket: '/tmp/mysql.sock'  port: 3306",
   "log": { "level": "info" },
-  "trace": { "id": "Q016VP0R0439QTMFSFP2282AK925W2GA" },
-  "transaction": { "id": "8G68ZZHKKCFGDJG0" },
+  "trace": { "id": "0DO0LY98CKVXJ180SL815P0AH51ICIB5" },
+  "transaction": { "id": "S73Q72PIRI2SE34I" },
   "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
@@ -116,8 +86,8 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "u9ef7de4x6s74hpn375yrcgr24dhb0xme61c"
+    "ephemeral_id": "3nur5b350ivnm199ykebwuayusl2blknreav"
   },
   "input": { "type": "aws-cloudwatch" },
-  "related": { "ip": ["184.66.159.153"] }
+  "related": { "ip": ["195.83.235.186"] }
 }

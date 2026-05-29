@@ -3,57 +3,54 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-south2",
-    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
-    "account": { "id": "847293615048", "name": "Globex Security" },
-    "service": { "name": "migrate-to-vms" }
+    "region": "africa-south1",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
+    "service": { "name": "sole-tenant-nodes" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-south2",
-    "ephemeral_id": "8ntb5j8ir5dwxzaoog5yy1bhv5vaoxzcx8ol"
+    "name": "metricbeat-gcp-africa-south1",
+    "ephemeral_id": "11smrh8dwdpyb1rleecxhs1psegmr4bcb5gh"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "serviceruntime.googleapis.com/api/request_count",
-      "labels": { "protocol": "grpc", "response_code_class": "4xx" }
-    },
-    "resource": {
-      "type": "consumed_api",
+      "type": "compute.googleapis.com/node_group/nodes",
       "labels": {
-        "project_id": "globex-sec-847293",
-        "service": "vmmigration.googleapis.com",
-        "method": "/google.cloud.vmmigration.v1.VmMigrationService/GetMigratingVm",
-        "version": "v1",
-        "location": "global",
-        "credential_id": ""
+        "node_name": "st-node-aa",
+        "node_group_name": "ng-compliance",
+        "status": "healthy"
       }
     },
-    "metricKind": "DELTA",
+    "resource": {
+      "type": "gce_node_group",
+      "labels": {
+        "project_id": "globex-prod-482910",
+        "node_group_id": "sole-tenant-pci",
+        "zone": "africa-south1-a"
+      }
+    },
+    "metricKind": "GAUGE",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "5098" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "14" } }
     ]
   },
   "gcp": {
-    "migrate-to-vms": {
+    "sole-tenant-nodes": {
       "labels": {
-        "project_id": "globex-sec-847293",
-        "service": "vmmigration.googleapis.com",
-        "method": "/google.cloud.vmmigration.v1.VmMigrationService/GetMigratingVm",
-        "version": "v1",
-        "location": "global",
-        "credential_id": "",
-        "protocol": "grpc",
-        "response_code_class": "4xx"
+        "project_id": "globex-prod-482910",
+        "node_group_id": "sole-tenant-pci",
+        "zone": "africa-south1-a",
+        "node_name": "st-node-aa",
+        "node_group_name": "ng-compliance",
+        "status": "healthy"
       },
-      "metrics": {
-        "serviceruntime.googleapis.com/api/request_count": { "avg": 5098, "sum": 5098, "count": 1 }
-      }
+      "metrics": { "compute.googleapis.com/node_group/nodes": { "avg": 14, "sum": 14, "count": 1 } }
     }
   },
-  "metricset": { "name": "migrate-to-vms", "period": 60000 },
+  "metricset": { "name": "sole-tenant-nodes", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.compute_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "kind": "metric", "dataset": "gcp.compute_metrics", "module": "gcp" }

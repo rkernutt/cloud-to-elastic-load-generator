@@ -1,34 +1,34 @@
 {
-  "@timestamp": "2026-05-22T12:29:30.113Z",
+  "@timestamp": "2026-05-28T16:58:15.156Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
+    "region": "eu-south-1",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "robomaker" }
   },
   "aws": {
     "robomaker": {
-      "simulation_job_id": "sim-2bimk6brk25c",
-      "robot_application": "delivery-robot",
-      "scenario": "robot_deploy",
-      "status": "Running",
-      "simulation_time_seconds": 12523,
-      "world_count": 1,
+      "simulation_job_id": "sim-h7f3nmbfxl5r",
+      "robot_application": "pick-and-place",
+      "scenario": "world_generate",
+      "status": "Canceled",
+      "simulation_time_seconds": 31803,
+      "world_count": 3,
       "compute_type": "CPU",
       "max_job_duration_seconds": 86400,
-      "failure_behavior": "Fail",
+      "failure_behavior": "Continue",
       "ros": {
         "distro": "ROS Noetic",
-        "graph": { "nodes": 30, "topics": ["/scan", "/cmd_vel", "/odom", "/map"] }
+        "graph": { "nodes": 4, "topics": ["/scan", "/cmd_vel", "/odom", "/map"] }
       },
       "physics": {
-        "engine": "Ignition Fortress",
-        "step_size_ms": 2.7474914946475057,
-        "realtime_factor": 0.8130836659676673
+        "engine": "Gazebo",
+        "step_size_ms": 2.090983645990984,
+        "realtime_factor": 0.5218120985360445
       },
       "vpc_config": {
-        "subnets": ["subnet-8fb31723", "subnet-5fa928b0"],
-        "security_groups": ["sg-35324add"]
+        "subnets": ["subnet-a4b86266", "subnet-f22a8dab"],
+        "security_groups": ["sg-bd17adbf"]
       }
     },
     "s3": {
@@ -37,35 +37,40 @@
         "arn": "arn:aws:s3:::aws-robomaker-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/robomaker/af-south-1/2026/05/22/robomaker_LQDF0FI9P64J5RJE0WSF.log.gz"
+        "key": "AWSLogs/164820739518/robomaker/eu-south-1/2026/05/28/robomaker_9H24BMZWGM8TOINT0TLE.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/robomaker/logs",
-      "log_stream": "af-south-1/4kcawe9e",
-      "ingestion_time": "2026-05-22T12:29:31.435Z"
+      "log_stream": "eu-south-1/kxoax248",
+      "ingestion_time": "2026-05-28T16:58:16.146Z"
     }
   },
   "event": {
-    "action": "robot_deploy",
-    "outcome": "success",
+    "action": "world_generate",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.robomaker",
     "provider": "robomaker.amazonaws.com",
-    "duration": 28170698205,
+    "duration": 15813788815,
     "module": "aws"
   },
-  "message": "CreateDeploymentJob fleet=drone-west version=7 rollout=CANARY",
-  "log": { "level": "info" },
-  "host": { "name": "ip-132-174-51-179.ec2.internal", "hostname": "robomaker-194ogcp9" },
+  "message": "WorldExportJob s3://sim-assets/pick-and-place/world-1.world — WorldGenerationFailed: S3 artifact missing",
+  "log": { "level": "error" },
+  "error": {
+    "code": "WorldGenerationFailed",
+    "message": "RoboMaker world_generate failed for pick-and-place",
+    "type": "aws"
+  },
+  "host": { "name": "ip-152-192-98-89.ec2.internal", "hostname": "robomaker-rqdfls43" },
   "service": { "name": "robomaker", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.robomaker", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "7fbxys2qgsuxrysp7a5bbe09j2mrjjs8d9x3"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "lzraky0hwd978egctlnxmpqr6t7ud12r36br"
   },
   "input": { "type": "aws-cloudwatch" }
 }

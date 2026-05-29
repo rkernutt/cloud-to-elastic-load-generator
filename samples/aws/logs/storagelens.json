@@ -1,60 +1,68 @@
 {
-  "@timestamp": "2026-05-22T12:29:30.113Z",
+  "@timestamp": "2026-05-28T16:58:15.156Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ca-central-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "s3" }
   },
   "aws": {
-    "dimensions": { "StorageLensConfigurationId": "default", "StorageType": "IntelligentTiering" },
+    "dimensions": {
+      "StorageLensConfigurationId": "prod-buckets",
+      "StorageType": "IntelligentTiering"
+    },
     "s3storagelens": {
-      "config_id": "default",
-      "bucket_count": 130,
-      "total_storage_bytes": 22478411174233,
-      "total_object_count": 8371554973,
+      "config_id": "prod-buckets",
+      "bucket_count": 243,
+      "total_storage_bytes": 83264165167747,
+      "total_object_count": 987375767,
       "storage_type": "IntelligentTiering",
       "metrics": {
-        "BucketCount": { "avg": 130 },
-        "TotalStorageBytes": { "sum": 22478411174233 },
-        "TotalObjectCount": { "sum": 8371554973 },
-        "BytesUsed": { "sum": 22478411174233 },
-        "ObjectCount": { "sum": 8371554973 }
+        "BucketCount": { "avg": 243 },
+        "TotalStorageBytes": { "sum": 83264165167747 },
+        "TotalObjectCount": { "sum": 987375767 },
+        "BytesUsed": { "sum": 83264165167747 },
+        "ObjectCount": { "sum": 987375767 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-storagelens-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-storagelens-logs-164820739518"
+        "name": "aws-storagelens-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-storagelens-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/storagelens/eu-south-2/2026/05/22/storagelens_8BW0LJOPMXXUE0UVX5T0.log.gz"
+        "key": "AWSLogs/501938274650/storagelens/ca-central-1/2026/05/28/storagelens_7DZ40KOJGUIFWORBBJQ4.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/storagelens/logs",
-      "log_stream": "eu-south-2/nbt55t6e",
-      "ingestion_time": "2026-05-22T12:29:31.365Z"
+      "log_stream": "ca-central-1/c3s1mgq4",
+      "ingestion_time": "2026-05-28T16:58:16.050Z"
     }
   },
   "event": {
     "kind": "event",
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "aws.s3_storage_lens",
     "provider": "s3.amazonaws.com",
-    "duration": 256000000000,
+    "duration": 84000000000,
     "module": "aws"
   },
-  "message": "S3 Storage Lens default: 130 buckets, 22478.4 GB, 8371554973 objects",
-  "log": { "level": "info" },
+  "message": "S3 Storage Lens prod-buckets: report generation failed",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ReportGenerationFailed",
+    "message": "Storage Lens report failed",
+    "type": "storage"
+  },
   "service": { "name": "storagelens", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.s3_storage_lens", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "adkgz0r37g7355p86euw97axc4rjwjotjwpt"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "sblcq0yoyzvvsjdl5cl5o2t3l6au8dl4wv8q"
   },
   "input": { "type": "aws-s3" }
 }

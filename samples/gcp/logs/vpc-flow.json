@@ -1,76 +1,62 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "error" },
-  "gcp.rpc": { "status_code": "PERMISSION_DENIED" },
-  "error": {
-    "code": "PERMISSION_DENIED",
-    "message": "PERMISSION_DENIED: operation failed",
-    "type": "gcp"
-  },
-  "labels": { "gcp.rpc.status_code": "PERMISSION_DENIED" },
-  "severity": "ERROR",
-  "logName": "projects/globex-prod-482910/logs/compute.googleapis.com%2Fpacket_mirroring",
-  "insertId": "ea0i16iq25c5ephd",
-  "resource": {
-    "type": "packet_mirroring_policy",
-    "labels": {
-      "project_id": "globex-prod-482910",
-      "policy": "pm-policy-fpixr",
-      "region": "europe-central2"
-    }
-  },
+  "log": { "level": "info" },
+  "labels": {},
+  "severity": "INFO",
+  "logName": "projects/globex-shared-529384/logs/compute.googleapis.com%2Fnetwork_tier_usage",
+  "insertId": "ump3o3cg97vxai4m",
+  "resource": { "type": "project", "labels": { "project_id": "globex-shared-529384" } },
   "jsonPayload": {
-    "packet_mirroring_policy": "projects/globex-prod-482910/regions/europe-central2/packetMirrorings/pm-policy-fpixr",
-    "mirrored_network": "projects/globex-prod-482910/global/networks/shared-vpc",
-    "collector_ilb": "projects/globex-prod-482910/regions/europe-central2/forwardingRules/ilb-web-1cp2",
-    "mirrored_instance_count": 1,
-    "filter": { "ip_cidr_range": "10.187.5.0/24", "protocol": "all" },
-    "health": "UNHEALTHY"
+    "network_tier": "PREMIUM",
+    "resource_kind": "VPN",
+    "region": "northamerica-northeast1",
+    "egress_bytes": "3689246211",
+    "routing_preference": "COLD_POTATO",
+    "project": "globex-shared-529384"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-central2",
-    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
-    "account": { "id": "482910375621", "name": "Globex Production" },
-    "service": { "name": "packet-mirroring" }
+    "region": "northamerica-northeast1",
+    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
+    "account": { "id": "529384716205", "name": "Globex Shared Services" },
+    "service": { "name": "network-service-tiers" }
   },
   "gcp": {
-    "packet_mirroring": {
+    "network_service_tiers": {
       "json_payload": {
-        "packet_mirroring_policy": "projects/globex-prod-482910/regions/europe-central2/packetMirrorings/pm-policy-fpixr",
-        "mirrored_network": "projects/globex-prod-482910/global/networks/shared-vpc",
-        "collector_ilb": "projects/globex-prod-482910/regions/europe-central2/forwardingRules/ilb-web-1cp2",
-        "mirrored_instance_count": 1,
-        "filter": { "ip_cidr_range": "10.187.5.0/24", "protocol": "all" },
-        "health": "UNHEALTHY"
+        "network_tier": "PREMIUM",
+        "resource_kind": "VPN",
+        "region": "northamerica-northeast1",
+        "egress_bytes": "3689246211",
+        "routing_preference": "COLD_POTATO",
+        "project": "globex-shared-529384"
       },
-      "policy_name": "pm-policy-fpixr",
-      "mirrored_network": "shared-vpc",
-      "collector_instance": "web-1cp2",
-      "mirrored_instances_count": 1,
-      "filter_protocol": "all",
-      "filter_cidr": "10.187.5.0/24"
+      "tier": "PREMIUM",
+      "resource_type": "VPN",
+      "region": "northamerica-northeast1",
+      "egress_bytes": 3689246211,
+      "routing_type": "COLD_POTATO"
     }
   },
   "event": {
     "kind": "event",
     "category": ["network"],
-    "type": ["denied"],
-    "action": "packet-mirror",
-    "outcome": "failure",
-    "duration": 436000000,
+    "type": ["connection"],
+    "action": "network-tier",
+    "outcome": "success",
+    "duration": 8000000,
     "module": "gcp",
-    "dataset": "gcp.packetmirroring"
+    "dataset": "gcp.nst"
   },
-  "message": "compute.googleapis.com/packet_mirroring pm-policy-fpixr mirrored=1",
-  "service": { "name": "packet-mirroring", "type": "gcp" },
+  "message": "compute.googleapis.com/network_tiers PREMIUM VPN egress=3689246211",
+  "service": { "name": "network-service-tiers", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.packetmirroring", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.nst", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-central2",
-    "id": "kmdwk1bcsix1wg6xvqdoq0nlamdnyouqaqll"
+    "name": "elastic-agent-gcp-northamerica-northeast1",
+    "id": "h0cbb119nntdty84dei1kjo3cehvwdu8i0gq"
   },
   "input": { "type": "gcp-pubsub" }
 }

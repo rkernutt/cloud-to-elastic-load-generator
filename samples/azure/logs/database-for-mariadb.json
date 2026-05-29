@@ -1,20 +1,18 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-analytics-b7jxop/providers/Microsoft.DBforMariaDB/servers/mdb-3ebtt",
-  "operationName": "MariaDBConnection",
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-network-umzs2d/providers/Microsoft.DBforMariaDB/servers/mdb-doasw",
+  "operationName": "MariaDB.TlsHandshake",
   "category": "MySqlAuditLogs",
-  "resultType": "Success",
-  "resultSignature": "Connect_OK",
-  "callerIpAddress": "2.209.100.53",
-  "correlationId": "d9d86359-54df-47d7-9684-aa2c2b70c375",
-  "level": "Information",
+  "resultType": "Failure",
+  "resultSignature": "CERT_VERIFY_FAILED",
+  "callerIpAddress": "9.102.191.85",
+  "correlationId": "761e4b55-033a-4d47-89da-70dd802e2834",
+  "level": "Error",
   "properties": {
-    "threadId": 918553,
-    "user": "support",
-    "database": "auth",
-    "status": "Connect_OK",
-    "detail": ""
+    "cipher": "",
+    "tlsVersionOffered": "TLSv1.3",
+    "handshakeResult": "CERT_VERIFY_FAILED"
   },
   "cloud": {
     "provider": "azure",
@@ -24,39 +22,42 @@
   },
   "azure": {
     "database_for_mariadb": {
-      "server": "mdb-3ebtt",
-      "resource_group": "rg-analytics-b7jxop",
-      "category": "MySqlAuditLogs",
-      "correlation_id": "d9d86359-54df-47d7-9684-aa2c2b70c375",
+      "server": "mdb-doasw",
+      "resource_group": "rg-network-umzs2d",
+      "category": "MariaDBTls",
+      "correlation_id": "761e4b55-033a-4d47-89da-70dd802e2834",
       "properties": {
-        "threadId": 918553,
-        "user": "support",
-        "database": "auth",
-        "status": "Connect_OK",
-        "detail": ""
+        "cipher": "",
+        "tlsVersionOffered": "TLSv1.3",
+        "handshakeResult": "CERT_VERIFY_FAILED"
       }
     }
   },
   "event": {
     "kind": "event",
     "category": ["database"],
-    "type": ["access"],
-    "action": "MariaDBConnection",
-    "outcome": "success",
-    "duration": 1873518,
+    "type": ["error"],
+    "action": "MariaDB.TlsHandshake",
+    "outcome": "failure",
+    "duration": 1472544653,
     "module": "azure",
     "dataset": "azure.mariadb"
   },
-  "message": "MariaDB mdb-3ebtt: connection thread 918553 OK",
+  "message": "MariaDB mdb-doasw: TLS handshake CERT_VERIFY_FAILED",
+  "error": {
+    "code": "BlobAccessTierNotAllowed",
+    "message": "Changing blob tier is blocked by account policy.",
+    "type": "azure"
+  },
   "service": { "name": "database-for-mariadb", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.mariadb", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
     "name": "elastic-agent-azure-mexicocentral",
-    "id": "9t4cshdd34x12lbjjuayely5t1n79qa2bzmb"
+    "id": "rmjtfwltcb0tl6mkns8a68ovpwmd8zk8jtqx"
   },
   "input": { "type": "azure-eventhub" }
 }

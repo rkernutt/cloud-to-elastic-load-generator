@@ -1,25 +1,24 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "log": { "level": "info" },
-  "severity": "INFO",
-  "labels": { "bucket_name": "globex-sec-847293-exports", "location": "us-east5" },
+  "severity": "DEBUG",
+  "labels": { "job_name": "transferJobs/EGNCNST0UO" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-east5",
+    "region": "us-west1",
     "project": { "id": "globex-prod-482910", "name": "Globex Production" },
     "account": { "id": "482910375621", "name": "Globex Production" },
-    "service": { "name": "cloud-storage" }
+    "service": { "name": "storage-transfer-service" }
   },
   "gcp": {
-    "cloud_storage": {
-      "bucket_name": "globex-sec-847293-exports",
-      "object_name": "logs/v8ereslq.bin",
-      "object_size": 328409255,
-      "storage_class": "NEARLINE",
-      "operation": "storage.objects.delete",
-      "content_type": "image/png",
-      "generation": "1779452974298289407",
-      "requester_ip": "23.228.120.61"
+    "storage_transfer": {
+      "job_name": "transferJobs/EGNCNST0UO",
+      "source_bucket": "s3://source-H0206Q",
+      "destination_bucket": "gs://globex-dev-615094-data",
+      "bytes_transferred": 3423633993460,
+      "objects_transferred": 18631123,
+      "status": "IN_PROGRESS",
+      "transfer_type": "aws-to-gcs"
     }
   },
   "event": {
@@ -28,38 +27,37 @@
     "type": ["access"],
     "action": "storage",
     "outcome": "success",
-    "duration": 94000000,
+    "duration": 8088000000,
     "module": "gcp",
-    "dataset": "gcp.gcs"
+    "dataset": "gcp.storagetransfer"
   },
-  "message": "jsonPayload.@type=type.googleapis.com/google.cloud.audit.AuditLog methodName=\"storage.objects.delete\" resourceName=\"projects/_/buckets/globex-sec-847293-exports/objects/logs/v8ereslq.bin\" status.code=200",
-  "service": { "name": "cloud-storage", "type": "gcp" },
+  "message": "storagetransfer.googleapis.com/transferJobs/EGNCNST0UO: IN_PROGRESS aws-to-gcs bytesTransferred=3423633993460 objectsTransferred=18631123",
+  "service": { "name": "storage-transfer", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.gcs", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.storagetransfer", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-east5",
-    "id": "2w8v23gb9aotknlkfv1hd8k1jjrs4bpthgtk"
+    "name": "elastic-agent-gcp-us-west1",
+    "id": "5jfl3whml26vvfjemkjit0aku9hfxric0eev"
   },
-  "input": { "type": "gcs-input" },
-  "logName": "projects/globex-prod-482910/logs/cloud-storage",
+  "input": { "type": "gcp-pubsub" },
+  "logName": "projects/globex-prod-482910/logs/storage-transfer",
   "resource": {
-    "type": "gcs_bucket",
-    "labels": { "project_id": "globex-prod-482910", "region": "us-east5" }
+    "type": "global",
+    "labels": { "project_id": "globex-prod-482910", "region": "us-west1" }
   },
-  "insertId": "JAPRDBCH1KT2",
+  "insertId": "0O5AA9655VI5",
   "jsonPayload": {
-    "cloud_storage": {
-      "bucket_name": "globex-sec-847293-exports",
-      "object_name": "logs/v8ereslq.bin",
-      "object_size": 328409255,
-      "storage_class": "NEARLINE",
-      "operation": "storage.objects.delete",
-      "content_type": "image/png",
-      "generation": "1779452974298289407",
-      "requester_ip": "23.228.120.61"
+    "storage_transfer": {
+      "job_name": "transferJobs/EGNCNST0UO",
+      "source_bucket": "s3://source-H0206Q",
+      "destination_bucket": "gs://globex-dev-615094-data",
+      "bytes_transferred": 3423633993460,
+      "objects_transferred": 18631123,
+      "status": "IN_PROGRESS",
+      "transfer_type": "aws-to-gcs"
     },
-    "message": "jsonPayload.@type=type.googleapis.com/google.cloud.audit.AuditLog methodName=\"storage.objects.delete\" resourceName=\"projects/_/buckets/globex-sec-847293-exports/objects/logs/v8ereslq.bin\" status.code=200"
+    "message": "storagetransfer.googleapis.com/transferJobs/EGNCNST0UO: IN_PROGRESS aws-to-gcs bytesTransferred=3423633993460 objectsTransferred=18631123"
   }
 }

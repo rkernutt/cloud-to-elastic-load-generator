@@ -1,67 +1,105 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "NOTICE",
+  "severity": "INFO",
   "labels": {
-    "dataset_id": "analytics",
-    "table_id": "transactions",
-    "job_id": "globex-stg-739158:us-west3.7syff7fv"
+    "dataset_id": "audit_logs",
+    "table_id": "users",
+    "job_id": "globex-shared-529384:us-central1.qqtt5zk9"
   },
   "jsonPayload": {
-    "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
-    "authenticationInfo": { "principalEmail": "group:engineering@northwind-infra.net" },
-    "requestMetadata": {
-      "callerIp": "203.0.55.208",
-      "callerSuppliedUserAgent": "google-cloud-sdk gcloud/…"
-    },
-    "serviceName": "bigquery.googleapis.com",
-    "methodName": "tabledata.list",
-    "resourceName": "projects/globex-stg-739158/datasets/analytics/tables/transactions",
-    "metadata": {
-      "@type": "type.googleapis.com/google.cloud.bigquery.logging.v1.AuditData",
-      "tableDataRead": { "fields": ["id", "email"] }
+    "job": {
+      "jobName": "globex-shared-529384:us-central1.qqtt5zk9",
+      "jobStatistics": {
+        "creationTime": "2026-04-04T11:51:31.659Z",
+        "startTime": "2026-04-04T11:51:35.693Z",
+        "endTime": "2026-04-04T12:00:00.000Z",
+        "totalBytesProcessed": "29445125928157",
+        "totalBytesBilled": "27426343064642",
+        "totalSlotMs": 171731254,
+        "reservationId": "projects/globex-shared-529384/locations/us-central1/reservations/etl-pool-3lo0",
+        "cacheHit": false,
+        "query": {
+          "totalBytesProcessed": 29445125928157,
+          "totalSlotMs": 171731254,
+          "cacheHit": false,
+          "statementType": "INSERT",
+          "referencedTables": [
+            {
+              "projectId": "globex-shared-529384",
+              "datasetId": "audit_logs",
+              "tableId": "users_0"
+            },
+            {
+              "projectId": "globex-shared-529384",
+              "datasetId": "audit_logs",
+              "tableId": "users_1"
+            },
+            {
+              "projectId": "globex-shared-529384",
+              "datasetId": "audit_logs",
+              "tableId": "users_2"
+            },
+            {
+              "projectId": "globex-shared-529384",
+              "datasetId": "audit_logs",
+              "tableId": "users_3"
+            },
+            { "projectId": "globex-shared-529384", "datasetId": "audit_logs", "tableId": "users_4" }
+          ],
+          "queryPlan": {
+            "estimatedBytesProcessed": "27972869631749",
+            "stages": [
+              { "name": "S00: Output", "waitMsAvg": 3, "recordsRead": "783715720" },
+              { "name": "S01: Aggregate", "waitMsAvg": 695, "recordsRead": "71860912" }
+            ]
+          },
+          "schema": { "fields": [{ "name": "id", "type": "INTEGER" }] }
+        },
+        "completionRatio": 1
+      }
     }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west3",
-    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
-    "account": { "id": "739158264830", "name": "Globex Staging" },
+    "region": "us-central1",
+    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
+    "account": { "id": "529384716205", "name": "Globex Shared Services" },
     "service": { "name": "bigquery" }
   },
   "gcp": {
     "bigquery": {
-      "job_id": "globex-stg-739158:us-west3.7syff7fv",
+      "job_id": "globex-shared-529384:us-central1.qqtt5zk9",
       "job_type": "QUERY",
-      "project": "globex-stg-739158",
-      "dataset": "analytics",
-      "table": "transactions",
-      "statement_type": "CREATE_TABLE",
-      "total_bytes_processed": 9040723720816,
-      "total_bytes_billed": 8718103737572,
-      "total_slot_ms": 207673075,
-      "billing_tier": "STANDARD",
+      "project": "globex-shared-529384",
+      "dataset": "audit_logs",
+      "table": "users",
+      "statement_type": "INSERT",
+      "total_bytes_processed": 29445125928157,
+      "total_bytes_billed": 27426343064642,
+      "total_slot_ms": 171731254,
+      "billing_tier": "ENTERPRISE_PLUS",
       "cache_hit": false,
-      "referenced_tables_count": 14,
-      "output_rows": 240790957,
-      "creation_time": "2026-04-04T11:52:56.713Z",
-      "start_time": "2026-04-04T11:52:57.053Z",
+      "referenced_tables_count": 33,
+      "output_rows": 104174730,
+      "creation_time": "2026-04-04T11:51:31.659Z",
+      "start_time": "2026-04-04T11:51:35.693Z",
       "end_time": "2026-04-04T12:00:00.000Z",
-      "priority": "INTERACTIVE",
-      "reservation_name": "projects/globex-stg-739158/locations/us-west3/reservations/adhoc-9oil",
+      "priority": "BATCH",
+      "reservation_name": "projects/globex-shared-529384/locations/us-central1/reservations/etl-pool-3lo0",
       "completion_ratio": 1
     }
   },
   "event": {
     "kind": "event",
     "category": ["database"],
-    "type": ["change"],
-    "action": "tabledata.list",
+    "type": ["access"],
+    "action": "bigquery.query",
     "outcome": "success",
-    "duration": 422947000000,
+    "duration": 504307000000,
     "module": "gcp",
     "dataset": "gcp.bigquery"
   },
-  "message": "protoPayload.methodName=\"bigquery.tables.getData\" protoPayload.serviceName=\"bigquery.googleapis.com\" resourceName=\"projects/globex-stg-739158/datasets/analytics/tables/transactions\"",
+  "message": "insertId=AUF9T6GP2JPD jsonPayload.job.jobStatistics.query.queryPlan.stages=2 totalBytesProcessed=29445125928157",
   "service": { "name": "bigquery", "type": "gcp" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -69,14 +107,14 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-west3",
-    "id": "m3twm9m4bv066j29wy97i6ee1nodjlm474fv"
+    "name": "elastic-agent-gcp-us-central1",
+    "id": "q68ucdt27uswfqwxvf9kxrvesf43x72nnskz"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-stg-739158/logs/bigquery",
+  "logName": "projects/globex-shared-529384/logs/bigquery",
   "resource": {
     "type": "bigquery_resource",
-    "labels": { "project_id": "globex-stg-739158", "region": "us-west3" }
+    "labels": { "project_id": "globex-shared-529384", "region": "us-central1" }
   },
-  "insertId": "TI3HRJD3HWPG"
+  "insertId": "QNYJHJV7AGQL"
 }

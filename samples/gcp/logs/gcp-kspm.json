@@ -7,27 +7,27 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-east5",
-    "account": { "id": "globex-dev-615094", "name": "Globex Development" }
+    "region": "me-west1",
+    "account": { "id": "globex-prod-482910", "name": "Globex Production" }
   },
-  "orchestrator": { "cluster": { "name": "gke-dev-us-east1" } },
+  "orchestrator": { "cluster": { "name": "gke-edge-europe-west4" } },
   "resource": {
-    "id": "kube-system/pod/kube-apiserver-master-3",
-    "name": "kube-apiserver-master-3",
+    "id": "kube-system/pod/etcd-1",
+    "name": "etcd-1",
     "type": "k8s_object",
-    "sub_type": "kube-apiserver"
+    "sub_type": "etcd"
   },
   "rule": {
-    "id": "7eebf1d9-7a68-54fd-89b7-0f8b1441a179",
-    "name": "Ensure that the admission control plugin NodeRestriction is set",
-    "section": "1.2.16",
-    "description": "Limit the `Node` and `Pod` objects that a kubelet could modify.",
-    "tags": ["CIS", "Kubernetes", "CIS 1.2.16", "API Server"],
+    "id": "fe219241-4b9c-585f-b982-bb248852baa1",
+    "name": "Ensure that the --peer-cert-file and --peer-key-file arguments are set as appropriate",
+    "section": "2.4",
+    "description": "etcd should be configured to make use of TLS encryption for peer connections.",
+    "tags": ["CIS", "Kubernetes", "CIS 2.4", "etcd"],
     "benchmark": {
       "id": "cis_k8s",
       "name": "CIS Kubernetes V1.23",
       "version": "v1.0.1",
-      "rule_number": "1.2.16",
+      "rule_number": "2.4",
       "posture_type": "kspm"
     },
     "profile_applicability": "* Level 1"
@@ -42,6 +42,6 @@
     "provider": "elastic_kspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_k8s/1.2.16] passed: Ensure that the admission control plugin NodeRestriction is set",
+  "message": "[cis_k8s/2.4] passed: Ensure that the --peer-cert-file and --peer-key-file arguments are set as appropriate",
   "log": { "level": "info" }
 }
