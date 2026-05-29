@@ -255,7 +255,9 @@ export async function runSetupInstall(opts: {
     const alertRuleCount = alertRuleFiles.reduce((acc, f) => acc + f.rules.length, 0);
     (enableAlertRules ? planRun : planSkip).push(`${alertRuleCount} alerting rules`);
     const secRuleCount = securityDetectionRuleFiles.reduce((acc, f) => acc + f.rules.length, 0);
-    (enableSecurityDetectionRules ? planRun : planSkip).push(`${secRuleCount} security detection rules`);
+    (enableSecurityDetectionRules ? planRun : planSkip).push(
+      `${secRuleCount} security detection rules`
+    );
     (enableWorkflow ? planRun : planSkip).push("alert-enrichment Workflow");
     (enableAgentBuilder ? planRun : planSkip).push("Agent Builder analyst");
     (enableSlos ? planRun : planSkip).push("SLO definitions");
@@ -1026,7 +1028,11 @@ export async function runSetupInstall(opts: {
         addLog(`  ✓ ${rule.name}`, "ok");
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        if (msg.includes("409") || msg.includes("already exists") || msg.includes("Already exists")) {
+        if (
+          msg.includes("409") ||
+          msg.includes("already exists") ||
+          msg.includes("Already exists")
+        ) {
           skipped++;
           addLog(`  ⊘ ${rule.name} (already exists)`, "info");
         } else if (isKibanaFeatureUnavailable(msg)) {

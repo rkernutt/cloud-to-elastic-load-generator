@@ -3221,7 +3221,11 @@ export function SetupPage({
         <EuiFlexGroup gutterSize="l" wrap responsive={false}>
           <EuiFlexItem grow={false}>
             <EuiSwitch
-              label={removeMode ? "Disable alerting rules before uninstall" : "Enable alerting rules after install"}
+              label={
+                removeMode
+                  ? "Disable alerting rules before uninstall"
+                  : "Enable alerting rules after install"
+              }
               checked={activateAlertRules}
               onChange={(e) => setActivateAlertRules(e.target.checked)}
               disabled={!enableLoadgenIntegrations}
@@ -3275,8 +3279,8 @@ export function SetupPage({
               Rules are created disabled and ML jobs are created closed by default. Enable these to
               activate them immediately after installation. The AI Analyst agent and SLOs require
               Agent Builder and Observability SLO APIs (skipped automatically if unavailable).
-              Security detection rules are installed via the Detection Engine API and generate alerts
-              in <EuiCode>.alerts-security.alerts-*</EuiCode> for Attack Discovery.
+              Security detection rules are installed via the Detection Engine API and generate
+              alerts in <EuiCode>.alerts-security.alerts-*</EuiCode> for Attack Discovery.
             </p>
           )}
         </EuiText>

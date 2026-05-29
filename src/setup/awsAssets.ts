@@ -34,7 +34,9 @@ export const AWS_SETUP_BUNDLE: CloudSetupBundle = {
   mlJobFiles: valuesFromEagerJsonGlob<MlJobFile>(rawMlJobModules),
   dashboards: valuesFromEagerJsonGlob<DashboardDef>(rawDashboardModules),
   alertRuleFiles: valuesFromEagerJsonGlob<AlertRuleFile>(rawRuleModules),
-  securityDetectionRuleFiles: valuesFromEagerJsonGlob<SecurityDetectionRuleFile>(rawSecDetectionRuleModules),
+  securityDetectionRuleFiles: valuesFromEagerJsonGlob<SecurityDetectionRuleFile>(
+    rawSecDetectionRuleModules
+  ),
   fleetPackage: "aws",
   fleetPackageLabel: "AWS Integration",
   showApmToggle: true,
