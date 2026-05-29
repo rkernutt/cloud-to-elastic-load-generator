@@ -40,6 +40,8 @@ import {
   randSourceIp,
   randPipelineUserAgent,
   ecsIdentityFields,
+  randAttackerHost,
+  randTargetHost,
 } from "../../helpers/identity.js";
 
 function generateGuardDutyLog(ts: string, er: number): EcsDocument {
@@ -287,8 +289,10 @@ function generateGuardDutyLog(ts: string, er: number): EcsDocument {
                 serviceName: "sts.amazonaws.com",
               },
             };
+  const hostName = randTargetHost();
   return {
     "@timestamp": ts,
+    host: { name: hostName },
     cloud: {
       provider: "aws",
       region,
@@ -475,6 +479,7 @@ function generateSecurityHubLog(ts: string, er: number): EcsDocument {
   ];
   return {
     "@timestamp": ts,
+    host: { name: randTargetHost() },
     cloud: {
       provider: "aws",
       region,
@@ -1735,6 +1740,7 @@ function generateSecurityLakeLog(ts: string, er: number): EcsDocument {
   }
   return {
     "@timestamp": ts,
+    host: { name: randTargetHost() },
     cloud: {
       provider: "aws",
       region,
@@ -2047,6 +2053,7 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
 
   return {
     "@timestamp": ts,
+    host: { name: randAttackerHost() },
     cloud: {
       provider: "aws",
       region,
@@ -2147,6 +2154,7 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
   const attackerIp = randSourceIp();
   const attackerUa = randPipelineUserAgent();
   const attackerIdentity = ecsIdentityFields(attacker, attackerIp, attackerUa);
+  const hostName = randTargetHost();
 
   const severity = rand(["HIGH", "HIGH", "CRITICAL", "MEDIUM"]);
   const sevCode = severity === "CRITICAL" ? 8.0 : severity === "HIGH" ? 7.0 : 4.0;
@@ -2237,6 +2245,7 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
   const gdTs = ts;
   const gdDoc: EcsDocument = {
     ...attackerIdentity,
+    host: { name: hostName },
     "@timestamp": gdTs,
     __dataset: "aws.guardduty",
     cloud: {
@@ -2361,6 +2370,7 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
 
   const shDoc: EcsDocument = {
     ...attackerIdentity,
+    host: { name: hostName },
     "@timestamp": shTs,
     __dataset: "aws.securityhub_findings",
     cloud: {
@@ -2453,6 +2463,7 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
 
   const slDoc: EcsDocument = {
     ...attackerIdentity,
+    host: { name: hostName },
     "@timestamp": slTs,
     __dataset: "aws.securitylake",
     cloud: {
@@ -3119,6 +3130,7 @@ function generateIamPrivEscChain(ts: string, _er: number): EcsDocument[] {
   const targetUser = rand(["billing-readonly", "data-analyst", "qa-automation"]);
   const attackSessionId = randUUID();
   const sourceIp = randPublicIp();
+  const hostName = randAttackerHost();
   const userAgent =
     "aws-cli/2.15.0 md/awscrt#0.19.0 ua/2.0 os/linux#5.15.0.1024-generic exec-env/EC2";
   const principalId = `AIDA${randId(16).toUpperCase()}`;
@@ -3186,6 +3198,7 @@ function generateIamPrivEscChain(ts: string, _er: number): EcsDocument[] {
           : {}),
       },
     },
+    host: { name: hostName },
     user: { name: attacker, id: principalId },
     source: { ip: sourceIp },
     user_agent: { original: userAgent },
@@ -3354,6 +3367,7 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
   const attacker = randHumanUser();
   const attackerIp = randSourceIp();
   const attackerUa = randPipelineUserAgent();
+  const hostName = randTargetHost();
   const bucket = rand([
     "prod-customer-data",
     "financial-records",
@@ -3394,6 +3408,7 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
   const objectArn = `arn:aws:s3:::${bucketName}/${objectKey}`;
 
   const gdDoc: EcsDocument = {
+    host: { name: hostName },
     user: { name: attacker.name, email: attacker.email },
     user_agent: { original: attackerUa },
     __dataset: "aws.guardduty",
@@ -3483,6 +3498,7 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
   };
 
   const ctDoc: EcsDocument = {
+    host: { name: hostName },
     user: { name: attacker.name, email: attacker.email },
     user_agent: { original: attackerUa },
     __dataset: "aws.cloudtrail",
@@ -3567,6 +3583,7 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
   const srcPort = randInt(32768, 61000);
 
   const vpcDoc: EcsDocument = {
+    host: { name: hostName },
     user: { name: attacker.name, email: attacker.email },
     user_agent: { original: attackerUa },
     __dataset: "aws.vpcflow",

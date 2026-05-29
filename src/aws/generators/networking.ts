@@ -18,6 +18,7 @@ import {
   randFqdn,
   randVpcCidr16,
 } from "../../helpers";
+import { randTargetHost } from "../../helpers/identity.js";
 import type { EcsDocument } from "./types.js";
 
 const GEO_LOCATIONS = [
@@ -660,6 +661,7 @@ function generateWafLog(ts: string, er: number): EcsDocument {
   };
   return {
     "@timestamp": ts,
+    host: { name: randTargetHost() },
     cloud: {
       provider: "aws",
       region,
@@ -859,6 +861,7 @@ function generateWafv2Log(ts: string, er: number) {
   };
   return {
     "@timestamp": ts,
+    host: { name: randTargetHost() },
     cloud: {
       provider: "aws",
       region,
@@ -1591,6 +1594,7 @@ function generateVpcFlowLog(ts: string, er: number): EcsDocument {
   const endEpoch = tsEpoch + randInt(1, 60);
   return {
     "@timestamp": ts,
+    host: { name: randTargetHost() },
     cloud: {
       provider: "aws",
       region,

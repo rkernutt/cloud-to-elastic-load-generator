@@ -100,6 +100,31 @@ export function randSourceGeo() {
   return rand(GEO_DATA);
 }
 
+// ── Cloud host identity ─────────────────────────────────────────────────────
+
+const ATTACKER_HOSTS = [
+  "ip-10-0-1-42.eu-west-2.compute.internal",
+  "ip-10-0-2-18.eu-west-2.compute.internal",
+  "ip-10-0-3-7.us-east-1.compute.internal",
+  "ip-10-0-1-91.ap-southeast-1.compute.internal",
+];
+
+const TARGET_HOSTS = [
+  "ip-10-128-4-22.eu-west-2.compute.internal",
+  "ip-10-128-5-11.us-east-1.compute.internal",
+  "ip-10-128-6-33.ap-southeast-1.compute.internal",
+  "ip-10-128-7-58.eu-central-1.compute.internal",
+  "ip-10-128-8-14.us-west-2.compute.internal",
+];
+
+export function randAttackerHost(): string {
+  return rand(ATTACKER_HOSTS);
+}
+
+export function randTargetHost(): string {
+  return rand(TARGET_HOSTS);
+}
+
 // ── ECS user block builder ──────────────────────────────────────────────────
 
 export function ecsUserBlock(u: PipelineUser) {
