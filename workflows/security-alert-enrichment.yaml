@@ -2,8 +2,7 @@
 #
 # Triggers on security alerts (IAM PrivEsc, Data Exfil, GuardDuty, etc.),
 # enriches with ServiceNow CMDB context including the originating IP address
-# and hostname of the attacked infrastructure, opens a Kibana case for
-# high-severity incidents, and emails the SOC team.
+# and hostname of the attacked infrastructure, and emails the SOC team.
 #
 # Designed for AI SOC demos with Attack Discovery and Agent Builder.
 #
@@ -52,14 +51,8 @@ steps:
     with:
       message: |
         Security alert enrichment starting:
-          emailConnector: {{ inputs.emailConnector }}
-          notifyTo:       {{ inputs.notifyTo }}
-
-  - name: validate_email_connector
-    type: kibana.request
-    with:
-      method: GET
-      path: "/api/actions/connector/{{ inputs.emailConnector }}"
+          emailConnector: Elastic-Cloud-SMTP
+          notifyTo:       rob.kernutt@elastic.co
 
   # 1. Log the inbound alert
   - name: log_alert_received
@@ -219,95 +212,51 @@ steps:
     on-failure:
       continue: true
 
-  # 8. Escalate to Kibana case when multiple incidents are open
-  - name: check_severity
-    type: if
-    condition: "steps.find_open_incidents.output.hits.total.value > 2"
-    steps:
-      - name: create_case
-        type: kibana.createCaseDefaultSpace
-        with:
-          title: "Security Incident: {{ event.alerts[0].kibana.alert.rule.name }}"
-          description: |
-            ## Security Alert Details
-            **Rule:** {{ event.alerts[0].kibana.alert.rule.name }}
-            **Alert:** {{ event.alerts[0].message }}
-
-            ## Attack Attribution
-            **Attacker IP:** {{ steps.find_attack_source.output.hits.hits[0]._source.source.ip }}
-            **Attacker User:** {{ steps.find_attack_source.output.hits.hits[0]._source.user.name }}
-
-            ## Affected Infrastructure (from CMDB)
-            **CI:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
-            **CI IP Address:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.ip_address.value }}
-            **CI Hostname (FQDN):** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.fqdn.value }}
-            **CI Owner:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
-            **Support Group:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.support_group.display_value }}
-            **Department:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.department.display_value }}
-
-            ## Related Alerts
-            **Total security alerts (last 1h):** {{ steps.count_related_alerts.output.hits.total.value }}
-            **Open incidents on CI:** {{ steps.find_open_incidents.output.hits.total.value }}
-          owner: "securitySolution"
-          severity: "critical"
-          tags:
-            - security-incident
-            - iam-privilege-escalation
-            - attack-discovery
-            - workflow-generated
-          settings:
-            syncAlerts: false
-          connector:
-            id: "none"
-            name: "none"
-            type: ".none"
-            fields: null
-
-  # 9. Send enriched notification to SOC
+  # 8. Send enriched notification to SOC
   - name: notify_email
     type: email
-    connector-id: "{{ inputs.emailConnector }}"
+    connector-id: "Elastic-Cloud-SMTP"
     with:
       to:
-        - "{{ inputs.notifyTo }}"
+        - "rob.kernutt@elastic.co"
       subject: "[SECURITY ALERT] {{ event.alerts[0].kibana.alert.rule.name }}"
       message: |
-        ⚠ Security alert received — enriched with CMDB context.
+        A security alert has fired and been enriched with CMDB context.
 
-        ── ALERT ──────────────────────────────────────────────
-        Rule:           {{ event.alerts[0].kibana.alert.rule.name }}
-        Alert:          {{ event.alerts[0].message }}
+        ALERT
+        Rule: {{ event.alerts[0].kibana.alert.rule.name }}
+        Alert: {{ event.alerts[0].message }}
 
-        ── ATTACK ATTRIBUTION ─────────────────────────────────
-        Attacker IP:    {{ steps.find_attack_source.output.hits.hits[0]._source.source.ip }}
-        Attacker User:  {{ steps.find_attack_source.output.hits.hits[0]._source.user.name }}
-        User Agent:     {{ steps.find_attack_source.output.hits.hits[0]._source.user_agent.original }}
+        ATTACK ATTRIBUTION
+        Attacker IP: {{ steps.find_attack_source.output.hits.hits[0]._source.source.ip }}
+        Attacker User: {{ steps.find_attack_source.output.hits.hits[0]._source.user.name }}
+        User Agent: {{ steps.find_attack_source.output.hits.hits[0]._source.user_agent.original }}
 
-        ── AFFECTED INFRASTRUCTURE (from ServiceNow CMDB) ────
-        CI Name:        {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
-        CI IP Address:  {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.ip_address.value }}
-        CI Hostname:    {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.fqdn.value }}
-        CI Owner:       {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
-        Support Group:  {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.support_group.display_value }}
-        Department:     {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.department.display_value }}
-        Location:       {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.location.display_value }}
+        AFFECTED INFRASTRUCTURE (ServiceNow CMDB)
+        CI Name: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
+        CI IP Address: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.ip_address.value }}
+        CI Hostname: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.fqdn.value }}
+        CI Owner: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
+        Support Group: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.support_group.display_value }}
+        Department: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.department.display_value }}
+        Location: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.location.display_value }}
 
-        ── CMDB CONTEXT ───────────────────────────────────────
-        Target User:    {{ steps.lookup_target_user.output.hits.hits[0]._source.servicenow.event.name.value }}
-        Target Email:   {{ steps.lookup_target_user.output.hits.hits[0]._source.servicenow.event.email.value }}
-        Target Phone:   {{ steps.lookup_target_user.output.hits.hits[0]._source.servicenow.event.phone.value }}
-        Manager:        {{ steps.lookup_target_user.output.hits.hits[0]._source.servicenow.event.manager.display_value }}
+        TARGET USER (ServiceNow)
+        Name: {{ steps.lookup_target_user.output.hits.hits[0]._source.servicenow.event.name.value }}
+        Email: {{ steps.lookup_target_user.output.hits.hits[0]._source.servicenow.event.email.value }}
+        Phone: {{ steps.lookup_target_user.output.hits.hits[0]._source.servicenow.event.phone.value }}
+        Manager: {{ steps.lookup_target_user.output.hits.hits[0]._source.servicenow.event.manager.display_value }}
 
-        ── INCIDENT CONTEXT ───────────────────────────────────
+        INCIDENT CONTEXT
         Related security alerts (1h): {{ steps.count_related_alerts.output.hits.total.value }}
-        Open incidents on CI:         {{ steps.find_open_incidents.output.hits.total.value }}
-        Recent changes:               {{ steps.find_recent_changes.output.hits.total.value }}
+        Open incidents on CI: {{ steps.find_open_incidents.output.hits.total.value }}
+        Recent changes: {{ steps.find_recent_changes.output.hits.total.value }}
 
-        ── NEXT STEPS ─────────────────────────────────────────
-        1. Open Security → Alerts → filter by rule name
+        NEXT STEPS
+        1. Open Security > Alerts > filter by rule name
         2. Use Attack Discovery to see correlated attack patterns
-        3. Open Agent Builder → SOC Analyst to investigate conversationally
-        4. Investigation guide: docs/runbooks/ (triage, ES|QL, containment)
+        3. Open Agent Builder > SOC Analyst to investigate conversationally
+        4. See docs/runbooks/ for triage, ES|QL queries, and containment steps
     on-failure:
       retry:
         max-attempts: 2

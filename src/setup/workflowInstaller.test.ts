@@ -10,15 +10,21 @@ describe("applyWorkflowOverrides", () => {
     );
   });
 
-  it("rewrites notifyTo and emailConnector defaults inside the inputs block", () => {
+  it("rewrites notifyTo in both the inputs block and the step", () => {
     const out = applyWorkflowOverrides(ALERT_ENRICHMENT_WORKFLOW_YAML, {
       notifyTo: "ops@example.org",
-      emailConnector: "internal-smtp",
     });
     expect(out).toMatch(/- name: notifyTo[\s\S]*?default:\s+"ops@example\.org"/);
+    expect(out).not.toMatch(/soc-oncall@example\.com/);
+  });
+
+  it("rewrites emailConnector in both the inputs block and the connector-id", () => {
+    const out = applyWorkflowOverrides(ALERT_ENRICHMENT_WORKFLOW_YAML, {
+      emailConnector: "internal-smtp",
+    });
     expect(out).toMatch(/- name: emailConnector[\s\S]*?default:\s+"internal-smtp"/);
-    expect(out).not.toMatch(/data-platform-oncall@example\.com/);
-    expect(out).not.toMatch(/default:\s+"elastic-cloud-email"/);
+    expect(out).toMatch(/connector-id:\s+"internal-smtp"/);
+    expect(out).not.toMatch(/connector-id:\s+"Elastic-Cloud-SMTP"/);
   });
 
   it("escapes quotes inside override values to keep the YAML valid", () => {
@@ -28,18 +34,12 @@ describe("applyWorkflowOverrides", () => {
     expect(out).toContain('default: "oncall\\"+team@example.org"');
   });
 
-  it("swaps the legacy case step for cases.createCase when use94CasesStep is true", () => {
-    const out = applyWorkflowOverrides(ALERT_ENRICHMENT_WORKFLOW_YAML, {
-      use94CasesStep: true,
-    });
-    expect(out).toMatch(/type:\s+cases\.createCase/);
-    expect(out).not.toMatch(/type:\s+kibana\.createCaseDefaultSpace/);
-  });
-
-  it("leaves the legacy case step in place by default", () => {
+  it("does not contain validate_email_connector or create_case steps", () => {
     const out = applyWorkflowOverrides(ALERT_ENRICHMENT_WORKFLOW_YAML);
-    expect(out).toMatch(/type:\s+kibana\.createCaseDefaultSpace/);
-    expect(out).not.toMatch(/type:\s+cases\.createCase/);
+    expect(out).not.toMatch(/validate_email_connector/);
+    expect(out).not.toMatch(/create_case/);
+    expect(out).not.toMatch(/kibana\.createCaseDefaultSpace/);
+    expect(out).not.toMatch(/cases\.createCase/);
   });
 
   it("produces valid YAML for every override combination", () => {
@@ -47,8 +47,7 @@ describe("applyWorkflowOverrides", () => {
       {},
       { notifyTo: "ops@example.org" },
       { emailConnector: "internal-smtp" },
-      { use94CasesStep: true },
-      { notifyTo: "ops@example.org", emailConnector: "internal-smtp", use94CasesStep: true },
+      { notifyTo: "ops@example.org", emailConnector: "internal-smtp" },
     ];
     for (const c of combos) {
       const transformed = applyWorkflowOverrides(ALERT_ENRICHMENT_WORKFLOW_YAML, c);

@@ -114,7 +114,6 @@ const ELASTIC_DATASET_MAP = {
   cloudwatchrum: "aws.cloudwatch_rum",
   // Extended AWS integrations pack
   bedrockguardrails: "aws.bedrockguardrails",
-  emrserverless: "aws.emrserverless",
   gwlb: "aws.gwlb",
   elb: "aws.elb_logs",
   mediaconnect: "aws.mediaconnect",
@@ -346,7 +345,6 @@ const METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "supplychain",
   // Extended AWS integrations pack (metrics + logs)
   "bedrockguardrails",
-  "emrserverless",
   "gwlb",
   "elb",
   "mediaconnect",
@@ -413,7 +411,6 @@ const ELASTIC_METRICS_DATASET_MAP = {
   securityir: "aws.securityir",
   supplychain: "aws.supplychain",
   elb: "aws.elb",
-  emrserverless: "aws.emrserverless_metrics",
 };
 
 export { ELASTIC_DATASET_MAP, METRICS_SUPPORTED_SERVICE_IDS, ELASTIC_METRICS_DATASET_MAP };

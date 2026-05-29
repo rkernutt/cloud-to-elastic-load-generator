@@ -7,6 +7,7 @@ import type {
   DashboardDef,
   MlJobFile,
   PipelineEntry,
+  SecurityDetectionRuleFile,
 } from "./types";
 import { valuesFromEagerJsonGlob } from "./globJson";
 
@@ -23,11 +24,17 @@ const rawRuleModules = import.meta.glob("../../installer/aws-custom-rules/*.json
   eager: true,
 }) as Record<string, unknown>;
 
+const rawSecDetectionRuleModules = import.meta.glob(
+  "../../installer/security-detection-rules/rules/*.json",
+  { eager: true }
+) as Record<string, unknown>;
+
 export const AWS_SETUP_BUNDLE: CloudSetupBundle = {
   pipelines: PIPELINE_REGISTRY as PipelineEntry[],
   mlJobFiles: valuesFromEagerJsonGlob<MlJobFile>(rawMlJobModules),
   dashboards: valuesFromEagerJsonGlob<DashboardDef>(rawDashboardModules),
   alertRuleFiles: valuesFromEagerJsonGlob<AlertRuleFile>(rawRuleModules),
+  securityDetectionRuleFiles: valuesFromEagerJsonGlob<SecurityDetectionRuleFile>(rawSecDetectionRuleModules),
   fleetPackage: "aws",
   fleetPackageLabel: "AWS Integration",
   showApmToggle: true,

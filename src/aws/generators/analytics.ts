@@ -14,6 +14,26 @@ import {
 } from "../../helpers";
 import type { EcsDocument } from "./types.js";
 
+type AwsEventType =
+  | "access"
+  | "admin"
+  | "change"
+  | "connection"
+  | "creation"
+  | "deletion"
+  | "error"
+  | "info"
+  | "start"
+  | "end";
+
+function awsEventType(
+  isErr: boolean,
+  onSuccess: AwsEventType | readonly AwsEventType[]
+): AwsEventType[] {
+  if (isErr) return ["error"];
+  return Array.isArray(onSuccess) ? [...onSuccess] : [onSuccess];
+}
+
 function generateEmrLog(ts: string, er: number): EcsDocument[] {
   const region = rand(REGIONS);
   const acct = randAccount();
@@ -197,7 +217,8 @@ function generateEmrLog(ts: string, er: number): EcsDocument[] {
   };
 
   const sparkDocs = generateSparkLogs(ts, er);
-  return [emrDoc, ...sparkDocs];
+  const serverlessDoc = generateEmrServerlessLog(ts, er);
+  return [emrDoc, ...sparkDocs, serverlessDoc];
 }
 
 type SparkComponent =
@@ -931,6 +952,152 @@ function generateSparkLogs(ts: string, er: number): EcsDocument[] {
   );
 
   return docs.slice(0, docCount);
+}
+
+function generateEmrServerlessLog(ts: string, er: number): EcsDocument {
+  const region = rand(REGIONS);
+  const acct = randAccount();
+  const isErr = Math.random() < er;
+  const appId = `00${randInt(100000000, 999999999)}`;
+  const appName = rand(["analytics-app", "batch-processor", "streaming-etl", "hive-warehouse"]);
+  const jobId = `00${randInt(100000000, 999999999)}${randInt(100000000, 999999999)}`;
+  const jobName = rand([
+    "daily-spark-etl",
+    "hive-report",
+    "streaming-micro-batch",
+    "data-quality-check",
+    "feature-engineering",
+  ]);
+  const releaseLabel = rand(["emr-7.2.0-latest", "emr-7.5.0-latest", "emr-6.15.0-latest"]);
+  const roleArn = `arn:aws:iam::${acct.id}:role/EMRServerlessJobRole`;
+
+  const scenario = isErr
+    ? rand(["job_failed", "driver_oom", "validation_err", "cancelled", "s3_access_denied"] as const)
+    : rand([
+        "job_submitted",
+        "job_running",
+        "job_success",
+        "driver_log",
+        "spark_stage_complete",
+      ] as const);
+
+  const durSec =
+    scenario === "job_success"
+      ? randFloat(60, 3600)
+      : scenario === "job_submitted"
+        ? 0
+        : randFloat(5, isErr ? 600 : 1800);
+  const vcores = randInt(4, 64);
+  const memGb = randInt(8, 512);
+
+  let message: string;
+  let errorBlock: Record<string, unknown> | null = null;
+  let state: string;
+
+  if (scenario === "job_failed") {
+    state = "FAILED";
+    const exitCode = rand([1, 137, 143]);
+    message = `EMR Serverless job ${jobName} (${jobId}) FAILED — Spark driver exited with code ${exitCode} after ${Math.round(durSec)}s. Application: ${appName} (${appId}). Release: ${releaseLabel}`;
+    errorBlock = {
+      code: "JobRunFailedException",
+      message: `Driver process exited with code ${exitCode}`,
+      type: "server",
+    };
+  } else if (scenario === "driver_oom") {
+    state = "FAILED";
+    message = `EMR Serverless job ${jobName} (${jobId}) FAILED — java.lang.OutOfMemoryError: Java heap space. Driver requested ${memGb}GB but peak usage exceeded limit. Consider increasing spark.driver.memory.`;
+    errorBlock = {
+      code: "OutOfMemoryError",
+      message: "Java heap space exhausted in driver",
+      type: "server",
+      stack_trace: `java.lang.OutOfMemoryError: Java heap space\n\tat java.util.Arrays.copyOf(Arrays.java:${randInt(100, 400)})\n\tat org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:${randInt(100, 300)})`,
+    };
+  } else if (scenario === "validation_err") {
+    state = "FAILED";
+    const reason = rand([
+      "Entry point script s3://bucket/main.py does not exist",
+      "Release label emr-5.0.0 is not supported for Serverless",
+      "IAM role does not have sufficient S3 permissions",
+    ]);
+    message = `EMR Serverless StartJobRun ValidationException: ${reason}`;
+    errorBlock = { code: "ValidationException", message: reason, type: "client" };
+  } else if (scenario === "cancelled") {
+    state = "CANCELLED";
+    message = `EMR Serverless job ${jobName} (${jobId}) CANCELLED by user arn:aws:iam::${acct.id}:user/${rand(["admin", "data-eng"])} after ${Math.round(durSec)}s`;
+  } else if (scenario === "s3_access_denied") {
+    state = "FAILED";
+    message = `EMR Serverless job ${jobName} (${jobId}) FAILED — S3 AccessDenied on s3://${rand(["data-lake", "analytics-raw"])}-${acct.id}/input/. Verify ${roleArn} has s3:GetObject permission.`;
+    errorBlock = {
+      code: "AccessDeniedException",
+      message: "S3 bucket access denied for execution role",
+      type: "client",
+    };
+  } else if (scenario === "job_submitted") {
+    state = "SUBMITTED";
+    message = `EMR Serverless StartJobRun accepted: app=${appName} (${appId}) job=${jobName} (${jobId}) release=${releaseLabel} role=${roleArn}`;
+  } else if (scenario === "job_running") {
+    state = "RUNNING";
+    const progress = randInt(10, 90);
+    message = `EMR Serverless job ${jobName} (${jobId}) RUNNING — ${progress}% complete, ${vcores} vCores allocated, ${memGb}GB memory`;
+  } else if (scenario === "driver_log") {
+    state = "RUNNING";
+    const sparkMsg = rand([
+      `SparkContext: Running Spark version 3.5.0`,
+      `DAGScheduler: Submitting ShuffleMapStage ${randInt(0, 50)} with ${randInt(10, 500)} tasks`,
+      `BlockManager: Using ${rand(["org.apache.spark.storage.S3ShuffleBlockResolver", "org.apache.spark.storage.DiskBlockManager"])} for block transfers`,
+      `SparkUI: Bound SparkUI to 0.0.0.0, and started at http://driver:${randInt(4040, 4050)}`,
+    ]);
+    message = `[${new Date(ts).toISOString()}] [driver] ${sparkMsg}`;
+  } else if (scenario === "spark_stage_complete") {
+    state = "RUNNING";
+    const stageId = randInt(0, 50);
+    const tasks = randInt(10, 500);
+    const stageMs = randInt(500, 120_000);
+    message = `EMR Serverless job ${jobName}: Stage ${stageId} completed — ${tasks} tasks in ${stageMs}ms (${Math.round(tasks / (stageMs / 1000))} tasks/s)`;
+  } else {
+    state = "SUCCESS";
+    message = `EMR Serverless job ${jobName} (${jobId}) SUCCESS in ${Math.round(durSec)}s — ${vcores} vCores peak, ${memGb}GB memory peak`;
+  }
+
+  return {
+    "@timestamp": ts,
+    cloud: {
+      provider: "aws",
+      region,
+      account: { id: acct.id, name: acct.name },
+      service: { name: "emr-serverless" },
+    },
+    aws: {
+      emrserverless: {
+        application_id: appId,
+        application_name: appName,
+        job_run_id: jobId,
+        job_run_name: jobName,
+        state,
+        execution_role_arn: roleArn,
+        release_label: releaseLabel,
+        worker_cpu_used_vcores: vcores,
+        worker_memory_used_gb: memGb,
+      },
+    },
+    event: {
+      outcome: isErr ? "failure" : "success",
+      dataset: "aws.emrserverless",
+      category: ["process"],
+      type: awsEventType(
+        isErr,
+        scenario === "job_submitted" || scenario === "job_running"
+          ? "start"
+          : scenario === "job_success"
+            ? "end"
+            : "change"
+      ),
+      duration: Math.round(durSec * 1e9),
+    },
+    log: { level: isErr ? "error" : scenario === "driver_log" ? "info" : "info" },
+    message,
+    ...(errorBlock ? { error: errorBlock } : {}),
+  };
 }
 
 function generateGlueLog(ts: string, er: number): EcsDocument {
@@ -2222,7 +2389,6 @@ function generateB2biLog(ts: string, er: number) {
 
 export {
   generateEmrLog,
-  generateSparkLogs,
   generateGlueLog,
   generateAthenaLog,
   generateLakeFormationLog,

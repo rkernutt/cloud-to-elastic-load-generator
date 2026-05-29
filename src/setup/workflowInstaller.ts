@@ -22,15 +22,8 @@ export const DEFAULT_WORKFLOW_NAME = "Data Pipeline Alert — CMDB Enrichment & 
 export interface WorkflowOverrides {
   /** Recipient address used by the `notify_email` step. */
   notifyTo?: string;
-  /** Connector ID used by `notify_email` and the pre-flight guard step. */
+  /** Connector ID used by `notify_email`. */
   emailConnector?: string;
-  /**
-   * When true, swap the legacy `kibana.createCaseDefaultSpace` step for the
-   * 9.4+ `cases.createCase` step block that ships as a comment in the YAML.
-   * The wizard flips this on automatically when `detectKibanaMajorMinor`
-   * resolves to ≥ 9.4 — pass `false` to keep the 9.3-compatible step.
-   */
-  use94CasesStep?: boolean;
 }
 
 /**
@@ -46,74 +39,19 @@ export function applyWorkflowOverrides(yaml: string, overrides: WorkflowOverride
 
   if (overrides.notifyTo) {
     out = replaceInputDefault(out, "notifyTo", overrides.notifyTo);
+    out = out.replace(/soc-oncall@example\.com/g, overrides.notifyTo);
+    out = out.replace(/rob\.kernutt@elastic\.co/g, overrides.notifyTo);
   }
 
   if (overrides.emailConnector) {
     out = replaceInputDefault(out, "emailConnector", overrides.emailConnector);
-  }
-
-  if (overrides.use94CasesStep) {
-    out = swap94CaseStep(out);
+    out = out.replace(
+      /connector-id:\s*"Elastic-Cloud-SMTP"/g,
+      `connector-id: "${overrides.emailConnector}"`
+    );
   }
 
   return out;
-}
-
-const LEGACY_CASE_STEP_START =
-  "      - name: create_case\n        type: kibana.createCaseDefaultSpace\n";
-// The legacy step's last line — used as the end marker so the swap does
-// not depend on any neighbouring comment block. Keep in sync with the YAML.
-const LEGACY_CASE_STEP_END = "            fields: null";
-
-/**
- * Replace the legacy `kibana.createCaseDefaultSpace` step with the modern
- * 9.4+ `cases.createCase` step. We rebuild the step from scratch (rather
- * than uncommenting an inline alternative) so the YAML can stay lean — the
- * 9.4 recipe is documented in `docs/workflow-deployment.md`.
- */
-function swap94CaseStep(yaml: string): string {
-  const startIdx = yaml.indexOf(LEGACY_CASE_STEP_START);
-  if (startIdx < 0) return yaml;
-
-  const endMarker = yaml.indexOf(LEGACY_CASE_STEP_END, startIdx);
-  if (endMarker < 0) return yaml;
-  const altEndOfLine = yaml.indexOf("\n", endMarker);
-  if (altEndOfLine < 0) return yaml;
-
-  const replacement =
-    "      - name: create_case\n" +
-    "        type: cases.createCase\n" +
-    "        with:\n" +
-    '          owner: "observability"\n' +
-    '          title: "Pipeline Alert Escalation: {{ event.alerts[0].kibana.alert.rule.name }}"\n' +
-    "          description: |\n" +
-    "            ## Alert Details\n" +
-    "            **Rule:** {{ event.alerts[0].kibana.alert.rule.name }}\n" +
-    "            **Message:** {{ event.alerts[0].message }}\n" +
-    "\n" +
-    "            ## Affected Infrastructure\n" +
-    "            **CI:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}\n" +
-    "            **Owner:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}\n" +
-    "            **Support Group:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.support_group.display_value }}\n" +
-    "\n" +
-    "            ## Pipeline User\n" +
-    "            **Triggered by:** {{ steps.find_pipeline_user.output.hits.hits[0]._source.user.name }}\n" +
-    "            **Email:** {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.email.value }}\n" +
-    "            **Phone:** {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.phone.value }}\n" +
-    "\n" +
-    "            ## Open Incidents ({{ steps.find_open_incidents.output.hits.total.value }})\n" +
-    "            This CI has multiple open incidents. Escalating for review.\n" +
-    '          severity: "high"\n' +
-    "          tags: [data-pipeline, escalation, workflow-generated]\n" +
-    "          settings:\n" +
-    "            syncAlerts: false";
-
-  // Strip any blank-line padding immediately after the alt block so the
-  // section spacing stays consistent.
-  let trailingNewlines = altEndOfLine + 1;
-  while (yaml[trailingNewlines] === "\n") trailingNewlines++;
-
-  return yaml.slice(0, startIdx) + replacement + "\n\n" + yaml.slice(trailingNewlines);
 }
 
 interface ListWorkflowsResponse {

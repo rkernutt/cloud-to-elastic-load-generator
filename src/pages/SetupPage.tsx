@@ -40,6 +40,7 @@ import type {
   MlJobEntry,
   MlJobFile,
   PipelineEntry,
+  SecurityDetectionRuleFile,
 } from "../setup/types";
 import { dashboardDefToSavedObjectId } from "../setup/dashboardToImportNdjson";
 import { stableDashboardKey } from "../setup/stableDashboardKey";
@@ -47,6 +48,7 @@ import {
   runSetupInstall,
   uninstallAgentBuilder,
   uninstallKnowledgeBase,
+  uninstallSecurityDetectionRules,
   uninstallSetupWorkflow,
   uninstallSlos,
 } from "../setup/runSetupInstall";
@@ -197,6 +199,8 @@ export function SetupPage({
   const ML_JOB_FILES: MlJobFile[] = setupBundle.mlJobFiles;
   const DASHBOARDS = setupBundle.dashboards;
   const ALERT_RULE_FILES = setupBundle.alertRuleFiles;
+  const SECURITY_DETECTION_RULE_FILES: SecurityDetectionRuleFile[] =
+    setupBundle.securityDetectionRuleFiles ?? [];
 
   const [removeMode, setRemoveMode] = useState(false);
 
@@ -213,6 +217,7 @@ export function SetupPage({
   const [enableWorkflow, setEnableWorkflow] = useState(false);
   const [enableAgentBuilder, setEnableAgentBuilder] = useState(true);
   const [enableSlos, setEnableSlos] = useState(true);
+  const [enableSecurityDetectionRules, setEnableSecurityDetectionRules] = useState(false);
   const [workflowNotifyTo, setWorkflowNotifyTo] = useState("data-platform-oncall@example.com");
   const [workflowEmailConnector, setWorkflowEmailConnector] = useState("elastic-cloud-email");
   /**
@@ -434,7 +439,8 @@ export function SetupPage({
     enableLoadgenIntegrations ||
     enableWorkflow ||
     enableAgentBuilder ||
-    enableSlos;
+    enableSlos ||
+    enableSecurityDetectionRules;
   const anyEnabled =
     enableIntegration ||
     enableApm ||
@@ -443,7 +449,8 @@ export function SetupPage({
     enableLoadgenIntegrations ||
     enableWorkflow ||
     enableAgentBuilder ||
-    enableSlos;
+    enableSlos ||
+    enableSecurityDetectionRules;
   const canRun = anyEnabled && hasEs && (!needsKb || hasKb);
 
   function toggleGroup<T>(set: Set<T>, val: T): Set<T> {
@@ -546,8 +553,6 @@ export function SetupPage({
     // Storage
     s3: "Storage",
     storagelens: "Storage",
-    s3intelligenttier: "Storage",
-    s3batchops: "Storage",
     ebs: "Storage",
     efs: "Storage",
     fsx: "Storage",
@@ -584,9 +589,6 @@ export function SetupPage({
 
     // Analytics
     emr: "Analytics",
-    emrserverless: "Analytics",
-    "emr-spark": "Analytics",
-    spark: "Analytics",
     cloudsearch: "Analytics",
     glue: "Analytics",
     athena: "Analytics",
@@ -1099,10 +1101,14 @@ export function SetupPage({
       s3storagelens: "storagelens",
       s3_storage_lens: "storagelens",
       "storage-lens": "storagelens",
-      s3_intelligent_tiering: "s3intelligenttier",
-      "s3-intelligent-tier": "s3intelligenttier",
-      s3_batch_operations: "s3batchops",
-      "s3-batch-ops": "s3batchops",
+      s3_intelligent_tiering: "s3",
+      s3intelligenttier: "s3",
+      "s3-intelligent-tier": "s3",
+      "s3-intelligent-tiering": "s3",
+      s3_batch_operations: "s3",
+      s3batchops: "s3",
+      "s3-batch-ops": "s3",
+      "s3-batch-operations": "s3",
       sagemakerfeaturestore: "sagemaker",
       sagemakerpipelines: "sagemaker",
       sagemakermodelmonitor: "sagemaker",
@@ -1138,8 +1144,8 @@ export function SetupPage({
       cloudfront_logs: "cloudfront",
       emr_logs: "emr",
       emr_metrics: "emr",
-      emr_serverless: "emrserverless",
-      "emr-serverless": "emrserverless",
+      emr_serverless: "emr",
+      "emr-serverless": "emr",
       ec2_logs: "ec2",
       lambda_logs: "lambda",
       awshealth: "health",
@@ -1405,12 +1411,14 @@ export function SetupPage({
       "directory-service": "directoryservice",
       "acm-pca": "acmpca",
       "acm-private-ca": "acmpca",
+      "private-ca": "acmpca",
       "private-certificate-authority": "acmpca",
+      "classic-elb": "elb",
+      "application-migration": "mgn",
       "application-migration-service": "mgn",
       "cloudwatch-synthetics": "cwsynthetics",
       "emr-spark": "emr",
-      "s3-batch-operations": "s3batchops",
-      "s3-intelligent-tiering": "s3intelligenttier",
+      spark: "emr",
       "s3-storage-lens": "storagelens",
       "sagemaker-feature-store": "sagemaker",
       "sagemaker-model-monitor": "sagemaker",
@@ -2021,6 +2029,7 @@ export function SetupPage({
         enableWorkflow,
         enableAgentBuilder,
         enableSlos,
+        enableSecurityDetectionRules,
         workflowOverrides: {
           notifyTo: workflowNotifyTo,
           emailConnector: workflowEmailConnector,
@@ -2030,6 +2039,7 @@ export function SetupPage({
         dashboards: filteredDashboards(),
         mlJobFiles: filteredMlJobPayload(),
         alertRuleFiles: filteredAlertRulePayload(),
+        securityDetectionRuleFiles: SECURITY_DETECTION_RULE_FILES,
         addLog,
       });
       addLog("All selected installers complete.", "ok");
@@ -2313,6 +2323,14 @@ export function SetupPage({
     if (enableDashboards) await uninstallDashboards();
     if (enableMlJobs) await uninstallMlJobs();
     if (enableLoadgenIntegrations) await uninstallAlertRules();
+    if (enableSecurityDetectionRules) {
+      await uninstallSecurityDetectionRules({
+        kibanaUrl,
+        apiKey,
+        securityDetectionRuleFiles: SECURITY_DETECTION_RULE_FILES,
+        addLog,
+      });
+    }
     if (enableWorkflow) {
       await uninstallSetupWorkflow({ kibanaUrl, apiKey, addLog });
     }
@@ -2390,6 +2408,7 @@ export function SetupPage({
         enableWorkflow,
         enableAgentBuilder,
         enableSlos,
+        enableSecurityDetectionRules,
         workflowOverrides: {
           notifyTo: workflowNotifyTo,
           emailConnector: workflowEmailConnector,
@@ -2399,6 +2418,7 @@ export function SetupPage({
         dashboards: filteredDashboards(),
         mlJobFiles: filteredMlJobPayload(),
         alertRuleFiles: filteredAlertRulePayload(),
+        securityDetectionRuleFiles: SECURITY_DETECTION_RULE_FILES,
         addLog,
       });
       addLog("Reinstall finished.", "ok");
@@ -2457,6 +2477,7 @@ export function SetupPage({
         enableWorkflow,
         enableAgentBuilder,
         enableSlos,
+        enableSecurityDetectionRules,
         workflowOverrides: {
           notifyTo: workflowNotifyTo,
           emailConnector: workflowEmailConnector,
@@ -2466,6 +2487,7 @@ export function SetupPage({
         dashboards: filteredDashboards(),
         mlJobFiles: filteredMlJobPayload(),
         alertRuleFiles: filteredAlertRulePayload(),
+        securityDetectionRuleFiles: SECURITY_DETECTION_RULE_FILES,
         addLog,
       });
       addLog("Uninstall and reinstall finished.", "ok");
@@ -3227,6 +3249,19 @@ export function SetupPage({
               onChange={(e) => setEnableSlos(e.target.checked)}
             />
           </EuiFlexItem>
+          {SECURITY_DETECTION_RULE_FILES.length > 0 && (
+            <EuiFlexItem grow={false}>
+              <EuiSwitch
+                label={
+                  removeMode
+                    ? `Uninstall security detection rules (${SECURITY_DETECTION_RULE_FILES.reduce((n, f) => n + f.rules.length, 0)})`
+                    : `Install security detection rules (${SECURITY_DETECTION_RULE_FILES.reduce((n, f) => n + f.rules.length, 0)}) for Attack Discovery`
+                }
+                checked={enableSecurityDetectionRules}
+                onChange={(e) => setEnableSecurityDetectionRules(e.target.checked)}
+              />
+            </EuiFlexItem>
+          )}
         </EuiFlexGroup>
         <EuiSpacer size="xs" />
         <EuiText size="xs" color="subdued">
@@ -3240,6 +3275,8 @@ export function SetupPage({
               Rules are created disabled and ML jobs are created closed by default. Enable these to
               activate them immediately after installation. The AI Analyst agent and SLOs require
               Agent Builder and Observability SLO APIs (skipped automatically if unavailable).
+              Security detection rules are installed via the Detection Engine API and generate alerts
+              in <EuiCode>.alerts-security.alerts-*</EuiCode> for Attack Discovery.
             </p>
           )}
         </EuiText>

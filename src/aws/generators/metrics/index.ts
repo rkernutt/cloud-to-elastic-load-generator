@@ -265,7 +265,6 @@ import {
 
 import {
   generateBedrockguardrailsMetrics,
-  generateEmrserverlessMetrics,
   generateGwlbMetrics,
   generateElbMetrics,
   generateMediaconnectMetrics,
@@ -509,7 +508,6 @@ export const METRICS_GENERATORS = {
   workmail: generateWorkmailMetrics,
 
   bedrockguardrails: generateBedrockguardrailsMetrics,
-  emrserverless: generateEmrserverlessMetrics,
   gwlb: generateGwlbMetrics,
   elb: generateElbMetrics,
   mediaconnect: generateMediaconnectMetrics,

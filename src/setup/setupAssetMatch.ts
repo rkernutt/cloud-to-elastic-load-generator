@@ -42,7 +42,11 @@ export function dashboardTitleServiceFragment(d: DashboardDef, cloudId: CloudId)
     const amzRe = /^Amazon\s+(.+?)\s+[\u2014\u2013-]/i;
     const genericRe = /^(.+?)\s+[\u2014\u2013-]/i;
     const m = t.match(awsRe) ?? t.match(amzRe) ?? t.match(genericRe);
-    return m ? m[1].trim() : null;
+    if (m) return m[1].trim();
+    const awsFull = /^AWS\s+(.+)/i;
+    const amzFull = /^Amazon\s+(.+)/i;
+    const mf = t.match(awsFull) ?? t.match(amzFull);
+    return mf ? mf[1].trim() : null;
   }
   const prefix = dashboardTitlePrefix(cloudId);
   const re = new RegExp(`^${prefix}\\s+(.+?)\\s+[\\u2014\\u2013-]`, "i");
@@ -52,8 +56,13 @@ export function dashboardTitleServiceFragment(d: DashboardDef, cloudId: CloudId)
     const msRe = /^Microsoft\s+(.+?)\s+[\u2014\u2013-]/i;
     const msm = t.match(msRe);
     if (msm) return msm[1].trim();
+    const msFull = /^Microsoft\s+(.+)/i;
+    const msf = t.match(msFull);
+    if (msf) return msf[1].trim();
   }
-  return null;
+  const fullRe = new RegExp(`^${prefix}\\s+(.+)`, "i");
+  const mf = t.match(fullRe);
+  return mf ? mf[1].trim() : null;
 }
 
 /**

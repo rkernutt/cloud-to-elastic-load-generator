@@ -67,11 +67,37 @@ export interface AlertRuleFile {
   rules: AlertRuleEntry[];
 }
 
+export interface SecurityDetectionRule {
+  rule_id: string;
+  name: string;
+  description: string;
+  type: string;
+  language: string;
+  query: string;
+  index: string[];
+  severity: string;
+  risk_score: number;
+  threat?: unknown[];
+  tags?: string[];
+  false_positives?: string[];
+  interval?: string;
+  from?: string;
+  enabled?: boolean;
+  max_signals?: number;
+  note?: string;
+}
+
+export interface SecurityDetectionRuleFile {
+  description: string;
+  rules: SecurityDetectionRule[];
+}
+
 export interface CloudSetupBundle {
   pipelines: PipelineEntry[];
   mlJobFiles: MlJobFile[];
   dashboards: DashboardDef[];
   alertRuleFiles: AlertRuleFile[];
+  securityDetectionRuleFiles?: SecurityDetectionRuleFile[];
   fleetPackage: string;
   fleetPackageLabel: string;
   showApmToggle: boolean;

@@ -143,7 +143,6 @@ import {
 } from "./devtools.js";
 import {
   generateEmrLog,
-  generateSparkLogs,
   generateGlueLog,
   generateAthenaLog,
   generateLakeFormationLog,
@@ -247,7 +246,6 @@ import {
 } from "./enduser.js";
 import {
   generateBedrockGuardrailsLog,
-  generateEmrServerlessLog,
   generateGwlbLog,
   generateElbClassicLog,
   generateMediaConnectLog,
@@ -392,7 +390,6 @@ const GENERATORS = {
   robomaker: generateRoboMakerLog,
   // Group 8 — Analytics
   emr: generateEmrLog,
-  "emr-spark": generateSparkLogs,
   glue: generateGlueLog,
   athena: generateAthenaLog,
   lakeformation: generateLakeFormationLog,
@@ -494,7 +491,6 @@ const GENERATORS = {
   iotdefender: generateIotDefenderLog,
   wafv2: generateWafv2Log,
   bedrockguardrails: generateBedrockGuardrailsLog,
-  emrserverless: generateEmrServerlessLog,
   gwlb: generateGwlbLog,
   elb: generateElbClassicLog,
   mediaconnect: generateMediaConnectLog,

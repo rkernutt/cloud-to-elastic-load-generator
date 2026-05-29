@@ -6,6 +6,7 @@ import type {
   MlJobEntry,
   MlJobFile,
   PipelineEntry,
+  SecurityDetectionRuleFile,
 } from "./types";
 import {
   buildDashboardSavedObjectPayload,
@@ -24,7 +25,6 @@ import {
 } from "./setupProxy";
 import {
   applyWorkflowOverrides,
-  detectKibanaMajorMinor,
   DEFAULT_WORKFLOW_NAME,
   installWorkflow,
   uninstallWorkflow,
@@ -192,6 +192,8 @@ export async function runSetupInstall(opts: {
   enableAgentBuilder?: boolean;
   /** When true, install Cloud Loadgen SLO definitions. */
   enableSlos?: boolean;
+  /** When true, install security detection rules via the Detection Engine API for Attack Discovery. */
+  enableSecurityDetectionRules?: boolean;
   /** Overrides applied to the bundled YAML before sending to Kibana. */
   workflowOverrides?: WorkflowOverrides;
   extraFleetPackages?: { name: string; label: string }[];
@@ -199,6 +201,7 @@ export async function runSetupInstall(opts: {
   dashboards: DashboardDef[];
   mlJobFiles: MlJobFile[];
   alertRuleFiles: AlertRuleFile[];
+  securityDetectionRuleFiles?: SecurityDetectionRuleFile[];
   addLog: SetupLogFn;
 }): Promise<void> {
   const {
@@ -218,12 +221,14 @@ export async function runSetupInstall(opts: {
     enableWorkflow = false,
     enableAgentBuilder = false,
     enableSlos = false,
+    enableSecurityDetectionRules = false,
     workflowOverrides = {},
     extraFleetPackages = [],
     pipelines,
     dashboards,
     mlJobFiles,
     alertRuleFiles,
+    securityDetectionRuleFiles = [],
     addLog,
   } = opts;
 
@@ -249,6 +254,8 @@ export async function runSetupInstall(opts: {
     (enableMlJobs ? planRun : planSkip).push(`${mlJobCount} ML jobs`);
     const alertRuleCount = alertRuleFiles.reduce((acc, f) => acc + f.rules.length, 0);
     (enableAlertRules ? planRun : planSkip).push(`${alertRuleCount} alerting rules`);
+    const secRuleCount = securityDetectionRuleFiles.reduce((acc, f) => acc + f.rules.length, 0);
+    (enableSecurityDetectionRules ? planRun : planSkip).push(`${secRuleCount} security detection rules`);
     (enableWorkflow ? planRun : planSkip).push("alert-enrichment Workflow");
     (enableAgentBuilder ? planRun : planSkip).push("Agent Builder analyst");
     (enableSlos ? planRun : planSkip).push("SLO definitions");
@@ -886,20 +893,6 @@ export async function runSetupInstall(opts: {
     const kb = kibanaUrl.replace(/\/$/, "");
 
     const merged: WorkflowOverrides = { ...workflowOverrides };
-    if (merged.use94CasesStep === undefined) {
-      const ver = await detectKibanaMajorMinor(kb, apiKey);
-      if (ver) {
-        merged.use94CasesStep = ver.major > 9 || (ver.major === 9 && ver.minor >= 4);
-        addLog(
-          `  Detected Kibana ${ver.major}.${ver.minor} — using ${
-            merged.use94CasesStep
-              ? "cases.createCase (9.4+)"
-              : "kibana.createCaseDefaultSpace (9.3-compatible)"
-          } step.`,
-          "info"
-        );
-      }
-    }
 
     let connectorId = merged.emailConnector ?? "elastic-cloud-email";
     try {
@@ -1010,6 +1003,56 @@ export async function runSetupInstall(opts: {
     });
   };
 
+  const installSecurityDetectionRules = async () => {
+    const allRules = securityDetectionRuleFiles.flatMap((f) => f.rules);
+    if (allRules.length === 0) return;
+    addLog(
+      `Installing ${allRules.length} security detection rules across ${securityDetectionRuleFiles.length} groups (Detection Engine API)…`
+    );
+    const kb = kibanaUrl.replace(/\/$/, "");
+    let ok = 0;
+    let skipped = 0;
+    let fail = 0;
+    for (const rule of allRules) {
+      try {
+        await proxyCall({
+          baseUrl: kb,
+          apiKey,
+          path: "/api/detection_engine/rules",
+          method: "POST",
+          body: rule as unknown as Record<string, unknown>,
+        });
+        ok++;
+        addLog(`  ✓ ${rule.name}`, "ok");
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        if (msg.includes("409") || msg.includes("already exists") || msg.includes("Already exists")) {
+          skipped++;
+          addLog(`  ⊘ ${rule.name} (already exists)`, "info");
+        } else if (isKibanaFeatureUnavailable(msg)) {
+          addLog(
+            `  ✗ Detection Engine API unavailable — security detection rules require the Elastic Security app with Detection Engine enabled.${kibanaFeatureBlockedExplanation(msg)}`,
+            "error"
+          );
+          return;
+        } else {
+          fail++;
+          addLog(`  ✗ ${rule.name}: ${msg}`, "error");
+        }
+      }
+    }
+    addLog(
+      `  Security detection rules: ${ok} created${skipped > 0 ? `, ${skipped} already existed` : ""}${fail > 0 ? `, ${fail} failed` : ""}`,
+      fail > 0 ? "warn" : "ok"
+    );
+    if (ok > 0) {
+      addLog(
+        "  ⚑ These rules produce alerts in .alerts-security.alerts-* for Attack Discovery. Ship data with the IAM PrivEsc, Security Finding, and Data Exfil chain generators, then check Security → Alerts.",
+        "info"
+      );
+    }
+  };
+
   if (enableIntegration) await installIntegration(setupBundle.fleetPackage);
   if (enableApm) await installIntegration("apm");
   for (const pkg of extraFleetPackages) {
@@ -1024,6 +1067,7 @@ export async function runSetupInstall(opts: {
   if (enableAlertRules) await installAlertRules();
   if (activateAlertRules && enableAlertRules) await activateRules();
   if (startMlJobs && enableMlJobs) await openAndStartMlJobs();
+  if (enableSecurityDetectionRules) await installSecurityDetectionRules();
   if (enableWorkflow) await installAlertEnrichmentWorkflow();
   if (enableAgentBuilder) await installAgentBuilder();
   if (enableSlos) await installSlos();
@@ -1537,6 +1581,58 @@ export async function uninstallSlos(opts: {
 
   addLog(
     `  ✓ SLOs: ${ok} removed${missing > 0 ? `, ${missing} not found` : ""}${fail > 0 ? `, ${fail} failed` : ""}`,
+    fail > 0 ? "warn" : "ok"
+  );
+}
+
+/**
+ * Removes security detection rules installed via the Detection Engine API.
+ * Uses `rule_id` (the stable CloudLoadGen identifier) to look up and delete each rule.
+ */
+export async function uninstallSecurityDetectionRules(opts: {
+  kibanaUrl: string;
+  apiKey: string;
+  securityDetectionRuleFiles: SecurityDetectionRuleFile[];
+  addLog: SetupLogFn;
+}): Promise<void> {
+  const { kibanaUrl, apiKey, securityDetectionRuleFiles, addLog } = opts;
+  const kb = kibanaUrl.replace(/\/$/, "");
+  const allRules = securityDetectionRuleFiles.flatMap((f) => f.rules);
+  if (allRules.length === 0) return;
+
+  addLog(`Removing ${allRules.length} security detection rules…`);
+  let ok = 0;
+  let missing = 0;
+  let fail = 0;
+
+  for (const rule of allRules) {
+    try {
+      const deleted = await proxyCall({
+        baseUrl: kb,
+        apiKey,
+        path: `/api/detection_engine/rules?rule_id=${encodeURIComponent(rule.rule_id)}`,
+        method: "DELETE",
+        allow404: true,
+      });
+      if (deleted == null) {
+        missing++;
+      } else {
+        ok++;
+        addLog(`  ✓ ${rule.name}`, "ok");
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (isKibanaFeatureUnavailable(msg) || isKibanaApiUnavailable(msg)) {
+        addLog("  ⚠ Detection Engine API unavailable — skipping remaining rules.", "warn");
+        return;
+      }
+      fail++;
+      addLog(`  ✗ ${rule.name}: ${msg}`, "error");
+    }
+  }
+
+  addLog(
+    `  Security detection rules: ${ok} removed${missing > 0 ? `, ${missing} not found` : ""}${fail > 0 ? `, ${fail} failed` : ""}`,
     fail > 0 ? "warn" : "ok"
   );
 }

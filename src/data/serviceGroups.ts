@@ -414,18 +414,11 @@ const SERVICE_GROUPS: ServiceGroup[] = [
     color: "#F59E0B",
     icon: "◈",
     services: [
-      { id: "emr", label: "EMR", icon: "⚙", desc: "Spark/Hadoop cluster logs" },
       {
-        id: "emr-spark",
-        label: "EMR Spark Logs",
+        id: "emr",
+        label: "EMR",
         icon: "⚙",
-        desc: "Spark event logs, driver/executor log4j, and metrics from EMR clusters",
-      },
-      {
-        id: "emrserverless",
-        label: "EMR Serverless",
-        icon: "⚙",
-        desc: "Serverless Spark/Hive job runs & worker metrics",
+        desc: "Cluster logs, Spark driver/executor logs, and Serverless job runs",
       },
       { id: "glue", label: "Glue", icon: "⟺", desc: "ETL job execution logs" },
       { id: "athena", label: "Athena", icon: "◇", desc: "S3 SQL query logs" },

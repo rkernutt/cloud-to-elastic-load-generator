@@ -1,10 +1,10 @@
 # Data Pipeline Alert → ServiceNow CMDB Enrichment → Notification
 #
 # Triggers on any [CloudLoadGen] data-pipeline alerting rule, looks up the
-# affected CI in ServiceNow CMDB, opens a Kibana case if multiple incidents
-# are open, and emails the on-call group via the deployment's preconfigured
-# SMTP connector. Slack / Teams / PagerDuty / ServiceNow ITSM / Opsgenie /
-# webhook alternatives are commented out further down.
+# affected CI in ServiceNow CMDB, and emails the on-call group via the
+# deployment's preconfigured SMTP connector. Slack / Teams / PagerDuty /
+# ServiceNow ITSM / Opsgenie / webhook alternatives are commented out
+# further down.
 #
 # Installs DISABLED. Three manual steps before it can run:
 #   1. Review (or replace) the notify_email step.
@@ -53,20 +53,14 @@ triggers:
   - type: alert
 
 steps:
-  # 0. Pre-flight — fail fast if the email connector is missing.
+  # 0. Pre-flight log
   - name: log_preflight
     type: console
     with:
       message: |
-        Pre-flight check:
-          emailConnector: {{ inputs.emailConnector }}
-          notifyTo:       {{ inputs.notifyTo }}
-  - name: validate_email_connector
-    type: kibana.request
-    with:
-      method: GET
-      path: "/api/actions/connector/{{ inputs.emailConnector }}"
-
+        Data pipeline alert enrichment starting:
+          emailConnector: Elastic-Cloud-SMTP
+          notifyTo:       soc-oncall@example.com
   # 1. Log the inbound alert.
   - name: log_alert_received
     type: console
@@ -203,81 +197,43 @@ steps:
     on-failure:
       continue: true
 
-  # 7. Open a Kibana case when multiple incidents are already open.
-  #    On Stack 9.4+ the installer auto-swaps the case step for the
-  #    cleaner cases.createCase variant — see docs/workflow-deployment.md.
-  - name: check_severity
-    type: if
-    condition: "steps.find_open_incidents.output.hits.total.value > 2"
-    steps:
-      - name: create_case
-        type: kibana.createCaseDefaultSpace
-        with:
-          title: "Pipeline Alert Escalation: {{ event.alerts[0].kibana.alert.rule.name }}"
-          description: |
-            ## Alert Details
-            **Rule:** {{ event.alerts[0].kibana.alert.rule.name }}
-            **Message:** {{ event.alerts[0].message }}
-
-            ## Affected Infrastructure
-            **CI:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
-            **Owner:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
-            **Support Group:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.support_group.display_value }}
-
-            ## Pipeline User
-            **Triggered by:** {{ steps.find_pipeline_user.output.hits.hits[0]._source.user.name }}
-            **Email:** {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.email.value }}
-            **Phone:** {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.phone.value }}
-
-            ## Open Incidents ({{ steps.find_open_incidents.output.hits.total.value }})
-            This CI has multiple open incidents. Escalating for review.
-          owner: "observability"
-          severity: "high"
-          tags:
-            - data-pipeline
-            - escalation
-            - workflow-generated
-          settings:
-            syncAlerts: false
-          connector:
-            id: "none"
-            name: "none"
-            type: ".none"
-            fields: null
-
-  # 8. Send enriched notification.
+  # 7. Send enriched notification.
   #    Default channel: email. To switch, comment out notify_email and
   #    uncomment one of the alternative blocks below. See "Switching to a
   #    different channel" in docs/workflow-deployment.md.
-  #    Retries 2x then continues so step 9 still runs on transient SMTP
-  #    failures (the pre-flight already proved the connector exists).
+  #    Retries 2x then continues so step 8 still runs on transient SMTP
+  #    failures.
   - name: notify_email
     type: email
-    connector-id: "{{ inputs.emailConnector }}"
+    connector-id: "Elastic-Cloud-SMTP"
     with:
       to:
-        - "{{ inputs.notifyTo }}"
+        - "soc-oncall@example.com"
       subject: "[Data Pipeline Alert] {{ event.alerts[0].kibana.alert.rule.name }}"
       message: |
-        Pipeline alert received.
+        A data pipeline alert has fired and been enriched with CMDB context.
 
-        Rule:           {{ event.alerts[0].kibana.alert.rule.name }}
-        Alert:          {{ event.alerts[0].message }}
+        ALERT
+        Rule: {{ event.alerts[0].kibana.alert.rule.name }}
+        Alert: {{ event.alerts[0].message }}
 
-        Affected CI:    {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
-        CI Owner:       {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
-        Support Group:  {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.support_group.display_value }}
-        Department:     {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.department.display_value }}
+        AFFECTED INFRASTRUCTURE (ServiceNow CMDB)
+        CI Name: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
+        CI Owner: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
+        Support Group: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.support_group.display_value }}
+        Department: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.department.display_value }}
 
-        Pipeline triggered by: {{ steps.find_pipeline_user.output.hits.hits[0]._source.user.name }}
-        Contact email:  {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.email.value }}
-        Contact phone:  {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.phone.value }}
-        Manager:        {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.manager.display_value }}
+        PIPELINE USER (ServiceNow)
+        Triggered by: {{ steps.find_pipeline_user.output.hits.hits[0]._source.user.name }}
+        Email: {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.email.value }}
+        Phone: {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.phone.value }}
+        Manager: {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.manager.display_value }}
 
+        INCIDENT CONTEXT
         Open incidents: {{ steps.find_open_incidents.output.hits.total.value }}
         Recent changes: {{ steps.find_recent_changes.output.hits.total.value }}
 
-        Investigation guide: docs/runbooks/ (per-rule triage, ES|QL, containment, escalation)
+        See docs/runbooks/ for per-rule triage, ES|QL queries, containment, and escalation steps.
     on-failure:
       retry:
         max-attempts: 2
@@ -383,7 +339,7 @@ steps:
   #       }
   #   on-failure: { continue: true }
 
-  # 9. Index the enriched record back to Elasticsearch for dashboards.
+  # 8. Index the enriched record back to Elasticsearch for dashboards.
   - name: index_enriched_alert
     type: elasticsearch.index
     with:
