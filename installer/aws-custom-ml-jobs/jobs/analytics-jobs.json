@@ -474,6 +474,86 @@
         "query_delay": "60s",
         "delayed_data_check_config": { "enabled": true }
       }
+    },
+    {
+      "id": "aws-emr-serverless-failure-spike",
+      "description": "Spikes in EMR Serverless job failures by application",
+      "job": {
+        "description": "Unusual failure count for EMR Serverless partitioned by application name",
+        "groups": ["aws", "analytics", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count partitionfield=aws.emr.serverless.application_name",
+              "function": "high_count",
+              "partition_field_name": "aws.emr.serverless.application_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.emr.serverless.application_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator", "tags": ["cloudloadgen"] }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.emr_logs" } },
+              { "term": { "event.outcome": "failure" } },
+              { "exists": { "field": "aws.emr.serverless.application_name" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
+    },
+    {
+      "id": "aws-emr-serverless-duration-anomaly",
+      "description": "Unusual EMR Serverless job duration by application",
+      "job": {
+        "description": "Detects unusual mean job run duration for EMR Serverless per application",
+        "groups": ["aws", "analytics", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_mean(event.duration) partitionfield=aws.emr.serverless.application_name",
+              "function": "high_mean",
+              "field_name": "event.duration",
+              "partition_field_name": "aws.emr.serverless.application_name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.emr.serverless.application_name", "cloud.region"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "aws-elastic-load-generator", "tags": ["cloudloadgen"] }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              { "term": { "event.dataset": "aws.emr_logs" } },
+              { "exists": { "field": "aws.emr.serverless.application_name" } }
+            ]
+          }
+        },
+        "chunking_config": { "mode": "auto" },
+        "query_delay": "60s",
+        "delayed_data_check_config": { "enabled": true }
+      }
     }
   ]
 }

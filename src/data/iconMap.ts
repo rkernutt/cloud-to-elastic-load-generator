@@ -221,7 +221,6 @@ const AWS_SERVICE_ICON_MAP = {
   freertos: "FreeRTOS",
   cloudwatchrum: "AmazonCloudWatch_RUM",
   bedrockguardrails: "AmazonBedrock",
-  emrserverless: "AmazonEMR",
   gwlb: "ElasticLoadBalancing",
   elb: "ElasticLoadBalancing",
   mediaconnect: "AWSElementalMediaLive",

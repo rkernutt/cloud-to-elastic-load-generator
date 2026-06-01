@@ -132,8 +132,8 @@ export function generateEmrserverlessMetrics(ts: string, er: number): EcsDocumen
   const stressCapacity = Math.random() < er;
   const docApp = metricDoc(
     ts,
-    "emrserverless",
-    dataset("emrserverless"),
+    "emr",
+    dataset("emr"),
     region,
     account,
     { ApplicationId: appId, ApplicationName: appName },
@@ -162,8 +162,8 @@ export function generateEmrserverlessMetrics(ts: string, er: number): EcsDocumen
 
   const docWorker = metricDoc(
     ts,
-    "emrserverless",
-    dataset("emrserverless"),
+    "emr",
+    dataset("emr"),
     region,
     account,
     {
@@ -193,8 +193,8 @@ export function generateEmrserverlessMetrics(ts: string, er: number): EcsDocumen
 
   const docWorkerExec = metricDoc(
     ts,
-    "emrserverless",
-    dataset("emrserverless"),
+    "emr",
+    dataset("emr"),
     region,
     account,
     {
@@ -216,8 +216,8 @@ export function generateEmrserverlessMetrics(ts: string, er: number): EcsDocumen
 
   const docQueue = metricDoc(
     ts,
-    "emrserverless",
-    dataset("emrserverless"),
+    "emr",
+    dataset("emr"),
     region,
     account,
     { ApplicationId: appId, ApplicationName: appName, QueueName: "default" },

@@ -1068,21 +1068,23 @@ function generateEmrServerlessLog(ts: string, er: number): EcsDocument {
       service: { name: "emr-serverless" },
     },
     aws: {
-      emrserverless: {
-        application_id: appId,
-        application_name: appName,
-        job_run_id: jobId,
-        job_run_name: jobName,
-        state,
-        execution_role_arn: roleArn,
-        release_label: releaseLabel,
-        worker_cpu_used_vcores: vcores,
-        worker_memory_used_gb: memGb,
+      emr: {
+        serverless: {
+          application_id: appId,
+          application_name: appName,
+          job_run_id: jobId,
+          job_run_name: jobName,
+          state,
+          execution_role_arn: roleArn,
+          release_label: releaseLabel,
+          worker_cpu_used_vcores: vcores,
+          worker_memory_used_gb: memGb,
+        },
       },
     },
     event: {
       outcome: isErr ? "failure" : "success",
-      dataset: "aws.emrserverless",
+      dataset: "aws.emr_logs",
       category: ["process"],
       type: awsEventType(
         isErr,
