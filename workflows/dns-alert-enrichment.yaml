@@ -1,0 +1,203 @@
+name: DNS Alert Enrichment for Attack Discovery
+description: >
+  Triggered by a DNS-related security alert. Enriches with DNS telemetry,
+  AI-generated threat analysis, then creates a Security Case with the alert
+  attached and domain/IP observables added.
+
+triggers:
+  - type: alert
+
+steps:
+  # ── 1. Extract key fields from the triggering alert ──────────────────────────
+  - name: extract_alert_fields
+    type: ai.prompt
+    with:
+      prompt: |
+        You are a security data extraction assistant. Extract the following fields
+        from this Elastic Security alert JSON and return ONLY a JSON object with
+        these exact keys:
+          dns_question_name, src_ip, alert_id, alert_index, rule_name, severity
+
+        Alert data: {{ event.alerts | json }}
+      schema:
+        type: object
+        properties:
+          dns_question_name:
+            type: string
+          src_ip:
+            type: string
+          alert_id:
+            type: string
+          alert_index:
+            type: string
+          rule_name:
+            type: string
+          severity:
+            type: string
+        required:
+          - alert_id
+
+  # ── 2. Domain frequency & beaconing patterns (last 24h) ──────────────────────
+  - name: dns_domain_stats
+    type: elasticsearch.esql.query
+    with:
+      format: json
+      query: |
+        FROM logs-*
+        | WHERE dns.question.name == "{{ steps.extract_alert_fields.output.dns_question_name }}"
+          AND @timestamp > NOW() - 24h
+        | STATS
+            total_queries  = COUNT(),
+            unique_src_ips = COUNT_DISTINCT(source.ip),
+            first_seen     = MIN(@timestamp),
+            last_seen      = MAX(@timestamp),
+            nxdomain_count = COUNT(WHERE dns.response_code == "NXDOMAIN")
+          BY dns.question.name
+
+  # ── 3. Source IP DNS breadth (lateral context, last 24h) ─────────────────────
+  - name: src_ip_dns_activity
+    type: elasticsearch.esql.query
+    with:
+      format: json
+      query: |
+        FROM logs-*
+        | WHERE source.ip == "{{ steps.extract_alert_fields.output.src_ip }}"
+          AND @timestamp > NOW() - 24h
+        | STATS
+            domains_queried = COUNT_DISTINCT(dns.question.name),
+            total_requests  = COUNT()
+          BY source.ip
+
+  # ── 4. Related security alerts on the same source IP (last 7d) ───────────────
+  - name: related_alerts
+    type: elasticsearch.search
+    with:
+      index: .alerts-security.alerts-*
+      size: 10
+      query:
+        bool:
+          must:
+            - term:
+                source.ip: "{{ steps.extract_alert_fields.output.src_ip }}"
+            - range:
+                "@timestamp":
+                  gte: now-7d
+          must_not:
+            - term:
+                _id: "{{ steps.extract_alert_fields.output.alert_id }}"
+      _source:
+        - kibana.alert.rule.name
+        - kibana.alert.severity
+        - "@timestamp"
+        - dns.question.name
+
+  # ── 5. AI synthesis of all enrichment data ───────────────────────────────────
+  - name: ai_analysis
+    type: ai.prompt
+    with:
+      systemPrompt: |
+        You are a Tier-2 SOC analyst specialising in DNS-based threat detection.
+        Synthesise enrichment data and produce a concise, actionable threat
+        assessment. Focus on C2 beaconing, DGA patterns, DNS tunnelling,
+        and data exfiltration indicators.
+      prompt: |
+        ## Triggered Alert
+        Rule: {{ steps.extract_alert_fields.output.rule_name }}
+        Severity: {{ steps.extract_alert_fields.output.severity }}
+        Source IP: {{ steps.extract_alert_fields.output.src_ip }}
+        Domain: {{ steps.extract_alert_fields.output.dns_question_name }}
+
+        ## DNS Domain Stats (last 24h)
+        {{ steps.dns_domain_stats.output.values | json }}
+
+        ## Source IP DNS Activity (last 24h)
+        {{ steps.src_ip_dns_activity.output.values | json }}
+
+        ## Related Security Alerts on Same Source IP (last 7d)
+        {{ steps.related_alerts.output.hits.hits | json }}
+
+        Provide a JSON with these keys:
+          threat_assessment (string), key_indicators (array of strings),
+          confidence (string: High/Medium/Low + rationale),
+          recommended_actions (array of strings),
+          attack_discovery_context (string describing additional correlations
+          the analyst should look for in Elastic Attack Discovery)
+      schema:
+        type: object
+        properties:
+          threat_assessment:
+            type: string
+          key_indicators:
+            type: array
+            items:
+              type: string
+          confidence:
+            type: string
+          recommended_actions:
+            type: array
+            items:
+              type: string
+          attack_discovery_context:
+            type: string
+
+  # ── 6. Create a Security Case ─────────────────────────────────────────────────
+  - name: create_case
+    type: cases.createCase
+    with:
+      owner: securitySolution
+      title: "DNS Investigation: {{ steps.extract_alert_fields.output.dns_question_name }} — {{ steps.extract_alert_fields.output.src_ip }}"
+      description: |
+        ## Automated DNS Enrichment Report
+
+        **Rule:** {{ steps.extract_alert_fields.output.rule_name }}
+        **Severity:** {{ steps.extract_alert_fields.output.severity }}
+        **Source IP:** {{ steps.extract_alert_fields.output.src_ip }}
+        **Domain:** {{ steps.extract_alert_fields.output.dns_question_name }}
+
+        ---
+        ### Threat Assessment
+        {{ steps.ai_analysis.output.threat_assessment }}
+
+        **Confidence:** {{ steps.ai_analysis.output.confidence }}
+
+        ### Key Indicators
+        {% for indicator in steps.ai_analysis.output.key_indicators %}
+        - {{ indicator }}
+        {% endfor %}
+
+        ### Recommended Actions
+        {% for action in steps.ai_analysis.output.recommended_actions %}
+        - {{ action }}
+        {% endfor %}
+
+        ### Attack Discovery Context
+        {{ steps.ai_analysis.output.attack_discovery_context }}
+      tags:
+        - dns
+        - automated-enrichment
+        - "{{ steps.extract_alert_fields.output.severity }}"
+      settings:
+        syncAlerts: true
+        autoExtractObersvables: true
+
+  # ── 7. Attach the triggering alert to the case ───────────────────────────────
+  - name: attach_alert
+    type: cases.addAlerts
+    with:
+      case_id: "{{ steps.create_case.output.id }}"
+      alerts:
+        - alertId: "{{ steps.extract_alert_fields.output.alert_id }}"
+          index: "{{ steps.extract_alert_fields.output.alert_index }}"
+
+  # ── 8. Add domain & IP as observables for Attack Discovery correlation ────────
+  - name: add_observables
+    type: cases.addObservables
+    with:
+      case_id: "{{ steps.create_case.output.id }}"
+      observables:
+        - typeKey: observable-type-domain
+          value: "{{ steps.extract_alert_fields.output.dns_question_name }}"
+          description: "Queried domain from DNS alert"
+        - typeKey: observable-type-ipv4
+          value: "{{ steps.extract_alert_fields.output.src_ip }}"
+          description: "Source IP querying suspicious domain"

@@ -1,0 +1,195 @@
+{
+  "description": "Elastic Security detection rules for DNS-based threat detection via Route 53 Resolver logs. Generates alerts for Attack Discovery correlation with IAM, exfiltration, and GuardDuty findings.",
+  "rules": [
+    {
+      "rule_id": "cloudloadgen-dns-suspicious-domain",
+      "name": "[CloudLoadGen] DNS Query to Suspicious Domain",
+      "description": "Detects DNS queries to dynamic DNS providers, tunnelling services, and other commonly abused domains — potential C2 or data exfiltration channel.",
+      "type": "query",
+      "language": "kuery",
+      "query": "event.dataset:aws.route53_resolver_logs AND (dns.question.name:*duckdns.org OR dns.question.name:*ngrok.io OR dns.question.name:*serveo.net OR dns.question.name:*.xyz OR dns.question.name:*no-ip.com OR dns.question.name:*ddns.net)",
+      "index": ["logs-aws.route53_resolver_logs*"],
+      "severity": "high",
+      "risk_score": 73,
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0011",
+            "name": "Command and Control",
+            "reference": "https://attack.mitre.org/tactics/TA0011/"
+          },
+          "technique": [
+            {
+              "id": "T1071.004",
+              "name": "Application Layer Protocol: DNS",
+              "reference": "https://attack.mitre.org/techniques/T1071/004/"
+            }
+          ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0010",
+            "name": "Exfiltration",
+            "reference": "https://attack.mitre.org/tactics/TA0010/"
+          },
+          "technique": [
+            {
+              "id": "T1048.003",
+              "name": "Exfiltration Over Unencrypted Non-C2 Protocol",
+              "reference": "https://attack.mitre.org/techniques/T1048/003/"
+            }
+          ]
+        }
+      ],
+      "tags": ["Cloud", "AWS", "DNS", "Route 53 Resolver", "C2", "Attack Discovery"],
+      "false_positives": [
+        "Developer tools using ngrok for local testing",
+        "Legitimate dynamic DNS for IoT devices"
+      ],
+      "interval": "5m",
+      "from": "now-6m",
+      "enabled": true,
+      "max_signals": 100,
+      "note": "## Investigation\n1. Check `dns.question.name` — is this a known C2 infrastructure or dynamic DNS provider?\n2. Pivot on `source.ip` to identify the host and check for other suspicious activity.\n3. Query DNS logs for beaconing patterns (regular intervals between queries).\n4. Check if `labels.dns_threat_indicator` is set — the generator flags known-suspicious domains.\n\n## ES|QL — Suspicious domain activity\n```\nFROM logs-aws.route53_resolver_logs-*\n| WHERE @timestamp > NOW() - 24h\n  AND (dns.question.name LIKE \"*duckdns.org\" OR dns.question.name LIKE \"*ngrok.io\" OR dns.question.name LIKE \"*serveo.net\")\n| STATS queries = COUNT(), unique_hosts = COUNT_DISTINCT(host.name) BY dns.question.name\n| SORT queries DESC\n| LIMIT 20\n```\n\n## Containment\n1. Block the domain in Route 53 Resolver DNS Firewall.\n2. Isolate the source host if C2 is confirmed.\n3. Check for data exfiltration via DNS TXT/CNAME records.\n\n## Runbook\nFull guide: `docs/runbooks/dns-threat-detection.md`"
+    },
+    {
+      "rule_id": "cloudloadgen-dns-firewall-block",
+      "name": "[CloudLoadGen] DNS Firewall Block Event",
+      "description": "Detects queries blocked by Route 53 Resolver DNS Firewall — indicates attempted access to a known-bad domain that was prevented by policy.",
+      "type": "query",
+      "language": "kuery",
+      "query": "event.dataset:aws.route53_resolver_logs AND rule.category:dns_firewall AND event.type:denied",
+      "index": ["logs-aws.route53_resolver_logs*"],
+      "severity": "medium",
+      "risk_score": 47,
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0011",
+            "name": "Command and Control",
+            "reference": "https://attack.mitre.org/tactics/TA0011/"
+          },
+          "technique": [
+            {
+              "id": "T1568",
+              "name": "Dynamic Resolution",
+              "reference": "https://attack.mitre.org/techniques/T1568/"
+            }
+          ]
+        }
+      ],
+      "tags": ["Cloud", "AWS", "DNS", "DNS Firewall", "Route 53 Resolver", "Attack Discovery"],
+      "false_positives": ["Overly broad DNS Firewall rules blocking legitimate domains"],
+      "interval": "5m",
+      "from": "now-6m",
+      "enabled": true,
+      "max_signals": 100,
+      "note": "## Investigation\n1. Check `dns.question.name` — what domain was blocked?\n2. Check `rule.id` (firewall rule group) and `rule.ruleset` (domain list) to understand why it was blocked.\n3. Pivot on `source.ip` / `host.name` to check for other blocked queries or suspicious activity.\n4. Correlate with GuardDuty findings on the same host.\n\n## ES|QL — DNS Firewall blocks by host\n```\nFROM logs-aws.route53_resolver_logs-*\n| WHERE @timestamp > NOW() - 24h AND rule.category == \"dns_firewall\"\n| STATS blocks = COUNT(), domains_blocked = COUNT_DISTINCT(dns.question.name) BY host.name, source.ip\n| SORT blocks DESC\n| LIMIT 20\n```\n\n## Containment\nThe DNS Firewall already blocked the query. Investigate the source host for compromise indicators.\n\n## Runbook\nFull guide: `docs/runbooks/dns-threat-detection.md`"
+    },
+    {
+      "rule_id": "cloudloadgen-dns-high-nxdomain-rate",
+      "name": "[CloudLoadGen] High NXDOMAIN Rate from Single Host",
+      "description": "Detects a single host generating an abnormally high rate of NXDOMAIN responses — strong indicator of domain generation algorithm (DGA) activity or misconfigured malware.",
+      "type": "threshold",
+      "language": "kuery",
+      "query": "event.dataset:aws.route53_resolver_logs AND dns.response_code:NXDOMAIN",
+      "index": ["logs-aws.route53_resolver_logs*"],
+      "threshold": {
+        "field": ["host.name"],
+        "value": 5
+      },
+      "severity": "high",
+      "risk_score": 73,
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0011",
+            "name": "Command and Control",
+            "reference": "https://attack.mitre.org/tactics/TA0011/"
+          },
+          "technique": [
+            {
+              "id": "T1568.002",
+              "name": "Domain Generation Algorithms",
+              "reference": "https://attack.mitre.org/techniques/T1568/002/"
+            }
+          ]
+        }
+      ],
+      "tags": ["Cloud", "AWS", "DNS", "DGA", "Route 53 Resolver", "Attack Discovery"],
+      "false_positives": [
+        "DNS health checks against non-existent domains",
+        "Misconfigured service discovery"
+      ],
+      "interval": "5m",
+      "from": "now-6m",
+      "enabled": true,
+      "max_signals": 100,
+      "note": "## Investigation\n1. This host is generating many failed DNS lookups — classic DGA pattern.\n2. Examine the queried domains — are they random-looking strings? That confirms DGA.\n3. Check the host for malware indicators via GuardDuty or endpoint alerts.\n4. Compare the NXDOMAIN rate to the host's normal baseline.\n\n## ES|QL — NXDOMAIN domains from this host\n```\nFROM logs-aws.route53_resolver_logs-*\n| WHERE @timestamp > NOW() - 1h AND dns.response_code == \"NXDOMAIN\"\n| STATS nxdomain_count = COUNT() BY host.name, dns.question.name\n| SORT nxdomain_count DESC\n| LIMIT 50\n```\n\n## Containment\n1. Isolate the host from the network.\n2. Block the DGA seed domain pattern in DNS Firewall.\n3. Scan the host for malware.\n\n## Runbook\nFull guide: `docs/runbooks/dns-threat-detection.md`"
+    },
+    {
+      "rule_id": "cloudloadgen-dns-high-unique-domains",
+      "name": "[CloudLoadGen] Unusually High Unique Domain Count from Single Host",
+      "description": "Detects a single host querying an abnormally large number of unique domains — indicator of DNS tunnelling, reconnaissance, or compromised host beaconing to rotating infrastructure.",
+      "type": "threshold",
+      "language": "kuery",
+      "query": "event.dataset:aws.route53_resolver_logs",
+      "index": ["logs-aws.route53_resolver_logs*"],
+      "threshold": {
+        "field": ["host.name"],
+        "value": 15,
+        "cardinality": [
+          {
+            "field": "dns.question.name",
+            "value": 10
+          }
+        ]
+      },
+      "severity": "medium",
+      "risk_score": 47,
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0043",
+            "name": "Reconnaissance",
+            "reference": "https://attack.mitre.org/tactics/TA0043/"
+          },
+          "technique": [
+            {
+              "id": "T1595.002",
+              "name": "Vulnerability Scanning",
+              "reference": "https://attack.mitre.org/techniques/T1595/002/"
+            }
+          ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0010",
+            "name": "Exfiltration",
+            "reference": "https://attack.mitre.org/tactics/TA0010/"
+          },
+          "technique": [
+            {
+              "id": "T1048.003",
+              "name": "Exfiltration Over Unencrypted Non-C2 Protocol",
+              "reference": "https://attack.mitre.org/techniques/T1048/003/"
+            }
+          ]
+        }
+      ],
+      "tags": ["Cloud", "AWS", "DNS", "DNS Tunnelling", "Route 53 Resolver", "Attack Discovery"],
+      "false_positives": ["Web crawlers", "Package managers resolving many registry domains"],
+      "interval": "5m",
+      "from": "now-6m",
+      "enabled": true,
+      "max_signals": 100,
+      "note": "## Investigation\n1. A single host is querying many unique domains — check if the domains follow a pattern.\n2. Random-looking subdomains of a single parent domain = DNS tunnelling.\n3. Many unrelated domains = reconnaissance or compromised host.\n4. Correlate with VPC flow logs for unusual egress traffic from the same host.\n\n## ES|QL — Domain diversity from this host\n```\nFROM logs-aws.route53_resolver_logs-*\n| WHERE @timestamp > NOW() - 1h\n| STATS domains = COUNT_DISTINCT(dns.question.name), queries = COUNT() BY host.name\n| WHERE domains > 10\n| SORT domains DESC\n| LIMIT 20\n```\n\n## Containment\n1. If DNS tunnelling is confirmed, block the parent domain.\n2. Monitor the host's network egress for data exfiltration.\n3. Check for encoded payloads in DNS TXT query responses.\n\n## Runbook\nFull guide: `docs/runbooks/dns-threat-detection.md`"
+    }
+  ]
+}

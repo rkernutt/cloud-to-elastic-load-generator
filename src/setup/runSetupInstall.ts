@@ -33,6 +33,7 @@ import {
 import {
   ALERT_ENRICHMENT_WORKFLOW_YAML,
   SECURITY_ALERT_ENRICHMENT_WORKFLOW_YAML,
+  DNS_ALERT_ENRICHMENT_WORKFLOW_YAML,
 } from "./workflowYaml";
 import {
   getAgentDef,
@@ -983,6 +984,21 @@ export async function runSetupInstall(opts: {
         addLog("  — Security workflow already exists, skipping.", "info");
       } else {
         addLog(`  ✗ Security workflow install failed: ${msg}`, "error");
+      }
+    }
+
+    addLog("Installing DNS Alert Enrichment workflow…");
+    try {
+      const dnsYaml = applyWorkflowOverrides(DNS_ALERT_ENRICHMENT_WORKFLOW_YAML, merged);
+      const dnsResult = await installWorkflow({ kibanaUrl: kb, apiKey, yaml: dnsYaml });
+      const dnsVerb = dnsResult.outcome === "created" ? "created" : "updated";
+      addLog(`  ✓ DNS workflow ${dnsVerb} (id=${dnsResult.id}, DISABLED).`, "ok");
+    } catch (e) {
+      const msg = String(e);
+      if (isHttpConflict(msg)) {
+        addLog("  — DNS workflow already exists, skipping.", "info");
+      } else {
+        addLog(`  ✗ DNS workflow install failed: ${msg}`, "error");
       }
     }
   };

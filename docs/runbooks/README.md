@@ -2,7 +2,7 @@
 
 Practical "what to do when this alert fires" guides for the alerting rules that **Cloud Loadgen for Elastic** installs. They're designed for the on-call engineer who lands on an Alert Details page and needs to triage in under five minutes.
 
-The runbooks are **cloud-agnostic** in structure and call out vendor-specific datasets/queries inline (AWS, GCP, Azure). They cover the 51 chained-scenario rules across the four chains and apply to ESS, Serverless, and self-hosted deployments. An additional **192 per-service domain rules** (compute, database, networking, AI/ML, storage, messaging, DevOps, security-ops) ship alongside the chains — **243 rules total** — each with its own investigation guide and linked dashboards. Plus **16 Elastic Security detection rules** for Attack Discovery, each with a full runbook.
+The runbooks are **cloud-agnostic** in structure and call out vendor-specific datasets/queries inline (AWS, GCP, Azure). They cover the 51 chained-scenario rules across the four chains and apply to ESS, Serverless, and self-hosted deployments. An additional **192 per-service domain rules** (compute, database, networking, AI/ML, storage, messaging, DevOps, security-ops) ship alongside the chains — **243 rules total** — each with its own investigation guide and linked dashboards. Plus **20 Elastic Security detection rules** for Attack Discovery, each with a full runbook.
 
 ## Runbooks by chain
 
@@ -22,6 +22,7 @@ These runbooks cover the **16 Elastic Security detection rules** installed via t
 | IAM Privilege Escalation | Access key creation, admin policy attach, AssumeRole, user enumeration, no-MFA, threshold                        | [security-detection-iam-privesc.md](./security-detection-iam-privesc.md) |
 | Security Findings        | GuardDuty HIGH/CRITICAL, crypto mining, Security Hub compliance, Security Lake, root account, CloudTrail disable | [security-detection-findings.md](./security-detection-findings.md)       |
 | Data Exfiltration        | GuardDuty exfiltration, S3 mass access, VPC egress, WAF blocks                                                   | [security-detection-exfil.md](./security-detection-exfil.md)             |
+| DNS Threat Detection     | Suspicious domain queries, DNS Firewall blocks, high NXDOMAIN rate, high unique domain count                     | [dns-threat-detection.md](./dns-threat-detection.md)                     |
 
 Each detection rule also embeds its investigation guide directly in the `note` field (visible in the Security → Rules → Rule details page), with ES|QL queries, containment steps, and a link back to the full runbook.
 

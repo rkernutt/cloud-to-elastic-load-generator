@@ -8,6 +8,7 @@ import {
   randPublicIp,
   randPrivateIp,
   randAccount,
+  randUUID,
   REGIONS,
   ACCOUNTS,
   USER_AGENTS,
@@ -18,7 +19,7 @@ import {
   randFqdn,
   randVpcCidr16,
 } from "../../helpers";
-import { randTargetHost } from "../../helpers/identity.js";
+import { randAttackerHost, randTargetHost } from "../../helpers/identity.js";
 import type { EcsDocument } from "./types.js";
 
 const GEO_LOCATIONS = [
@@ -1182,6 +1183,295 @@ function generateRoute53ResolverLog(ts: string, er: number): EcsDocument {
   };
 }
 
+/**
+ * generateDnsC2Chain — returns 6–8 correlated Route 53 Resolver documents
+ * modelling a DNS-based C2 attack lifecycle on a single host:
+ *
+ *   1. DGA reconnaissance  (3 NXDOMAIN lookups to random-looking domains)
+ *   2. C2 establishment    (successful resolution of a DuckDNS/ngrok domain)
+ *   3. Beaconing           (2 repeated queries to the C2 domain at regular intervals)
+ *   4. DNS Firewall block   (firewall catches and blocks the C2 domain)
+ *   5. Fallback attempt     (query to a different suspicious domain, also blocked)
+ *
+ * All events share the same host.name (from TARGET_HOSTS pool — same pool as
+ * GuardDuty, IAM PrivEsc, and Data Exfil chains) and source.ip, so Attack
+ * Discovery can correlate DNS C2 activity with privilege escalation and
+ * data exfiltration on the same compromised host.
+ */
+function generateDnsC2Chain(ts: string, _er: number): EcsDocument[] {
+  const region = rand(REGIONS);
+  const acct = randAccount();
+  const vpcId = `vpc-${randHexId(8)}`;
+  const hostName = randAttackerHost();
+  const srcIp = randPrivateIp();
+  const srcPort = randInt(32768, 61000);
+  const instanceId = `i-${randHexId(17)}`;
+  const chainId = randUUID();
+  const baseDate = new Date(ts);
+  const resolverEndpointId = `rslvr-in-${randHexId(12)}`;
+
+  const c2Domain = `c2-${randId(6).toLowerCase()}.duckdns.org`;
+  const fallbackDomain = `exfil-${randId(4).toLowerCase()}.ngrok.io`;
+  const dgaDomains = Array.from({ length: 3 }, () => `${randId(12).toLowerCase()}.xyz`);
+  const firewallRuleGroupId = `rslvr-frg-${randHexId(12)}`;
+  const firewallDomainListId = `rslvr-fdl-${randHexId(12)}`;
+
+  function makeBase(offsetMs: number) {
+    const t = new Date(baseDate.getTime() + offsetMs);
+    return {
+      "@timestamp": t.toISOString(),
+      host: { name: hostName },
+      cloud: {
+        provider: "aws" as const,
+        region,
+        account: { id: acct.id, name: acct.name },
+        service: { name: "route53resolver" },
+        instance: { id: instanceId },
+      },
+      aws: { dimensions: { VpcId: vpcId, Region: region } },
+      source: { ip: srcIp, port: srcPort + Math.floor(offsetMs / 1000) },
+      network: { transport: "udp", protocol: "dns" },
+      labels: { dns_attack_chain_id: chainId },
+    };
+  }
+
+  const docs: EcsDocument[] = [];
+
+  // Stage 1: DGA reconnaissance — 3 NXDOMAIN lookups
+  dgaDomains.forEach((domain, i) => {
+    const base = makeBase(i * 2000);
+    docs.push({
+      ...base,
+      dns: { question: { name: domain, type: "A", class: "IN" }, response_code: "NXDOMAIN" },
+      aws: {
+        ...base.aws,
+        route53_resolver: {
+          version: "1.100000",
+          account_id: acct.id,
+          region,
+          vpc_id: vpcId,
+          query_timestamp: base["@timestamp"],
+          query_name: `${domain}.`,
+          query_type: "A",
+          query_class: "IN",
+          rcode: "NXDOMAIN",
+          answers: [],
+          srcaddr: srcIp,
+          srcport: String(base.source.port),
+          transport: "UDP",
+          srcids: { instance: instanceId, resolver_endpoint: resolverEndpointId },
+        },
+      },
+      event: {
+        outcome: "failure",
+        category: ["network"],
+        type: ["protocol", "info"],
+        dataset: "aws.route53_resolver_logs",
+        provider: "route53resolver.amazonaws.com",
+        duration: randInt(5, 30) * 1e6,
+      },
+      message: `Route 53 Resolver: A ${domain} → NXDOMAIN from ${srcIp} in ${vpcId}`,
+      log: { level: "warn" },
+      labels: { ...base.labels, dns_threat_indicator: "dga_candidate" },
+    });
+  });
+
+  // Stage 2: C2 establishment — successful resolution
+  const c2Ip = `198.51.100.${randInt(1, 254)}`;
+  const c2Base = makeBase(8000);
+  docs.push({
+    ...c2Base,
+    dns: {
+      question: { name: c2Domain, type: "A", class: "IN" },
+      response_code: "NOERROR",
+      answers: [{ data: c2Ip, type: "A", class: "IN" }],
+    },
+    aws: {
+      ...c2Base.aws,
+      route53_resolver: {
+        version: "1.100000",
+        account_id: acct.id,
+        region,
+        vpc_id: vpcId,
+        query_timestamp: c2Base["@timestamp"],
+        query_name: `${c2Domain}.`,
+        query_type: "A",
+        query_class: "IN",
+        rcode: "NOERROR",
+        answers: [{ Rdata: c2Ip, Type: "A", Class: "IN" }],
+        srcaddr: srcIp,
+        srcport: String(c2Base.source.port),
+        transport: "UDP",
+        srcids: { instance: instanceId, resolver_endpoint: resolverEndpointId },
+      },
+    },
+    event: {
+      outcome: "success",
+      category: ["network"],
+      type: ["protocol", "info"],
+      dataset: "aws.route53_resolver_logs",
+      provider: "route53resolver.amazonaws.com",
+      duration: randInt(1, 10) * 1e6,
+    },
+    message: `Route 53 Resolver: A ${c2Domain} → NOERROR [${c2Ip}] from ${srcIp} in ${vpcId}`,
+    log: { level: "info" },
+    labels: { ...c2Base.labels, dns_threat_indicator: "suspicious_domain" },
+  });
+
+  // Stage 3: Beaconing — 2 repeated queries at ~60s intervals
+  [60000, 120000].forEach((offset) => {
+    const beaconBase = makeBase(8000 + offset);
+    docs.push({
+      ...beaconBase,
+      dns: {
+        question: { name: c2Domain, type: "A", class: "IN" },
+        response_code: "NOERROR",
+        answers: [{ data: c2Ip, type: "A", class: "IN" }],
+      },
+      aws: {
+        ...beaconBase.aws,
+        route53_resolver: {
+          version: "1.100000",
+          account_id: acct.id,
+          region,
+          vpc_id: vpcId,
+          query_timestamp: beaconBase["@timestamp"],
+          query_name: `${c2Domain}.`,
+          query_type: "A",
+          query_class: "IN",
+          rcode: "NOERROR",
+          answers: [{ Rdata: c2Ip, Type: "A", Class: "IN" }],
+          srcaddr: srcIp,
+          srcport: String(beaconBase.source.port),
+          transport: "UDP",
+          srcids: { instance: instanceId, resolver_endpoint: resolverEndpointId },
+        },
+      },
+      event: {
+        outcome: "success",
+        category: ["network"],
+        type: ["protocol", "info"],
+        dataset: "aws.route53_resolver_logs",
+        provider: "route53resolver.amazonaws.com",
+        duration: randInt(1, 10) * 1e6,
+      },
+      message: `Route 53 Resolver: A ${c2Domain} → NOERROR [${c2Ip}] from ${srcIp} in ${vpcId}`,
+      log: { level: "info" },
+      labels: { ...beaconBase.labels, dns_threat_indicator: "suspicious_domain" },
+    });
+  });
+
+  // Stage 4: DNS Firewall catches and blocks the C2 domain
+  const blockBase = makeBase(188000);
+  docs.push({
+    ...blockBase,
+    dns: {
+      question: { name: c2Domain, type: "A", class: "IN" },
+      response_code: "NXDOMAIN",
+    },
+    aws: {
+      ...blockBase.aws,
+      route53_resolver: {
+        version: "1.100000",
+        account_id: acct.id,
+        region,
+        vpc_id: vpcId,
+        query_timestamp: blockBase["@timestamp"],
+        query_name: `${c2Domain}.`,
+        query_type: "A",
+        query_class: "IN",
+        rcode: "NXDOMAIN",
+        answers: [],
+        srcaddr: srcIp,
+        srcport: String(blockBase.source.port),
+        transport: "UDP",
+        srcids: { instance: instanceId, resolver_endpoint: resolverEndpointId },
+        firewall_rule_group_id: firewallRuleGroupId,
+        firewall_rule_action: "BLOCK",
+        firewall_domain_list_id: firewallDomainListId,
+      },
+    },
+    rule: {
+      id: firewallRuleGroupId,
+      name: "DNS Firewall BLOCK",
+      category: "dns_firewall",
+      ruleset: firewallDomainListId,
+    },
+    event: {
+      outcome: "failure",
+      category: ["network", "intrusion_detection"],
+      type: ["denied"],
+      dataset: "aws.route53_resolver_logs",
+      provider: "route53resolver.amazonaws.com",
+      duration: randInt(1, 5) * 1e6,
+    },
+    error: {
+      code: "DNSFirewallBlock",
+      message: `DNS Firewall blocked query for ${c2Domain}`,
+      type: "dns_firewall",
+    },
+    message: `Route 53 Resolver: A ${c2Domain} → NXDOMAIN [DNS Firewall: BLOCK] from ${srcIp} in ${vpcId}`,
+    log: { level: "error" },
+    labels: { ...blockBase.labels, dns_threat_indicator: "suspicious_domain" },
+  });
+
+  // Stage 5: Fallback attempt — different suspicious domain, also blocked
+  const fallbackBase = makeBase(195000);
+  docs.push({
+    ...fallbackBase,
+    dns: {
+      question: { name: fallbackDomain, type: "A", class: "IN" },
+      response_code: "NXDOMAIN",
+    },
+    aws: {
+      ...fallbackBase.aws,
+      route53_resolver: {
+        version: "1.100000",
+        account_id: acct.id,
+        region,
+        vpc_id: vpcId,
+        query_timestamp: fallbackBase["@timestamp"],
+        query_name: `${fallbackDomain}.`,
+        query_type: "A",
+        query_class: "IN",
+        rcode: "NXDOMAIN",
+        answers: [],
+        srcaddr: srcIp,
+        srcport: String(fallbackBase.source.port),
+        transport: "UDP",
+        srcids: { instance: instanceId, resolver_endpoint: resolverEndpointId },
+        firewall_rule_group_id: firewallRuleGroupId,
+        firewall_rule_action: "BLOCK",
+        firewall_domain_list_id: firewallDomainListId,
+      },
+    },
+    rule: {
+      id: firewallRuleGroupId,
+      name: "DNS Firewall BLOCK",
+      category: "dns_firewall",
+      ruleset: firewallDomainListId,
+    },
+    event: {
+      outcome: "failure",
+      category: ["network", "intrusion_detection"],
+      type: ["denied"],
+      dataset: "aws.route53_resolver_logs",
+      provider: "route53resolver.amazonaws.com",
+      duration: randInt(1, 5) * 1e6,
+    },
+    error: {
+      code: "DNSFirewallBlock",
+      message: `DNS Firewall blocked query for ${fallbackDomain}`,
+      type: "dns_firewall",
+    },
+    message: `Route 53 Resolver: A ${fallbackDomain} → NXDOMAIN [DNS Firewall: BLOCK] from ${srcIp} in ${vpcId}`,
+    log: { level: "error" },
+    labels: { ...fallbackBase.labels, dns_threat_indicator: "suspicious_domain" },
+  });
+
+  return docs;
+}
+
 function generateNetworkFirewallLog(ts: string, er: number): EcsDocument {
   const region = rand(REGIONS);
   const acct = randAccount();
@@ -2288,6 +2578,7 @@ export {
   generateWafv2Log,
   generateRoute53Log,
   generateRoute53ResolverLog,
+  generateDnsC2Chain,
   generateNetworkFirewallLog,
   generateShieldLog,
   generateGlobalAcceleratorLog,

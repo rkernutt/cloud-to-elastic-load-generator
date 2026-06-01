@@ -278,8 +278,17 @@ curl -sS -X POST "$KIBANA_URL/api/workflows/workflow/<workflow-id>/run" \
 | `open_case` errors with `Invalid option: expected "cases"\|"observability"\|"securitySolution"` | The Cases plugin is bound to a fixed set of owners; the workflow uses `observability`          | Keep `owner: "observability"` (or set to `cases` / `securitySolution` to match your space)                                                                                                                                        |
 | Notification fires but enriched fields are blank                                                | The CMDB lookup ran but didn't match any CI                                                    | Make sure the data-pipeline chain and CMDB were shipped under the same labelling (`DATA_ENGINEERING_USERS`, `mwaa-globex-prod`, `emr-analytics-cluster`, …)                                                                       |
 
+## DNS Alert Enrichment Workflow
+
+A third workflow — [`workflows/dns-alert-enrichment.yaml`](../workflows/dns-alert-enrichment.yaml) — targets DNS-related security alerts from Route 53 Resolver logs. Unlike the data-pipeline and security workflows, the DNS workflow uses AI-powered steps (`ai.prompt`) for field extraction and threat synthesis, ES|QL queries for domain frequency analysis, and creates Security Cases with domain/IP observables for Attack Discovery correlation.
+
+The DNS workflow follows the same install and deployment pattern as the other workflows (wizard, CLI, or manual paste). It installs **disabled** and **unattached** — wire it to the four DNS detection rules in **Stack Management → Rules → Actions → Workflow** after install.
+
+Full chain reference: [chained-events/dns-c2-chain.md](./chained-events/dns-c2-chain.md). Per-rule runbook: [runbooks/dns-threat-detection.md](./runbooks/dns-threat-detection.md).
+
 ## Related
 
 - [advanced-data-types.md](./advanced-data-types.md) — overview of the chained scenarios, CSPM/KSPM, ServiceNow CMDB, and how they relate to this workflow
+- [chained-events/dns-c2-chain.md](./chained-events/dns-c2-chain.md) — DNS C2 attack chain reference
 - [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md) — installing the alerting rules + dashboards the workflow consumes
 - Elastic docs — [Workflows](https://www.elastic.co/docs/explore-analyze/workflows) · [External system steps](https://www.elastic.co/docs/explore-analyze/workflows/steps/external-systems-apps) · [Preconfigured connectors](https://www.elastic.co/docs/reference/kibana/connectors-kibana/pre-configured-connectors)

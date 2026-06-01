@@ -26,6 +26,7 @@ flowchart LR
 | **Security Finding Chain**    | `security-finding-chain` dashboard, **4** rules, ML jobs (native detect → hub/aggregate → lake/triage)                                                                     | [chained-events/security-finding-chain.md](./chained-events/security-finding-chain.md)                            |
 | **IAM Privilege Escalation**  | `iam-privesc-chain` dashboard, **4** rules, ML jobs (MITRE-aligned IAM audit progression with stable attacker/target identity)                                             | [chained-events/iam-privilege-escalation-chain.md](./chained-events/iam-privilege-escalation-chain.md)            |
 | **Data Exfiltration**         | `data-exfil-chain` dashboard, **4** rules, ML jobs (storage and network evidence with MB-scale volumes)                                                                    | [chained-events/data-exfiltration-chain.md](./chained-events/data-exfiltration-chain.md)                          |
+| **DNS C2 Chain**              | **4** detection rules, DNS alert enrichment workflow, Attack Discovery correlation (DGA → C2 resolution → beaconing → DNS Firewall block)                                  | [chained-events/dns-c2-chain.md](./chained-events/dns-c2-chain.md)                                                |
 
 Installing **all** chained-scenario rule files for one cloud gives you 17 rules (5 + 4 + 4 + 4). Beyond these, **per-service domain rules** cover compute, database, networking, AI/ML, storage, messaging, DevOps, and security-ops — **243 rules total** across all clouds (AWS 115, GCP 62, Azure 66). Use `npm run setup:alert-rules` (cross-cloud) or the web-UI Setup step.
 
@@ -100,9 +101,13 @@ This is the canonical end-to-end demo of pipeline alert → CMDB lookup → SOC 
 
 A second workflow at [`workflows/security-alert-enrichment.yaml`](../workflows/security-alert-enrichment.yaml) targets **security alerts** (IAM PrivEsc, data exfiltration, GuardDuty findings). It enriches alerts with the **originating IP address and hostname** from ServiceNow CMDB, the **attacker's source IP, user identity, and user agent**, plus open incident counts and related alert volume. Cases are created under `securitySolution` and the enriched alert is indexed to `logs-security-alert-enriched-default` for Agent Builder queries. See [SOC-DEMO-SETUP.md](./SOC-DEMO-SETUP.md) for the full AI SOC demo walkthrough.
 
+### DNS alert enrichment workflow
+
+A third workflow at [`workflows/dns-alert-enrichment.yaml`](../workflows/dns-alert-enrichment.yaml) targets **DNS-related security alerts** from Route 53 Resolver logs. It uses AI-powered field extraction, ES|QL domain frequency analysis, source IP breadth queries, related alert search, and AI threat synthesis to produce a comprehensive threat assessment. The workflow creates a Security Case with the alert attached and domain/IP observables for Attack Discovery correlation. See [chained-events/dns-c2-chain.md](./chained-events/dns-c2-chain.md) for the chain reference and [runbooks/dns-threat-detection.md](./runbooks/dns-threat-detection.md) for per-rule investigation guides.
+
 ### Elastic Security detection rules
 
-Cloud Loadgen also ships **16 Elastic Security detection rules** (`installer/security-detection-rules/`) installed via the Detection Engine API. These produce alerts in `.alerts-security.alerts-*` — required for **Attack Discovery**. The rules cover IAM privilege escalation (6), security findings (6), and data exfiltration (4), each with MITRE ATT&CK mappings, severity, and risk scores. Install with `npm run setup:security-detection-rules`.
+Cloud Loadgen also ships **20 Elastic Security detection rules** (`installer/security-detection-rules/`) installed via the Detection Engine API. These produce alerts in `.alerts-security.alerts-*` — required for **Attack Discovery**. The rules cover IAM privilege escalation (6), security findings (6), data exfiltration (4), and DNS threat detection (4), each with MITRE ATT&CK mappings, severity, and risk scores. Install with `npm run setup:security-detection-rules`.
 
 ### SOC knowledge base
 

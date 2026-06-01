@@ -277,6 +277,12 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         desc: "Attack chain: GuardDuty S3 detection → CloudTrail GetObject burst → VPC Flow high egress",
       },
       {
+        id: "dns-c2-chain",
+        label: "DNS C2 Chain",
+        icon: "◉",
+        desc: "Attack chain: DGA reconnaissance → C2 domain resolution → beaconing → DNS Firewall block",
+      },
+      {
         id: "data-pipeline-chain",
         label: "Data Pipeline",
         icon: "⛁",

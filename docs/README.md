@@ -38,6 +38,7 @@ Multi-service correlated scenarios that emit logs, metrics, APM traces (for the 
 | AWS Data & Analytics Pipeline (S3 → EMR → Glue → Athena → MWAA)                        | [chained-events/data-analytics-pipeline.md](./chained-events/data-analytics-pipeline.md)               |
 | GCP Data & Analytics Pipeline (GCS → Dataproc → Data Catalog → BigQuery → Composer)    | [chained-events/gcp-data-analytics-pipeline.md](./chained-events/gcp-data-analytics-pipeline.md)       |
 | Azure Data & Analytics Pipeline (Blob → Databricks → Purview → Synapse → Data Factory) | [chained-events/azure-data-analytics-pipeline.md](./chained-events/azure-data-analytics-pipeline.md)   |
+| DNS C2 Attack Chain (DGA recon → C2 resolution → beaconing → DNS Firewall block)       | [chained-events/dns-c2-chain.md](./chained-events/dns-c2-chain.md)                                     |
 
 ## AWS deep-dive
 
