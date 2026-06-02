@@ -4,6 +4,7 @@ import {
   randInt,
   randFloat,
   randId,
+  randHexId,
   randIp,
   azureCloud,
   makeAzureSetup,
@@ -406,7 +407,7 @@ export function generateContainerAppsLog(ts: string, er: number): EcsDocument {
       Scope: `/invoke/${rand(["checkout", "cart"])}/method/${rand(["Reserve", "Cancel"])}`,
       Status: isErr ? "ERROR" : "OK",
       mTLS: true,
-      traceParent: `00-${randId(32).toLowerCase()}-${randId(16).toLowerCase()}-01`,
+      traceParent: `00-${randHexId(32)}-${randHexId(16)}-01`,
       detail: isErr
         ? "Dapr sidecar: failed to resolve Azure Key Vault secret reference (403 from MSI)"
         : "Dapr sidecar: state save completed with etag match",
@@ -1222,7 +1223,7 @@ export function generateAcrLog(ts: string, er: number): EcsDocument {
 
   if (variant === "event") {
     const action = isErr ? rand(["Pull", "Push"]) : rand(["Push", "Pull", "Delete"]);
-    const digest = `sha256:${randId(64).toLowerCase()}`;
+    const digest = `sha256:${randHexId(64)}`;
     const props = {
       repository: `${repo}:${tag}`,
       action,
@@ -1344,7 +1345,7 @@ export function generateAcrLog(ts: string, er: number): EcsDocument {
       destinationRegion: tgt,
       synchronizationStatus: isErr ? "Failed" : "Ready",
       lastSyncLagSeconds: isErr ? randInt(600, 14400) : randInt(2, 90),
-      commitManifestDigest: `sha256:${randId(64).toLowerCase()}`,
+      commitManifestDigest: `sha256:${randHexId(64)}`,
       message: isErr
         ? "geo-replication: blob copy stalled (destination registry storage throttled)"
         : "geo-replication: manifest replicated to paired region endpoint",
@@ -4151,7 +4152,7 @@ export function generateImageBuilderLog(ts: string, er: number): EcsDocument {
   if (variant === "sysprep_specialize") {
     const props = {
       specializePass: "offlineServicing",
-      unattendXmlDigest: `sha256:${randId(64).toLowerCase()}`,
+      unattendXmlDigest: `sha256:${randHexId(64)}`,
       guestOs: rand(["Windows-Server2022-Azure", "Windows-11-multi"]),
       specializationState: isErr ? "Failed" : "Succeeded",
       lastProviderError: isErr

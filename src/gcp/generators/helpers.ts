@@ -10,6 +10,8 @@ export {
   randId,
   randIp,
   randPublicIp,
+  randPrivateIp,
+  randHexId,
   randTs,
   randUUID,
   stripNulls,

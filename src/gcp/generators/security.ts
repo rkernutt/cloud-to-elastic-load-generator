@@ -3,7 +3,8 @@ import {
   type GcpProject,
   rand,
   randInt,
-  randId,
+ randId,
+  randHexId,
   randFloat,
   randPublicIp,
   randSourceIp,
@@ -707,7 +708,7 @@ export function generateBinaryAuthorizationLog(ts: string, er: number): EcsDocum
   const pod = `checkout-${randId(5).toLowerCase()}-${randId(5).toLowerCase()}`;
   const image = rand([
     `us-docker.pkg.dev/${project.id}/apps/checkout:v${randInt(1, 9)}.${randInt(0, 20)}`,
-    `gcr.io/${project.id}/payments-api@sha256:${randId(64).toLowerCase()}`,
+    `gcr.io/${project.id}/payments-api@sha256:${randHexId(64)}`,
   ]);
   const attestor = rand(["build-attestor", "prod-security", "cosign-prod"]);
   const verdict = isErr ? "DENIED" : rand(["ALLOWED", "DENIED", "BREAK_GLASS"] as const);
@@ -1003,7 +1004,7 @@ export function generateChronicleLog(ts: string, er: number): EcsDocument {
             ? randPublicIp()
             : iocType === "DOMAIN"
               ? `evil-${randId(6)}.net`
-              : `sha256:${randId(64).toLowerCase()}`,
+              : `sha256:${randHexId(64)}`,
       },
     },
     case: { name: `CASE-${randId(6)}`, stage: alertState },

@@ -5,6 +5,8 @@ import {
   randFloat,
   randId,
   randIp,
+  randPublicIp,
+  randPrivateIp,
   gcpCloud,
   makeGcpSetup,
   randSubnet,
@@ -116,31 +118,35 @@ export function generateVpcFlowLog(ts: string, er: number): EcsDocument {
   const destPort = rand([80, 443, 3306, 5432, 6379, 8080, 22, 53, 3389]);
   const srcInst = randGceInstance();
   const destInst = randGceInstance();
-  const srcIp = randIp();
-  const destIp = randIp();
+  // VPC flow logs: ~70% internal-to-internal, ~20% internal-to-external, ~10% external-to-internal
+  const trafficPattern = Math.random();
+  const srcIp = trafficPattern < 0.9 ? randPrivateIp() : randPublicIp();
+  const destIp = trafficPattern < 0.7 ? randPrivateIp() : randPublicIp();
   const vpc = randVpcNetwork();
   const subnet = randSubnet(region, project);
   const bytesSent = randInt(64, isErr ? 512 : 1_500_000);
   const packetsSent = Math.max(1, Math.floor(bytesSent / randInt(512, 1500)));
   const latencyNs = randLatencyMs(randInt(1, 5), isErr) * 1e6;
-  const srcLoc = randGeo();
-  const destLoc = randGeo();
+  const srcIsPublic = !srcIp.startsWith("10.") && !srcIp.startsWith("192.168.") && !/^172\.(1[6-9]|2\d|3[01])\./.test(srcIp);
+  const destIsPublic = !destIp.startsWith("10.") && !destIp.startsWith("192.168.") && !/^172\.(1[6-9]|2\d|3[01])\./.test(destIp);
+  const srcLoc = srcIsPublic ? randGeo() : null;
+  const destLoc = destIsPublic ? randGeo() : null;
   const connection = {
     src_ip: srcIp,
     dest_ip: destIp,
     src_port: srcPort,
     dest_port: destPort,
     protocol: proto,
-    src_instance: instanceInConnection(project.id, region, srcInst, vpc, subnet),
-    dest_instance: instanceInConnection(project.id, region, destInst, vpc, subnet),
+    ...(srcIsPublic ? {} : { src_instance: instanceInConnection(project.id, region, srcInst, vpc, subnet) }),
+    ...(destIsPublic ? {} : { dest_instance: instanceInConnection(project.id, region, destInst, vpc, subnet) }),
   };
   const jsonPayload = {
     connection,
     reporter,
     bytes_sent: bytesSent,
     packets_sent: packetsSent,
-    src_location: srcLoc,
-    dest_location: destLoc,
+    ...(srcLoc ? { src_location: srcLoc } : {}),
+    ...(destLoc ? { dest_location: destLoc } : {}),
     start_time: ts,
     end_time: ts,
   };
@@ -173,8 +179,8 @@ export function generateVpcFlowLog(ts: string, er: number): EcsDocument {
         reporter,
         bytes_sent: bytesSent,
         packets_sent: packetsSent,
-        src_location: srcLoc,
-        dest_location: destLoc,
+        ...(srcLoc ? { src_location: srcLoc } : {}),
+        ...(destLoc ? { dest_location: destLoc } : {}),
         direction: reporter === "SRC" ? "egress" : "ingress",
         subnet,
         vpc_name: vpc,

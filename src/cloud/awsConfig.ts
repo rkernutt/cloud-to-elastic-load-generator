@@ -42,6 +42,7 @@ export const AWS_CONFIG: CloudAppConfig = {
     { id: "otel-edot-collector", label: "EDOT Collector" },
     { id: "otel-csp-edot-gateway", label: "ADOT → EDOT GW" },
     { id: "agent", label: "Elastic Agent" },
+    { id: "fluent-bit", label: "Fluent Bit" },
   ],
   traceServices: TRACE_SERVICES as TraceServiceMeta[],
   loadLogGenerators: () => import("../aws/generators").then((m) => m.GENERATORS),

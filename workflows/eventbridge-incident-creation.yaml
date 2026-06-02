@@ -1,0 +1,196 @@
+# EventBridge Alert → ServiceNow Incident Creation
+#
+# Triggers on EventBridge alerting rules (Failed Invocations, Dead Letter Events).
+# Enriches with ServiceNow CMDB context for the affected event bus / rule,
+# then creates a ServiceNow incident and logs the action.
+#
+# This workflow covers the customer pattern:
+#   EventBridge rule fires (scheduler failure, health event, DLQ overflow)
+#     → Elastic alert (CloudLoadGen rule)
+#       → this workflow
+#         → ServiceNow incident (P3 or P2 depending on severity)
+#           → on-call notification
+#
+# Installs DISABLED. Before enabling:
+#   1. Set the servicenowConnector input to your ServiceNow connector ID.
+#   2. Optionally set notifyTo for email notification.
+#   3. Attach to the EventBridge alert rules or enable as a catch-all for
+#      aws.eventbridge dataset alerts.
+#   4. Flip Enabled in Stack Management → Workflows.
+
+name: EventBridge Alert — ServiceNow Incident Creation
+description: >
+  Creates a ServiceNow incident when an EventBridge alert fires (failed
+  invocations, dead-letter queue overflow, pipe enrichment errors). Enriches
+  the incident with CMDB context for the affected event bus and rule, so the
+  operations team has full context on first look without needing access to AWS.
+enabled: false
+tags:
+  - eventbridge
+  - servicenow
+  - itsm
+  - operations
+  - aws
+
+consts:
+  eventbridgeIndex: "logs-aws.eventbridge*"
+  servicenowIndex: "logs-servicenow.event-*"
+
+inputs:
+  - name: servicenowConnector
+    type: string
+    required: true
+    default: "servicenow-connector"
+    description: "ServiceNow connector ID configured in Kibana"
+  - name: notifyTo
+    type: string
+    required: false
+    default: ""
+    description: "Optional email address for on-call notification (leave blank to skip)"
+  - name: defaultAssignmentGroup
+    type: string
+    required: false
+    default: "AWS Platform Operations"
+    description: "ServiceNow assignment group for EventBridge incidents"
+
+triggers:
+  - type: alert
+
+steps:
+  # 0. Log receipt
+  - name: log_alert_received
+    type: console
+    with:
+      message: >
+        EventBridge alert received: {{ event.alerts[0].kibana.alert.rule.name }}
+        Severity: {{ event.alerts[0].kibana.alert.severity }}
+
+  # 1. Extract key fields from the triggering alert
+  - name: extract_alert_fields
+    type: ai.prompt
+    with:
+      prompt: |
+        Extract the following fields from this Elastic alert JSON and return ONLY
+        a JSON object with these exact keys:
+          rule_name, severity, event_bus, eventbridge_rule, source_account,
+          region, failed_invocations, alert_id, alert_index
+
+        Use empty string for any field not present.
+        Alert data: {{ event.alerts | json }}
+      schema:
+        type: object
+        properties:
+          rule_name:
+            type: string
+          severity:
+            type: string
+          event_bus:
+            type: string
+          eventbridge_rule:
+            type: string
+          source_account:
+            type: string
+          region:
+            type: string
+          failed_invocations:
+            type: string
+          alert_id:
+            type: string
+          alert_index:
+            type: string
+        required:
+          - alert_id
+
+  # 2. Pull recent EventBridge failure context (last 30 min)
+  - name: get_eventbridge_context
+    type: elasticsearch.esql.query
+    with:
+      format: json
+      query: |
+        FROM {{ consts.eventbridgeIndex }}
+        | WHERE event.outcome == "failure"
+          AND @timestamp > NOW() - 30 minutes
+        | STATS
+            total_failures     = COUNT(),
+            rules_affected     = COUNT_DISTINCT(aws.eventbridge.rule),
+            dlq_deliveries     = SUM(aws.eventbridge.metrics.DeadLetterInvocations.sum),
+            max_targets_failed = MAX(aws.eventbridge.targets_failed)
+          BY aws.eventbridge.event_bus, aws.eventbridge.rule, cloud.account.id, cloud.region
+        | SORT total_failures DESC
+        | LIMIT 5
+
+  # 3. Look up the event bus / rule in ServiceNow CMDB
+  - name: lookup_cmdb_ci
+    type: elasticsearch.request
+    with:
+      method: POST
+      path: "/{{ consts.servicenowIndex }}/_search"
+      body:
+        size: 1
+        sort:
+          - "@timestamp":
+              order: "desc"
+        query:
+          bool:
+            should:
+              - match:
+                  "servicenow.event.name.value": "{{ steps.extract_alert_fields.output.eventbridge_rule }}"
+              - match:
+                  "servicenow.event.u_aws_resource.value": "{{ steps.extract_alert_fields.output.event_bus }}"
+              - match:
+                  "servicenow.event.short_description.value": "eventbridge"
+            minimum_should_match: 1
+
+  # 4. Create ServiceNow incident
+  - name: create_servicenow_incident
+    type: connector.run
+    with:
+      connector_id: "{{ inputs.servicenowConnector }}"
+      sub_action: createIncident
+      sub_action_params:
+        short_description: >
+          [AWS EventBridge] {{ steps.extract_alert_fields.output.eventbridge_rule }}
+          — failed invocations in {{ steps.extract_alert_fields.output.region }}
+        description: |
+          ## EventBridge Alert Details
+
+          **Rule:** {{ steps.extract_alert_fields.output.eventbridge_rule }}
+          **Event Bus:** {{ steps.extract_alert_fields.output.event_bus }}
+          **Account:** {{ steps.extract_alert_fields.output.source_account }}
+          **Region:** {{ steps.extract_alert_fields.output.region }}
+          **Elastic Alert:** {{ steps.extract_alert_fields.output.rule_name }}
+          **Severity:** {{ steps.extract_alert_fields.output.severity }}
+
+          ## Failure Summary (last 30 minutes)
+
+          {{ steps.get_eventbridge_context.output | json }}
+
+          ## CMDB Context
+
+          {{ steps.lookup_cmdb_ci.output | json }}
+
+          ## Investigation
+
+          1. Check the EventBridge rule targets in the AWS console — confirm the
+             Lambda / SQS / Firehose target is healthy.
+          2. Review dead-letter queue depth for the rule.
+          3. Check CloudWatch Logs for the target function if Lambda-backed.
+          4. If this is a scheduler rule, verify the schedule expression and
+             IAM role permissions.
+
+          *Created automatically by Elastic Workflow — cloudloadgen tag: eventbridge*
+        severity: "{{ steps.extract_alert_fields.output.severity == 'critical' && '1' || steps.extract_alert_fields.output.severity == 'high' && '2' || '3' }}"
+        urgency: "2"
+        impact: "2"
+        category: "Software"
+        subcategory: "Cloud Services"
+        assignment_group: "{{ inputs.defaultAssignmentGroup }}"
+
+  # 5. Log incident creation
+  - name: log_incident_created
+    type: console
+    with:
+      message: >
+        ServiceNow incident created for EventBridge rule
+        {{ steps.extract_alert_fields.output.eventbridge_rule }}.
+        Incident ID: {{ steps.create_servicenow_incident.output.id }}

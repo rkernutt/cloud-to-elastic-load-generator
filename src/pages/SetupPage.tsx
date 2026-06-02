@@ -1109,6 +1109,8 @@ export function SetupPage({
       mskconnect: "msk",
       kafka_metrics: "msk",
       kafka: "msk",
+      "amazon-msk": "msk",
+      "amazon-msk-overview": "msk",
       cloudwatch_rum: "cloudwatchrum",
       kinesisvideo: "kinesisvideo",
       ecs_metrics: "ecs",
@@ -1118,6 +1120,15 @@ export function SetupPage({
       securityhub_findings: "securityhub",
       wafv2: "waf",
       waf_logs: "waf",
+      "waf-classic": "waf",
+      "aws-waf-classic": "waf",
+      "waf-classic-overview": "waf",
+      awswafclassic: "waf",
+      // Azure Firewall dashboard title gives fragment "Firewall" which must map to "azure-firewall"
+      firewall: "azure-firewall",
+      // GCP Security Operations title has "(SecOps)" — parens stripped → "securityoperationssecops"
+      securityoperationssecops: "security-operations",
+      "security-operations": "security-operations",
       firewall_logs: "networkfirewall",
       elb_logs: "elb",
       elb: "elb",
@@ -1700,7 +1711,7 @@ export function SetupPage({
         const aliased = SERVICE_ALIASES[lower];
         return resolveCloud(aliased, cloud) ?? aliased;
       }
-      const stripped = lower.replace(/[-_\s/]+/g, "");
+      const stripped = lower.replace(/[-_\s/()+&]+/g, "");
       const cos = resolveCloud(stripped, cloud);
       if (cos) return cos;
       if (SERVICE_ALIASES[stripped]) {

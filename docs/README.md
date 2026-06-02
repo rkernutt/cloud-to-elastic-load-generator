@@ -7,6 +7,7 @@ Reference material for **Cloud Loadgen for Elastic**. Quick start, Docker, and a
 | If you want to…                                                                | Read this                                                                  |
 | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
 | Run the app locally, understand the proxy, or contribute generators            | [development.md](./development.md)                                         |
+| Understand generator fidelity rules (ID formats, geo, TLS, billing, etc.)     | [development.md#generator-fidelity](./development.md#generator-fidelity)   |
 | Understand the **Setup wizard**, the `cloudloadgen` tag, and Serverless limits | [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md)           |
 | Use chained events, CSPM/KSPM, ServiceNow, and the alert-enrichment workflow   | [advanced-data-types.md](./advanced-data-types.md)                         |
 | Install / customise the alert-enrichment workflow (Cloud, Serverless, on-prem) | [workflow-deployment.md](./workflow-deployment.md)                         |
@@ -16,7 +17,7 @@ Reference material for **Cloud Loadgen for Elastic**. Quick start, Docker, and a
 | Install Elastic assets from the CLI                                            | [../installer/README.md](../installer/README.md)                           |
 | Deploy a single pipeline / dashboard / ML job / rule by hand                   | [../assets/README.md](../assets/README.md)                                 |
 | Per-scenario timing, correlation, and failure modes                            | [chained-events/](./chained-events/)                                       |
-| Route AWS CloudWatch logs into Elastic                                         | [CLOUDWATCH-TO-INDEX-ROUTING.md](./CLOUDWATCH-TO-INDEX-ROUTING.md)         |
+| Route AWS CloudWatch logs into Elastic; Fluent Bit (FireLens/EKS); OAM cross-account | [CLOUDWATCH-TO-INDEX-ROUTING.md](./CLOUDWATCH-TO-INDEX-ROUTING.md) |
 | Set up OpenTelemetry traces                                                    | [otel-traces-setup.md](./otel-traces-setup.md)                             |
 | Customise an AWS ingest pipeline                                               | [INGEST-PIPELINE-REFERENCE.md](./INGEST-PIPELINE-REFERENCE.md)             |
 | Customise a GCP ingest pipeline                                                | [GCP-INGEST-PIPELINE-REFERENCE.md](./GCP-INGEST-PIPELINE-REFERENCE.md)     |

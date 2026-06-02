@@ -3,6 +3,7 @@ import {
   randInt,
   randFloat,
   randId,
+  randHexId,
   randAccount,
   REGIONS,
   randUUID,
@@ -584,7 +585,7 @@ function generateSqsLog(ts: string, er: number): EcsDocument {
   const acct = randAccount();
   const isErr = Math.random() < er;
   const hasTrace = Math.random() < 0.6;
-  const traceId = hasTrace ? randId(32) : null;
+  const traceId = hasTrace ? randHexId(32) : null;
   const scenario = rand([
     "dead_letter_redrive",
     "fifo_deduplication",
@@ -774,7 +775,7 @@ function generateSqsLog(ts: string, er: number): EcsDocument {
         }
       : {}),
     ...(hasTrace ? { trace: { id: traceId } } : {}),
-    ...(hasTrace ? { transaction: { id: randId(16) } } : {}),
+    ...(hasTrace ? { transaction: { id: randHexId(16) } } : {}),
   };
 }
 
@@ -1270,7 +1271,7 @@ function generateStepFunctionsLog(ts: string, er: number): EcsDocument {
   const inputPayload = JSON.stringify({
     orderId: `ord-${randId(6)}`,
     amount: randInt(10, 5000),
-    traceHeader: randId(16),
+    traceHeader: `Root=1-${Math.floor(new Date(ts).getTime() / 1000).toString(16)}-${randHexId(24)}`,
   });
   const outputPayload = entered
     ? ""

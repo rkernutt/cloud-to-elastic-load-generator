@@ -48,7 +48,7 @@ function generateCodeBuildLog(ts: string, er: number): EcsDocument {
   const phase = isErr ? phases[failIdx] : "COMPLETED";
   const buildId = `${project}:${randId(8)}-${randId(4)}`.toLowerCase();
   const queuedSec = randInt(2, 180);
-  const commit = randId(40).toLowerCase();
+  const commit = randHexId(40);
   const img = rand([
     "aws/codebuild/standard:7.0",
     "aws/codebuild/amazonlinux2-x86_64-standard:5.0",
@@ -116,13 +116,13 @@ function generateCodeBuildLog(ts: string, er: number): EcsDocument {
         lines.push(`#6 CACHED [build 4/7] RUN npm ci`);
         lines.push(`#7 [build 5/7] RUN npm run build`);
         lines.push(
-          `#7 sha256:${randId(12).toLowerCase()} ${randInt(8, 120)}MB / ${randInt(120, 400)}MB ${randFloat(0.2, 9).toFixed(1)}s`
+          `#7 sha256:${randHexId(12)} ${randInt(8, 120)}MB / ${randInt(120, 400)}MB ${randFloat(0.2, 9).toFixed(1)}s`
         );
       } else {
         lines.push(`#4 pulling layer ${randId(12).toLowerCase()}`);
         lines.push(`#5 exporting layers`);
         lines.push(
-          `#5 sha256:${randId(12).toLowerCase()} ${randInt(40, 220)}MB / ${randInt(220, 600)}MB ${randFloat(1.2, 18).toFixed(1)}s`
+          `#5 sha256:${randHexId(12)} ${randInt(40, 220)}MB / ${randInt(220, 600)}MB ${randFloat(1.2, 18).toFixed(1)}s`
         );
       }
       lines.push(`[Container] ${nextTs()} Running command npm test -- --ci --coverage`);
@@ -245,7 +245,7 @@ function generateCodePipelineLog(ts: string, er: number): EcsDocument {
   const flow = ["Source", "Build", "Deploy", "Test"] as const;
   const stage = rand([...flow, "Staging", "Approval", "Production"]);
   const executionId = randUUID();
-  const revision = randId(40).toLowerCase();
+  const revision = randHexId(40);
   const artifactBucket = `${acct.id}-codepipeline-${region}`;
   const sourceZip = `s3://${artifactBucket}/${pipeline}/source_out/${revision}.zip`;
   const buildOut = `s3://${artifactBucket}/${pipeline}/build_out/${executionId}/BuildOut`;
@@ -485,7 +485,7 @@ function generateCodeCommitLog(ts: string, er: number): EcsDocument {
         repository_arn: `arn:aws:codecommit:${region}:${acct.id}:${repo}`,
         event_type: ev,
         reference_name: branch,
-        commit_id: randId(40).toLowerCase(),
+        commit_id: randHexId(40),
         author: rand([randIamUser(), "github-actions", "codebuild", "svc-cicd-runner"]),
         files_changed: randInt(1, 50),
         lines_added: randInt(0, 500),
@@ -511,7 +511,7 @@ function generateCodeCommitLog(ts: string, er: number): EcsDocument {
       repositoryName: repo,
       repositoryArn: `arn:aws:codecommit:${region}:${acct.id}:${repo}`,
       referenceName: branch,
-      commitId: randId(40).toLowerCase(),
+      commitId: randHexId(40),
       author: rand([randIamUser(), "github-actions", "codebuild", "svc-cicd-runner"]),
       filesChanged: randInt(1, 50),
       linesAdded: randInt(0, 500),
@@ -651,7 +651,7 @@ function generateAmplifyLog(ts: string, er: number): EcsDocument {
         job_type: rand(["RELEASE", "RETRY", "MANUAL", "WEB_HOOK"]),
         build_status: buildStatus,
         duration_seconds: dur,
-        commit_id: randId(40).toLowerCase(),
+        commit_id: randHexId(40),
         commit_message: rand(["feat: add auth", "fix: payment bug", "chore: update deps"]),
         framework: rand(["React", "Next.js", "Vue", "Gatsby", "Angular"]),
         error_message: isErr ? rand(["Build script failed", "npm install error", "Timeout"]) : null,
@@ -671,7 +671,7 @@ function generateAmplifyLog(ts: string, er: number): EcsDocument {
       jobId: `${randInt(1, 1000)}`,
       buildStatus,
       durationSeconds: dur,
-      commitId: randId(40).toLowerCase(),
+      commitId: randHexId(40),
       framework: rand(["React", "Next.js", "Vue", "Gatsby", "Angular"]),
       timestamp: new Date(ts).toISOString(),
       ...(isErr
@@ -771,8 +771,8 @@ function generateXRayLog(ts: string, er: number): EcsDocument {
   const slotKey = `${tsBucket}-${randInt(0, 7)}`;
   if (!_xrayTracePool[slotKey]) {
     _xrayTracePool[slotKey] = {
-      id: `1-${Math.floor(new Date(ts).getTime() / 1000).toString(16)}-${randId(24).toLowerCase()}`,
-      rootSegmentId: randId(16).toLowerCase(),
+      id: `1-${Math.floor(new Date(ts).getTime() / 1000).toString(16)}-${randHexId(24)}`,
+      rootSegmentId: randHexId(16),
     };
     const keys = Object.keys(_xrayTracePool);
     if (keys.length > 100) delete _xrayTracePool[keys[0]];
@@ -780,7 +780,7 @@ function generateXRayLog(ts: string, er: number): EcsDocument {
   const trace = _xrayTracePool[slotKey];
   const isRoot = Math.random() < 0.2;
   const svc = rand(SERVICE_NODES);
-  const segmentId = isRoot ? trace.rootSegmentId : randId(16).toLowerCase();
+  const segmentId = isRoot ? trace.rootSegmentId : randHexId(16);
   const startTime = new Date(ts).getTime() / 1000;
   const dur = Number(randFloat(0.001, isErr ? 30 : 3));
   const endTime = startTime + dur;
@@ -1248,7 +1248,7 @@ function generateCodeCatalystLog(ts: string, er: number): EcsDocument {
           pullRequestNumber: prNumber,
           headBranch: prBranch,
           baseBranch: "main",
-          commitSha: randId(40).toLowerCase(),
+          commitSha: randHexId(40),
         }
       : {
           type: rand(["push", "schedule", "manual"]),

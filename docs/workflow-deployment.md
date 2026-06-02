@@ -278,6 +278,37 @@ curl -sS -X POST "$KIBANA_URL/api/workflows/workflow/<workflow-id>/run" \
 | `open_case` errors with `Invalid option: expected "cases"\|"observability"\|"securitySolution"` | The Cases plugin is bound to a fixed set of owners; the workflow uses `observability`          | Keep `owner: "observability"` (or set to `cases` / `securitySolution` to match your space)                                                                                                                                        |
 | Notification fires but enriched fields are blank                                                | The CMDB lookup ran but didn't match any CI                                                    | Make sure the data-pipeline chain and CMDB were shipped under the same labelling (`DATA_ENGINEERING_USERS`, `mwaa-globex-prod`, `emr-analytics-cluster`, …)                                                                       |
 
+## EventBridge → ServiceNow Incident Creation Workflow
+
+A fourth workflow — [`workflows/eventbridge-incident-creation.yaml`](../workflows/eventbridge-incident-creation.yaml) — covers the ITSM integration leg of the customer pattern:
+
+```
+EventBridge rule fires (scheduler failure, health event, DLQ overflow)
+  → Elastic alert ([CloudLoadGen] EventBridge — Failed Invocations)
+    → this workflow
+      → ServiceNow incident (P3 or P2 depending on severity)
+```
+
+**What it does:**
+
+1. Extracts the failing rule name, event bus, account, and region from the alert.
+2. Runs an ES|QL query against `logs-aws.eventbridge*` to pull failure counts and dead-letter queue deliveries for the last 30 minutes.
+3. Looks up the event bus / rule in ServiceNow CMDB (`logs-servicenow.event-*`) to find the CI owner and assignment group.
+4. Creates a ServiceNow incident via the ServiceNow connector with a structured description including the failure context and investigation steps.
+
+**Prerequisites:**
+
+- A **ServiceNow connector** configured in Kibana (Stack Management → Connectors). The default connector ID is `servicenow-connector` — override via `inputs.servicenowConnector`.
+- The **EventBridge alerting rules** installed (Setup wizard → Streaming & Messaging → EventBridge, or `npm run setup:alert-rules`).
+- The **ServiceNow CMDB generator** enabled during shipping so CMDB records are available for CI lookup.
+
+**Wire it up:**
+
+1. Attach to the two EventBridge rules — `[CloudLoadGen] EventBridge — Failed Invocations` and `[CloudLoadGen] EventBridge — Dead Letter Events` — in **Stack Management → Rules → Actions → Workflow**.
+2. Set `inputs.servicenowConnector` to your connector ID.
+3. Optionally set `inputs.defaultAssignmentGroup` to match your ServiceNow group structure.
+4. Enable the workflow in **Stack Management → Workflows**.
+
 ## DNS Alert Enrichment Workflow
 
 A third workflow — [`workflows/dns-alert-enrichment.yaml`](../workflows/dns-alert-enrichment.yaml) — targets DNS-related security alerts from Route 53 Resolver logs. Unlike the data-pipeline and security workflows, the DNS workflow uses AI-powered steps (`ai.prompt`) for field extraction and threat synthesis, ES|QL queries for domain frequency analysis, and creates Security Cases with domain/IP observables for Attack Discovery correlation.

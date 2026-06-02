@@ -7,6 +7,7 @@ export {
   randInt,
   randFloat,
   randId,
+  randHexId,
   randIp,
   randPublicIp,
   randPrivateIp,

@@ -9,6 +9,7 @@ import {
   rand,
   randInt,
   randId,
+  randHexId,
   randLatencyMs,
   randSeverity,
   randZone,
@@ -389,7 +390,7 @@ export function generateDataformLog(ts: string, er: number): EcsDocument {
   } else if (scenario === "unit_tests_ok") {
     message = `Dataform unit tests passed repo=${repoId} tests=${randInt(4, 120)} duration_sec=${randInt(8, 420)}`;
   } else {
-    message = `Repository commit pushed repo=${repoId} branch=${rand(["main", "staging"])} sha=${randId(40)}`;
+    message = `Repository commit pushed repo=${repoId} branch=${rand(["main", "staging"])} sha=${randHexId(40)}`;
   }
 
   return {

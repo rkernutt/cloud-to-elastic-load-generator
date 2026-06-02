@@ -140,6 +140,15 @@ function buildAgentMeta(source: string, eventType: string, region: string): Loos
         name: `elastic-agent-${region}`,
         id: randId(36).toLowerCase(),
       };
+    case "fluent-bit":
+      // Fluent Bit ships via its Elasticsearch output plugin (ECS FireLens or EKS DaemonSet).
+      // Version tracks the current AWS-maintained Fluent Bit image tag.
+      return {
+        type: "fluent-bit",
+        version: "3.3.4",
+        name: `fluent-bit-${region}`,
+        ephemeral_id: randId(36).toLowerCase(),
+      };
     default:
       return {
         type: "filebeat",
@@ -279,7 +288,7 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
         };
       }
 
-      if (source === "cloudwatch" || source === "api" || source === "agent") {
+      if (source === "cloudwatch" || source === "api" || source === "agent" || source === "fluent-bit") {
         const cwExtra =
           doc.aws?.cloudwatch && typeof doc.aws.cloudwatch === "object" ? doc.aws.cloudwatch : {};
         ctx.cloudwatch = {

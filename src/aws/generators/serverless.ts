@@ -9,6 +9,7 @@ import {
   randInt,
   randFloat,
   randId,
+  randHexId,
   randPublicIp,
   randIp,
   randUUID,
@@ -64,18 +65,20 @@ export function generateLambdaLog(ts: string, er: number): EcsDocument {
   const isNode = runtime.startsWith("nodejs");
   const isPython = runtime.startsWith("python");
   const dur = Number(randFloat(1, 3000));
-  const billedDur = Math.ceil(dur / 100) * 100;
+  const billedDur = Math.ceil(dur); // AWS switched to 1ms granularity in Dec 2020
   const memSize = rand([128, 256, 512, 1024, 2048, 3008]);
   const memUsed = randInt(Math.floor(memSize * 0.2), memSize);
   const invocations = randInt(1, 500);
   const errors = isErr ? randInt(1, Math.max(1, Math.floor(invocations * er))) : 0;
   const throttles = Math.random() < 0.05 ? randInt(1, 10) : 0;
-  const hasMapping = Math.random() > 0.5;
+  // EventSourceMappings only exist for SQS/Kinesis/DynamoDB Stream triggers, not HTTP/S3/scheduled
+  const esqTriggerFns = ["data-pipeline", "order-validator", "inventory-sync"];
+  const hasMapping = esqTriggerFns.includes(fn) && Math.random() > 0.3;
   const isColdStart = Math.random() < 0.05;
   const initDur = isColdStart ? Number(randFloat(50, 800)) : null;
   const logGroup = `/aws/lambda/${fn}`;
-  const logStream = `${new Date(ts).toISOString().slice(0, 10).replace(/-/g, "/")}[$LATEST]${randId(32).toLowerCase()}`;
-  const xrayTraceId = `1-${Math.floor(new Date(ts).getTime() / 1000).toString(16)}-${randId(24).toLowerCase()}`;
+  const logStream = `${new Date(ts).toISOString().slice(0, 10).replace(/-/g, "/")}[$LATEST]${randHexId(32)}`; // log stream IDs are lowercase hex
+  const xrayTraceId = `1-${Math.floor(new Date(ts).getTime() / 1000).toString(16)}-${randHexId(24)}`; // X-Ray IDs: 1-<epoch8hex>-<24hex>
   const traceId = Math.random() < 0.5 ? xrayTraceId : null;
 
   const logEventType = rand(["start", "app", "app", "app", "end", "report"]);
@@ -417,7 +420,7 @@ export function generateApiGatewayLog(ts: string, er: number): EcsDocument {
         ? rand(["Forbidden", "Unauthorized", "Not found", "Too many requests"])
         : null;
   const traceId =
-    Math.random() < 0.5 ? `1-${randId(8).toLowerCase()}-${randId(24).toLowerCase()}` : null;
+    Math.random() < 0.5 ? `1-${Math.floor(new Date(ts).getTime() / 1000).toString(16)}-${randHexId(24)}` : null;
   const apiType = rand(["REST", "HTTP", "HTTP", "WEBSOCKET"]);
   const isWebSocket = apiType === "WEBSOCKET";
   const isRest = apiType === "REST";

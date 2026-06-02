@@ -81,10 +81,10 @@ export const randTs = (start: Date, end: Date) =>
 export const PROTOCOLS: Record<number, string> = { 6: "TCP", 17: "UDP", 1: "ICMP" };
 export const HTTP_METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH"] as const;
 export const HTTP_PATHS = [
+  // API endpoints
   "/api/v1/users",
   "/api/v1/orders",
   "/api/v1/products",
-  "/api/v1/health",
   "/api/v2/search",
   "/api/v2/analytics",
   "/api/v2/events",
@@ -97,6 +97,26 @@ export const HTTP_PATHS = [
   "/internal/metrics",
   "/internal/status",
   "/.well-known/openid-configuration",
+  // Static assets (common in ALB/CloudFront traffic)
+  "/static/js/main.chunk.js",
+  "/static/css/app.css",
+  "/favicon.ico",
+  "/robots.txt",
+  "/sitemap.xml",
+  "/images/logo.png",
+  // Health checks (ELB, Route53, uptime monitors)
+  "/health",
+  "/healthz",
+  "/ping",
+  "/_status",
+  "/ready",
+  // Common scanner / opportunistic probe paths (realistic noise in WAF/ALB logs)
+  "/.env",
+  "/wp-login.php",
+  "/wp-admin/",
+  "/admin",
+  "/phpinfo.php",
+  "/.git/config",
 ] as const;
 export const USER_AGENTS = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
@@ -131,6 +151,13 @@ export const ACCOUNTS: AwsAccount[] = [
   { id: "738291046572", name: "globex-development" },
   { id: "501938274650", name: "globex-security-tooling" },
   { id: "164820739518", name: "globex-shared-services" },
+  { id: "472918364052", name: "globex-data-platform" },
+  { id: "631827495103", name: "globex-networking" },
+  { id: "957483012647", name: "globex-sandbox" },
+  { id: "283746150928", name: "globex-log-archive" },
+  { id: "746392018574", name: "globex-identity" },
+  { id: "391827465039", name: "globex-payments-prod" },
+  { id: "528174630291", name: "globex-ml-platform" },
 ];
 export const randAccount = () => rand(ACCOUNTS);
 

@@ -241,7 +241,7 @@ function generateEcsLog(ts: string, er: number): EcsDocument {
       "Retry 2/3",
       "Connection pool exhausted",
       `ecs-agent: [WARN] TaskEngine: pull image slow for container [${svc}] duration=45s`,
-      `containerd: unpacking layer sha256:${randId(40).toLowerCase()} (application/vnd.docker.image.rootfs.diff.tar.gzip)`,
+      `containerd: unpacking layer sha256:${randHexId(40)} (application/vnd.docker.image.rootfs.diff.tar.gzip)`,
     ],
     info: [
       "Task started",
@@ -877,7 +877,7 @@ function generateEcrLog(ts: string, er: number): EcsDocument {
   const sevHigh = isErr ? randInt(0, Math.min(sevRem, 10)) : 0;
   sevRem -= sevHigh;
   const sevMedium = isErr ? sevRem : 0;
-  const digest = `sha256:${randId(40).toLowerCase()}`;
+  const digest = `sha256:${randHexId(40)}`;
   const otherRegions = REGIONS.filter((r) => r !== region);
   const destRegion = rand(otherRegions.length ? otherRegions : REGIONS);
   const replicationDestination = `${acct.id}.dkr.ecr.${destRegion}.amazonaws.com/${repo}`;

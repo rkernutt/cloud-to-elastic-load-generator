@@ -4,7 +4,7 @@
  */
 
 export { REGIONS, ACCOUNTS, rand, randInt, randFloat, randId, randHexId } from "../../../helpers";
-import { rand, randId } from "../../../helpers";
+import { rand, randUUID } from "../../../helpers";
 
 /**
  * Build a single CloudWatch metric document.
@@ -46,7 +46,7 @@ export function metricDoc(
       type: "metricbeat",
       version: "8.18.0",
       name: `metricbeat-aws-${region}`,
-      ephemeral_id: randId(36).toLowerCase(),
+      ephemeral_id: randUUID(),
     },
     aws: {
       [service]: {

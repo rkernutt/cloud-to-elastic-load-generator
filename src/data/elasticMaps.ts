@@ -168,6 +168,9 @@ const GENERIC_DATASET_BY_SOURCE: Record<string, string> = {
   otel: "aws.cloudwatch_logs",
   "otel-edot-collector": "aws.cloudwatch_logs",
   "otel-csp-edot-gateway": "aws.cloudwatch_logs",
+  // Fluent Bit (ECS FireLens / EKS DaemonSet) ships container stdout/stderr directly
+  // to Elasticsearch. Documents carry the same log content as the CloudWatch path.
+  "fluent-bit": "aws.cloudwatch_logs",
 };
 
 /**

@@ -38,6 +38,8 @@ const SERVICE_INGESTION_DEFAULTS = {
   apigateway: "cloudwatch",
   rds: "cloudwatch",
   aurora: "cloudwatch",
+  // ECS/EKS/Fargate: default CloudWatch but Fluent Bit (FireLens/DaemonSet) is a
+  // common alternative — selectable via the ingestion override on the Start page.
   ecs: "cloudwatch",
   fargate: "cloudwatch",
   ec2: "cloudwatch",
@@ -248,6 +250,11 @@ const INGESTION_META = {
     inputType: "opentelemetry",
   },
   agent: { label: "Elastic Agent", color: "#8144CC", inputType: "logfile" },
+  // Fluent Bit (ECS FireLens or EKS DaemonSet) shipping directly to Elasticsearch
+  // via the Elasticsearch output plugin. Appears as input.type "logfile" on the
+  // Elastic side — same as Agent — but agent.type is "fluent-bit" to distinguish
+  // the collection path in dashboards and ML jobs.
+  "fluent-bit": { label: "Fluent Bit", color: "#49DDAF", inputType: "logfile" },
 };
 
 export { SERVICE_INGESTION_DEFAULTS, INGESTION_META };

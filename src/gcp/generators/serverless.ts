@@ -7,7 +7,8 @@ import {
   rand,
   randInt,
   randFloat,
-  randId,
+ randId,
+  randHexId,
   randIp,
   randUUID,
   HTTP_METHODS,
@@ -976,7 +977,7 @@ export function generateCloudRunJobsLog(ts: string, er: number): EcsDocument {
     message = textPayload;
     severity = isErr ? "ERROR" : "INFO";
   } else if (style === "startup") {
-    textPayload = `Pulling image ${containerImage}: resolved digest sha256:${randId(64).toLowerCase()} in ${randInt(800, 6000)}ms`;
+    textPayload = `Pulling image ${containerImage}: resolved digest sha256:${randHexId(64)} in ${randInt(800, 6000)}ms`;
     message = textPayload;
     severity = "INFO";
   } else {

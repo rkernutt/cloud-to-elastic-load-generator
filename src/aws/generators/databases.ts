@@ -17,7 +17,7 @@ function generateDynamoDbLog(ts: string, er: number): EcsDocument {
   const acct = randAccount();
   const isErr = Math.random() < er;
   const hasTrace = Math.random() < 0.4;
-  const traceId = hasTrace ? randId(32) : null;
+  const traceId = hasTrace ? randHexId(32) : null;
   const tables = ["users", "sessions", "products", "orders", "events", "cache"];
   const table = rand(tables);
   const scenario = rand([
@@ -234,7 +234,7 @@ function generateDynamoDbLog(ts: string, er: number): EcsDocument {
         }
       : {}),
     ...(hasTrace ? { trace: { id: traceId } } : {}),
-    ...(hasTrace ? { transaction: { id: randId(16) } } : {}),
+    ...(hasTrace ? { transaction: { id: randHexId(16) } } : {}),
   };
 }
 
@@ -1671,7 +1671,7 @@ function generateRdsLog(ts: string, er: number): EcsDocument {
   const acct = randAccount();
   const isErr = Math.random() < er;
   const hasTrace = Math.random() < 0.35;
-  const traceId = hasTrace ? randId(32) : null;
+  const traceId = hasTrace ? randHexId(32) : null;
   const qt = Number(randFloat(0.001, isErr ? 30 : 2));
   const dbUser = rand(["appuser", "readonly", "admin", "replica", "dba", "migration_user"]);
   const instanceId = `prod-db-${rand(["primary", "replica", "analytics", "reporting"])}`;
@@ -1934,7 +1934,7 @@ function generateRdsLog(ts: string, er: number): EcsDocument {
       ? { error: { code: rand(rdsErrCodes), message: message.split("\n")[0], type: "db" } }
       : {}),
     ...(hasTrace ? { trace: { id: traceId } } : {}),
-    ...(hasTrace ? { transaction: { id: randId(16) } } : {}),
+    ...(hasTrace ? { transaction: { id: randHexId(16) } } : {}),
   };
 }
 

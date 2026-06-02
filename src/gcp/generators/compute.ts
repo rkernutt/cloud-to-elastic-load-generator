@@ -8,6 +8,7 @@ import {
   randInt,
   randFloat,
   randId,
+  randHexId,
   gcpCloud,
   makeGcpSetup,
   randZone,
@@ -213,7 +214,7 @@ export function generateComputeEngineLog(ts: string, er: number): EcsDocument {
             "deadline exceeded",
             "out of file descriptors",
           ]),
-          traceId: randId(16),
+          traceId: randHexId(16),
         })
       : JSON.stringify({
           severity: "INFO",

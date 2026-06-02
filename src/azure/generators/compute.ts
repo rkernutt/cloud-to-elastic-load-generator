@@ -4,6 +4,7 @@ import {
   randInt,
   randFloat,
   randId,
+  randHexId,
   azureCloud,
   makeAzureSetup,
   randUUID,
@@ -654,7 +655,7 @@ export function generateAksLog(ts: string, er: number): EcsDocument {
       Namespace: ns,
       LogEntry: logLine,
       Stream: stream,
-      ContainerID: `docker://${randId(64)}`,
+      ContainerID: `docker://${randHexId(64)}`,
       Image: rand([
         "mcr.microsoft.com/oss/nginx/nginx:1.25",
         `ghcr.io/meridiantech/api:${rand(["1.4.2", "2.0.0-rc1"])}`,

@@ -173,7 +173,7 @@ function generateAlbLog(ts: string, er: number): EcsDocument {
   const receivedBytes = randInt(200, 8000);
   const sentBytes = randInt(500, 50000);
   const ua = rand(USER_AGENTS);
-  const traceId = `Root=1-${randId(8)}-${randId(24)}`;
+  const traceId = `Root=1-${Math.floor(new Date(ts).getTime() / 1000).toString(16)}-${randHexId(24)}`;
   const matchedRulePriority = String(rand([1, 2, 3, 4, 5, 10, "default"]));
   const targetDown = is5xx && Math.random() < 0.25;
   const targetField = targetDown ? "-" : `${backendIp}:${backendPort}`;
@@ -219,7 +219,7 @@ function generateAlbLog(ts: string, er: number): EcsDocument {
     String(sentBytes),
     q(requestLine),
     q(ua),
-    "ECDHE-RSA-AES128-GCM-SHA256",
+    "TLS_AES_128_GCM_SHA256",
     "TLSv1.3",
     tgArn,
     q(traceId),
@@ -262,7 +262,7 @@ function generateAlbLog(ts: string, er: number): EcsDocument {
         "backend.port": String(backendPort),
         "backend.http.response.status_code": status,
         ssl_protocol: "TLSv1.3",
-        ssl_cipher: "ECDHE-RSA-AES128-GCM-SHA256",
+        ssl_cipher: "TLS_AES_128_GCM_SHA256",
         tls_named_group: "x25519",
         "chosen_cert.arn": certArn,
         trace_id: traceId,
@@ -376,7 +376,7 @@ function generateNlbLog(ts: string, er: number): EcsDocument {
         listener: `arn:aws:elasticloadbalancing:${region}:${acct.id}:listener/net/prod-nlb/${randId(16).toLowerCase()}/${randId(16).toLowerCase()}`,
         protocol: proto,
         "connection_time.ms": connDuration,
-        ssl_cipher: proto === "TLS" ? "ECDHE-RSA-AES128-GCM-SHA256" : undefined,
+        ssl_cipher: proto === "TLS" ? "TLS_AES_128_GCM_SHA256" : undefined,
         ssl_protocol: proto === "TLS" ? "TLSv1.3" : undefined,
         "backend.ip": targetIp,
         "backend.port": String(port),
@@ -439,7 +439,7 @@ function generateCloudFrontLog(ts: string, er: number): EcsDocument {
     "/fonts/inter.woff2",
   ];
   const path = rand(paths);
-  const distId = `E${randId(13)}`;
+  const distId = `E${randId(13).toUpperCase()}`; // CloudFront distribution IDs are uppercase
   const timeTaken = Number(randFloat(0.001, isErr ? 5 : 0.5));
   const bytes = randInt(500, 500000);
   const clientIp = randPublicIp();
@@ -589,8 +589,7 @@ function generateWafLog(ts: string, er: number): EcsDocument {
   ];
   const rule = rand(rules);
   const webAclName = rand(["prod-waf", "api-waf", "admin-waf"]);
-  const webaclId =
-    `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase();
+  const webaclId = randUUID();
   const uri = rand(HTTP_PATHS);
   const method = rand(HTTP_METHODS);
   const clientIp = randPublicIp();
@@ -672,7 +671,7 @@ function generateWafLog(ts: string, er: number): EcsDocument {
     aws: {
       dimensions: { WebACL: webAclName, Rule: rule, Region: region },
       waf: {
-        id: randId(36).toLowerCase(),
+        id: randUUID(),
         arn: `arn:aws:wafv2:${region}:${acct.id}:regional/webacl/${webAclName}/${webaclId}`,
         format_version: "1",
         source: { name: "ALB", id: lbId },
@@ -766,8 +765,7 @@ function generateWafv2Log(ts: string, er: number) {
   const acct = randAccount();
   const isErr = Math.random() < er;
   const webAcl = rand(["prod-api-acl", "cdn-waf", "admin-portal-waf", "regional-waf"]);
-  const webaclId =
-    `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase();
+  const webaclId = randUUID();
   const action = isErr ? rand(["BLOCK", "CAPTCHA", "COUNT"]) : rand(["ALLOW", "ALLOW", "BLOCK"]);
   const ruleGroup = rand([
     "AWSManagedRulesCommonRuleSet",
@@ -872,7 +870,7 @@ function generateWafv2Log(ts: string, er: number) {
     aws: {
       dimensions: { WebACL: webAcl, Rule: terminatingRuleId, Region: region },
       waf: {
-        id: randId(36).toLowerCase(),
+        id: randUUID(),
         arn: `arn:aws:wafv2:${region}:${acct.id}:regional/webacl/${webAcl}/${webaclId}`,
         format_version: "1",
         source: {
@@ -2054,16 +2052,19 @@ function generateVpcFlowLog(ts: string, er: number): EcsDocument {
       : action === "REJECT" && picked.dstPort <= 1024
         ? rand([randInt(1, 1023), randInt(40000, 65535)])
         : randInt(1024, 65535);
-  const srcGeo = rand(GEO_LOCATIONS);
-  const dstGeo = rand(GEO_LOCATIONS);
+  // Geo data only applies to public IPs; private/RFC1918 addresses have no geo
+  const dstIsPublic = !dst.startsWith("10.") && !dst.startsWith("192.168.") && !/^172\.(1[6-9]|2\d|3[01])\./.test(dst);
+  const dstGeo = dstIsPublic ? rand(GEO_LOCATIONS) : null;
   const vpcId = `vpc-${randHexId(8)}`;
   const eni = `eni-${randHexId(8)}`;
   const subnetId = `subnet-${randHexId(8)}`;
+  const instanceId = Math.random() > 0.3 ? `i-${randHexId(17)}` : undefined;
   const tsEpoch = Math.floor(new Date(ts).getTime() / 1000);
   const endEpoch = tsEpoch + randInt(1, 60);
   return {
     "@timestamp": ts,
-    host: { name: randTargetHost() },
+    // host.name reflects the ENI's instance when known, matched to region
+    host: { name: instanceId ? `i-${instanceId.slice(2)}.${region}.compute.internal` : `eni-${eni.slice(4)}.${region}.compute.internal` },
     cloud: {
       provider: "aws",
       region,
@@ -2087,7 +2088,7 @@ function generateVpcFlowLog(ts: string, er: number): EcsDocument {
         end: endEpoch,
         action,
         log_status: "OK",
-        instance_id: Math.random() > 0.3 ? `i-${randHexId(17)}` : undefined,
+        instance_id: instanceId,
         pkt_srcaddr: src,
         pkt_dstaddr: dst,
         vpc_id: vpcId,
@@ -2095,25 +2096,24 @@ function generateVpcFlowLog(ts: string, er: number): EcsDocument {
         type: "IPv4",
       },
     },
+    // src is always a private IP in this generator (traffic originates from VPC ENI)
     source: {
       ip: src,
       port: srcPort,
-      geo: {
-        country_iso_code: srcGeo.country_iso_code,
-        country_name: srcGeo.country_name,
-        city_name: srcGeo.city_name,
-        location: srcGeo.location,
-      },
     },
     destination: {
       ip: dst,
       port: dstPort,
-      geo: {
-        country_iso_code: dstGeo.country_iso_code,
-        country_name: dstGeo.country_name,
-        city_name: dstGeo.city_name,
-        location: dstGeo.location,
-      },
+      ...(dstGeo
+        ? {
+            geo: {
+              country_iso_code: dstGeo.country_iso_code,
+              country_name: dstGeo.country_name,
+              city_name: dstGeo.city_name,
+              location: dstGeo.location,
+            },
+          }
+        : {}),
     },
     network: {
       transport: PROTOCOLS[protoNum]?.toLowerCase() || "tcp",

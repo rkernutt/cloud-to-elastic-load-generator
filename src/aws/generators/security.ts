@@ -134,7 +134,20 @@ function generateGuardDutyLog(ts: string, er: number): EcsDocument {
     : ["Recon", "PrivilegeEscalation", "InitialAccess", "Persistence"].includes(threatPurpose)
       ? "intrusion_detection"
       : "threat";
-  const actionType = rand(["NETWORK_CONNECTION", "PORT_PROBE", "DNS_REQUEST", "AWS_API_CALL"]);
+  // Action type and resource type must be correlated with the finding namespace
+  const isEc2Finding = ft.includes(":EC2/");
+  const isIamFinding = ft.includes(":IAMUser/") || ft.includes(":IAM/");
+  const isS3Finding = ft.includes(":S3/");
+  // DNS-named findings always produce a DNS_REQUEST action; SSH/RDP brute force → NETWORK_CONNECTION
+  const actionType: string = isDnsFinding
+    ? "DNS_REQUEST"
+    : ft.includes("BruteForce") || ft.includes("PortScan") || ft.includes("PortProbe")
+      ? rand(["NETWORK_CONNECTION", "PORT_PROBE"])
+      : ft.includes("MaliciousIP") || isNetworkFinding
+        ? "NETWORK_CONNECTION"
+        : isIamFinding
+          ? "AWS_API_CALL"
+          : rand(["NETWORK_CONNECTION", "AWS_API_CALL"]);
   const eventFirstSeen = new Date(new Date(ts).getTime() - randInt(1, 7200) * 1000).toISOString();
   const eventLastSeen = ts;
   const title =
@@ -146,7 +159,14 @@ function generateGuardDutyLog(ts: string, er: number): EcsDocument {
   const description = isFinding
     ? `GuardDuty identified suspicious behavior or a possible compromise based on VPC flow logs, DNS logs, or CloudTrail events. Finding type: ${ft}.`
     : "GuardDuty processed telemetry and did not raise a finding for this sample.";
-  const resourceType = rand(["Instance", "AccessKey", "S3Bucket", "EKSCluster"]);
+  // Resource type must match finding namespace: EC2 findings → Instance, IAMUser → AccessKey, S3 → S3Bucket
+  const resourceType: string = isEc2Finding
+    ? "Instance"
+    : isIamFinding
+      ? "AccessKey"
+      : isS3Finding
+        ? "S3Bucket"
+        : rand(["Instance", "EKSCluster"]);
   const resourceObj =
     resourceType === "Instance"
       ? {
@@ -2218,14 +2238,21 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
       mfaAuthenticated: String(Math.random() < 0.3),
     },
   };
+  const needsSessionContext = identityType === "AssumedRole" || identityType === "WebIdentityUser";
   const userIdentity = {
     type: identityType,
     principalId,
-    arn: userArn,
+    arn: identityType === "Root"
+      ? `arn:aws:iam::${acct.id}:root`
+      : identityType === "AssumedRole"
+        ? `arn:aws:sts::${acct.id}:assumed-role/execution-role/${user}-session`
+        : identityType === "AWSService"
+          ? `arn:aws:iam::${acct.id}:role/aws-service-role/lambda.amazonaws.com/AWSServiceRoleForLambda`
+          : userArn,
     accountId: acct.id,
-    accessKeyId,
-    userName: user,
-    sessionContext,
+    ...(identityType !== "Root" && identityType !== "AWSService" ? { accessKeyId } : {}),
+    ...(identityType === "IAMUser" ? { userName: user } : {}),
+    ...(needsSessionContext ? { sessionContext } : {}),
   };
 
   // Resources affected by the event
@@ -2308,12 +2335,25 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
         ? { location: `/${reqParamsBucket}` }
         : null;
 
+  const errorMessageForCode = (code: string | undefined): string => {
+    if (!code) return "An unspecified error occurred";
+    if (code === "AccessDenied" || code === "UnauthorizedOperation" || code === "AccessDeniedException")
+      return `User: ${userArn} is not authorized to perform: ${ev.svc.split(".")[0]}:${eventName}`;
+    if (code === "Throttling") return `Rate exceeded for ${eventName}. Request throttled.`;
+    if (code === "InvalidClientTokenId") return "The security token included in the request is invalid.";
+    if (code === "RequestExpired") return "The request signature was expired. Check your system clock.";
+    if (code === "ServiceUnavailable") return "The service is currently unavailable. Please try again.";
+    if (code === "EntityAlreadyExistsException") return "The resource you requested already exists.";
+    if (code === "NoSuchEntityException" || code === "LimitExceededException")
+      return `The ${eventName.replace(/[A-Z]/g, c => " " + c).trim()} operation failed: resource limit reached or entity not found.`;
+    return `An error occurred (${code}) when calling the ${eventName} operation.`;
+  };
+
   const eventTime = new Date(ts).toISOString().replace(/\.\d{3}Z$/, "Z");
   const eventId = randUUID();
 
   return {
     "@timestamp": ts,
-    host: { name: randAttackerHost() },
     cloud: {
       provider: "aws",
       region,
@@ -2340,12 +2380,11 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
         readOnly,
         eventCategory: "Management",
         managementEvent: true,
-        apiVersion: "2012-10-17",
         ...(resources ? { resources } : {}),
         ...(isErr
           ? {
               errorCode,
-              errorMessage: "User is not authorized to perform this operation",
+              errorMessage: errorMessageForCode(errorCode),
             }
           : {}),
         ...(eventName === "ConsoleLogin"
@@ -2362,10 +2401,18 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
     user: { name: user },
     source: {
       ip: sourceIPAddress,
-      geo: {
-        country_iso_code: rand(["US", "GB", "DE", "FR", "JP", "AU", "CA", "IN"]),
-        city_name: rand(["Ashburn", "London", "Frankfurt", "Tokyo", "Sydney", "Toronto"]),
-      },
+      geo: rand([
+        { country_iso_code: "US", country_name: "United States", city_name: "Ashburn", location: { lat: 39.0438, lon: -77.4874 } },
+        { country_iso_code: "US", country_name: "United States", city_name: "Seattle", location: { lat: 47.6062, lon: -122.3321 } },
+        { country_iso_code: "GB", country_name: "United Kingdom", city_name: "London", location: { lat: 51.5074, lon: -0.1278 } },
+        { country_iso_code: "DE", country_name: "Germany", city_name: "Frankfurt", location: { lat: 50.1109, lon: 8.6821 } },
+        { country_iso_code: "JP", country_name: "Japan", city_name: "Tokyo", location: { lat: 35.6762, lon: 139.6503 } },
+        { country_iso_code: "AU", country_name: "Australia", city_name: "Sydney", location: { lat: -33.8688, lon: 151.2093 } },
+        { country_iso_code: "CA", country_name: "Canada", city_name: "Toronto", location: { lat: 43.6532, lon: -79.3832 } },
+        { country_iso_code: "IN", country_name: "India", city_name: "Mumbai", location: { lat: 19.076, lon: 72.8777 } },
+        { country_iso_code: "SG", country_name: "Singapore", city_name: "Singapore", location: { lat: 1.3521, lon: 103.8198 } },
+        { country_iso_code: "FR", country_name: "France", city_name: "Paris", location: { lat: 48.8566, lon: 2.3522 } },
+      ]),
     },
     user_agent: { original: userAgent },
     event: {
@@ -2393,7 +2440,7 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
       recipientAccountId: acct.id,
       readOnly,
       ...(isErr
-        ? { errorCode, errorMessage: "User is not authorized to perform this operation" }
+        ? { errorCode, errorMessage: errorMessageForCode(errorCode) }
         : {}),
     }),
     log: { level: isErr ? "warn" : "info" },
@@ -2401,7 +2448,7 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
       ? {
           error: {
             code: errorCode,
-            message: "User is not authorized to perform this operation",
+            message: errorMessageForCode(errorCode),
             type: "access",
           },
         }

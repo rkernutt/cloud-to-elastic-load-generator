@@ -93,3 +93,93 @@ Use these (or your actual log group names) in the routing logic so that Glue →
 ---
 
 **Full setup:** For a step-by-step guide that covers AWS (Glue/SageMaker logging, IAM) and Elastic (default CloudWatch or Custom Logs integration, ingest pipelines), see **[GUIDE-CLOUDWATCH-GLUE-SAGEMAKER-ELASTIC.md](GUIDE-CLOUDWATCH-GLUE-SAGEMAKER-ELASTIC.md)**.
+
+---
+
+## Option 4: Fluent Bit — ECS FireLens or EKS DaemonSet
+
+[AWS FireLens](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_firelens.html) (ECS) and a Fluent Bit DaemonSet (EKS) are common alternatives to the CloudWatch Logs agent when the destination is Elasticsearch directly, without an intermediate CloudWatch log group.
+
+### How it routes
+
+Fluent Bit's **Elasticsearch** output plugin sets `_index` (and optionally `_type`) on each document at ship time — equivalent to Option 3 but without a Lambda in the middle:
+
+```ini
+[OUTPUT]
+    Name            es
+    Match           *
+    Host            <elasticsearch-host>
+    Port            443
+    TLS             On
+    HTTP_User       elastic
+    HTTP_Passwd     <api-key>
+    Index           logs-aws.ecs
+    # Per-service routing via tag matching:
+    # Match  ecs.fargate.*  → logs-aws.fargate
+    # Match  eks.*          → logs-aws.eks
+    # Match  lambda.*       → logs-aws.lambda
+    Suppress_Type_Name On
+    Replace_Dots    On
+```
+
+Set `data_stream.dataset` on each document to match the load generator's `event.dataset` value:
+
+| Container platform | Recommended index | `data_stream.dataset` |
+|---|---|---|
+| ECS (standard tasks) | `logs-aws.ecs` | `aws.ecs` |
+| ECS Fargate | `logs-aws.fargate` | `aws.fargate` |
+| EKS pods | `logs-aws.eks` | `aws.eks` |
+| Lambda (Fluent Bit layer) | `logs-aws.lambda_logs` | `aws.lambda_logs` |
+
+### Simulating Fluent Bit in the load generator
+
+Select **Fluent Bit** as the ingestion source override on the Start page. The generator will set:
+
+- `agent.type: "fluent-bit"` (version `3.3.4` — the current AWS-maintained image)
+- `input.type: "logfile"`
+- `aws.cloudwatch.log_group` — preserved from the service's CloudWatch log group template (FireLens passes this through the log record metadata)
+
+This produces documents that land in the same data streams as real Fluent Bit output, so the same dashboards, ML jobs, and detection rules apply.
+
+---
+
+## Cross-account aggregation with AWS OAM
+
+[AWS Observability Access Manager (OAM)](https://docs.aws.amazon.com/OAM/latest/APIReference/Welcome.html) lets **source accounts** share CloudWatch metrics, logs, and X-Ray traces with a central **monitoring account** without replicating data to S3 first. The Elastic Agent in the central monitoring account can then poll all linked accounts' CloudWatch log groups and metrics APIs from a single integration.
+
+### How it maps to this project
+
+The load generator ships documents with `cloud.account.id` drawn from a 12-account pool that mirrors a typical AWS Organization:
+
+| Account name | Purpose | OAM role |
+|---|---|---|
+| `globex-production` | Production workloads | Source |
+| `globex-staging` | Pre-prod | Source |
+| `globex-development` | Dev/test | Source |
+| `globex-security-tooling` | GuardDuty, Security Hub aggregation | Monitoring |
+| `globex-shared-services` | Transit Gateway, DNS, DirectConnect | Source |
+| `globex-log-archive` | Centralised S3 log archive | Monitoring |
+| `globex-networking` | VPC, NAT, TGW | Source |
+| `globex-identity` | IAM Identity Center, SSO | Source |
+| `globex-payments-prod` | Payments (isolated for PCI) | Source |
+| `globex-data-platform` | EMR, Glue, Athena | Source |
+| `globex-ml-platform` | SageMaker, Bedrock | Source |
+| `globex-sandbox` | Experimentation | Source |
+
+When using OAM in a real environment:
+1. Deploy the Elastic Agent into `globex-security-tooling` (or `globex-log-archive`).
+2. Create an OAM sink in the monitoring account; attach source policies to the source accounts.
+3. Configure one AWS integration in Fleet pointing at the monitoring account — it will see all source accounts' CloudWatch log groups and CloudWatch metrics.
+4. The `cloud.account.id` field in Elastic will reflect each source account, matching the load generator's multi-account document pool exactly.
+
+### NIS2 / DORA retention mapping with OAM + S3
+
+OAM does not move logs to S3 — it shares them in-place. For compliance retention:
+
+| Tier | AWS path | Elastic path |
+|---|---|---|
+| Standard (3 months) | CloudWatch retention policy | Hot / warm ILM tier |
+| NIS2 (18 months) | S3 lifecycle → Standard-IA | Cold ILM tier (searchable snapshots) |
+| DORA (5 years) | S3 Glacier / Deep Archive | Frozen ILM tier (searchable snapshots) |
+
+The Elastic data stream ILM policies installed by the load generator use a 30-day hot phase. Extend the cold/frozen phases and attach a snapshot repository backed by the customer's S3 Glacier bucket to cover NIS2 and DORA without changing the ingestion path.
