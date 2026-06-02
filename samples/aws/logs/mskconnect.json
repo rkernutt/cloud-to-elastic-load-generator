@@ -1,51 +1,51 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "us-west-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "mskconnect" }
   },
   "aws": {
-    "dimensions": { "ConnectorName": "debezium-postgres-source" },
+    "dimensions": { "ConnectorName": "s3-sink-connector" },
     "mskconnect": {
-      "connector_name": "debezium-postgres-source",
-      "connector_arn": "arn:aws:kafkaconnect:ap-northeast-3:738291046572:connector/debezium-postgres-source/jcrnv91h",
+      "connector_name": "s3-sink-connector",
+      "connector_arn": "arn:aws:kafkaconnect:us-west-2:814726593401:connector/s3-sink-connector/fpnnwtnv",
       "connector_state": "RUNNING",
-      "worker_count": 3,
+      "worker_count": 10,
       "capacity_type": "MCU_8X",
-      "kafka_cluster_bootstrap_servers": "b-1.prod-kafka-ap-northeast-3.amazonaws.com:9092,b-2.prod-kafka-ap-northeast-3.amazonaws.com:9092",
-      "connector_class": "com.amazon.kinesis.kafka.AmazonKinesisSinkConnector",
+      "kafka_cluster_bootstrap_servers": "b-1.prod-kafka-us-west-2.amazonaws.com:9092,b-2.prod-kafka-us-west-2.amazonaws.com:9092",
+      "connector_class": "io.debezium.connector.postgresql.PostgresConnector",
       "tasks_status": "RUNNING",
-      "offset_lag": 284,
-      "record_count": 74633
+      "offset_lag": 465,
+      "record_count": 59997
     },
     "s3": {
       "bucket": {
-        "name": "aws-mskconnect-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-mskconnect-logs-738291046572"
+        "name": "aws-mskconnect-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-mskconnect-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/mskconnect/ap-northeast-3/2026/06/01/mskconnect_ENX5CNCSA5GDJ450AN6R.log.gz"
+        "key": "AWSLogs/814726593401/mskconnect/us-west-2/2026/06/02/mskconnect_Y0HTS32QGCJJBOSA8KLS.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/mskconnect/logs",
-      "log_stream": "ap-northeast-3/hhejtsoz",
-      "ingestion_time": "2026-06-01T18:12:00.392Z"
+      "log_stream": "us-west-2/4ilcvuez",
+      "ingestion_time": "2026-06-02T15:33:03.981Z"
     }
   },
   "event": {
-    "action": "TaskRestarted",
+    "action": "ConnectorCreated",
     "outcome": "success",
     "category": ["process"],
     "type": ["info"],
     "dataset": "aws.mskconnect",
     "provider": "kafkaconnect.amazonaws.com",
-    "duration": 4250000000,
+    "duration": 3398000000,
     "module": "aws"
   },
-  "message": "{\"connectorName\":\"debezium-postgres-source\",\"connectorArn\":\"arn:aws:kafkaconnect:ap-northeast-3:738291046572:connector/debezium-postgres-source/jcrnv91h\",\"connectorState\":\"RUNNING\",\"tasksStatus\":\"RUNNING\",\"workerCount\":3,\"capacityType\":\"MCU_8X\",\"bootstrapServers\":\"b-1.prod-kafka-ap-northeast-3.amazonaws.com:9092,b-2.prod-kafka-ap-northeast-3.amazonaws.com:9092\",\"offsetLag\":381,\"recordCount\":64174,\"connectorClass\":\"org.apache.kafka.connect.s3.S3SinkConnector\"}",
+  "message": "{\"connectorName\":\"s3-sink-connector\",\"connectorArn\":\"arn:aws:kafkaconnect:us-west-2:814726593401:connector/s3-sink-connector/fpnnwtnv\",\"connectorState\":\"RUNNING\",\"tasksStatus\":\"RUNNING\",\"workerCount\":10,\"capacityType\":\"MCU_8X\",\"bootstrapServers\":\"b-1.prod-kafka-us-west-2.amazonaws.com:9092,b-2.prod-kafka-us-west-2.amazonaws.com:9092\",\"offsetLag\":319,\"recordCount\":72655,\"connectorClass\":\"io.confluent.connect.elasticsearch.ElasticsearchSinkConnector\"}",
   "log": { "level": "info" },
   "service": { "name": "mskconnect", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -53,8 +53,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "9voku5404leqglafwuzi9rtvtbw8cqegmbvv"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "j82z1ddc6z8jx237b1cr117yoerpr28ml6xo"
   },
   "input": { "type": "aws-cloudwatch" }
 }

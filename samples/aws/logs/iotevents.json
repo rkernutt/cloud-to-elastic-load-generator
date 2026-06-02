@@ -1,23 +1,24 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
+    "region": "ap-southeast-1",
     "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "conveyor-fault", "KeyValue": "zone-B" },
+    "dimensions": { "DetectorModelName": "door-sensor-model", "KeyValue": "unit-02" },
     "iotevents": {
-      "detector_model_name": "conveyor-fault",
-      "detector_id": "zone-B",
-      "key_value": "zone-B",
-      "event_name": "AlarmAcknowledged",
-      "from_state": "Alarm",
-      "to_state": "Warning",
-      "input_name": "SensorInput",
-      "action_type": "SetVariable",
-      "timer_name": "alarmTimer"
+      "detector_model_name": "door-sensor-model",
+      "detector_id": "unit-02",
+      "key_value": "unit-02",
+      "event_name": "AlarmActivated",
+      "from_state": "Normal",
+      "to_state": "Alarm",
+      "input_name": "HealthCheck",
+      "action_type": "SQS",
+      "timer_name": "idleTimer",
+      "condition_expression": "$input.data.value < threshold"
     },
     "s3": {
       "bucket": {
@@ -25,13 +26,13 @@
         "arn": "arn:aws:s3:::aws-iotevents-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/293847561023/iotevents/ap-south-2/2026/06/01/iotevents_2FYE7WMFJ63SXJOXFWYP.log.gz"
+        "key": "AWSLogs/293847561023/iotevents/ap-southeast-1/2026/06/02/iotevents_WQ59400OX9WAXI8LDC78.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "ap-south-2/uqk1mp4j",
-      "ingestion_time": "2026-06-01T18:12:00.491Z"
+      "log_stream": "ap-southeast-1/eumjap89",
+      "ingestion_time": "2026-06-02T15:33:04.078Z"
     }
   },
   "event": {
@@ -40,19 +41,19 @@
     "type": ["info"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 5000000,
+    "duration": 157000000,
     "module": "aws"
   },
-  "message": "{\"detectorModelName\":\"conveyor-fault\",\"detectorName\":\"zone-B\",\"keyValue\":\"zone-B\",\"eventName\":\"AlarmAcknowledged\",\"fromStateName\":\"Alarm\",\"toStateName\":\"Warning\",\"inputName\":\"CommandInput\",\"actionType\":\"SQS\",\"status\":\"SUCCESS\",\"errorCode\":null,\"timestamp\":\"2026-06-01T18:11:59.613Z\"}",
-  "log": { "level": "info" },
+  "message": "{\"detectorModelName\":\"door-sensor-model\",\"detectorName\":\"unit-02\",\"keyValue\":\"unit-02\",\"eventName\":\"AlarmActivated\",\"fromStateName\":\"Normal\",\"toStateName\":\"Alarm\",\"inputName\":\"HealthCheck\",\"actionType\":\"SNS\",\"status\":\"SUCCESS\",\"errorCode\":null,\"timestamp\":\"2026-06-02T15:33:03.184Z\"}",
+  "log": { "level": "warn" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "nw9dqf9wcy7k5m4t4gj4y3ipgv22vughpso4"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "qjk98no1jpvbnq28osm5f1z23b6f3i9o4osj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,63 +1,65 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "DEBUG",
-  "log": { "level": "info" },
-  "labels": { "migration_job": "migrationJobs/W1GIVYV7IH0V" },
+  "severity": "WARNING",
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "NOT_FOUND" },
+  "error": { "code": "NOT_FOUND", "message": "NOT_FOUND: operation failed", "type": "gcp" },
+  "labels": { "migration_job": "migrationJobs/89E642DWKLUC", "gcp.rpc.status_code": "NOT_FOUND" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-southeast2",
-    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
-    "account": { "id": "529384716205", "name": "Globex Shared Services" },
+    "region": "europe-west3",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
     "service": { "name": "database-migration-service" }
   },
   "gcp": {
     "database_migration": {
-      "migration_job": "migrationJobs/W1GIVYV7IH0V",
+      "migration_job": "migrationJobs/89E642DWKLUC",
       "source_engine": "MYSQL",
-      "destination_engine": "POSTGRES",
-      "phase": "FULL_DUMP",
-      "status": "SUCCEEDED",
-      "objects_migrated": 27082,
-      "latency_seconds": 3201
+      "destination_engine": "MYSQL",
+      "phase": "CDC",
+      "status": "FAILED",
+      "objects_migrated": 39,
+      "latency_seconds": 447
     }
   },
   "event": {
     "kind": "event",
     "category": ["database"],
-    "type": ["access"],
+    "type": ["error"],
     "action": "database",
-    "outcome": "success",
-    "duration": 3201000000000,
+    "outcome": "failure",
+    "duration": 447000000000,
     "module": "gcp",
     "dataset": "gcp.dms"
   },
-  "message": "datamigration.googleapis.com/migrationJobs/W1GIVYV7IH0V: FULL_DUMP SUCCEEDED objects=27082 lag=3201s",
+  "message": "datamigration.googleapis.com/migrationJobs/89E642DWKLUC: replication error CDC FAILED MYSQL -> MYSQL",
   "service": { "name": "database-migration", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.dms", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-southeast2",
-    "id": "m3vwsetm5bd9tcvxkvfhdotmdvj5opve1z1e"
+    "name": "elastic-agent-gcp-europe-west3",
+    "id": "sdoopcyf3mk9szzlgqfxzqd76c2y03hu8cah"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-529384/logs/database-migration",
+  "logName": "projects/globex-stg-739158/logs/database-migration",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-shared-529384", "region": "asia-southeast2" }
+    "labels": { "project_id": "globex-stg-739158", "region": "europe-west3" }
   },
-  "insertId": "HFP9S319BGAG",
+  "insertId": "9O9H6TEHWBMS",
   "jsonPayload": {
     "database_migration": {
-      "migration_job": "migrationJobs/W1GIVYV7IH0V",
+      "migration_job": "migrationJobs/89E642DWKLUC",
       "source_engine": "MYSQL",
-      "destination_engine": "POSTGRES",
-      "phase": "FULL_DUMP",
-      "status": "SUCCEEDED",
-      "objects_migrated": 27082,
-      "latency_seconds": 3201
+      "destination_engine": "MYSQL",
+      "phase": "CDC",
+      "status": "FAILED",
+      "objects_migrated": 39,
+      "latency_seconds": 447
     },
-    "message": "datamigration.googleapis.com/migrationJobs/W1GIVYV7IH0V: FULL_DUMP SUCCEEDED objects=27082 lag=3201s"
+    "message": "datamigration.googleapis.com/migrationJobs/89E642DWKLUC: replication error CDC FAILED MYSQL -> MYSQL"
   }
 }

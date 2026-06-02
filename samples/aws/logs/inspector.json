@@ -1,54 +1,63 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
+    "region": "ap-southeast-4",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "inspector2" }
   },
   "aws": {
-    "dimensions": { "Severity": "MEDIUM" },
+    "dimensions": { "Severity": "LOW" },
     "inspector2": {
-      "findingArn": "arn:aws:inspector2:ap-south-2:738291046572:finding/cq20dh4r-8xt5-3p8y-xwig-29eyeuhctgqf",
-      "type": "CODE_VULNERABILITY",
-      "title": "Code vulnerability in Controller.java",
-      "description": "Inspector identified a code pattern that matches a known weakness category.",
+      "findingArn": "arn:aws:inspector2:ap-southeast-4:738291046572:finding/u3yz8ubc-ru3d-dkof-emxg-hck1so8bgv2x",
+      "type": "PACKAGE_VULNERABILITY",
+      "title": "CVE-2024-93145: libssl 1.10.4 has a known vulnerability",
+      "description": "A package used by the workload has a vulnerability tracked as CVE-2024-93145 with CVSS 1.9.",
       "remediation": {
         "recommendation": {
-          "text": "Apply the suggested code change from your static analysis workflow or suppress with a documented risk acceptance."
+          "text": "Upgrade libssl to 3.6.14 or later to remediate CVE-2024-93145."
         }
       },
       "resources": [
         {
           "type": "AWS_EC2_INSTANCE",
-          "id": "i-0c1a1d6452bdde88d",
+          "id": "i-053b1f11b7fbfcc4f",
           "partition": "aws",
-          "region": "ap-south-2",
-          "tags": { "Environment": "prod" }
+          "region": "ap-southeast-4",
+          "tags": { "Environment": "staging" }
         }
       ],
       "exploitAvailable": "NO",
       "fixAvailable": true,
-      "finding_status": "ACTIVE",
-      "severity": "MEDIUM",
-      "severity_score": 5.1,
+      "finding_status": "SUPPRESSED",
+      "severity": "LOW",
+      "severity_score": 1.9,
       "exploitability": "NOT_DEFINED",
       "resource_type": "AWS_EC2_INSTANCE",
-      "resource_id": "i-0c1a1d6452bdde88d",
-      "first_observed_at": "2026-05-21T18:11:59.613Z",
-      "last_observed_at": "2026-06-01T18:11:59.613Z",
-      "code_vulnerability": {
-        "cwes": ["CWE-79"],
-        "detector_name": "CodeGuru Detector",
-        "file_path": { "name": "app.py", "line_number": 199 }
+      "resource_id": "i-053b1f11b7fbfcc4f",
+      "first_observed_at": "2026-05-29T15:33:03.184Z",
+      "last_observed_at": "2026-06-02T15:33:03.184Z",
+      "package_vulnerability": {
+        "cve_id": "CVE-2024-93145",
+        "source": "GHSA",
+        "cvss3_score": 1.8752003554100258,
+        "vulnerable_packages": [
+          {
+            "name": "libssl",
+            "version": "1.10.4",
+            "fixed_in_version": "3.6.14",
+            "package_manager": "JAVA"
+          }
+        ],
+        "related_vulnerabilities": []
       },
       "metrics": {
-        "TotalFindings": { "sum": 129 },
+        "TotalFindings": { "sum": 124 },
         "CriticalFindings": { "sum": 0 },
         "HighFindings": { "sum": 0 },
-        "MediumFindings": { "sum": 74 },
-        "LowFindings": { "sum": 0 },
-        "CoveredResources": { "avg": 4638 }
+        "MediumFindings": { "sum": 0 },
+        "LowFindings": { "sum": 231 },
+        "CoveredResources": { "avg": 2061 }
       }
     },
     "s3": {
@@ -57,16 +66,21 @@
         "arn": "arn:aws:s3:::aws-inspector-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/738291046572/inspector/ap-south-2/2026/06/01/inspector_ULXL7JC0VZLY6P6OV7CW.log.gz"
+        "key": "AWSLogs/738291046572/inspector/ap-southeast-4/2026/06/02/inspector_7JF42RFK6TLVR0OKNDT9.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/inspector/logs",
-      "log_stream": "ap-south-2/a2bgiuqt",
-      "ingestion_time": "2026-06-01T18:12:00.335Z"
+      "log_stream": "ap-southeast-4/vnczszxd",
+      "ingestion_time": "2026-06-02T15:33:03.920Z"
     }
   },
-  "vulnerability": { "severity": "MEDIUM", "score": { "base": 5.080974647123924 } },
+  "vulnerability": {
+    "severity": "LOW",
+    "id": "CVE-2024-93145",
+    "score": { "base": 1.8752003554100258 }
+  },
+  "package": { "name": "libssl", "version": "1.10.4" },
   "event": {
     "outcome": "success",
     "category": ["vulnerability"],
@@ -75,16 +89,16 @@
     "provider": "inspector2.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"findingArn\":\"arn:aws:inspector2:ap-south-2:738291046572:finding/cq20dh4r-8xt5-3p8y-xwig-29eyeuhctgqf\",\"type\":\"CODE_VULNERABILITY\",\"title\":\"Code vulnerability in Controller.java\",\"description\":\"Inspector identified a code pattern that matches a known weakness category.\",\"severity\":\"MEDIUM\",\"status\":\"ACTIVE\",\"resources\":[{\"type\":\"AWS_EC2_INSTANCE\",\"id\":\"i-0c1a1d6452bdde88d\",\"partition\":\"aws\",\"region\":\"ap-south-2\",\"tags\":{\"Environment\":\"prod\"}}],\"firstObservedAt\":\"2026-05-08T18:11:59.613Z\",\"lastObservedAt\":\"2026-06-01T18:11:59.613Z\"}",
-  "log": { "level": "warn" },
+  "message": "{\"findingArn\":\"arn:aws:inspector2:ap-southeast-4:738291046572:finding/u3yz8ubc-ru3d-dkof-emxg-hck1so8bgv2x\",\"type\":\"PACKAGE_VULNERABILITY\",\"title\":\"CVE-2024-93145: libssl 1.10.4 has a known vulnerability\",\"description\":\"A package used by the workload has a vulnerability tracked as CVE-2024-93145 with CVSS 1.9.\",\"severity\":\"LOW\",\"status\":\"SUPPRESSED\",\"resources\":[{\"type\":\"AWS_EC2_INSTANCE\",\"id\":\"i-053b1f11b7fbfcc4f\",\"partition\":\"aws\",\"region\":\"ap-southeast-4\",\"tags\":{\"Environment\":\"staging\"}}],\"packageVulnerabilityDetails\":{\"vulnerabilityId\":\"CVE-2024-93145\",\"cvss\":[{\"score\":1.8752003554100258,\"version\":\"3.1\"}],\"vulnerablePackages\":[{\"name\":\"libssl\",\"version\":\"1.10.4\",\"fixedInVersion\":\"3.6.14\"}]},\"firstObservedAt\":\"2026-05-29T15:33:03.184Z\",\"lastObservedAt\":\"2026-06-02T15:33:03.184Z\"}",
+  "log": { "level": "info" },
   "service": { "name": "inspector", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.inspector", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "dt28a1pzouk9dmpce3jzuil56d0a4emgam8w"
+    "name": "filebeat-aws-ap-southeast-4",
+    "ephemeral_id": "0c897df26zcxh8a46z277z2qc844pe4u4suj"
   },
   "input": { "type": "http_endpoint" }
 }

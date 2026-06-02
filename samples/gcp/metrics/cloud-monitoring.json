@@ -3,46 +3,45 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-southeast1",
+    "region": "southamerica-east1",
     "project": { "id": "globex-prod-482910", "name": "Globex Production" },
     "account": { "id": "482910375621", "name": "Globex Production" },
-    "service": { "name": "cloud-trace" }
+    "service": { "name": "cloud-monitoring" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-southeast1",
-    "ephemeral_id": "w9paffaehqmijp18zkpwvo93trb4wrvt4g38"
+    "name": "metricbeat-gcp-southamerica-east1",
+    "ephemeral_id": "60m3hw0pxiw91nk6x7vuu7yomd7ollgzvxcv"
   },
   "monitoringTimeSeries": {
-    "metric": {
-      "type": "cloudtrace.googleapis.com/billing/spans_ingested",
-      "labels": { "service": "cloudfunctions.googleapis.com", "chargeable": "true" }
+    "metric": { "type": "monitoring.googleapis.com/collection/byte_count", "labels": {} },
+    "resource": {
+      "type": "monitoring.googleapis.com/Workspace",
+      "labels": { "project_id": "globex-prod-482910", "workspace_id": "ws-security" }
     },
-    "resource": { "type": "global", "labels": { "project_id": "globex-prod-482910" } },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "189941" } }
+      {
+        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
+        "value": { "int64Value": "2799222717431" }
+      }
     ]
   },
   "gcp": {
-    "cloud-trace": {
-      "labels": {
-        "project_id": "globex-prod-482910",
-        "service": "cloudfunctions.googleapis.com",
-        "chargeable": "true"
-      },
+    "cloud-monitoring": {
+      "labels": { "project_id": "globex-prod-482910", "workspace_id": "ws-security" },
       "metrics": {
-        "cloudtrace.googleapis.com/billing/spans_ingested": {
-          "avg": 189941,
-          "sum": 189941,
+        "monitoring.googleapis.com/collection/byte_count": {
+          "avg": 2799222717431,
+          "sum": 2799222717431,
           "count": 1
         }
       }
     }
   },
-  "metricset": { "name": "cloud-trace", "period": 60000 },
+  "metricset": { "name": "cloud-monitoring", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.monitoring_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "kind": "metric", "dataset": "gcp.monitoring_metrics", "module": "gcp" }

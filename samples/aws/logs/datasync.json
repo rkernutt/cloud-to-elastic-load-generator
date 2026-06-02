@@ -1,58 +1,56 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-south-2",
+    "account": { "id": "391827465039", "name": "globex-payments-prod" },
     "service": { "name": "datasync" }
   },
   "aws": {
     "datasync": {
-      "task_arn": "arn:aws:datasync:ca-west-1:814726593401:task/task-j630dcm8jh40z90tr",
-      "source_location_uri": "smb://file-server/share",
+      "task_arn": "arn:aws:datasync:eu-south-2:391827465039:task/task-yjoaidcmhk2rfme8o",
+      "source_location_uri": "nfs://on-prem-server/data",
       "destination_location_uri": "efs://fs-prod/backup",
-      "status": "ERROR",
-      "files_transferred": 0,
-      "bytes_transferred": 0,
-      "files_failed": 51,
-      "duration_seconds": 453,
-      "error_code": "InvalidS3Config"
+      "status": "SUCCESS",
+      "files_transferred": 100697,
+      "bytes_transferred": 51115307655,
+      "files_failed": 0,
+      "duration_seconds": 2745
     },
     "s3": {
       "bucket": {
-        "name": "aws-datasync-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-datasync-logs-814726593401"
+        "name": "aws-datasync-logs-391827465039",
+        "arn": "arn:aws:s3:::aws-datasync-logs-391827465039"
       },
       "object": {
-        "key": "AWSLogs/814726593401/datasync/ca-west-1/2026/06/01/datasync_A1IKFZ1MH9JMEF4JTHZR.log.gz"
+        "key": "AWSLogs/391827465039/datasync/eu-south-2/2026/06/02/datasync_ILPRUIOG5KW932OXC66J.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/datasync/logs",
-      "log_stream": "ca-west-1/ute8xrhe",
-      "ingestion_time": "2026-06-01T18:12:00.367Z"
+      "log_stream": "eu-south-2/y18k0z79",
+      "ingestion_time": "2026-06-02T15:33:03.954Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["file"],
     "type": ["access"],
     "dataset": "aws.datasync",
     "provider": "datasync.amazonaws.com",
-    "duration": 453000000000,
+    "duration": 2745000000000,
     "module": "aws"
   },
-  "message": "{\"eventType\":\"TaskExecutionResult\",\"taskArn\":\"arn:aws:datasync:ca-west-1:814726593401:task/task-xthlyav2rc2qbhaoj\",\"sourceLocationUri\":\"smb://file-server/share\",\"destinationLocationUri\":\"efs://fs-prod/backup\",\"status\":\"ERROR\",\"filesTransferred\":0,\"bytesTransferred\":0,\"filesFailed\":78,\"durationSeconds\":453,\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"errorCode\":\"NfsPermissionError\",\"outcome\":\"Failed\"}",
-  "log": { "level": "error" },
-  "error": { "code": "InvalidS3Config", "message": "DataSync task failed", "type": "storage" },
+  "message": "{\"eventType\":\"TaskExecutionResult\",\"taskArn\":\"arn:aws:datasync:eu-south-2:391827465039:task/task-hdbf3dlr9qbhp5gcu\",\"sourceLocationUri\":\"nfs://on-prem-server/data\",\"destinationLocationUri\":\"efs://fs-prod/backup\",\"status\":\"SUCCESS\",\"filesTransferred\":100697,\"bytesTransferred\":37254466302,\"filesFailed\":0,\"durationSeconds\":2745,\"timestamp\":\"2026-06-02T15:33:03.184Z\",\"outcome\":\"Succeeded\"}",
+  "log": { "level": "info" },
   "service": { "name": "datasync", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "mfmghoz9t1hfeg9c6i7ll5dirr1siin7b0bt"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "27km4tuupvpq3seacwhx909lwjwgz5vh6c01"
   },
   "input": { "type": "aws-cloudwatch" }
 }

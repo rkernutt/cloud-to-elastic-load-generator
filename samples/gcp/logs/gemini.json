@@ -1,66 +1,77 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "DEBUG",
-  "log": { "level": "debug" },
-  "labels": {
-    "resource.type": "cloudaicompanion.googleapis.com/Request",
-    "editor": "jetbrains",
-    "language": "terraform",
-    "api_method": "cloudaicompanion.googleapis.com/v1/projects/globex-shared-529384/inlineCompletion:generate"
-  },
+  "log": { "level": "info" },
+  "severity": "NOTICE",
+  "labels": { "resource.type": "generativelanguage.googleapis.com/Model", "location": "me-west1" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west12",
-    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
-    "account": { "id": "529384716205", "name": "Globex Shared Services" },
-    "service": { "name": "cloudaicompanion.googleapis.com" }
+    "region": "me-west1",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
+    "service": { "name": "generativelanguage.googleapis.com" }
   },
   "gcp": {
-    "gemini_code_assist": {
-      "editor": "jetbrains",
-      "action": "COMPLETION",
-      "language": "terraform",
-      "accepted": false,
-      "latency_ms": 134,
-      "tokens_generated": 780
+    "gemini": {
+      "model": "gemini-1.5-flash",
+      "input_tokens": 2036,
+      "output_tokens": 1038,
+      "total_tokens": 3074,
+      "finish_reason": "STOP",
+      "prompt_token_count": 2036,
+      "candidates_token_count": 1038,
+      "total_token_count": 3074,
+      "safety_ratings": [
+        { "category": "HARM_CATEGORY_HARASSMENT", "probability": "LOW" },
+        { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "probability": "LOW" }
+      ],
+      "latency_ms": 579,
+      "grounding_used": false
     }
   },
   "event": {
     "kind": "event",
     "category": ["process"],
     "type": ["info"],
-    "action": "devtools-operation",
+    "action": "ml-operation",
     "outcome": "success",
-    "duration": 134,
+    "duration": 579,
     "module": "gcp",
-    "dataset": "gcp.gemini_code_assist"
+    "dataset": "gcp.gemini"
   },
-  "message": "Code Assist COMPLETION: language=terraform editor=jetbrains latency_ms=134.0 suggestion_accepted=false generated_tokens=780",
-  "service": { "name": "gemini-code-assist", "type": "gcp" },
+  "message": "POST /v1beta/models/gemini-1.5-flash:generateContent 200 OK latency_ms=579 prompt_tokens=2036 candidates_tokens=1038 total=3074",
+  "service": { "name": "gemini", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.gemini_code_assist", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.gemini", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west12",
-    "id": "viw4j6w2738awjth1enp82vxizao2h70qen1"
+    "name": "elastic-agent-gcp-me-west1",
+    "id": "t690z5u370org4ahte7rm9zffn8bzktsl4ub"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-529384/logs/gemini-code-assist",
+  "logName": "projects/globex-prod-482910/logs/gemini",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-shared-529384", "region": "europe-west12" }
+    "labels": { "project_id": "globex-prod-482910", "region": "me-west1" }
   },
-  "insertId": "CT1PHY5863ID",
+  "insertId": "FDYY9LJ4O4NP",
   "jsonPayload": {
-    "gemini_code_assist": {
-      "editor": "jetbrains",
-      "action": "COMPLETION",
-      "language": "terraform",
-      "accepted": false,
-      "latency_ms": 134,
-      "tokens_generated": 780
+    "gemini": {
+      "model": "gemini-1.5-flash",
+      "input_tokens": 2036,
+      "output_tokens": 1038,
+      "total_tokens": 3074,
+      "finish_reason": "STOP",
+      "prompt_token_count": 2036,
+      "candidates_token_count": 1038,
+      "total_token_count": 3074,
+      "safety_ratings": [
+        { "category": "HARM_CATEGORY_HARASSMENT", "probability": "LOW" },
+        { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "probability": "LOW" }
+      ],
+      "latency_ms": 579,
+      "grounding_used": false
     },
-    "message": "Code Assist COMPLETION: language=terraform editor=jetbrains latency_ms=134.0 suggestion_accepted=false generated_tokens=780"
+    "message": "POST /v1beta/models/gemini-1.5-flash:generateContent 200 OK latency_ms=579 prompt_tokens=2036 candidates_tokens=1038 total=3074"
   }
 }

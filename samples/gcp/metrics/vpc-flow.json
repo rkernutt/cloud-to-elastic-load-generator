@@ -3,28 +3,41 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "me-central1",
+    "region": "europe-west4",
     "project": { "id": "globex-dev-615094", "name": "Globex Development" },
     "account": { "id": "615094738261", "name": "Globex Development" },
-    "service": { "name": "packet-mirroring" }
+    "service": { "name": "vpc-flow" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-me-central1",
-    "ephemeral_id": "gedx8itdmt3qiws1os3f9s3tw4u0f1mpk1j7"
+    "name": "metricbeat-gcp-europe-west4",
+    "ephemeral_id": "u8wmrlvauha1y8qmcv6wnpyp68oj2asxms4f"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "networking.googleapis.com/mirroring/mirrored_packets_count",
-      "labels": {}
+      "type": "networking.googleapis.com/vm_flow/ingress_bytes_count",
+      "labels": {
+        "local_network": "vpc-app",
+        "local_subnetwork": "subnet-db-02",
+        "local_network_interface": "ens4",
+        "remote_country": "US",
+        "remote_continent": "America",
+        "remote_project_id": "REMOTE_IS_EXTERNAL",
+        "remote_network": "",
+        "remote_subnetwork": "",
+        "remote_network_interface": "",
+        "remote_zone": "",
+        "remote_region": "NOT_APPLICABLE",
+        "remote_location_type": "EXTERNAL"
+      }
     },
     "resource": {
       "type": "gce_instance",
       "labels": {
         "project_id": "globex-dev-615094",
-        "instance_id": "1349399373",
-        "zone": "me-central1-b"
+        "instance_id": "6469789102",
+        "zone": "europe-west4-a"
       }
     },
     "metricKind": "DELTA",
@@ -32,27 +45,39 @@
     "points": [
       {
         "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "int64Value": "33600342" }
+        "value": { "int64Value": "27392751646" }
       }
     ]
   },
   "gcp": {
-    "packet-mirroring": {
+    "vpc-flow": {
       "labels": {
         "project_id": "globex-dev-615094",
-        "instance_id": "1349399373",
-        "zone": "me-central1-b"
+        "instance_id": "6469789102",
+        "zone": "europe-west4-a",
+        "local_network": "vpc-app",
+        "local_subnetwork": "subnet-db-02",
+        "local_network_interface": "ens4",
+        "remote_country": "US",
+        "remote_continent": "America",
+        "remote_project_id": "REMOTE_IS_EXTERNAL",
+        "remote_network": "",
+        "remote_subnetwork": "",
+        "remote_network_interface": "",
+        "remote_zone": "",
+        "remote_region": "NOT_APPLICABLE",
+        "remote_location_type": "EXTERNAL"
       },
       "metrics": {
-        "networking.googleapis.com/mirroring/mirrored_packets_count": {
-          "avg": 33600342,
-          "sum": 33600342,
+        "networking.googleapis.com/vm_flow/ingress_bytes_count": {
+          "avg": 27392751646,
+          "sum": 27392751646,
           "count": 1
         }
       }
     }
   },
-  "metricset": { "name": "packet-mirroring", "period": 60000 },
+  "metricset": { "name": "vpc-flow", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.vpcflow_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "kind": "metric", "dataset": "gcp.vpcflow_metrics", "module": "gcp" }

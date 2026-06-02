@@ -1,93 +1,53 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
-    "service": { "name": "elasticache" }
+    "region": "us-west-1",
+    "account": { "id": "746392018574", "name": "globex-identity" },
+    "service": { "name": "elasticache-global" }
   },
   "aws": {
-    "dimensions": {
-      "CacheClusterId": "prod-redis-4",
-      "CacheNodeId": "0005",
-      "ReplicationGroupId": "prod-cache"
-    },
-    "elasticache": {
-      "cluster_id": "prod-redis-4",
-      "node_id": "0005",
-      "engine": "redis",
-      "engine_version": "7.1.0",
-      "replication_group_id": "prod-cache",
-      "scenario": "snapshot_create",
-      "api_operation": "CreateSnapshot",
-      "latency_us": 2967.2441590073586,
-      "cache_hit": false,
-      "connected_clients": 78,
-      "used_memory_mb": 817,
-      "metrics": {
-        "BytesUsedForCache": { "avg": 5521948292 },
-        "CacheHits": { "sum": 82361 },
-        "CacheMisses": { "sum": 55 },
-        "CacheHitRate": { "avg": 0.9160858359110796 },
-        "CurrConnections": { "avg": 114 },
-        "NewConnections": { "sum": 40 },
-        "Evictions": { "sum": 591 },
-        "Reclaimed": { "sum": 51 },
-        "ReplicationBytes": { "avg": 3404620 },
-        "ReplicationLag": { "avg": 10 },
-        "SaveInProgress": { "avg": 0 },
-        "CurrItems": { "avg": 877049 },
-        "NewItems": { "sum": 1571 },
-        "NetworkBytesIn": { "avg": 66478341 },
-        "NetworkBytesOut": { "avg": 91239700 },
-        "CPUUtilization": { "avg": 64.55128196834188 },
-        "EngineCPUUtilization": { "avg": 44.04333608943115 },
-        "FreeableMemory": { "avg": 5818718827 },
-        "SwapUsage": { "avg": 49875968 },
-        "DatabaseMemoryUsagePercentage": { "avg": 80.89250791009488 },
-        "TrafficBasedCmdsLatency": { "avg": 1.5417962207311966 }
-      }
+    "elasticacheglobal": {
+      "global_datastore_name": "global-feature-flags",
+      "event_type": "RebalanceSlotsInGlobalReplicationGroup",
+      "primary_region": "us-west-1",
+      "secondary_regions": ["eu-west-1", "ap-northeast-1", "us-west-2"],
+      "replication_lag_ms": 3.208963211076858,
+      "cross_region_bandwidth_mbps": 319.6380787733592,
+      "global_node_groups": 3,
+      "status": "available"
     },
     "s3": {
       "bucket": {
-        "name": "aws-elasticache-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-elasticache-logs-501938274650"
+        "name": "aws-elasticache-logs-746392018574",
+        "arn": "arn:aws:s3:::aws-elasticache-logs-746392018574"
       },
       "object": {
-        "key": "AWSLogs/501938274650/elasticache/ca-west-1/2026/06/01/elasticache_7RWVURM00G7FCZEFGV1Q.log.gz"
+        "key": "AWSLogs/746392018574/elasticache/us-west-1/2026/06/02/elasticache_B2BG6I1BG41ABAJMHNIQ.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/elasticache/elasticache-4ya9tc",
-      "log_stream": "ca-west-1/p6784hdf",
-      "ingestion_time": "2026-06-01T18:12:00.371Z"
+      "log_group": "/aws/elasticache/elasticache-igcsrr",
+      "log_stream": "us-west-1/smiz58d3",
+      "ingestion_time": "2026-06-02T15:33:03.960Z"
     }
   },
-  "db": { "type": "keyvalue", "operation": "CreateSnapshot" },
   "event": {
-    "duration": 2967244.1590073584,
-    "outcome": "failure",
-    "category": ["database", "network"],
-    "type": ["connection"],
-    "dataset": "aws.elasticache",
-    "provider": "elasticache.amazonaws.com",
-    "module": "aws"
+    "outcome": "success",
+    "duration": 21470772,
+    "module": "aws",
+    "dataset": "aws.elasticacheglobal"
   },
-  "message": "{\"replicationGroupId\":\"prod-cache\",\"scenario\":\"snapshot_create\",\"operation\":\"CreateSnapshot\",\"clusterId\":\"prod-redis-4\",\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"status\":\"FAILED\",\"snapshotName\":\"snap-be1858ac67\",\"retention\":6,\"awsException\":\"InsufficientCacheClusterCapacityFault\"}",
-  "log": { "level": "error" },
-  "error": {
-    "code": "InsufficientCacheClusterCapacityFault",
-    "message": "CreateSnapshot rejected for replication group prod-cache",
-    "type": "aws"
-  },
+  "message": "{\"eventSource\":\"elasticache.amazonaws.com\",\"eventName\":\"RebalanceSlotsInGlobalReplicationGroup\",\"globalReplicationGroupId\":\"global-feature-flags\",\"primaryRegion\":\"us-west-1\",\"secondaryRegions\":[\"eu-west-1\",\"ap-northeast-1\",\"us-west-2\"],\"replicationLagMs\":15,\"status\":\"COMPLETE\"}",
   "service": { "name": "elasticache", "type": "aws" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.elasticacheglobal", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "sne3je8ymm41b54vt384042d7ieur0ri39iy"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "smbtqk8wa6hszc77zo7atyzn57t9bpua5ghj"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,74 +1,80 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "availability_zone": "ap-south-1c",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "af-south-1",
+    "availability_zone": "af-south-1a",
+    "account": { "id": "528174630291", "name": "globex-ml-platform" },
     "service": { "name": "ebs" }
   },
   "aws": {
-    "dimensions": { "VolumeId": "vol-f231abbfb061949d9", "VolumeType": "gp3" },
+    "dimensions": { "VolumeId": "vol-a9ff64a26dc7ff8b6", "VolumeType": "io2" },
     "ebs": {
-      "volume_id": "vol-f231abbfb061949d9",
-      "volume_type": "gp3",
-      "size_gb": 1000,
-      "snapshot_id": "snap-21b3a1de7d87cae0d",
-      "snapshot_state": "completed",
-      "progress": "100%",
-      "duration_seconds": 602,
-      "fast_snapshot_restore_state": "disabled",
-      "fast_snapshot_restore_azs": ["ap-south-1b"],
-      "encrypted": true,
-      "event_type": "snapshot",
+      "volume_id": "vol-a9ff64a26dc7ff8b6",
+      "modification_state": "failed",
+      "modification_phase": "volume-type",
+      "original_volume_type": "io1",
+      "target_volume_type": "io2",
+      "original_size_gb": 2000,
+      "target_size_gb": 2200,
+      "original_iops": 3543,
+      "target_iops": 15528,
+      "target_throughput_mbps": 675,
+      "progress_percent": 0,
+      "event_type": "modification",
       "metrics": {
-        "VolumeReadOps": { "avg": 5209 },
-        "VolumeWriteOps": { "avg": 4858 },
-        "VolumeReadBytes": { "avg": 328053529 },
-        "VolumeWriteBytes": { "avg": 322531039 },
-        "VolumeTotalReadTime": { "sum": 0.3572178469764842 },
-        "VolumeTotalWriteTime": { "sum": 2.834033781604232 },
-        "VolumeIdleTime": { "sum": 3.4774969376806286 },
-        "VolumeQueueLength": { "avg": 4 },
-        "VolumeThroughputPercentage": { "avg": 53.092734284514165 },
-        "VolumeConsumedReadWriteOps": { "avg": 4357 },
+        "VolumeReadOps": { "avg": 4492 },
+        "VolumeWriteOps": { "avg": 8102 },
+        "VolumeReadBytes": { "avg": 301026829 },
+        "VolumeWriteBytes": { "avg": 333177464 },
+        "VolumeTotalReadTime": { "sum": 4.908454925705964 },
+        "VolumeTotalWriteTime": { "sum": 4.783274647866587 },
+        "VolumeIdleTime": { "sum": 34.005393426921785 },
+        "VolumeQueueLength": { "avg": 13 },
+        "VolumeThroughputPercentage": { "avg": 58.23757842854951 },
+        "VolumeConsumedReadWriteOps": { "avg": 6670 },
         "BurstBalance": {}
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-ebs-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-ebs-logs-738291046572"
+        "name": "aws-ebs-logs-528174630291",
+        "arn": "arn:aws:s3:::aws-ebs-logs-528174630291"
       },
       "object": {
-        "key": "AWSLogs/738291046572/ebs/ap-south-1/2026/06/01/ebs_IWPPSWJWA28L1QAME080.log.gz"
+        "key": "AWSLogs/528174630291/ebs/af-south-1/2026/06/02/ebs_8ZIKONAOWKF7RL6KIA7U.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/ebs/logs",
-      "log_stream": "ap-south-1/8fef0e12",
-      "ingestion_time": "2026-06-01T18:12:00.364Z"
+      "log_stream": "af-south-1/o69eti4h",
+      "ingestion_time": "2026-06-02T15:33:03.950Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["host", "file"],
     "type": ["access"],
     "dataset": "aws.ebs",
     "provider": "ec2.amazonaws.com",
-    "duration": 3024000000,
+    "duration": 20219000000,
     "module": "aws"
   },
-  "message": "{\"eventType\":\"snapshot\",\"volumeId\":\"vol-f231abbfb061949d9\",\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"outcome\":\"success\",\"volume_id\":\"vol-f231abbfb061949d9\",\"volume_type\":\"gp3\",\"size_gb\":1000,\"snapshot_id\":\"snap-21b3a1de7d87cae0d\",\"snapshot_state\":\"completed\",\"progress\":\"100%\",\"duration_seconds\":602,\"fast_snapshot_restore_state\":\"disabled\",\"fast_snapshot_restore_azs\":[\"ap-south-1b\"],\"encrypted\":true,\"kms_key_id\":null}",
-  "log": { "level": "info" },
+  "message": "{\"eventType\":\"modification\",\"volumeId\":\"vol-a9ff64a26dc7ff8b6\",\"timestamp\":\"2026-06-02T15:33:03.184Z\",\"outcome\":\"failure\",\"volume_id\":\"vol-a9ff64a26dc7ff8b6\",\"modification_state\":\"failed\",\"modification_phase\":\"volume-type\",\"original_volume_type\":\"io1\",\"target_volume_type\":\"io2\",\"original_size_gb\":2000,\"target_size_gb\":2200,\"original_iops\":3543,\"target_iops\":15528,\"target_throughput_mbps\":675,\"progress_percent\":0}",
+  "log": { "level": "error" },
+  "error": {
+    "code": "VolumeInUseException",
+    "message": "EBS modification event for vol-a9ff64a26dc7ff8b6",
+    "type": "aws"
+  },
   "service": { "name": "ebs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "txem5xqj0940rkie8bysglgs0yz2rplg841k"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "00vz93c3tjasjfm2cfl0iykopcmhdt41d34u"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,69 +1,73 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-west-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "cognito" }
   },
   "aws": {
-    "dimensions": { "UserPool": "us-east-1_SM08ZIJHJ", "UserPoolClient": "eu-users-web" },
+    "dimensions": { "UserPool": "eu-west-2_AJ23R1XFE", "UserPoolClient": "eu-users-web" },
     "cognito": {
-      "user_pool_id": "us-east-1_SM08ZIJHJ",
+      "user_pool_id": "eu-west-2_AJ23R1XFE",
       "user_pool_name": "eu-users",
-      "event_type": "SignUp",
-      "username": "user-aeltphiz@globex.io",
-      "source_ip": "18.180.192.33",
-      "mfa_type": "SOFTWARE_TOKEN_MFA",
+      "event_type": "AdminCreateUser",
+      "error_code": "NotAuthorizedException",
+      "source_ip": "23.46.100.195",
       "metrics": {
-        "SignInSuccesses": { "sum": 2450 },
-        "SignInAttempts": { "sum": 2450 },
-        "TokenRefreshSuccesses": { "sum": 10423 },
-        "SignUpSuccesses": { "sum": 47 },
+        "SignInSuccesses": { "sum": 0 },
+        "SignInAttempts": { "sum": 7654 },
+        "TokenRefreshSuccesses": { "sum": 0 },
+        "SignUpSuccesses": { "sum": 0 },
         "FederationSuccesses": { "sum": 0 },
-        "CallCount": { "sum": 2928 },
-        "ThrottleCount": { "sum": 0 },
-        "AccountTakeoverRisk": { "sum": 0 },
-        "CompromisedCredentialsRisk": { "sum": 0 }
+        "CallCount": { "sum": 77442 },
+        "ThrottleCount": { "sum": 3 },
+        "AccountTakeoverRisk": { "sum": 4 },
+        "CompromisedCredentialsRisk": { "sum": 1 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-cognito-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-cognito-logs-164820739518"
+        "name": "aws-cognito-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-cognito-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/cognito/us-east-1/2026/06/01/cognito_MJN1EXJQ0TUXM9AJQC0P.log.gz"
+        "key": "AWSLogs/814726593401/cognito/eu-west-2/2026/06/02/cognito_0M4CRG10JQFHFW62KO1V.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/cognito/userpools/us-east-1_UNJ21574J",
-      "log_stream": "us-east-1/t0eb07ff",
-      "ingestion_time": "2026-06-01T18:12:00.338Z"
+      "log_group": "/aws/cognito/userpools/eu-west-2_34XXOBA0A",
+      "log_stream": "eu-west-2/d6w71s57",
+      "ingestion_time": "2026-06-02T15:33:03.924Z"
     }
   },
-  "user": { "name": "user-aeltphiz@globex.io" },
-  "source": { "ip": "9.144.160.147" },
+  "user": {},
+  "source": { "ip": "142.254.15.231" },
   "event": {
-    "action": "SignUp",
-    "outcome": "success",
+    "action": "AdminCreateUser",
+    "outcome": "failure",
     "category": ["authentication"],
     "type": ["start"],
     "dataset": "aws.cognito",
     "provider": "cognito-idp.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"eventType\":\"SignUp\",\"eventResponse\":\"Pass\",\"userPoolId\":\"us-east-1_SM08ZIJHJ\",\"userPoolName\":\"eu-users\",\"userName\":\"user-aeltphiz@globex.io\",\"clientId\":\"eu-users-web\",\"ipAddress\":\"168.95.91.130\"}",
-  "log": { "level": "info" },
+  "message": "{\"eventType\":\"AdminCreateUser\",\"eventResponse\":\"Fail\",\"userPoolId\":\"eu-west-2_AJ23R1XFE\",\"userPoolName\":\"eu-users\",\"clientId\":\"eu-users-web\",\"ipAddress\":\"62.58.87.184\",\"challengeName\":\"NotAuthorizedException\"}",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "NotAuthorizedException",
+    "message": "Authentication failed",
+    "type": "authentication"
+  },
   "service": { "name": "cognito", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "p8euwh7zc0vj22dykta2ea52003rglm0ufm8"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "xmndf6gqjqabhsf5izt2h64erzcp0yjud4ti"
   },
   "input": { "type": "aws-cloudwatch" },
-  "related": { "ip": ["9.144.160.147"], "user": ["user-aeltphiz@globex.io"] }
+  "related": { "ip": ["142.254.15.231"] }
 }

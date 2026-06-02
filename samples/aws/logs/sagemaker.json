@@ -1,54 +1,90 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
-    "service": { "name": "sagemaker-pipelines" }
+    "region": "me-south-1",
+    "account": { "id": "283746150928", "name": "globex-log-archive" },
+    "service": { "name": "sagemaker" }
   },
   "aws": {
-    "sagemaker_pipelines": {
-      "pipeline_name": "etl-feature-pipeline",
-      "pipeline_execution_id": "exec-9u2sla5tynsx",
-      "step_name": "Condition-1",
-      "step_type": "Condition",
-      "status": "Succeeded",
-      "execution_duration_seconds": 1469,
-      "parallelism": 6,
-      "retry_count": 0,
-      "cache_hit": false
-    },
-    "s3": {
-      "bucket": {
-        "name": "aws-sagemaker-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-sagemaker-logs-814726593401"
-      },
-      "object": {
-        "key": "AWSLogs/814726593401/sagemaker/sa-east-1/2026/06/01/sagemaker_2BU2SXO1IEOSBUKE1C0H.log.gz"
-      }
+    "dimensions": {
+      "TrainingJobName": "llama-finetuned-hyperparametertuning-20260602-3jezju",
+      "JobType": "HyperparameterTuning"
     },
     "cloudwatch": {
       "log_group": "/aws/sagemaker/TrainingJobs",
-      "log_stream": "sa-east-1/mf124o1x",
-      "ingestion_time": "2026-06-01T18:12:00.429Z"
+      "log_stream": "llama-finetuned-hyperparametertuning-20260602-3jezju/algo-2",
+      "ingestion_time": "2026-06-02T15:33:04.018Z"
+    },
+    "sagemaker": {
+      "domain_id": "d-v9fkmcr8fh",
+      "domain_name": "ds-platform",
+      "user_profile": "svc-monitoring",
+      "job": {
+        "name": "llama-finetuned-hyperparametertuning-20260602-3jezju",
+        "type": "HyperparameterTuning",
+        "arn": "arn:aws:sagemaker:me-south-1:283746150928:processing-job/llama-finetuned-hyperparametertuning-20260602-3jezju",
+        "status": "Completed",
+        "secondary_status": "Uploading"
+      },
+      "model": { "name": "llama-finetuned", "version": 21 },
+      "pipeline": { "name": "batch-inference-pipeline", "execution_id": "pipe-k91jkiwg9lpg" },
+      "instance": { "type": "ml.p3.8xlarge", "count": 2 },
+      "metrics": {
+        "train:loss": 0.4446,
+        "train:accuracy": 0.7885,
+        "validation:loss": 0.4018,
+        "validation:accuracy": 0.8132,
+        "epoch": 34,
+        "gpu_utilization_pct": 53,
+        "cpu_utilization_pct": 52
+      },
+      "studio": { "lifecycle_config": false, "continuous_logging": false },
+      "cloudwatch_metrics": {
+        "Invocations": { "sum": 408 },
+        "ModelLatency": { "avg": 94000 },
+        "OverheadLatency": { "avg": 3000 },
+        "GPUUtilization": { "avg": 64 },
+        "GPUMemoryUtilization": { "avg": 46 },
+        "CPUUtilization": { "avg": 54 },
+        "DiskUtilization": { "avg": 49 },
+        "MemoryUtilization": { "avg": 56 },
+        "Invocations4XXError": { "sum": 0 },
+        "Invocations5XXError": { "sum": 0 },
+        "ModelSetupTime": { "avg": 780 }
+      }
+    },
+    "s3": {
+      "bucket": {
+        "name": "aws-sagemaker-logs-283746150928",
+        "arn": "arn:aws:s3:::aws-sagemaker-logs-283746150928"
+      },
+      "object": {
+        "key": "AWSLogs/283746150928/sagemaker/me-south-1/2026/06/02/sagemaker_ME397EIT68SHZ6PV4BKX.log.gz"
+      }
     }
   },
-  "event": {
-    "outcome": "success",
-    "duration": 6706413408,
-    "module": "aws",
-    "dataset": "aws.sagemaker_pipelines"
-  },
-  "message": "{\"eventType\":\"PipelineStepStateChange\",\"pipelineName\":\"etl-feature-pipeline\",\"pipelineExecutionId\":\"exec-0cmbkqps8xd3\",\"stepName\":\"Condition-5\",\"stepType\":\"Condition\",\"status\":\"Succeeded\",\"executionDurationSeconds\":4563,\"cacheHit\":true,\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"outcome\":\"Succeeded\"}",
-  "service": { "name": "sagemaker", "type": "aws" },
   "log": { "level": "info" },
+  "user": { "name": "svc-monitoring" },
+  "event": {
+    "action": "TrainingJobStarted",
+    "duration": 4392518067017.897,
+    "outcome": "success",
+    "category": ["process"],
+    "dataset": "aws.sagemaker",
+    "provider": "sagemaker.amazonaws.com",
+    "module": "aws"
+  },
+  "message": "{\"eventType\":\"TrainingJobStarted\",\"domainId\":\"d-v9fkmcr8fh\",\"domainName\":\"ds-platform\",\"jobName\":\"llama-finetuned-hyperparametertuning-20260602-3jezju\",\"jobType\":\"HyperparameterTuning\",\"modelName\":\"llama-finetuned\",\"instanceType\":\"ml.p3.8xlarge\",\"level\":\"INFO\",\"log\":\"Starting hyperparameter tuning job with 44 total trials\",\"timestamp\":\"2026-06-02T15:33:03.184Z\",\"status\":\"Succeeded\"}",
+  "service": { "name": "sagemaker", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.sagemaker_pipelines", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "qyxgfh25i8oes0wnqv8l7sux1qxdk9z6tydd"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "xpkdv65lb4l26zvb7jqx1n8byyq5ql2c640i"
   },
-  "input": { "type": "aws-cloudwatch" }
+  "input": { "type": "aws-cloudwatch" },
+  "related": { "user": ["svc-monitoring"] }
 }

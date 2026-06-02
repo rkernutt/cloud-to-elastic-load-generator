@@ -1,30 +1,45 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "DEBUG",
-  "log": { "level": "debug" },
+  "severity": "INFO",
+  "log": { "level": "info" },
   "labels": {
-    "resource.type": "sourcerepo.googleapis.com/Repo",
-    "repository": "terraform-repo",
-    "api_method": "sourcerepo.googleapis.com/v1/projects/globex-sec-847293/repos",
-    "source_repo_scenario": "repos_create"
+    "build_id": "6dby8zok-5jer-hr3t",
+    "build_trigger_id": "trigger-nightly-mkc67o",
+    "project_id": "globex-sec-847293",
+    "api_method": "cloudbuild.googleapis.com/v1/projects/globex-sec-847293/builds/6dby8zok-5jer-hr3t#step4",
+    "build_story": "step_advanced"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west1",
+    "region": "europe-southwest1",
     "project": { "id": "globex-sec-847293", "name": "Globex Security" },
     "account": { "id": "847293615048", "name": "Globex Security" },
-    "service": { "name": "sourcerepo.googleapis.com" }
+    "service": { "name": "cloudbuild.googleapis.com" }
   },
   "gcp": {
-    "source_repositories": {
-      "scenario": "repos_create",
-      "api_method": "sourcerepo.googleapis.com/v1/projects/globex-sec-847293/repos",
-      "repo_name": "terraform-repo",
-      "event_type": "CREATE_BRANCH",
-      "ref_name": "refs/heads/main",
-      "author_email": "platform-admin@northwind-infra.net",
-      "commit_count": 10,
-      "files_changed": 102
+    "cloud_build": {
+      "story": "step_advanced",
+      "api_method": "cloudbuild.googleapis.com/v1/projects/globex-sec-847293/builds/6dby8zok-5jer-hr3t#step4",
+      "build_id": "6dby8zok-5jer-hr3t",
+      "project_id": "globex-sec-847293",
+      "status": "BUILD_WORKING",
+      "source": "gs://globex-sec-847293_cloudbuild/source/5atd21cja0.tgz",
+      "trigger_id": "trigger-nightly-mkc67o",
+      "steps": [
+        "gcr.io/cloud-builders/git",
+        "gcr.io/cloud-builders/docker",
+        "gcr.io/cloud-builders/gcloud",
+        "gcr.io/kaniko-project/executor:latest",
+        "bash"
+      ],
+      "trigger_name": "trigger-nightly-mkc67o",
+      "source_repo": "github.com/globex/infra",
+      "branch": "release/1.4",
+      "commit_sha": "ed8b2c8b",
+      "step_name": "gcr.io/cloud-builders/docker",
+      "build_duration_seconds": 2912,
+      "images_built": 4,
+      "machine_type": "E2_MEDIUM"
     }
   },
   "event": {
@@ -33,38 +48,52 @@
     "type": ["info"],
     "action": "devtools-operation",
     "outcome": "success",
-    "duration": 7036,
+    "duration": 2912000,
     "module": "gcp",
-    "dataset": "gcp.sourcerepo"
+    "dataset": "gcp.cloudbuild"
   },
-  "message": "CreateRepo LRO completed mirror_config=none",
-  "service": { "name": "source-repositories", "type": "gcp" },
+  "message": "Pushing gcr.io/globex-sec-847293/svc:ed8b2c8b\nLayer 1155e08d: Pushing [=====>     ] 61%",
+  "service": { "name": "cloud-build", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.sourcerepo", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.cloudbuild", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-west1",
-    "id": "0omkl93lsqjqonne5qmmydo1bcf2fe8wwmof"
+    "name": "elastic-agent-gcp-europe-southwest1",
+    "id": "x8irxi532no9iw4s7knru52hc7qkep5w2u4h"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-sec-847293/logs/source-repositories",
+  "logName": "projects/globex-sec-847293/logs/cloud-build",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-sec-847293", "region": "us-west1" }
+    "labels": { "project_id": "globex-sec-847293", "region": "europe-southwest1" }
   },
-  "insertId": "4MNICAWWFK5H",
+  "insertId": "NF7I1NN0MJJI",
   "jsonPayload": {
-    "source_repositories": {
-      "scenario": "repos_create",
-      "api_method": "sourcerepo.googleapis.com/v1/projects/globex-sec-847293/repos",
-      "repo_name": "terraform-repo",
-      "event_type": "CREATE_BRANCH",
-      "ref_name": "refs/heads/main",
-      "author_email": "platform-admin@northwind-infra.net",
-      "commit_count": 10,
-      "files_changed": 102
+    "cloud_build": {
+      "story": "step_advanced",
+      "api_method": "cloudbuild.googleapis.com/v1/projects/globex-sec-847293/builds/6dby8zok-5jer-hr3t#step4",
+      "build_id": "6dby8zok-5jer-hr3t",
+      "project_id": "globex-sec-847293",
+      "status": "BUILD_WORKING",
+      "source": "gs://globex-sec-847293_cloudbuild/source/5atd21cja0.tgz",
+      "trigger_id": "trigger-nightly-mkc67o",
+      "steps": [
+        "gcr.io/cloud-builders/git",
+        "gcr.io/cloud-builders/docker",
+        "gcr.io/cloud-builders/gcloud",
+        "gcr.io/kaniko-project/executor:latest",
+        "bash"
+      ],
+      "trigger_name": "trigger-nightly-mkc67o",
+      "source_repo": "github.com/globex/infra",
+      "branch": "release/1.4",
+      "commit_sha": "ed8b2c8b",
+      "step_name": "gcr.io/cloud-builders/docker",
+      "build_duration_seconds": 2912,
+      "images_built": 4,
+      "machine_type": "E2_MEDIUM"
     },
-    "message": "CreateRepo LRO completed mirror_config=none"
+    "message": "Pushing gcr.io/globex-sec-847293/svc:ed8b2c8b\nLayer 1155e08d: Pushing [=====>     ] 61%"
   }
 }

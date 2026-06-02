@@ -1,63 +1,68 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "us-west-1",
+    "account": { "id": "472918364052", "name": "globex-data-platform" },
     "service": { "name": "cloud9" }
   },
   "aws": {
     "cloud9": {
-      "environment_id": "env-yyetzqnxcb587k2j",
+      "environment_id": "env-cqnqcapw2tt732zv",
       "environment_name": "notebook-env",
-      "scenario": "environment_create",
-      "instance_type": "t3.micro",
+      "scenario": "terminal_exec",
+      "instance_type": "m5.large",
       "connection_type": "CONNECT_SSM",
-      "auto_stop_minutes": 60,
-      "members": 5,
-      "platform": "amazonlinux-2023",
+      "auto_stop_minutes": 30,
+      "members": 3,
+      "platform": "ubuntu-22.04",
       "collaboration": {
-        "environment_arn": "arn:aws:cloud9:eu-north-1:738291046572:environment/env-yyetzqnxcb587k2j",
-        "member_user_arn": "arn:aws:iam::738291046572:user/platform-admin",
+        "environment_arn": "arn:aws:cloud9:us-west-1:472918364052:environment/env-cqnqcapw2tt732zv",
+        "member_user_arn": "arn:aws:iam::472918364052:user/lkim",
         "permission": "read-write"
       },
-      "ide": { "theme": "dark", "c9_plugin_version": "1.45.2" },
-      "network": { "vpc_id": "vpc-96d4e5ac", "subnet_id": "subnet-22ab1b63" }
+      "ide": { "theme": "dark", "c9_plugin_version": "1.44.0" },
+      "network": { "vpc_id": "vpc-e39fbfd3", "subnet_id": "subnet-7fc33b35" }
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloud9-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-cloud9-logs-738291046572"
+        "name": "aws-cloud9-logs-472918364052",
+        "arn": "arn:aws:s3:::aws-cloud9-logs-472918364052"
       },
       "object": {
-        "key": "AWSLogs/738291046572/cloud9/eu-north-1/2026/06/01/cloud9_NN4GZSGR30P9NY95VUB1.log.gz"
+        "key": "AWSLogs/472918364052/cloud9/us-west-1/2026/06/02/cloud9_4IHIK2ZZVH3PB3GY3LUT.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/cloud9/logs",
-      "log_stream": "eu-north-1/vkq56xi7",
-      "ingestion_time": "2026-06-01T18:12:00.404Z"
+      "log_stream": "us-west-1/i5jav09n",
+      "ingestion_time": "2026-06-02T15:33:03.993Z"
     }
   },
   "event": {
-    "action": "environment_create",
-    "outcome": "success",
+    "action": "terminal_exec",
+    "outcome": "failure",
     "category": ["process", "host"],
     "dataset": "aws.cloud9",
     "provider": "cloud9.amazonaws.com",
-    "duration": 26062780,
+    "duration": 19242924,
     "module": "aws"
   },
-  "message": "{\"eventType\":\"environment_create\",\"environmentId\":\"env-yyetzqnxcb587k2j\",\"environmentName\":\"notebook-env\",\"region\":\"eu-north-1\",\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"instanceType\":\"m5.large\",\"subnetId\":\"subnet-98dd3d87\",\"status\":\"Created\"}",
-  "log": { "level": "info" },
+  "message": "{\"eventType\":\"terminal_exec\",\"environmentId\":\"env-cqnqcapw2tt732zv\",\"environmentName\":\"notebook-env\",\"region\":\"us-west-1\",\"timestamp\":\"2026-06-02T15:33:03.184Z\",\"command\":\"docker ps\",\"exitCode\":1,\"errorCode\":\"EnvironmentNotFound\"}",
+  "log": { "level": "error" },
+  "error": {
+    "code": "EnvironmentNotFound",
+    "message": "Cloud9 terminal_exec failed for notebook-env",
+    "type": "aws"
+  },
   "service": { "name": "cloud9", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "9vffubw8e0yawz2rdjbbbu6pvpjgncbkk363"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "kq3iwdz44qxvh7g550rq5vvvwgtsy5d7rsil"
   },
   "input": { "type": "aws-cloudwatch" }
 }

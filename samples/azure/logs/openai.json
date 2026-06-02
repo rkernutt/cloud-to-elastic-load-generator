@@ -1,64 +1,70 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.000Z",
-  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-prod-hn9wh8/providers/Microsoft.CognitiveServices/accounts/oai-bkschx",
+  "resourceId": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-network-c93zba/providers/Microsoft.CognitiveServices/accounts/oai-wea93k",
   "cloud": {
     "provider": "azure",
-    "region": "westus3",
-    "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
+    "region": "mexicocentral",
+    "account": { "id": "a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d", "name": "Meridian-Platform" },
     "service": { "name": "Microsoft.CognitiveServices/accounts" }
   },
-  "category": "RequestResponse",
-  "operationName": "ChatCompletions_Create",
-  "resultType": "Succeeded",
-  "level": "Informational",
-  "correlationId": "bi8nkdxyrsigenkghp2p1mhe6gyuj3us",
-  "callerIpAddress": "121.163.188.171",
+  "category": "ContentFilter",
+  "operationName": "ContentFilterEvaluated",
+  "resultType": "Failed",
+  "level": "Warning",
+  "correlationId": "go8f9017g2slvvoq30ic826nu3f4trzq",
+  "callerIpAddress": "130.144.92.85",
   "properties": {
-    "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-prod-hn9wh8/providers/Microsoft.CognitiveServices/accounts/oai-bkschx",
-    "deploymentName": "gpt-4o",
-    "callerIpAddress": "121.163.188.171",
-    "correlationId": "bi8nkdxyrsigenkghp2p1mhe6gyuj3us",
-    "requestId": "0327201b-3e06-45fa-a192-f4aab192a173",
+    "resourceId": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-network-c93zba/providers/Microsoft.CognitiveServices/accounts/oai-wea93k",
+    "deploymentName": "gpt-4.1-mini",
+    "callerIpAddress": "130.144.92.85",
+    "correlationId": "go8f9017g2slvvoq30ic826nu3f4trzq",
+    "requestId": "6f55cf46-3852-4adb-a6ac-0fbf05310ded",
     "apiVersion": "2024-10-21",
-    "model": "gpt-4o",
-    "promptTokens": 10681,
-    "completionTokens": 2847,
-    "totalTokens": 13528,
-    "durationMs": 17015,
-    "statusCode": 200,
-    "stream": false
+    "category": "ContentFilter",
+    "severity": "medium",
+    "blocked": true,
+    "filteredReason": "self_harm",
+    "model": "gpt-4.1-mini",
+    "promptTokens": 261,
+    "completionTokens": 0,
+    "totalTokens": 261
   },
   "azure": {
     "openai": {
-      "resource_group": "rg-prod-hn9wh8",
-      "deployment": "gpt-4o",
-      "model": "gpt-4o",
-      "prompt_tokens": 10681,
-      "completion_tokens": 2847,
-      "finish_reason": "stop"
+      "resource_group": "rg-network-c93zba",
+      "deployment": "gpt-4.1-mini",
+      "model": "gpt-4.1-mini",
+      "prompt_tokens": 261,
+      "completion_tokens": 0,
+      "finish_reason": "content_filter"
     }
   },
   "event": {
     "kind": "event",
     "category": ["process"],
-    "type": ["access"],
-    "action": "ChatCompletions_Create",
-    "outcome": "success",
-    "duration": 1969835004,
+    "type": ["error"],
+    "action": "ContentFilterEvaluated",
+    "outcome": "failure",
+    "duration": 287822413,
     "module": "azure",
     "dataset": "azure.openai"
   },
-  "message": "Azure OpenAI oai-bkschx/gpt-4o: completion status=200 tokens=13528 in 17015ms",
+  "message": "Azure OpenAI content filter: blocked output reason=self_harm deployment=gpt-4.1-mini",
+  "error": {
+    "code": "ThrottlingException",
+    "message": "Azure OpenAI content filter blocked output.",
+    "type": "azure"
+  },
   "service": { "name": "openai", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.openai", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-westus3",
-    "id": "vcic44uir83r42efu51bnpyp592vp9a26apb"
+    "name": "elastic-agent-azure-mexicocentral",
+    "id": "amcawxrdq0v1qiql5sxllgfyygrjrjlqm3sh"
   },
   "input": { "type": "azure-eventhub" }
 }

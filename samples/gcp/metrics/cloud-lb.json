@@ -3,74 +3,61 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west12",
-    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
-    "account": { "id": "529384716205", "name": "Globex Shared Services" },
-    "service": { "name": "serverless-neg" }
+    "region": "us-central1",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
+    "service": { "name": "cloud-lb" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west12",
-    "ephemeral_id": "q8s2uhxgzetb2eyzb2s5nn7p35rsymaurn4m"
+    "name": "metricbeat-gcp-us-central1",
+    "ephemeral_id": "fm7udp0ub1ci6cysogg6cc8f5vo71eyt0shn"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "loadbalancing.googleapis.com/https/backend_request_count",
-      "labels": {
-        "protocol": "HTTP/2.0",
-        "response_code_class": "200",
-        "response_code": "200",
-        "cache_result": "UNKNOWN",
-        "matcher_type": "PATH_MATCHER",
-        "matcher_name": "default",
-        "backend_scope": "zones/europe-west12-b",
-        "backend_scope_type": "ZONE",
-        "backend_target_name": "ae-svc-catalog",
-        "backend_target_type": "NETWORK_ENDPOINT_GROUP"
-      }
+      "type": "loadbalancing.googleapis.com/https/request_count",
+      "labels": { "response_code_class": "2xx" }
     },
     "resource": {
-      "type": "gce_backend_service",
+      "type": "https_lb_rule",
       "labels": {
-        "project_id": "globex-shared-529384",
-        "backend_service_id": "be-sneg-cr-public",
-        "location": "europe-west12"
+        "project_id": "globex-stg-739158",
+        "url_map_name": "api-map",
+        "forwarding_rule_name": "fr-api-https",
+        "target_proxy_name": "tp-api-https",
+        "region": "us-central1"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "760271" } }
+      {
+        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
+        "value": { "int64Value": "3461802" }
+      }
     ]
   },
   "gcp": {
-    "serverless-neg": {
+    "cloud-lb": {
       "labels": {
-        "project_id": "globex-shared-529384",
-        "backend_service_id": "be-sneg-cr-public",
-        "location": "europe-west12",
-        "protocol": "HTTP/2.0",
-        "response_code_class": "200",
-        "response_code": "200",
-        "cache_result": "UNKNOWN",
-        "matcher_type": "PATH_MATCHER",
-        "matcher_name": "default",
-        "backend_scope": "zones/europe-west12-b",
-        "backend_scope_type": "ZONE",
-        "backend_target_name": "ae-svc-catalog",
-        "backend_target_type": "NETWORK_ENDPOINT_GROUP"
+        "project_id": "globex-stg-739158",
+        "url_map_name": "api-map",
+        "forwarding_rule_name": "fr-api-https",
+        "target_proxy_name": "tp-api-https",
+        "region": "us-central1",
+        "response_code_class": "2xx"
       },
       "metrics": {
-        "loadbalancing.googleapis.com/https/backend_request_count": {
-          "avg": 760271,
-          "sum": 760271,
+        "loadbalancing.googleapis.com/https/request_count": {
+          "avg": 3461802,
+          "sum": 3461802,
           "count": 1
         }
       }
     }
   },
-  "metricset": { "name": "serverless-neg", "period": 60000 },
+  "metricset": { "name": "cloud-lb", "period": 60000 },
   "data_stream": {
     "type": "metrics",
     "dataset": "gcp.loadbalancing_metrics",

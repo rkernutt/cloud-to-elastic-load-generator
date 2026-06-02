@@ -1,71 +1,62 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-west-3",
+    "account": { "id": "391827465039", "name": "globex-payments-prod" },
     "service": { "name": "lambda" }
   },
-  "trace": { "id": "1-6a1dcb6f-rvxvo38gynsevv6inrlbmdrm" },
   "aws": {
     "dimensions": {
-      "FunctionName": "webhook-receiver",
-      "Resource": "webhook-receiver:$LATEST",
-      "ExecutedVersion": "$LATEST",
-      "EventSourceMappingUUID": "0f5a473b-6b92-428f-8821-d7ebfef68cb0"
+      "FunctionName": "notification-sender",
+      "Resource": "notification-sender:$LATEST",
+      "ExecutedVersion": "$LATEST"
     },
     "cloudwatch": {
-      "log_group": "/aws/lambda/webhook-receiver",
-      "log_stream": "2026/06/01[$LATEST]5k673txvi9jlmyjtx68la74e3iqobqsk",
-      "ingestion_time": "2026-06-01T18:12:00.249Z"
+      "log_group": "/aws/lambda/notification-sender",
+      "log_stream": "2026/06/02[$LATEST]5359de915f617f621b3abd2cf57e9447",
+      "ingestion_time": "2026-06-02T15:33:03.824Z"
     },
     "lambda": {
       "function": {
-        "name": "webhook-receiver",
+        "name": "notification-sender",
         "version": "$LATEST",
-        "arn": "arn:aws:lambda:ap-northeast-3:738291046572:function:webhook-receiver",
-        "runtime": "python3.12",
-        "handler": "handler.handler"
+        "arn": "arn:aws:lambda:eu-west-3:391827465039:function:notification-sender",
+        "runtime": "nodejs20.x",
+        "handler": "index.handler"
       },
-      "request_id": "9fce345a-0d21-4cc8-b6dd-234ed4318b4a",
-      "trace_id": "1-6a1dcb6f-rvxvo38gynsevv6inrlbmdrm",
-      "event_type": "start",
+      "request_id": "56e00ffe-feba-48d4-8df1-f27afea5b412",
+      "event_type": "app",
       "metrics": {
         "Invocations": { "sum": 1, "avg": 1 },
         "Errors": { "sum": 0, "avg": 0 },
         "Throttles": { "sum": 0, "avg": 0 },
-        "Duration": { "avg": 1564.1900840434685, "max": 1877.028100852162 },
-        "ConcurrentExecutions": { "avg": 272 },
-        "UnreservedConcurrentExecutions": { "avg": 390 },
+        "Duration": { "avg": 1134.7312498529002, "max": 1361.6774998234803 },
+        "ConcurrentExecutions": { "avg": 25 },
+        "UnreservedConcurrentExecutions": { "avg": 574 },
         "DeadLetterErrors": { "sum": 0, "avg": 0 },
         "IteratorAge": { "avg": 0 },
-        "AsyncEventsReceived": { "sum": 91 },
-        "AsyncEventAge": { "avg": 2223 },
-        "memory_size_mb": 256,
-        "max_memory_used_mb": 138,
-        "instance_max_memory": 256,
-        "PolledEventCount": { "sum": 951 },
-        "InvokedEventCount": { "sum": 215 },
-        "FilteredOutEventCount": { "sum": 9 },
-        "FailedInvokeEventCount": { "sum": 0 },
-        "DeletedEventCount": { "sum": 8 },
-        "OnFailureDestinationDeliveredEventCount": { "sum": 0 }
+        "AsyncEventsReceived": { "sum": 57 },
+        "AsyncEventAge": { "avg": 458 },
+        "memory_size_mb": 512,
+        "max_memory_used_mb": 418,
+        "instance_max_memory": 512
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-lambda-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-lambda-logs-738291046572"
+        "name": "aws-lambda-logs-391827465039",
+        "arn": "arn:aws:s3:::aws-lambda-logs-391827465039"
       },
       "object": {
-        "key": "AWSLogs/738291046572/lambda/ap-northeast-3/2026/06/01/lambda_86TL3BZR1LAC9C9LV7S9.log.gz"
+        "key": "AWSLogs/391827465039/lambda/eu-west-3/2026/06/02/lambda_EDMVNYAP3Y13QC8YI1XD.log.gz"
       }
     }
   },
-  "log": { "level": "warn" },
-  "message": "START RequestId: 9fce345a-0d21-4cc8-b6dd-234ed4318b4a Version: $LATEST",
+  "log": { "level": "info" },
+  "message": "{\"level\":\"INFO\",\"location\":\"handler.ts:handler\",\"message\":\"Item created in DynamoDB\",\"timestamp\":\"2026-06-02T15:33:03.184Z\",\"service\":\"notification-sender\",\"cold_start\":false,\"function_name\":\"notification-sender\",\"function_memory_size\":512,\"function_arn\":\"arn:aws:lambda:eu-west-3:391827465039:function:notification-sender\",\"function_request_id\":\"56e00ffe-feba-48d4-8df1-f27afea5b412\",\"sampling_rate\":0}",
   "event": {
-    "duration": 1564190084.0434685,
+    "duration": 1134731249.8529003,
     "outcome": "success",
     "category": ["process"],
     "type": ["info"],
@@ -73,15 +64,15 @@
     "provider": "lambda.amazonaws.com",
     "module": "aws"
   },
-  "service": { "name": "webhook-receiver", "type": "lambda" },
-  "host": { "name": "ip-73-248-59-211.ec2.internal", "hostname": "lambda-ggstgvdr" },
+  "service": { "name": "notification-sender", "type": "lambda" },
+  "host": { "name": "ip-119-139-105-207.ec2.internal", "hostname": "lambda-5u5bzfrl" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.lambda_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "jegpjo415i2oxdu70aq2izbfjps9bx0xutmw"
+    "name": "filebeat-aws-eu-west-3",
+    "ephemeral_id": "dnnrsdqshu5uqixvxzs036k5w2i09a966l48"
   },
   "input": { "type": "aws-cloudwatch" }
 }

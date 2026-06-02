@@ -1,64 +1,70 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
-  "log": { "level": "info" },
+  "severity": "WARNING",
+  "log": { "level": "warning" },
   "labels": {
     "resource.type": "parallelstore.googleapis.com/Instance",
-    "location": "us-central1-f",
-    "instance_id": "ps-hpc-prfby",
-    "api_method": "parallelstore.googleapis.com/v1/projects/{project}/locations/{location}/instances.list"
+    "location": "asia-northeast2-b",
+    "instance_id": "ps-hpc-r9ygj",
+    "api_method": "parallelstore.googleapis.com/v1/projects/{project}/locations/{location}/instances/importData"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-central1",
-    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
-    "account": { "id": "529384716205", "name": "Globex Shared Services" },
+    "region": "asia-northeast2",
+    "project": { "id": "globex-dev-615094", "name": "Globex Development" },
+    "account": { "id": "615094738261", "name": "Globex Development" },
     "service": { "name": "parallelstore.googleapis.com" }
   },
   "gcp": {
     "parallelstore": {
-      "instance_id": "ps-hpc-prfby",
-      "zone": "us-central1-f",
-      "throughput_mib_per_sec": 2332,
-      "api_method": "parallelstore.googleapis.com/v1/projects/{project}/locations/{location}/instances.list",
-      "scenario": "capacity_rebalance_ok"
+      "instance_id": "ps-hpc-r9ygj",
+      "zone": "asia-northeast2-b",
+      "throughput_mib_per_sec": 639,
+      "api_method": "parallelstore.googleapis.com/v1/projects/{project}/locations/{location}/instances/importData",
+      "scenario": "export_err"
     }
   },
   "event": {
     "kind": "event",
     "category": ["process"],
-    "type": ["info"],
+    "type": ["error"],
     "action": "extended-service",
     "dataset": "gcp.parallelstore",
     "module": "gcp",
-    "outcome": "success",
-    "duration": 24085
+    "outcome": "failure",
+    "duration": 526146
   },
-  "message": "Stripe rebalance OK instance=ps-hpc-prfby migrated_objects=90234 eta_min=158",
+  "message": "Export job gs://globex-dev-615094-scratch/export-R16RG1 FAILED stage=METADATA",
+  "gcp.rpc": { "status_code": "DEADLINE_EXCEEDED" },
+  "error": {
+    "code": "DEADLINE_EXCEEDED",
+    "message": "Deadline exceeded before the operation could complete",
+    "type": "gcp"
+  },
   "service": { "name": "parallelstore", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.parallelstore", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-central1",
-    "id": "9i3tumfrx831e4x8upwal5jtwcs4akboiphv"
+    "name": "elastic-agent-gcp-asia-northeast2",
+    "id": "6jdsaroe61wd51k1ay8u945ln0qrps777qmn"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-529384/logs/parallelstore",
+  "logName": "projects/globex-dev-615094/logs/parallelstore",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-shared-529384", "region": "us-central1" }
+    "labels": { "project_id": "globex-dev-615094", "region": "asia-northeast2" }
   },
-  "insertId": "72TJQHRTTKKG",
+  "insertId": "G6K1MK6LQ85M",
   "jsonPayload": {
     "parallelstore": {
-      "instance_id": "ps-hpc-prfby",
-      "zone": "us-central1-f",
-      "throughput_mib_per_sec": 2332,
-      "api_method": "parallelstore.googleapis.com/v1/projects/{project}/locations/{location}/instances.list",
-      "scenario": "capacity_rebalance_ok"
+      "instance_id": "ps-hpc-r9ygj",
+      "zone": "asia-northeast2-b",
+      "throughput_mib_per_sec": 639,
+      "api_method": "parallelstore.googleapis.com/v1/projects/{project}/locations/{location}/instances/importData",
+      "scenario": "export_err"
     },
-    "message": "Stripe rebalance OK instance=ps-hpc-prfby migrated_objects=90234 eta_min=158"
+    "message": "Export job gs://globex-dev-615094-scratch/export-R16RG1 FAILED stage=METADATA"
   }
 }

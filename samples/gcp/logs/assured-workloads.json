@@ -1,70 +1,76 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "info" },
-  "labels": {},
-  "severity": "NOTICE",
-  "logName": "projects/globex-dev-615094/logs/assuredworkloads.googleapis.com%2Fviolations",
-  "insertId": "deiu42rfqkp0m465",
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "PERMISSION_DENIED" },
+  "error": {
+    "code": "PERMISSION_DENIED",
+    "message": "Failed to fetch organization policy for compliance evaluation",
+    "type": "Internal"
+  },
+  "labels": { "gcp.rpc.status_code": "PERMISSION_DENIED" },
+  "severity": "ERROR",
+  "logName": "projects/globex-sec-847293/logs/assuredworkloads.googleapis.com%2Fviolations",
+  "insertId": "r28kqdiyp67jbo4o",
   "resource": {
     "type": "assured_workload",
-    "labels": { "project_id": "globex-dev-615094", "workload": "cjis-criminal-justice" }
+    "labels": { "project_id": "globex-sec-847293", "workload": "fedramp-moderate-workload" }
   },
   "jsonPayload": {
-    "workload": "organizations/144454/locations/us/assuredWorkloads/cjis-criminal-justice",
-    "complianceRegime": "HIPAA",
+    "workload": "organizations/462810/locations/us/assuredWorkloads/fedramp-moderate-workload",
+    "complianceRegime": "FEDRAMP_MODERATE",
     "violation": {
-      "type": "RESOURCE_OUTSIDE_COMPLIANCE_BOUNDS",
-      "resourceType": "KEYRING",
-      "resource": "projects/globex-dev-615094"
+      "type": "FORBIDDEN_SERVICE",
+      "resourceType": "FOLDER",
+      "resource": "projects/globex-sec-847293"
     },
-    "remediation": { "status": "RESOLVED", "assignedTo": "security@globex.io" }
+    "remediation": { "status": "OPEN", "assignedTo": "security@globex.io" }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west1",
-    "project": { "id": "globex-dev-615094", "name": "Globex Development" },
-    "account": { "id": "615094738261", "name": "Globex Development" },
+    "region": "europe-west3",
+    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
+    "account": { "id": "847293615048", "name": "Globex Security" },
     "service": { "name": "assured-workloads" }
   },
   "gcp": {
     "assured_workloads": {
       "json_payload": {
-        "workload": "organizations/144454/locations/us/assuredWorkloads/cjis-criminal-justice",
-        "complianceRegime": "HIPAA",
+        "workload": "organizations/462810/locations/us/assuredWorkloads/fedramp-moderate-workload",
+        "complianceRegime": "FEDRAMP_MODERATE",
         "violation": {
-          "type": "RESOURCE_OUTSIDE_COMPLIANCE_BOUNDS",
-          "resourceType": "KEYRING",
-          "resource": "projects/globex-dev-615094"
+          "type": "FORBIDDEN_SERVICE",
+          "resourceType": "FOLDER",
+          "resource": "projects/globex-sec-847293"
         },
-        "remediation": { "status": "RESOLVED", "assignedTo": "security@globex.io" }
+        "remediation": { "status": "OPEN", "assignedTo": "security@globex.io" }
       },
-      "workload_name": "cjis-criminal-justice",
-      "compliance_regime": "HIPAA",
-      "resource_type": "KEYRING",
-      "violation_type": "RESOURCE_OUTSIDE_COMPLIANCE_BOUNDS",
-      "remediation_status": "RESOLVED",
-      "resource_name": "projects/globex-dev-615094"
+      "workload_name": "fedramp-moderate-workload",
+      "compliance_regime": "FEDRAMP_MODERATE",
+      "resource_type": "FOLDER",
+      "violation_type": "FORBIDDEN_SERVICE",
+      "remediation_status": "OPEN",
+      "resource_name": "projects/globex-sec-847293"
     }
   },
   "event": {
     "kind": "event",
     "category": ["intrusion_detection"],
-    "type": ["info"],
+    "type": ["denied"],
     "action": "security-event",
-    "outcome": "success",
-    "duration": 431000000,
+    "outcome": "failure",
+    "duration": 4310000000,
     "module": "gcp",
     "dataset": "gcp.assuredworkloads"
   },
-  "message": "assuredworkloads.googleapis.com/Violation RESOURCE_OUTSIDE_COMPLIANCE_BOUNDS regime=HIPAA",
+  "message": "assuredworkloads.googleapis.com/Violation FORBIDDEN_SERVICE regime=FEDRAMP_MODERATE",
   "service": { "name": "assured-workloads", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.assuredworkloads", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-west1",
-    "id": "7guqs2afhc3f6lxnmr1fghxtlxk2u1140yzb"
+    "name": "elastic-agent-gcp-europe-west3",
+    "id": "j3xaq2s3hkc7ql5a0o3s3007i80ydgx3o5af"
   },
   "input": { "type": "http_endpoint" }
 }

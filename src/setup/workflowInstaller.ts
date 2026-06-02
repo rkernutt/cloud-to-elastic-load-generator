@@ -16,8 +16,10 @@
  */
 import { proxyCall, isKibanaFeatureUnavailable } from "./setupProxy";
 
-/** Default workflow name from the bundled YAML — keep in sync with the asset. */
+/** Workflow names from the bundled YAMLs — keep in sync with the assets. */
 export const DEFAULT_WORKFLOW_NAME = "Data Pipeline Alert — CMDB Enrichment & Notification";
+export const SECURITY_WORKFLOW_NAME = "Security Alert — CMDB Enrichment & Attack Context";
+export const DNS_WORKFLOW_NAME = "DNS Alert Enrichment for Attack Discovery";
 
 export interface WorkflowOverrides {
   /** Recipient address used by the `notify_email` step. */

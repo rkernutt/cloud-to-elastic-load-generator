@@ -1,62 +1,57 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ca-central-1",
+    "account": { "id": "631827495103", "name": "globex-networking" },
     "service": { "name": "paymentcryptography" }
   },
   "aws": {
-    "dimensions": { "KeyAlgorithm": "AES_256", "Operation": "GeneratePinData" },
+    "dimensions": { "KeyAlgorithm": "TDES_3KEY", "Operation": "GeneratePinData" },
     "paymentcryptography": {
-      "key_arn": "arn:aws:payment-cryptography:eu-north-1:738291046572:key/22B0Z6RMMUVVRAAH8XSPHYRA2RQ35ZPBPSX0",
-      "key_alias": "alias/payment-pin-key",
-      "key_algorithm": "AES_256",
-      "key_usage": "TR31_P0_PIN_ENCRYPTION_KEY",
+      "key_arn": "arn:aws:payment-cryptography:ca-central-1:631827495103:key/7L1S9AKYGMEJ3GW1Z5OC2EW937I9KS3ISUD0",
+      "key_alias": "alias/payment-mac-key",
+      "key_algorithm": "TDES_3KEY",
+      "key_usage": "TR31_M3_ISO_9797_3_MAC_KEY",
       "operation": "GeneratePinData",
-      "key_state": "PENDING_DELETE",
+      "key_state": "CREATE_COMPLETE",
       "exportable": false,
-      "key_check_value": "L5CUH1"
+      "key_check_value": "PTEKNW"
     },
     "s3": {
       "bucket": {
-        "name": "aws-paymentcryptography-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-paymentcryptography-logs-738291046572"
+        "name": "aws-paymentcryptography-logs-631827495103",
+        "arn": "arn:aws:s3:::aws-paymentcryptography-logs-631827495103"
       },
       "object": {
-        "key": "AWSLogs/738291046572/paymentcryptography/eu-north-1/2026/06/01/paymentcryptography_Z84LECRFX5X78G7577LF.log.gz"
+        "key": "AWSLogs/631827495103/paymentcryptography/ca-central-1/2026/06/02/paymentcryptography_1NY29LC373GQBZ1JRY6K.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/paymentcryptography/logs",
-      "log_stream": "eu-north-1/ycvw4kpz",
-      "ingestion_time": "2026-06-01T18:12:00.359Z"
+      "log_stream": "ca-central-1/1562kexk",
+      "ingestion_time": "2026-06-02T15:33:03.943Z"
     }
   },
   "event": {
-    "action": "EncryptData",
-    "outcome": "failure",
+    "action": "GenerateMac",
+    "outcome": "success",
     "category": ["authentication"],
     "type": ["start"],
     "dataset": "aws.paymentcryptography",
     "provider": "payment-cryptography.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"eventVersion\":\"1.11\",\"eventSource\":\"payment-cryptography.amazonaws.com\",\"eventName\":\"GeneratePinData\",\"eventTime\":\"2026-06-01T18:11:59.613Z\",\"awsRegion\":\"eu-north-1\",\"recipientAccountId\":\"738291046572\",\"requestParameters\":{\"keyIdentifier\":\"arn:aws:payment-cryptography:eu-north-1:738291046572:key/22B0Z6RMMUVVRAAH8XSPHYRA2RQ35ZPBPSX0\"},\"responseElements\":{\"keyArn\":\"arn:aws:payment-cryptography:eu-north-1:738291046572:key/22B0Z6RMMUVVRAAH8XSPHYRA2RQ35ZPBPSX0\",\"keyAlgorithm\":\"AES_256\",\"keyUsage\":\"TR31_P0_PIN_ENCRYPTION_KEY\",\"keyState\":\"PENDING_DELETE\",\"keyCheckValue\":\"87SVT3\"},\"requestID\":\"7e172673-18d4-45f8-9140-d3c33abcdf98\",\"eventID\":\"f5ef318b-8407-49e2-95fd-2e74277bad49\",\"eventType\":\"AwsApiCall\",\"errorCode\":\"AccessDeniedException\"}",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ValidationException",
-    "message": "Payment Cryptography operation failed",
-    "type": "authentication"
-  },
+  "message": "{\"eventVersion\":\"1.11\",\"eventSource\":\"payment-cryptography.amazonaws.com\",\"eventName\":\"GeneratePinData\",\"eventTime\":\"2026-06-02T15:33:03.184Z\",\"awsRegion\":\"ca-central-1\",\"recipientAccountId\":\"631827495103\",\"requestParameters\":{\"keyIdentifier\":\"arn:aws:payment-cryptography:ca-central-1:631827495103:key/7L1S9AKYGMEJ3GW1Z5OC2EW937I9KS3ISUD0\"},\"responseElements\":{\"keyArn\":\"arn:aws:payment-cryptography:ca-central-1:631827495103:key/7L1S9AKYGMEJ3GW1Z5OC2EW937I9KS3ISUD0\",\"keyAlgorithm\":\"TDES_3KEY\",\"keyUsage\":\"TR31_M3_ISO_9797_3_MAC_KEY\",\"keyState\":\"CREATE_COMPLETE\",\"keyCheckValue\":\"5LK09I\"},\"requestID\":\"135e8594-1907-4c91-8e27-258c017bd752\",\"eventID\":\"1dc8c164-0d08-41fe-9007-2ef563ac2801\",\"eventType\":\"AwsApiCall\"}",
+  "log": { "level": "info" },
   "service": { "name": "paymentcryptography", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "uy65p1v2qqyecca37lf530mafpgcu1htlmy4"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "zed8gosb1xtb9ur654m6hr3pc7lfs3gg5zr9"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,28 +1,28 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "5f228ea54dd7998939af872c10f8e3b2" },
+  "trace": { "id": "7345f036adde1d2fd20951509d2c8051" },
   "transaction": {
-    "id": "e1f3d24e450d9e2e",
-    "name": "Batch.SubmitJob video-transcode",
+    "id": "eec8316137563073",
+    "name": "Batch.SubmitJob feature-backfill",
     "type": "request",
-    "duration": { "us": 45708492 },
+    "duration": { "us": 255633712 },
     "result": "success",
     "sampled": true,
     "span_count": { "started": 4, "dropped": 0 }
   },
   "service": {
-    "name": "hpc-submit-api",
+    "name": "data-pipeline-driver",
     "environment": "production",
-    "version": "2.14.3",
-    "language": { "name": "python" },
-    "runtime": { "name": "CPython", "version": "3.12.3" },
-    "framework": { "name": "FastAPI" }
+    "version": "1.42.0",
+    "language": { "name": "java" },
+    "runtime": { "name": "OpenJDK", "version": "21.0.3" },
+    "framework": { "name": "Spring Boot" }
   },
-  "agent": { "name": "otlp", "version": "0.6.0" },
+  "agent": { "name": "otlp", "version": "1.6.0" },
   "telemetry": {
-    "sdk": { "name": "opentelemetry", "language": "python", "version": "1.29.0" },
-    "distro": { "name": "elastic", "version": "0.6.0" },
+    "sdk": { "name": "opentelemetry", "language": "java", "version": "2.12.0" },
+    "distro": { "name": "elastic", "version": "1.6.0" },
     "otel_pipeline": {
       "hop": "otel_collector",
       "export_protocol": "otlp",
@@ -31,11 +31,14 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
+    "region": "us-east-1",
     "account": { "id": "293847561023", "name": "staging-aws" },
     "service": { "name": "batch" }
   },
-  "labels": { "aws.batch.job_queue": "etl-spot-queue", "aws.batch.job_name": "video-transcode" },
+  "labels": {
+    "aws.batch.job_queue": "gpu-training-queue",
+    "aws.batch.job_name": "feature-backfill"
+  },
   "event": { "outcome": "success", "module": "aws", "dataset": "aws.cloudwatch_logs" },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
   "ecs": { "version": "8.11.0" },

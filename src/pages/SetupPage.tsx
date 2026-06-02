@@ -1111,6 +1111,7 @@ export function SetupPage({
       kafka: "msk",
       "amazon-msk": "msk",
       "amazon-msk-overview": "msk",
+      "amazon-mq": "amazonmq",
       cloudwatch_rum: "cloudwatchrum",
       kinesisvideo: "kinesisvideo",
       ecs_metrics: "ecs",
@@ -2733,33 +2734,43 @@ export function SetupPage({
       <EuiSpacer size="m" />
 
       <InstallerRow
-        label="Alert-enrichment Workflow"
+        label="Alert-enrichment Workflows (×3)"
         badge="Kibana"
         description={
           removeMode ? (
             <>
-              <strong>Removes</strong> the bundled{" "}
-              <EuiCode>{"data-pipeline-alert-enrichment"}</EuiCode> Kibana Workflow.
+              <strong>Removes</strong> the three bundled alert-enrichment Kibana Workflows:{" "}
+              <EuiCode>{"data-pipeline-alert-enrichment"}</EuiCode>,{" "}
+              <EuiCode>{"security-alert-enrichment"}</EuiCode>, and{" "}
+              <EuiCode>{"dns-alert-enrichment"}</EuiCode>.
             </>
           ) : (
             <>
-              Installs the bundled <EuiCode>{"data-pipeline-alert-enrichment.yaml"}</EuiCode> Kibana
-              Workflow that enriches data-pipeline alerts with ServiceNow CMDB context, opens a case
-              for repeat incidents, and emails the on-call group via the deployment's preconfigured
-              SMTP connector. Requires Workflows (preview from Stack 9.3, GA on Cloud Hosted) and an
-              Enterprise licence — the wizard auto-detects 9.4+ and uses the new
-              <EuiCode>{"cases.createCase"}</EuiCode> step when available. The same YAML is also
-              available at <EuiCode>{"workflows/data-pipeline-alert-enrichment.yaml"}</EuiCode> /{" "}
+              Installs three bundled Kibana Workflows:
+              <EuiSpacer size="xs" />
+              <strong>1.</strong> <EuiCode>{"data-pipeline-alert-enrichment"}</EuiCode> — enriches
+              data-pipeline alerts with ServiceNow CMDB context and emails the on-call group.
+              <br />
+              <strong>2.</strong> <EuiCode>{"security-alert-enrichment"}</EuiCode> — enriches
+              security alerts (GuardDuty, IAM, VPC) with CMDB context and emails the SOC team.
+              <br />
+              <strong>3.</strong> <EuiCode>{"dns-alert-enrichment"}</EuiCode> — enriches DNS
+              detection alerts with threat-intel lookups and emails the security team.
+              <EuiSpacer size="xs" />
+              Requires Workflows (preview from Stack 9.3, GA on Cloud Hosted) and an Enterprise
+              licence — the wizard auto-detects 9.4+ and uses the new{" "}
+              <EuiCode>{"cases.createCase"}</EuiCode> step when available. The same YAMLs are also
+              available in <EuiCode>{"workflows/"}</EuiCode> /{" "}
               <EuiCode>{"assets/workflows/"}</EuiCode> for manual paste into Stack Management →
               Workflows.
               <EuiSpacer size="xs" />
-              <strong>The workflow installs DISABLED on purpose.</strong> Before turning it on, you
+              <strong>All workflows install DISABLED on purpose.</strong> Before turning them on, you
               still need to: (1) review the notification step (default is email — Slack / Teams /
               PagerDuty / ServiceNow ITSM / Opsgenie / webhook variants ship as commented blocks in
-              the YAML); (2) attach the workflow to your alerting rules — every Cloud Loadgen rule
-              installs with <EuiCode>{"actions=[]"}</EuiCode>, so the workflow only fires once you
-              wire it up in <em>Stack Management → Rules → &lt;rule&gt; → Actions → Workflow</em>;
-              and (3) flip the workflow's <em>Enabled</em> toggle in{" "}
+              the YAML); (2) attach each workflow to your alerting rules — every Cloud Loadgen rule
+              installs with <EuiCode>{"actions=[]"}</EuiCode>, so workflows only fire once you
+              wire them up in <em>Stack Management → Rules → &lt;rule&gt; → Actions → Workflow</em>;
+              and (3) flip each workflow's <em>Enabled</em> toggle in{" "}
               <em>Stack Management → Workflows</em>.
             </>
           )

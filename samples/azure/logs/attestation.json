@@ -1,61 +1,68 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-prod-lv4jbc/providers/Microsoft.Attestation/attestationProviders/attp-4mi9s",
-  "operationName": "Microsoft.Authorization/roleAssignments/write",
-  "category": "AccessControl",
-  "resultType": "Success",
-  "resultSignature": "204",
-  "callerIpAddress": "115.23.59.245",
-  "correlationId": "ceb8cb80-3b21-48af-9a15-b0724305ea05",
-  "level": "Information",
+  "resourceId": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-analytics-n83sc4/providers/Microsoft.Attestation/attestationProviders/attp-ni3d5",
+  "operationName": "Microsoft.Attestation/attest",
+  "category": "FraudSignals",
+  "resultType": "Failure",
+  "resultSignature": "nonce_replayed",
+  "callerIpAddress": "27.163.217.182",
+  "correlationId": "4cb64971-120e-43d9-bbdd-32bb4158755f",
+  "level": "Error",
   "properties": {
-    "roleName": "AttestationContributor",
-    "statusCode": 204,
-    "assigneeOid": "034ff283-e354-44e2-b1c9-9d2234b2ee6b",
-    "correlationId": "ceb8cb80-3b21-48af-9a15-b0724305ea05"
+    "nonce": "4f91ccbd-f812-404b-b8f8-4a8a04a05330",
+    "replayDetected": true,
+    "traceId": "bac19e8b-f81f-44d9-a24b-92027b520743",
+    "statusCode": 409,
+    "correlationId": "4cb64971-120e-43d9-bbdd-32bb4158755f"
   },
   "cloud": {
     "provider": "azure",
-    "region": "westeurope",
+    "region": "eastasia",
     "account": { "id": "c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d", "name": "Northpeak-Dev" },
     "service": { "name": "Microsoft.Attestation/attestationProviders" }
   },
   "azure": {
     "attestation": {
-      "provider": "attp-4mi9s",
-      "resource_group": "rg-prod-lv4jbc",
-      "resource_id": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-prod-lv4jbc/providers/Microsoft.Attestation/attestationProviders/attp-4mi9s",
-      "category": "RBAC",
-      "correlation_id": "ceb8cb80-3b21-48af-9a15-b0724305ea05",
+      "provider": "attp-ni3d5",
+      "resource_group": "rg-analytics-n83sc4",
+      "resource_id": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-analytics-n83sc4/providers/Microsoft.Attestation/attestationProviders/attp-ni3d5",
+      "category": "ReplayBlock",
+      "correlation_id": "4cb64971-120e-43d9-bbdd-32bb4158755f",
       "properties": {
-        "roleName": "AttestationContributor",
-        "statusCode": 204,
-        "assigneeOid": "034ff283-e354-44e2-b1c9-9d2234b2ee6b",
-        "correlationId": "ceb8cb80-3b21-48af-9a15-b0724305ea05"
+        "nonce": "4f91ccbd-f812-404b-b8f8-4a8a04a05330",
+        "replayDetected": true,
+        "traceId": "bac19e8b-f81f-44d9-a24b-92027b520743",
+        "statusCode": 409,
+        "correlationId": "4cb64971-120e-43d9-bbdd-32bb4158755f"
       }
     }
   },
   "event": {
     "kind": "event",
     "category": ["intrusion_detection"],
-    "type": ["info"],
-    "action": "Microsoft.Authorization/roleAssignments/write",
-    "outcome": "success",
-    "duration": 13051450976856,
+    "type": ["denied"],
+    "action": "Microsoft.Attestation/attest",
+    "outcome": "failure",
+    "duration": 14345211362304,
     "module": "azure",
     "dataset": "azure.attestation"
   },
-  "message": "AttestationContributor assigned",
+  "message": "Blocked replayed nonce=4f91ccbd trace=bac19e8b",
+  "error": {
+    "code": "InternalServerError",
+    "message": "Service returned an internal error while executing the inference request.",
+    "type": "azure"
+  },
   "service": { "name": "attestation", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.attestation", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-westeurope",
-    "id": "pesimtijadhhr8dayh594kkjqmvq7vdi2h3j"
+    "name": "elastic-agent-azure-eastasia",
+    "id": "k1rroi6ndwninegqhjiqmqzv5m9aikyk5l9l"
   },
   "input": { "type": "azure-eventhub" }
 }

@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,52 +7,45 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" }
+    "region": "ca-west-1",
+    "account": { "id": "391827465039", "name": "globex-payments-prod" }
   },
   "orchestrator": {
-    "cluster": { "id": "data-processing-eks", "name": "data-processing-eks" },
+    "cluster": { "id": "staging-eks", "name": "staging-eks" },
     "type": "kubernetes",
-    "namespace": "default"
+    "namespace": "kube-system"
   },
   "resource": {
-    "id": "arn:aws:eks:ap-south-1:501938274650:cluster/data-processing-eks",
-    "name": "data-processing-eks",
+    "id": "arn:aws:eks:ca-west-1:391827465039:cluster/staging-eks",
+    "name": "staging-eks",
     "type": "eks-cluster",
     "sub_type": "cluster"
   },
   "rule": {
-    "id": "c28e606d-f6a7-58b2-820f-e2fb702bf956",
-    "name": "Restrict Access to the Control Plane Endpoint",
-    "section": "5.4.1",
-    "description": "Enable Endpoint Private Access to restrict access to the cluster's control plane to only an allowlist of authorized IPs.",
-    "tags": ["CIS", "EKS", "CIS 5.4.1", "Cluster Networking"],
+    "id": "4cfe4df4-4157-53bb-820f-278fe02ec960",
+    "name": "Encrypt traffic to HTTPS load balancers with TLS certificates",
+    "section": "5.4.5",
+    "description": "Encrypt traffic to HTTPS load balancers using TLS certificates.",
+    "tags": ["CIS", "EKS", "CIS 5.4.5", "Cluster Networking"],
     "benchmark": {
       "id": "cis_eks",
       "name": "CIS Amazon Elastic Kubernetes Service (EKS)",
       "version": "v1.0.1",
-      "rule_number": "5.4.1",
+      "rule_number": "5.4.5",
       "posture_type": "kspm"
     },
-    "profile_applicability": "* Level 1",
-    "impact": "Non-compliance with CIS Amazon Elastic Kubernetes Service (EKS) 5.4.1 — Restrict Access to the Control Plane Endpoint",
-    "remediation": "Remediate per CIS Amazon Elastic Kubernetes Service (EKS) v1.0.1 section 5.4.1."
+    "profile_applicability": "* Level 2"
   },
-  "result": {
-    "evaluation": "failed",
-    "evidence": {
-      "resourcesVpcConfig": { "endpointPublicAccess": true, "publicAccessCidrs": ["0.0.0.0/0"] }
-    }
-  },
+  "result": { "evaluation": "passed" },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_eks/5.4.1] failed: Restrict Access to the Control Plane Endpoint",
-  "log": { "level": "warn" }
+  "message": "[cis_eks/5.4.5] passed: Encrypt traffic to HTTPS load balancers with TLS certificates",
+  "log": { "level": "info" }
 }

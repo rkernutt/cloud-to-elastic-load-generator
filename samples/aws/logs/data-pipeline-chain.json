@@ -1,84 +1,64 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
-    "service": { "name": "cloudtrail" }
+    "region": "ap-northeast-2",
+    "account": { "id": "746392018574", "name": "globex-identity" },
+    "service": { "name": "s3" }
   },
   "aws": {
-    "dimensions": {
-      "EventName": "AddJobFlowSteps",
-      "EventSource": "elasticmapreduce.amazonaws.com"
-    },
-    "cloudtrail": {
-      "event_version": "1.09",
-      "event_category": "Management",
-      "event_type": "AwsApiCall",
-      "request_id": "941a67d0-2c27-4d7d-beb8-9e39a85ab9ae",
-      "event_id": "881e47d6-eb59-4e76-9120-618476803f33",
-      "management_event": true,
-      "read_only": false,
-      "recipient_account_id": "814726593401",
-      "aws_region": "us-west-2",
-      "user_identity": {
-        "type": "IAMUser",
-        "principal_id": "814726593401:sam.wilson",
-        "arn": "arn:aws:iam::814726593401:user/sam.wilson",
-        "account_id": "814726593401",
-        "access_key_id": "AKIAL2J4HHMJ3D8KQG7Q",
-        "session_context": {
-          "attributes": {
-            "creation_date": "2026-06-01T18:12:00.354Z",
-            "mfa_authenticated": "false"
-          }
-        }
-      },
-      "request_parameters": "{\"JobFlowId\":\"j-ORODML1MS3LGQ\",\"Steps\":[{\"Name\":\"manual-spark-data_pipeline_daily\",\"HadoopJarStep\":{\"Jar\":\"command-runner.jar\",\"Args\":[\"spark-submit\",\"--class\",\"com.globex.etl.AvroToParquet\",\"s3://data-lake-ingest/clickstream/2025/04/16/session_data.avro\"]},\"ActionOnFailure\":\"CONTINUE\"}]}",
-      "response_elements": "{\"StepIds\":[\"s-L2YE7Z45BG592\"]}"
+    "s3access": {
+      "bucket": "partner-feeds",
+      "key": "events/2025/04/16/hourly_events.avro",
+      "operation": "REST.PUT.OBJECT",
+      "http_status": 200,
+      "bytes_sent": 0,
+      "total_time": 355,
+      "turn_around_time": 74,
+      "request_id": "VGELO7OFQH8I9HMA",
+      "requester": "arn:aws:iam::746392018574:role/upstream-data-producer"
     },
     "s3": {
       "bucket": {
-        "name": "aws-data-pipeline-chain-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-data-pipeline-chain-logs-814726593401"
+        "name": "aws-data-pipeline-chain-logs-746392018574",
+        "arn": "arn:aws:s3:::aws-data-pipeline-chain-logs-746392018574"
       },
       "object": {
-        "key": "AWSLogs/814726593401/data-pipeline-chain/us-west-2/2026/06/01/data-pipeline-chain_QFH2VVA54IFGEOU63867.log.gz"
+        "key": "AWSLogs/746392018574/data-pipeline-chain/ap-northeast-2/2026/06/02/data-pipeline-chain_8BCFNV8X6MHEBQB2JCEJ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/data-pipeline-chain/logs",
-      "log_stream": "us-west-2/68lf034e",
-      "ingestion_time": "2026-06-01T18:12:00.355Z"
+      "log_stream": "ap-northeast-2/5vu4g85v",
+      "ingestion_time": "2026-06-02T15:33:03.939Z"
     }
   },
-  "user": { "name": "sam.wilson", "email": "sam.wilson@globex.io" },
-  "source": {
-    "ip": "185.199.108.101",
-    "geo": { "country_iso_code": "IN", "city_name": "Bangalore", "region_name": "Karnataka" }
-  },
-  "user_agent": { "original": "Boto3/1.34.84 md/Botocore#1.34.84 ua/2.0 os/linux#5.15.0" },
   "event": {
     "kind": "event",
-    "action": "AddJobFlowSteps",
     "outcome": "success",
-    "category": ["configuration"],
-    "type": ["change"],
-    "dataset": "aws.cloudtrail",
-    "provider": "elasticmapreduce.amazonaws.com",
+    "category": ["file"],
+    "type": ["creation"],
+    "dataset": "aws.s3access",
+    "provider": "s3.amazonaws.com",
     "module": "aws"
   },
-  "message": "CloudTrail: AddJobFlowSteps by sam.wilson via elasticmapreduce.amazonaws.com",
+  "message": "S3 PutObject s3://partner-feeds/events/2025/04/16/hourly_events.avro (Avro landing — triggers MWAA)",
   "log": { "level": "info" },
+  "labels": {
+    "pipeline_run_id": "4446c359-6e6a-4a69-b678-2f6a58ab1ece",
+    "dag_id": "warehouse_refresh",
+    "s3_source_bucket": "partner-feeds",
+    "s3_source_key": "events/2025/04/16/hourly_events.avro",
+    "orchestration_mode": "mwaa"
+  },
   "service": { "name": "data-pipeline-chain", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.cloudtrail", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.s3access", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "pmm1lh7ihj9lsv8fmid7m0jhxu2qtq101jxj"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "ngnxq63xxw5ik2srevxs4pl87fkgnljtxtc6"
   },
-  "input": { "type": "http_endpoint" },
-  "related": { "ip": ["185.199.108.101"], "user": ["sam.wilson", "sam.wilson@globex.io"] }
+  "input": { "type": "http_endpoint" }
 }

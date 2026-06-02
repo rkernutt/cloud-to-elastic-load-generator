@@ -1,73 +1,73 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-northeast-2",
+    "account": { "id": "957483012647", "name": "globex-sandbox" },
     "service": { "name": "rds" }
   },
   "aws": {
     "dimensions": {
-      "DBInstanceIdentifier": "prod-db-replica",
-      "DatabaseClass": "db.t3.large",
+      "DBInstanceIdentifier": "prod-db-reporting",
+      "DatabaseClass": "db.r6g.2xlarge",
       "EngineName": "mysql",
-      "SourceRegion": "ap-south-1"
+      "SourceRegion": "ap-northeast-2"
     },
     "cloudwatch": {
-      "log_group": "/aws/rds/instance/prod-db-replica/audit",
-      "log_stream": "prod-db-replica",
-      "ingestion_time": "2026-06-01T18:12:00.280Z"
+      "log_group": "/aws/rds/instance/prod-db-reporting/slowquery",
+      "log_stream": "prod-db-reporting",
+      "ingestion_time": "2026-06-02T15:33:03.855Z"
     },
     "rds": {
       "db_instance": {
-        "identifier": "prod-db-replica",
-        "class": "db.t3.large",
+        "identifier": "prod-db-reporting",
+        "class": "db.r6g.2xlarge",
         "engine_name": "mysql",
-        "engine_version": "8.0.40",
-        "arn": "arn:aws:rds:ap-south-1:814726593401:db:prod-db-replica",
+        "engine_version": "8.0.34",
+        "arn": "arn:aws:rds:ap-northeast-2:957483012647:db:prod-db-reporting",
         "status": "available",
-        "role": "read-replica",
+        "role": "instance",
         "multi_az": false,
         "storage_type": "gp3",
-        "allocated_storage_gb": 500
+        "allocated_storage_gb": 100
       },
-      "log_type": "audit",
-      "cpu": { "total": { "pct": 0.5673 } },
-      "freeable_memory": { "bytes": 2630107215 },
-      "free_storage": { "bytes": 90028523248 },
-      "database_connections": 466,
-      "read_io": { "ops_per_sec": 1722.1807186469198 },
-      "write_io": { "ops_per_sec": 579.1473281124416 },
-      "latency": { "read": 0.004732120850585162, "write": 0.004551832031134866 },
+      "log_type": "slowquery",
+      "cpu": { "total": { "pct": 0.4172 } },
+      "freeable_memory": { "bytes": 3812031463 },
+      "free_storage": { "bytes": 179681877543 },
+      "database_connections": 219,
+      "read_io": { "ops_per_sec": 741.6154304456455 },
+      "write_io": { "ops_per_sec": 431.3233329813658 },
+      "latency": { "read": 0.004898668228224712, "write": 0.006149583289319299 },
       "throughput": {
-        "read": 21117181,
-        "write": 23991325,
-        "network_receive": 10491921,
-        "network_transmit": 53605790
+        "read": 17647297,
+        "write": 90866995,
+        "network_receive": 52971991,
+        "network_transmit": 48218399
       },
-      "replica_lag": { "sec": 20.581992311323827 },
-      "swap_usage": { "bytes": 72015548 },
-      "disk_usage": { "bin_log": { "bytes": 955122885 } }
+      "replica_lag": { "sec": 49.56088671665366 },
+      "swap_usage": { "bytes": 24079886 },
+      "disk_usage": { "bin_log": { "bytes": 267760473 } }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-rds-logs-814726593401"
+        "name": "aws-rds-logs-957483012647",
+        "arn": "arn:aws:s3:::aws-rds-logs-957483012647"
       },
       "object": {
-        "key": "AWSLogs/814726593401/rds/ap-south-1/2026/06/01/rds_G0L8BEFBLAJMG7DF0RB4.log.gz"
+        "key": "AWSLogs/957483012647/rds/ap-northeast-2/2026/06/02/rds_X1ZRV0XJGLCWC289ESI9.log.gz"
       }
     }
   },
   "db": {
-    "user": { "name": "dba" },
+    "user": { "name": "migration_user" },
     "name": "analytics",
-    "statement": "INSERT INTO orders (name, email) VALUES ('mwilliams', 'alex.zhang@meridiantech.io')",
+    "statement": "INSERT INTO transactions (name, email) VALUES ('lkim', 'maria.ali@northwind-infra.net')",
     "type": "sql"
   },
-  "source": { "ip": "231.122.93.35" },
+  "source": { "ip": "34.165.79.254" },
   "event": {
-    "duration": 863331058.5736418,
+    "duration": 832706295.5871657,
     "outcome": "success",
     "category": ["database"],
     "type": ["info", "access"],
@@ -75,7 +75,7 @@
     "provider": "rds.amazonaws.com",
     "module": "aws"
   },
-  "message": "2026-06-01 18:11:59.613,231.122.93.35,dba,analytics,24624,56266,QUERY,INSERT INTO orders (name, email) VALUES ('mwilliams', 'alex.zhang@meridiantech.io'),0",
+  "message": "# Time: 2026-06-02 15:33:03.184\n# User@Host: migration_user[migration_user] @ 34.165.79.254 [34.165.79.254]  Id: 81617\n# Query_time: 0.832706  Lock_time: 0.004536 Rows_sent: 9993  Rows_examined: 412438\nSET timestamp=1780414383;\nINSERT INTO transactions (name, email) VALUES ('lkim', 'maria.ali@northwind-infra.net');",
   "log": { "level": "info" },
   "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -83,9 +83,9 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "bj0e5fguzuoe1fjkk055tlqmo64dq19t6kgk"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "rwejeyavfwu7ira1e1jgu9d5l2xappfw9kt0"
   },
   "input": { "type": "aws-cloudwatch" },
-  "related": { "ip": ["231.122.93.35"] }
+  "related": { "ip": ["34.165.79.254"] }
 }

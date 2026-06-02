@@ -1,47 +1,47 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "eu-west-2",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "aurora" }
   },
   "aws": {
     "aurora": {
-      "cluster_id": "prod-aurora-cluster",
-      "instance_id": "prod-aurora-cluster-instance-5",
-      "engine": "aurora-mysql",
-      "engine_version": "8.0.36",
-      "replica_lag_seconds": 151,
-      "db_connections": 90,
+      "cluster_id": "analytics-aurora",
+      "instance_id": "analytics-aurora-instance-3",
+      "engine": "aurora-postgresql",
+      "engine_version": "15.4",
+      "replica_lag_seconds": 2256,
+      "db_connections": 361,
       "max_connections": 1000,
       "failover_in_progress": false,
       "metrics": {
-        "AuroraBinlogReplicaLag": { "avg": 3271 },
-        "AuroraGlobalDBReplicatedWriteIO": { "sum": 12772572 },
-        "AuroraGlobalDBDataTransferBytes": { "sum": 968667180 },
-        "AuroraGlobalDBProgressLag": { "avg": 5931 },
-        "BacktrackChangeRecordsCreationRate": { "avg": 4374 },
-        "BacktrackChangeRecordsStored": { "avg": 7040556 },
-        "BacktrackWindowActual": { "avg": 75770 },
+        "AuroraBinlogReplicaLag": { "avg": 1538 },
+        "AuroraGlobalDBReplicatedWriteIO": { "sum": 74845073 },
+        "AuroraGlobalDBDataTransferBytes": { "sum": 913598089 },
+        "AuroraGlobalDBProgressLag": { "avg": 41723 },
+        "BacktrackChangeRecordsCreationRate": { "avg": 9074 },
+        "BacktrackChangeRecordsStored": { "avg": 1557749 },
+        "BacktrackWindowActual": { "avg": 74744 },
         "BacktrackWindowAlert": { "avg": 0 },
-        "ServerlessDatabaseCapacity": { "avg": 114.93602199541145 },
-        "ACUUtilization": { "avg": 3.2964711507441375 }
+        "ServerlessDatabaseCapacity": { "avg": 75.87633308910476 },
+        "ACUUtilization": { "avg": 82.30052514203446 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-aurora-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-aurora-logs-814726593401"
+        "name": "aws-aurora-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-aurora-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/814726593401/aurora/ca-west-1/2026/06/01/aurora_CRR8Q44EABCTQBGMUVGI.log.gz"
+        "key": "AWSLogs/293847561023/aurora/eu-west-2/2026/06/02/aurora_7HC4J1RVIT9M503VP6IV.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/rds/cluster/j-RP1IL4AROBAPC/error",
-      "log_stream": "ca-west-1/7m9u0g72",
-      "ingestion_time": "2026-06-01T18:12:00.375Z"
+      "log_group": "/aws/rds/cluster/j-9WEGQ0ILEL53X/error",
+      "log_stream": "eu-west-2/mp7qr95w",
+      "ingestion_time": "2026-06-02T15:33:03.965Z"
     }
   },
   "event": {
@@ -50,20 +50,24 @@
     "type": ["access"],
     "dataset": "aws.aurora",
     "provider": "rds.amazonaws.com",
-    "duration": 108000000000,
+    "duration": 41000000000,
     "module": "aws"
   },
-  "message": "2026-06-01 18:11:59.613 UTC 99627 [ERROR] [MY-47689] [Server] Replica SQL thread stopped because of error",
+  "message": "2026-06-02 15:33:03.184 UTC UTC:42.246.11.194(32495):analytics@events:[99023]:LOG:  duration: 48077.392 ms  statement: INSERT INTO audit_log (actor, action) VALUES ('analytics', 'checkout')",
   "log": { "level": "error" },
-  "error": { "code": "AuroraError", "message": "Storage auto-scaling failed", "type": "db" },
+  "error": {
+    "code": "AuroraError",
+    "message": "ERROR 2013: Lost connection to MySQL",
+    "type": "db"
+  },
   "service": { "name": "aurora", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "v1dov3ba4ovt5peryp4tmrtf6xq3kg7rkmc7"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "8lm3fmxfh7xsyh6v75e4bgymli6j5au5eyyq"
   },
   "input": { "type": "aws-cloudwatch" }
 }

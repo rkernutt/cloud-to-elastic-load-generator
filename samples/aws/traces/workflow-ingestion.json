@@ -1,19 +1,19 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "ea899ce57d5db40ce48ddc71650407db" },
+  "trace": { "id": "dda0a83f9a4ced6468183a74ad4cbe2a" },
   "transaction": {
-    "id": "8699592c36574741",
+    "id": "d58a3d1d071a78b5",
     "name": "clickstream process",
     "type": "messaging",
-    "duration": { "us": 167967000 },
-    "result": "success",
+    "duration": { "us": 139666000 },
+    "result": "failure",
     "sampled": true,
     "span_count": { "started": 1, "dropped": 0 }
   },
   "service": {
     "name": "kinesis-stream",
-    "environment": "staging",
+    "environment": "production",
     "version": "2.14.2",
     "language": { "name": "python" },
     "runtime": { "name": "python3.12", "version": "3.12.3" }
@@ -30,16 +30,19 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
-    "account": { "id": "814726593401", "name": "prod-aws" },
+    "region": "ap-southeast-3",
+    "account": { "id": "293847561023", "name": "staging-aws" },
     "service": { "name": "kinesis" }
   },
   "labels": {
     "stream_name": "order-events",
-    "shard_id": "shardId-000000000001",
-    "record_count": "1134"
+    "shard_id": "shardId-000000000000",
+    "record_count": "3301",
+    "error.type": "aws",
+    "error.code": "ThrottlingException",
+    "error.message": "Request rate too high. Reduce request frequency or increase quota."
   },
-  "event": { "outcome": "success", "module": "aws", "dataset": "aws.cloudwatch_logs" },
+  "event": { "outcome": "failure", "module": "aws", "dataset": "aws.cloudwatch_logs" },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
   "ecs": { "version": "8.11.0" },
   "input": { "type": "opentelemetry" }

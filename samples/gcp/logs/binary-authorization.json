@@ -2,86 +2,88 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "log": { "level": "info" },
   "labels": {},
-  "severity": "INFO",
-  "logName": "projects/globex-shared-529384/logs/binaryauthorization.googleapis.com%2Fpolicy_events",
-  "insertId": "4vrsy1zjqwzyy2nj",
+  "severity": "ERROR",
+  "logName": "projects/globex-prod-482910/logs/binaryauthorization.googleapis.com%2Fpolicy_events",
+  "insertId": "9w5yerw8shikdkui",
   "resource": {
     "type": "gke_cluster",
     "labels": {
-      "project_id": "globex-shared-529384",
-      "cluster_name": "gke-staging-europe-west1",
-      "location": "northamerica-northeast2"
+      "project_id": "globex-prod-482910",
+      "cluster_name": "gke-ml-asia-southeast1",
+      "location": "me-central1"
     }
   },
   "jsonPayload": {
     "typeUrl": "type.googleapis.com/google.cloud.binaryauthorization.v1beta1.ContinuousValidationEvent",
-    "policy": "projects/globex-shared-529384/platforms/gke/policies/dev-permissive",
-    "cluster": "projects/globex-shared-529384/locations/northamerica-northeast2/clusters/gke-staging-europe-west1",
+    "policy": "projects/globex-prod-482910/platforms/gke/policies/globex-prod-policy",
+    "cluster": "projects/globex-prod-482910/locations/me-central1/clusters/gke-ml-asia-southeast1",
     "deployable": {
-      "pod_name": "default/checkout-n0jed-a88v0",
-      "container_image": "us-docker.pkg.dev/globex-shared-529384/apps/checkout:v5.2"
+      "pod_name": "data-pipeline/checkout-oex5g-z53jg",
+      "container_image": "gcr.io/globex-prod-482910/payments-api@sha256:6714a68b0bbb023bc313403fd31c6465591e02b3184d1dd10f433c79def7fea8"
     },
-    "verdict": "BREAK_GLASS",
+    "verdict": "DENIED",
     "attestations": [
       {
-        "attestor": "projects/globex-shared-529384/attestors/prod-security",
-        "pgp_key_id": "0xRXJ8IGFFPF584SDJ"
+        "attestor": "projects/globex-prod-482910/attestors/build-attestor",
+        "pgp_key_id": "0xDWKGGLHWNMMZ3Z98"
       }
-    ]
+    ],
+    "reason": "No valid attestor for image"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "northamerica-northeast2",
-    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
-    "account": { "id": "529384716205", "name": "Globex Shared Services" },
+    "region": "me-central1",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
     "service": { "name": "binary-authorization" }
   },
   "gcp": {
     "binary_authorization": {
       "json_payload": {
         "typeUrl": "type.googleapis.com/google.cloud.binaryauthorization.v1beta1.ContinuousValidationEvent",
-        "policy": "projects/globex-shared-529384/platforms/gke/policies/dev-permissive",
-        "cluster": "projects/globex-shared-529384/locations/northamerica-northeast2/clusters/gke-staging-europe-west1",
+        "policy": "projects/globex-prod-482910/platforms/gke/policies/globex-prod-policy",
+        "cluster": "projects/globex-prod-482910/locations/me-central1/clusters/gke-ml-asia-southeast1",
         "deployable": {
-          "pod_name": "default/checkout-n0jed-a88v0",
-          "container_image": "us-docker.pkg.dev/globex-shared-529384/apps/checkout:v5.2"
+          "pod_name": "data-pipeline/checkout-oex5g-z53jg",
+          "container_image": "gcr.io/globex-prod-482910/payments-api@sha256:6714a68b0bbb023bc313403fd31c6465591e02b3184d1dd10f433c79def7fea8"
         },
-        "verdict": "BREAK_GLASS",
+        "verdict": "DENIED",
         "attestations": [
           {
-            "attestor": "projects/globex-shared-529384/attestors/prod-security",
-            "pgp_key_id": "0xRXJ8IGFFPF584SDJ"
+            "attestor": "projects/globex-prod-482910/attestors/build-attestor",
+            "pgp_key_id": "0xDWKGGLHWNMMZ3Z98"
           }
-        ]
+        ],
+        "reason": "No valid attestor for image"
       },
-      "cluster": "gke-staging-europe-west1",
-      "namespace": "default",
-      "pod": "checkout-n0jed-a88v0",
-      "image": "us-docker.pkg.dev/globex-shared-529384/apps/checkout:v5.2",
-      "attestor": "prod-security",
-      "verdict": "BREAK_GLASS",
-      "policy_name": "dev-permissive"
+      "cluster": "gke-ml-asia-southeast1",
+      "namespace": "data-pipeline",
+      "pod": "checkout-oex5g-z53jg",
+      "image": "gcr.io/globex-prod-482910/payments-api@sha256:6714a68b0bbb023bc313403fd31c6465591e02b3184d1dd10f433c79def7fea8",
+      "attestor": "build-attestor",
+      "verdict": "DENIED",
+      "policy_name": "globex-prod-policy"
     }
   },
   "event": {
     "kind": "event",
     "category": ["intrusion_detection"],
-    "type": ["info"],
+    "type": ["denied"],
     "action": "security-event",
-    "outcome": "success",
-    "duration": 19000000,
+    "outcome": "failure",
+    "duration": 15000000,
     "module": "gcp",
     "dataset": "gcp.binaryauthorization"
   },
-  "message": "binaryauthorization.googleapis.com/Admission BREAK_GLASS cluster=gke-staging-europe-west1 image=us-docker.pkg.dev/globex-shared-529384/apps/checkout:v5.2",
+  "message": "binaryauthorization.googleapis.com/Admission DENIED cluster=gke-ml-asia-southeast1 image=gcr.io/globex-prod-482910/payments-api@sha256:6714a68b0bbb023bc313403fd31c6465591e02b3184d1dd10f433c79def7fea8",
   "service": { "name": "binary-authorization", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.binaryauthorization", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-northamerica-northeast2",
-    "id": "kzuqq7wylpxiw8ouce8nnxl8oflpfclwufsp"
+    "name": "elastic-agent-gcp-me-central1",
+    "id": "0bywqi42bvees8bb9irzokp5go73cyosysgg"
   },
   "input": { "type": "http_endpoint" }
 }

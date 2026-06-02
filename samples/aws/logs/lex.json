@@ -1,57 +1,59 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-northeast-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "lex" }
   },
   "aws": {
-    "dimensions": { "BotName": "customer-service-bot", "Operation": "BookAppointment" },
+    "dimensions": { "BotName": "booking-assistant", "Operation": "BookAppointment" },
     "lex": {
-      "bot_id": "TC5TB0YYFC",
-      "bot_name": "customer-service-bot",
+      "bot_id": "LL3VZS8EPT",
+      "bot_name": "booking-assistant",
       "bot_version": "2",
-      "locale_id": "en_US",
-      "session_id": "kvo8y2d87tbtl788bfw34osmudjrcpalopur",
+      "locale_id": "fr_FR",
+      "session_id": "ggu7xyfq3qqs2m4k14tffqs5du4oxvuk58b1",
       "input_transcript": "Cancel my order",
       "intent_name": "BookAppointment",
-      "intent_nlu_confidence_score": 0.8837859548203568,
-      "dialog_state": "Fulfilled",
-      "sentiment": "POSITIVE"
+      "intent_nlu_confidence_score": 0.7735663550181713,
+      "dialog_state": "Failed",
+      "sentiment": "NEUTRAL",
+      "error_code": "NoSuchBotException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-lex-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-lex-logs-164820739518"
+        "name": "aws-lex-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-lex-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/lex/me-south-1/2026/06/01/lex_NWU1ZZ1LZU79NJNP83FU.log.gz"
+        "key": "AWSLogs/501938274650/lex/ap-northeast-1/2026/06/02/lex_2N8SL1GVUUHIIMKQJ53M.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lex/logs",
-      "log_stream": "me-south-1/22kaqztj",
-      "ingestion_time": "2026-06-01T18:12:00.439Z"
+      "log_stream": "ap-northeast-1/suayx3gu",
+      "ingestion_time": "2026-06-02T15:33:04.029Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.lex",
     "provider": "lex.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"eventType\":\"IntentRecognition\",\"botName\":\"customer-service-bot\",\"botId\":\"TC5TB0YYFC\",\"intentName\":\"BookAppointment\",\"intentNluConfidenceScore\":0.8837859548203568,\"dialogState\":\"Fulfilled\",\"inputTranscript\":\"What is my order status\",\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"status\":\"Succeeded\"}",
-  "log": { "level": "info" },
+  "message": "{\"eventType\":\"IntentRecognition\",\"botName\":\"booking-assistant\",\"botId\":\"LL3VZS8EPT\",\"intentName\":\"BookAppointment\",\"intentNluConfidenceScore\":0.7735663550181713,\"dialogState\":\"Failed\",\"inputTranscript\":\"I want to order a product\",\"timestamp\":\"2026-06-02T15:33:03.184Z\",\"status\":\"Failed\"}",
+  "log": { "level": "error" },
+  "error": { "code": "LexError", "message": "Lex intent failed", "type": "ml" },
   "service": { "name": "lex", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "0gw4xo5k7e8rtfyv4x9mv1r6k0273386jkgm"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "kdr5iqpbqpwll4absxxutm3jedp7vd36c38w"
   },
   "input": { "type": "aws-cloudwatch" }
 }

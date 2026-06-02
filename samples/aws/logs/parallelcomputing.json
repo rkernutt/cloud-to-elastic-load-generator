@@ -1,58 +1,65 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "me-central-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "pcs" }
   },
   "aws": {
-    "dimensions": { "ClusterId": "pcs-bkm6l7kx", "QueueName": "high-priority" },
+    "dimensions": { "ClusterId": "pcs-w7nuwy9y", "QueueName": "gpu" },
     "pcs": {
-      "cluster_id": "pcs-bkm6l7kx",
+      "cluster_id": "pcs-w7nuwy9y",
       "scheduler": "slurm",
-      "scenario": "scheduler_resync",
-      "queue_name": "high-priority",
-      "job_id": "job-936769",
-      "job_state": "RUNNING",
-      "metrics": { "running_jobs": 333, "pending_jobs": 200, "compute_nodes_active": 238 }
+      "scenario": "node_scale",
+      "queue_name": "gpu",
+      "job_id": "job-617772",
+      "job_state": "FAILED",
+      "scaling": { "target_nodes": 1168, "active_nodes": 685, "action": "REPLACE_UNHEALTHY" },
+      "metrics": { "running_jobs": 71, "pending_jobs": 204, "compute_nodes_active": 720 },
+      "api_error_code": "AccessDeniedException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-parallelcomputing-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-parallelcomputing-logs-814726593401"
+        "name": "aws-parallelcomputing-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-parallelcomputing-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/parallelcomputing/ap-east-1/2026/06/01/parallelcomputing_M7XLVW7671SVDBG1VT0A.log.gz"
+        "key": "AWSLogs/501938274650/parallelcomputing/me-central-1/2026/06/02/parallelcomputing_3I3I0BKDPCRWGZP8N32P.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/parallelcomputing/logs",
-      "log_stream": "ap-east-1/emuj25sl",
-      "ingestion_time": "2026-06-01T18:12:00.301Z"
+      "log_stream": "me-central-1/c514lvu2",
+      "ingestion_time": "2026-06-02T15:33:03.882Z"
     }
   },
   "event": {
-    "action": "scheduler_resync",
-    "outcome": "success",
+    "action": "node_scale",
+    "outcome": "failure",
     "category": ["process"],
     "type": ["info"],
     "dataset": "aws.pcs",
     "provider": "pcs.amazonaws.com",
-    "duration": 2929000000,
+    "duration": 58762000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.pcs", "namespace": "default" },
-  "message": "{\"eventType\":\"scheduler_resync\",\"clusterId\":\"pcs-bkm6l7kx\",\"scheduler\":\"slurm\",\"queueName\":\"high-priority\",\"jobId\":\"job-936769\",\"jobState\":\"RUNNING\",\"metrics\":{\"runningJobs\":333,\"pendingJobs\":200,\"computeNodesActive\":238}}",
-  "log": { "level": "info" },
-  "host": { "name": "ip-251-118-179-121.ec2.internal", "hostname": "parallelcomputing-bf0gkslh" },
+  "message": "{\"eventType\":\"node_scale\",\"clusterId\":\"pcs-w7nuwy9y\",\"scheduler\":\"slurm\",\"queueName\":\"gpu\",\"jobId\":\"job-617772\",\"jobState\":\"FAILED\",\"scaling\":{\"target_nodes\":1168,\"active_nodes\":685,\"action\":\"REPLACE_UNHEALTHY\"},\"metrics\":{\"runningJobs\":71,\"pendingJobs\":204,\"computeNodesActive\":720},\"error\":\"AccessDeniedException\"}",
+  "log": { "level": "error" },
+  "error": {
+    "code": "AccessDeniedException",
+    "message": "PCS node_scale failed on cluster pcs-w7nuwy9y",
+    "type": "aws"
+  },
+  "host": { "name": "ip-241-221-207-162.ec2.internal", "hostname": "parallelcomputing-sun2mqxo" },
   "service": { "name": "parallelcomputing", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "p21ts7qpm7fg7xtz8bcxkt0jrabtyav16ji8"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "4ffcaud2eqvri23v95umdnxqamn0j0ttk88e"
   },
   "input": { "type": "aws-cloudwatch" }
 }

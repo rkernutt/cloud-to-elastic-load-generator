@@ -1,33 +1,37 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-3",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "us-west-2",
+    "account": { "id": "957483012647", "name": "globex-sandbox" },
     "service": { "name": "ses" }
   },
   "aws": {
     "dimensions": {
-      "ses:configuration-set": "default",
-      "ses:from-domain": "company.com",
-      "ses:to-country": "FR",
-      "ses:to-isp": "Hotmail"
+      "ses:configuration-set": "alerts",
+      "ses:from-domain": "app.io",
+      "ses:to-country": "GB",
+      "ses:to-isp": "Yahoo"
     },
     "ses": {
-      "message_id": "m5uygg6le89eozn3g92g.q6slot6zp7@eu-west-3.amazonses.com",
-      "event_type": "Complaint",
-      "from_address": "noreply@company.com",
-      "destination": ["user_ultc3n@outlook.com"],
-      "bounce": { "bounced_recipients": [] },
-      "complaint": {
-        "feedback_type": "not-spam",
-        "complained_recipients": [{ "emailAddress": "user_ultc3n@outlook.com" }]
+      "message_id": "8dhv6ze71e5n9xf3jp78.10bnmwlhw5@us-west-2.amazonses.com",
+      "event_type": "Bounce",
+      "from_address": "no-reply@app.io",
+      "destination": ["user_pcyn8z@company.org", "archive+BFFY@company.org"],
+      "configuration_set": "alerts",
+      "bounce": {
+        "bounce_type": "Transient",
+        "bounce_sub_type": "Suppressed",
+        "bounced_recipients": [
+          { "emailAddress": "user_pcyn8z@company.org", "action": "failed", "status": "4.2.2" }
+        ]
       },
-      "sending_account_id": "501938274650",
+      "complaint": { "complained_recipients": [] },
+      "sending_account_id": "957483012647",
       "delivery": {
-        "recipients": ["user_ultc3n@outlook.com"],
-        "timestamp": "2026-06-01T18:11:59.613Z",
-        "processing_time_ms": 402,
+        "recipients": ["user_pcyn8z@company.org", "archive+BFFY@company.org"],
+        "timestamp": "2026-06-02T15:33:03.184Z",
+        "processing_time_ms": 849,
         "smtp_response": "250 2.0.0 OK"
       },
       "metrics": {
@@ -36,25 +40,25 @@
         "Bounce": { "sum": 0 },
         "Complaint": { "sum": 0 },
         "Reject": { "sum": 0 },
-        "Open": { "sum": 0 },
-        "Click": { "sum": 0 },
+        "Open": { "sum": 1 },
+        "Click": { "sum": 1 },
         "RenderingFailure": { "sum": 0 },
         "DeliveryDelay": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-ses-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-ses-logs-501938274650"
+        "name": "aws-ses-logs-957483012647",
+        "arn": "arn:aws:s3:::aws-ses-logs-957483012647"
       },
       "object": {
-        "key": "AWSLogs/501938274650/ses/eu-west-3/2026/06/01/ses_XMWOGBE629ILJUY787K4.log.gz"
+        "key": "AWSLogs/957483012647/ses/us-west-2/2026/06/02/ses_B3260HZX208AS332HRKR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/ses/logs",
-      "log_stream": "eu-west-3/557bhdvt",
-      "ingestion_time": "2026-06-01T18:12:00.481Z"
+      "log_stream": "us-west-2/lclbf06x",
+      "ingestion_time": "2026-06-02T15:33:04.070Z"
     }
   },
   "event": {
@@ -62,14 +66,14 @@
     "category": ["email", "process"],
     "dataset": "aws.ses",
     "provider": "email.amazonaws.com",
-    "duration": 2837000000,
+    "duration": 474000000,
     "module": "aws"
   },
-  "message": "{\"eventType\":\"Complaint\",\"mail\":{\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"messageId\":\"m5uygg6le89eozn3g92g.q6slot6zp7@eu-west-3.amazonses.com\",\"source\":\"noreply@company.com\",\"sourceArn\":\"arn:aws:ses:eu-west-3:501938274650:identity/company.com\",\"sendingAccountId\":\"501938274650\",\"destination\":[\"user_ultc3n@outlook.com\"],\"headersTruncated\":false,\"commonHeaders\":{\"from\":[\"noreply@company.com\"],\"to\":[\"user_ultc3n@outlook.com\"],\"subject\":\"Weekly digest\",\"messageId\":\"<m5uygg6le89eozn3g92g.q6slot6zp7@eu-west-3.amazonses.com>\"},\"tags\":{\"ses:configuration-set\":[],\"ses:source-ip\":[\"214.123.43.117\"],\"ses:outgoing-ip\":[\"40.96.37.145\"]}},\"complaint\":{\"complainedRecipients\":[{\"emailAddress\":\"user_ultc3n@outlook.com\"}],\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"feedbackId\":\"LBDQZC7Z-eu-west-3-501938274650\",\"complaintFeedbackType\":\"abuse\",\"userAgent\":\"Hotmail FBL\"}}",
+  "message": "{\"eventType\":\"Bounce\",\"mail\":{\"timestamp\":\"2026-06-02T15:33:03.184Z\",\"messageId\":\"8dhv6ze71e5n9xf3jp78.10bnmwlhw5@us-west-2.amazonses.com\",\"source\":\"no-reply@app.io\",\"sourceArn\":\"arn:aws:ses:us-west-2:957483012647:identity/app.io\",\"sendingAccountId\":\"957483012647\",\"destination\":[\"user_pcyn8z@company.org\",\"archive+BFFY@company.org\"],\"headersTruncated\":false,\"commonHeaders\":{\"from\":[\"no-reply@app.io\"],\"to\":[\"user_pcyn8z@company.org\",\"archive+BFFY@company.org\"],\"subject\":\"Your order\",\"messageId\":\"<8dhv6ze71e5n9xf3jp78.10bnmwlhw5@us-west-2.amazonses.com>\"},\"tags\":{\"ses:configuration-set\":[\"alerts\"],\"ses:source-ip\":[\"25.2.242.19\"],\"ses:outgoing-ip\":[\"42.226.124.214\"]}},\"bounce\":{\"bounceType\":\"Transient\",\"bounceSubType\":\"Suppressed\",\"bouncedRecipients\":[{\"emailAddress\":\"user_pcyn8z@company.org\",\"action\":\"failed\",\"status\":\"4.2.2\",\"diagnosticCode\":\"smtp; 550 mailbox full\"}],\"timestamp\":\"2026-06-02T15:33:03.184Z\",\"feedbackId\":\"7DXJUW05-us-west-2-957483012647\"}}",
   "log": { "level": "warn" },
   "error": {
-    "code": "MessageRejected",
-    "message": "Rendering template data failed KMS decrypt of nested attribute",
+    "code": "MailFromDomainNotVerifiedException",
+    "message": "Maximum sending rate exceeded for this SES configuration set",
     "type": "aws"
   },
   "service": { "name": "ses", "type": "aws" },
@@ -78,8 +82,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-3",
-    "ephemeral_id": "l9jz083paat83ptxclbnndz55rh4qh9x8oab"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "qrz2lbmz6lod9m58gf9p4xt0jqgma3qby6sk"
   },
   "input": { "type": "aws-cloudwatch" }
 }

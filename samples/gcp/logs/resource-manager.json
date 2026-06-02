@@ -1,72 +1,70 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "info" },
-  "severity": "DEBUG",
-  "logName": "projects/globex-sec-847293/logs/cloudaudit.googleapis.com%2Faccess_transparency",
-  "insertId": "1sho5iuk805pfhc7",
-  "resource": { "type": "project", "labels": { "project_id": "globex-sec-847293" } },
-  "jsonPayload": {
-    "id": "AX-YCEKQ2QGP86J",
-    "actor": { "email": "google-support-CBP9@google.com", "title": "Support Engineer" },
-    "target": { "customerId": "CLF5KJYO91R", "projectNumber": "847293615048" },
-    "product": "BigQuery",
-    "reason": "CUSTOMER_INITIATED_SUPPORT",
-    "action": "DATA_ACCESS",
-    "status": "COMPLETED",
-    "ipAddress": "100.64.0.253",
-    "justification": "Abuse and fraud investigation",
-    "accessDurationSeconds": 6111
+  "severity": "NOTICE",
+  "log": { "level": "notice" },
+  "labels": {
+    "resource.type": "cloudresourcemanager.googleapis.com/Project",
+    "method": "CREATE",
+    "api_method": "cloudresourcemanager.googleapis.com/v3/folders",
+    "rm_scenario": "folders_create"
   },
-  "labels": { "resource.type": "accessapproval.googleapis.com/Note", "product": "BigQuery" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-east1",
-    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
-    "account": { "id": "847293615048", "name": "Globex Security" },
-    "service": { "name": "accessapproval.googleapis.com" }
+    "region": "northamerica-northeast1",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
+    "service": { "name": "cloudresourcemanager.googleapis.com" }
   },
   "gcp": {
-    "access_transparency": {
-      "json_payload": {
-        "id": "AX-YCEKQ2QGP86J",
-        "actor": { "email": "google-support-CBP9@google.com", "title": "Support Engineer" },
-        "target": { "customerId": "CLF5KJYO91R", "projectNumber": "847293615048" },
-        "product": "BigQuery",
-        "reason": "CUSTOMER_INITIATED_SUPPORT",
-        "action": "DATA_ACCESS",
-        "status": "COMPLETED",
-        "ipAddress": "100.64.0.253",
-        "justification": "Abuse and fraud investigation",
-        "accessDurationSeconds": 6111
-      },
-      "product": "BigQuery",
-      "access_reason": "CUSTOMER_INITIATED_SUPPORT",
-      "accessor_email": "google-support-CBP9@google.com",
-      "principal_email": "dataflow-etl-sa@globex-sec-847293.iam.gserviceaccount.com",
-      "justification": "Abuse and fraud investigation",
-      "access_duration_seconds": 6111,
-      "status": "COMPLETED"
+    "resource_manager": {
+      "scenario": "folders_create",
+      "service": "cloudresourcemanager.googleapis.com",
+      "api_method": "cloudresourcemanager.googleapis.com/v3/folders",
+      "resource_type": "folder",
+      "action": "CREATE",
+      "resource_name": "folders/694117830270",
+      "parent": "organizations/744670364232",
+      "actor": "serviceAccount:gke-node-pool-sa@globex-stg-739158.iam.gserviceaccount.com"
     }
   },
   "event": {
     "kind": "event",
-    "category": ["intrusion_detection"],
+    "category": ["configuration"],
     "type": ["info"],
-    "action": "security-event",
+    "action": "management-operation",
     "outcome": "success",
-    "duration": 6111000,
+    "duration": 22225,
     "module": "gcp",
-    "dataset": "gcp.accesstransparency"
+    "dataset": "gcp.resourcemanager"
   },
-  "message": "cloudaudit.googleapis.com/access_transparency CUSTOMER_INITIATED_SUPPORT BigQuery by google-support-CBP9@google.com",
-  "service": { "name": "access-transparency", "type": "gcp" },
+  "message": "CreateFolder folders/694117830270 under organizations/744670364232",
+  "service": { "name": "resource-manager", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.accesstransparency", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.resourcemanager", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-east1",
-    "id": "jerl00uzs9asbvygkaepby6v8z06chxwg59w"
+    "name": "elastic-agent-gcp-northamerica-northeast1",
+    "id": "elmh1g6g2qthaaudptjr3aqgr9r22i0t88kv"
   },
-  "input": { "type": "gcp-pubsub" }
+  "input": { "type": "gcp-pubsub" },
+  "logName": "projects/globex-stg-739158/logs/resource-manager",
+  "resource": {
+    "type": "global",
+    "labels": { "project_id": "globex-stg-739158", "region": "northamerica-northeast1" }
+  },
+  "insertId": "BEV9Z32IG272",
+  "jsonPayload": {
+    "resource_manager": {
+      "scenario": "folders_create",
+      "service": "cloudresourcemanager.googleapis.com",
+      "api_method": "cloudresourcemanager.googleapis.com/v3/folders",
+      "resource_type": "folder",
+      "action": "CREATE",
+      "resource_name": "folders/694117830270",
+      "parent": "organizations/744670364232",
+      "actor": "serviceAccount:gke-node-pool-sa@globex-stg-739158.iam.gserviceaccount.com"
+    },
+    "message": "CreateFolder folders/694117830270 under organizations/744670364232"
+  }
 }

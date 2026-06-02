@@ -1,39 +1,42 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-south-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "backup" }
   },
   "aws": {
     "backup": {
-      "event_subtype": "restore_job",
-      "backup_job_id": "3ju71z0f-z7h5-g3tc",
-      "restore_job_id": "c4qyntqr-551a-1pl3",
-      "backup_plan_name": "weekly-cold",
-      "resource_arn": "arn:aws:backup:eu-west-1:293847561023:recovery-point:tauscwijvtqi",
-      "resource_type": "DynamoDB",
+      "event_subtype": "plan_execution",
+      "backup_job_id": "i1z4gfbj-qo06-2y4r",
+      "backup_plan_name": "compliance-backup",
+      "backup_plan_execution": {
+        "execution_id": "okwxg18p-lmps",
+        "rules_matched": 1,
+        "resources_evaluated": 174,
+        "next_window_utc": "2026-06-02T19:12:51.955Z"
+      },
+      "resource_arn": "arn:aws:backup:eu-south-1:164820739518:recovery-point:nepvwkmblmtx",
+      "resource_type": "EFS",
       "backup_vault_name": "compliance-vault",
-      "job_phase": "COMPLETED",
-      "restore_job_lifecycle": ["CREATED", "PENDING", "RUNNING", "COMPLETED"],
-      "status": "PENDING",
-      "backup_size_gb": 239.91458295351708,
-      "lifecycle_delete_after_days": 90
+      "status": "COMPLETED",
+      "backup_size_gb": 552.5668472893748,
+      "lifecycle_delete_after_days": 30
     },
     "s3": {
       "bucket": {
-        "name": "aws-backup-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-backup-logs-293847561023"
+        "name": "aws-backup-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-backup-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/backup/eu-west-1/2026/06/01/backup_84JL3ICPMKO3HVKUS98J.log.gz"
+        "key": "AWSLogs/164820739518/backup/eu-south-1/2026/06/02/backup_AYQU9RVTGN5OU7LQI4OM.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/backup/logs",
-      "log_stream": "eu-west-1/h772cxuy",
-      "ingestion_time": "2026-06-01T18:12:00.368Z"
+      "log_stream": "eu-south-1/thi3ab0f",
+      "ingestion_time": "2026-06-02T15:33:03.955Z"
     }
   },
   "event": {
@@ -42,10 +45,10 @@
     "type": ["info"],
     "dataset": "aws.backup",
     "provider": "backup.amazonaws.com",
-    "duration": 3071000000000,
+    "duration": 5231000000000,
     "module": "aws"
   },
-  "message": "{\"eventSubtype\":\"restore_job\",\"backupPlanName\":\"weekly-cold\",\"backupVaultName\":\"compliance-vault\",\"resource\":\"fsx/fs-prod\",\"jobStatus\":\"PENDING\",\"backupSizeGb\":239.91458295351708,\"durationSeconds\":3071,\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"status\":\"Succeeded\"}",
+  "message": "{\"eventSubtype\":\"plan_execution\",\"backupPlanName\":\"compliance-backup\",\"backupVaultName\":\"compliance-vault\",\"resource\":\"rds/prod-db\",\"jobStatus\":\"COMPLETED\",\"backupSizeGb\":552.5668472893748,\"durationSeconds\":5231,\"timestamp\":\"2026-06-02T15:33:03.184Z\",\"planExecution\":{\"execution_id\":\"okwxg18p-lmps\",\"rules_matched\":1,\"resources_evaluated\":174,\"next_window_utc\":\"2026-06-02T19:12:51.955Z\"},\"status\":\"Succeeded\"}",
   "log": { "level": "info" },
   "service": { "name": "backup", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -53,8 +56,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "kizin148ipua68yof5p7att3isdz8b2pjwyg"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "hymwpo74hbsjquki7okt703kf12t6vovbeto"
   },
   "input": { "type": "aws-cloudwatch" }
 }

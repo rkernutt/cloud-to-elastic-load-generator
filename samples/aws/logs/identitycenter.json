@@ -1,57 +1,63 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-central-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "identitycenter" }
   },
   "aws": {
     "iam_identity_center": {
-      "event_type": "MFAChallenge",
-      "user_name": "mwilliams@bluepeak.dev",
+      "event_type": "Authorize",
+      "user_name": "svc-deploy-prod@cascadeops.com",
       "application_name": "Slack",
       "permission_set": "BillingAccess",
-      "account_id": "164820739518",
-      "mfa_authenticated": true
+      "account_id": "814726593401",
+      "error_code": "AccessDeniedException",
+      "mfa_authenticated": false
     },
     "s3": {
       "bucket": {
-        "name": "aws-identitycenter-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-identitycenter-logs-164820739518"
+        "name": "aws-identitycenter-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-identitycenter-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/164820739518/identitycenter/af-south-1/2026/06/01/identitycenter_B81UNI0SFRX1BPZVEU6A.log.gz"
+        "key": "AWSLogs/814726593401/identitycenter/eu-central-1/2026/06/02/identitycenter_IYZYU6O44CW47DE9AM4S.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/identitycenter/logs",
-      "log_stream": "af-south-1/2omxqs7e",
-      "ingestion_time": "2026-06-01T18:12:00.342Z"
+      "log_stream": "eu-central-1/fasku08n",
+      "ingestion_time": "2026-06-02T15:33:03.927Z"
     }
   },
-  "user": { "name": "mwilliams@bluepeak.dev" },
-  "source": { "ip": "211.239.75.242" },
+  "user": { "name": "svc-deploy-prod@cascadeops.com" },
+  "source": { "ip": "158.107.121.163" },
   "event": {
-    "action": "MFAChallenge",
-    "outcome": "success",
+    "action": "Authorize",
+    "outcome": "failure",
     "category": ["authentication"],
     "type": ["start"],
     "dataset": "aws.identitycenter",
     "provider": "sso.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"eventType\":\"MFAChallenge\",\"eventTime\":\"2026-06-01T18:11:59.613Z\",\"userName\":\"mwilliams@bluepeak.dev\",\"applicationName\":\"Slack\",\"permissionSetArn\":\"arn:aws:sso:::permissionSet/ReadOnlyAccess/ps-X18HFGCG\",\"accountId\":\"164820739518\",\"result\":\"SUCCESS\",\"mfaAuthenticated\":true,\"sourceIpAddress\":\"46.84.246.237\"}",
-  "log": { "level": "info" },
+  "message": "{\"eventType\":\"Authorize\",\"eventTime\":\"2026-06-02T15:33:03.184Z\",\"userName\":\"svc-deploy-prod@cascadeops.com\",\"applicationName\":\"Slack\",\"permissionSetArn\":\"arn:aws:sso:::permissionSet/PowerUserAccess/ps-9TX78O83\",\"accountId\":\"814726593401\",\"result\":\"FAILURE\",\"mfaAuthenticated\":false,\"sourceIpAddress\":\"77.180.7.114\",\"errorCode\":\"MFARequired\"}",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "MFARequired",
+    "message": "SSO authentication failed",
+    "type": "authentication"
+  },
   "service": { "name": "identitycenter", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "ynnn3grqgjg6nig68s5k1svwbomt58wl5wdv"
+    "name": "filebeat-aws-eu-central-1",
+    "ephemeral_id": "2ve23kj6aueyfkdxw7ruc81l0nm36fnkuox6"
   },
   "input": { "type": "aws-cloudwatch" },
-  "related": { "ip": ["211.239.75.242"], "user": ["mwilliams@bluepeak.dev"] }
+  "related": { "ip": ["158.107.121.163"], "user": ["svc-deploy-prod@cascadeops.com"] }
 }

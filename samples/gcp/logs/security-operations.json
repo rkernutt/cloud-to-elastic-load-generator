@@ -3,55 +3,46 @@
   "log": { "level": "info" },
   "labels": {},
   "severity": "NOTICE",
-  "logName": "projects/globex-prod-482910/logs/chronicle.googleapis.com%2Fsoar_events",
-  "insertId": "e0lr5jimjn142gnb",
+  "logName": "projects/globex-sec-847293/logs/chronicle.googleapis.com%2Falert",
+  "insertId": "rqqys12grcrs8ry8",
   "resource": {
-    "type": "security_operations_case",
-    "labels": { "project_id": "globex-prod-482910", "case_id": "case-t21s7q2p1x" }
+    "type": "chronicle_instance",
+    "labels": { "project_id": "globex-sec-847293", "region": "europe-west9" }
   },
   "jsonPayload": {
-    "case": {
-      "name": "projects/globex-prod-482910/locations/global/cases/case-t21s7q2p1x",
-      "displayName": "Investigation case-t21s7q2p1x",
-      "stage": "IN_PROGRESS",
-      "priority": "LOW"
+    "result": {
+      "ruleName": "dns_tunneling",
+      "versionId": "ru_07KTC1SF",
+      "detections": [{ "type": "ALERT", "severity": "NOTICE", "eventsMatched": 22530 }],
+      "ioc": { "type": "DOMAIN", "value": "evil-OJN5OV.net" }
     },
-    "playbook": { "name": "phish_triage", "revisionId": "rev_PBWH2N" },
-    "action": { "type": "ALERT_GROUPED", "entitiesTouched": 189, "indicatorsTouched": 41 },
-    "siem": {
-      "product": "Google Security Operations",
-      "instance": "projects/globex-prod-482910/locations/global"
-    }
+    "case": { "name": "CASE-D7VBNJ", "stage": "NEW" }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west8",
-    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
-    "account": { "id": "482910375621", "name": "Globex Production" },
+    "region": "europe-west9",
+    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
+    "account": { "id": "847293615048", "name": "Globex Security" },
     "service": { "name": "security-operations" }
   },
   "gcp": {
-    "security_operations": {
+    "secops_detection": {
       "json_payload": {
-        "case": {
-          "name": "projects/globex-prod-482910/locations/global/cases/case-t21s7q2p1x",
-          "displayName": "Investigation case-t21s7q2p1x",
-          "stage": "IN_PROGRESS",
-          "priority": "LOW"
+        "result": {
+          "ruleName": "dns_tunneling",
+          "versionId": "ru_07KTC1SF",
+          "detections": [{ "type": "ALERT", "severity": "NOTICE", "eventsMatched": 22530 }],
+          "ioc": { "type": "DOMAIN", "value": "evil-OJN5OV.net" }
         },
-        "playbook": { "name": "phish_triage", "revisionId": "rev_PBWH2N" },
-        "action": { "type": "ALERT_GROUPED", "entitiesTouched": 189, "indicatorsTouched": 41 },
-        "siem": {
-          "product": "Google Security Operations",
-          "instance": "projects/globex-prod-482910/locations/global"
-        }
+        "case": { "name": "CASE-D7VBNJ", "stage": "NEW" }
       },
-      "case_id": "case-t21s7q2p1x",
-      "playbook_name": "phish_triage",
-      "action_type": "ALERT_GROUPED",
-      "severity": "LOW",
-      "entities_count": 189,
-      "indicators_count": 41
+      "rule_name": "dns_tunneling",
+      "detection_type": "ALERT",
+      "severity": "NOTICE",
+      "alert_state": "NEW",
+      "ioc_type": "DOMAIN",
+      "matched_events_count": 22530,
+      "case_name": "CASE-VRBJ9H"
     }
   },
   "event": {
@@ -60,19 +51,19 @@
     "type": ["info"],
     "action": "security-event",
     "outcome": "success",
-    "duration": 127000000,
+    "duration": 93000000,
     "module": "gcp",
-    "dataset": "gcp.secops"
+    "dataset": "gcp.secops_detection"
   },
-  "message": "securityoperations.googleapis.com/ALERT_GROUPED case=case-t21s7q2p1x playbook=phish_triage",
-  "service": { "name": "security-operations", "type": "gcp" },
+  "message": "chronicle.googleapis.com/Detections dns_tunneling ALERT events=22530",
+  "service": { "name": "secops-detection", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.secops", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.secops_detection", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west8",
-    "id": "4i2pjoivt81x2mziwup16yhgkl99n65lk0tj"
+    "name": "elastic-agent-gcp-europe-west9",
+    "id": "9aiirspsg55vv92cftjz6i6uf877nc54ascd"
   },
-  "input": { "type": "http_endpoint" }
+  "input": { "type": "gcp-pubsub" }
 }

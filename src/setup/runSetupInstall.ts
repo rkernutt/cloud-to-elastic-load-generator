@@ -26,6 +26,8 @@ import {
 import {
   applyWorkflowOverrides,
   DEFAULT_WORKFLOW_NAME,
+  SECURITY_WORKFLOW_NAME,
+  DNS_WORKFLOW_NAME,
   installWorkflow,
   uninstallWorkflow,
   type WorkflowOverrides,
@@ -259,7 +261,7 @@ export async function runSetupInstall(opts: {
     (enableSecurityDetectionRules ? planRun : planSkip).push(
       `${secRuleCount} security detection rules`
     );
-    (enableWorkflow ? planRun : planSkip).push("alert-enrichment Workflow");
+    (enableWorkflow ? planRun : planSkip).push("alert-enrichment Workflows (×3)");
     (enableAgentBuilder ? planRun : planSkip).push("Agent Builder analyst");
     (enableSlos ? planRun : planSkip).push("SLO definitions");
     if (planRun.length) addLog(`Plan: install ${planRun.join(", ")}.`, "info");
@@ -1405,7 +1407,7 @@ export async function uninstallKnowledgeBase(opts: {
 
 /**
  * Companion to {@link runSetupInstall} — used by the wizard's Uninstall and
- * Reinstall flows to remove the bundled alert-enrichment workflow. Idempotent:
+ * Remove all bundled alert-enrichment workflows. Idempotent:
  * a missing workflow logs a friendly "not found" line rather than failing.
  */
 export async function uninstallSetupWorkflow(opts: {
@@ -1414,33 +1416,33 @@ export async function uninstallSetupWorkflow(opts: {
   addLog: SetupLogFn;
 }): Promise<void> {
   const { kibanaUrl, apiKey, addLog } = opts;
-  addLog("Removing alert-enrichment Workflow…");
-  try {
-    const result = await uninstallWorkflow({
-      kibanaUrl,
-      apiKey,
-      name: DEFAULT_WORKFLOW_NAME,
-    });
-    if (result.outcome === "deleted") {
-      addLog(`  ✓ Workflow "${DEFAULT_WORKFLOW_NAME}" deleted.`, "ok");
-    } else if (result.outcome === "not_found") {
-      addLog(`  – Workflow "${DEFAULT_WORKFLOW_NAME}" not found, nothing to remove.`, "info");
-    } else {
-      addLog(
-        `  ⚠ Workflows API unavailable on this deployment.${workflowsBlockedExplanation()}`,
-        "warn"
-      );
+  const workflows = [DEFAULT_WORKFLOW_NAME, SECURITY_WORKFLOW_NAME, DNS_WORKFLOW_NAME];
+  addLog("Removing alert-enrichment Workflows…");
+  for (const name of workflows) {
+    try {
+      const result = await uninstallWorkflow({ kibanaUrl, apiKey, name });
+      if (result.outcome === "deleted") {
+        addLog(`  ✓ Workflow "${name}" deleted.`, "ok");
+      } else if (result.outcome === "not_found") {
+        addLog(`  – Workflow "${name}" not found, nothing to remove.`, "info");
+      } else {
+        addLog(
+          `  ⚠ Workflows API unavailable on this deployment.${workflowsBlockedExplanation()}`,
+          "warn"
+        );
+        return;
+      }
+    } catch (e) {
+      const msg = String(e);
+      if (isWorkflowsApiUnavailable(msg)) {
+        addLog(
+          `  ⚠ Workflows API unavailable on this deployment.${workflowsBlockedExplanation()}`,
+          "warn"
+        );
+        return;
+      }
+      addLog(`  ✗ Workflow "${name}" uninstall failed: ${msg}`, "error");
     }
-  } catch (e) {
-    const msg = String(e);
-    if (isWorkflowsApiUnavailable(msg)) {
-      addLog(
-        `  ⚠ Workflows API unavailable on this deployment.${workflowsBlockedExplanation()}`,
-        "warn"
-      );
-      return;
-    }
-    addLog(`  ✗ Workflow uninstall failed: ${msg}`, "error");
   }
 }
 

@@ -1,61 +1,56 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "us-west-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "supplychain" }
   },
   "aws": {
-    "dimensions": { "InstanceId": "arn:aws:scn:ap-southeast-1:814726593401:instance/37ud5m18nufa" },
+    "dimensions": { "InstanceId": "arn:aws:scn:us-west-1:501938274650:instance/l68kor3awosy" },
     "supplychain": {
-      "instance_id": "arn:aws:scn:ap-southeast-1:814726593401:instance/37ud5m18nufa",
-      "instance_name": "apac-logistics",
-      "namespace": "aws.supply_chain.insight",
-      "event_type": "scn.data.supply_plan",
-      "job_status": "FAILED",
-      "record_count": 839595,
-      "forecast_horizon_days": 24,
-      "data_lake_dataset": "purchase_orders"
+      "instance_id": "arn:aws:scn:us-west-1:501938274650:instance/l68kor3awosy",
+      "instance_name": "north-america-ops",
+      "namespace": "aws.supply_chain.plan",
+      "event_type": "scn.data.shipment",
+      "job_status": "SUCCESS",
+      "record_count": 929730,
+      "forecast_horizon_days": 83,
+      "data_lake_dataset": "supplier_lead_times"
     },
     "s3": {
       "bucket": {
-        "name": "aws-supplychain-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-supplychain-logs-814726593401"
+        "name": "aws-supplychain-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-supplychain-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/supplychain/ap-southeast-1/2026/06/01/supplychain_JRJ2U9R24MJEHTJMSGYV.log.gz"
+        "key": "AWSLogs/501938274650/supplychain/us-west-1/2026/06/02/supplychain_SRTIITXHM1DUA92U37RQ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/supplychain/logs",
-      "log_stream": "ap-southeast-1/mq8jroui",
-      "ingestion_time": "2026-06-01T18:12:00.468Z"
+      "log_stream": "us-west-1/cdcjgn43",
+      "ingestion_time": "2026-06-02T15:33:04.058Z"
     }
   },
   "event": {
-    "action": "CreateInstance",
-    "outcome": "failure",
+    "action": "SendDataIntegrationEvent",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.supplychain",
     "provider": "scn.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"eventType\":\"CreateInstance\",\"instanceArn\":\"arn:aws:scn:ap-southeast-1:814726593401:instance/37ud5m18nufa\",\"instanceName\":\"apac-logistics\",\"namespace\":\"aws.supply_chain.insight\",\"dataIntegrationEventType\":\"scn.data.supply_plan\",\"jobStatus\":\"FAILED\",\"recordCount\":591977,\"forecastHorizonDays\":80,\"dataLakeDataset\":\"supplier_lead_times\",\"ingestionSource\":\"EDI\",\"status\":\"FAILED\",\"errorMessage\":\"Integration timeout\",\"timestamp\":\"2026-06-01T18:11:59.613Z\"}",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ResourceNotFoundException",
-    "message": "Supply Chain operation failed",
-    "type": "process"
-  },
+  "message": "{\"eventType\":\"SendDataIntegrationEvent\",\"instanceArn\":\"arn:aws:scn:us-west-1:501938274650:instance/l68kor3awosy\",\"instanceName\":\"north-america-ops\",\"namespace\":\"aws.supply_chain.plan\",\"dataIntegrationEventType\":\"scn.data.shipment\",\"jobStatus\":\"SUCCESS\",\"recordCount\":153244,\"forecastHorizonDays\":97,\"dataLakeDataset\":\"supplier_lead_times\",\"ingestionSource\":\"WMS\",\"status\":\"SUCCESS\",\"errorMessage\":null,\"timestamp\":\"2026-06-02T15:33:03.184Z\"}",
+  "log": { "level": "info" },
   "service": { "name": "supplychain", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "6ujbif4txg2jddtmmas22xwmkjel9cruzmsa"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "yrv4pi29wm9n7aoyal9ze50yu2njf9wd5bii"
   },
   "input": { "type": "aws-cloudwatch" }
 }

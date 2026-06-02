@@ -1,34 +1,28 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
-  "host": { "name": "ip-10-128-6-33.ap-southeast-1.compute.internal" },
+  "@timestamp": "2026-06-02T15:33:03.184Z",
+  "host": { "name": "ip-10-132-0-88.eu-north-1.compute.internal" },
   "cloud": {
     "provider": "aws",
-    "region": "us-east-2",
+    "region": "eu-west-1",
     "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "waf" }
   },
   "aws": {
-    "dimensions": {
-      "WebACL": "prod-waf",
-      "Rule": "AWSManagedRulesUnixRuleSet",
-      "Region": "us-east-2"
-    },
+    "dimensions": { "WebACL": "api-waf", "Rule": "IPRateBasedRule", "Region": "eu-west-1" },
     "waf": {
-      "id": "7yimhhbmke6diaz65hhl421d3gn5or8davjg",
-      "arn": "arn:aws:wafv2:us-east-2:164820739518:regional/webacl/prod-waf/s3v3ycsi-bkh4-ghfr-cuoo-36z865q4ugbn",
+      "id": "bc892a33-a37b-40da-8368-a198339d6e7b",
+      "arn": "arn:aws:wafv2:eu-west-1:164820739518:regional/webacl/api-waf/bca20107-9cc9-445b-abb2-626a79b369ec",
       "format_version": "1",
-      "source": { "name": "ALB", "id": "164820739518-app/prod-waf/pwrs2kn65a01n3da" },
-      "rule_group_list": [
-        { "ruleGroupId": "AWSManagedRulesUnixRuleSet", "nonTerminatingMatchingRules": [] }
-      ],
+      "source": { "name": "ALB", "id": "164820739518-app/api-waf/7toemcc8cw8aizs5" },
+      "rule_group_list": [{ "ruleGroupId": "IPRateBasedRule", "nonTerminatingMatchingRules": [] }],
       "non_terminating_matching_rules": [],
       "terminating_rule_match_details": [],
       "request": {
         "headers": [
-          { "name": "Host", "value": "cdn.bluepeak.dev" },
+          { "name": "Host", "value": "dashboard.cascadeops.com" },
           {
             "name": "User-Agent",
-            "value": "Mozilla/5.0 (X11; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0"
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
           },
           { "name": "Accept", "value": "*/*" }
         ]
@@ -43,27 +37,34 @@
         "ChallengeRequests": { "sum": 0 },
         "FailedCaptcha": { "sum": 0 }
       },
-      "webaclId": "s3v3ycsi-bkh4-ghfr-cuoo-36z865q4ugbn",
-      "terminatingRuleId": "GenericRFI_BODY",
-      "terminatingRuleType": "MANAGED_RULE_GROUP",
+      "webaclId": "bca20107-9cc9-445b-abb2-626a79b369ec",
+      "terminatingRuleId": "BadBot",
+      "terminatingRuleType": "RATE_BASED",
       "action": "ALLOW",
       "httpRequest": {
-        "clientIp": "166.155.109.108",
-        "country": "SG",
+        "clientIp": "158.25.130.94",
+        "country": "RU",
         "headers": [
-          { "name": "Host", "value": "cdn.bluepeak.dev" },
+          { "name": "Host", "value": "dashboard.cascadeops.com" },
           {
             "name": "User-Agent",
-            "value": "Mozilla/5.0 (X11; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0"
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
           },
           { "name": "Accept", "value": "*/*" }
         ],
-        "httpMethod": "POST",
+        "httpMethod": "PATCH",
         "httpVersion": "HTTP/1.1",
-        "uri": "/.well-known/openid-configuration"
+        "uri": "/static/js/main.chunk.js"
       },
-      "httpSourceId": "164820739518-app/prod-waf/pwrs2kn65a01n3da",
-      "rateBasedRuleList": [],
+      "httpSourceId": "164820739518-app/api-waf/7toemcc8cw8aizs5",
+      "rateBasedRuleList": [
+        {
+          "rateBasedRuleId": "IPRateBasedRule",
+          "rateLimitKey": "IP",
+          "limitKey": "158.25.130.94",
+          "maxRateAllowed": 2000
+        }
+      ],
       "nonTerminatingMatchingRules": [],
       "requestHeadersInserted": [],
       "responseCodeSent": 200
@@ -74,33 +75,33 @@
         "arn": "arn:aws:s3:::aws-waf-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/164820739518/waf/us-east-2/2026/06/01/waf_MZTTKFRC4IS4E2PIPX94.log.gz"
+        "key": "AWSLogs/164820739518/waf/eu-west-1/2026/06/02/waf_R5Q5LT6LE5Y1OCEPLNGW.log.gz"
       }
     }
   },
-  "rule": { "id": "GenericRFI_BODY", "ruleset": "AWSManagedRulesUnixRuleSet" },
-  "http": { "request": { "method": "POST", "bytes": 9810 } },
-  "url": { "path": "/.well-known/openid-configuration" },
+  "rule": { "id": "BadBot", "ruleset": "IPRateBasedRule" },
+  "http": { "request": { "method": "PATCH", "bytes": 7690 } },
+  "url": { "path": "/static/js/main.chunk.js" },
   "source": {
-    "ip": "166.155.109.108",
+    "ip": "158.25.130.94",
     "geo": {
-      "country_iso_code": "SG",
-      "country_name": "Singapore",
-      "city_name": "Singapore",
-      "location": { "lat": 1.3521, "lon": 103.8198 }
+      "country_iso_code": "RU",
+      "country_name": "Russia",
+      "city_name": "Moscow",
+      "location": { "lat": 55.7558, "lon": 37.6173 }
     }
   },
   "client": {
-    "ip": "166.155.109.108",
+    "ip": "158.25.130.94",
     "geo": {
-      "country_iso_code": "SG",
-      "country_name": "Singapore",
-      "city_name": "Singapore",
-      "location": { "lat": 1.3521, "lon": 103.8198 }
+      "country_iso_code": "RU",
+      "country_name": "Russia",
+      "city_name": "Moscow",
+      "location": { "lat": 55.7558, "lon": 37.6173 }
     }
   },
   "user_agent": {
-    "original": "Mozilla/5.0 (X11; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0"
+    "original": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
   },
   "event": {
     "action": "allow",
@@ -109,10 +110,10 @@
     "type": ["info"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
-    "duration": 20000000,
+    "duration": 30000000,
     "module": "aws"
   },
-  "message": "{\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"formatVersion\":1,\"webaclId\":\"s3v3ycsi-bkh4-ghfr-cuoo-36z865q4ugbn\",\"terminatingRuleId\":\"GenericRFI_BODY\",\"terminatingRuleType\":\"MANAGED_RULE_GROUP\",\"action\":\"ALLOW\",\"httpRequest\":{\"clientIp\":\"166.155.109.108\",\"country\":\"SG\",\"headers\":[{\"name\":\"Host\",\"value\":\"cdn.bluepeak.dev\"},{\"name\":\"User-Agent\",\"value\":\"Mozilla/5.0 (X11; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0\"},{\"name\":\"Accept\",\"value\":\"*/*\"}],\"httpMethod\":\"POST\",\"httpVersion\":\"HTTP/1.1\",\"uri\":\"/.well-known/openid-configuration\"},\"httpSourceId\":\"164820739518-app/prod-waf/pwrs2kn65a01n3da\",\"rateBasedRuleList\":[],\"nonTerminatingMatchingRules\":[],\"requestHeadersInserted\":[],\"responseCodeSent\":200}",
+  "message": "{\"timestamp\":\"2026-06-02T15:33:03.184Z\",\"formatVersion\":1,\"webaclId\":\"bca20107-9cc9-445b-abb2-626a79b369ec\",\"terminatingRuleId\":\"BadBot\",\"terminatingRuleType\":\"RATE_BASED\",\"action\":\"ALLOW\",\"httpRequest\":{\"clientIp\":\"158.25.130.94\",\"country\":\"RU\",\"headers\":[{\"name\":\"Host\",\"value\":\"dashboard.cascadeops.com\"},{\"name\":\"User-Agent\",\"value\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36\"},{\"name\":\"Accept\",\"value\":\"*/*\"}],\"httpMethod\":\"PATCH\",\"httpVersion\":\"HTTP/1.1\",\"uri\":\"/static/js/main.chunk.js\"},\"httpSourceId\":\"164820739518-app/api-waf/7toemcc8cw8aizs5\",\"rateBasedRuleList\":[{\"rateBasedRuleId\":\"IPRateBasedRule\",\"rateLimitKey\":\"IP\",\"limitKey\":\"158.25.130.94\",\"maxRateAllowed\":2000}],\"nonTerminatingMatchingRules\":[],\"requestHeadersInserted\":[],\"responseCodeSent\":200}",
   "log": { "level": "info" },
   "service": { "name": "waf", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -120,9 +121,9 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-2",
-    "ephemeral_id": "3nocjfitdg6we5h557x8hpinwykcm47frtd7"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "qnwg974wefgzeje7sorw6qycczwva2bnaojr"
   },
   "input": { "type": "aws-s3" },
-  "related": { "ip": ["166.155.109.108"] }
+  "related": { "ip": ["158.25.130.94"] }
 }

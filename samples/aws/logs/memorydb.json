@@ -1,49 +1,51 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
     "region": "eu-west-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "account": { "id": "528174630291", "name": "globex-ml-platform" },
     "service": { "name": "memorydb" }
   },
   "aws": {
     "memorydb": {
-      "cluster_name": "session-store",
-      "node_name": "session-store-0001-001",
+      "cluster_name": "leaderboard",
+      "node_name": "leaderboard-0001-001",
       "engine_version": "7.1",
-      "command": "HSET",
-      "latency_us": 24.255421171982515,
-      "cache_hit_rate": 87.40088184239714,
-      "connected_clients": 315,
-      "used_memory_mb": 63261,
-      "replication_lag_ms": 55
+      "command": "XADD",
+      "latency_us": 1729.109682108478,
+      "cache_hit_rate": 0,
+      "connected_clients": 88,
+      "used_memory_mb": 58407,
+      "replication_lag_ms": 4128,
+      "error_code": "WRONGTYPE"
     },
     "s3": {
       "bucket": {
-        "name": "aws-memorydb-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-memorydb-logs-293847561023"
+        "name": "aws-memorydb-logs-528174630291",
+        "arn": "arn:aws:s3:::aws-memorydb-logs-528174630291"
       },
       "object": {
-        "key": "AWSLogs/293847561023/memorydb/eu-west-1/2026/06/01/memorydb_LJCX4Z8UAMXJGIS1QV5P.log.gz"
+        "key": "AWSLogs/528174630291/memorydb/eu-west-1/2026/06/02/memorydb_IGP064ISL95SX1JIVI0G.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/memorydb/logs",
-      "log_stream": "eu-west-1/s5uhkpa9",
-      "ingestion_time": "2026-06-01T18:12:00.380Z"
+      "log_stream": "eu-west-1/pxm567bb",
+      "ingestion_time": "2026-06-02T15:33:03.969Z"
     }
   },
   "event": {
-    "duration": 24255.421171982514,
-    "outcome": "success",
+    "duration": 1729109.682108478,
+    "outcome": "failure",
     "category": ["database"],
     "type": ["access"],
     "dataset": "aws.memorydb",
     "provider": "memory-db.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"id\":679921,\"timestamp\":1780337519613,\"duration\":24,\"command\":[\"HSET\",\"session:*\"],\"key\":\"session:*\",\"clusterName\":\"session-store\",\"status\":\"ok\"}",
-  "log": { "level": "info" },
+  "message": "{\"id\":469880,\"timestamp\":1780414383184,\"duration\":1729,\"command\":[\"XADD\",\"user:*\"],\"key\":\"leaderboard:3100\",\"clusterName\":\"leaderboard\",\"status\":\"failed\",\"error\":\"WRONGTYPE\"}",
+  "log": { "level": "error" },
+  "error": { "code": "OOM", "message": "MemoryDB command failed", "type": "db" },
   "service": { "name": "memorydb", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
@@ -51,7 +53,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "q88g9iveva3ei6lr0ujiknip3ths4iku7ywp"
+    "ephemeral_id": "bdlumck1jodo75mbdd7ntfmgj1pgwksbczrm"
   },
   "input": { "type": "aws-cloudwatch" }
 }

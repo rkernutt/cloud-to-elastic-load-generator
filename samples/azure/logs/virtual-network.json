@@ -2,52 +2,64 @@
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "cloud": {
     "provider": "azure",
-    "region": "eastus",
+    "region": "centralindia",
     "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
     "service": { "name": "Microsoft.Network/virtualNetworks" }
   },
   "category": "Administrative",
   "operationName": "Microsoft.Network/virtualNetworks/subnets/write",
-  "resultType": "Succeeded",
-  "level": "Informational",
-  "correlationId": "23pofcdioa2hzhxqcfx2ivqj7a5ul5m8",
-  "callerIpAddress": "18.162.44.94",
+  "resultType": "Failed",
+  "level": "Error",
+  "correlationId": "z6ow2pxxt2lxlw09wuerltr7kuihlgvq",
+  "callerIpAddress": "100.64.0.141",
   "properties": {
-    "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-app-y7fypv/providers/Microsoft.Network/virtualNetworks/vnet-7aqw",
-    "statusCode": "OK",
-    "statusMessage": "Request completed successfully",
-    "subnetName": "snet-data",
-    "addressPrefix": "10.26.97.0/24"
+    "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-network-cappjn/providers/Microsoft.Network/virtualNetworks/vnet-en9u",
+    "statusCode": "Conflict",
+    "statusMessage": {
+      "message": "Another update is in progress for the referenced subnet.",
+      "error": {
+        "code": "BadRequest",
+        "message": "Virtual network control-plane or DDoS diagnostic reported a failure.",
+        "type": "azure"
+      }
+    },
+    "subnetName": "snet-app",
+    "addressPrefix": "10.186.109.0/24"
   },
   "azure": {
     "virtual_network": {
-      "name": "vnet-7aqw",
-      "resource_group": "rg-app-y7fypv",
-      "subnet": "snet-data",
+      "name": "vnet-en9u",
+      "resource_group": "rg-network-cappjn",
+      "subnet": "snet-app",
       "operation": "SubnetWrite"
     }
   },
   "event": {
     "kind": "event",
     "category": ["network"],
-    "type": ["change"],
+    "type": ["error"],
     "action": "Microsoft.Network/virtualNetworks/subnets/write",
-    "outcome": "success",
-    "duration": 604530735,
+    "outcome": "failure",
+    "duration": 2581991922,
     "module": "azure",
     "dataset": "azure.virtual_network"
   },
-  "message": "Subnet snet-data updated on virtual network vnet-7aqw",
+  "message": "Subnet write failed on vnet-en9u/snet-app: conflicting address space",
+  "error": {
+    "code": "BadRequest",
+    "message": "Virtual network control-plane or DDoS diagnostic reported a failure.",
+    "type": "azure"
+  },
   "service": { "name": "virtual-network", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.virtual_network", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-eastus",
-    "id": "409puebhyad5bn0y6mfojkozoeo782dg3as0"
+    "name": "elastic-agent-azure-centralindia",
+    "id": "jnjxeuatj9bdbuqnnon4m4vrfdwmsmi886et"
   },
   "input": { "type": "azure-eventhub" },
-  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourcegroups/rg-app-y7fypv/providers/Microsoft.Network/virtualNetworks/virtual-network"
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourcegroups/rg-network-cappjn/providers/Microsoft.Network/virtualNetworks/virtual-network"
 }

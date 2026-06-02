@@ -1,59 +1,58 @@
 {
-  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "@timestamp": "2026-06-02T15:33:03.184Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-west-2",
+    "account": { "id": "528174630291", "name": "globex-ml-platform" },
     "service": { "name": "budgets" }
   },
   "aws": {
     "budgets": {
-      "budget_name": "dev-sandbox",
-      "budget_type": "USAGE",
-      "time_period": "QUARTERLY",
+      "budget_name": "ec2-prod",
+      "budget_type": "COST",
+      "time_period": "ANNUALLY",
       "currency": "USD",
-      "budget_limit": 9108.93,
-      "actual_spend": 10168.37,
-      "forecasted_spend": 11802.25,
-      "threshold_exceeded": true,
-      "threshold_percentage": 80,
-      "notification_type": "ACTUAL",
+      "budget_limit": 9522.44,
+      "actual_spend": 6722.55,
+      "forecasted_spend": 8811.28,
+      "threshold_exceeded": false,
+      "threshold_percentage": 60,
+      "notification_type": "FORECASTED",
       "subscribers": "ops@company.com"
     },
     "s3": {
       "bucket": {
-        "name": "aws-budgets-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-budgets-logs-293847561023"
+        "name": "aws-budgets-logs-528174630291",
+        "arn": "arn:aws:s3:::aws-budgets-logs-528174630291"
       },
       "object": {
-        "key": "AWSLogs/293847561023/budgets/eu-south-2/2026/06/01/budgets_LMSI74C7KB9PW8UCS3BU.log.gz"
+        "key": "AWSLogs/528174630291/budgets/us-west-2/2026/06/02/budgets_PQJ66O7GPGZKSXSGU138.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/budgets/logs",
-      "log_stream": "eu-south-2/ylm1f4o8",
-      "ingestion_time": "2026-06-01T18:12:00.466Z"
+      "log_stream": "us-west-2/d4vmelyx",
+      "ingestion_time": "2026-06-02T15:33:04.054Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["configuration", "process"],
     "dataset": "aws.budgets",
     "provider": "budgets.amazonaws.com",
-    "duration": 28000000000,
+    "duration": 22000000000,
     "module": "aws"
   },
-  "message": "{\"budgetName\":\"dev-sandbox\",\"budgetType\":\"USAGE\",\"timePeriod\":\"MONTHLY\",\"budgetLimit\":{\"amount\":9108.93,\"unit\":\"USD\"},\"actualSpend\":{\"amount\":10168.37,\"unit\":\"USD\"},\"forecastedSpend\":{\"amount\":11218.45,\"unit\":\"USD\"},\"thresholdExceeded\":true,\"thresholdPercentage\":80,\"notificationType\":\"ACTUAL\",\"subscribers\":[\"ops@company.com\"],\"alertType\":\"ACTUAL_GREATER_THAN_THRESHOLD\",\"timestamp\":\"2026-06-01T18:11:59.613Z\"}",
-  "log": { "level": "warn" },
-  "error": { "code": "BudgetExceeded", "message": "Budget threshold exceeded", "type": "billing" },
+  "message": "{\"budgetName\":\"ec2-prod\",\"budgetType\":\"COST\",\"timePeriod\":\"QUARTERLY\",\"budgetLimit\":{\"amount\":9522.44,\"unit\":\"USD\"},\"actualSpend\":{\"amount\":6722.55,\"unit\":\"USD\"},\"forecastedSpend\":{\"amount\":8679.23,\"unit\":\"USD\"},\"thresholdExceeded\":false,\"thresholdPercentage\":60,\"notificationType\":\"FORECASTED\",\"subscribers\":[\"finance@company.com\"],\"alertType\":\"OK\",\"timestamp\":\"2026-06-02T15:33:03.184Z\"}",
+  "log": { "level": "info" },
   "service": { "name": "budgets", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "wbk3f3arfkp4iymkx2b43tc0vcqwqszf151n"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "s80jlox5f3eyc3b7187rvouuqox0tspxnmvs"
   },
   "input": { "type": "http_endpoint" }
 }

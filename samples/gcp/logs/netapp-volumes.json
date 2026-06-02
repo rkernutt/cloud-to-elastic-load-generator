@@ -1,63 +1,69 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
-  "log": { "level": "info" },
+  "severity": "ERROR",
+  "log": { "level": "error" },
   "labels": {
     "resource.type": "netapp.googleapis.com/Volume",
-    "volume_name": "vol-shared-qwlq",
-    "storage_pool_name": "pool-flex-dwb",
-    "location": "us-central1",
+    "volume_name": "vol-shared-dat3",
+    "storage_pool_name": "pool-perf-l1f",
+    "location": "europe-west1",
     "api_method": "netapp.googleapis.com/v1/projects/{project}/locations/{location}/volumes.replicate"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-central1",
+    "region": "europe-west1",
     "project": { "id": "globex-dev-615094", "name": "Globex Development" },
     "account": { "id": "615094738261", "name": "Globex Development" },
     "service": { "name": "netapp.googleapis.com" }
   },
   "gcp": {
     "netapp_volumes": {
-      "volume_name": "vol-shared-qwlq",
-      "storage_pool_name": "pool-flex-dwb",
+      "volume_name": "vol-shared-dat3",
+      "storage_pool_name": "pool-perf-l1f",
       "api_method": "netapp.googleapis.com/v1/projects/{project}/locations/{location}/volumes.replicate",
-      "scenario": "mount_ok"
+      "scenario": "snapmirror_backlog"
     }
   },
   "event": {
     "kind": "event",
     "category": ["process"],
-    "type": ["info"],
+    "type": ["error"],
     "action": "extended-service",
     "dataset": "gcp.netapp_volumes",
     "module": "gcp",
-    "outcome": "success",
-    "duration": 137377
+    "outcome": "failure",
+    "duration": 593299
   },
-  "message": "NFS mount OK volume=vol-shared-qwlq pool=pool-flex-dwb smb_vs_nfs=nfs exports=7",
+  "message": "SnapMirror backlog volume=vol-shared-dat3 lag_sec=933 relationship=DR",
+  "gcp.rpc": { "status_code": "RESOURCE_EXHAUSTED" },
+  "error": {
+    "code": "RESOURCE_EXHAUSTED",
+    "message": "Quota or concurrency limit exhausted for this resource",
+    "type": "gcp"
+  },
   "service": { "name": "netapp-volumes", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.netapp_volumes", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-central1",
-    "id": "4q1l8j3jgzdamt424mvw8ao2movrdgbraaum"
+    "name": "elastic-agent-gcp-europe-west1",
+    "id": "1vix7zeivhjqbqrg0lqozpjcmo5zmxrvcvxv"
   },
   "input": { "type": "gcp-pubsub" },
   "logName": "projects/globex-dev-615094/logs/netapp-volumes",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-dev-615094", "region": "us-central1" }
+    "labels": { "project_id": "globex-dev-615094", "region": "europe-west1" }
   },
-  "insertId": "AGKAAAEDV3FF",
+  "insertId": "F2O5L11OEMI8",
   "jsonPayload": {
     "netapp_volumes": {
-      "volume_name": "vol-shared-qwlq",
-      "storage_pool_name": "pool-flex-dwb",
+      "volume_name": "vol-shared-dat3",
+      "storage_pool_name": "pool-perf-l1f",
       "api_method": "netapp.googleapis.com/v1/projects/{project}/locations/{location}/volumes.replicate",
-      "scenario": "mount_ok"
+      "scenario": "snapmirror_backlog"
     },
-    "message": "NFS mount OK volume=vol-shared-qwlq pool=pool-flex-dwb smb_vs_nfs=nfs exports=7"
+    "message": "SnapMirror backlog volume=vol-shared-dat3 lag_sec=933 relationship=DR"
   }
 }

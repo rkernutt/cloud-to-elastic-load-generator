@@ -1,63 +1,73 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "info" },
-  "severity": "INFO",
-  "labels": { "resource.type": "notebooks.googleapis.com/Instance", "instance": "wb-ml-4naof" },
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "RESOURCE_EXHAUSTED" },
+  "error": {
+    "code": "RESOURCE_EXHAUSTED",
+    "message": "RESOURCE_EXHAUSTED: operation failed",
+    "type": "gcp"
+  },
+  "severity": "ERROR",
+  "labels": {
+    "resource.type": "notebooks.googleapis.com/Instance",
+    "instance": "wb-data-4eq1j",
+    "gcp.rpc.status_code": "RESOURCE_EXHAUSTED"
+  },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west2",
-    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
-    "account": { "id": "529384716205", "name": "Globex Shared Services" },
+    "region": "asia-northeast1",
+    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
+    "account": { "id": "847293615048", "name": "Globex Security" },
     "service": { "name": "notebooks.googleapis.com" }
   },
   "gcp": {
     "vertex_ai_workbench": {
-      "instance_name": "wb-ml-4naof",
-      "machine_type": "n1-highmem-8",
-      "framework": "tensorflow",
+      "instance_name": "wb-data-4eq1j",
+      "machine_type": "a2-highgpu-1g",
+      "framework": "jax",
       "gpu_type": "NVIDIA_TESLA_T4",
       "status": "STOPPED",
-      "idle_timeout_min": 175,
-      "user_email": "agarcia@cascadeops.com"
+      "idle_timeout_min": 185,
+      "user_email": "kpatel@cascadeops.com"
     }
   },
   "event": {
     "kind": "event",
     "category": ["process"],
-    "type": ["info"],
+    "type": ["error"],
     "action": "ml-operation",
-    "outcome": "success",
-    "duration": 42304,
+    "outcome": "failure",
+    "duration": 76017,
     "module": "gcp",
     "dataset": "gcp.workbench"
   },
-  "message": "Workbench instance wb-ml-4naof status=STOPPED machine=n1-highmem-8 accelerator=NVIDIA_TESLA_T4 framework=tensorflow idle_timeout_min=175 principal=agarcia@cascadeops.com",
+  "message": "notebooks.googleapis.com/v1/projects/globex-sec-847293/locations/asia-northeast1/instances/wb-data-4eq1j: start FAILED: jax image pull timeout on a2-highgpu-1g",
   "service": { "name": "vertex-ai-workbench", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.workbench", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-west2",
-    "id": "vlfr09j2zwd5m81q1c8o17e8yhj4afydb2k0"
+    "name": "elastic-agent-gcp-asia-northeast1",
+    "id": "lqxu086v01sxwfk9c1efli93v6768282f5lo"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-529384/logs/vertex-ai-workbench",
+  "logName": "projects/globex-sec-847293/logs/vertex-ai-workbench",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-shared-529384", "region": "us-west2" }
+    "labels": { "project_id": "globex-sec-847293", "region": "asia-northeast1" }
   },
-  "insertId": "EWEFDJYTEWM2",
+  "insertId": "NMW9PZIAOIZ7",
   "jsonPayload": {
     "vertex_ai_workbench": {
-      "instance_name": "wb-ml-4naof",
-      "machine_type": "n1-highmem-8",
-      "framework": "tensorflow",
+      "instance_name": "wb-data-4eq1j",
+      "machine_type": "a2-highgpu-1g",
+      "framework": "jax",
       "gpu_type": "NVIDIA_TESLA_T4",
       "status": "STOPPED",
-      "idle_timeout_min": 175,
-      "user_email": "agarcia@cascadeops.com"
+      "idle_timeout_min": 185,
+      "user_email": "kpatel@cascadeops.com"
     },
-    "message": "Workbench instance wb-ml-4naof status=STOPPED machine=n1-highmem-8 accelerator=NVIDIA_TESLA_T4 framework=tensorflow idle_timeout_min=175 principal=agarcia@cascadeops.com"
+    "message": "notebooks.googleapis.com/v1/projects/globex-sec-847293/locations/asia-northeast1/instances/wb-data-4eq1j: start FAILED: jax image pull timeout on a2-highgpu-1g"
   }
 }

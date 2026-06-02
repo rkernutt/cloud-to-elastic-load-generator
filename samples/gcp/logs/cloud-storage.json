@@ -1,25 +1,24 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "log": { "level": "info" },
-  "severity": "NOTICE",
-  "labels": { "bucket_name": "globex-sec-847293-logs", "location": "us-central1" },
+  "severity": "DEBUG",
+  "labels": { "job_name": "transferJobs/ZDZ7PF3GTK" },
   "cloud": {
     "provider": "gcp",
-    "region": "us-central1",
-    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
-    "account": { "id": "739158264830", "name": "Globex Staging" },
-    "service": { "name": "cloud-storage" }
+    "region": "us-west3",
+    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
+    "account": { "id": "847293615048", "name": "Globex Security" },
+    "service": { "name": "storage-transfer-service" }
   },
   "gcp": {
-    "cloud_storage": {
-      "bucket_name": "globex-sec-847293-logs",
-      "object_name": "logs/t6gsesbt.bin",
-      "object_size": 353167681,
-      "storage_class": "ARCHIVE",
-      "operation": "storage.buckets.create",
-      "content_type": "image/png",
-      "generation": "1780337521967913641",
-      "requester_ip": "18.162.44.37"
+    "storage_transfer": {
+      "job_name": "transferJobs/ZDZ7PF3GTK",
+      "source_bucket": "s3://source-LIKB08",
+      "destination_bucket": "gs://globex-dev-615094-logs",
+      "bytes_transferred": 95804266563,
+      "objects_transferred": 26715706,
+      "status": "IN_PROGRESS",
+      "transfer_type": "aws-to-gcs"
     }
   },
   "event": {
@@ -28,38 +27,37 @@
     "type": ["access"],
     "action": "storage",
     "outcome": "success",
-    "duration": 229000000,
+    "duration": 147038000000,
     "module": "gcp",
-    "dataset": "gcp.gcs"
+    "dataset": "gcp.storagetransfer"
   },
-  "message": "protoPayload.methodName=\"storage.buckets.create\" protoPayload.authenticationInfo.principalEmail=\"user:jchen@globex.io\" resource.labels.bucket_name=\"globex-sec-847293-logs\" operation.id=operation-irb09xe2-n9js-gu46",
-  "service": { "name": "cloud-storage", "type": "gcp" },
+  "message": "storagetransfer.googleapis.com/transferJobs/ZDZ7PF3GTK: IN_PROGRESS aws-to-gcs bytesTransferred=95804266563 objectsTransferred=26715706",
+  "service": { "name": "storage-transfer", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.gcs", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.storagetransfer", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-central1",
-    "id": "u8fo82oc4bbqzfrs22yqjv6i74hs0rf0ik3t"
+    "name": "elastic-agent-gcp-us-west3",
+    "id": "dgdxsgqxlt5u5wo62cletk2q3rhythvrw4r1"
   },
-  "input": { "type": "gcs-input" },
-  "logName": "projects/globex-stg-739158/logs/cloud-storage",
+  "input": { "type": "gcp-pubsub" },
+  "logName": "projects/globex-sec-847293/logs/storage-transfer",
   "resource": {
-    "type": "gcs_bucket",
-    "labels": { "project_id": "globex-stg-739158", "region": "us-central1" }
+    "type": "global",
+    "labels": { "project_id": "globex-sec-847293", "region": "us-west3" }
   },
-  "insertId": "SIFLYD34JHJ4",
+  "insertId": "8OX6K4EROM2U",
   "jsonPayload": {
-    "cloud_storage": {
-      "bucket_name": "globex-sec-847293-logs",
-      "object_name": "logs/t6gsesbt.bin",
-      "object_size": 353167681,
-      "storage_class": "ARCHIVE",
-      "operation": "storage.buckets.create",
-      "content_type": "image/png",
-      "generation": "1780337521967913641",
-      "requester_ip": "18.162.44.37"
+    "storage_transfer": {
+      "job_name": "transferJobs/ZDZ7PF3GTK",
+      "source_bucket": "s3://source-LIKB08",
+      "destination_bucket": "gs://globex-dev-615094-logs",
+      "bytes_transferred": 95804266563,
+      "objects_transferred": 26715706,
+      "status": "IN_PROGRESS",
+      "transfer_type": "aws-to-gcs"
     },
-    "message": "protoPayload.methodName=\"storage.buckets.create\" protoPayload.authenticationInfo.principalEmail=\"user:jchen@globex.io\" resource.labels.bucket_name=\"globex-sec-847293-logs\" operation.id=operation-irb09xe2-n9js-gu46"
+    "message": "storagetransfer.googleapis.com/transferJobs/ZDZ7PF3GTK: IN_PROGRESS aws-to-gcs bytesTransferred=95804266563 objectsTransferred=26715706"
   }
 }
