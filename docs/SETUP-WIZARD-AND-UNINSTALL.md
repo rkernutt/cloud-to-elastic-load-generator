@@ -47,7 +47,7 @@ The Setup page groups integrations by **service category**:
 | End User & Media        | WorkSpaces, Connect, Media Services                                            |
 | Advanced Data Types     | Data & Analytics Pipeline, ServiceNow CMDB, CSPM/KSPM, chained event scenarios |
 
-Categories are collapsible, making it easy to navigate large catalogs (**233** AWS services, **137** GCP, **141** Azure — see `src/data/serviceGroups.ts` and the matching GCP/Azure service group files). AWS services are distributed across specific categories — there is no catch-all "Additional Services" group; every service belongs to a logically appropriate category.
+Categories are collapsible, making it easy to navigate large catalogs (**217** AWS services, **137** GCP, **140** Azure — see `src/data/serviceGroups.ts` and the matching GCP/Azure service group files). AWS services are distributed across specific categories — there is no catch-all "Additional Services" group; every service belongs to a logically appropriate category.
 
 ---
 

@@ -208,7 +208,7 @@ curl -X PUT "${ES_URL}/_ingest/pipeline/logs-aws.sagemaker-default" \
   -d '{"description":"Parse JSON from message field into sagemaker.parsed","processors":[{"json":{"field":"message","target_field":"sagemaker.parsed","ignore_failure":true}}]}'
 ```
 
-Pipeline definitions and target fields for all 106 services: [docs/INGEST-PIPELINE-REFERENCE.md](INGEST-PIPELINE-REFERENCE.md).
+Pipeline definitions and target fields for all 190 services: [docs/INGEST-PIPELINE-REFERENCE.md](INGEST-PIPELINE-REFERENCE.md).
 
 **Verify pipelines:** In Kibana → **Stack Management** → **Ingest Pipelines**, you should see `glue-parse-json-message` and `sagemaker-parse-json-message`.
 
@@ -279,6 +279,6 @@ After this, documents ingested into those indices will have `message` parsed int
 ## Related docs
 
 - [CLOUDWATCH-TO-INDEX-ROUTING.md](CLOUDWATCH-TO-INDEX-ROUTING.md) — How index/dataset is chosen when ingesting from CloudWatch; custom sender option.
-- [INGEST-PIPELINE-REFERENCE.md](INGEST-PIPELINE-REFERENCE.md) — Pipeline IDs, target fields, and example parsed keys for all 106 services.
+- [INGEST-PIPELINE-REFERENCE.md](INGEST-PIPELINE-REFERENCE.md) — Pipeline IDs, target fields, and example parsed keys for all 190 services.
 - [installer/README.md](../installer/README.md) — Automated pipeline installer (`npm run setup:aws-pipelines`).
 - [GLUE-METRICS-COVERAGE.md](GLUE-METRICS-COVERAGE.md) — Glue metrics and log coverage vs AWS docs (for reference; this guide is about log ingestion only).

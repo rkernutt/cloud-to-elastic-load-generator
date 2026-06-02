@@ -1,8 +1,8 @@
 # Cloud Loadgen for Elastic — Architecture Diagrams
 
-> **Catalog sizes (services · trace generators):** AWS **233 · 54**; GCP **137 · 56**; Azure **141 · 44** (see [README](../README.md)).
+> **Catalog sizes (services · trace generators):** AWS **217 · 56**; GCP **137 · 58**; Azure **140 · 52** (see [README](../README.md)).
 
-> **Installer assets (custom Kibana dashboards · ML anomaly jobs · Elasticsearch-query alert rules):** AWS **223 · 401 · 17**; GCP **135 · 182 · 17**; Azure **138 · 195 · 17** (**496** dashboards, **778** ML jobs, **243** rules total). Rules are defined in `installer/{aws,gcp,azure}-custom-rules/` (including Data & Analytics Pipeline rules plus Security Finding, IAM Privesc, and Data Exfil chains per cloud).
+> **Installer assets (custom Kibana dashboards · ML anomaly jobs · alerting rules):** AWS **223 · 401 · 115**; GCP **135 · 182 · 62**; Azure **138 · 195 · 66** (**496** dashboards, **778** ML jobs, **243** rules total). Rules are defined in `installer/{aws,gcp,azure}-custom-rules/` (including Data & Analytics Pipeline rules plus Security Finding, IAM Privesc, and Data Exfil chains per cloud).
 
 ---
 
@@ -88,11 +88,11 @@ flowchart TD
 
 ---
 
-## 3 · Service Groups (213 services)
+## 3 · Service Groups (217 services)
 
 ```mermaid
 mindmap
-  root((233 AWS Services))
+  root((217 AWS Services))
     Serverless and Core
       Lambda
       API Gateway
@@ -343,7 +343,7 @@ flowchart TD
     SWITCH -->|"Metrics"| METRICS
     SWITCH -->|"Traces"| TRACES
 
-    subgraph LOGS["Logs — 213 services"]
+    subgraph LOGS["Logs — 217 services"]
         direction TB
         L1["GENERATORS registry\nsrc/aws/generators/*.ts"]
         L2["fn(ts, er) → single ECS doc"]
@@ -351,17 +351,17 @@ flowchart TD
         L1 --> L2 --> L3
     end
 
-    subgraph METRICS["Metrics — 206 services"]
+    subgraph METRICS["Metrics — 208 services"]
         direction TB
-        M1["206 dedicated generators\nsrc/aws/generators/metrics/*.ts"]
+        M1["208 dedicated generators\nsrc/aws/generators/metrics/*.ts"]
         M2["fn(ts, er) → Object[ ] array\nCloudWatch-shaped dimensional metrics"]
         M1 --> M2
     end
 
-    subgraph TRACES["Traces — 54 generators"]
+    subgraph TRACES["Traces — 56 generators"]
         direction TB
         T1{"Trace\ntype?"}
-        T2["46 single-service traces\nLambda, S3, Glue, Bedrock ..."]
+        T2["48 single-service traces\nLambda, S3, Glue, Bedrock ..."]
         T3["6 multi-service workflows\necommerce, ML, ingestion, SNS fan-out ..."]
         T4["2 data-pipeline traces\nS3→SQS, EventBridge→Step Functions"]
         T5["fn(ts, er) → Object[ ] array\nAPM transaction + child spans"]
@@ -592,7 +592,7 @@ flowchart TD
 
     subgraph DED["Dedicated Generators"]
         direction TB
-        D1["206 dedicated generators\nsrc/aws/generators/metrics/*.ts"]
+        D1["208 dedicated generators\nsrc/aws/generators/metrics/*.ts"]
         D2["Service-specific dimensions\naws.lambda.function.name\naws.ec2.instance.id\naws.rds.db_instance.identifier"]
         D3["Service-specific metrics\nCPUUtilization · Invocations\nReadLatency · BucketSizeBytes"]
         D1 --> D2 --> D3

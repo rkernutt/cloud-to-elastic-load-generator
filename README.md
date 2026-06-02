@@ -53,9 +53,9 @@ Catalog size today:
 
 | Cloud | Services | Pipelines | Dashboards | ML jobs | Traces | Alerting rules |
 | ----- | -------- | --------- | ---------- | ------- | ------ | -------------- |
-| AWS   | 233      | 193       | 223        | 401     | 54     | 115            |
-| GCP   | 137      | 156       | 135        | 182     | 56     | 62             |
-| Azure | 141      | 133       | 138        | 195     | 44     | 66             |
+| AWS   | 217      | 193       | 223        | 401     | 56     | 115            |
+| GCP   | 137      | 156       | 135        | 182     | 58     | 62             |
+| Azure | 140      | 133       | 138        | 195     | 52     | 66             |
 
 Trace generators produce APM transactions and spans for the Elastic **Service Map**; the remaining services emit logs and metrics only — matching real-world instrumentation patterns where not every cloud service is OTel-instrumented.
 
